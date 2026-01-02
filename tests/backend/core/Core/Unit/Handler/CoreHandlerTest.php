@@ -34,7 +34,7 @@ class CoreHandlerTest extends UnitTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->coreHandler = new CoreHandler(self::$container->get(MessageBagInterface::class));
+        $this->coreHandler = new CoreHandler(self::getContainer()->get(MessageBagInterface::class));
 
         if (is_dir($this->getUploadDir().'/coreHandlerUpload_test/')) {
             $this->deleteTestDir();

@@ -28,9 +28,9 @@ export default class DonutChart {
       texts: {
         'no-data-fallback': Translator.trans('statements.none'),
         'data-names': Translator.trans('statements'),
-        'data-name': Translator.trans('statement')
+        'data-name': Translator.trans('statement'),
       },
-      target: 'body'
+      target: 'body',
     }
 
     Object.assign(this, { ...defaults, ...options })
@@ -79,7 +79,7 @@ export default class DonutChart {
         .endAngle(Math.PI * 2)
         .startAngle(percentage * Math.PI * 2)
         .innerRadius(radius - 20)
-        .outerRadius(radius)
+        .outerRadius(radius),
       )
       .attr('fill', '#ebe9e9')
 

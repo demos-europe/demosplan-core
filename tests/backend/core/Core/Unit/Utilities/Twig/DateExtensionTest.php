@@ -32,7 +32,7 @@ class DateExtensionTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->twigExtension = new DateExtension(self::$container);
+        $this->twigExtension = new DateExtension(self::getContainer());
     }
 
     public function testGetFilters()

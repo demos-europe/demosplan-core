@@ -18,13 +18,15 @@
       :label="{
         text: Translator.trans('tag')
       }"
-      required />
+      required
+    />
 
     <dp-label
       :text="Translator.trans('topic')"
       for="newTagTopic"
       class="u-mt-0_25"
-      required />
+      required
+    />
     <!-- topic select -->
     <dp-multiselect
       v-if="showSelect"
@@ -35,11 +37,13 @@
       :options="tagTopics"
       required
       selection-controls
-      track-by="id">
+      track-by="id"
+    >
       <template v-slot:beforeList>
         <button
+          class="btn--blank o-link--default weight--bold u-ph-0_5 u-pv-0_5 text-left u-1-of-1 whitespace-nowrap"
           @click="showInput"
-          class="btn--blank o-link--default weight--bold u-ph-0_5 u-pv-0_5 text-left u-1-of-1 whitespace-nowrap">
+        >
           {{ Translator.trans('topic.new') }}
         </button>
       </template>
@@ -49,19 +53,29 @@
       v-else
       id="newTagTopic"
       ref="tagTopicInput"
+      v-model="tagTopic.title"
       class="u-mb-0_5"
+      required
       @blur="handleClickOutside"
       @reset="handleReset"
-      v-model="tagTopic.title"
-      required />
+    />
+
+    <addon-wrapper
+      class="block mb-4"
+      hook-name="tag.create.form"
+      :addon-props="{
+        hasInlineNotification: false
+      }"
+    />
 
     <dp-button-row
-      align="left"
+      alignment="left"
       primary
       secondary
       variant="outline"
       @primary-action="dpValidateAction('createTag', save, false)"
-      @secondary-action="abort" />
+      @secondary-action="closeForm"
+    />
   </div>
 </template>
 
@@ -72,40 +86,46 @@ import {
   DpLabel,
   DpMultiselect,
   DpResettableInput,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
   name: 'DpCreateTag',
 
   components: {
+    AddonWrapper,
     DpButtonRow,
     DpInput,
     DpLabel,
     DpMultiselect,
-    DpResettableInput
+    DpResettableInput,
   },
 
   mixins: [dpValidateMixin],
+
+  emits: [
+    'closeCreateForm',
+  ],
 
   data () {
     return {
       showSelect: true,
       tag: {
-        title: ''
+        title: '',
       },
       tagTopic: {
         title: '',
-        id: ''
-      }
+        id: '',
+      },
     }
   },
 
   computed: {
     ...mapGetters('SplitStatement', {
       availableTags: 'availableTags',
-      availableTagTopics: 'tagTopics'
+      availableTagTopics: 'tagTopics',
     }),
 
     tagExists () {
@@ -120,22 +140,75 @@ export default {
       return this.availableTagTopics.map(topic => {
         return { title: topic.attributes.title, id: topic.id }
       })
-    }
+    },
   },
 
   methods: {
     ...mapActions('SplitStatement', [
       'createTagAction',
       'createTopicAction',
-      'updateCurrentTags'
+      'updateCurrentTags',
     ]),
 
     ...mapMutations('SplitStatement', [
-      'updateProperty'
+      'updateProperty',
     ]),
 
-    abort () {
-      this.$emit('close-create-form')
+    closeForm () {
+      this.$emit('closeCreateForm')
+    },
+
+    createTag (topicId) {
+      const tagPayload = this.prepareTagPayload()
+
+      this.createTagAction({ tag: this.tag, topicId })
+        .then((response) => {
+          const newTag = response.data.data
+
+          newTag.relationships = {
+            topic: {
+              data: {
+                id: topicId,
+                type: 'TagTopic',
+              },
+            },
+          }
+
+          // Update tags in store
+          this.updateTags(newTag)
+          this.$root.$emit('tag:created', newTag.id)
+          this.closeForm()
+        })
+        .catch(() => {
+          // Reset tags in store
+          this.updateTags(tagPayload)
+          this.closeForm()
+        })
+    },
+
+    createTopicAndTag () {
+      const tagPayload = this.prepareTagPayload()
+      const topicPayload = this.prepareTopicPayload()
+
+      this.createTopicAction(this.tagTopic)
+        .then(({ data }) => {
+          const { id, attributes } = data.data
+
+          // Add id to tagTopic in store
+          this.updateProperty({
+            prop: 'tagTopics',
+            obj: { attributes: { title: attributes.title }, id, type: 'TagTopic' },
+          })
+
+          this.createTag(id, tagPayload)
+        })
+        .catch(() => {
+          // Reset tags in store
+          this.updateTags(tagPayload)
+          // Reset tagTopics in store
+          this.updateProperty({ prop: 'tagTopics', obj: topicPayload })
+          this.closeForm()
+        })
     },
 
     /**
@@ -195,88 +268,43 @@ export default {
       return hasError
     },
 
+    prepareTagPayload () {
+      return {
+        attributes: {
+          title: this.tag.title,
+        },
+        relationships: {
+          topic: {
+            data: {
+              id: this.tagTopic.id,
+              type: 'TagTopic',
+            },
+          },
+        },
+        id: '',
+        type: 'Tag',
+      }
+    },
+
+    prepareTopicPayload () {
+      return {
+        attributes: {
+          title: this.tagTopic.title,
+        },
+        id: '',
+        type: 'TagTopic',
+      }
+    },
+
     save () {
-      // Check if tag or tagTopic exists
-      const hasError = this.handleError()
+      if (this.handleError()) return
+
       const isNewTopic = this.tagTopic.id === ''
 
-      if (!hasError) {
-        this.$emit('close-create-form')
-
-        // Prepare payload for tagTopics update
-        const topic = {
-          attributes: {
-            title: this.tagTopic.title
-          },
-          id: '',
-          type: 'TagTopic'
-        }
-
-        // Prepare payload for availableTags update
-        const newTag = {
-          attributes: {
-            title: this.tag.title
-          },
-          relationships: {
-            topic: {
-              data: {
-                id: this.tagTopic.id,
-                type: 'TagTopic'
-              }
-            }
-          },
-          id: '',
-          type: 'Tag'
-        }
-
-        // Optimistic update: add tag to store
-        this.updateTags(newTag)
-
-        // If topic doesn't exist yet, create it
-        if (isNewTopic) {
-          // Optimistic update: add tagTopic to store
-          this.updateProperty({ prop: 'tagTopics', obj: topic })
-
-          this.createTopicAction(this.tagTopic)
-            .then((response) => {
-              const topicId = response.data.data.id
-              // Add id to tagTopic in store
-              this.updateProperty({ prop: 'tagTopics', obj: { attributes: { title: response.data.data.attributes.title }, id: topicId, type: 'TagTopic' } })
-              this.createTagAction({ tag: this.tag, topicId })
-                .then((response) => {
-                  const tagResource = response.data.data
-                  tagResource.relationships = {
-                    topic: {
-                      data: {
-                        id: topicId,
-                        type: 'TagTopic'
-                      }
-                    }
-                  }
-                  this.updateTags(tagResource)
-                })
-                .catch(() => {
-                  // Reset tags in store
-                  this.updateTags(newTag)
-                })
-            })
-            .catch(() => {
-              // Reset tags in store
-              this.updateTags(newTag)
-              // Reset tagTopics in store
-              this.updateProperty({ prop: 'tagTopics', obj: topic })
-            })
-        } else {
-          this.createTagAction({ tag: this.tag, topicId: this.tagTopic.id })
-            .then((response) => {
-              const updatedAvailableTag = response.data.data
-              this.updateTags(updatedAvailableTag)
-            })
-            .catch(() => {
-              // Reset tags in store
-              this.updateTags(newTag)
-            })
-        }
+      if (isNewTopic) {
+        this.createTopicAndTag()
+      } else {
+        this.createTag(this.tagTopic.id)
       }
     },
 
@@ -316,7 +344,7 @@ export default {
       this.updateProperty({ prop: 'availableTags', obj: tag })
       this.updateCurrentTags({ tagName: tag.attributes.title, id: tag.id })
       this.updateProperty({ prop: 'categorizedTags', obj: tag })
-    }
-  }
+    },
+  },
 }
 </script>

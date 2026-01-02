@@ -89,10 +89,10 @@ class SecurityUserTest extends TestCase
         $this->assertEquals($expectedAuthCode, $user->getEmailAuthCode());
     }
 
-    public function testAuthCodeIsNull()
+    public function testAuthCodeIsNull(): void
     {
         $user = new User();
-        $this->assertNull($user->getEmailAuthCode());
+        $this->assertEmpty($user->getEmailAuthCode());
     }
 
     private function getSecurityUser(array $roles = ['ROLE_ADMIN', 'ROLE_USER']): SecurityUser

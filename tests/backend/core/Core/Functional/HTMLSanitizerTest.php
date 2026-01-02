@@ -15,10 +15,15 @@ use Tests\Base\FunctionalTestCase;
 
 class HTMLSanitizerTest extends FunctionalTestCase
 {
+    /**
+     * @var HTMLSanitizer
+     */
+    protected $sut;
+
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sut = self::$container->get(HTMLSanitizer::class);
+        $this->sut = self::getContainer()->get(HTMLSanitizer::class);
     }
 
     public function testWysiwygFilter()

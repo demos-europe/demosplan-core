@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,12 +21,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:files:move', description: 'Move files from one flysystem storage to another. Supports "local" and "s3" storage')]
 class MoveFilesCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:files:move';
-
-    protected static $defaultDescription = 'Move files from one flysystem storage to another. Supports "local" and "s3" storage';
-
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly FilesystemOperator $s3Storage,
@@ -58,6 +56,7 @@ class MoveFilesCommand extends CoreCommand
         $sourceStorage = 'local' === $source ? $this->localStorage : $this->s3Storage;
         $targetStorage = 'local' === $target ? $this->localStorage : $this->s3Storage;
 
+        $filesTotal = 0;
         $filesMoved = 0;
         try {
             $files = $sourceStorage->listContents('/', true);
@@ -74,14 +73,30 @@ class MoveFilesCommand extends CoreCommand
 
                 try {
                     $sourceStream = $sourceStorage->readStream($file->path());
-                    if (!$targetStorage->fileExists($file->path())) {
+
+                    // Check if file exists in target, skip existence check on error (assume doesn't exist)
+                    $fileExistsInTarget = false;
+                    try {
+                        $fileExistsInTarget = $targetStorage->fileExists($file->path());
+                    } catch (FilesystemException $existsCheckException) {
+                        $output->writeln(sprintf(
+                            '<comment>Warning: Could not check existence of %s (assuming not exists): %s</comment>',
+                            $file->path(),
+                            $existsCheckException->getMessage()
+                        ), OutputInterface::VERBOSITY_VERBOSE);
+                    }
+
+                    if (!$fileExistsInTarget) {
                         $output->writeln(sprintf('Move %s %s ', $file->type(), $file->path()));
                         $targetStorage->writeStream($file->path(), $sourceStream);
                         if (!$noDelete) {
                             $sourceStorage->delete($file->path());
                         }
+                        ++$filesMoved;
+                    } else {
+                        $output->writeln(sprintf('Skip %s %s (already exists)', $file->type(), $file->path()), OutputInterface::VERBOSITY_VERBOSE);
                     }
-                    ++$filesMoved;
+                    ++$filesTotal;
                 } catch (FilesystemException $e) {
                     $output->error('Could not move file '.$file->path().' '.$e->getMessage());
                 }
@@ -92,6 +107,7 @@ class MoveFilesCommand extends CoreCommand
             return Command::FAILURE;
         }
 
+        $output->info(sprintf('Number of files: %d', $filesTotal));
         $output->info(sprintf('Successfully moved %d files from %s to %s', $filesMoved, $source, $target));
 
         return Command::SUCCESS;

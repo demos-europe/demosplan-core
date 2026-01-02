@@ -13,18 +13,23 @@
       v-if="allComponentsLoaded"
       :active-id="activeTabId"
       use-url-fragment
-      @change="setActiveTabId">
+      @change="setActiveTabId"
+    >
       <dp-tab
         v-for="(option, index) in availableImportOptions"
-        :key="index"
         :id="option.name"
-        :label="Translator.trans(option.title)">
+        :key="index"
+        :is-active="activeTabId === option.name"
+        :label="Translator.trans(option.title)"
+      >
         <slot>
           <keep-alive>
             <component
-              class="u-mt"
               :is="option.name"
-              :csrf-token="csrfToken" />
+              class="u-mt"
+              :demosplan-ui="demosplanUi"
+              :csrf-token="csrfToken"
+            />
           </keep-alive>
         </slot>
       </dp-tab>
@@ -32,15 +37,18 @@
 
     <dp-loading
       v-else
-      class="u-mv" />
+      class="u-mv"
+    />
   </div>
 </template>
 
 <script>
-import { checkResponse, DpLoading, dpRpc, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
+import * as demosplanUi from '@demos-europe/demosplan-ui'
+import { DpLoading, dpRpc, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
 import ParticipationImport from './ParticipationImport/ParticipationImport'
+import { shallowRef } from 'vue'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
 
 export default {
@@ -53,7 +61,7 @@ export default {
     DpTabs,
     ExcelImport,
     ParticipationImport,
-    StatementFormImport
+    StatementFormImport,
   },
 
   provide () {
@@ -63,56 +71,57 @@ export default {
       procedureId: this.procedureId,
       submitTypeOptions: this.submitTypeOptions,
       tags: this.tags,
-      usedInternIds: this.usedInternIds
+      usedInternIds: this.usedInternIds,
     }
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentUserId: {
       type: String,
-      required: true
+      required: true,
     },
 
     newestInternId: {
       type: String,
       required: false,
-      default: '-'
+      default: '-',
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     tags: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     usedInternIds: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
     return {
       activeTabId: '',
       allComponentsLoaded: false,
-      asyncComponents: []
+      asyncComponents: [],
+      demosplanUi: shallowRef(demosplanUi),
     }
   },
 
@@ -122,22 +131,22 @@ export default {
         {
           name: ExcelImport.name,
           permissions: ['feature_statements_import_excel', 'feature_segments_import_excel'],
-          title: 'import.options.xls'
+          title: 'import.options.xls',
         },
         {
           name: StatementFormImport.name,
           permissions: ['feature_simplified_new_statement_create'],
-          title: 'import.options.form'
+          title: 'import.options.form',
         },
         {
           name: ParticipationImport.name,
           permissions: ['feature_statements_participation_import_excel'],
-          title: 'import.options.participation'
-        }
+          title: 'import.options.participation',
+        },
       ].filter((component) => {
         return hasAnyPermissions(component.permissions)
       }).concat(this.asyncComponents)
-    }
+    },
   },
 
   methods: {
@@ -153,13 +162,12 @@ export default {
 
     loadComponents (hookName) {
       const params = {
-        hookName
+        hookName,
       }
 
       return dpRpc('addons.assets.load', params)
-        .then(response => checkResponse(response))
-        .then(response => {
-          const result = response[0].result
+        .then(({ data }) => {
+          const result = data[0].result
 
           for (const key of Object.keys(result)) {
             const addon = result[key]
@@ -176,11 +184,11 @@ export default {
 
             this.asyncComponents.push({
               name: addon.entry,
-              title: addon.options.title
+              title: addon.options.title,
             })
           }
         })
-    }
+    },
   },
 
   mounted () {
@@ -193,6 +201,6 @@ export default {
         this.allComponentsLoaded = true
         this.setActiveTabId()
       })
-  }
+  },
 }
 </script>

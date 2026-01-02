@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -22,19 +22,18 @@ use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 
 class GenericRpcController extends BaseController
 {
-    /**
-     * @DplanPermissions("feature_json_rpc_post")
-     */
-    #[Route(path: '/rpc/2.0/', methods: ['POST'], name: 'rpc_generic_post', options: ['expose' => true])]
-    public function postAction(
+    #[DplanPermissions('feature_json_rpc_post')]
+    #[Route(path: '/rpc/2.0', methods: ['POST'], name: 'rpc_generic_post', options: ['expose' => true])]
+    public function post(
         CurrentProcedureService $currentProcedureService,
         Request $request,
         RpcErrorGenerator $errorGenerator,
-        RpcMethodSolverStrategy $rpcMethodSolverStrategy
+        RpcMethodSolverStrategy $rpcMethodSolverStrategy,
     ): JsonResponse {
         try {
             $procedure = $currentProcedureService->getProcedure();
@@ -52,19 +51,19 @@ class GenericRpcController extends BaseController
 
     private function handleException(
         RpcErrorGenerator $errorGenerator,
-        Exception $e
+        Exception $e,
     ): JsonResponse {
         $this->logger->error('RPC Route Exception', [$e]);
 
         if ($e instanceof InvalidSchemaException
             || $e instanceof InvalidArgumentException
             || $e instanceof JsonException) {
-            return new JsonResponse($errorGenerator->parseError(), 400);
+            return new JsonResponse($errorGenerator->parseError(), Response::HTTP_BAD_REQUEST);
         }
         if ($e instanceof AccessDeniedException) {
-            return new JsonResponse($errorGenerator->accessDenied(), 403);
+            return new JsonResponse($errorGenerator->accessDenied(), Response::HTTP_FORBIDDEN);
         }
 
-        return new JsonResponse($errorGenerator->serverError(), 500);
+        return new JsonResponse($errorGenerator->serverError(), Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 }

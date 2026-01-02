@@ -22,7 +22,7 @@ export default function convertExtentToFlatArray (extent) {
       extent.start.latitude,
       extent.start.longitude,
       extent.end.latitude,
-      extent.end.longitude
+      extent.end.longitude,
     ]
   }
 

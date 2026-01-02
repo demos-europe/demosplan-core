@@ -4,29 +4,37 @@
       ref="editableList"
       :entries="contacts"
       :translation-keys="translationKeys"
+      @delete="deleteEntry"
       @reset="resetForm"
-      @saveEntry="id => dpValidateAction('contactData', () => createOrUpdateContact(id), false)">
+      @save-entry="id => dpValidateAction('contactData', () => createOrUpdateContact(id), false)"
+      @show-update-form="showUpdateForm"
+    >
       <template v-slot:list="contact">
         <h3
           class="break-words"
-          v-text="contact.attributes.title" />
+          v-text="contact.attributes.title"
+        />
         <p
           class="break-words"
-          v-text="contact.attributes.phoneNumber" />
+          v-text="contact.attributes.phoneNumber"
+        />
         <p
           class="break-words"
-          v-text="contact.attributes.eMailAddress" />
+          v-text="contact.attributes.eMailAddress"
+        />
         <template v-html="contact.attributes.text" />
         <dp-badge
           class="color--white rounded-full whitespace--nowrap bg-color--grey u-mt-0_125"
           size="smaller"
-          :text="Translator.trans(contact.attributes.visible ? 'visible' : 'visible.not')" />
+          :text="Translator.trans(contact.attributes.visible ? 'visible' : 'visible.not')"
+        />
       </template>
       <template v-slot:form>
         <div
           id="contactForm"
           data-dp-validate="contactData"
-          class="space-stack-s space-inset-s border">
+          class="space-stack-s space-inset-s border"
+        >
           <p class="lbl">
             {{ Translator.trans(updating ? 'contact.change' : 'contact.new') }}:
           </p>
@@ -35,13 +43,14 @@
             v-model="customerContact.title"
             class="u-mb-0_75"
             data-cy="contactTitle"
-            :pattern="titlesInUsePattern"
             :data-dp-validate-error="Translator.trans(customerContact.title === '' ? 'error.name.required' : 'error.name.unique')"
             :label="{
               text: Translator.trans('contact.name')
             }"
+            :pattern="titlesInUsePattern"
             required
-            type="text" />
+            type="text"
+          />
           <dp-input
             id="phoneNumber"
             v-model="customerContact.phoneNumber"
@@ -54,7 +63,8 @@
             }"
             pattern="^(\+?)(-| |[0-9]|\(|\))*$"
             required
-            type="tel" />
+            type="tel"
+          />
           <dp-input
             id="emailAddress"
             v-model="customerContact.eMailAddress"
@@ -64,24 +74,27 @@
             :label="{
               text: Translator.trans('email.address')
             }"
-            type="email" />
+            type="email"
+          />
           <dp-editor
             id="supportText"
-            class="u-mb-0_75"
             v-model="customerContact.text"
+            class="u-mb-0_75"
             hidden-input="supportText"
             :toolbar-items="{
               fullscreenButton: true,
               headings: [2,3,4],
               linkButton: true
-            }" />
+            }"
+          />
           <dp-checkbox
             id="contactVisible"
             v-model="customerContact.visible"
             data-cy="contactVisible"
             :label="{
               text: Translator.trans('contact.visible')
-            }" />
+            }"
+          />
         </div>
       </template>
     </dp-editable-list>
@@ -97,7 +110,7 @@ const emptyCustomer = {
   phoneNumber: '',
   eMailAddress: '',
   text: '',
-  visible: false
+  visible: false,
 }
 export default {
   name: 'CustomerSettingsSupport',
@@ -107,7 +120,7 @@ export default {
     DpCheckbox,
     DpEditableList,
     DpEditor,
-    DpInput
+    DpInput,
   },
 
   mixins: [dpValidateMixin],
@@ -122,15 +135,15 @@ export default {
         abort: Translator.trans('abort'),
         update: Translator.trans('contact.update'),
         noEntries: Translator.trans('contact.no_entries'),
-        delete: Translator.trans('contact.delete')
+        delete: Translator.trans('contact.delete'),
       },
-      updating: false
+      updating: false,
     }
   },
 
   computed: {
     ...mapState('CustomerContact', {
-      contacts: 'items'
+      contacts: 'items',
     }),
 
     titlesInUsePattern () {
@@ -139,7 +152,7 @@ export default {
         .map(contact => contact.attributes.title)
 
       return `^(?!(?:${usedTitle.join('|')})$)`
-    }
+    },
   },
 
   methods: {
@@ -147,11 +160,11 @@ export default {
       createContact: 'create',
       fetchContacts: 'list',
       deleteContact: 'delete',
-      saveContact: 'save'
+      saveContact: 'save',
     }),
 
     ...mapMutations('CustomerContact', {
-      updateContact: 'setItem'
+      updateContact: 'setItem',
     }),
 
     reset () {
@@ -168,8 +181,8 @@ export default {
           phoneNumber: this.customerContact.phoneNumber ?? null,
           text: this.customerContact.text ?? null,
           visible: this.customerContact.visible,
-          eMailAddress: this.customerContact.eMailAddress ?? null
-        }
+          eMailAddress: this.customerContact.eMailAddress ?? null,
+        },
       }
 
       if (id === 'new') {
@@ -188,6 +201,13 @@ export default {
       this.resetForm()
     },
 
+    deleteEntry (id) {
+      this.deleteContact(id).then(() => {
+        this.getContacts()
+        dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
+      })
+    },
+
     getContacts () {
       this.fetchContacts({
         fields: {
@@ -196,15 +216,23 @@ export default {
             'phoneNumber',
             'text',
             'visible',
-            'eMailAddress'
-          ].join()
-        }
+            'eMailAddress',
+          ].join(),
+        },
       })
     },
 
     resetForm () {
       this.customerContact = { ...emptyCustomer }
       this.updating = false
+    },
+
+    showUpdateForm (index) {
+      this.updateForm(index)
+
+      this.$nextTick(() => {
+        document.getElementById('contactForm').scrollIntoView()
+      })
     },
 
     updateForm (id) {
@@ -217,26 +245,13 @@ export default {
         eMailAddress: currentData.eMailAddress ?? '',
         text: currentData.text ?? '',
         visible: currentData.visible,
-        id
+        id,
       }
-    }
+    },
   },
 
   mounted () {
-    this.$on('showUpdateForm', (index) => {
-      this.updateForm(index)
-      this.$nextTick(() => {
-        document.getElementById('contactForm').scrollIntoView()
-      })
-    })
-
-    this.$on('delete', (id) => {
-      this.deleteContact(id).then(() => {
-        dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
-      })
-    })
-
     this.getContacts()
-  }
+  },
 }
 </script>

@@ -53,45 +53,48 @@
 <template>
   <span ref="rootElement">
     <button
-      type="button"
-      @click="toggle"
-      data-cy="editButtonDesc"
       v-tooltip="{
-        classes: this.tooltipClass,
+        classes: tooltipClass,
         content: Translator.trans('explanation.territory.help.edit',{ editTool: Translator.trans('map.territory.tools.edit') })
       }"
+      type="button"
+      data-cy="editButtonDesc"
       class="btn--blank u-ml-0_5 o-link--default weight--bold"
-      :class="{ 'color-highlight' : currentlyActive }">
+      :class="{ 'color-highlight' : currentlyActive }"
+      @click="toggle"
+    >
       <slot name="editButtonDesc">
         {{ Translator.trans('map.territory.tools.edit') }}
       </slot>
     </button>
     <button
-      type="button"
-      @click="removeFeature"
-      data-cy="removeButtonDesc"
       v-tooltip="{
-        classes: this.tooltipClass,
+        classes: tooltipClass,
         content: Translator.trans('explanation.territory.help.delete.selected', {
           deleteSelectedTool: Translator.trans('map.territory.tools.removeSelected'),
           editTool: Translator.trans('map.territory.tools.edit')
         })
       }"
+      type="button"
+      data-cy="removeButtonDesc"
       class="btn--blank u-ml-0_5 weight--bold"
-      :class="disabled ? 'color--grey-light cursor-default' : 'o-link--default'">
+      :class="disabled ? 'color--grey-light cursor-default' : 'o-link--default'"
+      @click="removeFeature"
+    >
       <slot name="removeButtonDesc">
         {{ Translator.trans('map.territory.tools.removeSelected') }}
       </slot>
     </button>
     <button
-      type="button"
-      @click="clearAll"
-      data-cy="removeAllButtonDesc"
       v-tooltip="{
-        classes: this.tooltipClass,
+        classes: tooltipClass,
         content: Translator.trans('explanation.territory.help.delete.all', { deleteAllTool: Translator.trans('map.territory.tools.removeAll') })
       }"
-      class="btn--blank u-ml-0_5 o-link--default weight--bold">
+      type="button"
+      data-cy="removeAllButtonDesc"
+      class="btn--blank u-ml-0_5 o-link--default weight--bold"
+      @click="clearAll"
+    >
       <slot name="removeAllButtonDesc">
         {{ Translator.trans('map.territory.tools.removeAll') }}
       </slot>
@@ -115,27 +118,31 @@ export default {
     name: {
       required: false,
       type: String,
-      default: uuid()
+      default: uuid(),
     },
 
     // Required to target a Layer with Vector-Featurs
     target: {
       required: true,
-      type: [String, Array]
+      type: [String, Array],
     },
 
     initActive: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     defaultControl: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
+
+  emits: [
+    'setDrawingActive',
+  ],
 
   data () {
     return {
@@ -152,7 +159,7 @@ export default {
           }
 
           return true
-        }
+        },
       }),
       modifyInteraction: null,
       currentlyActive: this.initActive,
@@ -160,7 +167,7 @@ export default {
       layerNameOfSelectedFeature: '',
       disabled: true,
       zIndexUltimate: false,
-      targets: Array.isArray(this.target) ? this.target : [this.target]
+      targets: Array.isArray(this.target) ? this.target : [this.target],
     }
   },
 
@@ -171,7 +178,7 @@ export default {
 
     map () {
       return this.olMapState.map
-    }
+    },
   },
 
   methods: {
@@ -280,7 +287,7 @@ export default {
       this.$nextTick(() => {
         this.map.render()
       })
-    }
+    },
   },
 
   mounted () {
@@ -294,6 +301,6 @@ export default {
     if (this.getZIndex(this.$refs.rootElement) > 9999) {
       this.zIndexUltimate = true
     }
-  }
+  },
 }
 </script>

@@ -28,7 +28,7 @@ use Twig\Error\SyntaxError;
 /**
  * Class EntityContentChangeDisplayService.
  */
-class EntityContentChangeDisplayService extends CoreService
+class EntityContentChangeDisplayService
 {
     /** @var EntityContentChangeService */
     protected $entityContentChangeService;
@@ -46,7 +46,7 @@ class EntityContentChangeDisplayService extends CoreService
         EntityContentChangeService $entityContentChangeService,
         private readonly EntityContentChangeRepository $entityContentChangeRepository,
         Environment $twig,
-        private readonly RepositoryHelper $repositoryHelper
+        private readonly RepositoryHelper $repositoryHelper,
     ) {
         $this->entityContentChangeRollbackVersionService = $entityContentChangeRollbackVersionService;
         $this->entityContentChangeService = $entityContentChangeService;
@@ -102,6 +102,15 @@ class EntityContentChangeDisplayService extends CoreService
         $listOfDiffs = $this->entityContentChangeRepository->getDescListOfObjects($entityContentChange);
         $fieldName = $entityContentChange->getEntityField();
         $entityType = $entityContentChange->getEntityType();
+
+        if ($entityContentChange->isCustomFieldChange()) {
+            return $this->generateHtmlFormattedDiffComparisonOfTwoStrings(
+                $entityContentChange->getPreUpdate(),
+                $entityContentChange->getPostUpdate(),
+                $fieldName,
+                $entityType
+            );
+        }
 
         // step 1: get the value stored in the parent entities. for example, assignee id or text
         /** @var CoreEntity $currentObject */

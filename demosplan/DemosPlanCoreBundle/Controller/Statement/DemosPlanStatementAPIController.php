@@ -19,7 +19,7 @@ use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -55,7 +55,7 @@ use League\Fractal\Resource\Collection;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Uuid;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -96,14 +96,13 @@ class DemosPlanStatementAPIController extends APIController
     /**
      * Copy Statement into (another) procedure.
      *
-     * @DplanPermissions("feature_statement_copy_to_procedure")
-     *
      * @return APIResponse|JsonResponse
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('feature_statement_copy_to_procedure')]
     #[Route(path: '/api/1.0/statements/{statementId}/copy/{procedureId}', methods: ['POST'], name: 'dplan_api_statement_copy_to_procedure', options: ['expose' => true])]
-    public function copyStatementAction(ProcedureHandler $procedureHandler, Request $request, StatementHandler $statementHandler, string $statementId)
+    public function copyStatement(ProcedureHandler $procedureHandler, Request $request, StatementHandler $statementHandler, string $statementId): APIResponse
     {
         try {
             $targetProcedureId = $request->query->get('targetProcedureId');
@@ -111,7 +110,7 @@ class DemosPlanStatementAPIController extends APIController
             $targetProcedure = $procedureHandler->getProcedureWithCertainty($targetProcedureId);
             $statementToCopy = $statementHandler->getStatement($statementId);
 
-            if (null === $statementToCopy) {
+            if (!$statementToCopy instanceof Statement) {
                 throw new Exception('CopyStatement: Could not find Statement ID: '.$statementId);
             }
 
@@ -157,6 +156,7 @@ class DemosPlanStatementAPIController extends APIController
                     'data'    => [
                         'movedStatementId'       => $copiedStatement->getId(),
                         'movedToProcedureId'     => $copiedStatement->getProcedureId(),
+                        'movedToProcedureName'   => $copiedStatement->getProcedure()->getName(),
                         'placeholderStatementId' => $copiedStatement->isPlaceholder() ? $copiedStatement->getPlaceholderStatement()->getId() : $copiedStatement->getId(),
                     ],
                 ];
@@ -187,20 +187,19 @@ class DemosPlanStatementAPIController extends APIController
 
     // @improve T12984
     /**
-     * @DplanPermissions("feature_statement_move_to_procedure")
-     *
      * @return APIResponse|JsonResponse
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('feature_statement_move_to_procedure')]
     #[Route(path: '/api/1.0/statements/{statementId}/move/{procedureId}', methods: ['POST'], name: 'dplan_api_statement_move', options: ['expose' => true])]
-    public function moveStatementAction(
+    public function moveStatement(
         CurrentProcedureService $currentProcedureService,
         ProcedureHandler $procedureHandler,
         Request $request,
         StatementHandler $statementHandler,
         StatementMover $statementMover,
-        string $statementId)
+        string $statementId): APIResponse
     {
         try {
             $targetProcedureId = $request->query->get('targetProcedureId'); // fix T13442:
@@ -211,7 +210,7 @@ class DemosPlanStatementAPIController extends APIController
             }
             $targetProcedure = $procedureHandler->getProcedureWithCertainty($targetProcedureId);
             $statementToMove = $statementHandler->getStatement($statementId);
-            if (null === $statementToMove) {
+            if (!$statementToMove instanceof Statement) {
                 throw new Exception('MoveStatement: Could not find Statement ID: '.$statementId);
             } // In case of statement will be moved to his "origin" procedure,
             // the statement will be not longer marked as moved statement.
@@ -260,6 +259,7 @@ class DemosPlanStatementAPIController extends APIController
                     'data'    => [
                         'movedStatementId'       => $movedStatement->getId(),
                         'movedToProcedureId'     => $movedStatement->getProcedureId(),
+                        'movedToProcedureName'   => $movedStatement->getProcedure()->getName(),
                         'placeholderStatementId' => $movedStatement->isPlaceholder() ? $movedStatement->getPlaceholderStatement()->getId() : $movedStatement->getId(),
                     ],
                 ];
@@ -285,12 +285,11 @@ class DemosPlanStatementAPIController extends APIController
     /**
      * @param string $statementId
      *
-     * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @return JsonResponse
      */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(path: '/api/1.0/statements/{procedureId}/{statementId}/edit', methods: ['POST'], name: 'dplan_api_statement_edit', options: ['expose' => true])]
-    public function editStatementAction(StatementService $statementService, ValidatorInterface $validator, $statementId)
+    public function editStatement(StatementService $statementService, ValidatorInterface $validator, $statementId): APIResponse
     {
         try {
             // quick and dirty validation that the frontend send the statementId as UUID
@@ -383,11 +382,9 @@ class DemosPlanStatementAPIController extends APIController
     }
 
     // @improve T12984
-    /**
-     * @DplanPermissions("area_admin_assessmenttable")
-     */
-    #[Route(path: '/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}/', methods: ['GET'], name: 'dplan_assessmentqueryhash_get_procedure_statement_list', options: ['expose' => true])]
-    public function listAction(
+    #[DplanPermissions('area_admin_assessmenttable')]
+    #[Route(path: '/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}', methods: ['GET'], name: 'dplan_assessmentqueryhash_get_procedure_statement_list', options: ['expose' => true])]
+    public function list(
         AssessmentHandler $assessmentHandler,
         HashedQueryService $filterSetService,
         JsonApiPaginationParser $paginationParser,
@@ -406,7 +403,7 @@ class DemosPlanStatementAPIController extends APIController
             $filterSetHash = $hashNew->getHash();
 
             $pagination = $paginationParser->parseApiPaginationProfile(
-                $this->request->query->get('page', []),
+                $this->request->query->all('page'),
                 $this->request->query->get('sort', ''),
                 25
             );
@@ -470,12 +467,11 @@ class DemosPlanStatementAPIController extends APIController
      * Creates a new Statements cluster for current procedure.
      * HeadStatement and Statements to be used for the cluster are received in the requestBody.
      *
-     * @DplanPermissions("area_admin_assessmenttable","feature_statement_cluster")
-     *
      * @throws MessageBagException
      */
+    #[DplanPermissions(['area_admin_assessmenttable', 'feature_statement_cluster'])]
     #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', methods: ['POST'], name: 'dplan_api_create_group_statement', options: ['expose' => true])]
-    public function createGroupStatementAction(StatementHandler $statementHandler, string $procedureId): APIResponse
+    public function createGroupStatement(StatementHandler $statementHandler, string $procedureId): APIResponse
     {
         try {
             /** @var ResourceObject $resourceObject */
@@ -514,12 +510,11 @@ class DemosPlanStatementAPIController extends APIController
      * Updates an existing Statements cluster in current procedure.
      * Cluster and Statements to be used are received in the requestBody.
      *
-     * @DplanPermissions("area_admin_assessmenttable","feature_statement_cluster")
-     *
      * @throws MessageBagException
      */
+    #[DplanPermissions(['area_admin_assessmenttable', 'feature_statement_cluster'])]
     #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', methods: ['PATCH'], name: 'dplan_api_update_group_statement', options: ['expose' => true])]
-    public function updateGroupStatementAction(StatementHandler $statementHandler, string $procedureId): APIResponse
+    public function updateGroupStatement(StatementHandler $statementHandler, string $procedureId): APIResponse
     {
         try {
             /** @var ResourceObject $resourceObject */
@@ -563,14 +558,13 @@ class DemosPlanStatementAPIController extends APIController
      * <li>User sent claim and edit action together for one or more unclaimed statements
      * </ul>
      *
-     * @DplanPermissions("area_admin_assessmenttable","feature_statement_bulk_edit")
-     *
      * @return JsonResponse
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions(['area_admin_assessmenttable', 'feature_statement_bulk_edit'])]
     #[Route(path: '/api/1.0/statements/{procedureId}/statements/bulk-edit', methods: ['POST'], name: 'dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', options: ['expose' => true])]
-    public function statementBulkEditApiAction(StatementService $statementService, ValidatorInterface $validator, string $procedureId)
+    public function statementBulkEditApi(StatementService $statementService, ValidatorInterface $validator, string $procedureId): APIResponse
     {
         try {
             if (!$this->requestData instanceof TopLevel) {
@@ -644,7 +638,7 @@ class DemosPlanStatementAPIController extends APIController
                         $this->messageBag->add('error', $violation->getMessage());
                     }
 
-                    return $this->handleApiError(new InvalidDataException());
+                    return $this->handleApiError(new InvalidDataException('Validation failed for statement bulk edit'));
                 } catch (Exception $e) {
                     $this->messageBag->addChoice(
                         'error',
@@ -661,7 +655,7 @@ class DemosPlanStatementAPIController extends APIController
                 }
             }
 
-            return $this->handleApiError(new InvalidDataException());
+            return $this->handleApiError(new InvalidDataException('Invalid data for statement bulk edit'));
         } catch (Exception $e) {
             $this->messageBag->add('error', 'bulk.edit.assign.failure');
 
@@ -690,7 +684,7 @@ class DemosPlanStatementAPIController extends APIController
         }
         // fill remaining parameters with old values
         $oldFilterSet = $filterSetService->findHashedQueryWithHash($filterSetHash);
-        if (null === $oldFilterSet) {
+        if (!$oldFilterSet instanceof HashedQuery) {
             $oldFilterSet = $assessmentHandler->handleFilterHash($request, $procedureId, $filterSetHash);
         }
         /** @var AssessmentTableQuery $oldAssessmentQuery */

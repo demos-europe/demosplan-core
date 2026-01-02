@@ -70,7 +70,7 @@
                         {# image is represented as css background image to keep square proportions in fluid context #}
                         {% if newsItem.picture is defined and newsItem.picture != "" %}
                             <div class="{{ 'o-box__thumbnail'|prefixClass }}"
-                                style="background-image: url( {{ path("core_logo", { 'hash': newsItem.picture|getFile('hash') }) }} );">
+                                style="background-image: url( {{ path("core_logo", { 'hash': newsItem.picture|getFile('hash') }) }} );" nonce="{{ csp_nonce('style') }}">
                             </div>
                         {% endif %}
 

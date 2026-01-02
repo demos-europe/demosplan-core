@@ -11,18 +11,17 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Customer;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Exception;
 
-class CustomerDeleter extends CoreService
+class CustomerDeleter
 {
     public function __construct(
         private readonly SqlQueriesService $queriesService,
         private readonly ProcedureRepository $procedureRepository,
-        private readonly ProcedureDeleter $procedureDeleter
+        private readonly ProcedureDeleter $procedureDeleter,
     ) {
     }
 
@@ -52,6 +51,8 @@ class CustomerDeleter extends CoreService
 
         // delete faq categories
         $this->deleteFaqCategories($customerId, $isDryRun);
+
+        $this->deleteInstitutionTagCategories($customerId, $isDryRun);
 
         // delete customer counties
         $this->deleteCustomerCounties($customerId, $isDryRun);
@@ -151,7 +152,7 @@ class CustomerDeleter extends CoreService
             ),
             'branding_id'
         );
-        if (0 < count($brandingIdUniqueArray)) {
+        if ([] !== $brandingIdUniqueArray) {
             // get branding logo fileId
             $fileIds = array_column(
                 $this->queriesService->fetchFromTableByParameter(
@@ -162,7 +163,7 @@ class CustomerDeleter extends CoreService
                 ),
                 'logo'
             );
-            if (0 < count($fileIds)) {
+            if ([] !== $fileIds) {
                 // delete logo if present
                 $this->queriesService->deleteFromTableByIdentifierArray(
                     '_files',
@@ -281,6 +282,38 @@ class CustomerDeleter extends CoreService
             'support_contact',
             'customer',
             [$customerId],
+            $isDryRun
+        );
+    }
+
+    private function deleteInstitutionTagCategories(string $customerId, bool $isDryRun): void
+    {
+        $this->deleteInstitutionTags($customerId, $isDryRun);
+
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'institution_tag_category',
+            'customer_id',
+            [$customerId],
+            $isDryRun
+        );
+    }
+
+    private function deleteInstitutionTags(string $customerId, bool $isDryRun): void
+    {
+        $categoryIds = array_column(
+            $this->queriesService->fetchFromTableByParameter(
+                ['id'],
+                'institution_tag_category',
+                'customer_id',
+                [$customerId]
+            ),
+            'id'
+        );
+
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'institution_tag',
+            'category_id',
+            $categoryIds,
             $isDryRun
         );
     }

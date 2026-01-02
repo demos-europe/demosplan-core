@@ -10,9 +10,10 @@
 <template>
   <ul class="o-list space-x-1">
     <li
-      class="inline-block border bg-color--white color--grey-dark rounded-md px-1 py-0.5"
+      v-for="tag in selectedTags"
       :key="tag.id"
-      v-for="tag in selectedTags">
+      class="inline-block border bg-color--white color--grey-dark rounded-md px-1 py-0.5"
+    >
       {{ tag.title }}
     </li>
   </ul>
@@ -25,8 +26,8 @@ export default {
   props: {
     selectedTags: {
       type: Array,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 }
 </script>

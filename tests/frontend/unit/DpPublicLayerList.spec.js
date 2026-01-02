@@ -7,25 +7,25 @@
  * All rights reserved
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils'
+import { createApp } from 'vue'
+import { createStore } from 'vuex'
 import DpPublicLayerList from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerList'
-import Vuex from 'vuex'
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
-const localVue = createLocalVue()
+const localVue = createApp({})
 
 const EventBusPlugin = {
-  install: function (localVue, options) {
-    localVue.prototype.emit = jest.fn()
-    localVue.prototype.on = jest.fn()
-  }
+  install: function (app, options) {
+    app.config.globalProperties.emit = jest.fn()
+    app.config.globalProperties.on = jest.fn()
+  },
 }
 
 localVue.use(EventBusPlugin)
-localVue.use(Vuex)
 
 global.Bus = {
   emit: jest.fn(),
-  on: jest.fn()
+  on: jest.fn(),
 }
 
 describe('DpPublicLayerList', () => {
@@ -33,27 +33,29 @@ describe('DpPublicLayerList', () => {
   let getters
 
   beforeEach(() => {
-    store = new Vuex.Store({
-      getters
+    store = createStore({
+      getters,
     })
 
     getters = {
       id: () => jest.fn(),
       layers: () => jest.fn(),
       rootId: () => jest.fn(),
-      elementListForLayerSidebar: () => jest.fn()
+      elementListForLayerSidebar: () => jest.fn(),
     }
   })
 
   it('has the correct props', () => {
-    const wrapper = shallowMount(DpPublicLayerList, {
-      propsData: {
+    const wrapper = shallowMountWithGlobalMocks(DpPublicLayerList, {
+      props: {
         layers: [],
         unfolded: false,
         layerType: 'overlay',
-        layerGroupsAlternateVisibility: true
+        layerGroupsAlternateVisibility: true,
       },
-      store
+      global: {
+        plugins: [store],
+      },
     })
 
     expect(typeof wrapper.props().layers).toBe('object')

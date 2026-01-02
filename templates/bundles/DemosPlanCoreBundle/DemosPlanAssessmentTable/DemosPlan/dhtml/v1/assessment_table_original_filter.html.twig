@@ -12,21 +12,21 @@
 
 {# show active filters #}
 {% if filtersSet is defined %}
-    <fieldset class="u-mt-0_5 u-pb-0_5 border--bottom">
+    <div class="u-mt-0_5 u-pb-0_5 border--bottom">
 
         <div class="layout__item u-1-of-6 u-pl-0">
-            <label for="active-filters" class="u-mv-0_25">{{ "filter.active"|trans }}:</label>
-        </div><!--
-
-     --><div
-            class="layout__item u-5-of-6 u-mt-0_25"
-            @click.prevent="$refs.filterModal.toggleModal"
+            <div class="u-mv-0_25">{{ "filter.active"|trans }}:</div>
+        </div>
+        <button
+            class="btn--blank o-link--default inline-block u-mt-0_25"
+            @click.prevent="$refs.filterModal.openModal()"
+            type="button"
             aria-label="{{ "aria.maximize_filters"|trans }}"
            >
             {{ filtersSet|default([])|join(", ") }}
-        </div>
+        </button>
 
-    </fieldset>
+    </div>
 {%  endif %}
 
 <div class="c-at__controls o-sticky o-sticky--border space-stack-xs u-pt-0_5 u-pb-0_25" data-sticky="lap-up">
@@ -45,15 +45,16 @@
                 class="u-mr-0"
                 type="checkbox"
                 :value="allItemsOnPageSelected"
-                @click="$root.$emit('toggle-select-all')"
+                @click="$root.$emit('toggleSelectAll')"
                 data-cy="checkAllOriginalStatements">
             {{ 'visible.entries'|trans }}
         </label>
 
         <button
-            type="submit"
-            data-cy="copyStatement"
             class="o-link--default btn--blank weight--normal line-height--2 u-ph-0_25"
+            data-cy="copyStatement"
+            type="submit"
+            :disabled="isNoItemSelected"
             @click.stop.prevent="copyStatements">
             <i class="fa fa-files-o" aria-hidden="true"></i>
             {{ "copy"|trans }}
@@ -82,7 +83,7 @@
                     tabindex="-1"
                     aria-haspopup="true"
                     aria-expanded="false"
-                    @click.prevent="$root.$emit('exportModal:toggle', '{{tab}}')"
+                    @click.prevent="toggleExportModal('{{tab}}')"
                 >
                     <i class="fa fa-share-square u-mr-0_125" aria-hidden="true"></i>
                     {{ buttonLabelSingle|trans }}

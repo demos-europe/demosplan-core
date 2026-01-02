@@ -15,7 +15,7 @@ import ElementsAdminBulkEdit from '@DpJs/components/document/ElementsAdminBulkEd
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  ElementsAdminBulkEdit
+  ElementsAdminBulkEdit,
 }
 
 initialize(components)

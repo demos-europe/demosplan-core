@@ -33,7 +33,7 @@ class EntityContentChangeRepositoryTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(EntityContentChangeRepository::class);
+        $this->sut = self::getContainer()->get(EntityContentChangeRepository::class);
 
         // set permission feature_statement_content_changes_save = true!
         $this->mockSession = $this->setUpMockSession();

@@ -26,12 +26,12 @@ const stores = {
   AssessmentTableStore,
   FilterStore,
   FragmentStore,
-  StatementStore
+  StatementStore,
 }
 
 const components = {
   AssessmentTableToc,
-  DpTable
+  DpTable,
 }
 
 if (hasPermission('area_admin_boilerplates')) {

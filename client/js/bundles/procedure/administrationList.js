@@ -15,7 +15,7 @@ import AdministrationProceduresList from '@DpJs/components/procedure/admin/Admin
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  AdministrationProceduresList
+  AdministrationProceduresList,
 }
 
 initialize(components)

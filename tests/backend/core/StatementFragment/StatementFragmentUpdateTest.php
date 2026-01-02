@@ -30,7 +30,7 @@ class StatementFragmentUpdateTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->validator = self::$container->get('validator');
+        $this->validator = self::getContainer()->get('validator');
     }
 
     public function testConsiderationAddition()

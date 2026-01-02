@@ -9,22 +9,30 @@
 
 <template>
   <div
+    :id="'tag_' + segment.id"
     class="card space-stack-xs"
     :class="{ 'highlighted': isHighlighted }"
     :style="{ top: offsetTop, left: (position * 5) + 'px', 'margin-top': (position * 5) + 'px' }"
-    :id="'tag_' + segment.id">
+    @focusin="$emit('focusin')"
+    @focusout="$emit('focusout')"
+    @mouseenter="$emit('mouseenter')"
+    @mouseleave="$emit('mouseleave')"
+  >
     <div class="u-pr-0_25">
       <i
         :title="Translator.trans('tags')"
-        class="fa fa-tag color--grey-light w-3 text-center" />
+        class="fa fa-tag color--grey-light w-3 text-center"
+      />
       <ul
         v-if="segment.tags.length > 0"
-        class="o-list o-list--csv inline">
+        class="o-list o-list--csv inline"
+      >
         <li
           v-for="(tag, idx) in segment.tags"
           :key="idx"
           class="o-list__item break-words color--grey"
-          v-text="tag.tagName" />
+          v-text="tag.tagName"
+        />
       </ul>
       <template v-else>
         ---
@@ -33,10 +41,12 @@
 
     <p
       v-if="segment.place.id"
-      class="u-mb-0 u-pr-0_25">
+      class="u-mb-0 u-pr-0_25"
+    >
       <i
         :title="Translator.trans('workflow.place')"
-        class="fa fa-map-marker w-3 text-center color--grey-light" />
+        class="fa fa-map-marker w-3 text-center color--grey-light"
+      />
       <span class="color--grey">
         {{ placeName }}
       </span>
@@ -44,37 +54,54 @@
 
     <p
       v-if="segment.assigneeId"
-      class="u-mb-0 u-pr-0_25">
+      class="u-mb-0 u-pr-0_25"
+    >
       <i
         :title="Translator.trans('assigned.to')"
-        class="fa fa-user w-3 text-center color--grey-light" />
+        class="fa fa-user w-3 text-center color--grey-light"
+      />
       <span class="color--grey">
         {{ assigneeName }}
       </span>
     </p>
 
-    <dp-button-icon
-      icon="fa-pencil"
+    <dp-button
+      :class="{ 'mr-1': isFocused }"
+      hide-text
+      icon="edit"
       :text="Translator.trans('segment.edit')"
-      @click="$emit('edit-segment', segment.id)" />
+      variant="subtle"
+      @blur="isFocused = false"
+      @click="$emit('segment:edit', segment.id)"
+      @focus="isFocused = !isMouseEvent"
+      @mousedown="isMouseEvent = true"
+    />
     <addon-wrapper
       :addon-props="{
         class: 'mt-1',
-        segmentStatus: segment.status
+        segmentStatus: segment.status ? segment.status : 'not confirmed'
       }"
       class="inline-block"
       hook-name="split.statement.buttons"
-      @segment:confirm="$emit('segment:confirm', segment.id)" />
-    <dp-button-icon
-      icon="fa-trash"
+      @segment:confirm="$emit('segment:confirm', segment.id)"
+    />
+    <dp-button
+      :class="{ 'ml-1': isFocused }"
+      hide-text
+      icon="delete"
       :text="Translator.trans('selection.tags.discard')"
-      @click="$emit('delete-segment', segment.id)" />
+      variant="subtle"
+      @blur="isFocused = false"
+      @click="$emit('segment:delete', segment.id)"
+      @focus="isFocused = !isMouseEvent"
+      @mousedown="isMouseEvent = true"
+    />
   </div>
 </template>
 
 <script>
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
-import { DpButtonIcon } from '@demos-europe/demosplan-ui'
+import { DpButton } from '@demos-europe/demosplan-ui'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -82,7 +109,7 @@ export default {
 
   components: {
     AddonWrapper,
-    DpButtonIcon
+    DpButton,
   },
 
   props: {
@@ -92,20 +119,33 @@ export default {
      */
     offset: {
       type: Number,
-      required: true
+      required: true,
     },
 
     segment: {
       type: Object,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
+
+  emits: [
+    'card:checkOverlap',
+    'focusin',
+    'focusout',
+    'mouseenter',
+    'mouseleave',
+    'segment:confirm',
+    'segment:delete',
+    'segment:edit',
+  ],
 
   data () {
     return {
+      isFocused: false,
+      isMouseEvent: false,
       offsetTop: 0,
-      position: 0
+      position: 0,
     }
   },
 
@@ -115,7 +155,7 @@ export default {
       'availablePlaces',
       'currentlyHighlightedSegmentId',
       'editingSegmentId',
-      'editModeActive'
+      'editModeActive',
     ]),
 
     assigneeName () {
@@ -132,7 +172,7 @@ export default {
       const place = this.availablePlaces.find(place => place.id === this.segment.place.id)
 
       return place ? place.name : ''
-    }
+    },
   },
 
   methods: {
@@ -144,8 +184,8 @@ export default {
         this.offsetTop = segmentOffset - mainOffset + 'px'
       }
 
-      this.$emit('check-card-overlap')
-    }
+      this.$emit('card:checkOverlap')
+    },
   },
 
   mounted () {
@@ -174,12 +214,12 @@ export default {
          * between segmentation-editor container and fixed header.
          */
         this.offsetTop = Math.abs(parent) + this.offset - 24 + 'px'
-        this.$emit('check-card-overlap')
+        this.$emit('card:checkOverlap')
       } else {
         this.calculateCardPosition()
       }
     })
-  }
+  },
 }
 
 </script>

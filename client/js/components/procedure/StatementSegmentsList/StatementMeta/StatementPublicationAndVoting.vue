@@ -11,7 +11,8 @@ All rights reserved
   <fieldset data-dp-validate="statementPublicationAndVotingData">
     <legend
       id="publicationAndVoting"
-      class="mb-3 color-text-muted font-normal">
+      class="mb-3 color-text-muted font-normal"
+    >
       {{ Translator.trans('publication.and.voting') }}
     </legend>
     <div class="font-semibold">
@@ -26,7 +27,8 @@ All rights reserved
       :public-verified="localStatement.attributes.publicVerified"
       :public-verified-trans-key="statement.attributes.publicVerifiedTranslation"
       :submitter-email="statement.attributes.submitterEmailAddress"
-      @update="val => localStatement.attributes.publicVerified = val" />
+      @update="val => localStatement.attributes.publicVerified = val"
+    />
 
     <template v-if="hasPermission('feature_statements_vote')">
       <div class="font-semibold">
@@ -34,54 +36,65 @@ All rights reserved
       </div>
       <p
         class="color-text-muted"
-        v-text="Translator.trans('statement_vote.length', { count: votesLength })" />
+        v-text="Translator.trans('statement_vote.length', { count: votesLength })"
+      />
       <dp-loading v-if="isLoading" />
       <dp-editable-list
         v-else
+        ref="listComponent"
         class="o-list"
         :entries="votes"
         :has-permission-to-edit="editable && statement.attributes.isManual"
         :translation-keys="translationKeys"
-        ref="listComponent"
+        @delete="id => deleteVote(id)"
         @reset="resetForm()"
-        @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)">
-        <template v-slot:list="{entry, index}">
+        @save-entry="index => dpValidateAction('newVoterForm', () => addVote(index), false)"
+        @show-update-form="id => updateFormFields(id)"
+      >
+        <template v-slot:list="{ entry }">
           <span
             v-if="entry.attributes.name"
-            class="o-list__item separated">
+            class="o-list__item separated"
+          >
             {{ entry.attributes.name }}
           </span>
           <span
             v-if="entry.attributes.organisationName"
-            class="o-list__item separated">
+            class="o-list__item separated"
+          >
             {{ entry.attributes.organisationName }}
           </span>
           <span
             v-if="entry.attributes.departmentName"
-            class="o-list__item separated">
+            class="o-list__item separated"
+          >
             {{ entry.attributes.departmentName }}
           </span>
           <span
             v-if="entry.attributes.postcode"
-            class="o-list__item separated">
+            class="o-list__item separated"
+          >
             {{ entry.attributes.postcode }}
           </span>
           <span
             v-if="entry.attributes.city"
-            class="o-list__item separated">
+            class="o-list__item separated"
+          >
             {{ entry.attributes.city }}
           </span>
           <span
             v-if="entry.attributes.email"
-            class="o-list__item separated">
+            class="o-list__item separated"
+          >
             {{ entry.attributes.email }}
           </span>
         </template>
         <template v-slot:form>
           <div
-            data-dp-validate="newVoterForm"
             v-if="editable && statement.attributes.isManual"
-            class="space-stack-s border-t py-3">
+            data-dp-validate="newVoterForm"
+            class="space-stack-s border-t border-neutral py-3"
+          >
             <!-- Role -->
             <div class="flex">
               <dp-radio
@@ -92,7 +105,8 @@ All rights reserved
                 }"
                 value="true"
                 :checked="formFields.createdByCitizen"
-                @change="formFields.createdByCitizen = true" />
+                @change="formFields.createdByCitizen = true"
+              />
               <dp-radio
                 id="createdByCitizen_false"
                 class="ml-5"
@@ -102,92 +116,103 @@ All rights reserved
                 }"
                 value="false"
                 :checked="formFields.createdByCitizen === false"
-                @change="formFields.createdByCitizen = false" />
+                @change="formFields.createdByCitizen = false"
+              />
             </div>
             <div
               v-show="isInstitutionParticipation && (hasPermission('field_statement_meta_orga_name') || hasPermission('field_statement_meta_orga_department_name'))"
-              class="flex">
+              class="flex"
+            >
               <dp-input
                 v-show="hasPermission('field_statement_meta_orga_name')"
                 id="voter_publicagency"
-                data-cy="voterPublicAgency"
                 v-model="formFields.organisationName"
+                data-cy="voterPublicAgency"
                 class="pr-2"
                 :label="{
                   text: Translator.trans('invitable_institution')
-                }" />
+                }"
+              />
               <dp-input
                 v-show="hasPermission('field_statement_meta_orga_department_name')"
                 id="voter_department"
-                data-cy="voterDepartment"
                 v-model="formFields.departmentName"
+                data-cy="voterDepartment"
                 class="pl-2"
                 :label="{
                   text: Translator.trans('department')
-                }" />
+                }"
+              />
             </div>
 
             <div class="flex">
               <dp-input
                 v-if="hasPermission('field_statement_meta_submit_name')"
                 id="voter_username"
-                data-cy="voterUsername"
                 v-model="formFields.name"
+                data-cy="voterUsername"
                 class="pr-2"
                 :label="{
                   text: Translator.trans('statement.form.name')
-                }" />
+                }"
+              />
               <dp-input
                 v-if="hasPermission('field_statement_meta_email')"
                 id="voter_email"
-                data-cy="voterEmail"
                 v-model="formFields.email"
+                data-cy="voterEmail"
                 class="pl-2"
                 :label="{
                   text: Translator.trans('email')
                 }"
-                type="email" />
+                type="email"
+              />
             </div>
 
             <div class="flex w-1/2">
               <dp-input
                 v-if="hasPermission('field_statement_meta_postal_code')"
                 id="voter_postalcode"
-                data-cy="voterPostalCode"
                 v-model="formFields.postcode"
+                data-cy="voterPostalCode"
                 class="u-1-of-4 pr-2"
                 :label="{
                   text: Translator.trans('postalcode')
                 }"
-                pattern="^[0-9]{4,5}$" />
+                pattern="^[0-9]{4,5}$"
+              />
               <dp-input
                 v-if="hasPermission('field_statement_meta_city')"
                 id="voter_city"
-                data-cy="voterCity"
                 v-model="formFields.city"
+                data-cy="voterCity"
                 class="px-2"
                 :class="hasPermission('field_statement_meta_postal_code') ? ' u-3-of-4' : ''"
                 :label="{
                   text: Translator.trans('city')
-                }" />
+                }"
+              />
             </div>
           </div>
         </template>
       </dp-editable-list>
 
       <!-- Anonymous voters -->
-      <div class="w-1/4">
+      <div class="mt-4">
+        <dp-label
+          class="mb-0.5"
+          for="numberOfAnonymVotes"
+          :text="Translator.trans('statement.voter.anonym')"
+        />
         <dp-input
           id="numberOfAnonymVotes"
           v-model.number="localStatement.attributes.numberOfAnonymVotes"
-          class="mt-4"
+          class="w-1/12"
           data-cy="numberOfAnonymVotes"
           :disabled="!editable"
-          :label="{
-            text: Translator.trans('statement.voter.anonym')
-          }"
           name="numberOfAnonymVotes"
-          type="number" />
+          type="number"
+        />
       </div>
     </template>
 
@@ -197,7 +222,8 @@ All rights reserved
       primary
       secondary
       @primary-action="dpValidateAction('statementPublicationAndVotingData', save, false)"
-      @secondary-action="reset" />
+      @secondary-action="reset"
+    />
   </fieldset>
 </template>
 
@@ -206,14 +232,14 @@ import {
   DpButtonRow,
   DpEditableList,
   DpInput,
+  DpLabel,
   DpLoading,
   DpRadio,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { v4 as uuid } from 'uuid'
 import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
-import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
+import { v4 as uuid } from 'uuid'
 
 export default {
   name: 'StatementPublicationAndVoting',
@@ -221,11 +247,11 @@ export default {
   components: {
     DpButtonRow,
     DpEditableList,
+    DpLabel,
     DpLoading,
     DpInput,
     DpRadio,
     StatementPublish,
-    StatementVoter
   },
 
   mixins: [dpValidateMixin],
@@ -234,14 +260,19 @@ export default {
     editable: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     statement: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
+
+  emits: [
+    'save',
+    'updatedVoters',
+  ],
 
   data () {
     return {
@@ -253,7 +284,7 @@ export default {
         name: '',
         email: '',
         postcode: '',
-        city: ''
+        city: '',
       },
       initialVotes: {},
       isLoading: false,
@@ -263,16 +294,16 @@ export default {
         abort: Translator.trans('abort'),
         update: Translator.trans('statement.voter.update'),
         noEntries: '',
-        delete: Translator.trans('statement.voter.delete')
+        delete: Translator.trans('statement.voter.delete'),
       },
       votes: {},
-      votesToDelete: []
+      votesToDelete: [],
     }
   },
 
   computed: {
     ...mapState('StatementVote', {
-      votesState: 'items'
+      votesState: 'items',
     }),
 
     isInstitutionParticipation () {
@@ -282,8 +313,8 @@ export default {
     votesLength: {
       get () {
         return Object.keys(this.votes).length
-      }
-    }
+      },
+    },
   },
 
   watch: {
@@ -291,21 +322,21 @@ export default {
       handler () {
         this.setLocalValues()
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
     ...mapMutations('StatementVote', {
       removeStatementVote: 'remove',
       resetStatementVote: 'resetItems',
-      setStatementVote: 'setItem'
+      setStatementVote: 'setItem',
     }),
 
     ...mapActions('StatementVote', {
       createStatementVoteAction: 'create',
       deleteStatementVoteAction: 'delete',
-      saveStatementVoteAction: 'save'
+      saveStatementVoteAction: 'save',
     }),
 
     addVote (index) {
@@ -321,7 +352,7 @@ export default {
         const vote = {
           type: 'StatementVote',
           id: voteId,
-          attributes: this.formFields
+          attributes: this.formFields,
         }
 
         // Due to a reactivity bug in vuex json api, we have to update the store and hold the data locally
@@ -344,6 +375,14 @@ export default {
         }
       }
       return isEmpty
+    },
+
+    deleteVote (voteId) {
+      const name = this.votes[voteId]?.attributes?.name ? this.votes[voteId].attributes.name : false
+      if (dpconfirm(Translator.trans('statement_vote.delete_vote', { name }))) {
+        this.removeVote(voteId)
+        this.resetForm()
+      }
     },
 
     removeVote (id) {
@@ -373,7 +412,7 @@ export default {
         name: '',
         email: '',
         postcode: '',
-        city: ''
+        city: '',
       }
     },
 
@@ -434,10 +473,10 @@ export default {
             statement: {
               data: {
                 type: 'Statement',
-                id: this.statement.id
-              }
-            }
-          }
+                id: this.statement.id,
+              },
+            },
+          },
         }
         return this.createStatementVoteAction(payload)
           .then(() => {
@@ -460,13 +499,15 @@ export default {
     sendDeleteVote () {
       const promises = this.votesToDelete.map(vote => {
         // TO DO: Must also be deleted from initial, or initial must be updated, works for update and create, but not for delete
-        this.deleteStatementVoteAction(vote.id)
+        return this.deleteStatementVoteAction(vote.id)
           .then(() => {
             this.votesToDelete = this.votesToDelete.filter(v => v.id !== vote.id)
+
             return true
           })
           .catch(() => {
             dplan.notify.error(Translator.trans('error.api.generic'))
+
             return false
           })
       }).filter(Boolean) // Remove undefined values
@@ -478,10 +519,12 @@ export default {
       const promises = Object.values(this.initialVotes).map(vote => {
         const { id, attributes } = vote
         const currentVote = this.votes[id]
+
         if (currentVote) {
           const hasChanged = Object.keys(attributes).some(key => attributes[key] !== currentVote.attributes[key])
+
           if (hasChanged) {
-            this.saveStatementVoteAction(vote.id)
+            return this.saveStatementVoteAction(vote.id)
               .then(() => {
                 return true
               })
@@ -490,7 +533,11 @@ export default {
                 return false
               })
           }
+
+          return undefined
         }
+
+        return undefined
       }).filter(Boolean) // Remove undefined values
 
       return Promise.all(promises).then(results => results.some(result => result))
@@ -504,28 +551,18 @@ export default {
     setLocalValues () {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
       this.votes = Object.assign({}, this.votesState)
-    }
+    },
+
+    updateFormFields (id) {
+      for (const key in this.formFields) {
+        this.formFields[key] = this.votes[id].attributes[key]
+      }
+    },
   },
 
   created () {
     this.setLocalValues()
     this.setInitVoters()
   },
-
-  mounted () {
-    this.$on('showUpdateForm', (id) => {
-      for (const key in this.formFields) {
-        this.formFields[key] = this.votes[id].attributes[key]
-      }
-    })
-
-    this.$on('delete', (voteId) => {
-      const name = this.votes[voteId]?.attributes?.name ? this.votes[voteId].attributes.name : false
-      if (dpconfirm(Translator.trans('statement_vote.delete_vote', { name }))) {
-        this.removeVote(voteId)
-        this.resetForm()
-      }
-    })
-  }
 }
 </script>

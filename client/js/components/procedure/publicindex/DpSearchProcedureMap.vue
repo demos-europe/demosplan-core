@@ -28,9 +28,11 @@
             query: searchString
           })
         }"
+        @reset="currentAutocompleteSearch = ''; form.search = currentAutocompleteSearch; submitForm();"
         @search-changed="updateSuggestions"
         @searched="search => setValueAndSubmitForm({ target: { value: search } }, 'search')"
-        @selected="search => setValueAndSubmitForm({ target: { value: search.value } }, 'search')" />
+        @selected="search => setValueAndSubmitForm({ target: { value: search.value } }, 'search')"
+      />
 
       <template v-else>
         <dp-input
@@ -45,16 +47,17 @@
           name="search"
           :placeholder="Translator.trans('procedure.public.search.placeholder')"
           width="auto"
-          @enter="form.search = currentAutocompleteSearch; submitForm();" />
+          @enter="form.search = currentAutocompleteSearch; submitForm();"
+        />
+        <button
+          type="button"
+          data-cy="searchProcedureMapForm:procedureSearchSubmit"
+          :class="[dplan.settings.useOpenGeoDb ? prefixClass('hidden md:block') : '', prefixClass('c-proceduresearch__search-btn btn btn--primary weight--bold')]"
+          @click.prevent="form.search = currentAutocompleteSearch; submitForm();"
+        >
+          {{ Translator.trans('searching') }}
+        </button>
       </template>
-
-      <button
-        type="button"
-        data-cy="searchProcedureMapForm:procedureSearchSubmit"
-        :class="prefixClass('c-proceduresearch__search-btn btn btn--primary weight--bold')"
-        @click.prevent="form.search = currentAutocompleteSearch; submitForm();">
-        {{ Translator.trans('searching') }}
-      </button>
     </div>
 
     <div :class="prefixClass('layout__item u-mb-0_75')">
@@ -63,10 +66,12 @@
         data-cy="searchProcedureMapForm:resetToDefault"
         :disabled="form.search === '' && isDefaultFilter"
         :class="prefixClass('c-proceduresearch__reset-btn')"
-        @click.prevent="resetAndSubmit">
+        @click.prevent="resetAndSubmit"
+      >
         <i
           :class="prefixClass('fa fa-close u-mr-0_25')"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
         {{ Translator.trans('reset.to.default') }}
       </button>
     </div>
@@ -77,7 +82,8 @@
         type="button"
         :class="prefixClass('btn btn--primary weight--bold block u-1-of-1')"
         data-cy="searchProcedureMapForm:toggleFilter"
-        @click.prevent="showFilter = !showFilter">
+        @click.prevent="showFilter = !showFilter"
+      >
         Filter
       </button>
     </div>
@@ -85,129 +91,105 @@
     <!-- Sorting -->
     <div :class="prefixClass('u-pt-0_5-palm ' + (showFilter ? 'block' : 'hidden'))">
       <template v-if="sortOptions.length > 1">
-        <label
+        <dp-label
           for="sort"
-          :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-0_25')">
-          {{ Translator.trans('sortation') }}
-        </label><!--
+          :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-0_25')"
+          :text="Translator.trans('sortation')"
+        /><!--
      --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
-          <select
+          <dp-multiselect
             id="sort"
+            v-model="selectedSort"
+            :name="'sort'"
+            :options="sortOptions"
             data-cy="searchProcedureMapForm:sort"
-            name="sort"
-            :class="prefixClass('o-form__control-select')"
-            @change="setValueAndSubmitForm($event, 'sort')"
-            :value="form.sort">
-            <option
-              :key="'sort_' + option.value"
-              v-for="option in sortOptions"
-              :selected="option.selected"
-              :value="option.value">
-              {{ option.title }}
-            </option>
-          </select>
+            label="title"
+            track-by="value"
+            @input="setValueAndSubmitForm($event, 'sort')"
+          />
         </div>
       </template>
 
       <!-- Filter: Municipal code -->
-      <label
+      <dp-label
         v-if="hasPermission('feature_procedures_show_municipal_filter')"
         :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-0_25')"
-        for="municipalCode">
-        Kreis
-      </label><!--
+        :text="Translator.trans('county')"
+        for="municipalCode"
+      /><!--
    --><div
         v-if="hasPermission('feature_procedures_show_municipal_filter')"
-        :class="prefixClass('layout__item u-1-of-1 u-mb')">
-        <select
+        :class="prefixClass('layout__item u-1-of-1 u-mb')"
+      >
+        <dp-multiselect
           id="municipalCode"
-          :class="prefixClass('o-form__control-select')"
+          v-model="selectedMunicipalCode"
+          :name="'municipalCode'"
+          :options="municipalityGroupOptions"
           data-cy="searchProcedureMapForm:municipalCode"
-          name="municipalCode"
-          @change="setValueAndSubmitForm($event, 'municipalCode')">
-          <template v-for="municipalityGroups in municipalities">
-            <optgroup
-              v-if="hasOwnProp(municipalityGroups,'options')"
-              :key="'group_' + municipalityGroups.label"
-              :label="municipalityGroups.label">
-              <option
-                v-for="county in municipalityGroups.options"
-                :key="'group_opt_' + county.value"
-                :selected="county.value === form.municipalCode"
-                :value="county.value">
-                {{ county.title }}
-              </option>
-            </optgroup>
-            <option
-              v-else
-              :key="'opt_' + municipalityGroups.value"
-              :value="municipalityGroups.value">
-              {{ municipalityGroups.label }}
-            </option>
-          </template>
-        </select>
+          group-label="label"
+          group-values="options"
+          label="title"
+          track-by="value"
+          @input="setValueAndSubmitForm($event, 'municipalCode')"
+        />
       </div>
 
       <!-- All other filters -->
-      <template v-for="(filter, idx) in filters">
-        <label
-          :key="'label_' + idx"
+      <template
+        v-for="(filter, idx) in filters"
+        :key="'label_' + idx"
+      >
+        <dp-label
           :for="filter.name"
-          :class="prefixClass('c-proceduresearch__filter-label layout__item u-mb-0_25 u-1-of-1')">
-          {{ filter.title }}
-          <dp-contextual-help
-            v-if="filter.contextHelp !== ''"
-            class="u-ml-0_25"
-            :text="filter.contextHelp" />
-        </label><!--
-     --><div
-          :key="'select_' + filter.name"
-          :class="prefixClass('layout__item u-1-of-1 u-mb')">
-          <select
+          :class="prefixClass('c-proceduresearch__filter-label layout__item u-mb-0_25 u-1-of-1')"
+          :text="filter.title"
+          :tooltip="filter.contextHelp === '' ? '' : filter.contextHelp"
+        /><!--
+     --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
+          <dp-multiselect
             :id="filter.name"
             :ref="'filter_' + idx"
-            :class="prefixClass('o-form__control-select')"
             :data-cy="'searchProcedureMapForm:' + filter.name"
             :name="filter.name"
-            @change="setValueAndSubmitForm($event, filter.name)">
-            <option value="">
-              {{ Translator.trans('all') }}
-            </option>
-            <option
-              v-for="(filterOption, index) in filter.options"
-              :key="'filter_opt_' + index"
-              :value="filterOption.value">
-              {{ filterOption.label }}
-            </option>
-          </select>
+            :options="filter.options"
+            :value="getSelectedFilterOption(filter)"
+            label="label"
+            track-by="value"
+            @input="onFilterChange($event, filter.name)"
+          />
         </div>
       </template>
     </div>
 
     <h2
       v-if="displayArsFilterHeader"
+      id="urlFilterResultsHeader"
       :class="prefixClass('u-pl')"
-      id="urlFilterResultsHeader">
+    >
       {{ searchResultsHeader }}
     </h2>
     <div v-else>
       <dp-loading
         v-if="isLoading"
-        class="u-mt u-ml" />
+        class="u-mt u-ml"
+      />
       <div v-else>
         <h2
           v-if="isSearch"
           id="searchResultHeading"
           aria-live="assertive"
           :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')"
-          role="status">
+          role="status"
+        >
           Die Suche nach <span :class="prefixClass('c-proceduresearch__term weight--bold')">{{ currentSearch }}</span> hatte {{ resultCount }} Ergebnis
         </h2>
         <h2
           v-else-if="isNoSearchAndNoResult"
           id="noSearchResultHeading"
           :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')"
-          role="status">
+          role="status"
+        >
           {{ Translator.trans('search.results.none') }}.
         </h2>
         <template v-else-if="isDefaultFilter && resultCount === Translator.trans('none.neutral')">
@@ -218,7 +200,8 @@
             type="button"
             :class="prefixClass('btn btn--primary u-ml u-mb')"
             data-cy="searchProcedureMapForm:showAllProcedures"
-            @click.prevent="showAllProcedures">
+            @click.prevent="showAllProcedures"
+          >
             {{ Translator.trans('procedures.all.show') }}
           </button>
         </template>
@@ -229,12 +212,13 @@
 <script>
 import {
   DpAutocomplete,
-  DpContextualHelp,
   DpInput,
+  DpLabel,
   DpLoading,
+  DpMultiselect,
   hasOwnProp,
   makeFormPost,
-  prefixClassMixin
+  prefixClassMixin,
 } from '@demos-europe/demosplan-ui'
 import proj4 from 'proj4'
 
@@ -243,9 +227,10 @@ export default {
 
   components: {
     DpAutocomplete,
-    DpContextualHelp,
     DpInput,
-    DpLoading
+    DpLabel,
+    DpLoading,
+    DpMultiselect,
   },
 
   mixins: [prefixClassMixin],
@@ -253,54 +238,54 @@ export default {
   props: {
     countyCode: {
       type: String,
-      default: ''
+      default: '',
     },
 
     municipalCode: {
       type: String,
-      default: ''
+      default: '',
     },
 
     filters: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initDisplayArsFilterHeader: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     initSearchTerm: {
       type: String,
-      default: ''
+      default: '',
     },
 
     municipalities: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     orgaSlug: {
       type: String,
       default: '',
-      required: false
+      required: false,
     },
 
     searchResultsHeader: {
       type: String,
-      default: ''
+      default: '',
     },
 
     sortOptions: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     useOpenGeoDb: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
@@ -318,11 +303,11 @@ export default {
         ...this.filters.reduce((acc, filter) => {
           acc[filter.name] = ''
           return acc
-        }, {})
+        }, {}),
       },
       autocompleteOptions: [],
       displayArsFilterHeader: this.initDisplayArsFilterHeader,
-      showFilter: true
+      showFilter: true,
     }
   },
 
@@ -337,7 +322,62 @@ export default {
 
     isSearch () {
       return this.currentSearch !== Translator.trans('entries.all.dative')
-    }
+    },
+
+    municipalityGroupOptions () {
+      return this.municipalities.map(item => {
+        if (hasOwnProp(item, 'options')) {
+          return {
+            label: item.label,
+            options: item.options.map(opt => ({
+              title: opt.title,
+              value: opt.value,
+            })),
+          }
+        }
+
+        return {
+          label: item.label,
+          options: [
+            {
+              title: item.label,
+              value: item.value,
+            },
+          ],
+        }
+      })
+    },
+
+    selectedMunicipalCode: {
+      get () {
+        if (!this.form.municipalCode) {
+          return null
+        }
+
+        for (const group of this.municipalityGroupOptions) {
+          const found = group.options.find(opt => opt.value === this.form.municipalCode)
+
+          if (found) {
+            return found
+          }
+        }
+
+        return null
+      },
+
+      set (newValue) {
+        this.form.municipalCode = newValue ? newValue.value : ''
+      },
+    },
+
+    selectedSort: {
+      get () {
+        return this.sortOptions.find(option => option.value === this.form.sort) || null
+      },
+      set (newValue) {
+        this.form.sort = newValue ? newValue.value : ''
+      },
+    },
   },
 
   methods: {
@@ -354,8 +394,22 @@ export default {
       }, 200)
     },
 
+    getSelectedFilterOption (filter) {
+      const selectedValue = this.form[filter.name]
+
+      if (!selectedValue) return null
+
+      return filter.options.find(option => option.value === selectedValue) || null
+    },
+
     hasOwnProp (obj, prop) {
       return hasOwnProp(obj, prop)
+    },
+
+    onFilterChange (selectedOption, filterName) {
+      this.form[filterName] = selectedOption ? selectedOption.value : ''
+
+      this.submitForm()
     },
 
     removeDefaultFilters () {
@@ -414,7 +468,19 @@ export default {
     },
 
     setValueAndSubmitForm (e, key) {
-      this.form[key] = e.target.value
+      if (key === 'search') {
+        this.currentAutocompleteSearch = e.target.value
+      }
+
+      // Handle different input types
+      if (e && typeof e === 'object' && e.target && e.target.value !== undefined) {
+        // Fields with regular DOM event
+        this.form[key] = e.target.value
+      } else if (e && typeof e === 'object' && e.value !== undefined) {
+        // DpMultiselect (object with value property)
+        this.form[key] = e.value
+      }
+
       this.submitForm()
     },
 
@@ -495,7 +561,7 @@ export default {
             .replace('___end___', mapVars[index].publicParticipationEndDate)
             .replace('___phase___', mapVars[index].publicParticipationPhaseName)
             .replace('___shortText___', mapVars[index].externalDesc)
-          , '___procedureUrl___', mapVars[index].procedureUrl
+          , '___procedureUrl___', mapVars[index].procedureUrl,
           ))
         marker.key = mapVars[index].procedureId
         window.markersLayer.addLayer(marker)
@@ -510,7 +576,7 @@ export default {
       } else {
         this.autocompleteOptions = []
       }
-    }
+    },
   },
 
   mounted () {
@@ -523,6 +589,6 @@ export default {
     }
 
     this.submitForm()
-  }
+  },
 }
 </script>

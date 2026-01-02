@@ -7,16 +7,19 @@ framework:
     csrf_protection: ~
     enabled_locales: ['de']
     validation: { enable_annotations: true }
+    trusted_proxies: "%proxy_trusted%"
+    trusted_headers: [ 'x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-prefix' ]
     trusted_hosts: ~
     #csrf_protection: true
 
     # Enables session support. Note that the session will ONLY be started if you read or write from it.
     # Remove or comment this section to explicitly disable session support.
     session:
-        handler_id: 'demosplan\DemosPlanCoreBundle\Logic\SessionHandler'
+        handler_id: app.session_handler
         cookie_secure: '%https_only%'
-        cookie_samesite: strict
-        storage_factory_id: session.storage.factory.native
+        # could not be strict, as otherwise keycloak login does not work with an "invalid state" error
+        cookie_samesite: lax
+        gc_maxlifetime: '%env(int:SESSION_LIFETIME)%'
 
     fragments:       ~
     #fragments: true
@@ -27,6 +30,8 @@ framework:
         default_options:
             max_redirects: 7
             proxy: '%proxy_dsn%'
+            no_proxy: '%proxy_no_proxy%'
+            cafile: '%cafile%'
 
     request:
         formats:
@@ -35,5 +40,3 @@ framework:
 when@test:
     framework:
         test: true
-        session:
-            storage_factory_id: session.storage.factory.mock_file

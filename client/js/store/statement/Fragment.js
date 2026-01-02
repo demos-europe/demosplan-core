@@ -7,8 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { del, set } from 'vue'
+import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 export default {
   namespaced: true,
@@ -33,7 +32,7 @@ export default {
      *    fragmentId: { fragment with id and statementId }
      * }
      */
-    selectedFragments: {}
+    selectedFragments: {},
   },
 
   mutations: {
@@ -62,7 +61,7 @@ export default {
      * @param {Object} fragment
      */
     addFragmentToSelection (state, fragment) {
-      set(state.selectedFragments, [fragment.id], fragment)
+      state.selectedFragments[fragment.id] = fragment
     },
 
     /**
@@ -89,10 +88,10 @@ export default {
 
       const fragments = { ...state.fragments }
       fragments[ids.statementId] = statementObj
-      set(state, 'fragments', fragments)
+      state.fragments = fragments
 
       if (hasOwnProp(state.selectedFragments, ids.fragmentId)) {
-        del(state.selectedFragments, ids.fragmentId)
+        delete state.selectedFragments[ids.fragmentId]
         state.selectedFragments = { ...state.selectedFragments }
       }
 
@@ -118,7 +117,7 @@ export default {
           }
         }
       }
-      set(state.fragments, statementId, fragments)
+      state.fragments[statementId] = fragments
     },
 
     /**
@@ -126,7 +125,7 @@ export default {
      * @param {String} fragmentId
      */
     removeFragmentFromSelection (state, fragmentId) {
-      del(state.selectedFragments, fragmentId)
+      delete state.selectedFragments[fragmentId]
     },
 
     /**
@@ -134,7 +133,7 @@ export default {
      * @param {Array} initFragments
      */
     setInitFragments (state, initFragments) {
-      set(state, 'initFragments', initFragments)
+      state.initFragments = initFragments
     },
 
     /**
@@ -164,7 +163,7 @@ export default {
 
       // If fragment to update is selected and assignee or editableState is changed, we have to set it also in session storage
       if (hasOwnProp(data, 'assignee') && hasOwnProp(state.selectedFragments, data.fragmentId)) {
-        set(state.selectedFragments[data.fragmentId], 'assignee', data.assignee)
+        state.selectedFragments[data.fragmentId].assignee = data.assignee
         state.selectedFragments = { ...state.selectedFragments }
 
         const selectedEntries = JSON.parse(sessionStorage.getItem('selectedFragments')) || {}
@@ -184,7 +183,7 @@ export default {
       const fragmentIndex = state.fragments[statementId].fragments.findIndex(frag => frag.id === fragmentId)
       state.fragments[statementId].fragments[fragmentIndex] = { ...fragmentInStore, ...data }
       state.fragments = { ...state.fragments }
-    }
+    },
   },
 
   actions: {
@@ -217,8 +216,8 @@ export default {
         {
           procedureId,
           statementId,
-          fragmentId
-        }
+          fragmentId,
+        },
       )
 
       // We have to use params.append because params.set does not work in IE11
@@ -226,9 +225,8 @@ export default {
       params.append('delete', 'delete')
 
       return dpApi.post(url, params)
-        .then(checkResponse)
-        .then(response => {
-          if (response.code === 200 && response.success === true) {
+        .then(({ data }) => {
+          if (data.code === 200 && data.success === true) {
             commit('deleteFragment', { statementId, fragmentId })
             dplan.notify.notify('confirm', Translator.trans('confirm.fragment.deleted'))
             return Promise.resolve(true)
@@ -251,8 +249,7 @@ export default {
       }
 
       return dpApi.get(url)
-        .then(checkResponse)
-        .then((response) => commit('loadFragmentsToStore', { fragments: response.data, statementId: data.statementId }))
+        .then(response => commit('loadFragmentsToStore', { fragments: response.data.data, statementId: data.statementId }))
     },
 
     /**
@@ -303,22 +300,21 @@ export default {
             type: 'user',
             id: assigneeId,
             ignoreLastClaimed,
-            ...((ignoreLastClaimed === false && typeof lastClaimed !== 'undefined') && { relationships: { lastClaimed: { data: { id: lastClaimed, type: 'user' } } } })
-          }
+            ...((ignoreLastClaimed === false && typeof lastClaimed !== 'undefined') && { relationships: { lastClaimed: { data: { id: lastClaimed, type: 'user' } } } }),
+          },
         },
         headers: {
           'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        }
+          Accept: 'application/vnd.api+json',
+        },
       })
-        .then(this.api.checkResponse)
-        .then(response => {
+        .then(({ data }) => {
           let updateObject = {}
           if (assigneeId === '' || assigneeId == null) {
             updateObject = { fragmentId, statementId, assignee: { id: '', name: '', orgaName: '', uId: '' } }
             commit('updateFragment', { ...updateObject, lastClaimedUserId: ignoreLastClaimed ? null : lastClaimed })
           } else {
-            const assignee = { id: response.data.id, uId: response.data.id, name: response.data.attributes.name, orgaName: response.data.attributes.orgaName }
+            const assignee = { id: data.data.id, uId: data.data.id, name: data.data.attributes.name, orgaName: data.data.attributes.orgaName }
             updateObject = { fragmentId, statementId, assignee }
             commit('updateFragment', { ...updateObject, lastClaimedUserId: ignoreLastClaimed ? null : lastClaimed })
           }
@@ -405,27 +401,26 @@ export default {
             'paragraph',
             'document',
             'assignee',
-            'lastClaimedUser'
+            'lastClaimedUser',
           ].join(),
-          ...params
+          ...params,
         }),
         data: {
           data: {
             type: 'StatementFragment',
             id: data.id,
-            attributes: payload
-          }
+            attributes: payload,
+          },
         },
         headers: {
           'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        }
+          Accept: 'application/vnd.api+json',
+        },
       })
-        .then(this.api.checkResponse)
         .then(response => {
           const dataToUpdate = {}
-          const responseAttributes = response.data.attributes
-          const responseRelationships = response.data.relationships
+          const responseAttributes = response.data.data.attributes
+          const responseRelationships = response.data.data.relationships
 
           // If we update element/paragraph/document we have only id in data and we want to update title too so we set it as data field to get the value from response in the loop below
           if (hasOwnProp(data, 'elementId')) {
@@ -499,7 +494,7 @@ export default {
                   id: newAssigneeId,
                   uId: newAssigneeId,
                   name: newAssignee.attributes.fullName,
-                  orgaName: response.included(elem => elem.type === 'Orga' && elem.id === orgaId).attributes.name
+                  orgaName: response.included(elem => elem.type === 'Orga' && elem.id === orgaId).attributes.name,
                 }
                 // If assignee is not sent from BE assignee is probably null, so we reset the assignment with empty object
               } else {
@@ -516,7 +511,7 @@ export default {
           }
 
           //  Keep id to find fragment in mutation
-          dataToUpdate.fragmentId = response.data.id
+          dataToUpdate.fragmentId = response.data.data.id
           dataToUpdate.statementId = responseRelationships.statement.data.id
 
           //  Update store
@@ -530,7 +525,7 @@ export default {
           dplan.notify.error(Translator.trans('error.api.generic'))
           return e
         })
-    }
+    },
   },
 
   getters: {
@@ -553,6 +548,6 @@ export default {
 
     selectedFragments: state => state.selectedFragments,
 
-    selectedFragmentsLength: state => Object.keys(state.selectedFragments).length
-  }
+    selectedFragmentsLength: state => Object.keys(state.selectedFragments).length,
+  },
 }

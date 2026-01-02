@@ -205,6 +205,14 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     #[Assert\Valid]
     protected Collection $contacts;
 
+    /**
+     * @var Collection<int, InstitutionTagCategory>
+     *
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory", mappedBy="customer", cascade={"remove"})
+     */
+    #[Assert\Valid]
+    protected Collection $customerCategories;
+
     public function __construct(/**
      * @ORM\Column(name="_c_name", type="string", length=50, nullable=false)
      */
@@ -219,6 +227,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         $this->signLanguageOverviewVideos = new ArrayCollection();
         $this->customerCounties = new ArrayCollection();
         $this->contacts = new ArrayCollection();
+        $this->customerCategories = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -296,11 +305,9 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         /** @var OrgaStatusInCustomerInterface $customerOrgaTypes */
         foreach ($this->getOrgaStatuses() as $customerOrgaTypes) {
             $orga = $customerOrgaTypes->getOrga();
-            if (!$orgas->contains($orga)) {
-                // filter by status
-                if ([] === $statuses || in_array($customerOrgaTypes->getStatus(), $statuses, true)) {
-                    $orgas->add($orga);
-                }
+            // filter by status
+            if (!$orgas->contains($orga) && ([] === $statuses || in_array($customerOrgaTypes->getStatus(), $statuses, true))) {
+                $orgas->add($orga);
             }
         }
 
@@ -393,12 +400,9 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         $this->xplanning = $xplanning;
     }
 
-    /**
-     * @return ProcedureInterface|null
-     */
-    public function getDefaultProcedureBlueprint()
+    public function getDefaultProcedureBlueprint(): ?ProcedureInterface
     {
-        return $this->defaultProcedureBlueprint;
+        return $this->defaultProcedureBlueprint?->isDeleted() ? null : $this->defaultProcedureBlueprint;
     }
 
     /**

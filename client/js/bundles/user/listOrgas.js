@@ -11,7 +11,7 @@
  * This is the entrypoint for list_orgas.html.twig
  */
 
-import { DpEditor, dpValidate } from '@demos-europe/demosplan-ui'
+import { DpEditor, dpValidate, hasAnyPermissions, hasPermission } from '@demos-europe/demosplan-ui'
 import DpCreateItem from '@DpJs/components/user/DpCreateItem'
 import DpOrganisationList from '@DpJs/components/user/DpOrganisationList/DpOrganisationList'
 import { initialize } from '@DpJs/InitVue'
@@ -21,7 +21,17 @@ const stores = {}
 const components = {
   DpCreateItem,
   DpOrganisationList,
-  DpEditor
+  DpEditor,
+}
+
+const include = ['currentSlug']
+
+if (hasPermission('feature_orga_branding_edit')) {
+  include.push('branding')
+}
+
+if (hasAnyPermissions(['area_organisations', 'feature_organisation_user_list'])) {
+  include.push('statusInCustomers')
 }
 
 const apiStores = ['Customer', 'Orga']
@@ -34,14 +44,14 @@ const presetStoreModules = {
         registerStatus: {
           condition: {
             path: 'statusInCustomers.status',
-            value: 'Pending'
-          }
-        }
+            value: 'Pending',
+          },
+        },
       },
-      include: ['branding', 'currentSlug', 'statusInCustomers'].join(),
-      group: 'Pending'
-    }
-  }]
+      include: include.join(),
+      group: 'Pending',
+    },
+  }],
 }
 
 initialize(components, stores, apiStores, presetStoreModules).then(() => {

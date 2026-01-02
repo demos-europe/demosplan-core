@@ -27,7 +27,7 @@ function initBarChart (elementId, elementLegendId) {
       data,
       texts,
       colors: getColorsFromCSS(cssColorClasses),
-      activeColor: [getColorFromCSS('c-chart__color-active')]
+      activeColor: [getColorFromCSS('c-chart__color-active')],
     })
   }
 }
@@ -59,7 +59,7 @@ function initDonutChart (donutId, donutLegendId) {
       data: JSON.parse(donutElement.getAttribute('data-items')),
       target: donutId,
       targetClasses: { donut: donutId, donutLegend: donutLegendId },
-      texts: JSON.parse(donutElement.getAttribute('data-texts'))
+      texts: JSON.parse(donutElement.getAttribute('data-texts')),
     })
   }
 }
@@ -77,7 +77,7 @@ function initLineChart (lineId, lineLegendId) {
       legendTarget: lineLegendId,
       target: lineId,
       targetClasses: { donut: lineId, donutLegend: lineLegendId },
-      texts: JSON.parse(lineElement.getAttribute('data-texts'))
+      texts: JSON.parse(lineElement.getAttribute('data-texts')),
     })
   }
 }

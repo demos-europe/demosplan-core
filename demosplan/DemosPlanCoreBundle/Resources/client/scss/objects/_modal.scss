@@ -9,24 +9,61 @@
 
 //  object: o-modal
 
-//  object container for modal
-.o-modal {
-    $modal-bg-color: rgb(0 0 0 / 60%);
-    $modal-box-shadow: 3px 3px 4px rgb(50 50 50 / 80%);
-    $modal-z-content: $dp-z-modal;
-    $modal-z-backdrop: $dp-z-modal - 1;
-
-    &__content,
-    &__backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+//  Keyframe animations for modal
+@keyframes modal-open {
+    from {
+        opacity: 0;
+        transform: scale(.6) translateY(10%);
     }
 
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes modal-close {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(.6) translateY(10%);
+    }
+}
+
+@keyframes backdrop-open {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes backdrop-close {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+//  object container for modal using native <dialog> element
+.o-modal {
+    $modal-bg-color: rgb(0 0 0 / 60%);
+
     &__content {
-        z-index: $modal-z-content;
+        // Reset dialog default styles
+        border: none;
+        padding: 0;
+
+        // Position and size
         margin: auto;
         width: $dp-page-width - $inuit-base-spacing-unit--huge;
         height: fit-content;
@@ -36,52 +73,40 @@
         max-height: calc(100% - #{$inuit-base-spacing-unit});
         overflow: auto;
 
+        // Appearance
         background-color: $dp-color-white;
         box-shadow: $dp-box-shadow-lg;
         border-radius: $dp-rounded-medium;
-        transform: none;
-    }
 
-    &__backdrop {
-        z-index: $modal-z-backdrop;
-        content: '';
-
-        background-color: $modal-bg-color;
-        cursor: pointer;
-    }
-
-    // Transition for backdrop
-    .backdrop {
-        &-enter-active,
-        &-leave-active {
-            transition: opacity .2s linear;
+        // Backdrop styling using ::backdrop pseudo-element
+        &::backdrop {
+            background-color: $modal-bg-color;
+            cursor: pointer;
         }
 
-        &-enter,
-        &-leave-to {
-            opacity: 0;
-        }
-    }
+        // Opening animation
+        &.o-modal--opening {
+            animation: modal-open .2s cubic-bezier(.5, 0, .5, 1) forwards;
 
-    // Transition for modal
-    .content {
-        &-enter-active,
-        &-leave-active {
-            transition: transform .2s cubic-bezier(.5, 0, .5, 1), opacity .2s linear;
+            &::backdrop {
+                animation: backdrop-open .2s linear forwards;
+            }
         }
 
-        &-enter,
-        &-leave-to {
-            opacity: 0;
-            transform: scale(.6) translateY(10%);
+        // Closing animation
+        &.o-modal--closing {
+            animation: modal-close .2s cubic-bezier(.5, 0, .5, 1) forwards;
+
+            &::backdrop {
+                animation: backdrop-close .2s linear forwards;
+            }
         }
     }
 
     &__body {
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding: 0 $inuit-base-spacing-unit $inuit-base-spacing-unit;
-        margin: $inuit-base-spacing-unit 0 0;
+        overflow: hidden auto;
+        padding: $inuit-base-spacing-unit;
+        margin: 0;
         height: auto;
     }
 
@@ -89,6 +114,7 @@
     &.recommendation-modal {
         li:hover {
             background-color: $dp-color-background-light;
+
             .badge {
                 background-color: $dp-color-main;
             }

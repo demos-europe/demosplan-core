@@ -18,7 +18,8 @@
       :statement-import-email-id="null"
       :submit-type-options="submitTypeOptions"
       :tags="tags"
-      :used-intern-ids="usedInternIds" />
+      :used-intern-ids="usedInternIds"
+    />
   </div>
 </template>
 
@@ -31,14 +32,14 @@ export default {
   inject: ['currentUserId', 'newestInternId', 'procedureId', 'submitTypeOptions', 'tags', 'usedInternIds'],
 
   components: {
-    DpSimplifiedNewStatementForm
+    DpSimplifiedNewStatementForm,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 }
 </script>

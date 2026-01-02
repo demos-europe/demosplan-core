@@ -19,10 +19,10 @@ export default class SankeyDiagram {
     const defaults = {
       data: {
         nodes: [],
-        links: []
+        links: [],
       },
       target: 'body',
-      dimensions: [400, 200]
+      dimensions: [400, 200],
     }
 
     Object.assign(this, { ...defaults, ...options })

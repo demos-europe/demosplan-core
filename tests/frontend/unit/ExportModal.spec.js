@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals'
-import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal.vue'
+import { enableAutoUnmount } from '@vue/test-utils'
+import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('ExportModal', () => {
@@ -10,7 +11,7 @@ describe('ExportModal', () => {
           anonymous: false,
           exportType: 'statementsOnly',
           sortType: 'default',
-          template: 'condensed'
+          template: 'condensed',
         },
         anonymize: true,
         buttonLabel: 'export.docx',
@@ -20,21 +21,21 @@ describe('ExportModal', () => {
         tabLabel: 'export.docx',
         templates: {
           condensed: {
-            name: 'export.compact'
+            name: 'export.compact',
           },
           landscape: {
             explanation: 'explanation.export.docx',
-            name: 'export.landscape'
+            name: 'export.landscape',
           },
-          portrait: false
-        }
+          portrait: false,
+        },
       },
       pdf: {
         _defaults: {
           anonymous: false,
           exportType: 'statementsOnly',
           sortType: 'false',
-          template: 'condensed'
+          template: 'condensed',
         },
         anonymize: true,
         buttonLabel: 'export.pdf',
@@ -45,15 +46,15 @@ describe('ExportModal', () => {
         tabLabel: 'export.pdf',
         templates: {
           condensed: {
-            name: 'export.compact'
+            name: 'export.compact',
           },
           landscape: {
-            name: 'export.landscape'
+            name: 'export.landscape',
           },
           portrait: {
-            name: 'export.portrait'
-          }
-        }
+            name: 'export.portrait',
+          },
+        },
 
       },
       xlsx: {
@@ -61,37 +62,37 @@ describe('ExportModal', () => {
           anonymous: false,
           exportType: 'topicsAndTags',
           sortType: 'false',
-          template: 'compact'
+          template: 'compact',
         },
         anonymize: false,
         buttonLabel: 'export.xlsx',
         buttonLabelSingle: 'export.trigger.xlsx',
         exportTypes: true,
         obscure: false,
-        tabLabel: 'export.xlsx'
+        tabLabel: 'export.xlsx',
       },
       zip: {
         _defaults: {
           anonymous: false,
-          exportType: 'statementsWithAttachments'
+          exportType: 'statementsWithAttachments',
         },
         buttonLabel: 'export.zip',
         tabLabel: 'export.zip',
         templates: {
           condensed: {
-            name: 'export.compact'
+            name: 'export.compact',
           },
           landscape: {
-            name: 'export.landscape'
+            name: 'export.landscape',
           },
           portrait: {
-            name: 'export.portrait'
-          }
-        }
-      }
+            name: 'export.portrait',
+          },
+        },
+      },
     },
     procedureId: '1',
-    view: 'assessment_table'
+    view: 'assessment_table',
   }
 
   let wrapper
@@ -100,18 +101,27 @@ describe('ExportModal', () => {
     wrapper = shallowMountWithGlobalMocks(
       ExportModal,
       {
-        propsData: props
+        props,
+        global: {
+          renderStubDefaultSlot: true,
+          stubs: {
+            'dp-modal': {
+              template: '<div><slot /></div>',
+              methods: {
+                toggle: jest.fn(),
+              },
+            },
+          },
+        },
       })
   })
 
-  afterEach(() => {
-    wrapper.destroy()
-  })
+  enableAutoUnmount(afterEach)
 
   it('displays each optGroup as tab', () => {
     const tabButtons = wrapper.findAll('button')
     const optGroups = Object.keys(props.options)
-    const buttonTexts = tabButtons.wrappers.map(button => button.text())
+    const buttonTexts = tabButtons.map(button => button.text())
 
     optGroups.forEach(key => {
       expect(buttonTexts).toContain(props.options[key].tabLabel)
@@ -131,10 +141,6 @@ describe('ExportModal', () => {
 
   it('triggers a "submit" event when the submit button is clicked', async () => {
     wrapper.vm.submit = jest.fn()
-    wrapper.vm.$refs.exportModal = {
-      toggle: jest.fn()
-    }
-
     wrapper.vm.handleSubmit()
 
     const event = wrapper.emitted('submit')
@@ -160,9 +166,9 @@ describe('ExportModal', () => {
           pdf: {
             ...props.options.pdf,
             anonymize: false,
-            obscure: false
-          }
-        }
+            obscure: false,
+          },
+        },
       })
 
       const checkboxStub = wrapper.find('[datacy="exportModal:pdfAnonymous"]')
@@ -171,7 +177,7 @@ describe('ExportModal', () => {
 
     it('displays "new page per statement" checkbox in the pdf tab in the original statements view if "newPagePerStn" option is set to true', async () => {
       await wrapper.setProps({
-        view: 'original_statements'
+        view: 'original_statements',
       })
 
       const checkboxStub = wrapper.find('[datacy="exportModal:newPagePerStn"]')
@@ -180,7 +186,7 @@ describe('ExportModal', () => {
 
     it('does not display "new page per statement" checkbox in the pdf tab if "newPagePerStn" option is set to true, but view is "assessment_table"', async () => {
       await wrapper.setProps({
-        view: 'assessment_table'
+        view: 'assessment_table',
       })
 
       const checkboxStub = wrapper.find('[datacy="exportModal:newPagePerStn"]')
@@ -194,9 +200,9 @@ describe('ExportModal', () => {
           ...props.options,
           pdf: {
             ...props.options.pdf,
-            newPagePerStn: false
-          }
-        }
+            newPagePerStn: false,
+          },
+        },
       })
 
       const checkboxStub = wrapper.find('[datacy="exportModal:newPagePerStn"]')
@@ -214,9 +220,9 @@ describe('ExportModal', () => {
           ...props.options,
           pdf: {
             ...props.options.pdf,
-            templates: false
-          }
-        }
+            templates: false,
+          },
+        },
       })
 
       const radioButtons = wrapper.findAll('[datacy^="exportModal:pdfTemplate"]')
@@ -225,7 +231,7 @@ describe('ExportModal', () => {
 
     it('displays radio buttons for selecting the data to be exported if pdf.exportTypes option exists, the selected pdf template is "condensed", and the view is "assessment_table"', async () => {
       await wrapper.setProps({
-        view: 'assessment_table'
+        view: 'assessment_table',
       })
 
       const radioButtons = wrapper.findAll('[datacy^="exportModal:pdfExportType"]')
@@ -241,9 +247,9 @@ describe('ExportModal', () => {
             anonymize: false,
             exportTypes: false,
             obscure: false,
-            templates: false
-          }
-        }
+            templates: false,
+          },
+        },
       })
       const explanationText = 'explanation.export.anonymous'
 
@@ -252,7 +258,7 @@ describe('ExportModal', () => {
 
     it('displays a message that pdf fragment export is deactivated if the view mode is not "view_mode_default"', async () => {
       await wrapper.setProps({
-        viewMode: 'view_mode_tag'
+        viewMode: 'view_mode_tag',
       })
       const message = 'explanation.export.disabled.viewMode'
       const pdfDiv = wrapper.find('#pdf')
@@ -282,9 +288,9 @@ describe('ExportModal', () => {
           docx: {
             ...props.options.docx,
             anonymize: false,
-            obscure: false
-          }
-        }
+            obscure: false,
+          },
+        },
       })
 
       const checkboxStub = wrapper.find('[datacy="exportModal:docxObscure"]')
@@ -298,7 +304,7 @@ describe('ExportModal', () => {
 
     it('displays radio buttons for selecting the data to be exported if docx.exportTypes option exists, the selected docx template is "condensed", and the view is "assessment_table"', async () => {
       await wrapper.setProps({
-        view: 'assessment_table'
+        view: 'assessment_table',
       })
 
       const radioButtons = wrapper.findAll('[datacy^="exportModal:docxExportType"]')
@@ -307,7 +313,7 @@ describe('ExportModal', () => {
 
     it('displays radio buttons for selecting the structuring of the docx export if docx.exportTypes option is true, the selected docx template is "condensed", and the view is "assessment_table"', async () => {
       await wrapper.setProps({
-        view: 'assessment_table'
+        view: 'assessment_table',
       })
       const radioButtonStubs = wrapper.findAll('[datacy^="exportModal:docxSortType"]')
 
@@ -323,9 +329,9 @@ describe('ExportModal', () => {
             anonymize: false,
             exportTypes: false,
             obscure: false,
-            templates: false
-          }
-        }
+            templates: false,
+          },
+        },
       })
       const explanationText = 'explanation.export.anonymous'
 
@@ -334,7 +340,7 @@ describe('ExportModal', () => {
 
     it('displays a message that docx fragment export is deactivated if the view mode is not "view_mode_default"', async () => {
       await wrapper.setProps({
-        viewMode: 'view_mode_tag'
+        viewMode: 'view_mode_tag',
       })
       const message = 'explanation.export.disabled.viewMode'
       const docxDiv = wrapper.find('#docx')
@@ -357,9 +363,9 @@ describe('ExportModal', () => {
           ...props.options,
           xlsx: {
             ...props.options.xlsx,
-            anonymize: true
-          }
-        }
+            anonymize: true,
+          },
+        },
       })
       const checkboxStub = wrapper.find('[datacy="exportModal:xlsxAnonymous"]')
 
@@ -381,7 +387,7 @@ describe('ExportModal', () => {
 
     it('displays a third radio button for selecting that statements will be exported if the permission "feature_admin_assessmenttable_export_statement_generic_xlsx" is true', () => {
       global.features = {
-        feature_admin_assessmenttable_export_statement_generic_xlsx: true
+        feature_admin_assessmenttable_export_statement_generic_xlsx: true,
       }
       const radioButtonStubs = wrapper.findAll('[datacy^="exportModal:xlsxExportType"]')
 
@@ -394,9 +400,9 @@ describe('ExportModal', () => {
           ...props.options,
           xlsx: {
             ...props.options.xlsx,
-            exportTypes: false
-          }
-        }
+            exportTypes: false,
+          },
+        },
       })
 
       const radioButtonStubs = wrapper.findAll('[datacy^="exportModal:xlsxExportType"]')
@@ -418,9 +424,9 @@ describe('ExportModal', () => {
           ...props.options,
           zip: {
             ...props.options.zip,
-            templates: false
-          }
-        }
+            templates: false,
+          },
+        },
       })
       const radioButtonStubs = wrapper.findAll('[datacy^="exportModal:zipTemplate"]')
 

@@ -13,27 +13,26 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\Plis;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DemosPlanPlisController extends BaseController
 {
     /**
      * Gib den Planungsanlass zu einem Verfahren aus der PLIS-Datenbank aus.
      *
-     * @DplanPermissions("feature_use_plis")
-     *
      * @param string $uuid
      *
      * @return Response
      */
+    #[DplanPermissions('feature_use_plis')]
     #[Route(name: 'DemosPlan_plis_get_procedure', path: '/plis/getProcedure/{uuid}', options: ['expose' => true])]
-    public function getLgvPlisPlanningcauseAction(Plis $procedureHandlerBobhh, $uuid)
+    public function getLgvPlisPlanningcause(Plis $procedureHandlerBobhh, $uuid)
     {
         try {
             $procedure = $procedureHandlerBobhh->getLgvPlisPlanningcause($uuid);
@@ -62,19 +61,16 @@ class DemosPlanPlisController extends BaseController
     /**
      * Gib den Namen zu einem Verfahren aus der PLIS-Datenbank aus.
      *
-     * @DplanPermissions("feature_use_plis")
-     *
      * @param string $uuid Procedure Identifier
-     *
-     * @return JsonResponse
      */
+    #[DplanPermissions('feature_use_plis')]
     #[Route(name: 'DemosPlan_plis_get_procedure_name', path: '/plis/getProcedureName/{uuid}', options: ['expose' => true])]
-    public function getLgvPlisProcedureNameJsonAction(Plis $plis, $uuid)
+    public function getLgvPlisProcedureNameJson(Plis $plis, $uuid): JsonResponse
     {
         try {
             $procedureList = $plis->getLgvPlisProcedureList();
 
-            if (0 === count($procedureList)) {
+            if ([] === $procedureList) {
                 throw new Exception('Kein Verfahren gefunden');
             }
             $procedureName = '';

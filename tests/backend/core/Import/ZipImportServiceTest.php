@@ -103,8 +103,8 @@ class ZipImportServiceTest extends FunctionalTestCase
 
         $result = $this->sut->extractZipToTempFolder($splFileInfo, $this->testProcedure->getId());
 
-        self::assertEquals(
-            '/tmp/'.$this->currentUserService->getUser()->getId().'/'.$this->testProcedure->getId().
+        self::assertStringEndsWith(
+            $this->currentUserService->getUser()->getId().'/'.$this->testProcedure->getId().
             '/Abwaegungstabelle_Export_Testfile.zip/Auswertung_Abwaegungstabelle_Export',// todo mimetype missing?
             $result
         );
@@ -133,8 +133,8 @@ class ZipImportServiceTest extends FunctionalTestCase
             $user
         );
 
-        self::assertEquals(
-            '/tmp/'.$user->getId().'/'.$this->testProcedure->getId().'/Abwaegungstabelle_Export_Testfile.zip',
+        self::assertStringEndsWith(
+            $user->getId().'/'.$this->testProcedure->getId().'/Abwaegungstabelle_Export_Testfile.zip',
             $result
         );
     }

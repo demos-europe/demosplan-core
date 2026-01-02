@@ -24,7 +24,7 @@ class PublicAffairsAgentHandlerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(PublicAffairsAgentHandler::class);
+        $this->sut = self::getContainer()->get(PublicAffairsAgentHandler::class);
     }
 
     /**

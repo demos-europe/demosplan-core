@@ -8,7 +8,10 @@
 </license>
 
 <template>
-  <div :class="[statement.r_getFeedback === 'on' ? prefixClass('bg-color--grey-light-2') : '', prefixClass('c-statement__formblock')]">
+  <div
+    v-if="publicParticipationFeedbackEnabled"
+    :class="[statement.r_getFeedback === 'on' ? prefixClass('bg-color--grey-light-2') : '', prefixClass('c-statement__formblock')]"
+  >
     <dp-checkbox
       id="r_getFeedback"
       data-cy="personalInformationMail"
@@ -18,24 +21,27 @@
         text: Translator.trans('statement.detail.form.personal.require_information_mail')
       }"
       name="r_getFeedback"
-      @change="val => setStatementData({r_getFeedback: val ? 'on' : 'off'})" />
+      @change="val => setStatementData({r_getFeedback: val ? 'on' : 'off'})"
+    />
 
     <div
       v-show="statement.r_getFeedback === 'on'"
-      :class="prefixClass('mb-2')">
+      :class="prefixClass('mb-2')"
+    >
       <dp-radio
         v-if="hasPermission('feature_statements_feedback_postal')"
         id="r_getEvaluation"
         name="r_getEvaluation"
         data-cy="personalAnswerEmail"
         :class="prefixClass('mt-2')"
-        @change="val => setStatementData({r_getEvaluation: 'email'})"
         :checked="statement.r_getEvaluation === 'email' && statement.r_getFeedback === 'on'"
         aria-labelledby="statement-detail-require-response-email"
         :label="{
           text: Translator.trans('statement.form.personal.require_answer_email')
         }"
-        value="email" />
+        value="email"
+        @change="val => setStatementData({r_getEvaluation: 'email'})"
+      />
 
       <!--              {# email address #}-->
       <div :class="prefixClass('layout pl-4')">
@@ -53,9 +59,10 @@
           name="r_email"
           :required="statement.r_getEvaluation === 'email'"
           type="email"
-          :value="statement.r_email"
+          :model-value="statement.r_email"
           width="u-1-of-1-palm u-1-of-2"
-          @input="val => hasPermission('feature_statements_feedback_check_email') ? setStatementData({r_email: val}) : setStatementData({r_email: val, r_email2: val})" /><!--
+          @input="val => hasPermission('feature_statements_feedback_check_email') ? setStatementData({r_email: val}) : setStatementData({r_email: val, r_email2: val})"
+        /><!--
 
         if repeating of email input is enforced, display second email field
      --><dp-input
@@ -74,9 +81,10 @@
           name="r_email2"
           :required="statement.r_getEvaluation === 'email'"
           type="email"
-          :value="statement.r_email2"
+          :model-value="statement.r_email2"
           width="u-1-of-1-palm u-1-of-2"
-        @input="val => setStatementData({r_email2: val})" /><!--
+        @input="val => setStatementData({r_email2: val})"
+        /><!--
      --><dp-radio
           v-if="hasPermission('feature_statements_feedback_postal')"
           id="r_getEvaluation_snailmail"
@@ -84,23 +92,26 @@
           :class="prefixClass('mt-3')"
           name="r_getEvaluation"
           :disabled="statement.r_useName === '0'"
-          @change="val => setStatementData({r_getEvaluation: 'snailmail'})"
           :checked="statement.r_getEvaluation === 'snailmail' && statement.r_getFeedback === 'on'"
           :label="{
             text: Translator.trans('statement.form.personal.require_answer_post')
           }"
           aria-labelledby="statement-detail-require-response-post"
-          value="snailmail" />
+          value="snailmail"
+          @change="val => setStatementData({r_getEvaluation: 'snailmail'})"
+        />
         <form-group-street-and-number
           v-show="statement.r_useName !== '0'"
           :class="prefixClass('layout__item u-1-of-1-palm u-2-of-3 mt-2 u-pl-1_5')"
           :disabled="statement.r_useName === '0'"
-          :required="statement.r_getFeedback === 'on' && statement.r_getEvaluation === 'snailmail' && statement.r_useName !== '0'" /><!--
+          :required="statement.r_getFeedback === 'on' && statement.r_getEvaluation === 'snailmail' && statement.r_useName !== '0'"
+        /><!--
      --><form-group-postal-and-city
           v-show="statement.r_useName !== '0'"
           :class="prefixClass('layout__item u-1-of-1-palm u-2-of-3 mt-2 u-pl-1_5')"
           :disabled="statement.r_useName === '0'"
-          :required="statement.r_getFeedback === 'on' && statement.r_getEvaluation === 'snailmail' && statement.r_useName !== '0'" />
+          :required="statement.r_getFeedback === 'on' && statement.r_getEvaluation === 'snailmail' && statement.r_useName !== '0'"
+        />
       </div>
     </div>
   </div>
@@ -119,9 +130,17 @@ export default {
     FormGroupPostalAndCity,
     FormGroupStreetAndNumber,
     DpCheckbox,
-    DpRadio
+    DpRadio,
   },
 
-  mixins: [formGroupMixin, prefixClassMixin]
+  mixins: [formGroupMixin, prefixClassMixin],
+
+  props: {
+    publicParticipationFeedbackEnabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+  },
 }
 </script>

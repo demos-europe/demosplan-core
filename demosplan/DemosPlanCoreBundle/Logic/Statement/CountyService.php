@@ -10,17 +10,20 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use Doctrine\ORM\ORMException;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\CountyRepository;
+use Doctrine\ORM\ORMException;
 use Exception;
+use Psr\Log\LoggerInterface;
 
-class CountyService extends CoreService
+class CountyService
 {
-    public function __construct(private readonly CountyRepository $countyRepository, private readonly CustomerService $customerService)
-    {
+    public function __construct(
+        private readonly CountyRepository $countyRepository,
+        private readonly CustomerService $customerService,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
@@ -61,7 +64,7 @@ class CountyService extends CoreService
         $counties = $this->getAllCounties();
 
         return \collect($counties)->map(
-            fn(County $county) => ['id' => $county->getId(), 'name' => $county->getName()]
+            fn (County $county) => ['id' => $county->getId(), 'name' => $county->getName()]
         )
             ->sortBy('name')
             ->values()

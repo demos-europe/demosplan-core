@@ -215,8 +215,8 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
             $gis->setDefaultVisibility($data['default']);
 
             // set default of all group member
-            if (!is_null($gis->getVisibilityGroupId())) {
-                $gisLayers = $this->getByVisibilityGroupId($gis->getVisibilityGroupId());
+            if (null !== $gis->getVisibilityGroupId() && '' !== $gis->getVisibilityGroupId()) {
+                $gisLayers = $this->getByVisibilityGroupId($gis->getVisibilityGroupId(), $gis->getProcedureId());
                 foreach ($gisLayers as $gisLayer) {
                     $gisLayer->setDefaultVisibility($gis->hasDefaultVisibility());
                     $this->updateObject($gisLayer);
@@ -228,8 +228,8 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
             $gis->setDefaultVisibility($data['defaultVisibility']);
 
             // set default of all group member
-            if (!is_null($gis->getVisibilityGroupId())) {
-                $gisLayers = $this->getByVisibilityGroupId($gis->getVisibilityGroupId());
+            if (null !== $gis->getVisibilityGroupId() && '' !== $gis->getVisibilityGroupId()) {
+                $gisLayers = $this->getByVisibilityGroupId($gis->getVisibilityGroupId(), $gis->getProcedureId());
                 foreach ($gisLayers as $gisLayer) {
                     $gisLayer->setDefaultVisibility($gis->hasDefaultVisibility());
                     $this->updateObject($gisLayer);
@@ -476,11 +476,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     {
         try {
             $checkSum = 0;
-            if (array_key_exists('idents', $gisLayerIds)) {
-                $idents = $gisLayerIds['idents'];
-            } else {
-                $idents = $gisLayerIds;
-            }
+            $idents = array_key_exists('idents', $gisLayerIds) ? $gisLayerIds['idents'] : $gisLayerIds;
 
             $size = is_countable($idents) ? count($idents) : 0;
             for ($i = 0; $i < $size; ++$i) {
@@ -589,8 +585,8 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
         if (array_key_exists('enabled', $data)) {
             $gisLayer->setEnabled($data['enabled']);
 
-            if (!is_null($gisLayer->getVisibilityGroupId())) {
-                $gisLayers = $this->getByVisibilityGroupId($gisLayer->getVisibilityGroupId());
+            if (null !== $gisLayer->getVisibilityGroupId() && '' !== $gisLayer->getVisibilityGroupId()) {
+                $gisLayers = $this->getByVisibilityGroupId($gisLayer->getVisibilityGroupId(), $gisLayer->getProcedureId());
                 foreach ($gisLayers as $gisLayerOfGroup) {
                     $gisLayerOfGroup->setEnabled($gisLayer->getVisible());
                     $this->updateObject($gisLayerOfGroup);
@@ -668,13 +664,16 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     }
 
     /**
-     * @param string $visibilityGroupId
-     *
      * @return GisLayer[]
      */
-    public function getByVisibilityGroupId($visibilityGroupId)
+    public function getByVisibilityGroupId(string $visibilityGroupId, string $procedureId)
     {
-        return $this->findBy(['visibilityGroupId' => $visibilityGroupId]);
+        return $this->findBy(
+            [
+                'visibilityGroupId' => $visibilityGroupId,
+                'procedureId'       => $procedureId,
+            ]
+        );
     }
 
     /**

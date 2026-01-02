@@ -7,14 +7,10 @@
  * All rights reserved
  */
 
+import Vuex from 'vuex'
+
 export default function () {
   return {
-    actions: {
-      get: jest.fn()
-    },
-    getters: {
-      selectedElementsLength: jest.fn()
-    },
     store: new Vuex.Store({
       modules: {
         Statement: {
@@ -22,12 +18,16 @@ export default function () {
           state: {
             procedureId: '',
             selectedElements: {},
-            statements: {}
+            statements: {},
           },
-          actions,
-          getters
-        }
-      }
-    })
+          actions: {
+            get: jest.fn(),
+          },
+          getters: {
+            selectedElementsLength: jest.fn(),
+          },
+        },
+      },
+    }),
   }
 }

@@ -6,8 +6,6 @@
  *
  * All rights reserved
  */
-
-import { del, set } from 'vue'
 import { dpApi, handleResponseMessages, hasAnyPermissions, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 /**
@@ -21,7 +19,7 @@ function addTitleAttr (data) {
   if (hasElement) {
     titleAttrs = {
       elementId: data.data.relationships.elements.data.id,
-      elementTitle: ''
+      elementTitle: '',
     }
   }
 
@@ -91,25 +89,58 @@ function getDataFromResponse (response, dataToUpdate, updatedData) {
   return dataToUpdate
 }
 
+function extractFileAttachments (attachments, includes) {
+  const results = attachments
+    .map(att => {
+      const fileId = att?.relationships?.file?.data?.id
+      const file = includes.find(include => include.type === 'File' && include.id === fileId)
+
+      return file ? { id: file.id, ...file.attributes } : null
+    })
+    .filter(Boolean)
+
+  return results
+}
+
+function mapRelations (data, includes) {
+  const ids = data.map(el => el.id)
+  const type = data[0].type
+
+  return includes
+    .filter(item => item.type === type && ids.includes(item.id))
+    .map(item => ({
+      id: item.id,
+      ...item.attributes,
+      ...(item.relationships && { relationships: item.relationships }),
+    }))
+}
+
+function mapSingleRelation ({ id, type }, includes) {
+  if (!id) return null
+  const item = includes.find(incl => incl.id === id && incl.type === type)
+
+  return item ? { id: item.id, ...item.attributes } : null
+}
+
 function setUpdatedProps (data) {
   // If we update element/paragraph/document we want to update title too, so we set it as attribute to get the value from response in the loop below
   data.data.attributes = {
     ...data.data.attributes,
-    ...addTitleAttr(data)
+    ...addTitleAttr(data),
   }
 
   //  Loop over data (a.k.a. what is passed from component to be saved)
   let updatedData = {}
   if (data.data.attributes) {
     updatedData = {
-      ...data.data.attributes
+      ...data.data.attributes,
     }
   }
 
   if (data.data.relationships) {
     updatedData = {
       ...updatedData,
-      ...data.data.relationships
+      ...data.data.relationships,
     }
   }
 
@@ -125,19 +156,19 @@ function setUpdatedProps (data) {
 function transformStatementStructure ({ el, includes, meta }) {
   // Map attributes to match the old structure/naming
   const statement = el.attributes
-  statement.id = el.id
   statement.clusterName = statement.name || ''
+  statement.files = statement.files || []
   statement.fragments = statement.fragments || []
   statement.fragmentsElements = statement.fragmentsElements || []
   statement.fragmentsTotal = statement.fragmentsCount || 0
-  statement.files = statement.files || []
-  statement.attachments = statement.attachments || []
-  statement.sourceAttachment = statement.sourceAttachment || ''
+  statement.genericAttachments = statement.genericAttachments || []
+  statement.id = el.id
   statement.initialFilteredFragmentsCount = statement.filteredFragmentsCount || 0 // This Information is missing from BE-Side by now
-  statement.phase = Translator.trans(statement.phase)
   statement.isFiltered = meta.isFiltered || false
-  statement.orgaName = statement.organisationName
   statement.orgaDepartmentName = statement.organisationDepartmentName
+  statement.orgaName = statement.organisationName
+  statement.phase = Translator.trans(statement.phase)
+  statement.sourceAttachment = statement.sourceAttachment || ''
 
   if (hasOwnProp(el, 'relationships')) {
     const relationships = Object.keys(el.relationships)
@@ -145,47 +176,27 @@ function transformStatementStructure ({ el, includes, meta }) {
     // Get the data for the relationships and put it into the statement-element
     relationships.forEach(relationKey => {
       const relation = el.relationships[relationKey]
+      const data = relation?.data
+
       // For 1-n Relations
-      if (relation.data instanceof Array) {
-        if (relation.data.length > 0) {
-          const ids = relation.data.map(id => id.id)
-          const type = relation.data[0].type
+      if (Array.isArray(data)) {
+        const items = data.length ? mapRelations(data, includes) : []
+        statement[relationKey] = items
 
-          statement[relationKey] = includes.filter(incl => ids.includes(incl.id) && type === incl.type)
-          statement[relationKey] = statement[relationKey].map(statementRel => Object.assign(statementRel.attributes, { id: statementRel.id }))
+        if (relationKey === 'genericAttachments') {
+          statement.genericAttachments = extractFileAttachments(items, includes)
+        }
 
-          if (type === 'SourceStatementAttachment' && hasOwnProp(statement[relationKey][0], 'id')) {
-            const attachment = includes
-              .filter(incl => incl.type === 'SourceStatementAttachment')
-              .filter(incl => statement[relationKey][0].id === incl.id)
-
-            if (hasOwnProp(attachment[0], 'relationships')) {
-              const sourceAttachment = includes
-                .filter(incl => incl.type === 'File')
-                .filter(incl => attachment[0].relationships.file.data.id === incl.id)
-                .map(sourceAtt => Object.assign(sourceAtt.attributes, { id: sourceAtt.id }))
-
-              statement.sourceAttachment = sourceAttachment[0]
-            } else {
-              statement.sourceAttachment = undefined
-            }
-          }
-        } else {
-          statement[relationKey] = []
+        if (relationKey === 'sourceAttachment') {
+          statement.sourceAttachment = extractFileAttachments(items, includes)[0] ?? ''
         }
 
         return
       }
+
       // For 1-1 relations
-      if (relation.data instanceof Object) {
-        if (hasOwnProp(relation.data, 'id')) {
-          const id = relation.data.id
-          const type = relation.data.type
-          statement[relationKey] = includes.find(incl => id === incl.id && type === incl.type)
-          statement[relationKey] = Object.assign(statement[relationKey].attributes, { id: statement[relationKey].id })
-        } else {
-          statement[relationKey] = null
-        }
+      if (data?.id) {
+        statement[relationKey] = mapSingleRelation(data, includes)
       }
     })
   }
@@ -223,7 +234,7 @@ export default {
     pagination: {},
     persistStatementSelection: true,
     initStatements: [],
-    statementGrouping: {}
+    statementGrouping: {},
   },
 
   mutations: {
@@ -231,7 +242,7 @@ export default {
      * @param {Object} element
      */
     addElementToSelection (state, element) {
-      set(state.selectedElements, [element.id], element)
+      state.selectedElements[element.id] = element
     },
 
     /**
@@ -261,7 +272,7 @@ export default {
      * @param {String} elementId
      */
     removeElementFromSelection (state, elementId) {
-      del(state.selectedElements, elementId)
+      delete state.selectedElements[elementId]
     },
 
     /**
@@ -269,7 +280,7 @@ export default {
      * @param {String} statementId
      */
     removeStatement (state, statementId) {
-      del(state.statements, statementId)
+      delete state.statements[statementId]
     },
 
     /**
@@ -277,7 +288,7 @@ export default {
      * @param {Object} elements
      */
     replaceElementSelection (state, elements) {
-      set(state, 'selectedElements', elements)
+      state.selectedElements = elements
       const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements'))
 
       if (hasOwnProp(selectedEntries, state.procedureId) && state.persistStatementSelection) {
@@ -292,7 +303,7 @@ export default {
      * @param {Object} newStatement
      */
     replaceStatement (state, oldStatementId, newStatement) {
-      set(state.statements, oldStatementId, newStatement)
+      state.statements[oldStatementId] = newStatement
     },
 
     resetSelection (state) {
@@ -300,28 +311,28 @@ export default {
     },
 
     resetStatements (state) {
-      set(state, 'statements', {})
+      state.statements = {}
     },
 
     /**
      * @param value
      */
     setFilteredState (state, value) {
-      set(state, 'isFiltered', value)
+      state.isFiltered = value
     },
 
     /**
      * @param {Object} data
      */
     setInitStatements (state, data) {
-      set(state, 'initStatements', data)
+      state.initStatements = data
     },
 
     /**
      * @param {String} value
      */
     setProcedureId (state, value) {
-      set(state, 'procedureId', value)
+      state.procedureId = value
     },
 
     setSelectedElements (state, elements) {
@@ -332,7 +343,7 @@ export default {
      * Set grouping of statements as displayed in the TOC
      */
     setStatementGrouping (state, grouping) {
-      set(state, 'statementGrouping', grouping)
+      state.statementGrouping = grouping
     },
 
     setStatements (state, statements) {
@@ -344,15 +355,15 @@ export default {
      */
 
     updateFilterHash (state, value) {
-      set(state, 'filterHash', value)
+      state.filterHash = value
     },
 
     updatePagination (state, value) {
-      set(state, 'pagination', Object.assign(state.pagination, value))
+      state.pagination = Object.assign(state.pagination, value)
     },
 
     updatePersistStatementSelection (state, value) {
-      set(state, 'persistStatementSelection', value)
+      state.persistStatementSelection = value
     },
 
     /**
@@ -367,12 +378,12 @@ export default {
 
       // If assignee was changed and statement is selected, we have to update selectedElements in store and sessionStorage
       if (hasOwnProp(data, 'assignee') && hasOwnProp(state.selectedElements, data.id)) {
-        set(state.selectedElements[data.id], 'assignee', data.assignee)
+        state.selectedElements[data.id].assignee = data.assignee
         state.selectedElements = { ...state.selectedElements }
 
         if (state.persistStatementSelection) {
           const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements')) || {}
-          selectedEntries[state.procedureId][data.id].assignee = data.assignee
+          selectedEntries[state.procedureId][data.id].assignee = data.assigne
           sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
         }
       }
@@ -387,7 +398,7 @@ export default {
        */
       const newStatement = { [data.id]: { ...state.statements[data.id], ...data } }
       state.statements = { ...state.statements, ...newStatement }
-    }
+    },
   },
 
   actions: {
@@ -424,11 +435,9 @@ export default {
         url: Routing.generate('dplan_api_statement_copy_to_procedure', {
           procedureId: state.procedureId,
           statementId: data.statementId,
-          targetProcedureId: data.procedureId
-        })
+          targetProcedureId: data.procedureId,
+        }),
       })
-        .then(this.api.checkResponse)
-        .then(response => response)
     },
 
     /**
@@ -439,15 +448,14 @@ export default {
       return dpApi({
         method: 'POST',
         url: Routing.generate('dplan_api_create_group_statement', {
-          procedureId: state.procedureId
+          procedureId: state.procedureId,
         }),
         data: { data },
         headers: {
           'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        }
+          Accept: 'application/vnd.api+json',
+        },
       })
-        .then(this.api.checkResponse)
         .then(response => {
           dispatch('resetSelection') // The selected statements were deleted, so we can completely reset selection
 
@@ -455,7 +463,7 @@ export default {
           data.relationships.statements.data.forEach(stn => dispatch('removeStatementAction', stn.id))
 
           // Transform newCluster from BE from JSON:API structure into our old structure
-          const transformedStatement = transformStatementStructure({ el: response.data, includes: response.included, meta: response.meta })
+          const transformedStatement = transformStatementStructure({ el: response.data.data, includes: response.data.included, meta: response.data.meta })
 
           // Add new cluster to store with addStatement mutation
           commit('addStatement', transformedStatement)
@@ -472,8 +480,8 @@ export default {
 
     /**
      * Get statements
-     * attachments are `Originalstellungnahme-Anhang` and can be only one file
-     * files are `weitere Anhänge`
+     * sourceAttachment are `Originalstellungnahme-Anhang` and can be only one file
+     * genericAttachments are `weitere Anhänge`
      * @param {Object} data
      */
     getStatementAction ({ commit, state, rootState }, data) {
@@ -482,9 +490,9 @@ export default {
         'paragraph',
         'document',
         'assignee',
-        'attachments',
-        'attachments.file',
-        'files'
+        'sourceAttachment',
+        'sourceAttachment.file',
+        'genericAttachments.file',
       ]
 
       /*
@@ -530,7 +538,7 @@ export default {
           filterSetHash: data.filterHash,
           page: {
             number: data.pagination.current_page,
-            size: data.pagination.count
+            size: data.pagination.count,
           },
           view_mode: rootState.AssessmentTable.viewMode,
           sort: data.sort,
@@ -541,7 +549,6 @@ export default {
               ...statementFields,
               'anonymous',
               'assignee',
-              'attachments',
               'authoredDate',
               'authorName',
               'document',
@@ -549,7 +556,7 @@ export default {
               'elementId',
               'elements',
               'externId',
-              'files',
+              'genericAttachments',
               'filteredFragmentsCount',
               'formerExternId',
               'fragmentsCount',
@@ -576,6 +583,7 @@ export default {
               'publicVerifiedTranslation',
               'recommendation',
               'recommendationIsTruncated',
+              'sourceAttachment',
               'status',
               'submitDate',
               'submitName',
@@ -587,47 +595,46 @@ export default {
               'userState',
               'votePla',
               'votesNum',
-              'voteStk'
+              'voteStk',
             ].join(),
             Claim: [
               'name',
-              'orgaName'
+              'orgaName',
             ].join(),
             Elements: 'title',
             File: [
               'filename',
-              'hash'
+              'hash',
             ].join(),
             StatementFragmentsElements: [
               'elementTitle',
-              'paragraphTitle'
+              'paragraphTitle',
             ].join(),
             SingleDocument: [
               'parentId',
-              'title'
+              'title',
             ].join(),
             SourceStatementAttachment: [
               'file',
-              'attachmentType'
-            ].join()
+              'attachmentType',
+            ].join(),
           },
-          include: includes.join(',')
-        })
+          include: includes.join(','),
+        }),
       })
-        .then(this.api.checkResponse)
-        .then(response => {
+        .then(({ data }) => {
           performance.mark('start')
-          commit('updatePagination', response.meta.pagination)
+          commit('updatePagination', data.meta.pagination)
           commit('resetStatements')
-          commit('setFilteredState', response.meta.isFiltered)
-          commit('setInitStatements', response.meta.statementAssignments)
-          commit('setStatementGrouping', response.meta.grouping)
-          commit('updateFilterHash', response.meta.filterHash)
+          commit('setFilteredState', data.meta.isFiltered)
+          commit('setInitStatements', data.meta.statementAssignments)
+          commit('setStatementGrouping', data.meta.grouping)
+          commit('updateFilterHash', data.meta.filterHash)
           const refinedStatements = {}
           const sessionStorageUpdates = {}
 
-          response.data.forEach(statement => {
-            const transformedStatement = prepareStatement({ el: statement, includes: response.included, meta: response.meta })
+          data.data.forEach(statement => {
+            const transformedStatement = prepareStatement({ el: statement, includes: data.included, meta: data.meta })
 
             if (hasOwnProp(state.selectedElements, transformedStatement.id)) {
               sessionStorageUpdates[transformedStatement.id] = transformedStatement
@@ -647,7 +654,7 @@ export default {
           performance.mark('end')
           performance.measure('dur', 'start', 'end')
 
-          return response
+          return data
         })
         .catch(e => {
           console.error(e)
@@ -666,14 +673,12 @@ export default {
         url: Routing.generate('dplan_api_statement_move', {
           procedureId: state.procedureId,
           statementId: data.statementId,
-          targetProcedureId: data.procedureId
+          targetProcedureId: data.procedureId,
         }),
         data: {
-          deleteVersionHistory: data.deleteVersionHistory
-        }
+          deleteVersionHistory: data.deleteVersionHistory,
+        },
       })
-        .then(this.api.checkResponse)
-        .then(response => response)
     },
 
     /**
@@ -738,15 +743,14 @@ export default {
         data: {
           data: {
             type: 'user',
-            id: assigneeId
-          }
+            id: assigneeId,
+          },
         },
         headers: {
           'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        }
+          Accept: 'application/vnd.api+json',
+        },
       })
-        .then(this.api.checkResponse)
         .then(response => {
           let assignee = {}
           if (assigneeId === '' || assigneeId == null) {
@@ -754,7 +758,12 @@ export default {
             commit('updateStatement', { id: statementId, assignee })
             return { id: statementId, assignee }
           } else {
-            assignee = { id: response.data.id, uId: response.data.id, name: response.data.attributes.name, orgaName: response.data.attributes.orgaName }
+            assignee = {
+              id: response.data.data.id,
+              uId: response.data.data.id,
+              name: response.data.data.attributes.name,
+              orgaName: response.data.data.attributes.orgaName,
+            }
             commit('updateStatement', { id: statementId, assignee })
             return { id: statementId, assignee }
           }
@@ -858,28 +867,27 @@ export default {
           procedureId: state.procedureId,
           include: [
             'assignee',
-            'attachments',
-            'attachments.file',
+            'sourceAttachment',
+            'sourceAttachment.file',
             'counties',
             'document',
             'elements',
-            'files',
+            'genericAttachments.file',
             'fragmentsElements',
             'paragraph',
             'priorityAreas',
-            'tags'
-          ].join(',')
+            'tags',
+          ].join(','),
         }),
         data: payload,
         headers: {
-          'Content-type': 'application/json'
-        }
+          'Content-type': 'application/json',
+        },
       })
-        .then(this.api.checkResponse)
         .then(response => {
           let dataToUpdate = {}
           const updatedData = setUpdatedProps(data)
-          dataToUpdate = getDataFromResponse(response, dataToUpdate, updatedData)
+          dataToUpdate = getDataFromResponse(response.data, dataToUpdate, updatedData)
 
           /*
            * If paragraph or file was deleted by choosing an element without paragraphs or file,
@@ -889,11 +897,11 @@ export default {
 
           dataToUpdate = {
             ...dataToUpdate,
-            ...addIdAttr(dataToUpdate, data)
+            ...addIdAttr(dataToUpdate, data),
           }
 
           //  Keep id to find statement in mutation
-          dataToUpdate.id = response.data.id
+          dataToUpdate.id = response.data.data.id
 
           commit('updateStatement', { ...dataToUpdate })
 
@@ -914,15 +922,14 @@ export default {
       return dpApi({
         method: 'PATCH',
         url: Routing.generate('dplan_api_update_group_statement', {
-          procedureId: state.procedureId
+          procedureId: state.procedureId,
         }),
         data: { data },
         headers: {
           'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        }
+          Accept: 'application/vnd.api+json',
+        },
       })
-        .then(this.api.checkResponse)
         .then(response => {
           dispatch('resetSelection')
 
@@ -938,7 +945,7 @@ export default {
           }
           return e
         })
-    }
+    },
   },
 
   getters: {
@@ -997,7 +1004,7 @@ export default {
 
     statementsInOrder: state => ids => {
       return ids.map(id => state.statements[id])
-    }
-  }
+    },
+  },
 
 }

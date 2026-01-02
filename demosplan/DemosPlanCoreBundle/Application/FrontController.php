@@ -130,13 +130,6 @@ final class FrontController
         // method in your front controller instead of relying
         // on the configuration parameter `Request::enableHttpMethodParameterOverride()`;
         $request = Request::createFromGlobals();
-
-        // local and Dataport proxy
-        Request::setTrustedProxies(
-            ['172.24.116.3', '10.61.16.6'],
-            Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_HOST | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO
-        );
-
         $response = $kernel->handle($request);
         $response->send();
         $kernel->terminate($request, $response);

@@ -4,8 +4,8 @@ old_sound_rabbit_mq:
         default:
             url: '%rabbitmq_dsn%'
             lazy:     true
-            connection_timeout: 3
-            read_write_timeout: 3
+            connection_timeout: "%env(int:RABBITMQ_CONNECTION_TIMEOUT)%"
+            read_write_timeout: "%env(int:RABBITMQ_READ_WRITE_TIMEOUT)%"
     rpc_clients:
         demos_plan_import:
             connection: default

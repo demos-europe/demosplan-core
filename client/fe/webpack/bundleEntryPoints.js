@@ -8,13 +8,47 @@
  */
 
 const glob = require('glob')
+const fs = require('fs')
+const path = require('path')
+const log = require('./util').log
+const chalk = require('chalk')
 
-function bundleEntryPoints (clientBundleGlob) {
+/**
+ * Collects all entry points for the client bundles.
+ *
+ * This function scans the file system for JavaScript files matching the provided glob pattern
+ * and constructs an object where each key is a bundle name combined with the file name,
+ * and the value is the path to the file. This is useful for dynamically generating entry points
+ * in a Webpack configuration.
+ *
+ * Bundles can be overriden in projects by providing a file with the same name in the project directory.
+ * To access project-specific components, use the alias `@DpJsProject` in your imports.
+ *
+ * @param config
+ * @returns {{}}
+ */
+function bundleEntryPoints (config) {
   const entries = {}
+  glob.sync(config.clientBundleGlob).forEach(filename => {
+    const baseFilename = filename.replace(path.resolve(__dirname, config.relativeRoot), '')
+    const projectBundlePath = path.resolve(__dirname, config.relativeRoot, `./projects/${config.project}${baseFilename}`)
 
-  glob.sync(clientBundleGlob).forEach(filename => {
-    const parts = filename.split('/')
+    let addedProjectBundles = false
+    if (fs.existsSync(projectBundlePath)) {
+      if (!addedProjectBundles) {
+        log(chalk.bold(`Project "${config.project}" overrides some bundles:\n`))
+      }
+      addedProjectBundles = true
+      log(`\t- ${projectBundlePath}`)
 
+      filename = projectBundlePath
+    }
+
+    if (addedProjectBundles) {
+      log('\n')
+    }
+
+    let parts = filename.split('/')
     const bundle = parts[parts.length - 2]
     const name = parts[parts.length - 1].replace('.js', '')
 

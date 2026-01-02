@@ -17,99 +17,109 @@
   <div class="u-mt">
     <!-- search -->
     <div class="layout u-mt">
-      <div class="layout__item u-1-of-1">
-        <input
-          type="text"
-          v-model="searchValue"
-          class="o-form__control-input u-mb-0_5"
-          style="height: 28px;"
-          data-cy="userList:searchUser"
-          @keypress.enter.prevent="getFilteredItems"
-          :placeholder="Translator.trans('search')"><!--
-     --><dp-button
-          class="u-ml-0_5"
-          data-cy="userList:searchUserBtn"
-          :text="Translator.trans('searching')"
-          @click="getFilteredItems" />
-        <dp-contextual-help
-          class="float-right"
-          :text="tooltipContent" />
+      <div class="layout__item u-1-of-1 flex">
+        <dp-search-field
+          data-cy="search:currentSearchTerm"
+          :placeholder="Translator.trans('searchterm')"
+          @search="handleSearch"
+          @reset="handleReset"
+        />
+        <dp-contextual-help :text="tooltipContent" />
       </div>
     </div>
-
     <dp-loading
       v-if="isLoading"
-      class="u-ml u-mt" />
+      class="u-ml u-mt"
+    />
     <!-- List of all items -->
     <div
+      v-if="false === isLoading"
       class="layout"
-      v-if="false === isLoading">
+    >
       <div class="u-mt flex">
         <!-- 'Select all'-Checkbox -->
         <div class="layout__item u-3-of-7">
           <input
-            type="checkbox"
             id="select_all"
+            type="checkbox"
             data-cy="allSelected"
             :checked="allSelected"
-            @change="dpToggleAll(!allSelected, items)">
+            @change="dpToggleAll(!allSelected, items)"
+          >
           <label
             v-if="hasPermission('feature_user_delete') || true"
             for="select_all"
-            class="cursor-pointer btn-icns inline-block">
+            class="cursor-pointer btn-icns inline-block"
+          >
             {{ Translator.trans('select.all.on.page') }}
           </label>
         </div>
         <!--Button row -->
         <div class="text-right u-4-of-7 u-mb-0_5">
-          <button
-            class="btn btn--primary mb-1.5"
+          <dp-button
+            class="mb-1.5 mr-0.5"
+            color="primary"
             data-cy="userList:manageUsers"
             value="inviteSelected"
             name="manageUsers"
-            type="submit">
-            {{ Translator.trans('user.marked.invite') }}
-          </button>
-
-          <button
+            type="submit"
+            :disabled="!isUserSelected"
+            :text="Translator.trans('user.marked.invite')"
+          />
+          <dp-button
             v-if="hasPermission('feature_user_delete') || true"
-            class="btn btn--warning mb-1.5"
-            type="button"
+            class="mb-1.5"
+            color="warning"
             data-cy="deleteSelectedItems"
-            @click="deleteItems(selectedItems)">
-            {{ deleteSelectedUsersLabel }}
-          </button>
+            type="button"
+            :disabled="!isUserSelected"
+            :text="deleteSelectedUsersLabel"
+            @click="deleteItems(selectedItems)"
+          />
         </div>
       </div>
     </div>
     <template
-      v-if="false === isLoading">
+      v-if="false === isLoading"
+    >
       <ul
         class="o-list o-list--card u-mb"
-        data-cy="userList:userListWrapper">
+        data-cy="userList:userListWrapper"
+      >
         <dp-user-list-item
-          class="o-list__item"
           v-for="(item, idx, index) in items"
           :key="idx"
+          class="o-list__item"
           :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
           :user="item"
           :data-cy="`userList:userListBlk:${index}`"
           :project-name="projectName"
-          @item:selected="dpToggleOne" />
+          @item:selected="dpToggleOne"
+        />
       </ul>
 
       <dp-sliding-pagination
         :current="currentPage"
         :total="totalPages"
         :non-sliding-size="10"
-        @page-change="getItemsByPage" />
+        @page-change="getItemsByPage"
+      />
     </template>
   </div>
 </template>
 
 <script>
-import { debounce, DpButton, DpContextualHelp, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
+import {
+  debounce,
+  DpButton,
+  DpContextualHelp,
+  DpLoading,
+  DpSearchField,
+  dpSelectAllMixin,
+  hasOwnProp,
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'DpUserList',
@@ -118,11 +128,12 @@ export default {
     DpButton,
     DpContextualHelp,
     DpLoading,
-    DpSlidingPagination: async () => {
+    DpSearchField,
+    DpSlidingPagination: defineAsyncComponent(async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
       return DpSlidingPagination
-    },
-    DpUserListItem: () => import(/* webpackChunkName: "user-list-item" */ './DpUserListItem')
+    }),
+    DpUserListItem: defineAsyncComponent(() => import('./DpUserListItem')),
   },
 
   mixins: [dpSelectAllMixin],
@@ -130,7 +141,7 @@ export default {
   provide () {
     return {
       presetUserOrgaId: this.presetUserOrgaId,
-      projectName: this.projectName
+      projectName: this.projectName,
     }
   },
 
@@ -141,33 +152,37 @@ export default {
     projectName: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     presetUserOrgaId: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   data () {
     return {
       searchValue: '',
       isLoading: true,
-      itemSelections: {}
+      itemSelections: {},
     }
   },
 
   computed: {
-    ...mapState('User', {
+    ...mapState('AdministratableUser', {
       items: 'items',
       currentPage: 'currentPage',
-      totalPages: 'totalPages'
+      totalPages: 'totalPages',
     }),
 
     deleteSelectedUsersLabel () {
       return Translator.trans('entities.marked.delete', { entities: Translator.trans('users'), sum: this.selectedItems.length })
+    },
+
+    isUserSelected () {
+      return this.selectedItems.length > 0
     },
 
     selectedItems () {
@@ -179,42 +194,72 @@ export default {
         Translator.trans('search.options.description') +
         '<h3 class="u-mt color--white">' + Translator.trans('search.special.characters') + '</h3>' +
         Translator.trans('search.special.characters.description')
-    }
+    },
   },
 
   methods: {
     ...mapActions('Department', {
-      departmentList: 'list'
+      departmentList: 'list',
     }),
     ...mapActions('UserFormFields', [
-      'fetchOrgaSuggestions'
+      'fetchOrgaSuggestions',
     ]),
     ...mapActions('Orga', {
       organisationList: 'list',
-      deleteOrganisation: 'delete'
+      deleteOrganisation: 'delete',
     }),
     ...mapActions('Role', {
-      roleList: 'list'
+      roleList: 'list',
     }),
-    ...mapActions('User', {
+    ...mapActions('AdministratableUser', {
       userList: 'list',
-      deleteUser: 'delete'
+      deleteAdministratableUser: 'delete',
     }),
 
-    deleteItems (ids) {
-      if (this.selectedItems.length === 0) {
-        dplan.notify.notify('warning', Translator.trans('warning.select.entries'))
-      } else {
-        if (window.dpconfirm(Translator.trans('check.user.delete', { count: this.selectedItems.length }))) {
-          ids.forEach(id => {
-            this.deleteUser(id)
-              .then(() => {
-                // Remove deleted item from itemSelections
-                delete this.itemSelections[id]
-                dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
-              })
-          })
-        }
+    async deleteItems (ids) {
+      if (!this.selectedItems.length) {
+        return dplan.notify.notify('warning', Translator.trans('warning.select.entries'))
+      }
+
+      const isConfirmed = window.dpconfirm(
+        Translator.trans('check.user.delete', { count: this.selectedItems.length }),
+      )
+
+      if (!isConfirmed) return
+
+      let successCount = 0
+      let errorCount = 0
+
+      const deleteResults = await Promise.allSettled(
+        /* Ensures all deletions attempt to execute, even if one fails. Each deletion resolves to { status: 'fulfilled' | 'rejected', value | reason } */
+        ids.map(async id => {
+          try {
+            const response = await this.deleteAdministratableUser(id)
+            // Check if the HTTP response indicates an error
+            if (response && (response.status >= 400 || response.ok === false)) {
+              errorCount++
+            } else {
+              delete this.itemSelections[id]
+              successCount++
+            }
+          } catch (error) {
+            console.error(`Failed to delete user with ID ${id}:`, error)
+            errorCount++
+          }
+        }),
+      )
+
+      // Show appropriate messages
+      if (successCount > 0) {
+        dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
+      }
+      if (errorCount > 0) {
+        dplan.notify.notify('error', Translator.trans('error.delete.user'))
+      }
+
+      // Reload items only if at least one deletion was successful
+      if (deleteResults.some(result => result.status === 'fulfilled')) {
+        this.loadItems()
       }
     },
 
@@ -228,9 +273,9 @@ export default {
       const userFilter = {
         name: {
           group: {
-            conjunction: 'OR'
-          }
-        }
+            conjunction: 'OR',
+          },
+        },
       }
 
       this.searchValue.split(' ').filter(Boolean).forEach((value, index) => {
@@ -239,29 +284,39 @@ export default {
             path: 'firstname',
             operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
             value,
-            memberOf: 'name'
-          }
+            memberOf: 'name',
+          },
         }
         userFilter[`lastnameFilter${index}`] = {
           condition: {
             path: 'lastname',
             operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
             value,
-            memberOf: 'name'
-          }
+            memberOf: 'name',
+          },
         }
       })
 
       this.userList({
         page: {
-          number: page ?? 1
+          number: page ?? 1,
         },
         filter: userFilter,
-        include: ['roles', 'orga', 'department', 'orga.allowedRoles'].join()
+        include: ['roles', 'orga', 'department', 'orga.allowedRoles'].join(),
       })
         .then(() => {
           this.isLoading = false
         })
+    },
+
+    handleSearch (term) {
+      this.searchValue = term
+      this.getFilteredItems()
+    },
+
+    handleReset () {
+      this.searchValue = ''
+      this.getFilteredItems()
     },
 
     hasOwnProp (obj, prop) {
@@ -280,12 +335,12 @@ export default {
         .then(() => {
           this.getItemsByPage()
         })
-    }
+    },
   },
 
   mounted () {
     this.loadItems()
     this.fetchOrgaSuggestions()
-  }
+  },
 }
 </script>

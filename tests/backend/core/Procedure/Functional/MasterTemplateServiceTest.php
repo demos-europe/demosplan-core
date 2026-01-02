@@ -25,7 +25,7 @@ class MasterTemplateServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(MasterTemplateService::class);
+        $this->sut = self::getContainer()->get(MasterTemplateService::class);
     }
 
     public function testGetMasterTemplate()

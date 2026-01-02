@@ -110,7 +110,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             $nextExternId = $statementRepository->getNextValidExternalIdForProcedure($data['pId']);
 
             // Anfangswert für Nummern soll 1000 sein
-            $number = ($nextExternId < 1000) ? 1000 : $nextExternId;
+            $number = max(1000, $nextExternId);
             $draftStatement->setNumber($number);
 
             $em->persist($draftStatement);
@@ -341,6 +341,10 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
 
         if (array_key_exists('anonymous', $data)) {
             $entity->setAnonymous($data['anonymous']);
+        }
+
+        if (array_key_exists('authorOnly', $data)) {
+            $entity->setAuthorOnly($data['authorOnly']);
         }
 
         return $entity;

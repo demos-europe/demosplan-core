@@ -27,7 +27,7 @@ class QueryStatementTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(QueryStatement::class);
+        $this->sut = self::getContainer()->get(QueryStatement::class);
 
         $this->loginTestUser();
     }

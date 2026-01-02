@@ -15,7 +15,8 @@
       </h2>
       <button
         class="btn--blank o-link--default ml-auto"
-        @click="close">
+        @click="close"
+      >
         <dp-icon icon="close" />
       </button>
     </div>
@@ -25,43 +26,52 @@
         <ul
           aria-label="Metadaten Menü"
           class="pr-5"
-          role="menu">
+          role="menu"
+        >
           <li
-            v-for="entry in menuEntries"
+            v-for="entry in filteredMenuEntries"
+            :key="entry.id"
             :class="{
               'bg-selected': activeItem === entry.id
             }"
-            class="p-1.5 rounded"
-            role="presentation">
+            class="p-1.5 rounded-sm"
+            role="presentation"
+          >
             <button
               class="text-left"
               role="menuitem"
+              @click="setActiveItem(entry.id)"
               v-text="Translator.trans(entry.transKey)"
-              @click="setActiveItem(entry.id)" />
+            />
           </li>
         </ul>
       </div>
       <form
         class="mt-2 pt-1.5 mr-5 basis-3/4 max-w-[80%]"
-        data-dp-validate="statementMetaData">
+        data-dp-validate="statementMetaData"
+      >
         <statement-entry
           :editable="editable"
           :statement="statement"
           :submit-type-options="submitTypeOptions"
-          @save="(data) => save(data)" />
+          @save="(data) => save(data)"
+        />
 
         <statement-submitter
           :editable="editable"
           :procedure="procedure"
           :statement="statement"
           :statement-form-definitions="statementFormDefinitions"
-          @save="(data) => save(data)" />
+          @save="(data) => save(data)"
+        />
 
         <statement-publication-and-voting
+          v-if="hasPermission('feature_statements_vote') || hasPermission('feature_statements_publication')"
           :editable="editable"
           :statement="statement"
           @save="(data) => save(data)"
-          @updatedVoters="() => $emit('updatedVoters')" />
+          @updated-voters="() => $emit('updatedVoters')"
+        />
 
         <!-- need to add statement.attributes.counties and availableCounties in the BE (Array) -->
         <statement-meta-multiselect
@@ -71,7 +81,8 @@
           name="counties"
           :options="availableCounties"
           :value="localStatement.attributes.counties"
-          @change="updateLocalStatementProperties" />
+          @change="updateLocalStatementProperties"
+        />
 
         <!-- need to add statement.attributes.municipalities and availableMunicipalities in the BE (Array) -->
         <statement-meta-multiselect
@@ -81,7 +92,8 @@
           name="municipalities"
           :options="availableMunicipalities"
           :value="localStatement.attributes.municipalities"
-          @change="updateLocalStatementProperties" />
+          @change="updateLocalStatementProperties"
+        />
 
         <!-- need to add statement.attributes.priorityAreas and availablePriorityAreas in the BE (Array) -->
         <statement-meta-multiselect
@@ -91,23 +103,35 @@
           name="priorityAreas"
           :options="availablePriorityAreas"
           :value="localStatement.attributes.priorityAreas"
-          @change="updateLocalStatementProperties" />
+          @change="updateLocalStatementProperties"
+        />
 
         <statement-meta-location-and-document-reference
+          v-if="hasPermission('feature_statements_location_and_document_refrence')"
           :editable="editable"
           :initially-selected-document-id="initiallySelectedDocumentId"
           :initially-selected-element-id="initiallySelectedElementId"
           :initially-selected-paragraph-id="initiallySelectedParagraphId"
           :procedure-id="procedure.id"
           :statement="statement"
-          @save="updatedStatement => save(updatedStatement)" />
+          @save="updatedStatement => save(updatedStatement)"
+        />
 
         <statement-meta-attachments
           :initial-attachments="attachments"
           :editable="editable"
+          :is-source-and-coupled-procedure="isSourceAndCoupledProcedure"
           :procedure-id="procedure.id"
           :statement-id="statement.id"
-          @change="(value) => emitInput('attachments', value)" />
+          @change="(value) => emitInput('attachments', value)"
+        />
+
+        <statement-meta-final-email
+          v-if="hasPermission('field_send_final_email')"
+          :editable="editable"
+          :procedure="procedure"
+          :statement="statement"
+        />
       </form>
     </div>
   </div>
@@ -115,20 +139,14 @@
 
 <script>
 import {
-  DpButton,
-  DpButtonRow,
-  DpContextualHelp,
-  DpDatepicker,
   DpIcon,
-  DpInput,
-  DpLabel,
-  DpSelect,
-  DpTextArea,
-  dpValidateMixin
+  dpValidateMixin,
+  hasAnyPermissions,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import StatementEntry from './StatementEntry'
 import StatementMetaAttachments from './StatementMetaAttachments'
+import StatementMetaFinalEmail from './StatementMetaFinalEmail'
 import StatementMetaLocationAndDocumentReference from './StatementMetaLocationAndDocumentReference'
 import StatementMetaMultiselect from './StatementMetaMultiselect'
 import StatementPublicationAndVoting from './StatementPublicationAndVoting'
@@ -138,21 +156,14 @@ export default {
   name: 'StatementMeta',
 
   components: {
-    DpButton,
-    DpButtonRow,
-    DpContextualHelp,
-    DpDatepicker,
     DpIcon,
-    DpInput,
-    DpLabel,
-    DpSelect,
-    DpTextArea,
     StatementEntry,
     StatementMetaAttachments,
+    StatementMetaFinalEmail,
     StatementMetaLocationAndDocumentReference,
     StatementMetaMultiselect,
     StatementPublicationAndVoting,
-    StatementSubmitter
+    StatementSubmitter,
   },
 
   mixins: [dpValidateMixin],
@@ -160,86 +171,99 @@ export default {
   props: {
     attachments: {
       type: Object,
-      required: true
+      required: true,
     },
 
     availableCounties: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     availableMunicipalities: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     availablePriorityAreas: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     currentUserId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     editable: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
+    },
+
+    isSourceAndCoupledProcedure: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     procedure: {
       type: Object,
-      required: true
+      required: true,
     },
 
     procedureStatementPriorityArea: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     statement: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statementFormDefinitions: {
       required: true,
-      type: Object
+      type: Object,
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
+
+  emits: [
+    'close',
+    'input',
+    'save',
+    'updatedVoters',
+  ],
 
   data () {
     return {
       activeItem: 'entry',
-      finalMailDefaultText: '',
       isScrolling: false,
       localStatement: null,
       menuEntries: [
         { id: 'entry', transKey: 'entry' },
         { id: 'submitter', transKey: 'submitted.author' },
-        { id: 'publicationAndVoting', transKey: 'publication.and.voting' },
-        { id: 'locationAndDocuments', transKey: 'location.and.document.reference' },
-        { id: 'attachments', transKey: 'attachments' }
-      ]
+        { id: 'publicationAndVoting', transKey: 'publication.and.voting', condition: hasAnyPermissions(['feature_statements_vote', 'feature_statements_publication']) },
+        { id: 'locationAndDocuments', transKey: hasPermission('field_statement_polygon') ? 'location.and.document.reference' : 'document.reference', condition: hasPermission('feature_statements_location_and_document_refrence') },
+        { id: 'attachments', transKey: 'attachments' },
+        { id: 'finalEmail', transKey: 'statement.final.send', condition: hasPermission('field_send_final_email') },
+      ],
     }
   },
 
   computed: {
     ...mapState('Statement', {
-      storageStatement: 'items'
+      storageStatement: 'items',
     }),
 
     currentDate () {
@@ -250,6 +274,10 @@ export default {
 
       today = dd + '.' + mm + '.' + yyyy
       return today
+    },
+
+    filteredMenuEntries () {
+      return this.menuEntries.filter(entry => entry.condition ?? true)
     },
 
     isCurrentUserAssigned () {
@@ -282,16 +310,16 @@ export default {
       }
       const option = this.submitTypeOptions.find(option => option.value === this.statement.attributes.submitType)
       return option ? Translator.trans(option.label) : ''
-    }
+    },
   },
 
   methods: {
     ...mapActions('Statement', {
-      restoreStatementAction: 'restoreFromInitial'
+      restoreStatementAction: 'restoreFromInitial',
     }),
 
     ...mapMutations('Statement', {
-      setStatement: 'setItem'
+      setStatement: 'setItem',
     }),
 
     close () {
@@ -344,8 +372,16 @@ export default {
 
         window.scrollTo({
           top: offsetPosition,
-          behavior: 'smooth'
+          behavior: 'smooth',
         })
+      }
+    },
+
+    scrollToItemFromHash () {
+      const hash = globalThis.location.hash.slice(1)
+
+      if (hash) {
+        this.setActiveItem(hash)
       }
     },
 
@@ -356,20 +392,12 @@ export default {
 
     setInitValues () {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
-
-      this.finalMailDefaultText = Translator.trans('statement.send.final_mail.default', {
-        hasStatementText: this.localStatement.attributes.fullText.length < 2000 ? 0 : 1,
-        orgaName: this.procedure.orgaName,
-        procedureName: this.procedure.name,
-        statementText: this.localStatement.attributes.fullText,
-        statementRecommendation: this.localStatement.attributes.recommendation
-      })
     },
 
     updateLocalStatementProperties (value, field) {
       this.localStatement.attributes[field] = value
       this.localStatement.attributes[field].sort((a, b) => a.name.localeCompare(b.name))
-    }
+    },
   },
 
   created () {
@@ -378,10 +406,11 @@ export default {
 
   mounted () {
     window.addEventListener('scroll', this.handleScroll)
+    this.scrollToItemFromHash()
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     window.removeEventListener('scroll', this.handleScroll)
-  }
+  },
 }
 </script>

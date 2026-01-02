@@ -28,26 +28,29 @@ module.exports = {
   testRegex: '/tests/.*(test|spec)\\.js?$',
   rootDir: config.absoluteRoot,
   roots: [
-    'tests/frontend/'
+    'tests/frontend/',
   ],
   moduleDirectories: [
-    'node_modules'
+    'node_modules',
   ],
   moduleFileExtensions: [
     'js',
     'json',
-    'vue'
+    'vue',
   ],
-  moduleNameMapper: roots,
+  moduleNameMapper: {
+    ...roots,
+    '^@vue/test-utils': '<rootDir>/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js',
+  },
   modulePaths: [
-    '<rootDir>'
+    '<rootDir>',
   ],
   transform: {
     '^.+\\.js$': '<rootDir>/node_modules/babel-jest',
-    '.*\\.(vue)$': '<rootDir>/node_modules/@vue/vue2-jest'
+    '.*\\.(vue)$': '<rootDir>/node_modules/@vue/vue3-jest',
   },
   transformIgnorePatterns: [
-    '/node_modules/demosplan-ui'
+    '/node_modules/demosplan-ui',
   ],
   // Send a notification when tests fail or once when they pass
   notifyMode: 'failure-success',
@@ -58,15 +61,8 @@ module.exports = {
       {
         suiteName: 'Jest Tests',
         outputName: 'jenkins-build-jest.junit.xml',
-        outputDirectory: '.build/'
-      }
-    ]
+        outputDirectory: '.build/',
+      },
+    ],
   ],
-  globals: {
-    '@vue/vue2-jest': {
-      babelConfig: {
-        plugins: ['dynamic-import-node']
-      }
-    }
-  }
 }

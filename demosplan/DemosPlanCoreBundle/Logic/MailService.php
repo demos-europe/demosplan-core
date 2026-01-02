@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\MailAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
+use demosplan\DemosPlanCoreBundle\Entity\MailTemplate;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
 use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
@@ -23,9 +24,12 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToCheckExistence;
+use League\Flysystem\UnableToRetrieveMetadata;
 use League\HTMLToMarkdown\HtmlConverter;
 use Psr\Log\LoggerInterface;
 use stdClass;
@@ -34,7 +38,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class MailService extends CoreService
+class MailService
 {
     /**
      * @var string
@@ -62,16 +66,16 @@ class MailService extends CoreService
     public function __construct(
         private readonly FilesystemOperator $defaultStorage,
         GlobalConfigInterface $globalConfig,
-        LoggerInterface $logger,
+        private readonly LoggerInterface $logger,
         MailerInterface $mailer,
         private readonly MailRepository $mailRepository,
         private readonly TranslatorInterface $translator,
+        private readonly ManagerRegistry $doctrine,
     ) {
         $this->emailIsLiveSystem = $globalConfig->isEmailIsLiveSystem();
         $this->emailSubjectPrefix = $globalConfig->getEmailSubjectPrefix();
         $this->emailSystem = $globalConfig->getEmailSystem();
         $this->globalConfig = $globalConfig;
-        $this->logger = $logger;
         $this->mailer = $mailer;
     }
 
@@ -118,7 +122,7 @@ class MailService extends CoreService
         $emailBcc = $this->checkEMailField($bcc);
 
         $emailTemplate = $this->mailRepository->getTemplate($template);
-        if (null === $emailTemplate) {
+        if (!$emailTemplate instanceof MailTemplate) {
             throw new InvalidArgumentException("No template entity found for the given template label: '$template'");
         }
         $emailTitle = $this->mailRepository->replacePlaceholder($emailTemplate->getTitle(), $vars);
@@ -193,7 +197,7 @@ class MailService extends CoreService
         $vars = [],
         $attachments = [],
     ) {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->doctrine->getManager();
         $em->getConnection()->beginTransaction();
         try {
             foreach ($to as $receiver) {
@@ -245,7 +249,7 @@ class MailService extends CoreService
      */
     public function sendMailsFromQueue($limit = 200)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->doctrine->getManager();
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
         $emailsSent = 0;
         try {
@@ -314,10 +318,40 @@ class MailService extends CoreService
                 /** @var MailAttachment $attachment */
                 foreach ($mail->getAttachments() as $attachment) {
                     // attach file only if it really exists
-                    if ($this->defaultStorage->fileExists($attachment->getFilename())) {
-                        $message->attach($this->defaultStorage->readStream($attachment->getFilename()));
-                    } else {
-                        $this->logger->warning('Tried to add non existing attachment to Email', [$attachment->getFilename()]);
+                    try {
+                        if ($this->defaultStorage->fileExists($attachment->getFilename())) {
+                            $mimeType = $this->defaultStorage->mimeType($attachment->getFilename());
+                            $resource = $this->defaultStorage->readStream($attachment->getFilename());
+                            $fileName = basename($attachment->getFilename());
+                            $this->logger->info(
+                                'extracted name for attachment and its contentType is',
+                                ['fileName' => $fileName, 'mimeType' => $mimeType]
+                            );
+                            $mimeType = '' !== $mimeType ? $mimeType : null;
+                            $fileName = '' !== $fileName ? $fileName : null;
+                            $message->attach(
+                                $resource,
+                                $fileName,
+                                $mimeType
+                            );
+                        } else {
+                            $this->logger->warning('Tried to add non existing attachment to Email', [$attachment->getFilename()]);
+                        }
+                    } catch (UnableToCheckExistence $e) {
+                        $this->logger->warning(
+                            'Failed to check the existence of attachment to Email',
+                            ['attachment' => $attachment->getFilename(), 'ExceptionMessage' => $e->getMessage()]
+                        );
+                    } catch (UnableToRetrieveMetadata $e) {
+                        $this->logger->warning(
+                            'Failed to retrieve mimeType of attachment to Email',
+                            ['attachment' => $attachment->getFilename(), 'ExceptionMessage' => $e->getMessage()]
+                        );
+                    } catch (Exception $e) {
+                        $this->logger->warning(
+                            'Failed to append attachment to Email',
+                            ['attachment' => $attachment->getFilename(), 'ExceptionMessage' => $e->getMessage()]
+                        );
                     }
                 }
 
@@ -335,6 +369,9 @@ class MailService extends CoreService
                     $this->mailer->send($message);
                     $mail->setStatus('sent');
                     $mail->setSendDate(new DateTime());
+                    // Clear any previous error information on successful send
+                    $mail->setErrorCode('');
+                    $mail->setErrorMessage('');
                 } catch (TransportExceptionInterface $e) {
                     $this->logger->warning('Could not send Mail',
                         [
@@ -349,12 +386,16 @@ class MailService extends CoreService
                     );
                     // update number of send attempts
                     $mail->setSendAttempt($mail->getSendAttempt() + 1);
+                    $mail->setErrorCode($e->getCode());
+                    $mail->setErrorMessage($e->getMessage());
                     $em->persist($mail);
 
                     continue;
                 } catch (Exception $e) {
                     $this->logger->error('General exception on sending e-mail.', [$e]);
                     $mail->setSendAttempt($mail->getSendAttempt() + 1);
+                    $mail->setErrorCode($e->getCode());
+                    $mail->setErrorMessage($e->getMessage());
                     $em->persist($mail);
 
                     continue;
@@ -375,12 +416,15 @@ class MailService extends CoreService
 
                 /** @var MailAttachment $attachment */
                 foreach ($mail->getAttachments() as $attachment) {
-                    if ($attachment->getDeleteOnSent() && $this->defaultStorage->fileExists($attachment->getFilename())) {
-                        try {
+                    try {
+                        if ($attachment->getDeleteOnSent()
+                            && 'sent' === $mail->getStatus()
+                            && $this->defaultStorage->fileExists($attachment->getFilename())
+                        ) {
                             $this->defaultStorage->delete($attachment->getFilename());
-                        } catch (Exception $exception) {
-                            $this->logger->warning('failed to remove email attachment', [$exception]);
                         }
+                    } catch (Exception $exception) {
+                        $this->logger->warning('failed to remove email attachment', [$exception]);
                     }
                 }
 
@@ -427,7 +471,7 @@ class MailService extends CoreService
             if (false !== filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $return[] = $email;
             } else {
-                $this->getLogger()->warning('Deleted invalid Email ', [$address]);
+                $this->logger->warning('Deleted invalid Email ', [$address]);
             }
         }
 

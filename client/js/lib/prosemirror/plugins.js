@@ -16,7 +16,7 @@ import {
   isSuperset,
   range,
   rangesEqual,
-  serializeRange
+  serializeRange,
 } from './utilities'
 import { genEditingDecorations, removeMarkByName, replaceMarkInRange, toggleRangeEdit } from './commands'
 import { Plugin, PluginKey } from 'prosemirror-state'
@@ -63,7 +63,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
           isEditing: false,
           decorations: null,
           position: {},
-          activeDecorationPosition: null
+          activeDecorationPosition: null,
         }
       },
       apply (tr, pluginState, _, newState) {
@@ -86,7 +86,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
             isEditing: true,
             decorations: decos,
             position: { from: meta.from, to: meta.to },
-            activeDecorationPosition: null
+            activeDecorationPosition: null,
           }
         } else if (meta && !meta.editing) {
           /**
@@ -102,7 +102,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
             isEditing: false,
             decorations: pluginState.decorations.remove(pluginState.decorations.find(0, newState.doc.nodeSize)),
             position: {},
-            activeDecorationPosition: null
+            activeDecorationPosition: null,
           }
         } else if (move.moving) {
           const { fixed } = move.positions
@@ -115,12 +115,12 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
             isEditing: true,
             decorations: genEditingDecorations(newState, from, to, move.id, newDecorationPosition),
             position: { from, to },
-            activeDecorationPosition: newDecorationPosition
+            activeDecorationPosition: newDecorationPosition,
           }
         } else {
           return pluginState
         }
-      }
+      },
     },
     props: {
       decorations (state) {
@@ -140,8 +140,8 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
           toggleRangeEdit(view, rangeTrackerKey, editingTrackerKey, pluginKey, e.target)
 
           return true
-        }
-      }
+        },
+      },
     },
     appendTransaction (_, oldState, newState) {
       const position = pluginKey.getState(newState).position
@@ -186,9 +186,9 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
       updateFunc = updateFunc.bind(this)
 
       return {
-        update: updateFunc
+        update: updateFunc,
       }
-    }
+    },
   })
 }
 
@@ -210,7 +210,7 @@ const editStateTracker = (trackerKey, decoPluginKey) => {
           id: null,
           moving: null,
           pos: null,
-          positions: null
+          positions: null,
         }
       },
       apply (tr, pluginState) {
@@ -221,7 +221,7 @@ const editStateTracker = (trackerKey, decoPluginKey) => {
           id: null,
           moving: null,
           pos: null,
-          positions: null
+          positions: null,
         }
         let returnVal = pluginState
         if (meta) {
@@ -232,8 +232,8 @@ const editStateTracker = (trackerKey, decoPluginKey) => {
         }
 
         return returnVal
-      }
-    }
+      },
+    },
   })
 }
 
@@ -286,7 +286,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
           const rangeMarksRemoved = schema.spec.marks.subtract({ rangeselection: null, range: null })
           const reducedSchema = new Schema({
             nodes: schema.spec.nodes,
-            marks: rangeMarksRemoved
+            marks: rangeMarksRemoved,
           })
           Object.entries(ranges).forEach(([id, range]) => {
             ranges[id].text = serializeRange(range, newState, reducedSchema)
@@ -304,7 +304,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
 
           return ranges
         }
-      }
+      },
     },
     view (view) {
       let updateFunc = (view, state) => {
@@ -320,9 +320,9 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
       updateFunc = updateFunc.bind(this)
 
       return {
-        update: updateFunc
+        update: updateFunc,
       }
-    }
+    },
   })
 }
 
@@ -336,42 +336,67 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
  */
 const rangeCreator = (pluginKey, rangeEditingKey) => {
   let tippy = null
+
+  const handleGlobalMouseup = (view, e) => {
+    const { state } = view
+    const { selection } = state
+    const { empty, from, to, $anchor, $head } = selection
+
+    /** If no text is selected, clean up any existing tooltip and exit early to avoid unnecessary processing */
+    if (empty) {
+      tippy?.destroy()
+      tippy = null
+
+      return
+    }
+
+    const lastClick = view.lastClick || view.input.lastClick
+    const hasClickLocationChanged = (e.clientX !== lastClick.x || e.clientY !== lastClick.y)
+
+    if (hasClickLocationChanged) {
+      const existingRanges = rangeEditingKey.getState(state)
+      const selectedPositions = new Set(range(from, to))
+      const positionsCovered = []
+
+      Object.values(existingRanges).forEach(({ from, to }) => positionsCovered.push(...range(from, to)))
+      const isFullyCovered = isSuperset(new Set(positionsCovered), selectedPositions)
+
+      tippy?.destroy()
+
+      /**
+       * Prevent showing the tooltip if the user's selection is already fully covered by the selection before.
+       * This avoids redundant actions like trying to create a new selection inside an already selected area.
+       */
+      if (isFullyCovered) {
+        tippy = null
+        return
+      }
+
+      tippy = createCreatorMenu(view, $anchor.pos, $head.pos)
+    }
+  }
   return new Plugin({
     key: pluginKey,
-    props: {
-      handleDOMEvents: {
-        mouseup (view, e) {
-          const { state } = view
-          const { selection } = state
-          const { empty, from, to, $anchor, $head } = selection
+    view (view) {
+      const globalHandler = (event) => {
+        const isClickInsideMenuBubble = event.composedPath &&
+          event.composedPath().some(el => el.classList && el.classList.contains('editor-menububble__wrapper'))
 
-          if (empty) {
-            tippy?.destroy()
-            tippy = null
-            return
-          }
-
-          const lastClick = view.lastClick || view.input.lastClick
-
-          if (e.clientX !== lastClick.x || e.clientY !== lastClick.y) {
-            const existingRanges = rangeEditingKey.getState(state)
-            let positionsCovered = []
-            Object.values(existingRanges).forEach(({ from, to }) => positionsCovered.push(...range(from, to)))
-            const selectedPositions = new Set(range(from, to))
-            positionsCovered = new Set(positionsCovered)
-            const isFullyCovered = isSuperset(positionsCovered, selectedPositions)
-
-            if (isFullyCovered) {
-              tippy?.destroy()
-              tippy = null
-              return
-            }
-            tippy?.destroy()
-            tippy = createCreatorMenu(view, $anchor.pos, $head.pos)
-          }
+        if (isClickInsideMenuBubble) {
+          return
         }
+
+        handleGlobalMouseup(view, event)
       }
-    }
+
+      document.addEventListener('mouseup', globalHandler)
+
+      return {
+        destroy () {
+          document.removeEventListener('mouseup', globalHandler)
+        },
+      }
+    },
   })
 }
 
@@ -391,7 +416,7 @@ const initRangePlugin = (schema, rangeChangeCallback, editToggleCallback) => {
   marks = marks.addToStart('rangeselection', rangeSelectionMark)
   const currentSchema = new Schema({
     nodes: schema.spec.nodes,
-    marks
+    marks,
   })
 
   const editingDecorationsKey = new PluginKey('editing-decorations')
@@ -411,8 +436,8 @@ const initRangePlugin = (schema, rangeChangeCallback, editToggleCallback) => {
       rangeTrackerKey,
       editStateTrackerKey,
       editingDecorationsKey,
-      rangeCreatorKey
-    }
+      rangeCreatorKey,
+    },
   }
 }
 

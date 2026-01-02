@@ -77,6 +77,8 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             ->setParameter('planningOfficeOrgaTypeName', OrgaType::PLANNING_AGENCY)
             ->andWhere('relation_customer_orga_orga_type.customer = :customer')
             ->setParameter('customer', $customer)
+            ->andWhere('relation_customer_orga_orga_type.status = :status')
+            ->setParameter('status', OrgaStatusInCustomer::STATUS_ACCEPTED)
             ->getQuery();
 
         $orgaResult = $query->getResult();
@@ -496,7 +498,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         Customer $customer,
         bool $deleted,
         string $orgaTypeName,
-        string $statusInCustomer
+        string $statusInCustomer,
     ): QueryBuilder {
         return $this->getEntityManager()->createQueryBuilder()
             ->from(Orga::class, 'orga')
@@ -696,7 +698,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         string $email,
         Customer $customer,
         Role $masterUserRole,
-        array $orgaTypeNames
+        array $orgaTypeNames,
     ): Orga {
         $em = $this->getEntityManager();
         $em->getConnection()->beginTransaction();

@@ -13,20 +13,24 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\ElementReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FinalMailReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GeneralReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitationReportEntryResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\ParagraphReportEntryResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanDrawChangeReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PublicPhaseReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\RegisterInvitationReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ReportEntryResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\SingleDocumentReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementReportEntryResourceType;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use Exception;
 use League\Fractal\Resource\Collection;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Webmozart\Assert\Assert;
 
 class DemosPlanReportAPIController extends APIController
@@ -40,12 +44,17 @@ class DemosPlanReportAPIController extends APIController
      * - int page: Set the requested page (default: 1)
      * - array|string[] category: Set the categories from the requested group (default: [])
      *
-     * @DplanPermissions("area_admin_protocol")
-     *
      * @param string $group
      */
-    #[Route(path: '/api/1.0/reports/{procedureId}/{group}', methods: ['GET'], name: 'dplan_api_report_procedure_list', defaults: ['group' => null], options: ['expose' => true])]
-    public function listProcedureReportsAction(
+    #[DplanPermissions('area_admin_protocol')]
+    #[Route(
+        path: '/api/1.0/reports/{procedureId}/{group}',
+        methods: ['GET'],
+        name: 'dplan_api_report_procedure_list',
+        defaults: ['group' => null],
+        options: ['expose' => true]
+    )]
+    public function listProcedureReports(
         JsonApiPaginationParser $paginationParser,
         PaginatorFactory $paginatorFactory,
         Request $request,
@@ -53,6 +62,10 @@ class DemosPlanReportAPIController extends APIController
     ): APIResponse {
         $resourceTypeName = match ($group) {
             'general'             => GeneralReportEntryResourceType::getName(),
+            'drawings'            => PlanDrawChangeReportEntryResourceType::getName(),
+            'elements'            => ElementReportEntryResourceType::getName(),
+            'paragraphs'          => ParagraphReportEntryResourceType::getName(),
+            'singleDocuments'     => SingleDocumentReportEntryResourceType::getName(),
             'statements'          => StatementReportEntryResourceType::getName(),
             'publicPhase'         => PublicPhaseReportEntryResourceType::getName(),
             'invitations'         => InvitationReportEntryResourceType::getName(),
@@ -65,7 +78,7 @@ class DemosPlanReportAPIController extends APIController
         Assert::isInstanceOf($resourceType, JsonApiResourceTypeInterface::class);
 
         $pagination = $paginationParser->parseApiPaginationProfile(
-            $this->request->query->get('page', []),
+            $this->request->query->all('page'),
             $this->request->query->get('sort', '')
         );
 

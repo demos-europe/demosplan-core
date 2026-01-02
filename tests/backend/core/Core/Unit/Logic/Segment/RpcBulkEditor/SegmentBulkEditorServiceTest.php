@@ -13,6 +13,7 @@ namespace Tests\Core\Core\Unit\Logic\Segment\RpcBulkEditor;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
@@ -66,10 +67,51 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
         self::assertNull($this->segment1->getAssignee());
         self::assertNull($this->segment2->getAssignee());
 
-        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], $this->user, null);
+        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], $this->user, null, []);
 
         self::assertEquals($this->user->getId(), $this->segment1->getAssignee()->getId());
         self::assertEquals($this->user->getId(), $this->segment2->getAssignee()->getId());
+    }
+
+    public function testUpdateSegmentsCustomFields(): void
+    {
+        $procedure = ProcedureFactory::createOne();
+        $segment1 = SegmentFactory::createOne()->setProcedure($procedure->_real());
+        $segment2 = SegmentFactory::createOne()->setProcedure($procedure->_real());
+
+        $customField1 = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->asRadioButton('Color1')->create();
+
+        $customField2 = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->asRadioButton('Color2')->create();
+
+        $customField1Option1 = $customField1->getConfiguration()->getOptions()[0];
+        $customField2Option2 = $customField2->getConfiguration()->getOptions()[1];
+
+        $customFieldsValuesToUpdate = [
+            ['id' => $customField1->getId(), 'value' => $customField1Option1->getId()],
+            ['id' => $customField2->getId(), 'value' => $customField2Option2->getId()],
+        ];
+
+        $this->sut->updateSegments([$segment1, $segment2], [], [], $this->user, null, $customFieldsValuesToUpdate);
+
+        // Get custom field values as arrays for easier assertion
+        $segment1Values = array_map(
+            static fn ($value) => $value->getValue(),
+            $segment1->getCustomFields()->getCustomFieldsValues()
+        );
+
+        $segment2Values = array_map(
+            static fn ($value) => $value->getValue(),
+            $segment2->getCustomFields()->getCustomFieldsValues()
+        );
+
+        self::assertContains($customField1Option1->getId(), $segment1Values);
+        self::assertContains($customField2Option2->getId(), $segment1Values);
+        self::assertContains($customField1Option1->getId(), $segment2Values);
+        self::assertContains($customField2Option2->getId(), $segment2Values);
     }
 
     public function testUpdateSegmentsWithNullAssignee(): void
@@ -80,7 +122,7 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
         self::assertEquals($this->user->getId(), $this->segment1->getAssignee()->getId());
         self::assertEquals($this->user->getId(), $this->segment2->getAssignee()->getId());
 
-        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], null, null);
+        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], null, null, []);
 
         self::assertNull($this->segment1->getAssignee());
         self::assertNull($this->segment2->getAssignee());
@@ -140,24 +182,25 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
     public function testGetValidTags(): void
     {
         $procedure = ProcedureFactory::createOne();
-        $tag1 = TagFactory::createOne();
-        $tag2 = TagFactory::createOne();
         $tagTopic = TagTopicFactory::createOne();
 
         $tagTopic->setProcedure($procedure->_real());
-        $tagTopic->addTag($tag1->_real());
-        $tagTopic->addTag($tag2->_real());
         $tagTopic->_save();
+
+        $tag1 = TagFactory::createOne([
+            'title' => 'Unique Tag Title 1',
+            'topic' => $tagTopic->_real(),
+        ]);
+        $tag2 = TagFactory::createOne([
+            'title' => 'Unique Tag Title 2',
+            'topic' => $tagTopic->_real(),
+        ]);
 
         $procedure->addTagTopic($tagTopic->_real());
         $procedure->_save();
         /** @var Procedure $procedureReal */
         $procedureReal = $procedure->_real();
 
-        $tag1->setTopic($tagTopic->_real());
-        $tag2->setTopic($tagTopic->_real());
-        $tag1->_save();
-        $tag2->_save();
         /** @var Tag $tag1Real */
         $tag1Real = $tag1->_real();
         /** @var Tag $tag2Real */

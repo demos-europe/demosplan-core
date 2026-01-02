@@ -173,6 +173,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $manager->persist($procedureSettings);
 
         $procedure2 = new Procedure();
+        $exportFieldsConfiguration = new ExportFieldsConfiguration($procedure2);
         $procedure2
             ->setName('Procedure number two')
             ->setOrga($this->testOrgaFP)
@@ -184,13 +185,12 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setPhase('configuration')
             ->setPublicParticipationPhase('configuration')
             ->setMaster(false)
-            ->addExportFieldsConfiguration(new ExportFieldsConfiguration($procedure2))
             ->addSlug(new Slug('procedure2Slug'));
 
         $manager->persist($procedure2);
 
         $this->setReference(self::TEST_PROCEDURE_2, $procedure2);
-        $this->setReference('defaultExportFieldsConfiguration', $procedure2->getDefaultExportFieldsConfiguration());
+        $this->setReference('defaultExportFieldsConfiguration', $exportFieldsConfiguration);
 
         $archivedProcedure = new Procedure();
         $archivedProcedure->setName('ArchivedProcedure')
@@ -594,7 +594,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 
     private function loadTestProcedureParagraphVersion(
         Procedure $procedure,
-        Elements $testSingleDocumentElement
+        Elements $testSingleDocumentElement,
     ) {
         $paragraphVersion1 = new ParagraphVersion();
         $paragraphVersion1->setElement($testSingleDocumentElement);
@@ -742,7 +742,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 
     private function loadTestProcedureDraftStatementVersion(
         Procedure $procedure,
-        DraftStatement $draftStatement
+        DraftStatement $draftStatement,
     ): void {
         $draftStatementVersion = new DraftStatementVersion();
         $draftStatementVersion->setTitle('Draft Statement');
@@ -930,7 +930,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 
     protected function loadMasterBluePrintFileElements(
         ObjectManager $manager,
-        Procedure $masterBlueprint
+        Procedure $masterBlueprint,
     ): void {
         $elementsToCreate = [
             ElementsInterface::ELEMENT_TITLES['fnp_aenderung'],
@@ -967,7 +967,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 
     protected function loadMasterBluePrintParagraphElements(
         ObjectManager $manager,
-        Procedure $masterBlueprint
+        Procedure $masterBlueprint,
     ): void {
         $elementsToCreate = [
             ElementsInterface::ELEMENT_TITLES['verordnung'],

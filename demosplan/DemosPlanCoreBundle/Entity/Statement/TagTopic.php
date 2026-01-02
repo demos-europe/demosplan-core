@@ -51,29 +51,11 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
     protected $id;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="_tt_title", type="string", length=255,  nullable=false)
-     */
-    protected $title = '';
-
-    /**
-     * @var DateTime
-     *
      * @ORM\Column(name="_tt_create_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
      */
-    protected $createDate;
-
-    /**
-     * @var ProcedureInterface
-     *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="topics")
-     *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable = false, onDelete="CASCADE")
-     */
-    protected $procedure;
+    protected DateTime $createDate;
 
     /**
      * @var Collection<int, TagInterface>
@@ -82,19 +64,22 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
      *
      * @ORM\OrderBy({"title" = "ASC"})
      */
-    protected $tags;
+    protected Collection $tags;
 
     /**
      * * Necessary to set Type of $this->tags.
-     *
-     * @param string             $title
-     * @param ProcedureInterface $procedure
      */
-    public function __construct($title, $procedure)
+    public function __construct(/**
+     * @ORM\Column(name="_tt_title", type="string", length=255,  nullable=false)
+     */
+        protected string $title, /**
+     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="topics")
+     *
+     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable = false, onDelete="CASCADE")
+     */
+        protected ProcedureInterface $procedure)
     {
         $this->tags = new ArrayCollection();
-        $this->setTitle($title);
-        $this->setProcedure($procedure);
     }
 
     /**

@@ -6,9 +6,6 @@
  *
  * All rights reserved
  */
-
-import { set } from 'vue'
-
 const SegmentSlidebarStore = {
   namespaced: true,
 
@@ -18,7 +15,7 @@ const SegmentSlidebarStore = {
     slidebar: {
       isOpen: false,
       segmentId: '',
-      showTab: ''
+      showTab: '',
     },
     commentsList: {
       currentCommentText: '',
@@ -27,25 +24,25 @@ const SegmentSlidebarStore = {
       segmentId: '',
       show: false,
       showForm: false,
-      statementId: ''
+      statementId: '',
     },
-    isLoading: false
+    isLoading: false,
   },
 
   mutations: {
     setContent (state, data) {
-      set(state, data.prop, data.val)
+      state[data.prop] = data.val
     },
 
     setProperty (state, data) {
-      set(state, [data.prop], data.val)
-    }
+      state[data.prop] = data.val
+    },
   },
 
   actions: {
     toggleSlidebarContent ({ commit }, data) {
       commit('setContent', data)
-    }
+    },
   },
 
   getters: {
@@ -57,8 +54,8 @@ const SegmentSlidebarStore = {
 
     showForm: (state) => state.commentsList.showForm,
 
-    statementId: (state) => state.commentsList.statementId
-  }
+    statementId: (state) => state.commentsList.statementId,
+  },
 }
 
 export default SegmentSlidebarStore

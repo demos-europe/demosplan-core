@@ -14,13 +14,13 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
-use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
+use Psr\Log\LoggerInterface;
 use Tests\Base\FunctionalTestCase;
 
 class ImageLinkConverterTest extends FunctionalTestCase
@@ -32,21 +32,30 @@ class ImageLinkConverterTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
-        $fileService = $this->createMock(FileService::class);
-        $fileService->method('getFileInfo')->willReturnCallback(
-            fn ($hash) => new FileInfo(
-                $hash,
-                'filename.jpg',
-                12345,
-                'image/jpeg',
-                '/path/to/file',
-                '/absolute/path/to/'.$hash,
-                $this->createMock(Procedure::class)
-            )
+        parent::setUp();
+        $fileService = $this->createPartialMock(FileService::class, ['ensureLocalFileFromHash']);
+        $fileService->method('ensureLocalFileFromHash')->willReturnCallback(
+            fn ($hash) => '/absolute/path/to/'.$hash
         );
+
         /** @var HtmlHelper $htmlHelper */
         $htmlHelper = $this->getContainer()->get(HtmlHelper::class);
-        $this->sut = new ImageLinkConverter($htmlHelper, $fileService);
+        $logger = $this->getContainer()->get(LoggerInterface::class);
+
+        /** @var EditorService $editorService */
+        $editorService = $this->getContainer()->get(EditorService::class);
+        $this->sut = new ImageLinkConverter($htmlHelper, $fileService, $editorService, $logger);
+    }
+
+    public function testObscureSegmentText()
+    {
+        $segment = SegmentFactory::createOne(
+            ['text' => '<p>Clear text and this is <dp-obscure>obscure</dp-obscure> text</p>']
+        );
+        $expectedSegmentText = '<p>Clear text and this is ███████ text</p>';
+        $result = $this->sut->convert($segment->_real(), $segment->getId(), false, true);
+
+        static::assertSame($expectedSegmentText, $result->getText());
     }
 
     public function testConvertWithLinkedReference(): void

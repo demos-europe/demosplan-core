@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
 use Exception;
+use Illuminate\Support\Collection as IlluminateCollection;
 use Tests\Base\FunctionalTestCase;
 
 class DraftStatementServiceTest extends FunctionalTestCase
@@ -49,7 +50,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
         'user', 'uStreet',
     ];
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService|object|null
+     * @var ElementsService|object|null
      */
     protected $elementsService;
 
@@ -67,12 +68,18 @@ class DraftStatementServiceTest extends FunctionalTestCase
      */
     private $otherUserName = 'ein ganz anderer';
 
+    private const DRAFT_STATEMENT_LIST_TO_TEST = [
+        ['ident' => 'id1', 'text' => 'statement 1'],
+        ['ident' => 'id2', 'text' => 'statement 2'],
+        ['ident' => 'id3', 'text' => 'statement 3'],
+    ];
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(DraftStatementService::class);
-        $this->elementsService = self::$container->get(ElementsService::class);
+        $this->sut = self::getContainer()->get(DraftStatementService::class);
+        $this->elementsService = self::getContainer()->get(ElementsService::class);
         $this->testDraftStatement = $this->fixtures->getReference('testDraftStatement');
     }
 
@@ -1292,8 +1299,6 @@ class DraftStatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @param $providerData
-     *
      * @throws \Doctrine\Common\DataFixtures\OutOfBoundsException
      * @throws Exception
      */
@@ -1327,7 +1332,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
 
     /**
      * @param $providerData
-     * dataProvider getDetermineStatementCategoryData
+     *                      dataProvider getDetermineStatementCategoryData
      */
     public function testDetermineStatementCategory(/* array $providerData */)
     {
@@ -1366,7 +1371,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
 
     /**
      * @param $providerData
-     * dataProvider getCreateDraftStatementData
+     *                      dataProvider getCreateDraftStatementData
      *
      * @throws \Doctrine\Common\DataFixtures\OutOfBoundsException
      * @throws Exception
@@ -1578,5 +1583,52 @@ class DraftStatementServiceTest extends FunctionalTestCase
             'oName'     => $this->fixtures->getReference('testOrgaInvitableInstitution')->getName(),
             'elementId' => $this->fixtures->getReference('testElement1')->getId(),
         ];
+    }
+
+    public function testParseItemsToExportWithNull()
+    {
+        $result = $this->sut->parseItemsToExport(null);
+        static::assertNull($result);
+    }
+
+    public function testParseItemsToExportWithEmptyArray()
+    {
+        $result = $this->sut->parseItemsToExport([]);
+        static::assertNull($result);
+    }
+
+    public function testParseItemsToExportWithString()
+    {
+        $result = $this->sut->parseItemsToExport('id1,id2,id3');
+        static::assertInstanceOf(IlluminateCollection::class, $result);
+        static::assertEquals(['id1', 'id2', 'id3'], $result->toArray());
+    }
+
+    public function testParseItemsToExportWithArray()
+    {
+        $inputArray = ['id1', 'id2', 'id3'];
+        $result = $this->sut->parseItemsToExport($inputArray);
+        static::assertInstanceOf(IlluminateCollection::class, $result);
+        static::assertEquals($inputArray, $result->toArray());
+    }
+
+    public function testFilterDraftStatementsBySelectedIdsWithNull()
+    {
+        $result = $this->sut->filterDraftStatementsBySelectedIds(self::DRAFT_STATEMENT_LIST_TO_TEST, null);
+        static::assertInstanceOf(IlluminateCollection::class, $result);
+        static::assertEquals(self::DRAFT_STATEMENT_LIST_TO_TEST, $result->toArray());
+    }
+
+    public function testFilterDraftStatementsBySelectedIds()
+    {
+        $selectedIds = collect(['id1', 'id3']);
+        $result = $this->sut->filterDraftStatementsBySelectedIds(self::DRAFT_STATEMENT_LIST_TO_TEST, $selectedIds);
+        static::assertInstanceOf(IlluminateCollection::class, $result);
+        static::assertCount(2, $result);
+
+        // Collection values() resets keys, similar to array_values
+        $resultValues = $result->values();
+        static::assertEquals('id1', $resultValues[0]['ident']);
+        static::assertEquals('id3', $resultValues[1]['ident']);
     }
 }

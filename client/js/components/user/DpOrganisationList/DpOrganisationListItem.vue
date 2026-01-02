@@ -7,40 +7,41 @@
   All rights reserved
 </license>
 
-<documentation>
-<!--  This component is used as a wrapper for DpItem to display organisation data that can be editable -->
-</documentation>
-
 <template>
   <dp-table-card
     :id="organisation.id"
     class="o-accordion u-ph-0_5"
-    :open="isOpen">
+    :open="isOpen"
+  >
     <!-- Item header -->
     <template v-slot:header>
       <div class="flex">
         <input
           v-if="editable && selectable"
-          type="checkbox"
           :id="`selected` + organisation.id"
+          type="checkbox"
           :checked="selected"
           data-cy="organisationItemSelect"
-          @change="$emit('item:selected', organisation.id)">
+          @change="$emit('item:selected', organisation.id)"
+        >
         <div
-          @click="isOpen = false === isOpen"
           class="weight--bold cursor-pointer o-hellip--nowrap u-pv-0_75 u-ph-0_25 grow"
-          data-cy="organisationListTitle">
+          data-cy="organisationListTitle"
+          @click="isOpen = !isOpen"
+        >
           {{ initialOrganisation.attributes.name }}
         </div>
         <button
-          @click="isOpen = false === isOpen"
           type="button"
           data-cy="accordionToggleBtn"
-          class="btn--blank o-link--default">
+          class="btn--blank o-link--default"
+          @click="isOpen = !isOpen"
+        >
           <dp-icon
             aria-hidden="true"
             :aria-label="ariaLabel"
-            :icon="icon" />
+            :icon="icon"
+          />
         </button>
       </div>
     </template>
@@ -49,14 +50,19 @@
     <div
       data-cy="editItemToggle"
       class="u-mt"
-      data-dp-validate="organisationForm">
+      data-dp-validate="organisationForm"
+    >
       <!-- Form fields -->
       <dp-organisation-form-fields
+        :additional-field-options="additionalFieldOptions"
         :available-orga-types="availableOrgaTypes"
         :initial-organisation="initialOrganisation"
         :organisation="organisation"
         :organisation-id="organisation.id"
-        @organisation-update="updateOrganisation" />
+        @addon:update="updateAddonPayload"
+        @addon-options:loaded="setAdditionalFieldOptions"
+        @organisation:update="updateOrganisation"
+      />
 
       <!-- Button row -->
       <dp-button-row
@@ -64,13 +70,15 @@
         :primary="editable"
         secondary
         @primary-action="dpValidateAction('organisationForm', save)"
-        @secondary-action="reset" />
+        @secondary-action="reset"
+      />
     </div>
   </dp-table-card>
 </template>
 
 <script>
-import { DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
 
@@ -80,62 +88,82 @@ export default {
   components: {
     DpButtonRow,
     DpIcon,
-    DpOrganisationFormFields: () => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields'),
-    DpTableCard
+    DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields')),
+    DpTableCard,
   },
 
   mixins: [dpValidateMixin],
 
   inject: [
-    'writableFields'
+    'writableFields',
   ],
 
   props: {
+    additionalFieldOptions: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+
     availableOrgaTypes: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     organisation: {
       type: Object,
-      required: true
+      required: true,
     },
 
     selectable: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     selected: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     moduleName: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
+
+  emits: [
+    'addonOptions:loaded',
+    'items:get',
+    'item:selected',
+  ],
 
   data () {
     return {
+      addonPayload: { /** The payload required for addon requests. When a value is entered in the addon field, it emits data that must include the following fields */
+        attributes: null,
+        id: '',
+        initValue: '',
+        resourceType: '',
+        url: '',
+        value: '',
+      },
       isOpen: false,
       isLoading: true,
-      moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : ''
+      moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : '',
     }
   },
 
   computed: {
     ...mapState('Orga', {
-      organisations: 'items'
+      organisations: 'items',
     }),
 
     ...mapState('Orga/Pending', {
-      pendingOrganisations: 'items'
+      pendingOrganisations: 'items',
     }),
 
     ariaLabel () {
@@ -155,14 +183,51 @@ export default {
 
     icon () {
       return this.isOpen ? 'chevron-up' : 'chevron-down'
-    }
+    },
   },
 
   methods: {
+    createAddonPayload () {
+      return {
+        type: this.addonPayload.resourceType,
+        attributes: this.addonPayload.attributes,
+        relationships: this.addonPayload.url === 'api_resource_update' ?
+          undefined :
+          {
+            orga: {
+              data: {
+                type: 'Orga',
+                id: this.organisation.id,
+              },
+            },
+          },
+        ...(this.addonPayload.url === 'api_resource_update' ? { id: this.addonPayload.id } : {}),
+      }
+    },
+
+    handleAddonRequest () {
+      const payload = this.createAddonPayload()
+
+      const addonRequest = dpApi({
+        headers: {
+          ...(dplan.csrfToken && { 'x-csrf-token': dplan.csrfToken }), // TODO: should be adjusted in UI: api2defaultHeaders
+        },
+        method: this.addonPayload.url === 'api_resource_update' ? 'PATCH' : 'POST',
+        url: Routing.generate(this.addonPayload.url, {
+          resourceType: this.addonPayload.resourceType,
+          ...(this.addonPayload.url === 'api_resource_update' && { resourceId: this.addonPayload.id }),
+        }),
+        data: {
+          data: payload,
+        },
+      })
+
+      return addonRequest
+    },
+
     reset () {
       this.restoreOrganisation(this.organisation.id)
         .then(() => {
-          this.$root.$emit('organisation-reset')
           this.isOpen = !this.isOpen
         })
     },
@@ -174,26 +239,14 @@ export default {
     save () {
       if (this.dpValidate.organisationForm) {
         this.isOpen = !this.isOpen
-        /*
-         * Some update requests need this information, others cant handle them
-         * depending on the permissions
-         */
-        const additionalAttributes = ['showname', 'showlist']
-        if (hasPermission('feature_notification_ending_phase')) {
-          additionalAttributes.push('emailNotificationEndingPhase')
+        const addonExists = Boolean(window.dplan.loadedAddons['addon.additional.field'])
+        const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
+
+        if (addonExists && addonHasValue) {
+          this.handleAddonRequest().then(() => this.submitOrganisationForm())
+        } else {
+          this.submitOrganisationForm()
         }
-        if (hasPermission('feature_notification_statement_new')) {
-          additionalAttributes.push('emailNotificationNewStatement')
-        }
-        this.saveOrganisationAction({
-          id: this.organisation.id,
-          options: {
-            attributes: {
-              full: ['registrationStatuses'],
-              unchanged: additionalAttributes
-            }
-          }
-        })
       } else {
         dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
       }
@@ -202,6 +255,7 @@ export default {
     saveOrganisationAction (payload) {
       this.$store.dispatch(`Orga${this.moduleSubstring}/save`, payload)
         .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           /*
            * Reload organisations and pending organisations in case an organisation has to be moved to the other list, i.e.
            * a) the registrationStatuses of a pending organisation no longer contain a status of 'pending' or b) the registrationStatuses of an activated organisation now
@@ -211,22 +265,55 @@ export default {
             typeof this.organisation.attributes.registrationStatuses.find(el => el.status === 'pending') === 'undefined') ||
             (typeof Object.keys(this.organisations).find(id => id === this.organisation.id) !== 'undefined' &&
             typeof this.organisation.attributes.registrationStatuses.find(el => el.status === 'pending') !== 'undefined')) {
-            this.$root.$emit('get-items')
+            this.$root.$emit('items:get')
           }
         })
+    },
+
+    setAdditionalFieldOptions (options) {
+      this.$emit('addonOptions:loaded', options)
     },
 
     setItem (payload) {
       this.$store.commit(`Orga${this.moduleSubstring}/setItem`, payload)
     },
 
+    submitOrganisationForm () {
+      /*
+       * Some update requests need this information, others cant handle them
+       * depending on the permissions
+       */
+      const additionalAttributes = ['showname', 'showlist']
+
+      if (hasPermission('feature_notification_ending_phase')) {
+        additionalAttributes.push('emailNotificationEndingPhase')
+      }
+      if (hasPermission('feature_notification_statement_new')) {
+        additionalAttributes.push('emailNotificationNewStatement')
+      }
+
+      this.saveOrganisationAction({
+        id: this.organisation.id,
+        options: {
+          attributes: {
+            full: ['registrationStatuses'],
+            unchanged: additionalAttributes,
+          },
+        },
+      })
+    },
+
     toggleItem (open) {
       this.isOpen = open
     },
 
+    updateAddonPayload (payload) {
+      this.addonPayload = payload
+    },
+
     updateOrganisation (payload) {
       this.setItem({ ...payload, id: payload.id })
-    }
-  }
+    },
+  },
 }
 </script>

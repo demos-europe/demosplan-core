@@ -26,7 +26,7 @@ class JsonDecodeExtensionTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->twigExtension = new JsonDecodeExtension(self::$container);
+        $this->twigExtension = new JsonDecodeExtension(self::getContainer());
     }
 
     public function testGetName()

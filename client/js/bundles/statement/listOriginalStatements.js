@@ -15,7 +15,7 @@ import { initialize } from '@DpJs/InitVue'
 import ListOriginalStatements from '@DpJs/components/statement/listOriginalStatements/ListOriginalStatements'
 
 const components = {
-  ListOriginalStatements
+  ListOriginalStatements,
 }
 const apiStores = ['OriginalStatement']
 

@@ -27,7 +27,7 @@ class DateInFutureConstraintValidator extends ConstraintValidator
 
     private function validateTyped(?DateTime $dateTime, DateInFutureConstraint $constraint): void
     {
-        if (null === $dateTime) {
+        if (!$dateTime instanceof DateTime) {
             return;
         }
 

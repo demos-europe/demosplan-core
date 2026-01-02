@@ -24,17 +24,15 @@ use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
 use PHPUnit\Util\Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\Assert\Assert;
 
+#[AsCommand(name: 'dplan:documentation:generate:event-list', description: '')]
 class EventFinder extends CoreCommand
 {
-    protected static $defaultName = 'dplan:documentation:generate:event-list';
-    protected static $defaultDescription = '';
-
     private const OPTION_START_PATHS = 'startPaths';
     private const OPTION_PARENTS = 'parents';
 
@@ -72,7 +70,7 @@ class EventFinder extends CoreCommand
             // add root-path of demosplan will be searched anyway
             $startPaths[] = DemosPlanPath::getRootPath('demosplan');
 
-            $phpFilePaths = self::findPhpClassFilesInDirectories($startPaths);
+            $phpFilePaths = $this->findPhpClassFilesInDirectories($startPaths);
             $this->collectEventMatches($phpFilePaths, $targetParentClassNames);
             $this->findUsagesOfEvents($phpFilePaths, $this->namedEventMatches);
 
@@ -160,7 +158,12 @@ class EventFinder extends CoreCommand
                 /** @var Namespace_[] $namespaces */
                 $namespaces = $nodeFinder->findInstanceOf($abstractSyntaxTree, Namespace_::class);
 
-                Assert::count($namespaces, 1, 'Found more or less than exactly one namespace.');
+                // Skip files without exactly one namespace, but log it
+                if (1 !== count($namespaces)) {
+                    echo 'Skipping file with '.count($namespaces).' namespaces: '.$classFilePath."\n";
+                    continue;
+                }
+
                 $namespaceName = $namespaces[0]->name->toString();
 
                 $this->findNamedEventMatches($classes, $classFilePath, $targetParentClassNames, $namespaceName);
@@ -179,7 +182,7 @@ class EventFinder extends CoreCommand
      *
      * @return true if the given stringToCompare ending with 'EventInterface' or 'Event', otherwise false
      */
-    private static function isEventLikeName(string $stringToCompare): bool
+    private function isEventLikeName(string $stringToCompare): bool
     {
         return str_ends_with($stringToCompare, 'EventInterface')
             || str_ends_with($stringToCompare, 'Event');
@@ -227,7 +230,7 @@ class EventFinder extends CoreCommand
      *
      * @return list<string>
      */
-    private static function findPhpClassFilesInDirectories(array $startPaths): array
+    private function findPhpClassFilesInDirectories(array $startPaths): array
     {
         $phpFilePaths = [];
 
@@ -269,9 +272,9 @@ class EventFinder extends CoreCommand
         if ([] !== $anonymousClasses) {
             foreach ($anonymousClasses as $class) {
                 $matchingParent = $this->extractMatchingParentClassName($class, $targetParentClassNames);
-                $className = self::getClassName($classFilePath);
+                $className = $this->getClassName($classFilePath);
 
-                if (null !== $matchingParent || self::isEventLikeName($className)) {
+                if (null !== $matchingParent || $this->isEventLikeName($className)) {
                     $this->unnamedEventMatches[$prettifiedFilePath][] = new UnnamedEventMatch(
                         $prettifiedFilePath,
                         $namespace,
@@ -305,23 +308,27 @@ class EventFinder extends CoreCommand
         // Get only classes with names:
         $namedClasses = array_filter($classes, static fn (Class_ $class): bool => null !== ($class->name?->name ?? null));
 
-        // More than one named class per file is not handled.
-        Assert::lessThanEq(count($namedClasses), 1, 'Found more than one class. Filepath: '.$classFilePath);
+        // Skip files with more than one named class
+        if (count($namedClasses) > 1) {
+            echo 'Skipping file with '.count($namedClasses).' named classes: '.$classFilePath."\n";
+
+            return;
+        }
 
         // files without classes are ignored
         if ([] !== $namedClasses) {
             $class = $namedClasses[0];
             $matchingParent = $this->extractMatchingParentClassName($class, $targetParentClassNames);
-            $className = self::getClassName($classFilePath);
+            $className = $this->getClassName($classFilePath);
 
             // is it identified as event class?
-            if (null !== $matchingParent || self::isEventLikeName($className)) {
+            if (null !== $matchingParent || $this->isEventLikeName($className)) {
                 $this->namedEventMatches[$prettifiedFilePath] = new EventMatch(
                     $prettifiedFilePath,
                     $namespace,
                     $className,
                     $matchingParent,
-                    self::isEventLikeName($className)
+                    $this->isEventLikeName($className)
                 );
             }
         }
@@ -334,7 +341,7 @@ class EventFinder extends CoreCommand
      *
      * @return non-empty-string
      */
-    private static function getClassName(string $classFilePath): string
+    private function getClassName(string $classFilePath): string
     {
         return substr(basename($classFilePath), 0, -4);
     }

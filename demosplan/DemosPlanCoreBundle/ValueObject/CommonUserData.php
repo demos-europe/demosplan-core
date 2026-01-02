@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
+use Stringable;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 /**
@@ -23,8 +24,12 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
  * @method string getOrganisationId()
  * @method string getFirstName()
  * @method string getLastName()
+ * @method string getPostalCode()
+ * @method string getStreet()
+ * @method string getHouseNumber()
+ * @method string getCompanyDepartment()
  */
-class CommonUserData extends ValueObject
+class CommonUserData extends ValueObject implements Stringable
 {
     protected string $firstName = '';
     protected string $lastName = '';
@@ -53,6 +58,10 @@ class CommonUserData extends ValueObject
      */
     protected string $userId = '';
 
+    protected string $street = '';
+    protected string $houseNumber = '';
+    protected string $postalCode = '';
+
     public function __toString(): string
     {
         $customerRoleRelationString = '';
@@ -71,13 +80,20 @@ class CommonUserData extends ValueObject
             ', organisationId: '.$this->organisationId.
             ', organisationName: '.$this->organisationName.
             ', emailAddress: '.$this->emailAddress.
-            ', roles: '.$customerRoleRelationString;
+            ', roles: '.$customerRoleRelationString.
+            ', street: '.$this->street.
+            ', houseNumber: '.$this->houseNumber.
+            ', postalCode: '.$this->postalCode;
     }
 
     /**
-     * Checks for existing mandatory data.
+     * Checks common mandatory values (userId, userName, email, organisationId, name).
+     * This method is extracted to allow child classes to validate only common fields
+     * without requiring role validation.
+     *
+     * @return array<int, string> Array of missing mandatory field names
      */
-    public function checkMandatoryValuesExist(): void
+    protected function checkCommonMandatoryValues(): array
     {
         $missingMandatoryValues = [];
         if ('' === $this->userId) {
@@ -100,12 +116,34 @@ class CommonUserData extends ValueObject
             $missingMandatoryValues[] = 'name';
         }
 
+        return $missingMandatoryValues;
+    }
+
+    /**
+     * Throws an exception if any mandatory values are missing.
+     *
+     * @param array<int, string> $missingMandatoryValues Array of missing field names
+     *
+     * @throws AuthenticationCredentialsNotFoundException if any values are missing
+     */
+    protected function throwIfMandatoryValuesMissing(array $missingMandatoryValues): void
+    {
+        if ([] !== $missingMandatoryValues) {
+            throw new AuthenticationCredentialsNotFoundException(implode(', ', $missingMandatoryValues).' are missing in requestValues');
+        }
+    }
+
+    /**
+     * Checks for existing mandatory data including roles.
+     */
+    public function checkMandatoryValuesExist(): void
+    {
+        $missingMandatoryValues = $this->checkCommonMandatoryValues();
+
         if ([] === $this->customerRoleRelations) {
             $missingMandatoryValues[] = 'roles';
         }
 
-        if ([] !== $missingMandatoryValues) {
-            throw new AuthenticationCredentialsNotFoundException(implode(', ', $missingMandatoryValues).'are missing in requestValues');
-        }
+        $this->throwIfMandatoryValuesMissing($missingMandatoryValues);
     }
 }

@@ -29,8 +29,8 @@ class DumpYmlContainerPass implements CompilerPassInterface
     {
         $yamlDumper = new YamlDumper($container);
 
-        $outputPath = $container->getParameter('kernel.logs_dir');
-        $outputFilename = $outputPath.'/container.yml';
+        $logsDir = $container->getParameter('kernel.logs_dir');
+        $outputFilename = $logsDir.'/container.yml';
 
         // local file is valid, no need for flysystem
         file_put_contents($outputFilename, $yamlDumper->dump());

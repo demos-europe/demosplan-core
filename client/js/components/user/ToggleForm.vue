@@ -2,7 +2,8 @@
   <dp-accordion
     ref="accordion"
     data-cy="toggleForm:toggle"
-    :title="title">
+    :title="title"
+  >
     <!-- this is where the form fields go -->
     <slot />
 
@@ -12,7 +13,8 @@
         secondary
         data-cy="toggleForm"
         @primary-action="dpValidateAction(formId, save, false)"
-        @secondary-action="abort" />
+        @secondary-action="abort"
+      />
     </slot>
   </dp-accordion>
 </template>
@@ -25,7 +27,7 @@ export default {
 
   components: {
     DpAccordion,
-    DpButtonRow
+    DpButtonRow,
   },
 
   mixins: [dpValidateMixin],
@@ -33,32 +35,29 @@ export default {
   props: {
     formId: {
       type: String,
-      default: ''
+      default: '',
     },
 
     title: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   methods: {
     abort () {
       if (this.formId !== '') {
         document.querySelector(`form#${this.formId}`).reset()
-      } else {
-        this.$emit('form-abort')
       }
+
       this.$refs.accordion.toggle()
     },
 
     save () {
       if (this.formId !== '') {
         document.querySelector(`form#${this.formId}`).submit()
-      } else {
-        this.$emit('form-save')
       }
-    }
-  }
+    },
+  },
 }
 </script>

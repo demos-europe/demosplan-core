@@ -10,28 +10,29 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
+use Illuminate\Support\Collection;
 use RuntimeException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\Process;
-use Illuminate\Support\Collection;
 
 /**
  * Populate elasticsearch index with multiple Workers.
  *
  * @see https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/doc/cookbook/speed-up-populate-command.md
  */
+#[AsCommand(name: 'dplan:elasticsearch:populate', description: 'Run elasticsearch populate with many workers')]
 class ElasticsearchPopulateCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:elasticsearch:populate';
-    protected static $defaultDescription = 'Run elasticsearch populate with many workers';
-
     protected $elasticsearchIndexingPoolSize;
 
     /**
@@ -46,6 +47,17 @@ class ElasticsearchPopulateCommand extends CoreCommand
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
+        $io = new SymfonyStyle($input, $output);
+        // output a message that this commmand does not work without enqueue bundle, which does not yet support elasticsearch 8
+        // and advise to use the fos:elastica:populate command instead
+        if (!class_exists('Enqueue\Symfony\ConsumptionExtension')) {
+            $io->writeln(
+                '<error>This command does not work without the enqueue bundle. Please use the fos:elastica:populate and fos:elastica:populate command instead.</error>'
+            );
+
+            return Command::FAILURE;
+        }
+
         $projectPath = DemosPlanPath::getProjectPath();
 
         $this->elasticsearchIndexingPoolSize = $this->parameterBag->get('elasticsearch_populate_workers');
@@ -78,7 +90,8 @@ class ElasticsearchPopulateCommand extends CoreCommand
                 '--no-debug',
                 '--env=prod',
             ],
-            DemosPlanPath::getRootPath()
+            DemosPlanPath::getRootPath(),
+            ['ACTIVE_PROJECT' => $this->getActiveProject()]
         );
 
         $populateProcess->disableOutput();
@@ -113,7 +126,8 @@ class ElasticsearchPopulateCommand extends CoreCommand
                     '--no-debug',
                     '--env=prod',
                 ],
-                DemosPlanPath::getProjectPath()
+                DemosPlanPath::getProjectPath(),
+                ['ACTIVE_PROJECT' => $this->getActiveProject()]
             );
 
             $indexProcess->setIdleTimeout(0);
@@ -149,12 +163,17 @@ class ElasticsearchPopulateCommand extends CoreCommand
 
     private function getCurrentProjectConsole(): string
     {
-        if (null === $this->getApplication()) {
+        return DemosPlanPath::getRootPath('bin/console');
+    }
+
+    private function getActiveProject(): string
+    {
+        if (!$this->getApplication() instanceof ConsoleApplication) {
             throw new RuntimeException('Cannot run this command without an application');
         }
         /** @var DemosPlanKernel $kernel */
         $kernel = $this->getApplication()->getKernel();
 
-        return DemosPlanPath::getRootPath('bin/'.$kernel->getActiveProject());
+        return $kernel->getActiveProject();
     }
 }

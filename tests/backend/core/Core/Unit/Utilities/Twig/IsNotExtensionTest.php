@@ -32,7 +32,7 @@ class IsNotExtensionTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->twigExtension = new IsNotExtension(self::$container);
+        $this->twigExtension = new IsNotExtension(self::getContainer());
     }
 
     public function testGetFilters()

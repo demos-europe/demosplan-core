@@ -18,9 +18,6 @@
                 <input type="hidden" name="statementID" value="{{ templateVars.statementID }}">
                 {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
-                {% set translatedError = 'error.mandatoryfields.send_email'|trans %}
-                {% set attributeString = 'data-dp-validate-error="' ~ translatedError|e('html_attr') ~ '"' %}
-
                 {{ uiComponent('form.row', {
                     elements: [
                         {
@@ -29,9 +26,9 @@
                                 name: 'sendasemail_recipient',
                                 placeholder: 'email.address'|trans,
                                 value: '',
-                                attributes: [
-                                    attributeString
-                                ]
+                                attributes: {
+                                    'data-dp-validate-error': 'error.mandatoryfields.send_email'|trans
+                                }
                             },
                             id: 'sendasemail_recipient',
                             type: 'email',

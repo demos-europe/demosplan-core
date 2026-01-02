@@ -36,22 +36,6 @@
         </dp-create-item>
     {% endif %}
 
-    {% if feedback.success_message is defined %}
-        <p class="flash flash-confirm">
-            <i class="fa fa-check-circle" aria-hidden="true"></i>
-            {{ feedback.success_message }}
-        </p>
-    {% endif %}
-    {% if feedback.fail_message is defined %}
-        <p class="flash flash-error">
-            {% for message in feedback.fail_message %}
-                <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-                {{ message }}
-                <br>
-            {% endfor %}
-        </p>
-    {% endif %}
-
     <dp-organisation-list
         :available-orga-types="JSON.parse('{{ orgaTypes|json_encode|e('js', 'utf-8') }}')"
         subdomain="{{ branding.customerSubdomain|default }}"

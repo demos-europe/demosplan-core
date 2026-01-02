@@ -18,18 +18,18 @@ import { initialize } from '@DpJs/InitVue'
 import UserFormFields from '@DpJs/store/user/UserFormFields'
 
 const stores = {
-  UserFormFields
+  UserFormFields,
 }
 const components = {
   DpCreateItem,
   DpUserList,
-  DpUserListExtended
+  DpUserListExtended,
 }
 const apiStores = [
+  'AdministratableUser',
   'Department',
   'Orga',
   'Role',
-  'AdministratableUser'
 ]
 
 initialize(components, stores, apiStores)

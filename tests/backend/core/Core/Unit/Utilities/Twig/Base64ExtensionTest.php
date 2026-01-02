@@ -30,7 +30,7 @@ class Base64ExtensionTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->twigExtension = new Base64Extension(self::$container);
+        $this->twigExtension = new Base64Extension(self::getContainer());
     }
 
     public function testGetFilters()

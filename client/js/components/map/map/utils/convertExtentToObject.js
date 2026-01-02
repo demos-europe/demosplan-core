@@ -18,18 +18,18 @@ export default function convertExtentToObject (extentArray) {
   if (extentArray.length < 4) {
     return {
       latitude: extentArray[0],
-      longitude: extentArray[1]
+      longitude: extentArray[1],
     }
   }
 
   return {
     start: {
       latitude: extentArray[0],
-      longitude: extentArray[1]
+      longitude: extentArray[1],
     },
     end: {
       latitude: extentArray[2],
-      longitude: extentArray[3]
-    }
+      longitude: extentArray[3],
+    },
   }
 }

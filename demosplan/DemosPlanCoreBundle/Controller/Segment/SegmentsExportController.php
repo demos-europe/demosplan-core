@@ -20,9 +20,9 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentExporterFileNameGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
@@ -31,17 +31,23 @@ use Exception;
 use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use ZipStream\ZipStream;
 
 class SegmentsExportController extends BaseController
 {
     private const OUTPUT_DESTINATION = 'php://output';
+    private const TABLE_HEADERS_PARAMETER = 'tableHeaders';
+    private const FILE_NAME_TEMPLATE_PARAMETER = 'fileNameTemplate';
+    private const CITIZEN_CENSOR_PARAMETER = 'isCitizenDataCensored';
+    private const INSTITUTION_CENSOR_PARAMETER = 'isInstitutionDataCensored';
+    private const OBSCURE_PARAMETER = 'isObscured';
 
     public function __construct(
         private readonly NameGenerator $nameGenerator,
         private readonly ProcedureHandler $procedureHandler,
         private readonly RequestStack $requestStack,
+        private readonly StatementExportTagFilter $statementExportTagFilter,
     ) {
     }
 
@@ -56,21 +62,32 @@ class SegmentsExportController extends BaseController
         options: ['expose' => true],
         methods: 'GET'
     )]
-    public function exportAction(
-        SegmentsExporter $exporter,
+    public function export(
+        SegmentsByStatementsExporter $segmentsExporter,
         StatementHandler $statementHandler,
-        SegmentExporterFileNameGenerator $fileNameGenerator,
+        FileNameGenerator $fileNameGenerator,
         string $procedureId,
-        string $statementId
+        string $statementId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
-        $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all(self::TABLE_HEADERS_PARAMETER);
+        $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '');
+        $isObscure = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
+        $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
+        $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
+
         $response = new StreamedResponse(
-            static function () use ($procedure, $statement, $exporter, $tableHeaders) {
-                $exportedDoc = $exporter->export($procedure, $statement, $tableHeaders);
+            static function () use ($procedure, $statement, $segmentsExporter, $tableHeaders, $censorCitizenData, $censorInstitutionData, $isObscure) {
+                $exportedDoc = $segmentsExporter->export(
+                    $procedure,
+                    $statement,
+                    $tableHeaders,
+                    $censorCitizenData,
+                    $censorInstitutionData,
+                    $isObscure
+                );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
@@ -92,28 +109,57 @@ class SegmentsExportController extends BaseController
         options: ['expose' => true],
         methods: 'GET'
     )]
-    public function exportByStatementsFilterAction(
+    public function exportByStatementsFilter(
+        FileNameGenerator $fileNameGenerator,
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
-        string $procedureId
+        string $procedureId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all(self::TABLE_HEADERS_PARAMETER);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
-            $requestHandler->getObjectsByQueryParams($this->requestStack->getCurrentRequest()->query, $statementResourceType)->getList()
+            $requestHandler->getObjectsByQueryParams(
+                $this->requestStack->getCurrentRequest()->query,
+                $statementResourceType
+            )->getList()
         );
 
+        // Apply tag filtering after JsonAPI filtering
+        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
+        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+
+        $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
+        $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
+        // geschwärzt
+        $obscureParameter = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
+
         $response = new StreamedResponse(
-            static function () use ($tableHeaders, $procedure, $statementEntities, $exporter) {
-                $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, ...$statementEntities);
+            function () use (
+                $tableHeaders,
+                $procedure,
+                $statementEntities,
+                $exporter,
+                $censorCitizenData,
+                $censorInstitutionData,
+                $obscureParameter
+            ) {
+                $exportedDoc = $exporter->exportAll(
+                    $tableHeaders,
+                    $procedure,
+                    $obscureParameter,
+                    $this->statementExportTagFilter->hasAnySupportedFilterSet(),
+                    $censorCitizenData,
+                    $censorInstitutionData,
+                    ...$statementEntities
+                );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
 
-        $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx'));
+        $this->setResponseHeaders($response, $fileNameGenerator->getSynopseFileName($procedure, 'docx'));
 
         return $response;
     }
@@ -132,11 +178,12 @@ class SegmentsExportController extends BaseController
         options: ['expose' => true],
         methods: 'GET'
     )]
-    public function exportByStatementsFilterXlsAction(
+    public function exportByStatementsFilterXls(
+        FileNameGenerator $fileNameGenerator,
         JsonApiActionService $jsonApiActionService,
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
-        string $procedureId
+        string $procedureId,
     ): StreamedResponse {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -146,9 +193,16 @@ class SegmentsExportController extends BaseController
             )->getList()
         );
 
+        // Apply tag filtering after JsonAPI filtering
+        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
+        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+
         $response = new StreamedResponse(
-            static function () use ($statementEntities, $exporter) {
-                $exportedDoc = $exporter->exportAllXlsx(...$statementEntities);
+            function () use ($statementEntities, $exporter) {
+                $exportedDoc = $exporter->exportAllXlsx(
+                    $this->statementExportTagFilter,
+                    ...$statementEntities
+                );
                 $exportedDoc->save('php://output');
             }
         );
@@ -162,7 +216,7 @@ class SegmentsExportController extends BaseController
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename(
-            $exporter->getSynopseFileName($procedure, 'xlsx'))
+            $fileNameGenerator->getSynopseFileName($procedure, 'xlsx'))
         );
 
         return $response;
@@ -179,16 +233,22 @@ class SegmentsExportController extends BaseController
         options: ['expose' => true],
         methods: 'GET'
     )]
-    public function exportPackagedStatementsAction(
+    public function exportPackagedStatements(
+        FileNameGenerator $fileNameGenerator,
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
         ZipExportService $zipExportService,
-        string $procedureId
+        string $procedureId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
-        $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all(self::TABLE_HEADERS_PARAMETER);
+        $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '');
+
+        $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
+        $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
+        $obscureParameter = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
+
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // This method applies mostly the same restrictions as the generic API access to retrieve statements.
         // It validates filter and search parameters and limits the returned statement entities to those
@@ -200,17 +260,50 @@ class SegmentsExportController extends BaseController
         );
         /** @var Statement[] $statements */
         $statements = array_values($statementResult->getList());
-        $statements = $exporter->mapStatementsToPathInZip($statements, $fileNameTemplate);
+
+        // Apply tag filtering after JsonAPI filtering
+        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
+        $statements = $this->statementExportTagFilter->filterStatementsByTags($statements, $tagsFilter);
+
+        $statements = $exporter->mapStatementsToPathInZip(
+            $statements,
+            $censorCitizenData,
+            $censorInstitutionData,
+            $fileNameTemplate
+        );
 
         return $zipExportService->buildZipStreamResponse(
-            $exporter->getSynopseFileName($procedure, 'zip'),
-            static function (ZipStream $zipStream) use ($statements, $exporter, $zipExportService, $procedure, $tableHeaders): void {
+            $fileNameGenerator->getSynopseFileName($procedure, 'zip'),
+            function (ZipStream $zipStream) use (
+                $statements,
+                $exporter,
+                $zipExportService,
+                $procedure,
+                $tableHeaders,
+                $censorCitizenData,
+                $censorInstitutionData,
+                $obscureParameter
+            ): void {
                 array_map(
-                    static function (
-                        Statement $statement,
-                        string $filePathInZip
-                    ) use ($exporter, $zipExportService, $zipStream, $procedure, $tableHeaders): void {
-                        $docx = $exporter->exportStatementSegmentsInSeparateDocx($statement, $procedure, $tableHeaders);
+                    function (Statement $statement, string $filePathInZip) use (
+                        $exporter,
+                        $zipExportService,
+                        $zipStream,
+                        $procedure,
+                        $tableHeaders,
+                        $censorCitizenData,
+                        $censorInstitutionData,
+                        $obscureParameter
+                    ): void {
+                        $docx = $exporter->exportStatementSegmentsInSeparateDocx(
+                            $statement,
+                            $procedure,
+                            $tableHeaders,
+                            $censorCitizenData,
+                            $censorInstitutionData,
+                            $obscureParameter,
+                            $this->statementExportTagFilter->hasAnySupportedFilterSet()
+                        );
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(
                             $writer,
@@ -229,7 +322,7 @@ class SegmentsExportController extends BaseController
 
     private function setResponseHeaders(
         StreamedResponse $response,
-        string $filename
+        string $filename,
     ): void {
         $response->headers->set('Pragma', 'public');
         $response->headers->set(
@@ -237,5 +330,12 @@ class SegmentsExportController extends BaseController
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
         );
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($filename));
+    }
+
+    private function getBooleanQueryParameter(string $parameterName, bool $defaultValue = false): bool
+    {
+        $parameter = $this->requestStack->getCurrentRequest()->query->get($parameterName, $defaultValue);
+
+        return filter_var($parameter, FILTER_VALIDATE_BOOLEAN);
     }
 }

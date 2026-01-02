@@ -12,47 +12,47 @@
         method="post"
         action="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">
         <input type="hidden" name="manualsort" value="">
+
         {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
-        {# mark all #}
-        <label class="u-mb-0 u-mh-0_75 inline-block">
-            <input
-                class="u-mr-0"
-                type="checkbox"
-                data-cy="checkAllItems"
-                data-form-actions-check-all
-                name="checkAllItems"
-                value="">
-            {{ "all"|trans }}
-        </label>
+        <div class="flex flex-wrap-reverse gap-4 items-center justify-between">
+            <div>
+                {# mark all #}
+                <label class="mb-0 mx-3 inline-block">
+                    <input
+                        class="mr-0"
+                        type="checkbox"
+                        data-cy="checkAllItems"
+                        data-form-actions-check-all
+                        name="checkAllItems">
+                    {{ "all"|trans }}
+                </label>
 
-        {# delete marked items #}
-        <button
-            class="btn-icns u-ml-0_25"
-            data-cy="deleteSelectedBoilerplate"
-            name="boilerplateDeleteChecked"
-            data-form-actions-confirm="{{ "check.entries.marked.delete" |trans }}">
-            <i class="fa fa-times-circle"></i> {{ "items.marked.delete"|trans }}
-        </button>
+                {# delete marked items #}
+                <button
+                    class="btn-icns m-0"
+                    data-cy="deleteSelectedBoilerplate"
+                    name="boilerplateDeleteChecked">
+                    <i class="fa fa-times-circle"></i> {{ "items.marked.delete"|trans }}
+                </button>
+            </div>
 
-        <dp-split-button
-            data-cy="addNewBoilerplate"
-            class="inline-block float-right">
-            <a
-               class="btn btn--primary has-dropdown u-m-0"
-               data-cy="generateBoilerplate"
-               href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure}) }}">
-                {{ "boilerplate.generate"|trans }}
-            </a><!--
-         --><template v-slot:dropdown>
-            <a
-               data-cy="addNewBoilerplateGroup"
-               href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure}) }}">
-               {{ "new.group.create"|trans }}
-            </a>
-            </template>
-        </dp-split-button>
+            <div class="ml-3">
+                <dp-button
+                    class="mr-2"
+                    data-cy="addNewBoilerplate"
+                    href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure}) }}"
+                    text="{{ 'entity.create'|trans({ entity: 'boilerplate'|trans }) }}">
+                </dp-button>
 
+                <dp-button
+                    data-cy="addNewBoilerplateGroup"
+                    href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure}) }}"
+                    text="{{ 'entity.create'|trans({ entity: 'group'|trans }) }}"
+                    variant="outline">
+                </dp-button>
+            </div>
+        </div>
 
         <table class="c-table o-toggle o-toggle--not-animated u-mb u-mt-0_5">
             <colgroup>
@@ -111,7 +111,8 @@
                             <a
                                 href="{{ path('DemosPlan_procedure_boilerplate_edit',{procedure: procedure, 'boilerplateId': boilerplate.ident }) }}"
                                 data-cy="administrationListBoilerplate:boilerplateEdit"
-                                class="o-toggle__trigger u-mr-0_5 align-middle js__toggleAnything">
+                                class="o-toggle__trigger u-mr-0_5 align-middle js__toggleAnything"
+                                aria-label="{{ 'boilerplate.edit'|trans }}">
                                 <i
                                     class="fa fa-pencil"
                                     aria-hidden="true">
@@ -174,17 +175,19 @@
                     <td class="text-center">
                         <dp-flyout>
                             <a
+                                class="block o-link--default leading-[2] whitespace-nowrap"
                                 href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure, 'selectedGroupId': boilerplateGroup.id}) }}"
                                 data-cy="administrationListBoilerplate:addNewBoilerplate">
                                 {{ 'boilerplate.generate' |trans }}
                             </a>
                             <a
+                                class="block o-link--default leading-[2] whitespace-nowrap"
                                 href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure, 'boilerplateGroupId': boilerplateGroup.id}) }}"
                                 data-cy="administrationListBoilerplate:boilerplateGroupEdit">
                                 {{ 'group.edit' |trans }}
                             </a>
                             <button
-                                class="btn--blank o-link--default"
+                                class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
                                 value="{{ boilerplateGroup.id }}"
                                 name="boilerplateGroupDeleteAllContent"
                                 data-cy="administrationListBoilerplate:boilerplateGroupDelete"

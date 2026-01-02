@@ -25,11 +25,11 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFieldDefinitionResource
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
-class ResourcePersister extends CoreService
+class ResourcePersister
 {
     public function __construct(
         private readonly RepositoryHelper $repositoryHelper,
-        private readonly ResourceTypeService $resourceTypeService
+        private readonly ResourceTypeService $resourceTypeService,
     ) {
     }
 
@@ -45,7 +45,7 @@ class ResourcePersister extends CoreService
     public function updateBackingObjectWithEntity(
         ProcedureTypeResourceType|ProcedureUiDefinitionResourceType|ProcedureBehaviorDefinitionResourceType|StatementFieldDefinitionResourceType $resourceType,
         ProcedureType|ProcedureUiDefinition|ProcedureBehaviorDefinition|StatementFieldDefinition $entity,
-        array $properties
+        array $properties,
     ): ResourceChange {
         $allowedProperties = $resourceType->getUpdatableProperties();
         if ([] === $allowedProperties) {
@@ -64,7 +64,7 @@ class ResourcePersister extends CoreService
      */
     public function persistResourceChanges(array $resourceChanges): void
     {
-        if (0 === count($resourceChanges)) {
+        if ([] === $resourceChanges) {
             return;
         }
         /** @var ResourceChange $firstResourceChange */

@@ -2,8 +2,17 @@
 fos_elastica:
     clients:
         default:
-            connections: '%elasticsearch_urls%'
+            # Updated for Elasticsearch 8 compatibility
+            hosts: '%elasticsearch_urls%'
             connection_strategy: RoundRobin
+            username: '%env(default:elasticsearch_user:ELASTICSEARCH_USERNAME)%'
+            password: '%env(default:elasticsearch_pass:ELASTICSEARCH_PASSWORD)%'
+            # Add SSL configuration if needed
+            client_config: '%elasticsearch_client_config%'
+            # Add other client options if needed
+            # client_options:
+            #    timeout: 30
+            #    retries: 2
     indexes:
         statementSegments:
             index_name: '%project_prefix%_segments'
@@ -23,10 +32,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -126,10 +131,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 3
@@ -148,10 +149,6 @@ fos_elastica:
                                 - stemmer_german
                                 - unique
                                 - asciifolding
-                        ducet_sort:
-                            tokenizer: keyword
-                            filter:
-                                - icu_filter
             properties:
                 name:
                     type: text
@@ -234,10 +231,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -273,6 +266,7 @@ fos_elastica:
                 pId: {type: keyword, index: true}
                 uId: {type: keyword, index: true}
                 elementId: {type: keyword, index: true}
+                authorOnly: {type: boolean }
                 deleted: {type: boolean }
                 released: {type: boolean }
                 submitted: {type: boolean }
@@ -303,10 +297,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -470,6 +460,7 @@ fos_elastica:
                 headStatementId: {type: keyword, index: true}
                 isClusterStatement: { type: boolean }
                 votesNum: { type: integer, null_value: 0 }
+                numberOfAnonymVotes: { type: integer, null_value: 0 }
                 voteStk: {type: keyword, index: true}
                 votePla: {type: keyword, index: true}
                 likesNum: { type: integer, null_value: 0 }
@@ -674,10 +665,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -700,10 +687,6 @@ fos_elastica:
                                 - stemmer_german
                                 - unique
                                 - asciifolding
-                        ducet_sort:
-                            tokenizer: keyword
-                            filter:
-                                - icu_filter
                         file_name:
                             type: custom
                             char_filter: remove_filename_extension

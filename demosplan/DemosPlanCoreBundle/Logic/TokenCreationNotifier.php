@@ -37,7 +37,7 @@ class TokenCreationNotifier
     public function notifyIfNecessary(ConsultationToken $consultationToken): void
     {
         $statement = $consultationToken->getStatement();
-        if (null !== $statement) {
+        if ($statement instanceof Statement) {
             $procedure = $statement->getProcedure();
 
             if ($this->shouldSendNotification($statement)) {
@@ -65,12 +65,9 @@ class TokenCreationNotifier
         if (null === $emailAddress) {
             return false;
         }
-        if ('' === trim((string) $emailAddress)) {
-            return false;
-        }
 
         // everything seems fine
-        return true;
+        return '' !== trim((string) $emailAddress);
     }
 
     /**
@@ -80,7 +77,7 @@ class TokenCreationNotifier
         ConsultationToken $consultationToken,
         Procedure $procedure,
         Statement $statement,
-        string $statementSubmitterAddress
+        string $statementSubmitterAddress,
     ): void {
         try {
             $mailSend = $this->mailService->sendMail(

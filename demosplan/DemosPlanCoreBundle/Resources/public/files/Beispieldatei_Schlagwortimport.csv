@@ -1,0 +1,7 @@
+Thema;Schlagwortname;Textbaustein (ja/nein);Textbausteininhalt
+ Grundtenor der Stellungnahme;Positiv, Zustimmung;ja;Die Stellungnahme wird zur Kenntnis genommen. [wenn eine Planänderung zu dem positiv bewerteten Planteil erfolgt, muss dies allerdings auftauchen]
+ Grundtenor der Stellungnahme;Negativ, Ablehnung / Kritik;nein;
+ Grundtenor der Stellungnahme;Datenkorrektur-Hinweis;nein;
+ Inhaltliche Intention der Stellungnahme;Neuer Flächenwunsch / Flächenerweiterung;nein;
+ Inhaltliche Intention der Stellungnahme;Wunsch Flächen- (teil-) Streichung;nein;
+ Inhaltliche Intention der Stellungnahme;Allgemeine Kritik ohne Flächenbezug;nein;

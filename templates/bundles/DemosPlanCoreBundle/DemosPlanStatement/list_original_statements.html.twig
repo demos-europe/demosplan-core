@@ -14,15 +14,15 @@
             {
                 href: path('dplan_procedure_statement_list', { procedureId: procedureId }),
                 label: 'statements'|trans,
-                datacy: 'listStatements:statementList',
+                datacy: 'listOriginalStatements:list',
                 feature: 'area_admin_original_statement_list'
             },
             {
-            href: path(path, { procedureId: procedureId }),
-            label:  'statement.new'|trans,
-            datacy: 'createStatement',
-            icon: 'fa-plus',
-            feature: permission
+                href: path(path, { procedureId: procedureId }),
+                label:  'statement.new'|trans,
+                datacy: 'listOriginalStatements:createStatement',
+                icon: 'fa-plus',
+                feature: permission
             }
         ]|filter(item => hasPermission(item.feature)),
         flush: true

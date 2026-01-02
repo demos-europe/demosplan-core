@@ -3,7 +3,9 @@ bamarni/composer-bin-plugin: MIT
 beberlei/doctrineextensions: BSD-3-Clause
 cebe/php-openapi: MIT
 cocur/slugify: MIT
+composer/composer: MIT
 composer/package-versions-deprecated: MIT
+cyclonedx/cyclonedx-php-composer: Apache-2.0
 demos-europe/demosplan-addon: MIT
 doctrine/annotations: MIT
 doctrine/common: MIT
@@ -17,7 +19,6 @@ efrane/console-additions: MIT
 efrane/tus-bundle: MIT
 egulias/email-validator: MIT
 endroid/qr-code-bundle: MIT
-enqueue/elastica-bundle: MIT
 enqueue/enqueue-bundle: MIT
 enqueue/fs: MIT
 erusev/parsedown: MIT
@@ -33,13 +34,13 @@ goetas-webservices/xsd2php-runtime: MIT
 guzzlehttp/guzzle: MIT
 illuminate/collections: MIT
 intervention/image: MIT
-intriro/csv-bundle: MIT
 jfcherng/php-diff: BSD-3-Clause
 jmikola/geojson: MIT
 jms/serializer-bundle: MIT
 khanamiryan/qrcode-detector-decoder: MIT
 knplabs/knp-menu-bundle: MIT
 knpuniversity/oauth2-client-bundle: MIT
+league/csv: MIT
 league/flysystem-aws-s3-v3: MIT
 league/flysystem-bundle: MIT
 league/flysystem-memory: MIT
@@ -54,22 +55,23 @@ myclabs/php-enum: MIT
 nelmio/security-bundle: MIT
 nesbot/carbon: MIT
 openlss/lib-array2xml: Apache-2.0
-patchwork/utf8: (Apache-2.0 or GPL-2.0)
 php-amqplib/rabbitmq-bundle: MIT
 php-parallel-lint/php-console-highlighter: MIT
 phpdocumentor/reflection-docblock: MIT
 phpoffice/phpspreadsheet: MIT
-phpoffice/phpword: LGPL-3.0
+phpoffice/phpword: LGPL-3.0-only
 phpspec/prophecy: MIT
 phpspec/prophecy-phpunit: MIT
 phpstan/phpstan: MIT
 phpstan/phpstan-symfony: MIT
 phpunit/phpunit: BSD-3-Clause
+predis/predis: MIT
 proj4php/proj4php: LGPL-2.1
 psalm/plugin-symfony: MIT
 ramsey/uuid: MIT
 rector/rector: MIT
 rollerworks/password-strength-bundle: MIT
+ruflin/elastica: MIT
 scheb/2fa-bundle: MIT
 scheb/2fa-email: MIT
 scheb/2fa-totp: MIT
@@ -124,6 +126,7 @@ symfony/var-dumper: MIT
 symfony/var-exporter: MIT
 symfony/web-profiler-bundle: MIT
 symfony/yaml: MIT
+thenetworg/oauth2-azure: MIT
 timeweb/phpstan-enum: MIT
 vimeo/psalm: MIT
 weirdan/doctrine-psalm-plugin: MIT
@@ -134,4 +137,4 @@ wrep/daemonizable-command: MIT
 wsdltophp/packagegenerator: MIT
 zenstruck/foundry: MIT
 
-As of 26.11.2024 07:03
+As of 04.12.2025 07:03

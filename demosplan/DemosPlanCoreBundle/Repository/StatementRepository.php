@@ -38,12 +38,14 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\AdditionalStatementDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadyConnectedToGdprConsentRevokeTokenException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentStatementQuery;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -66,6 +68,7 @@ use Illuminate\Support\Collection;
 use Pagerfanta\Pagerfanta;
 use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Webmozart\Assert\Assert;
 
 use function array_combine;
 
@@ -80,7 +83,8 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         private readonly EventDispatcherInterface $eventDispatcher,
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
-        string $entityClass
+        string $entityClass,
+        private readonly CustomerService $customerService,
     ) {
         parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
@@ -159,7 +163,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             }
 
             // only if there statements left to generate a cluster, create the headStatement
-            if (0 < count($statements)) {
+            if ([] !== $statements) {
                 $headStatement = $this->addObject($headStatement);
                 $headStatement->setCluster($statements);
                 $manager->persist($headStatement);
@@ -815,9 +819,6 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             $statement->setParagraph(null);
         }
 
-        if (array_key_exists('phase', $data)) {
-            $statement->setPhase($data['phase']);
-        }
         if (array_key_exists('pId', $data) && 36 === strlen((string) $data['pId'])) {
             $statement->setProcedure($em->getReference(Procedure::class, $data['pId']));
         }
@@ -989,6 +990,10 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
 
         if (array_key_exists('phase', $data)) {
             $statement->setPhase($data['phase']);
+        } else {
+            // Set default phase if not provided to prevent NOT NULL constraint violation
+            $procedure = $statement->getProcedure();
+            $statement->setPhase($procedure->getPhase());
         }
 
         if (array_key_exists('replied', $data)) {
@@ -1152,11 +1157,13 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     }
 
     /**
+     * Gets statements created or imported by the procedure-owning organisation
+     * including statements created on behalf of a specified organisation by the owning organisation.
+     *
      * @return array<int, Statement>
      */
     public function getStatementsOfProcedureAndOrganisation(string $procedureId, string $organisationId): array
     {
-        // get all original statements from statements
         return $this->getEntityManager()->createQueryBuilder()
             ->select('original.id, original.created, original.externId')
             ->from(Statement::class, 'statement')
@@ -1175,6 +1182,39 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->orderBy('original.created', 'DESC')
             ->getQuery()
             ->getArrayResult();
+    }
+
+    /**
+     * Counts statements submitted by an organisation via the draft-to-statement workflow.
+     * This method counts statements where the organisation is set directly on the statement
+     * (indicating they were submitted via the draft-to-statement workflow) rather than through statement.meta.
+     *
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     * @throws InvalidArgumentException
+     */
+    public function countDraftToStatementSubmissionsByOrganisation(string $procedureId, string $organisationId): int
+    {
+        $singleScalarResult = $this->getEntityManager()->createQueryBuilder()
+            ->select('COUNT(original.id)')
+            ->from(Statement::class, 'statement')
+            ->leftJoin('statement.original', 'original')
+            ->andWhere('original.original IS NULL')
+            ->andWhere('statement.deleted = false')
+            ->andWhere('original.deleted = false')
+            ->andWhere('statement.movedStatement IS NULL') // isPlaceholder === false
+            ->andWhere('statement.procedure = :procedureId')
+            ->andWhere('original.procedure = :procedureId')
+            ->setParameter('procedureId', $procedureId)
+            ->andWhere('statement.original IS NOT NULL')
+            ->andWhere('original.organisation = :orgaId')
+            ->setParameter('orgaId', $organisationId)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        Assert::integer($singleScalarResult);
+
+        return $singleScalarResult;
     }
 
     /**
@@ -1294,7 +1334,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         foreach ($statementArrays as $entityArray) {
             $externId = $entityArray['externId'];
             if (false === is_numeric($externId)) {
-                preg_match('/([0-9]).*/', (string) $externId, $matches);
+                preg_match('/(\d).*/', (string) $externId, $matches);
                 $externId = array_key_exists(0, $matches) ? $matches[0] : 0;
             }
             // with is_numeric we exclude external ids from segments which have a
@@ -1791,20 +1831,20 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         Statement $originalToCopy,
         Procedure $targetProcedure,
         ?GdprConsent $gdprConsentToSet = null,
-        $internIdToSet = null
+        $internIdToSet = null,
     ): Statement {
         if (!$originalToCopy->isOriginal()) {
             throw new InvalidArgumentException('Given Statement is not an OriginalStatement.');
         }
 
-        if (null !== $gdprConsentToSet && null !== $gdprConsentToSet->getStatement()) {
+        if ($gdprConsentToSet instanceof GdprConsent && null !== $gdprConsentToSet->getStatement()) {
             throw new InvalidArgumentException('Given GdprConsent is already in use.');
         }
 
         $newOriginalStatement = clone $originalToCopy;
 
         // create new gdprConsent for copied original statement
-        if (null === $gdprConsentToSet && null !== $originalToCopy->getGdprConsent()) {
+        if (!$gdprConsentToSet instanceof GdprConsent && null !== $originalToCopy->getGdprConsent()) {
             $gdprConsentToSet = clone $originalToCopy->getGdprConsent();
             $gdprConsentToSet->setStatement($newOriginalStatement);
         }
@@ -1986,7 +2026,9 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     /**
      * Returns only original statements and these whose related procedure is not deleted.
      *
-     * @return Statement[]
+     * @return array<int, array<string, mixed>>
+     *
+     * @throws CustomerNotFoundException
      */
     public function getOriginalStatements(): array
     {
@@ -1999,14 +2041,17 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->addSelect('procedure.id as procedureId')
             ->from(Statement::class, 'statement')
             ->leftJoin('statement.procedure', 'procedure')
+            ->leftJoin('procedure.customer', 'customer')
             ->leftJoin('statement.meta', 'meta')
             ->leftJoin('statement.user', 'user')
             ->andWhere('statement.deleted = :deleted')
             ->andWhere('statement.original IS NULL')
             ->andWhere('procedure.deleted = :deleted')
             ->andWhere('procedure.master = :master')
+            ->andWhere('customer.id = :customerId')
             ->setParameter('deleted', false)
             ->setParameter('master', false)
+            ->setParameter('customerId', $this->customerService->getCurrentCustomer())
             ->getQuery()
             ->getResult();
     }

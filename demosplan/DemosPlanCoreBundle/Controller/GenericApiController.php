@@ -21,16 +21,21 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\ListableResourceTypeInterf
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use EDT\JsonApi\RequestHandling\RequestConstraintFactory;
 use EDT\JsonApi\Requests\CreationRequest;
 use EDT\JsonApi\Requests\DeletionRequest;
 use EDT\JsonApi\Requests\GetRequest;
 use EDT\JsonApi\Requests\RequestException;
 use EDT\JsonApi\Requests\UpdateRequest;
 use EDT\Wrapping\Contracts\TypeRetrievalAccessException;
+use League\Fractal\Resource\Item;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Webmozart\Assert\Assert;
 
 /**
@@ -55,20 +60,19 @@ class GenericApiController extends APIController
      *
      * @see https://jsonapi.org/format/1.1/#fetching-resources Fetching Resources
      *
-     * @DplanPermissions("feature_json_api_list")
-     *
      * @throws TypeRetrievalAccessException
      * @throws RequestException
      */
+    #[DplanPermissions('feature_json_api_list')]
     #[Route(
         path: '/api/2.0/{resourceType}',
         name: 'api_resource_list',
         options: ['expose' => true],
         methods: ['GET']
     )]
-    public function listAction(
+    public function list(
         SearchCapableListRequest $listRequest,
-        string $resourceType
+        string $resourceType,
     ): APIResponse {
         // fetch resource type instance
         $type = $this->resourceTypeProvider->getTypeByIdentifier($resourceType);
@@ -99,22 +103,34 @@ class GenericApiController extends APIController
      *
      * @see https://jsonapi.org/format/1.1/#crud-updating Updating Resources
      *
-     * @DplanPermissions("feature_json_api_update")
-     *
      * @throws TypeRetrievalAccessException
      * @throws RequestException
      */
+    #[DplanPermissions('feature_json_api_update')]
     #[Route(
         path: '/api/2.0/{resourceType}/{resourceId}',
         name: 'api_resource_update',
         options: ['expose' => true],
         methods: ['PATCH']
     )]
-    public function updateAction(
-        UpdateRequest $updateRequest,
+    public function update(
+        EventDispatcherInterface $eventDispatcher,
+        Request $request,
+        ValidatorInterface $validator,
+        RequestConstraintFactory $requestConstraintFactory,
         string $resourceType,
-        string $resourceId
+        string $resourceId,
     ): Response {
+        // Dependency Injection of UpdateRequest does not work in tests,
+        // content of the Request is not passed to the UpdateRequest
+        $updateRequest = new UpdateRequest(
+            $eventDispatcher,
+            $request,
+            $validator,
+            $requestConstraintFactory,
+            512
+        );
+
         // fetch resource type instance
         $type = $this->resourceTypeProvider->getTypeByIdentifier($resourceType);
 
@@ -132,9 +148,9 @@ class GenericApiController extends APIController
         $item = $updateRequest->updateResource($type, $resourceId);
 
         // create response
-        return null === $item
-            ? $this->createEmptyResponse()
-            : $this->renderResource($item);
+        return $item instanceof Item
+            ? $this->renderResource($item)
+            : $this->createEmptyResponse();
     }
 
     /**
@@ -145,18 +161,17 @@ class GenericApiController extends APIController
      *
      * @see https://jsonapi.org/format/1.1/#crud-creating Creating Resources
      *
-     * @DplanPermissions("feature_json_api_create")
-     *
      * @throws TypeRetrievalAccessException
      * @throws RequestException
      */
+    #[DplanPermissions('feature_json_api_create')]
     #[Route(
         path: '/api/2.0/{resourceType}',
         name: 'api_resource_create',
         options: ['expose' => true],
         methods: ['POST']
     )]
-    public function createAction(
+    public function create(
         CreationRequest $creationRequest,
         string $resourceType,
     ): Response {
@@ -177,9 +192,9 @@ class GenericApiController extends APIController
         $item = $creationRequest->createResource($type);
 
         // create response
-        return null === $item
-            ? $this->createEmptyResponse()
-            : $this->renderResource($item, Response::HTTP_CREATED);
+        return $item instanceof Item
+            ? $this->renderResource($item, Response::HTTP_CREATED)
+            : $this->createEmptyResponse();
     }
 
     /**
@@ -190,21 +205,20 @@ class GenericApiController extends APIController
      *
      * @see https://jsonapi.org/format/1.1/#crud-deleting Deleting Resources
      *
-     * @DplanPermissions("feature_json_api_delete")
-     *
      * @throws TypeRetrievalAccessException
      * @throws RequestException
      */
+    #[DplanPermissions('feature_json_api_delete')]
     #[Route(
         path: '/api/2.0/{resourceType}/{resourceId}',
         name: 'api_resource_delete',
         options: ['expose' => true],
         methods: ['DELETE']
     )]
-    public function deleteAction(
+    public function delete(
         DeletionRequest $deletionRequest,
         string $resourceType,
-        string $resourceId
+        string $resourceId,
     ): Response {
         // fetch resource type instance
         $type = $this->resourceTypeProvider->getTypeByIdentifier($resourceType);
@@ -234,11 +248,10 @@ class GenericApiController extends APIController
      *
      * @see https://jsonapi.org/format/1.1/#fetching-resources Fetching Resources
      *
-     * @DplanPermissions("feature_json_api_get")
-     *
      * @throws TypeRetrievalAccessException
      * @throws RequestException
      */
+    #[DplanPermissions('feature_json_api_get')]
     #[Route(
         path: '/api/2.0/{resourceType}/{resourceId}',
         name: 'api_resource_get',
@@ -248,7 +261,7 @@ class GenericApiController extends APIController
     public function getAction(
         GetRequest $getRequest,
         string $resourceType,
-        string $resourceId
+        string $resourceId,
     ): Response {
         // fetch resource type instance
         $type = $this->resourceTypeProvider->getTypeByIdentifier($resourceType);

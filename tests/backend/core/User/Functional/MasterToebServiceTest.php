@@ -29,7 +29,7 @@ class MasterToebServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(MasterToebService::class);
+        $this->sut = self::getContainer()->get(MasterToebService::class);
     }
 
     public function testGetMasterToebsStructure()

@@ -350,16 +350,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      * )
      */
     protected $assignedTags;
-    /**
-     * @var Collection<int,InstitutionTag>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag", mappedBy="owningOrganisation")
-     *
-     * @ORM\JoinColumn(referencedColumnName="id")
-     *
-     * @ORM\OrderBy({"label" = "ASC"})
-     */
-    protected $ownInstitutionTags;
 
     public function __construct()
     {
@@ -374,7 +364,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         $this->users = new ArrayCollection();
         $this->administratableProcedures = new ArrayCollection();
         $this->assignedTags = new ArrayCollection();
-        $this->ownInstitutionTags = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -726,6 +715,22 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     public function setStreet($street): self
     {
         $this->setAddressValue('street', $street);
+
+        return $this;
+    }
+
+    public function getAddressExtension(): string
+    {
+        if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
+            return $this->addresses->first()->getStreet1() ?? '';
+        }
+
+        return '';
+    }
+
+    public function setAddressExtension($addressExtension): self
+    {
+        $this->setAddressValue('street1', $addressExtension);
 
         return $this;
     }
@@ -1123,7 +1128,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         }
         // If a branding relationship does not exist, but a file is given,
         // create branding entity and add it as a relationship
-        if (null === $branding && $logo instanceof File) {
+        if (!$branding instanceof Branding && $logo instanceof File) {
             $branding = new Branding();
             $branding->setLogo($logo);
             $this->setBranding($branding);
@@ -1153,7 +1158,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     public function addCustomerAndOrgaType(
         CustomerInterface $customer,
         OrgaTypeInterface $orgaType,
-        string $status = OrgaStatusInCustomer::STATUS_ACCEPTED
+        string $status = OrgaStatusInCustomer::STATUS_ACCEPTED,
     ): self {
         // create new
         $relation = new OrgaStatusInCustomer();
@@ -1260,6 +1265,10 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         return false;
     }
 
+    /**
+     * @deprecated this was used to get the customer of a procedure before the
+     *             procedure had a customer relationship
+     */
     public function getMainCustomer(): ?CustomerInterface
     {
         /** @var OrgaStatusInCustomer $customerOrgaTypes */
@@ -1362,26 +1371,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         if ($this->assignedTags->contains($tag)) {
             $this->assignedTags->removeElement($tag);
             $tag->getTaggedInstitutions()->removeElement($this);
-        }
-    }
-
-    public function addOwnInstitutionTag(InstitutionTagInterface $tag): void
-    {
-        $this->ownInstitutionTags->add($tag);
-    }
-
-    /**
-     * @return Collection<int, InstitutionTag>
-     */
-    public function getOwnInstitutionTags(): Collection
-    {
-        return $this->ownInstitutionTags;
-    }
-
-    public function removeOwnInstitutionTag(InstitutionTagInterface $tag): void
-    {
-        if ($this->ownInstitutionTags->contains($tag)) {
-            $this->ownInstitutionTags->removeElement($tag);
         }
     }
 }

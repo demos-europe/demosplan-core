@@ -135,7 +135,7 @@
         }
 
         &__button {
-            @include keyboard-focus();
+            @include keyboard-focus;
 
             min-height: 32px;
             min-width: 25px;
@@ -336,10 +336,7 @@
                 }
 
                 .selectedCell::after {
-                    left: 0;
-                    right: 0;
-                    top: 0;
-                    bottom: 0;
+                    inset: 0;
                     position: absolute;
                     z-index: 2;
 
@@ -424,7 +421,7 @@
         white-space: nowrap;
         overflow: hidden;
         padding: 0;
-        box-shadow: $dp-box-shadow;
+        box-shadow: $dp-box-shadow-sm;
     }
 
     &__list-item {
@@ -461,4 +458,11 @@
         list-style: decimal;
     }
 }
+
+// Focus style for the editor when any of its children has focus
+.editor:focus-within {
+    outline: 2px solid $dp-color-interactive-default;
+}
+
+
 

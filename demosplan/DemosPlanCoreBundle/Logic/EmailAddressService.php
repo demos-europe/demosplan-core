@@ -16,11 +16,11 @@ use demosplan\DemosPlanCoreBundle\Event\GetEmailIdsEvent;
 use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class EmailAddressService extends CoreService
+class EmailAddressService
 {
     public function __construct(
         private readonly EmailAddressRepository $emailAddressRepository,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 

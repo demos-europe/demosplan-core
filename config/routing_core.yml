@@ -4,4 +4,4 @@ imports:
 csp_report:
     path: /nelmio/csp/report
     methods: [POST]
-    defaults: { _controller: nelmio_security.csp_reporter_controller:indexAction }
+    defaults: { _controller: nelmio_security.csp_reporter_controller::indexAction }

@@ -12,11 +12,12 @@
     <dp-sticky-element
       border
       class="pt-2 pb-3"
-      :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }">
+      :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }"
+    >
       <div class="flex items-start mb-2">
         <custom-search
-          ref="customSearch"
           id="customSearch"
+          ref="customSearch"
           :elasticsearch-field-definition="{
             entity: 'statementSegment',
             function: 'search',
@@ -24,33 +25,42 @@
           }"
           :search-term="searchTerm"
           @change-fields="updateSearchFields"
-          @search="updateSearchQuery"
-          @reset="updateSearchQuery" />
-        <div class="bg-color--grey-light-2 rounded-md ml-2">
-          <span class="color--grey ml-1 align-middle">
-            {{ Translator.trans('filter') }}
-          </span>
+          @search="term => updateSearchQuery(term)"
+          @reset="handleResetSearch"
+        />
+        <div class="ml-2 space-x-1 space-x-reverse">
           <filter-flyout
-            v-for="filter in filters"
+            v-for="(filter, idx) in Object.values(filters)"
             ref="filterFlyout"
-            :additional-query-params="{ searchPhrase: searchTerm }"
-            :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
-            :initial-query="queryIds"
             :key="`filter_${filter.labelTranslationKey}`"
-            :label="Translator.trans(filter.labelTranslationKey)"
+            :additional-query-params="{ searchPhrase: searchTerm }"
+            :category="{ id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }"
+            class="inline-block first:mr-1"
+            :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
+            align="left"
+            :groups-object="filter.groupsObject"
+            :initial-query-ids="queryIds"
+            :items-object="filter.itemsObject"
             :operator="filter.comparisonOperator"
             :path="filter.rootPath"
-            :procedure-id="procedureId"
-            @filter-apply="sendFilterQuery" />
+            :show-count="{
+              groupedOptions: true,
+              ungroupedOptions: true
+            }"
+            variant="dark"
+            @filter-apply="sendFilterQuery"
+            @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})"
+          />
         </div>
         <dp-button
+          v-tooltip="Translator.trans('search.filter.reset')"
           class="ml-2 h-fit"
           data-cy="segmentsList:resetFilter"
           :disabled="noQuery"
           :text="Translator.trans('reset')"
           variant="outline"
-          v-tooltip="Translator.trans('search.filter.reset')"
-          @click="resetQuery" />
+          @click="resetQuery"
+        />
         <dp-button
           class="ml-auto"
           data-cy="editorFullscreen"
@@ -59,58 +69,66 @@
           hide-text
           variant="outline"
           :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
-          @click="handleFullscreenMode()" />
+          @click="handleFullscreenMode()"
+        />
       </div>
       <dp-bulk-edit-header
         v-if="selectedItemsCount > 0"
         class="layout__item u-12-of-12 u-mt-0_5"
         :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
-        @reset-selection="resetSelection">
+        @reset-selection="resetSelection"
+      >
         <dp-button
           :text="Translator.trans('segments.bulk.edit')"
           variant="outline"
-          @click.prevent="handleBulkEdit" />
+          @click.prevent="handleBulkEdit"
+        />
       </dp-bulk-edit-header>
       <div
         v-if="items.length > 0"
-        class="flex justify-between items-center mt-4">
+        class="flex justify-between items-center mt-4"
+      >
         <dp-pager
           v-if="pagination.currentPage"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
-          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :limits="pagination.limits"
           :per-page="pagination.perPage"
           :total-pages="pagination.totalPages"
           :total-items="pagination.total"
           @page-change="applyQuery"
-          @size-change="handleSizeChange" />
+          @size-change="handleSizeChange"
+        />
         <dp-column-selector
           data-cy="segmentsList:selectableColumns"
           :initial-selection="currentSelection"
           local-storage-key="segmentList"
           :selectable-columns="selectableColumns"
           use-local-storage
-          @selection-changed="setCurrentSelection" />
+          @selection-changed="setCurrentSelection"
+        />
       </div>
     </dp-sticky-element>
 
     <dp-loading
+      v-if="isLoading"
       class="u-mt"
-      v-if="isLoading" />
+    />
 
     <template v-else>
       <template v-if="items.length > 0">
         <image-modal
           ref="imageModal"
-          data-cy="segment:imgModal" />
+          data-cy="segment:imgModal"
+        />
         <dp-data-table
           ref="dataTable"
           class="overflow-x-auto pb-3 min-h-12"
           :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
           data-cy="segmentsList"
           has-flyout
-          :header-fields="headerFields"
+          :header-fields="availableHeaderFields"
           is-resizable
           is-selectable
           :items="items"
@@ -120,7 +138,8 @@
           :should-be-selected-items="currentlySelectedItems"
           track-by="id"
           @select-all="handleSelectAll"
-          @items-toggled="handleToggleItem">
+          @items-toggled="handleToggleItem"
+        >
           <template v-slot:externId="rowData">
             <v-popover trigger="hover focus">
               <div class="whitespace-nowrap">
@@ -131,21 +150,24 @@
                   :assignable-users="assignableUsers"
                   :statement="statementsObject[rowData.relationships.parentStatement.data.id]"
                   :segment="rowData"
-                  :places="places" />
+                  :places="places"
+                />
               </template>
             </v-popover>
           </template>
           <template v-slot:statementStatus="rowData">
             <status-badge
               class="mt-0.5"
-              :status="statementsObject[rowData.relationships.parentStatement.data.id].attributes.status" />
+              :status="statementsObject[rowData.relationships.parentStatement.data.id].attributes.status"
+            />
           </template>
           <template v-slot:internId="rowData">
             <div class="o-hellip__wrapper">
               <div
-                class="o-hellip--nowrap text-right"
                 v-tooltip="statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId"
-                dir="rtl">
+                class="o-hellip--nowrap text-right"
+                dir="rtl"
+              >
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId }}
               </div>
             </div>
@@ -154,17 +176,20 @@
             <ul class="o-list max-w-12">
               <li
                 v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName !== ''"
-                class="o-list__item o-hellip--nowrap">
+                class="o-list__item o-hellip--nowrap"
+              >
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName }}
               </li>
               <li
                 v-else
-                class="o-list__item o-hellip--nowrap">
+                class="o-list__item o-hellip--nowrap"
+              >
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.submitName }}
               </li>
               <li
                 v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationName !== ''"
-                class="o-list__item o-hellip--nowrap">
+                class="o-list__item o-hellip--nowrap"
+              >
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationName }}
               </li>
             </ul>
@@ -173,13 +198,15 @@
             <ul class="o-list">
               <li
                 v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationStreet !== ''"
-                class="o-list__item o-hellip--nowrap">
+                class="o-list__item o-hellip--nowrap"
+              >
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationStreet }}
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationHouseNumber }}
               </li>
               <li
                 v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationPostalCode !== ''"
-                class="o-list__item o-hellip--nowrap">
+                class="o-list__item o-hellip--nowrap"
+              >
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationPostalCode }}
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationCity }}
               </li>
@@ -189,25 +216,37 @@
             {{ placesObject[rowData.relationships.place.data.id].attributes.name }}
           </template>
           <template v-slot:text="rowData">
-            <div
-              v-cleanhtml="rowData.attributes.text"
-              class="overflow-word-break c-styled-html" />
+            <text-content-renderer
+              class="overflow-word-break c-styled-html"
+              :text="rowData.attributes.text"
+            />
           </template>
           <template v-slot:recommendation="rowData">
             <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
           </template>
           <template v-slot:tags="rowData">
             <span
+              v-for="tag in getTagsBySegment(rowData.id)"
               :key="tag.id"
               class="rounded-md"
-              v-for="tag in getTagsBySegment(rowData.id)"
-              style="color: #63667e; background: #EBE9E9; padding: 2px 4px; margin: 4px 2px; display: inline-block;">
+              style="color: #63667e; background: #EBE9E9; padding: 2px 4px; margin: 4px 2px; display: inline-block;"
+            >
               {{ tag.attributes.title }}
             </span>
+          </template>
+          <template
+            v-for="customField in selectedCustomFields"
+            :key="customField.field"
+            v-slot:[customField.field]="rowData"
+          >
+            <div>
+              {{ getCustomFieldOptionLabel(rowData.attributes.customFields, customField.fieldId) }}
+            </div>
           </template>
           <template v-slot:flyout="rowData">
             <dp-flyout data-cy="segmentsList:flyoutEditMenu">
               <a
+                class="block leading-[2] whitespace-nowrap"
                 :href="Routing.generate('dplan_statement_segments_list', {
                   action: 'editText',
                   procedureId: procedureId,
@@ -215,35 +254,43 @@
                   statementId: rowData.relationships.parentStatement.data.id
                 })"
                 data-cy="segmentsList:edit"
-                rel="noopener">
+                rel="noopener"
+                @click="storeNavigationContextInLocalStorage"
+              >
                 {{ Translator.trans('edit') }}
               </a>
               <a
                 v-if="hasPermission('feature_segment_recommendation_edit')"
+                class="block leading-[2] whitespace-nowrap"
                 :href="Routing.generate('dplan_statement_segments_list', {
                   procedureId: procedureId,
                   segment: rowData.id,
                   statementId: rowData.relationships.parentStatement.data.id
                 })"
                 data-cy="segmentsList:segmentsRecommendationsCreate"
-                rel="noopener">
+                rel="noopener"
+                @click="storeNavigationContextInLocalStorage"
+              >
                 {{ Translator.trans('segments.recommendations.create') }}
               </a>
               <!-- Version history view -->
               <button
                 type="button"
-                class="btn--blank o-link--default"
+                class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
                 data-cy="segmentsList:segmentVersionHistory"
-                @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)">
+                @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)"
+              >
                 {{ Translator.trans('history') }}
               </button>
               <a
                 v-if="hasPermission('feature_read_source_statement_via_api')"
+                class="block leading-[2] whitespace-nowrap"
                 :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
                 data-cy="segmentsList:originalPDF"
                 target="_blank"
                 :href="Routing.generate('core_file_procedure', { hash: getOriginalPdfAttachmentHashBySegment(rowData), procedureId: procedureId })"
-                rel="noopener noreferrer">
+                rel="noopener noreferrer"
+              >
                 {{ Translator.trans('original.pdf') }}
               </a>
             </dp-flyout>
@@ -251,10 +298,13 @@
         </dp-data-table>
 
         <div
-          v-show="!isFullscreen"
+          v-show="scrollbarVisible && !isFullscreen"
           ref="scrollBar"
-          class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden">
-          <div />
+          class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden"
+        >
+          <div
+            :style="scrollbarInnerStyle"
+          />
         </div>
       </template>
 
@@ -262,14 +312,14 @@
         v-else
         :class="{ 'mx-2': isFullscreen }"
         :message="Translator.trans('segments.none')"
-        type="info" />
+        type="info"
+      />
     </template>
   </div>
 </template>
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBulkEditHeader,
@@ -284,7 +334,7 @@ import {
   DpStickyElement,
   hasOwnProp,
   tableSelectAllItems,
-  VPopover
+  VPopover,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
@@ -294,8 +344,9 @@ import ImageModal from '@DpJs/components/shared/ImageModal'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
-import StatusBadge from '../Shared/StatusBadge.vue'
+import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 
 export default {
   name: 'SegmentsList',
@@ -315,11 +366,12 @@ export default {
     ImageModal,
     StatementMetaTooltip,
     StatusBadge,
-    VPopover
+    TextContentRenderer,
+    VPopover,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [fullscreenModeMixin, paginationMixin, tableScrollbarMixin, tableSelectAllItems],
@@ -327,31 +379,52 @@ export default {
   props: {
     currentUserId: {
       type: String,
-      required: true
+      required: true,
     },
 
+    /**
+     * {Object of objects}
+     * {
+     *   assignee: {
+     *     comparisonOperator: string,
+     *     grouping?: {
+     *       labelTranslationKey: string,
+     *       targetPath: string
+     *     },
+     *     labelTranslationKey: string,
+     *     rootPath: string,
+     *     selected: boolean
+     *   },
+     *   place: s. assignee,
+     *   tags: s. assignee
+     * }
+     */
     filters: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initialFilter: {
       type: [Object, Array],
-      default: () => ({})
+      default: () => ({}),
     },
 
     initialSearchTerm: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     procedureId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
+
+  emits: [
+    'showSlidebar',
+  ],
 
   data () {
     return {
@@ -361,7 +434,7 @@ export default {
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
-        perPage: 10
+        perPage: 10,
       },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
@@ -372,58 +445,82 @@ export default {
         { field: 'text', label: Translator.trans('text'), colWidth: '200px' },
         { field: 'recommendation', label: Translator.trans('segment.recommendation'), colWidth: '200px' },
         { field: 'tags', label: Translator.trans('segment.tags') },
-        { field: 'place', label: Translator.trans('workflow.place') }
+        { field: 'place', label: Translator.trans('workflow.place') },
       ],
       isLoading: true,
       lsKey: {
         // LocalStorage keys
         allSegments: `${this.procedureId}:allSegments`,
         currentQueryHash: `${this.procedureId}:segments:currentQueryHash`,
-        toggledSegments: `${this.procedureId}:toggledSegments`
+        toggledSegments: `${this.procedureId}:toggledSegments`,
       },
       pagination: {},
       searchTerm: this.initialSearchTerm,
-      searchFieldsSelected: []
+      searchFieldsSelected: [],
     }
   },
 
   computed: {
-    ...mapGetters('SegmentFilter', {
-      getFilterQuery: 'filterQuery'
-    }),
+    ...mapGetters('FilterFlyout', [
+      'getFilterQuery',
+      'getIsExpandedByCategoryId',
+    ]),
 
     ...mapState('AssignableUser', {
-      assignableUsersObject: 'items'
+      assignableUsersObject: 'items',
+    }),
+
+    ...mapState('CustomField', {
+      customFields: 'items',
     }),
 
     ...mapState('Orga', {
-      orgaObject: 'items'
+      orgaObject: 'items',
     }),
 
     ...mapState('StatementSegment', {
-      segmentsObject: 'items'
+      segmentsObject: 'items',
     }),
 
     ...mapState('Statement', {
-      statementsObject: 'items'
+      statementsObject: 'items',
     }),
 
     ...mapState('Tag', {
-      tagsObject: 'items'
+      tagsObject: 'items',
     }),
 
     ...mapState('Place', {
-      placesObject: 'items'
+      placesObject: 'items',
     }),
 
     assignableUsers () {
-      return Object.keys(this.assignableUsersObject).length
-        ? Object.values(this.assignableUsersObject)
+      return Object.keys(this.assignableUsersObject).length ?
+        Object.values(this.assignableUsersObject)
           .map(user => ({
             name: user.attributes.firstname + ' ' + user.attributes.lastname,
-            id: user.id
-          }))
-        : []
+            id: user.id,
+          })) :
+        []
+    },
+
+    availableHeaderFields () {
+      if (!hasPermission('field_segments_custom_fields')) {
+        return this.headerFields
+      }
+
+      const customFields = Object.values(this.customFields)
+      const selectedCustomFields = customFields
+        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
+        .map(customField => ({
+          field: `customField_${customField.id}`,
+          label: customField.attributes.name,
+        }))
+
+      return [
+        ...this.headerFields,
+        ...selectedCustomFields,
+      ]
     },
 
     headerFields () {
@@ -441,13 +538,13 @@ export default {
     },
 
     places () {
-      return Object.keys(this.placesObject).length
-        ? Object.values(this.placesObject)
+      return Object.keys(this.placesObject).length ?
+        Object.values(this.placesObject)
           .map(place => ({
             name: place.attributes.name,
-            id: place.id
-          }))
-        : []
+            id: place.id,
+          })) :
+        []
     },
 
     queryIds () {
@@ -464,29 +561,72 @@ export default {
       return ids
     },
 
+    /**
+     * Returns both static and custom headerFields that can be selected in the ColumnSelector
+     * @return {[string, string][]}
+     */
     selectableColumns () {
-      return this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+      const staticColumns = this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+
+      if (!hasPermission('field_segments_custom_fields')) {
+        return staticColumns
+      }
+
+      const customFields = Object.values(this.customFields).map(customField => ([`customField_${customField.id}`, customField.attributes.name]))
+
+      return [
+        ...staticColumns,
+        ...customFields,
+      ]
+    },
+
+    selectedCustomFields () {
+      if (!hasPermission('field_segments_custom_fields')) {
+        return []
+      }
+
+      return Object.values(this.customFields)
+        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
+        .map(customField => {
+          return {
+            field: `customField_${customField.id}`,
+            fieldId: customField.id,
+          }
+        })
     },
 
     storageKeyPagination () {
       return `${this.currentUserId}:${this.procedureId}:paginationSegmentsList`
-    }
+    },
   },
 
   methods: {
     ...mapActions('AssignableUser', {
-      fetchAssignableUsers: 'list'
+      fetchAssignableUsers: 'list',
+    }),
+
+    ...mapActions('AdminProcedure', {
+      getCustomFieldsForProcedure: 'get',
+    }),
+
+    ...mapActions('FilterFlyout', [
+      'updateFilterQuery',
+    ]),
+
+    ...mapActions('Place', {
+      fetchPlaces: 'list',
     }),
 
     ...mapActions('StatementSegment', {
-      listSegments: 'list'
+      fetchSegments: 'list',
     }),
 
-    ...mapActions('Place', {
-      fetchPlaces: 'list'
+    ...mapMutations('FilterFlyout', {
+      setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
+      setIsLoadingFilterFlyout: 'setIsLoading',
+      setGroupedFilterOptions: 'setGroupedOptions',
+      setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
-
-    ...mapMutations('SegmentFilter', ['updateFilterQuery']),
 
     applyQuery (page) {
       lscache.remove(this.lsKey.allSegments)
@@ -498,33 +638,48 @@ export default {
         sameProcedure: {
           condition: {
             path: 'parentStatement.procedure.id',
-            value: this.procedureId
-          }
-        }
+            value: this.procedureId,
+          },
+        },
       }
+      const statementSegmentFields = [
+        'assignee',
+        'externId',
+        'orderInProcedure',
+        'parentStatement',
+        'place',
+        'tags',
+        'text',
+        'recommendation',
+      ]
+
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
+      }
+
       const payload = {
         include: [
           'assignee',
           'place',
           'tags',
           'parentStatement.genericAttachments.file',
-          'parentStatement.sourceAttachment.file'
+          'parentStatement.sourceAttachment.file',
         ].join(),
         page: {
           number: page,
-          size: this.pagination.perPage
+          size: this.pagination.perPage,
         },
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
         filter,
         fields: {
           File: [
-            'hash'
+            'hash',
           ].join(),
           GenericStatementAttachment: [
-            'file'
+            'file',
           ].join(),
           Place: [
-            'name'
+            'name',
           ].join(),
           SourceStatementAttachment: ['file'].join(),
           Statement: [
@@ -544,31 +699,22 @@ export default {
             'status',
             'submitDate',
             'submitName',
-            'submitType'
+            'submitType',
           ].join(),
-          StatementSegment: [
-            'assignee',
-            'externId',
-            'orderInProcedure',
-            'parentStatement',
-            'place',
-            'tags',
-            'text',
-            'recommendation'
-          ].join(),
+          StatementSegment: statementSegmentFields.join(),
           Tag: [
-            'title'
-          ].join()
-        }
+            'title',
+          ].join(),
+        },
       }
       if (this.searchTerm !== '') {
         payload.search = {
           value: this.searchTerm,
-          ...this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {}
+          ...this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {},
         }
       }
       this.isLoading = true
-      this.listSegments(payload)
+      this.fetchSegments(payload)
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
@@ -585,7 +731,7 @@ export default {
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
             filter,
-            search: payload.search
+            search: payload.search,
           })
         })
         .finally(() => {
@@ -600,12 +746,43 @@ export default {
 
     fetchSegmentIds (payload) {
       return dpRpc('segment.load.id', payload)
-        .then(response => checkResponse(response))
-        .then(response => {
-          const allSegments = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
+        .then(({ data }) => {
+          const allSegments = data[0]?.result ?? []
+
           this.storeAllSegments(allSegments)
           this.allItemsCount = allSegments.length
         })
+    },
+
+    getCustomFieldOptionLabel (customFields, fieldId) {
+      const customFieldOptionId = customFields?.find(el => el.id === fieldId)?.value || ''
+
+      if (customFieldOptionId === '') {
+        return ''
+      }
+
+      return this.customFields[fieldId].attributes.options.find(option => option.id === customFieldOptionId)?.label || ''
+    },
+
+    getCustomFields () {
+      const payload = {
+        id: this.procedureId,
+        fields: {
+          AdminProcedure: [
+            'segmentCustomFields',
+          ].join(),
+          CustomField: [
+            'name',
+            'description',
+            'options',
+          ].join(),
+        },
+        include: [
+          'segmentCustomFields',
+        ].join(),
+      }
+
+      this.getCustomFieldsForProcedure(payload)
     },
 
     getTagsBySegment (id) {
@@ -633,7 +810,12 @@ export default {
       this.storeToggledSegments()
       // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
       lscache.set(this.lsKey.currentQueryHash, this.currentQueryHash)
-      window.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
+      globalThis.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
+    },
+
+    handleResetSearch () {
+      this.resetSearchQuery()
+      this.applyQuery(1)
     },
 
     handleSizeChange (newSize) {
@@ -644,15 +826,160 @@ export default {
     },
 
     resetQuery () {
-      this.searchTerm = ''
-      this.$refs.customSearch.reset()
+      this.resetSearchQuery()
       this.appliedFilterQuery = []
-      Object.keys(this.filters).forEach((filter, idx) => {
-        this.$refs.filterFlyout[idx].reset()
+      this.$refs.filterFlyout?.forEach(flyout => {
+        flyout.reset()
       })
       this.updateQueryHash()
       this.resetSelection()
       this.applyQuery(1)
+    },
+
+    resetSearchQuery () {
+      this.searchTerm = ''
+      this.$refs.customSearch.reset()
+    },
+
+    /**
+     *
+     * @param params {Object}
+     * @param params.additionalQueryParams {Object}
+     * @param params.category {Object} id, label
+     * @param params.filter {Object}
+     * @param params.isInitialWithQuery {Boolean}
+     * @param params.path {String}
+     * @param params.searchPhrase {String}
+     */
+    sendFilterOptionsRequest (params) {
+      const { additionalQueryParams, category, filter, isInitialWithQuery, path } = params
+      const requestParams = {
+        ...additionalQueryParams,
+        filter: {
+          ...filter,
+          sameProcedure: {
+            condition: {
+              path: 'parentStatement.procedure.id',
+              value: this.procedureId,
+            },
+          },
+        },
+        path,
+      }
+
+      // We have to set the searchPhrase to null if its empty to satisfy the backend
+      if (requestParams.searchPhrase === '') {
+        requestParams.searchPhrase = null
+      }
+
+      dpRpc('segments.facets.list', requestParams, 'filterList')
+        .then(({ data }) => {
+          const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ? data[0].result : null
+
+          if (result) {
+            const groupedOptions = []
+            const ungroupedOptions = []
+
+            result.included?.forEach(resource => {
+              const filter = result.data.find(type => type.attributes.path === path)
+              const resourceIsGroup = resource.type === 'AggregationFilterGroup'
+              const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0
+              const groupBelongsToFilterType = resourceIsGroup && filterHasGroups ? !!filter.relationships.aggregationFilterGroups.data.find(group => group.id === resource.id) : false
+              const resourceIsFilterOption = resource.type === 'AggregationFilterItem'
+              const filterHasFilterOptions = filter.relationships.aggregationFilterItems?.data.length > 0
+              const filterOptionBelongsToFilterType = resourceIsFilterOption && filterHasFilterOptions ? !!filter.relationships.aggregationFilterItems.data.find(option => option.id === resource.id) : false
+
+              if (resourceIsGroup && groupBelongsToFilterType) {
+                const filterOptionsIds = resource.relationships.aggregationFilterItems?.data.length > 0 ? resource.relationships.aggregationFilterItems.data.map(item => item.id) : []
+                const filterOptions = filterOptionsIds.map(id => {
+                  const option = result.included.find(item => item.id === id)
+
+                  if (option) {
+                    const { attributes, id } = option
+                    const { count, description, label, selected } = attributes
+
+                    return {
+                      count,
+                      description,
+                      id,
+                      label,
+                      selected,
+                    }
+                  }
+
+                  return null
+                }).filter(option => option !== null)
+
+                if (filterOptions.length > 0) {
+                  const { id, attributes } = resource
+                  const { label } = attributes
+                  const group = {
+                    id,
+                    label,
+                    options: filterOptions,
+                  }
+
+                  groupedOptions.push(group)
+                }
+              }
+
+              // Ungrouped filter options
+              if (resourceIsFilterOption && filterOptionBelongsToFilterType) {
+                const { id, attributes } = resource
+                const { count, description, label, selected } = attributes
+
+                ungroupedOptions.push({
+                  id,
+                  count,
+                  description,
+                  label,
+                  selected,
+                  ungrouped: true,
+                })
+              }
+            })
+
+            // Needs to be added to ungroupedOptions
+            if (result.data[0].attributes.path === 'assignee') {
+              ungroupedOptions.push({
+                id: 'unassigned',
+                count: result.data[0].attributes.missingResourcesSum,
+                label: Translator.trans('not.assigned'),
+                ungrouped: true,
+                selected: result.meta.unassigned_selected,
+              })
+            }
+
+            if (isInitialWithQuery && this.queryIds.length > 0) {
+              const allOptions = [...groupedOptions.flatMap(group => group.options), ...ungroupedOptions]
+
+              const currentFlyoutFilterIds = this.queryIds.filter(queryId => {
+                const item = allOptions.find(item => item.id === queryId)
+                return item ? item.id : null
+              })
+
+              this.setInitialFlyoutFilterIds({
+                categoryId: category.id,
+                filterIds: currentFlyoutFilterIds,
+              })
+            }
+
+            this.setGroupedFilterOptions({
+              categoryId: category.id,
+              groupedOptions,
+            })
+
+            this.setUngroupedFilterOptions({
+              categoryId: category.id,
+              options: ungroupedOptions,
+            })
+
+            this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: false })
+            if (this.getIsExpandedByCategoryId(category.id)) {
+              document.getElementById(`searchField_${path}`).focus()
+            }
+          }
+        })
     },
 
     setCurrentSelection (selection) {
@@ -664,10 +991,22 @@ export default {
       lscache.set(this.lsKey.allSegments, allSegments)
     },
 
+    storeFilterInLocalStorage () {
+      // Persist currentQueryHash to load the filtered SegmentsList after returning to segments list
+      lscache.set(this.lsKey.currentQueryHash, this.currentQueryHash)
+
+      globalThis.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
+    },
+
+    storeNavigationContextInLocalStorage () {
+      lscache.set(`${this.procedureId}:navigation:source`, 'SegmentsList')
+      this.storeFilterInLocalStorage()
+    },
+
     storeToggledSegments () {
       lscache.set(this.lsKey.toggledSegments, {
         trackDeselected: this.trackDeselected,
-        toggledSegments: this.toggledItems
+        toggledSegments: this.toggledItems,
       })
     },
 
@@ -692,11 +1031,11 @@ export default {
 
     showVersionHistory (segmentId, externId) {
       this.$root.$emit('version:history', segmentId, 'segment', externId)
-      this.$root.$emit('show-slidebar')
+      this.$root.$emit('showSlidebar')
     },
 
     updateQueryHash () {
-      const hrefParts = window.location.href.split('/')
+      const hrefParts = globalThis.location.href.split('/')
       const oldQueryHash = hrefParts[hrefParts.length - 1]
       const url = Routing.generate('dplan_rpc_segment_list_query_update', { queryHash: oldQueryHash })
 
@@ -705,19 +1044,18 @@ export default {
         data.searchPhrase = this.searchTerm
       }
       return dpApi.patch(url, {}, data)
-        .then(response => checkResponse(response))
-        .then(response => {
-          if (response) {
-            this.updateQueryHashInURL(oldQueryHash, response)
-            this.currentQueryHash = response
+        .then(({ data }) => {
+          if (data) {
+            this.updateQueryHashInURL(oldQueryHash, data)
+            this.currentQueryHash = data
           }
         })
         .catch(err => console.log(err))
     },
 
     updateQueryHashInURL (oldQueryHash, newQueryHash) {
-      const newHref = window.location.href.replace(oldQueryHash, newQueryHash)
-      window.history.pushState({ html: newHref, pageTitle: document.title }, document.title, newHref)
+      const newHref = globalThis.location.href.replace(oldQueryHash, newQueryHash)
+      globalThis.history.pushState({ html: newHref, pageTitle: document.title }, document.title, newHref)
     },
 
     updateSearchFields (selectedFields) {
@@ -728,16 +1066,20 @@ export default {
       this.searchTerm = term
       this.resetSelection()
       this.applyQuery(1)
-    }
+    },
   },
 
   mounted () {
     // Get queryHash from URL
-    const hrefParts = window.location.href.split('/')
+    const hrefParts = globalThis.location.href.split('/')
     this.currentQueryHash = hrefParts[hrefParts.length - 1]
 
     // When returning from bulk edit flow, the currentQueryHash which was used there to build a return link must be deleted.
     lscache.remove(this.lsKey.currentQueryHash)
+
+    if (lscache.get(`${this.procedureId}:navigation:source`)) {
+      lscache.remove(`${this.procedureId}:navigation:source`)
+    }
 
     if (Array.isArray(this.initialFilter) === false && Object.keys(this.initialFilter).length) {
       Object.values(this.initialFilter).forEach(filter => {
@@ -747,10 +1089,11 @@ export default {
       })
     }
     this.initPagination()
+    this.getCustomFields()
     this.applyQuery(this.pagination.currentPage)
 
     this.fetchPlaces()
     this.fetchAssignableUsers()
-  }
+  },
 }
 </script>

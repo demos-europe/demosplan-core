@@ -62,13 +62,26 @@
 
         {% if templateVars.list.procedures is defined and templateVars.list.procedures|length %}
             <table class="c-table">
+                <colgroup>
+                    <col class="w-[40px]">
+                    <col>
+                </colgroup>
+
                 <thead>
                     <tr>
                         <th>
-                            <i class="fa fa-check-square-o" aria-hidden="true"></i>
-                            <span class="sr-only">
-                                {{ 'entries.checked'|trans }}
-                            </span>
+                            <label class="inline-block mb-0 mr-2">
+                                <input
+                                    id="select_all"
+                                    type="checkbox"
+                                    class="mr-0"
+                                    data-cy="selectAll"
+                                    aria-label="{{ 'markall'|trans }}"
+                                    data-form-actions-check-all>
+                                <span class="sr-only">
+                                    {{ 'markall'|trans }}
+                                </span>
+                            </label>
                         </th>
                         <th>
                             {{ 'name'|trans }}
@@ -82,10 +95,12 @@
                 </tbody>
             </table>
         {% else %}
-            {{ uiComponent('inline-notification', {
-                message: 'blueprints.none'|trans,
-                type: 'info'
-            }) }}
+            <div class="mt-3">
+                {{ uiComponent('inline-notification', {
+                    message: 'blueprints.none'|trans,
+                    type: 'info'
+                }) }}
+            </div>
         {% endif %}
     </form>
 {% endblock %}

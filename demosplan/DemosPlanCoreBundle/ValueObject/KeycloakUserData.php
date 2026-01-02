@@ -17,17 +17,11 @@ use Stringable;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 /**
- * @method string getHouseNumber()
  * @method string getLocalityName()
- * @method string getPostalCode()
- * @method string getStreet()
  */
 class KeycloakUserData extends CommonUserData implements KeycloakUserDataInterface, Stringable
 {
-    protected string $houseNumber;
     protected string $localityName;
-    protected string $postalCode;
-    protected string $street;
 
     public function fill(ResourceOwnerInterface $resourceOwner): void
     {

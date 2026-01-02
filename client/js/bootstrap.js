@@ -20,9 +20,7 @@ const bootstrap = function () {
     Routing.setBaseUrl(Routing.getBaseUrl() + '/app_dev.php')
   }
 
-  // eslint-disable-next-line no-undef
   if (URL_PATH_PREFIX) {
-    // eslint-disable-next-line no-undef
     Routing.setBaseUrl(Routing.getBaseUrl() + URL_PATH_PREFIX)
   }
 

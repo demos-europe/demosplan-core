@@ -40,14 +40,19 @@ class UserLoginSubscriberTest extends FunctionalTestCase
      */
     protected $userService;
 
+    /**
+     * @var UserLoginSubscriber
+     */
+    protected $sut;
+
     public function setUp(): void
     {
         parent::setUp();
 
         $this->testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
 
-        $this->userService = self::$container->get(UserService::class);
-        $this->tokenStorage = self::$container->get('security.token_storage');
+        $this->userService = self::getContainer()->get(UserService::class);
+        $this->tokenStorage = self::getContainer()->get('security.token_storage');
         $this->sut = new UserLoginSubscriber($this->userService);
         $this->logIn($this->testUser);
     }

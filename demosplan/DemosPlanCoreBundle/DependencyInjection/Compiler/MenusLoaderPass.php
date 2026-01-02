@@ -22,7 +22,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class MenusLoaderPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $fileLocator = new FileLocator([
             DemosPlanPath::getConfigPath(),

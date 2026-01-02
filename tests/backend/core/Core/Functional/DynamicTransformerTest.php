@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\Core\Functional;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
@@ -22,14 +23,19 @@ use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
-use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
+use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
+use EDT\Wrapping\PropertyBehavior\Attribute\AttributeReadabilityInterface;
+use EDT\Wrapping\PropertyBehavior\Identifier\CallbackIdentifierReadability;
+use EDT\Wrapping\PropertyBehavior\Identifier\IdentifierReadabilityInterface;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\ToManyRelationshipReadabilityInterface;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipReadability;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipReadabilityInterface;
+use EDT\Wrapping\ResourceBehavior\ResourceReadability;
 use Illuminate\Support\Collection;
 use League\Fractal\Manager;
-use League\Fractal\ParamBag;
 use League\Fractal\Resource\Item;
 use League\Fractal\Scope;
 use League\Fractal\Serializer\JsonApiSerializer;
-use League\Fractal\TransformerAbstract;
 use Psr\Log\LoggerInterface;
 use stdClass;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,9 +44,7 @@ use Tests\Base\MockMethodDefinition;
 
 class DynamicTransformerTest extends JsonApiTest
 {
-    private const TYPE = 'Foobar';
-
-    private const ID = 'id';
+    public const TYPE = 'Foobar';
 
     private const PROCEDURE = 'procedure';
 
@@ -70,14 +74,12 @@ class DynamicTransformerTest extends JsonApiTest
         $this->loginTestUser();
         $this->enablePermissions(['feature_json_api_procedure']);
 
-        $attributes = [
-            self::ID => $this->createIdPropertyDefinition(),
-        ];
+        $identifier = $this->createIdPropertyDefinition();
 
-        $includes = [
-            self::PROCEDURE => $this->createIncludeDefinition(),
+        $toOneRelationships = [
+            self::PROCEDURE => $this->createToOneRelationshipReadability(),
         ];
-        $transformer = $this->createDynamicTransformer($attributes, $includes);
+        $transformer = $this->createDynamicTransformer($identifier, [], $toOneRelationships, []);
 
         self::assertEquals([self::PROCEDURE], $transformer->getAvailableIncludes());
         self::assertEquals([self::PROCEDURE], $transformer->getDefaultIncludes());
@@ -95,7 +97,7 @@ class DynamicTransformerTest extends JsonApiTest
                         'procedure' => [
                             'data' => [
                                 'type' => 'Procedure',
-                                'id'   => '',
+                                'id'   => 'xyz',
                             ],
                         ],
                     ],
@@ -103,7 +105,7 @@ class DynamicTransformerTest extends JsonApiTest
                 'included' => [
                     0 => [
                         'type'       => 'Procedure',
-                        'id'         => '',
+                        'id'         => 'xyz',
                         'attributes' => [
                             'name'                   => 'My Procedure',
                             'agencyMainEmailAddress' => null,
@@ -121,7 +123,6 @@ class DynamicTransformerTest extends JsonApiTest
      */
     public function testProcedureIncludesWithWarning($expectedMissingProperty, $requestedInclude): void
     {
-        self::markSkippedForCIIntervention();
         $warnings = $this->getWarnings($requestedInclude, true);
 
         self::assertSame(
@@ -135,7 +136,6 @@ class DynamicTransformerTest extends JsonApiTest
      */
     public function testProcedureIncludesWithoutWarning($expectedMissingProperty, $requestedInclude): void
     {
-        self::markSkippedForCIIntervention();
         $warnings = $this->getWarnings($requestedInclude, false);
         self::assertEmpty($warnings->get('warning'));
     }
@@ -145,7 +145,6 @@ class DynamicTransformerTest extends JsonApiTest
      */
     public function testProcedureIncludesWithoutWarningProd($expectedMissingProperty, $requestedInclude): void
     {
-        self::markSkippedForCIIntervention();
         // DX warnings should never show up in prod mode
         $warnings = $this->getWarnings($requestedInclude, true, DemosPlanKernel::ENVIRONMENT_PROD);
         self::assertEmpty($warnings->get('warning'));
@@ -156,8 +155,6 @@ class DynamicTransformerTest extends JsonApiTest
 
     public function testNonAllowedExclude(): void
     {
-        self::markTestSkipped('This test was skipped because of pre-existing errors. They are most likely easily fixable but prevent us from getting to a usable state of our CI.');
-
         $procedure = $this->getProcedureReference(
             LoadProcedureData::TESTPROCEDURE_IN_PUBLIC_PARTICIPATION_PHASE
         );
@@ -304,19 +301,9 @@ class DynamicTransformerTest extends JsonApiTest
         $this->logger = $this->getContainer()->get(LoggerInterface::class);
     }
 
-    private function createIdPropertyDefinition(): PropertyDefinitionInterface
+    private function createIdPropertyDefinition(): IdentifierReadabilityInterface
     {
-        return new class() implements PropertyDefinitionInterface {
-            public function determineData($entity, ParamBag $params)
-            {
-                return $entity->id;
-            }
-
-            public function isToBeUsedAsDefaultField(): bool
-            {
-                return true;
-            }
-        };
+        return new CallbackIdentifierReadability(fn (EntityInterface $entity): string => $entity->getId());
     }
 
     private function getInputData(): object
@@ -324,68 +311,39 @@ class DynamicTransformerTest extends JsonApiTest
         $procedure = new Procedure();
         $procedure->setName('My Procedure');
 
-        $inputData = new stdClass();
-        $inputData->id = 'abc';
-        $inputData->a = 1;
-        $inputData->b = 2;
-        $inputData->c = 3;
-        $inputData->procedure = $procedure;
+        $inputData = new class($procedure) implements EntityInterface {
+            public $a = 1;
+            public $b = 2;
+            public $c = 3;
+
+            public function __construct(public $procedure)
+            {
+            }
+
+            public function getId()
+            {
+                return 'xyz';
+            }
+        };
 
         return $inputData;
     }
 
-    private function createIncludeDefinition(): IncludeDefinitionInterface
+    private function createToOneRelationshipReadability(): ToOneRelationshipReadabilityInterface
     {
-        return new class($this->procedureResourceType) implements IncludeDefinitionInterface {
-            /**
-             * @var ResourceTypeInterface
-             */
-            private $resourceType;
-
-            public function __construct(ResourceTypeInterface $resourceType)
-            {
-                $this->resourceType = $resourceType;
-            }
-
-            public function isToMany($propertyData): bool
-            {
-                return is_iterable($propertyData);
-            }
-
-            public function getTransformer(): TransformerAbstract
-            {
-                return $this->resourceType->getTransformer();
-            }
-
-            public function getResourceKey(): string
-            {
-                return $this->resourceType::getName();
-            }
-
-            public function determineData($entity, ParamBag $params)
-            {
-                return $entity->procedure;
-            }
-
-            public function isToBeUsedAsDefaultField(): bool
-            {
-                return true;
-            }
-
-            public function isToBeUsedAsDefaultInclude(): bool
-            {
-                return true;
-            }
-        };
+        return new CallbackToOneRelationshipReadability(
+            true,
+            true,
+            fn ($entity) => $entity->procedure,
+            $this->procedureResourceType
+        );
     }
 
     private function getWarnings(string $requestedInclude, bool $isRequested, string $env = DemosPlanKernel::ENVIRONMENT_DEV): Collection
     {
-        $attributes = [
-            self::ID => $this->createIdPropertyDefinition(),
-        ];
-        $includes = [self::PROCEDURE => $this->getMock(IncludeDefinition::class)];
-        $transformer = $this->createDynamicTransformer($attributes, $includes, $env);
+        $identifier = $this->createIdPropertyDefinition();
+        $toOneRelationships = [self::PROCEDURE => $this->getMock(ToOneRelationshipReadabilityInterface::class)];
+        $transformer = $this->createDynamicTransformer($identifier, [], $toOneRelationships, [], $env);
 
         $managerMock = $this->getMock(
             Manager::class,
@@ -416,10 +374,6 @@ class DynamicTransformerTest extends JsonApiTest
                 'foo.bar.baz',
             ],
             [
-                '',
-                '',
-            ],
-            [
                 '1234',
                 '1234.1234',
             ],
@@ -430,19 +384,39 @@ class DynamicTransformerTest extends JsonApiTest
         ];
     }
 
-    private function createDynamicTransformer(array $attributes, array $includes, string $env = DemosPlanKernel::ENVIRONMENT_DEV): DynamicTransformer
-    {
+    /**
+     * @param array<non-empty-string, AttributeReadabilityInterface>          $attributes
+     * @param array<non-empty-string, ToOneRelationshipReadabilityInterface>  $toOneRelationships
+     * @param array<non-empty-string, ToManyRelationshipReadabilityInterface> $toManyRelationships
+     */
+    private function createDynamicTransformer(
+        IdentifierReadabilityInterface $idReadability,
+        array $attributes,
+        array $toOneRelationships,
+        array $toManyRelationships,
+        string $env = DemosPlanKernel::ENVIRONMENT_DEV,
+    ): DynamicTransformer {
         $mockMethods = [
             new MockMethodDefinition('getKernelEnvironment', $env),
         ];
 
         $globalConfig = $this->getMock(GlobalConfigInterface::class, $mockMethods);
         $apiLogger = new ApiLogger($globalConfig, $this->logger, $this->messageBag);
+        $type = $this->getMock(TransferableTypeInterface::class, [
+            MockMethodDefinition::withReturnValue('getTypeName', DynamicTransformerTest::TYPE),
+            MockMethodDefinition::withReturnValue('getEntityClass', EntityInterface::class),
+            MockMethodDefinition::withReturnValue('getReadability', new ResourceReadability(
+                $attributes,
+                $toOneRelationships,
+                $toManyRelationships,
+                $idReadability,
+            )),
+        ]);
 
         return new DynamicTransformer(
-            self::TYPE,
-            $attributes,
-            $includes,
+            $type->getTypeName(),
+            $type->getEntityClass(),
+            $type->getReadability(),
             new MessageFormatter(),
             $apiLogger
         );

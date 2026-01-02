@@ -21,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository;
@@ -38,7 +37,7 @@ use EDT\Querying\Contracts\PathException;
 use Exception;
 use UnexpectedValueException;
 
-class FaqService extends CoreService
+class FaqService
 {
     public function __construct(
         private readonly CustomerHandler $customerHandler,

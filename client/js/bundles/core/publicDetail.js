@@ -14,20 +14,20 @@
 
 import { DpUploadFiles, DpVideoPlayer, TableWrapper } from '@demos-europe/demosplan-ui'
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
-import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import { initialize } from '@DpJs/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
 
 const components = {
   DpPublicDetailNoMap,
   DpUploadFiles,
   DpVideoPlayer,
-  RegisterFlyout
+  RegisterFlyout,
 }
 
 const stores = {
-  publicStatement
+  publicStatement,
 }
 
 const apiStores = ['Elements']

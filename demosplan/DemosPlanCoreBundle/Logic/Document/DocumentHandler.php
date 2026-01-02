@@ -36,6 +36,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DocumentHandler extends CoreHandler
 {
     final public const ACTION_SINGLE_DOCUMENT_NEW = 'singledocumentnew';
+    private const POSSIBLE_ENCODINGS = 'UTF-8, ISO-8859-1, ISO-8859-15';
 
     /**
      * @var SingleDocumentHandler
@@ -179,16 +180,8 @@ class DocumentHandler extends CoreHandler
         $createdDocuments = [];
 
         foreach ($entries as $entry) {
-            $fileName = utf8_decode((string) $entry['title']);
-            if (in_array($entry['path'], $sessionElementImportList)) {
-                $keys = array_keys($sessionElementImportList, $entry['path']);
-                if (is_array($keys)
-                    && isset($request[$keys[0]])
-                    && 0 < strlen((string) $request[$keys[0]])
-                ) {
-                    $fileName = $request[$keys[0]];
-                }
-            }
+            $fileName = $this->resolveImportFileName($entry, $sessionElementImportList, $request);
+
             // Ordner werden als neue Elements abgespeichert
             if (true === $entry['isDir']) {
                 $element = ['r_title' => $fileName];
@@ -280,6 +273,41 @@ class DocumentHandler extends CoreHandler
     }
 
     /**
+     * Resolves the final filename/folder name to use during import.
+     *
+     * Checks if the user provided a custom name for this entry during the import process.
+     * If a user-adjusted name exists in the request data, it will be used instead of
+     * the original filename. All names are normalized to UTF-8 encoding.
+     *
+     * @param array $entry                    The file/folder entry being processed (contains 'title' and 'path')
+     * @param array $sessionElementImportList Session mapping of hashes to file paths
+     * @param array $request                  The request data containing user-provided custom names
+     *
+     * @return string The resolved filename - either user-adjusted or original filename
+     */
+    private function resolveImportFileName(array $entry, array $sessionElementImportList, array $request): string
+    {
+        $fileName = (string) $entry['title'];
+        // Ensure the string is properly encoded to UTF-8
+        $fileName = mb_convert_encoding($fileName, 'UTF-8', mb_detect_encoding($fileName, self::POSSIBLE_ENCODINGS, true));
+        $entryPath = '/'.ltrim((string) $entry['path'], '/'); // Ensure leading slash
+        if (in_array($entryPath, $sessionElementImportList)) {
+            $keys = array_keys($sessionElementImportList, $entryPath);
+            if (is_array($keys)
+                && isset($request[$keys[0]])
+                && 0 < strlen((string) $request[$keys[0]])
+            ) {
+                $fileName = $request[$keys[0]]; // here the name is taken from the request
+                // Also ensure the string from request is properly encoded to UTF-8
+                $fileName = mb_convert_encoding($fileName, 'UTF-8',
+                    mb_detect_encoding((string) $fileName, self::POSSIBLE_ENCODINGS, true));
+            }
+        }
+
+        return $fileName;
+    }
+
+    /**
      * Liest die Verzeichnisstruktur des Planungsdokumentenimporters in ein Array ein.
      *
      * @param string $dir
@@ -290,8 +318,9 @@ class DocumentHandler extends CoreHandler
     {
         $result = [];
 
-        // Gehe rekursiv alle Verzeichnisse durch. Speichere Ordner als Elements, dateien als Files in den Elements
-        $contents = $this->defaultStorage->listContents($dir, true);
+        // Recursively go through all directories. Save folders as Elements, files as Files in the Elements
+        // Use false for recursive parameter to only get direct contents of this directory
+        $contents = $this->defaultStorage->listContents($dir, false);
         foreach ($contents as $item) {
             if ($item->isDir()) {
                 $result[] = [
@@ -303,8 +332,10 @@ class DocumentHandler extends CoreHandler
                     ),
                 ];
             } else {
-                // utf8_decode filename, weil Zip Umlaute kaputt macht
-                $filename = utf8_decode(basename($item->path()));
+                // Ensure proper UTF-8 encoding for filenames
+                $filename = basename($item->path());
+                $filename = mb_convert_encoding($filename, 'UTF-8',
+                    mb_detect_encoding($filename, self::POSSIBLE_ENCODINGS, true));
 
                 $result[] = [
                     'isDir'  => false,
@@ -390,7 +421,7 @@ class DocumentHandler extends CoreHandler
         $result = $this->getParagraphService()->getParaDocumentList($procedure, $elementId);
 
         // check whether User may
-        if (0 < count($result)) {
+        if ([] !== $result) {
             $firstParagraph = $result[0];
             if (array_key_exists('element', $firstParagraph)) {
                 $element = $firstParagraph['element'];

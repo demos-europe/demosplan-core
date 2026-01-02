@@ -20,18 +20,22 @@
   <dp-accordion
     :is-open="isOpen"
     :title="Translator.trans(itemTitle)"
-    @item:toggle="(open) => { toggleItem(open) }">
+    @item:toggle="(open) => { toggleItem(open) }"
+  >
     <div class="o-box--dark soft">
       <div
         class="px-3 py-3"
         :data-cy="customComponent[entity].formName"
-        :data-dp-validate="customComponent[entity].formName">
+        :data-dp-validate="customComponent[entity].formName"
+      >
         <!-- Form fields   -->
         <component
+          v-bind="dynamicComponentProps"
           :is="dynamicComponent"
           ref="formFields"
-          v-bind="dynamicComponentProps"
-          @[dynamicEvent]="update" />
+          @[dynamicEvent]="update"
+          @reset:complete="shouldResetForm = false"
+        />
 
         <!-- Save/Abort buttons   -->
         <dp-button-row
@@ -41,7 +45,8 @@
           primary
           secondary
           @primary-action="dpValidateAction(customComponent[entity].formName, save)"
-          @secondary-action="reset" />
+          @secondary-action="reset"
+        />
       </div>
     </div>
   </dp-accordion>
@@ -49,7 +54,8 @@
 
 <script>
 import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui'
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapMutations } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'DpCreateItem',
@@ -63,15 +69,15 @@ export default {
       submissionTypeShort: this.submissionTypeShort,
       showNewStatementNotification: this.showNewStatementNotification,
       presetUserOrgaId: this.presetUserOrgaId,
-      writableFields: this.writableFields
+      writableFields: this.writableFields,
     }
   },
 
   components: {
     DpAccordion,
     DpButtonRow,
-    DpOrganisationFormFields: () => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationList/DpOrganisationFormFields'),
-    DpUserFormFields: () => import(/* webpackChunkName: "user-form-fields" */ './DpUserList/DpUserFormFields')
+    DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationList/DpOrganisationFormFields')),
+    DpUserFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "user-form-fields" */ './DpUserList/DpUserFormFields')),
   },
 
   mixins: [dpValidateMixin],
@@ -80,7 +86,7 @@ export default {
     availableOrgaTypes: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     /**
@@ -89,7 +95,7 @@ export default {
      */
     entity: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -97,13 +103,13 @@ export default {
      */
     itemTitle: {
       type: String,
-      required: true
+      required: true,
     },
 
     presetUserOrgaId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     /**
@@ -112,7 +118,7 @@ export default {
     proceduresDirectLinkPrefix: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     /**
@@ -121,27 +127,33 @@ export default {
     projectName: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     showNewStatementNotification: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     subdomain: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     writableFields: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
+
+  emits: [
+    'items:get',
+    'organisation:update',
+    'user:update',
+  ],
 
   data () {
     return {
@@ -150,46 +162,40 @@ export default {
        * componentName: {String}
        * componentProps: {Object}
        * formName: {String} needed for dpValidateAction
-       * resetEvent: {String}
        * updateEvent: {String}
        */
       customComponent: {
         organisation: {
           componentName: 'dp-organisation-form-fields',
           componentProps: {
-            availableOrgaTypes: this.availableOrgaTypes
+            availableOrgaTypes: this.availableOrgaTypes,
           },
           formName: 'newOrganisationForm',
-          resetEvent: 'organisation-reset',
-          updateEvent: 'organisation-update'
+          updateEvent: 'organisation:update',
         },
         user: {
           componentName: 'dp-user-form-fields',
           componentProps: {},
           formName: 'newUserForm',
-          resetEvent: 'user-reset',
-          updateEvent: 'user-update'
-        }
+          updateEvent: 'user:update',
+        },
       },
       isOpen: false,
-      item: {}
+      item: {},
+      shouldResetForm: false,
     }
   },
 
   computed: {
-    /**
-     * Needed for entity === 'user'
-     */
-    ...mapState('Role', {
-      roles: 'items'
-    }),
-
     dynamicComponent () {
       return this.customComponent[this.entity].componentName
     },
 
     dynamicComponentProps () {
-      return this.customComponent[this.entity].componentProps
+      return {
+        ...this.customComponent[this.entity].componentProps,
+        triggerReset: this.shouldResetForm,
+      }
     },
 
     dynamicEvent () {
@@ -197,49 +203,54 @@ export default {
     },
 
     itemResource () {
+      const type = this.entity === 'user' ? 'AdministratableUser' : this.entity
       return {
-        type: this.entity,
-        ...this.item
+        type,
+        ...this.item,
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('Orga', {
-      createOrganisation: 'create'
+      createOrganisation: 'create',
     }),
-    ...mapActions('User', {
-      createUser: 'create'
+    ...mapActions('AdministratableUser', {
+      createUser: 'create',
+    }),
+
+    ...mapMutations('AdministratableUser', {
+      updateAdministratableUser: 'setItem',
     }),
 
     changeTypeToPascalCase (payload) {
       const newPayload = {
         ...payload,
         attributes: {
-          ...payload.attributes
+          ...payload.attributes,
         },
         relationships: {
           customers: {
-            data: payload.customers?.data[0].id
-              ? payload.customers.data.map(el => {
+            data: payload.customers?.data[0].id ?
+              payload.customers.data.map(el => {
                 return {
                   ...el,
-                  type: 'Customer'
+                  type: 'Customer',
                 }
-              })
-              : null
+              }) :
+              null,
           },
           departments: {
-            data: payload.departments?.data[0].id
-              ? payload.departments.data.map(el => {
+            data: payload.departments?.data[0].id ?
+              payload.departments.data.map(el => {
                 return {
                   ...el,
-                  type: 'Department'
+                  type: 'Department',
                 }
-              })
-              : null
-          }
-        }
+              }) :
+              null,
+          },
+        },
       }
 
       return newPayload
@@ -248,11 +259,14 @@ export default {
     reset () {
       this.isOpen = false
       this.item = {}
-      this.$root.$emit(this.customComponent[this.entity].resetEvent)
+      this.shouldResetForm = true
+
       const inputsWithErrors = this.$el.querySelector('[data-dp-validate]').querySelectorAll('.is-invalid')
+
       Array.from(inputsWithErrors).forEach(input => {
         input.classList.remove('is-invalid')
         const inputNodeName = input.nodeName
+
         if (inputNodeName === 'INPUT' || inputNodeName === 'SELECT') {
           input.setCustomValidity('')
         }
@@ -261,37 +275,54 @@ export default {
 
     save () {
       if (this.entity === 'user') {
-        if (this.dpValidate.newUserForm) {
-          this.createUser(this.itemResource)
-            .then(() => {
-              this.reset()
-              dplan.notify.notify('confirm', Translator.trans('confirm.user.created'))
-            })
-            .catch(() => {
-              // Fail silently
-            })
-        }
-      } else if (this.entity === 'organisation') {
-        if (this.dpValidate.newOrganisationForm) {
-          // Add mandantory status<->type relation if the user didn't click the add-button
-          if (this.item.attributes.registrationStatuses.length === 0) {
-            this.$refs.formFields.saveNewRegistrationStatus()
-          }
-          // The Types for relationships should be sent as PascalCase
-          const payload = this.changeTypeToPascalCase(this.itemResource)
-          this.createOrganisation(payload)
-            .then(() => {
-              if (this.itemResource.attributes.registrationStatuses.find(el => el.status === 'pending')) {
-                this.$root.$emit('get-items')
-              }
-              this.reset()
-              // Confirm notification is done in BE
-            })
-            .catch(err => { console.error(err) })
-        } else {
-          dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
-        }
+        return this.saveUserForm()
       }
+      if (this.entity === 'organisation') {
+        return this.saveOrganisationForm()
+      }
+    },
+
+    saveOrganisationForm () {
+      if (!this.dpValidate.newOrganisationForm) {
+        return dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
+      }
+
+      // Add mandantory status<->type relation if the user didn't click the add-button
+      if (this.item.attributes.registrationStatuses.length === 0) {
+        this.$refs.formFields.saveNewRegistrationStatus()
+      }
+
+      // The Types for relationships should be sent as PascalCase
+      const payload = this.changeTypeToPascalCase(this.itemResource)
+      this.createOrganisation(payload)
+        .then(() => {
+          this.$root.$emit('items:get')
+        })
+        .catch(err => { console.error(err) })
+        .finally(() => {
+          // Confirm notification is done in BE
+          this.reset()
+        })
+    },
+
+    saveUserForm () {
+      if (!this.dpValidate.newUserForm) {
+        return
+      }
+
+      this.createUser(this.itemResource)
+        .then(response => {
+          const { type: userType, relationships = {} } = this.itemResource
+          const newUser = Object.values(response.data[userType])[0]
+          const payload = { ...newUser, relationships }
+
+          this.updateAdministratableUser({ ...payload, id: newUser.id })
+          dplan.notify.notify('confirm', Translator.trans('confirm.user.created'))
+        })
+        .catch(() => {
+          // Fail silently
+        })
+        .finally(() => this.reset())
     },
 
     toggleItem (open) {
@@ -300,7 +331,7 @@ export default {
 
     update (item) {
       this.item = item
-    }
-  }
+    },
+  },
 }
 </script>

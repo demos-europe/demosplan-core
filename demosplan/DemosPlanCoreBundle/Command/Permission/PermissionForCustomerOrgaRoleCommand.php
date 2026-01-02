@@ -53,6 +53,12 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
             'The name of the permission to be adjusted.'
         );
 
+        $this->addArgument(
+            'orgaId',
+            InputArgument::OPTIONAL,
+            'Optional organization ID to restrict changes to a specific organization. If not provided, affects all organizations in the customer.'
+        );
+
         $this->addOption(
             'dry-run',
             '',
@@ -65,7 +71,7 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
         ParameterBagInterface $parameterBag,
         protected readonly CustomerService $customerService,
         protected readonly RoleService $roleService,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -90,10 +96,11 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
         $customerIdsString = $input->getArgument('customerIds');
         $roleIdsString = $input->getArgument('roleIds');
         $permissionName = $input->getArgument('permission');
+        $orgaId = $input->getArgument('orgaId');
         $dryRun = $input->getOption('dry-run');
 
-        $roleIds = explode(',', $roleIdsString);
-        $customerIds = explode(',', $customerIdsString);
+        $roleIds = explode(',', (string) $roleIdsString);
+        $customerIds = explode(',', (string) $customerIdsString);
         foreach ($roleIds as $roleId) {
             foreach ($customerIds as $customerId) {
                 $customerChoice = $this->customerService->findCustomerById(trim($customerId));
@@ -105,7 +112,7 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
                     throw new RoleNotFoundException('Role not found');
                 }
 
-                $updatedOrgas = $this->doExecuteAction($permissionChoice, $customerChoice, $roleChoice, $dryRun);
+                $updatedOrgas = $this->doExecuteAction($permissionChoice, $customerChoice, $roleChoice, $dryRun, $orgaId ? trim((string) $orgaId) : null);
 
                 $this->displayUpdatedOrgas($output, $updatedOrgas);
 
@@ -132,10 +139,10 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
             return constant($constantFullName);
         }
 
-        throw new InvalidArgumentException('Permission does not exit');
+        throw new InvalidArgumentException('Permission does not exist');
     }
 
-    abstract protected function doExecuteAction(string $permissionChoice, CustomerInterface $customerChoice, RoleInterface $roleChoice, mixed $dryRun): array;
+    abstract protected function doExecuteAction(string $permissionChoice, CustomerInterface $customerChoice, RoleInterface $roleChoice, bool $dryRun, ?string $orgaId = null): array;
 
     abstract protected function getActionName(): string;
 }

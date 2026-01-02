@@ -9,35 +9,43 @@
 
 <template>
   <div
+    ref="container"
     class="convert-annotated-pdf"
-    ref="container">
+  >
     <div
-      class="column column--big"
       ref="leftColumn"
-      :style="largeColumnStyle">
+      class="column column--big"
+      :style="largeColumnStyle"
+    >
       <dp-loading v-if="isLoading" />
       <div
         v-else
-        class="convert-annotated-pdf__preview">
+        class="convert-annotated-pdf__preview"
+      >
         <img
           v-for="(page, idx) in pages"
           :key="`page_${idx}`"
           alt=""
-          :src="page.attributes.url">
+          :src="page.attributes.url"
+        >
       </div>
     </div>
     <div
       class="column column--small"
-      :style="smallColumnStyle">
+      :style="smallColumnStyle"
+    >
       <div
         class="resize-handle"
-        @mousedown="startResize">
+        @mousedown="startResize"
+      >
         <button
           class="resize-handle__button"
-          :title="Translator.trans('drag.adjust.width')">
+          :title="Translator.trans('drag.adjust.width')"
+        >
           <i
             class="fa fa-arrows-h"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
         </button>
       </div>
       <div class="convert-annotated-pdf__form">
@@ -55,12 +63,14 @@
           :tags="tags"
           :used-intern-ids="usedInternIds"
           :init-values="formValues"
-          submit-route-name="dplan_pdf_import_to_statement">
+          submit-route-name="dplan_pdf_import_to_statement"
+        >
           <div class="flex justify-end mt-2">
             <dp-button
               data-cy="quickSave:button"
               :text="Translator.trans('statement.save.quickSave')"
-              @click="quickSaveText" />
+              @click="quickSaveText"
+            />
           </div>
         </dp-simplified-new-statement-form>
       </div>
@@ -68,7 +78,8 @@
     <dp-send-beacon
       :url="Routing.generate('dplan_annotated_statement_pdf_pause_text_review', {
         documentId: documentId, procedureId: procedureId
-      })" />
+      })"
+    />
   </div>
 </template>
 
@@ -84,60 +95,60 @@ export default {
     DpButton,
     DpLoading,
     DpSendBeacon,
-    DpSimplifiedNewStatementForm
+    DpSimplifiedNewStatementForm,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentProcedurePhase: {
       type: String,
       required: false,
-      default: 'analysis'
+      default: 'analysis',
     },
 
     documentId: {
       type: String,
-      required: true
+      required: true,
     },
 
     newestInternId: {
       type: String,
       required: false,
-      default: '-'
+      default: '-',
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     tags: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     usedInternIds: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     initSubmitter: {
       type: Object,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
 
   data () {
@@ -151,13 +162,13 @@ export default {
         submitter: { ...this.initSubmitter },
         submittedDate: '',
         tags: [],
-        text: ''
+        text: '',
       },
       isLoading: false,
       largeColumnWidth: 66.6,
       onePixelInPercent: 0,
       pages: [],
-      smallColumnWidth: 33.3
+      smallColumnWidth: 33.3,
     }
   },
 
@@ -187,7 +198,7 @@ export default {
 
     smallColumnStyle () {
       return `flex-basis: ${this.currentSmallColumnWidth}%;`
-    }
+    },
   },
 
   methods: {
@@ -199,22 +210,22 @@ export default {
           annotatedStatementPdf: {
             condition: {
               path: 'id',
-              value: this.documentId
-            }
-          }
+              value: this.documentId,
+            },
+          },
         },
         procedureId: this.procedureId,
         page: {
-          size: 1
+          size: 1,
         },
-        include: 'annotatedStatementPdfPages'
+        include: 'annotatedStatementPdfPages',
       }
       const documentResponse = await dpApi.get(url, params)
       this.document = documentResponse.data.data.find(el => el.type === 'AnnotatedStatementPdf')
       this.formValues = {
         ...this.formValues,
         quickSave: this.document.attributes.quickSave,
-        text: this.document.attributes.quickSave ?? this.document.attributes.text
+        text: this.document.attributes.quickSave ?? this.document.attributes.text,
       }
       this.pages = documentResponse.data.included.filter(el => el.type === 'AnnotatedStatementPdfPage')
       this.isLoading = false
@@ -225,8 +236,8 @@ export default {
         data: {
           type: 'AnnotatedStatementPdf',
           id: this.documentId,
-          attributes: { quickSave: this.$refs.annotatedPdfForm._data.values.text }
-        }
+          attributes: { quickSave: this.$refs.annotatedPdfForm._data.values.text },
+        },
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'AnnotatedStatementPdf', resourceId: this.documentId }), {}, payload)
@@ -275,11 +286,11 @@ export default {
       const bodyEl = document.getElementsByTagName('body')[0]
       bodyEl.removeEventListener('mousemove', this.doResize)
       bodyEl.removeEventListener('mouseup', this.stopResize)
-    }
+    },
   },
 
   mounted () {
     this.getInitialData()
-  }
+  },
 }
 </script>

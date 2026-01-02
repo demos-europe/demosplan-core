@@ -2,40 +2,78 @@
   <div>
     <dp-map-modal
       ref="mapModal"
-      :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+    />
 
     <dp-loading
       v-if="isLoading"
-      class="u-mt" />
+      class="u-mt"
+    />
 
     <template v-else>
+      <template v-if="hasPermission('feature_admin_export_original_statement')">
+        <div v-if="!selectedItemsCount">
+          <export-flyout
+            class="block mt-1"
+            csv
+            docx
+            @export="type => handleExport(type)"
+          />
+        </div>
+
+        <dp-bulk-edit-header
+          v-else
+          class="layout__item w-full mt-2"
+          :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
+          @reset-selection="resetSelection"
+        >
+          <export-flyout
+            class="inline-block top-[-3px]"
+            csv
+            docx
+            @export="type => handleExport(type)"
+          />
+        </dp-bulk-edit-header>
+      </template>
+
       <dp-pager
-        v-if="pagination.currentPage && originalStatements.length > 0"
-        :class="{ 'invisible': isLoading }"
-        class="mt-4 mb-2"
-        :current-page="pagination.currentPage"
+        v-if="pagination.currentPage && items.length > 0"
         :key="`pager1_${pagination.currentPage}_${pagination.perPage}`"
+        :class="{ 'invisible': isLoading }"
+        class="m-2"
+        :current-page="pagination.currentPage"
         :limits="pagination.limits"
+        :multi-page-all-selected="allSelectedVisually"
+        :multi-page-selection-items-total="allItemsCount"
+        :multi-page-selection-items-toggled="toggledItems.length"
         :per-page="pagination.perPage"
         :total-items="pagination.total"
         :total-pages="pagination.totalPages"
         @page-change="fetchOriginalStatementsByPage"
-        @size-change="handleSizeChange" />
+        @size-change="handleSizeChange"
+      />
 
       <dp-data-table
-        v-if="originalStatements.length > 0"
+        v-if="items.length > 0"
         has-flyout
         :header-fields="headerFields"
         is-expandable
-        :items="originalStatements"
-        track-by="id">
+        is-selectable
+        :items="items"
+        :should-be-selected-items="currentlySelectedItems"
+        track-by="id"
+        @items-toggled="handleToggleItem"
+        @select-all="handleSelectAll"
+      >
         <template v-slot:externId="{ externId }">
           <span
             class="font-semibold"
-            v-text="externId" />
+            v-text="externId"
+          />
         </template>
         <template
-          v-slot:submitter="{ id }">
+          v-slot:submitter="{ id }"
+        >
           <div v-cleanhtml="getSubmitterName(id)" />
         </template>
         <template v-slot:submitDate="{ submitDate }">
@@ -45,36 +83,39 @@
         </template>
         <template v-slot:shortText="{ shortText }">
           <div
+            v-cleanhtml="shortText"
             class="line-clamp-3 c-styled-html"
-            v-cleanhtml="shortText" />
+          />
         </template>
         <template v-slot:procedurePhase="{ procedurePhase }">
           <span
-            v-if="procedurePhase.name">
+            v-if="procedurePhase.name"
+          >
             {{ procedurePhase.name }}
           </span>
         </template>
         <template
           v-if="hasPermission('area_statement_anonymize')"
-          v-slot:flyout="{ externId, id }">
+          v-slot:flyout="{ externId, id }"
+        >
           <dp-flyout>
             <a
-              class="u-pt-0"
-              :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: id })">
+              class="block u-pt-0 leading-[2] whitespace-nowrap"
+              :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: id })"
+            >
               {{ Translator.trans('statement.anonymize', { externId: externId }) }}
             </a>
           </dp-flyout>
         </template>
         <template
           v-slot:expandedContent="{
-            authorName,
             fullText,
             id,
-            isSubmittedByCitizen,
             polygon,
             shortText,
             textIsTruncated
-          }">
+          }"
+        >
           <div class="u-pt-0_5">
             <!-- Meta data -->
             <div>
@@ -130,7 +171,8 @@
                     class="btn--blank o-link--default"
                     data-cy="originalStatementList:toggleLocationModal"
                     type="button"
-                    @click="toggleLocationModal(JSON.parse(polygon))">
+                    @click="toggleLocationModal(JSON.parse(polygon))"
+                  >
                     {{ Translator.trans('see') }}
                   </button>
                   <span v-else>
@@ -151,16 +193,19 @@
                       :href="Routing.generate('core_file_procedure', { hash: getOriginalStatementAsAttachment(id).attributes.hash, procedureId: procedureId })"
                       rel="noopener"
                       target="_blank"
-                      :title="getOriginalStatementAsAttachment(id).attributes.filename">
+                      :title="getOriginalStatementAsAttachment(id).attributes.filename"
+                    >
                       <i
                         aria-hidden="true"
                         class="fa fa-paperclip color--grey"
-                        :title="Translator.trans('attachment.original')" />
+                        :title="Translator.trans('attachment.original')"
+                      />
                       {{ getOriginalStatementAsAttachment(id).attributes.filename }}
                     </a>
                     <span
                       v-else
-                      class="ml-0">
+                      class="ml-0"
+                    >
                       -
                     </span>
                   </dd>
@@ -171,25 +216,29 @@
                 </dt>
                 <dd
                   v-if="getGenericAttachments(id).length > 0"
-                  class="ml-0">
+                  class="ml-0"
+                >
                   <a
                     v-for="(file, idx) in getGenericAttachments(id)"
+                    :key="idx"
                     class="block"
                     :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"
-                    :key="idx"
                     rel="noopener"
                     target="_blank"
-                    :title="file.filename">
+                    :title="file.filename"
+                  >
                     <i
                       aria-hidden="true"
                       class="fa fa-paperclip color--grey"
-                      :title="file.filename" />
+                      :title="file.filename"
+                    />
                     {{ file.filename }}
                   </a>
                 </dd>
                 <dd
                   v-else
-                  class="ml-0">
+                  class="ml-0"
+                >
                   -
                 </dd>
               </dl>
@@ -205,17 +254,21 @@
                   v-if="textIsTruncated"
                   class="show-more cursor-pointer"
                   rel="noopener"
-                  @click.prevent.stop="() => fetchFullTextById(id)">
+                  @click.prevent.stop="() => fetchFullTextById(id)"
+                  @keydown.enter="() => fetchFullTextById(id)"
+                >
                   {{ Translator.trans('show.more') }}
                 </a>
               </template>
               <template v-else>
-                <div v-cleanhtml="items[id].attributes.isFulltextDisplayed ? fullText : shortText" />
+                <div v-cleanhtml="originalStatements[id].attributes.isFulltextDisplayed ? fullText : shortText" />
                 <a
                   class="cursor-pointer"
                   rel="noopener"
-                  @click="() => toggleIsFullTextDisplayed(id, !items[id].attributes.isFulltextDisplayed)">
-                  {{ Translator.trans(items[id].attributes.isFulltextDisplayed ? 'show.less' : 'show.more') }}
+                  @click="() => toggleIsFullTextDisplayed(id, !originalStatements[id].attributes.isFulltextDisplayed)"
+                  @keydown.enter="() => toggleIsFullTextDisplayed(id, !originalStatements[id].attributes.isFulltextDisplayed)"
+                >
+                  {{ Translator.trans(originalStatements[id].attributes.isFulltextDisplayed ? 'show.less' : 'show.more') }}
                 </a>
               </template>
             </div>
@@ -225,8 +278,10 @@
 
       <dp-inline-notification
         v-else
+        class="mt-3"
         :message="Translator.trans('statements.none')"
-        type="info" />
+        type="info"
+      />
     </template>
   </div>
 </template>
@@ -236,145 +291,135 @@ import {
   formatDate as _formatDate,
   CleanHtml,
   dpApi,
-  DpButton,
+  DpBulkEditHeader,
   DpDataTable,
   DpFlyout,
   DpInlineNotification,
   DpLoading,
   DpPager,
-  hasAnyPermissions
+  dpRpc,
+  hasAnyPermissions,
+  hasOwnProp,
+  tableSelectAllItems,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
+import ExportFlyout from './ExportFlyout'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
   name: 'ListOriginalStatements',
 
   components: {
-    DpButton,
+    DpBulkEditHeader,
     DpDataTable,
     DpFlyout,
     DpInlineNotification,
     DpLoading,
-    DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal'),
-    DpPager
+    DpMapModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpMapModal')),
+    DpPager,
+    ExportFlyout,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
-  mixins: [paginationMixin],
+  mixins: [
+    paginationMixin,
+    tableSelectAllItems,
+  ],
 
   props: {
     currentUserId: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
+      allOriginalStatementIds: [],
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
-        perPage: 10
+        perPage: 10,
       },
       headerFields: [
         {
           field: 'externId',
           label: Translator.trans('id'),
-          colClass: 'w-2'
+          colClass: 'w-2',
         },
         {
           field: 'submitDate',
           label: Translator.trans('date'),
-          colClass: 'w-8'
+          colClass: 'w-8',
         },
         {
           field: 'submitter',
-          label: Translator.trans('submitter.invitable_institution')
+          label: Translator.trans('submitter.invitable_institution'),
         },
         {
           field: 'shortText',
-          label: Translator.trans('text')
+          label: Translator.trans('text'),
         },
         {
           field: 'procedurePhase',
-          label: Translator.trans('procedure.public.phase')
-        }
+          label: Translator.trans('procedure.public.phase'),
+        },
       ],
+      isExpanded: false,
       isLoading: false,
-      pagination: {}
+      pagination: {},
     }
   },
 
   computed: {
     ...mapState('OriginalStatement', {
-      items: 'items'
+      originalStatements: 'items',
     }),
 
-    originalStatements () {
-      return Object.values(this.items).map(originalStatement => {
-        return {
-          id: originalStatement.id,
-          ...originalStatement.attributes
-        }
-      })
+    // Needs to be named items for tableSelectAllItems mixin to work
+    items () {
+      return Object.values(this.originalStatements)
+        .map(originalStatement => {
+          return {
+            id: originalStatement.id,
+            ...originalStatement.attributes,
+          }
+        })
+        .sort((a, b) => {
+          return new Date(b.submitDate) - new Date(a.submitDate)
+        })
     },
 
     storageKeyPagination () {
       return `${this.currentUserId}:${this.procedureId}:paginationOriginalStatementList`
-    }
+    },
   },
 
   methods: {
     ...mapActions('OriginalStatement', {
-      fetchOriginalStatements: 'list'
+      fetchOriginalStatements: 'list',
     }),
 
     ...mapMutations('OriginalStatement', {
-      setOriginalStatement: 'set'
+      setOriginalStatement: 'set',
     }),
-
-    /**
-     * Get orgaName if the statement was submitted by an institution
-     * Get authorName if the statement was submitted by a citizen
-     * @param {String} originalStatementId
-     */
-    getSubmitterName (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
-      const originalStatementMeta = originalStatement.relationships.meta.get()
-      const {
-        isSubmittedByCitizen
-      } = originalStatement.attributes
-      const {
-        authorName,
-        orgaName
-      } = originalStatementMeta.attributes
-
-      // Statement Institution
-      if (isSubmittedByCitizen === false) {
-        return orgaName
-      }
-
-      if (isSubmittedByCitizen) {
-        return authorName
-      }
-    },
 
     fetchOriginalStatementById (originalStatementId) {
       return dpApi.get(Routing.generate('api_resource_get', {
         resourceType: 'OriginalStatement',
         resourceId: originalStatementId,
         fields: {
-          OriginalStatement: ['fullText'].join()
-        }
+          OriginalStatement: ['fullText'].join(),
+        },
       }))
     },
 
@@ -387,12 +432,110 @@ export default {
           this.setLocalStorage(response.meta.pagination)
           this.updatePagination(response.meta.pagination)
 
+          this.allItemsCount = response.meta.pagination.total
           this.isLoading = false
         })
     },
 
+    /**
+     * Get orgaName if the statement was submitted by an institution
+     * Get authorName if the statement was submitted by a citizen
+     * @param {String} originalStatementId
+     */
+    getSubmitterName (originalStatementId) {
+      const originalStatement = this.originalStatements[originalStatementId]
+      const originalStatementMeta = originalStatement.relationships.meta.get()
+      const {
+        isSubmittedByCitizen,
+      } = originalStatement.attributes
+      const {
+        authorName,
+        orgaName,
+      } = originalStatementMeta.attributes
+
+      // Statement Institution
+      if (isSubmittedByCitizen === false) {
+        return orgaName
+      }
+
+      if (isSubmittedByCitizen) {
+        return authorName
+      }
+    },
+
+    getSelectedStatementIds () {
+      /**
+       * ToggledIds can be either
+       * - selected ids
+       * or
+       * - deselected ids after 'select all' was checked
+       */
+      const toggledIds = this.toggledItems.map(item => item.id)
+      let selectedStatementIds = []
+      const areSomeDeselectedAfterSelectAll = this.trackDeselected
+      const areSomeSelected = !this.trackDeselected
+
+      if (areSomeSelected) {
+        selectedStatementIds = toggledIds
+      }
+
+      if (areSomeDeselectedAfterSelectAll) {
+        const areNoneDeselected = this.toggledItems.length === 0
+
+        selectedStatementIds = areNoneDeselected ?
+          this.allOriginalStatementIds :
+          this.allOriginalStatementIds
+            .filter(id => !toggledIds.includes(id))
+      }
+
+      return selectedStatementIds
+    },
+
+    handleExport (type) {
+      const payload = {
+        filter: {
+          sameProcedure: {
+            condition: {
+              path: 'procedure.id',
+              value: this.procedureId,
+            },
+          },
+        },
+        procedureId: this.procedureId,
+        sort: '-submitDate',
+      }
+
+      if (this.selectedItemsCount !== 0 && this.selectedItemsCount < this.allItemsCount) {
+        payload.filter = {
+          ...payload.filter,
+          statementFilterGroup: {
+            group: {
+              conjunction: this.trackDeselected ? 'AND' : 'OR',
+            },
+          },
+        }
+
+        this.toggledItems.forEach(item => {
+          payload.filter[item.id] = {
+            condition: {
+              memberOf: 'statementFilterGroup',
+              operator: this.trackDeselected ? '<>' : '=',
+              path: 'id',
+              value: item.id,
+            },
+          }
+        })
+      }
+
+      const url = type === 'docx' ?
+        'dplan_original_statement_docx_export' :
+        'dplan_original_statement_csv_export'
+
+      window.location.href = Routing.generate(url, payload)
+    },
+
     toggleIsFullTextDisplayed (originalStatementId, isFullTextDisplayed, fullText = null) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
 
       this.setOriginalStatement({
         ...originalStatement,
@@ -400,8 +543,8 @@ export default {
         attributes: {
           ...originalStatement.attributes,
           ...(fullText && { fullText }),
-          isFulltextDisplayed: isFullTextDisplayed
-        }
+          isFulltextDisplayed: isFullTextDisplayed,
+        },
       })
     },
 
@@ -420,75 +563,92 @@ export default {
         })
     },
 
+    fetchOriginalStatementIds () {
+      return dpRpc('originalStatement.load.id', {
+        filter: {
+          sameProcedure: {
+            condition: {
+              path: 'procedure.id',
+              value: this.procedureId,
+            },
+          },
+        },
+      })
+        .then(response => {
+          this.allOriginalStatementIds = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
+          this.allItemsCount = this.allOriginalStatementIds.length
+        })
+    },
+
     formatDate (date) {
       return _formatDate(date)
     },
 
     getAuthorName (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const originalStatementMeta = originalStatement.relationships.meta?.data ? originalStatement.relationships.meta.get() : null
 
       return originalStatementMeta?.attributes.authorName ?? '-'
     },
 
     getDepartmentName (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const originalStatementMeta = originalStatement.relationships.meta?.data ? originalStatement.relationships.meta.get() : null
 
       return originalStatementMeta?.attributes.orgaDepartmentName ?? '-'
     },
 
     getDocumentTitle (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const document = originalStatement.relationships.document?.data ? originalStatement.relationships.document.get() : null
 
       return document ? document.attributes.title : ''
     },
 
     getElementTitle (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const element = originalStatement.relationships.elements?.data ? originalStatement.relationships.elements.get() : null
 
       return element ? element.attributes.title : '-'
     },
 
     getGenericAttachments (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const genericAttachments = originalStatement.relationships.genericAttachments?.data.length > 0 ? originalStatement.relationships.genericAttachments.list() : []
 
-      return Object.values(genericAttachments).length > 0
-        ? Object.values(genericAttachments)
+      return Object.values(genericAttachments).length > 0 ?
+        Object.values(genericAttachments)
           .map(attachment => {
             const file = attachment.relationships.file.data ? attachment.relationships.file.get() : null
 
-            return file
-              ? {
-                  filename: file.attributes.filename,
-                  hash: file.attributes.hash,
-                  id: attachment.id
-                }
-              : null
+            return file ?
+              {
+                filename: file.attributes.filename,
+                hash: file.attributes.hash,
+                id: attachment.id,
+              } :
+              null
           })
-          .filter(file => file !== null)
-        : []
+          .filter(file => file !== null) :
+        []
     },
 
     getOrganisationName (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const originalStatementMeta = originalStatement.relationships.meta?.data ? originalStatement.relationships.meta.get() : null
 
       return originalStatementMeta?.attributes.orgaName ?? '-'
     },
 
     getOriginalStatementAsAttachment (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const attachments = originalStatement.relationships.sourceAttachment?.data.length > 0 ? Object.values(originalStatement.relationships.sourceAttachment.list()) : []
 
       return attachments?.length > 0 ? attachments[0].relationships?.file.get() : null
     },
 
     getParagraphTitle (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const paragraph = originalStatement.relationships.paragraph?.data ? originalStatement.relationships.paragraph.get() : null
 
       return paragraph ? paragraph.attributes.title : '-'
@@ -513,7 +673,7 @@ export default {
         'sourceAttachment',
         'shortText',
         'submitDate',
-        'textIsTruncated'
+        'textIsTruncated',
       ]
 
       if (hasAnyPermissions([
@@ -527,34 +687,34 @@ export default {
       const statementMetaFields = [
         'authorName',
         'orgaDepartmentName',
-        'orgaName'
+        'orgaName',
       ]
 
       return {
         page: {
           number: page,
-          size: this.pagination.perPage
+          size: this.pagination.perPage,
         },
         fields: {
           ElementsDetails: ['title'].join(),
           File: [
             'filename',
-            'hash'
+            'hash',
           ].join(),
           GenericStatementAttachment: [
-            'file'
+            'file',
           ].join(),
           OriginalStatement: originalStatementFields.join(),
           ParagraphVersion: [
-            'title'
+            'title',
           ].join(),
           SourceStatementAttachment: [
-            'file'
+            'file',
           ].join(),
           StatementMeta: statementMetaFields.join(),
           SingleDocument: [
-            'title'
-          ].join()
+            'title',
+          ].join(),
         },
         include: [
           'document',
@@ -564,19 +724,23 @@ export default {
           'meta',
           'paragraph',
           'sourceAttachment',
-          'sourceAttachment.file'
-        ].join()
+          'sourceAttachment.file',
+        ].join(),
       }
     },
 
     toggleLocationModal (locationReference) {
       this.$refs.mapModal.toggleModal(locationReference)
-    }
+    },
   },
 
   mounted () {
     this.initPagination()
     this.fetchOriginalStatementsByPage(1)
-  }
+
+    if (hasPermission('feature_admin_export_original_statement')) {
+      this.fetchOriginalStatementIds()
+    }
+  },
 }
 </script>

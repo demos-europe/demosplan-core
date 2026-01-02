@@ -12,32 +12,34 @@
     <div :class="prefixClass('layout')">
       <dp-input
         id="r_street"
-        autocomplete="address-line1"
-        data-cy="streetName"
         :class="prefixClass('layout__item')"
         :disabled="disabled"
         :label="{
           text: Translator.trans('street')
         }"
-        name="r_street"
+        :model-value="statement.r_street"
         :required="required && statement.r_useName === '1'"
-        :value="statement.r_street"
+        autocomplete="address-line1"
+        data-cy="streetName"
+        name="r_street"
         width="u-8-of-12"
-        @input="val => setStatementData({r_street: val})" /><!--
+        @update:model-value="val => setStatementData({r_street: val})"
+      /><!--
    --><dp-input
         id="r_houseNumber"
-        autocomplete="address-line2"
-        data-cy="houseNumber"
         :class="prefixClass('layout__item')"
         :disabled="disabled"
         :label="{
           text: Translator.trans('street.number.short')
         }"
-        name="r_houseNumber"
+        :model-value="statement.r_houseNumber"
         :required="required && statement.r_useName === '1'"
-        :value="statement.r_houseNumber"
+        autocomplete="address-line2"
+        data-cy="houseNumber"
+        name="r_houseNumber"
         width="u-4-of-12"
-        @input="val => setStatementData({r_houseNumber: val})" />
+        @update:model-value="val => setStatementData({r_houseNumber: val})"
+    />
     </div>
   </div>
 </template>
@@ -48,6 +50,6 @@ import formGroupMixin from '../mixins/formGroupMixin'
 export default {
   name: 'FormGroupStreetAndNumber',
 
-  mixins: [formGroupMixin]
+  mixins: [formGroupMixin],
 }
 </script>

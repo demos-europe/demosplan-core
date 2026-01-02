@@ -38,11 +38,10 @@ use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\HttpClient\NativeHttpClient;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Wrep\Daemonizable\Command\EndlessContainerAwareCommand;
 use Wrep\Daemonizable\Exception\ShutdownEndlessCommandException;
@@ -57,6 +56,7 @@ use Wrep\Daemonizable\Exception\ShutdownEndlessCommandException;
  *
  * Class MaintenanceCommand
  */
+#[AsCommand(name: 'dplan:maintenance', aliases: ['demos:maintenance'])]
 class MaintenanceCommand extends EndlessContainerAwareCommand
 {
     protected static $defaultDescription = 'DemosPlan Maintenance daemon';
@@ -97,9 +97,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     /** @var Proj */
     protected $targetProjection;
 
-    /** @var NativeHttpClient */
-    protected $httpClient;
-
     /** @var ProcedureRepository */
     protected $procedureRepository;
 
@@ -132,7 +129,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         ProcedureRepository $procedureRepository,
         private readonly ProcedureService $procedureService,
         StatementService $statementService,
-        $name = null
+        $name = null,
     ) {
         parent::__construct($name);
 
@@ -155,15 +152,14 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     {
         // Since this command has an alias this command **cannot** be lazyfied at the moment!
         // Add an alias until we have reconfigured the dev services
-        $this->setName('dplan:maintenance')
-            ->setAliases(['demos:maintenance'])
+        $this
             ->setTimeout(5); // Set the timeout in seconds between two calls to the "execute" method
         parent::configure();
     }
 
     // This is a normal Command::initialize() method and it's called exactly once before the first execute call
 
-    protected function initialize(InputInterface $input, OutputInterface $output)
+    protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         // Never init permissions like this, because the session has no user we can't check permissions.
         // This way i can only check if it is enabled in project
@@ -173,14 +169,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         $this->proj4 = new Proj4php(); // init library
         $this->sourceProjection = new Proj(MapService::PSEUDO_MERCATOR_PROJECTION_LABEL, $this->proj4);
         $this->targetProjection = new Proj(MapService::EPSG_4326_PROJECTION_LABEL, $this->proj4);
-
-        $httpOptions = [];
-        if ($this->globalConfig->isProxyEnabled()) {
-            $httpOptions = [
-                'proxy' => $this->globalConfig->getProxyHost().':'.$this->globalConfig->getProxyPort(),
-            ];
-        }
-        $this->httpClient = HttpClient::create($httpOptions);
     }
 
     /**
@@ -230,7 +218,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         $this->throwExceptionOnShutdown();
 
         // Tell the user we're done
-        $output->writeln('done');
+        $output->writeln(sprintf('[%s] MaintenanceService run done', date('Y-m-d H:i:s')));
 
         return Command::SUCCESS;
     }
@@ -240,15 +228,18 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
      */
     protected function sendMail(OutputInterface $output)
     {
-        $output->write('Sending Mails... ');
+        $this->logger->info('Sending Mails... ');
         $mailsSent = 0;
         try {
             $mailsSent = $this->mailService->sendMailsFromQueue();
-            $this->writeDelayedLog('Mailversand');
+            $this->logger->info('Mailversand');
         } catch (Exception $e) {
             $this->logger->error('Error sending mails', [$e]);
         }
-        $output->writeln('Mails sent: '.$mailsSent);
+        if ($mailsSent > 0) {
+            $output->writeln('Mails sent: '.$mailsSent);
+        }
+        $this->logger->info('Mails sent: '.$mailsSent);
     }
 
     /**
@@ -263,7 +254,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         $bouncesProcessed = 0;
         try {
             $bouncesProcessed = $this->bounceChecker->checkEmailBounces();
-            $this->writeDelayedLog('Emailbounces');
+            $this->logger->info('Emailbounces');
         } catch (Exception $e) {
             $this->logger->error('Emailbounces failed', [$e]);
         }
@@ -277,19 +268,16 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
      */
     protected function fetchStatementGeoData($output)
     {
-        $output->write('Fetch Statement Geodata... ');
-        $geoDataFetched = 0;
         try {
             if (true === $this->globalConfig->getUseFetchAdditionalGeodata()) {
+                $this->logger->info('Fetch Statement Geodata... ');
                 $geoDataFetched = $this->statementService->processScheduledFetchGeoData();
-                $this->writeDelayedLog('FetchGeodata');
-            } else {
-                $output->writeln('Fetch Statement Geodata deactivated');
+                $this->logger->info('Statement Geodata fetched: '.$geoDataFetched);
+                $output->writeln('Statement Geodata fetched: '.$geoDataFetched);
             }
         } catch (Exception $e) {
             $this->logger->error('FetchGeodata failed', [$e]);
         }
-        $output->writeln('Statement Geodata fetched: '.$geoDataFetched);
     }
 
     /**
@@ -299,19 +287,22 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
      */
     protected function purgeDeletedProcedures($output)
     {
-        $output->write('Purge deleted procedures... ');
+        $this->logger->info('Purge deleted procedures... ');
         $purgedProcedures = 0;
         try {
             if (true === $this->globalConfig->getUsePurgeDeletedProcedures()) {
-                $this->writeDelayedLog('PurgeDeletedProcedures');
+                $this->logger->info('PurgeDeletedProcedures');
                 $purgedProcedures = $this->procedureHandler->purgeDeletedProcedures(5);
             } else {
-                $this->writeDelayedLog('Purge deleted procedures is disabled.');
+                $this->logger->info('Purge deleted procedures is disabled.');
             }
         } catch (Exception $e) {
             $this->logger->error('Purge Procedures failed', [$e]);
         }
-        $output->writeln('Purged procedures: '.$purgedProcedures);
+        if ($purgedProcedures > 0) {
+            $this->logger->info('Purged procedures: '.$purgedProcedures);
+            $output->writeln('Purged procedures: '.$purgedProcedures);
+        }
     }
 
     /**
@@ -329,21 +320,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         } catch (Exception $e) {
             $this->logger->error('Addon Maintenance failed', [$e]);
         }
-        $output->writeln('Finished Addon Maintenance.');
-    }
-
-    /**
-     * Schreibe nur alle X Sekunden die Einträge in das Logfile.
-     */
-    protected function writeDelayedLog(string $functionName): void
-    {
-        if (!array_key_exists($functionName, $this->lastWriteTime)) {
-            $this->lastWriteTime[$functionName] = 0;
-        }
-        if ($this->logWriteDelay <= (time() - $this->lastWriteTime[$functionName])) {
-            $this->logger->info($functionName);
-            $this->lastWriteTime[$functionName] = time();
-        }
+        $this->logger->info('Finished Addon Maintenance.');
     }
 
     /**
@@ -360,7 +337,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     protected function getProcedureLocations($output): void
     {
         $output->write('Get procedure locations ... ');
-        $this->writeDelayedLog('getProcedureLocations');
+        $this->logger->info('getProcedureLocations');
 
         // Stop if the permission is not enabled
         if (!$this->permissions->hasPermission('feature_procedures_located_by_maintenance_service')) {
@@ -483,9 +460,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
      */
     protected function switchPhasesOfProceduresUntilNow(OutputInterface $output): void
     {
-        $output->writeln('switchPhasesOfToday');
-
-        $this->writeDelayedLog('switchPhasesOfToday');
+        $this->logger->info('switchPhasesOfToday');
 
         $internalProcedureCounter = 0;
         $externalProcedureCounter = 0;
@@ -496,8 +471,13 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         }
 
         // Success notice
-        $output->writeln('Tried switching phases of '.$internalProcedureCounter.' internal/public agency procedures.');
-        $output->writeln('Tried switching phases of '.$externalProcedureCounter.' external/citizen procedures.');
+        if ($internalProcedureCounter > 0 || $externalProcedureCounter > 0) {
+            $switchedStr = 'Switched phases of ';
+            $this->logger->info($switchedStr.$internalProcedureCounter.' internal/public agency procedures.');
+            $this->logger->info($switchedStr.$externalProcedureCounter.' external/citizen procedures.');
+            $output->writeln($switchedStr.$internalProcedureCounter.' internal/public agency procedures.');
+            $output->writeln($switchedStr.$externalProcedureCounter.' external/citizen procedures.');
+        }
     }
 
     /**
@@ -507,8 +487,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
      */
     protected function switchStatesOfElementsUntilNow(OutputInterface $output): void
     {
-        $this->writeDelayedLog('switchStatesOfToday');
-        $output->writeln('Maintenance: switchStatesOfToday');
+        $this->logger->info('switchStatesOfToday');
 
         $affectedElements = 0;
 
@@ -518,6 +497,8 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
             $this->logger->error('switchStatesOfToday failed', [$e]);
         }
 
-        $output->writeln("Switched states of $affectedElements elements.");
+        if ($affectedElements > 0) {
+            $output->writeln("Switched states of $affectedElements elements.");
+        }
     }
 }

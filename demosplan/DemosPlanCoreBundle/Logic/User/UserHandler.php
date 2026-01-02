@@ -700,8 +700,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      */
     public function handleInviteUsers(ParameterBag $requestData)
     {
-        if ($requestData->has('elementsToAdminister') && 0 < (is_countable($requestData->get('elementsToAdminister')) ? count($requestData->get('elementsToAdminister')) : 0)) {
-            $userIDsToInvite = $requestData->get('elementsToAdminister');
+        if ($requestData->has('elementsToAdminister') && 0 < (is_countable($requestData->all('elementsToAdminister')) ? count($requestData->all('elementsToAdminister')) : 0)) {
+            $userIDsToInvite = $requestData->all('elementsToAdminister');
 
             $invitedUsersCount = 0;
             $invitationFailedList = collect();
@@ -737,8 +737,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
             $this->getMessageBag()->add('confirm', 'confirm.users.invited', ['count' => $invitedUsersCount]);
         } else {
-            // wenn keine ausgewählt wurden, gebe eine info raus
-            $this->getMessageBag()->add('warning', 'explanation.entries.noneselected');
+            // if none were chosen - put out a warning
+            $this->getMessageBag()->add('warning', 'warning.select.entries');
         }
     }
 
@@ -805,40 +805,51 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     public function handleWipeSelectedUsers(ParameterBag $requestData)
     {
         if ($requestData->has('elementsToAdminister')
-            && 0 < (is_countable($requestData->get('elementsToAdminister')) ? count($requestData->get('elementsToAdminister')) : 0)) {
-            $usersToDelete = $requestData->get('elementsToAdminister');
-
-            foreach ($usersToDelete as $userId) {
-                $organisation = $this->getSingleUser($userId)->getOrga();
-                $numberOfOpenProcedures = $this->getUnerasedProceduresOfOrganisation($organisation)->count();
-
-                if ($this->isUserOnlyAdminOfItsOrganisation($userId) && $numberOfOpenProcedures > 0) {
-                    $this->logger->error("Failed to delete user with id {$userId}, because of user is the only administrator of organisation and there are open procedures.");
-
-                    $this->getMessageBag()->add(
-                        'error',
-                        'error.delete.last.admin.user.of.orga.with.open.procedures',
-                        [
-                            'organisationName'        => $organisation->getName(),
-                            '%numberOfOpenProcedures' => $numberOfOpenProcedures,
-                        ]
-                    );
-                } else {
-                    $result = $this->wipeUserData($userId);
-
-                    if (!$result instanceof User) {
-                        $this->logger->error("Failed to delete user with id {$userId}");
-                        $this->getMessageBag()->add('error', 'error.delete.user');
-
-                        return $userId;
-                    }
-
-                    $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
-                }
-            }
+            && 0 < (is_countable($requestData->all('elementsToAdminister')) ? count($requestData->all('elementsToAdminister')) : 0)) {
+            $usersToDelete = $requestData->all('elementsToAdminister');
+            $this->wipeUsersById($usersToDelete);
         } else {
-            // wenn keine ausgewählt wurden, gebe eine info raus
-            $this->getMessageBag()->add('warning', 'explanation.entries.noneselected');
+            // if nothing was selected - put out a warning
+            $this->getMessageBag()->add('warning', 'warning.select.entries');
+        }
+
+        return null;
+    }
+
+    /**
+     * @return string|null will return a userId on Failure
+     */
+    public function wipeUsersById(array $userIdsToDelete): ?string
+    {
+        foreach ($userIdsToDelete as $userId) {
+            $organisation = $this->getSingleUser($userId)->getOrga();
+            $numberOfOpenProcedures = $this->getUnerasedProceduresOfOrganisation($organisation)->count();
+
+            if ($this->isUserOnlyAdminOfItsOrganisation($userId) && $numberOfOpenProcedures > 0) {
+                $this->logger->error("Failed to delete user with id {$userId}, because of user is the only administrator of organisation and there are open procedures.");
+
+                $this->getMessageBag()->add(
+                    'error',
+                    'error.delete.last.admin.user.of.orga.with.open.procedures',
+                    [
+                        'organisationName'        => $organisation->getName(),
+                        '%numberOfOpenProcedures' => $numberOfOpenProcedures,
+                    ]
+                );
+
+                return $userId; // Return the failed user ID to indicate failure
+            } else {
+                $result = $this->wipeUserData($userId);
+
+                if (!$result instanceof User) {
+                    $this->logger->error("Failed to delete user with id {$userId}");
+                    $this->getMessageBag()->add('error', 'error.delete.user');
+
+                    return $userId;
+                }
+
+                $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
+            }
         }
 
         return null;
@@ -1051,7 +1062,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
                     $this->getMessageBag()->add('error', 'error.undefined');
 
-                    return;
+                    return null;
                 }
 
                 throw new \InvalidArgumentException("Undefined or unknown requestData['manageOrgasAction']: {$manageOrgasAction}");
@@ -1199,8 +1210,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      */
     protected function handleWipeSelectedOrgas(ParameterBag $requestData)
     {
-        if ($requestData->has('elementsToAdminister') && 0 < (is_countable($requestData->get('elementsToAdminister')) ? count($requestData->get('elementsToAdminister')) : 0)) {
-            $orgaIdsToDelete = $requestData->get('elementsToAdminister');
+        if ($requestData->has('elementsToAdminister') && 0 < (is_countable($requestData->all('elementsToAdminister')) ? count($requestData->all('elementsToAdminister')) : 0)) {
+            $orgaIdsToDelete = $requestData->all('elementsToAdminister');
 
             foreach ($orgaIdsToDelete as $orgaId) {
                 $result = $this->wipeOrganisationData($orgaId);
@@ -1360,14 +1371,14 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     }
 
     /**
-     * @return string|void
+     * @return string|null
      *
      * @throws MessageBagException
      */
     protected function handleWipeSelectedDepartments(ParameterBag $requestData)
     {
-        if ($requestData->has('elementsToAdminister') && 0 < (is_countable($requestData->get('elementsToAdminister')) ? count($requestData->get('elementsToAdminister')) : 0)) {
-            $itemIdsToDelete = $requestData->get('elementsToAdminister');
+        if ($requestData->has('elementsToAdminister') && 0 < (is_countable($requestData->all('elementsToAdminister')) ? count($requestData->all('elementsToAdminister')) : 0)) {
+            $itemIdsToDelete = $requestData->all('elementsToAdminister');
             foreach ($itemIdsToDelete as $departmentId) {
                 try {
                     $result = $this->wipeDepartmentDataById($departmentId);
@@ -1389,6 +1400,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         } else {
             $this->getMessageBag()->add('error', 'error.delete');
         }
+
+        return null;
     }
 
     /**
@@ -2022,7 +2035,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         $customers = $orga->getCustomersByActivationStatus($orgaTypeName, $activationStatus);
 
         // If parameter $currentCustomer is not null then we will exclude other customers/subdomains
-        if (null !== $currentCustomer) {
+        if ($currentCustomer instanceof Customer) {
             $customers = array_filter(
                 $customers,
                 static fn (Customer $customer) => $customer->getSubdomain() === $currentCustomer->getSubdomain()
@@ -2041,8 +2054,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     {
         foreach ($customers as $customer) {
             $masterUser = $orga->getMasterUser($customer->getSubdomain());
-            if (null !== $masterUser) {
-                if (empty($masterUser->getPassword())) {
+            if ($masterUser instanceof User) {
+                if (null === $masterUser->getPassword() || '' === $masterUser->getPassword() || '0' === $masterUser->getPassword()) {
                     $this->inviteUser($masterUser);
                 }
                 $to = $masterUser->getEmail();
@@ -2071,7 +2084,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     {
         foreach ($customers as $customer) {
             $masterUser = $orga->getMasterUser($customer);
-            if (null !== $masterUser) {
+            if ($masterUser instanceof User) {
                 $to = $masterUser->getEmail();
                 $from = $this->globalConfig->getEmailSystem();
                 $customerName = $customer->getName();
@@ -2116,7 +2129,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
             // if no user could be found, grant master user minimal required role
             $masterUser = $orga->getMasterUser($customer->getSubdomain());
-            if (null !== $masterUser) {
+            if ($masterUser instanceof User) {
                 $roles = $this->roleHandler->getUserRolesByCodes([$minimumRoles[$orgaTypeName]]);
                 $masterUser->addDplanrole($roles[0], $customer);
                 $this->userService->updateUserObject($masterUser);

@@ -18,7 +18,6 @@ use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
@@ -119,7 +118,6 @@ use EDT\PathBuilding\End;
 abstract class AbstractStatementResourceType extends DplanResourceType
 {
     public function __construct(
-        private readonly FileService $fileService,
         private readonly HTMLSanitizer $htmlSanitizer,
         private readonly StatementService $statementService,
     ) {
@@ -150,6 +148,8 @@ abstract class AbstractStatementResourceType extends DplanResourceType
             ->readable(true)->aliasedPath(Paths::statement()->placeholderStatement->externId);
         $configBuilder->fragmentsCount
             ->readable(true, static fn (Statement $statement): int => $statement->getFragments()->count());
+        $configBuilder->segmentsCount
+            ->readable(true, static fn (Statement $statement): int => $statement->getSegmentsOfStatement()->count());
         $configBuilder->internId
             ->readable(true)->filterable()->aliasedPath(Paths::statement()->original->internId);
         $configBuilder->isCitizen

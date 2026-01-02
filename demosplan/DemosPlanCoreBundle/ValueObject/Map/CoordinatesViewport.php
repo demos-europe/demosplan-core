@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject\Map;
 
+use DemosEurope\DemosplanAddon\Contracts\ValueObject\CoordinatesViewportInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
 /**
@@ -22,7 +23,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
  * @method float getRight()
  * @method float getTop()
  */
-class CoordinatesViewport extends ValueObject
+class CoordinatesViewport extends ValueObject implements CoordinatesViewportInterface
 {
     /**
      * @var float

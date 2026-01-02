@@ -13,20 +13,24 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
 use Carbon\Carbon;
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
-use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Formatter\StatementFormatter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
-use League\HTMLToMarkdown\HtmlConverter;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -48,15 +52,17 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
+        private readonly CurrentUserInterface $currentUser,
+        DocumentWriterSelector $writerSelector,
         private readonly EditorService $editorService,
         Environment $twig,
-        private readonly FormOptionsResolver $formOptionsResolver,
         LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
         RequestStack $requestStack,
         ServiceImporter $serviceImport,
         SimpleSpreadsheetService $simpleSpreadsheetService,
         StatementHandler $statementHandler,
+        private readonly StatementFormatter $statementFormatter,
         TranslatorInterface $translator,
     ) {
         parent::__construct(
@@ -66,7 +72,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             $translator,
             $logger,
             $requestStack,
-            $statementHandler
+            $statementHandler,
+            $writerSelector
         );
         $this->serviceImport = $serviceImport;
         $this->simpleSpreadsheetService = $simpleSpreadsheetService;
@@ -177,6 +184,97 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     }
 
     /**
+     * Adds an info sheet to the Excel document with export information.
+     *
+     * @param IWriter                  $writer    The Excel writer
+     * @param StatementExportTagFilter $tagFilter The tag filter containing filter information
+     *
+     * @throws Exception
+     */
+    public function addFilterInfoSheet(IWriter $writer, StatementExportTagFilter $tagFilter): void
+    {
+        /** @var Spreadsheet $spreadsheet */
+        $spreadsheet = $writer->getSpreadsheet();
+        $infoSheet = $spreadsheet->createSheet(0);
+        $infoSheet->setTitle($this->translator->trans('export.info'));
+
+        $currentDate = new DateTime();
+        $procedure = $this->currentProcedureService->getProcedure();
+        $userName = $this->currentUser->getUser()->getFullname();
+
+        $row = 1;
+
+        // Title with date
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans('segments.export.statement.export.date.filtered', ['date' => $currentDate->format('d.m.Y')]));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true)->setSize(14);
+        $row += 2;
+
+        // Procedure name
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans('procedure.name'));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true);
+        $infoSheet->setCellValue("B{$row}", $procedure->getName());
+        $row += 2;
+
+        // Export user
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans('export.user'));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true);
+        $infoSheet->setCellValue("B{$row}", $userName);
+        $row += 2;
+
+        // Filter information
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans('export.filter.applied'));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true);
+        ++$row;
+
+        $this->addTagFilterInfo($infoSheet, $tagFilter, $row);
+
+        // Auto-size columns
+        $infoSheet->getColumnDimension('A')->setAutoSize(true);
+        $infoSheet->getColumnDimension('B')->setAutoSize(true);
+
+        // Move info sheet to first position
+        $spreadsheet->setActiveSheetIndex(0);
+    }
+
+    /**
+     * Adds the tag filter information to the info sheet.
+     *
+     * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $infoSheet The info sheet
+     * @param StatementExportTagFilter                      $tagFilter The tag filter
+     * @param int                                           $row       Current row number (passed by reference)
+     */
+    private function addTagFilterInfo($infoSheet, StatementExportTagFilter $tagFilter, int &$row): void
+    {
+        // Accumulate tag filter labels if any tag filter is active
+        $tagFilterLabels = [];
+        if ($tagFilter->isTagIdFilterActive()) {
+            $tagFilterLabels[] = $this->translator->trans('tag.ids');
+        }
+        if ($tagFilter->isTagTitleFilterActive()) {
+            $tagFilterLabels[] = $this->translator->trans('tag.titles');
+        }
+        if (!empty($tagFilterLabels)) {
+            $infoSheet->setCellValue("A{$row}", implode(', ', $tagFilterLabels));
+            $infoSheet->setCellValue("B{$row}", $tagFilter->getTagFiltersHumanReadable());
+            ++$row;
+        }
+
+        // Accumulate topic filter labels if any topic filter is active
+        $topicFilterLabels = [];
+        if ($tagFilter->isTagTopicIdFilterActive()) {
+            $topicFilterLabels[] = $this->translator->trans('tag.topic.ids');
+        }
+        if ($tagFilter->isTagTopicTitleFilterActive()) {
+            $topicFilterLabels[] = $this->translator->trans('tag.topic.titles');
+        }
+        if (!empty($topicFilterLabels)) {
+            $infoSheet->setCellValue("A{$row}", implode(', ', $topicFilterLabels));
+            $infoSheet->setCellValue("B{$row}", $tagFilter->getTopicFiltersHumanReadable());
+            ++$row;
+        }
+    }
+
+    /**
      * Depending on the given format identifier, the corresponding column definitions will be returned.
      * The retuning definition includes the following informations:
      * - order of columns
@@ -246,7 +344,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
         $this->addColumnDefinition($columnsDefinition, 'externId', 'field_statement_extern_id', 'id');
 
-        if ($isStatement) {
+        if ($isStatement && $this->permissions->hasPermission('feature_statement_cluster')) {
             $columnsDefinition[] = $this->createColumnDefinition('name', 'cluster.name');
         }
 
@@ -259,8 +357,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         );
         $this->addColumnDefinition($columnsDefinition, 'countyNames', 'field_statement_county', 'county');
 
-        $columnsDefinition[] = $this->createColumnDefinition('tagNames', 'tag');
-        $columnsDefinition[] = $this->createColumnDefinition('topicNames', 'tag.category');
+        $this->addColumnDefinition($columnsDefinition, 'tagNames', 'field_statement_tags_and_topics_export', 'tag');
+        $this->addColumnDefinition($columnsDefinition, 'topicNames', 'field_statement_tags_and_topics_export', 'tag.category');
 
         if ($isStatement) {
             $columnsDefinition[] = $this->createColumnDefinition('elementTitle', 'document.category');
@@ -319,6 +417,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $this->addColumnDefinition($columnsDefinition, 'memo', 'field_statement_memo', 'memo');
         $this->addColumnDefinition($columnsDefinition, 'feedback', 'field_statement_feedback', 'feedback');
         $this->addColumnDefinition($columnsDefinition, 'votesNum', 'feature_statements_vote', 'voters');
+        $this->addColumnDefinition($columnsDefinition, 'numberOfAnonymVotes', 'feature_statements_vote', 'statement.voter.anonym');
         $this->addColumnDefinition($columnsDefinition, 'phase', 'field_statement_phase', 'procedure.public.phase');
         $this->addColumnDefinition($columnsDefinition, 'submitType', 'field_statement_submit_type', 'submit.type');
         $this->addColumnDefinition(
@@ -385,7 +484,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
      *
      * @internal param $exportType
      */
-    protected function prepareDataForExcelExport(
+    public function prepareDataForExcelExport(
         array $statements,
         bool $anonymous,
         array $keysOfAttributesToExport,
@@ -399,7 +498,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         // collect Statements in unified data format
         foreach ($statements as $statement) {
             $pushed = false;
-            $formattedStatement = $this->formatStatement($keysOfAttributesToExport, $statement);
+            $formattedStatement = $this->statementFormatter->formatStatement($keysOfAttributesToExport, $statement);
 
             // loop again through the attributes
             foreach ($keysOfAttributesToExport as $attributeKey) {
@@ -409,7 +508,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                     if (!array_key_exists($attributeKey, $statement)) {
                         continue;
                     }
-                    $isNotEmptyArray = is_array($statement[$attributeKey]) && 0 < count($statement[$attributeKey]);
+                    $isNotEmptyArray = is_array($statement[$attributeKey]) && [] !== $statement[$attributeKey];
                     $isCausingNewLine = $attributeKeysWhichCauseNewLine->contains($attributeKey);
                     $isSortable = $isNotEmptyArray && $isCausingNewLine;
                 }
@@ -448,70 +547,5 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         }
 
         return $formattedStatements->toArray();
-    }
-
-    protected function formatStatement(array $keysOfAttributesToExport, array $statementArray): array
-    {
-        $formattedStatement = [];
-        $htmlConverter = new HtmlConverter(['strip_tags' => true]);
-
-        foreach ($keysOfAttributesToExport as $attributeKey) {
-            $formattedStatement[$attributeKey] = $statementArray[$attributeKey] ?? null;
-
-            // allow dot notation in export definition
-            $explodedParts = explode('.', (string) $attributeKey);
-            switch (count($explodedParts)) {
-                case 2:
-                    $formattedStatement[$attributeKey] = $statementArray[$explodedParts[0]][$explodedParts[1]];
-                    break;
-                case 3:
-                    $formattedStatement[$attributeKey] =
-                        $statementArray[$explodedParts[0]][$explodedParts[1]][$explodedParts[2]];
-                    break;
-                default:
-                    break;
-            }
-
-            // simplify every attribute which is an array (to stirng)
-            if (is_array($formattedStatement[$attributeKey])) {
-                $formattedStatement[$attributeKey] = implode("\n", $formattedStatement[$attributeKey]);
-            }
-
-            if (in_array($attributeKey, ['text', 'recommendation'])) {
-                $formattedStatement[$attributeKey] = $htmlConverter->convert($formattedStatement[$attributeKey]);
-                $formattedStatement[$attributeKey] =
-                    str_replace('\_', '_', $formattedStatement[$attributeKey]);
-            }
-
-            if ('status' === $attributeKey) {
-                $formattedStatement[$attributeKey] = $this->formOptionsResolver->resolve(
-                    FormOptionsResolver::STATEMENT_STATUS,
-                    $formattedStatement[$attributeKey]
-                );
-            }
-
-            if ('votePla' === $attributeKey) {
-                $formattedStatement[$attributeKey] = $this->formOptionsResolver->resolve(
-                    FormOptionsResolver::STATEMENT_FRAGMENT_ADVICE_VALUES,
-                    $formattedStatement[$attributeKey] ?? ''
-                );
-            }
-
-            if (true === $formattedStatement[$attributeKey]) {
-                $formattedStatement[$attributeKey] = 'x';
-            }
-        }
-
-        $formattedStatement['externId'] = $this->assessmentTableOutput->createExternIdString($statementArray);
-
-        // in xlsx export, the information about moved Statement, have to be in the field of the externID
-        if (isset($statementArray['movedToProcedureName'])) {
-            $formattedStatement['externId'] .= ' '.$this->translator->trans(
-                'statement.moved',
-                ['name' => $statementArray['movedToProcedureName']]
-            );
-        }
-
-        return $formattedStatement;
     }
 }
