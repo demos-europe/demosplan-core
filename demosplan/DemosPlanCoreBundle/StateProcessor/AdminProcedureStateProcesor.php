@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\StateProcessor;
 
+use ApiPlatform\Doctrine\Common\State\PersistProcessor;
+use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\State\ProcessorInterface;
@@ -19,6 +21,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
+use Exception;
+use http\Exception\InvalidArgumentException;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
@@ -28,10 +33,11 @@ class AdminProcedureStateProcesor implements ProcessorInterface
         private readonly CurrentUserInterface $currentUser,
         private readonly ProcedureService $procedureService,
         private readonly ProcedureRepository $procedureRepository,
+        #[Autowire(service: PersistProcessor::class)] private ProcessorInterface $persistProcessor,
     ) {
     }
 
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?object
     {
         Assert::isInstanceOf($data, AdminProcedureResource::class);
 
@@ -41,20 +47,28 @@ class AdminProcedureStateProcesor implements ProcessorInterface
 
         if ($operation instanceof Patch && $this->isUpdateAllowed()) {
             $procedure = $this->mapProcedureToAdminProcedureResource($data);
+            $this->persistProcessor->process($procedure, $operation, $uriVariables, $context);
+            $data->id = $procedure->getId();
+            return $data;
         }
+        return null;
     }
 
     private function mapProcedureToAdminProcedureResource(AdminProcedureResource $adminProcedureResource): Procedure
     {
-        if ($adminProcedureResource->id) {
-            $accessConditions = $this->getAccessConditions();
-            $procedure = $this->procedureRepository->getEntityByIdentifier($adminProcedureResource->id, $accessConditions, ['id']);
-            if (!$procedure) {
-                throw new EntityIdNotFoundException(sprintf('Procedure %d not found', $adminProcedureResource->id));
-            }
+        if (!$adminProcedureResource->id) {
+            throw new InvalidArgumentException('No procedure ID provided');
+
+        }
+
+        $accessConditions = $this->getAccessConditions();
+        $procedure = $this->procedureRepository->getEntityByIdentifier($adminProcedureResource->id, $accessConditions, ['id']);
+        if (!$procedure) {
+            throw new EntityIdNotFoundException(sprintf('Procedure %d not found', $adminProcedureResource->id));
         }
 
         $procedure->setName($adminProcedureResource->name);
+        $procedure->setExternalName($adminProcedureResource->externalName);
 
         return $procedure;
     }
