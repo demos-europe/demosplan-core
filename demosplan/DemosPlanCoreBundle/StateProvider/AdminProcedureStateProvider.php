@@ -34,7 +34,6 @@ class AdminProcedureStateProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-
         Assert::same($operation->getClass(), AdminProcedureResource::class);
 
         // Explicit permission check - throw exception if not granted
