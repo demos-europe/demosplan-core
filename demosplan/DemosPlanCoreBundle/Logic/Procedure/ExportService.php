@@ -929,10 +929,10 @@ class ExportService
      * Uses $statement->getFiles() which is populated by DoctrineStatementListener.
      * Adds files using the same method as attachments (addFileToZip with FileInfo objects).
      *
-     * @param string    $fileFolderPath  The folder path within the ZIP where files will be placed
-     * @param ZipStream $zip             The ZIP stream to add files to
-     * @param string    $fileNamePrefix  Prefix to prepend to each file name (e.g., statement externId)
-     * @param Statement $statement       The statement whose FileContainer files should be exported
+     * @param string    $fileFolderPath The folder path within the ZIP where files will be placed
+     * @param ZipStream $zip            The ZIP stream to add files to
+     * @param string    $fileNamePrefix Prefix to prepend to each file name (e.g., statement externId)
+     * @param Statement $statement      The statement whose FileContainer files should be exported
      */
     private function addStatementFileContainers(
         string $fileFolderPath,
