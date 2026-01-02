@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\StateProcessor;
 
 use ApiPlatform\Doctrine\Common\State\PersistProcessor;
-use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\State\ProcessorInterface;
@@ -21,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
-use Exception;
 use http\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -49,8 +47,10 @@ class AdminProcedureStateProcesor implements ProcessorInterface
             $procedure = $this->mapProcedureToAdminProcedureResource($data);
             $this->persistProcessor->process($procedure, $operation, $uriVariables, $context);
             $data->id = $procedure->getId();
+
             return $data;
         }
+
         return null;
     }
 
@@ -58,7 +58,6 @@ class AdminProcedureStateProcesor implements ProcessorInterface
     {
         if (!$adminProcedureResource->id) {
             throw new InvalidArgumentException('No procedure ID provided');
-
         }
 
         $accessConditions = $this->getAccessConditions();
