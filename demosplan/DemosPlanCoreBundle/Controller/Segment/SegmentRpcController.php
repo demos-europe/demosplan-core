@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
@@ -24,9 +24,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class SegmentRpcController extends APIController
 {
-    /**
-     * @DplanPermissions("area_statement_segmentation")
-     */
+    #[DplanPermissions('area_statement_segmentation')]
     #[Route(path: '/rpc/1.0/statementListQuery/update/{queryHash}', name: 'dplan_rpc_segment_list_query_update', options: ['expose' => true], methods: ['PATCH'])]
     public function updateSegmentListQuery(CurrentProcedureService $currentProcedureService, string $queryHash, DrupalFilterParser $filterParser, HashedQueryService $filterSetService): Response
     {

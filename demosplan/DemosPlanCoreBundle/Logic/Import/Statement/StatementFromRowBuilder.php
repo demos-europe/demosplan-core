@@ -76,7 +76,7 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
         protected readonly Orga $anonymousOrga,
         protected readonly ElementsService $planningCategoryService,
         protected readonly Constraint $textConstraint,
-        protected readonly mixed $textPostValidationProcessing
+        protected readonly mixed $textPostValidationProcessing,
     ) {
         parent::__construct();
         $this->now = Carbon::now();
@@ -92,7 +92,6 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
     public function setText(Cell $cell): ?ConstraintViolationListInterface
     {
         $statementText = $cell->getValue();
-
 
         $parsedown = new Parsedown();
         // parse inline markdown

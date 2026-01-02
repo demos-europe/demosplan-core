@@ -16,8 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
@@ -172,11 +171,10 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Verteiler für den Einstiegspunkt in das Verfahren.
      *
-     * @DplanPermissions("area_demosplan")
-     *
      * @param GlobalConfigInterface|GlobalConfig $globalConfig
      * @param string                             $procedure
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(name: 'DemosPlan_procedure_entrypoint', path: '/verfahren/{procedure}/entrypoint')]
     public function procedureEntrypoint(GlobalConfigInterface $globalConfig, $procedure): RedirectResponse
     {
@@ -188,10 +186,9 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Redirect to a procedure by id.
      *
-     * @DplanPermissions("area_demosplan")
-     *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/plan/{slug}', name: 'core_procedure_slug')]
     public function procedureSlug(
         CurrentUserInterface $currentUser,
@@ -224,12 +221,11 @@ class DemosPlanProcedureController extends BaseController
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/proceduredashboard/ Wiki: Verfahrensübersicht
      *
-     * @DplanPermissions("area_admin_dashboard")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_dashboard')]
     #[Route(name: 'DemosPlan_procedure_dashboard', path: '/verfahren/{procedure}/uebersicht', options: ['expose' => true])]
     public function procedureDashboard(
         CurrentUserService $currentUserService,
@@ -718,12 +714,11 @@ class DemosPlanProcedureController extends BaseController
      * Creates a new procedure (not a procedure template, use
      * {@link DemosPlanProcedureController::newProcedureTemplateAction()} for that).
      *
-     * @DplanPermissions("feature_admin_new_procedure")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('feature_admin_new_procedure')]
     #[Route(name: 'DemosPlan_procedure_new', path: '/verfahren/neu', options: ['expose' => true])]
     public function newProcedure(
         Breadcrumb $breadcrumb,
@@ -819,12 +814,11 @@ class DemosPlanProcedureController extends BaseController
     }
 
     /**
-     * @DplanPermissions("area_admin_procedure_templates")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_procedure_templates')]
     #[Route(name: 'DemosPlan_master_new', path: '/verfahren/blaupausen/neu', options: ['expose' => true])]
     public function newProcedureTemplate(
         Breadcrumb $breadcrumb,
@@ -922,14 +916,13 @@ class DemosPlanProcedureController extends BaseController
     /**
      * TöB hinzufügen Liste.
      *
-     * @DplanPermissions({"area_main_procedures","area_admin_invitable_institution"})
-     *
      * @param string $procedure
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions(['area_main_procedures', 'area_admin_invitable_institution'])]
     #[Route(name: 'DemosPlan_procedure_member_add_mastertoeblist', path: '/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen/mastertoeblist', options: ['expose' => true])]
     public function administrationNewMemberListMastertoeblist(
         CurrentProcedureService $currentProcedureService,
@@ -986,12 +979,11 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Email to invite unregistered public agencies.
      *
-     * @DplanPermissions("area_invite_unregistered_public_agencies")
-     *
      * @param string $procedureId
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_invite_unregistered_public_agencies')]
     #[Route(name: 'DemosPlan_invite_unregistered_public_agency_email', path: '/verfahren/{procedureId}/einstellungen/unregistrierte_toeb_email')]
     public function administrationUnregisteredPublicAgencyEMail(
         AddressBookEntryService $addressBookEntryService,
@@ -1061,10 +1053,9 @@ class DemosPlanProcedureController extends BaseController
     /**
      * List of unregistered public agencies, which will be filled by address book of organisations.
      *
-     * @DplanPermissions("area_invite_unregistered_public_agencies")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('area_invite_unregistered_public_agencies')]
     #[Route(name: 'DemosPlan_invite_unregistered_public_agency_list', path: '/verfahren/{procedureId}/einstellungen/unregistrierte_toeb_liste')]
     public function administrationUnregisteredPublicAgencyList(
         AddressBookEntryService $addressBookEntryService,
@@ -1106,13 +1097,12 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Administrate the E-Mail to send to invited and registered toeb/public agencies/members.
      *
-     * @DplanPermissions("area_main_procedures","area_admin_invitable_institution")
-     *
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
      * @throws Throwable
      */
+    #[DplanPermissions(['area_main_procedures', 'area_admin_invitable_institution'])]
     #[Route(name: 'DemosPlan_admin_member_email', path: '/verfahren/{procedureId}/einstellungen/mitglieder_email', options: ['expose' => true])]
     public function administrationMemberEMail(
         OrgaService $orgaService,
@@ -1205,8 +1195,6 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Allgemeine Einstellungen eines Verfahrens.
      *
-     * @DplanPermissions({"area_main_procedures", "area_admin_preferences"})
-     *
      * @param bool $isMaster Ist es eine Blaupause?
      *
      * @return RedirectResponse|Response
@@ -1217,6 +1205,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
      */
+    #[DplanPermissions(['area_main_procedures', 'area_admin_preferences'])]
     #[Route(name: 'DemosPlan_procedure_edit', path: '/verfahren/{procedure}/einstellungen', defaults: ['isMaster' => false])]
     #[Route(name: 'DemosPlan_procedure_edit_master', path: '/verfahren/blaupause/{procedure}/einstellungen', defaults: ['isMaster' => true])]
     public function administrationEdit(
@@ -1487,10 +1476,9 @@ class DemosPlanProcedureController extends BaseController
     }
 
     /**
-     * @DplanPermissions({"area_main_procedures","area_admin_preferences"})
-     *
      * @param string $procedure
      */
+    #[DplanPermissions(['area_main_procedures', 'area_admin_preferences'])]
     #[Route(name: 'DemosPlan_procedure_edit_ajax', path: '/verfahren/{procedure}/einstellungen/update', options: ['expose' => true])]
     public function administrationEditAjax(
         CurrentProcedureService $currentProcedureService,
@@ -1524,10 +1512,9 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Starting point for importing items into a procedure.
      *
-     * @DplanPermissions({"area_main_procedures", "area_admin_import"})
-     *
      * @throws Exception
      */
+    #[DplanPermissions(['area_main_procedures', 'area_admin_import'])]
     #[Route(name: 'DemosPlan_procedure_import', path: '/verfahren/{procedureId}/import', options: ['expose' => true])]
     public function administrationImport(
         CurrentUserService $currentUser,
@@ -1623,12 +1610,11 @@ class DemosPlanProcedureController extends BaseController
     /**
      * öffentliche Verfahrensdetailseite.
      *
-     * @DplanPermissions("area_public_participation")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Throwable
      */
+    #[DplanPermissions('area_public_participation')]
     #[Route(name: 'DemosPlan_procedure_public_detail', path: '/verfahren/{procedure}/public/detail', options: ['expose' => true])]
     public function publicDetail(
         BrandingService $brandingService,
@@ -1986,10 +1972,9 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Display Procedures to user where orga is allowed to input new statements.
      *
-     * @DplanPermissions("area_statement_data_input_orga")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('area_statement_data_input_orga')]
     #[Route(name: 'DemosPlan_procedure_list_data_input_orga_procedures', path: '/verfahren/datainput/list')]
     public function dataInputOrgaChooseProcedure(CurrentUserService $currentUser): Response
     {
@@ -2009,12 +1994,11 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Verwalte die Abonnements/Benachrichtigunsgservices für eine Region.
      *
-     * @DplanPermissions("area_subscriptions")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_subscriptions')]
     #[Route(name: 'DemosPlan_procedure_list_subscriptions', path: '/verfahren/abonnieren', options: ['expose' => true])]
     public function subscribe(CurrentUserService $currentUser, Request $request)
     {
@@ -2078,14 +2062,13 @@ class DemosPlanProcedureController extends BaseController
     // @improve: T15117
     // @improve: T15850
     /**
-     * @DplanPermissions("area_admin_invitable_institution")
-     *
      * @param string $procedure
      *
      * @return RedirectResponse|Response
      *
      * @throws Throwable
      */
+    #[DplanPermissions('area_admin_invitable_institution')]
     #[Route(name: 'DemosPlan_procedure_member_index', path: '/verfahren/{procedure}/einstellungen/benutzer', options: ['expose' => true])]
     public function administrationMemberList(
         Breadcrumb $breadcrumb,
@@ -2280,12 +2263,11 @@ class DemosPlanProcedureController extends BaseController
     /**
      * TöB hinzufügen Liste.
      *
-     * @DplanPermissions({"area_main_procedures","area_admin_invitable_institution"})
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions(['area_main_procedures', 'area_admin_invitable_institution'])]
     #[Route(name: 'DemosPlan_procedure_member_add', path: '/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen', options: ['expose' => true])]
     public function administrationNewMemberList(
         Breadcrumb $breadcrumb,
@@ -2352,14 +2334,13 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Hole die Liste der Textbausteine, gegebenfalls lösche markeirte Textbausteine.
      *
-     * @DplanPermissions("area_admin_boilerplates")
-     *
      * @param string $procedure
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_boilerplates')]
     #[Route(name: 'DemosPlan_procedure_boilerplate_list', path: '/verfahren/{procedure}/textbausteine', options: ['expose' => true])]
     public function boilerplateList(
         ProcedureHandler $procedureHandler,
@@ -2461,22 +2442,22 @@ class DemosPlanProcedureController extends BaseController
 
     /**
      * Creation and editing of places, each is either process or procedure template related.
-     *
-     * @DplanPermissions("area_manage_segment_places")
      */
+    #[DplanPermissions('area_manage_segment_places')]
     #[Route(name: 'DemosPlan_procedure_places_list', path: '/verfahren/{procedureId}/schritte', options: ['expose' => true])]
     #[Route(name: 'DemosPlan_procedure_template_places_list', path: '/verfahren/blaupause/{procedureId}/schritte')]
     public function showProcedurePlaces(string $procedureId)
     {
         return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
             'procedureId' => $procedureId,
+            'title'       => 'procedure.places',
         ]);
     }
 
     /**
      * Creation of custom fields, each is either procedure or procedure template related.
      */
-    #[AttributeDplanPermissions('area_admin_custom_fields')]
+    #[DplanPermissions('area_admin_custom_fields')]
     #[Route(name: 'DemosPlan_procedure_custom_fields_list', path: '/verfahren/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
     #[Route(name: 'DemosPlan_procedure_template_custom_fields_list', path: '/verfahren/blaupause/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
     public function showProcedureCustomFields(string $procedureId)
@@ -2491,14 +2472,13 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Bearbeite bestehende und neue Textbausteine.
      *
-     * @DplanPermissions("area_admin_boilerplates")
-     *
      * @param string $procedure
      * @param string $boilerplateId
      * @param string $selectedGroupId
      *
      * @return RedirectResponse|Response
      */
+    #[DplanPermissions('area_admin_boilerplates')]
     #[Route(name: 'DemosPlan_procedure_boilerplate_edit', path: '/verfahren/{procedure}/textbaustein/{boilerplateId}/{selectedGroupId}', defaults: ['boilerplateId' => 'new', 'selectedGroupId' => ''])]
     public function boilerplateEdit(FormFactoryInterface $formFactory, Request $request, $procedure, $boilerplateId, $selectedGroupId)
     {
@@ -2600,8 +2580,6 @@ class DemosPlanProcedureController extends BaseController
     }
 
     /**
-     * @DplanPermissions("area_admin_boilerplates")
-     *
      * @param string $procedure
      * @param string $boilerplateGroupId
      *
@@ -2609,6 +2587,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_boilerplates')]
     #[Route(name: 'DemosPlan_procedure_boilerplate_group_delete', path: '/verfahren/{procedure}/boilerplate/{boilerplateGroupId}/delete')]
     public function boilerplateGroupDelete($procedure, $boilerplateGroupId): RedirectResponse
     {
@@ -2632,8 +2611,6 @@ class DemosPlanProcedureController extends BaseController
     }
 
     /**
-     * @DplanPermissions("area_admin_boilerplates")
-     *
      * @param string $procedure
      * @param string $boilerplateGroupId
      *
@@ -2641,6 +2618,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_boilerplates')]
     #[Route(name: 'DemosPlan_procedure_boilerplate_group_edit', path: '/verfahren/{procedure}/boilerplategroup/{boilerplateGroupId}', defaults: ['boilerplateGroupId' => 'new'], options: ['expose' => true])]
     public function boilerplateGroupEdit(FormFactoryInterface $formFactory, Request $request, $procedure, $boilerplateGroupId)
     {

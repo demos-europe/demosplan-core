@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -61,10 +61,9 @@ class DemosPlanAssessmentController extends BaseController
      *
      * NOTE: Only used by Statement Detail View
      *
-     * @DplanPermissions("feature_statement_assignment")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('feature_statement_assignment')]
     #[Route(name: 'DemosPlan_assessment_set_statement_assignment', path: '/assignment/statement/{entityId}/{assignOrUnassign}')]
     public function setStatementAssignee(
         CurrentUserService $currentUser,
@@ -111,10 +110,9 @@ class DemosPlanAssessmentController extends BaseController
     }
 
     /**
-     * @DplanPermissions("feature_statement_data_input_orga")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('feature_statement_data_input_orga')]
     #[Route(name: 'DemosPlan_statement_orga_list', path: '/statement/manual/list/{procedureId}')]
     public function getOrgaStatementList(CurrentUserService $currentUser, StatementHandler $statementHandler, string $procedureId): Response
     {
@@ -144,10 +142,9 @@ class DemosPlanAssessmentController extends BaseController
     /**
      * Create new Statement.
      *
-     * @DplanPermissions("feature_statement_data_input_orga")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('feature_statement_data_input_orga')]
     #[Route(name: 'DemosPlan_statement_new_submitted', path: '/statement/new/manual/{procedureId}', options: ['expose' => true])]
     public function newManualStatement(
         CurrentUserService $currentUser,
@@ -217,10 +214,9 @@ class DemosPlanAssessmentController extends BaseController
     }
 
     /**
-     * @DplanPermissions("feature_statement_data_input_orga")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('feature_statement_data_input_orga')]
     #[Route(name: 'DemosPlan_statement_single_view', path: 'procedure/{procedureId}/statement/{statementId}/dataInput')]
     public function viewSingleStatement(
         Breadcrumb $breadcrumb,
@@ -262,10 +258,9 @@ class DemosPlanAssessmentController extends BaseController
     /**
      * Display single Statement cluster.
      *
-     * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(name: 'DemosPlan_cluster_single_statement_view', path: '/verfahren/{procedure}/cluster/statement/{statementId}')]
     public function viewStatementClusterSingleStatement(StatementHandler $statementHandler, string $statementId): Response
     {
@@ -286,10 +281,9 @@ class DemosPlanAssessmentController extends BaseController
     /**
      * Detaches a single Statement from his cluster.
      *
-     * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(name: 'DemosPlan_cluster_detach_statement', path: '/verfahren/{procedure}/cluster/statement/{statementId}/detach')]
     public function detachStatementFromCluster(StatementHandler $statementHandler, string $statementId): Response
     {
@@ -312,10 +306,9 @@ class DemosPlanAssessmentController extends BaseController
      * Resolves a single statementCluster.
      * All statements in the cluster will be detached.
      *
-     * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(name: 'DemosPlan_cluster_resolve', path: '/verfahren/{procedure}/cluster/resolve/{headStatementId}')]
     public function resolveCluster(StatementHandler $statementHandler, string $headStatementId): Response
     {
@@ -336,9 +329,8 @@ class DemosPlanAssessmentController extends BaseController
 
     /**
      * Returns the base data for Vue components on the assessment table.
-     *
-     * @DplanPermissions("feature_procedure_get_base_data")
      */
+    #[DplanPermissions('feature_procedure_get_base_data')]
     #[Route(name: 'DemosPlan_assessment_base_ajax', path: '/_ajax/assessment/{procedureId}', options: ['expose' => true])]
     public function assessmentBaseAjax(
         CurrentUserService $currentUser,

@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use Exception;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Given an array with MapLayer objects returns a new one resulting from merging the
@@ -24,10 +23,6 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class MapLayerMerger
 {
-    public function __construct(private readonly Filesystem $fileSystem)
-    {
-    }
-
     /**
      * Given an array with MapLayer objects returns a new one resulting from merging the
      * image and with the coordinates fitting such image.
@@ -76,9 +71,6 @@ class MapLayerMerger
             $topOffset
         );
 
-        $this->fileSystem->remove($fgLayerImage->getImage()->basePath());
-        $this->fileSystem->remove($bgLayerImage->getImage()->basePath());
-
         if ([] === $layerImages) {
             return $bgLayerImage;
         }
@@ -104,15 +96,11 @@ class MapLayerMerger
             $topOffset
         );
 
-        $newBgLayerImage = new MapLayer(
+        return new MapLayer(
             $bgLayerImage->getViewport(),
             $newImage,
             'merged'
         );
-
-        $this->fileSystem->remove($bgLayerImage->getImage()->basePath());
-
-        return $newBgLayerImage;
     }
 
     /**
@@ -162,7 +150,6 @@ class MapLayerMerger
             $newResizedImage,
             $bigLayerImage->getTitle()
         );
-        $this->fileSystem->remove($bigLayerImage->getImage()->basePath());
 
         if ($layerImage1->getTitle() === $adaptedLayerImage->getTitle()) {
             return [$adaptedLayerImage, $smallLayerImage];

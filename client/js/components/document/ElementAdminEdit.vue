@@ -7,23 +7,38 @@
   All rights reserved
 </license>
 
+<template>
+  <div>
+    <slot
+      :change-datetime="changeDatetime"
+      :close-on-select="closeOnSelect"
+      :current-sort="currentSort"
+      :delete-elements="deleteElements"
+      :designated-to-switch-state="designatedToSwitchState"
+      :handle-key-down="handleKeyDown"
+      :header-fields="headerFields"
+      :manual-sort-update-route="manualSortUpdateRoute"
+      :orgas-of-procedure="orgasOfProcedure"
+      :reset-close-on-select="resetCloseOnSelect"
+      :save-manual-sort="saveManualSort"
+      :selected-elements="selectedElements"
+      :selected-orgas="selectedOrgas"
+      :set-selection="setSelection"
+      :set-table-elements="setTableElements"
+      :sort-selected="sortSelected"
+      :table-elements="tableElements"
+      :toggle-auto-switch-state="toggleAutoSwitchState"
+      :update-change-datetime="updateChangeDatetime"
+      :update-selected-orgas="updateSelectedOrgas"
+    />
+  </div>
+</template>
+
 <script>
-import { DpDataTable, DpDatetimePicker, DpMultiselect, DpUploadFiles, makeFormPost } from '@demos-europe/demosplan-ui'
-import { defineAsyncComponent } from 'vue'
+import { makeFormPost } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'DpElementAdminEdit',
-
-  components: {
-    DpMultiselect,
-    DpDataTable,
-    DpDatetimePicker,
-    DpEditor: defineAsyncComponent(async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
-      return DpEditor
-    }),
-    DpUploadFiles,
-  },
+  name: 'ElementAdminEdit',
 
   props: {
     category: {
@@ -117,21 +132,27 @@ export default {
     deleteElements () {
       if (dpconfirm(Translator.trans('check.items.marked.delete'))) {
         document.singleDocumentForm.r_action.value = 'singledocumentdelete'
-        this.selectedElements.forEach(el => {
+
+        for (const el of this.selectedElements) {
           const hiddenInput = document.createElement('input')
+
           hiddenInput.setAttribute('type', 'hidden')
           hiddenInput.setAttribute('name', 'document_delete[]')
           hiddenInput.setAttribute('value', el)
           hiddenInput.checked = true
           document.singleDocumentForm.appendChild(hiddenInput)
-        })
+        }
 
         document.singleDocumentForm.submit()
       }
     },
 
+    resetCloseOnSelect () {
+      this.closeOnSelect = true
+    },
+
     saveManualSort (val) {
-      const initialSort = JSON.parse(JSON.stringify(this.tableElements))
+      const initialSort = structuredClone(this.tableElements)
       this.tableElements.splice(val.moved.newIndex, 0, this.tableElements.splice(val.moved.oldIndex, 1)[0])
 
       const payload = {
@@ -155,17 +176,36 @@ export default {
       })
     },
 
-    toggleAutoSwitchState () {
-      this.designatedToSwitchState = this.designatedToSwitchState === false
-    },
-
     setSelection (selection) {
       this.selectedElements = selection
     },
 
     sortSelected (type) {
       const area = `selected${type}`
-      this[area].sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
+
+      this[area].sort((a, b) => {
+        if (a.name > b.name) {
+          return 1
+        }
+        if (b.name > a.name) {
+          return -1
+        }
+
+        return 0
+      })
+    },
+
+    toggleAutoSwitchState () {
+      this.designatedToSwitchState = this.designatedToSwitchState === false
+    },
+
+    updateChangeDatetime (value) {
+      this.changeDatetime = value
+    },
+
+    updateSelectedOrgas (value) {
+      this.selectedOrgas = value
+      this.sortSelected('Orgas')
     },
   },
 

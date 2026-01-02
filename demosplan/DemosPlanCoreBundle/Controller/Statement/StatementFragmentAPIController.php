@@ -15,7 +15,7 @@ use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -31,10 +31,9 @@ use Symfony\Component\Routing\Attribute\Route;
 class StatementFragmentAPIController extends APIController
 {
     /**
-     * @DplanPermissions("feature_statements_fragment_edit")
-     *
      * @return JsonResponse
      */
+    #[DplanPermissions('feature_statements_fragment_edit')]
     #[Route(path: '/api/1.0/statement-fragment/{statementFragmentId}/edit', methods: ['PATCH'], name: 'dplan_api_statement_fragment_edit', options: ['expose' => true])]
     public function update(PermissionsInterface $permissions, Request $request, StatementHandler $statementHandler, string $statementFragmentId): APIResponse
     {

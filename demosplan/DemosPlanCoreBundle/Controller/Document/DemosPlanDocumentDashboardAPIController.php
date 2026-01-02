@@ -18,7 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -71,9 +71,9 @@ class DemosPlanDocumentDashboardAPIController extends APIController
     }
 
     /**
-     * @DplanPermissions("area_admin")
      * Manages the display of the dashboard on load.
      */
+    #[DplanPermissions('area_admin')]
     #[Route(path: '/api/1.0/documents/{procedureId}/dashboard', methods: ['GET'], name: 'dp_api_documents_dashboard_get', options: ['expose' => true])]
     public function showDashboard(
         ElementHandler $elementHandler,
@@ -131,9 +131,9 @@ class DemosPlanDocumentDashboardAPIController extends APIController
     }
 
     /**
-     * @DplanPermissions("area_admin")
      * Manages some updates performed from the dashboard.
      */
+    #[DplanPermissions('area_admin')]
     #[Route(path: '/api/1.0/documents/{procedureId}/dashboard', methods: ['PATCH'], name: 'dp_api_documents_dashboard_update', options: ['expose' => true])]
     public function updateDashboard(
         PermissionsInterface $permissions,

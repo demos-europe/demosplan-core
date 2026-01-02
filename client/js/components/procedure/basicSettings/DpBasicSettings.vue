@@ -10,14 +10,15 @@
 <template>
   <div>
     <slot
-      :state="state"
       :auth-users-options="authUsersOptions"
+      :select-all-auth-users="selectAllAuthUsers"
       :set-selected-internal-phase="setSelectedInternalPhase"
       :set-selected-public-phase="setSelectedPublicPhase"
-      :select-all-auth-users="selectAllAuthUsers"
+      :sorted-agencies-options="sortedAgenciesOptions"
+      :state="state"
+      :submit="submit"
       :unselect-all-auth-users="unselectAllAuthUsers"
       :update-addon-payload="updateAddonPayload"
-      :submit="submit"
     />
   </div>
 </template>
@@ -36,6 +37,12 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
+    agenciesOptions: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     authorizedUsersOptions: {
       type: Array,
       required: false,
@@ -96,6 +103,12 @@ export default {
       default: '',
     },
 
+    initPublicParticipationFeedbackEnabled: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
+
     initSimilarRecommendationProcedures: {
       required: false,
       type: Array,
@@ -126,6 +139,7 @@ export default {
       pictogramCopyright: props.initPictogramCopyright,
       procedureDescription: props.procedureExternalDesc,
       procedureName: props.initProcedureName,
+      publicParticipationFeedbackEnabled: props.initPublicParticipationFeedbackEnabled,
       selectedAgencies: props.initAgencies,
       selectedAuthUsers: sortAlphabetically(structuredClone(props.initAuthUsers), 'name'),
       selectedDataInputOrgas: props.initDataInputOrgas,
@@ -137,6 +151,10 @@ export default {
 
     const authUsersOptions = computed(() =>
       sortAlphabetically([...props.authorizedUsersOptions], 'name'),
+    )
+
+    const sortedAgenciesOptions = computed(() =>
+      sortAlphabetically([...props.agenciesOptions], 'name'),
     )
 
     const setSelectedInternalPhase = phase => {
@@ -153,11 +171,12 @@ export default {
     }
 
     return {
-      state,
       authUsersOptions,
+      selectAllAuthUsers,
       setSelectedInternalPhase,
       setSelectedPublicPhase,
-      selectAllAuthUsers,
+      sortedAgenciesOptions,
+      state,
       unselectAllAuthUsers,
     }
   },

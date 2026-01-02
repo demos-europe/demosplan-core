@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent;
@@ -46,12 +46,11 @@ class MaintenanceController extends BaseController
     /**
      * User facing page for active service mode.
      *
-     * @DplanPermissions("area_demosplan")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/servicemode', name: 'core_service_mode')]
     public function serviceMode(GlobalConfigInterface $globalConfig)
     {
@@ -73,9 +72,8 @@ class MaintenanceController extends BaseController
 
     /**
      * Simple Action to evaluate response code for heartbeat monitoring.
-     *
-     * @DplanPermissions("area_demosplan")
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/_heartbeat', name: 'core_server_heartbeat')]
     public function heartbeat(): Response
     {
@@ -88,12 +86,11 @@ class MaintenanceController extends BaseController
      * These tasks are run regularily *and* require a session which is
      * why they are currently managed in this action
      *
-     * @DplanPermissions("area_demosplan")
-     *
      * @param string $key
      *
      * @throws Throwable
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/maintenance/{key}', name: 'core_maintenance')]
     public function maintenanceTasks(
         EventDispatcherInterface $eventDispatcher,

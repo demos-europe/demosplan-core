@@ -459,3 +459,10 @@
     }
 }
 
+// Focus style for the editor when any of its children has focus
+.editor:focus-within {
+    outline: 2px solid $dp-color-interactive-default;
+}
+
+
+

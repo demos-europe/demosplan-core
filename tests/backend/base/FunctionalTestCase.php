@@ -446,10 +446,7 @@ class FunctionalTestCase extends WebTestCase
         return preg_match($format1, $dateString) || preg_match($format2, $dateString);
     }
 
-    /**
-     * @return array
-     */
-    protected function getProcedurePhases()
+    protected function getProcedurePhases(): array
     {
         return Yaml::parseFile(DemosPlanPath::getConfigPath('procedure/procedurephases.yml'));
     }

@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -30,12 +30,11 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class DemosPlanDepartmentController extends BaseController
 {
     /**
-     * @DplanPermissions("area_demosplan")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(name: 'DemosPlan_user_verify_department_switch_or_update', path: '/department/verifychanges', methods: ['GET'])]
     public function verifyDepartmentSwitchOrUpdate(AuthenticationUtils $authenticationUtils, Request $request)
     {
@@ -61,14 +60,13 @@ class DemosPlanDepartmentController extends BaseController
     /**
      * List departments of specific organisation.
      *
-     * @DplanPermissions("area_manage_departments")
-     *
      * @param null $orgaId
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_manage_departments')]
     #[Route(name: 'DemosPlan_department_list', path: '/department/list/{orgaId}')]
     public function listDepartments(
         CurrentUserService $currentUser,
@@ -114,12 +112,11 @@ class DemosPlanDepartmentController extends BaseController
     /**
      * Creates a new department and relate to a existing organisation.
      *
-     * @DplanPermissions("feature_department_add")
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('feature_department_add')]
     #[Route(name: 'DemosPlan_department_add', path: '/department/add')]
     public function addDepartment(Request $request, UserHandler $userHandler)
     {
@@ -153,12 +150,11 @@ class DemosPlanDepartmentController extends BaseController
     /**
      * Edit Departments.
      *
-     * @DplanPermissions("area_manage_orgas")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_manage_orgas')]
     #[Route(name: 'DemosPlan_department_edit', path: '/department/edit/{departmentId}')]
     public function editDepartment()
     {
@@ -175,14 +171,13 @@ class DemosPlanDepartmentController extends BaseController
      * Administrate departments of a specific organisation.
      * In this case administrate means, save or delete departments.
      *
-     * @DplanPermissions("area_manage_departments")
-     *
      * @param string $orgaId
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_manage_departments')]
     #[Route(name: 'DemosPlan_departments_admin', path: '/departments/admin/{orgaId}')]
     public function adminDepartments(Request $request, UserHandler $userHandler, $orgaId): RedirectResponse
     {

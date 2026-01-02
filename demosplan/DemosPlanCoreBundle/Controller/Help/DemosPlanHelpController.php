@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Help;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
@@ -30,9 +30,8 @@ class DemosPlanHelpController extends BaseController
      * @return RedirectResponse|Response
      *
      * @throws Exception
-     *
-     * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[DplanPermissions('area_admin_contextual_help_edit')]
     #[Route(name: 'dplan_contextual_help_list', methods: 'GET|POST', path: '/contextualHelp')]
     public function list(
         Request $request,
@@ -69,9 +68,8 @@ class DemosPlanHelpController extends BaseController
      * @return RedirectResponse|Response
      *
      * @throws Exception
-     *
-     * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[DplanPermissions('area_admin_contextual_help_edit')]
     #[Route(name: 'dplan_contextual_help_new', methods: 'GET', path: '/contextualHelp/new')]
     public function new(
         Breadcrumb $breadcrumb,
@@ -99,9 +97,8 @@ class DemosPlanHelpController extends BaseController
      *
      * @throws MessageBagException
      * @throws Exception
-     *
-     * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[DplanPermissions('area_admin_contextual_help_edit')]
     #[Route(name: 'dplan_contextual_help_create', methods: 'POST', path: '/contextualHelp/create')]
     public function create(
         HelpHandler $helpHandler,
@@ -125,9 +122,8 @@ class DemosPlanHelpController extends BaseController
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
-     *
-     * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[DplanPermissions('area_admin_contextual_help_edit')]
     #[Route(name: 'dplan_contextual_help_edit', methods: 'GET', path: '/contextualHelp/{contextualHelpId}')]
     public function edit(
         Breadcrumb $breadcrumb,
@@ -164,9 +160,8 @@ class DemosPlanHelpController extends BaseController
      *
      * @throws MessageBagException
      * @throws Exception
-     *
-     * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[DplanPermissions('area_admin_contextual_help_edit')]
     #[Route(name: 'dplan_contextual_help_update', methods: 'POST', path: '/contextualHelp/{contextualHelpId}')]
     public function update(
         Request $request,

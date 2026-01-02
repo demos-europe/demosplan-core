@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\SubmitterExporter;
@@ -29,9 +29,8 @@ class DemosPlanSubmitterController extends BaseController
 {
     /**
      * @throws Exception
-     *
-     * @DplanPermissions("area_admin_submitters")
      */
+    #[DplanPermissions('area_admin_submitters')]
     #[Route(name: 'dplan_submitters_list', methods: 'GET', path: '/verfahren/{procedureId}/submitters/list')]
     public function list(string $procedureId): Response
     {
@@ -44,9 +43,7 @@ class DemosPlanSubmitterController extends BaseController
         );
     }
 
-    /**
-     * @DplanPermissions("area_admin_submitters")
-     */
+    #[DplanPermissions('area_admin_submitters')]
     #[Route(name: 'dplan_admin_procedure_submitter_export', path: '/verfahren/{procedureId}/einreicher/export', methods: ['GET'], options: ['expose' => true])]
     public function export(
         Request $request,

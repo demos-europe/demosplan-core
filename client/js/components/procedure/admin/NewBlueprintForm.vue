@@ -83,6 +83,7 @@
         />
 
         <dp-input
+          v-if="hasAgencyMailAddressesPermission"
           :id="agencyMainEmailId"
           v-model="mainEmail"
           class="mt-4"
@@ -95,8 +96,15 @@
           name="agencyMainEmailAddress[fullAddress]"
           type="email"
         />
+        <input
+          v-else
+          type="hidden"
+          name="agencyMainEmailAddress[fullAddress]"
+          value=""
+        >
 
         <dp-label
+          v-if="hasAgencyMailAddressesPermission"
           class="mt-4"
           for="emailList"
           :text="Translator.trans('email.address.more')"
@@ -104,6 +112,7 @@
           :tooltip="Translator.trans('email.address.more.explanation.help')"
         />
         <dp-email-list
+          v-if="hasAgencyMailAddressesPermission"
           id="emailList"
           allow-updates-from-outside
           :class="`${mainEmail === '' ? 'opacity-70 pointer-events-none' : '' } mt-2`"
@@ -260,6 +269,12 @@ export default {
       selectedBlueprint: this.masterBlueprintId,
       emailAddresses: this.initEmailAddresses,
     }
+  },
+
+  computed: {
+    hasAgencyMailAddressesPermission () {
+      return hasPermission('feature_procedure_agency_email_addresses')
+    },
   },
 
   methods: {

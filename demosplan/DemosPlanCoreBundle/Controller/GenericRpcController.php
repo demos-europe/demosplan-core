@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -27,9 +27,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class GenericRpcController extends BaseController
 {
-    /**
-     * @DplanPermissions("feature_json_rpc_post")
-     */
+    #[DplanPermissions('feature_json_rpc_post')]
     #[Route(path: '/rpc/2.0', methods: ['POST'], name: 'rpc_generic_post', options: ['expose' => true])]
     public function post(
         CurrentProcedureService $currentProcedureService,

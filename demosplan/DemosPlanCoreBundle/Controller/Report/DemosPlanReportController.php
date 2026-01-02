@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
@@ -33,14 +33,13 @@ class DemosPlanReportController extends BaseController
     /**
      * Show a report.
      *
-     * @DplanPermissions("area_admin_protocol")
-     *
      * @param string $procedureId
      *
      * @return Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_protocol')]
     #[Route(name: 'dm_plan_report_table_view', path: '/report/view/{procedureId}')]
     public function viewReport($procedureId)
     {
@@ -56,10 +55,9 @@ class DemosPlanReportController extends BaseController
     /**
      * Generates a PDF Report for the given procedure.
      *
-     * @DplanPermissions({"area_admin_protocol", "feature_export_protocol"})
-     *
      * @throws Exception
      */
+    #[DplanPermissions(['area_admin_protocol', 'feature_export_protocol'])]
     #[Route(
         name: 'dplan_export_report',
         path: '/report/export/{procedureId}',

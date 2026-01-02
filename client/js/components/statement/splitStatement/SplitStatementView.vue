@@ -129,7 +129,7 @@
                 v-if="showTags && editModeActive === false && maxRange"
                 id="cardPane"
                 :key="tagsCounter"
-                class="u-ml"
+                class="ml-4"
                 :max-range="maxRange"
                 :offset="headerOffset"
                 @segment:confirm="handleSegmentConfirmation"

@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Faq;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
@@ -41,9 +41,8 @@ class FaqController extends BaseController
      * Displays a list of Faq Articles visible to the current user (all categories).
      *
      * @throws Exception
-     *
-     * @DplanPermissions("area_demosplan")
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/faq', name: 'DemosPlan_faq', options: ['expose' => true])]
     #[Route(path: '/haeufigefragen', name: 'DemosPlan_haeufigefragen')]
     public function faqList(
@@ -78,14 +77,13 @@ class FaqController extends BaseController
     /**
      * Displays a list of Faq Articles visible to the current user (only one category, based on route).
      *
-     * @DplanPermissions("area_demosplan")
-     *
      * @param string $type
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/faq/bauleitplanung', name: 'DemosPlan_faq_public_planning', defaults: ['type' => 'oeb_bauleitplanung'])]
     #[Route(path: '/faq/projekt', name: 'DemosPlan_faq_public_project', defaults: ['type' => 'oeb_bob'])]
     public function faqPublicList(
@@ -126,9 +124,8 @@ class FaqController extends BaseController
      * @return RedirectResponse|Response
      *
      * @throws Exception
-     *
-     * @DplanPermissions("area_admin_faq")
      */
+    #[DplanPermissions('area_admin_faq')]
     #[Route(path: '/faq/verwalten', name: 'DemosPlan_faq_administration_faq', options: ['expose' => true])]
     public function faqAdminList(
         Request $request,
@@ -180,9 +177,8 @@ class FaqController extends BaseController
      * @return RedirectResponse|Response
      *
      * @throws Exception
-     *
-     * @DplanPermissions("area_admin_faq")
      */
+    #[DplanPermissions('area_admin_faq')]
     #[Route(path: '/faq/{faqID}/edit', name: 'DemosPlan_faq_administration_faq_edit', options: ['expose' => true])]
     public function faqAdminEdit(
         Breadcrumb $breadcrumb,
@@ -221,8 +217,8 @@ class FaqController extends BaseController
 
         $breadcrumb->addItem(
             [
-                'title' => $translator->trans('faq.list', [], 'page-title'),
-                'url'   => $this->generateUrl('DemosPlan_faq'),
+                'title' => $translator->trans('faq.admin', [], 'page-title'),
+                'url'   => $this->generateUrl('DemosPlan_faq_administration_faq'),
             ]
         );
 
@@ -250,9 +246,8 @@ class FaqController extends BaseController
      *
      * @throws MessageBagException
      * @throws CustomerNotFoundException
-     *
-     * @DplanPermissions("area_admin_faq")
      */
+    #[DplanPermissions('area_admin_faq')]
     #[Route(path: '/faq/neu', name: 'DemosPlan_faq_administration_faq_new', options: ['expose' => true])]
     public function faqAdminNew(
         Breadcrumb $breadcrumb,
@@ -292,8 +287,8 @@ class FaqController extends BaseController
         // reichere die breadcrumb mit extraItem an
         $breadcrumb->addItem(
             [
-                'title' => $translator->trans('faq.list', [], 'page-title'),
-                'url'   => $this->generateUrl('DemosPlan_faq'),
+                'title' => $translator->trans('faq.admin', [], 'page-title'),
+                'url'   => $this->generateUrl('DemosPlan_faq_administration_faq'),
             ]
         );
 
@@ -366,8 +361,6 @@ class FaqController extends BaseController
     }
 
     /**
-     * @DplanPermissions("area_admin_faq")
-     *
      * @param string $categoryId
      * @param string $action
      *
@@ -378,6 +371,7 @@ class FaqController extends BaseController
      * @throws ORMException
      * @throws OptimisticLockException
      */
+    #[DplanPermissions('area_admin_faq')]
     #[Route(path: '/category/new', name: 'DemosPlan_faq_administration_category_new', options: ['expose' => true])]
     #[Route(path: '/category/{categoryId}/edit', name: 'DemosPlan_faq_administration_category_edit', options: ['expose' => true])]
     public function faqCategoryEdit(
@@ -435,8 +429,8 @@ class FaqController extends BaseController
 
         $breadcrumb->addItem(
             [
-                'title' => $translator->trans('faq.list', [], 'page-title'),
-                'url'   => $this->generateUrl('DemosPlan_faq'),
+                'title' => $translator->trans('faq.admin', [], 'page-title'),
+                'url'   => $this->generateUrl('DemosPlan_faq_administration_faq'),
             ]
         );
 
@@ -450,12 +444,11 @@ class FaqController extends BaseController
     }
 
     /**
-     * @DplanPermissions("area_admin_faq")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_faq')]
     #[Route(path: '/category/{categoryId}/delete', name: 'DemosPlan_faq_administration_category_delete', options: ['expose' => true, 'action' => 'delete'])]
     public function faqCategoryDelete(FaqHandler $faqHandler, string $categoryId): Response
     {

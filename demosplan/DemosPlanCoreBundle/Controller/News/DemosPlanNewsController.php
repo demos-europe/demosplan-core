@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\News;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -58,14 +58,13 @@ class DemosPlanNewsController extends BaseController
     /**
      * Stelle eine Newsdetailansicht für die Beteiligungsebene dar.
      *
-     * @DplanPermissions("area_public_participation")
-     *
      * @param string $procedure Procedure Id
      *
      * @return Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_public_participation')]
     #[Route(name: 'DemosPlan_news_news_public_detail', path: '/verfahren/{procedure}/public/aktuelles/{newsID}')]
     public function newsPublicDetail(
         BrandingService $brandingService,
@@ -103,12 +102,11 @@ class DemosPlanNewsController extends BaseController
     /**
      * Exportiere vorhandene News zu einem Verfahren.
      *
-     * @DplanPermissions("area_globalnews")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_globalnews')]
     #[Route(name: 'DemosPlan_globalnews_news_export', path: '/news/export')]
     public function globalnewsExport(ServiceOutput $serviceOutputNews, TranslatorInterface $translator, NameGenerator $nameGenerator)
     {
@@ -125,12 +123,11 @@ class DemosPlanNewsController extends BaseController
     /**
      * Exportiere vorhandene News zu einem Verfahren.
      *
-     * @DplanPermissions("area_news")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_news')]
     #[Route(name: 'DemosPlan_news_news_export', path: '/verfahren/{procedure}/aktuelles/export')]
     public function newsExport(ServiceOutput $serviceOutputNews, TranslatorInterface $translator, NameGenerator $nameGenerator, string $procedure)
     {
@@ -147,12 +144,11 @@ class DemosPlanNewsController extends BaseController
     /**
      * Gib die globalen News je nach Eingeloggt/Ausgeloggt und Übersicht aus.
      *
-     * @DplanPermissions("area_globalnews")
-     *
      * @return Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_globalnews')]
     #[Route(name: 'DemosPlan_globalnews_news', path: '/news')]
     public function newsListGlobalIndex(
         Breadcrumb $breadcrumb,
@@ -203,12 +199,11 @@ class DemosPlanNewsController extends BaseController
     /**
      * Liste der Verfahrensmitteilungen auf öffentlicher Verfahrensdetail-Seite.
      *
-     * @DplanPermissions("area_news")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_news')]
     #[Route(name: 'DemosPlan_news_news_public', path: '/verfahren/{procedure}/public/aktuelles')]
     public function newsPublicList(CurrentProcedureService $currentProcedureService, CurrentUserService $currentUserService, string $procedure)
     {
@@ -250,12 +245,11 @@ class DemosPlanNewsController extends BaseController
     /**
      * Gib die Adminliste der News aus.
      *
-     * @DplanPermissions("area_admin_news")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_news')]
     #[Route(name: 'DemosPlan_news_administration_news', path: '/verfahren/{procedure}/verwalten/aktuelles', options: ['expose' => true])]
     public function newsAdminList(Request $request, TranslatorInterface $translator, string $procedure)
     {
@@ -287,12 +281,11 @@ class DemosPlanNewsController extends BaseController
     /**
      * Gib die Adminliste der News aus.
      *
-     * @DplanPermissions("area_admin_globalnews")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_globalnews')]
     #[Route(name: 'DemosPlan_globalnews_administration_news', path: '/news/verwalten', options: ['expose' => true])]
     public function globalNewsAdminList(ManualListSorter $manualListSorter, Request $request, TranslatorInterface $translator, CustomerService $customerService)
     {
@@ -382,10 +375,9 @@ class DemosPlanNewsController extends BaseController
      * path /verfahren/{procedure}/verwalten/aktuelles/neu would be interpreted as
      * /verfahren/{procedure}/verwalten/aktuelles/{newsID} with "neu" as {newsId}
      *
-     * @DplanPermissions("area_admin_news")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_news')]
     #[Route(name: 'DemosPlan_news_administration_news_new_get', path: '/verfahren/{procedure}/verwalten/aktuelles/neu', methods: ['GET'], options: ['expose' => true])]
     #[Route(name: 'DemosPlan_news_administration_news_new_post', path: '/verfahren/{procedure}/verwalten/aktuelles/neu', methods: ['POST'])]
     public function newsAdminNew(
@@ -418,12 +410,11 @@ class DemosPlanNewsController extends BaseController
     /**
      * Gib das Editformular der News aus.
      *
-     * @DplanPermissions("area_admin_news")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_news')]
     #[Route(name: 'DemosPlan_news_administration_news_edit_get', path: '/verfahren/{procedure}/verwalten/aktuelles/{newsID}', methods: ['GET'], options: ['expose' => true])]
     #[Route(name: 'DemosPlan_news_administration_news_edit_post', path: '/verfahren/{procedure}/verwalten/aktuelles/{newsID}', methods: ['POST'])]
     public function newsAdminEdit(
@@ -455,12 +446,11 @@ class DemosPlanNewsController extends BaseController
     }
 
     /**
-     * @DplanPermissions("area_admin_globalnews")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_globalnews')]
     #[Route(name: 'DemosPlan_globalnews_administration_news_edit_get', path: '/news/{newsID}/edit', methods: ['GET'], options: ['expose' => true])]
     #[Route(name: 'DemosPlan_globalnews_administration_news_edit_post', path: '/news/{newsID}/edit', methods: ['POST'])]
     public function globalnewsAdminEdit(
@@ -488,12 +478,11 @@ class DemosPlanNewsController extends BaseController
     }
 
     /**
-     * @DplanPermissions("area_admin_globalnews")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_globalnews')]
     #[Route(name: 'DemosPlan_globalnews_administration_news_new_get', path: '/news/neu', methods: ['GET'], options: ['expose' => true])]
     #[Route(name: 'DemosPlan_globalnews_administration_news_new_post', path: '/news/neu', methods: ['POST'])]
     public function globalnewsAdminNew(
@@ -525,12 +514,11 @@ class DemosPlanNewsController extends BaseController
     /**
      * News detail. Needs to be situated after all other /news/ routes as otherwise it catches the route.
      *
-     * @DplanPermissions("area_globalnews")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_globalnews')]
     #[Route(name: 'DemosPlan_globalnews_news_detail', path: '/news/{newsID}')]
     public function globalnewsDetail(Breadcrumb $breadcrumb, TranslatorInterface $translator, string $newsID)
     {
@@ -600,9 +588,8 @@ class DemosPlanNewsController extends BaseController
      * @param string|null                            $procedure
      *
      * @throws MessageBagException
-     *
-     * @DplanPermissions("area_admin_news")
      */
+    #[DplanPermissions('area_admin_news')]
     protected function handleNewsAdminEditPostRequest(Request $request, FileUploadService $fileUploadService, $updater, $procedure = null): bool
     {
         $requestPost = $request->request->all();

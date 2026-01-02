@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\RpcController;
 use demosplan\DemosPlanCoreBundle\Event\StatementAnonymizeRpcEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
@@ -27,10 +27,9 @@ use Symfony\Component\Routing\Attribute\Route;
 class StatementAnonymizeRpcController extends RpcController
 {
     /**
-     * @DplanPermissions("area_statement_anonymize")
-     *
      * @return RedirectResponse|Response
      */
+    #[DplanPermissions('area_statement_anonymize')]
     #[Route(path: '/rpc/1.0/statement/anonymize', name: 'dplan_rpc_statement_anonymize', options: ['expose' => true])]
     public function statementAnonymizeRpc(
         Request $request,

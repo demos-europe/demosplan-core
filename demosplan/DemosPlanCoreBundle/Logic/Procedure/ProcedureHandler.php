@@ -881,7 +881,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                     'phase'    => $internalPhaseKey,
                     'customer' => $endedInternalProcedure->getCustomer(),
                 ];
-                $updatedProcedure = $this->procedureService->updateProcedure($data);
+                $updatedProcedure = $this->procedureService->updateProcedure($data, isSystem: true);
                 $changedInternalProcedures->push($updatedProcedure);
             }
         }
@@ -906,7 +906,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                     'publicParticipationPhase' => $externalPhaseKey,
                     'customer'                 => $endedExternalProcedure->getCustomer(),
                 ];
-                $updatedProcedure = $this->procedureService->updateProcedure($data);
+                $updatedProcedure = $this->procedureService->updateProcedure($data, isSystem: true);
                 $changedExternalProcedures->push($updatedProcedure);
             }
         }

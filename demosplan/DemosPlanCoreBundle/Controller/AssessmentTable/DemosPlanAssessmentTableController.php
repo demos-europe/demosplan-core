@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\AssessmentTable;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -83,13 +83,12 @@ class DemosPlanAssessmentTableController extends BaseController
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/assessment_table/ Wiki: Abwägungstabelle
      *
-     * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @param AssessmentExportOptions $exportOptions Object that holds logic about export options in normal and original view
      * @param string|null             $filterHash
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(name: 'dplan_assessmenttable_view_table', path: '/verfahren/abwaegung/view/{procedureId}/{filterHash}', defaults: ['filterHash' => null, 'original' => false], options: ['expose' => true])]
     public function viewTable(
         AssessmentExportOptions $exportOptions,
@@ -156,7 +155,7 @@ class DemosPlanAssessmentTableController extends BaseController
         $paginationData = $hashList[$procedureId][$type] ?? null;
         $rParams = array_key_exists('limit', $rParams['request'])
             ? $statementService->addPaginationToParams(1, null, $rParams)
-            : $statementService->addPaginationToParams($paginationData['page'], $paginationData['r_limit'], $rParams);
+            : $statementService->addPaginationToParams((int) $paginationData['page'], $paginationData['r_limit'], $rParams);
 
         if ($this->permissions->hasPermission('feature_procedure_user_filter_sets')
             && $request->request->has('r_save_filter_set_name')) {
@@ -299,13 +298,12 @@ class DemosPlanAssessmentTableController extends BaseController
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/assessment_table/ Wiki: Abwägungstabelle
      *
-     * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @param AssessmentExportOptions $exportOptions Object that holds logic about export options in normal and original view
      * @param string|null             $filterHash
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(name: 'dplan_assessmenttable_view_original_table', path: '/verfahren/original/{procedureId}/{filterHash}', defaults: ['filterHash' => null, 'original' => true], options: ['expose' => true])]
     public function viewOriginalTable(
         AssessmentExportOptions $exportOptions,
@@ -372,7 +370,7 @@ class DemosPlanAssessmentTableController extends BaseController
         $paginationData = $hashList[$procedureId][$type] ?? null;
         $rParams = array_key_exists('limit', $rParams['request'])
             ? $statementService->addPaginationToParams(1, null, $rParams)
-            : $statementService->addPaginationToParams($paginationData['page'], $paginationData['r_limit'], $rParams);
+            : $statementService->addPaginationToParams((int) $paginationData['page'], $paginationData['r_limit'], $rParams);
 
         if ($this->permissions->hasPermission('feature_procedure_user_filter_sets')
             && $request->request->has('r_save_filter_set_name')) {
@@ -581,14 +579,13 @@ class DemosPlanAssessmentTableController extends BaseController
     /**
      * Abwaegungstabelle - Detailseite.
      *
-     * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @param bool $isCluster Determines if the given Statement is a cluster
      *
      * @return Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(name: 'DemosPlan_cluster_view', path: '/verfahren/{procedureId}/cluster/{statement}', defaults: ['title' => 'assessment.table.cluster.detail', 'isCluster' => true], options: ['expose' => true])]
     #[Route(name: 'dm_plan_assessment_single_view', path: '/verfahren/{procedureId}/abwaegung/sview/{statement}', defaults: ['title' => 'assessment.table.statement.detail'], options: ['expose' => true])]
     public function viewSingle(
@@ -749,10 +746,9 @@ class DemosPlanAssessmentTableController extends BaseController
     /**
      * Kopieren einer einzelnen Stellungnahme.
      *
-     * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(name: 'dm_plan_assessment_single_copy', path: '/verfahren/{procedure}/abwaegung/copy/{statement}')]
     public function copySingleStatement(StatementService $statementService, string $procedure, string $statement): RedirectResponse
     {
@@ -780,12 +776,11 @@ class DemosPlanAssessmentTableController extends BaseController
      * This action is used to fill out the votum-form when assigning
      * tags to them.
      *
-     * @DplanPermissions("area_admin_boilerplates")
-     *
      * @param string $tag
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_boilerplates')]
     #[Route(name: 'dm_plan_assessment_get_boilerplates_ajax', path: '/boilerplatetext/{procedure}/{tag}', options: ['expose' => true])]
     public function getBoilerplateAjax(TagService $tagService, TranslatorInterface $translator, $tag): JsonResponse
     {
@@ -823,8 +818,6 @@ class DemosPlanAssessmentTableController extends BaseController
     /**
      * Get complete text of a statement to be displayed in a <height-limit> component.
      *
-     * @DplanPermissions("area_admin_assessmenttable")
-     *
      * Optionally pass `includeShortened=true` as get parameter to include
      * shortened fragment.
      *
@@ -832,6 +825,7 @@ class DemosPlanAssessmentTableController extends BaseController
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(name: 'dm_plan_assessment_get_statement_ajax', path: '/_ajax/statement/{statementId}', options: ['expose' => true])]
     public function getStatementRemainderAjax(Request $request, StatementService $statementService, $statementId): JsonResponse
     {
@@ -862,12 +856,11 @@ class DemosPlanAssessmentTableController extends BaseController
      * Optionally pass `includeShortened=true` as get parameter to include
      * shortened fragment.
      *
-     * @DplanPermissions({"area_admin_assessmenttable", "field_statement_recommendation"})
-     *
      * @param string $statementId
      *
      * @throws Exception
      */
+    #[DplanPermissions(['area_admin_assessmenttable', 'field_statement_recommendation'])]
     #[Route(name: 'dm_plan_assessment_get_recommendation_ajax', path: '/_ajax/recommendation/{statementId}', options: ['expose' => true])]
     public function getRecommendationRemainderAjax(Request $request, StatementService $statementService, $statementId): JsonResponse
     {
@@ -896,8 +889,6 @@ class DemosPlanAssessmentTableController extends BaseController
     /**
      * Return all versions of considerations of a fragment.
      *
-     * @DplanPermissions("feature_statements_fragment_edit")
-     *
      * @param bool   $isReviewer
      * @param string $fragmentId
      *
@@ -905,6 +896,7 @@ class DemosPlanAssessmentTableController extends BaseController
      *
      * @throws Exception
      */
+    #[DplanPermissions('feature_statements_fragment_edit')]
     #[Route(name: 'dplan_assessment_fragment_get_consideration_versions', path: '/_ajax/assessment/{ident}/fragment/{fragmentId}/get', defaults: ['isReviewer' => false], options: ['expose' => true])]
     #[Route(name: 'dplan_assessment_fragment_get_consideration_versions_reviewer', path: '/_ajax/fragment/{fragmentId}/get', defaults: ['isReviewer' => true], options: ['expose' => true])]
     public function getFragmentConsiderationVersionsAjax(CurrentUserInterface $currentUser, $isReviewer, $fragmentId)
@@ -971,10 +963,9 @@ class DemosPlanAssessmentTableController extends BaseController
     }
 
     /**
-     * @DplanPermissions({"area_admin_assessmenttable", "feature_statement_bulk_edit"})
-     *
      * @throws Exception
      */
+    #[DplanPermissions(['area_admin_assessmenttable', 'feature_statement_bulk_edit'])]
     #[Route(name: 'dplan_assessment_table_assessment_table_statement_bulk_edit_action', path: '/verfahren/{procedureId}/bulk-edit', methods: ['GET'], options: ['expose' => true])]
     public function statementBulkEdit(FormFactoryInterface $formFactory, string $procedureId): Response
     {
@@ -1004,14 +995,13 @@ class DemosPlanAssessmentTableController extends BaseController
     }
 
     /**
-     * @DplanPermissions({"area_admin_assessmenttable", "feature_statement_fragment_bulk_edit"})
-     *
      * @param string $procedureId
      *
      * @return Response
      *
      * @throws Exception
      */
+    #[DplanPermissions(['area_admin_assessmenttable', 'feature_statement_fragment_bulk_edit'])]
     #[Route(name: 'dplan_assessment_table_assessment_table_statement_fragment_bulk_edit', path: '/verfahren/{procedureId}/fragment-bulk-edit', methods: ['GET'], options: ['expose' => true])]
     public function statementFragmentBulkEdit($procedureId)
     {

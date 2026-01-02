@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
@@ -48,12 +48,11 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Anzeige der MasterTöBliste.
      *
-     * @DplanPermissions("area_manage_mastertoeblist")
-     *
      * @return RedirectResponse|Response
      *
      * @throws \Exception
      */
+    #[DplanPermissions('area_manage_mastertoeblist')]
     #[Route(name: 'DemosPlan_user_mastertoeblist', path: '/mastertoeblist')]
     public function masterToebList()
     {
@@ -72,9 +71,8 @@ class DemosPlanMasterToebController extends BaseController
 
     /**
      * Update einer Orga via ajax.
-     *
-     * @DplanPermissions("area_manage_mastertoeblist")
      */
+    #[DplanPermissions('area_manage_mastertoeblist')]
     #[Route(name: 'DemosPlan_user_mastertoeblist_update_ajax', path: '/mastertoeblist/organisation/update', options: ['expose' => true])]
     public function updateMasterToebListAjax(Request $request): Response
     {
@@ -94,14 +92,13 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Gibt es neue Protokolleinträge seit dem letzen Aufruf des Protokolls.
      *
-     * @DplanPermissions("area_report_mastertoeblist")
-     *
      * @param string $userId
      *
      * @return Response
      *
      * @throws \Exception
      */
+    #[DplanPermissions('area_report_mastertoeblist')]
     #[Route(name: 'DemosPlan_user_mastertoeblist_has_new_reportentry_ajax', path: '/mastertoeblist/report/hasNewReportentry/{userId}', options: ['expose' => true])]
     public function reportMasterToebListHasNewEntryAjax(ContentService $contentService, $userId): JsonResponse
     {
@@ -157,12 +154,11 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Anlegen einer Orga via ajax.
      *
-     * @DplanPermissions("area_manage_mastertoeblist")
-     *
      * @return Response
      *
      * @throws CustomerNotFoundException
      */
+    #[DplanPermissions('area_manage_mastertoeblist')]
     #[Route(name: 'DemosPlan_user_mastertoeblist_add_ajax', path: '/mastertoeblist/organisation/add', options: ['expose' => true])]
     public function addMasterToebAjax(
         CustomerHandler $customerHandler,
@@ -222,9 +218,8 @@ class DemosPlanMasterToebController extends BaseController
 
     /**
      * Löschen einer Orga via ajax.
-     *
-     * @DplanPermissions("area_manage_mastertoeblist")
      */
+    #[DplanPermissions('area_manage_mastertoeblist')]
     #[Route(name: 'DemosPlan_user_mastertoeblist_delete_ajax', path: '/mastertoeblist/organisation/delete', options: ['expose' => true])]
     public function deleteMasterToebAjax(Request $request): Response
     {
@@ -243,12 +238,11 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Gebe eine Liste von geänderten Einträgen der Master-Toeb-Liste aus.
      *
-     * @DplanPermissions("area_report_mastertoeblist")
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException|\Exception
      */
+    #[DplanPermissions('area_report_mastertoeblist')]
     #[Route(name: 'DemosPlan_user_mastertoeblist_report', path: '/mastertoeblist/report', options: ['expose' => true])]
     public function masterToebListReport(
         CurrentProcedureService $currentProcedureService,
@@ -400,13 +394,12 @@ class DemosPlanMasterToebController extends BaseController
      * Basiert auf PHPOffice/PhpSpreadsheet
      * https://github.com/PHPOffice/PhpSpreadsheet, MIT
      *
-     * @DplanPermissions("area_use_mastertoeblist")
-     *
      * @return RedirectResponse|StreamedResponse
      *
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws Exception
      */
+    #[DplanPermissions('area_use_mastertoeblist')]
     #[Route(name: 'DemosPlan_user_mastertoeblist_export', path: '/mastertoeblist/export', options: ['expose' => true])]
     public function masterToebListExport(
         FileResponseGeneratorStrategy $responseGenerator,
@@ -431,12 +424,11 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Zusammenführen von angemeldeten Organisationen mit Organisationen aus der Master-TöB-Liste.
      *
-     * @DplanPermissions("area_merge_mastertoeblist")
-     *
      * @return RedirectResponse|Response
      *
      * @throws \Exception
      */
+    #[DplanPermissions('area_merge_mastertoeblist')]
     #[Route(name: 'DemosPlan_user_mastertoeblist_merge', path: '/mastertoeblist/merge')]
     public function masterToebListMerge(Request $request)
     {

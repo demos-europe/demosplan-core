@@ -18,7 +18,7 @@
           text: Translator.trans('name.first')
         }"
         required
-        @input="emitUserUpdate"
+        @update:model-value="emitUserUpdate"
       />
     </div>
 
@@ -31,7 +31,7 @@
           text: Translator.trans('name.last')
         }"
         required
-        @input="emitUserUpdate"
+        @update:model-value="emitUserUpdate"
       />
     </div>
 
@@ -46,7 +46,7 @@
           text: Translator.trans('email')
         }"
         required
-        @input="emitUserUpdate"
+        @update:model-value="emitUserUpdate"
       />
     </div>
 

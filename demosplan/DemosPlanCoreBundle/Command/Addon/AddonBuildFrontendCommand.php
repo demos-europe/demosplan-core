@@ -31,7 +31,7 @@ class AddonBuildFrontendCommand extends CoreCommand
         parent::__construct($parameterBag, $name);
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('addon-name', InputArgument::OPTIONAL, 'Addon name, du\'h.');
     }

@@ -12,8 +12,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && apt-get update -y \
     && apt-get --no-install-recommends install acl bind9-host ca-certificates composer curl  \
     default-mysql-client gettext-base lnav npm php8.2 php8.2-apcu php8.2-bcmath php8.2-bz2 php8.2-cli  \
-    php8.2-common php8.2-curl php8.2-fpm php8.2-gd php8.2-intl php8.2-mbstring php8.2-mysqli php8.2-soap  \
-    php8.2-sqlite3 php8.2-xdebug php8.2-xml php8.2-zip unzip vim vim-tiny zsh -y \
+    php8.2-common php8.2-curl php-excimer php8.2-fpm php8.2-gd php8.2-intl php8.2-mbstring php8.2-mysqli php8.2-soap  \
+    php8.2-sqlite3 php8.2-xml php8.2-zip unzip vim-tiny -y \
     && mkdir -p /opt/uploads
 COPY zzz-dplan-cli.ini /etc/php/8.2/cli/conf.d/zzz-dplan-cli.ini
 

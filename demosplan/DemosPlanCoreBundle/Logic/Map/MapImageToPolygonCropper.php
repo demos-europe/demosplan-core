@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\CoordinatesViewport;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\Feature;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use Illuminate\Support\Collection;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Crops a MapLayer to include a Polygon with a defined minimum margin to the image borders.
@@ -36,10 +35,6 @@ class MapImageToPolygonCropper
      * @var int
      */
     protected $minWidth = 256;
-
-    public function __construct(private readonly Filesystem $filesystem)
-    {
-    }
 
     private function getPolygonExtentCoordinates(Feature $feature): array
     {
@@ -145,15 +140,13 @@ class MapImageToPolygonCropper
         // finally crop image
         $image = $layerImage->getImage();
         $image->crop($finalPixelWidth, $finalPixelHeight, $offsetPixelLeft, $offsetPixelTop);
-        $croppedLayerImage = new MapLayer(
+
+        return new MapLayer(
             new CoordinatesViewport(
                 $newLeft, $newBottom, $newRight, $newTop
             ),
             $image,
             'cropped'
         );
-        $this->filesystem->remove($layerImage->getImage()->basePath());
-
-        return $croppedLayerImage;
     }
 }

@@ -19,7 +19,7 @@ use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -96,12 +96,11 @@ class DemosPlanStatementAPIController extends APIController
     /**
      * Copy Statement into (another) procedure.
      *
-     * @DplanPermissions("feature_statement_copy_to_procedure")
-     *
      * @return APIResponse|JsonResponse
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('feature_statement_copy_to_procedure')]
     #[Route(path: '/api/1.0/statements/{statementId}/copy/{procedureId}', methods: ['POST'], name: 'dplan_api_statement_copy_to_procedure', options: ['expose' => true])]
     public function copyStatement(ProcedureHandler $procedureHandler, Request $request, StatementHandler $statementHandler, string $statementId): APIResponse
     {
@@ -188,12 +187,11 @@ class DemosPlanStatementAPIController extends APIController
 
     // @improve T12984
     /**
-     * @DplanPermissions("feature_statement_move_to_procedure")
-     *
      * @return APIResponse|JsonResponse
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('feature_statement_move_to_procedure')]
     #[Route(path: '/api/1.0/statements/{statementId}/move/{procedureId}', methods: ['POST'], name: 'dplan_api_statement_move', options: ['expose' => true])]
     public function moveStatement(
         CurrentProcedureService $currentProcedureService,
@@ -287,10 +285,9 @@ class DemosPlanStatementAPIController extends APIController
     /**
      * @param string $statementId
      *
-     * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @return JsonResponse
      */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(path: '/api/1.0/statements/{procedureId}/{statementId}/edit', methods: ['POST'], name: 'dplan_api_statement_edit', options: ['expose' => true])]
     public function editStatement(StatementService $statementService, ValidatorInterface $validator, $statementId): APIResponse
     {
@@ -385,9 +382,7 @@ class DemosPlanStatementAPIController extends APIController
     }
 
     // @improve T12984
-    /**
-     * @DplanPermissions("area_admin_assessmenttable")
-     */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(path: '/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}', methods: ['GET'], name: 'dplan_assessmentqueryhash_get_procedure_statement_list', options: ['expose' => true])]
     public function list(
         AssessmentHandler $assessmentHandler,
@@ -472,10 +467,9 @@ class DemosPlanStatementAPIController extends APIController
      * Creates a new Statements cluster for current procedure.
      * HeadStatement and Statements to be used for the cluster are received in the requestBody.
      *
-     * @DplanPermissions("area_admin_assessmenttable","feature_statement_cluster")
-     *
      * @throws MessageBagException
      */
+    #[DplanPermissions(['area_admin_assessmenttable', 'feature_statement_cluster'])]
     #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', methods: ['POST'], name: 'dplan_api_create_group_statement', options: ['expose' => true])]
     public function createGroupStatement(StatementHandler $statementHandler, string $procedureId): APIResponse
     {
@@ -516,10 +510,9 @@ class DemosPlanStatementAPIController extends APIController
      * Updates an existing Statements cluster in current procedure.
      * Cluster and Statements to be used are received in the requestBody.
      *
-     * @DplanPermissions("area_admin_assessmenttable","feature_statement_cluster")
-     *
      * @throws MessageBagException
      */
+    #[DplanPermissions(['area_admin_assessmenttable', 'feature_statement_cluster'])]
     #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', methods: ['PATCH'], name: 'dplan_api_update_group_statement', options: ['expose' => true])]
     public function updateGroupStatement(StatementHandler $statementHandler, string $procedureId): APIResponse
     {
@@ -565,12 +558,11 @@ class DemosPlanStatementAPIController extends APIController
      * <li>User sent claim and edit action together for one or more unclaimed statements
      * </ul>
      *
-     * @DplanPermissions("area_admin_assessmenttable","feature_statement_bulk_edit")
-     *
      * @return JsonResponse
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions(['area_admin_assessmenttable', 'feature_statement_bulk_edit'])]
     #[Route(path: '/api/1.0/statements/{procedureId}/statements/bulk-edit', methods: ['POST'], name: 'dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', options: ['expose' => true])]
     public function statementBulkEditApi(StatementService $statementService, ValidatorInterface $validator, string $procedureId): APIResponse
     {

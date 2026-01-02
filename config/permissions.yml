@@ -200,7 +200,7 @@ area_data_protection_text:
 area_demosplan:
     description: |-
         This is a global Feature which should always be true.
-        It should be used as `@DplanPermissions` value if there
+        It should be used as `DplanPermissions` value if there
         is no more concerete permission to apply.
     label: 'Global area which is always enabled.'
     loginRequired: false
@@ -1470,6 +1470,7 @@ feature_procedure_agency_email_addresses:
         project specific behaviors. When possible the permission based approach should be preferred.
     label: 'Enables the general configuration and usage of agency email addresses within a procedure'
     loginRequired: false
+    expose: true
 feature_procedure_analytics:
     description: |-
         This permission is used for the whole display of procedure analytics.
@@ -2874,6 +2875,12 @@ field_statement_phase:
     description: 'Defines in which procedure phase the statement was submitted. Feature itself is only use in frontend.'
     expose: true
     label: 'Procedure phase (Verfahrensschritt) of statement'
+    loginRequired: true
+    parent: field_statement
+field_statement_tags_and_topics_export:
+    description: 'Controls whether tags (Schlagwort) and topics (Kategorie) are exported in XLSX/DOCX exports. This permission is independent from feature_statements_tag and only affects exports, not the UI.'
+    expose: true
+    label: 'Export Tags and Topics in Statement Exports'
     loginRequired: true
     parent: field_statement
 field_statement_polygon:

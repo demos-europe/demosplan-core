@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\BoilerplateGroupResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\BoilerplateResourceType;
@@ -24,10 +24,9 @@ class DemosPlanBoilerplateAPIController extends APIController
      * Returns all Boilerplates(means "Textbausteine"/"_predefined_texts", not "ProcedureBlueprints"!)
      * of a specific procedure, with the category as key in a JsonResponse.
      *
-     * @DplanPermissions("area_admin_boilerplates")
-     *
      * @param string $procedureId specify the Procedure, whose Boilerplates will be loaded
      */
+    #[DplanPermissions('area_admin_boilerplates')]
     #[Route(path: '/api/1.0/procedures/{procedureId}/relationships/boilerplates', methods: ['GET'], name: 'dplan_api_procedure_boilerplate_list', options: ['expose' => true])]
     public function getProcedureList(ProcedureService $procedureService, string $procedureId): APIResponse
     {

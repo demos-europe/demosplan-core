@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\UpdateTagEventInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Event\Tag\UpdateTagEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -37,12 +37,11 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     /**
      * Renders the admin view of a single tag.
      *
-     * @DplanPermissions("area_admin_statements_tag")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_statements_tag')]
     #[Route(name: 'DemosPlan_statement_administration_tag', path: '/verfahren/{procedure}/tag/{tag}', defaults: ['master' => false], options: ['expose' => true])]
     public function tagView(
         ProcedureService $procedureService,
@@ -112,12 +111,11 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     /**
      * List of Tags that are being used in this procedures.
      *
-     * @DplanPermissions("area_admin_statements_tag")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_statements_tag')]
     #[Route(name: 'DemosPlan_statement_administration_tags', path: '/verfahren/{procedure}/schlagworte', defaults: ['master' => false], options: ['expose' => true])]
     public function tagList(
         TranslatorInterface $translator,
@@ -144,12 +142,11 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      * Creates a list of Tags for the given procedure by
      * parsing a csv import file.
      *
-     * @DplanPermissions("area_admin_statements_tag")
-     *
      * @return RedirectResponse
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_statements_tag')]
     #[Route(
         path: '/verfahren/{procedureId}/schlagworte/import/csv',
         name: 'DemosPlan_statement_administration_tags_csv_import',
