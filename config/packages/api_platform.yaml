@@ -8,6 +8,7 @@ api_platform:
 
     formats:
         jsonld: ['application/ld+json']
+        json:  ['application/json']
     docs_formats:
         jsonld: ['application/ld+json']
         jsonopenapi: ['application/vnd.openapi+json']

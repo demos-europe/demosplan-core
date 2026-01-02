@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\StateProvider\AdminProcedureStateProvider;
         new Get(),
         new GetCollection(),
     ],
+    formats: ['json'],
     routePrefix: '/3.0',
     provider: AdminProcedureStateProvider::class,
 )]
