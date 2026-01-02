@@ -96,6 +96,7 @@ class AdminProcedureStateProvider implements ProviderInterface
         $adminProcedure->id = $procedure->getId();
         $adminProcedure->name = $procedure->getName();
         $adminProcedure->externalName = $procedure->getExternalName();
+
         return $adminProcedure;
     }
 
