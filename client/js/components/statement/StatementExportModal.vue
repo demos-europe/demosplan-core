@@ -18,7 +18,7 @@
 
     <dp-modal
       ref="exportModalInner"
-      content-classes="w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12 h-fit"
+      content-classes="w-11/12 sm:w-10/12 md:w-10/12 lg:w-8/12 xl:w-7/12 h-fit"
       content-body-classes="flex flex-col h-14"
       @modal:toggled="onModalToggle"
     >
@@ -113,7 +113,7 @@
           aria-labelledby="docxColumnTitles"
           :text="Translator.trans('docx.export.column.title.hint')"
         />
-        <div class="grid grid-cols-5 gap-3 mt-1 mb-3">
+        <div class="grid grid-cols-3 gap-3 mt-1 mb-3">
           <dp-input
             v-for="(column, key) in docxColumns"
             :id="key"
@@ -122,7 +122,6 @@
             :data-cy="column.dataCy"
             :placeholder="Translator.trans(column.placeholder)"
             type="text"
-            :width="column.width"
           />
         </div>
         <fieldset v-if="active === 'zip' || isSingleStatementExport">
@@ -263,19 +262,16 @@ export default {
       active: 'docx_normal',
       docxColumns: {
         col1: {
-          width: 'col-span-1',
           dataCy: 'exportModal:input:col1',
           placeholder: Translator.trans('segments.export.segment.id'),
           title: null,
         },
         col2: {
-          width: 'col-span-2',
           dataCy: 'exportModal:input:col2',
           placeholder: Translator.trans('segments.export.statement.label'),
           title: null,
         },
         col3: {
-          width: 'col-span-2',
           dataCy: 'exportModal:input:col3',
           placeholder: Translator.trans('segment.recommendation'),
           title: null,
@@ -303,7 +299,7 @@ export default {
       },
       fileName: '',
       filter: {
-        comparisonOperator: "ARRAY_CONTAINS_VALUE",
+        comparisonOperator: 'ARRAY_CONTAINS_VALUE',
         grouping: {
           labelTranslationKey: 'topic',
           targetPath: 'tags.topic.label',
@@ -420,9 +416,9 @@ export default {
       try {
         const { data } = await dpRpc('segments.facets.list', requestParams, 'filterList')
 
-        const result = (hasOwnProp(data, 0) && data[0].id === 'filterList')
-          ? data[0].result
-          : null
+        const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ?
+          data[0].result :
+          null
 
         return result || null
       } catch (error) {
@@ -651,7 +647,7 @@ export default {
 
         modalBody.scrollTo({
           top: modalBody.scrollHeight,
-          behavior: "smooth",
+          behavior: 'smooth',
         })
       })
     },
@@ -688,7 +684,7 @@ export default {
       return requestParams
     },
 
-    syncSelectedItemsFromFlyout() {
+    syncSelectedItemsFromFlyout () {
       const filterFlyout = this.$refs.filterFlyout
 
       if (!filterFlyout || !Array.isArray(filterFlyout.itemsSelected)) {

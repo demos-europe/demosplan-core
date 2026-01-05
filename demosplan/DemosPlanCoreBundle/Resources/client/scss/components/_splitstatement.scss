@@ -107,7 +107,7 @@
         z-index: $dp-z-above-zero;
         width: $sidebar-width;
         margin-left: calc(100% - #{$sidebar-width});
-        padding: 0 20px;
+        padding: 0 20px 0 3px;
     }
 
     .scroll-button {
