@@ -241,7 +241,6 @@ export default {
   },
 
   mounted () {
-    console.log(this.transformCategoryData(this.faqCategories))
     this.categoryList().then(() => {
       this.isLoading = false
     })
