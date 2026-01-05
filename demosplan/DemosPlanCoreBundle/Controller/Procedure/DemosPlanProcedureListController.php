@@ -379,7 +379,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             if (array_key_exists('search', $requestPost) && '' !== $requestPost['search']) {
                 $search = $requestPost['search'];
 
-                $isExact = preg_match('/"[^"]+"/', $search) === 1;
+                $isExact = 1 === preg_match('/"[^"]+"/', $search);
                 $hasWildcard = str_ends_with($search, '*');
 
                 // If not an exact search and no wildcard, add a wildcard
