@@ -148,6 +148,8 @@ abstract class AbstractStatementResourceType extends DplanResourceType
             ->readable(true)->aliasedPath(Paths::statement()->placeholderStatement->externId);
         $configBuilder->fragmentsCount
             ->readable(true, static fn (Statement $statement): int => $statement->getFragments()->count());
+        $configBuilder->segmentsCount
+            ->readable(true, static fn (Statement $statement): int => $statement->getSegmentsOfStatement()->count());
         $configBuilder->internId
             ->readable(true)->filterable()->aliasedPath(Paths::statement()->original->internId);
         $configBuilder->isCitizen

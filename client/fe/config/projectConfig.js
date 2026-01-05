@@ -31,10 +31,12 @@ function projectConfig (mode, project) {
       windowsHide: true,
     })
 
+    // Always log stderr as `dplan:frontend:buildinfo` uses it for its logging output
+    log(beConfigOutput.stderr.toString())
+
     if (beConfigOutput.status !== 0) {
       log(chalk.red('An error occurred during configuration loading'))
       log(beConfigOutput.stdout.toString())
-      log(beConfigOutput.stderr.toString())
 
       process.exit(0)
     }

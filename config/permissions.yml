@@ -200,7 +200,7 @@ area_data_protection_text:
 area_demosplan:
     description: |-
         This is a global Feature which should always be true.
-        It should be used as `@DplanPermissions` value if there
+        It should be used as `DplanPermissions` value if there
         is no more concerete permission to apply.
     label: 'Global area which is always enabled.'
     loginRequired: false
@@ -902,6 +902,11 @@ feature_export_docx_elements_view_mode_only:
     label: 'always export elements view in docx export'
     loginRequired: true
     parent: area_admin_assessmenttable
+feature_export_odt_instead_of_docx:
+    description: 'When enabled, export with ODT format when no other format is specified in assessmenttable'
+    label: 'Export ODT instead of DOCX as default format'
+    loginRequired: true
+    parent: feature_admin
 feature_export_protocol:
     expose: true
     label: 'Exportieren des Verfahrensprotokolls'
@@ -1465,6 +1470,7 @@ feature_procedure_agency_email_addresses:
         project specific behaviors. When possible the permission based approach should be preferred.
     label: 'Enables the general configuration and usage of agency email addresses within a procedure'
     loginRequired: false
+    expose: true
 feature_procedure_analytics:
     description: |-
         This permission is used for the whole display of procedure analytics.
@@ -1813,6 +1819,7 @@ feature_public_consultation:
     label: 'This features enables public consultation in general globally'
     loginRequired: false
 feature_public_index_map:
+    description: 'Shows map on the public index page and makes it possible to search and filter procedures that are shown on the map.'
     expose: true
     label: 'Hat public index eine Karte?'
     loginRequired: false
@@ -1825,11 +1832,6 @@ feature_public_index_map_fit_bounds:
     label: 'Improved default behavior of old public index map'
     loginRequired: false
     parent: feature_public_index_map
-feature_reply_statement:
-    description: 'This will be displayed as link in public area. In case the url is not an empty string, the statement will be marked as answered. Feature created for a specific project, to enable the user to jump directly from statement to the answer.'
-    expose: false
-    label: 'Enables setting a statement as replied, by defining a url/link to the answer of the statement.'
-    loginRequired: false
 feature_require_locality_confirmation:
     description: |-
         When an already safed draft statement is submitted as actual statement an additional
@@ -2878,6 +2880,12 @@ field_statement_phase:
     description: 'Defines in which procedure phase the statement was submitted. Feature itself is only use in frontend.'
     expose: true
     label: 'Procedure phase (Verfahrensschritt) of statement'
+    loginRequired: true
+    parent: field_statement
+field_statement_tags_and_topics_export:
+    description: 'Controls whether tags (Schlagwort) and topics (Kategorie) are exported in XLSX/DOCX exports. This permission is independent from feature_statements_tag and only affects exports, not the UI.'
+    expose: true
+    label: 'Export Tags and Topics in Statement Exports'
     loginRequired: true
     parent: field_statement
 field_statement_polygon:

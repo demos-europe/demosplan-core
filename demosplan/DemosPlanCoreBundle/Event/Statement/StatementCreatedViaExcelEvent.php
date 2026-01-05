@@ -16,11 +16,8 @@ use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class StatementCreatedViaExcelEvent extends DPlanEvent implements StatementCreatedViaExcelEventInterface
 {
-    protected StatementInterface $statement;
-
-    public function __construct(StatementInterface $statement)
+    public function __construct(protected StatementInterface $statement)
     {
-        $this->statement = $statement;
     }
 
     public function getStatement(): StatementInterface

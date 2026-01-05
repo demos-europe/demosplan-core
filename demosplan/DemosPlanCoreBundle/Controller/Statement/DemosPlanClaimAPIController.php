@@ -17,7 +17,7 @@ use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -34,7 +34,7 @@ use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use UnexpectedValueException;
 
@@ -52,7 +52,7 @@ class DemosPlanClaimAPIController extends APIController
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
         MessageFormatter $messageFormatter,
-        SchemaPathProcessor $schemaPathProcessor
+        SchemaPathProcessor $schemaPathProcessor,
     ) {
         parent::__construct(
             $apiLogger,
@@ -67,20 +67,16 @@ class DemosPlanClaimAPIController extends APIController
         );
     }
 
-    /**
-     * @DplanPermissions("feature_statement_assignment")
-     */
+    #[DplanPermissions('feature_statement_assignment')]
     #[Route(path: '/api/1.0/statement/{statementId}/relationships/assignee', methods: ['PATCH'], name: 'dplan_claim_statements_api', options: ['expose' => true])]
-    public function updateStatementAssignmentAction(string $statementId): APIResponse
+    public function updateStatementAssignment(string $statementId): APIResponse
     {
         return $this->updateStatementOrStatementFragmentAssignment($statementId, Statement::class);
     }
 
-    /**
-     * @DplanPermissions("feature_statement_assignment")
-     */
+    #[DplanPermissions('feature_statement_assignment')]
     #[Route(path: '/api/1.0/fragment/{entityId}/relationships/assignee', methods: ['PATCH'], name: 'dplan_claim_fragments_api', options: ['expose' => true])]
-    public function updateFragmentAssignmentAction(string $entityId): APIResponse
+    public function updateFragmentAssignment(string $entityId): APIResponse
     {
         return $this->updateStatementOrStatementFragmentAssignment($entityId, StatementFragment::class);
     }

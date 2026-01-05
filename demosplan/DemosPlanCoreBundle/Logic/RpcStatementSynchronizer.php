@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -88,7 +89,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
 
     public function execute(?ProcedureInterface $sourceProcedure, $rpcRequests): array
     {
-        if (null === $sourceProcedure) {
+        if (!$sourceProcedure instanceof ProcedureInterface) {
             throw new AccessDeniedException('Procedure authorization required');
         }
 
@@ -191,7 +192,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
         object $rpcRequest,
         int $attemptedSynchronizedStatementCount,
         int $actuallySynchronizedStatementCount,
-        int $alreadySynchronizedStatementCount
+        int $alreadySynchronizedStatementCount,
     ): object {
         $result = new stdClass();
         $result->jsonrpc = '2.0';
@@ -253,7 +254,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
             $this->statementResourceType->procedure->id
         );
 
-        if (null === $searchParams) {
+        if (!$searchParams instanceof SearchParams) {
             $apiListResult = $this->jsonApiActionService->listObjects(
                 $this->statementResourceType,
                 $conditions,
@@ -294,7 +295,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
     private function addSuccessMessage(Procedure $targetProcedure, int $actuallySynchronizedStatementsCount): void
     {
         $orga = $targetProcedure->getOrga();
-        if (null === $orga) {
+        if (!$orga instanceof Orga) {
             throw new InvalidArgumentException('No owning organisation found for target procedure.');
         }
 

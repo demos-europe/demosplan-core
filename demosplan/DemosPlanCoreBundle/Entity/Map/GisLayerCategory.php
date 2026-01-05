@@ -304,7 +304,7 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
      */
     public function setChildren($children)
     {
-        if (is_array($children) && 0 === count($children)) {
+        if (is_array($children) && [] === $children) {
             throw new InvalidArgumentException('Cannot removing children from Category by set empty array.
                  Set rootCategory as parent of children to remove instead.');
         }

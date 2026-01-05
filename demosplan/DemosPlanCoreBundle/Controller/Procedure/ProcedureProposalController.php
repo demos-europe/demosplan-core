@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal;
@@ -24,7 +24,7 @@ use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 use function array_key_exists;
 
@@ -43,11 +43,10 @@ class ProcedureProposalController extends BaseController
      * List ProcedureProposals.
      *
      * @throws Exception
-     *
-     * @DplanPermissions("area_procedure_proposal_edit")
      */
+    #[DplanPermissions('area_procedure_proposal_edit')]
     #[Route(path: '/procedure_proposal_list', methods: ['GET'], name: 'dplan_procedure_proposals_list')]
-    public function listProcedureProposalAction(): Response
+    public function listProcedureProposal(): Response
     {
         $procedureProposals = $this->procedureProposalService->getProcedureProposals();
 
@@ -64,11 +63,10 @@ class ProcedureProposalController extends BaseController
      * Get single procedure proposal by id.
      *
      * @throws Exception
-     *
-     * @DplanPermissions("area_procedure_proposal_edit")
      */
+    #[DplanPermissions('area_procedure_proposal_edit')]
     #[Route(path: 'proposal/{procedureProposalId}', methods: ['GET'], name: 'dplan_procedure_proposal_view')]
-    public function getProcedureProposalAction(ProcedureProposalHandler $proposalHandler, string $procedureProposalId): Response
+    public function getProcedureProposal(ProcedureProposalHandler $proposalHandler, string $procedureProposalId): Response
     {
         try {
             $procedureProposal = $this->procedureProposalService->getProcedureProposal($procedureProposalId);
@@ -94,11 +92,10 @@ class ProcedureProposalController extends BaseController
      * Generate new ProcedureProposal.
      *
      * @throws Exception
-     *
-     * @DplanPermissions("feature_create_procedure_proposal")
      */
+    #[DplanPermissions('feature_create_procedure_proposal')]
     #[Route(path: '/procedure_proposal_create', name: 'dplan_procedure_proposals_create')]
-    public function addProcedureProposalAction(Request $request, ProcedureProposalHandler $procedureProposalHandler): Response
+    public function addProcedureProposal(Request $request, ProcedureProposalHandler $procedureProposalHandler): Response
     {
         $templateVars = [];
         $requestPost = $request->request->all();
@@ -137,12 +134,11 @@ class ProcedureProposalController extends BaseController
      *
      * @throws MessageBagException
      *
-     * @DplanPermissions("area_procedure_proposal_edit")
-     *
      * @deprecated a {@link DemosPlanProcedureAPIController::createAction} (does not exist yet) should be used instead with the data needed sent by the frontend in an JSON:API POST request
      */
+    #[DplanPermissions('area_procedure_proposal_edit')]
     #[Route(path: '/verfahrensvorschlag/{procedureProposalId}/erstellen', name: 'procedure_proposal_generate_procedure')]
-    public function generateProcedure(string $procedureProposalId)
+    public function generateProcedure(string $procedureProposalId): RedirectResponse
     {
         try {
             $procedureProposal = $this->procedureProposalService->getProcedureProposal($procedureProposalId);

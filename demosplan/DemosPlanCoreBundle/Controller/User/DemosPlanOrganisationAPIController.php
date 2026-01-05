@@ -20,7 +20,7 @@ use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
@@ -55,7 +55,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use UnexpectedValueException;
 use Webmozart\Assert\Assert;
@@ -80,9 +80,8 @@ class DemosPlanOrganisationAPIController extends APIController
 
     /**
      * Get organisation by ID.
-     *
-     * @DplanPermissions("feature_orga_get")
      */
+    #[DplanPermissions('feature_orga_get')]
     #[Route(path: '/api/1.0/Orga/{id}', name: 'dplan_api_orga_get', options: ['expose' => true], methods: ['GET'])]
     public function getAction(CurrentUserService $currentUser, OrgaHandler $orgaHandler, PermissionsInterface $permissions, string $id): APIResponse
     {
@@ -113,13 +112,10 @@ class DemosPlanOrganisationAPIController extends APIController
 
     /**
      * List organizations, depending on permissions.
-     *
-     * @DplanPermissions("feature_organisation_user_list")
-     *
-     * @return APIResponse
      */
+    #[DplanPermissions('feature_organisation_user_list')]
     #[Route(path: '/api/1.0/organisation', name: 'dplan_api_organisation_list', options: ['expose' => true], methods: ['GET'])]
-    public function listAction(
+    public function list(
         CustomerHandler $customerHandler,
         OrgaResourceType $orgaResourceType,
         OrgaService $orgaService,
@@ -128,7 +124,7 @@ class DemosPlanOrganisationAPIController extends APIController
         Request $request,
         CurrentUserService $currentUser,
         JsonApiPaginationParser $paginationParser,
-    ) {
+    ): APIResponse {
         try {
             if (false === $permissions->hasPermissions(
                 ['area_organisations_view_of_customer', 'area_manage_orgas_all'],
@@ -158,7 +154,7 @@ class DemosPlanOrganisationAPIController extends APIController
             if ('' !== $filterNameContains) {
                 $orgaList = array_filter(
                     $orgaList,
-                    static fn (Orga $orga) => false !== stripos($orga->getName(), (string) $filterNameContains)
+                    static fn (Orga $orga) => false !== stripos((string) $orga->getName(), (string) $filterNameContains)
                 );
             }
 
@@ -286,11 +282,10 @@ class DemosPlanOrganisationAPIController extends APIController
      * This action DOES NOT delete an orga. Instead, it "wipes" it, which is our way of deleting.
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/deletion_of_entity_objects/ delete entity objects
-     *
-     * @DplanPermissions("feature_orga_delete")
      */
+    #[DplanPermissions('feature_orga_delete')]
     #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_delete', options: ['expose' => true], methods: ['DELETE'])]
-    public function wipeOrgaAction(UserHandler $userHandler, string $id): APIResponse
+    public function wipeOrga(UserHandler $userHandler, string $id): APIResponse
     {
         $orgaId = $id;
         try {
@@ -343,19 +338,15 @@ class DemosPlanOrganisationAPIController extends APIController
     /**
      * Creates a new Organisation.
      *
-     * @DplanPermissions("area_manage_orgas")
-     *
-     * @return APIResponse
-     *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_manage_orgas')]
     #[Route(path: '/api/1.0/organisation', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
-    public function createOrgaAction(Request $request,
-        UserHandler $userHandler,
+    public function createOrga(UserHandler $userHandler,
         CustomerHandler $customerHandler,
         PermissionsInterface $permissions,
         AccessControlService $accessControlPermission,
-        EventDispatcherInterface $eventDispatcher)
+        EventDispatcherInterface $eventDispatcher): APIResponse
     {
         try {
             if (!($this->requestData instanceof TopLevel)) {
@@ -380,7 +371,7 @@ class DemosPlanOrganisationAPIController extends APIController
 
             $availableOrgaRoles = $this->getAvailableOrgaRoles($newOrga);
 
-            if (array_key_exists('canCreateProcedures', $orgaDataArray) && empty($availableOrgaRoles)) {
+            if (array_key_exists('canCreateProcedures', $orgaDataArray) && [] === $availableOrgaRoles) {
                 $this->messageBag->add('warning', $this->translator->trans('warning.organisation.no_available_roles'));
                 $this->logger->warning('No available roles for procedure creation permission for orga with id: ', [
                     'orgaId' => $newOrga->getId(),
@@ -390,13 +381,13 @@ class DemosPlanOrganisationAPIController extends APIController
             // Add new permission in case it is present in the request
             $canCreateProcedures = null;
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission')
-                && array_key_exists('canCreateProcedures', $orgaDataArray) && !empty($availableOrgaRoles)) {
+                && array_key_exists('canCreateProcedures', $orgaDataArray) && [] !== $availableOrgaRoles) {
                 try {
                     if (true === $orgaDataArray['canCreateProcedures']) {
                         $canCreateProcedures = true;
                         $accessControlPermission->createPermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
                     }
-                } catch (NullPointerException $e) {
+                } catch (NullPointerException) {
                     $this->logger->warning('Role was not found in Customer. Permission is not created', [
                         'roleName'   => RoleInterface::PRIVATE_PLANNING_AGENCY,
                         'permission' => AccessControlService::CREATE_PROCEDURES_PERMISSION,
@@ -422,13 +413,9 @@ class DemosPlanOrganisationAPIController extends APIController
         }
     }
 
-    /**
-     * @DplanPermissions("feature_orga_edit")
-     *
-     * @return APIResponse
-     */
+    #[DplanPermissions('feature_orga_edit')]
     #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_update', options: ['expose' => true], methods: ['PATCH'])]
-    public function updateOrgaAction(
+    public function updateOrga(
         CustomerHandler $customerHandler,
         OrgaHandler $orgaHandler,
         PermissionsInterface $permissions,
@@ -436,7 +423,7 @@ class DemosPlanOrganisationAPIController extends APIController
         UserHandler $userHandler,
         AccessControlService $accessControlPermission,
         EventDispatcherInterface $eventDispatcher,
-        string $id)
+        string $id): APIResponse
     {
         $orgaId = $id;
         try {
@@ -465,7 +452,7 @@ class DemosPlanOrganisationAPIController extends APIController
 
             $availableOrgaRoles = $this->getAvailableOrgaRoles($preUpdateOrga);
 
-            if (array_key_exists('canCreateProcedures', $orgaDataArray['attributes']) && empty($availableOrgaRoles)) {
+            if (array_key_exists('canCreateProcedures', $orgaDataArray['attributes']) && [] === $availableOrgaRoles) {
                 $this->messageBag->add('warning', $this->translator->trans('warning.organisation.no_available_roles'));
                 $this->logger->warning('No available roles for procedure creation permission for orga with id: ', [
                     'orgaId' => $orgaId,
@@ -474,7 +461,7 @@ class DemosPlanOrganisationAPIController extends APIController
 
             $canCreateProcedures = null;
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission') && is_array($orgaDataArray['attributes'])
-                && array_key_exists('canCreateProcedures', $orgaDataArray['attributes']) && !empty($availableOrgaRoles)) {
+                && array_key_exists('canCreateProcedures', $orgaDataArray['attributes']) && [] !== $availableOrgaRoles) {
                 try {
                     if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
                         $accessControlPermission->createPermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
@@ -483,7 +470,7 @@ class DemosPlanOrganisationAPIController extends APIController
                         $accessControlPermission->removePermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
                         $canCreateProcedures = false;
                     }
-                } catch (NullPointerException $e) {
+                } catch (NullPointerException) {
                     $this->logger->warning('Role was not found in Customer. Permission is not created', [
                         'roleName'   => RoleInterface::PRIVATE_PLANNING_AGENCY,
                         'permission' => AccessControlService::CREATE_PROCEDURES_PERMISSION,

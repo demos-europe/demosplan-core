@@ -33,7 +33,7 @@ class Helpers
 
     public function __construct(
         private readonly CustomerRepository $customerRepository,
-        private readonly RoleRepository $roleRepository
+        private readonly RoleRepository $roleRepository,
     ) {
         $this->helper = new QuestionHelper();
     }
@@ -52,9 +52,7 @@ class Helpers
                 return [$code => $name];
             })
             // filter roles that are not allowed
-            ->filter(static function (string $name, string $code) use ($rolesAllowed) {
-                return in_array($code, $rolesAllowed, true);
-            })
+            ->filter(static fn (string $name, string $code) => in_array($code, $rolesAllowed, true))
             ->all();
         $questionRoles = new ChoiceQuestion(
             'Please select the users roles. Multiselect is possible with comma separation (example: RMOPSA,RTSUPP): ',

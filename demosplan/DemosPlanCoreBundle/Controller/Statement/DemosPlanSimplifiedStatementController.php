@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\CreateSimplifiedStatementEventInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Event\CreateSimplifiedStatementEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\SimplifiedStatement\ManualSimplifiedStatementCreator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Takes care of actions related to the simplified version of a Statement.
@@ -32,15 +32,14 @@ class DemosPlanSimplifiedStatementController extends BaseController
      *
      * @throws MessageBagException
      * @throws UserNotFoundException
-     *
-     * @DplanPermissions("feature_simplified_new_statement_create")
      */
+    #[DplanPermissions('feature_simplified_new_statement_create')]
     #[Route(name: 'dplan_simplified_new_statement_create', methods: ['POST'], path: '/verfahren/{procedureId}/stellungnahmen/neu', options: ['expose' => true])]
-    public function createAction(
+    public function create(
         TraceableEventDispatcher $eventDispatcher,
         ManualSimplifiedStatementCreator $statementCreator,
         Request $request,
-        string $procedureId
+        string $procedureId,
     ): Response {
         /** @var CreateSimplifiedStatementEvent $event * */
         $event = $eventDispatcher->dispatch(new CreateSimplifiedStatementEvent($request), CreateSimplifiedStatementEventInterface::class);

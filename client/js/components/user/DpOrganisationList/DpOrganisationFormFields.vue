@@ -963,12 +963,19 @@ export default {
       required: false,
       default: '',
     },
+
+    triggerReset: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
 
   emits: [
     'addon:update',
     'addonOptions:loaded',
     'organisation:update',
+    'reset:complete',
   ],
 
   data () {
@@ -1059,6 +1066,22 @@ export default {
     },
   },
 
+  watch: {
+    organisation: {
+      handler () {
+        this.setInitialOrganisation()
+      },
+      deep: true,
+    },
+
+    triggerReset (shouldReset) {
+      if (shouldReset) {
+        this.setInitialOrganisation()
+        this.$emit('reset:complete')
+      }
+    },
+  },
+
   methods: {
     canEdit (field) {
       return hasPermission('feature_orga_edit_all_fields') && this.writableFields.includes(field)
@@ -1076,7 +1099,7 @@ export default {
     },
 
     hasChanged (field) {
-      if (typeof this.initialOrganisation.attributes !== 'undefined') {
+      if (this.initialOrganisation.attributes !== 'undefined') {
         return hasOwnProp(this.initialOrganisation.attributes, field) ?
           this.localOrganisation.attributes[field] !== this.initialOrganisation.attributes[field] :
           false
@@ -1102,7 +1125,8 @@ export default {
 
     registrationTypeLabel (type) {
       const orgaType = this.availableOrgaTypes.find(el => el.value === type)
-      return Translator.trans(orgaType.label)
+
+      return orgaType ? Translator.trans(orgaType.label) : type
     },
 
     saveNewRegistrationStatus () {
@@ -1116,6 +1140,14 @@ export default {
       this.resetRegistrationStatus()
     },
 
+    setInitialOrganisation () {
+      this.localOrganisation = JSON.parse(JSON.stringify(this.organisation))
+
+      if (this.organisation && typeof this.organisation.hasRelationship === 'function' && this.organisation.hasRelationship('branding')) {
+        this.localOrganisation.attributes.cssvars = this.organisation.rel('branding').attributes.cssvars
+      }
+    },
+
     setAdditionalFieldOptions (options) {
       this.$emit('addonOptions:loaded', options)
     },
@@ -1126,16 +1158,10 @@ export default {
   },
 
   created () {
-    this.localOrganisation = JSON.parse(JSON.stringify(this.organisation))
-    if (this.organisation && typeof this.organisation.hasRelationship === 'function' && this.organisation.hasRelationship('branding')) {
-      this.localOrganisation.attributes.cssvars = this.organisation.rel('branding').attributes.cssvars
-    }
+    this.setInitialOrganisation()
   },
 
   mounted () {
-    this.$root.$on('organisation:reset', () => {
-      this.localOrganisation = JSON.parse(JSON.stringify(this.organisation))
-    })
     if (this.registrationStatuses.length === 0) {
       this.showAddStatusForm = true
     }

@@ -46,7 +46,7 @@ class AzureAuthenticator extends OAuth2Authenticator implements AuthenticationEn
     {
         $client = $this->clientRegistry->getClient('azure');
         $accessToken = $this->fetchAccessToken($client);
-        $this->logger->info('Azure OAuth login attempt', ['accessToken' => $accessToken ?? null]);
+        $this->logger->info('Azure OAuth login attempt', ['accessToken' => $accessToken]);
 
         $userIdentifier = $accessToken->getToken();
         $resourceOwner = $client->fetchUserFromToken($accessToken);

@@ -401,7 +401,7 @@
                 name="r_represents"
                 :placeholder="Translator.trans('institution.represents')"
                 :model-value="formData.r_represents"
-                @input="val => setStatementData({r_represents: val})"
+                @update:model-value="val => setStatementData({r_represents: val})"
               />
             </div>
           </fieldset>
@@ -682,6 +682,7 @@
           :form-fields="formFields"
           :statement="formData"
           :public-participation-publication-enabled="publicParticipationPublicationEnabled"
+          :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
           :statement-feedback-definitions="statementFeedbackDefinitions"
           :statement-form-hint-recheck="statementFormHintRecheck"
           @edit-input="handleEditInput"

@@ -19,6 +19,11 @@ use Tests\Base\FunctionalTestCase;
 
 class ArrayHelperTest extends FunctionalTestCase
 {
+    /**
+     * @var ArrayHelper
+     */
+    protected $sut;
+
     protected function setUp(): void
     {
         parent::setUp();

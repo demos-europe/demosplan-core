@@ -901,7 +901,7 @@ export default {
           }
 
           //  Keep id to find statement in mutation
-          dataToUpdate.id = response.data.id
+          dataToUpdate.id = response.data.data.id
 
           commit('updateStatement', { ...dataToUpdate })
 

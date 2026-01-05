@@ -104,16 +104,28 @@
     <!-- @improve T18818 -->
     <div
       v-if="isBobHH"
-      class="layout__item u-1-of-1"
+      class="layout__item w-full -mt-3"
     >
-      <p>
-        <u>{{ Translator.trans('statement.invitable_institution.hint') }}</u>:
-        {{ Translator.trans('statement.invitable_institution.assessment.table.print') }}
-      </p>
-      <p>
-        <u>{{ Translator.trans('statement.citizen.hint') }}</u>:
-        {{ Translator.trans('statement.citizen.assessment.table.print') }}
-      </p>
+      <dp-inline-notification
+        v-if="currentRole === '0'"
+        :message="Translator.trans('statement.citizen.assessment.table.print')"
+        class="mb-3"
+        type="info"
+      />
+
+      <dp-inline-notification
+        v-if="currentRole === '1'"
+        :message="Translator.trans('statement.invitable_institution.assessment.table.print')"
+        class="mb-3"
+        type="info"
+      />
+
+      <dp-inline-notification
+        v-if="currentRole === '1' && !submitter.entityId"
+        :message="institutionNotificationText"
+        class="mb-3"
+        type="warning"
+      />
     </div>
 
     <!-- User fields that are specific to institutions: orga, department. These fields shall not be changeable in Bob-HH, but visible and present to submit their values when filled by autoFill function -->
@@ -165,7 +177,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpContextualHelp, DpInput, DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpContextualHelp, DpInlineNotification, DpInput, DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const emptySubmitterData = {
   city: '',
@@ -183,6 +195,7 @@ export default {
 
   components: {
     DpContextualHelp,
+    DpInlineNotification,
     DpInput,
     DpMultiselect,
   },
@@ -413,6 +426,16 @@ export default {
       return hasPermission('feature_statement_create_autofill_submitter_citizens')
     },
 
+    // Notification message guiding the user to add or select an institution
+    institutionNotificationText () {
+      if (this.currentListIsEmpty) {
+        return Translator.trans('institution.add', {
+          href: Routing.generate('DemosPlan_procedure_member_index', { procedure: this.procedureId })
+        })
+      }
+      return Translator.trans('institution.select')
+    },
+
     //  Shortcut to check project name
     isBobHH () {
       return PROJECT && PROJECT === 'bobhh'
@@ -504,8 +527,8 @@ export default {
       }
 
       /*
-       * Because the submitter of a manual statement may requested feedack, we have to show the eMail-field
-       * even if its not visible in the public view
+       * Because the submitter of a manual statement may have requested feedback, we have to show the eMail-field
+       * even if it's not visible in the public view
        */
       const definitions = this.formDefinitions
       if (idx === '0' && this.formDefinitions.phoneOrEmail.enabled === false && this.formDefinitions.emailAddress.enabled === false) {
@@ -531,7 +554,7 @@ export default {
             },
             name: curr.name,
             pattern: curr.pattern || '',
-            value: this.submitterData[curr.field],
+            'model-value': this.submitterData[curr.field],
             required: isRequiredInFormDefinition,
             type: curr.type,
             width: curr.width,
@@ -570,28 +593,45 @@ export default {
       return this.transWithFallback(field, label)
     },
 
-    //  @TODO #move-to-lib
     transWithFallback (fallback, key) {
       return Translator.trans(key || fallback)
     },
 
-  },
+    /**
+     * Initialize the current role based on request or initSubmitter prop
+     */
+    initializeRole () {
+      if (this.request.role === '' && hasOwnProp(this.initSubmitter, 'role')) {
+        this.currentRole = this.initSubmitter.role
+      } else if (this.request.role !== '') {
+        this.currentRole = this.request.role
+      }
 
-  mounted () {
-    //  Set currently selected role to request value only if set
-    this.currentRole = this.request.role !== '' ? this.request.role : (hasOwnProp(this.initSubmitter, 'role') ? this.initSubmitter.role : this.currentRole)
-    setTimeout(() => {
+      this.$emit('role:changed', this.currentRole)
+    },
+
+    /**
+     * Prefill submitter data from request or initSubmitter prop
+     */
+    prefillSubmitterData () {
       const hasRequest = Object.values(this.request).join('') !== ''
       const hasInitSubmitter = Object.values(this.initSubmitter).length > 0
 
       if (hasRequest) {
         this.submitterData = { ...this.request }
       } else if (hasInitSubmitter) {
-        const init = JSON.parse(JSON.stringify(this.initSubmitter))
+        const init = structuredClone(this.initSubmitter)
         delete init.role
         this.submitterData = init
       }
-    }, 0)
+    },
+
+  },
+
+  mounted () {
+    this.initializeRole()
+
+    setTimeout(() => this.prefillSubmitterData(), 0)
   },
 }
 </script>

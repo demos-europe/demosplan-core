@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
@@ -44,6 +45,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
         AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
+        DocumentWriterSelector $writerSelector,
         LoggerInterface $logger,
         RequestStack $requestStack,
         StatementHandler $statementHandler,
@@ -51,7 +53,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
         private readonly AssessmentTablePdfExporter $pdfExporter,
         private readonly AssessmentTableXlsExporter $xlsExporter,
         private readonly StatementService $statementService,
-        private readonly FileService $fileService
+        private readonly FileService $fileService,
     ) {
         parent::__construct(
             $assessmentTableServiceOutput,
@@ -60,7 +62,8 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             $translator,
             $logger,
             $requestStack,
-            $statementHandler
+            $statementHandler,
+            $writerSelector
         );
     }
 
@@ -177,7 +180,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             // set the stn attachment:
             // if present just take the given one.
             $files[$index]['originalAttachment'] = $this->getOriginalAttachment($statementId);
-            if (null === $files[$index]['originalAttachment']) {
+            if (!$files[$index]['originalAttachment'] instanceof File) {
                 // if not present yet, invoke the pdfCreator and create an original-stn-pdf to use instead
                 $parameters['statementId'] =
                     $this->statementService->getStatement($statementId)?->getOriginal()->getId();
@@ -217,7 +220,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
         $spreadsheet = $xlsxWriter->getSpreadsheet();
         $sheet = $spreadsheet->getSheetByName($this->translator->trans('considerationtable'));
 
-        if (null === $sheet) {
+        if (!$sheet instanceof Worksheet) {
             $this->logger->error(self::SHEET_MISSING_IN_XLSX_LOG, [$sheet]);
             throw new AssessmentTableZipExportException('error', self::SHEET_MISSING_IN_XLSX);
         }

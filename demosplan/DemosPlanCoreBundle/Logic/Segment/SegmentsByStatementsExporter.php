@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
@@ -27,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Footer;
@@ -55,6 +57,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
         private readonly StatementArrayConverter $statementArrayConverter,
+        DocumentWriterSelector $writerSelector,
     ) {
         parent::__construct(
             $currentUser,
@@ -63,6 +66,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $slugify,
             $styleInitializer,
             $translator,
+            $writerSelector,
             self::SEGMENT_ID_COLUMN_WIDTH,
             self::SEGMENT_TEXT_AND_RECOMMENDATION_COLUMN_WIDTH);
     }
@@ -74,6 +78,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         array $tableHeaders,
         Procedure $procedure,
         bool $obscure,
+        bool $exportFilteredByTags = false,
         bool $censorCitizenData = false,
         bool $censorInstitutionData = false,
         Statement ...$statements,
@@ -82,8 +87,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
 
-        if (0 === count($statements)) {
-            return $this->exportEmptyStatements($phpWord, $procedure);
+        if ([] === $statements) {
+            return $this->exportEmptyStatements($phpWord, $procedure, $exportFilteredByTags);
         }
 
         return $this->exportStatements(
@@ -93,7 +98,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $tableHeaders,
             $censorCitizenData,
             $censorInstitutionData,
-            $obscure
+            $obscure,
+            $exportFilteredByTags
         );
     }
 
@@ -106,7 +112,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * @throws ReflectionException
      * @throws HandlerException
      */
-    public function exportAllXlsx(Statement ...$statements): IWriter
+    public function exportAllXlsx(StatementExportTagFilter $tagFilter, Statement ...$statements): IWriter
     {
         Settings::setOutputEscapingEnabled(true);
         $exportData = [];
@@ -130,7 +136,14 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
 
-        return $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
+        $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
+
+        // Add info sheet if tag filter is active
+        if ($tagFilter->hasAnySupportedFilterSet()) {
+            $this->assessmentTableXlsExporter->addFilterInfoSheet($writer, $tagFilter);
+        }
+
+        return $writer;
     }
 
     private function convertImagesToReferencesInRecommendations(array $segments): array
@@ -182,6 +195,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscureParameter,
+        bool $exportFilteredByTags = false,
     ): PhpWord {
         $censored = $this->needsToBeCensored(
             $statement,
@@ -191,8 +205,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST);
-        $this->addHeader($section, $procedure);
+        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTags);
+        $this->addHeader($section, $procedure, null, $exportFilteredByTags);
         $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscureParameter);
 
         return $phpWord;
@@ -258,24 +272,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         ];
 
         return $this->createTableWithHeader($section, $headerConfigs);
-    }
-
-    protected function sortSegmentsByOrderInProcedure(array $segments): array
-    {
-        uasort($segments, [$this, 'compareOrderInProcedure']);
-
-        return $segments;
-    }
-
-    private function compareOrderInProcedure(Segment $segmentA, Segment $segmentB): int
-    {
-        return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
-    }
-
-    protected function addNoSegmentsMessage(Section $section): void
-    {
-        $noEntriesMessage = $this->translator->trans('statement.has.no.segments');
-        $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
     }
 
     /**

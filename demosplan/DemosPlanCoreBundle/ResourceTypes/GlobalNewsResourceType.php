@@ -99,7 +99,7 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
             $configBuilder->picture
                 ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
                 ->initializable(true, static function (GlobalContent $news, ?File $pictureFile): array {
-                    if (null === $pictureFile) {
+                    if (!$pictureFile instanceof File) {
                         $news->setPicture('');
                         $news->setPictitle('');
                     } else {
@@ -111,7 +111,7 @@ final class GlobalNewsResourceType extends AbstractNewsResourceType
             $configBuilder->pdf
                 ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
                 ->initializable(true, static function (GlobalContent $news, ?File $pdfFile): array {
-                    if (null === $pdfFile) {
+                    if (!$pdfFile instanceof File) {
                         $news->setPdf('');
                         $news->setPdftitle('');
                     } else {

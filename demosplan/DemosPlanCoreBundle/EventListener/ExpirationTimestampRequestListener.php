@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Request listener that automatically injects expiration timestamp into session
@@ -68,14 +69,11 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
 
         // Skip if user is not authenticated
         $user = $this->security->getUser();
-        if (null === $user) {
+        if (!$user instanceof UserInterface) {
             return;
         }
 
-        // Check if in test or dev environment
-        if ($this->ozgKeycloakLogoutManager->shouldInjectTestExpiration()) {
-            $this->ozgKeycloakLogoutManager->injectTokenExpirationIntoSession($session, $user);
-        }
+        $this->ozgKeycloakLogoutManager->injectTokenExpirationIntoSession($session, $user);
 
         if ($this->ozgKeycloakLogoutManager->hasValidToken($session)) {
             return;

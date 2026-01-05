@@ -152,6 +152,7 @@
               boiler-plate-type="consideration"
               editor-id="recommendationText"
               :procedure-id="procedureId"
+              :preview-segment-id="segment.id"
               @insert="text => modalProps.handleInsertText(text)"
             />
             <dp-modal
@@ -1069,7 +1070,6 @@ export default {
       this.$parent.$parent.resetSlidebar()
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'map' } })
       this.$root.$emit('show-slidebar')
-      this.$root.$emit('segmentMap:show')
     },
 
     showSegmentVersionHistory () {

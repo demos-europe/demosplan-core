@@ -1088,8 +1088,8 @@ export default {
       if ((hasPermission('feature_statement_assignment') ? (this.currentUserId === this.statement.assignee.id) : true) === false) {
         return false
       }
-      //  MoveStatement() is triggered from statement footer button
-      this.$root.$emit('moveStatement:toggle', id)
+
+      this.setModalProperty({ prop: 'moveStatementModal', val: { show: true, statementId: id } })
     },
 
     openCopyStatementModal (id) {

@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 
@@ -97,7 +98,7 @@ class SimpleSpreadsheetService
         // set background color of first column to grey
         $worksheet->getStyle('A1:'.$lastColumn.'1')
             ->getFill()
-            ->setFillType('solid')
+            ->setFillType(Fill::FILL_SOLID)
             ->getStartColor()
             ->setRGB('A0A0A0');
 

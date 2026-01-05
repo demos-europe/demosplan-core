@@ -252,7 +252,7 @@ class MapHandler extends CoreHandler
 
             foreach ($visibilityGroup as $visibilityGroupMember) {
                 // is current default visibility of gisLayer different to incoming Visibility? -> update
-                if (!$visibility === $visibilityGroupMember->hasDefaultVisibility()) {
+                if ($visibility !== $visibilityGroupMember->hasDefaultVisibility()) {
                     $visibilityGroupMember->setDefaultVisibility($visibility);
                     $updatedGisLayer = $this->entityManager
                         ->getRepository(GisLayer::class)

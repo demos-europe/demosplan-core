@@ -162,7 +162,7 @@ class ElementHandler extends CoreHandler
             }
         }
 
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             $this->flashMessageHandler->setFlashMessages($mandatoryErrors);
 
             return ['mandatoryfieldwarning' => $mandatoryErrors];
@@ -189,7 +189,7 @@ class ElementHandler extends CoreHandler
             }
         }
         // wenn das Eingabefeld leer, dann lösche alle bisherigen Orgas
-        if ((!array_key_exists('r_orga', $data)) && !empty($orgasForElement)) {
+        if ((!array_key_exists('r_orga', $data)) && [] !== $orgasForElement) {
             $this->elementService->deleteAuthorisationOfOrga($elementId, $orgasForElement);
         }
         // wenn das Eingabefeld nicht leer, dann
@@ -197,13 +197,13 @@ class ElementHandler extends CoreHandler
             // Überprüfe, ob Orgas zu den Berechtigungen dazugefügt wurden
             $orgasToAdd = array_diff($data['r_orga'], $orgasForElement);
             // Wenn ja, speicher sie ab
-            if (is_array($orgasToAdd) && 0 < count($orgasToAdd)) {
+            if (is_array($orgasToAdd) && [] !== $orgasToAdd) {
                 $this->elementService->addAuthorisationToOrga($elementId, $orgasToAdd);
             }
             // Überprüfe, ob einzelne Orgas aus den Berechtigungen gelöscht werden sollen
             $orgasToDelete = array_diff($orgasForElement, $data['r_orga']);
             // wenn ja, lösche sie
-            if (is_array($orgasToDelete) && 0 < count($orgasToDelete)) {
+            if (is_array($orgasToDelete) && [] !== $orgasToDelete) {
                 $this->elementService->deleteAuthorisationOfOrga($elementId, $orgasToDelete);
             }
         }
@@ -239,11 +239,7 @@ class ElementHandler extends CoreHandler
             $element['parent'] = $data['r_parent'];
         }
 
-        if (array_key_exists('r_category', $data)) {
-            $element['category'] = $data['r_category'];
-        } else {
-            $element['category'] = 'file';
-        }
+        $element['category'] = array_key_exists('r_category', $data) ? $data['r_category'] : 'file';
 
         $element['enabled'] = false;
         if (array_key_exists('r_publish_categories', $data)) {
@@ -286,7 +282,7 @@ class ElementHandler extends CoreHandler
             }
         }
 
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             $this->flashMessageHandler->setFlashMessages($mandatoryErrors);
 
             return ['mandatoryfieldwarning' => $mandatoryErrors];

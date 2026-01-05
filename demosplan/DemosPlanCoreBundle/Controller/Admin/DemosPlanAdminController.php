@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Platform\Statistics\StatisticsGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Twig\Environment;
 use Twig\Extension\EscaperExtension;
 
@@ -44,7 +44,7 @@ class DemosPlanAdminController extends BaseController
     #[AttributeDplanPermissions('area_statistics')]
     #[Route(path: '/statistik', name: 'DemosPlan_statistics', defaults: ['format' => 'html', 'part' => 'all'])]
     #[Route(path: '/statistik/{part}/csv', name: 'DemosPlan_statistics_csv', defaults: ['format' => 'csv'])]
-    public function generateStatisticsAction(
+    public function generateStatistics(
         string $part,
         string $format,
     ): Response {

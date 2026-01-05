@@ -16,10 +16,11 @@ COPY zzz-dplan.ini /etc/php/8.2/fpm/conf.d/zzz-dplan.ini
 COPY zzz-dplan-cli.ini /etc/php/8.2/cli/conf.d/zzz-dplan-cli.ini
 COPY php-fpm_www.conf /etc/php/8.2/fpm/pool.d/zzz-www.conf
 
-RUN npm install --ignore-scripts -g n && \
-    rm -rf /root/.npm && \
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+    --mount=type=cache,target=/var/www/.cache,sharing=locked \
+    npm install --ignore-scripts -g n && \
 # Install specific node version first
-    n 20.18.1 && \
+    n 24.11.1 && \
     npm install --ignore-scripts -g corepack && \
     corepack enable && yarn set version 4.2.2
 
@@ -29,6 +30,7 @@ RUN mkdir -p /opt/uploads && \
     mkdir /opt/config && \
     mkdir /srv/www/vendor && \
     mkdir -p /srv/www/client/js/generated && \
+    mkdir -p /srv/www/tmp && \
     chown -R www-data:www-data /opt/uploads && \
     chown -R www-data:www-data /srv/www/client/js/generated && \
     chown -R www-data:www-data /opt/config && \
@@ -42,7 +44,9 @@ WORKDIR /srv/www
 # Install composer and yarn before copying the project files to make use of the docker cache
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
 # do not use --no-scripts, as we do not need all the aws stuff
-RUN --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,uid=33,gid=33 \
+RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
+    --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
+    --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
     if [ "$BUILD_MODE" = "dev" ]; then \
         composer install -o --prefer-dist --no-progress; \
     else \
@@ -84,7 +88,9 @@ USER www-data
 # during addon install the cache is deleted and the command "fails" because it does not find the cache
 # the command is executed with "|| true" to prevent the build from failing
 RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
-    --mount=type=cache,target=/var/www,uid=33,gid=33 \
+    --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
+    --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
+    --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
     ACTIVE_PROJECT=$PROJECT_NAME bin/console dplan:addon:autoinstall -e ${BUILD_MODE} --no-debug || true && \
     if [ "$BUILD_MODE" = "dev" ]; then \
         ./fe build $PROJECT_NAME; \
@@ -137,6 +143,9 @@ COPY --from=build /opt/config/parameters.yml /opt/config/parameters.yml
 RUN rm -rf /srv/www/var/cache/* && \
     rm -rf /srv/www/var/log/* && \
     rm -rf /srv/www/projects/$PROJECT_NAME/{files,fonts,images,js,video,img,pdf} && \
+    # ensure tmp directory exists and is writable for Symfony XML schema validation \
+    mkdir -p /srv/www/tmp && \
+    chown -R www-data:www-data /srv/www/tmp && \
     # link the custom squid root ca to the system that is mounted as a secret \
     # use a dummy file during link creation to prevent the error if the secret is not mounted \
     touch /srv/www/var/certs/ca.crt && \

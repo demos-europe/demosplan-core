@@ -11,7 +11,7 @@
   <dp-modal
     ref="moveStatementModal"
     content-classes="u-1-of-2"
-    @modal:toggled="resetFragments"
+    @modal:toggled="handleModalToggled"
   >
     <!-- modal header -->
     <template v-slot:header>
@@ -38,7 +38,7 @@
         />
         <!-- display if user is not the assignee of all fragments of this statement or if any fragments of this statement are currently assigned to departments -->
         <dp-inline-notification
-          v-if="!userIsAssigneeOfAllFragments && !fragmentsAreNotAssignedToDepartments"
+          v-if="!userIsAssigneeOfAllFragments || isAnyFragmentAssignedToDepartment"
           class="mb-2"
           :message="Translator.trans('statement.moveto.procedure.fragments.not.claimed.warning')"
           type="warning"
@@ -116,7 +116,7 @@
         <button
           type="button"
           class="btn btn--primary float-right"
-          :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments"
+          :disabled="!userIsAssigneeOfAllFragments || isAnyFragmentAssignedToDepartment"
           @click.prevent.stop="moveStatement"
         >
           {{ Translator.trans('statement.moveto.procedure.action') }}
@@ -128,7 +128,7 @@
 
 <script>
 import { DpInlineNotification, DpLoading, DpModal, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'DpMoveStatementModal',
@@ -174,6 +174,7 @@ export default {
   },
 
   computed: {
+    ...mapGetters('AssessmentTable', ['moveStatementModal']),
     ...mapGetters('Fragment', ['fragmentsByStatement']),
     ...mapState('AssessmentTable', ['currentUserId']),
     ...mapState('Statement', ['statements']),
@@ -186,13 +187,13 @@ export default {
       return this.statementFragments.filter(fragment => this.currentUserId === fragment.assigneeId).length === this.statementFragments.length
     },
 
-    fragmentsAreNotAssignedToDepartments () {
-      /*
-       * DepartmentId is set when a fragment is assigned to a department. If it is assigned to a department, the user can't move the statement despite being the assignee of the fragment.
-       ** The check prevents failure of moveStatement due to fragments being assigned to departments.
-       ** departmentId is either set to null or to '' (empty string) when the fragment is not assigned to any departments.
-       */
-      return this.statementFragments.filter(fragment => (fragment.departmentId === null || fragment.departmentId === '')).length === this.statementFragments.length
+    /*
+     * DepartmentId is set when a fragment is assigned to a department. If it is assigned to a department, the user can't move the statement despite being the assignee of the fragment.
+     ** The check prevents failure of moveStatement due to fragments being assigned to departments.
+     ** departmentId is either set to null or to '' (empty string) when the fragment is not assigned to any departments.
+     */
+    isAnyFragmentAssignedToDepartment () {
+      return this.statementFragments.some(fragment => fragment.departmentId)
     },
 
     availableProcedures () {
@@ -217,18 +218,31 @@ export default {
   },
 
   methods: {
-    ...mapActions('Fragment', ['loadFragments']),
-    toggleModal (statementId) {
-      //  Reset selection when radio list changes
-      this.selectedProcedureId = ''
-      //  Set actual statement id
-      this.statementId = statementId
-      //  Actually toggle the modal
-      this.$refs.moveStatementModal.toggle()
+    ...mapActions('Fragment', [
+      'loadFragments',
+    ]),
 
-      // Get statement fragments to check if user can move this statement
-      if (statementId) {
-        this.setFragments(statementId).then(() => { this.isLoading = false })
+    ...mapMutations('AssessmentTable', [
+      'setModalProperty',
+    ]),
+
+    handleModalToggled (isOpen) {
+      if (!isOpen) {
+        this.setModalProperty({ prop: 'moveStatementModal', val: { show: false, statementId: null } })
+        this.resetFragments()
+      }
+    },
+
+    handleToggleModal () {
+      this.selectedProcedureId = ''
+      this.statementId = this.moveStatementModal.statementId
+      this.toggleModal()
+      this.handleFragments()
+    },
+
+    handleFragments () {
+      if (this.statementId) {
+        this.setFragments(this.statementId).then(() => { this.isLoading = false })
       } else {
         this.resetFragments()
       }
@@ -238,7 +252,11 @@ export default {
       const setFragmentsInComponent = () => {
         const fragments = this.fragmentsByStatement(statementId).fragments
         this.statementFragments = fragments.map(fragment => {
-          return { id: fragment.id, assigneeId: fragment.assignee.id, departmentId: fragment.departmentId }
+          return {
+            id: fragment.id,
+            assigneeId: fragment.assignee?.id || '',
+            departmentId: fragment.departmentId,
+          }
         })
       }
 
@@ -284,30 +302,37 @@ export default {
         .then(response => {
         // If the user is not authorized to move the statement, the movedStatementId in the response is an empty string
           if (hasOwnProp(response, 'data') && response.data.movedStatementId !== '') {
+            const { movedToProcedureId, movedStatementId, placeholderStatementId, movedToProcedureName } = response.data.data
+
             const moveToProcedureParams = {
-              movedToProcedureId: response.data.movedToProcedureId,
+              movedToProcedureId,
               statementId: this.statementId,
-              movedStatementId: response.data.movedStatementId,
-              placeholderStatementId: response.data.placeholderStatementId,
-              movedToAccessibleProcedure: this.movedToAccessibleProcedure(response.data.movedToProcedureId),
-              movedToProcedureName: this.movedToAccessibleProcedure(response.data.movedToProcedureId) ? Object.values(this.accessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name : Object.values(this.inaccessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name,
+              movedStatementId,
+              placeholderStatementId,
+              movedToAccessibleProcedure: this.movedToAccessibleProcedure(movedToProcedureId),
+              movedToProcedureName: movedToProcedureName || '',
             }
 
             // Handle update of assessment table ui from TableCard.vue
             this.$root.$emit('statement:moveToProcedure', moveToProcedureParams)
           }
-          this.toggleModal(null)
+          this.toggleModal()
         })
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.results.loading'))
-          this.toggleModal(null)
+          this.toggleModal()
         })
+    },
+
+    toggleModal () {
+      this.$refs.moveStatementModal.toggle()
     },
   },
 
   mounted () {
-    //  Emitted from TableCard.vue
-    this.$root.$on('moveStatement:toggle', (statementId) => this.toggleModal(statementId))
+    this.$nextTick(() => {
+      this.handleToggleModal()
+    })
   },
 }
 </script>

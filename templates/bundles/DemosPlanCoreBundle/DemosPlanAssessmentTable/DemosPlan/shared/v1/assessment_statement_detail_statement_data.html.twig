@@ -653,7 +653,7 @@
 
                     {% else %}
                         {# set all options for optgroups only for edit-mode #}
-                        {% if statement.isSubmittedByCitizen == false and hasPermission('field_show_internal_procedure_phases_in_dropdown') %}
+                        {% if statement.isSubmittedByCitizen == false %}
                             {% set phases = templateVars.internalPhases|default %}
                         {% else %}
                             {% set phases = templateVars.externalPhases|default %}
@@ -1205,7 +1205,7 @@
                                 fileupload(
                                     "r_fileupload_source_statement",
                                     "document.attach",
-                                    "all",
+                                    ['.jpg', '.png', '.bmp', '.jpeg', '.zip', '.docx', '.odt', '.pdf', '.txt', '.tiff', '.tif'],
                                     "form.button.upload.file",
                                     1,
                                     true
@@ -1227,7 +1227,7 @@
                                 fileupload(
                                     "r_fileupload",
                                     "documents.attach",
-                                    "all",
+                                    ['.jpg', '.png', '.bmp', '.jpeg', '.zip', '.docx', '.odt', '.pdf', '.txt', '.tiff', '.tif'],
                                     "form.button.upload.files",
                                     20,
                                     true
@@ -1284,7 +1284,7 @@
                                 {{ "location"|trans }}
                             </strong>
                             {% if statement.polygon is defined and statement.polygon != '' %}
-                                <a href="#" @click.prevent.stop="(function(){$refs.mapModal.toggleModal({{ statement.polygon|convertLegacyPolygon|escape('html_attr') }})})()">{{ 'see'|trans }}</a>
+                                <a href="#" @click.prevent.stop="openMapModal({{ statement.polygon|convertLegacyPolygon|escape('html_attr') }})">{{ 'see'|trans }}</a>
                             {% else %}
                                 <span class="layout__item u-3-of-4 color--grey">{{ 'map.no_outline'|trans }}</span>
                             {% endif %}
@@ -1320,13 +1320,13 @@
                                     {{ "counties"|trans }}
                                 </strong>
                                 <dp-multiselect
-                                    v-model="selectedCounties"
+                                    :value="selectedCounties"
                                     class="layout__item u-1-of-1 inline-block"
                                     label="name"
                                     multiple
                                     :options="counties"
                                     track-by="id"
-                                    @input="sortSelected('Counties')">
+                                    @input="handleCountiesInput">
                                     <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
@@ -1371,13 +1371,13 @@
                                     {{ "municipalities"|trans }}
                                 </strong>
                                 <dp-multiselect
-                                    v-model="selectedMunicipalities"
+                                    :value="selectedMunicipalities"
                                     class="layout__item u-1-of-1 inline-block"
                                     label="name"
                                     multiple
                                     :options="municipalities"
                                     track-by="id"
-                                    @input="sortSelected('Municipalities')">
+                                    @input="handleMunicipalitiesInput">
                                     <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
@@ -1422,13 +1422,13 @@
                                     {{ "priorityArea"|trans }}
                                 </strong>
                                 <dp-multiselect
-                                    v-model="selectedPriorityAreas"
+                                    :value="selectedPriorityAreas"
                                     class="layout__item u-1-of-1 inline-block"
                                     label="name"
                                     multiple
                                     :options="priorityAreas"
                                     track-by="id"
-                                    @input="sortSelected('PriorityAreas')">
+                                    @input="handlePriorityAreasInput">
                                     <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>

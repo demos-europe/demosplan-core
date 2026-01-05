@@ -65,11 +65,4 @@ module.exports = {
       },
     ],
   ],
-  globals: {
-    '@vue/vue3-jest': {
-      babelConfig: {
-        plugins: ['dynamic-import-node'],
-      },
-    },
-  },
 }

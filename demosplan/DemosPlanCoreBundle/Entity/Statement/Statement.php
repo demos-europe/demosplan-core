@@ -850,7 +850,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *                        is not possible atm, because primary keys are named differently across entities
      *                        Files have to be get via Repository
      */
-    protected $files;
+    protected $files = [];
 
     /**
      * @var User
@@ -896,7 +896,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var bool
      *
-     * @ORM\Column(type="boolean", nullable = false, options={"default":false})
+     * @ORM\Column(name="`manual`", type="boolean", nullable = false, options={"default":false})
      */
     protected $manual = false;
 
@@ -1000,7 +1000,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @ORM\Column(type="smallint", options={"default": "0"})
      */
-    private $segmentationPiRetries;
+    private $segmentationPiRetries = 0;
 
     /**
      * @var string|null
@@ -1064,14 +1064,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         $this->priorityAreas = new ArrayCollection();
         $this->municipalities = new ArrayCollection();
         $this->fragments = new ArrayCollection();
-        $this->files = [];
         $this->cluster = new ArrayCollection();
         $this->children = new ArrayCollection();
         $this->segmentsOfStatement = new ArrayCollection();
         $this->anonymizations = new ArrayCollection();
         $this->attachments = new ArrayCollection();
         $this->similarStatementSubmitters = new ArrayCollection();
-        $this->segmentationPiRetries = 0;
         $this->statementsCreatedFromOriginal = new ArrayCollection();
     }
 
@@ -2097,11 +2095,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
             if ($this->isDeleted()) {
                 return false;
             }
-            if ($this->getProcedure()->isDeleted()) {
-                return false;
-            }
 
-            return true;
+            return !$this->getProcedure()->isDeleted();
         } catch (Exception) {
             return false;
         }
@@ -3379,7 +3374,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     public function getAuthoredDateString()
     {
-        if (null === $this->getMeta()) {
+        if (!$this->getMeta() instanceof StatementMeta) {
             return '';
         }
 
@@ -3581,7 +3576,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     public function setOrgaEmail(string $emailAddress): self
     {
-        if (null === $this->getMeta()) {
+        if (!$this->getMeta() instanceof StatementMeta) {
             throw new InvalidArgumentException('Can\'t set email address, statement has no meta.');
         }
 
@@ -4138,7 +4133,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->similarStatementSubmitters;
     }
 
-    public function addSimilarStatementSubmitter(ProcedurePerson $similarStatementSubmitter): void
+    public function addSimilarStatementSubmitter(ProcedurePersonInterface $similarStatementSubmitter): void
     {
         if (!$this->similarStatementSubmitters->contains($similarStatementSubmitter)) {
             $this->similarStatementSubmitters->add($similarStatementSubmitter);
@@ -4198,5 +4193,15 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function setCustomFields($customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function setStatementsCreatedFromOriginal(ArrayCollection|Collection $statementsCreatedFromOriginal): void
+    {
+        $this->statementsCreatedFromOriginal = $statementsCreatedFromOriginal;
+    }
+
+    public function getStatementsCreatedFromOriginal(): ArrayCollection|Collection
+    {
+        return $this->statementsCreatedFromOriginal;
     }
 }

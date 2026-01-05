@@ -7,53 +7,42 @@
   All rights reserved
 </license>
 
+<template>
+  <div>
+    <slot
+      :auth-users-options="authUsersOptions"
+      :select-all-auth-users="selectAllAuthUsers"
+      :set-selected-internal-phase="setSelectedInternalPhase"
+      :set-selected-public-phase="setSelectedPublicPhase"
+      :sorted-agencies-options="sortedAgenciesOptions"
+      :state="state"
+      :submit="submit"
+      :unselect-all-auth-users="unselectAllAuthUsers"
+      :update-addon-payload="updateAddonPayload"
+    />
+  </div>
+</template>
+
 <script>
+import { computed, reactive } from 'vue'
 import {
   dpApi,
-  DpButton,
-  DpContextualHelp,
-  DpDateRangePicker,
-  DpDatetimePicker,
-  DpEditor,
-  DpInlineNotification,
-  DpInput,
-  DpMultiselect,
   dpValidateMixin,
   sortAlphabetically,
 } from '@demos-europe/demosplan-ui'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
-import { defineAsyncComponent } from 'vue'
-import DpEmailList from './DpEmailList'
-import ExportSettings from './ExportSettings'
-import ParticipationPhases from './ParticipationPhases'
 
 export default {
   name: 'DpBasicSettings',
 
-  components: {
-    AddonWrapper,
-    AutoSwitchProcedurePhaseForm: () => import(/* webpackChunkName: "auto-switch-procedure-phase-form" */ '@DpJs/components/procedure/basicSettings/AutoSwitchProcedurePhaseForm'),
-    DpButton,
-    DpContextualHelp,
-    DpDateRangePicker,
-    DpDatetimePicker,
-    DpEditor,
-    DpEmailList,
-    DpInlineNotification,
-    DpInput,
-    DpMultiselect,
-    DpProcedureCoordinate: defineAsyncComponent(() => import(/* webpackChunkName: "dp-procedure-coordinate" */ './DpProcedureCoordinate')),
-    DpUploadFiles: defineAsyncComponent(async () => {
-      const { DpUploadFiles } = await import('@demos-europe/demosplan-ui')
-      return DpUploadFiles
-    }),
-    ExportSettings,
-    ParticipationPhases,
-  },
-
   mixins: [dpValidateMixin],
 
   props: {
+    agenciesOptions: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     authorizedUsersOptions: {
       type: Array,
       required: false,
@@ -114,6 +103,12 @@ export default {
       default: '',
     },
 
+    initPublicParticipationFeedbackEnabled: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
+
     initSimilarRecommendationProcedures: {
       required: false,
       type: Array,
@@ -124,12 +119,6 @@ export default {
       required: false,
       type: Array,
       default: () => [],
-    },
-
-    plisId: {
-      required: false,
-      type: String,
-      default: '',
     },
 
     procedureExternalDesc: {
@@ -144,6 +133,54 @@ export default {
     },
   },
 
+  setup (props) {
+    const state = reactive({
+      pictogramAltText: props.initPictogramAltText,
+      pictogramCopyright: props.initPictogramCopyright,
+      procedureDescription: props.procedureExternalDesc,
+      procedureName: props.initProcedureName,
+      publicParticipationFeedbackEnabled: props.initPublicParticipationFeedbackEnabled,
+      selectedAgencies: props.initAgencies,
+      selectedAuthUsers: sortAlphabetically(structuredClone(props.initAuthUsers), 'name'),
+      selectedDataInputOrgas: props.initDataInputOrgas,
+      selectedInternalPhase: props.initProcedurePhaseInternal,
+      selectedProcedureCategories: props.initProcedureCategories,
+      selectedPublicPhase: props.initProcedurePhasePublic,
+      selectedSimilarRecommendationProcedures: props.initSimilarRecommendationProcedures,
+    })
+
+    const authUsersOptions = computed(() =>
+      sortAlphabetically([...props.authorizedUsersOptions], 'name'),
+    )
+
+    const sortedAgenciesOptions = computed(() =>
+      sortAlphabetically([...props.agenciesOptions], 'name'),
+    )
+
+    const setSelectedInternalPhase = phase => {
+      state.selectedInternalPhase = phase
+    }
+    const setSelectedPublicPhase = phase => {
+      state.selectedPublicPhase = phase
+    }
+    const selectAllAuthUsers = () => {
+      state.selectedAuthUsers = props.authorizedUsersOptions
+    }
+    const unselectAllAuthUsers = () => {
+      state.selectedAuthUsers = []
+    }
+
+    return {
+      authUsersOptions,
+      selectAllAuthUsers,
+      setSelectedInternalPhase,
+      setSelectedPublicPhase,
+      sortedAgenciesOptions,
+      state,
+      unselectAllAuthUsers,
+    }
+  },
+
   data () {
     return {
       addonPayload: { /** The payload required for addon requests. When a value is entered in the addon field, it emits data that must include the following fields */
@@ -155,25 +192,7 @@ export default {
         value: '',
       },
       isLoadingPlisData: false,
-      pictogramAltText: this.initPictogramAltText,
-      pictogramCopyright: this.initPictogramCopyright,
-      procedureDescription: this.procedureExternalDesc,
-      procedureName: this.initProcedureName,
-      selectedAgencies: this.initAgencies,
-      selectedAuthUsers: this.initAuthUsers,
-      selectedDataInputOrgas: this.initDataInputOrgas,
-      selectedInternalPhase: this.initProcedurePhaseInternal,
-      selectedProcedureCategories: this.initProcedureCategories,
-      selectedPublicPhase: this.initProcedurePhasePublic,
-      selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures,
     }
-  },
-
-  computed: {
-    authUsersOptions () {
-      const users = JSON.parse(JSON.stringify(this.authorizedUsersOptions))
-      return sortAlphabetically(users, 'name')
-    },
   },
 
   methods: {
@@ -194,16 +213,6 @@ export default {
           },
         ...(url === 'api_resource_update' ? { id } : {}),
       }
-    },
-
-    getDataPlis (plisId, routeName) {
-      return dpApi({
-        method: 'GET',
-        url: Routing.generate(routeName, { uuid: plisId }),
-      })
-        .then(data => {
-          return data.data
-        })
     },
 
     handleAddonRequest () {
@@ -230,49 +239,28 @@ export default {
         })
     },
 
-    selectAllAuthUsers () {
-      this.selectedAuthUsers = this.authorizedUsersOptions
-    },
-
-    setSelectedInternalPhase (phase) {
-      this.selectedInternalPhase = phase
-    },
-
-    setSelectedPublicPhase (phase) {
-      this.selectedPublicPhase = phase
-    },
-
-    submit () {
+    submit (formElement) {
       const addonExists = !!window.dplan.loadedAddons['addon.additional.field']
       const addonHasValue = !!this.addonPayload.value || !!this.addonPayload.initValue
 
       this.dpValidateAction('configForm', () => {
         if (addonExists && addonHasValue) {
           this.handleAddonRequest().then(() => {
-            this.submitConfigForm()
+            this.submitConfigForm(formElement)
           })
         } else {
-          this.submitConfigForm()
+          this.submitConfigForm(formElement)
         }
       }, false)
     },
 
-    submitConfigForm () {
-      this.$refs.configForm.submit()
-    },
-
-    unselectAllAuthUsers () {
-      this.selectedAuthUsers = []
+    submitConfigForm (formElement) {
+      formElement.submit()
     },
 
     updateAddonPayload (payload) {
       this.addonPayload = payload
     },
-  },
-
-  mounted () {
-    const users = JSON.parse(JSON.stringify(this.initAuthUsers))
-    this.selectedAuthUsers = sortAlphabetically(users, 'name')
   },
 }
 </script>

@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -109,7 +110,7 @@ class StatementAnonymizeService
     public function anonymizeAddressData(Statement $statement): void
     {
         $meta = $statement->getMeta();
-        if (null !== $meta) {
+        if ($meta instanceof StatementMeta) {
             if (!$this->permissions->hasPermission('feature_keep_street_on_anonymize')
                 // see permission description for why the house number is checked
                 || '' === $meta->getHouseNumber()) {
@@ -184,7 +185,7 @@ class StatementAnonymizeService
 
             // Do not delete the file if it belongs to a draft statement (private user)
             $draftStatements = $this->draftStatementFileHandler->getDraftStatementRelatedToThisFile($fileStringParts[1]);
-            if (0 === count($draftStatements)) {
+            if ([] === $draftStatements) {
                 $this->fileService->deleteFileFromFileString($fileString);
             }
         }
@@ -256,7 +257,7 @@ class StatementAnonymizeService
     private function anonymizeAuthorUserData(Statement $statement): void
     {
         $statement->setUser(null);
-        if (null !== $statement->getMeta()) {
+        if ($statement->getMeta() instanceof StatementMeta) {
             $statement->getMeta()->setAuthorName($this->translator->trans('anonymized'));
         }
     }
@@ -349,7 +350,7 @@ class StatementAnonymizeService
                             '<'.self::TAG.'>',
                             '</'.self::TAG.'>',
                         ],
-                        $texts[$i]
+                        (string) $texts[$i]
                     );
                 }
             }
@@ -373,7 +374,7 @@ class StatementAnonymizeService
      */
     private function anonymizeSubmitUserData(Statement $statement): void
     {
-        if (null !== $statement->getMeta()) {
+        if ($statement->getMeta() instanceof StatementMeta) {
             $statement->getMeta()->setSubmitUId(null);
             $statement->getMeta()->setSubmitName($this->translator->trans('anonymized'));
         }

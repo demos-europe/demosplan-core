@@ -13,19 +13,31 @@
 
     <!-- if statement has segments and user has the permission, display segments -->
     <template v-else-if="hasSegments">
+      <!-- Pagination above segments list -->
+      <div
+        v-if="pagination && pagination.currentPage"
+        class="flex justify-between items-center mb-4"
+      >
+        <dp-pager
+          :key="`segmentsPagerTopEdit_${pagination.currentPage}_${pagination.count || 0}`"
+          :class="{ 'invisible': isLoading }"
+          :current-page="pagination.currentPage"
+          :limits="pagination.limits || defaultPagination.limits"
+          :per-page="pagination.perPage || defaultPagination.perPage"
+          :total-pages="pagination.totalPages || 1"
+          :total-items="pagination.total || 0"
+          @page-change="handlePageChange"
+          @size-change="handleSizeChange"
+        />
+      </div>
+
       <div
         v-for="segment in segments"
         :id="'segmentTextEdit_' + segment.id"
         :key="segment.id"
-        class="u-ph-0_25"
-        :class="{ 'bg-color--grey-light-2': hoveredSegment === segment.id }"
-        @mouseenter="hoveredSegment = segment.id"
-        @mouseleave="hoveredSegment = null"
+        class="px-1 hover:bg-interactive-secondary-subtle-hover"
       >
-        <div
-          class="inline-block"
-          style="width: 5%"
-        >
+        <div class="inline-block w-[5%]">
           <dp-claim
             class="c-at-item__row-icon inline-block"
             :assigned-id="assigneeBySegment(segment.id).id"
@@ -38,10 +50,7 @@
             @click="() => toggleClaimSegment(segment)"
           />
         </div><!--
-     --><div
-          class="inline-block break-words"
-          style="width: 95%"
-        >
+     --><div class="inline-block break-words w-[95%]">
           <dp-edit-field
             :ref="`editField_${segment.id}`"
             class="c-styled-html"
@@ -62,7 +71,7 @@
             </template>
             <template v-slot:edit>
               <dp-editor
-                class="u-mr u-pt-0_25"
+                class="mr-4 pt-1"
                 :toolbar-items="{ linkButton: true, obscure: hasPermission('feature_obscure_text') }"
                 :value="segment.attributes.text"
                 @transform-obscure-tag="transformObscureTag"
@@ -71,6 +80,24 @@
             </template>
           </dp-edit-field>
         </div>
+      </div>
+
+      <!-- Pagination below segments list -->
+      <div
+        v-if="pagination && pagination.currentPage"
+        class="flex justify-between items-center mt-4"
+      >
+        <dp-pager
+          :key="`segmentsPagerBottomEdit_${pagination.currentPage}_${pagination.count || 0}`"
+          :class="{ 'invisible': isLoading }"
+          :current-page="pagination.currentPage"
+          :limits="pagination.limits || defaultPagination.limits"
+          :per-page="pagination.perPage || defaultPagination.perPage"
+          :total-pages="pagination.totalPages || 1"
+          :total-items="pagination.total || 0"
+          @page-change="handlePageChange"
+          @size-change="handleSizeChange"
+        />
       </div>
     </template>
 
@@ -104,7 +131,7 @@
           :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
           type="warning"
         />
-        <p class="weight--bold">
+        <p class="font-semibold">
           {{ Translator.trans('statement.text.short') }}
         </p>
         <div v-cleanhtml="statement.attributes.fullText || ''" />
@@ -120,12 +147,15 @@ import {
   DpButtonRow,
   DpInlineNotification,
   DpLoading,
+  DpPager,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
+import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 
@@ -137,6 +167,7 @@ export default {
     DpClaim,
     DpEditField,
     DpLoading,
+    DpPager,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
@@ -149,7 +180,7 @@ export default {
     cleanhtml: CleanHtml,
   },
 
-  mixins: [dpValidateMixin],
+  mixins: [dpValidateMixin, paginationMixin],
 
   props: {
     currentUser: {
@@ -164,9 +195,9 @@ export default {
     },
 
     hasDraftSegments: {
-      type: Object,
+      type: Boolean,
       required: false,
-      default: () => {},
+      default: false,
     },
 
     statementId: {
@@ -184,9 +215,16 @@ export default {
     return {
       claimLoading: null,
       editingSegmentIds: [],
-      hoveredSegment: null,
       isLoading: false,
       obscuredText: '',
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 20, 50],
+        perPage: 20,
+      },
+      pagination: {},
+      storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`,
+      segmentNavigation: null,
     }
   },
 
@@ -202,29 +240,23 @@ export default {
     assigneeBySegment () {
       return segmentId => {
         const segment = this.segments[segmentId]
-        try {
-          const assignee = segment.rel('assignee')
-          const orga = assignee ? assignee.rel('orga') : ''
 
+        // Bypass segment.rel() to avoid library crash on null relationships
+        if (!segment.hasRelationship('assignee') || !segment.relationships?.assignee?.data) {
           return {
-            id: assignee.id,
-            name: assignee.attributes.firstname + ' ' + assignee.attributes.lastname,
-            orgaName: orga ? orga.attributes.name : '',
+            id: '',
+            name: '',
+            orgaName: '',
           }
-        } catch (err) {
-          if (segment.hasRelationship('assignee') && segment.relationships.assignee.data.id === this.currentUser.id) {
-            return {
-              id: this.currentUser.id,
-              name: this.currentUser.firstname + ' ' + this.currentUser.lastname,
-              orgaName: this.currentUser.orgaName,
-            }
-          } else {
-            return {
-              id: '',
-              name: '',
-              orgaName: '',
-            }
-          }
+        }
+
+        const assignee = segment.rel('assignee')
+        const orga = assignee.rel('orga')
+
+        return {
+          id: assignee.id || '',
+          name: (assignee.attributes?.firstname || '') + ' ' + (assignee.attributes?.lastname || ''),
+          orgaName: orga?.attributes?.name || '',
         }
       }
     },
@@ -335,6 +367,12 @@ export default {
     },
 
     saveSegment (segmentId) {
+      if (!this.segments[segmentId].attributes.text) {
+        this.$refs[`editField_${segmentId}`][0].loading = false
+
+        return dplan.notify.error(Translator.trans('error.segment.empty.text'))
+      }
+
       // Use the transformed text if available
       const textToSave = this.obscuredText || this.segments[segmentId].attributes.text
 
@@ -364,7 +402,10 @@ export default {
     scrollToSegment () {
       const queryParams = new URLSearchParams(window.location.search)
       const segmentId = queryParams.get('segment')
-      scrollTo('#segmentTextEdit_' + segmentId, { offset: -110 })
+
+      if (segmentId) {
+        scrollTo('#segmentTextEdit_' + segmentId, { offset: -110 })
+      }
     },
 
     /*
@@ -374,7 +415,8 @@ export default {
      */
     toggleClaimSegment (segment) {
       this.claimLoading = segment.id
-      const userIdToSet = segment.hasRelationship('assignee') && segment.relationships.assignee.data.id === this.currentUser.id ? null : this.currentUser.id
+      const assigneeData = segment.relationships?.assignee?.data
+      const userIdToSet = (segment.hasRelationship('assignee') && assigneeData?.id === this.currentUser.id) ? null : this.currentUser.id
       const isClaim = userIdToSet !== null
 
       if (isClaim) {
@@ -440,11 +482,25 @@ export default {
     transformObscureTag (val) {
       this.obscuredText = val
     },
-  },
 
-  mounted () {
-    if (Object.keys(this.segments).length === 0 && hasPermission('area_statement_segmentation')) {
+    async fetchSegments (page = 1) {
       this.isLoading = true
+
+      // Calculate correct page for segment parameter (only runs once)
+      const { calculatedPage, perPage } = await this.segmentNavigation.calculatePageForSegment()
+      let shouldRemoveSegmentParam = false
+
+      if (calculatedPage) {
+        page = calculatedPage
+        this.pagination.currentPage = calculatedPage
+
+        if (perPage) {
+          this.pagination.perPage = perPage
+        }
+
+        // Mark that we need to remove segment param after scroll completes
+        shouldRemoveSegmentParam = true
+      }
 
       const statementSegmentFields = [
         'tags',
@@ -463,7 +519,7 @@ export default {
         statementSegmentFields.push('customFields')
       }
 
-      this.listSegments({
+      const response = await this.listSegments({
         include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
         sort: 'orderInProcedure',
         fields: {
@@ -472,6 +528,10 @@ export default {
           StatementSegment: statementSegmentFields.join(),
           User: ['lastname', 'firstname', 'orga'].join(),
           Orga: ['name'].join(),
+        },
+        page: {
+          number: page,
+          size: this.pagination?.perPage || this.defaultPagination.perPage,
         },
         filter: {
           parentStatementOfSegment: {
@@ -482,15 +542,67 @@ export default {
           },
         },
       })
-        .then(() => {
-          this.isLoading = false
-          this.$nextTick(() => {
-            this.scrollToSegment()
-          })
-        })
-        .finally(() => {
-          this.isLoading = false
-        })
+
+      // Update pagination with response metadata
+      if (response && response.meta && response.meta.pagination) {
+        this.setLocalStorage(response.meta.pagination)
+        this.updatePagination(response.meta.pagination)
+      }
+
+      this.isLoading = false
+
+      await this.$nextTick()
+
+      this.scrollToSegment()
+
+      // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
+      if (shouldRemoveSegmentParam) {
+        this.segmentNavigation.removeSegmentParameter()
+      }
+    },
+
+    handlePageChange (page) {
+      this.fetchSegments(page)
+    },
+
+    handleSizeChange (newSize) {
+      if (newSize <= 0) {
+        // Prevent division by zero or negative page size
+        return
+      }
+      // Compute new page with current page for changed number of items per page
+      const page = Math.floor((this.pagination?.perPage * (this.pagination?.currentPage - 1) / newSize) + 1)
+      this.pagination.perPage = newSize
+      this.fetchSegments(page)
+    },
+  },
+
+  created () {
+    this.segmentNavigation = handleSegmentNavigation({
+      statementId: this.statementId,
+      storageKey: this.storageKeyPagination,
+      currentPerPage: this.pagination?.perPage,
+      defaultPagination: this.defaultPagination,
+    })
+  },
+
+  mounted () {
+    if (hasPermission('area_statement_segmentation')) {
+      /**
+       * Check if the user navigated here from a specific segment in the segments list; if so, navigate to the page on which
+       * that segment is found (i.e., override pagination)
+       */
+      const paginationOverride = this.segmentNavigation.initializeSegmentPagination(() => this.initPagination())
+
+      if (paginationOverride) {
+        this.pagination = paginationOverride
+      }
+
+      /**
+       * Fetch segments for current page from pagination (either based on the segment the user navigated from or on localStorage),
+       * default to 1st page
+       */
+      this.fetchSegments(this.pagination?.currentPage || 1)
     }
   },
 

@@ -248,7 +248,7 @@ class StatementGeoService
             }
             $this->logger->info('Time for parsing Objects from Georequest: '.DemosPlanTools::varExport(microtime(true) - $microtime, true));
 
-            if (0 < count($statementData)) {
+            if ([] !== $statementData) {
                 // update statement, explicitly allow editing original statement
                 $statements[$key] = $this->statementService->updateStatement($statementData, true, true, true);
                 $original = $statement->getOriginal();
@@ -406,7 +406,7 @@ class StatementGeoService
 
         foreach ($polygons as $wktItem) {
             preg_match('/POLYGON[\s]*\({1,2}([0-9\. ,]*)/', (string) $wktItem, $coords);
-            if (0 < count($coords)) {
+            if ([] !== $coords) {
                 // leerzeichen zu komma, komma zu Leerzeichen mit Zwischenschritt über |
                 $coordinates->push(str_replace('|', ' ', str_replace(' ', ',', str_replace(',', '|', $coords[1]))));
             }
@@ -464,7 +464,7 @@ class StatementGeoService
 
         foreach ($linestrings as $wktItem) {
             preg_match('/LINESTRING[\s]*\((.*)\)/', (string) $wktItem, $coords);
-            if (0 < count($coords)) {
+            if ([] !== $coords) {
                 // leerzeichen zu komma, komma zu Leerzeichen mit Zwischenschritt über |
                 $coordinates->push(str_replace('|', ' ', str_replace(' ', ',', str_replace(',', '|', $coords[1]))));
             }
@@ -527,7 +527,7 @@ class StatementGeoService
 
         foreach ($points as $wktItem) {
             preg_match('/POINT[\s]*\((.*)\)/', (string) $wktItem, $coords);
-            if (0 < count($coords)) {
+            if ([] !== $coords) {
                 $coordinates->push(str_replace(' ', ',', $coords[1]));
             }
         }

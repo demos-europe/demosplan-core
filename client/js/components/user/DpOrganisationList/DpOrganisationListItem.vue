@@ -139,7 +139,6 @@ export default {
     'addonOptions:loaded',
     'items:get',
     'item:selected',
-    'organisation:reset',
   ],
 
   data () {
@@ -229,7 +228,6 @@ export default {
     reset () {
       this.restoreOrganisation(this.organisation.id)
         .then(() => {
-          this.$root.$emit('organisation:reset')
           this.isOpen = !this.isOpen
         })
     },
