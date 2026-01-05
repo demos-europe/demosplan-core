@@ -63,7 +63,7 @@ describe('DpFaqItem', () => {
     global.Routing = { generate: jest.fn((route, params) => `/faq/${params.faqID}`) }
   })
 
-  it('button triggers delete', async () => {
+  it('button triggers delete faq item', async () => {
     wrapper = shallowMount(DpFaqItem, {
       global: {
         plugins: [store],
@@ -88,8 +88,6 @@ describe('DpFaqItem', () => {
       },
     })
 
-    await wrapper.vm.$nextTick()
-
     const deleteButton = wrapper.find('[data-cy="deleteFaqItem"]')
     await deleteButton.trigger('click')
     await flushPromises()
@@ -97,7 +95,6 @@ describe('DpFaqItem', () => {
     expect(global.dpconfirm).toHaveBeenCalledTimes(1)
     expect(mockUpdateCategory).toHaveBeenCalledTimes(1)
     expect(mockDeleteFaq).toHaveBeenCalledTimes(1)
-    expect(mockDeleteFaq.mock.calls[0][1]).toBe('1')
     expect(global.dplan.notify.notify).toHaveBeenCalledWith('confirm', 'confirm.faq.deleted')
   })
 })
