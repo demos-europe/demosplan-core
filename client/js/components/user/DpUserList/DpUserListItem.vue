@@ -24,6 +24,7 @@
       <div class="flex items-start">
         <div class="relative z-above-zero u-mt-0_75">
           <input
+            :aria-label="Translator.trans('user.select', { name: `${user.attributes.firstname} ${user.attributes.lastname}` })"
             type="checkbox"
             :checked="selected"
             name="elementsToAdminister[]"
