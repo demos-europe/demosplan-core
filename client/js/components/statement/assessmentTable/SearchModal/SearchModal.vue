@@ -445,7 +445,7 @@ export default {
 </script>
 
 <style scoped>
-.show-validation :deep(input:invalid) {
-  border-color: #d4004b !important;
+.show-validation {
+  border-color: #d4004b;
 }
 </style>
