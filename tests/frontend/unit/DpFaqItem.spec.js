@@ -19,7 +19,9 @@ describe('DpFaqItem', () => {
           '1': {
             id: '1',
             relationships: {
-              faq: { data: [{ id: '1', type: 'Faq' }] },
+              faq: {
+                data: [{ id: '1', type: 'Faq' }],
+              },
             },
           },
         },
@@ -57,7 +59,7 @@ describe('DpFaqItem', () => {
 
     global.dpconfirm = jest.fn(() => true)
     global.dplan = {
-      notify: { notify: jest.fn(), error: jest.fn() }
+      notify: { notify: jest.fn(), error: jest.fn() },
     }
     global.Translator = { trans: jest.fn(key => key) }
     global.Routing = { generate: jest.fn((route, params) => `/faq/${params.faqID}`) }
@@ -78,13 +80,13 @@ describe('DpFaqItem', () => {
         faqItem: {
           id: '1',
           type: 'Faq',
-          attributes: { title: 'Was ist eine Hansestadt?', enabled: true }
+          attributes: { title: 'Was ist eine Hansestadt?', enabled: true },
         },
         parentId: '1',
         availableGroupOptions: [
           { id: 'fpVisible', title: 'Fachplaner' },
           { id: 'publicVisible', title: 'Öffentlichkeit' },
-        ]
+        ],
       },
     })
 
