@@ -11,123 +11,125 @@
   <!-- This component is used as a wrapper for statement and cluster detail view -->
 </documentation>
 
+<template>
+  <div>
+    <dp-map-modal
+      ref="mapModal"
+      :procedure-id="procedureId"
+    />
+
+    <slot
+      :add-tag-boilerplate="addTagBoilerplate"
+      :busy-copy-from-fragments="busyCopyFromFragments"
+      :copy-recommendation-from-fragments="copyRecommendationFromFragments"
+      :counties="counties"
+      :current-recommendation="currentRecommendation"
+      :handle-counties-input="handleCountiesInput"
+      :handle-municipalities-input="handleMunicipalitiesInput"
+      :handle-priority-areas-input="handlePriorityAreasInput"
+      :handle-tags-input="handleTagsInput"
+      :municipalities="municipalities"
+      :open-map-modal="openMapModal"
+      :open-statement-publish="openStatementPublish"
+      :open-statement-voters="openStatementVoters"
+      :priority-areas="priorityAreas"
+      :selected-counties="selectedCounties"
+      :selected-municipalities="selectedMunicipalities"
+      :selected-priority-areas="selectedPriorityAreas"
+      :selected-tags="selectedTags"
+      :sort-selected="sortSelected"
+      :tags="tags"
+      :update-current-recommendation="updateCurrentRecommendation"
+      :update-selected-counties="updateSelectedCounties"
+      :update-selected-municipalities="updateSelectedMunicipalities"
+      :update-selected-priority-areas="updateSelectedPriorityAreas"
+      :update-selected-tags="updateSelectedTags"
+    />
+  </div>
+</template>
+
 <script>
-import {
-  DpAccordion,
-  dpApi,
-  DpButton,
-  DpContextualHelp,
-  DpDatepicker,
-  DpMultiselect,
-  DpUploadFiles
-} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters } from 'vuex'
-import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
-import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import { dpApi } from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
-import DpStatementPublish from '@DpJs/components/statement/statement/DpStatementPublish'
-import saveAndReturn from '@DpJs/directives/saveAndReturn'
 
 export default {
   name: 'DpDetailView',
 
   components: {
-    DetailViewFinalEmailBody,
-    DpBoilerPlateModal,
-    DpButton,
-    DpContextualHelp,
-    DpDatepicker,
     DpMapModal,
-    DpMultiselect,
-    DpStatementPublish,
-    DpAccordion,
-    DpUploadFiles,
-
-    // Only needed in statement detail view
-    DpSelectStatementCluster: () => import(/* webpackChunkName: "select-statement-cluster" */ '@DpJs/components/statement/statement/SelectStatementCluster'),
-
-    DpSlidebar: async () => {
-      const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
-      return DpSlidebar
-    },
-    DpEditor: async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
-      return DpEditor
-    },
-    DpVersionHistory: () => import(/* webpackChunkName: "version-history" */ '@DpJs/components/statement/statement/DpVersionHistory'),
-    StatementReplySelect: () => import(/* webpackChunkName: "statement-reply-select" */ '@DpJs/components/statement/assessmentTable/StatementReplySelect'),
-    StatementVoter: () => import(/* webpackChunkName: "statement-voter" */ '@DpJs/components/statement/voter/StatementVoter')
-  },
-
-  directives: {
-    'save-and-return': saveAndReturn
   },
 
   props: {
     // Statement or cluster
     entity: {
       required: true,
-      type: String
+      type: String,
     },
 
     externId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initCounties: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     initMunicipalities: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     initPriorityAreas: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     initRecommendation: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initTags: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     // Only needed in statement detail view
     isCopy: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     readonly: {
       required: true,
-      type: Boolean
+      type: Boolean,
     },
 
     statementId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
+
+  emits: [
+    'show-slidebar',
+    'version:history',
+  ],
 
   data () {
     return {
@@ -136,25 +138,27 @@ export default {
       selectedCounties: [],
       selectedMunicipalities: [],
       selectedPriorityAreas: [],
-      selectedTags: []
+      selectedTags: [],
     }
   },
 
   computed: {
-    ...mapGetters('assessmentTable', ['counties', 'municipalities', 'priorityAreas', 'tags'])
+    ...mapGetters('AssessmentTable', ['counties', 'municipalities', 'priorityAreas', 'tags']),
   },
 
   methods: {
-    ...mapActions('assessmentTable', ['applyBaseData']),
+    ...mapActions('AssessmentTable', ['applyBaseData']),
 
     addTagBoilerplate (value) {
       if (hasPermission('area_admin_boilerplates')) {
         const url = Routing.generate('dm_plan_assessment_get_boilerplates_ajax', { tag: value.id, procedure: this.procedureId })
-        dpApi.get(url).then(response => {
-          if (response.status === 200 && response.data.body !== '') {
-            this.currentRecommendation = this.currentRecommendation + '<p>' + response.data.body + '</p>'
-          }
-        })
+
+        dpApi.get(url)
+          .then(response => {
+            if (response.status === 200 && response.data.body !== '') {
+              this.currentRecommendation = this.currentRecommendation + '<p>' + response.data.body + '</p>'
+            }
+          })
       }
     },
 
@@ -183,6 +187,30 @@ export default {
       }
     },
 
+    handleCountiesInput (value) {
+      this.updateSelectedCounties(value)
+      this.sortSelected('Counties')
+    },
+
+    handleMunicipalitiesInput (value) {
+      this.updateSelectedMunicipalities(value)
+      this.sortSelected('Municipalities')
+    },
+
+    handlePriorityAreasInput (value) {
+      this.updateSelectedPriorityAreas(value)
+      this.sortSelected('PriorityAreas')
+    },
+
+    handleTagsInput (value) {
+      this.updateSelectedTags(value)
+      this.sortSelected('Tags')
+    },
+
+    openMapModal (polygon) {
+      this.$refs.mapModal.toggleModal(polygon)
+    },
+
     openStatementPublish () {
       this.$refs.statementPublish.toggle(true)
     },
@@ -194,7 +222,37 @@ export default {
     sortSelected (type) {
       const area = `selected${type}`
       this[area].sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
-    }
+    },
+
+    setupSaveAndReturnHandler () {
+      const saveAndReturnButton = document.querySelector('input[name="submit_item_return_button"]')
+
+      if (saveAndReturnButton) {
+        saveAndReturnButton.addEventListener('click', () => {
+          globalThis.sessionStorage.setItem('saveAndReturn', true)
+        })
+      }
+    },
+
+    updateCurrentRecommendation (value) {
+      this.currentRecommendation = value
+    },
+
+    updateSelectedCounties (value) {
+      this.selectedCounties = value
+    },
+
+    updateSelectedMunicipalities (value) {
+      this.selectedMunicipalities = value
+    },
+
+    updateSelectedPriorityAreas (value) {
+      this.selectedPriorityAreas = value
+    },
+
+    updateSelectedTags (value) {
+      this.selectedTags = value
+    },
   },
 
   mounted () {
@@ -225,6 +283,8 @@ export default {
         this.$root.$emit('show-slidebar')
       })
     }
-  }
+
+    this.setupSaveAndReturnHandler()
+  },
 }
 </script>

@@ -25,7 +25,7 @@ class SingleDocumentHandler implements SingleDocumentHandlerInterface
     public function __construct(
         private readonly LegacyFlashMessageCreator $legacyFlashMessageCreator,
         SingleDocumentService $service,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->service = $service;
     }
@@ -95,17 +95,11 @@ class SingleDocumentHandler implements SingleDocumentHandlerInterface
         }
 
         if (array_key_exists('r_statement_enabled', $data)) {
-            if ('1' == $data['r_statement_enabled']) {
-                $document['statement_enabled'] = true;
-            } else {
-                $document['statement_enabled'] = false;
-            }
+            $document['statement_enabled'] = '1' == $data['r_statement_enabled'];
         }
 
-        if (array_key_exists('r_document', $data)) {
-            if (null != $data['r_document']) {
-                $document['document'] = $data['r_document'];
-            }
+        if (array_key_exists('r_document', $data) && null != $data['r_document']) {
+            $document['document'] = $data['r_document'];
         }
 
         $document['visible'] = true;
@@ -147,27 +141,22 @@ class SingleDocumentHandler implements SingleDocumentHandlerInterface
             $document['text'] = $data['r_text'];
         }
 
-        if (array_key_exists('r_document', $data)) {
-            if (null != $data['r_document']) {
-                $document['document'] = $data['r_document'];
-            }
+        if (array_key_exists('r_document', $data) && null != $data['r_document']) {
+            $document['document'] = $data['r_document'];
         }
 
         if (array_key_exists('r_visible', $data)) {
-            if ('1' == $data['r_visible']) {
-                $document['visible'] = true;
-            } else {
-                $document['visible'] = false;
-            }
+            $document['visible'] = '1' == $data['r_visible'];
         }
         if (array_key_exists('r_statement_enabled', $data)) {
-            if ('1' == $data['r_statement_enabled']) {
-                $document['statement_enabled'] = true;
-            } else {
-                $document['statement_enabled'] = false;
-            }
+            $document['statement_enabled'] = '1' == $data['r_statement_enabled'];
         }
 
         return $this->service->updateSingleDocument($document);
+    }
+
+    public function administrationDocumentDeleteHandler($data)
+    {
+        $this->service->deleteSingleDocument($data['r_ident']);
     }
 }

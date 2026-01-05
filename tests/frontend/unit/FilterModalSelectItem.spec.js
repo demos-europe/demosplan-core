@@ -7,14 +7,50 @@
  * All rights reserved
  */
 
+import { createStore } from 'vuex'
+import Filter from '@DpJs/store/statement/Filter'
 import FilterModalSelectItem from '@DpJs/components/statement/assessmentTable/FilterModalSelectItem'
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('FilterModalSelectItem', () => {
-  it('should be an object', () => {
-    expect(typeof FilterModalSelectItem).toBe('object')
+  let wrapper
+  let store
+
+  beforeEach(() => {
+    store = createStore({
+      modules: {
+        Filter,
+      },
+    })
+
+    wrapper = shallowMountWithGlobalMocks(FilterModalSelectItem, {
+      props: {
+        appliedFilterOptions: [],
+        filterGroup: {},
+        filterItem: {
+          id: 'testId',
+          attributes: {
+            label: 'Test Label',
+            name: 'Test Name',
+          },
+        },
+        hidden: false,
+      },
+      global: {
+        plugins: [store],
+      },
+    })
   })
 
-  it('should be named dp-modal', () => {
-    expect(FilterModalSelectItem.name).toBe('DpFilterModalSelectItem')
+  it('should update selected options when selectFilterOption is called', () => {
+    const option = { label: 'Option 1', value: '1' }
+    wrapper.vm.selectFilterOption(option)
+    expect(wrapper.vm.selected).toContainEqual(option)
+  })
+
+  it('should toggle sorting type when toggleSorting is called', () => {
+    wrapper.vm.sortingType = 'count'
+    wrapper.vm.toggleSorting('filterId')
+    expect(wrapper.vm.sortingType).toBe('alphabetic')
   })
 })

@@ -43,7 +43,7 @@ class MapProjectionConverterTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(MapProjectionConverter::class);
+        $this->sut = self::getContainer()->get(MapProjectionConverter::class);
         $proj4Transformer = new Proj4php();
         $this->currentProjection = new Proj('EPSG:25832', $proj4Transformer);
         $this->newProjection = new Proj('EPSG:3857', $proj4Transformer);
@@ -163,6 +163,7 @@ class MapProjectionConverterTest extends UnitTestCase
 
     private function getFileContents(string $fullPath): string
     {
+        // uses local file, no need for flysystem
         if (!$fileContents = file_get_contents($fullPath)) {
             throw new FileNotFoundException('File not found in path: '.$fullPath);
         }

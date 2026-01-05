@@ -35,7 +35,7 @@ class UIExtensionTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(UIExtension::class);
+        $this->sut = self::getContainer()->get(UIExtension::class);
     }
 
     public function testGetExistingComponent()

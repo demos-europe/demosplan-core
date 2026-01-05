@@ -22,195 +22,213 @@
     <!-- Filter button to open modal -->
     <button
       type="button"
-      @click.prevent="openModal"
       :class="{'color-highlight': noFilterApplied === false }"
-      class="btn--blank o-link--default inline-block u-mb-0 u-p-0 u-mt-0_125"
-      data-cy="openFilterModal">
+      class="btn--blank o-link--default inline-block u-mb-0 u-p-0"
+      data-cy="openFilterModal"
+      @click.prevent="openModal"
+    >
       <i
         class="fa fa-lg fa-filter"
-        aria-hidden="true" />
+        aria-hidden="true"
+      />
       {{ Translator.trans('filter.verb') }}
     </button>
 
     <!-- Modal content -->
-    <!-- refs T11499: The portal removed the filter form
-         fields from the corresponding form.
-         Once we have no more need to serialize these
-         form fields with jquery this can be
-         added to the portal again. -->
     <dp-modal
       ref="filterModalInner"
       class="layout"
       content-classes="u-1-of-2"
-      @modal:toggled="isOpen => resetUnsavedOptions(isOpen)">
+      @modal:toggled="isOpen => resetUnsavedOptions(isOpen)"
+    >
       <dp-loading v-if="isLoading" />
 
-      <template v-else>
-        <!-- Show filters -->
-        <template v-if="false === saveFilterSetView">
-          <h2 class="u-mb">
-            {{ Translator.trans('filter.modalTitle') }}
-          </h2>
+      <!-- Show filters -->
+      <template v-else-if="!saveFilterSetView">
+        <h2 class="u-mb">
+          {{ Translator.trans('filter.modalTitle') }}
+        </h2>
 
-          <!-- Select with saved filter sets -->
-          <div
-            v-if="userFilterSetSaveEnabled">
-            <dp-multiselect
-              id="userFilterSets"
-              data-cy="userFilterSets"
-              v-model="selectedUserFilterSet"
-              :custom-label="nameFromAttributes"
-              :options="userFilterSets"
-              track-by="id">
-              <template v-slot:option="{ props }">
-                <a
-                  class="multiselect__option-extention"
-                  href="#"
-                  @click.prevent="deleteSavedFilterSet(props.option.id)">
-                  <i
-                    class="fa fa-trash"
-                    aria-hidden="true" />
-                </a>
-                {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
-              </template>
-              <template v-slot:singleLabel="{ props }">
-                {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
-              </template>
-            </dp-multiselect>
+        <!-- Select with saved filter sets -->
+        <div
+          v-if="userFilterSetSaveEnabled"
+        >
+          <dp-multiselect
+            id="userFilterSets"
+            v-model="selectedUserFilterSet"
+            :custom-label="nameFromAttributes"
+            data-cy="userFilterSets"
+            :options="userFilterSets"
+            track-by="id"
+          >
+            <template v-slot:option="{ props }">
+              <a
+                class="multiselect__option-extention"
+                href="#"
+                @click.prevent="deleteSavedFilterSet(props.option.id)"
+              >
+                <i
+                  class="fa fa-trash"
+                  aria-hidden="true"
+                />
+              </a>
+              {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
+            </template>
+            <template v-slot:singleLabel="{ props }">
+              {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
+            </template>
+          </dp-multiselect>
 
-            <div class="text-right u-mb u-pt-0_5">
-              <button
-                type="button"
-                class="btn btn--primary"
-                data-cy="loadUserFilterSet"
-                @click.prevent="loadUserFilterSet">
-                {{ Translator.trans('filter.saveFilterSet.load') }}
-              </button>
-            </div>
+          <div class="text--right u-mb u-pt-0_5">
+            <button
+              type="button"
+              class="btn btn--primary"
+              data-cy="loadUserFilterSet"
+              @click.prevent="loadUserFilterSet"
+            >
+              {{ Translator.trans('filter.saveFilterSet.load') }}
+            </button>
           </div>
+        </div>
 
-          <!-- Tabs with filters -->
-          <dp-tabs tab-size="medium">
-            <dp-tab
-              v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
-              class="u-pt-0_5"
-              :key="index"
-              :id="filterGroup.label"
-              :label="Translator.trans(filterGroup.label)"
-              :suffix="createSelectedFiltersBadge(filterGroup)">
-              <dp-filter-modal-select-item
-                v-for="filterItem in filterByType(filterGroup.type)"
-                :key="filterItem.id"
-                :filter-item="filterItem"
-                :filter-group="filterGroup"
-                :applied-filter-options="appliedFilterOptions.filter(option => option.filterId === filterItem.id)"
-                @update-selected="updateSelectedOptions"
-                @updating-filters="disabledInteractions = true"
-                @updated-filters="disabledInteractions = false" />
-            </dp-tab>
-          </dp-tabs>
+        <!-- Tabs with filters -->
+        <dp-tabs
+          :active-id="activeTabId"
+          tab-size="medium"
+          @change="setActiveTabId"
+        >
+          <dp-tab
+            v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
+            :id="filterGroup.label"
+            :key="index"
+            class="u-pt-0_5"
+            :is-active="activeTabId === filterGroup.type"
+            :label="Translator.trans(filterGroup.label)"
+            :suffix="createSelectedFiltersBadge(filterGroup)"
+          >
+            <dp-filter-modal-select-item
+              v-for="filterItem in filterByType(filterGroup.type)"
+              :key="filterItem.id"
+              :applied-filter-options="appliedFilterOptions.filter(option => option.filterId === filterItem.id)"
+              :filter-item="filterItem"
+              :filter-group="filterGroup"
+              @update-selected="updateSelectedOptions"
+              @updating-filters="disabledInteractions = true"
+              @updated-filters="disabledInteractions = false"
+            />
+          </dp-tab>
+        </dp-tabs>
 
-          <!-- hidden selects so selected fields can be saved via form submit -->
-          <template>
-            <select
-              v-for="(option, optionKey) in allSelectedFilterOptionsWithFilterName"
-              :key="optionKey"
-              :id="option.name"
-              :name="option.name"
-              multiple
-              style="display: none">
-              <option
-                :key="optionKey"
-                :value="option.value"
-                selected>
-                {{ option.label }}
-              </option>
-            </select>
-          </template>
+        <!-- hidden selects so selected fields can be saved via form submit -->
+        <select
+          v-for="(option, optionKey) in allSelectedFilterOptionsWithFilterName"
+          :id="option.name"
+          :key="optionKey"
+          :name="option.name"
+          multiple
+          style="display: none"
+        >
+          <option
+            :key="optionKey"
+            :value="option.value"
+            selected
+          >
+            {{ option.label }}
+          </option>
+        </select>
 
-          <!-- Checkbox to indicate user wants to save the current filter set -->
-          <template v-if="userFilterSetSaveEnabled">
-            <div class="layout__item u-1-of-3" /><!--
-         --><label
+        <!-- Checkbox to indicate user wants to save the current filter set -->
+        <template v-if="userFilterSetSaveEnabled">
+          <div class="layout__item u-1-of-3" />
+          <label
             for="r_save_filter_set"
             class="layout__item u-2-of-3 u-pt-0_5"
-            :class="{'color--grey': noFilterSelected}">
+            :class="{'color--grey': noFilterSelected}"
+          >
             <input
               id="r_save_filter_set"
+              v-model="saveFilterSet"
               type="checkbox"
               name="r_save_filter_set"
               :disabled="noFilterSelected"
               data-cy="saveFilterSet"
-              v-model="saveFilterSet">
+            >
             {{ Translator.trans('filter.saveFilterSet.label') }}
           </label>
-          </template>
-
-          <!-- Button row -->
-          <div class="text-right space-inline-s">
-            <button
-              type="submit"
-              class="btn btn--primary"
-              :class="{'pointer-events-none':disabledInteractions}"
-              data-cy="submitOrNext"
-              @click.prevent="submitOrNext"
-              v-text="Translator.trans(saveFilterSet ? 'filter.saveFilterSet.next' : 'filter.apply')" />
-            <button
-              type="button"
-              class="btn btn--secondary"
-              data-cy="filterReset"
-              @click="reset"
-              v-text="Translator.trans('filter.reset')" />
-          </div>
         </template>
 
-        <!-- Show UI to save filter set -->
-        <template v-else>
-          <h2>{{ Translator.trans('filter.saveFilterSet.title') }}</h2>
+        <!-- Button row -->
+        <div class="text-right space-inline-s">
+          <button
+            type="submit"
+            class="btn btn--primary"
+            :class="{'pointer-events-none':disabledInteractions}"
+            data-cy="submitOrNext"
+            @click.prevent="submitOrNext"
+            v-text="Translator.trans(saveFilterSet ? 'filter.saveFilterSet.next' : 'filter.apply')"
+          />
+          <button
+            type="button"
+            class="btn btn--secondary"
+            data-cy="filterReset"
+            @click="reset"
+            v-text="Translator.trans('filter.reset')"
+          />
+        </div>
+      </template>
 
-          <label
-            for="r_save_filter_set_name"
-            class="u-pt-0_5">
-            {{ Translator.trans('filter.saveFilterSet.label') }}
-            <input
-              class="layout__item u-mt-0_5"
-              type="text"
-              id="r_save_filter_set_name"
-              name="r_save_filter_set_name"
-              data-cy="filterSetName"
-              :value="filterSetName">
-          </label>
+      <!-- Show UI to save filter set -->
+      <template v-else>
+        <h2>{{ Translator.trans('filter.saveFilterSet.title') }}</h2>
 
-          <div
-            class="visuallyhidden"
-            v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
-            :key="index">
-            <dp-filter-modal-select-item
-              v-for="filterItem in filterByType(filterGroup.type)"
-              :key="filterItem.id"
-              :filter-item="filterItem"
-              :filter-group="filterGroup"
-              hidden />
-          </div>
+        <label
+          for="r_save_filter_set_name"
+          class="u-pt-0_5"
+        >
+          {{ Translator.trans('filter.saveFilterSet.label') }}
+          <input
+            id="r_save_filter_set_name"
+            class="layout__item u-mt-0_5"
+            type="text"
+            name="r_save_filter_set_name"
+            data-cy="filterSetName"
+            :value="filterSetName"
+          >
+        </label>
 
-          <!-- Button row -->
-          <div class="text-right space-inline-s">
-            <button
-              class="btn btn--primary"
-              :class="{'pointer-events-none': disabledInteractions}"
-              type="submit"
-              data-cy="submitWithSave"
-              @click.stop="submitWithSave">
-              {{ Translator.trans('filter.saveFilterSet.submit') }}
-            </button>
-            <button
-              type="button"
-              class="btn btn--secondary"
-              @click="back">
-              {{ Translator.trans('filter.saveFilterSet.back') }}
-            </button>
-          </div>
-        </template>
+        <div
+          v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
+          :key="index"
+          class="visuallyhidden"
+        >
+          <dp-filter-modal-select-item
+            v-for="filterItem in filterByType(filterGroup.type)"
+            :key="filterItem.id"
+            :filter-item="filterItem"
+            :filter-group="filterGroup"
+            hidden
+          />
+        </div>
+
+        <!-- Button row -->
+        <div class="text-right space-inline-s">
+          <button
+            class="btn btn--primary"
+            :class="{'pointer-events-none': disabledInteractions}"
+            type="submit"
+            data-cy="submitWithSave"
+            @click.stop="submitWithSave"
+          >
+            {{ Translator.trans('filter.saveFilterSet.submit') }}
+          </button>
+          <button
+            type="button"
+            class="btn btn--secondary"
+            @click="back"
+          >
+            {{ Translator.trans('filter.saveFilterSet.back') }}
+          </button>
+        </div>
       </template>
     </dp-modal>
   </div>
@@ -230,61 +248,65 @@ export default {
     DpModal,
     DpLoading,
     DpTab,
-    DpTabs
+    DpTabs,
   },
 
   props: {
     appliedFilterOptions: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     filterHash: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     original: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     procedureId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
+
+  emits: [
+    'close',
+  ],
 
   data () {
     return {
+      activeTabId: null,
       disabledInteractions: false, // Do not submit form if filters are currently updating
-      disabledOpenModalButton: true, // Do not open modal if AT is still loading
       isLoading: true,
       saveFilterSet: false,
       saveFilterSetView: false,
       selectedOptions: [],
-      selectedUserFilterSet: {}
+      selectedUserFilterSet: {},
     }
   },
 
   computed: {
-    ...mapState('filter', {
+    ...mapState('Filter', {
       filterGroups: 'filterGroups',
       filterList: 'filterList',
-      filterOptionsSelected: 'selectedOptions'
+      filterOptionsSelected: 'selectedOptions',
     }),
 
-    ...mapGetters('filter', {
+    ...mapGetters('Filter', {
       filterByType: 'filterByType',
       getFilterHash: 'userFilterSetFilterHash',
       userFilterSets: 'userFilterSets',
       // All selected filter options
       selectedFilterOptions: 'selectedFilterOptions',
       // Selected options for filterHash
-      allSelectedFilterOptionsWithFilterName: 'allSelectedFilterOptionsWithFilterName'
+      allSelectedFilterOptionsWithFilterName: 'allSelectedFilterOptionsWithFilterName',
     }),
 
     /**
@@ -332,37 +354,45 @@ export default {
 
     userFilterSetSaveEnabled () {
       return (this.original === false && hasPermission('feature_procedure_user_filter_sets'))
-    }
+    },
   },
 
   watch: {
-    noFilterSelected: function () {
-      // If no filter is selected, uncheck the filter.saveFilterSet checkbox
-      this.saveFilterSet = false
+    noFilterSelected: {
+      handler () {
+        // If no filter is selected, uncheck the filter.saveFilterSet checkbox
+        this.saveFilterSet = false
+      },
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+
     },
 
-    selectedOptionsInStore: function () {
-      this.selectedOptions = this.selectedFilterOptions
-    }
+    selectedOptionsInStore: {
+      handler () {
+        this.selectedOptions = this.selectedFilterOptions
+      },
+      deep: true,
+    },
   },
 
   methods: {
-    ...mapActions('filter', [
+    ...mapActions('Filter', [
       'getFilterListAction',
       'getFilterOptionsAction',
       'getUserFilterSetsAction',
       'removeUserFilterSetAction',
-      'updateBaseState'
+      'updateBaseState',
     ]),
 
-    ...mapMutations('assessmentTable', [
-      'setProperty'
+    ...mapMutations('AssessmentTable', [
+      'setProperty',
     ]),
 
-    ...mapMutations('filter', [
+    ...mapMutations('Filter', [
       'loadAppliedFilterOptions',
       'loadSelectedFilterOptions',
-      'resetSelectedOptions'
+      'resetSelectedOptions',
+      'setLoading',
     ]),
 
     back () {
@@ -371,7 +401,7 @@ export default {
 
     createSelectedFiltersBadge (filterGroup) {
       const selectedCount = this.selectedOptions.length ? this.selectedOptions.filter(option => option.type === filterGroup.type).length : 0
-      return (selectedCount > 0) ? '<span class="u-mb-0_25 o-badge o-badge--small o-badge--dark">' + selectedCount + '</span>' : ''
+      return (selectedCount > 0) ? '<span class="o-badge o-badge--small o-badge--dark">' + selectedCount + '</span>' : ''
     },
 
     deleteSavedFilterSet (userFilterSetId) {
@@ -387,7 +417,7 @@ export default {
     loadUserFilterSet () {
       const filterHash = this.userFilterSetFilterHash(this.selectedUserFilterSet)
       // Reload with userFilterSet
-      document.location.href = Routing.generate(this.route, { procedureId: this.procedureId, filterHash: filterHash })
+      document.location.href = Routing.generate(this.route, { procedureId: this.procedureId, filterHash })
     },
 
     nameFromAttributes (option) {
@@ -446,7 +476,6 @@ export default {
     },
 
     /**
-     **
      * Reset only the unsaved selected filter options, but only when closing modal
      */
     resetUnsavedOptions (isOpen) {
@@ -458,6 +487,10 @@ export default {
         this.resetSelectedOptions(this.appliedFilterOptions)
         this.updateSelectedOptions()
       }
+    },
+
+    setActiveTabId (id) {
+      this.activeTabId = id
     },
 
     submitOrNext () {
@@ -485,13 +518,15 @@ export default {
      * Update filterHash with currently selected options from store
      * emit event to FilterModalSelectItem which then loads updated options from store
      */
-    updateSelectedOptions () {
+    updateSelectedOptions (filterItemId = false) {
       window.updateFilterHash(this.procedureId, this.allSelectedFilterOptionsWithFilterName)
         .then((filterHash) => {
           // Get updated options for selected filters
-          this.getFilterOptionsAction({ filterHash: filterHash })
-            .then((filterHash) => {
-              this.$root.$emit('selected-updated', filterHash)
+          this.getFilterOptionsAction({ filterHash })
+            .then(() => {
+              if (filterItemId) {
+                this.setLoading({ filterId: filterItemId, isLoading: false })
+              }
               this.disabledInteractions = false
             })
         })
@@ -499,13 +534,7 @@ export default {
 
     userFilterSetFilterHash (userFilterSet) {
       return this.getFilterHash(userFilterSet)
-    }
+    },
   },
-
-  mounted () {
-    this.$root.$on('assessment-table-loaded', () => {
-      this.disabledOpenModalButton = false
-    })
-  }
 }
 </script>

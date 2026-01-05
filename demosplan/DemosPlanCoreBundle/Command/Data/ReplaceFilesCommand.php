@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,15 +36,14 @@ use function is_dir;
 use function strrpos;
 use function substr;
 
+#[AsCommand(name: 'dplan:data:replace-files')]
 class ReplaceFilesCommand extends CoreCommand
 {
-    public static $defaultName = 'dplan:data:replace-files';
-
     public function __construct(
         private readonly FakeDataGeneratorFactory $generatorFactory,
         private readonly FileRepository $fileRepository,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -103,7 +103,7 @@ class ReplaceFilesCommand extends CoreCommand
         string $slot,
         SymfonyStyle $output,
         bool $dryRun,
-        string $directory
+        string $directory,
     ): void {
         $filename = $file->getFilename();
 
@@ -130,9 +130,10 @@ class ReplaceFilesCommand extends CoreCommand
         File $file,
         string $targetFormat,
         string $targetDirectory,
-        SymfonyStyle $output
+        SymfonyStyle $output,
     ): void {
         try {
+            // local file is valid, no need for flysystem
             $uploadedFile = fopen($this->getStoragePath($file, $targetDirectory), 'wb+');
 
             /** @var DataGeneratorInterface $generator */

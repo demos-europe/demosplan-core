@@ -10,17 +10,21 @@
 <template>
   <!-- everything within this container will be displayed in the fullscreen mode -->
   <div
+    ref="mastertoebContainer"
     class="c-mastertoeb bg-color--white"
-    :class="{'is-fullscreen': isFullscreen}">
+    :class="{'is-fullscreen': isFullscreen}"
+  >
     <!-- Sticky Header -->
     <dp-sticky-element
       v-if="isMounted"
       ref="header"
       :class="{'u-1-of-1': isFullscreen}"
-      :observe-context="false">
+      :observe-context="false"
+    >
       <div
         class="text-right"
-        :class="{'u-pb-0_5': isFullscreen, 'u-pv-0_5': !isFullscreen}">
+        :class="{'u-pb-0_5': isFullscreen, 'u-pv-0_5': !isFullscreen}"
+      >
         <button
           class="btn--blank color-main u-mt-0_125 u-mr-0_75"
           aria-expanded="false"
@@ -28,16 +32,19 @@
           :aria-label="Translator.trans('editor.fullscreen')"
           aria-role="navigation"
           type="button"
-          @click="() => fullscreen()">
+          @click="() => fullscreen()"
+        >
           <i
             class="fa fa-arrows-alt"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           {{ fullscreenText }}
         </button>
         <a
           v-if="hasPermission('area_manage_mastertoeblist') || hasPermission('area_use_mastertoeblist')"
           class="btn--blank u-mt-0_125 u-mr-0_75"
-          :href="Routing.generate('DemosPlan_user_mastertoeblist_export')">
+          :href="Routing.generate('DemosPlan_user_mastertoeblist_export')"
+        >
           {{ Translator.trans('export') }}
         </a>
         <!-- responsible for adding new master toeb organisations, should only be displayed if a user may edit organisations -->
@@ -46,12 +53,14 @@
           class="inline"
           :bool-to-string-fields="boolToStringFields"
           :fields="filteredFields"
-          @orga-added="insertOrga" /><!--
+          @orga:added="insertOrga"
+        /><!--
      --><dp-invite-master-toeb
           v-if="isEditable === false"
           class="inline"
           :procedure-id="procedureId"
-          :selected-toeb-ids="selectedItems" />
+          :selected-toeb-ids="selectedItems"
+        />
       </div>
       <div class="flex u-pb-0_5">
         <!-- Search field -->
@@ -60,46 +69,54 @@
           class="o-form__control-input u-mr-0_5"
           :placeholder="Translator.trans('search')"
           type="text"
-          @input="searchItems">
+          @input="searchItems"
+        >
         <dp-filter-master-toeb
           v-if="isEditable === false"
           class="inline"
           :fields="fields"
           :items="currentItems"
-          @items-filtered="setFilteredItems" />
+          @items:filtered="setFilteredItems"
+        />
         <!-- dropdown to select cols to be shown/hidden -->
         <div
           class="c-actionmenu o-page__switcher-menu"
-          data-actionmenu>
+          data-actionmenu
+        >
           <button
             class="btn--blank color-main c-actionmenu__trigger"
             aria-expanded="false"
             aria-haspopup="true"
             :aria-label="Translator.trans('table.cols.hide')"
             aria-role="navigation"
-            type="button">
+            type="button"
+          >
             {{ Translator.trans('table.cols.hide') }}
             <i class="fa fa-caret-down u-ml-0_25" />
           </button>
           <div
             class="c-actionmenu__menu overflow-hidden"
-            role="menu">
+            role="menu"
+          >
             <div class="max-h-13 overflow-y-auto">
               <label class="lbl--text u-pl-0_5 u-mb-0_25 w-10 border--bottom">
                 <input
                   checked
                   type="checkbox"
-                  @change="toggleAllCols">
+                  @change="toggleAllCols"
+                >
                 {{ Translator.trans('aria.select.all') }}
               </label>
               <label
                 v-for="(filterField, idx) in filteredFields"
                 :key="`${filterField}-${idx}`"
-                class="lbl--text u-pl-0_5 u-mb-0_25 w-10">
+                class="lbl--text u-pl-0_5 u-mb-0_25 w-10"
+              >
                 <input
                   v-model="filters[filterField.field]"
                   type="checkbox"
-                  @change="updateFields()">
+                  @change="updateFields()"
+                >
                 {{ filterField.value }}
               </label>
             </div>
@@ -110,44 +127,52 @@
 
     <!-- Table -->
     <dp-data-table
-      class="w-full font-size-5 overflow-x-hidden relative u-pb"
       ref="dataTable"
+      v-scroller
+      class="w-full font-size-5 overflow-x-hidden relative u-pb"
       has-sticky-header
       :header-fields="headerFields"
       :is-selectable="isEditable === false"
       :items="onPageItems"
       :search-string="searchString"
       track-by="oId"
-      v-scroller
-      @items-selected="setSelectedItems">
+      @items-selected="setSelectedItems"
+    >
       <template
         v-for="headerField in headerFields"
-        v-slot:[headerField.field]="rowData">
+        v-slot:[headerField.field]="rowData"
+      >
         <dp-update-mastertoeb
           v-if="headerField.field !== 'deletion'"
           :key="headerField.field"
           :is-editing="editModeElementId === rowData.ident && editModeElementField === headerField.field"
-          :value="transformValue(rowData[headerField.field], headerField.field)" />
+          :value="transformValue(rowData[headerField.field], headerField.field)"
+        />
         <dp-delete-master-toeb
           v-if="headerField.field === 'deletion' && isEditable"
           :key="headerField.field"
           :orga-id="rowData.ident"
-          @orga-deleted="removeOrga" />
+          @orga:deleted="removeOrga"
+        />
       </template>
       <template
         v-for="headerField in headerFields"
-        v-slot:[`header-${headerField.field}`]>
+        v-slot:[`header-${headerField.field}`]
+      >
         <div
           v-if="headerField.field !== 'deletion'"
           :key="headerField.field"
-          class="whitespace-nowrap u-pr-0_5 relative">
+          class="whitespace-nowrap u-pr-0_5 relative"
+        >
           <button
             class="btn--blank u-top-0 u-right-0 absolute"
             type="button"
-            @click="setOrder(headerField.field)">
+            @click="setOrder(headerField.field)"
+          >
             <i
               class="fa"
-              :class="(headerField.field === sortOrder.key) ? (sortOrder.direction === 1 ? 'fa-sort-up color-highlight' : 'fa-sort-down color-highlight') : 'fa-sort color--grey'" />
+              :class="(headerField.field === sortOrder.key) ? (sortOrder.direction === 1 ? 'fa-sort-up color-highlight' : 'fa-sort-down color-highlight') : 'fa-sort color--grey'"
+            />
           </button>
           {{ headerField.value }}
         </div>
@@ -155,7 +180,8 @@
           v-if="headerField.field === 'deletion'"
           :key="headerField + 'header'"
           class="fa fa-trash"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
       </template>
     </dp-data-table>
 
@@ -164,28 +190,29 @@
       v-if="isMounted"
       ref="footer"
       class="c-mastertoeb__footer"
-      direction="bottom">
+      direction="bottom"
+    >
       <!-- The scrollBar element serves as a "custom" horizontal scrollbar by forcing its child to be the same width as the dataTable -->
       <div
         ref="scrollBar"
-        class="overflow-x-scroll overflow-y-hidden">
+        class="overflow-x-scroll overflow-y-hidden"
+      >
         <div />
       </div>
 
       <!-- Pager & "Items per page" control -->
       <div class="u-mv-0_5 text-right">
-        <sliding-pagination
+        <dp-pager
           v-if="totalPages > 1"
           class="inline-block u-mr-0_25 u-ml-0_5 u-mt-0_125"
-          :current="currentPage"
-          :total="totalPages"
-          @page-change="handlePageChange" />
-        <dp-select-page-item-count
-          class="inline"
-          :current-item-count="itemsPerPage"
-          :label-text="Translator.trans('pager.per.page')"
-          :page-count-options="itemsPerPageOptions"
-          @changed-count="setPageItemCount" />
+          :current-page="currentPage"
+          :limits="itemsPerPageOptions"
+          :per-page="itemsPerPage"
+          :total-items="rowItems.length"
+          :total-pages="totalPages"
+          @page-change="handlePageChange"
+          @size-change="handleSizeChange"
+        />
       </div>
     </dp-sticky-element>
   </div>
@@ -197,12 +224,12 @@ import {
   dataTableSearch,
   dpApi,
   DpDataTable,
-  DpSelectPageItemCount,
+  DpPager,
   DpStickyElement,
   isActiveFullScreen,
   makeFormPost,
   toggleFullscreen,
-  unbindFullScreenChange
+  unbindFullScreenChange,
 } from '@demos-europe/demosplan-ui'
 import DpDeleteMasterToeb from './DpMasterToebList/DpDeleteMasterToeb'
 import DpFilterMasterToeb from './DpMasterToebList/DpFilterMasterToeb'
@@ -210,7 +237,6 @@ import DpInviteMasterToeb from './DpMasterToebList/DpInviteMasterToeb'
 import DpNewMasterToeb from './DpMasterToebList/DpNewMasterToeb'
 import DpUpdateMastertoeb from './DpMasterToebList/DpUpdateMastertoeb'
 import Scroller from '@DpJs/directives/scroller'
-import SlidingPagination from 'vue-sliding-pagination'
 
 const setupCellUpdate = (originalValue, id, field, isBoolToString) => (e) => {
   let newValue = e.target.value
@@ -226,8 +252,8 @@ const setupCellUpdate = (originalValue, id, field, isBoolToString) => (e) => {
 
     const payload = {
       oId: id,
-      field: field,
-      value: newValue
+      field,
+      value: newValue,
     }
 
     return makeFormPost(payload, Routing.generate('DemosPlan_user_mastertoeblist_update_ajax'))
@@ -238,52 +264,55 @@ export default {
   name: 'DpMasterToebList',
 
   directives: {
-    scroller: Scroller
+    scroller: Scroller,
   },
 
   components: {
     DpDataTable,
+    DpPager,
     DpDeleteMasterToeb,
     DpFilterMasterToeb,
     DpInviteMasterToeb,
     DpNewMasterToeb,
-    DpSelectPageItemCount,
     DpStickyElement,
     DpUpdateMastertoeb,
-    SlidingPagination
   },
 
   props: {
     fields: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     isEditable: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     items: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     userId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureId: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
+
+  emits: [
+    'orga:updated',
+  ],
 
   data () {
     return {
@@ -307,7 +336,7 @@ export default {
       searchString: '',
       selectedItems: [],
       sortOrder: { key: 'orgaName', direction: 1 },
-      updatedItems: this.possiblyInsertDeletion(this.items)
+      updatedItems: this.possiblyInsertDeletion(this.items),
     }
   },
 
@@ -343,7 +372,7 @@ export default {
 
     totalPages () {
       return this.rowItems.length > 0 ? Math.ceil(this.rowItems.length / this.itemsPerPage) : 1
-    }
+    },
   },
 
   methods: {
@@ -381,7 +410,7 @@ export default {
     },
 
     fullscreen () {
-      toggleFullscreen(this.$el)
+      toggleFullscreen(this.$refs.mastertoebContainer)
     },
 
     generateItemMap (items) {
@@ -392,6 +421,13 @@ export default {
     },
 
     handlePageChange (page) {
+      this.currentPage = page
+      this.updateFields()
+    },
+
+    handleSizeChange (newSize) {
+      const page = Math.floor((this.itemsPerPage * (this.currentPage - 1) / newSize) + 1)
+      this.itemsPerPage = newSize
       this.currentPage = page
       this.updateFields()
     },
@@ -450,12 +486,6 @@ export default {
       this.updateFields()
     },
 
-    setPageItemCount (count) {
-      this.itemsPerPage = count
-      this.currentPage = this.currentPage > this.totalPages ? this.totalPages : this.currentPage
-      this.updateFields()
-    },
-
     setSelectedItems (items) {
       this.selectedItems = items
     },
@@ -494,7 +524,6 @@ export default {
 
       if (value === null || typeof value === 'undefined' || value === false) {
         return '-'
-
       }
 
       return value
@@ -531,14 +560,14 @@ export default {
             const newValue = e.target.value
             updateCell(e)
               .then(() => {
-                this.$emit('orga-updated', id, { [field]: newValue }, 'confirm')
+                this.$emit('orga:updated', id, { [field]: newValue }, 'confirm')
                 el.classList.add('animation--bg-highlight-grey--light-1')
                 setTimeout(() => {
                   el.classList.remove('animation--bg-highlight-grey--light-1')
                 }, 3000)
               })
               .catch(() => {
-                this.$emit('orga-updated', id, { [field]: value }, 'error')
+                this.$emit('orga:updated', id, { [field]: value }, 'error')
               })
             el.removeEventListener('focusout', runCellUpdate)
             this.editModeElementId = ''
@@ -566,7 +595,7 @@ export default {
 
       if (status === 'confirm') {
         const fieldName = this.fields.filter(el => el.field === Object.keys(updatedField)[0])[0].value
-        dplan.notify.notify(status, Translator.trans('confirm.field.changes.saved', { fieldName: fieldName }))
+        dplan.notify.notify(status, Translator.trans('confirm.field.changes.saved', { fieldName }))
       } else {
         dplan.notify.notify(status, Translator.trans('error.api.generic'))
       }
@@ -587,7 +616,7 @@ export default {
      */
     updateScrollbarWidth () {
       this.scrollbar.firstChild.setAttribute('style', 'width:' + window.getComputedStyle(this.dataTableElement).width + ';height:1px;')
-    }
+    },
   },
 
   mounted () {
@@ -608,7 +637,7 @@ export default {
       this.addCellIdsAndFields(tableBody, this.onPageItems)
       tableBody.addEventListener('click', this.triggerEditMode)
     }
-    this.$on('orga-updated', this.updateOrga)
+    this.$on('orga:updated', this.updateOrga)
 
     // The code below forces reflow therefore it should be executed once all other code from mounted has run (perf gains)
     this.isMounted = true
@@ -624,7 +653,7 @@ export default {
       this.dataTableObserver = new ResizeObserver(this.updateScrollbarWidth.bind(this))
       this.dataTableObserver.observe(this.dataTableElement)
 
-      // To unbind handler on beforeDestroy, it exists as a named function.
+      // To unbind handler on beforeUnmount, it exists as a named function.
       bindFullScreenChange(this.setIsFullscreen.bind(this))
 
       // Set scrollbars + dataTable container height.
@@ -632,9 +661,9 @@ export default {
     })
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     // Remove event listener, just to not let them pile up
     unbindFullScreenChange(this.setIsFullscreen)
-  }
+  },
 }
 </script>

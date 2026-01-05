@@ -12,7 +12,7 @@ import { mapMutations, mapState } from 'vuex'
 
 export default {
   components: {
-    DpInput
+    DpInput,
   },
 
   mixins: [prefixClassMixin],
@@ -21,30 +21,30 @@ export default {
     draftStatementId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     disabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     required: {
       type: Boolean,
       required: false,
-      default: true
-    }
+      default: true,
+    },
   },
 
   computed: {
-    ...mapState('publicStatement', ['statement'])
+    ...mapState('PublicStatement', ['statement']),
   },
   methods: {
-    ...mapMutations('publicStatement', ['updateStatement']),
+    ...mapMutations('PublicStatement', ['updateStatement']),
 
     setStatementData (data) {
       this.updateStatement({ r_ident: this.draftStatementId, ...data })
-    }
-  }
+    },
+  },
 }

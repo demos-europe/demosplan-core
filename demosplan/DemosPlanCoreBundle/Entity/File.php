@@ -25,7 +25,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * IMPORTANT: All files not listed in {@link FileInUseChecker::isFileInUse} are deleted as orphans. Make sure to register new
  * new file relationships there.
  *
- * @ORM\Table(name="_files")
+ * @ORM\Table(name="_files", indexes={@ORM\Index(columns={"_f_hash"})})
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FileRepository")
  */
@@ -284,7 +284,7 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
         return $this;
     }
 
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }

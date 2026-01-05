@@ -20,12 +20,15 @@ use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
@@ -122,7 +125,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         private readonly PermissionResolver $permissionResolver,
         ProcedureAccessEvaluator $procedureAccessEvaluator,
         private ProcedureRepository $procedureRepository,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
+        private readonly AccessControlService $accessControlPermission,
+        private readonly UserAccessControlService $userAccessControlService,
     ) {
         $this->addonPermissionInitializers = $addonRegistry->getPermissionInitializers();
         $this->globalConfig = $globalConfig;
@@ -145,7 +150,39 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         // set Permissions which are dependent on role but independent of procedure
         $this->setGlobalPermissions();
 
+        // set Permissions which are store in DB
+        $this->loadDynamicPermissions();
+
         return $this;
+    }
+
+    public function loadDynamicPermissions(): void
+    {
+        // Load role-based permissions from access_control table
+        $permissions = $this->accessControlPermission->getPermissions($this->user->getOrga(), $this->user->getCurrentCustomer(), $this->user->getRoles());
+
+        if ([] !== $permissions) {
+            $this->enablePermissions($permissions);
+        }
+
+        // Load user-specific permissions from user_access_control table
+        if (null !== $this->user && !$this->user->hasRole(Role::GUEST)) {
+            try {
+                $userPermissions = $this->userAccessControlService->getUserPermissions($this->user);
+
+                // User permissions take precedence - enable them directly
+                foreach ($userPermissions as $userAccessControl) {
+                    $permissionName = $userAccessControl->getPermission();
+                    if (isset($this->permissions[$permissionName])) {
+                        $this->permissions[$permissionName]->enable();
+                        $this->logger->debug("Enabled user-specific permission: {$permissionName}");
+                    }
+                }
+            } catch (Exception $e) {
+                // Log error but don't break permission loading
+                $this->logger->warning('Error loading user-specific permissions: '.$e->getMessage());
+            }
+        }
     }
 
     /**
@@ -171,16 +208,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'area_main_file',
             'area_main_procedures',
             'area_mydata',
-            'area_mydata_password',
             'area_participants_internal',
             'area_portal_user',
             'feature_assessmenttable_export',
-            'feature_assessmenttable_single_statement_pdf',
-            'feature_assessmenttable_use_pager',
             'feature_data_protection_text_customized_view',
             'feature_documents_category_use_file',
             'feature_documents_category_use_paragraph',
-            'feature_email_invitable_institution_additional_invitation_text',
             'feature_imprint_text_customized_view',
             'feature_institution_participation',
             'feature_json_api_get',
@@ -190,7 +223,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'feature_map_use_drawing_tools',
             'feature_map_use_location_relation',
             'feature_original_statements_export',
-            'feature_original_statements_use_pager',
             'feature_participation_area_procedure_detail_map_use_baselayerbox',
             'feature_procedure_filter_any',
             'feature_procedure_filter_external_orga_name',
@@ -227,7 +259,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'field_statement_meta_orga_name',
             'field_statement_meta_postal_code',
             'field_statement_meta_submit_name',
-            'field_statement_phase',
             'field_statement_priority',
             'field_statement_status',
             'field_statement_submit_type',
@@ -241,6 +272,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     protected function setGlobalPermissions(): void
     {
+        if ($this->user->hasAnyOfRoles([Role::PLANNING_AGENCY_ADMIN, Role::PLANNING_AGENCY_WORKER, Role::PRIVATE_PLANNING_AGENCY])) {
+            $this->enablePermissions([
+                'feature_list_restricted_external_links',
+            ]);
+        }
+
         if ($this->user->hasAnyOfRoles(
             [
                 Role::PUBLIC_AGENCY_COORDINATION,
@@ -259,7 +296,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $this->enablePermissions([
                 'area_manage_departments',  // Abteilungen
                 'area_manage_orgadata',  // Daten der eignen Organisation verwalten
-                'area_manage_users',  // User verwalten
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_organisations_view_of_customer',
                 'area_preferences',  // Einstellungen
@@ -267,14 +303,11 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_json_api_delete',
                 'feature_json_api_list',
                 'feature_json_api_update',
-                'feature_orga_edit',
                 'feature_orga_edit_all_fields',
                 'feature_orga_get',
-                'feature_user_add',
-                'feature_user_delete',
-                'feature_user_edit',
-                'feature_user_get',
-                'feature_user_list',
+                // In contrast to the permission "area_organisations", the permission "feature_organisation_user_list"
+                // allows the display of the organisation list, but does not grant access to the "Organisation" item in the menu
+                'feature_organisation_user_list',
                 'field_statement_recommendation',
             ]);
         }
@@ -293,8 +326,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_preferences',  // Einstellungen
                 'feature_admin_delete_procedure',  // Verfahren loeschen
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_admin_new_procedure',  // Neues Verfahren anlegen
-                'feature_procedure_export_include_public_interest_bodies_member_list',
                 'feature_json_api_get', // allow get requests to generic api
             ]);
         }
@@ -306,14 +337,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_mydata_organisation',  // Daten der Organisation
                 'area_preferences',  // Einstellungen
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_procedure_export_include_public_interest_bodies_member_list',
 
                 // kann empfehlungen abgeben aber nicht die Bearbeitung abschliessen
                 'field_statement_recommendation',
-            ]);
-
-            $this->disablePermissions([
-                'field_procedure_adjustments_planning_agency',  // Planungsbüro einem Verfahren zuordnen
             ]);
         }
 
@@ -338,7 +364,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_preferences',  // Einstellungen
                 'feature_admin_export_procedure',  // Verfahren exportieren
                 'feature_json_api_get', // allow get requests to generic api
-                'feature_procedure_export_include_public_interest_bodies_member_list',
             ]);
         }
 
@@ -356,7 +381,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_manage_orgadata',  // Daten der Organisation
                 'area_mydata_organisation',  // Daten der Organisation
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_statements_vote_may_vote',
             ]);
         }
 
@@ -406,6 +430,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_preferences',  // Einstellungen
                 'feature_orga_edit',
                 'feature_orga_edit_all_fields',
+                // In contrast to the permission "area_organisations", the permission "feature_organisation_user_list"
+                // allows the display of the organisation list, but does not grant access to the "Organisation" item in the menu
+                'feature_organisation_user_list',
                 'feature_procedure_report_public_phase',
                 'field_data_protection_text_customized_edit_customer',
                 'field_imprint_text_customized_edit_customer',
@@ -425,12 +452,10 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_preferences',  // Einstellungen
                 'area_statistics',  // Statistiken
                 'feature_orga_get',
+                // In contrast to the permission "area_organisations", the permission "feature_organisation_user_list"
+                // allows the display of the organisation list, but does not grant access to the "Organisation" item in the menu
+                'feature_organisation_user_list',
                 'feature_procedure_report_public_phase',
-                'feature_user_add',
-                'feature_user_delete',
-                'feature_user_edit',
-                'feature_user_get',
-                'feature_user_list',
                 'field_data_protection_text_customized_edit_customer',
                 'field_imprint_text_customized_edit_customer',
                 'field_statement_recommendation',
@@ -530,7 +555,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
             $this->enablePermissions([
                 'area_admin',  // Verwalten
-                'area_admin_assessmenttable',  // Verwalten Abwaegungstabelle
                 'area_admin_dashboard',  // Übersichtsseite
                 'area_admin_map',  // Verwalten Planzeichnung
                 'area_admin_map_description',  // Verwalten Planzeichenerklärung
@@ -708,24 +732,33 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
 
         $invitedOrgaIds = $this->procedureRepository->getInvitedOrgaIds($this->procedure->getId());
-        // Keine Institution eingeladen
-        if (0 === count($invitedOrgaIds)) {
-            $this->logger->debug('Procedure doesn\'t have Orgas');
+        $dataInputOrganisations = $this->procedure->getDataInputOrganisations();
+        /** @var Orga $orga */
+        $dataInputOrgaIds = $dataInputOrganisations?->map(fn ($orga) => $orga->getId())->toArray() ?? [];
+
+        // Keine Institution eingeladen und keine Datenerfasser-Organisationen
+        if ([] === $invitedOrgaIds && 0 === count($dataInputOrgaIds)) {
+            $this->logger->debug('Procedure doesn\'t have Orgas or DataInput Orgas');
 
             return false;
         }
 
-        // Ist eine eingeladene Institution
-        if (!isset($this->user) || !$this->user instanceof User) {
+        // Ist eine eingeladene Institution oder Datenerfasser-Organisation
+        if (null === $this->user || !$this->user instanceof User) {
             $this->logger->debug('No User defined');
 
             return false;
         }
 
         $isInvitedInstitution = \in_array($this->user->getOrganisationId(), $invitedOrgaIds, true);
+        $isDataInputInstitution = \in_array($this->user->getOrganisationId(), $dataInputOrgaIds, true);
 
-        if ($isInvitedInstitution) {
-            $this->logger->debug('Orga is member');
+        if ($isInvitedInstitution || $isDataInputInstitution) {
+            if ($isDataInputInstitution) {
+                $this->logger->debug('Orga is data input member');
+            } else {
+                $this->logger->debug('Orga is member');
+            }
 
             return true;
         }
@@ -937,14 +970,14 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     public function checkPermissions($permissions): void
     {
-        if (is_array($permissions) && 0 < count($permissions)) {
+        if (is_array($permissions) && [] !== $permissions) {
             foreach ($permissions as $permissionToTest) {
                 $this->checkPermission($permissionToTest);
             }
         } else {
             // Give devs a hint that the permissions here need to be reworked
-            $this->logger->info('This area has no explicit permission specified! '
-                        .'Please provide a permission to be checked using the attribute #[DplanPermissions] or annotation @DplanPermissions.', \debug_backtrace(0, 4));
+            $this->logger->debug('This area has no explicit permission specified! '
+                        .'Please provide a permission to be checked using the attribute #[DplanPermissions].', \debug_backtrace(0, 4));
         }
     }
 
@@ -959,7 +992,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $readPermission = $this->hasPermissionsetRead();
             $owns = $this->ownsProcedure();
             $apiUserMayAccess = $this->hasPermission('feature_procedure_api_access');
-            $hasPermissionToEnter = $readPermission || $owns || $apiUserMayAccess;
+            $dataInputOrgaAccess = $this->procedureAccessEvaluator->isAllowedAsDataInputOrga($this->user, $this->procedure);
+            $hasPermissionToEnter = $readPermission || $owns || $apiUserMayAccess || $dataInputOrgaAccess;
             if (!$hasPermissionToEnter) {
                 // handle guest Exceptions differently as redirects
                 // may be different
@@ -1000,7 +1034,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
         // addon permission, evaluating via resolver
         $resolvablePermission = $this->getAddonPermission($permissionName, $addonIdentifier);
-        if (null === $resolvablePermission) {
+        if (!$resolvablePermission instanceof ResolvablePermission) {
             throw AccessDeniedException::unknownAddonPermission($permissionName, $addonIdentifier, $this->user);
         }
         if (!$this->isResolvablePermissionEnabled($resolvablePermission)) {
@@ -1032,7 +1066,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         // addon permission, evaluating via resolver
         $resolvablePermission = $this->getAddonPermission($permissionName, $addonIdentifier);
 
-        return null !== $resolvablePermission && $this->isResolvablePermissionEnabled($resolvablePermission);
+        return $resolvablePermission instanceof ResolvablePermission && $this->isResolvablePermissionEnabled($resolvablePermission);
     }
 
     public function isPermissionKnown($permissionIdentifier): bool
@@ -1045,7 +1079,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
 
         // addon permission, check if it exists in the correct collection
-        return null !== $this->getAddonPermission($permissionName, $addonIdentifier);
+        return $this->getAddonPermission($permissionName, $addonIdentifier) instanceof ResolvablePermission;
     }
 
     /**
@@ -1081,7 +1115,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     protected function evaluatePermission($permission): void
     {
         // deny permission when permissions are not defined at all
-        if (!is_array($this->permissions) || 0 === count($this->permissions)) {
+        if (!is_array($this->permissions) || [] === $this->permissions) {
             throw AccessDeniedException::missingPermissions($this->user);
         }
 
@@ -1096,10 +1130,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
 
         if ($this->permissions[$permission]->isEnabled()) {
-            if ($this->permissions[$permission]->isLoginRequired()) {
-                if (null === $this->user || !$this->user->isLoggedIn()) {
-                    throw new SessionUnavailableException('Für diese Aktion müssen Sie angemeldet sein.', 1001);
-                }
+            if ($this->permissions[$permission]->isLoginRequired() && (null === $this->user || !$this->user->isLoggedIn())) {
+                throw new SessionUnavailableException('Für diese Aktion müssen Sie angemeldet sein.', 1001);
             }
         } else {
             // handle guest Exceptions differently as redirects

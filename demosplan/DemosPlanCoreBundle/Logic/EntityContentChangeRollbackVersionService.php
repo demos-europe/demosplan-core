@@ -15,7 +15,7 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 /**
  * Class EntityContentChangeRollbackVersionService.
  */
-class EntityContentChangeRollbackVersionService extends CoreService
+class EntityContentChangeRollbackVersionService
 {
     /** @var EntityContentChangeService */
     protected $entityContentChangeService;

@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,12 +19,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 
+#[AsCommand(name: 'dplan:phpstan', description: 'Run PHPStan')]
 class PhpStanCommand extends CoreCommand
 {
     private const PHPSTAN_CONFIG_PATH = 'config/linters/phpstan.template.neon';
-
-    protected static $defaultName = 'dplan:phpstan';
-    protected static $defaultDescription = 'Run PHPStan';
 
     public function configure(): void
     {
@@ -59,7 +58,7 @@ class PhpStanCommand extends CoreCommand
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-        $configSavePath = $this->writeConfig($input);
+        $configSavePath = $this->writeConfig($input, $output);
 
         if ($input->getOption('only-dump-config')) {
             return Command::SUCCESS;
@@ -72,23 +71,45 @@ class PhpStanCommand extends CoreCommand
         return (int) $this->doRunPhpStan($input, $output, $configSavePath, $path, $level);
     }
 
-    protected function writeConfig(InputInterface $input): string
+    protected function writeConfig(InputInterface $input, OutputInterface $output): string
     {
-        $configSavePath = DemosPlanPath::getRootPath('phpstan.neon');
+        $configSavePath = 'phpstan.neon';
 
         // poor dev's twig
         $configLoadPath = self::PHPSTAN_CONFIG_PATH;
 
+        $containerPath = $this->parameterBag->get('debug.container.dump');
+
+        // Convert container paths to work both inside and outside the container
+        $rootPath = DemosPlanPath::getRootPath();
+
+        // Handle container path format (/srv/www/...)
+        if (str_starts_with($containerPath, '/srv/www/')) {
+            $containerPath = substr($containerPath, 9); // remove /srv/www/
+        }
+
+        // Handle host path format
+        if (str_starts_with($containerPath, $rootPath)) {
+            $containerPath = substr($containerPath, strlen($rootPath) + 1);
+        }
+
+        // Ensure the container path exists and is accessible
+        if (file_exists($rootPath.'/'.$containerPath)) {
+            $output->writeln(sprintf('Using container path: %s', $containerPath));
+        } elseif (file_exists('/srv/www/'.$containerPath)) {
+            $output->writeln(sprintf('Using container path: %s (in container)', $containerPath));
+        } else {
+            $output->writeln(sprintf('<warning>Warning: Container file not found. Using best guess: %s</warning>', $containerPath));
+        }
+
         $config = str_replace(
             '{{ container_path }}',
-
-            $this->parameterBag->get('debug.container.dump'),
-
-            file_get_contents(
-                DemosPlanPath::getRootPath($configLoadPath)
-            )
+            $containerPath,
+            // uses local file, no need for flysystem
+            file_get_contents($configLoadPath)
         );
 
+        // local file is valid, no need for flysystem
         file_put_contents($configSavePath, $config);
 
         return $configSavePath;
@@ -99,7 +120,7 @@ class PhpStanCommand extends CoreCommand
         OutputInterface $output,
         string $configSavePath,
         string $path,
-        int $level
+        int $level,
     ): ?int {
         $isCi = $input->getOption('ci');
 

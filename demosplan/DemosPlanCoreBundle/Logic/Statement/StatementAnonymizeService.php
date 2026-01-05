@@ -13,12 +13,12 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
@@ -27,12 +27,20 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class StatementAnonymizeService extends CoreService
+class StatementAnonymizeService
 {
     /** @var string Tag before anonymization, it means: "this still needs to be anonymized!" */
     private const TAG = 'anonymize-text';
 
-    public function __construct(private readonly EntityContentChangeService $entityContentChangeService, private readonly FileService $fileService, private PermissionsInterface $permissions, private readonly ReportService $reportService, private readonly StatementService $statementService, private readonly StatementAttachmentService $statementAttachmentService, private readonly TranslatorInterface $translator)
+    public function __construct(
+        private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly FileService $fileService,
+        private PermissionsInterface $permissions,
+        private readonly ReportService $reportService,
+        private readonly StatementService $statementService,
+        private readonly StatementAttachmentService $statementAttachmentService,
+        private readonly TranslatorInterface $translator,
+        private readonly DraftStatementFileHandler $draftStatementFileHandler)
     {
     }
 
@@ -70,7 +78,7 @@ class StatementAnonymizeService extends CoreService
         bool $recursively,
         bool $forceOriginal,
         string $userId,
-        bool $revokeGdpr
+        bool $revokeGdpr,
     ): Statement {
         $statement = $this->forceAnonymizationOfOriginal($forceOriginal, $statement);
         if (null === $statement->getGdprConsent()) {
@@ -102,7 +110,7 @@ class StatementAnonymizeService extends CoreService
     public function anonymizeAddressData(Statement $statement): void
     {
         $meta = $statement->getMeta();
-        if (null !== $meta) {
+        if ($meta instanceof StatementMeta) {
             if (!$this->permissions->hasPermission('feature_keep_street_on_anonymize')
                 // see permission description for why the house number is checked
                 || '' === $meta->getHouseNumber()) {
@@ -174,7 +182,12 @@ class StatementAnonymizeService extends CoreService
         foreach ($statement->getFiles() as $fileString) {
             $fileStringParts = explode(':', $fileString);
             $this->fileService->deleteFileContainer($fileStringParts[1], $statement->getId());
-            $this->fileService->deleteFileFromFileString($fileString);
+
+            // Do not delete the file if it belongs to a draft statement (private user)
+            $draftStatements = $this->draftStatementFileHandler->getDraftStatementRelatedToThisFile($fileStringParts[1]);
+            if ([] === $draftStatements) {
+                $this->fileService->deleteFileFromFileString($fileString);
+            }
         }
         $statement->setFile('');
         $statement->setFiles([]);
@@ -185,6 +198,7 @@ class StatementAnonymizeService extends CoreService
     private function anonymizeText(string $anonymizedTextWithTags): string
     {
         $blackSharpie = '<span class="anonymized">***</span>';
+
         /*
          * (.+?) means:
          * - a group: ()
@@ -243,7 +257,7 @@ class StatementAnonymizeService extends CoreService
     private function anonymizeAuthorUserData(Statement $statement): void
     {
         $statement->setUser(null);
-        if (null !== $statement->getMeta()) {
+        if ($statement->getMeta() instanceof StatementMeta) {
             $statement->getMeta()->setAuthorName($this->translator->trans('anonymized'));
         }
     }
@@ -336,7 +350,7 @@ class StatementAnonymizeService extends CoreService
                             '<'.self::TAG.'>',
                             '</'.self::TAG.'>',
                         ],
-                        $texts[$i]
+                        (string) $texts[$i]
                     );
                 }
             }
@@ -360,7 +374,7 @@ class StatementAnonymizeService extends CoreService
      */
     private function anonymizeSubmitUserData(Statement $statement): void
     {
-        if (null !== $statement->getMeta()) {
+        if ($statement->getMeta() instanceof StatementMeta) {
             $statement->getMeta()->setSubmitUId(null);
             $statement->getMeta()->setSubmitName($this->translator->trans('anonymized'));
         }
@@ -410,7 +424,7 @@ class StatementAnonymizeService extends CoreService
         bool $recursively,
         Statement $statement,
         string $userId,
-        bool $revokeGdpr
+        bool $revokeGdpr,
     ): void {
         if ($recursively) {
             /** @var Statement[] $children */

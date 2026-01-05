@@ -227,6 +227,9 @@ export default function ToggleAnything () {
           el.one('click', function () {
             el.config.targetObj.removeClass(prefixClass('is-run', omitPrefix))
           })
+          // Sync element's visual state and aria attributes
+          toggleAriaAttrs(el, true)
+          el.addClass(el.config.propertyClass + '-toggle')
         }
 
         //  Activate toggle on page load when toggles are checked checkboxes / radios
@@ -235,7 +238,7 @@ export default function ToggleAnything () {
           el.config.targetObj.addClass(el.config.propertyClass)
         }
 
-        el.on('click statementform', { el: el }, function (e) {
+        el.on('click statementform', { el }, function (e) {
           //  Prevent default if configured so
           if (el.config.preventDefault === true) {
             e.preventDefault()
@@ -267,7 +270,7 @@ export default function ToggleAnything () {
           }
 
           //  Vue Components may listen to this
-          const toggleAnythingClicked = new CustomEvent("toggleAnything:clicked", { data: el.data('toggle-id') })
+          const toggleAnythingClicked = new CustomEvent('toggleAnything:clicked', { data: el.data('toggle-id') })
 
           //  Vue Components may listen to this
           document.dispatchEvent(toggleAnythingClicked)

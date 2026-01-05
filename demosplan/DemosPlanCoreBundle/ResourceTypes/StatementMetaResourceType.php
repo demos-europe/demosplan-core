@@ -12,8 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseStatementMetaResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 
 /**
@@ -44,12 +46,12 @@ final class StatementMetaResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return false;
+        return true;
     }
 
     protected function getAccessConditions(): array
     {
-        return [$this->conditionFactory->false()];
+        return [];
     }
 
     public function isGetAllowed(): bool
@@ -62,8 +64,15 @@ final class StatementMetaResourceType extends DplanResourceType
         return false;
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): ResourceConfigBuilderInterface
     {
-        return [];
+        $statementMetaConfig = $this->getConfig(BaseStatementMetaResourceConfigBuilder::class);
+        $statementMetaConfig->id->setReadableByPath();
+        $statementMetaConfig->authorName->setReadableByPath();
+        $statementMetaConfig->submitName->setReadableByPath();
+        $statementMetaConfig->orgaName->setReadableByPath();
+        $statementMetaConfig->orgaDepartmentName->setReadableByPath();
+
+        return $statementMetaConfig;
     }
 }

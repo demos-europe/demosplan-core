@@ -7,70 +7,64 @@
  * All rights reserved
  */
 
-import DpAdminLayerList from '@DpJs/components/map/admin/DpAdminLayerList'
+import AdminLayerList from '@DpJs/components/map/admin/AdminLayerList'
+import { createStore } from 'vuex'
 import LayersStore from '@DpJs/store/map/Layers'
+
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
-import Vuex from 'vuex'
-
-describe('DpAdminLayerList', () => {
+describe('AdminLayerList', () => {
   let store
   let mutations
   let actions
 
   beforeEach(() => {
     mutations = {
-      setDraggableOptions: jest.fn(),
-      setDraggableOptionsForBaseLayer: jest.fn(),
-      setMinimapBaseLayer: jest.fn()
+      setMinimapBaseLayer: jest.fn(),
+      updateState: jest.fn(),
     }
 
     actions = {
       get: jest.fn(),
-      setDraggableOptions: jest.fn(),
       setListOrder: jest.fn(),
       resetOrder: jest.fn(),
-      save: jest.fn()
+      save: jest.fn(),
     }
 
-    store = new Vuex.Store({
+    store = createStore({
       modules: {
-        layers: {
+        Layers: {
           namespaced: true,
           state: LayersStore.state,
           mutations,
           actions,
-          getters: LayersStore.getters
-        }
-      }
+          getters: LayersStore.getters,
+        },
+      },
     })
   })
 
-  it('should be an object', () => {
-    expect(typeof DpAdminLayerList).toBe('object')
-  })
-
-  it('should be named DpAdminLayerList', () => {
-    expect(DpAdminLayerList.name).toBe('DpAdminLayerList')
-  })
-
   it('should have the correct prop-values', () => {
-    const wrapper = shallowMountWithGlobalMocks(DpAdminLayerList, {
-      propsData: {
-        procedureId: 'some-id'
+    const wrapper = shallowMountWithGlobalMocks(AdminLayerList, {
+      props: {
+        procedureId: 'some-id',
       },
-      store
+      global: {
+        plugins: [store],
+      },
     })
 
     expect(wrapper.props().procedureId).toBe('some-id')
   })
 
   it('should render a empty admin layer list', () => {
-    const wrapper = shallowMountWithGlobalMocks(DpAdminLayerList, {
-      propsData: {
-        procedureId: 'some-id'
+    const wrapper = shallowMountWithGlobalMocks(AdminLayerList, {
+      props: {
+        procedureId: 'some-id',
       },
-      store
+      global: {
+        plugins: [store],
+      },
     })
     expect(wrapper.html()).toMatchSnapshot()
   })

@@ -7,15 +7,37 @@
  * All rights reserved
  */
 
+import { createStore } from 'vuex'
 import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend'
+import LayersStore from '@DpJs/store/map/Layers'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('DpLayerLegend', () => {
-  it('should be an object', () => {
-    expect(typeof DpLayerLegend).toBe('object')
+  let wrapper
+  let store
+
+  beforeEach(() => {
+    store = createStore({
+      modules: {
+        Layers: LayersStore,
+      },
+    })
+
+    wrapper = shallowMountWithGlobalMocks(DpLayerLegend, {
+      props: {
+        layersWithLegendFiles: [],
+        planPdf: {},
+        procedureId: '123',
+      },
+      global: {
+        plugins: [store],
+      },
+    })
   })
 
-  it('should be named DpLayerLegend', () => {
-    expect(DpLayerLegend.name).toBe('DpLayerLegend')
+  it('should toggle unfolded state when toggle method is called', () => {
+    expect(wrapper.vm.unfolded).toBe(false)
+    wrapper.vm.toggle()
+    expect(wrapper.vm.unfolded).toBe(true)
   })
 })

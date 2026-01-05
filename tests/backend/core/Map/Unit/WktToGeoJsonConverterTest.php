@@ -24,7 +24,7 @@ class WktToGeoJsonConverterTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(WktToGeoJsonConverter::class);
+        $this->sut = self::getContainer()->get(WktToGeoJsonConverter::class);
     }
 
     public function testConvertLegacy()

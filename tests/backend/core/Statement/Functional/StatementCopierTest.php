@@ -36,13 +36,13 @@ class StatementCopierTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(StatementCopier::class);
-        $this->statementService = self::$container->get(StatementService::class);
+        $this->sut = self::getContainer()->get(StatementCopier::class);
+        $this->statementService = self::getContainer()->get(StatementService::class);
 
         $user = $this->getUserReference('testUser');
         $this->logIn($user);
 
-        $this->setElasticsearchIndexManager(self::$container->get('fos_elastica.index_manager'));
+        $this->setElasticsearchIndexManager(self::getContainer()->get('fos_elastica.index_manager'));
     }
 
     public function testCopyMunicipalities(): void
@@ -110,7 +110,7 @@ class StatementCopierTest extends FunctionalTestCase
         ];
         $newStatement = $this->sut->newStatement($data);
 
-        $statementCopier = self::$container->get(StatementCopier::class);
+        $statementCopier = self::getContainer()->get(StatementCopier::class);
         $newStatement = $statementCopier->copyPriorityAreas($testStatement, $newStatement);
         // trigger cascading persist of votes by persist of statement:
         $newStatement = $this->sut->getStatementPublicRepository()->updateObject($newStatement);
@@ -152,7 +152,7 @@ class StatementCopierTest extends FunctionalTestCase
         $newStatement = $this->sut->newStatement($data);
 
         static::assertEmpty($newStatement->getTags());
-        $statementCopier = self::$container->get(StatementCopier::class);
+        $statementCopier = self::getContainer()->get(StatementCopier::class);
         $newStatement = $statementCopier->copyTags($testStatement, $newStatement);
 
         // trigger cascading persist of votes by persist of statement:
@@ -193,7 +193,7 @@ class StatementCopierTest extends FunctionalTestCase
         ];
         $newStatement = $this->sut->newStatement($data);
 
-        $statementCopier = self::$container->get(StatementCopier::class);
+        $statementCopier = self::getContainer()->get(StatementCopier::class);
         $newStatement = $statementCopier->copyCounties($testStatement, $newStatement);
         // trigger cascading persist of votes by persist of statement:
         $newStatement = $this->sut->getStatementPublicRepository()->updateObject($newStatement);

@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -26,13 +27,13 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInterface
 {
     public function __construct(
-        private readonly UserRepository $userRepository
+        private readonly UserRepository $userRepository,
     ) {
     }
 
-    public function refreshUser(UserInterface $user): ?UserInterface
+    public function refreshUser(UserInterface $user): UserInterface
     {
-        if (!$user instanceof SecurityUser) {
+        if (!$user instanceof SecurityUser && !$user instanceof User) {
             throw new UnsupportedUserException(sprintf('Invalid user class %s', $user::class));
         }
 
@@ -45,7 +46,8 @@ class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInt
 
     public function supportsClass(string $class): bool
     {
-        return SecurityUser::class === $class;
+        // Support both SecurityUser and User classes (including Doctrine proxies)
+        return is_a($class, SecurityUser::class, true) || is_a($class, User::class, true);
     }
 
     public function loadUserByUsername(string $username): User
@@ -63,7 +65,7 @@ class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInt
         return new SecurityUser($this->loadUserByLogin($identifier));
     }
 
-    public function upgradePassword(UserInterface $user, string $newHashedPassword): void
+    public function upgradePassword(UserInterface|PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
         $userEntity = $this->loadUserByLogin($user->getUserIdentifier());
         $this->userRepository->upgradePassword($userEntity, $newHashedPassword);

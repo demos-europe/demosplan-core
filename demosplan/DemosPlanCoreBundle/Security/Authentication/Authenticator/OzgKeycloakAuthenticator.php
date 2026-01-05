@@ -12,8 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
+use DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
-use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserDataInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
+use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -30,15 +32,17 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
-class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntrypointInterface
+class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
 {
     public function __construct(
         private readonly ClientRegistry $clientRegistry,
+        private readonly CustomerServiceInterface $customerService,
         private readonly EntityManagerInterface $entityManager,
-        private readonly KeycloakUserDataInterface $keycloakUserData,
+        private readonly OzgKeycloakUserData $ozgKeycloakUserData,
         private readonly LoggerInterface $logger,
         private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
+        private readonly OzgKeycloakLogoutManager $keycloakLogoutManager,
     ) {
     }
 
@@ -52,36 +56,40 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     {
         $client = $this->clientRegistry->getClient('keycloak_ozg');
         $accessToken = $this->fetchAccessToken($client);
-        $this->logger->info('login attempt', ['accessToken' => $accessToken ?? null]);
+        $this->logger->info('login attempt', ['accessToken' => $accessToken]);
+
+        // Execute user creation immediately instead of deferring it
+        try {
+            $this->entityManager->getConnection()->beginTransaction();
+            $this->logger->info('Start of doctrine transaction.');
+            $this->logger->info('raw token', [$client->fetchUserFromToken($accessToken)->toArray()]);
+
+            $tokenValues = $accessToken->getValues();
+            $this->keycloakLogoutManager->storeTokenAndExpirationInSession($request->getSession(), $tokenValues);
+
+            $customerSubdomain = $this->customerService->getCurrentCustomer()->getSubdomain();
+            $this->ozgKeycloakUserData->fill($client->fetchUserFromToken($accessToken), $customerSubdomain);
+            $this->logger->info('Found user data: '.$this->ozgKeycloakUserData);
+            $user = $this->ozgKeycloakUserDataMapper->mapUserData($this->ozgKeycloakUserData);
+
+            $this->entityManager->getConnection()->commit();
+            $this->logger->info('doctrine transaction commit.');
+            $request->getSession()->set('userId', $user->getId());
+        } catch (Exception $e) {
+            $this->entityManager->getConnection()->rollBack();
+            $this->logger->info('doctrine transaction rollback.');
+            $this->logger->error(
+                'login failed',
+                [
+                    'requestValues' => $this->ozgKeycloakUserData ?? null,
+                    'exception'     => $e,
+                ]
+            );
+            throw new AuthenticationException('You shall not pass!');
+        }
 
         return new SelfValidatingPassport(
-            new UserBadge($accessToken->getToken(), function () use ($accessToken, $client, $request) {
-                try {
-                    $this->entityManager->getConnection()->beginTransaction();
-                    $this->logger->info('Start of doctrine transaction.');
-
-                    $this->keycloakUserData->fill($client->fetchUserFromToken($accessToken));
-                    $this->logger->info('Found user data: '.$this->keycloakUserData);
-                    $user = $this->ozgKeycloakUserDataMapper->mapUserData($this->keycloakUserData);
-
-                    $this->entityManager->getConnection()->commit();
-                    $this->logger->info('doctrine transaction commit.');
-                    $request->getSession()->set('userId', $user->getId());
-
-                    return $user;
-                } catch (Exception $e) {
-                    $this->entityManager->getConnection()->rollBack();
-                    $this->logger->info('doctrine transaction rollback.');
-                    $this->logger->error(
-                        'login failed',
-                        [
-                            'requestValues' => $this->keycloakUserData ?? null,
-                            'exception'     => $e,
-                        ]
-                    );
-                    throw new AuthenticationException('You shall not pass!');
-                }
-            })
+            new UserBadge($user->getUserIdentifier(), fn () => $user)
         );
     }
 
@@ -108,7 +116,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
      * Called when authentication is needed, but it's not sent.
      * This redirects to the 'login'.
      */
-    public function start(Request $request, AuthenticationException $authException = null): Response
+    public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         return new RedirectResponse(
             '/connect/keycloak_ozg', // might be the site, where users choose their oauth provider

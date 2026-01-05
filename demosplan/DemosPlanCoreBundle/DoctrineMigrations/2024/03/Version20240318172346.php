@@ -33,6 +33,9 @@ class Version20240318172346 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
+        // mariadb 10.1 needs to drop the foreign key before changing the column
+        $this->addSql('ALTER TABLE _procedure DROP FOREIGN KEY FK_D1A01D0299091188');
+        $this->addSql('ALTER TABLE _procedure DROP FOREIGN KEY FK_D1A01D0230F7E25B');
         $this->addSql('
             ALTER TABLE _procedure
             CHANGE phase_id phase_id CHAR(36) NOT NULL
@@ -41,6 +44,18 @@ class Version20240318172346 extends AbstractMigration
         $this->addSql('
             ALTER TABLE _procedure
             CHANGE public_participation_phase_id public_participation_phase_id CHAR(36) NOT NULL
+        ');
+
+        $this->addSql('
+            ALTER TABLE _procedure
+                ADD CONSTRAINT FK_D1A01D0299091188 FOREIGN KEY (phase_id)
+                REFERENCES procedure_phase (id)
+        ');
+
+        $this->addSql('
+            ALTER TABLE _procedure
+                ADD CONSTRAINT FK_D1A01D0230F7E25B FOREIGN KEY (public_participation_phase_id)
+                REFERENCES procedure_phase (id)
         ');
     }
 

@@ -14,24 +14,25 @@ use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * dplan:update.
  *
  * Update current project
  */
+#[AsCommand(name: 'dplan:cache:clear', description: 'Clear apcu and op caches')]
 class CacheClearCommand extends CoreCommand
 {
     final public const APCU_CLEAR_SCHEDULE_FILE = 'web/uploads/scheduled-apcu-clear';
-
-    protected static $defaultName = 'dplan:cache:clear';
-    protected static $defaultDescription = 'Clear apcu and op caches';
 
     public function configure(): void
     {
@@ -41,6 +42,7 @@ class CacheClearCommand extends CoreCommand
             InputOption::VALUE_NONE,
             'If this is set, only apcu and opcache will be cleared, otherwise cache:clear will be called too'
         );
+        $this->addOption('force', '', InputOption::VALUE_NONE, 'Delete cache directory directly');
     }
 
     /**
@@ -52,18 +54,32 @@ class CacheClearCommand extends CoreCommand
     {
         $output = new SymfonyStyle($input, $output);
 
+        $force = $input->getOption('force');
+        if ($force) {
+            $output->warning('Force option set. Clearing cache directory directly');
+            $this->forceClear($output);
+
+            return Command::SUCCESS;
+        }
+
         $output->comment('Clearing CLI APCu and OpCache and any app cache');
         try {
             // clear any app cache
             $cachePoolClearCommand = $this->getApplication()->get('cache:pool:clear');
-            $cachePoolClearCommand->run(new StringInput('cache:pool:clear cache.global_clearer'), $output);
+            $cachePoolClearCommand->run(
+                new ArrayInput(['pools' => ['cache.global_clearer'], '-e', $this->parameterBag->get('kernel.environment')]),
+                $output
+            );
 
             DemosPlanTools::cacheClear();
             $output->success('Cleared CLI APCu and OpCache');
-        } catch (Exception) {
-            $output->error('Failed to clear CLI APCu and OpCache, aborting');
+        } catch (Exception $e) {
+            $output->error('Failed to clear CLI APCu and OpCache, force delete it');
+            $output->error($e->getMessage());
 
-            return (int) Command::FAILURE;
+            $this->forceClear($output);
+
+            return Command::FAILURE;
         }
 
         if ('test' !== $this->getApplication()->getKernel()->getEnvironment()) {
@@ -74,7 +90,7 @@ class CacheClearCommand extends CoreCommand
             $this->handleAppCacheClear($input, $output);
         }
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 
     private function scheduleWebApcuClear(SymfonyStyle $output): void
@@ -105,5 +121,14 @@ class CacheClearCommand extends CoreCommand
         }
 
         $cacheClearCommand->run(new StringInput($commandWithSignature), $output);
+    }
+
+    private function forceClear(SymfonyStyle $output)
+    {
+        $cacheDir = $this->parameterBag->get('kernel.cache_dir');
+        $output->warning(sprintf('Removing cache directory %s directly as a fallback', $cacheDir));
+        // local file cache is deleted, no flysystem needed
+        $fs = new Filesystem();
+        $fs->remove($cacheDir);
     }
 }

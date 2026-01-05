@@ -10,30 +10,36 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Response\BinaryFileDownload;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
-use Symfony\Component\Filesystem\Filesystem;
+use League\Flysystem\FilesystemOperator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class FileController extends BaseController
 {
+    public function __construct(
+        private readonly FilesystemOperator $defaultStorage,
+        private readonly FilesystemOperator $localStorage,
+    ) {
+    }
+
     /**
      * Serve file.
      *
-     * @DplanPermissions("area_main_file")
-     *
      * @return BinaryFileDownload|Response
      */
+    #[DplanPermissions('area_main_file')]
     #[Route(path: '/file/{hash}', name: 'core_file', options: ['expose' => true])]
-    public function fileAction(FileService $fileService, string $hash)
+    public function fileHash(FileService $fileService, string $hash): Response
     {
         try {
             return $this->prepareResponseWithHash($fileService, $hash, true);
@@ -45,11 +51,10 @@ class FileController extends BaseController
 
     /**
      * Check Procedure permissions when procedureId is given in route and serve file if allowed.
-     *
-     * @DplanPermissions("area_main_file")
      */
+    #[DplanPermissions('area_main_file')]
     #[Route(path: '/file/{procedureId}/{hash}', name: 'core_file_procedure', options: ['expose' => true])]
-    public function fileProcedureAction(FileService $fileService, string $procedureId, string $hash): Response
+    public function fileProcedure(FileService $fileService, string $procedureId, string $hash): Response
     {
         try {
             return $this->prepareResponseWithHash($fileService, $hash, true, $procedureId);
@@ -63,9 +68,9 @@ class FileController extends BaseController
      * Distinct route for ai api file access to allow for jwt authentication via query parameter.
      * Check Procedure permissions when procedureId is given in route and serve file if allowed.
      */
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions(permissions: ['area_main_file'])]
+    #[DplanPermissions('area_main_file')]
     #[Route(path: '/api/ai/file/{procedureId}/{hash}', name: 'core_file_procedure_api_ai', options: ['expose' => true])]
-    public function fileProcedureApiAction(FileService $fileService, string $procedureId, string $hash): Response
+    public function fileProcedureApi(FileService $fileService, string $procedureId, string $hash): Response
     {
         try {
             return $this->prepareResponseWithHash($fileService, $hash, true, $procedureId);
@@ -78,10 +83,8 @@ class FileController extends BaseController
     /**
      * @throws Exception
      */
-    protected function prepareResponseWithHash(FileService $fileService, string $hash, bool $strictCheck = false, string $procedureId = null): Response
+    protected function prepareResponseWithHash(FileService $fileService, string $hash, bool $strictCheck = false, ?string $procedureId = null): Response
     {
-        $fs = new Filesystem();
-        // @improve T14122
         $file = $fileService->getFileInfo($hash, $procedureId);
 
         // ensure that procedure access check matches file procedure
@@ -96,19 +99,9 @@ class FileController extends BaseController
         // when all procedure bound calls to core_file are replaced by core_file_procedure,
         // access to $file that has a procedure could be declined when called without a procedure
 
-        $this->getLogger()->info('trying to serve file '.$file->getAbsolutePath());
+        $this->getLogger()->info('trying to serve file ', [$file->getAbsolutePath()]);
 
-        // check whether file exists
-        if (!$fs->exists($file->getAbsolutePath())) {
-            $this->getLogger()->info('Could not find file');
-            throw new NotFoundHttpException();
-        }
-
-        $response = new BinaryFileDownload($file->getAbsolutePath(), $file->getFileName());
-        // do not delete Files after delivering
-        $response->deleteFileAfterSend(false);
-
-        return $response;
+        return $this->getStreamedResponse($file);
     }
 
     private function isValidProcedure(?string $procedureId, FileInfo $file, bool $strictCheck): bool
@@ -131,15 +124,12 @@ class FileController extends BaseController
      *
      * TODO: This should probably be renamed to `core_image`, `core_logo` is misleading
      *
-     * @DplanPermissions("area_demosplan")
-     *
      * @param string $hash
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/image/{hash}', name: 'core_logo', options: ['expose' => true])]
-    public function imageAction(Request $request, FileService $fileService, $hash): Response
+    public function image(Request $request, FileService $fileService, $hash): Response
     {
-        // Für den Abruf der Bilder muss keine extra Session gestartet werden
-
         try {
             // create a Response with an ETag and/or a Last-Modified header
             $notModifiedResponse = new Response();
@@ -154,24 +144,48 @@ class FileController extends BaseController
                 return $notModifiedResponse;
             }
 
-            $fs = new Filesystem();
             $file = $fileService->getFileInfo($hash);
-
-            // check whether file exists
-            if (!$fs->exists($file->getAbsolutePath())) {
-                throw new NotFoundHttpException();
-            }
-
-            $response = new BinaryFileDownload($file->getAbsolutePath(), $file->getFileName());
+            $response = $this->getStreamedResponse($file);
         } catch (Exception) {
-            // gib ein Standardbild zurück
+            // return default image
             $response = new BinaryFileDownload($fileService->getNotFoundImagePath(), '');
         }
 
         $response->setPublic(); // make sure the response is public/cacheable
         $response->setEtag(md5($hash));
-        // do not delete Files after delivering
-        $response->deleteFileAfterSend(false);
+
+        return $response;
+    }
+
+    private function getStreamedResponse(FileInfo $file): StreamedResponse
+    {
+        // check whether file exists using Default storage
+        $this->logger->debug('Default storage: ', [$this->defaultStorage::class]);
+        if ($this->defaultStorage->fileExists($file->getAbsolutePath())) {
+            $storage = $this->defaultStorage;
+        }
+        // as a fallback check whether file exists using Local storage
+        elseif ($this->localStorage->fileExists($file->getAbsolutePath())) {
+            $this->logger->info('Found file in fallback local storage only');
+            $storage = $this->localStorage;
+        } else {
+            $this->getLogger()->info('Could not find file', [$file->getAbsolutePath()]);
+            throw new NotFoundHttpException();
+        }
+
+        // create a stream from the file content
+        $stream = $storage->readStream($file->getAbsolutePath());
+
+        // create a response with the stream content
+        $response = new StreamedResponse(function () use ($stream) {
+            fpassthru($stream);
+            fclose($stream);
+        });
+        $response->headers->set('Content-Type', 'application/octet-stream');
+        $response->headers->set(
+            'Content-Disposition',
+            'attachment; filename="'.$file->getFileName().'"'
+        );
 
         return $response;
     }

@@ -12,18 +12,21 @@
     <!-- Toggle -->
     <a
       class="block cursor-pointer border--top u-pt-0_25"
+      :class="{'is-active-toggle': isActive}"
       @click="toggle"
-      :class="{'is-active-toggle': isActive}">
+    >
       <i
         class="o-toggle__icon o-toggle__icon--caret u-pr-0_25"
-        aria-hidden="true" />
+        aria-hidden="true"
+      />
       {{ Translator.trans('consideration.versions') }}
     </a>
 
     <!-- Content -->
     <div
       v-show="isActive"
-      class="max-h-12 overflow-x-auto u-mv-0_25">
+      class="max-h-12 overflow-x-auto u-mv-0_25"
+    >
       <dp-loading v-if="items === null" />
 
       <div v-if="items && items.length === 0">
@@ -35,15 +38,17 @@
       </div>
 
       <div
-        v-else
         v-for="item in items"
+        v-else
         :key="item.id"
-        class="layout__item u-pl-0 u-pr-0_5 u-mv-0_25">
+        class="layout__item u-pl-0 u-pr-0_5 u-mv-0_25"
+      >
         <div class="border--bottom u-mb-0_25">
           <div class="inline-block u-1-of-4">
             <div
               class="u-mr inline-block weight--bold cursor-help"
-              :title="Translator.trans('date')">
+              :title="Translator.trans('date')"
+            >
               {{ itemCreatedDate(item) }}
             </div>
           </div><!--
@@ -51,11 +56,12 @@
        --><div class="inline-block text-right u-3-of-4">
             <dp-fragment-status
               v-if="hasPermission('feature_statements_fragment_advice')"
+              v-once
               :status="item.voteAdvice === null ? '' : fixCompoundVotes(item.voteAdvice)"
               :tooltip="false"
               :badge="true"
               class="inline-block u-mv-0_25 u-mh-0_5"
-              v-once>
+>
               <template v-slot:title>
                   {{ Translator.trans('fragment.voteAdvice.short') }}
               </template>
@@ -65,7 +71,8 @@
               :status="item.vote === null ? '' : item.vote"
               :tooltip="false"
               class="inline-block u-mv-0_25 u-mh-0_5"
-              :badge="true">
+              :badge="true"
+>
               <template v-slot:title>
                   {{ Translator.trans('fragment.vote.short') }}
               </template>
@@ -74,9 +81,10 @@
         </div>
 
         <div
-          class="cursor-help"
           v-cleanhtml="item.considerationAdvice ? item.considerationAdvice : item.consideration"
-          :title="Translator.trans('fragment.consideration')">
+          class="cursor-help"
+          :title="Translator.trans('fragment.consideration')"
+        >
           {{ item.consideration }}
         </div>
       </div>
@@ -85,7 +93,7 @@
 </template>
 
 <script>
-import { checkResponse, CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
+import { CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
 import DpFragmentStatus from './Status'
 
 export default {
@@ -93,41 +101,41 @@ export default {
 
   components: {
     DpFragmentStatus,
-    DpLoading
+    DpLoading,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     fragmentId: {
       required: true,
-      type: String
+      type: String,
     },
 
     statementId: {
       required: true,
-      type: String
+      type: String,
     },
 
     procedureId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     isReviewer: {
       required: false,
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
 
   data: function () {
     return {
       isActive: false,
-      items: null
+      items: null,
     }
   },
 
@@ -164,26 +172,25 @@ export default {
 
       if (this.isReviewer) {
         url = Routing.generate('dplan_assessment_fragment_get_consideration_versions_reviewer', {
-          fragmentId: this.fragmentId
+          fragmentId: this.fragmentId,
         })
       } else {
         url = Routing.generate('dplan_assessment_fragment_get_consideration_versions', {
           fragmentId: this.fragmentId,
-          ident: this.procedureId
+          ident: this.procedureId,
         })
       }
 
       dpApi.get(url)
-        .then(checkResponse)
-        .then(responseData => {
-          this.items = responseData.data
+        .then(({ data }) => {
+          this.items = data.data
           this.items.pop()
         })
         .catch(() => {
           //  An error message is displayed in the component
           this.items = false
         })
-    }
-  }
+    },
+  },
 }
 </script>

@@ -17,9 +17,9 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterGroup;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterItem;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterType;
-use Enqueue\Util\UUID;
+use Illuminate\Support\Collection;
+use Ramsey\Uuid\Uuid;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
 use Webmozart\Assert\Assert;
 
 use function collect;
@@ -28,7 +28,7 @@ class FacetFactory
 {
     public function __construct(
         private readonly PrefilledResourceTypeProvider $resourceTypeProvider,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -53,7 +53,7 @@ class FacetFactory
                     : [];
                 $facetNameTranslationKey = $facetDefinition->getFacetNameTranslationKey();
                 $facetName = $this->translator->trans($facetNameTranslationKey);
-                $uuid = UUID::generate();
+                $uuid = Uuid::uuid4()->toString();
 
                 return new AggregationFilterType(
                     $uuid,

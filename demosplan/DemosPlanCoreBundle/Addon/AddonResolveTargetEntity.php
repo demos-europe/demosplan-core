@@ -38,7 +38,7 @@ class AddonResolveTargetEntity implements CompilerPassInterface
         // Go through the files on the Core Entity folder. In case it is a class, detect if any of its interfaces belongs to AddOn middle layer
         // If so, then add it to resolveTargetEntity method call
         foreach (new RecursiveIteratorIterator($iterator) as $filename) {
-            $classNameWithoutExtension = pathinfo($filename->getFilename(), \PATHINFO_FILENAME);
+            $classNameWithoutExtension = pathinfo((string) $filename->getFilename(), \PATHINFO_FILENAME);
             $classNameRaw = $filename->getPath().'/'.$classNameWithoutExtension;
 
             if (!is_dir($classNameRaw)) {

@@ -16,10 +16,10 @@ import SplitStatementStore from '@DpJs/store/statement/SplitStatementStore'
 import SplitStatementView from '@DpJs/components/statement/splitStatement/SplitStatementView'
 
 const components = {
-  SplitStatementView
+  SplitStatementView,
 }
 const stores = {
-  splitstatement: SplitStatementStore
+  SplitStatement: SplitStatementStore,
 }
 
 initialize(components, stores)

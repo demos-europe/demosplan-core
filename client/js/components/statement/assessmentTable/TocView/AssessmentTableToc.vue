@@ -14,14 +14,16 @@
     <!-- Update button -->
     <transition
       name="slide-fade"
-      mode="out-in">
+      mode="out-in"
+    >
       <dp-button
         v-show="isRefreshButtonVisible"
         class="u-ml-0_5 u-mb-0_5"
         icon="refresh"
         :text="Translator.trans('refresh')"
         variant="outline"
-        @click="triggerUpdate" />
+        @click="triggerUpdate"
+      />
     </transition>
   </div>
 </template>
@@ -36,44 +38,48 @@ export default {
 
   components: {
     AssessmentTableTocGroup,
-    DpButton
+    DpButton,
   },
 
   props: {
     filterHash: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
+  emits: [
+    'update:assessmentTable',
+  ],
+
   computed: {
-    ...mapGetters('assessmentTable', [
-      'isRefreshButtonVisible'
+    ...mapGetters('AssessmentTable', [
+      'isRefreshButtonVisible',
     ]),
 
-    ...mapGetters('statement', [
-      'getToc'
-    ])
+    ...mapGetters('Statement', [
+      'getToc',
+    ]),
   },
 
   methods: {
-    ...mapMutations('assessmentTable', [
-      'setRefreshButtonVisibility'
+    ...mapMutations('AssessmentTable', [
+      'setRefreshButtonVisibility',
     ]),
 
     triggerUpdate () {
       this.setRefreshButtonVisibility(false)
       /*
-       *  Update-assessment-table is defined in mounted() of DpTable.vue.
+       *  Update:assessmentTable is defined in mounted() of DpTable.vue.
        *  Otherwise triggerApiCallForStatements() would not be accessible in AssessmentTableToc which refreshes the assessment list without page reload
        */
-      this.$root.$emit('update-assessment-table')
-    }
-  }
+      this.$root.$emit('update:assessmentTable')
+    },
+  },
 }
 </script>

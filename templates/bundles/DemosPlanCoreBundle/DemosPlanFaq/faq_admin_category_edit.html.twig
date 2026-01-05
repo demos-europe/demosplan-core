@@ -18,7 +18,7 @@
         {{ uiComponent('form.row', {
             elements: [
                 {
-                    label: { text: 'heading'|trans },
+                    label: { text: 'heading'|trans, id: 'r_category_title' },
                     control: { name: 'r_category_title', value: templateVars.category.title|default, attributes: ['data-cy=categoryTitle'] },
                     type: 'text',
                     required: true
@@ -27,8 +27,8 @@
         }) }}
 
         {{ uiComponent('button-row', {
-            primary: uiComponent('button', { type: 'submit', attributes: ['data-cy=saveNewFAQ'] }),
-            secondary: uiComponent('button', { color: 'secondary', href: cancelPath }),
+            primary: uiComponent('button', { type: 'submit', attributes: ['data-cy=saveFAQ'] }),
+            secondary: uiComponent('button', { color: 'secondary', href: cancelPath, attributes: ['data-cy=abortFAQ'] }),
             class: 'u-mb'
         }) }}
     </form>

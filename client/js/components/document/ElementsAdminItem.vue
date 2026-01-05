@@ -10,27 +10,31 @@
 <template>
   <div
     v-if="element"
-    class="flex space-inline-xs">
+    class="flex space-inline-xs"
+  >
     <a
       class="weight--bold u-mr-auto"
       data-cy="documentCategoryName"
       :href="Routing.generate('DemosPlan_elements_administration_edit', {
         procedure: dplan.procedureId,
         elementId: elementId
-      })">
+      })"
+    >
       {{ element.attributes.title }}
     </a>
     <dp-contextual-help
       v-if="hasPermission('feature_auto_switch_element_state') && element.attributes.designatedSwitchDate !== null"
       icon="clock"
       large
-      :text="designatedSwitchDate" />
+      :text="designatedSwitchDate"
+    />
     <dp-toggle
+      v-model="itemEnabled"
+      v-tooltip="Translator.trans(itemEnabled ? 'published' : 'unpublished')"
       class="u-mt-0_125"
       data-cy="categoryStatusSwitcher"
       :disabled="element.attributes.designatedSwitchDate !== null"
-      v-model="itemEnabled"
-      v-tooltip="Translator.trans(itemEnabled ? 'published' : 'unpublished')" />
+    />
   </div>
 </template>
 
@@ -43,19 +47,19 @@ export default {
 
   components: {
     DpContextualHelp,
-    DpToggle
+    DpToggle,
   },
 
   props: {
     elementId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
-    ...mapState('elements', {
-      elements: 'items'
+    ...mapState('Elements', {
+      elements: 'items',
     }),
 
     designatedSwitchDate () {
@@ -78,8 +82,8 @@ export default {
             type: this.element.type,
             attributes: {
               ...this.element.attributes,
-              enabled: val
-            }
+              enabled: val,
+            },
           })
 
           this.saveToggleElement(this.elementId)
@@ -90,18 +94,18 @@ export default {
               dplan.notify.error(Translator.trans('error.changes.not.saved'))
             })
         }
-      }
-    }
+      },
+    },
   },
 
   methods: {
-    ...mapActions('elements', {
-      saveToggleElement: 'save'
+    ...mapActions('Elements', {
+      saveToggleElement: 'save',
     }),
 
-    ...mapMutations('elements', {
-      updateToggleElement: 'setItem'
-    })
-  }
+    ...mapMutations('Elements', {
+      updateToggleElement: 'setItem',
+    }),
+  },
 }
 </script>

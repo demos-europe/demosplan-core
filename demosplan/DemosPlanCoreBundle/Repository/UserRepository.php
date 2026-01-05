@@ -11,6 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use Closure;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Repositories\UserRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -27,22 +30,24 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Utilities\Reindexer;
 use Exception;
+use Illuminate\Support\Collection;
 use LogicException;
 use RuntimeException;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
-use Tightenco\Collect\Support\Collection;
 
 /**
  * @template-extends CoreRepository<User>
  */
-class UserRepository extends CoreRepository implements ArrayInterface, ObjectInterface, PasswordUpgraderInterface
+class UserRepository extends CoreRepository implements ArrayInterface, ObjectInterface, PasswordUpgraderInterface, UserRepositoryInterface
 {
     /**
      * Number of seconds to cache the login list in dev mode.
@@ -55,7 +60,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
         Reindexer $reindexer,
-        string $entityClass
+        string $entityClass,
     ) {
         parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
@@ -80,11 +85,25 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     }
 
     /**
+     * Get Entity by Id (UserRepositoryInterface implementation).
+     *
+     * @param string $userId the user ID as UUID v4
+     */
+    public function getUser(string $userId): ?User
+    {
+        try {
+            return $this->get($userId);
+        } catch (NoResultException) {
+            return null;
+        }
+    }
+
+    /**
      * Get Users by role code.
      *
      * @return User[]
      */
-    public function getUsersByRole(string $code, Customer $customer): array
+    public function getUsersByRole(string $code, CustomerInterface $customer): array
     {
         $builder = $this->getEntityManager()->createQueryBuilder();
 
@@ -159,11 +178,26 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
             $this->invalidateCachedLoginList();
 
+            // Force reload from database to trigger postLoad event
+            $em->refresh($user);
+
             return $user;
         } catch (Exception $e) {
             $this->logger->warning('User could not be added. ', [$e]);
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
+    }
+
+    /**
+     * Add Entity to database (UserRepositoryInterface implementation).
+     *
+     * @param array $data User data array
+     *
+     * @throws Exception
+     */
+    public function createUser(array $data): User
+    {
+        return $this->add($data);
     }
 
     /**
@@ -180,11 +214,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
         try {
             $em = $this->getEntityManager();
 
-            try {
-                $user = $this->get($entityId);
-            } catch (NoResultException) {
-                $user = null;
-            }
+            $user = $this->get($entityId);
             // this is where the magical mapping happens
             $user = $this->generateObjectValues($user, $data);
 
@@ -205,6 +235,36 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
             $this->logger->warning('Update User failed Reason: ', [$e]);
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
+    }
+
+    /**
+     * Update Entity (UserRepositoryInterface implementation).
+     *
+     * @throws Exception
+     */
+    public function updateUser(string $userId, array $data): ?User
+    {
+        try {
+            return $this->update($userId, $data);
+        } catch (Exception $e) {
+            // If user not found, return null instead of throwing exception
+            if ($e->getPrevious() instanceof NoResultException) {
+                return null;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Update user object directly (UserRepositoryInterface implementation).
+     *
+     * @param User $entity
+     *
+     * @throws Exception
+     */
+    public function updateUserObject(UserInterface $entity): User
+    {
+        return $this->updateObject($entity);
     }
 
     /**
@@ -229,6 +289,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
                 'gwId',
                 'lastname',
                 'password',
+                'providedByIdentityProvider',
             ]
         );
 
@@ -447,18 +508,21 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      * Overrides all relevant data field of the given user with default values, to remove any sensible data.
      *
      * @param string $userId
-     *
-     * @return User|bool
      */
-    public function wipe($userId)
+    public function wipe($userId): bool|User
     {
         try {
             $em = $this->getEntityManager();
 
             $randomNumber = random_int(1, PHP_INT_MAX - 1);
 
-            /** @var User $user */
+            /** @var User|null $user */
             $user = $this->find($userId);
+
+            // Check if user exists before wiping data
+            if (null === $user) {
+                return false;
+            }
 
             //          wipeData:
             $user->setGender(null);
@@ -511,6 +575,16 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     }
 
     /**
+     * Get user by login (UserRepositoryInterface implementation).
+     *
+     * @param string $login User login
+     */
+    public function getUserByLogin(string $login): ?User
+    {
+        return $this->getFirstUserByCaseInsensitiveLogin($login);
+    }
+
+    /**
      * Get a {@link User} in the FHHNET domain by its {@link User::$login login} string.
      * At least one matching entity must exist, otherwise an exception will be thrown.
      *
@@ -531,9 +605,49 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     }
 
     /**
+     * Get users with pagination and optional criteria filtering (UserRepositoryInterface implementation).
+     *
+     * @param int   $startIndex Starting index (1-based)
+     * @param int   $count      Number of users to return
+     * @param array $criteria   Optional filtering criteria
+     *
+     * @return array Array containing users and pagination info
+     */
+    public function getUsers(int $startIndex, int $count, array $criteria = [], string $sort = 'u.login', string $sortDir = 'ASC'): array
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->setFirstResult($startIndex - 1)
+            ->setMaxResults($count)
+            ->where('u.deleted = false')
+            ->orderBy($sort, $sortDir);
+
+        // Apply criteria filters
+        $qb = $this->applyCriteriaFilters($criteria, $qb);
+
+        $users = $qb->getQuery()->getResult();
+
+        // Get total count for pagination
+        $totalCountQb = $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.deleted = false');
+
+        // Apply criteria filters
+        $totalCountQb = $this->applyCriteriaFilters($criteria, $totalCountQb);
+        $totalCount = $totalCountQb->getQuery()
+            ->getSingleScalarResult();
+
+        return [
+            'users'        => $users,
+            'totalResults' => (int) $totalCount,
+            'startIndex'   => $startIndex,
+            'itemsPerPage' => $count,
+        ];
+    }
+
+    /**
      * @param User $user
      */
-    public function upgradePassword(UserInterface $user, string $newHashedPassword): void
+    public function upgradePassword(UserInterface|PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
         // set the new encoded password on the User object
         $user->setPassword($newHashedPassword);
@@ -556,7 +670,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     protected function moveUserToOrganization(string $orgaId, User $user): void
     {
         $previousOrga = $user->getOrga();
-        if (null !== $previousOrga && $previousOrga->getId() === $orgaId) {
+        if ($previousOrga instanceof OrgaInterface && $previousOrga->getId() === $orgaId) {
             // nothing to do if the user is already set to the correct orga
             return;
         }
@@ -569,7 +683,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
             throw OrgaNotFoundException::createFromId($orgaId);
         }
 
-        if (null !== $previousOrga) {
+        if ($previousOrga instanceof OrgaInterface) {
             $previousOrga->removeUser($user);
             $em->persist($previousOrga);
         }
@@ -609,5 +723,22 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     private function invalidateCachedLoginList(): void
     {
         $this->cache->delete(self::LOGIN_LIST_CACHE_DURATION);
+    }
+
+    private function applyCriteriaFilters(array $criteria, QueryBuilder $qb): QueryBuilder
+    {
+        foreach ($criteria as $field => $value) {
+            if (null !== $value) {
+                if (is_array($value)) {
+                    $qb->andWhere("u.{$field} IN (:{$field})")
+                        ->setParameter($field, $value);
+                } else {
+                    $qb->andWhere("u.{$field} = :{$field}")
+                        ->setParameter($field, $value);
+                }
+            }
+        }
+
+        return $qb;
     }
 }

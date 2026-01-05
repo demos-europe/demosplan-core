@@ -36,19 +36,6 @@ html {
     scroll-behavior: smooth;
 }
 
-html.fixtinyfixed {
-    &,
-    body {
-        @include media-query('palm') {
-            //  these are due to focus jumping bug in fixed elements on iOs
-            //  https://remysharp.com/2012/05/24/issues-with-position-fixed-scrolling-on-ios#focus-jumping
-            -webkit-overflow-scrolling: touch !important;
-            overflow: auto !important;
-            height: 100% !important;
-        }
-    }
-}
-
 body {
     min-height: 100%; // ensures complete display of absolutely positioned flyouts
     background: $dp-color-background-default;
@@ -178,11 +165,4 @@ hr {
     height: 0;
     border-top: 2px solid $dp-color-border-default;
     margin: $inuit-base-spacing-unit--small auto;
-}
-
-//  Screen Reader related
-@media braille {
-    [aria-hidden='true'] {
-        display: none;
-    }
 }

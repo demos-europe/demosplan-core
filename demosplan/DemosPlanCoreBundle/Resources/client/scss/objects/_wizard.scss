@@ -262,10 +262,7 @@ $wizard-z-index-content: $dp-z-modal;
 
 .o-wizard__bg {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    top: 0;
+    inset: 0;
     z-index: $wizard-z-index-backdrop;
 
     display: none;

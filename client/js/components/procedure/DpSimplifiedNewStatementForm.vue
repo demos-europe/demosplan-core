@@ -10,79 +10,91 @@
 <template>
   <div>
     <form
+      ref="simplifiedNewStatementForm"
       :action="Routing.generate(submitRouteName, { procedureId })"
       data-dp-validate="simplifiedNewStatementForm"
       enctype="multipart/form-data"
       method="post"
-      ref="simplifiedNewStatementForm">
+    >
       <input
         type="hidden"
         name="r_action"
-        value="new">
+        value="new"
+      >
       <input
         v-if="statementImportEmailId !== null"
         type="hidden"
         name="r_statement_import_email_id"
-        :value="statementImportEmailId">
+        :value="statementImportEmailId"
+      >
       <input
         type="hidden"
         name="r_ident"
-        :value="procedureId">
+        :value="procedureId"
+      >
       <input
         name="_token"
         type="hidden"
-        :value="csrfToken">
+        :value="csrfToken"
+      >
 
       <div class="u-mb">
         <dp-accordion
+          data-cy="simplifiedNewStatementForm:userDetails"
           :title="Translator.trans('user.details')"
-          :is-open="expandAll">
+          :is-open="expandAll"
+        >
           <div class="u-mv">
             <dp-radio
+              :id="`${instanceId}r_role_0`"
               name="r_role"
               value="0"
-              data-cy="simplifiedNewStatementForm:citizenButton"
-              :id="`${instanceId}r_role_0`"
+              data-cy="roleInput:citizen"
               :label="{
                 text: Translator.trans('citizen')
               }"
               :checked="values.submitter.institution === false || values.submitter.institution === undefined"
-              @change="setInstitutionValue(false)" />
+              @change="setInstitutionValue(false)"
+            />
             <dp-radio
+              :id="`${instanceId}r_role_1`"
               name="r_role"
               value="1"
-              data-cy="simplifiedNewStatementForm:institutionButton"
-              :id="`${instanceId}r_role_1`"
+              data-cy="roleInput:invitableInstitution"
               :label="{
                 text: Translator.trans('institution')
               }"
               :checked="values.submitter.institution === true"
-              @change="setInstitutionValue(true)" />
+              @change="setInstitutionValue(true)"
+            />
           </div>
 
           <div class="space-stack-s">
             <!-- Additional institution fields: orga name, department name -->
             <div
               v-if="values.submitter.institution"
-              :class="fieldsFullWidth ? 'space-stack-s' : 'layout'">
+              :class="fieldsFullWidth ? 'space-stack-s' : 'layout'"
+            >
               <dp-input
                 id="r_orga_name"
-                data-cy="simplifiedNewStatementForm:institution"
                 v-model="values.submitter.orga"
+                data-cy="submitterForm:orgaName"
                 :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
                 :label="{
                   text: Translator.trans('institution')
                 }"
-                name="r_orga_name" /><!--
+                name="r_orga_name"
+              /><!--
            --><dp-input
                 id="r_orga_department_name"
-                data-cy="simplifiedNewStatementForm:department"
                 v-model="values.submitter.department"
+                data-cy="submitterForm:orgaDepartmentName"
                 :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
                 :label="{
                   text: Translator.trans('department')
                 }"
-                name="r_orga_department_name" />
+                name="r_orga_department_name"
+              />
             </div>
 
             <!-- Name, E-Mail Address -->
@@ -90,23 +102,25 @@
               <div :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }">
                 <dp-input
                   id="r_author_name"
-                  data-cy="simplifiedNewStatementForm:name"
                   v-model="values.submitter.name"
+                  data-cy="submitterForm:authorName"
                   :label="{
                     text: Translator.trans('name')
                   }"
-                  name="r_author_name" />
+                  name="r_author_name"
+                />
               </div><!--
            --><div :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }">
                 <dp-input
                   id="r_orga_email"
-                  data-cy="simplifiedNewStatementForm:email"
                   v-model="values.submitter.email"
+                  data-cy="submitterForm:orgaEmail"
                   :label="{
                     text: Translator.trans('email')
                   }"
                   name="r_orga_email"
-                  type="email" />
+                  type="email"
+                />
               </div>
             </div>
 
@@ -114,140 +128,156 @@
             <div :class="fieldsFullWidth ? 'space-stack-s' : 'layout flex'">
               <div
                 class="space-stack-s"
-                :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }">
+                :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
+              >
                 <!-- Street, House number -->
                 <div class="o-form__group">
                   <dp-input
                     id="r_orga_street"
-                    data-cy="simplifiedNewStatementForm:street"
                     v-model="values.submitter.street"
+                    data-cy="submitterForm:orgaStreet"
                     class="o-form__group-item"
                     :label="{
                       text: Translator.trans('street')
                     }"
-                    name="r_orga_street" />
+                    name="r_orga_street"
+                  />
                   <dp-input
                     id="r_houseNumber"
-                    data-cy="simplifiedNewStatementForm:streetNumberShort"
                     v-model="values.submitter.housenumber"
-                    class="o-form__group-item shrink"
+                    data-cy="submitterForm:houseNumber"
+                    class="o-form__group-item !w-1/7 shrink"
                     :label="{
                       text: Translator.trans('street.number.short')
                     }"
                     name="r_houseNumber"
-                    :size="3" />
+                    :size="4"
+                  />
                 </div>
 
                 <!-- PLZ, City -->
                 <div class="o-form__group">
                   <dp-input
                     id="r_orga_postalcode"
-                    data-cy="simplifiedNewStatementForm:postalCode"
                     v-model="values.submitter.plz"
-                    class="o-form__group-item shrink"
+                    data-cy="submitterForm:orgaPostalcode"
+                    class="o-form__group-item !w-1/6 shrink"
                     :label="{
                       text: Translator.trans('postalcode')
                     }"
                     name="r_orga_postalcode"
                     pattern="^[0-9]{5}$"
-                    :size="5" />
+                    :size="5"
+                  />
                   <dp-input
                     id="r_orga_city"
-                    data-cy="simplifiedNewStatementForm:city"
                     v-model="values.submitter.ort"
+                    data-cy="submitterForm:orgaCity"
                     class="o-form__group-item"
                     name="r_orga_city"
                     :label="{
                       text: Translator.trans('city')
-                    }" />
+                    }"
+                  />
                 </div>
               </div><!--
 
               Note
            --><dp-text-area
                 v-if="hasPermission('field_statement_memo')"
-                data-cy="simplifiedNewStatementForm:memo"
+                id="r_memo"
+                v-model="values.memo"
+                data-cy="submitterForm:memo"
                 :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
                 :grow-to-parent="!fieldsFullWidth"
-                id="r_memo"
                 :label="Translator.trans('memo')"
                 name="r_memo"
                 reduced-height
-                v-model="values.memo" />
+              />
             </div>
 
             <similar-statement-submitters
               editable
               :fields-full-width="fieldsFullWidth"
               :procedure-id="procedureId"
-              is-request-form-post />
+              is-request-form-post
+            />
           </div>
         </dp-accordion>
       </div>
 
       <div class="u-mb">
         <dp-accordion
+          data-cy="simplifiedNewStatementForm:statementData"
           :title="Translator.trans('statement.data')"
-          :is-open="expandAll">
+          :is-open="expandAll"
+        >
           <!-- Einreichungsdatum, Verfassungsdatum -->
           <div
             class="u-mv"
-            :class="{ 'u-pr-0_5 u-1-of-2 inline-block': !fieldsFullWidth }">
-            <dp-label
-              :text="Translator.trans('statement.date.submitted')"
-              :hint="Translator.trans('explanation.statement.date')"
-              for="r_submitted_date" />
+            :class="{ 'u-pr-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
+          >
             <dp-datepicker
+              id="r_submitted_date"
+              v-model="values.submittedDate"
               class="o-form__control-wrapper"
-              data-cy="simplifiedNewStatementForm:statementDateSubmitted"
+              data-cy="submitterForm:submittedDate"
               name="r_submitted_date"
               value=""
               :calendars-before="2"
+              :label="{
+                text: Translator.trans('statement.date.submitted'),
+                hint: Translator.trans('explanation.statement.date')
+              }"
               :max-date="nowDate"
               :min-date="values.authoredDate"
-              id="r_submitted_date"
-              v-model="values.submittedDate" />
+            />
           </div><!--
        --><div
             class="u-mb"
-            :class="{ 'u-pl-0_5 u-1-of-2 inline-block': !fieldsFullWidth }">
-            <dp-label
-              :text="Translator.trans('statement.date.authored')"
-              :hint="Translator.trans('explanation.statement.date.authored')"
-              for="r_authored_date" />
+            :class="{ 'u-pl-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
+          >
             <dp-datepicker
+              id="r_authored_date"
+              v-model="values.authoredDate"
               class="o-form__control-wrapper"
-              data-cy="simplifiedNewStatementForm:statementDateAuthored"
+              data-cy="submitterForm:authoredDate"
               name="r_authored_date"
               value=""
               :calendars-before="2"
+              :label="{
+                text: Translator.trans('statement.date.authored'),
+                hint: Translator.trans('explanation.statement.date.authored')
+              }"
               :max-date="values.submittedDate || nowDate"
-              id="r_authored_date"
-              v-model="values.authoredDate" />
+            />
           </div>
 
           <!-- Art der Einreichung, Eingangsnummer -->
           <div
             class="u-mb"
-            :class="{ 'u-pr-0_5 u-1-of-2 inline-block': !fieldsFullWidth }">
+            :class="{ 'u-pr-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
+          >
             <dp-select
               id="r_submit_type"
-              data-cy="simplifiedNewStatementForm:submitType"
+              data-cy="submitterForm:submitType"
               :label="{
                 hint: Translator.trans('explanation.statement.submit.type'),
                 text: Translator.trans('submit.type')
               }"
               name="r_submit_type"
               :options="submitTypeOptions"
-              selected="unknown" />
+              selected="unknown"
+            />
           </div><!--
        --><div
             v-if="hasPermission('field_statement_intern_id')"
             class="u-mb"
-            :class="{ 'u-pl-0_5 u-1-of-2 inline-block': !fieldsFullWidth }">
+            :class="{ 'u-pl-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
+          >
             <dp-input
               id="r_internId"
-              data-cy="simplifiedNewStatementForm:internId"
+              data-cy="submitterForm:internId"
               :data-dp-validate-error="Translator.trans('validation.error.internId')"
               :label="{
                 hint: Translator.trans('last.used') + ' ' + newestInternId,
@@ -256,20 +286,23 @@
               }"
               name="r_internId"
               :pattern="internIdsPattern"
-              value="" />
+              model-value=""
+            />
           </div>
 
           <!-- Hidden input for phase -->
           <input
             type="hidden"
             name="r_phase"
-            :value="currentProcedurePhase">
+            :value="currentProcedurePhase"
+          >
 
           <!-- Tags -->
           <template v-if="hasPermission('feature_statements_tag')">
             <dp-label
               :text="Translator.trans('tags')"
-              for="r_tags[]" />
+              for="r_tags[]"
+            />
             <dp-multiselect
               v-model="values.tags"
               class="u-mb"
@@ -280,7 +313,8 @@
               multiple
               :options="tags"
               track-by="id"
-              @input="sortSelected('tags')">
+              @input="sortSelected('tags', 'title')"
+            >
               <template v-slot:option="{ props }">
                 <span v-if="props.option.$isLabel">
                   {{ props.option.$groupLabel }}
@@ -296,11 +330,13 @@
                     aria-hidden="true"
                     class="multiselect__tag-icon"
                     tabindex="1"
-                    @click="props.remove(props.option)" />
+                    @click="props.remove(props.option)"
+                  />
                   <input
                     name="r_tags[]"
                     type="hidden"
-                    :value="props.option.id">
+                    :value="props.option.id"
+                  >
                 </span>
               </template>
             </dp-multiselect>
@@ -312,25 +348,31 @@
       <dp-label
         :text="Translator.trans('statement.text.short')"
         for="r_text"
-        required />
+        required
+      />
       <dp-editor
         ref="statementText"
+        v-model="values.text"
+        :aria-label="Translator.trans('statement.text.short')"
         :procedure-id="procedureId"
         :toolbar-items="{ linkButton: true }"
         required
         hidden-input="r_text"
-        v-model="values.text" />
+      />
+
+      <slot />
 
       <!-- File upload fields -->
       <template v-if="allowFileUpload">
         <dp-label
           :text="Translator.trans('attachment.original')"
           for="r_attachment_original"
-          class="u-mt" />
+          class="u-mt"
+        />
 
         <dp-upload-files
-          class="u-mb"
           id="r_attachment_original"
+          class="u-mb"
           :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           name="r_attachment_original"
           allowed-file-types="all"
@@ -339,12 +381,14 @@
           :max-number-of-files="1"
           needs-hidden-input
           :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
-          :tus-endpoint="dplan.paths.tusEndpoint" />
+          :tus-endpoint="dplan.paths.tusEndpoint"
+        />
       </template>
       <dp-label
         :text="Translator.trans('more.attachments')"
         for="r_upload"
-        class="u-mt" />
+        class="u-mt"
+      />
 
       <dp-upload-files
         id="r_upload"
@@ -356,22 +400,27 @@
         :max-number-of-files="1000"
         needs-hidden-input
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
-        :tus-endpoint="dplan.paths.tusEndpoint" />
+        :tus-endpoint="dplan.paths.tusEndpoint"
+      />
 
       <!-- When used from annotated pdf view, a hidden input with annotatedStatementPdf.id has to be sent to BE -->
       <input
+        v-if="documentId !== ''"
         type="hidden"
         name="r_annotated_statement_pdf_id"
         :value="documentId"
-        v-if="documentId !== ''">
+      >
 
       <dp-button-row
         :busy="isSaving"
         class="u-mv"
+        data-cy="submitterForm"
         :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })"
         primary
         secondary
-        @primary-action="submit" />
+        @primary-action="submit"
+        @secondary-action="abort"
+      />
     </form>
   </div>
 </template>
@@ -388,10 +437,11 @@ import {
   DpSelect,
   DpTextArea,
   DpUploadFiles,
-  dpValidateMixin
-  , hasOwnProp
+  dpValidateMixin,
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import dayjs from 'dayjs'
+import { defineAsyncComponent } from 'vue'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { v4 as uuid } from 'uuid'
 
@@ -403,7 +453,7 @@ const submitterProperties = {
   name: '',
   orga: '',
   ort: '',
-  plz: ''
+  plz: '',
 }
 
 export default {
@@ -419,12 +469,12 @@ export default {
     DpRadio,
     DpSelect,
     DpTextArea,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
+    }),
     DpUploadFiles,
-    SimilarStatementSubmitters
+    SimilarStatementSubmitters,
   },
 
   mixins: [dpValidateMixin],
@@ -433,36 +483,36 @@ export default {
     allowFileUpload: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentProcedurePhase: {
       type: String,
       required: false,
-      default: 'analysis'
+      default: 'analysis',
     },
 
     documentId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     expandAll: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     fieldsFullWidth: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     initValues: {
@@ -470,53 +520,54 @@ export default {
       required: false,
       default: () => ({
         authoredDate: '',
+        quickSave: '',
         submittedDate: '',
         tags: [],
         text: '',
-        submitter: submitterProperties
-      })
+        submitter: submitterProperties,
+      }),
     },
 
     newestInternId: {
       type: String,
       required: false,
-      default: '-'
+      default: '-',
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     statementImportEmailId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     submitRouteName: {
       type: String,
       required: false,
-      default: 'dplan_simplified_new_statement_create'
+      default: 'dplan_simplified_new_statement_create',
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     tags: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     usedInternIds: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -526,11 +577,12 @@ export default {
       values: {
         authoredDate: '',
         memo: '',
+        quickSave: '',
         submittedDate: '',
         tags: [],
         text: '',
-        submitter: submitterProperties
-      }
+        submitter: submitterProperties,
+      },
     }
   },
 
@@ -562,30 +614,39 @@ export default {
       }
 
       return day + '.' + month + '.' + date.getFullYear()
-    }
+    },
   },
 
   watch: {
     // We have to watch it because the values are loaded from the async request response
-    initValues () {
-      this.setInitialValues()
-    }
+    initValues: {
+      handler () {
+        this.setInitialValues()
+      },
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
+    abort () {
+      const href = `${Routing.generate('DemosPlan_procedure_import', { procedureId: this.procedureId })}/#import#StatementPdfImport`
+      window.location.replace(href)
+    },
+
     setInitialValues () {
       this.values = { ...this.initValues }
+
       // Set default values to ensure reactivity.
       if (typeof this.values.submitter !== 'undefined' && typeof this.values.submitter.institution === 'undefined') {
         // Since Data sends us the key toeb instead of institution, we need to transform this for now but keep all init values
-        this.$set(this.values.submitter, 'institution', this.values.submitter.toeb)
+        this.values.submitter.institution = this.values.submitter.toeb
         this.$delete(this.values.submitter, 'toeb')
       }
 
       if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0) {
-        this.$set(this.values, 'submitter', {})
+        this.values.submitter = {}
         for (const [key, value] of Object.entries(submitterProperties)) {
-          this.$set(this.values.submitter, key, value)
+          this.values.submitter[key] = value
         }
       }
     },
@@ -596,12 +657,12 @@ export default {
      */
     setInstitutionValue (val) {
       this.$nextTick(() => {
-        this.$set(this.values.submitter, 'institution', val)
+        this.values.submitter.institution = val
       })
     },
 
-    sortSelected (property) {
-      this.values[property].sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
+    sortSelected (property, sortBy = 'name') {
+      this.values[property].sort((a, b) => (a[sortBy] > b[sortBy]) ? 1 : ((b[sortBy] > a[sortBy]) ? -1 : 0))
     },
 
     submit () {
@@ -609,7 +670,7 @@ export default {
         this.isSaving = true
         this.$refs.simplifiedNewStatementForm.submit()
       }, false)
-    }
+    },
   },
 
   created () {
@@ -618,10 +679,11 @@ export default {
 
   mounted () {
     this.setInitialValues()
+
     // Synchronize values.authoredDate with the date value provided by data only if date is existing and format is valid.
     if (hasOwnProp(this.values.submitter, 'date') && dayjs(this.values.submitter.date, 'YYYY-MM-DD', true).isValid()) {
-      this.$set(this.values, 'authoredDate', dayjs(this.values.submitter.date).format('DD.MM.YYYY'))
+      this.values.authoredDate = dayjs(this.values.submitter.date).format('DD.MM.YYYY')
     }
-  }
+  },
 }
 </script>

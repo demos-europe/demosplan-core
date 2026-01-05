@@ -3,4 +3,3 @@
 services:
     demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface: '@demosplan\DemosPlanCoreBundle\Tools\DocxImporterHttp'
     demosplan\DemosPlanCoreBundle\Tools\PdfCreatorInterface: '@demosplan\DemosPlanCoreBundle\Tools\PdfCreatorHttp'
-    demosplan\DemosPlanCoreBundle\Tools\VirusCheckInterface: '@demosplan\DemosPlanCoreBundle\Tools\VirusCheckHttp'

@@ -63,23 +63,18 @@ class DemosPlanPath
      */
     public static function getTemporaryPath(string $path = ''): string
     {
-        $tempDir = sys_get_temp_dir();
-        if (!is_dir($tempDir)) {
-            throw new RuntimeException('Could not determine temporary directory');
+        // store in a subdirectory to avoid conflicts with other applications
+        $tempDir = sys_get_temp_dir().DIRECTORY_SEPARATOR.'dplan';
+        if (!is_dir($tempDir) && !mkdir($tempDir, 0777, true) && !is_dir($tempDir)) {
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $tempDir));
         }
 
         return $tempDir.DIRECTORY_SEPARATOR.$path;
     }
 
-    public static function makeTemporaryDir(string $path = '', $mode = 0777): string
+    public static function getSystemFilesPath(string $path = ''): string
     {
-        $tempDir = static::getTemporaryPath($path);
-
-        if (!is_dir($tempDir) && !mkdir($tempDir, $mode, true) && !is_dir($tempDir)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', $tempDir));
-        }
-
-        return $tempDir;
+        return 'system'.DIRECTORY_SEPARATOR.$path;
     }
 
     /**
@@ -87,7 +82,7 @@ class DemosPlanPath
      */
     public static function getProjectPath(string $path = ''): string
     {
-        if(self::isInstalledAsLib()) {
+        if (self::isInstalledAsLib()) {
             return dirname(self::getRootPath(), 3).DIRECTORY_SEPARATOR.$path;
         }
 
@@ -120,7 +115,7 @@ class DemosPlanPath
      *
      * @throws RuntimeException If anything fails
      */
-    public static function recursiveRemovePath($path)
+    public static function recursiveRemoveLocalPath($path)
     {
         if (is_dir($path)) {
             $objects = scandir($path, SCANDIR_SORT_NONE);
@@ -130,8 +125,9 @@ class DemosPlanPath
                     $pathToObject = $path.DIRECTORY_SEPARATOR.$object;
 
                     if ('dir' === filetype($pathToObject)) {
-                        self::recursiveRemovePath($pathToObject);
+                        self::recursiveRemoveLocalPath($pathToObject);
                     } else {
+                        // local file is valid, no need for flysystem
                         $deleted = unlink($pathToObject);
                         if (false === $deleted) {
                             throw new RuntimeException('Could not delete File recursively', [$pathToObject]);

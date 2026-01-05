@@ -15,7 +15,9 @@
       :tree-data="transformedCategories"
       :branch-identifier="branchFunc()"
       :options="options"
-      @tree:change="updateCategorySort">
+      @end="(event, item, parentId) => updateCategorySort(event, item, parentId)"
+      @tree:change="updateCategorySort"
+    >
       <template v-slot:header="">
         <div class="layout--flush">
           <div class="layout__item u-4-of-12">
@@ -37,13 +39,15 @@
       <template v-slot:branch="{ nodeElement, nodeChildren }">
         <dp-faq-category-item
           :faq-category-item="nodeElement"
-          :category-children="nodeChildren" />
+          :category-children="nodeChildren"
+        />
       </template>
       <template v-slot:leaf="{ nodeElement, parentId }">
         <dp-faq-item
           :available-group-options="availableGroupOptions"
           :faq-item="nodeElement"
-          :parent-id="parentId" />
+          :parent-id="parentId"
+        />
       </template>
     </dp-tree-list>
   </div>
@@ -62,7 +66,7 @@ export default {
     DpFaqCategoryItem,
     DpFaqItem,
     DpLoading,
-    DpTreeList
+    DpTreeList,
   },
 
   props: {
@@ -71,30 +75,28 @@ export default {
      */
     roleGroupsFaqVisibility: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       options: {
-        branchesSelectable: false,
-        leavesSelectable: false,
-        dragLeaves: true
+        dragLeaves: true,
       },
       treeListData: null,
       categories: null,
-      isLoading: true
+      isLoading: true,
     }
   },
 
   computed: {
-    ...mapState('faqCategory', {
-      faqCategories: 'items'
+    ...mapState('FaqCategory', {
+      faqCategories: 'items',
     }),
 
-    ...mapState('faq', {
-      faqItems: 'items'
+    ...mapState('Faq', {
+      faqItems: 'items',
     }),
 
     /**
@@ -106,34 +108,34 @@ export default {
         {
           title: Translator.trans('role.fp'),
           id: 'fpVisible',
-          showFor: 'GLAUTH'
+          showFor: 'GLAUTH',
         },
         {
           title: Translator.trans('institution'),
           id: 'invitableInstitutionVisible',
-          showFor: 'GPSORG'
+          showFor: 'GPSORG',
         },
         {
           title: Translator.trans('guest.citizen'),
           id: 'publicVisible',
-          showFor: 'GGUEST'
-        }
+          showFor: 'GGUEST',
+        },
       ].filter(group => this.roleGroupsFaqVisibility.includes(group.showFor))
     },
 
     transformedCategories () {
       return this.faqItems && this.faqCategories ? this.transformCategoryData(this.faqCategories) : []
-    }
+    },
   },
 
   methods: {
-    ...mapActions('faqCategory', {
+    ...mapActions('FaqCategory', {
       categoryList: 'list',
-      saveCategory: 'save'
+      saveCategory: 'save',
     }),
 
-    ...mapMutations('faqCategory', {
-      updateCategory: 'setItem'
+    ...mapMutations('FaqCategory', {
+      updateCategory: 'setItem',
     }),
 
     transformCategoryData (categories) {
@@ -145,51 +147,97 @@ export default {
     },
 
     branchFunc () {
-      return function ({ node, id, children }) {
-        return node.type === 'faqCategory'
+      return function ({ node }) {
+        return node.type === 'FaqCategory'
       }
     },
 
-    updateCategorySort (e) {
-      const catCpy = JSON.parse(JSON.stringify(this.faqCategories[e.nodeId]))
-      const newSort = e.newOrder.map(item => {
-        return {
-          id: item.id,
-          type: item.type
-        }
-      })
+    /**
+     * Update sort order inside a category; dragging across categories is not allowed
+     * @param event
+     * @param {Object} item
+     * @param {Object} item.attributes
+     * @param {String} item.id
+     * @param {String} item.type
+     * @param {String} parentId
+     */
+    updateCategorySort (event, item, parentId) {
+      let categoryIds = []
+      const sourceId = event.from.id
+      let targetId = event.to.id
 
-      catCpy.relationships.faq.data = newSort
+      if (targetId === 'noIdGiven') {
+        const targetList = event.to.querySelector('ul')
 
-      this.updateCategory({ ...catCpy, id: catCpy.id })
-
-      const manualSortParam = 'manualsort=' + newSort.reduce((acc, item, idx) => {
-        return idx !== newSort.length - 1 ? acc + item.id + ',' : acc + item.id
-      }, '')
-
-      const categoryParam = 'category=custom_category'
-      const categoryIdParam = 'categoryId=' + e.nodeId
-
-      const postParams = manualSortParam + '&' + categoryParam + '&' + categoryIdParam
-
-      const xhr = new XMLHttpRequest()
-      const url = Routing.generate('DemosPlan_faq_administration_faq')
-      xhr.open('POST', url, true)
-
-      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-      xhr.setRequestHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
-      xhr.setRequestHeader('Upgrade-Insecure-Requests', '1')
-
-      // Display notifications on success or failure of the request
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 300) {
-          dplan.notify.notify('confirm', Translator.trans('confirm.sort.saved'))
-        } else if (xhr.readyState === 4) {
-          dplan.notify.error(Translator.trans('error.update.manual.order'))
+        if (targetList) {
+          targetId = targetList.id
         }
       }
-      xhr.send(postParams)
-    }
+
+      if (sourceId !== targetId) {
+        categoryIds = [event.from.id, targetId]
+      } else {
+        categoryIds = [parentId]
+      }
+
+      // Remove item from old category, add to new category
+      categoryIds.forEach(id => {
+        const category = JSON.parse(JSON.stringify(this.faqCategories[id]))
+        const children = category.relationships.faq.data
+        const itemIsChild = children.findIndex(child => child.id === item.id) !== -1
+
+        // Move to another category
+        if (sourceId !== targetId) {
+          if (itemIsChild) {
+            // Remove item from old category
+            children.splice(event.oldIndex, 1)
+            this.updateCategory({ ...category, id: category.id })
+          } else {
+            // Add item to new category
+            children.splice(event.newIndex, 0, { id: item.id, type: item.type })
+            this.updateCategory({ ...category, id: category.id })
+          }
+        }
+
+        // Move inside the same category
+        if (sourceId === targetId) {
+          if (itemIsChild) {
+            // Remove item from old position
+            const item = children.splice(event.oldIndex, 1)[0]
+            // Add item at new position
+            children.splice(event.newIndex, 0, item)
+            this.updateCategory({ ...category, id: category.id })
+          }
+        }
+
+        const manualSortParam = 'manualsort=' + children.reduce((acc, child, idx) => {
+          return idx !== children.length - 1 ? acc + child.id + ',' : acc + child.id
+        }, '')
+
+        const categoryParam = 'category=custom_category'
+        const categoryIdParam = 'categoryId=' + id
+
+        const postParams = manualSortParam + '&' + categoryParam + '&' + categoryIdParam
+
+        const xhr = new XMLHttpRequest()
+        const url = Routing.generate('DemosPlan_faq_administration_faq')
+        xhr.open('POST', url, true)
+
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+        xhr.setRequestHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')
+        xhr.setRequestHeader('Upgrade-Insecure-Requests', '1')
+
+        // Display notifications on success or failure of the request
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 300) {
+            dplan.notify.notify('confirm', Translator.trans('confirm.sort.saved'))
+          } else if (xhr.readyState === 4) {
+            dplan.notify.error(Translator.trans('error.update.manual.order'))
+          }
+        }
+        xhr.send(postParams)
+      })
+    },
   },
 
   mounted () {
@@ -197,6 +245,6 @@ export default {
     this.categoryList().then(() => {
       this.isLoading = false
     })
-  }
+  },
 }
 </script>

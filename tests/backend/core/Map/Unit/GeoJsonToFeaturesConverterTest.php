@@ -17,10 +17,10 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\GeoJsonToFeaturesConverter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayer;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
-use Geometry;
+use geoPHP\Geometry\Geometry;
+use Illuminate\Support\Collection;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Tests\Base\UnitTestCase;
-use Tightenco\Collect\Support\Collection;
 
 class GeoJsonToFeaturesConverterTest extends UnitTestCase
 {
@@ -36,16 +36,13 @@ class GeoJsonToFeaturesConverterTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(GeoJsonToFeaturesConverter::class);
+        $this->sut = self::getContainer()->get(GeoJsonToFeaturesConverter::class);
         $geoJsonFilesDir = DemosPlanPath::getTestPath('backend/core/Map/files/GeoJsonFiles');
         $this->geoJsonFilePath = $geoJsonFilesDir.'/geoJson1.json';
     }
 
     public function testConversion(): void
     {
-        // test fails because reprojection of coordinates is not yet included in this test
-        self::markSkippedForCIIntervention();
-
         // This test accesses external resources, consider rewriting it to run
         // offline which would massively decrease the run time and increase the
         // reliabilty
@@ -122,6 +119,7 @@ class GeoJsonToFeaturesConverterTest extends UnitTestCase
 
     private function getFileContents(string $fullPath): string
     {
+        // uses local file, no need for flysystem
         if (!$fileContents = file_get_contents($fullPath)) {
             throw new FileNotFoundException('File not found in path: '.$fullPath);
         }

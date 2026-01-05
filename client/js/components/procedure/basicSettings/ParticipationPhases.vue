@@ -3,39 +3,44 @@
     <div class="flex gap-2">
       <dp-select
         v-model="selectedPhase"
-        class="w-8/12"
-        :data-cy="dataCySelect"
+        :data-cy="`${dataCy}:select`"
         :label="{
           text: labelText,
           tooltip: helpText
         }"
         :name="fieldName"
         :options="phaseOptions"
+        class="w-8/12"
         required
-        @select="$emit('phase:select', $event)" />
+        @select="$emit('phase:select', $event)"
+      />
 
       <dp-input
         v-if="hasPermission('field_phase_iterator')"
         :id="iterator.name"
-        :data-cy="dataCyIterator"
+        :data-cy="`${dataCy}:iterator`"
         :label="{
           text: iterator.label,
           tooltip: iterator.tooltip
         }"
+        :model-value="iterator.value"
         :name="iterator.name"
         pattern="^[1-9][0-9]*$"
         required
-        :value="iterator.value"
-        width="w-4/12" />
+        width="w-4/12"
+      />
     </div>
 
     <dp-inline-notification
       :message="permissionMessageText"
-      type="warning" />
+      class="mt-3 mb-2"
+      type="warning"
+    />
 
     <div
       v-if="hasPermission('feature_auto_switch_to_procedure_end_phase') && !hasPermission('feature_auto_switch_procedure_phase') && isInParticipation"
-      class="lbl__hint u-mt-0_25 u-mb-0">
+      class="lbl__hint u-mt-0_25 u-mb-0"
+    >
       {{ autoswitchHint }}
     </div>
   </div>
@@ -45,7 +50,7 @@
 import {
   DpInlineNotification,
   DpInput,
-  DpSelect
+  DpSelect,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -54,50 +59,44 @@ export default {
   components: {
     DpInlineNotification,
     DpInput,
-    DpSelect
+    DpSelect,
   },
 
   props: {
     autoswitchHint: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
-    dataCySelect: {
+    dataCy: {
       type: String,
       required: false,
-      default: ''
-    },
-
-    dataCyIterator: {
-      type: String,
-      required: false,
-      default: ''
+      default: '',
     },
 
     fieldName: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     helpText: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     labelText: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initSelectedPhase: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     /**
@@ -119,31 +118,35 @@ export default {
         })
 
         return keyCounter === requiredKeys.length
-      }
+      },
     },
 
     participationPhases: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     permissionMessage: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     phaseOptions: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
+
+  emits: [
+    'phase:select',
+  ],
 
   data () {
     return {
-      selectedPhase: this.initSelectedPhase
+      selectedPhase: this.initSelectedPhase,
     }
   },
 
@@ -164,7 +167,7 @@ export default {
 
     isInParticipation () {
       return this.participationPhases.includes(this.selectedPhase)
-    }
-  }
+    },
+  },
 }
 </script>

@@ -39,6 +39,7 @@ final class PackageInformation
     {
         $installedPackagesPath = DemosPlanPath::getRootPath('addons/vendor/composer/installed.php');
 
+        // uses local file, no need for flysystem
         if (!file_exists($installedPackagesPath)) {
             return;
         }
@@ -71,7 +72,7 @@ final class PackageInformation
         $path = $this->getInstallPath($addonName).'/demosplan-addon.y*ml';
         $globResult = glob($path);
 
-        if (false === $globResult || 0 === count($globResult)) {
+        if (false === $globResult || [] === $globResult) {
             throw AddonException::invalidManifest($addonName);
         }
 

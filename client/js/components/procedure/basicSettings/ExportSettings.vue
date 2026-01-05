@@ -12,79 +12,94 @@
     <p class="u-mb">
       {{ Translator.trans('export.settings.hint') }}
     </p>
+    <dp-inline-notification
+      v-if="singleCheckedFieldId"
+      class="mt-3 mb-2"
+      :message="Translator.trans('field.selectionRequired')"
+      type="warning"
+    />
     <dp-checkbox
       id="check_all"
       v-model="allChecked"
+      :disabled="allChecked === true"
       data-cy="exportSettings:allChecked"
       class="u-mb"
       :label="{
         bold: true,
         text: Translator.trans('aria.select.all')
       }"
-      @change="toggleAll" />
+      @change="toggleAll"
+    />
     <div class="inline-block u-pr align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb">
       <p
+        id="submitter"
         class="weight--bold u-mb-0_25"
-        id="submitter">
+      >
         {{ Translator.trans('submitter') }}
       </p>
       <dp-checkbox-group
         aria-labelledby="submitter"
         :options="submitterFields"
         data-cy="exportSettingsSubmitter"
+        :selected-options="getSelectedOptions(submitterFields)"
         @update="checked => updateCheckedFields(checked)"
-        :selected-options="getSelectedOptions(submitterFields)" />
+      />
     </div><!--
  --><dp-checkbox-group
       :label="Translator.trans('statement.data')"
       :options="metaDataFields"
       data-cy="exportSettingsMetaData"
-      @update="checked => updateCheckedFields(checked)"
       :selected-options="getSelectedOptions(metaDataFields)"
-    class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb u-pr-2" /><!--
+      class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb u-pr-2"
+    @update="checked => updateCheckedFields(checked)"
+    /><!--
  --><dp-checkbox-group
       v-if="hasPermission('field_procedure_elements')"
       :label="Translator.trans('documents')"
       :options="documentFields"
       data-cy="exportSettingsDocuments"
-      @update="checked => updateCheckedFields(checked)"
       :selected-options="getSelectedOptions(documentFields)"
-    class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb" /><!--
+      class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb"
+    @update="checked => updateCheckedFields(checked)"
+    /><!--
  --><dp-checkbox-group
       :label="Translator.trans('publication')"
       :options="publicationField"
       data-cy="exportSettingsPublication"
-      @update="checked => updateCheckedFields(checked)"
       :selected-options="getSelectedOptions(publicationField)"
-      class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm" />
+      class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm"
+      @update="checked => updateCheckedFields(checked)"
+    />
   </div>
 </template>
 
 <script>
-import { DpCheckbox, DpCheckboxGroup } from '@demos-europe/demosplan-ui'
+import { DpCheckbox, DpCheckboxGroup, DpInlineNotification } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'ExportSettings',
 
   components: {
     DpCheckbox,
-    DpCheckboxGroup
+    DpCheckboxGroup,
+    DpInlineNotification,
   },
 
   props: {
     fieldDefinitions: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initialSettings: {
       type: Object,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
 
   data () {
     return {
+      activePreventDefaultCheckboxId: '',
       allChecked: false,
       checkedFields: {},
       configurableFields: [
@@ -95,7 +110,7 @@ export default {
           initVal: this.initialSettings.idExportable,
           enabled: true,
           hasPermission: hasPermission('field_statement_extern_id'),
-          group: 'metaData'
+          group: 'metaData',
         },
         {
           id: 'r_export_settings[r_submitted_date]',
@@ -104,7 +119,7 @@ export default {
           initVal: this.initialSettings.creationDateExportable,
           enabled: true,
           hasPermission: true,
-          group: 'metaData'
+          group: 'metaData',
         },
         {
           id: 'r_export_settings[r_procedure_name]',
@@ -113,7 +128,7 @@ export default {
           initVal: this.initialSettings.procedureNameExportable,
           enabled: true,
           hasPermission: hasPermission('field_procedure_name'),
-          group: 'metaData'
+          group: 'metaData',
         },
         {
           id: 'r_export_settings[r_phase]',
@@ -122,7 +137,7 @@ export default {
           initVal: this.initialSettings.procedurePhaseExportable,
           enabled: true,
           hasPermission: hasPermission('field_statement_phase'),
-          group: 'metaData'
+          group: 'metaData',
         },
         // Currently not implemented in BE, therefore disabled
         {
@@ -132,7 +147,7 @@ export default {
           initVal: this.initialSettings.institutionOrCitizenExportable,
           enabled: false,
           hasPermission: true,
-          group: 'submitterData'
+          group: 'submitterData',
         },
         {
           id: 'r_export_settings[r_orga_name]',
@@ -141,7 +156,7 @@ export default {
           initVal: this.initialSettings.orgaNameExportable,
           enabled: true,
           hasPermission: hasPermission('field_statement_meta_orga_name'),
-          group: 'submitterData'
+          group: 'submitterData',
         },
         {
           id: 'r_export_settings[r_departmentName]',
@@ -150,7 +165,7 @@ export default {
           initVal: this.initialSettings.departmentNameExportable,
           enabled: true,
           hasPermission: hasPermission('field_statement_meta_orga_name') && hasPermission('field_statement_meta_orga_department_name'),
-          group: 'submitterData'
+          group: 'submitterData',
         },
         {
           id: 'r_export_settings[r_userOrganisation]',
@@ -159,7 +174,7 @@ export default {
           initVal: this.initialSettings.userOrganisationExportable,
           enabled: this.fieldDefinitions.citizenXorOrgaAndOrgaName.enabled || this.fieldDefinitions.stateAndGroupAndOrgaNameAndPosition.enabled,
           hasPermission: hasPermission('field_statement_user_organisation'),
-          group: 'submitterData'
+          group: 'submitterData',
         },
         {
           id: 'r_export_settings[r_author_name]',
@@ -168,7 +183,7 @@ export default {
           initVal: this.initialSettings.submitterNameExportable,
           enabled: this.fieldDefinitions.name.enabled,
           hasPermission: hasPermission('field_statement_meta_submit_name'),
-          group: 'submitterData'
+          group: 'submitterData',
         },
         {
           id: 'r_export_settings[r_public_show]',
@@ -177,7 +192,7 @@ export default {
           initVal: this.initialSettings.showInPublicAreaExportable,
           enabled: true,
           hasPermission: hasPermission('field_statement_public_allowed'),
-          group: 'publication'
+          group: 'publication',
         },
         {
           id: 'r_export_settings[r_element]',
@@ -186,7 +201,7 @@ export default {
           initVal: this.initialSettings.documentExportable,
           enabled: true,
           hasPermission: true,
-          group: 'documents'
+          group: 'documents',
         },
         {
           id: 'r_export_settings[r_paragraph]',
@@ -195,7 +210,7 @@ export default {
           initVal: this.initialSettings.paragraphExportable,
           enabled: true,
           hasPermission: hasPermission('field_procedure_paragraphs'),
-          group: 'documents'
+          group: 'documents',
         },
         {
           id: 'r_export_settings[r_document]',
@@ -204,7 +219,7 @@ export default {
           initVal: this.initialSettings.filesExportable,
           enabled: true,
           hasPermission: hasPermission('field_procedure_documents'),
-          group: 'documents'
+          group: 'documents',
         },
         {
           id: 'r_export_settings[r_attachment]',
@@ -213,7 +228,7 @@ export default {
           initVal: this.initialSettings.attachmentsExportable,
           enabled: true,
           hasPermission: hasPermission('field_statement_file'),
-          group: 'documents'
+          group: 'documents',
         },
         {
           id: 'r_export_settings[r_priority]',
@@ -222,7 +237,7 @@ export default {
           initVal: this.initialSettings.priorityExportable,
           enabled: true,
           hasPermission: hasPermission('field_statement_priority'),
-          group: 'metaData'
+          group: 'metaData',
         },
         {
           id: 'r_export_settings[r_votes]',
@@ -231,7 +246,7 @@ export default {
           initVal: this.initialSettings.votesNumExportable,
           enabled: true,
           hasPermission: hasPermission('feature_statements_vote'),
-          group: 'metaData'
+          group: 'metaData',
         },
         {
           id: 'r_export_settings[r_submitterEmailAddress]',
@@ -240,7 +255,7 @@ export default {
           initVal: this.initialSettings.emailExportable,
           enabled: this.fieldDefinitions.emailAddress.enabled || this.fieldDefinitions.phoneOrEmail.enabled,
           hasPermission: hasPermission('field_statement_submitter_email_address'),
-          group: 'submitterData'
+          group: 'submitterData',
         },
         {
           id: 'r_export_settings[r_phone]',
@@ -249,7 +264,7 @@ export default {
           initVal: this.initialSettings.phoneNumberExportable,
           enabled: this.fieldDefinitions.phoneNumber.enabled || this.fieldDefinitions.phoneOrEmail.enabled,
           hasPermission: true,
-          group: 'submitterData'
+          group: 'submitterData',
         },
         {
           id: 'r_export_settings[r_orga_street]',
@@ -258,7 +273,7 @@ export default {
           initVal: this.initialSettings.streetExportable,
           enabled: this.fieldDefinitions.street.enabled || this.fieldDefinitions.streetAndHouseNumber.enabled,
           hasPermission: hasPermission('field_statement_meta_street') && hasPermission('field_statement_meta_address'),
-          group: 'submitterData'
+          group: 'submitterData',
         },
         {
           id: 'r_export_settings[r_houseNumber]',
@@ -267,7 +282,7 @@ export default {
           initVal: this.initialSettings.streetNumberExportable,
           enabled: this.fieldDefinitions.streetAndHouseNumber.enabled,
           hasPermission: hasPermission('field_statement_meta_address'),
-          group: 'submitterData'
+          group: 'submitterData',
         },
         {
           id: 'r_export_settings[r_orga_postalcode]',
@@ -276,7 +291,7 @@ export default {
           initVal: this.initialSettings.postalCodeExportable,
           enabled: this.fieldDefinitions.postalAndCity.enabled,
           hasPermission: hasPermission('field_statement_meta_address'),
-          group: 'submitterData'
+          group: 'submitterData',
         },
         {
           id: 'r_export_settings[r_orga_city]',
@@ -285,7 +300,7 @@ export default {
           initVal: this.initialSettings.cityExportable,
           enabled: this.fieldDefinitions.postalAndCity.enabled,
           hasPermission: hasPermission('field_statement_meta_address'),
-          group: 'submitterData'
+          group: 'submitterData',
         },
         {
           id: 'r_export_settings[r_userState]',
@@ -294,7 +309,7 @@ export default {
           initVal: this.initialSettings.userStateExportable,
           enabled: this.fieldDefinitions.stateAndGroupAndOrgaNameAndPosition.enabled,
           hasPermission: hasPermission('field_statement_user_state'),
-          group: 'submitterData'
+          group: 'submitterData',
         },
         {
           id: 'r_export_settings[r_userGroup]',
@@ -303,7 +318,7 @@ export default {
           initVal: this.initialSettings.userGroupExportable,
           enabled: this.fieldDefinitions.stateAndGroupAndOrgaNameAndPosition.enabled,
           hasPermission: hasPermission('field_statement_user_group'),
-          group: 'submitterData'
+          group: 'submitterData',
         },
         {
           id: 'r_export_settings[r_userPosition]',
@@ -312,9 +327,10 @@ export default {
           initVal: this.initialSettings.userPositionExportable,
           enabled: this.fieldDefinitions.stateAndGroupAndOrgaNameAndPosition.enabled,
           hasPermission: hasPermission('field_statement_user_position'),
-          group: 'submitterData'
-        }
-      ]
+          group: 'submitterData',
+        },
+      ],
+      singleCheckedFieldId: '',
     }
   },
 
@@ -337,10 +353,15 @@ export default {
 
     submitterFields () {
       return this.availableFields.filter(field => field.group === 'submitterData')
-    }
+    },
   },
 
   methods: {
+    addPreventDefault (id) {
+      const checkbox = document.getElementById(id)
+      checkbox.addEventListener('click', this.preventCheck)
+    },
+
     getSelectedOptions (options) {
       const entries = {}
       options.forEach(option => {
@@ -357,29 +378,65 @@ export default {
       this.allChecked = typeof Object.values(this.checkedFields).find(val => val === false) === 'undefined'
     },
 
+    getSingleCheckedField () {
+      const checkedFieldEntries = Object.entries(this.checkedFields).filter(([, value]) => value)
+
+      if (checkedFieldEntries.length === 1) {
+        this.singleCheckedFieldId = checkedFieldEntries[0][0]
+      } else {
+        this.singleCheckedFieldId = ''
+      }
+    },
+
+    handlePreventDefaultForSingleField () {
+      this.getSingleCheckedField()
+
+      if (this.activePreventDefaultCheckboxId) {
+        this.removePreventDefault(this.activePreventDefaultCheckboxId)
+        this.activePreventDefaultCheckboxId = ''
+      }
+
+      if (this.singleCheckedFieldId) {
+        this.addPreventDefault(this.singleCheckedFieldId)
+        this.activePreventDefaultCheckboxId = this.singleCheckedFieldId
+      }
+    },
+
+    preventCheck (e) {
+      e.preventDefault()
+    },
+
+    removePreventDefault (id) {
+      const checkbox = document.getElementById(id)
+      checkbox.removeEventListener('click', this.preventCheck)
+    },
+
     setCheckedFields () {
       this.availableFields.forEach(field => {
-        this.$set(this.checkedFields, field.id, field.initVal || false)
+        this.checkedFields[field.id] = field.initVal || false
       })
       this.setAllChecked()
     },
 
     toggleAll (val) {
       this.availableFields.forEach(field => {
-        this.$set(this.checkedFields, field.id, val)
+        this.checkedFields[field.id] = val
       })
+      this.handlePreventDefaultForSingleField()
     },
 
     updateCheckedFields (checkedFields) {
       Object.keys(checkedFields).forEach(id => {
-        this.$set(this.checkedFields, id, checkedFields[id])
+        this.checkedFields[id] = checkedFields[id]
       })
+      this.handlePreventDefaultForSingleField()
       this.setAllChecked()
-    }
+    },
   },
 
   mounted () {
     this.setCheckedFields()
-  }
+    this.handlePreventDefaultForSingleField()
+  },
 }
 </script>

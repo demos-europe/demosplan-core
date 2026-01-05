@@ -15,7 +15,6 @@ use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableObjectInterface;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\Expr\Join;
@@ -156,10 +155,23 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
             ->setParameter('entityId', $entityId)
             ->orderBy('change.created', 'DESC');
 
-        if (null !== $whitelistedFields) {
-            $queryBuilder
-                ->andWhere('change.entityField IN (:whitelistedFields)')
-                ->setParameter('whitelistedFields', $whitelistedFields, Connection::PARAM_STR_ARRAY);
+        if (is_array($whitelistedFields)) {
+            $includeCustomFields = in_array('customFields', $whitelistedFields, true);
+            if ($includeCustomFields) {
+                $queryBuilder
+                    ->andWhere(
+                        'change.entityField IN (:whitelistedFields) 
+                        OR change.customFieldChange = :includeCustomFields'
+                    )
+                    ->setParameter('whitelistedFields', $whitelistedFields)
+                    // Use stored flag to determine changes of custom fields
+                    // because usage of names of fields are not possible due to custom field names
+                    ->setParameter('includeCustomFields', true);
+            } else {
+                $queryBuilder
+                    ->andWhere('change.entityField IN (:whitelistedFields)')
+                    ->setParameter('whitelistedFields', $whitelistedFields);
+            }
         }
 
         return $queryBuilder->getQuery()->getResult();
@@ -266,7 +278,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
 
         $segments = array_merge($editedSegments, $uneditedSegments);
 
-        usort($segments, static fn (Segment $a, Segment $b): int => strcmp($a->getAssigneeId(), $b->getAssigneeId()));
+        usort($segments, static fn (Segment $a, Segment $b): int => strcmp((string) $a->getAssigneeId(), (string) $b->getAssigneeId()));
 
         return $segments;
     }

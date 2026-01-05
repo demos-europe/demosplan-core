@@ -156,6 +156,10 @@
                 content: none;
             }
         }
+
+        &.separated:not(:first-of-type)::before {
+            content: ' | ';
+        }
     }
 
     // Numbered list with every child list tree inheriting the parent counter.

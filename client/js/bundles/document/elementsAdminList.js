@@ -21,9 +21,9 @@ const components = {
   AddonWrapper,
   ElementsAdminList,
   DpMapSettingsPreview,
-  DpUploadFiles
+  DpUploadFiles,
 }
 
-const apiStores = ['elements']
+const apiStores = ['Elements']
 
 initialize(components, {}, apiStores)

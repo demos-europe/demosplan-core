@@ -53,45 +53,48 @@
 <template>
   <span ref="rootElement">
     <button
-      type="button"
-      @click="toggle"
-      data-cy="editButtonDesc"
       v-tooltip="{
-        classes: this.tooltipClass,
+        classes: tooltipClass,
         content: Translator.trans('explanation.territory.help.edit',{ editTool: Translator.trans('map.territory.tools.edit') })
       }"
+      type="button"
+      data-cy="editButtonDesc"
       class="btn--blank u-ml-0_5 o-link--default weight--bold"
-      :class="{ 'color-highlight' : currentlyActive }">
+      :class="{ 'color-highlight' : currentlyActive }"
+      @click="toggle"
+    >
       <slot name="editButtonDesc">
         {{ Translator.trans('map.territory.tools.edit') }}
       </slot>
     </button>
     <button
-      type="button"
-      @click="removeFeature"
-      data-cy="removeButtonDesc"
       v-tooltip="{
-        classes: this.tooltipClass,
+        classes: tooltipClass,
         content: Translator.trans('explanation.territory.help.delete.selected', {
           deleteSelectedTool: Translator.trans('map.territory.tools.removeSelected'),
           editTool: Translator.trans('map.territory.tools.edit')
         })
       }"
+      type="button"
+      data-cy="removeButtonDesc"
       class="btn--blank u-ml-0_5 weight--bold"
-      :class="{ 'o-link--default': (false === disabled), 'color--grey-light cursor-default': disabled }">
+      :class="disabled ? 'color--grey-light cursor-default' : 'o-link--default'"
+      @click="removeFeature"
+    >
       <slot name="removeButtonDesc">
         {{ Translator.trans('map.territory.tools.removeSelected') }}
       </slot>
     </button>
     <button
-      type="button"
-      @click="clearAll"
-      data-cy="removeAllButtonDesc"
       v-tooltip="{
-        classes: this.tooltipClass,
+        classes: tooltipClass,
         content: Translator.trans('explanation.territory.help.delete.all', { deleteAllTool: Translator.trans('map.territory.tools.removeAll') })
       }"
-      class="btn--blank u-ml-0_5 o-link--default weight--bold">
+      type="button"
+      data-cy="removeAllButtonDesc"
+      class="btn--blank u-ml-0_5 o-link--default weight--bold"
+      @click="clearAll"
+    >
       <slot name="removeAllButtonDesc">
         {{ Translator.trans('map.territory.tools.removeAll') }}
       </slot>
@@ -115,33 +118,48 @@ export default {
     name: {
       required: false,
       type: String,
-      default: uuid()
+      default: uuid(),
     },
 
     // Required to target a Layer with Vector-Featurs
     target: {
       required: true,
-      type: [String, Array]
+      type: [String, Array],
     },
 
     initActive: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     defaultControl: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
+
+  emits: [
+    'setDrawingActive',
+  ],
 
   data () {
     return {
       selectInteraction: new Select({
         hitTolerance: 10,
-        wrapX: false
+        wrapX: false,
+        filter: (_feat, layer) => {
+          if (layer) {
+            const name = layer.get('name')
+
+            if (name === 'layer:mapSettingsPreviewMapExtent' || name === 'layer:mapSettingsPreviewInitExtent') {
+              return false
+            }
+          }
+
+          return true
+        },
       }),
       modifyInteraction: null,
       currentlyActive: this.initActive,
@@ -149,7 +167,7 @@ export default {
       layerNameOfSelectedFeature: '',
       disabled: true,
       zIndexUltimate: false,
-      targets: Array.isArray(this.target) ? this.target : [this.target]
+      targets: Array.isArray(this.target) ? this.target : [this.target],
     }
   },
 
@@ -160,7 +178,7 @@ export default {
 
     map () {
       return this.olMapState.map
-    }
+    },
   },
 
   methods: {
@@ -169,28 +187,9 @@ export default {
         return
       }
 
-      if (((this.currentlyActive === false && name === this.name) || (this.defaultControl && name === ''))) {
-        this.selectInteraction.getFeatures().on('add', event => {
-          const id = 'selected' + uuid()
-          if (this.selectedFeatureId.indexOf(id) === -1) {
-            this.selectedFeatureId.push(id)
-            if (hasOwnProp(event, 'element')) {
-              event.element.set('id', id)
-              this.disabled = false
-            }
-          }
-        })
-
-        this.selectInteraction.getFeatures().on('remove', event => {
-          if (hasOwnProp(event, 'element')) {
-            event.element.get('id')
-            const elIdx = this.selectedFeatureId.indexOf(event.element.get('id'))
-            this.selectedFeatureId.splice(elIdx, 1)
-            if (this.selectedFeatureId.length <= 0) {
-              this.disabled = true
-            }
-          }
-        })
+      if ((!this.currentlyActive && name === this.name) || (this.defaultControl && name === '')) {
+        this.selectInteraction.getFeatures().on('add', this.addInteraction)
+        this.selectInteraction.getFeatures().on('remove', this.removeInteraction)
 
         this.map.addInteraction(this.selectInteraction)
         this.map.addInteraction(this.modifyInteraction)
@@ -202,6 +201,33 @@ export default {
       }
     },
 
+    addInteraction (event) {
+      const id = 'selected' + uuid()
+
+      if (this.selectedFeatureId.indexOf(id) === -1) {
+        this.selectedFeatureId.push(id)
+        if (hasOwnProp(event, 'element')) {
+          event.element.set('id', id)
+          this.disabled = false
+        }
+      }
+    },
+
+    clearAll () {
+      if (!confirm(Translator.trans('map.territory.removeAll.confirmation'))) {
+        return
+      }
+
+      this.map.getLayers().forEach(layer => {
+        if (layer instanceof VectorLayer && this.targets.includes(layer.get('name'))) {
+          this.selectInteraction.getFeatures().clear()
+          layer.getSource().clear()
+        }
+      })
+
+      this.resetSelection()
+    },
+
     /**
      * Get the z-index of a DOM element.
      * @param element
@@ -209,6 +235,7 @@ export default {
      */
     getZIndex (element) {
       const z = window.getComputedStyle(element).getPropertyValue('z-index')
+
       if (isNaN(z)) {
         return (element.nodeName === 'HTML') ? 1 : this.getZIndex(element.parentNode)
       }
@@ -243,19 +270,15 @@ export default {
       }
     },
 
-    clearAll () {
-      if (!confirm(Translator.trans('map.territory.removeAll.confirmation'))) {
-        return
-      }
-
-      this.map.getLayers().forEach(layer => {
-        if (layer instanceof VectorLayer && this.targets.includes(layer.get('name'))) {
-          this.selectInteraction.getFeatures().clear()
-          layer.getSource().clear()
+    removeInteraction (event) {
+      if (hasOwnProp(event, 'element')) {
+        event.element.get('id')
+        const elIdx = this.selectedFeatureId.indexOf(event.element.get('id'))
+        this.selectedFeatureId.splice(elIdx, 1)
+        if (this.selectedFeatureId.length <= 0) {
+          this.disabled = true
         }
-      })
-
-      this.resetSelection()
+      }
     },
 
     resetSelection () {
@@ -264,7 +287,7 @@ export default {
       this.$nextTick(() => {
         this.map.render()
       })
-    }
+    },
   },
 
   mounted () {
@@ -278,6 +301,6 @@ export default {
     if (this.getZIndex(this.$refs.rootElement) > 9999) {
       this.zIndexUltimate = true
     }
-  }
+  },
 }
 </script>

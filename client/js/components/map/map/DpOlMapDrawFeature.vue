@@ -55,13 +55,15 @@
     :class="{'color-highlight': currentlyActive}"
     type="button"
     :title="title"
-    @click="toggle">
+    @click="toggle"
+  >
     {{ label }}
     <i
       v-if="icon"
       class="fa"
       :class="iconClass"
-      aria-hidden="true" />
+      aria-hidden="true"
+    />
   </button>
 </template>
 
@@ -83,103 +85,103 @@ export default {
     defaultControl: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     drawStyle: {
       required: false,
       type: [Object, null],
-      default: null
+      default: null,
     },
 
     features: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     fitDrawing: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     icon: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     iconClass: {
       required: false,
       type: String,
-      default: 'fa-map'
+      default: 'fa-map',
     },
 
     initActive: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     label: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     name: {
       required: false,
       type: String,
-      default: uuid()
+      default: uuid(),
     },
 
     options: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     renderControl: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     title: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     type: {
       required: false,
       type: String,
-      default: 'Point'
-    }
+      default: 'Point',
+    },
   },
+
+  emits: [
+    'layerFeatures:changed',
+    'setDrawingActive',
+  ],
 
   data () {
     return {
       currentlyActive: this.initActive,
       drawingExtent: '',
       drawInteraction: null,
+      featureId: uuid(),
       layerToDrawInto: null,
       snap: null,
-      vectorSourceOptions: {}
+      vectorSourceOptions: {},
     }
   },
 
   computed: {
     map () {
       return this.olMapState.map
-    }
-  },
-
-  watch: {
-    features () {
-      this.init()
-    }
+    },
   },
 
   methods: {
@@ -198,8 +200,8 @@ export default {
           source: this.layerToDrawInto.getSource(),
           type: this.type,
           name: this.name,
-          id: 'draw' + uuid(),
-          style: drawStyle(style)
+          id: `draw${this.featureId}`,
+          style: drawStyle(style),
         })
 
         if (this.type === 'Point' && !this.options.multiplePoints) {
@@ -209,7 +211,7 @@ export default {
         }
 
         this.snap = new Snap({
-          source: new VectorSource()
+          source: new VectorSource(),
         })
         this.map.addInteraction(this.drawInteraction)
         this.map.addInteraction(this.snap)
@@ -239,7 +241,7 @@ export default {
       this.vectorSourceOptions = {
         format: new GeoJSON(),
         projection: this.map.getView().getProjection(),
-        id: 'source' + uuid()
+        id: `source${this.featureId}`,
       }
 
       // Validate geojson? https://github.com/craveprogramminginc/GeoJSON-Validation
@@ -258,8 +260,10 @@ export default {
         title: this.name, // Title?
         name: this.name,
         type: this.type,
-        id: 'layer' + uuid(),
-        style: drawStyle(style)
+        id: `layer${this.featureId}`,
+        style: drawStyle(style),
+        // Make sure drawing layer is always on top
+        zIndex: 1000,
       })
 
       this.map.addLayer(layer)
@@ -317,12 +321,12 @@ export default {
       } else {
         this.$root.$emit('setDrawingActive', '')
       }
-    }
+    },
   },
 
   mounted () {
     this.init()
     this.$root.$on('setDrawingActive', name => this.activateTool(name))
-  }
+  },
 }
 </script>

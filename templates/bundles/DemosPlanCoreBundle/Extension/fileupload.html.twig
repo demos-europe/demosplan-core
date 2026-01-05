@@ -1,23 +1,44 @@
 {#
-    fileupload form field
+fileupload form field
 
-    requires:
-        DpUploadFiles.vue and var uploadPath (uploader endpoint set in base.html.twig)
-    params:
-        field_name:         used for ids + fieldname    default: "r_file"
-        field_label:        label for upload field      default: "pdf.document"|trans, set to "hide" to hide label
-        chunksize: set chunk size when uploading large files, defaults to "0" (disable chunked uploads)
-        type:      sets mime_types             possible values: pdf (default), pdf-img, pdf-zip, img, import, all, zip, antragx,
-        label:     button label                default: "form.button.upload.pdf"|trans({ maxUploadSize: human_max_upload_size })
-        maxfiles   limit max uploadable files  default: 1
-                            linked to multi_selection   default: not set, will be set to true if maxfiles > 1
-        maxfilesize: Max file size if other than `ini_get('upload_max_filesize')`
-        multi_instance      use for multiple instances  default: false
-                            of uploader in one form
-        field_hint:         additional hint below label default: false
-        field_required:     is this field required to fill out (needed for frontend validation)
-        callback:           function to execute in FileUploaded
+requires:
+    DpUploadFiles.vue and var uploadPath (uploader endpoint set in base.html.twig)
+    Params need to be passed in this order:
+params:
+    field_name:         used for ids + fieldname    default: "r_file"
+    field_label:        label for upload field      default: null, usually you may use "pdf.document"|trans, set to "hide" to hide label
+    type:               sets mime_types             default: pdf
+                                                    possible values: see FileInfo.js in demosplan-ui
+    label:              button label                default: "form.button.upload.pdf"|trans({ maxUploadSize: human_max_upload_size })
+    maxfiles:           limit max uploadable files  default: 1
+                        linked to multi_instance    default: false (set to true if maxfiles > 1)
+    multi_instance:     use for multiple instances  default: false
+                        of uploader in one form
+    field_hint:         additional hint below label default: ""
+    field_required:     is this field required to fill out (needed for frontend validation) default: false
+    callback:           function to execute in FileUploaded default: ""
+    chunksize:          set chunk size when uploading large files    default: "Infinity"
+    maxfilesize:        Max file size if other than `ini_get('upload_max_filesize')` default: 0
+    omit_css_class_prefix: Omit CSS class prefix    default: true
 
+Examples:
+    You can use named arguments or positional arguments, but named arguments are recommended for better readability
+    and to avoid errors due to the order of the arguments.
+
+    Basic usage with default values
+    {{ fileupload() }}
+
+    Custom field name and label
+    {{ fileupload(field_name: 'r_custom_file', field_label: 'Custom File') }}
+
+    Setting a specific file type and max files
+    {{ fileupload(type: 'img', maxfiles: 5) }}
+
+    Setting chunk size (should be 'Infinity' for almost all cases)
+    {{ fileupload(chunksize: '2MB') }}
+
+    Setting max file size and making the field required
+    {{ fileupload(maxfilesize: 10485760, field_required: true) }}
 #}
 
     {%  set omitPrefix = omit_css_class_prefix ?? true %}

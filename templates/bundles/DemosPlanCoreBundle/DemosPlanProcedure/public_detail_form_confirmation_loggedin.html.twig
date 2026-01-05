@@ -19,8 +19,15 @@
 
 
     <p class="space-inline-s">
-        <a class="{{ 'btn btn--primary u-1-of-1-palm'|prefixClass }}" href="{{ path('DemosPlan_statement_list_draft', {'procedure': procedure}) }}" data-cy="goToDrafts">Zum Entwurfsordner</a>
-        <a class="{{ 'btn btn--secondary u-ml-0-palm u-mt-0_5-palm u-1-of-1-palm'|prefixClass }}" href="" data-statement-action="resetSuccess">
+        <a
+            class="{{ 'btn btn--primary u-1-of-1-palm'|prefixClass }}"
+            data-cy="goToDrafts"
+            href="{{ path('DemosPlan_statement_list_draft', {'procedure': procedure}) }}">Zum Entwurfsordner</a>
+        <a
+            class="{{ 'btn btn--secondary u-ml-0-palm u-mt-0_5-palm u-1-of-1-palm'|prefixClass }}"
+            data-cy="close"
+            data-statement-action="resetSuccess"
+            href="">
             {{ "close"|trans }}
         </a>
     </p>

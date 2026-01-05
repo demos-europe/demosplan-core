@@ -12,27 +12,29 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Logic\ProcedureStatisticsService;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class ProcedureStatisticsRpcController extends APIController
 {
     /**
-     * @DplanPermissions("area_statement_segmentation")
-     *
      * @return APIResponse|Response
      */
+    #[DplanPermissions('area_statement_segmentation')]
     #[Route(path: '/rpc/1.0/ProcedureStatistics/get/{procedureId}', name: 'dplan_rpc_procedure_segmentation_statistics_segmentations_get', methods: ['GET'], options: ['expose' => true])]
-    public function segmentationsGetAction(
-        ProcedureStatisticsService $procedureStatisticsService,
-        string $procedureId
+    public function segmentationsGet(
+        StatementService $statementService,
+        ProcedureService $procedureService,
+        string $procedureId,
     ): Response {
         try {
-            $distribution = $procedureStatisticsService->getSegmentedStatementsDistribution($procedureId);
+            $procedure = $procedureService->getProcedure($procedureId);
+            $distribution = $statementService->getStatisticsOfProcedure($procedure);
 
             return $this->renderItem($distribution, PercentageDistributionTransformer::class);
         } catch (Exception $e) {

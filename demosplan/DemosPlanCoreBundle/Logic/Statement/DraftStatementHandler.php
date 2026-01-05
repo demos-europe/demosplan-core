@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
@@ -22,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
@@ -90,11 +90,11 @@ class DraftStatementHandler extends CoreHandler
         FileService $fileService,
         private readonly GlobalConfigInterface $globalConfig,
         MailService $mailService,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         ProcedureHandler $procedureHandler,
         RouterInterface $router,
         TranslatorInterface $translator,
-        UserService $userService
+        UserService $userService,
     ) {
         parent::__construct($messageBag);
         $this->contentService = $serviceContent;
@@ -316,10 +316,10 @@ class DraftStatementHandler extends CoreHandler
     public function submitHandler(
         array $draftStatementIds,
         string $notificationReceiverId = '',
-        bool $gdprConsentReceived = false
+        bool $gdprConsentReceived = false,
     ): array {
         $county = null;
-        if ('' != $notificationReceiverId) {
+        if ('' !== $notificationReceiverId) {
             /** @var NotificationReceiverRepository $countyRepo */
             $countyRepo = $this->doctrine->getRepository(NotificationReceiver::class);
             $county = $countyRepo->get($notificationReceiverId);
@@ -444,11 +444,9 @@ class DraftStatementHandler extends CoreHandler
             $statement['represents'] = $data['r_represents'];
         }
 
-        if (array_key_exists('r_uploaddocument', $data)) {
-            if ((is_string($data['r_uploaddocument']) && 0 < strlen($data['r_uploaddocument']))
-                || (is_array($data['r_uploaddocument']) && 0 < count($data['r_uploaddocument']))) {
-                $statement['files'] = $data['r_uploaddocument'];
-            }
+        if (array_key_exists('r_uploaddocument', $data) && ((is_string($data['r_uploaddocument']) && 0 < strlen($data['r_uploaddocument']))
+            || (is_array($data['r_uploaddocument']) && [] !== $data['r_uploaddocument']))) {
+            $statement['files'] = $data['r_uploaddocument'];
         }
 
         if (array_key_exists('delete_file', $data) && isset($statement['ident'])) {
@@ -457,11 +455,7 @@ class DraftStatementHandler extends CoreHandler
 
         $statement['publicAllowed'] = $this->isPublicAllowed($data);
 
-        if (array_key_exists('r_isNegativeReport', $data) && 1 == $data['r_isNegativeReport']) {
-            $statement['negativ'] = true;
-        } else {
-            $statement['negativ'] = false;
-        }
+        $statement['negativ'] = array_key_exists('r_isNegativeReport', $data) && 1 == $data['r_isNegativeReport'];
 
         if (array_key_exists('userStreet', $data)) {
             $statement['uStreet'] = $data['userStreet'];
@@ -575,21 +569,18 @@ class DraftStatementHandler extends CoreHandler
 
     /**
      * Adds User Metadata to Statement.
-     *
-     * @param array $data
-     *
-     * @return array
      */
-    protected function addStatementUserData($data)
+    protected function addStatementUserData(array $data): array
     {
         $user = $this->currentUser->getUser();
         $userData = [
-            'uId'   => $user->getIdent(),
-            'uName' => $user->getFullname(),
-            'dId'   => $user->getDepartmentId(),
-            'dName' => $user->getDepartmentNameLegal(),
-            'oId'   => $user->getOrganisationId(),
-            'oName' => $user->getOrganisationNameLegal(),
+            'uId'           => $user->getId(),
+            'uName'         => $user->getFullname(),
+            'dId'           => $user->getDepartmentId(),
+            'dName'         => $user->getDepartmentNameLegal(),
+            'oId'           => $user->getOrganisationId(),
+            'oName'         => $user->getOrganisationNameLegal(),
+            'authorOnly'    => !$user->isPublicAgency(), // Indicates visibility to other organisation members
         ];
 
         return array_merge($data, $userData);
@@ -619,7 +610,7 @@ class DraftStatementHandler extends CoreHandler
         $sort,
         $user,
         $manualSortScope,
-        $toLegacy = true
+        $toLegacy = true,
     ): StatementListHandlerResult {
         $sResult = $this->draftStatementService->getDraftStatementList(
             $procedure,
@@ -669,7 +660,7 @@ class DraftStatementHandler extends CoreHandler
         $procedure,
         $search,
         StatementListUserFilter $filter,
-        $sort
+        $sort,
     ): StatementListHandlerResult {
         $sResult = $this->draftStatementService->getDraftStatementListFromOtherCompanies(
             $procedure,

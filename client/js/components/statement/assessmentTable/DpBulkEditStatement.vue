@@ -36,21 +36,25 @@
 
       <!--ASSIGN TO OTHER-->
       <div
+        v-if="hasPermission('feature_statement_assignment')"
         class="border--bottom u-mb"
-        v-if="hasPermission('feature_statement_assignment')">
+      >
         <input
-          type="checkbox"
           id="r_new_assignee"
-          v-model="options.newAssignee.checked">
+          v-model="options.newAssignee.checked"
+          type="checkbox"
+        >
         <label
           for="r_new_assignee"
-          class="inline-block">
+          class="inline-block"
+        >
           {{ Translator.trans('statements.assign.other') }}
         </label>
 
         <div
           v-if="options.newAssignee.checked"
-          class="u-ml">
+          class="u-ml"
+        >
           <!--when assignee reset will be possible in BE, this should be back-->
           <!--<label-->
           <!--for="r_recommendation_value"-->
@@ -66,7 +70,8 @@
             :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`"
             :options="users"
             track-by="id"
-            @input="() => {options.newAssignee.isValid() ? $refs.newAssignee.$el.querySelector(options.newAssignee.elementToReceiveErrorBorder).classList.remove('border--error') : null}">
+            @input="() => {options.newAssignee.isValid() ? $refs.newAssignee.$el.querySelector(options.newAssignee.elementToReceiveErrorBorder).classList.remove('border--error') : null}"
+          >
             <template v-slot:option="{ props }">
               {{ props.option.name }} {{ props.option.id === currentUserId? ` (Sie)` : '' }}
             </template>
@@ -77,38 +82,45 @@
       <!--RECOMMENDATION-->
       <div class="u-mb">
         <input
-          type="checkbox"
           id="r_recommendation"
-          v-model="options.recommendation.checked">
+          v-model="options.recommendation.checked"
+          type="checkbox"
+        >
         <label
           for="r_recommendation"
-          class="inline-block">
+          class="inline-block"
+        >
           {{ Translator.trans('considerationadvice.text.add') }}
         </label>
         <div
           v-if="options.recommendation.checked"
-          class="u-ml">
+          class="u-ml"
+        >
           <p class="lbl__hint u-mb-0_5">
             {{ Translator.trans('considerationadvice.text.add.explanation') }}
           </p>
           <dp-editor
             ref="recommendation"
             :value="options.recommendation.value"
-            @input="updateRecommendationText">
+            @input="updateRecommendationText"
+          >
             <template v-slot:modal="modalProps">
               <dp-boiler-plate-modal
                 v-if="hasPermission('area_admin_boilerplates')"
                 ref="boilerPlateModal"
                 boiler-plate-type="consideration"
                 :procedure-id="procedureId"
-                @insert="text => modalProps.handleInsertText(text)" />
+                @insert="text => modalProps.handleInsertText(text)"
+              />
             </template>
             <template v-slot:button>
               <button
+                v-if="hasPermission('area_admin_boilerplates')"
+                v-tooltip="Translator.trans('boilerplate.insert')"
                 :class="prefixClass('menubar__button')"
                 type="button"
-                v-tooltip="Translator.trans('boilerplate.insert')"
-                @click.stop="openBoilerPlate">
+                @click.stop="openBoilerPlate"
+              >
                 <i :class="prefixClass('fa fa-puzzle-piece')" />
               </button>
             </template>
@@ -121,14 +133,16 @@
         <a
           class="btn btn--primary"
           role="button"
-          @click.prevent="toggleMode('confirm')">
+          @click.prevent="toggleMode('confirm')"
+        >
           {{ Translator.trans('continue.confirm') }}
           <i class="fa fa-angle-right u-pl-0_25" />
         </a>
         <a
           class="btn btn--secondary float-left"
           role="button"
-          :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: filterHash })">
+          :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: filterHash })"
+        >
           <i class="fa fa-angle-left u-pr-0_25" />
           {{ Translator.trans('considerationtable.back') }}
         </a>
@@ -143,7 +157,8 @@
 
       <div
         v-if="options.newAssignee.checked"
-        class="u-mv">
+        class="u-mv"
+      >
         <label class="u-mb-0_25">
           {{ Translator.trans('statements.assign.other.confirmation') }}:
         </label>
@@ -154,7 +169,8 @@
 
       <div
         v-if="options.recommendation.checked"
-        class="u-mv">
+        class="u-mv"
+      >
         <label class="u-mb-0_25">
           {{ Translator.trans('consideration.text.to.be.added') }}:
         </label>
@@ -173,12 +189,14 @@
           :busy="isLoading"
           icon-after="chevron-right"
           :text="Translator.trans('actions.statements.apply', { count: selectedElementsCount })"
-          @click.once="submitData" />
+          @click.once="submitData"
+        />
 
         <a
           class="btn btn--secondary float-left"
           role="button"
-          @click.prevent="toggleMode('edit')">
+          @click.prevent="toggleMode('edit')"
+        >
           <i class="fa fa-angle-left u-pr-0_25" />
           {{ Translator.trans('back.to.edit') }}
         </a>
@@ -191,31 +209,34 @@
         {{ Translator.trans('confirm.saved.plural') }}
       </h3>
       <p
-        class="flash-confirm u-p-0_5"
         v-for="option in checkedOptions"
-        :key="option">
+        :key="option"
+        class="flash-confirm u-p-0_5"
+      >
         <i
           class="fa fa-check fa-lg"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
         {{ Translator.trans(options[option].successMessage) }}
       </p>
       <dp-button
         icon="chevron-left"
         :text="Translator.trans('considerationtable.back')"
-        @click="handleReturn" />
+        @click="handleReturn"
+      />
     </div>
   </div>
 </template>
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpButton,
   DpMultiselect,
-  prefixClassMixin
+  prefixClassMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { v4 as uuid } from 'uuid'
@@ -228,10 +249,10 @@ export default {
     DpMultiselect,
     DpButton,
     TextContentRenderer,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    }),
   },
 
   mixins: [prefixClassMixin],
@@ -240,24 +261,24 @@ export default {
     authorisedUsers: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     currentUserId: {
       required: true,
-      type: String
+      type: String,
     },
 
     filterHash: {
       required: false,
       type: String,
-      default: () => { return '' }
+      default: () => { return '' },
     },
 
     procedureId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
@@ -274,7 +295,7 @@ export default {
           isValid: () => this.options.newAssignee.value !== '',
           elementToReceiveErrorBorder: '.multiselect__tags', // Has to be querySelector
           errorNotification: 'user.choose.from.list',
-          successMessage: 'confirm.statements.assignment.changed'
+          successMessage: 'confirm.statements.assignment.changed',
         },
         recommendation: {
           checked: false,
@@ -282,16 +303,16 @@ export default {
           isValid: () => this.options.recommendation.value !== '',
           elementToReceiveErrorBorder: '.editor__content', // Has to be querySelector
           errorNotification: 'consideration.text.add.error',
-          successMessage: 'consideration.text.added'
-        }
+          successMessage: 'consideration.text.added',
+        },
       },
-      users: this.authorisedUsers
+      users: this.authorisedUsers,
     }
   },
 
   computed: {
-    ...mapState('statement', ['selectedElements']),
-    ...mapGetters('statement', ['selectedElementsLength']),
+    ...mapState('Statement', ['selectedElements']),
+    ...mapGetters('Statement', ['selectedElementsLength']),
 
     // Array with keys (names) of all checked options
     checkedOptions () {
@@ -307,7 +328,7 @@ export default {
     payloadAttributes () {
       return {
         markedStatementsCount: this.selectedElementsCount,
-        ...(this.options.recommendation.checked && { recommendationAddition: this.options.recommendation.value })
+        ...(this.options.recommendation.checked && { recommendationAddition: this.options.recommendation.value }),
       }
     },
 
@@ -315,9 +336,9 @@ export default {
     payloadRelationships () {
       return {
         statements: {
-          data: this.selectedElementsIds.map(id => ({ id: id, type: 'statement' }))
+          data: this.selectedElementsIds.map(id => ({ id, type: 'statement' })),
         },
-        ...(this.options.newAssignee.checked && { assignee: { data: this.options.newAssignee.value !== '' ? { type: 'user', id: this.options.newAssignee.value.id } : null } })
+        ...(this.options.newAssignee.checked && { assignee: { data: this.options.newAssignee.value !== '' ? { type: 'user', id: this.options.newAssignee.value.id } : null } }),
       }
     },
 
@@ -327,14 +348,14 @@ export default {
 
     selectedElementsCount () {
       return (this.selectedElementsLength)
-    }
+    },
   },
 
   methods: {
-    ...mapActions('statement', {
-      resetSelectionAction: 'resetSelection'
+    ...mapActions('Statement', {
+      resetSelectionAction: 'resetSelection',
     }),
-    ...mapActions('statement', ['setSelectedElementsAction', 'setProcedureIdAction']),
+    ...mapActions('Statement', ['setSelectedElementsAction', 'setProcedureIdAction']),
 
     handleReturn () {
       this.resetSelectionAction()
@@ -360,17 +381,16 @@ export default {
           id: uuid(),
           type: 'statementBulkEdit',
           attributes: this.payloadAttributes,
-          relationships: this.payloadRelationships
-        }
+          relationships: this.payloadRelationships,
+        },
       }
       return dpApi({
         method: 'POST',
         url: Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', {
-          procedureId: this.procedureId
+          procedureId: this.procedureId,
         }),
-        data: payload
+        data: payload,
       })
-        .then(checkResponse)
         .then(() => {
           this.mode = 'success'
           this.isLoading = false
@@ -422,7 +442,7 @@ export default {
       if (this.options.recommendation.value !== '' && this.$refs.recommendation.$el.querySelector('.editor__content').classList.contains('border--error')) {
         this.$refs.recommendation.$el.querySelector('.editor__content').classList.remove('border--error')
       }
-    }
+    },
   },
 
   created () {
@@ -436,6 +456,6 @@ export default {
     this.setProcedureIdAction(this.procedureId).then(() => {
       this.setSelectedElementsAction()
     })
-  }
+  },
 }
 </script>

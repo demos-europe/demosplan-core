@@ -51,20 +51,20 @@ const statementStructure = {
   r_userPosition: '',
   r_userState: '',
   url: '',
-  uploadedFiles: ''
+  uploadedFiles: '',
 }
 
 const PublicStatementStore = {
   namespaced: true,
 
-  name: 'publicStatement',
+  name: 'PublicStatement',
 
   state: {
     activeActionBoxTab: 'talk',
     activeTab: '',
     highlighted: {
       location: false,
-      documents: false
+      documents: false,
     },
     initDraftStatements: {},
     initForm: '',
@@ -74,7 +74,7 @@ const PublicStatementStore = {
     showMapHint: false,
     statement: statementStructure,
     draftStatements: {},
-    unsavedDrafts: []
+    unsavedDrafts: [],
   },
 
   mutations: {
@@ -201,14 +201,14 @@ const PublicStatementStore = {
       }
       state.statement = JSON.parse(state.initForm)
       localStorage.removeItem(state.localStorageName)
-    }
+    },
   },
 
   actions: {
   },
 
   getters: {
-  }
+  },
 }
 
 export default PublicStatementStore

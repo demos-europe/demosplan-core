@@ -28,6 +28,7 @@
     <div v-if="isEditing">
       <dp-editor
         ref="editor"
+        v-model="fullText"
         class="u-mb-0_5"
         :editor-id="editorId"
         :entity-id="entityId"
@@ -38,7 +39,8 @@
           obscure: obscure,
           strikethrough: strikethrough
         }"
-        v-model="fullText">
+        @transform-obscure-tag="transformObscureTag"
+      >
         <template v-slot:modal="modalProps">
           <dp-boiler-plate-modal
             v-if="boilerPlate"
@@ -46,15 +48,17 @@
             boiler-plate-type="consideration"
             :editor-id="editorId"
             :procedure-id="procedureId"
-            @insert="text => modalProps.handleInsertText(text)" />
+            @insert="text => modalProps.handleInsertText(text)"
+          />
         </template>
         <template v-slot:button>
           <button
             v-if="boilerPlate"
+            v-tooltip="Translator.trans('boilerplate.insert')"
             :class="prefixClass('menubar__button')"
             type="button"
-            v-tooltip="Translator.trans('boilerplate.insert')"
-            @click.stop="openBoilerPlate">
+            @click.stop="openBoilerPlate"
+          >
             <i :class="prefixClass('fa fa-puzzle-piece')" />
           </button>
         </template>
@@ -64,19 +68,22 @@
           :busy="loading"
           data-cy="tipTapSave"
           :text="Translator.trans('save')"
-          @click="save" />
+          @click="save"
+        />
         <button
           class="btn btn--secondary"
           type="button"
-          @click="reset">
+          @click="reset"
+        >
           {{ Translator.trans('reset') }}
         </button>
       </div>
     </div>
 
     <div
+      v-else
       class="relative u-pr"
-      v-else>
+    >
       <template v-if="shortText !== ''">
         <height-limit
           class="c-styled-html"
@@ -84,19 +91,22 @@
           :full-text="fullText"
           :element="editLabel"
           :is-shortened="isShortened"
-          @heightLimit:toggle="update"
-          @click.native="toggleEditMode" />
+          @height-limit:toggle="update"
+          @click="toggleEditMode"
+        />
         <button
+          v-if="!loading"
           type="button"
           :disabled="!editable"
           class="c-edit-field__trigger btn--blank o-link--default"
-          v-if="!loading"
-          @click.prevent.stop="toggleEditMode"
           :title="Translator.trans(editable ? editLabel : 'locked.title')"
-          data-cy="toggleTipTapEditMode">
+          data-cy="toggleTipTapEditMode"
+          @click.prevent.stop="toggleEditMode"
+        >
           <i
             class="fa fa-pencil"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
         </button>
       </template>
       <button
@@ -105,13 +115,15 @@
         :disabled="!editable"
         class="btn--blank o-link--default"
         :title="Translator.trans(editable ? editLabel : 'locked.title')"
-        @click="toggleEditMode">
+        @click="toggleEditMode"
+      >
         {{ Translator.trans('author.verb') }}
       </button>
       <dp-loading
         v-if="loading"
         class="c-edit-field__trigger"
-        hide-label />
+        hide-label
+      />
     </div>
   </div>
 </template>
@@ -119,6 +131,7 @@
 <script>
 import { dpApi, DpButton, DpLoading, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Base64 } from 'js-base64'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import HeightLimit from '@DpJs/components/statement/HeightLimit'
 
@@ -130,10 +143,10 @@ export default {
     DpButton,
     HeightLimit,
     DpLoading,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    }),
   },
 
   mixins: [prefixClassMixin],
@@ -143,102 +156,106 @@ export default {
     boilerPlate: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     editable: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     editLabel: {
       type: String,
-      required: true
+      required: true,
     },
 
     // Needed to identify editor, used for inserting boilerplates into correct editor
     editorId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     entityId: {
       type: String,
-      required: true
+      required: true,
     },
 
     fieldKey: {
       type: String,
-      required: true
+      required: true,
     },
 
     fullTextFetchRoute: {
       type: String,
-      required: true
+      required: true,
     },
 
     heightLimitElementLabel: {
       type: String,
-      required: true
+      required: true,
     },
 
     initialIsShortened: {
       type: Boolean,
-      required: true
+      required: true,
     },
 
     initialText: {
       type: String,
-      required: true
+      required: true,
     },
 
     // Set to true if you want to use the 'insert/delete' buttons
     insertAndDelete: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     // Set to true if you want to use 'link' buttons
     linkButton: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     // Set to true if you want to use the 'mark' button
     mark: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     // Set to true if you want to use the 'obscure text' button
     obscure: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     // Set to true if you want to enable a line through (strike through) option
     strikethrough: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     title: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
+
+  emits: [
+    'field:save',
+  ],
 
   data () {
     return {
@@ -249,7 +266,8 @@ export default {
       isShortened: false,
       loading: false,
       shortText: '',
-      uneditedFullText: ''
+      transformedText: '',
+      uneditedFullText: '',
     }
   },
 
@@ -267,6 +285,15 @@ export default {
     },
 
     save () {
+      /**
+       * TransformedText contains the text with the obscure tag applied.
+       * To avoid the cursor jumping to the end, we update the fullText with transformedText only when the save action is triggered.
+       *
+       */
+      if (this.transformedText && this.transformedText !== this.fullText) {
+        this.fullText = this.transformedText
+      }
+
       // If there are no changes, no need to save something.
       if (this.uneditedFullText === this.fullText) {
         this.isEditing = false
@@ -274,7 +301,7 @@ export default {
       }
 
       const emitData = {
-        id: this.entityId
+        id: this.entityId,
       }
 
       if (this.fullText === '' && this.fieldKey === 'text') {
@@ -287,6 +314,10 @@ export default {
       this.$emit('field:save', emitData)
 
       this.fullTextLoaded = false
+    },
+
+    transformObscureTag (value) {
+      this.transformedText = value
     },
 
     toggleEditMode () {
@@ -316,12 +347,13 @@ export default {
 
       if (this.fullTextLoaded) {
         callback()
+
         return
       }
 
       this.loading = true
 
-      const params = (fullUpdate) ? { includeShortened: true } : {}
+      const params = fullUpdate ? { includeShortened: true } : {}
 
       /*
        * @TODO: This Request can be faster than the Update of the Statement which gets requested here. In that case the
@@ -334,37 +366,40 @@ export default {
       dpApi.get(
         Routing.generate(this.fullTextFetchRoute, { statementId: this.entityId }),
         params,
-        { serialize: true }
+        { serialize: true },
       ).then(response => {
+        const responseData = response.data.data
+
         this.fullTextLoaded = true
 
         // Check if it is the first update
         if (this.isInitialUpdate) {
-          this.uneditedFullText = response.data.data.original
+          this.uneditedFullText = responseData.original
           this.isInitialUpdate = false
         } else {
           this.uneditedFullText = this.fullText
         }
 
         // As far as i get it, this should always be the same if the update succeeds ?!?
-        if (hasOwnProp(response.data.data, 'original')) {
-          this.fullText = response.data.data.original
+        if (hasOwnProp(responseData, 'original')) {
+          this.fullText = responseData.original
         }
 
-        if (fullUpdate && hasOwnProp(response.data.data, 'shortened')) {
-          this.shortText = response.data.data.shortened
+        if (fullUpdate && hasOwnProp(responseData, 'shortened')) {
+          this.shortText = responseData.shortened
         }
 
-        if (hasOwnProp(response.data.data, 'shortened')) {
+        if (hasOwnProp(responseData, 'shortened')) {
           this.isShortened = this.fullText.length > this.shortText.length
         }
-
-        this.loading = false
-      }, () => {
-        dplan.notify.error(Translator.trans('error.api.generic'))
-        this.loading = false
-      }).then(callback)
-    }
+      })
+        .then(() => {
+          return callback()
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    },
   },
 
   mounted () {
@@ -393,6 +428,6 @@ export default {
         }
       }
     })
-  }
+  },
 }
 </script>

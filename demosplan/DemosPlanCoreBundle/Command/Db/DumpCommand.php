@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Command\Db;
 
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,11 +20,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
+#[AsCommand(name: 'dplan:db:dump', description: 'Dump the currently configured db into a sql file')]
 class DumpCommand extends DatabaseManagementCommand
 {
-    protected static $defaultName = 'dplan:db:dump';
-    protected static $defaultDescription = 'Dump the currently configured db into a sql file';
-
     public function configure(): void
     {
         parent::configure();
@@ -44,6 +43,7 @@ class DumpCommand extends DatabaseManagementCommand
 
         $file = $input->getArgument('file');
 
+        // local file only, no need for flysystem
         $fs = new Filesystem();
 
         try {

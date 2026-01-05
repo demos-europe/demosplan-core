@@ -32,7 +32,7 @@ class MapExtensionTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->twigExtension = self::$container->get(MapExtension::class);
+        $this->twigExtension = self::getContainer()->get(MapExtension::class);
     }
 
     public function testGetFilters()

@@ -9,68 +9,75 @@
 
 <template>
   <fieldset
-    :class="prefixClass('c-statement__step')"
     id="check"
-    tabindex="-1">
+    :class="prefixClass('c-statement__step')"
+    tabindex="-1"
+  >
     <legend
-      class="hide-visually"
-      v-text="Translator.trans('statement.recheck')" />
-    <p :class="prefixClass('c-statement__formhint flash-warning')">
-      <i
-        :class="prefixClass('c-statement__hint-icon fa fa-lg fa-exclamation-circle')"
-        aria-hidden="true" />
-      <span :class="prefixClass('block u-ml')">
-        {{ Translator.trans('statement.recheck') }}
-      </span>
-    </p>
+      :class="prefixClass('sr-only')"
+      v-text="Translator.trans('statement.recheck')"
+    />
 
-    <p
+    <dp-inline-notification
+      :class="prefixClass('mt-1 mb-2')"
+      :message="Translator.trans('statement.recheck')"
+      type="warning"
+    />
+
+    <dp-inline-notification
       v-if="statementFormHintRecheck !== ''"
-      :class="prefixClass('c-statement__formhint flash-info')">
-      <i
-        :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')"
-        aria-hidden="true" />
-      <span
-        :class="prefixClass('block u-ml')"
-        v-cleanhtml="statementFormHintRecheck" />
-    </p>
+      :class="prefixClass('mt-3 mb-2')"
+      type="info"
+    >
+      <p v-cleanhtml="statementFormHintRecheck" />
+    </dp-inline-notification>
 
     <div
       v-if="hasPermission('field_statement_public_allowed') && publicParticipationPublicationEnabled"
-      :class="prefixClass('flow-root')">
+      :class="prefixClass('flow-root')"
+    >
       <span
         v-if="statement.r_makePublic === 'on'"
-        v-cleanhtml="Translator.trans('explanation.statement.public', { projectName: dplan.projectName })" />
+        v-cleanhtml="Translator.trans('explanation.statement.public', { projectName: dplan.projectName })"
+      />
       <span
         v-else
-        v-cleanhtml="Translator.trans('explanation.statement.dont.publish')" />
+        v-cleanhtml="Translator.trans('explanation.statement.dont.publish')"
+      />
       <button
         type="button"
-        @click="$emit('edit-input', 'r_makePublic')"
+        data-cy="statementModalRecheck:statementDetailFormPersonalPublish"
         :class="prefixClass('o-link--default btn-icns u-ml float-right')"
         :title="Translator.trans('statement.form.input.change')"
-        aria-labelledby="statementDetailFormPersonalPublish inputDataChange">
+        aria-labelledby="statementDetailFormPersonalPublish inputDataChange"
+        @click="$emit('editInput', 'r_makePublic')"
+      >
         <i
           :class="prefixClass('fa fa-pencil')"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
       </button>
     </div>
 
     <div
       v-if="statement.r_useName === '1'"
-      :class="prefixClass('flow-root border--top u-pt-0_25')">
+      :class="prefixClass('flow-root border--top u-pt-0_25')"
+    >
       <div :class="prefixClass('layout--flush')">
         <span :class="prefixClass('layout__item u-1-of-1')">
-          {{ Translator.trans('statement.detail.form.personal.post_publicly') }}
+          {{ showPersonalDataText }}
           <button
-            type="button"
             :class="prefixClass('o-link--default btn-icns u-ml float-right')"
-            @click="$emit('edit-input', 'r_useName_1')"
             :title="Translator.trans('statement.form.input.change')"
-            aria-labelledby="useNameText inputDataChange">
+            aria-labelledby="useNameText inputDataChange"
+            data-cy="statementModalRecheck:useNameText"
+            type="button"
+            @click="$emit('editInput', 'r_useName_1')"
+          >
             <i
               :class="prefixClass('fa fa-pencil')"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
           </button>
         </span>
       </div>
@@ -81,7 +88,8 @@
 
      --><span
           v-if="hasPermission('field_statement_user_organisation') && (fieldIsActive('citizenXorOrgaAndOrgaName') || fieldIsActive('stateAndGroupAndOrgaNameAndPosition'))"
-          :class="prefixClass('layout__item u-1-of-4-desk-up')">
+          :class="prefixClass('layout__item u-1-of-4-desk-up')"
+      >
           <em>{{ Translator.trans('submitter') }}: </em>
           <template v-if="statement.r_submitter_role === 'publicagency'">
             {{ Translator.trans('invitable_institution') }} ({{ statement.r_userOrganisation }})
@@ -92,12 +100,14 @@
         </span><!--
      --><span
           v-if="hasPermission('field_statement_user_position') && fieldIsActive('stateAndGroupAndOrgaNameAndPosition') && formOptions.userPosition"
-          :class="prefixClass('layout__item u-1-of-4-desk-up')">
+          :class="prefixClass('layout__item u-1-of-4-desk-up')"
+        >
           <em>{{ Translator.trans('position') }}: </em> {{ statement.r_userPosition }}
         </span><!--
      --><span
           v-if="(hasPermission('field_statement_user_group') || hasPermission('field_statement_user_state')) && fieldIsActive('stateAndGroupAndOrgaNameAndPosition')"
-          :class="prefixClass('layout__item u-1-of-4-desk-up u-pl-0')">
+          :class="prefixClass('layout__item u-1-of-4-desk-up u-pl-0')"
+        >
           <template v-if="hasPermission('field_statement_user_state') && statement.r_userState">
             <em>{{ Translator.trans('state') }}: </em> {{ statement.r_userState }}<br>
           </template>
@@ -107,25 +117,31 @@
         </span><!--
      --><span
           v-if="showEmail"
-          :class="prefixClass('layout__item u-1-of-4-desk-up')">
+          :class="prefixClass('layout__item u-1-of-4-desk-up break-all')"
+        >
           <em>{{ Translator.trans('email') }}: </em> {{ statement.r_email }}
         </span><!--
      --><span
           v-if="statement.r_phone !== ''"
-          :class="prefixClass('layout__item u-1-of-4-desk-up')">
+          :class="prefixClass('layout__item u-1-of-4-desk-up')"
+        >
           <em>{{ Translator.trans('phone') }}: </em> {{ statement.r_phone }}
         </span><!--
      --><span
           v-if="(fieldIsActive('streetAndHouseNumber') || fieldIsActive('street')) && hasPermission('field_statement_meta_street')"
-          :class="prefixClass('layout__item u-1-of-4-desk-up')">
-          <em>{{ Translator.trans('street') }}: </em> {{ statement.r_street }}<br>
-          <template v-if="fieldIsActive('streetAndHouseNumber')">
+          :class="prefixClass('layout__item u-1-of-4-desk-up')"
+        >
+          <template v-if="showStreet">
+            <em>{{ Translator.trans('street') }}: </em> {{ statement.r_street }}<br>
+          </template>
+          <template v-if="fieldIsActive('streetAndHouseNumber') && showHouseNumber">
             <em>{{ Translator.trans('street.number.short') }}: </em> {{ statement.r_houseNumber }}<br>
           </template>
         </span><!--
      --><span
           v-if="fieldIsActive('postalAndCity')"
-          :class="prefixClass('layout__item u-1-of-4-desk-up')">
+          :class="prefixClass('layout__item u-1-of-4-desk-up')"
+        >
           <template v-if="showPostalCode">
             <em>{{ Translator.trans('postalcode') }}: </em> {{ statement.r_postalCode }}<br>
           </template>
@@ -138,67 +154,83 @@
     </div>
     <div
       v-else
-      :class="prefixClass('flow-root border--top u-pt-0_25')">
+      :class="prefixClass('flow-root border--top u-pt-0_25')"
+    >
       {{ Translator.trans('statement.detail.form.personal.post_anonymously') }}
       <button
         type="button"
+        data-cy="statementModalRecheck:useNameText"
         :class="prefixClass('o-link--default btn-icns u-ml float-right')"
-        @click="$emit('edit-input', 'r_useName_0')"
         :title="Translator.trans('statement.form.input.change')"
-        aria-labelledby="useNameText inputDataChange">
+        aria-labelledby="useNameText inputDataChange"
+        @click="$emit('editInput', 'r_useName_0')"
+      >
         <i
           :class="prefixClass('fa fa-pencil')"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
       </button>
     </div>
 
+
     <div
-      v-if="statementFeedbackDefinitions.length > 0"
-      :class="prefixClass('flow-root border--top u-pt-0_25')">
+      v-if="statementFeedbackDefinitions.length > 0 && publicParticipationFeedbackEnabled"
+      :class="prefixClass('flow-root border--top u-pt-0_25')"
+    >
       <p
         v-if="hasPermission('feature_statements_feedback_postal')"
-        :class="prefixClass('inline-block u-mb-0_25')">
+        :class="prefixClass('inline-block u-mb-0_25')"
+      >
         <template v-if="statement.r_getFeedback === 'on'">
           <span
             v-if="statement.r_getEvaluation === 'email'"
-            v-cleanhtml="Translator.trans('statement.feedback.email', { email: statement.r_email })" />
+            v-cleanhtml="Translator.trans('statement.feedback.email', { email: statement.r_email })"
+          />
           <span
             v-if="statement.r_getEvaluation === 'snailmail'"
-            v-cleanhtml="Translator.trans('statement.feedback.postal')" />
+            v-cleanhtml="Translator.trans('statement.feedback.postal')"
+          />
         </template>
         <span
           v-else
-          v-cleanhtml="Translator.trans('statement.feedback.none')" />
+          v-cleanhtml="Translator.trans('statement.feedback.none')"
+        />
       </p>
 
       <p
         v-else
-        :class="prefixClass('inline-block u-mb-0_25')">
+        :class="prefixClass('inline-block u-mb-0_25')"
+      >
         <template v-if="statement.r_getFeedback === 'on'">
           {{ Translator.trans('statement.detail.form.personal.feedback') }}<br>
           <em>{{ Translator.trans('email.address') }}:</em> {{ statement.r_email }}
         </template>
         <span
           v-else
-          v-cleanhtml="Translator.trans('statement.detail.form.personal.feedback.no')" />
+          v-cleanhtml="Translator.trans('statement.detail.form.personal.feedback.no')"
+        />
       </p>
 
       <!-- this span is only to combine aria-labelledby of some elements with the text 'Eingabe ändern' -->
       <span
+        id="inputDataChange"
         :class="prefixClass('hidden')"
         aria-hidden="true"
-        id="inputDataChange">
+      >
         {{ Translator.trans('statement.form.input.change') }}
       </span>
       <button
         type="button"
+        data-cy="statementModalRecheck:getFeedbackText"
         :class="prefixClass('o-link--default btn-icns u-ml float-right')"
-        @click="$emit('edit-input', 'r_getFeedback')"
         :title="Translator.trans('statement.form.input.change')"
-        aria-labelledby="getFeedbackText inputDataChange">
+        aria-labelledby="getFeedbackText inputDataChange"
+        @click="$emit('editInput', 'r_getFeedback')"
+      >
         <i
           :class="prefixClass('fa fa-pencil')"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
       </button>
     </div>
 
@@ -207,71 +239,95 @@
         <em>{{ Translator.trans('statement.my') }}: </em>
         <button
           type="button"
+          data-cy="statementModalRecheck:statementAlter"
           :class="prefixClass('o-link--default btn-icns float-right')"
-          @click="$emit('edit-input', 'r_text')"
           :title="Translator.trans('statement.alter')"
-          :aria-label="Translator.trans('statement.alter')">
+          :aria-label="Translator.trans('statement.alter')"
+          @click="$emit('editInput', 'r_text')"
+        >
           <i
             :class="prefixClass('fa fa-pencil')"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
         </button>
       </span>
 
       <div
-        :class="prefixClass('sm:h-9 overflow-auto')"
-        v-cleanhtml="statement.r_text" />
+        v-cleanhtml="statement.r_text"
+        :class="prefixClass('sm:h-9 overflow-auto c-styled-html')"
+      />
     </div>
   </fieldset>
 </template>
 
 <script>
-import { CleanHtml, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'StatementModalRecheck',
 
+  components: {
+    DpInlineNotification,
+  },
+
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [prefixClassMixin],
 
   props: {
+    allowAnonymousStatements: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+
     formFields: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     formOptions: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     publicParticipationPublicationEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
+    },
+
+    publicParticipationFeedbackEnabled: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     statement: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statementFeedbackDefinitions: {
       type: [Object, Array],
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     statementFormHintRecheck: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
+
+  emits: [
+    'editInput',
+  ],
 
   computed: {
     showCity () {
@@ -282,15 +338,31 @@ export default {
       return this.statement.r_email && this.statement.r_email !== ''
     },
 
+    showHouseNumber () {
+      return this.statement.r_houseNumber && this.statement.r_houseNumber !== ''
+    },
+
+    showPersonalDataText () {
+      if (this.allowAnonymousStatements) {
+        return Translator.trans('statement.detail.form.personal.post_publicly')
+      } else {
+        return Translator.trans('statement.detail.form.personal.submit')
+      }
+    },
+
     showPostalCode () {
       return hasPermission('field_statement_meta_postal_code') && this.statement.r_postalCode && this.statement.r_postalCode !== ''
-    }
+    },
+
+    showStreet () {
+      return this.statement.r_street && this.statement.r_street !== ''
+    },
   },
 
   methods: {
     fieldIsActive (fieldKey) {
       return this.formFields.map(el => el.name).includes(fieldKey)
-    }
-  }
+    },
+  },
 }
 </script>

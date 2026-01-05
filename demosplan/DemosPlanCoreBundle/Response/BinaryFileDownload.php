@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Response;
 
-use Patchwork\Utf8;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\String\UnicodeString;
 
 class BinaryFileDownload extends BinaryFileResponse
 {
@@ -24,11 +24,7 @@ class BinaryFileDownload extends BinaryFileResponse
         self::trustXSendfileTypeHeader();
         $this->deleteFileAfterSend(true);
 
-        if (class_exists(Utf8::class)) {
-            $fileNameFallback = Utf8::toAscii($fileName);
-        } else {
-            $fileNameFallback = iconv('UTF-8', 'ASCII//TRANSLIT', (string) $fileName);
-        }
+        $fileNameFallback = (new UnicodeString($fileName))->ascii()->toString();
 
         $this->setContentDisposition(
             ResponseHeaderBag::DISPOSITION_INLINE,

@@ -14,11 +14,14 @@
 <template>
   <fieldset>
     <legend
-      class="hide-visually"
-      v-text="title" />
+      class="sr-only"
+      v-text="title"
+    />
     <dp-accordion
+      :data-cy="dataCy !== '' ? dataCy : false"
       :is-open="isOpen"
-      :title="title">
+      :title="title"
+    >
       <div class="o-box--dark u-p">
         <slot />
       </div>
@@ -33,14 +36,20 @@ export default {
   name: 'CustomerSettingsSection',
 
   components: {
-    DpAccordion
+    DpAccordion,
   },
 
   props: {
+    dataCy: {
+      type: String,
+      required: false,
+      default: '',
+    },
+
     isOpen: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     /**
@@ -48,8 +57,8 @@ export default {
      */
     title: {
       required: true,
-      type: String
-    }
-  }
+      type: String,
+    },
+  },
 }
 </script>

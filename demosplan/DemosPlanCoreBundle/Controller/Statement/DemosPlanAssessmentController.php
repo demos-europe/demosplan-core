@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
-use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
@@ -40,7 +39,7 @@ use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
@@ -62,22 +61,21 @@ class DemosPlanAssessmentController extends BaseController
      *
      * NOTE: Only used by Statement Detail View
      *
-     * @DplanPermissions("feature_statement_assignment")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('feature_statement_assignment')]
     #[Route(name: 'DemosPlan_assessment_set_statement_assignment', path: '/assignment/statement/{entityId}/{assignOrUnassign}')]
-    public function setStatementAssigneeAction(
+    public function setStatementAssignee(
         CurrentUserService $currentUser,
         Request $request,
         StatementHandler $statementHandler,
         UserService $userService,
         string $entityId,
-        string $assignOrUnassign = 'assign'
+        string $assignOrUnassign = 'assign',
     ): Response {
         $statementToUpdate = $statementHandler->getStatement($entityId);
 
-        if (null === $statementToUpdate) {
+        if (!$statementToUpdate instanceof Statement) {
             $this->getMessageBag()->add('error', 'error.statement.assignment.assigned');
             $this->getLogger()->warning('Could not find Statement Id '.$entityId);
 
@@ -112,12 +110,11 @@ class DemosPlanAssessmentController extends BaseController
     }
 
     /**
-     * @DplanPermissions("feature_statement_data_input_orga")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('feature_statement_data_input_orga')]
     #[Route(name: 'DemosPlan_statement_orga_list', path: '/statement/manual/list/{procedureId}')]
-    public function getOrgaStatementListAction(CurrentUserService $currentUser, StatementHandler $statementHandler, string $procedureId): Response
+    public function getOrgaStatementList(CurrentUserService $currentUser, StatementHandler $statementHandler, string $procedureId): Response
     {
         $organisationId = $currentUser->getUser()->getOrganisationId();
         $statements = $statementHandler->getStatementsOfProcedureAndOrganisation(
@@ -145,12 +142,11 @@ class DemosPlanAssessmentController extends BaseController
     /**
      * Create new Statement.
      *
-     * @DplanPermissions("feature_statement_data_input_orga")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('feature_statement_data_input_orga')]
     #[Route(name: 'DemosPlan_statement_new_submitted', path: '/statement/new/manual/{procedureId}', options: ['expose' => true])]
-    public function newManualStatementAction(
+    public function newManualStatement(
         CurrentUserService $currentUser,
         FileUploadService $fileUploadService,
         Request $request,
@@ -158,7 +154,7 @@ class DemosPlanAssessmentController extends BaseController
         StatementHandler $statementHandler,
         StatementService $statementService,
         AssessmentHandler $assessmentHandler,
-        string $procedureId
+        string $procedureId,
     ): ?Response {
         $rParams = $request->request->all();
         $fParams = $fileUploadService->prepareFilesUpload($request, 'r_upload');
@@ -189,31 +185,10 @@ class DemosPlanAssessmentController extends BaseController
                 $isDataInput = $currentUser->getUser()->hasRole(Role::PROCEDURE_DATA_INPUT);
                 $newStatement = $statementHandler->newStatement($rParams, $isDataInput);
 
-                if (null !== $headStatement) {
+                if ($headStatement instanceof Statement) {
                     $statementHandler->addStatementToCluster($headStatement, $newStatement->getChildren()[0], true, true);
                 }
-                $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId);
-                $routeName = $currentUser->getUser()->hasRole(Role::PROCEDURE_DATA_INPUT) ?
-                    'DemosPlan_statement_orga_list' : 'dplan_assessmenttable_view_table';
-                $routeParameters = 'DemosPlan_statement_orga_list' === $routeName ?
-                    [
-                        'procedureId' => $procedureId,
-                    ] :
-                    [
-                        'procedureId' => $procedureId,
-                        'filterHash'  => $filterSet->getHash(),
-                        '_fragment'   => $request->query->get('fragment', ''),
-                    ];
                 if ($newStatement instanceof Statement) {
-                    $this->getMessageBag()->addObject(LinkMessageSerializable::createLinkMessage(
-                        'confirm',
-                        'confirm.statement.new',
-                        ['externId' => $newStatement->getExternId()],
-                        $routeName,
-                        $routeParameters,
-                        $newStatement->getExternId()
-                    ));
-
                     return $this->redirectToRoute(
                         'DemosPlan_statement_new_submitted',
                         ['procedureId' => $procedureId]
@@ -239,18 +214,17 @@ class DemosPlanAssessmentController extends BaseController
     }
 
     /**
-     * @DplanPermissions("feature_statement_data_input_orga")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('feature_statement_data_input_orga')]
     #[Route(name: 'DemosPlan_statement_single_view', path: 'procedure/{procedureId}/statement/{statementId}/dataInput')]
-    public function viewSingleStatementAction(
+    public function viewSingleStatement(
         Breadcrumb $breadcrumb,
         ProcedureService $procedureService,
         StatementHandler $statementHandler,
         TranslatorInterface $translator,
         string $procedureId,
-        string $statementId
+        string $statementId,
     ): Response {
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $procedure = $procedureService->getProcedureWithCertainty($procedureId);
@@ -277,19 +251,18 @@ class DemosPlanAssessmentController extends BaseController
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
-            compact('title', 'templateVars')
+            ['title' => $title, 'templateVars' => $templateVars]
         );
     }
 
     /**
      * Display single Statement cluster.
      *
-     * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(name: 'DemosPlan_cluster_single_statement_view', path: '/verfahren/{procedure}/cluster/statement/{statementId}')]
-    public function viewStatementClusterSingleStatementAction(StatementHandler $statementHandler, string $statementId): Response
+    public function viewStatementClusterSingleStatement(StatementHandler $statementHandler, string $statementId): Response
     {
         $statement = $statementHandler->getStatement($statementId);
         $templateVars = [];
@@ -308,12 +281,11 @@ class DemosPlanAssessmentController extends BaseController
     /**
      * Detaches a single Statement from his cluster.
      *
-     * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(name: 'DemosPlan_cluster_detach_statement', path: '/verfahren/{procedure}/cluster/statement/{statementId}/detach')]
-    public function detachStatementFromClusterAction(StatementHandler $statementHandler, string $statementId): Response
+    public function detachStatementFromCluster(StatementHandler $statementHandler, string $statementId): Response
     {
         try {
             $statementToDetach = $statementHandler->getStatement($statementId);
@@ -323,7 +295,7 @@ class DemosPlanAssessmentController extends BaseController
 
             return $this->redirectToRoute(
                 'dplan_assessmenttable_view_table',
-                \compact('procedureId')
+                ['procedureId' => $procedureId]
             );
         } catch (Exception $e) {
             return $this->handleError($e);
@@ -334,12 +306,11 @@ class DemosPlanAssessmentController extends BaseController
      * Resolves a single statementCluster.
      * All statements in the cluster will be detached.
      *
-     * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(name: 'DemosPlan_cluster_resolve', path: '/verfahren/{procedure}/cluster/resolve/{headStatementId}')]
-    public function resolveClusterAction(StatementHandler $statementHandler, string $headStatementId): Response
+    public function resolveCluster(StatementHandler $statementHandler, string $headStatementId): Response
     {
         try {
             $clusterToResolve = $statementHandler->getStatement($headStatementId);
@@ -349,7 +320,7 @@ class DemosPlanAssessmentController extends BaseController
 
             return $this->redirectToRoute(
                 'dplan_assessmenttable_view_table',
-                \compact('procedureId')
+                ['procedureId' => $procedureId]
             );
         } catch (Exception $e) {
             return $this->handleError($e);
@@ -358,11 +329,10 @@ class DemosPlanAssessmentController extends BaseController
 
     /**
      * Returns the base data for Vue components on the assessment table.
-     *
-     * @DplanPermissions("feature_procedure_get_base_data")
      */
+    #[DplanPermissions('feature_procedure_get_base_data')]
     #[Route(name: 'DemosPlan_assessment_base_ajax', path: '/_ajax/assessment/{procedureId}', options: ['expose' => true])]
-    public function assessmentBaseAjaxAction(
+    public function assessmentBaseAjax(
         CurrentUserService $currentUser,
         CountyService $countyService,
         MunicipalityService $municipalityService,
@@ -601,7 +571,7 @@ class DemosPlanAssessmentController extends BaseController
         string $procedureId,
         ServiceOutput $serviceOutput,
         StatementHandler $statementHandler,
-        StatementService $statementService
+        StatementService $statementService,
     ): array {
         $templateVars = $statementHandler->generateTemplateVarsForNewStatementForm($procedureId);
 

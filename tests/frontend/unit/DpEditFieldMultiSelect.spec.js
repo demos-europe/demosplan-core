@@ -7,25 +7,13 @@
  * All rights reserved
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils'
+import { createStore } from 'vuex'
 import DpEditFieldMultiSelect from '@DpJs/components/statement/assessmentTable/DpEditFieldMultiSelect'
-import Vuex from 'vuex'
-
-const localVue = createLocalVue()
-
-localVue.use(Vuex)
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 window.dplan = () => { return {} }
 
 describe('DpEditFieldMultiSelect', () => {
-  it('is an object', () => {
-    expect(typeof DpEditFieldMultiSelect).toBe('object')
-  })
-
-  it('is named dp-edit-field-multi-select', () => {
-    expect(DpEditFieldMultiSelect.name).toBe('DpEditFieldMultiSelect')
-  })
-
   const AssessmentTable = {
     state: {
 
@@ -34,41 +22,42 @@ describe('DpEditFieldMultiSelect', () => {
 
     },
     getters: {
-      assessmentBaseLoaded: jest.fn()
-    }
+      assessmentBaseLoaded: jest.fn(),
+    },
 
   }
 
   let store
 
   beforeEach(() => {
-    store = new Vuex.Store({
+    store = createStore({
       modules: {
         AssessmentTable: {
           state: AssessmentTable.state,
           getters: AssessmentTable.getters,
-          actions: AssessmentTable.actions
-        }
-      }
+          actions: AssessmentTable.actions,
+        },
+      },
     })
   })
 
   it('should load assessmentBase', () => {
-    const instance = shallowMount(DpEditFieldMultiSelect, {
-      propsData: {
+    const instance = shallowMountWithGlobalMocks(DpEditFieldMultiSelect, {
+      props: {
         entityId: 'entId',
         fieldKey: 'aaa',
         options: [],
-        label: 'label'
+        label: 'label',
       },
       computed: {
-        assessmentBaseLoaded: () => true
+        assessmentBaseLoaded: () => true,
       },
       stubs: {
-        'dp-multiselect': true
+        'dp-multiselect': true,
       },
-      localVue,
-      store
+      global: {
+        plugins: [store],
+      },
     })
 
     expect(instance.vm.assessmentBaseLoaded).toBe(true)

@@ -21,7 +21,7 @@ use Exception;
 class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
 {
     /** @var array */
-    private $supportedTypes = ['doc', 'docx'];
+    private $supportedTypes = ['doc', 'docx', 'odt'];
 
     public function supports(string $format): bool
     {
@@ -38,6 +38,12 @@ class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
         $original = $parameters['original'];
         $viewMode = $parameters['viewMode'];
 
+        // Set the export format in request attributes for thread-safe access
+        if (isset($parameters['exportFormat']) && in_array($parameters['exportFormat'], ['docx', 'odt'], true)) {
+            $request = $this->requestStack->getCurrentRequest();
+            $request?->attributes->set('export_format', $parameters['exportFormat']);
+        }
+
         $parameters = $this->addStatementsFromCurrentQueryHashToFilter($parameters, $procedureId, $original);
         $outputResult = $this->assessmentHandler->prepareOutputResult($procedureId, $original, $parameters);
         try {
@@ -48,6 +54,7 @@ class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
                 $outputResult,
                 $parameters['template'],
                 $parameters['anonymous'],
+                $parameters['numberStatements'],
                 $parameters['exportType'],
                 $viewOrientation,
                 $parameters,
@@ -56,8 +63,9 @@ class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
             );
 
             $fileName = sprintf(
-                $this->translator->trans('considerationtable').'-%s.docx',
-                Carbon::now()->format('d-m-Y-H:i')
+                $this->translator->trans('considerationtable').'-%s%s',
+                Carbon::now('Europe/Berlin')->format('d-m-Y-H:i'),
+                $this->writerSelector->getFileExtension()
             );
 
             $file = [
@@ -68,7 +76,9 @@ class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
             return $file;
         } catch (Exception $e) {
             $this->logger->warning($e);
-            throw HandlerException::assessmentExportFailedException('docx');
+            $request = $this->requestStack->getCurrentRequest();
+            $exportFormat = $request?->attributes->get('export_format') ?? 'docx';
+            throw HandlerException::assessmentExportFailedException($exportFormat);
         }
     }
 }

@@ -134,7 +134,7 @@
         &__hint-icon {
             position: absolute;
 
-            line-height: 1;
+            line-height: 1.25;
         }
 
         &__toggle-target {
@@ -167,6 +167,25 @@
             .nojs & {
                 padding: 0 !important;
                 padding-bottom: 12px !important;
+            }
+        }
+
+        // Custom breakpoint for StatementModal.vue navigation (710px)
+        &__formnav {
+            &.mobile {
+                display: block;
+
+                @media screen and (width >= 710px) {
+                    display: none;
+                }
+            }
+
+            &.tablet-desktop {
+                display: none;
+
+                @media screen and (width >= 710px) {
+                    display: block;
+                }
             }
         }
     }

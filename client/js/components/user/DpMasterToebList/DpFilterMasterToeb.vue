@@ -9,40 +9,46 @@
 
 <template>
   <fieldset class="u-pb-0 inline">
-    <legend class="hide-visually">
+    <legend class="sr-only">
       {{ Translator.trans('filter') }}
     </legend>
     <select
-      class="o-form__control-select w-10"
       id="districtFilter"
+      v-model="selectedDistrict"
+      class="o-form__control-select w-10"
       @change="filterItems"
-      v-model="selectedDistrict">
+    >
       <option
         value="all"
-        selected>
+        selected
+      >
         Alle Verfahrensträger
       </option>
       <option
         v-for="district in districtFilters"
         :key="district.field"
-        :value="district.field">
+        :value="district.field"
+      >
         {{ district.value }}
       </option>
     </select><!--
  --><select
-      class="o-form__control-select u-ml-0_5 w-10"
       id="documentFilter"
+      v-model="selectedDocument"
+      class="o-form__control-select u-ml-0_5 w-10"
       @change="filterItems"
-      v-model="selectedDocument">
+>
       <option
         value="all"
-        selected>
+        selected
+>
         Alle Dokumente
       </option>
       <option
         v-for="doc in documentFilters"
         :key="doc.field"
-        :value="doc.field">
+        :value="doc.field"
+>
         {{ doc.value }}
       </option>
     </select>
@@ -56,21 +62,25 @@ export default {
   props: {
     items: {
       type: Array,
-      required: true
+      required: true,
     },
 
     fields: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
+
+  emits: [
+    'items:filtered',
+  ],
 
   data () {
     return {
       selectedDocument: 'all',
       selectedDistrict: 'all',
       districtFilters: this.getFieldsByPattern(this.fields, /^district/),
-      documentFilters: this.getFieldsByPattern(this.fields, /^document/)
+      documentFilters: this.getFieldsByPattern(this.fields, /^document/),
     }
   },
 
@@ -90,7 +100,7 @@ export default {
         return filteredByDistricts && filteredByDocuments
       })
 
-      this.$emit('items-filtered', filteredItems)
+      this.$emit('items:filtered', filteredItems)
     },
 
     getFieldsByPattern (fields, pattern) {
@@ -100,7 +110,7 @@ export default {
         }
         return acc
       }, [])
-    }
-  }
+    },
+  },
 }
 </script>

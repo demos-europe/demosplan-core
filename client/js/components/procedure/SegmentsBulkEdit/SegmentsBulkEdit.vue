@@ -17,83 +17,92 @@
     :selected-elements="segments.length"
     @apply="apply"
     @confirm="step = 2"
-    @edit="step = 1">
+    @edit="step = 1"
+  >
     <!-- Step 1 - Chose action -->
     <template v-slot:step-1>
       <div class="border-between-vertical">
         <!-- Assign user -->
         <action-stepper-action
           v-if="hasPermission('feature_statement_assignment')"
-          v-model="actions.assignSegment.checked"
           id="selectAssignAction"
+          v-model="actions.assignSegment.checked"
           :label="Translator.trans('assign.for.editing')"
         >
           <dp-multiselect
-            class="w-12"
             id="assignSegment"
+            v-model="actions.assignSegment.selected"
+            class="w-12"
             :disabled="!hasSegments"
             :options="assignableUsers"
-            v-model="actions.assignSegment.selected"
             label="name"
-            track-by="id" />
+            track-by="id"
+          />
         </action-stepper-action>
 
         <!-- Assign place/status -->
         <action-stepper-action
-          v-model="actions.assignPlace.checked"
           id="selectAssignPlaceAction"
-          :label="Translator.trans('segments.bulk.edit.place.add')">
+          v-model="actions.assignPlace.checked"
+          :label="Translator.trans('segments.bulk.edit.place.add')"
+        >
           <dp-multiselect
-            class="w-12"
             id="assignPlace"
+            v-model="actions.assignPlace.selected"
+            class="w-12"
             :disabled="!hasPlaces"
             :options="places"
-            v-model="actions.assignPlace.selected"
             label="name"
-            track-by="id" />
+            track-by="id"
+          />
         </action-stepper-action>
 
         <!-- Add tags -->
         <action-stepper-action
-          v-model="actions.addTags.checked"
           id="selectAddTagsAction"
-          :label="Translator.trans('segments.bulk.edit.tags.add')">
+          v-model="actions.addTags.checked"
+          :label="Translator.trans('segments.bulk.edit.tags.add')"
+        >
           <dp-multiselect
             id="addTags"
+            v-model="actions.addTags.selected"
             multiple
             :disabled="!hasSegments"
             :options="filteredTagsByTopic"
-            v-model="actions.addTags.selected"
             label="title"
             track-by="id"
             group-values="tags"
             group-label="title"
-            :group-select="false" />
+            :group-select="false"
+          />
         </action-stepper-action>
 
         <!-- Remove tags -->
         <action-stepper-action
-          v-model="actions.deleteTags.checked"
           id="selectDeleteTagsAction"
-          :label="Translator.trans('segments.bulk.edit.tags.delete')">
+          v-model="actions.deleteTags.checked"
+          :label="Translator.trans('segments.bulk.edit.tags.delete')"
+        >
           <dp-multiselect
             id="deleteTags"
+            v-model="actions.deleteTags.selected"
             multiple
             :disabled="!hasSegments"
             :options="filteredTagsByTopic"
-            v-model="actions.deleteTags.selected"
             label="title"
             track-by="id"
             group-values="tags"
             group-label="title"
-            :group-select="false" />
+            :group-select="false"
+          />
         </action-stepper-action>
 
         <!-- Append text to recommendation -->
         <action-stepper-action
-          v-model="actions.addRecommendations.checked"
           id="selectAddRecommendationAction"
-          :label="Translator.trans('segments.bulk.edit.recommendations.add')">
+          v-model="actions.addRecommendations.checked"
+          :label="Translator.trans('segments.bulk.edit.recommendations.add')"
+        >
           <div class="u-mb-0_5">
             <dp-radio
               id="attachTextRadioId"
@@ -103,7 +112,8 @@
                 bold: false,
                 text: Translator.trans('segments.bulk.edit.recommendations.radio.text.attach')
               }"
-              @change="actions.addRecommendations.isTextReplaced = false" />
+              @change="actions.addRecommendations.isTextReplaced = false"
+            />
             <dp-radio
               id="replaceTextRadioId"
               v-model="actions.addRecommendations.isTextReplaced"
@@ -112,7 +122,8 @@
                 bold: false,
                 text: Translator.trans('segments.bulk.edit.recommendations.radio.text.replace')
               }"
-              @change="actions.addRecommendations.isTextAttached = false" />
+              @change="actions.addRecommendations.isTextAttached = false"
+            />
           </div>
           <dp-editor
             id="addRecommendationTipTap"
@@ -121,28 +132,46 @@
             :toolbar-items="{
               fullscreenButton: true,
               linkButton: true
-            }">
+            }"
+          >
             <template v-slot:modal="modalProps">
               <dp-boiler-plate-modal
                 v-if="hasPermission('area_admin_boilerplates')"
                 ref="boilerPlateModal"
                 boiler-plate-type="consideration"
-                editor-id="recommendationText"
                 :procedure-id="procedureId"
-                @insert="text => modalProps.handleInsertText(text)" />
+                @insert="text => modalProps.handleInsertText(text)"
+              />
             </template>
             <template v-slot:button>
               <button
                 v-if="hasPermission('area_admin_boilerplates')"
+                v-tooltip="Translator.trans('boilerplate.insert')"
                 :class="prefixClass('menubar__button')"
                 :disabled="!hasSegments"
                 type="button"
-                v-tooltip="Translator.trans('boilerplate.insert')"
-                @click.stop="openBoilerPlate">
+                @click.stop="openBoilerPlate"
+              >
                 <i :class="prefixClass('fa fa-puzzle-piece')" />
               </button>
             </template>
           </dp-editor>
+        </action-stepper-action>
+        <!--Custom Fields-->
+        <action-stepper-action
+          v-for="customField in actions.customFields"
+          :id="customField.id"
+          :key="`customField:${customField.id}`"
+          v-model="customField.checked"
+          :label="customField.label"
+        >
+          <dp-multiselect
+            :id="`customFieldSelect:${customField.id}`"
+            v-model="customField.selected"
+            class="w-12"
+            :disabled="!hasSegments"
+            :options="customField.optionLabels"
+          />
         </action-stepper-action>
       </div>
     </template>
@@ -152,18 +181,21 @@
       <div class="border-between-vertical">
         <dp-inline-notification
           type="info"
-          :message="Translator.trans('bulk.edit.info.assigned', { count: segments.length})"
-          class="border-between-none" />
+          :message="Translator.trans('bulk.edit.info.assigned', { count: segments.length })"
+          class="border-between-none mt-3 mb-2"
+        />
 
         <dp-inline-notification
           v-if="actions.addRecommendations.text === '' && addRecommendationsChecked"
           type="warning"
           :message="emptyRecommendationWarning"
-          class="border-between-none" />
+          class="border-between-none mt-3 mb-2"
+        />
 
         <div
           v-if="hasPermission('feature_statement_assignment') && assignSegmentCheckedAndSelected"
-          class="u-mt u-pb-0_5">
+          class="u-mt u-pb-0_5"
+        >
           <label class="u-mb-0_25 weight--normal">
             {{ Translator.trans('segments.assign.other.confirmation') }}
           </label>
@@ -174,30 +206,43 @@
 
         <div
           v-if="assignPlaceCheckedAndSelected"
-          class="u-pv">
+          class="u-pv"
+        >
           <p v-html="Translator.trans('segments.bulk.edit.place.assigned.description')" />
           <p v-cleanhtml="actions.assignPlace.selected.name" />
         </div>
 
         <div
           v-if="addTagsCheckedAndSelected"
-          class="u-pv">
-          <p v-html="Translator.trans('segments.bulk.edit.tags.add.description', { count: segments.length})" />
+          class="u-pv"
+        >
+          <p v-html="Translator.trans('segments.bulk.edit.tags.add.description', { count: segments.length })" />
           <selected-tags-list :selected-tags="actions.addTags.selected" />
         </div>
 
         <div
           v-if="deleteTagsCheckedAndSelected"
-          class="u-pv">
-          <p v-html="Translator.trans('segments.bulk.edit.tags.delete.description', { count: segments.length})" />
+          class="u-pv"
+        >
+          <p v-html="Translator.trans('segments.bulk.edit.tags.delete.description', { count: segments.length })" />
           <selected-tags-list :selected-tags="actions.deleteTags.selected" />
         </div>
 
         <div
           v-if="addRecommendationsChecked && actions.addRecommendations.text !== ''"
-          class="u-pv">
+          class="u-pv"
+        >
           <p v-html="addOrReplaceRecommendationMessage" />
           <p v-html="actions.addRecommendations.text" />
+        </div>
+
+        <div
+          v-for="customField in customFieldsCheckedAndSelected"
+          :key="`customField:${customField.id}`"
+          class="u-pv"
+        >
+          <p v-html="Translator.trans('segments.bulk.edit.customFields.description', { label: customField.label })" />
+          <selected-tags-list :selected-tags="[{ title: customField.selected, id: customField.id }]" />
         </div>
       </div>
     </template>
@@ -208,42 +253,59 @@
         v-if="hasPermission('feature_statement_assignment') && assignSegmentCheckedAndSelected"
         :success="actions.assignSegment.success"
         :description-error="Translator.trans('segments.bulk.edit.segments.assigned.error')"
-        :description-success="Translator.trans('segments.bulk.edit.segments.assigned.success')" />
+        :description-success="Translator.trans('segments.bulk.edit.segments.assigned.success')"
+      />
 
       <action-stepper-response
         v-if="assignPlaceCheckedAndSelected"
         :success="actions.assignPlace.success"
-        :description-error="Translator.trans('segments.bulk.edit.place.assigned.error', {count: segments.length})"
-        :description-success="Translator.trans('segments.bulk.edit.place.assigned.success', {count: segments.length})">
+        :description-error="Translator.trans('segments.bulk.edit.place.assigned.error', { count: segments.length })"
+        :description-success="Translator.trans('segments.bulk.edit.place.assigned.success', { count: segments.length })"
+      >
         <p
           v-cleanhtml="actions.assignPlace.selected.name"
-          class="u-mt-0_5" />
+          class="u-mt-0_5"
+        />
       </action-stepper-response>
 
       <action-stepper-response
         v-if="addTagsCheckedAndSelected"
         :success="actions.addTags.success"
-        :description-error="Translator.trans('segments.bulk.edit.tags.added.error', {count: segments.length})"
-        :description-success="Translator.trans('segments.bulk.edit.tags.added.success', {count: segments.length})">
+        :description-error="Translator.trans('segments.bulk.edit.tags.added.error', { count: segments.length })"
+        :description-success="Translator.trans('segments.bulk.edit.tags.added.success', { count: segments.length })"
+      >
         <selected-tags-list :selected-tags="actions.addTags.selected" />
       </action-stepper-response>
 
       <action-stepper-response
         v-if="deleteTagsCheckedAndSelected"
         :success="actions.deleteTags.success"
-        :description-error="Translator.trans('segments.bulk.edit.tags.deleted.error', {count: segments.length})"
-        :description-success="Translator.trans('segments.bulk.edit.tags.deleted.success', {count: segments.length})">
+        :description-error="Translator.trans('segments.bulk.edit.tags.deleted.error', { count: segments.length })"
+        :description-success="Translator.trans('segments.bulk.edit.tags.deleted.success', { count: segments.length })"
+      >
         <selected-tags-list :selected-tags="actions.deleteTags.selected" />
       </action-stepper-response>
 
       <action-stepper-response
         v-if="addRecommendationsChecked"
         :success="actions.addRecommendations.success"
-        :description-error="Translator.trans('segments.bulk.edit.recommendations.added.error', {count: segments.length})"
-        :description-success="addRecommendationsSuccess">
+        :description-error="Translator.trans('segments.bulk.edit.recommendations.added.error', { count: segments.length })"
+        :description-success="addRecommendationsSuccess"
+      >
         <p
+          class="u-mt-0_5"
           v-html="actions.addRecommendations.text"
-          class="u-mt-0_5" />
+        />
+      </action-stepper-response>
+
+      <action-stepper-response
+        v-for="customField in customFieldsCheckedAndSelected"
+        :key="`customField:${customField.id}`"
+        :success="customField.success"
+        :description-error="Translator.trans('segments.bulk.edit.generic.error', { count: segments.length, label: customField.label })"
+        :description-success="Translator.trans('segments.bulk.edit.generic.success', { count: segments.length, label: customField.label })"
+      >
+        <selected-tags-list :selected-tags="[{ title: customField.selected, id: customField.id }]" />
       </action-stepper-response>
     </template>
   </action-stepper>
@@ -251,19 +313,19 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpMultiselect,
   DpRadio,
   dpRpc,
   hasOwnProp,
-  prefixClassMixin
+  prefixClassMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import lscache from 'lscache'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
@@ -276,21 +338,21 @@ export default {
     ActionStepperAction,
     ActionStepperResponse,
     DpBoilerPlateModal,
-    DpInlineNotification: async () => {
+    DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    },
+    }),
     DpMultiselect,
     DpRadio,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
-    SelectedTagsList
+    }),
+    SelectedTagsList,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [prefixClassMixin],
@@ -298,8 +360,8 @@ export default {
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -311,28 +373,29 @@ export default {
           success: false,
           // To toggle radio button checked and the isTextAttached value will be send to BE
           isTextAttached: true,
-          isTextReplaced: false
+          isTextReplaced: false,
         },
         addTags: {
           selected: [],
           checked: false,
-          success: false
+          success: false,
         },
         assignPlace: {
           selected: [],
           checked: false,
-          success: false
+          success: false,
         },
         assignSegment: {
           selected: [],
           checked: false,
-          success: false
+          success: false,
         },
         deleteTags: {
           selected: [],
           checked: false,
-          success: false
-        }
+          success: false,
+        },
+        customFields: [],
       },
       assignableUsers: [],
       busy: false,
@@ -340,17 +403,21 @@ export default {
       returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedureId }),
       step: 1,
       places: [],
-      segments: []
+      segments: [],
     }
   },
 
   computed: {
-    ...mapState('tag', {
-      tagsItems: 'items'
+    ...mapState('CustomField', {
+      customFieldItems: 'items',
     }),
 
-    ...mapState('tagTopic', {
-      tagTopicsItems: 'items'
+    ...mapState('Tag', {
+      tagsItems: 'items',
+    }),
+
+    ...mapState('TagTopic', {
+      tagTopicsItems: 'items',
     }),
 
     addOrReplaceRecommendationMessage () {
@@ -393,6 +460,14 @@ export default {
       return this.actions.assignPlace.checked && Object.values(this.actions.assignPlace.selected).length > 0
     },
 
+    customFieldsCheckedAndSelected () {
+      return hasPermission('field_segments_custom_fields') ?
+        this.actions.customFields.filter(customField => {
+          return customField.checked && customField.selected
+        }) :
+        []
+    },
+
     deleteTagsCheckedAndSelected () {
       return this.actions.deleteTags.checked && this.actions.deleteTags.selected.length > 0
     },
@@ -420,9 +495,9 @@ export default {
             .map(tag => {
               return {
                 title: tag.attributes.title,
-                id: tag.id
+                id: tag.id,
               }
-            })
+            }),
         }
       })
     },
@@ -433,8 +508,9 @@ export default {
       const assignPlaceAction = this.actions.assignPlace.checked && Object.values(this.actions.assignPlace.selected).length > 0
       const assignSegmentAction = this.actions.assignSegment.checked && Object.values(this.actions.assignSegment.selected).length > 0
       const deleteTagsAction = this.actions.deleteTags.checked && this.actions.deleteTags.selected.length > 0
+      const customFieldsAction = this.customFieldsCheckedAndSelected.length > 0
 
-      return addRecommendationAction || addTagsAction || assignPlaceAction || assignSegmentAction || deleteTagsAction
+      return addRecommendationAction || addTagsAction || assignPlaceAction || assignSegmentAction || deleteTagsAction || customFieldsAction
     },
 
     hasPlaces () {
@@ -451,16 +527,35 @@ export default {
 
     topics () {
       return Object.values(this.tagTopicsItems)
-    }
+    },
   },
 
   methods: {
-    ...mapActions('tag', {
-      listTags: 'list'
+    ...mapActions('AdminProcedure', {
+      getAdminProcedureWithFields: 'get',
     }),
-    ...mapActions('tagTopic', {
-      listTagTopics: 'list'
+
+    ...mapActions('Tag', {
+      listTags: 'list',
     }),
+
+    ...mapActions('TagTopic', {
+      listTagTopics: 'list',
+    }),
+
+    addCustomFieldsToActions () {
+      Object.values(this.customFieldItems).forEach(customField => {
+        this.actions.customFields.push({
+          checked: false,
+          id: customField.id,
+          label: customField.attributes.name,
+          optionLabels: customField.attributes.options.map((option) => option.label),
+          options: customField.attributes.options,
+          selected: null,
+          success: false,
+        })
+      })
+    },
 
     /**
      * Apply selected actions.
@@ -475,8 +570,19 @@ export default {
         // Text of DpEditor and attach bool to determine if the text is replaced or attached - default: true
         recommendationTextEdit: {
           text: this.actions.addRecommendations.text,
-          attach: this.actions.addRecommendations.isTextAttached
-        }
+          attach: this.actions.addRecommendations.isTextAttached,
+        },
+      }
+
+      if (this.customFieldsCheckedAndSelected.length > 0) {
+        params.customFields = this.customFieldsCheckedAndSelected.map(({ id, selected, options }) => {
+          const selectedOption = options.find(option => option.label === selected)
+
+          return {
+            id,
+            value: selectedOption?.id,
+          }
+        })
       }
 
       if (this.assignSegmentCheckedAndSelected) {
@@ -488,12 +594,17 @@ export default {
       }
 
       dpRpc('segment.bulk.edit', params)
-        .then(checkResponse)
         .then((response) => {
-          const rpcResult = this.getRpcResult(response)
+          const rpcResult = this.getRpcResult(response.data)
 
           for (const property in this.actions) {
-            this.actions[property].success = rpcResult
+            if (property === 'customFields') {
+              this.actions.customFields.forEach(customField => {
+                customField.success = rpcResult
+              })
+            } else {
+              this.actions[property].success = rpcResult
+            }
           }
         })
         .catch(() => {
@@ -517,28 +628,52 @@ export default {
           this.assignableUsers = response.data.data.map(assignableUser => {
             return {
               name: assignableUser.attributes.firstname + ' ' + assignableUser.attributes.lastname,
-              id: assignableUser.id
+              id: assignableUser.id,
             }
           })
 
           // Add option to set unassigned to segments
           this.assignableUsers.push({
             name: Translator.trans('not.assigned'),
-            id: null
-          });
-
+            id: null,
+          })
         })
+    },
 
+    /**
+     * Fetch custom fields that are available either in the procedure or in the procedure template
+     */
+    fetchCustomFields () {
+      const payload = {
+        id: this.procedureId,
+        fields: {
+          AdminProcedure: [
+            'segmentCustomFields',
+          ].join(),
+          CustomField: [
+            'name',
+            'description',
+            'options',
+          ].join(),
+        },
+        include: ['segmentCustomFields'].join(),
+      }
+
+      return this.getAdminProcedureWithFields(payload)
+        .catch(err => console.error(err))
     },
 
     fetchPlaces () {
-      const url = Routing.generate('api_resource_list', { resourceType: 'Place' })
+      const url = Routing.generate('api_resource_list', {
+        resourceType: 'Place',
+        sort: 'sortIndex',
+      })
       return dpApi.get(url)
         .then(response => {
           this.places = response.data.data.map(place => {
             return {
               id: place.id,
-              name: place.attributes.name
+              name: place.attributes.name,
             }
           })
         })
@@ -569,7 +704,7 @@ export default {
       if (currentQueryHash) {
         this.returnLink = Routing.generate('dplan_segments_list_by_query_hash', {
           procedureId: this.procedureId,
-          queryHash: currentQueryHash
+          queryHash: currentQueryHash,
         })
       }
     },
@@ -590,7 +725,7 @@ export default {
           this.segments = segments.toggledSegments.length === 0 ? allSegments : allSegments.filter(segment => !toggledIds.includes(segment))
         }
       }
-    }
+    },
   },
 
   created () {
@@ -602,15 +737,26 @@ export default {
     const promises = [
       this.listTagTopics({ include: 'tag' }),
       this.listTags({ include: 'topic' }),
-      this.fetchPlaces()
+      this.fetchPlaces(),
     ]
+
     if (hasPermission('feature_statement_assignment')) {
       promises.push(this.fetchAssignableUsers())
     }
+
+    if (hasPermission('field_segments_custom_fields')) {
+      promises.push(this.fetchCustomFields())
+    }
+
     Promise.all(promises)
+      .then(() => {
+        if (hasPermission('field_segments_custom_fields')) {
+          this.addCustomFieldsToActions()
+        }
+      })
       .then(() => {
         this.isLoading = false
       })
-  }
+  },
 }
 </script>

@@ -68,7 +68,11 @@
 
         {# Copy item #}
         {% if assigned|default(false) or not hasPermission('feature_statement_assignment') %}
-            <a class="c-actionmenu__trigger btn-icns u-mb-0" href="{{ path("dm_plan_assessment_single_copy", {'statement': templateVars.table.statement.ident, 'procedure': procedure}) }}" name="copyStatement">
+            <a
+                class="c-actionmenu__trigger btn-icns u-mb-0"
+                data-cy="statementDetail:copy"
+                href="{{ path("dm_plan_assessment_single_copy", {'statement': templateVars.table.statement.ident, 'procedure': procedure}) }}"
+                name="copyStatement">
                 <i class="fa fa-files-o" aria-hidden="true"></i>
                 {{ 'copy'|trans }}
             </a>

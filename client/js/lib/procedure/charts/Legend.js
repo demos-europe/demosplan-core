@@ -24,9 +24,9 @@ export default class Legend {
         'no-data-fallback': Translator.trans('fragments.not.submitted'),
         'legend-headline': Translator.trans('fragments'),
         'data-names': Translator.trans('fragments'),
-        'data-name': Translator.trans('fragment')
+        'data-name': Translator.trans('fragment'),
       },
-      transSpeed: 200
+      transSpeed: 200,
     }
 
     Object.assign(this, { ...defaults, ...options })
@@ -51,7 +51,7 @@ export default class Legend {
       this.updateElementColor(this.getLegendElement(i), this.activeColor)
 
       const dataPoints = this.getDataPointElements()
-      if (dataPoints) {
+      if (dataPoints.size() > 0) {
         this.updateElementColor(dataPoints, this.activeColor, true)
       }
     }
@@ -62,7 +62,7 @@ export default class Legend {
       this.updateElementColor(this.getChartElement(i), this.colors[i])
       this.updateElementColor(this.getLegendElement(i), this.colors[i])
       const dataPoints = this.getDataPointElements()
-      if (dataPoints) {
+      if (dataPoints.size() > 0) {
         this.updateElementColor(dataPoints, this.colors[i])
       }
     }

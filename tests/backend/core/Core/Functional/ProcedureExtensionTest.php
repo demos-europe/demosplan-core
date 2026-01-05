@@ -208,7 +208,7 @@ class ProcedureExtensionTest extends FunctionalTestCase
      */
     public function getDataProviderProcedurePhases()
     {
-        $globalConfig = self::$container->get(GlobalConfigInterface::class);
+        $globalConfig = self::getContainer()->get(GlobalConfigInterface::class);
         $internalPhases = $globalConfig->getInternalPhases();
         $externalPhases = $globalConfig->getExternalPhases();
 
@@ -362,13 +362,13 @@ class ProcedureExtensionTest extends FunctionalTestCase
         ];
         $currentUser = $this->getMock(CurrentUserInterface::class, $mockMethods);
         $this->sut = new ProcedureExtension(
-            self::$container,
+            self::getContainer(),
             $currentUser,
-            self::$container->get(GlobalConfigInterface::class),
+            self::getContainer()->get(GlobalConfigInterface::class),
             new NullLogger(),
             $permissions,
-            self::$container->get(ProcedureService::class),
-            self::$container->get(TranslatorInterface::class)
+            self::getContainer()->get(ProcedureService::class),
+            self::getContainer()->get(TranslatorInterface::class)
         );
     }
 

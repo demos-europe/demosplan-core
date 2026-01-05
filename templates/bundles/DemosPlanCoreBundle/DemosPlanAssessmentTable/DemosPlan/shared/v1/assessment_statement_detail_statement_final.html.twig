@@ -1,7 +1,12 @@
 <fieldset>
-    <dp-accordion title="{{ "statement.final.send"|trans }}">
+    <dp-accordion
+        data-cy="statementDetail:statementFinalSend"
+        title="{{ "statement.final.send"|trans }}">
         <div class="o-box--dark u-ph u-pv-0_5">
-            {% if templateVars.sendFinalEmail is defined and templateVars.sendFinalEmail == false %}
+            {# Check if feedback feature is disabled at procedure level - takes priority over all author preferences #}
+            {% if constant('demosplan\\DemosPlanCoreBundle\\Entity\\Statement\\Statement::EXTERNAL') == templateVars.table.statement.publicStatement and proceduresettings.publicParticipationFeedbackEnabled|default(false) == false %}
+                {{ "explanation.statement.final.feedback.feature.disabled"|trans }}
+            {% elseif templateVars.sendFinalEmail is defined and templateVars.sendFinalEmail == false %}
                 {{ "explanation.no.statement.final.sent"|trans }}
             {% elseif constant('demosplan\\DemosPlanCoreBundle\\Entity\\Statement\\Statement::EXTERNAL') == templateVars.table.statement.publicStatement and templateVars.table.statement.meta.authorFeedback|default() == false %}
                 {{ "explanation.no.statement.final.no.feedback.wanted"|trans }}
@@ -39,7 +44,8 @@
                             control: { name: 'r_send_emailCC', value: templateVars.emailsCC|default },
                             id: 'r_send_emailCC',
                             type: 'text',
-                            disabled: readonly
+                            disabled: readonly,
+                            attributes: ['data-cy=statementDetail:sendEmailCC']
                         }
                     ]
                 }) }}
@@ -51,7 +57,8 @@
                             control: { name: 'r_send_title', value: 'statement.final.email.subject'|trans({ procedureName: templateVars.table.procedure.name|default }) },
                             id: 'r_send_title',
                             type: 'text',
-                            disabled: readonly
+                            disabled: readonly,
+                            attributes: ['data-cy=statementDetail:sendTitle']
                         }
                     ]
                 }) }}
@@ -63,6 +70,7 @@
 
                 <detail-view-final-email-body
                     class="u-mb-0_5"
+                    data-cy="statementDetail:emailBodyText"
                     init-text="{{ predefinedText|default }}"
                     procedure-id="{{ templateVars.table.procedure.ident }}">
                 </detail-view-final-email-body>
@@ -86,6 +94,7 @@
                     <div class="text-right">
                         <button
                             class="btn btn--primary btn--outline"
+                            data-cy="statementDetail:emailAttachmentsSend"
                             data-send-form="{# This attribute is used as a hook to append an EventListener in assessment_statement.html.twig #}"
                             type="button">
                             <i

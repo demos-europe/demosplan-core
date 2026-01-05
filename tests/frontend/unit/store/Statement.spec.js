@@ -7,40 +7,39 @@
  * All rights reserved
  */
 
-import { createLocalVue } from '@vue/test-utils'
-import Statement from '.@DpJs/store/statement/Statement'
-import Vuex from 'vuex'
+import { createApp } from 'vue'
+import { createStore } from 'vuex'
+import Statement from '@DpJs/store/statement/Statement'
 
-const localVue = createLocalVue()
-localVue.use(Vuex)
+const localVue = createApp({})
 let StubStore
 global.Vue = localVue
 
 // Non-instance tests
 describe('Statement', () => {
   it('is namespaced', () => {
-    expect(Statement.hasOwnProperty('namespaced')).toBe(true)
+    expect(Object.hasOwn(Statement, 'namespaced')).toBe(true)
     expect(Statement.namespaced).toBe(true)
   })
 
   it('has a statements list', () => {
-    expect(Statement.hasOwnProperty('state')).toBe(true)
-    expect(Statement.state.hasOwnProperty('statements')).toBe(true)
+    expect(Object.hasOwn(Statement, 'state')).toBe(true)
+    expect(Object.hasOwn(Statement.state, 'statements')).toBe(true)
     expect(Statement.state.statements instanceof Object).toBe(true)
   })
 })
 
 describe('StatementStore', () => {
   beforeEach(() => {
-    StubStore = new Vuex.Store({})
-    StubStore.registerModule('statement', Statement)
+    StubStore = createStore({})
+    StubStore.registerModule('Statement', Statement)
   })
 
   it('can add a statement', () => {
-    expect(Object.keys(StubStore.state.statement.statements)).toHaveLength(0)
+    expect(Object.keys(StubStore.state.Statement.statements)).toHaveLength(0)
 
     const statement = { id: '123-456-234' }
-    StubStore.commit('statement/addStatement', statement)
-    expect(Object.keys(StubStore.state.statement.statements)).toHaveLength(1)
+    StubStore.commit('Statement/addStatement', statement)
+    expect(Object.keys(StubStore.state.Statement.statements)).toHaveLength(1)
   })
 })

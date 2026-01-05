@@ -32,7 +32,7 @@ class LoadFileData extends TestFixture implements DependentFixtureInterface
         $file1->setHash('df055eb7-5405-425b-9e21-7faa63f69a70');
         $file1->setDescription('session: ee39542b87bc4d0cab7700646d250028');
         $file1->setName('7025_283_Testfile.pdf');
-        $file1->setPath(DemosPlanPath::getTemporaryPath('test/files'));
+        $file1->setPath(DemosPlanPath::getTestPath('test/files'));
         $file1->setFilename('testdokument.pdf');
         $file1->setTags(',,Demos Test');
         $file1->setAuthor('0a8ca8ee-ce50-432b-a376-935d4fd5aacb');
@@ -52,6 +52,7 @@ class LoadFileData extends TestFixture implements DependentFixtureInterface
         $this->setReference(self::PDF_TEST_FILE, $file1);
 
         // write File to test existance
+        // local file only, no need for flysystem
         $fs = new Filesystem();
 
         // without try catch, should throw exception if not successful
@@ -312,7 +313,7 @@ class LoadFileData extends TestFixture implements DependentFixtureInterface
         $file10->setHash('df055eb7-5405-425b-9e21-7faa63f67777');
         $file10->setDescription('session: ee3954dfsdffd0cab7700646d250028');
         $file10->setName('7025_283_Testfile2.pdf');
-        $file10->setPath(DemosPlanPath::getTemporaryPath('test/files'));
+        $file10->setPath(DemosPlanPath::getTestPath('test/files'));
         $file10->setFilename('20131112_OSBA_Leitfaden_zur_Datensicherheit.pdf');
         $file10->setTags('Demos Test');
         $file10->setAuthor('0a8ca8ee-ce50-432b-a376-935d4fd5aacb');

@@ -41,8 +41,8 @@ class PrepareReportFromProcedureServiceTest extends FunctionalTestCase
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $this->logIn($user);
 
-        $this->sut = self::$container->get(PrepareReportFromProcedureService::class);
-        $this->reportService = self::$container->get(ReportService::class);
+        $this->sut = self::getContainer()->get(PrepareReportFromProcedureService::class);
+        $this->reportService = self::getContainer()->get(ReportService::class);
     }
 
     /**

@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -27,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\PublicAffairsAgentHandler;
@@ -38,9 +38,9 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\InvitationEmailResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Illuminate\Support\Collection;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
-use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
 
 use function array_key_exists;
@@ -88,16 +88,17 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         private readonly EntityManagerInterface $entityManager,
         Environment $twig,
         MailService $mailService,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         private readonly OrgaService $orgaService,
         private readonly PermissionsInterface $permissions,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
+        private readonly ProcedureDeleter $procedureDeleter,
         private readonly ProcedureService $procedureService,
         PublicAffairsAgentHandler $publicAffairsAgentHandler,
         QueryProcedure $esQueryProcedure,
         ServiceOutput $serviceOutput,
         ServiceStorage $serviceStorage,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         parent::__construct($messageBag);
         $this->contentService = $contentService;
@@ -355,7 +356,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      * @throws NoRecipientsWithEmailException
      * @throws MissingDataException           Thrown if email title or email text is empty
      */
-    public function sendInvitationEmails(array $procedure, array $request, string $emailTextAdded): InvitationEmailResult
+    public function sendInvitationEmails(array $procedure, array $request): InvitationEmailResult
     {
         $helperServices = $this->getHelperServices();
         if (!array_key_exists('serviceMail', $helperServices)
@@ -398,12 +399,12 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 
         foreach ($recipientsWithEmail as $recipientData) {
             // Send invitation mail for each selected public agency organisation:
+
             $this->sendPublicAgencyInvitationMail(
                 $recipientData['email2'],
                 $agencyMainEmailAddress,
                 $providedEmailTitle,
                 $providedEmailText,
-                $emailTextAdded
             );
 
             // Send invitation mail for each cc-email-addresses
@@ -414,7 +415,6 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                         $agencyMainEmailAddress,
                         $providedEmailTitle,
                         $providedEmailText,
-                        $emailTextAdded
                     );
                 }
             }
@@ -431,7 +431,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // send planning agency emails
         $ccMailAddresses = $this->getPlaningAgencyCCEmailRecipients($procedure, $ccEmailAddresses);
         foreach ($ccMailAddresses as $singleCC) {
-            $this->sendPublicAgencyInvitationMail($singleCC, $agencyMainEmailAddress, $providedEmailTitle, $providedEmailText, $emailTextAdded);
+            $this->sendPublicAgencyInvitationMail($singleCC, $agencyMainEmailAddress, $providedEmailTitle, $providedEmailText);
         }
 
         try {
@@ -636,7 +636,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             }
         }
 
-        if (0 === count($proceduresWithSoonEndingPhase)) {
+        if ([] === $proceduresWithSoonEndingPhase) {
             $this->getLogger()->info('No soon ending procedures found');
         }
 
@@ -656,7 +656,9 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         foreach ($this->procedureService->getDeletedProcedures($limit) as $deletedProcedure) {
             $procedureId = $deletedProcedure->getId();
             try {
-                $this->procedureService->purgeProcedure($procedureId);
+                $this->procedureDeleter->beginTransactionAndDisableForeignKeyChecks();
+                $this->procedureDeleter->deleteProcedures([$procedureId], false);
+                $this->procedureDeleter->commitTransactionAndEnableForeignKeyChecks();
                 ++$proceduresPurged;
             } catch (Exception $e) {
                 $this->logger->warning("Delete Procedure '$procedureId' failed", [$e]);
@@ -741,7 +743,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                     ->lock(),
                 false
             );
-            if (is_array($settings) && 0 === count($settings)) {
+            if (is_array($settings) && [] === $settings) {
                 $this->contentService->setSetting('markedParticipated', [
                     'procedureId' => $procedureId,
                     'userId'      => $this->currentUser->getUser()->getId(),
@@ -868,17 +870,18 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // T17248: necessary because of different phasekeys per project:
         if ($internalPhaseKey === $internalPhaseName) { // not found?
             $internalPhaseKey = 'analysis';
-            $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
         }
 
         /** @var Procedure $endedInternalProcedure */
         foreach ($endedInternalProcedures as $endedInternalProcedure) {
             if (null !== $endedInternalProcedure->getEndDate()
                 && !$endedInternalProcedure->getMaster() && !$endedInternalProcedure->isDeleted()) {
-                $endedInternalProcedure->setPhaseKey($internalPhaseKey);
-                $endedInternalProcedure->setPhaseName($internalPhaseName);
-
-                $updatedProcedure = $this->procedureService->updateProcedureObject($endedInternalProcedure);
+                $data = [
+                    'id'       => $endedInternalProcedure->getId(),
+                    'phase'    => $internalPhaseKey,
+                    'customer' => $endedInternalProcedure->getCustomer(),
+                ];
+                $updatedProcedure = $this->procedureService->updateProcedure($data, isSystem: true);
                 $changedInternalProcedures->push($updatedProcedure);
             }
         }
@@ -892,17 +895,18 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // T17248: necessary because of different phasekeys per project:
         if ($externalPhaseKey === $externalPhaseName) { // not found?
             $externalPhaseKey = 'analysis';
-            $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
         }
 
         /** @var Procedure $endedExternalProcedure */
         foreach ($endedExternalProcedures as $endedExternalProcedure) {
             if (null !== $endedExternalProcedure->getPublicParticipationEndDate()
                 && !$endedExternalProcedure->getMaster() && !$endedExternalProcedure->isDeleted()) {
-                $endedExternalProcedure->setPublicParticipationPhase($externalPhaseKey);
-                $endedExternalProcedure->setPublicParticipationPhaseName($externalPhaseName);
-
-                $updatedProcedure = $this->procedureService->updateProcedureObject($endedExternalProcedure);
+                $data = [
+                    'id'                       => $endedExternalProcedure->getId(),
+                    'publicParticipationPhase' => $externalPhaseKey,
+                    'customer'                 => $endedExternalProcedure->getCustomer(),
+                ];
+                $updatedProcedure = $this->procedureService->updateProcedure($data, isSystem: true);
                 $changedExternalProcedures->push($updatedProcedure);
             }
         }
@@ -911,7 +915,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         $this->getLogger()->info('Switched phases to evaluation of '.$changedInternalProcedures->count().' internal/toeb procedures.');
         $this->getLogger()->info('Switched phases to evaluation of '.$changedExternalProcedures->count().' external/public procedures.');
 
-        return $changedExternalProcedures->merge($changedInternalProcedures)->unique();
+        return $changedExternalProcedures->merge($changedInternalProcedures)->unique('id');
     }
 
     /**
@@ -934,7 +938,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $ccEmailAddresses->add(trim((string) $additionalAddress));
         }
         // alle E-Mail-Adressen aus dem CC-Feld
-        if (0 < count($formEmailCC)) {
+        if ([] !== $formEmailCC) {
             foreach ($formEmailCC as $mailAddress) {
                 $ccEmailAddresses->add(trim((string) $mailAddress));
             }
@@ -952,15 +956,15 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         /** @var Orga $orgaData */
         foreach ($orgas as $orgaData) {
             if (in_array($orgaData->getId(), $orgaSelected, true)) {
-                if (0 < strlen(trim($orgaData->getEmail2()))) {
+                if (0 < strlen(trim((string) $orgaData->getEmail2()))) {
                     $recipientOrga = [
                         'ident'     => $orgaData->getId(),
                         'nameLegal' => $orgaData->getName(),
                         'email2'    => $orgaData->getEmail2(),
                     ];
                     // Füge eventuelle CC-Email für Beteiligung hinzu
-                    if (0 < strlen(trim($orgaData->getCcEmail2()))) {
-                        $ccEmailAdresses = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $orgaData->getCcEmail2());
+                    if (0 < strlen(trim((string) $orgaData->getCcEmail2()))) {
+                        $ccEmailAdresses = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', (string) $orgaData->getCcEmail2());
                         $recipientOrga['ccEmails'] = $ccEmailAdresses;
                     }
                     $recipientsWithEmail[] = $recipientOrga;
@@ -981,14 +985,11 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         string $from,
         string $emailTitle,
         string $emailText,
-        string $emailTextAdded
     ): void {
         $vars = [];
         try {
             $vars['mailsubject'] = $emailTitle;
-            $vars['mailbody'] =
-                $emailText
-                .html_entity_decode(nl2br($emailTextAdded), ENT_QUOTES, 'UTF-8');
+            $vars['mailbody'] = $emailText;
 
             $this->mailService->sendMail(
                 'dm_toebeinladung',

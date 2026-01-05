@@ -26,7 +26,7 @@ function transformJsonApiToPi (jsonApiTag) {
     transformedTag = {
       tagName: jsonApiTag.attributes.title,
       ...jsonApiTag.id ? { id: jsonApiTag.id } : {},
-      score: jsonApiTag.attributes.score
+      score: jsonApiTag.attributes.score,
     }
   }
   return transformedTag

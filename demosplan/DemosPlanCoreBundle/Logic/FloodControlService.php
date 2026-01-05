@@ -24,12 +24,13 @@ use demosplan\DemosPlanCoreBundle\Exception\HoneypotException;
 use demosplan\DemosPlanCoreBundle\Exception\IpFloodException;
 use demosplan\DemosPlanCoreBundle\Repository\FloodRepository;
 use Exception;
+use Illuminate\Support\Collection;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
-use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
 
-class FloodControlService extends CoreService
+class FloodControlService
 {
     /**
      * Do not allow any login from the current user's IP if the limit has been
@@ -52,8 +53,14 @@ class FloodControlService extends CoreService
     /**
      * @param int $ipFloodThreshold
      */
-    public function __construct(protected Environment $twig, private readonly FloodRepository $floodRepository, protected GlobalConfigInterface $globalConfig, private readonly MessageBagInterface $messageBag, protected $ipFloodThreshold = self::IP_FLOOD_THRESHOLD)
-    {
+    public function __construct(
+        protected Environment $twig,
+        private readonly FloodRepository $floodRepository,
+        protected GlobalConfigInterface $globalConfig,
+        private readonly MessageBagInterface $messageBag,
+        private readonly LoggerInterface $logger,
+        protected $ipFloodThreshold = self::IP_FLOOD_THRESHOLD,
+    ) {
     }
 
     /**
@@ -63,11 +70,11 @@ class FloodControlService extends CoreService
      */
     public function checkHoneypot(RequestValidationEvent $event)
     {
-        $this->getLogger()->debug('FloodControl: Honeypot check triggered');
+        $this->logger->debug('FloodControl: Honeypot check triggered');
 
         // if set in parameters.yml disable honeypot check
         if ($this->globalConfig->isHoneypotDisabled()) {
-            $this->getLogger()->info('FloodControl: Honeypot check disabled by config');
+            $this->logger->info('FloodControl: Honeypot check disabled by config');
 
             return;
         }
@@ -75,7 +82,7 @@ class FloodControlService extends CoreService
         $request = $event->getRequest();
 
         if ($request->request->has('url') && mb_strlen(trim($request->request->get('url'))) > 0) {
-            $this->getLogger()->info('FloodControl: Honeypot field has been filled out');
+            $this->logger->info('FloodControl: Honeypot field has been filled out');
             throw new HoneypotException('Honeypot field has been filled out');
         }
 
@@ -85,15 +92,15 @@ class FloodControlService extends CoreService
             $loadtime = is_int($loadtime) ? $loadtime : 0;
             $totaltime = time() - $loadtime;
             if ($totaltime < $this->globalConfig->getHoneypotTimeout()) {
-                $this->getLogger()->info('FloodControl: Honeypot form has been submitted too fast');
+                $this->logger->info('FloodControl: Honeypot form has been submitted too fast');
                 $this->messageBag->add('warning', 'warning.floodcontrol.timeout');
                 throw new HoneypotException('Honeypot form has been submitted too fast');
             }
         } else {
-            $this->getLogger()->info('FloodControl: Honeypot No loadtime provided');
+            $this->logger->info('FloodControl: Honeypot No loadtime provided');
             throw new HoneypotException('Honeypot No loadtime provided');
         }
-        $this->getLogger()->debug('FloodControl: Honeypot successfully checked');
+        $this->logger->debug('FloodControl: Honeypot successfully checked');
     }
 
     /**
@@ -113,14 +120,14 @@ class FloodControlService extends CoreService
      */
     public function checkCookie(RequestValidationEvent $event)
     {
-        $this->getLogger()->debug('FloodControl: Cookie check triggered');
+        $this->logger->debug('FloodControl: Cookie check triggered');
 
         $identifier = $event->getScope().'_'.$event->getIdentifier();
         $cookie = $event->getRequest()->cookies->get(self::COOKIE_KEY);
         if (is_null($cookie)) {
             $event->getResponse()->headers->setCookie(
                 Cookie::create(self::COOKIE_KEY, Json::encode([$identifier]), 0, '/', null, false, true, false, 'strict'));
-            $this->getLogger()->debug('FloodControl: Set Floodcontrol Cookie '.self::COOKIE_KEY);
+            $this->logger->debug('FloodControl: Set Floodcontrol Cookie '.self::COOKIE_KEY);
 
             return;
         }
@@ -130,7 +137,7 @@ class FloodControlService extends CoreService
         // to leave the array cast intact. It should however be noted that this is potentially wrong.
         $cookieValue = collect((array) Json::decodeToMatchingType($cookie));
         if (false !== $cookieValue->search($identifier)) {
-            $this->getLogger()->info('FloodControl: User tried to do something twice which is not allowed');
+            $this->logger->info('FloodControl: User tried to do something twice which is not allowed');
             throw new CookieException('User tried to do something twice which is not allowed');
         }
 
@@ -139,7 +146,7 @@ class FloodControlService extends CoreService
             Cookie::create(self::COOKIE_KEY, Json::encode($cookieValue->push($identifier)->toArray()), 0, '/', null, false, true, false, 'strict')
         );
 
-        $this->getLogger()->debug('FloodControl: Cookie successfully checked');
+        $this->logger->debug('FloodControl: Cookie successfully checked');
     }
 
     /**
@@ -181,7 +188,7 @@ class FloodControlService extends CoreService
      */
     public function checkFlood(RequestValidationEvent $event)
     {
-        $this->getLogger()->debug('FloodControl: IPcheck check triggered');
+        $this->logger->debug('FloodControl: IPcheck check triggered');
 
         $request = $event->getRequest();
 
@@ -192,12 +199,12 @@ class FloodControlService extends CoreService
         try {
             $entries = $this->floodRepository->getAllOfIdentifier($identifier, $floodEvent);
         } catch (Exception $e) {
-            $this->getLogger()->warning('FloodControl: Could not get floodcontrol objects: ', [$e]);
+            $this->logger->warning('FloodControl: Could not get floodcontrol objects: ', [$e]);
         }
 
         try {
             if (count($entries ?? []) >= self::IP_FLOOD_THRESHOLD) {
-                $this->getLogger()->warning("FloodControl: The IP '".$identifier."' sent too many requests");
+                $this->logger->warning("FloodControl: The IP '".$identifier."' sent too many requests");
                 throw new IpFloodException("The IP '".$identifier."' sent too many requests");
             } else {
                 $flood = new Flood();
@@ -212,10 +219,10 @@ class FloodControlService extends CoreService
             if ($e instanceof IpFloodException) {
                 throw $e;
             }
-            $this->getLogger()->warning('FloodControl: Could not create IpFlood log object: ', [$e]);
+            $this->logger->warning('FloodControl: Could not create IpFlood log object: ', [$e]);
         }
 
-        $this->getLogger()->debug('FloodControl: IP Flood successfully checked');
+        $this->logger->debug('FloodControl: IP Flood successfully checked');
     }
 
     /**

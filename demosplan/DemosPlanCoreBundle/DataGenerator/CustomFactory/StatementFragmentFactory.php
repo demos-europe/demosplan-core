@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Doctrine\Persistence\ManagerRegistry;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class StatementFragmentFactory extends FactoryBase
 {
@@ -35,7 +35,7 @@ class StatementFragmentFactory extends FactoryBase
         ManagerRegistry $registry,
         PermissionsInterface $permissions,
         private readonly StatementFragmentService $statementFragmentService,
-        StatementService $statementService
+        StatementService $statementService,
     ) {
         $this->statementService = $statementService;
 
@@ -96,7 +96,7 @@ class StatementFragmentFactory extends FactoryBase
 
         $statementFragment = $this->statementFragmentService->createStatementFragment($fragmentData);
 
-        if (null === $statementFragment) {
+        if (!$statementFragment instanceof StatementFragment) {
             throw new DataProviderException('Failed generating a statement fragment');
         }
 

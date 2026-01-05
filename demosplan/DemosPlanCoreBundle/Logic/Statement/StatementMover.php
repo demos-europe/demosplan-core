@@ -23,11 +23,11 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
@@ -37,26 +37,24 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 
-class StatementMover extends CoreService
+class StatementMover
 {
-    /** @var LoggerInterface */
-    protected $logger;
-
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ElementsService $elementsService,
+        private readonly FileContainerRepository $fileContainerRepository,
         private readonly PermissionsInterface $permissions,
         private readonly MessageBagInterface $messageBag,
         private readonly StatementService $statementService,
-        LoggerInterface $logger,
+        private readonly LoggerInterface $logger,
         private readonly StatementCopyAndMoveService $statementCopyAndMoveService,
         private readonly StatementHandler $statementHandler,
         private readonly EntityContentChangeService $entityContentChangeService,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         private readonly ReportService $reportService,
-        private readonly StatementCopier $statementCopier
+        private readonly StatementCopier $statementCopier,
+        private readonly StatementRepository $statementRepository,
     ) {
-        $this->logger = $logger;
     }
 
     /**
@@ -72,7 +70,7 @@ class StatementMover extends CoreService
      *                                   will be deleted or kept. In case of EntityContentChanges where not
      *                                   deleted, they can be seen by owner of target procedure.
      *
-     * @return statement|false - Returns the moved Statement if successful, otherwise false
+     * @return Statement|false - Returns the moved Statement if successful, otherwise false
      *
      * @throws ConnectionException
      * @throws MessageBagException
@@ -85,7 +83,7 @@ class StatementMover extends CoreService
     public function moveStatementToProcedure(
         Statement $statementToMove,
         Procedure $targetProcedure,
-        bool $deleteVersionHistory = false
+        bool $deleteVersionHistory = false,
     ) {
         $doctrineConnection = $this->entityManager->getConnection();
         try {
@@ -186,11 +184,22 @@ class StatementMover extends CoreService
             $lockedByAssignment = $this->statementService->isStatementObjectLockedByAssignment($statementToMove);
             if (!$lockedByAssignment) {
                 $statementToMove->setAssignee(null);
+                foreach ($statementToMove->getAttachments() as $attachment) {
+                    $file = $attachment->getFile();
+                    $file->setProcedure($targetProcedure);
+                    $attachment->setFile($file);
+                }
+                $statementFileContainers = $this->fileContainerRepository->getStatementFileContainers($statementToMove->getId());
+                foreach ($statementFileContainers as $fileContainer) {
+                    $file = $this->statementRepository->copyFile($fileContainer->getFile(), $statementToMove);
+                    $fileContainer->setFile($file);
+                    $this->fileContainerRepository->updateObject($fileContainer);
+                }
                 $updatedStatementToMove = $this->statementService->updateStatementFromObject(
                     $statementToMove,
                     true
                 );
-                // update $originalStatement to persist changes:
+
                 $updatedOriginalStatementToMove = $this->statementService->updateStatementFromObject(
                     $copyOfOriginalStatementToMove,
                     true,

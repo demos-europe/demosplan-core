@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\News;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
@@ -20,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\ContentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
@@ -55,10 +55,10 @@ class NewsHandler extends CoreHandler
         private readonly FlashMessageHandler $flashMessageHandler,
         GlobalNewsHandler $globalNewsHandler,
         ManagerRegistry $doctrine,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         PermissionsInterface $permissions,
         ProcedureNewsService $procedureNewsService,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         parent::__construct($messageBag);
         $this->contentService = $contentService;
@@ -254,7 +254,7 @@ class NewsHandler extends CoreHandler
 
         $errors = $this->validateNews($data);
 
-        if (0 < count($errors)) {
+        if ([] !== $errors) {
             $this->flashMessageHandler->setFlashMessages($errors);
 
             return [
@@ -300,7 +300,7 @@ class NewsHandler extends CoreHandler
 
         $errors = $this->validateNews($data);
 
-        if (0 < count($errors)) {
+        if ([] !== $errors) {
             $this->flashMessageHandler->setFlashMessages($errors);
 
             return [

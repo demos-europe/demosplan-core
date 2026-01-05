@@ -22,12 +22,12 @@ import ListStatementFragments from '@DpJs/lib/statement/ListStatementFragments'
 
 const components = {
   DpFragmentList,
-  DpFragmentListFilterModal
+  DpFragmentListFilterModal,
 }
 
 const stores = {
   assessmentTableStore,
-  fragmentStore
+  fragmentStore,
 }
 
 if (hasPermission('area_admin_boilerplates')) {

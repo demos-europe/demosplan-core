@@ -12,13 +12,17 @@ namespace demosplan\DemosPlanCoreBundle\Monolog;
 
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use LogicException;
 use Monolog\Formatter\FormatterInterface;
+use Monolog\Handler\FormattableHandlerInterface;
 use Monolog\Handler\HandlerInterface;
+use Monolog\Handler\ProcessableHandlerInterface;
+use Monolog\LogRecord;
+use Monolog\ResettableInterface;
 use Sentry\State\Scope;
+use Throwable;
 
 use function Sentry\withScope;
-
-use Throwable;
 
 /**
  * This Monolog handler logs every message to a Sentry's server using the given
@@ -28,37 +32,32 @@ use Throwable;
  * of data along the record), this custom Sentry handler iterate the array to set
  * data in the extra Sentry context.
  */
-class SentryHandler implements HandlerInterface
+class SentryHandler implements HandlerInterface, ProcessableHandlerInterface, FormattableHandlerInterface, ResettableInterface
 {
     public function __construct(private readonly HandlerInterface $decoratedHandler)
     {
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function isHandling(array $record): bool
+    public function isHandling(LogRecord $record): bool
     {
         return $this->decoratedHandler->isHandling($record);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function handle(array $record): bool
+    public function handle(LogRecord $record): bool
     {
         $result = false;
 
         withScope(function (Scope $scope) use ($record, &$result): void {
-            if (isset($record['context']) && is_array($record['context'])) {
-                foreach ($record['context'] as $key => $value) {
+            $context = $record->context;
+            if (is_array($context)) {
+                foreach ($context as $key => $value) {
                     if ('tags' === $key) {
                         // Handled natively by Sentry monolog handler
                         continue;
                     }
                     // only add extra infos on app messages
                     $channels = ['app', 'dplan'];
-                    if (in_array($record['channel'], $channels, true)) {
+                    if (in_array($record->channel, $channels, true)) {
                         $decodedValue = $value;
                         try {
                             if (is_string($value)) {
@@ -80,55 +79,56 @@ class SentryHandler implements HandlerInterface
         return $result;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function handleBatch(array $records): void
     {
         $this->decoratedHandler->handleBatch($records);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function close(): void
     {
         $this->decoratedHandler->close();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function pushProcessor($callback)
+    public function pushProcessor(callable $callback): HandlerInterface
     {
-        $this->decoratedHandler->pushProcessor($callback);
+        if ($this->decoratedHandler instanceof ProcessableHandlerInterface) {
+            $this->decoratedHandler->pushProcessor($callback);
+        }
 
         return $this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function popProcessor()
+    public function popProcessor(): callable
     {
-        return $this->decoratedHandler->popProcessor();
+        if ($this->decoratedHandler instanceof ProcessableHandlerInterface) {
+            return $this->decoratedHandler->popProcessor();
+        }
+
+        throw new LogicException('The wrapped handler does not implement ProcessableHandlerInterface');
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setFormatter(FormatterInterface $formatter)
+    public function setFormatter(FormatterInterface $formatter): HandlerInterface
     {
-        $this->decoratedHandler->setFormatter($formatter);
+        if ($this->decoratedHandler instanceof FormattableHandlerInterface) {
+            $this->decoratedHandler->setFormatter($formatter);
+        }
 
         return $this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getFormatter()
+    public function getFormatter(): FormatterInterface
     {
-        return $this->decoratedHandler->getFormatter();
+        if ($this->decoratedHandler instanceof FormattableHandlerInterface) {
+            return $this->decoratedHandler->getFormatter();
+        }
+
+        throw new LogicException('The wrapped handler does not implement FormattableHandlerInterface');
+    }
+
+    public function reset(): void
+    {
+        if ($this->decoratedHandler instanceof ResettableInterface) {
+            $this->decoratedHandler->reset();
+        }
     }
 }

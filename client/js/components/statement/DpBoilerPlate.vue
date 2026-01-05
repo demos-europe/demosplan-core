@@ -8,16 +8,17 @@
 </license>
 
 <template>
-  <div>
+  <div class="flex flex-col h-full">
     <!-- Select boilerplate -->
-    <div class="u-pb-0_25">
-      <label class="u-mb-0_5">
-        <dp-contextual-help
-          class="float-right u-mt-0_125"
-          :text="Translator.trans(tooltipContent)" />
-        {{ title }}
-      </label>
+    <div class="pb-1 mb-2 flex-shrink-0">
+      <dp-label
+        class="mb-2"
+        for="boilerplateSelect"
+        :text="title"
+        :tooltip="tooltipOptions.content"
+      />
       <dp-multiselect
+        id="boilerplateSelect"
         v-model="selectedBoilerPlate"
         class="inline-block"
         :group-label="groupLabel"
@@ -26,7 +27,8 @@
         label="title"
         :options="boilerPlates"
         track-by="id"
-        @input="addToTextArea">
+        @input="addToTextArea"
+      >
         <template v-slot:option="{ props }">
           {{ props.option.title }}
           <span v-if="props.option.$isLabel">
@@ -36,99 +38,104 @@
       </dp-multiselect>
     </div>
     <!-- Preview of boilerplate text -->
-    <div>
-      <label
-        for="previewField"
-        class="u-mb-0_25 u-mt-0_5">
-        Vorschau:
-      </label>
-      <div
-        class="u-p-0_5 border rounded-lg min-h-11 c-styled-html"
-        id="previewField"
-        v-cleanhtml="previewValue" />
+    <div class="flex flex-col flex-1 min-h-0">
+      <h4 class="mb-2 flex-shrink-0">
+        {{ Translator.trans('preview') }}
+      </h4>
+      <div class="border rounded-lg flex-1 min-h-11 overflow-auto">
+        <div
+          id="previewField"
+          v-cleanhtml="previewValue"
+          class="p-2 c-styled-html"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { CleanHtml, DpContextualHelp, DpMultiselect, Tooltip } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpLabel, DpMultiselect, Tooltip } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpBoilerPlate',
   components: {
-    DpContextualHelp,
-    DpMultiselect
+    DpLabel,
+    DpMultiselect,
   },
 
   directives: {
     cleanhtml: CleanHtml,
-    tooltip: Tooltip
+    tooltip: Tooltip,
   },
 
   props: {
     boilerPlates: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     groupValues: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     groupLabel: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     groupSelect: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     isGroupSelect: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     title: {
       required: false,
       type: String,
-      default: 'boilerplate'
-    }
+      default: 'boilerplate',
+    },
   },
+
+  emits: [
+    'boilerplateText:added',
+  ],
 
   data () {
     return {
       selectedBoilerPlate: '',
-      previewValue: ''
+      previewValue: '',
     }
   },
 
   computed: {
-    tooltipContent () {
+    tooltipOptions () {
       return {
+        classes: 'z-modal',
         content: Translator.trans('boilerplates.categories.explanation'),
-        classes: 'z-modal'
       }
-    }
+    },
   },
 
   methods: {
     addToTextArea (data) {
       this.previewValue = data.text
-      this.$emit('boilerplate-text-added', this.previewValue)
+      this.$emit('boilerplateText:added', this.previewValue)
     },
 
     resetBoilerPlateMultiSelect () {
       this.selectedBoilerPlate = ''
       this.previewValue = ''
-    }
-  }
+    },
+  },
 }
 </script>

@@ -13,71 +13,80 @@
     :action="Routing.generate('DemosPlan_master_new')"
     enctype="multipart/form-data"
     method="post"
-    data-dp-validate>
+    data-dp-validate
+  >
     <input
       type="hidden"
       name="_token"
-      :value="tokenVarsValue">
+      :value="tokenVarsValue"
+    >
     <input
       type="hidden"
       name="action"
-      value="new">
+      value="new"
+    >
     <input
       type="hidden"
       name="r_master"
-      value="true">
+      value="true"
+    >
     <input
       name="_token"
       type="hidden"
-      :value="csrfToken">
+      :value="csrfToken"
+    >
 
     <fieldset>
       <legend
-        class="hide-visually"
-        v-text="Translator.trans('blueprint.data')" />
-      <dp-form-row class="u-mb-0_75">
-        <dp-input
-          id="r_name"
-          data-cy="newMasterName"
-          :label="{
-            text: Translator.trans('name')
-          }"
-          maxlength="200"
-          name="r_name"
-          required />
-      </dp-form-row>
+        class="sr-only"
+        v-text="Translator.trans('blueprint.data')"
+      />
+      <dp-input
+        id="r_name"
+        v-model="name"
+        :label="{
+          text: Translator.trans('name')
+        }"
+        data-cy="newMasterName"
+        maxlength="200"
+        name="r_name"
+        required
+      />
 
-      <dp-form-row class="u-mb-0_75">
-        <dp-select
-          id="r_copymaster"
-          v-model="selectedBlueprint"
-          :label="{
-            hint: Translator.trans('procedure.template.fields', { fields: procedureTemplateFields }),
-            text: Translator.trans('master')
-          }"
-          data-cy="NewBlueprintForm:selectedBlueprint"
-          name="r_copymaster"
-          :options="blueprintOptions"
-          :show-placeholder="false"
-          @select="setValuesFromSelectedBlueprint" />
-      </dp-form-row>
+      <dp-select
+        id="r_copymaster"
+        v-model="selectedBlueprint"
+        class="mt-4"
+        data-cy="NewBlueprintForm:selectedBlueprint"
+        :label="{
+          hint: Translator.trans('procedure.template.fields', { fields: procedureTemplateFields }),
+          text: Translator.trans('master')
+        }"
+        name="r_copymaster"
+        :options="blueprintOptions"
+        :show-placeholder="false"
+        @select="setValuesFromSelectedBlueprint"
+      />
 
-      <div class="relative">
+      <div class="relative mt-4">
         <dp-loading
           v-if="isLoading"
-          overlay />
+          overlay
+        />
 
-        <dp-form-row class="u-mb-0_75">
-          <dp-text-area
-            :label="Translator.trans('internalnote')"
-            id="r_desc"
-            data-cy="NewBlueprintForm:internalNote"
-            name="r_desc"
-            reduced-height />
-        </dp-form-row>
+        <dp-text-area
+          id="r_desc"
+          data-cy="NewBlueprintForm:internalNote"
+          :label="Translator.trans('internalnote')"
+          name="r_desc"
+          reduced-height
+        />
 
         <dp-input
+          v-if="hasAgencyMailAddressesPermission"
           :id="agencyMainEmailId"
+          v-model="mainEmail"
+          class="mt-4"
           data-cy="agencyMainEmailAddress"
           :label="{
             hint: Translator.trans('explanation.organisation.email.procedure.agency'),
@@ -86,56 +95,72 @@
           }"
           name="agencyMainEmailAddress[fullAddress]"
           type="email"
-          v-model="mainEmail" />
+        />
+        <input
+          v-else
+          type="hidden"
+          name="agencyMainEmailAddress[fullAddress]"
+          value=""
+        >
 
         <dp-label
-          class="u-mt"
+          v-if="hasAgencyMailAddressesPermission"
+          class="mt-4"
           for="emailList"
           :text="Translator.trans('email.address.more')"
           :hint="Translator.trans('email.address.more.explanation')"
-          :tooltip="Translator.trans('email.address.more.explanation.help')" />
+          :tooltip="Translator.trans('email.address.more.explanation.help')"
+        />
         <dp-email-list
+          v-if="hasAgencyMailAddressesPermission"
           id="emailList"
           allow-updates-from-outside
-          :class="`${mainEmail === '' ? 'opacity-70 pointer-events-none' : '' } u-mt-0_25`"
-          :init-emails="emailAddresses" />
+          :class="`${mainEmail === '' ? 'opacity-70 pointer-events-none' : '' } mt-2`"
+          :init-emails="emailAddresses"
+        />
 
         <dp-text-area
           v-if="hasPermission('field_procedure_contact_person')"
+          id="r_publicParticipationContact"
+          class="mt-4"
           :label="Translator.trans('public.participation.contact')"
           :hint="Translator.trans('explanation.public.participation.contact')"
-          id="r_publicParticipationContact"
           name="r_publicParticipationContact"
-          :value="publicParticipationContact" />
+          :value="publicParticipationContact"
+        />
 
         <dp-checkbox
           v-if="hasPermission('feature_admin_customer_master_procedure_template')"
           id="r_customerMasterBlueprint"
+          class="mt-4"
           :disabled="isCustomerMasterBlueprintExisting"
           :label="{
             hint: Translator.trans('explanation.customer.masterblueprint'),
             text: Translator.trans('master.of.customer.set')
           }"
-          name="r_customerMasterBlueprint" />
+          name="r_customerMasterBlueprint"
+        />
 
-        <p
+        <dp-inline-notification
           v-if="isCustomerMasterBlueprintExisting && hasPermission('feature_admin_customer_master_procedure_template')"
-          class="lbl__hint u-ml-0_75 u-mb">
-          {{ Translator.trans('explanation.customer.masterblueprint.uncheck.existing') }}
-        </p>
+          :message="Translator.trans('explanation.customer.masterblueprint.uncheck.existing')"
+          type="warning"
+        />
 
         <div class="text-right space-inline-s">
           <input
+            id="saveButton"
             class="btn btn--primary"
             type="submit"
             :value="Translator.trans('save')"
-            id="saveButton"
-            data-cy="NewBlueprintForm:saveButton">
+            data-cy="NewBlueprintForm:saveButton"
+          >
 
           <a
             class="btn btn--secondary"
             data-cy="NewBlueprintForm:abortButton"
-            :href="Routing.generate('DemosPlan_procedure_templates_list')">
+            :href="Routing.generate('DemosPlan_procedure_templates_list')"
+          >
             {{ Translator.trans('abort') }}
           </a>
         </div>
@@ -149,12 +174,12 @@ import {
   CleanHtml,
   dpApi,
   DpCheckbox,
-  DpFormRow,
+  DpInlineNotification,
   DpInput,
   DpLabel,
   DpLoading,
   DpSelect,
-  DpTextArea
+  DpTextArea,
 } from '@demos-europe/demosplan-ui'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 
@@ -162,55 +187,55 @@ export default {
   name: 'NewBlueprintForm',
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   components: {
     DpCheckbox,
     DpEmailList,
-    DpFormRow,
+    DpInlineNotification,
     DpInput,
     DpLabel,
     DpLoading,
     DpSelect,
-    DpTextArea
+    DpTextArea,
   },
 
   props: {
     agencyMainEmailId: {
       type: String,
-      required: true
+      required: true,
     },
 
     agencyMainEmailFullAddress: {
       type: String,
-      required: true
+      required: true,
     },
 
     blueprintOptions: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     initEmailAddresses: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     isCustomerMasterBlueprintExisting: {
       type: Boolean,
-      required: true
+      required: true,
     },
 
     masterBlueprintId: {
       type: String,
       required: false,
-      default: () => ''
+      default: () => '',
     },
 
     /*
@@ -221,28 +246,35 @@ export default {
      */
     procedureTemplateFields: {
       type: String,
-      required: true
+      required: true,
     },
 
     publicParticipationContact: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     tokenVarsValue: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       isLoading: false,
       mainEmail: this.agencyMainEmailFullAddress || '',
+      name: '',
       selectedBlueprint: this.masterBlueprintId,
-      emailAddresses: this.initEmailAddresses
+      emailAddresses: this.initEmailAddresses,
     }
+  },
+
+  computed: {
+    hasAgencyMailAddressesPermission () {
+      return hasPermission('feature_procedure_agency_email_addresses')
+    },
   },
 
   methods: {
@@ -252,16 +284,16 @@ export default {
       const params = {
         fields: {
           ProcedureTemplate: 'agencyMainEmailAddress,agencyExtraEmailAddresses',
-          AgencyEmailAddress: 'fullAddress'
+          AgencyEmailAddress: 'fullAddress',
         },
-        include: 'agencyExtraEmailAddresses'
+        include: 'agencyExtraEmailAddresses',
       }
       return dpApi.get(url, params)
         .then(({ data }) => {
           this.isLoading = false
           return {
             mainMail: data.data.attributes.agencyMainEmailAddress,
-            agencyMailAddresses: data.included.filter(el => el.type === 'AgencyEmailAddress').map(el => ({ mail: el.attributes.fullAddress }))
+            agencyMailAddresses: data.included.filter(el => el.type === 'AgencyEmailAddress').map(el => ({ mail: el.attributes.fullAddress })),
           }
         })
         // When the request fails planners will have to fill in an address manually
@@ -275,7 +307,7 @@ export default {
       const blueprint = await this.fetchSelectedBlueprint(blueprintId)
       this.mainEmail = blueprintId === this.masterBlueprintId ? '' : blueprint.mainMail
       this.emailAddresses = blueprintId === this.masterBlueprintId ? [] : blueprint.agencyMailAddresses
-    }
-  }
+    },
+  },
 }
 </script>

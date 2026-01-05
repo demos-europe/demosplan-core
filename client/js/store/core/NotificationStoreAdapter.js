@@ -18,14 +18,15 @@ export default class NotificationStoreAdapter {
       message.linkUrl = text.linkUrl || null
       message.linkText = text.linkText || null
       message.text = text.message
+      message.persist = text.persist || false
     } else {
-      message = { type, text, linkUrl, linkText }
+      message = { type, text, linkUrl, linkText, persist: false }
     }
-    this.store.commit('notify/add', message)
+    this.store.commit('Notify/add', message)
   }
 
   remove (notification) {
-    this.store.commit('notify/remove', notification)
+    this.store.commit('Notify/remove', notification)
   }
 
   info (...args) {

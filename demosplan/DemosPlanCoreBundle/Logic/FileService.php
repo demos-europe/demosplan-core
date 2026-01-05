@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -31,9 +32,14 @@ use demosplan\DemosPlanCoreBundle\Tools\VirusCheckInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Faker\Provider\Uuid;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToCopyFile;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -43,7 +49,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 
-class FileService extends CoreService implements FileServiceInterface
+class FileService implements FileServiceInterface
 {
     protected $container;
     protected $baseGetURL;
@@ -60,6 +66,8 @@ class FileService extends CoreService implements FileServiceInterface
      */
     final public const VIRUSCHECK_NONE = 'none';
 
+    final public const ENTITY_FIELD_FILE = 'file';
+
     /**
      * @var string
      */
@@ -71,30 +79,30 @@ class FileService extends CoreService implements FileServiceInterface
         private readonly FileContainerRepository $fileContainerRepository,
         private readonly FileInUseChecker $fileInUseChecker,
         private readonly FileRepository $fileRepository,
+        private readonly FilesystemOperator $defaultStorage,
+        private readonly FilesystemOperator $localStorage,
         private readonly GlobalConfigInterface $globalConfig,
         private readonly MessageBagInterface $messageBag,
         private readonly RequestStack $requestStack,
         private readonly SingleDocumentRepository $singleDocumentRepository,
         private readonly TranslatorInterface $translator,
         private readonly VirusCheckInterface $virusChecker,
-        protected RpcClient $client
+        protected RpcClient $client,
+        private readonly ManagerRegistry $doctrine,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
     /**
      * Get file.
-     *
-     * @param string $hash
-     *
-     * @return File|null
      */
-    public function get($hash)
+    public function get(string $hash): ?File
     {
         /*
          * @var File|null
          */
         return $this->fileRepository
-            ->getFileInfo($hash);
+            ->getFile($hash);
     }
 
     /**
@@ -104,22 +112,23 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @throws Exception
      */
-    public function getFileInfo($hash, string $procedureId = null): FileInfo
+    public function getFileInfo($hash, ?string $procedureId = null): FileInfo
     {
-        $file = $this->fileRepository->getFileInfo($hash, $procedureId);
+        $file = $this->fileRepository->getFile($hash, $procedureId);
 
-        if (null !== $file) {
+        if ($file instanceof File) {
             $path = $file->getPath();
             $absolutePath = $this->getAbsolutePath($path);
 
             $path .= '/'.$file->getHash();
             $absolutePath .= '/'.$file->getHash();
+            $absolutePath = $this->adjustPathPrefix($absolutePath);
 
             // Set String to be used in other Entities
             $this->setFileString($file->getFileString());
 
             return new FileInfo(
-                $file->getIdent(),
+                $file->getId(),
                 $file->getFilename(),
                 $file->getSize(),
                 $file->getMimetype(),
@@ -221,12 +230,12 @@ class FileService extends CoreService implements FileServiceInterface
             /** @var File $file */
             $isUsed = $this->fileInUseChecker->isFileInUse($file->getId());
             if (!$isUsed) {
-                $this->getLogger()->info('Delete unused File', ['id' => $file->getId()]);
+                $this->logger->info('Delete unused File', ['id' => $file->getId()]);
                 try {
                     $file->setDeleted(true);
                     $this->fileRepository->updateObject($file);
                 } catch (Exception $e) {
-                    $this->getLogger()->warning('Could not update File', [$e, $e->getMessage()]);
+                    $this->logger->warning('Could not update File', [$e, $e->getMessage()]);
                 }
             }
         }
@@ -246,7 +255,7 @@ class FileService extends CoreService implements FileServiceInterface
         /** @var File $file */
         foreach ($allSoftDeletedFiles as $file) {
             try {
-                $this->getLogger()->info('Try to fully remove soft deleted File ', [$file->getId()]);
+                $this->logger->info('Try to fully remove soft deleted File ', [$file->getId()]);
                 $deleted = $this->deleteFile($file->getId());
                 if ($deleted) {
                     if (null === $file->getId()) {
@@ -256,7 +265,7 @@ class FileService extends CoreService implements FileServiceInterface
                 }
                 ++$filesDeleted;
             } catch (Exception $e) {
-                $this->getLogger()->warning('Could not delete soft deleted File', [$e, $e->getMessage()]);
+                $this->logger->warning('Could not delete soft deleted File', [$e, $e->getMessage()]);
             }
         }
 
@@ -273,23 +282,34 @@ class FileService extends CoreService implements FileServiceInterface
      */
     public function removeOrphanedFiles(): int
     {
-        $finder = new Finder();
-        $fs = new Filesystem();
-        $finder->files()->in($this->globalConfig->getFileServiceFilePathAbsolute());
+        try {
+            $filesDeleted = 0;
+            $files = $this->defaultStorage->listContents('/', true);
+            foreach ($files as $file) {
+                if ($file->isDir()) {
+                    continue;
+                }
 
-        $filesDeleted = 0;
-        foreach ($finder as $file) {
-            $filename = $file->getBasename();
-            $existingFile = $this->fileRepository->findBy(['hash' => $filename]);
-            if (is_array($existingFile) && 0 === count($existingFile)) {
-                $this->getLogger()->info('Remove orphaned file', [$filename, $file->getSize()]);
                 try {
-                    $fs->remove($file->getRealPath());
-                    ++$filesDeleted;
-                } catch (Exception) {
-                    $this->getLogger()->warning('Could not remove orphaned file', [$filename]);
+                    $filename = basename($file->path());
+                    $existingFile = $this->fileRepository->count(['hash' => $filename]);
+                    if (0 === $existingFile) {
+                        try {
+                            if ($this->defaultStorage->fileExists($file->path())) {
+                                $this->logger->info('Remove orphaned file', [$filename]);
+                                $this->defaultStorage->delete($file->path());
+                            }
+                            ++$filesDeleted;
+                        } catch (Exception) {
+                            $this->logger->warning('Could not remove orphaned file', [$file->path()]);
+                        }
+                    }
+                } catch (FilesystemException $e) {
+                    $this->logger->error('Could not remove file '.$file->path().' '.$e->getMessage());
                 }
             }
+        } catch (FilesystemException $e) {
+            $this->logger->error('Could not list files in default storage '.$e->getMessage());
         }
 
         return $filesDeleted;
@@ -303,6 +323,7 @@ class FileService extends CoreService implements FileServiceInterface
     public function removeTemporaryUploadFiles(): int
     {
         $finder = new Finder();
+        // local file only, no need for flysystem
         $fs = new Filesystem();
         $finder->files()->in(DemosPlanPath::getProjectPath('web/uploads/files'));
 
@@ -311,12 +332,12 @@ class FileService extends CoreService implements FileServiceInterface
             $fileTime = Carbon::createFromTimestamp($file->getMTime());
             // delete files older than one hour
             if (1 < Carbon::now()->diffInHours($fileTime)) {
-                $this->getLogger()->info('Remove old temporary upload file', [$file->getRealPath(), $file->getSize()]);
+                $this->logger->info('Remove old temporary upload file', [$file->getRealPath(), $file->getSize()]);
                 try {
                     $fs->remove($file->getRealPath());
                     ++$filesDeleted;
                 } catch (Exception) {
-                    $this->getLogger()->warning('Could not remove temporary upload file', [$file->getRealPath()]);
+                    $this->logger->warning('Could not remove temporary upload file', [$file->getRealPath()]);
                 }
             }
         }
@@ -335,15 +356,19 @@ class FileService extends CoreService implements FileServiceInterface
     }
 
     /**
+     * Saves a temporary local file to the storage and returns the corresponding File entity.
+     * File needs to be accessible for the file system of the current process.
+     * No s3 or other remote storage is used.
+     *
      * @throws VirusFoundException|Throwable
      */
-    public function saveTemporaryFile(
+    public function saveTemporaryLocalFile(
         string $filePath,
         string $fileName,
-        string $userId = null,
-        string $procedureId = null,
+        ?string $userId = null,
+        ?string $procedureId = null,
         ?string $virencheck = FileServiceInterface::VIRUSCHECK_SYNC,
-        string $hash = null
+        ?string $hash = null,
     ): File {
         $dplanFile = new File();
         $symfonyFile = new \Symfony\Component\HttpFoundation\File\File($filePath);
@@ -360,9 +385,15 @@ class FileService extends CoreService implements FileServiceInterface
             // Procedure does not exist
         }
 
-        $this->saveFile($dplanFile, $symfonyFile, self::VIRUSCHECK_NONE !== $virencheck);
+        return $this->handleLocalFileStorage($symfonyFile, $virencheck, $dplanFile, $filePath);
+    }
 
-        return $dplanFile;
+    /**
+     * @deprecated use {@link saveTemporaryLocalFile} instead
+     */
+    public function saveTemporaryFile(string $filePath, string $fileName, ?string $userId = null, ?string $procedureId = null, ?string $virencheck = FileServiceInterface::VIRUSCHECK_SYNC, ?string $hash = null): FileInterface
+    {
+        return $this->saveTemporaryLocalFile($filePath, $fileName, $userId, $procedureId, $virencheck, $hash);
     }
 
     /**
@@ -383,57 +414,34 @@ class FileService extends CoreService implements FileServiceInterface
         if ($this->currentProcedureService->getProcedure() instanceof Procedure) {
             $dplanFile->setProcedure($this->currentProcedureService->getProcedure());
         }
+        $filePath = $symfonyFile->getPathname();
 
-        $this->saveFile($dplanFile, $symfonyFile, self::VIRUSCHECK_NONE !== $virencheck);
-
-        return $dplanFile;
+        return $this->handleLocalFileStorage($symfonyFile, $virencheck, $dplanFile, $filePath);
     }
 
     /**
      * @throws Throwable|TimeoutException
      */
-    protected function saveFile(
-        File $dplanFile,
-        \Symfony\Component\HttpFoundation\File\File $symfonyFile,
-        bool $viruscheck = true
-    ): void {
+    protected function saveFileEntity(
+        File $fileEntity,
+        string $hash,
+        string $path,
+        string $size,
+    ): File {
         try {
-            // Check Mimetype
-            $this->checkMimeTypeAllowed($symfonyFile->getMimeType(), $symfonyFile->getPathname());
-            // Save file
-            // Sort into subfolders to avoid too many files in one folder
-            $path = date('Y').'/'.date('m');
-
-            if ($viruscheck && $this->globalConfig->isAvscanEnabled()) {
-                $this->virusCheck($symfonyFile);
-            }
-
             // $symfonyFile needs to be used before it is moved
-            $dplanFile->setSize($symfonyFile->getSize());
+            $fileEntity->setSize($size);
 
-            // save file into files path
-            $path = $this->getFilesPath().'/'.$path;
-            $this->getLogger()->info('Try to move file', ['from' => $symfonyFile->getRealPath(), 'to' => $path]);
-            $hash = $this->moveFile($symfonyFile, $path, $dplanFile->getHash());
-            $this->getLogger()->info('File moved', ['hash' => $hash]);
-
-            // reset hash even when it existed before as moveFile() always returns current hash
-            $dplanFile->setHash($hash);
-            $dplanFile->setPath($path);
+            // reset hash even when it existed before as moveLocalFile() always returns current hash
+            $fileEntity->setHash($hash);
+            $fileEntity->setPath($path);
 
             // Create DatabaseEntry
-            $this->addFile($dplanFile);
-
-            // Set String to be used in other Entities
-            $this->setFileString($dplanFile->getFileString());
+            return $this->addFile($fileEntity);
         } catch (Throwable $e) {
             $this->logger->warning('File could not be saved', [$e, $e->getMessage()]);
-            // versuche ggf die angelegte Datei zu löschen
-            if (isset($hash)) {
-                $filesPath = $this->globalConfig
-                    ->getFileServiceFilePathAbsolute();
-                @unlink($filesPath.'/'.$hash);
-            }
+
+            $this->deleteFile($hash);
 
             throw $e;
         }
@@ -444,12 +452,14 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @throws Exception
      */
-    public function addFile(File $file): void
+    public function addFile(File $file): File
     {
         $this->fileRepository->addObject($file);
 
         // Set String to be used in other Entities
         $this->setFileString($file->getFileString());
+
+        return $file;
     }
 
     /**
@@ -479,8 +489,8 @@ class FileService extends CoreService implements FileServiceInterface
             $fileContainer = new FileContainer();
             $fileContainer->setEntityClass($entityClass);
             $fileContainer->setEntityId($entityId);
-            $fileContainer->setEntityField('file');
-            $file = $this->getDoctrine()->getManager()->getReference(File::class, $fileId);
+            $fileContainer->setEntityField(self::ENTITY_FIELD_FILE);
+            $file = $this->doctrine->getManager()->getReference(File::class, $fileId);
             $fileContainer->setFile($file);
             $fileContainer->setFileString($fileString);
             // check whether we have a valid file
@@ -520,7 +530,7 @@ class FileService extends CoreService implements FileServiceInterface
     {
         $file = $this->fileRepository->get($fileId);
         $fileContainer = $this->fileContainerRepository->getByPairing($file, $entityId);
-        if (null !== $fileContainer) {
+        if ($fileContainer instanceof FileContainer) {
             $this->fileContainerRepository->delete($fileContainer->getId());
         }
     }
@@ -530,26 +540,21 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @param string $hash
      *
-     * @return bool
-     *
      * @throws Exception
      */
-    public function deleteFile($hash)
+    public function deleteFile($hash): bool
     {
         // try to delete File physically
-        $fs = new DemosFilesystem();
         try {
             // try to delete File. When File is not found an exception will
-            // be thrown (and catched) here. Orphaned file will be cleaned up by
+            // be thrown (and caught) here. Orphaned file will be cleaned up by
             // removeOrphanedFiles() called in daily maintenance task
+            // Files may be stored in different storages
             $file = $this->getFileInfo($hash);
-            $this->getLogger()->info('Try to remove File', ['hash' => $file->getHash(), 'absolutePath' => $file->getAbsolutePath()]);
-            if (is_file($file->getAbsolutePath())) {
-                $fs->remove($file->getAbsolutePath());
-                $this->getLogger()->info('Removed File', ['hash' => $file->getHash(), 'absolutePath' => $file->getAbsolutePath()]);
-            } else {
-                $this->getLogger()->warning('File not found for deletion', ['hash' => $file->getHash(), 'absolutePath' => $file->getAbsolutePath()]);
-            }
+            $this->logger->info('Try to remove File', ['hash' => $file->getHash(), 'absolutePath' => $file->getAbsolutePath()]);
+            $this->defaultStorage->delete($hash);
+            $this->localStorage->delete($hash);
+            $this->logger->info('Removed File', ['hash' => $file->getHash(), 'absolutePath' => $file->getAbsolutePath()]);
         } catch (Exception $e) {
             $this->logger->warning('Could not delete File: ', [$e, $e->getMessage()]);
         }
@@ -593,7 +598,7 @@ class FileService extends CoreService implements FileServiceInterface
                 'error.file.notFound',
                 ['fileName' => $file->getFileName()]
             );
-            $this->getLogger()->error('Could not find file', [$file->getHash()]);
+            $this->logger->error('Could not find file', [$file->getHash()]);
 
             return null;
         }
@@ -605,7 +610,7 @@ class FileService extends CoreService implements FileServiceInterface
      * @throws InvalidDataException
      * @throws Throwable
      */
-    public function copyByFileString($fileString, string $procedureId = null): ?File
+    public function copyByFileString($fileString, ?string $procedureId = null): ?File
     {
         $file = $this->getFileInfoFromFileString($fileString);
 
@@ -617,45 +622,54 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @throws InvalidDataException|Throwable
      */
-    public function copy(?string $hash, string $targetProcedureId = null): ?File
+    public function copy(?string $hash, ?string $targetProcedureId = null): ?File
     {
         $fileToCopy = $this->get($hash);
         if (!$fileToCopy instanceof File) {
             return null;
         }
 
-        // create a new temporary file that will be stored correctly by saveTemporaryFile()
+        // create a new temporary file that will be stored correctly by saveTemporaryLocalFile()
         $newHash = $this->createHash();
-        $newPath = $fileToCopy->getPath().'/'.$newHash;
+        $newFilename = $fileToCopy->getPath().'/'.$newHash;
 
-        $fs = new DemosFilesystem();
-        $fs->copy($fileToCopy->getFilePathWithHash(), $newPath);
+        try {
+            $this->defaultStorage->copy($fileToCopy->getFilePathWithHash(), $newFilename);
+        } catch (FilesystemException|UnableToCopyFile $e) {
+            $this->logger->error('Could not copy file', [$e, $fileToCopy->getFilePathWithHash(), $newFilename]);
 
-        $procedureId = null;
-        // when specific target procedureId is given this shall win
-        if (null !== $targetProcedureId) {
-            $procedureId = $targetProcedureId;
-        } elseif ($fileToCopy->getProcedure() instanceof Procedure) {
-            $procedureId = $fileToCopy->getProcedure()->getId();
+            return null;
         }
 
-        return $this->saveTemporaryFile(
-            $newPath,
-            $fileToCopy->getFilename(),
-            null,
-            $procedureId,
-            self::VIRUSCHECK_NONE
-        );
+        // when specific target procedureId is given this shall win
+        $procedure = null;
+        if ($fileToCopy->getProcedure() instanceof Procedure) {
+            $procedure = $fileToCopy->getProcedure();
+        }
+        if (null !== $targetProcedureId) {
+            $procedure = $this->entityManager->getReference(Procedure::class, $targetProcedureId);
+        }
+
+        $dplanFile = new File();
+        $dplanFile->setMimetype($fileToCopy->getMimetype());
+        $dplanFile->setFilename($fileToCopy->getFilename());
+        $dplanFile->setAuthor($fileToCopy->getAuthor());
+        if ($procedure instanceof Procedure) {
+            $dplanFile->setProcedure($procedure);
+        }
+
+        return $this->saveFileEntity($dplanFile, $newHash, $fileToCopy->getPath(), $fileToCopy->getSize());
     }
 
-    /**
-     * @return string PHP handles binary data as a string
-     */
     public function getContent(File $file): string
     {
-        $filePath = $this->getAbsolutePath($file->getFilePathWithHash());
+        try {
+            return $this->defaultStorage->read($file->getFilePathWithHash());
+        } catch (FilesystemException|InvalidDataException $e) {
+            $this->logger->error('Could not read file content', [$e, $file->getFilePathWithHash()]);
 
-        return file_get_contents($filePath);
+            return '';
+        }
     }
 
     /**
@@ -704,14 +718,14 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @throws FileException
      */
-    public function checkMimeTypeAllowed($mimeType, $temporaryFilePath)
+    public function checkMimeTypeAllowed($mimeType, $temporaryFilePath): void
     {
         $allowedMimeTypes = $this->globalConfig->getAllowedMimeTypes();
         if (!in_array($mimeType, $allowedMimeTypes, true)) {
-            @unlink($temporaryFilePath);
-            $this->logger->warning(
-                'MimeType is not allowed. Given MimeType: '.$mimeType
-            );
+            $this->logger->warning('MimeType is not allowed. Given MimeType: ', [$mimeType]);
+            // delete temporary file. May be done with Symfony Filesystem component as file needs to exist locally
+            $fs = new Filesystem();
+            $fs->remove($temporaryFilePath);
             throw new FileException('MimeType "'.$mimeType.'" is not allowed', 20);
         }
     }
@@ -721,18 +735,41 @@ class FileService extends CoreService implements FileServiceInterface
      *
      * @param \Symfony\Component\HttpFoundation\File\File $file File or UploadedFile
      * @param string                                      $path
-     *
-     * @return string
      */
-    protected function moveFile(\Symfony\Component\HttpFoundation\File\File $file, $path = '', string $existingHash = null)
+    protected function moveLocalFile(\Symfony\Component\HttpFoundation\File\File $file, $path = '', ?string $existingHash = null): string
     {
         // Generate a unique name for the file before saving it
         $hash = $existingHash ?? $this->createHash();
 
         // Move the file to the directory where files are stored
-        $file->move($path, $hash);
+        $stream = fopen($file->getPathname(), 'rb');
+        $this->defaultStorage->writeStream(sprintf('%s/%s', $path, $hash), $stream);
+
+        if (is_resource($stream)) {
+            fclose($stream);
+        }
 
         return $hash;
+    }
+
+    public function ensureLocalFileFromHash(string $hash, ?string $path = null): string
+    {
+        $file = $this->getFileInfo($hash);
+
+        return $this->ensureLocalFile($file->getAbsolutePath(), $hash, $path);
+    }
+
+    public function getFileContent(FileInfo $fileInfo): string
+    {
+        return $this->defaultStorage->read($fileInfo->getPath());
+    }
+
+    /**
+     * @return resource
+     */
+    public function getFileContentStream(FileInfo $fileInfo)
+    {
+        return $this->defaultStorage->readStream($fileInfo->getPath());
     }
 
     /**
@@ -778,7 +815,7 @@ class FileService extends CoreService implements FileServiceInterface
             $fs = new DemosFilesystem();
             $fs->remove($file->getPathname());
             $this->removeRequestFiles();
-            $this->getLogger()->error('Error in virusCheck:', [$e]);
+            $this->logger->error('Error in virusCheck:', [$e]);
             throw $e;
         }
     }
@@ -1020,7 +1057,7 @@ class FileService extends CoreService implements FileServiceInterface
             $uploadDirectoryFreeSpace = disk_free_space(DemosPlanPath::getProjectPath('web/uploads/files'));
             $smallerValue = $uploadDirectoryFreeSpace < $fileDirectoryFreeSpace ? $uploadDirectoryFreeSpace : $fileDirectoryFreeSpace;
         } catch (Exception $e) {
-            $this->getLogger()->error('Error on getRemainingDiskSpace(): ', [$e]);
+            $this->logger->error('Error on getRemainingDiskSpace(): ', [$e]);
         }
 
         return $smallerValue;
@@ -1068,7 +1105,7 @@ class FileService extends CoreService implements FileServiceInterface
         $fileStringParts = explode(':', $fileString);
 
         return $this->fileRepository
-            ->getFileInfo($fileStringParts[1]);
+            ->getFile($fileStringParts[1]);
     }
 
     public function sanitizeFileName(string $filename): string
@@ -1076,5 +1113,120 @@ class FileService extends CoreService implements FileServiceInterface
         $filename = str_ireplace(self::INVALID_FILENAME_CHARS, '', $filename);
 
         return str_ireplace(' ', '_', $filename);
+    }
+
+    private function storeLocalFile(\Symfony\Component\HttpFoundation\File\File $symfonyFile, bool $viruscheck, File $fileEntity): array
+    {
+        // Check Mimetype
+        $this->checkMimeTypeAllowed($symfonyFile->getMimeType(), $symfonyFile->getPathname());
+        // Save file
+        // Sort into subfolders to avoid too many files in one folder
+        $path = date('Y').'/'.date('m');
+
+        if ($viruscheck && $this->globalConfig->isAvscanEnabled()) {
+            $this->virusCheck($symfonyFile);
+        }
+
+        // save file into files path
+        $this->logger->info(
+            'Try to move file',
+            ['from' => $symfonyFile->getRealPath(), 'to' => $path]
+        );
+        $hash = $this->moveLocalFile($symfonyFile, $path, $fileEntity->getHash());
+        $this->logger->info('File moved', ['hash' => $hash]);
+
+        return [$path, $hash];
+    }
+
+    private function handleLocalFileStorage(
+        \Symfony\Component\HttpFoundation\File\File $symfonyFile,
+        string $virencheck,
+        File $dplanFile,
+        string $filePath,
+    ): File {
+        [$path, $hash] = $this->storeLocalFile($symfonyFile, self::VIRUSCHECK_NONE !== $virencheck, $dplanFile);
+        $newEntity = $this->saveFileEntity($dplanFile, $hash, $path, $symfonyFile->getSize());
+
+        // delete temporary file. May be done with Symfony Filesystem component as file needs to exist locally
+        $fs = new Filesystem();
+        $fs->remove($filePath);
+
+        return $newEntity;
+    }
+
+    public function moveLocalFilesToFlysystem(string $localDir): string
+    {
+        $finder = new Finder();
+        $fs = new Filesystem();
+
+        $finder->files()->in($localDir);
+        // Move files from the temporary directory to Flysystem
+        foreach ($finder as $file) {
+            if ($file->isDir()) {
+                $this->defaultStorage->createDirectory($file->getPath());
+            } else {
+                $stream = fopen($file->getPathname(), 'rb+');
+                $this->defaultStorage->writeStream($file->getPathname(), $stream);
+                fclose($stream);
+            }
+        }
+
+        // Clean up the temporary directory
+        $fs->remove($localDir);
+
+        // return the temporary directory to be used in the next step
+        return $localDir;
+    }
+
+    public function ensureLocalFile(string $remotePath, ?string $hash = null, ?string $path = null): ?string
+    {
+        if (null === $path) {
+            $path = DemosPlanPath::getTemporaryPath(
+                sprintf('%s/%s', uniqid((string) $hash, true), $hash ?? uniqid('', true))
+            );
+        }
+        // Move the file to local directory from flysystem
+        $fs = new Filesystem();
+        if ($this->defaultStorage->fileExists($remotePath)) {
+            $fs->dumpFile($path, $this->defaultStorage->read($remotePath));
+        }
+
+        if (!$fs->exists($path)) {
+            throw new FileNotFoundException('File not found: '.$path);
+        }
+
+        return $path;
+    }
+
+    public function deleteLocalFile($localFilePath): void
+    {
+        $fs = new Filesystem();
+        try {
+            $fs->remove($localFilePath);
+        } catch (Exception $e) {
+            $this->logger->error('Could not remove local file', [$localFilePath, $e->getMessage()]);
+        }
+    }
+
+    private function adjustPathPrefix(string $absolutePath): string
+    {
+        try {
+            if ($this->defaultStorage->fileExists($absolutePath)) {
+                return $absolutePath;
+            }
+        } catch (FilesystemException $e) {
+            $this->logger->info('Could not check file existence', [$absolutePath, $e->getMessage()]);
+        }
+
+        // try to strip the path prefix from the absolute path
+        // as the path prefix was saved to the database prior to flysystem usage
+        $prefix = $this->globalConfig->getFileServiceFilePath();
+        if (str_starts_with($absolutePath, $prefix)) {
+            // remove the prefix
+            return substr($absolutePath, strlen($prefix));
+        }
+
+        // fallback to the original path
+        return $absolutePath;
     }
 }

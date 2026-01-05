@@ -25,6 +25,7 @@
         {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
             heading: heading ~ ' ' ~ externId|default,
             subnav: [{
+                datacy: 'assessmentStatement:saveChanges',
                 href: '#',
                 id: 'statementHistory',
                 label: 'history',
@@ -62,7 +63,6 @@
         {% set participationGuestOnly = templateVars.table.procedure.procedureBehaviorDefinition.participationGuestOnly ? true : false %}
 
         <detail-view
-            inline-template
             entity="statement"
             extern-id="{{ statement.externId|default }}"
             :init-counties="JSON.parse('{{ selectedCounties|default([])|json_encode|e('js', 'utf-8') }}')"
@@ -74,194 +74,208 @@
             procedure-id="{{ procedureId }}"
             :readonly="Boolean({{ readonly }})"
             statement-id="{{ templateVars.table.statement.ident }}">
-            <form
-                name="bpform"
-                data-dp-validate
-                action="{{ path("dm_plan_assessment_single_view", { 'statement': templateVars.table.statement.ident, 'procedureId': procedure }) }}"
-                method="post"
-                enctype="multipart/form-data">
 
-                <dp-map-modal
-                    ref="mapModal"
-                    procedure-id="{{ procedureId }}">
-                </dp-map-modal>
+            <template v-slot:default="{
+                addTagBoilerplate,
+                busyCopyFromFragments,
+                copyRecommendationFromFragments,
+                counties,
+                currentRecommendation,
+                handleCountiesInput,
+                handleMunicipalitiesInput,
+                handlePriorityAreasInput,
+                handleTagsInput,
+                municipalities,
+                openMapModal,
+                openStatementPublish,
+                openStatementVoters,
+                priorityAreas,
+                selectedCounties,
+                selectedMunicipalities,
+                selectedPriorityAreas,
+                selectedTags,
+                sortSelected,
+                tags,
+                updateCurrentRecommendation
+            }">
+                <form
+                    name="bpform"
+                    data-dp-validate
+                    action="{{ path("dm_plan_assessment_single_view", { 'statement': templateVars.table.statement.ident, 'procedureId': procedure }) }}"
+                    method="post"
+                    enctype="multipart/form-data">
 
-                {# Version History Slidebar #}
-                <dp-slidebar>
-                    <dp-version-history
-                        procedure-id="{{ procedure }}">
-                    </dp-version-history>
-                </dp-slidebar>
+                    {# Version History Slidebar #}
+                    <dp-slidebar>
+                        <dp-version-history
+                            procedure-id="{{ procedure }}">
+                        </dp-version-history>
+                    </dp-slidebar>
 
-                <input type="hidden" name="r_ident" value="{{ templateVars.table.statement.ident }}">
-                <input type="hidden" name="r_action" value="update">
-                <input type="hidden" name="r_publicAllowed" value="{{ templateVars.table.statement.publicAllowed }}">
+                    <input type="hidden" name="r_ident" value="{{ templateVars.table.statement.ident }}">
+                    <input type="hidden" name="r_action" value="update">
+                    <input type="hidden" name="r_publicAllowed" value="{{ templateVars.table.statement.publicAllowed }}">
 
-                {# PDF Export #}
-                <input type="hidden" name="item_check[]" value="{{ templateVars.table.statement.ident }}">
-                <input type="hidden" name="r_export_format" value="pdf">
-                <input type="hidden" name="r_export_choice" value='{"anonymous":false,"exportType":"statementsOnly","template":"portrait"}'>
-
-
-                {# Fixed Subheader #}
-                {% include '@DemosPlanCore/DemosPlanCore/includes/statement_detail_subheader.html.twig' %}
+                    {# PDF Export #}
+                    <input type="hidden" name="item_check[]" value="{{ templateVars.table.statement.ident }}">
+                    <input type="hidden" name="r_export_format" value="pdf">
+                    <input type="hidden" name="r_export_choice" value='{"anonymous":false,"exportType":"statementsOnly","template":"portrait"}'>
 
 
-                {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_data.html.twig' with { 'readonly': readonly } %}
+                    {# Fixed Subheader #}
+                    {% include '@DemosPlanCore/DemosPlanCore/includes/statement_detail_subheader.html.twig' %}
 
 
-                {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_text.html.twig' with { 'readonly': readonly } %}
+                    {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_data.html.twig' with { 'readonly': readonly } %}
 
-                {# MITZEICHNER #}
-                {# To show this section at all we need the permission activated #}
-                {% set votingEnabled = hasPermission('feature_statements_vote') %}
-                {# If it is activated the section is visible if the statement is either: #}
-                {# 1. a manual statement #}
-                {% set isManual = statement.manual %}
-                {# or 2. a non-manual statement to be published #}
-                {% set toBePublished = hasPermission('field_statement_public_allowed') and statement.publicAllowed %}
-                {% if votingEnabled and (isManual or toBePublished) %}
-                    {% apply spaceless %}
-                        <fieldset id="statementVoterDiv">
-                            <dp-accordion
-                                ref="statementVoters"
-                                title="{{ "statement.voter"|trans }} ({{ statement.votes|length|default(0) + statement.numberOfAnonymVotes|default(0) }})">
-                                <div class="o-box--dark u-mt-0_25 u-ph u-pv-0_5">
-                                    <a name="statementVoters" id="statementVotersId"></a>
-                                    <statement-voter
-                                        id="dp-statement-voter"
-                                        :init-voters="JSON.parse('{{ statement.votes|json_encode|e('js', 'utf-8') }}')"
-                                        anonym-votes-string="{{ statement.numberOfAnonymVotes|default('0') }}"
-                                        is-manual="{{ statement.manual }}"
-                                        public-verified="{{ statement.publicVerified }}"
-                                        readonly="{{ readonly|default(false) }}"
-                                        :files-count="{{ statement.files|default([])|length }}"
-                                    ></statement-voter>
-                                </div>
-                            </dp-accordion>
-                        </fieldset>
-                    {% endapply %}
-                {% endif %}
 
-                {# PUBLISHING #}
+                    {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_text.html.twig' with { 'readonly': readonly } %}
 
-                {# if statement editing, public check was made
-                or
-                (publishing is enabled or voting is enabled) and we're creating a new statement #}
-                {% if hasPermission('field_statement_public_allowed') and templateVars.table.procedure.publicParticipationPublicationEnabled and statement.publicAllowed %}
-                    {% apply spaceless %}
-                        <fieldset id="statementPublishDiv">
-                            <dp-accordion
-                                title="{{ "publish.on.platform"|trans }}"
-                                ref="statementPublish">
-                                <div class="o-box--dark u-mt-0_25 u-ph u-pv-0_5">
-                                    <a
-                                        name="statementPublish"
-                                        id="statementPublish"></a>
-
-                                    <dp-statement-publish
-                                        :editable="Boolean('{{ statement.publicVerified == 'publication_pending' and not readonly }}')"
-                                        files-length="{{ statement.files|default([])|length }}"
-                                        :is-manual="Boolean({{ statement.manual }})"
-                                        public-verified="{{ statement.publicVerified }}"
-                                        public-verified-trans-key="{{ statement.publicVerifiedTranslation }}"
-                                        submitter-email="{{ statement.submitterEmailAddress|default }}">
-                                    </dp-statement-publish>
-
-                                    {% if hasPermission('feature_statements_vote') %}
-                                    <div
-                                        class="flash flash-info">
-                                        <p class="u-mb-0">
-                                            {{ "explanation.statement.public.activate.voting"|trans }}
-                                        </p>
+                    {# MITZEICHNER #}
+                    {# To show this section at all we need the permission activated #}
+                    {% set votingEnabled = hasPermission('feature_statements_vote') %}
+                    {# If it is activated the section is visible if the statement is either: #}
+                    {# 1. a manual statement #}
+                    {% set isManual = statement.manual %}
+                    {# or 2. a non-manual statement to be published #}
+                    {% set toBePublished = hasPermission('field_statement_public_allowed') and statement.publicAllowed %}
+                    {% if votingEnabled and (isManual or toBePublished) %}
+                        {% apply spaceless %}
+                            <fieldset id="statementVoterDiv">
+                                <dp-accordion
+                                    data-cy="assessmentStatement:statementVoters"
+                                    ref="statementVoters"
+                                    title="{{ "statement.voter"|trans }} ({{ statement.votes|length|default(0) + statement.numberOfAnonymVotes|default(0) }})">
+                                    <div class="o-box--dark u-mt-0_25 u-ph u-pv-0_5">
+                                        <a name="statementVoters" id="statementVotersId"></a>
+                                        <statement-voter
+                                            id="dp-statement-voter"
+                                            :init-voters="JSON.parse('{{ statement.votes|json_encode|e('js', 'utf-8') }}')"
+                                            anonym-votes-string="{{ statement.numberOfAnonymVotes|default('0') }}"
+                                            is-manual="{{ statement.manual }}"
+                                            public-verified="{{ statement.publicVerified }}"
+                                            readonly="{{ readonly|default(false) }}"
+                                            :files-count="{{ statement.files|default([])|length }}"
+                                        ></statement-voter>
                                     </div>
-                                    {% endif %}
+                                </dp-accordion>
+                            </fieldset>
+                        {% endapply %}
+                    {% endif %}
 
-                                    {% if statement.files|length > 0 %}
-                                        <p class="lbl u-mb-0_5">
-                                            {{ "attachments.publish"|trans }}
-                                        </p>
-                                        <div class="layout">{% apply spaceless -%}
-                                            {% for file in statement.files|default([])|filter(file => file|length > 0) %}
-                                                <div class="u-mb-0_25 layout__item u-1-of-3">
-                                                    <a
-                                                        class="o-hellip--nowrap block"
-                                                        title="{{ file|getFile('name') }}"
-                                                        target="_blank"
-                                                        rel="noopener"
-                                                        href="{{ path("core_file_procedure", { 'hash': file|getFile('hash'), 'procedureId': statement.procedure.id }) }}">
-                                                        <i class="fa fa-file-o" aria-hidden="true"></i> {{ file|getFile('name') }}
-                                                    </a>
-                                                    {% set fileContainer = templateVars['fileHashToFileContainerMapping'][file|getFile('hash')]|default(false) %}
-                                                    {{ uiComponent('form.element', {
-                                                        type: 'checkbox',
-                                                        id: 'r_attachment_public_allowed' ~ loop.index,
-                                                        label: { text: 'attachment.publicAllowed'|trans },
-                                                        control: {
-                                                            name: 'r_attachment_public_allowed[]',
-                                                            value: file|getFile('hash'),
-                                                            checked: fileContainer is defined and fileContainer.publicAllowed|default(false)
-                                                        },
-                                                        disabled: readonly
-                                                    }) }}
-                                                </div>
-                                            {% endfor %}{%- endapply %}
-                                        </div>
-                                    {% endif %}
+                    {# PUBLISHING #}
+
+                    {# if statement editing, public check was made
+                    or
+                    (publishing is enabled or voting is enabled) and we're creating a new statement #}
+                    {% if hasPermission('field_statement_public_allowed') and templateVars.table.procedure.publicParticipationPublicationEnabled and statement.publicAllowed %}
+                        {% apply spaceless %}
+                            <fieldset id="statementPublishDiv">
+                                <dp-accordion
+                                    data-cy="assessmentStatement:statementPublish"
+                                    title="{{ "publish.on.platform"|trans }}"
+                                    ref="statementPublish">
+                                    <div class="o-box--dark u-mt-0_25 u-ph u-pv-0_5">
+                                        <a
+                                            name="statementPublish"
+                                            id="statementPublish"></a>
+
+                                        <statement-publish
+                                            :editable="Boolean('{{ statement.publicVerified == 'publication_pending' and not readonly }}')"
+                                            files-length="{{ statement.files|default([])|length }}"
+                                            :is-manual="Boolean({{ statement.manual }})"
+                                            public-verified="{{ statement.publicVerified }}"
+                                            public-verified-trans-key="{{ statement.publicVerifiedTranslation }}"
+                                            submitter-email="{{ statement.submitterEmailAddress|default }}">
+                                        </statement-publish>
+
+                                        {% if statement.files|length > 0 %}
+                                            <p class="lbl u-mb-0_5">
+                                                {{ "attachments.publish"|trans }}
+                                            </p>
+                                            <div class="layout">{% apply spaceless -%}
+                                                {% for file in statement.files|default([])|filter(file => file|length > 0) %}
+                                                    <div class="u-mb-0_25 layout__item u-1-of-3">
+                                                        <a
+                                                            class="o-hellip--nowrap block"
+                                                            title="{{ file|getFile('name') }}"
+                                                            target="_blank"
+                                                            rel="noopener"
+                                                            href="{{ path("core_file_procedure", { 'hash': file|getFile('hash'), 'procedureId': statement.procedure.id }) }}">
+                                                            <i class="fa fa-file-o" aria-hidden="true"></i> {{ file|getFile('name') }}
+                                                        </a>
+                                                        {% set fileContainer = templateVars['fileHashToFileContainerMapping'][file|getFile('hash')]|default(false) %}
+                                                        {{ uiComponent('form.element', {
+                                                            type: 'checkbox',
+                                                            id: 'r_attachment_public_allowed' ~ loop.index,
+                                                            label: { text: 'attachment.publicAllowed'|trans },
+                                                            control: {
+                                                                name: 'r_attachment_public_allowed[]',
+                                                                value: file|getFile('hash'),
+                                                                checked: fileContainer is defined and fileContainer.publicAllowed|default(false)
+                                                            },
+                                                            disabled: readonly
+                                                        }) }}
+                                                    </div>
+                                                {% endfor %}{%- endapply %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </dp-accordion>
+                            </fieldset>
+                        {% endapply %}
+                    {% endif %}
+
+                    {# NOTIZ #}
+                    {% if hasPermission('field_statement_memo') %}
+                        <fieldset>
+                            <dp-accordion
+                                data-cy="assessmentStatement:statementMemo"
+                                title="{{ "create.note"|trans }}">
+                                <div class="o-box--dark u-mt-0_25 u-ph u-pv-0_5">
+                                    {{ uiComponent('form.textarea', {
+                                        name: 'r_memo',
+                                        value: statement.memo|default,
+                                        id: 'r_memo',
+                                        disabled: readonly,
+                                        attributes: ['data-cy=statementDetail:memo']
+                                    }) }}
                                 </div>
                             </dp-accordion>
                         </fieldset>
-                    {% endapply %}
-                {% endif %}
+                    {% endif %}
 
-                {# NOTIZ #}
-                {% if hasPermission('field_statement_memo') %}
-                    <fieldset>
-                        <dp-accordion
-                            title="{{ "create.note"|trans }}"
-                            data-cy="statementMemo">
-                            <div class="o-box--dark u-mt-0_25 u-ph u-pv-0_5">
-                                {{ uiComponent('form.textarea', {
-                                    name: 'r_memo',
-                                    value: statement.memo|default,
-                                    id: 'r_memo',
-                                    disabled: readonly
-                                }) }}
+                    {% if hasPermission('field_send_final_email')%}
+                        {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_final.html.twig' with { 'readonly': readonly } %}
+                    {% endif %}
+
+                    {% if not readonly %}
+                        <div class="sticky u-bottom-0">
+                            <div class="text-right space-inline-s u-pv-0_5 bg-color--white">
+                                <input
+                                    class="btn btn--primary u-pr-0_5-desk-down u-pl-0_5-desk-down"
+                                    name="submit_item_button"
+                                    data-cy="saveStatement"
+                                    type="submit"
+                                    value="{{ 'save'|trans }}">
+                                <input
+                                    class="btn btn--primary u-pr-0_5-desk-down u-pl-0_5-desk-down"
+                                    name="submit_item_return_button"
+                                    data-cy="saveAndReturn"
+                                    type="submit"
+                                    value="{{ 'save.and.return.to.list'|trans }}">
+                                <a
+                                    class="btn btn--secondary u-pr-0_5-desk-down u-pl-0_5-desk-down"
+                                    data-cy="abort"
+                                    href="{{ path('dplan_assessmenttable_view_table', { procedureId: procedure, 'filterHash': assessmentFilterHash, '_fragment': 'itemdisplay_' ~ statement.ident }) }}"
+                                    role="button">
+                                    {{ 'abort'|trans }}
+                                </a>
                             </div>
-                        </dp-accordion>
-                    </fieldset>
-                {% endif %}
-
-                {% if hasPermission('field_send_final_email')%}
-                    {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_final.html.twig' with { 'readonly': readonly } %}
-                {% endif %}
-
-                {% if not readonly %}
-                    <div class="sticky u-bottom-0">
-                        <div class="text-right space-inline-s u-pv-0_5 bg-color--white">
-                            <input
-                                class="btn btn--primary u-pr-0_5-desk-down u-pl-0_5-desk-down"
-                                name="submit_item_button"
-                                data-cy="saveStatement"
-                                type="submit"
-                                value="{{ 'save'|trans }}">
-                            <input
-                                class="btn btn--primary u-pr-0_5-desk-down u-pl-0_5-desk-down"
-                                name="submit_item_return_button"
-                                v-save-and-return
-                                data-cy="saveAndReturn"
-                                type="submit"
-                                value="{{ 'save.and.return.to.list'|trans }}">
-                            <a
-                                class="btn btn--secondary u-pr-0_5-desk-down u-pl-0_5-desk-down"
-                                href="{{ path('dplan_assessmenttable_view_table', {'procedureId': procedure, 'filterHash': assessmentFilterHash, '_fragment': "itemdisplay_" ~ statement.ident }) }}"
-                                role="button">
-                                {{ 'abort'|trans }}
-                            </a>
                         </div>
-                    </div>
-                {% endif %}
-            </form>
+                    {% endif %}
+                </form>
+            </template>
         </detail-view>
 
     {%- endapply %}

@@ -19,12 +19,12 @@ class AssessmentExportOptionsTest extends FunctionalTestCase
     /**
      * @var AssessmentExportOptions
      */
-    protected $sut = null;
+    protected $sut;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->sut = self::$container->get(AssessmentExportOptions::class);
+        $this->sut = self::getContainer()->get(AssessmentExportOptions::class);
     }
 
     protected function tearDown(): void

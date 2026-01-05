@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
@@ -28,7 +28,7 @@ use Exception;
 use Psr\Log\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 use function array_key_exists;
 
@@ -45,10 +45,9 @@ class DemosPlanAssessmentExportController extends BaseController
      * An Assessment table export Action that can handle all types of exports
      * specified in the export options yml.
      *
-     * @DplanPermissions("area_admin_assessmenttable")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(
         path: '/verfahren/abwaegung/export/{procedureId}',
         name: 'DemosPlan_assessment_table_export',
@@ -60,13 +59,13 @@ class DemosPlanAssessmentExportController extends BaseController
         options: ['expose' => true],
         defaults: ['original' => true]
     )]
-    public function exportAction(
+    public function export(
         Request $request,
         AssessmentTableExporterStrategy $assessmentExporter,
         FileResponseGeneratorStrategy $responseGenerator,
         PermissionsInterface $permissions,
         string $procedureId,
-        bool $original = false
+        bool $original = false,
     ): ?Response {
         $exportFormat = $request->request->get('r_export_format');
         // in case that only docx in elements view mode should be exportable override the view mode
@@ -106,6 +105,12 @@ class DemosPlanAssessmentExportController extends BaseController
         $parameters['anonymous'] = array_key_exists('anonymous', $exportChoice)
             ? $exportChoice['anonymous']
             : true;
+        $parameters['newPagePerStn'] = array_key_exists('newPagePerStn', $exportChoice)
+            ? $exportChoice['newPagePerStn']
+            : false;
+        $parameters['numberStatements'] = array_key_exists('numberStatements', $exportChoice)
+            ? $exportChoice['numberStatements']
+            : false;
         $parameters['exportType'] = array_key_exists('exportType', $exportChoice)
             ? $exportChoice['exportType']
             : 'statementsOnly';

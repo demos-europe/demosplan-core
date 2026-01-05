@@ -234,7 +234,7 @@ class StatementSubmissionNotifier
             $this->logger->warning('Could not create PDF for Email ', [$e]);
         }
 
-        if (0 < count($draftStatements)) {
+        if ([] !== $draftStatements) {
             try {
                 $procedureOrga = $draftStatements[0]->getProcedure()->getOrga();
             } catch (Exception $e) {
@@ -267,7 +267,7 @@ class StatementSubmissionNotifier
         Statement $statement,
         Procedure $procedure,
         array $recipients,
-        $ccs = []
+        $ccs = [],
     ): void {
         $emailText = $this->twig->load(
             '@DemosPlanCore/DemosPlanStatement/send_notification_email_for_new_statement_public_allowed.html.twig'
@@ -358,7 +358,6 @@ class StatementSubmissionNotifier
      *
      * @param string $statementText
      * @param string $recipient
-     * @param mixed  $number
      *
      * @throws Throwable
      * @throws LoaderError
@@ -370,7 +369,7 @@ class StatementSubmissionNotifier
         $recipient,
         ?Statement $submittedStatement = null,
         $number = null,
-        GdprConsentRevokeToken $gdprConsentRevokeToken = null
+        ?GdprConsentRevokeToken $gdprConsentRevokeToken = null,
     ): void {
         $mailTemplateVars = [];
         $vars = [];
@@ -381,7 +380,7 @@ class StatementSubmissionNotifier
         $mailTemplateVars['statement'] = $statementText;
         $consultationToken = null;
 
-        if (null !== $gdprConsentRevokeToken) {
+        if ($gdprConsentRevokeToken instanceof GdprConsentRevokeToken) {
             $mailTemplateVars['token'] = $gdprConsentRevokeToken->getToken();
         }
         if (null !== $number) {
@@ -390,7 +389,7 @@ class StatementSubmissionNotifier
         if ($submittedStatement instanceof Statement) {
             $consultationToken = $this->consultationTokenService->getTokenForStatement($submittedStatement);
             // some phases does not generate Tokens
-            if (null !== $consultationToken) {
+            if ($consultationToken instanceof ConsultationToken) {
                 $mailTemplateVars['consultationTokenString'] = $consultationToken->getToken();
             }
         }
@@ -399,6 +398,7 @@ class StatementSubmissionNotifier
         $mailTemplateVars['signature'] = [
             'nameLegal'                 => $orga->getName(),
             'street'                    => $orga->getStreet(),
+            'houseNumber'               => $orga->getHouseNumber(),
             'postalcode'                => $orga->getPostalcode(),
             'city'                      => $orga->getCity(),
             'email'                     => $from,

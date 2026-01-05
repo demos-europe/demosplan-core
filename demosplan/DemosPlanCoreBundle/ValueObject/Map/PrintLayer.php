@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ValueObject\Map;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
+use Illuminate\Support\Collection;
 use Psr\Log\InvalidArgumentException;
-use Tightenco\Collect\Support\Collection;
 
 /**
  * @method bool                isBaseLayer()
@@ -70,7 +70,7 @@ class PrintLayer extends ValueObject
         int $layerMapOrder,
         string $layerName,
         string $layerTitle,
-        string $imagesDirectoryPath
+        string $imagesDirectoryPath,
     ) {
         if ('' === $imagesDirectoryPath) {
             throw new InvalidArgumentException('Image directory folder cannot be null');

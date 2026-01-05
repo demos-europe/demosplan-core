@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentCommentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -70,12 +71,19 @@ class Segment extends Statement implements SegmentInterface
      *
      * @var PlaceInterface
      *
-     * @ORM\ManyToOne(targetEntity=Place::class)
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Workflow\Place")
      *
-     * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="place_id", referencedColumnName="id", nullable=true)
      */
     #[Assert\NotBlank(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, SegmentInterface::VALIDATION_GROUP_IMPORT])]
     private $place;
+
+    /**
+     * @var CustomFieldValuesList
+     *
+     * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
+     */
+    private $customFields;
 
     public function __construct()
     {
@@ -141,5 +149,15 @@ class Segment extends Statement implements SegmentInterface
         $this->comments->add($comment);
 
         return $this;
+    }
+
+    public function getCustomFields(): ?CustomFieldValuesList
+    {
+        return $this->customFields;
+    }
+
+    public function setCustomFields($customFields): void
+    {
+        $this->customFields = $customFields;
     }
 }

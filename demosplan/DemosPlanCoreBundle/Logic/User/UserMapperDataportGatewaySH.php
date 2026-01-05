@@ -26,6 +26,7 @@ class UserMapperDataportGatewaySH extends UserMapperDataportGateway
         // Lädt das Rollenmapping
         $this->roles = collect(
             $yaml->parse(
+                // uses local file, no need for flysystem
                 file_get_contents(DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Logic/User').'/UserMapperDataportGatewaySH.yml')
             )
         );
@@ -35,7 +36,7 @@ class UserMapperDataportGatewaySH extends UserMapperDataportGateway
     {
         $this->logger->info('getValidUser with', [self::class]);
         $request = $this->getRequest();
-        $token = trim($credentials->getToken());
+        $token = trim((string) $credentials->getToken());
         $this->logger->debug('Incoming Token', [$token]);
 
         $this->salt = $this->globalConfig->getSalt();
@@ -51,7 +52,7 @@ class UserMapperDataportGatewaySH extends UserMapperDataportGateway
         $userUpdatedDepartment = $request->request->has('UpdatedDepartment');
 
         // -> Frage das Gateway mit dem Token an, also if gatewayData is saved but user does not come from Orga Verify page
-        if (is_null($this->data) || !($userChangedDepartment || $userUpdatedDepartment)) {
+        if (is_null($this->data) || !$userChangedDepartment && !$userUpdatedDepartment) {
             $this->logger->info('Call Gateway for Token', [$token]);
             $aResult = $this->authenticateByService($token);
             if (false === $aResult) {

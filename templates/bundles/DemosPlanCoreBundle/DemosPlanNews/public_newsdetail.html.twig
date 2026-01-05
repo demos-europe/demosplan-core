@@ -34,14 +34,14 @@
 
             <p class="weight--bold">{{ news.description|wysiwyg('img') }}</p>
 
-            <p>{{ news.text|wysiwyg('img') }}</p>
+            <div class="c-styled-html">{{ news.text|wysiwyg('img') }}</div>
 
             {% if news.pdf is defined and news.pdf != '' %}
                 <p>
                     <a
                         target="_blank"
                         rel="noopener"
-                        href="{{ path("core_file", { 'hash': news.pdf|getFile('hash') }) }}">
+                        href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': news.pdf|getFile('hash') }) }}">
                         {{ news.pdftitle|default(news.pdf|getFile('name')) }}
                         {% if(news.pdf|getFile('size')|length > 0 or news.pdf|getFile('mimeType')|length > 0 ) %}
                             ({{ news.pdf|getFile('size') }} {{ news.pdf|getFile('mimeType') }})

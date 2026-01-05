@@ -12,30 +12,32 @@
     <div class="layout">
       <dp-input
         id="r_firstname"
-        autocomplete="given-name"
-        data-cy="firstName"
         :class="prefixClass('layout__item')"
         :label="{
           text: Translator.trans('name.first')
         }"
-        name="r_firstname"
+        :model-value="statement.r_firstname"
         :required="required && statement.r_useName === '1'"
-        :value="statement.r_firstname"
+        autocomplete="given-name"
+        data-cy="firstName"
+        name="r_firstname"
         width="u-1-of-2"
-        @input="val => setStatementData({r_firstname: val})" /><!--
+        @input="val => setStatementData({r_firstname: val})"
+      /><!--
    --><dp-input
         id="r_lastname"
-        autocomplete="family-name"
-        data-cy="familyName"
         :class="prefixClass('layout__item')"
         :label="{
           text: Translator.trans('name.last')
         }"
-        name="r_lastname"
+        :model-value="statement.r_lastname"
         :required="statement.r_useName === '1' && required"
-        :value="statement.r_lastname"
+        autocomplete="family-name"
+        data-cy="familyName"
+        name="r_lastname"
         width="u-1-of-2"
-        @input="val => setStatementData({r_lastname: val})" />
+        @input="val => setStatementData({r_lastname: val})"
+    />
     </div>
   </div>
 </template>
@@ -46,6 +48,6 @@ import formGroupMixin from '../mixins/formGroupMixin'
 export default {
   name: 'FormGroupName',
 
-  mixins: [formGroupMixin]
+  mixins: [formGroupMixin],
 }
 </script>

@@ -1,0 +1,17 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'segments.fields.configurable'|trans
+    } %}
+
+    <administration-custom-fields-list
+        :is-procedure-template="Boolean({{ templateVars.procedureTemplate|default(false) }})"
+        procedure-id="{{ templateVars.procedureId }}">
+    </administration-custom-fields-list>
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('procedure-administrationCustomFieldsList.js') }}
+{% endblock javascripts %}

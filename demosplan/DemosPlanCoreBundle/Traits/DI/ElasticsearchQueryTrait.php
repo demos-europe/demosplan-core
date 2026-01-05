@@ -89,7 +89,7 @@ trait ElasticsearchQueryTrait
         $esQuery,
         $limit = -1,
         $page = 1,
-        Index $index = null): array
+        ?Index $index = null): array
     {
         $result = [];
 
@@ -102,7 +102,7 @@ trait ElasticsearchQueryTrait
             $boolQuery = $this->modifyBoolMustNotFilter($boolQuery, $esQuery);
 
             // if a Searchterm is set use it
-            if (null !== $esQuery->getSearch() && 0 < strlen($esQuery->getSearch()->getSearchTerm())) {
+            if (null !== $esQuery->getSearch() && 0 < strlen((string) $esQuery->getSearch()->getSearchTerm())) {
                 $baseQuery = new QueryString();
                 $baseQuery->setQuery($esQuery->getSearch()->getSearchTerm());
                 $baseQuery->setFields($esQuery->getSearch()->getFieldsArray());
@@ -130,7 +130,7 @@ trait ElasticsearchQueryTrait
                     $esSortFields[$sortField->getName()] = $sortField->getDirection();
                 }
             }
-            if (0 < count($esSortFields)) {
+            if ([] !== $esSortFields) {
                 $query->addSort($esSortFields);
             }
 
@@ -149,11 +149,11 @@ trait ElasticsearchQueryTrait
                 $limit = 1;
             }
 
-            $paginator->setMaxPerPage($limit);
+            $paginator->setMaxPerPage((int) $limit);
 
             // try to paginate Result, check for validity
             try {
-                $paginator->setCurrentPage($page);
+                $paginator->setCurrentPage((int) $page);
             } catch (NotValidCurrentPageException $e) {
                 $paginator->setCurrentPage(1);
             }
@@ -437,7 +437,7 @@ trait ElasticsearchQueryTrait
     protected function generateFilterArrayFromEsBucket($bucket, $labelMap = [], $labelKey = 'key', $valueKey = 'key', $countKey = 'doc_count')
     {
         $filter = [];
-        if ((!is_array($bucket) || 0 === count($bucket)) && 0 === count($labelMap)) {
+        if ((!is_array($bucket) || [] === $bucket) && 0 === count($labelMap)) {
             return $filter;
         }
 

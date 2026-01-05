@@ -15,6 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
+use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -94,11 +96,13 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
      * Needs to be limited further, conditions need to be determined with the frontend.
      * Especially orga specific settings (possibly feature_admin_element_authorisations)
      * and visibility for citizens and public agencies need to be considered.
+     *
+     * @throws PathException
      */
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 
@@ -111,10 +115,13 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
         // These "elements" are needed for technical reasons but are no actual categories.
         // If you need to fetch them via the API use a separate resource type covering
         // their actual meaning.
+        /** @see PlanningDocumentCategoryDetailsResourceType */
         $elementsToHide = $this->globalConfig->getAdminlistElementsHiddenByTitle();
 
         if ([] !== $elementsToHide) {
-            $adminConditions[] = $this->conditionFactory->propertyHasNotAnyOfValues($elementsToHide, $this->title);
+            $adminConditions[] = [] === $elementsToHide
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasNotAnyOfValues($elementsToHide, $this->title);
         }
 
         $ownsProcedure = $this->procedureAccessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure);
@@ -165,7 +172,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
                 $fileInfoArray = $this->fileService->getInfoArrayFromFileString($element->getFile());
                 if (isset($fileInfoArray['hash'])) {
                     $file = $this->fileService->get($fileInfoArray['hash']);
-                    if (null !== $file) {
+                    if ($file instanceof File) {
                         $filePathWithHash = $file->getFilePathWithHash();
                     }
                 }

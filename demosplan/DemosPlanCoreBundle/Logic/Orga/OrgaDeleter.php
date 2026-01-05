@@ -11,19 +11,18 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Orga;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Doctrine\DBAL\Schema\SchemaException;
 use Exception;
 
-class OrgaDeleter extends CoreService
+class OrgaDeleter
 {
     public function __construct(
         private readonly SqlQueriesService $queriesService,
         private readonly ProcedureRepository $procedureRepository,
-        private readonly ProcedureDeleter $procedureDeleter
+        private readonly ProcedureDeleter $procedureDeleter,
     ) {
     }
 
@@ -32,8 +31,11 @@ class OrgaDeleter extends CoreService
      */
     public function deleteOrganisations(array $orgaIds, bool $isDryRun): void
     {
+        $slugsIds = array_column($this->queriesService->fetchFromTableByParameter(['s_id'], 'orga_slug', 'o_id', $orgaIds), 's_id');
         // delete orga slugs
         $this->deleteOrgaSlug($orgaIds, $isDryRun);
+
+        $this->procedureDeleter->deleteSlugs($slugsIds, $isDryRun);
 
         // delete organisations address book entry
         $this->deleteAddressBookEntry($orgaIds, $isDryRun);
@@ -54,7 +56,7 @@ class OrgaDeleter extends CoreService
         // delete organisation user doctrine
         $this->deleteOrgaUserDoctrine($orgaIds, $isDryRun);
 
-        // delete institution tag and orga institution tag
+        // delete orga institution tag
         $this->deleteOrgaInstitutionTag($orgaIds, $isDryRun);
 
         // delete progression userstory votes
@@ -68,6 +70,8 @@ class OrgaDeleter extends CoreService
 
         // delete orga report entries
         $this->deleteReportEntries($orgaIds, $isDryRun);
+
+        $this->deleteAccesssControl($orgaIds, $isDryRun);
 
         $orgasProcedureIds = Collect($this->procedureRepository->findBy(['orga' => $orgaIds]))->map(
             static fn (Procedure $procedure): string => $procedure->getId()
@@ -208,13 +212,17 @@ class OrgaDeleter extends CoreService
         $this->queriesService->deleteFromTableByIdentifierArray('_report_entries', '_re_identifier', $orgaIds, $isDryRun);
     }
 
+    private function deleteAccesssControl(array $orgaIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('access_control', 'orga_id', $orgaIds, $isDryRun);
+    }
+
     /**
      * @throws Exception
      * @throws SchemaException
      */
     private function deleteOrgaInstitutionTag(array $orgaIds, bool $isDryRun): void
     {
-        $this->queriesService->deleteFromTableByIdentifierArray('institution_tag', 'owning_organisation_id', $orgaIds, $isDryRun);
         $this->queriesService->deleteFromTableByIdentifierArray('orga_institution_tag', 'orga__o_id', $orgaIds, $isDryRun);
     }
 

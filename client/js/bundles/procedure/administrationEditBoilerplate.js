@@ -18,7 +18,7 @@ import { initialize } from '@DpJs/InitVue'
 const components = {
   DpEditBoilerplate,
   DpEditor,
-  DpMultiselect
+  DpMultiselect,
 }
 
 initialize(components).then(() => {

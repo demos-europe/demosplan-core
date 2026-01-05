@@ -47,7 +47,7 @@ class ZipImportService
         private readonly LoggerInterface $logger,
         private readonly MessageBagInterface $messageBag,
         private readonly TranslatorInterface $translator,
-        private readonly FileService $fileService
+        private readonly FileService $fileService,
     ) {
         $this->finder = Finder::create();
     }
@@ -82,7 +82,7 @@ class ZipImportService
                     if (in_array($extension, self::IMPORT_FILE_TYPES_TO_NOT_BE_SAVED, true)) {
                         $fileMap[$fileHash] = $file;
                     } else {
-                        $fileMap[$fileHash] = $this->fileService->saveTemporaryFile(
+                        $fileMap[$fileHash] = $this->fileService->saveTemporaryLocalFile(
                             $file->getRealPath(),
                             $file->getFilename(),
                             null,
@@ -188,7 +188,7 @@ class ZipImportService
     public function getStatementAttachmentImportDir(
         string $procedureId,
         string $tempFileFolder,
-        UserInterface $user
+        UserInterface $user,
     ): string {
         $tmpDir = DemosPlanPath::getTemporaryPath($user->getId().'/'.$procedureId.'/'.$tempFileFolder);
 

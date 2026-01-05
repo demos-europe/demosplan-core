@@ -12,7 +12,8 @@
     <dp-accordion
       :is-open="showCreateForm"
       :title="Translator.trans('authorization.create')"
-      @item:toggle="showCreateForm = !showCreateForm">
+      @item:toggle="showCreateForm = !showCreateForm"
+    >
       <div class="layout">
         <p class="layout__item u-mt-0_25">
           {{ Translator.trans('authorization.create.hint') }}
@@ -20,33 +21,37 @@
 
         <div
           data-dp-validate="createToken"
-          class="layout__item u-2-of-7">
+          class="layout__item u-2-of-7"
+        >
           <dp-input
             id="submitterName"
             v-model="newUser.submitterName"
-            class="u-mb-0_75"
+            class="mb-3"
             :label="{
               text: Translator.trans('name')
             }"
-            required />
+            required
+          />
           <dp-input
             id="submitterEmailAddress"
             v-model="newUser.submitterEmailAddress"
             :label="{
               text: Translator.trans('email.address')
             }"
-            type="email" />
+            type="email"
+          />
         </div><!--
 
      --><div class="layout__item u-2-of-7">
-          <div class="o-form__group u-mb-0_75">
+          <div class="o-form__group mb-3">
             <dp-input
               id="submitterStreet"
               v-model="newUser.submitterStreet"
               class="o-form__group-item"
               :label="{
                 text: Translator.trans('street')
-              }" />
+              }"
+            />
             <dp-input
               id="submitterHouseNumber"
               v-model="newUser.submitterHouseNumber"
@@ -54,7 +59,8 @@
               :size="5"
               :label="{
                 text: Translator.trans('street.number.short')
-              }" />
+              }"
+            />
           </div>
 
           <div class="o-form__group">
@@ -66,64 +72,71 @@
                 text: Translator.trans('postalcode')
               }"
               pattern="^[0-9]{5}$"
-              :size="5" />
+              :size="5"
+            />
             <dp-input
               id="submitterCity"
               v-model="newUser.submitterCity"
               class="o-form__group-item"
               :label="{
                 text: Translator.trans('city')
-              }" />
+              }"
+            />
           </div>
         </div><!--
 
      --><div class="layout__item u-3-of-7">
           <dp-text-area
             id="memo"
+            v-model="newUser.note"
             :label="Translator.trans('memo')"
             maxlength="1000"
-            v-model="newUser.note" />
+          />
         </div>
 
         <dp-button-row
-          class="u-mt-0_5"
+          class="mt-2"
           :busy="isSaving"
           primary
           secondary
           @primary-action="dpValidateAction('createToken', createToken, false)"
-          @secondary-action="abortCreate" />
+          @secondary-action="abortCreate"
+        />
       </div>
     </dp-accordion>
 
-    <div class="u-mt-2">
+    <div class="mt-6">
       <a :href="exportRoute">
         <i
-          class="fa fa-share-square u-pr-0_25"
-          aria-hidden="true" />
+          class="fa fa-share-square pr-1"
+          aria-hidden="true"
+        />
         {{ Translator.trans('export') }}
       </a>
       <dp-contextual-help
-        class="inline-block u-ml-0_25 u-mt-0_125"
-        :text="Translator.trans('consultation.export.bulk.letter.explanation')" />
+        class="inline-block ml-1"
+        :text="Translator.trans('consultation.export.bulk.letter.explanation')"
+      />
     </div>
 
     <dp-data-table-extended
       ref="dataTable"
-      class="u-mb u-mt-0_5 max-w-full"
+      class="mb-4 mt-2 max-w-full"
       :header-fields="headerFields"
-      has-flyout
       :default-sort-order="{ direction: 1, key: 'submitterName' }"
       :is-loading="isLoading"
       is-expandable
       is-sortable
       :table-items="tokens"
-      @updated:sortOrder="setSortOptions"
-      track-by="tokenId">
+      track-by="tokenId"
+      @updated:sort-order="setSortOptions"
+    >
       <template v-slot:submitterName="rowData">
         <div class="o-hellip__wrapper">
           <div
             v-tooltip="user(rowData.tokenId).submitterName"
-            class="o-hellip--nowrap">
+            class="o-hellip--nowrap"
+          >
             {{ user(rowData.tokenId).submitterName }}
           </div>
         </div>
@@ -133,12 +146,14 @@
           <div
             v-if="rowData.authorName && !rowData.anonymous"
             v-tooltip="rowData.submitterEmailAddress"
-            class="o-hellip--nowrap">
+            class="o-hellip--nowrap"
+          >
             {{ user(rowData.tokenId).submitterEmailAddress }}
           </div>
           <div
             v-else
-            class="o-hellip--nowrap">
+            class="o-hellip--nowrap"
+          >
             {{ Translator.trans('anonymous') }}
           </div>
         </div>
@@ -146,7 +161,8 @@
       <template v-slot:note="rowData">
         <div
           v-tooltip="user(rowData.tokenId).note"
-          class="o-hellip__wrapper max-w-[90%]">
+          class="o-hellip__wrapper max-w-[90%]"
+        >
           <span class="o-hellip--nowrap block">
             {{ user(rowData.tokenId).note }}
           </span>
@@ -154,34 +170,8 @@
       </template>
       <template v-slot:expandedContent="rowData">
         <span data-dp-validate="saveEditAuthorisedUser">
-          <div class="flex">
-            <div class="align-top u-1-of-3">
-              <div class="u-ph-0_75 u-pv-0_25 u-mb-0_75 bg-color--grey-light-2 flex w-10">
-                <p
-                  :id="`userToken:${rowData.tokenId}`"
-                  class="u-m-0">
-                  {{ rowData.token }}
-                </p>
-                <button
-                  type="button"
-                  class="btn-icns u-m-0"
-                  :aria-label="Translator.trans('clipboard.copy_to')"
-                  @click="copyTokenToClipboard(rowData.tokenId)">
-                  <i
-                    class="fa fa-copy"
-                    aria-hidden="true" />
-                </button>
-              </div>
-              <div v-if="rowData.usedEmailAddress">
-                <strong :id="`emailSent:${rowData.tokenId}`">
-                  {{ Translator.trans('following.email.sent') }}
-                </strong>
-                <p :aria-labelledby="`emailSent:${rowData.tokenId}`">
-                  {{ rowData.usedEmailAddress }}
-                </p>
-              </div>
-            </div>
-            <div class="align-top u-1-of-3 u-ph-0_5">
+          <div class="flex mt-1">
+            <div class="align-top u-5-of-9 pr-4">
               <dp-input
                 :id="`name:${rowData.tokenId}`"
                 :disabled="!rowData.isManual || !rowData.isEditable"
@@ -189,11 +179,13 @@
                   text: Translator.trans('name')
                 }"
                 required
-                :value="rowData.submitterName"
-                @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterName = val" />
+                :model-value="rowData.submitterName"
+                @update:model-value="val => updateUserField(rowData.tokenId, 'submitterName', val)"
+              />
               <div
                 v-if="!rowData.authorName || rowData.anonymous"
-                class="u-mt-0_75 u-mb-0_5">
+                class="mt-3 mb-2"
+              >
                 <strong :id="`submitterEmailAddressAnonymous:${rowData.tokenId}`">
                   {{ Translator.trans('email') }}
                 </strong>
@@ -204,79 +196,116 @@
               <dp-input
                 v-else
                 :id="`email:${rowData.tokenId}`"
-                class="u-mt-0_75"
+                class="mt-3"
                 :disabled="!rowData.isManual || !rowData.isEditable"
                 :label="{
                   text: Translator.trans('email')
                 }"
                 type="email"
-                :value="rowData.submitterEmailAddress"
-                @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterEmailAddress = val" />
-              <div class="o-form__group u-mb-0_5 u-mt-0_75">
+                :model-value="rowData.submitterEmailAddress"
+                @update:model-value="val => updateUserField(rowData.tokenId, 'submitterEmailAddress', val)"
+              />
+              <div class="flex flex-row mb-2 mt-3">
                 <dp-input
                   :id="`street:${rowData.tokenId}`"
-                  class="o-form__group-item"
+                  class="w-full mr-2"
                   :disabled="!rowData.isManual || !rowData.isEditable"
                   :label="{
                     text: Translator.trans('street')
                   }"
-                  :value="rowData.submitterStreet"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterStreet = val" />
+                  :model-value="rowData.submitterStreet"
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterStreet', val)"
+                />
                 <dp-input
                   :id="`houseNumber:${rowData.tokenId}`"
-                  class="o-form__group-item"
                   :disabled="!rowData.isManual || !rowData.isEditable"
                   :label="{
                     text: Translator.trans('street.number.short')
                   }"
+                  :model-value="rowData.submitterHouseNumber"
                   :size="5"
-                  :value="rowData.submitterHouseNumber"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterHouseNumber = val" />
+                  width="auto"
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterHouseNumber', val)"
+                />
               </div>
-              <div class="o-form__group u-mb-0_5 u-mt-0_75">
+              <div class="flex flex-row mb-2 mt-3">
                 <dp-input
                   :id="`postalcode:${rowData.tokenId}`"
-                  class="o-form__group-item"
+                  class="mr-2"
                   :disabled="!rowData.isManual || !rowData.isEditable"
                   :label="{
                     text: Translator.trans('postalcode')
                   }"
+                  :model-value="rowData.submitterPostalCode"
                   pattern="^[0-9]{5}$"
                   :size="5"
-                  :value="rowData.submitterPostalCode"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterPostalCode = val" />
+                  width="auto"
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterPostalCode', val)"
+                />
                 <dp-input
                   :id="`city:${rowData.tokenId}`"
-                  class="o-form__group-item"
+                  class="w-full"
                   :disabled="!rowData.isManual || !rowData.isEditable"
                   :label="{
                     text: Translator.trans('city')
                   }"
-                  :value="rowData.submitterCity"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterCity = val" />
+                  :model-value="rowData.submitterCity"
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterCity', val)"
+                />
               </div>
             </div>
-            <div class="align-top u-1-of-3 u-pl-0_5">
+            <div class="align-top u-4-of-9 mt-4">
+              <div class="px-3 py-1 mb-3 bg-surface-medium flex w-10">
+                <p
+                  :id="`userToken:${rowData.tokenId}`"
+                  class="m-0"
+                >
+                  {{ rowData.token }}
+                </p>
+                <button
+                  type="button"
+                  class="btn-icns ml-0.5 my-0"
+                  :aria-label="Translator.trans('clipboard.copy_to')"
+                  @click="copyTokenToClipboard(rowData.tokenId)"
+                >
+                  <i
+                    class="fa fa-copy"
+                    aria-hidden="true"
+                  />
+                </button>
+              </div>
+              <div v-if="rowData.usedEmailAddress">
+                <strong :id="`emailSent:${rowData.tokenId}`">
+                  {{ Translator.trans('following.email.sent') }}
+                </strong>
+                <p :aria-labelledby="`emailSent:${rowData.tokenId}`">
+                  {{ rowData.usedEmailAddress }}
+                </p>
+              </div>
               <dp-text-area
-                class="u-mb-0_75"
-                :disabled="!rowData.isEditable"
                 :id="`note:${rowData.tokenId}`"
+                class="mb-3"
+                :disabled="!rowData.isEditable"
                 :label="Translator.trans('memo')"
                 :maxlength="rowData.isEditable ? '1000' : false"
                 :value="rowData.note"
-                @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).note = val" />
+                @input="val => updateUserField(rowData.tokenId, 'note', val)"
+              />
               <dp-button-row
                 v-if="rowData.isEditable"
                 primary
                 secondary
                 @primary-action="dpValidateAction('saveEditAuthorisedUser', () => saveEditAuthorisedUser({ statementId: rowData.statementId, tokenId: rowData.tokenId }), false)"
-                @secondary-action="toggleIsRowEditable({ id: rowData.tokenId, isEditable: false })" />
+                @secondary-action="toggleIsRowEditable({ id: rowData.tokenId, isEditable: false })"
+              />
               <div
                 v-else
-                class="text-right">
+                class="text-right"
+              >
                 <dp-button
                   :text="Translator.trans('edit')"
-                  @click="toggleIsRowEditable({ id: rowData.tokenId })" />
+                  @click="toggleIsRowEditable({ id: rowData.tokenId })"
+                />
               </div>
             </div>
           </div>
@@ -297,7 +326,7 @@ import {
   DpInput,
   dpRpc,
   DpTextArea,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -310,7 +339,7 @@ export default {
     DpContextualHelp,
     DpDataTableExtended,
     DpInput,
-    DpTextArea
+    DpTextArea,
   },
 
   mixins: [dpValidateMixin],
@@ -318,8 +347,8 @@ export default {
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -329,7 +358,7 @@ export default {
         { field: 'submitterName', label: Translator.trans('name') },
         { field: 'submitterEmailAddress', label: Translator.trans('email') },
         { field: 'token', label: Translator.trans('access.token') },
-        { field: 'note', label: Translator.trans('memo') }
+        { field: 'note', label: Translator.trans('memo') },
       ],
       isLoading: false,
       isSaving: false,
@@ -343,16 +372,16 @@ export default {
         submitterPostalCode: '',
         submitterCity: '',
         externId: '',
-        statementId: ''
+        statementId: '',
       },
       selectedRow: '',
       sendTokenBy: 'email',
       showCreateForm: false,
       sortOptions: {
         direction: 'asc',
-        key: 'submitterName'
+        key: 'submitterName',
       },
-      statements: []
+      statements: [],
     }
   },
 
@@ -360,7 +389,7 @@ export default {
     exportRoute () {
       return Routing.generate('dplan_admin_procedure_authorized_users_export', {
         procedureId: this.procedureId,
-        sort: this.sortOptions
+        sort: this.sortOptions,
       })
     },
 
@@ -374,13 +403,21 @@ export default {
         const currentUser = this.tokens.find(user => user.tokenId === tokenId)
         return currentUser ? { ...currentUser } : null
       }
-    }
+    },
   },
 
   methods: {
     abortCreate () {
       this.resetCreateForm()
       this.closeCreateForm()
+    },
+
+    updateUserField (tokenId, fieldName, value) {
+      const user = this.localUsers.find(user => user.tokenId === tokenId)
+
+      if (user) {
+        user[fieldName] = value
+      }
     },
 
     copyTokenToClipboard (tokenId) {
@@ -402,13 +439,13 @@ export default {
       this.isSaving = true
       const { note, submitterName, submitterEmailAddress, submitterStreet, submitterHouseNumber, submitterPostalCode, submitterCity } = this.newUser
       const params = {
-        note: note,
-        submitterName: submitterName,
-        submitterEmailAddress: submitterEmailAddress,
-        submitterStreet: submitterStreet,
-        submitterHouseNumber: submitterHouseNumber,
-        submitterPostalCode: submitterPostalCode,
-        submitterCity: submitterCity
+        note,
+        submitterName,
+        submitterEmailAddress,
+        submitterStreet,
+        submitterHouseNumber,
+        submitterPostalCode,
+        submitterCity,
       }
 
       return dpRpc('consultationToken.manual.create', params)
@@ -439,9 +476,9 @@ export default {
             'submitterHouseNumber',
             'submitterPostalCode',
             'submitterCity',
-            'isManual'
-          ].join()
-        }
+            'isManual',
+          ].join(),
+        },
       }
       return dpApi.get(url, params)
         .then(response => {
@@ -454,7 +491,7 @@ export default {
                   ...token.attributes,
                   tokenId: token.id,
                   isEditable: false,
-                  statementId: statement.id
+                  statementId: statement.id,
                 }
               }
             }
@@ -516,7 +553,7 @@ export default {
         submitterStreet: user.submitterStreet,
         submitterHouseNumber: user.submitterHouseNumber,
         submitterPostalCode: user.submitterPostalCode,
-        submitterCity: user.submitterCity
+        submitterCity: user.submitterCity,
       }
       if (user.submitterEmailAddress) {
         statementAttributes.submitterEmailAddress = user.submitterEmailAddress
@@ -525,8 +562,8 @@ export default {
         data: {
           id: statementId,
           type: 'Statement',
-          attributes: statementAttributes
-        }
+          attributes: statementAttributes,
+        },
       }
       const url = Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId })
 
@@ -547,9 +584,9 @@ export default {
           id: tokenId,
           type: 'ConsultationToken',
           attributes: {
-            note: user.note
-          }
-        }
+            note: user.note,
+          },
+        },
       }
 
       const url = Routing.generate('api_resource_update', { resourceType: 'ConsultationToken', resourceId: tokenId })
@@ -566,11 +603,11 @@ export default {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
-    }
+    },
   },
 
   mounted () {
     this.fetchInitialData()
-  }
+  },
 }
 </script>

@@ -29,7 +29,7 @@ class FieldDeciderTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(FieldDecider::class);
+        $this->sut = self::getContainer()->get(FieldDecider::class);
     }
 
     public function testFieldDecider()

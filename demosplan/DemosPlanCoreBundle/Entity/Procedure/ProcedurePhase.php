@@ -41,7 +41,7 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
      *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
-    protected ?string $id;
+    protected ?string $id = null;
 
     /**
      * Virtual property
@@ -50,19 +50,9 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     protected string $name = '';
 
     /**
-     * @ORM\Column(name="phase_key", type="string", nullable=false)
-     */
-    protected string $key;
-
-    /**
      * Virtual Property bound on phase configuration in procedurephases.yml.
      */
-    protected string $permissionSet;
-
-    /**
-     * @ORM\Column(type="string", length=25, nullable=false, options={"default":""})
-     */
-    protected string $step = '';
+    protected string $permissionSet = ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
@@ -98,7 +88,12 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    protected ?DateTime $designatedSwitchDate;
+    protected ?DateTime $designatedSwitchDate = null;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    protected ?int $designatedSwitchDateTimestamp = null;
 
     /**
      * OnDelete set NULL at this site, will set the userID to null in case of the user will be deleted.
@@ -116,7 +111,7 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    protected ?DateTime $designatedEndDate;
+    protected ?DateTime $designatedEndDate = null;
 
     /**
      * @ORM\Column(type="smallint", nullable=false, options={"unsigned":true, "default":1})
@@ -124,10 +119,15 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     #[Assert\Positive]
     protected int $iteration = 1;
 
-    public function __construct(string $key = 'configuration', string $step = '')
+    public function __construct(/**
+     * @ORM\Column(type="string", length=25, nullable=false, options={"default":""})
+     */
+        protected string $step,
+        /**
+         * @ORM\Column(name="phase_key", type="string", nullable=false)
+         */
+        protected string $key = 'configuration')
     {
-        $this->key = $key;
-        $this->step = $step;
         $this->permissionSet = ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
         $this->endDate = new DateTime();
         $this->startDate = new DateTime();
@@ -175,6 +175,10 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     public function getStartDate(): DateTime
     {
+        if (!isset($this->startDate)) {
+            $this->startDate = new DateTime();
+        }
+
         return $this->startDate;
     }
 
@@ -185,6 +189,10 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     public function getEndDate(): DateTime
     {
+        if (!isset($this->endDate)) {
+            $this->endDate = new DateTime();
+        }
+
         return $this->endDate;
     }
 
@@ -195,6 +203,10 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     public function getCreationDate(): DateTime
     {
+        if (!isset($this->creationDate)) {
+            $this->creationDate = new DateTime();
+        }
+
         return $this->creationDate;
     }
 
@@ -221,6 +233,16 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     public function setDesignatedSwitchDate(?DateTime $designatedSwitchDate): void
     {
         $this->designatedSwitchDate = $designatedSwitchDate;
+    }
+
+    public function getDesignatedSwitchDateTimestamp(): ?int
+    {
+        return $this->designatedSwitchDateTimestamp;
+    }
+
+    public function setDesignatedSwitchDateTimestamp(?int $designatedSwitchDateTimestamp): void
+    {
+        $this->designatedSwitchDateTimestamp = $designatedSwitchDateTimestamp;
     }
 
     public function getDesignatedPhaseChangeUser(): ?UserInterface
@@ -255,15 +277,16 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     public function copyValuesFromPhase(ProcedurePhaseInterface $sourcePhase): void
     {
-        $this->key = $sourcePhase->key;
-        $this->step = $sourcePhase->step;
-        $this->name = $sourcePhase->name;
-        $this->designatedEndDate = $sourcePhase->designatedEndDate;
-        $this->designatedSwitchDate = $sourcePhase->designatedSwitchDate;
-        $this->designatedPhase = $sourcePhase->designatedPhase;
-        $this->permissionSet = $sourcePhase->permissionSet;
-        $this->startDate = $sourcePhase->startDate;
-        $this->endDate = $sourcePhase->endDate;
+        $this->key = $sourcePhase->getKey();
+        $this->step = $sourcePhase->getStep();
+        $this->name = $sourcePhase->getName();
+        $this->designatedEndDate = $sourcePhase->getDesignatedEndDate();
+        $this->designatedSwitchDate = $sourcePhase->getDesignatedSwitchDate();
+        $this->designatedSwitchDateTimestamp = $sourcePhase->getDesignatedSwitchDateTimestamp();
+        $this->designatedPhase = $sourcePhase->getDesignatedPhase();
+        $this->permissionSet = $sourcePhase->getPermissionSet();
+        $this->startDate = $sourcePhase->getStartDate();
+        $this->endDate = $sourcePhase->getEndDate();
     }
 
     public function getIteration(): int

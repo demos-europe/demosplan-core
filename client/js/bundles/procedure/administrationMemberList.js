@@ -11,14 +11,31 @@
  * This is the entrypoint for administration_member_list.html.twig
  */
 import { addFormHiddenField, removeFormHiddenField } from '../../lib/core/libs/FormActions'
+import AdministrationMemberList from '@DpJs/components/procedure/admin/AdministrationMemberList'
 import { DpContextualHelp } from '@demos-europe/demosplan-ui'
+import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
 import { initialize } from '@DpJs/InitVue'
+import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable'
 
 const components = {
-  DpContextualHelp
+  AdministrationMemberList,
+  DpContextualHelp,
+  OrganisationTable,
 }
 
-initialize(components).then(() => {
+const apiStores = [
+  'InvitableToeb',
+  'InvitedToeb',
+  'InstitutionTag',
+  'InstitutionTagCategory',
+  'InstitutionLocationContact',
+]
+
+const stores = {
+  FilterFlyout: FilterFlyoutStore,
+}
+
+initialize(components, stores, apiStores).then(() => {
   const pdfExport = () => {
     const action = document.procedureForm.action
     const target = document.procedureForm.target

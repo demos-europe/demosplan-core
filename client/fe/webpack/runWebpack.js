@@ -53,8 +53,8 @@ function configureBundleAnalysis (options, project, webpackConfig) {
     analyzerMode: (analysisType === 'html') ? 'static' : 'json',
     defaultSizes: 'gzip',
     openAnalyzer: true,
-    reportFilename: reportFilename,
-    logLevel: 'silent'
+    reportFilename,
+    logLevel: 'silent',
   })
 
   webpackConfig[0].plugins.unshift(bundleAnalyzer)
@@ -66,7 +66,7 @@ function configureProgressBar (options, webpackRunner) {
       format: `{message}[${chalk.green('{bar}')}] ${chalk.bold('{percentage}%')}`,
       hideCursor: true,
       barCompleteChar: '\u2588',
-      barIncompleteChar: '\u2591'
+      barIncompleteChar: '\u2591',
     })
 
     createProgressPlugin(options, progressBar, webpackRunner)
@@ -79,7 +79,7 @@ function configureProgressBar (options, webpackRunner) {
           progressBar.stop()
           process.exit(0)
         })
-      }
+      },
     )
   }
 }
@@ -88,13 +88,13 @@ function createProgressPlugin (options, progressBar, webpackRunner) {
   new ProgressPlugin((percentage, msg) => {
     if (progressBar.startTime === null) {
       progressBar.start(1, 0, {
-        message: ''
+        message: '',
       })
     }
 
     progressBar.update(percentage, {
       // Minor hack to remove the build step number from the webpack message
-      message: (msg !== '[0] ') ? msg.substr(4) + ' ' : ''
+      message: (msg !== '[0] ') ? msg.substr(4) + ' ' : '',
     })
 
     if (percentage === 1.0 && options.mode !== 'watch') {
@@ -139,7 +139,21 @@ function runWebpack (mode) {
     }
 
     // Create the webpack runner object
-    const webpackRunner = webpack(webpackConfig)
+    let webpackRunner = null
+    try {
+      webpackRunner = webpack(webpackConfig)
+    } catch (e) {
+      // Prevent webpack from kind of uselessly dumping the whole config. That's just a scroll-fest that nobody needs
+      log(chalk.red('Error during webpack configuration'))
+      log(e.message)
+
+      process.exit(1)
+    } finally {
+      if (webpackRunner === null) {
+        log(chalk.red('Could not create webpack runner'))
+        process.exit(1)
+      }
+    }
 
     // Patch in the progress bar if needed
     configureProgressBar(options, webpackRunner)
@@ -151,55 +165,83 @@ function runWebpack (mode) {
   }
 }
 
+/**
+ * Handle webpacks error objects.
+ * Why are there two? I bet they don't even know
+ *
+ * @param {Object} err Webpack Error object
+ * @param {Object} stats Webpack Stats object
+ */
 function showErrorMessage (err, stats) {
-  if (err || stats.hasErrors()) {
-    log(chalk.red('Build encountered errors'))
-
-    // Handle webpacks error objects. why are there two? i bet they don't even know
+  // Handle case where stats is undefined (early webpack failure)
+  if (!stats) {
     if (err) {
+      log(chalk.red('Build failed'))
       log(chalk.red(err.stack || err))
-
       if (err.details) {
         log(err.details)
       }
-
-      return
+    } else {
+      log(chalk.red('Build failed: Unknown error (no stats or error information available)'))
     }
-
-    const info = stats.toJson()
-
-    if (stats.hasErrors()) {
-      for (const error of info.errors) {
-        log(chalk.red(error.message))
-      }
-    }
-
-    if (stats.hasWarnings()) {
-      for (const warning of info.warnings) {
-        log(chalk.yellow(warning.message))
-      }
-    }
+    return
   }
+
+  const info = stats.toJson()
+
+  if (err || stats.hasErrors() || stats.hasWarnings()) {
+    log(chalk.red('Build failed'))
+  }
+
+  if (err) {
+    log(chalk.red(err.stack || err))
+
+    if (err.details) {
+      log(err.details)
+    }
+
+    return
+  }
+
+  if (stats.hasErrors()) {
+    printStatsMessageList(info.errors ?? [], chalk.red)
+  }
+
+  if (stats.hasWarnings()) {
+    printStatsMessageList(info.warnings, chalk.yellow)
+  }
+}
+
+/**
+ * Prints a list of log messages using the given color function
+ *
+ * @param {Array} messageList Array of webpack stats messages to print
+ * @param {chalk.Chalk} colorFunction Chalk color function
+ */
+function printStatsMessageList (messageList, colorFunction) {
+  messageList.forEach(message => {
+    log(colorFunction(message.message))
+  })
 }
 
 function showWebpackRunMessage (userFeedbackCallback, mode, project, webpackConfig, webpackRunner) {
   if (mode === 'build') {
-    log(chalk.green(`Begin ${chalk.bold('building')} frontend assets for ${project} in ${chalk.bold(webpackConfig[0].mode)} mode`))
+    log(chalk.green(`Begin ${chalk.bold('building')} frontend assets for ${chalk.bold(project)} in ${chalk.bold(webpackConfig[0].mode)} mode`))
     webpackRunner.run(userFeedbackCallback)
   }
 
   if (mode === 'watch') {
-    log(chalk.green(`Begin ${chalk.bold('watching')} frontend assets for ${project} in ${chalk.bold(webpackConfig[0].mode)} mode`))
+    log(chalk.green(`Begin ${chalk.bold('watching')} frontend assets for ${chalk.bold(project)} in ${chalk.bold(webpackConfig[0].mode)} mode`))
     webpackRunner.watch({
-      aggregateTimeout: 1000
+      aggregateTimeout: 1000,
     }, userFeedbackCallback)
   }
 }
 
 function showWebpackStatisticsMessage (options, stats) {
-  if (options.stats) {
+  if (options.stats && stats) {
     const webpackStatisticsOptions = {
-      chunks: false
+      chunks: false,
     }
 
     if (options.json && options.json.length > 0) {
@@ -209,7 +251,7 @@ function showWebpackStatisticsMessage (options, stats) {
     } else {
       log(stats.toString({
         colors: true,
-        ...webpackStatisticsOptions
+        ...webpackStatisticsOptions,
       }))
     }
   }

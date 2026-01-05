@@ -12,30 +12,38 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementPreDeleteEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
+use demosplan\DemosPlanCoreBundle\Event\Statement\StatementPreDeleteEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
+use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\Persistence\ManagerRegistry;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class StatementDeleter extends CoreService
+class StatementDeleter
 {
+    public const DELETE_ERROR_MESSAGE = 'Fehler beim Löschen eines Statements: ';
+
     public function __construct(
         protected AssignService $assignService,
         protected PermissionsInterface $permissions,
@@ -48,7 +56,11 @@ class StatementDeleter extends CoreService
         private readonly MessageBagInterface $messageBag,
         private readonly EntityContentChangeService $entityContentChangeService,
         private readonly StatementService $statementService,
-        private readonly EntitySyncLinkRepository $entitySyncLinkRepository
+        private readonly EntitySyncLinkRepository $entitySyncLinkRepository,
+        private readonly SqlQueriesService $queriesService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
+        private readonly ManagerRegistry $doctrine,
     ) {
     }
 
@@ -85,18 +97,23 @@ class StatementDeleter extends CoreService
         }
         $forReport = clone $originalStatement;
 
-        $this->deleteStatementObject(
+        $this->eventDispatcher->dispatch(new StatementPreDeleteEvent($originalStatement), StatementPreDeleteEventInterface::class);
+
+        $deleteOriginal = $this->deleteStatementObject(
             $originalStatement,
             true,
-            true
+            true,
+            false
         );
 
-        $entry = $this->statementReportEntryFactory->createDeletionEntry($forReport);
-        $this->reportService->persistAndFlushReportEntries($entry);
-        $this->logger->info(
-            'generate report of deleteStatement(). ReportID: ',
-            ['identifier' => $entry->getIdentifier()]
-        );
+        if ($deleteOriginal) {
+            $entry = $this->statementReportEntryFactory->createDeletionEntry($forReport);
+            $this->reportService->persistAndFlushWithoutTransaction($entry);
+            $this->logger->info(
+                'generate report of deleteStatement(). ReportID: ',
+                ['identifier' => $entry->getIdentifier()]
+            );
+        }
     }
 
     /**
@@ -108,10 +125,11 @@ class StatementDeleter extends CoreService
     public function deleteStatementObject(
         Statement $statement,
         bool $ignoreAssignment = false,
-        bool $ignoreOriginal = false
+        bool $ignoreOriginal = false,
+        bool $canTransaction = true,
     ): bool {
         /** @var Connection $doctrineConnection */
-        $doctrineConnection = $this->getDoctrine()->getConnection();
+        $doctrineConnection = $this->doctrine->getConnection();
         try {
             $success = false;
             $statementId = $statement->getId();
@@ -149,12 +167,12 @@ class StatementDeleter extends CoreService
             if ($allowedToDelete) {
                 try {
                     // Prohibit deletion if a consultation token exists for this statement
-                    if (null !== $this->consultationTokenService->getTokenForStatement($statement)) {
+                    if ($this->consultationTokenService->getTokenForStatement($statement) instanceof ConsultationToken) {
                         throw new DemosException('error.delete.statement.consultation.token', 'Statement '.DemosPlanTools::varExport($statementId, true).' has an associated consultation token.');
                     }
-
-                    $doctrineConnection->beginTransaction();
-
+                    if ($canTransaction) {
+                        $doctrineConnection->beginTransaction();
+                    }
                     $attachedFileIdents = \collect($statement->getAttachments())
                         ->map(static fn (StatementAttachment $attachment): string => $attachment->getFile()->getIdent());
 
@@ -162,38 +180,40 @@ class StatementDeleter extends CoreService
                     $deleted = $this->statementRepository->delete($statementId);
                     // add report:
                     try {
-                        if (true === $deleted) {
+                        if ($deleted) {
                             $originalStatement = $statement->getOriginal();
-                            if ($originalStatement instanceof Statement) {
-                                if ($this->permissions->hasPermission('feature_auto_delete_original_statement')
-                                    && $originalStatement->getChildren()->isEmpty()
-                                ) {
-                                    $this->deleteOriginalStatement($originalStatement);
-                                }
+                            if ($originalStatement instanceof Statement && ($this->permissions->hasPermission('feature_auto_delete_original_statement')
+                                && $originalStatement->getChildren()->isEmpty())) {
+                                $this->deleteOriginalStatement($originalStatement);
                             }
                         }
                     } catch (Exception $e) {
-                        $this->getLogger()->warning('Add Report in deleteStatement() failed Message: ', [$e]);
+                        $this->logger->warning('Add Report in deleteStatement() failed Message: ', [$e]);
                     }
-                    $doctrineConnection->commit();
+
+                    if ($canTransaction) {
+                        $doctrineConnection->commit();
+                    }
 
                     $this->entityContentChangeService->deleteByEntityIds([$statementId]);
                     $success = true;
                 } catch (DemosException $demosException) {
-                    $this->getLogger()->error('Fehler beim Löschen eines Statements: ', [$demosException]);
+                    $this->logger->error(self::DELETE_ERROR_MESSAGE, [$demosException]);
                     $this->messageBag->add(
                         'warning',
                         $demosException->getUserMsg()
                     );
                     $success = false;
                 } catch (Exception $e) {
-                    $this->getLogger()->error('Fehler beim Löschen eines Statements: ', [$e]);
+                    $this->logger->error(self::DELETE_ERROR_MESSAGE, [$e]);
                     $doctrineConnection->rollBack();
                     $success = false;
+                } catch (\Doctrine\DBAL\Driver\Exception $e) {
+                    $e->getMessage();
                 }
             } else {
                 if ($lockedByAssignmentOfRelatedFragments) {
-                    $this->getLogger()->warning("Statement {$statementId} was not deleted, because of related fragments are locked by assignment");
+                    $this->logger->warning("Statement {$statementId} was not deleted, because of related fragments are locked by assignment");
                     $this->messageBag->add(
                         'warning',
                         'warning.delete.statement.because.of.fragments.not.claimed.by.current.user',
@@ -202,7 +222,7 @@ class StatementDeleter extends CoreService
                 }
 
                 if ($lockedByAssignment) {
-                    $this->getLogger()
+                    $this->logger
                         ->warning("Statement {$statementId} was not deleted, because of locked by assignment");
                     $this->messageBag->add(
                         'warning', 'warning.delete.statement.because.of.assignment',
@@ -211,7 +231,7 @@ class StatementDeleter extends CoreService
                 }
 
                 if ($lockedByCluster) {
-                    $this->getLogger()
+                    $this->logger
                         ->warning("Statement {$statementId} was not deleted, because of locked by cluster");
                     $this->messageBag->add(
                         'warning', 'error.statement.clustered.in',
@@ -220,7 +240,7 @@ class StatementDeleter extends CoreService
                 }
 
                 if ($lockedBecauseOfOriginal) {
-                    $this->getLogger()
+                    $this->logger
                         ->warning("Statement {$statementId} was not deleted, because it is a undeletable original-Statement");
                     $this->messageBag->add(
                         'warning', 'warning.delete.statement.original',
@@ -229,7 +249,7 @@ class StatementDeleter extends CoreService
                 }
 
                 if ($lockedBySync) {
-                    $this->getLogger()
+                    $this->logger
                         ->warning("Statement {$statementId} was not deleted, because of locked by related synced statement.");
                     $this->messageBag->add(
                         'warning', 'warning.delete.statement.synced', // add transkey
@@ -240,7 +260,7 @@ class StatementDeleter extends CoreService
 
             return $success;
         } catch (Exception $e) {
-            $this->getLogger()->warning('Fehler beim Löschen eines Statements: ', [$e]);
+            $this->logger->warning(self::DELETE_ERROR_MESSAGE, [$e]);
             $doctrineConnection->rollBack();
 
             return false;

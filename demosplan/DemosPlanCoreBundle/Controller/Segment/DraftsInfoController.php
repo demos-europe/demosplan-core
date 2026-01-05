@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
@@ -23,7 +23,7 @@ use demosplan\DemosPlanCoreBundle\Validator\SegmentableStatementValidator;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DraftsInfoController extends BaseController
 {
@@ -32,23 +32,22 @@ class DraftsInfoController extends BaseController
      * redirects to dplan_drafts_list_edit.
      *
      * @throws StatementNotFoundException
-     *
-     * @DplanPermissions("area_statement_segmentation")
      */
+    #[DplanPermissions('area_statement_segmentation')]
     // TODO: receiving the statement ID here may result in concurrency problems
     // because multiple users may be shown the same butten (with the same ID) and
     // it is unknown what happens if they both use it but it will be nothing good.
     // Instead of receiving the statement ID the BE should chose a statement by
     // itself in this route.
     #[Route(name: 'dplan_drafts_list_claim', methods: 'POST', path: '/verfahren/{procedureId}/statements/{statementId}/drafts-list', options: ['expose' => true])]
-    public function startSegmentationAction(
+    public function startSegmentation(
         CurrentUserService $currentUser,
         StatementService $statementService,
         string $statementId,
-        string $procedureId
+        string $procedureId,
     ): RedirectResponse {
         $statement = $statementService->getStatement($statementId);
-        if (null === $statement) {
+        if (!$statement instanceof Statement) {
             throw StatementNotFoundException::createFromId($statementId);
         }
         $statement->setAssignee($currentUser->getUser());
@@ -68,15 +67,14 @@ class DraftsInfoController extends BaseController
      * the segmentation.
      *
      * @throws Exception
-     *
-     * @DplanPermissions("area_statement_segmentation")
      */
+    #[DplanPermissions('area_statement_segmentation')]
     #[Route(name: 'dplan_drafts_list_edit', methods: 'GET', path: '/verfahren/{procedureId}/statement/{statementId}/drafts-list', options: ['expose' => true])]
-    public function editAction(
+    public function edit(
         string $procedureId,
         string $statementId,
         SegmentableStatementValidator $segmentableStatementValidator,
-        StatementHandler $statementHandler
+        StatementHandler $statementHandler,
     ): Response {
         try {
             $segmentableStatementValidator->validate($statementId);

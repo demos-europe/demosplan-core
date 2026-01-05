@@ -6,9 +6,7 @@
         heading: 'segments.bulk.edit'|trans
     } %}
 
-    <segments-bulk-edit
-        :procedure-id="{{ procedure|default|json_encode }}"
-    >
+    <segments-bulk-edit :procedure-id="{{ procedure|default|json_encode }}">
     </segments-bulk-edit>
 {% endblock %}
 

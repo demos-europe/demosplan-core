@@ -10,28 +10,33 @@
 <template>
   <dp-modal
     ref="newOrgaModal"
-    content-classes="u-2-of-3 u-pb--0_75 text-left">
+    content-classes="u-2-of-3 u-pb--0_75 text-left"
+  >
     <h2>{{ Translator.trans('organisation.add') }}</h2>
     <div
       v-for="field in fields"
       :key="field.field"
-      class="layout">
+      class="layout"
+    >
       <label
         :for="`new_${field.field}`"
-        class="layout__item u-1-of-2 u-mb-0_5">
+        class="layout__item u-1-of-2 u-mb-0_5"
+      >
         {{ field.value }}
       </label><!--
       --><input
         v-model="formFields[field.field]"
         type="text"
         :name="`new_${field.field}`"
-        class="layout__item u-1-of-2">
+        class="layout__item u-1-of-2"
+>
     </div>
     <div class="text-right">
       <button
         type="button"
+        class="btn btn--primary"
         @click="saveAndReturn"
-        class="btn btn--primary">
+      >
         {{ Translator.trans('add') }}
       </button>
     </div>
@@ -45,20 +50,24 @@ export default {
   name: 'DpNewOrgaModal',
 
   components: {
-    DpModal
+    DpModal,
   },
 
   props: {
     fields: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
+
+  emits: [
+    'save',
+  ],
 
   data () {
     return {
-      formFields: {}
+      formFields: {},
     }
   },
 
@@ -74,7 +83,7 @@ export default {
       this.formFields = {}
       // Close modal
       this.toggleModal()
-    }
-  }
+    },
+  },
 }
 </script>

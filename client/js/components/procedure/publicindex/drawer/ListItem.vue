@@ -8,37 +8,46 @@
 </license>
 
 <template>
-  <li class="c-publicindex__list-item">
+  <li
+    class="c-publicindex__list-item"
+    data-cy="procedureListItem"
+  >
     <a
-      @click.prevent="showDetailView(procedure.id)"
       class="block o-link--default cursor-pointer o-hellip"
       data-cy="zoomIn"
-      href="#">
+      href="#"
+      @click.prevent="showDetailView(procedure.id)"
+    >
       {{ procedureName() }}
     </a>
     <span
+      v-cleanhtml="procedurePeriod"
       class="block"
-      v-cleanhtml="procedurePeriod" />
+    />
     <span class="block">
       <i
         class="c-publicindex__icon-content fa fa-puzzle-piece"
         aria-hidden="true"
-        :title="Translator.trans('procedure.public.phase')" />
+        :title="Translator.trans('procedure.public.phase')"
+      />
       {{ phaseName() }}
     </span>
     <span class="block">
       <i
         class="c-publicindex__icon-content fa fa-university"
         aria-hidden="true"
-        :title="Translator.trans('administration.alt')" />
+        :title="Translator.trans('administration.alt')"
+      />
       {{ procedure.owningOrganisationName }}
     </span>
     <span
+      v-if="hasPermission('feature_procedures_count_released_drafts') && procedure.statementSubmitted > 0"
       class="block"
-      v-if="hasPermission('feature_procedures_count_released_drafts') && procedure.statementSubmitted > 0">
+    >
       <i
         class="c-publicindex__icon-content fa fa-comment-o"
-        aria-hidden="true" />
+        aria-hidden="true"
+      />
       {{ Translator.trans('statements.submitted.institution') }}: {{ procedure.statementSubmitted }}
     </span>
   </li>
@@ -53,33 +62,33 @@ export default {
   name: 'DpListItem',
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     procedure: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
-      detailView: false
+      detailView: false,
     }
   },
 
   computed: {
     procedurePeriod () {
       return `<i class="c-publicindex__icon-content fa fa-calendar" aria-hidden="true" :title="Translator.trans('period')"></i>${this.period()}`
-    }
+    },
   },
 
   methods: Object.assign({
-    ...mapActions('procedure', [
+    ...mapActions('Procedure', [
       'setProperty',
-      'showDetailView'
-    ])
-  }, SharedMethods)
+      'showDetailView',
+    ]),
+  }, SharedMethods),
 }
 </script>

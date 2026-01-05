@@ -6,7 +6,9 @@
         heading: 'drawing.mapsection.define'|trans
     } %}
 
-    <map-admin procedure-id="{{ procedure }}">
+    <map-admin
+        :is-master="Boolean({{ isMaster }})"
+        procedure-id="{{ procedure }}">
     </map-admin>
 
 {% endblock %}

@@ -38,7 +38,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         protected readonly FileService $fileService,
         private readonly EntityManagerInterface $entityManager,
         private readonly StatementFromRowBuilder $baseStatementFromRowBuilder,
-        private readonly StatementAttachmentService $statementAttachmentService
+        private readonly StatementAttachmentService $statementAttachmentService,
     ) {
         parent::__construct();
     }
@@ -155,6 +155,12 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
                     $fileContainer,
                     [new Type(FileContainer::class), new NotNull()]
                 );
+                /*
+                 * the files have to be copied later from the generated original Statement object that's why
+                 * they have to be set at this point otherwise they will be missing in new generated statement
+                 */
+                $fileString = $fileContainer?->getFileString();
+                $statement->setFiles([$fileString]);
             }
 
             $violations->addAll($newViolations);
@@ -280,10 +286,10 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         $violations2 = $this->handleOriginalFileReferences();
 
         $violations = new ConstraintViolationList();
-        if (null !== $violations1) {
+        if ($violations1 instanceof ConstraintViolationListInterface) {
             $violations->addAll($violations1);
         }
-        if (null !== $violations2) {
+        if ($violations2 instanceof ConstraintViolationListInterface) {
             $violations->addAll($violations2);
         }
 

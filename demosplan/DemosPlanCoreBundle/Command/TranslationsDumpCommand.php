@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use EFrane\ConsoleAdditions\Batch\StringCommandAction;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -22,11 +23,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
+#[AsCommand(name: 'dplan:translations:dump', description: 'Dump translations into a ES6 importable JS module')]
 class TranslationsDumpCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:translations:dump';
-    protected static $defaultDescription = 'Dump translations into a ES6 importable JS module';
-
     protected function configure(): void
     {
         $this->addOption('target', 't', InputOption::VALUE_REQUIRED);
@@ -58,6 +57,7 @@ class TranslationsDumpCommand extends CoreCommand
             ->in($translationsPath)
             ->notName('config.json');
 
+        // uses local file, no need for flysystem
         $config = Json::decodeToArray(file_get_contents($translationsPath.'config.json'));
 
         // put all languages into one translations array
@@ -66,6 +66,7 @@ class TranslationsDumpCommand extends CoreCommand
                 static function (SplFileInfo $file) use ($translationsPath) {
                     $languageFile = $translationsPath.$file->getRelativePathname();
 
+                    // uses local file, no need for flysystem
                     return Json::decodeToArray(file_get_contents($languageFile));
                 }
             )
@@ -81,6 +82,7 @@ class TranslationsDumpCommand extends CoreCommand
         }
 
         $translationsJsonPath = DemosPlanPath::getRootPath('client/js/generated/translations.json');
+        // local file is valid, no need for flysystem
         file_put_contents(
             $translationsJsonPath,
             Json::encode(
@@ -89,11 +91,12 @@ class TranslationsDumpCommand extends CoreCommand
             )
         );
 
+        // uses local file, no need for flysystem
         if (file_exists($translationsJsonPath) && $output->isVerbose()) {
             $output->writeln('Succesfully wrote translations to core client bundle');
         }
 
-        DemosPlanPath::recursiveRemovePath($tempDir);
+        DemosPlanPath::recursiveRemoveLocalPath($tempDir);
 
         return Command::SUCCESS;
     }

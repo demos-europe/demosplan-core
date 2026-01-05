@@ -12,16 +12,16 @@
  */
 
 import DpSupport from '@DpJs/components/support/DpSupport'
-import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import { highlightActiveLinks } from '@DpJs/lib/core/libs'
 import { initialize } from '@DpJs/InitVue'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 
 const components = {
   DpSupport,
-  RegisterFlyout
+  RegisterFlyout,
 }
 
-const apiStores = ['customerContact']
+const apiStores = ['CustomerContact']
 
 initialize(components, {}, apiStores).then(() => {
   highlightActiveLinks('[data-highlight-current]')

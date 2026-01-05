@@ -28,7 +28,7 @@ class FloodControlServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = static::$container->get(FloodControlService::class);
+        $this->sut = self::getContainer()->get(FloodControlService::class);
     }
 
     public function testCheckCookieEmptyCookie(): void

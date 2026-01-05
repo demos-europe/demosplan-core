@@ -20,17 +20,17 @@ import { initialize } from '@DpJs/InitVue'
 import StatementStore from '@DpJs/store/statement/Statement'
 
 const stores = {
-  assessmentTable: AssessmentTableStore,
-  fragment: FragmentStore,
-  statement: StatementStore
+  AssessmentTable: AssessmentTableStore,
+  Fragment: FragmentStore,
+  Statement: StatementStore,
 }
 
 const components = {
-  DpBulkEditStatement
+  DpBulkEditStatement,
 }
 
 if (hasPermission('area_admin_boilerplates')) {
-  stores.boilerplates = BoilerplatesStore
+  stores.Boilerplates = BoilerplatesStore
 }
 
 initialize(components, stores)

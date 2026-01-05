@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DateInterval;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
 use demosplan\DemosPlanCoreBundle\Entity\File;
@@ -50,7 +51,7 @@ class StatementSynchronizer
         private readonly StatementRepository $statementRepository,
         private readonly StatementService $statementService,
         private readonly TransactionService $transactionService,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -140,7 +141,7 @@ class StatementSynchronizer
      */
     private function copyAsOriginalStatement(
         Statement $sourceStatement,
-        Procedure $targetProcedure
+        Procedure $targetProcedure,
     ): array {
         if ($sourceStatement->isOriginal()) {
             throw new InvalidArgumentException('Given statement is an original statement.');
@@ -161,7 +162,12 @@ class StatementSynchronizer
         $newOriginalStatement->setSubmitTypeTranslated($sourceStatement->getSubmitTypeTranslated());
         $newOriginalStatement->setMapFile($sourceStatement->getMapFile());
         $newOriginalStatement->setSubmit($sourceStatement->getSubmitObject()->add(new DateInterval('PT1S')));
-        $newOriginalStatement->setExternId($sourceStatement->getExternId());
+        $newOriginalStatement->setExternId(
+            $this->statementService->getNextValidExternalIdForProcedure(
+                $targetProcedure->getId(),
+                true
+            )
+        );
         $newOriginalStatement->setProcedure($targetProcedure);
         $newOriginalStatement->setOrganisation($sourceStatement->getOrganisation());
         $newOriginalStatement->setManual($sourceStatement->isManual());
@@ -251,7 +257,7 @@ class StatementSynchronizer
      */
     private function copyFileContainersBetweenStatements(
         Statement $sourceStatement,
-        Statement $newOriginalStatement
+        Statement $newOriginalStatement,
     ): array {
         $sourceFileContainers = $this->statementService->getFileContainersForStatement($sourceStatement->getId());
 
@@ -267,7 +273,7 @@ class StatementSynchronizer
      */
     private function copyFileContainersToStatement(
         array $fileContainers,
-        Statement $targetStatement
+        Statement $targetStatement,
     ): array {
         $fileContainerCopies = [];
         foreach ($fileContainers as $fileContainer) {
@@ -297,7 +303,7 @@ class StatementSynchronizer
      */
     public function cloneFileContainersToStatement(
         array $originalfileContainers,
-        Statement $newStatement
+        Statement $newStatement,
     ): void {
         $fileStrings = [];
         foreach ($originalfileContainers as $oldFileContainer) {
@@ -377,9 +383,10 @@ class StatementSynchronizer
     private function validateStatement(Statement $statement): void
     {
         $statementViolations = $this->validator->validate($statement, null, [
-            Statement::DEFAULT_VALIDATION,
-            Statement::MANUAL_CREATE_VALIDATION,
-            Statement::IMPORT_VALIDATION,
+            StatementInterface::DEFAULT_VALIDATION,
+            StatementInterface::MANUAL_CREATE_VALIDATION,
+            StatementInterface::IMPORT_VALIDATION,
+            StatementInterface::BASE_STATEMENT_CLASS_VALIDATION,
         ]);
         if (0 !== $statementViolations->count()) {
             throw ViolationsException::fromConstraintViolationList($statementViolations);

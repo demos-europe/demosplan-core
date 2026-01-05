@@ -16,7 +16,7 @@ import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpButton,
-  DpInlineNotification
+  DpInlineNotification,
 }
 
 initialize(components, {}, [])

@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -19,12 +20,12 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
-use DirectoryIterator;
 use Exception;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
 use ReflectionException;
 use RuntimeException;
 use Symfony\Component\Filesystem\Exception\IOException;
@@ -35,6 +36,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DocumentHandler extends CoreHandler
 {
     final public const ACTION_SINGLE_DOCUMENT_NEW = 'singledocumentnew';
+    private const POSSIBLE_ENCODINGS = 'UTF-8, ISO-8859-1, ISO-8859-15';
 
     /**
      * @var SingleDocumentHandler
@@ -57,13 +59,14 @@ class DocumentHandler extends CoreHandler
         private readonly ElementHandler $elementHandler,
         ElementsService $elementsService,
         private readonly FileService $fileService,
-        MessageBag $messageBag,
+        private readonly FilesystemOperator $defaultStorage,
+        MessageBagInterface $messageBag,
         private readonly ParagraphService $paragraphService,
         private readonly ProcedureService $procedureService,
         SingleDocumentHandler $singleDocumentHandler,
         private readonly SingleDocumentService $singleDocumentService,
         private readonly TranslatorInterface $translator,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
         parent::__construct($messageBag);
         $this->elementsService = $elementsService;
@@ -82,9 +85,10 @@ class DocumentHandler extends CoreHandler
         $sessionId,
         $sessionElementImportList,
         string $procedure,
-        string $importDir
+        string $importDir,
     ): array {
         // Schreibe den Status des Imports im ein temporäres File
+        // local file only, no need for flysystem
         $fs = new Filesystem();
         $statusHash = md5($sessionId.$procedure);
         $status = Json::encode(['bulkImportFilesTotal' => 0, 'bulkImportFilesProcessed' => 0]);
@@ -115,6 +119,12 @@ class DocumentHandler extends CoreHandler
 
         $this->getSession()->remove('bulkImportFilesTotal');
         $this->getSession()->remove('bulkImportFilesProcessed');
+
+        try {
+            $this->defaultStorage->deleteDirectory($importDir);
+        } catch (FilesystemException $e) {
+            $this->logger->error('Could not delete file: ', [$e]);
+        }
 
         return $errorReport;
     }
@@ -152,8 +162,9 @@ class DocumentHandler extends CoreHandler
         $request,
         $sessionElementImportList,
         array &$errorReport,
-        $category = null
+        $category = null,
     ) {
+        // used for local files only, no need for flysystem
         $fs = new Filesystem();
         $result = [];
 
@@ -169,16 +180,8 @@ class DocumentHandler extends CoreHandler
         $createdDocuments = [];
 
         foreach ($entries as $entry) {
-            $fileName = utf8_decode((string) $entry['title']);
-            if (in_array($entry['path'], $sessionElementImportList)) {
-                $keys = array_keys($sessionElementImportList, $entry['path']);
-                if (is_array($keys)
-                    && isset($request[$keys[0]])
-                    && 0 < strlen((string) $request[$keys[0]])
-                ) {
-                    $fileName = $request[$keys[0]];
-                }
-            }
+            $fileName = $this->resolveImportFileName($entry, $sessionElementImportList, $request);
+
             // Ordner werden als neue Elements abgespeichert
             if (true === $entry['isDir']) {
                 $element = ['r_title' => $fileName];
@@ -210,7 +213,8 @@ class DocumentHandler extends CoreHandler
                 // speichere die Datei im Fileservice ab
                 try {
                     // Viruscheck has been done for complete zip, so no check needed any more
-                    $this->fileService->saveTemporaryFile($entry['path'], $fileName, $this->currentUser->getUser()->getId(), $procedure, FileService::VIRUSCHECK_NONE);
+                    $entry['path'] = $this->fileService->ensureLocalFile($entry['path'], $entry['title']);
+                    $this->fileService->saveTemporaryLocalFile($entry['path'], $fileName, $this->currentUser->getUser()->getId(), $procedure, FileService::VIRUSCHECK_NONE);
 
                     $singleDocument = new SingleDocument();
                     $singleDocument->setTitle($fileName);
@@ -269,6 +273,41 @@ class DocumentHandler extends CoreHandler
     }
 
     /**
+     * Resolves the final filename/folder name to use during import.
+     *
+     * Checks if the user provided a custom name for this entry during the import process.
+     * If a user-adjusted name exists in the request data, it will be used instead of
+     * the original filename. All names are normalized to UTF-8 encoding.
+     *
+     * @param array $entry                    The file/folder entry being processed (contains 'title' and 'path')
+     * @param array $sessionElementImportList Session mapping of hashes to file paths
+     * @param array $request                  The request data containing user-provided custom names
+     *
+     * @return string The resolved filename - either user-adjusted or original filename
+     */
+    private function resolveImportFileName(array $entry, array $sessionElementImportList, array $request): string
+    {
+        $fileName = (string) $entry['title'];
+        // Ensure the string is properly encoded to UTF-8
+        $fileName = mb_convert_encoding($fileName, 'UTF-8', mb_detect_encoding($fileName, self::POSSIBLE_ENCODINGS, true));
+        $entryPath = '/'.ltrim((string) $entry['path'], '/'); // Ensure leading slash
+        if (in_array($entryPath, $sessionElementImportList)) {
+            $keys = array_keys($sessionElementImportList, $entryPath);
+            if (is_array($keys)
+                && isset($request[$keys[0]])
+                && 0 < strlen((string) $request[$keys[0]])
+            ) {
+                $fileName = $request[$keys[0]]; // here the name is taken from the request
+                // Also ensure the string from request is properly encoded to UTF-8
+                $fileName = mb_convert_encoding($fileName, 'UTF-8',
+                    mb_detect_encoding((string) $fileName, self::POSSIBLE_ENCODINGS, true));
+            }
+        }
+
+        return $fileName;
+    }
+
+    /**
      * Liest die Verzeichnisstruktur des Planungsdokumentenimporters in ein Array ein.
      *
      * @param string $dir
@@ -279,30 +318,29 @@ class DocumentHandler extends CoreHandler
     {
         $result = [];
 
-        // Gehe rekursiv alle Verzeichnisse durch. Speichere Ordner als Elements, dateien als Files in den Elements
-        $iter = new DirectoryIterator($dir);
-        foreach ($iter as $fileInfo) {
-            if ($fileInfo->isDot()) {
-                continue;
-            }
-
-            if ($fileInfo->isDir()) {
+        // Recursively go through all directories. Save folders as Elements, files as Files in the Elements
+        // Use false for recursive parameter to only get direct contents of this directory
+        $contents = $this->defaultStorage->listContents($dir, false);
+        foreach ($contents as $item) {
+            if ($item->isDir()) {
                 $result[] = [
-                  'isDir'   => true,
-                  'title'   => $fileInfo->getFilename(),
-                  'path'    => $fileInfo->getPathname(),
-                  'entries' => $this->elementImportDirToArray(
-                      $fileInfo->getPathname()
-                  ),
+                    'isDir'   => true,
+                    'title'   => basename($item->path()),
+                    'path'    => $item->path(),
+                    'entries' => $this->elementImportDirToArray(
+                        $item->path()
+                    ),
                 ];
             } else {
-                // utf8_decode filename, weil Zip Umlaute kaputt macht
-                $filename = utf8_decode($fileInfo->getFilename());
+                // Ensure proper UTF-8 encoding for filenames
+                $filename = basename($item->path());
+                $filename = mb_convert_encoding($filename, 'UTF-8',
+                    mb_detect_encoding($filename, self::POSSIBLE_ENCODINGS, true));
 
                 $result[] = [
-                  'isDir'  => false,
-                  'title'  => $filename,
-                    'path' => $fileInfo->getPathname(),
+                    'isDir'  => false,
+                    'title'  => $filename,
+                    'path'   => $item->path(),
                 ];
 
                 // Speichere die Anzahl der Dateien in die Session
@@ -383,7 +421,7 @@ class DocumentHandler extends CoreHandler
         $result = $this->getParagraphService()->getParaDocumentList($procedure, $elementId);
 
         // check whether User may
-        if (0 < count($result)) {
+        if ([] !== $result) {
             $firstParagraph = $result[0];
             if (array_key_exists('element', $firstParagraph)) {
                 $element = $firstParagraph['element'];

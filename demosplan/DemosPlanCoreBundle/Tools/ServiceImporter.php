@@ -13,6 +13,8 @@ namespace demosplan\DemosPlanCoreBundle\Tools;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Event\CreateReportEntryEvent;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ServiceImporterException;
 use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
@@ -20,23 +22,30 @@ use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use Monolog\Logger;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use ZipArchive;
 
 /**
  * Import von Planunterlagen-Absaetzen.
  */
 class ServiceImporter implements ServiceImporterInterface
 {
+    private const ODT_EXTENSION = '.odt';
+    private const ODT_MIME_TYPE = 'application/vnd.oasis.opendocument.text';
+
     /**
      * @var FileService
      */
@@ -64,7 +73,9 @@ class ServiceImporter implements ServiceImporterInterface
 
     public function __construct(
         private readonly DocxImporterInterface $docxImporter,
+        private readonly OdtImporter $odtImporter,
         FileService $fileService,
+        private readonly FilesystemOperator $defaultStorage,
         GlobalConfigInterface $globalConfig,
         private LoggerInterface $logger,
         private readonly MessageBagInterface $messageBag,
@@ -72,7 +83,8 @@ class ServiceImporter implements ServiceImporterInterface
         ParagraphService $paragraphService,
         private readonly PdfCreatorInterface $pdfCreator,
         private readonly RouterInterface $router,
-        RpcClient $client
+        RpcClient $client,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
         $this->client = $client;
         $this->fileService = $fileService;
@@ -80,28 +92,22 @@ class ServiceImporter implements ServiceImporterInterface
         $this->globalConfig = $globalConfig;
     }
 
-    /**
-     * Prüfe, ob die Datei importiert werden kann.
-     *
-     * @param File  $file
-     * @param array $allowedMimetypes
-     *
-     * @return File|FileException
-     */
-    public function checkFileIsValidToImport($file, $allowedMimetypes)
+    public function checkFileIsValidToImport(FileInfo $fileInfo): void
     {
-        // $file kann eine in Symfony hochgeladene Datei oder eine stdClass aus dem Unittest sein
-        if ($file instanceof File) {
-            // check for MimeType
-            $mimeType = $file->getMimeType();
+        // This should probably be in a configuration section
+        $allowedMimetypes = [
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
+            'application/vnd.oasis.opendocument.text', // ODT
+            'application/zip', // Can be ODT or DOCX
+            'application/msword',
+            'application/octet-stream',
+        ];
 
-            // mimetype is allowed
-            if (in_array($mimeType, $allowedMimetypes, true)) {
-                return $file;
-            }
-
-            $this->getLogger()->warning('MimeType is not allowed. Given MimeType: '.$mimeType);
-            throw new FileException('MimeType is not allowed. Given MimeType: '.$mimeType, 20);
+        // mimetype is allowed
+        $contentType = $fileInfo->getContentType();
+        if (!in_array($contentType, $allowedMimetypes, true)) {
+            $this->getLogger()->warning('MimeType is not allowed. Given MimeType: '.$contentType);
+            throw new FileException('MimeType is not allowed. Given MimeType: '.$contentType, 20);
         }
     }
 
@@ -159,10 +165,10 @@ class ServiceImporter implements ServiceImporterInterface
         $exception = new ServiceImporterException();
 
         if (
-            !array_key_exists('paragraphs', $importResult) ||
-            !array_key_exists('procedure', $importResult) ||
-            !array_key_exists('elementId', $importResult) ||
-            !array_key_exists('category', $importResult)
+            !array_key_exists('paragraphs', $importResult)
+            || !array_key_exists('procedure', $importResult)
+            || !array_key_exists('elementId', $importResult)
+            || !array_key_exists('category', $importResult)
         ) {
             $this->getLogger()->warning('Paragraph importresult format invalid. '.DemosPlanTools::varExport($importResult, true));
             throw new InvalidArgumentException('Paragraph importresult format invalid');
@@ -179,10 +185,10 @@ class ServiceImporter implements ServiceImporterInterface
 
         foreach ($importResult['paragraphs'] as $paragraph) {
             if (
-                !array_key_exists('text', $paragraph) ||
-                !array_key_exists('title', $paragraph) ||
-                !array_key_exists('files', $paragraph) ||
-                !array_key_exists('nestingLevel', $paragraph)
+                !array_key_exists('text', $paragraph)
+                || !array_key_exists('title', $paragraph)
+                || !array_key_exists('files', $paragraph)
+                || !array_key_exists('nestingLevel', $paragraph)
             ) {
                 $this->getLogger()->warning('Paragraph import format invalid. '.DemosPlanTools::varExport($paragraph, true));
                 $exception->addErrorParagraph($paragraph['title'] ?? 'noTitle');
@@ -192,35 +198,28 @@ class ServiceImporter implements ServiceImporterInterface
             // Prüfe ob eine oder mehrere Dateianhänge vorhanden sind
             if (null != $paragraph['files']) {
                 foreach ($paragraph['files'] as $files) {
-                    foreach ($files as $f => $c) {
+                    foreach ($files as $file => $content) {
                         /* Teile String in 2 Teile
                          * Teil 1 = Dateiname
                          * Teil 2 = Dateiinhalt base64 encoded
                          */
-                        $ca = explode('::', (string) $c);
-                        if (2 === count($ca)) {
+                        $contentParts = explode('::', (string) $content);
+                        if (2 === count($contentParts)) {
+                            // local file only, no need for flysystem
                             $fs = new Filesystem();
-                            // Speichere dekodierte Datei als temporäre Datei
-                            $fs->dumpFile(
-                                sys_get_temp_dir(
-                                ).DIRECTORY_SEPARATOR.$ca[0],
-                                base64_decode($ca[1])
-                            );
-                            $this->getLogger()->debug(
-                                "Datei '".sys_get_temp_dir(
-                                ).DIRECTORY_SEPARATOR.$ca[0]."' angelegt."
-                            );
-                            $lf = new UploadedFile(
-                                sys_get_temp_dir(
-                                ).DIRECTORY_SEPARATOR.$ca[0], $ca[0]
-                            );
+                            // Save decoded file as a temporary file
+                            $tmpFilename = $contentParts[0];
+                            $tmpFilePath = DemosPlanPath::getTemporaryPath($tmpFilename);
+                            $tmpFileContent = $contentParts[1];
+                            $fs->dumpFile($tmpFilePath, base64_decode($tmpFileContent));
+                            $this->getLogger()->debug('file created', [$tmpFilePath]);
 
                             $hash = '';
                             // Übergebe temporäre Datei FileService
                             try {
-                                $hash = $this->fileService->saveTemporaryFile(
-                                    $lf->getPathname(),
-                                    $ca[0],
+                                $hash = $this->fileService->saveTemporaryLocalFile(
+                                    $tmpFilePath,
+                                    $tmpFilename,
                                     null,
                                     $procedureId,
                                     FileService::VIRUSCHECK_NONE
@@ -231,17 +230,9 @@ class ServiceImporter implements ServiceImporterInterface
                                 $this->getLogger()->error('Error in Fileupload ', [$e]);
                             }
 
-                            $this->getLogger()->debug(
-                                "Datei '".sys_get_temp_dir(
-                                ).DIRECTORY_SEPARATOR.$ca[0]."' hochgeladen. FileService Hash: ".$hash
-                            );
-                            // Lösche temporäre Datei
-                            $fs->remove(
-                                sys_get_temp_dir(
-                                ).DIRECTORY_SEPARATOR.$ca[0]
-                            );
                             // Ersetze Platzhalter im Text mit FileService Hash
-                            $stringToReplace = '/file/'.substr((string) $f, 2);
+                            $stringToReplace = '/file/'.substr((string) $file, 2);
+                            $paragraph['text'] = $this->fixImageSize($paragraph['text'], $stringToReplace, $hash);
                             $paragraph['text'] = str_replace(
                                 $stringToReplace,
                                 $this->router->generate('core_file_procedure', [
@@ -276,9 +267,10 @@ class ServiceImporter implements ServiceImporterInterface
             ];
             // Persistiere Paragraph Zeile
             try {
-                $response = $this->paragraphRepository
-                    ->add($p);
-                $this->getLogger()->debug('Paragraph:'.serialize($response));
+                $response = $this->paragraphRepository->add($p);
+
+                $reportEntryEvent = new CreateReportEntryEvent($response, ReportEntry::CATEGORY_ADD);
+                $this->eventDispatcher->dispatch($reportEntryEvent);
 
                 // save paragraph as current one in nesting level
                 $parentParagraphs[$paragraph['nestingLevel']] = $response->getId();
@@ -287,7 +279,7 @@ class ServiceImporter implements ServiceImporterInterface
             }
         }
         $this->getLogger()->debug('Anzahl Paragraphs: '.$order);
-        if (0 < (is_countable($exception->getErrorParagraphs()) ? count($exception->getErrorParagraphs()) : 0)) {
+        if (0 < count($exception->getErrorParagraphs())) {
             throw $exception;
         }
     }
@@ -310,36 +302,36 @@ class ServiceImporter implements ServiceImporterInterface
 
         // Transform document and save to database
         try {
-            // @improve T14122
-
             $fileInfo = $this->fileService->getFileInfoFromFileString($uploadedFile);
-            $file = new File($fileInfo->getAbsolutePath());
+            // File needs to be saved as a local file, as any DocxImporterInterface need a local file path
+            // no need for flysystem
+            $fs = new Filesystem();
+            $temporaryPath = DemosPlanPath::getTemporaryPath($fileInfo->getHash());
+            $fs->dumpFile($temporaryPath, $this->defaultStorage->read($fileInfo->getAbsolutePath()));
+            $file = new File($temporaryPath);
+            $this->checkFileIsValidToImport($fileInfo);
 
-            // This should probably be in a configuration section
-            $documentImportMimeTypes = [
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'application/zip',
-                'application/msword',
-                'application/octet-stream',
-            ];
-
-            $file = $this->checkFileIsValidToImport(
-                $file,
-                $documentImportMimeTypes
-            );
-            $mimeType = $file->getMimeType();
-
-            if (in_array($mimeType, $documentImportMimeTypes, true)) {
+            // Detect file type and use appropriate importer
+            if ($this->isOdtFile($fileInfo, $file)) {
+                $importResult = $this->importOdtFile(
+                    $file,
+                    $elementId,
+                    $procedureId,
+                    'paragraph'
+                );
+            } else {
                 $importResult = $this->importDocxWithRabbitMQ(
                     $file,
                     $elementId,
                     $procedureId,
                     'paragraph'
                 );
-                $this->createParagraphsFromImportResult($importResult, $procedureId);
-                // delete uploaded docx
-                $this->deleteDocxAfterImportWithRabbitMQ($fileInfo->getHash());
             }
+            // cleanup temporary file
+            $fs->remove($temporaryPath);
+            $this->createParagraphsFromImportResult($importResult, $procedureId);
+            // delete uploaded docx
+            $this->deleteDocxAfterImportWithRabbitMQ($fileInfo->getHash());
 
             $this->messageBag->add('confirm', 'confirm.import');
         } catch (FileException $e) {
@@ -369,7 +361,65 @@ class ServiceImporter implements ServiceImporterInterface
     }
 
     /**
-     * @return Logger
+     * Detect if file is ODT based on file extension and content.
+     */
+    private function isOdtFile(FileInfo $fileInfo, File $file): bool
+    {
+        $contentType = $fileInfo->getContentType();
+        $fileName = $fileInfo->getFileName();
+
+        // Check if file has ODT extension or correct MIME type
+        $hasOdtExtension = str_ends_with(strtolower($fileName), self::ODT_EXTENSION);
+        $hasOdtMimeType = self::ODT_MIME_TYPE === $contentType;
+
+        if (!$hasOdtExtension && !$hasOdtMimeType) {
+            return false;
+        }
+
+        // Content-based validation: check if file is a ZIP archive and contains correct mimetype
+        $filePath = $file->getRealPath();
+        if ($filePath && file_exists($filePath)) {
+            return $this->validateOdtStructure($filePath);
+        }
+
+        return false;
+    }
+
+    /**
+     * Validate ODT file structure by checking if it's a valid ZIP with correct mimetype.
+     */
+    private function validateOdtStructure(string $filePath): bool
+    {
+        // Check if file can be opened as ZIP
+        $zip = new ZipArchive();
+        // RDONLY requires libzip >= 1.0.0 and php > 7.4.3, fallback to default read mode if not available
+        $flags = defined('ZipArchive::RDONLY') ? ZipArchive::RDONLY : 0;
+        if (true !== $zip->open($filePath, $flags)) {
+            return false;
+        }
+
+        // Check if mimetype file exists and has correct content
+        $mimetypeContent = $zip->getFromName('mimetype');
+        $zip->close();
+
+        if (false === $mimetypeContent) {
+            return false;
+        }
+
+        // Verify mimetype content matches ODT specification
+        return self::ODT_MIME_TYPE === trim($mimetypeContent);
+    }
+
+    /**
+     * Import ODT file and convert to paragraph structure.
+     */
+    public function importOdtFile(File $file, string $elementId, string $procedure, string $category): array
+    {
+        return $this->odtImporter->importOdt($file, $elementId, $procedure, $category);
+    }
+
+    /**
+     * @return LoggerInterface
      */
     protected function getLogger()
     {
@@ -398,5 +448,35 @@ class ServiceImporter implements ServiceImporterInterface
     public function setClient($client)
     {
         $this->client = $client;
+    }
+
+    /**
+     * DocxImporter may not be able to calculate the correct image size. In this case the importer will set the width and height to 0.
+     * This method will fix the image size by reading the image file and setting the correct width and height.
+     */
+    private function fixImageSize(string $text, string $stringToReplace, string $hash): string
+    {
+        // as the tag is generated by the importer we can rely on a specific format
+        if (str_contains($text, "width='0'")) {
+            preg_match_all(sprintf("|<img src='%s' width='0' height='0'>|", $stringToReplace), $text, $matches);
+            foreach (array_keys($matches[0]) as $key) {
+                try {
+                    $fileInfo = $this->fileService->getFileInfo($hash);
+                    if ($this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+                        $sizeArray = getimagesizefromstring($this->defaultStorage->read($fileInfo->getAbsolutePath()));
+                        $text = str_replace(["width='0'", "height='0'"],
+                            [
+                                sprintf("width='%s'", $sizeArray[0]),
+                                sprintf("height='%s'", $sizeArray[1]),
+                            ],
+                            $text);
+                    }
+                } catch (Exception) {
+                    $this->logger->info('Could not fix image size for file', [$hash]);
+                }
+            }
+        }
+
+        return $text;
     }
 }

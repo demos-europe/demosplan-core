@@ -48,7 +48,7 @@ class OwnsProcedureConditionFactory
         private readonly ConditionFactoryInterface&ConditionGroupFactoryInterface $conditionFactory,
         private readonly GlobalConfigInterface $globalConfig,
         private readonly LoggerInterface $logger,
-        private readonly User|Procedure $userOrProcedure
+        private readonly User|Procedure $userOrProcedure,
     ) {
     }
 
@@ -61,6 +61,8 @@ class OwnsProcedureConditionFactory
      * Will *not* check for the role of the user. Use {@link self::hasPlanningAgencyRole()} in conjunction with this method.
      *
      * @return FunctionInterface<bool>
+     *
+     * @throws PathException
      */
     public function isAuthorizedViaPlanningAgency(): FunctionInterface
     {
@@ -74,7 +76,9 @@ class OwnsProcedureConditionFactory
         $procedure = $this->userOrProcedure;
         $procedurePlanningOffices = $procedure->getPlanningOfficesIds();
 
-        return $this->conditionFactory->propertyHasAnyOfValues($procedurePlanningOffices, ['orga', 'id']);
+        return [] === $procedurePlanningOffices
+            ? $this->conditionFactory->false()
+            : $this->conditionFactory->propertyHasAnyOfValues($procedurePlanningOffices, ['orga', 'id']);
     }
 
     /**
@@ -82,7 +86,8 @@ class OwnsProcedureConditionFactory
      * then the user must be in the organisation that created the procedure.
      *
      * If {@link GlobalConfigInterface::hasProcedureUserRestrictedAccess} is set to `true`,
-     * then the user must be authorized manually for the procedure.
+     * then the user must be authorized manually for the procedure AND must be in the
+     * procedure's owning organization.
      *
      * The returned condition will not apply role checks by itself. Use in conjunction with
      * {@link self::hasProcedureAccessingRole}.
@@ -91,24 +96,31 @@ class OwnsProcedureConditionFactory
      */
     public function isAuthorizedViaOrgaOrManually(): FunctionInterface
     {
-        // T8427: allow access by manually configured users if the config is set to `true`,
-        // overwriting the organisation-based access
-        return $this->globalConfig->hasProcedureUserRestrictedAccess()
-            ? $this->userIsExplicitlyAuthorized()
-            : $this->userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure();
+        // When explicit authorization is enabled, require BOTH explicit authorization
+        // AND owning organization match to prevent access by users who changed organizations
+        if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
+            return $this->conditionFactory->allConditionsApply(
+                $this->userIsExplicitlyAuthorized(),
+                $this->userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure()
+            );
+        }
+
+        return $this->userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure();
     }
 
     /**
      * Returns a condition to match users having the roles in the given customer to theoretically own a procedure.
      *
      * @return list<FunctionInterface<bool>>
+     *
+     * @throws PathException
      */
     public function hasProcedureAccessingRole(Customer $customer): array
     {
         $relevantRoles = [
-            RoleInterface::CUSTOMER_MASTER_USER,
             ...User::PLANNING_AGENCY_ROLES,
             ...User::HEARING_AUTHORITY_ROLES,
+            ...User::CUSTOMER_MASTER_USER_ROLE,
         ];
 
         if ($this->userOrProcedure instanceof User) {
@@ -124,7 +136,9 @@ class OwnsProcedureConditionFactory
         if (null !== $procedure->getOrgaId()) {
             $this->logger->debug('Permissions: Check whether orga owns procedure');
             $ownsOrgaRoleCondition = [
-                $this->conditionFactory->propertyHasAnyOfValues($relevantRoles, ['roleInCustomers', 'role', 'code']),
+                $conditions[] = [] === $relevantRoles
+                    ? $this->conditionFactory->false()
+                    : $this->conditionFactory->propertyHasAnyOfValues($relevantRoles, ['roleInCustomers', 'role', 'code']),
                 $this->isUserInCustomer($customer),
             ];
         } else {
@@ -216,7 +230,11 @@ class OwnsProcedureConditionFactory
 
         $procedure = $this->userOrProcedure;
 
-        return $this->conditionFactory->propertyHasAnyOfValues($procedure->getAuthorizedUserIds(), ['id']);
+        $authorizedUserIds = $procedure->getAuthorizedUserIds();
+
+        return [] === $authorizedUserIds
+            ? $this->conditionFactory->false()
+            : $this->conditionFactory->propertyHasAnyOfValues($authorizedUserIds, ['id']);
     }
 
     /**
@@ -230,13 +248,25 @@ class OwnsProcedureConditionFactory
     {
         if ($this->userOrProcedure instanceof User) {
             $user = $this->userOrProcedure;
+            $organisationId = $user->getOrganisationId();
 
-            return $this->conditionFactory->propertyHasValue($user->getOrganisationId(), ['orga']);
+            // User without organization cannot own any procedure
+            if (null === $organisationId) {
+                return $this->conditionFactory->false();
+            }
+
+            return $this->conditionFactory->propertyHasValue($organisationId, ['orga', 'id']);
         }
 
         $procedure = $this->userOrProcedure;
+        $orgaId = $procedure->getOrgaId();
 
-        return $this->conditionFactory->propertyHasValue($procedure->getOrgaId(), ['orga', 'id']);
+        // Procedure without organization cannot be owned
+        if (null === $orgaId) {
+            return $this->conditionFactory->false();
+        }
+
+        return $this->conditionFactory->propertyHasValue($orgaId, ['orga', 'id']);
     }
 
     /**

@@ -11,13 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\DataProtectionOrganisation;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\ImprintOrganisation;
 use Exception;
@@ -25,7 +25,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OrgaHandler extends CoreHandler
 {
-    public function __construct(private readonly OrgaService $orgaService, MessageBag $messageBag, private readonly TranslatorInterface $translator, private readonly CurrentUserInterface $currentUser)
+    public function __construct(private readonly OrgaService $orgaService, MessageBagInterface $messageBag, private readonly TranslatorInterface $translator, private readonly CurrentUserInterface $currentUser)
     {
         parent::__construct($messageBag);
     }
@@ -67,9 +67,9 @@ class OrgaHandler extends CoreHandler
             $mandatoryErrors[] = $this->createMandatoryErrorMessage('type');
         } else {
             $regStatus = $data['registrationStatuses'][0];
-            if (!array_key_exists('status', $regStatus) || '' === trim((string) $regStatus['status']) ||
-                !array_key_exists('subdomain', $regStatus) || '' === trim((string) $regStatus['subdomain']) ||
-                !array_key_exists('type', $regStatus) || '' === trim((string) $regStatus['type'])) {
+            if (!array_key_exists('status', $regStatus) || '' === trim((string) $regStatus['status'])
+                || !array_key_exists('subdomain', $regStatus) || '' === trim((string) $regStatus['subdomain'])
+                || !array_key_exists('type', $regStatus) || '' === trim((string) $regStatus['type'])) {
                 $mandatoryErrors[] = $this->createMandatoryErrorMessage('type');
             }
         }
@@ -166,6 +166,7 @@ class OrgaHandler extends CoreHandler
             'showlist',
             'showlistChangeReason',
             'showname',
+            'canCreateProcedures',
         ];
 
         if ($this->currentUser->hasPermission('field_organisation_email2_cc')) {

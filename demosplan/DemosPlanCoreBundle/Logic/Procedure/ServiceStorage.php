@@ -14,12 +14,13 @@ use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PreNewProcedureCreatedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceStorageInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PreNewProcedureCreatedEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\ContentMandatoryFieldsException;
@@ -32,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
@@ -42,12 +42,15 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Webmozart\Assert\Assert;
 
+use function array_key_exists;
 use function is_string;
 
 /**
@@ -85,6 +88,8 @@ class ServiceStorage implements ProcedureServiceStorageInterface
      */
     protected $masterProcedurePhase;
 
+    private const MAX_PHASE_ITERATION_VALUE = 100;
+
     public function __construct(
         private readonly ArrayHelper $arrayHelper,
         ContentService $contentService,
@@ -95,7 +100,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         private readonly LoggerInterface $logger,
         private readonly LegacyFlashMessageCreator $legacyFlashMessageCreator,
         private readonly MasterTemplateService $masterTemplateService,
-        private readonly MessageBag $messageBag,
+        private readonly MessageBagInterface $messageBag,
         private readonly NotificationReceiverRepository $notificationReceiverRepository,
         private readonly OrgaService $orgaService,
         private readonly PermissionsInterface $permissions,
@@ -104,14 +109,16 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         private readonly ProcedureReportEntryFactory $procedureReportEntryFactory,
         private readonly ProcedureService $procedureService,
         private readonly ProcedureTypeService $procedureTypeService,
-        ParameterBagInterface $parameterBag,
+        private readonly ParameterBagInterface $parameterBag,
         private readonly ReportService $reportService,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
+        private readonly FilesystemOperator $defaultStorage,
+        private readonly FileServiceInterface $fileService,
     ) {
         $this->contentService = $contentService;
         $this->customerService = $customerService;
         $this->eventDispatcher = $eventDispatcher;
-        $this->masterProcedurePhase = $parameterBag->get('master_procedure_phase');
+        $this->masterProcedurePhase = $this->parameterBag->get('master_procedure_phase');
         $this->procedureCategoryService = $procedureCategoryService;
         $this->procedureHandler = $procedureHandler;
     }
@@ -156,13 +163,10 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         // check for mandatory fields which should be programmatically added
         $mandatoryFields = ['orgaId', 'orgaName', 'r_copymaster'];
-        if (array_key_exists('r_copymaster', $data)
-            && $this->masterTemplateService->getMasterTemplateId() !== $data['r_copymaster']) {
-            // r_procedure_type is only required if an actual procedure is created,
-            // procedure blueprints do not need a procedure type.
-            if (!array_key_exists('r_master', $data) || 'true' !== $data['r_master']) {
-                $mandatoryFields[] = 'r_procedure_type';
-            }
+        // r_procedure_type is only required if an actual procedure is created,
+        // procedure blueprints do not need a procedure type.
+        if (array_key_exists('r_copymaster', $data) && $this->masterTemplateService->getMasterTemplateId() !== $data['r_copymaster'] && (!array_key_exists('r_master', $data) || 'true' !== $data['r_master'])) {
+            $mandatoryFields[] = 'r_procedure_type';
         }
         foreach ($mandatoryFields as $mandatoryField) {
             if (!array_key_exists($mandatoryField, $data) || '' === trim((string) $data[$mandatoryField])) {
@@ -239,7 +243,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             ];
         }
 
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             $this->legacyFlashMessageCreator->setFlashMessages($mandatoryErrors);
 
             $messages = collect($mandatoryErrors)->map(
@@ -288,6 +292,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
      */
     public function administrationEditHandler($data, $checkMandatoryErrors = true)
     {
+        $result = true;
         $procedure = [];
         $procedure['settings'] = [];
 
@@ -330,25 +335,27 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $isBlueprint = $currentProcedure->getMaster();
         $isNotInConfiguration = array_key_exists('r_phase', $data) && 'configuration' !== $data['r_phase'];
         $isNotInPublicConfiguration = array_key_exists('r_publicParticipationPhase', $data) && 'configuration' !== $data['r_publicParticipationPhase'];
-        if ($this->permissions->hasPermission('feature_procedure_require_location') && !$isBlueprint && ($isNotInPublicConfiguration || $isNotInConfiguration)) {
-            if ((array_key_exists('r_coordinate', $data) && '' == $data['r_coordinate']) || !array_key_exists('r_coordinate', $data)) {
-                $mandatoryErrors[] = [
-                    'type'    => 'error',
-                    'message' => $this->legacyFlashMessageCreator->createFlashMessage(
-                        'mandatoryError',
-                        [
-                            'fieldLabel' => $this->translator->trans('wizard.topic.location'),
-                        ]
-                    ),
-                ];
-            }
+        if ($this->permissions->hasPermission('feature_procedure_require_location') && !$isBlueprint && ($isNotInPublicConfiguration || $isNotInConfiguration) && ((array_key_exists('r_coordinate', $data) && '' == $data['r_coordinate']) || !array_key_exists('r_coordinate', $data))) {
+            $mandatoryErrors[] = [
+                'type'    => 'error',
+                'message' => $this->legacyFlashMessageCreator->createFlashMessage(
+                    'mandatoryError',
+                    [
+                        'fieldLabel' => $this->translator->trans('wizard.topic.location'),
+                    ]
+                ),
+            ];
         }
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'phase_iteration');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'public_participation_phase_iteration');
-        $phaseIterationError = $this->validatePhaseIterations($procedure);
-        if (count($phaseIterationError) > 0) {
-            $mandatoryErrors[] = $phaseIterationError;
+        $phaseErrorMessage = $this->validatePhaseIteration($procedure, 'phase_iteration', 'error.phaseIteration.invalid');
+        if ([] !== $phaseErrorMessage) {
+            $mandatoryErrors[] = $phaseErrorMessage;
+        }
+        $phaseErrorMessage = $this->validatePhaseIteration($procedure, 'public_participation_phase_iteration', 'error.publicPhaseIteration.invalid');
+        if ([] !== $phaseErrorMessage) {
+            $mandatoryErrors[] = $phaseErrorMessage;
         }
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'ident');
@@ -366,15 +373,13 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             if (array_key_exists('r_customerMasterBlueprint', $data)) {
                 $currentCustomer->setDefaultProcedureBlueprint($currentProcedure);
                 $this->customerService->updateCustomer($currentCustomer);
-            } else {
+            } elseif ($isBlueprint) {
                 // T15644 & T34551 if the key 'r_customerMasterBlueprint' is not set within the $data array,
                 // - the assumption is that the procedure shall not be the default-customer-blueprint
                 // if the procedure is currently the default-customer-blueprint uncheck it as requested
-                if ($isBlueprint) {
-                    if ($currentProcedure === $currentCustomer->getDefaultProcedureBlueprint()) {
-                        $currentCustomer->setDefaultProcedureBlueprint(null);
-                        $this->customerService->updateCustomer($currentCustomer);
-                    }
+                if ($currentProcedure === $currentCustomer->getDefaultProcedureBlueprint()) {
+                    $currentCustomer->setDefaultProcedureBlueprint(null);
+                    $this->customerService->updateCustomer($currentCustomer);
                 }
             }
         }
@@ -420,11 +425,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $procedure['logo'] = '';
         }
 
-        if (array_key_exists('r_dataInputOrga', $data)) {
-            $procedure['dataInputOrga'] = $data['r_dataInputOrga'];
-        } else {
-            $procedure['dataInputOrga'] = [];
-        }
+        $procedure['dataInputOrga'] = array_key_exists('r_dataInputOrga', $data) ? $data['r_dataInputOrga'] : [];
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'externalName');
         // Falls keine Verfahrensname für die Öffentlichkeit angelegt wird, dann speicher den allgem. Name als external Name
         if (empty($data['r_externalName']) && array_key_exists('name', $procedure) && '' !== $procedure['name']) {
@@ -486,6 +487,14 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $procedure['publicParticipationPublicationEnabled'] = true;
         } else {
             $procedure['publicParticipationPublicationEnabled'] = false;
+        }
+
+        if ($this->permissions->hasPermission('feature_feedback_on_statement_controllable')) {
+            if (array_key_exists('r_publicParticipationFeedbackEnabled', $data)) {
+                $procedure['settings']['publicParticipationFeedbackEnabled'] = true;
+            } else {
+                $procedure['settings']['publicParticipationFeedbackEnabled'] = false;
+            }
         }
 
         // liegt das Enddatum vor dem Startdatum?
@@ -620,10 +629,33 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         if ($this->permissions->hasPermission('field_procedure_pictogram')) {
             if (array_key_exists('r_pictogram', $data)
              && '' !== $data['r_pictogram']) {
+                // this permission can be set dynamically as a access control permission
+                if ($this->permissions->hasPermission('feature_procedure_pictogram_resolution_restriction')) {
+                    $this->validatePictogram($data['r_pictogram']);
+                }
                 $procedure['settings']['pictogram'] = $data['r_pictogram'];
             }
             if (array_key_exists('r_deletePictogram', $data)) {
                 $procedure['settings']['pictogram'] = '';
+            }
+
+            if (array_key_exists('r_pictogramCopyright', $data)) {
+                $procedure['settings']['pictogramCopyright'] = $data['r_pictogramCopyright'];
+            }
+            if (array_key_exists('r_pictogramAltText', $data)) {
+                $procedure['settings']['pictogramAltText'] = $data['r_pictogramAltText'];
+            }
+        }
+
+        if ($this->permissions->hasPermission('field_submit_anonymous_statements')) {
+            $procedure['settings']['allowAnonymousStatements'] = array_key_exists('allowAnonymousStatements', $data);
+        }
+
+        if ($this->permissions->hasPermission('field_expand_procedure_description')) {
+            if (array_key_exists('expandProcedureDescription', $data)) {
+                $procedure['settings']['expandProcedureDescription'] = true;
+            } else {
+                $procedure['settings']['expandProcedureDescription'] = false;
             }
         }
 
@@ -640,6 +672,36 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $this->contentService->setProcedureFieldCompletions($procedure['ident'], $data['fieldCompletions']);
 
         return $this->procedureService->updateProcedure($procedure);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    private function validatePictogram(string $fileString): void
+    {
+        try {
+            $pictogramFileInfo = $this->fileService->getFileInfoFromFileString($fileString);
+
+            $path = $this->fileService->ensureLocalFile($pictogramFileInfo->getAbsolutePath());
+            $imageInfo = getimagesize($path);
+        } catch (Exception $e) {
+            throw new InvalidArgumentException($e->getMessage());
+        }
+        Assert::isArray($imageInfo);
+        Assert::keyExists($imageInfo, 0, 'Unable to get pictogram image width');
+        Assert::keyExists($imageInfo, 1, 'Unable to get pictogram image height');
+        $width = $imageInfo[0] ?? 0;
+        $height = $imageInfo[1] ?? 0;
+        $this->fileService->deleteLocalFile($path);
+
+        $maxFileSize = $this->parameterBag->get('pictogram_max_file_size');
+        $minWidth = $this->parameterBag->get('pictogram_min_width');
+        $minHeight = $this->parameterBag->get('pictogram_min_height');
+
+        if ($width < $minWidth || $height < $minHeight || $pictogramFileInfo->getFileSize() > $maxFileSize) {
+            $this->messageBag->add('error', 'procedure.pictogram.resolution.tooLow');
+            throw new InvalidArgumentException('Pictogram resolution too low or file size too big');
+        }
     }
 
     /**
@@ -821,11 +883,9 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             }
         }
 
-        if (array_key_exists('r_planDrawDelete', $data)) {
-            // check, ob eine neue Datei hochgeladen werden soll
-            if (array_key_exists('r_planDrawPDF', $data) && !isset($data['r_planDrawPDF'])) {
-                $procedure['settings']['planDrawPDF'] = '';
-            }
+        // check, ob eine neue Datei hochgeladen werden soll
+        if (array_key_exists('r_planDrawDelete', $data) && (array_key_exists('r_planDrawPDF', $data) && !isset($data['r_planDrawPDF']))) {
+            $procedure['settings']['planDrawPDF'] = '';
         }
 
         return $this->procedureService->updateProcedure($procedure);
@@ -963,7 +1023,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
     protected function checkSwitchDateMandatoryFields(
         $data,
         $fieldsToCheck,
-        $mandatoryErrors
+        $mandatoryErrors,
     ): array {
         $hasMandatoryAutoSwitchError = false;
         foreach ($fieldsToCheck as $fieldToCheck => $fieldTranslationLabel) {
@@ -996,21 +1056,35 @@ class ServiceStorage implements ProcedureServiceStorageInterface
     protected function checkSwitchDateValidFields(
         string $startDate,
         string $endDate,
-        $mandatoryErrors
+        $mandatoryErrors,
     ) {
+        $this->logger->info('checkSwitchDateValidFields called', [
+            'startDate'         => $startDate,
+            'endDate'           => $endDate,
+            'currentErrorCount' => count($mandatoryErrors),
+        ]);
+
         $hasMandatoryAutoSwitchError = false;
 
-        $designatedSwitchDate = Carbon::createFromFormat(Carbon::ATOM, date(DATE_ATOM, strtotime($startDate)));
-        $designatedSwitchEndDate = Carbon::createFromFormat('d.m.Y', $endDate);
-        if (!$designatedSwitchDate->isFuture()) {
-            $mandatoryErrors[] = [
-                'type'    => 'error',
-                'message' => $this->translator
-                    ->trans('error.designated.switchdate.in.past'),
-            ];
-            $hasMandatoryAutoSwitchError = true;
-        }
-        if (!$designatedSwitchEndDate->isFuture()) {
+        $designatedSwitchDate = Carbon::make($startDate);
+        $designatedSwitchEndDate = Carbon::createFromFormat('d.m.Y', $endDate)->endOfDay();
+
+        $now = Carbon::now();
+
+        $this->logger->info('Parsed dates for validation', [
+            'designatedSwitchDate'    => $designatedSwitchDate->toISOString(),
+            'designatedSwitchEndDate' => $designatedSwitchEndDate->toISOString(),
+            'now'                     => $now->toISOString(),
+        ]);
+
+        // Check if end date is in the future
+        if (!$designatedSwitchEndDate->greaterThan($now)) {
+            $this->logger->warning('Switch date validation failed: end date is not in the future', [
+                'designatedSwitchEndDate' => $designatedSwitchEndDate->toISOString(),
+                'now'                     => $now->toISOString(),
+                'differenceInMinutes'     => $now->diffInMinutes($designatedSwitchEndDate, false),
+            ]);
+
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->translator
@@ -1018,7 +1092,15 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             ];
             $hasMandatoryAutoSwitchError = true;
         }
-        if (!$designatedSwitchDate->lt($designatedSwitchEndDate)) {
+
+        // Check if start date is before end date
+        if ($designatedSwitchDate->startOfDay()->greaterThanOrEqualTo($designatedSwitchEndDate)) {
+            $this->logger->warning('Switch date validation failed: start date is not before end date', [
+                'designatedSwitchDate'    => $designatedSwitchDate->toISOString(),
+                'designatedSwitchEndDate' => $designatedSwitchEndDate->toISOString(),
+                'differenceInMinutes'     => $designatedSwitchDate->diffInMinutes($designatedSwitchEndDate, false),
+            ]);
+
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->translator
@@ -1079,27 +1161,16 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         return $token;
     }
 
-    private function validatePhaseIterations(array $procedure): array
+    private function validatePhaseIteration(array $procedure, string $fieldName, string $errorMessageKey): array
     {
-        $phaseIteration = 'phase_iteration';
-        if (isset($procedure[$phaseIteration])) {
-            return $this->validatePhaseIterationValue($procedure[$phaseIteration]);
+        if (!isset($procedure[$fieldName])) {
+            return [];
         }
-
-        $publicPhaseIteration = 'public_participation_phase_iteration';
-        if (isset($procedure[$publicPhaseIteration])) {
-            return $this->validatePhaseIterationValue($procedure[$publicPhaseIteration]);
-        }
-
-        return [];
-    }
-
-    private function validatePhaseIterationValue($value): array
-    {
-        if (!is_numeric($value) || (int) $value < 1) {
+        $value = $procedure[$fieldName];
+        if (!is_numeric($value) || (int) $value < 1 || (int) $value > self::MAX_PHASE_ITERATION_VALUE) {
             return [
                 'type'    => 'error',
-                'message' => $this->translator->trans('error.phaseIteration.invalid'),
+                'message' => $this->translator->trans($errorMessageKey),
             ];
         }
 

@@ -35,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\Constraint\ProcedureAllowedSegmentsConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureMasterTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTypeConstraint;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
@@ -44,7 +45,6 @@ use demosplan\DemosPlanCoreBundle\Entity\SluggedEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
-use demosplan\DemosPlanCoreBundle\Entity\Survey\Survey;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -452,7 +452,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var Customer
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      *
      * @ORM\JoinColumn(name="customer", referencedColumnName="_c_id", nullable=true)
      */
@@ -490,14 +490,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="procedure", cascade={"persist", "remove"})
      */
     protected $statements;
-
-    /**
-     * @var Collection<int, Survey>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Survey\Survey",
-     *      mappedBy="procedure", cascade={"persist", "remove"})
-     */
-    protected $surveys;
 
     /**
      * Defined as nullable=true, because of Procedure-Blueprints will not have a related ProcedureType.
@@ -588,6 +580,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     private $segmentPlaces;
 
+    protected ?CustomFieldConfiguration $customFieldConfiguration = null;
+
     public function __construct()
     {
         $this->organisation = new ArrayCollection();
@@ -602,13 +596,12 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $this->planningOffices = new ArrayCollection();
         $this->procedureCategories = new ArrayCollection();
         $this->statements = new ArrayCollection();
-        $this->surveys = new ArrayCollection();
         $this->files = new ArrayCollection();
         $this->notificationReceivers = new ArrayCollection();
         $this->exportFieldsConfigurations = new ArrayCollection();
         $this->segmentPlaces = new ArrayCollection();
-        $this->phase = new ProcedurePhase();
-        $this->publicParticipationPhase = new ProcedurePhase();
+        $this->phase = new ProcedurePhase('configuration', '');
+        $this->publicParticipationPhase = new ProcedurePhase('configuration', '');
     }
 
     /**
@@ -709,7 +702,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     public function getOrgaId()
     {
         $return = null;
-        if (isset($this->orga)) {
+        if (null !== $this->orga) {
             $this->orgaId = $this->orga->getId();
             $return = $this->orga->getId();
         }
@@ -949,7 +942,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getDeleted()
     {
-        return \filter_var($this->deleted, FILTER_VALIDATE_BOOLEAN);
+        return $this->isDeleted();
     }
 
     /**
@@ -1674,6 +1667,11 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->topics;
     }
 
+    public function detachAllTopics(): void
+    {
+        $this->topics->clear();
+    }
+
     /**
      * @return Collection<int, Orga>
      */
@@ -1689,6 +1687,15 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     {
         $this->planningOffices = new ArrayCollection($planningOffices);
         $this->planningOffices->forAll(fn ($key, OrgaInterface $planningOffice): bool => $planningOffice->addAdministratableProcedure($this));
+
+        return $this;
+    }
+
+    public function addPlanningOffice(OrgaInterface $planningOffice): self
+    {
+        if (!$this->planningOffices->contains($planningOffice)) {
+            $this->planningOffices->add($planningOffice);
+        }
 
         return $this;
     }
@@ -1933,12 +1940,28 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     public function getSubdomain(): string
     {
+        // procedures should have a customer nowadays
+        if ($this->getCustomer() instanceof Customer) {
+            return $this->getCustomer()->getSubdomain();
+        }
+
+        return $this->getSubdomainByLegacyLogic();
+    }
+
+    /**
+     * This should not be used any more as it is not reliable and procedures
+     * should have a customer.
+     *
+     * @deprecated use {@link ProcedureInterface::getSubdomain()} instead
+     */
+    private function getSubdomainByLegacyLogic(): string
+    {
         $orga = $this->getOrga();
         if (!$orga instanceof Orga) {
             return '';
         }
         $customer = $orga->getMainCustomer();
-        if (null === $customer) {
+        if (!$customer instanceof CustomerInterface) {
             return '';
         }
 
@@ -2072,37 +2095,21 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     public function getSurveys(): Collection
     {
-        return $this->surveys;
+        return new ArrayCollection();
     }
 
-    /**
-     * Returns first Survey in the list.
-     *
-     * @param string $surveyId
-     */
-    public function getSurvey($surveyId): ?Survey
+    public function getSurvey($surveyId): ?SurveyInterface
     {
-        /** @var Survey $survey */
-        foreach ($this->surveys as $survey) {
-            if ($survey->getId() == $surveyId) {
-                return $survey;
-            }
-        }
-
         return null;
     }
 
     public function addSurvey(SurveyInterface $survey): void
     {
-        $this->surveys[] = $survey;
+        // removed
     }
 
-    public function getFirstSurvey(): ?Survey
+    public function getFirstSurvey(): ?SurveyInterface
     {
-        if (count($this->surveys) > 0) {
-            return $this->surveys[0];
-        }
-
         return null;
     }
 
@@ -2255,5 +2262,10 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     public function setPublicParticipationPhaseObject(ProcedurePhaseInterface $publicParticipationPhase): void
     {
         $this->publicParticipationPhase = $publicParticipationPhase;
+    }
+
+    public function getCustomFieldConfiguration(): ?CustomFieldConfiguration
+    {
+        return $this->customFieldConfiguration;
     }
 }

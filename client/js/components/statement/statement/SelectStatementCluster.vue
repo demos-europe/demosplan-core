@@ -14,11 +14,12 @@
 
     <!-- hidden input with userId-->
     <input
+      v-if="hasPermission('feature_statement_assignment')"
+      id="currentUser"
       type="hidden"
       :value="currentUserId"
-      id="currentUser"
       name="currentUser"
-      v-if="hasPermission('feature_statement_assignment')">
+    >
 
     <!-- hidden input with assigneeId of selected statement cluster-->
     <input
@@ -26,36 +27,42 @@
       type="hidden"
       :value="selectedCluster.assignee.id"
       name="claimedClusterAssignee"
-      :data-dp-validate-should-equal="selected.name !== '-' && selected.id ? '#currentUser' : false">
+      :data-dp-validate-should-equal="selected.name !== '-' && selected.id ? '#currentUser' : false"
+    >
 
     <!-- select statement cluster -->
     <dp-multiselect
       id="clusters-single-select"
+      ref="multiselect"
       v-model="selected"
       :allow-empty="false"
       class="u-1-of-1 u-mr-0_75 show-error-from-sibling"
       data-cy="clustersSingleSelect"
       :custom-label="option =>`${option.externId ? option.externId : ''} ${option.name ? option.name : ''}`"
       :options="clusterList"
-      ref="multiselect"
       track-by="id"
-      @input="closeMultiselect">
+      @input="closeMultiselect"
+    >
       <template v-slot:option="{ props }">
         <strong>{{ props.option.externId ? props.option.externId : '' }}</strong>
         <span class="weight--normal">{{ props.option.name ? ` ${props.option.name}` : '' }}</span>
       </template>
     </dp-multiselect>
     <input
+      id="r_head_statement"
       type="hidden"
       name="r_head_statement"
-      id="r_head_statement"
-      :value="inputValue">
+      :value="inputValue"
+    >
 
     <!-- claim icon for selected statement cluster -->
     <div
       v-if="hasPermission('feature_statement_assignment')"
-      class="layout__item u-1-of-1 u-pt-0_25 u-pl-0">
+      class="layout__item u-1-of-1 u-pt-0_25 u-pl-0"
+    >
       <dp-claim
+        v-if="'' !== inputValue"
+        :key="selected.assignee.id"
         class="c-at-item__row-icon inline-block"
         entity-type="statement"
         :ignore-last-claimed="false"
@@ -65,12 +72,12 @@
         :current-user-id="currentUserId"
         :current-user-name="currentUserName"
         :is-loading="updatingClaimState"
-        v-if="'' !== inputValue"
         @click="updateClaim"
-        :key="selected.assignee.id" />
+      />
       <p
         v-if="currentUserId !== selected.assignee.id && inputValue !== ''"
-        class="inline-block lbl__hint u-n-ml-0_5">
+        class="inline-block lbl__hint u-n-ml-0_5"
+      >
         {{ Translator.trans('statement.cluster.assign.self') }}
       </p>
     </div>
@@ -87,51 +94,51 @@ export default {
 
   components: {
     DpClaim,
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
     initClusterList: {
       required: true,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     // String with cluster id
     initSelectedCluster: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserName: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserOrganisation: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     ignoreLastClaimed: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     emptyCluster: {
@@ -145,17 +152,21 @@ export default {
           assignee: {
             id: '',
             name: '',
-            organisation: ''
-          }
+            organisation: '',
+          },
         }
-      }
-    }
+      },
+    },
   },
+
+  emits: [
+    'selectedCluster',
+  ],
 
   data () {
     return {
       selected: this.initSelectedCluster !== '' ? this.initClusterList.find(cluster => cluster.id === this.initSelectedCluster) : this.emptyCluster,
-      updatingClaimState: false
+      updatingClaimState: false,
     }
   },
 
@@ -170,11 +181,11 @@ export default {
 
     selectedCluster () {
       return this.clusterList.find(cluster => this.selected.id === cluster.id) || this.emptyCluster
-    }
+    },
   },
 
   methods: {
-    ...mapActions('statement', ['setAssigneeAction']),
+    ...mapActions('Statement', ['setAssigneeAction']),
 
     /**
      * Force-close multiselect dropdown on selection - because of the bug the menu stays opened
@@ -191,7 +202,7 @@ export default {
       }
 
       // Emit current selection so that parent component can obtain the selected cluster
-      this.$emit('selected-cluster', this.selectedCluster)
+      this.$emit('selectedCluster', this.selectedCluster)
     },
 
     sortOptions (clusterList) {
@@ -235,7 +246,7 @@ export default {
       this.updatingClaimState = true
       this.setAssigneeAction({
         statementId: this.inputValue,
-        assigneeId: this.selected.assignee.id === this.currentUserId ? '' : this.currentUserId
+        assigneeId: this.selected.assignee.id === this.currentUserId ? '' : this.currentUserId,
       })
         .then(response => {
           this.updateClaimData(response.assignee)
@@ -254,8 +265,8 @@ export default {
       this.updatingClaimState = false
       data.organisation = data.orgaName
       delete data.orgaName
-      Vue.set(this.selected, 'assignee', data)
-    }
-  }
+      this.selected.assignee = data
+    },
+  },
 }
 </script>

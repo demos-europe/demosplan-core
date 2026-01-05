@@ -16,9 +16,9 @@ use DOMDocument;
 use DOMException;
 use DOMNode;
 use DOMText;
+use Illuminate\Support\Collection;
 use Masterminds\HTML5;
 use RuntimeException;
-use Tightenco\Collect\Support\Collection;
 
 class HTMLFragmentSlicer
 {
@@ -81,7 +81,7 @@ class HTMLFragmentSlicer
      */
     public static function slice(
         $htmlFragment,
-        $sliceIndex = self::SLICE_DEFAULT
+        $sliceIndex = self::SLICE_DEFAULT,
     ) {
         $slicer = new self();
 
@@ -226,7 +226,7 @@ class HTMLFragmentSlicer
                     $characterDifference = $this->currentSize - $this->sliceIndex - 1;
 
                     $limitInNode = $nodeSize - $characterDifference;
-                    $actualOffset = $this->strpos(wordwrap(trim($node->nodeValue), $limitInNode, "\n", false), "\n");
+                    $actualOffset = $this->strpos(wordwrap(trim((string) $node->nodeValue), $limitInNode, "\n", false), "\n");
 
                     $node->splitText($actualOffset);
                     $this->remainingList->push($node->nextSibling);

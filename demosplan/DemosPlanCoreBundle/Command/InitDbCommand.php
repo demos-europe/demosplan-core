@@ -15,6 +15,7 @@ use DomainException;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use PDOException;
 use SessionHandlerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -24,16 +25,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler;
 
+#[AsCommand(name: 'dplan:db:init', description: 'Initialize a db for the project')]
 class InitDbCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:db:init';
-
-    protected static $defaultDescription = 'Initialize a db for the project';
-
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly SessionHandlerInterface $sessionHandler,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -45,7 +43,7 @@ class InitDbCommand extends CoreCommand
                 'with-fixtures',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Populate the db with the given fixture group.'
+                'Populate the db with the given fixture group. ProdData or TestData',
             )
             ->addOption(
                 'create-database',

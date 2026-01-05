@@ -18,7 +18,7 @@ use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
@@ -98,12 +98,10 @@ use EDT\PathBuilding\End;
  * @property-read End $isManual
  * @property-read End $manual
  * @property-read End $anonymous
- * @property-read FileResourceType $files @deprecated Use {@link StatementResourceType::$attachments} instead (needs implementation changes)
  * @property-read TagResourceType $tags
  * @property-read PlanningDocumentCategoryResourceType $elements
  * @property-read PlanningDocumentCategoryResourceType $element
  * @property-read CountyResourceType $counties
- * @property-read StatementAttachmentResourceType $attachments
  * @property-read ParagraphVersionResourceType $paragraph
  * @property-read ParagraphResourceType $paragraphOriginal
  * @property-read PriorityAreaResourceType $priorityAreas
@@ -120,8 +118,8 @@ use EDT\PathBuilding\End;
 abstract class AbstractStatementResourceType extends DplanResourceType
 {
     public function __construct(
-        private readonly FileService $fileService,
-        private readonly HTMLSanitizer $htmlSanitizer
+        private readonly HTMLSanitizer $htmlSanitizer,
+        private readonly StatementService $statementService,
     ) {
     }
 
@@ -150,6 +148,8 @@ abstract class AbstractStatementResourceType extends DplanResourceType
             ->readable(true)->aliasedPath(Paths::statement()->placeholderStatement->externId);
         $configBuilder->fragmentsCount
             ->readable(true, static fn (Statement $statement): int => $statement->getFragments()->count());
+        $configBuilder->segmentsCount
+            ->readable(true, static fn (Statement $statement): int => $statement->getSegmentsOfStatement()->count());
         $configBuilder->internId
             ->readable(true)->filterable()->aliasedPath(Paths::statement()->original->internId);
         $configBuilder->isCitizen
@@ -185,18 +185,10 @@ abstract class AbstractStatementResourceType extends DplanResourceType
         $configBuilder->parentId
             ->readable(true)->aliasedPath(Paths::statement()->parent->id);
         $configBuilder->phase
-            ->readable(true, function (Statement $statement): string {
-                $phase = $statement->getPhase();
-                if (Statement::INTERNAL === $statement->getPublicStatement()) {
-                    $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
-                    $phase = $internalPhases[$phase]['name'] ?? '';
-                } else {
-                    $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
-                    $phase = $externalPhases[$phase]['name'] ?? '';
-                }
-
-                return $phase;
-            });
+            ->readable(true,
+                fn (Statement $statement): string => $this->statementService->getProcedurePhaseName($statement->getPhase(),
+                    $statement->isSubmittedByCitizen())
+            );
         $configBuilder->polygon->readable(true);
         $configBuilder->priority->readable(true);
         $configBuilder->procedureId->readable(true)->aliasedPath(Paths::statement()->procedure->id);
@@ -235,14 +227,6 @@ abstract class AbstractStatementResourceType extends DplanResourceType
         // keep `isManual` optional, as it may be removed when the resource type is splitted
         $configBuilder->isManual->readable()->aliasedPath(Paths::statement()->manual);
         $configBuilder->numberOfAnonymVotes->filterable();
-        $configBuilder->files
-            ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
-            // files need to be fetched via Filecontainer
-            ->readable(false, fn (Statement $statement): array => $this->fileService->getEntityFiles(
-                Statement::class,
-                $statement->getId(),
-                'file')
-            );
         $configBuilder->cluster
             ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
             ->filterable();
@@ -269,9 +253,9 @@ abstract class AbstractStatementResourceType extends DplanResourceType
         $configBuilder->counties
             ->setRelationshipType($this->resourceTypeStore->getCountyResourceType())
             ->readable();
-        $configBuilder->attachments
-            ->setRelationshipType($this->resourceTypeStore->getStatementAttachmentResourceType())
-            ->readable();
+        $configBuilder->sourceAttachment
+            ->setRelationshipType($this->resourceTypeStore->getSourceStatementAttachmentResourceType())
+            ->readable()->setAliasedPath(Paths::statement()->attachments);
         $configBuilder->paragraph
             ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
             ->readable();

@@ -17,15 +17,18 @@
       'is-active-toggle': active
     }"
     :href="'#' + statementId + '_fragments'"
-    @click="loadFragments(statementId)">
+    @click="loadFragments(statementId)"
+  >
     <i
       class="fa fa-sitemap"
-      aria-hidden="true" />
+      aria-hidden="true"
+    />
     {{ Translator.trans(title) }}
     <span
       v-if="showFragmentsCount"
       class="font-size-smaller text-center block"
-      style="margin-top: -4px;">
+      style="margin-top: -4px;"
+    >
       ({{ filteredFragmentsLength }} {{ Translator.trans('hits') }})
     </span>
   </a>
@@ -41,39 +44,43 @@ export default {
   props: {
     active: {
       required: true,
-      type: Boolean
+      type: Boolean,
     },
 
     statementId: {
       required: true,
-      type: String
+      type: String,
     },
 
     statementFragmentsTotal: {
       required: false,
       type: String,
-      default: '0'
+      default: '0',
     },
 
     statementFragmentsLength: {
       required: false,
       default: '0',
-      type: String
+      type: String,
     },
 
     title: {
       required: false,
       default: 'fragments',
-      type: String
-    }
+      type: String,
+    },
   },
 
+  emits: [
+    'fragments:show',
+  ],
+
   computed: {
-    ...mapGetters('fragment', ['fragmentsByStatement']),
+    ...mapGetters('Fragment', ['fragmentsByStatement']),
 
     assessmentBaseLoaded () {
-      if (hasOwnProp(this.$store.state, 'assessmentTable')) {
-        return this.$store.state.assessmentTable.assessmentBaseLoaded
+      if (hasOwnProp(this.$store.state, 'AssessmentTable')) {
+        return this.$store.state.AssessmentTable.assessmentBaseLoaded
       }
       return true
     },
@@ -81,14 +88,14 @@ export default {
     showFragmentsCount () { return (this.statementFragmentsTotal !== '0') },
 
     filteredFragmentsLength () {
-      if (!this.$store.state.fragment.fragments[this.statementId]) {
+      if (!this.$store.state.Fragment.fragments[this.statementId]) {
         return this.statementFragmentsLength
-      } else if (this.$store.state.fragment.fragments[this.statementId] && this.$store.state.fragment.fragments[this.statementId].filteredFragments) {
-        return this.$store.state.fragment.fragments[this.statementId].filteredFragments.length
+      } else if (this.$store.state.Fragment.fragments[this.statementId] && this.$store.state.Fragment.fragments[this.statementId].filteredFragments) {
+        return this.$store.state.Fragment.fragments[this.statementId].filteredFragments.length
       } else {
         return 0
       }
-    }
+    },
   },
 
   methods: {
@@ -98,13 +105,9 @@ export default {
        *  and the event becomes the first argument (when called from actionmenu)
        */
       statementId = typeof statementId === 'object' ? false : statementId
-      if (!this.$store.state.fragment.fragments[this.statementId]) {
-        // Load statements only if the button is clicked for the first time, because then they are stored in fragment store
-        this.$root.$emit('fragments:load', statementId)
-      }
 
       this.$emit('fragments:show', statementId)
-    }
-  }
+    },
+  },
 }
 </script>

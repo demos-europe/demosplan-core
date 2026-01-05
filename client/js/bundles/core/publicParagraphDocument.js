@@ -19,11 +19,11 @@ import TocStateMemorizer from '@DpJs/lib/statement/TocStateMemorizer'
 
 const components = {
   DpPublicDetailNoMap,
-  DpUploadFiles
+  DpUploadFiles,
 }
 
 const stores = {
-  publicStatement
+  publicStatement,
 }
 
 initialize(components, stores).then(() => {

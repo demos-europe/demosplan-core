@@ -28,7 +28,7 @@ class ReportServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(ReportService::class);
+        $this->sut = self::getContainer()->get(ReportService::class);
     }
 
     public function testSetCurruptReportEntry()

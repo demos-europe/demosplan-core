@@ -10,44 +10,52 @@
 <template>
   <form
     action="#"
-    method="post">
+    method="post"
+  >
     <!-- save elements and paragraphs -->
     <input
       type="hidden"
       :name="fragmentId+':r_element'"
-      :value="elementId">
+      :value="elementId"
+    >
     <input
       type="hidden"
       :name="fragmentId+':r_paragraph'"
-      :value="paragraphId">
+      :value="paragraphId"
+    >
     <input
       name="_token"
       type="hidden"
-      :value="csrfToken">
+      :value="csrfToken"
+    >
 
     <!-- consideration advice, vote advice -->
     <fieldset class="layout__item u-1-of-2 u-pl-0">
       <legend
-        class="hide-visually"
-        v-text="Translator.trans('fragment.voteAdvice')" />
+        class="sr-only"
+        v-text="Translator.trans('fragment.voteAdvice')"
+      />
       <template v-if="hasPermission('feature_statements_fragment_consideration_advice')">
         <label
           class="u-mb-0_25 u-mt-0"
-          :for="fragmentId+':r_considerationAdvice'">
+          :for="fragmentId+':r_considerationAdvice'"
+        >
           {{ Translator.trans('fragment.consideration') }}
         </label>
         <dp-editor
           ref="tiptap"
-          :procedure-id="procedureId"
           v-model="considerationAdvice"
+          :procedure-id="procedureId"
           :entity-id="fragmentId"
-          :hidden-input="fragmentId + ':r_considerationAdvice'" />
+          :hidden-input="fragmentId + ':r_considerationAdvice'"
+        />
       </template>
 
       <template v-if="hasPermission('feature_statements_fragment_advice')">
         <label
           class="u-mb-0_25"
-          :for="fragmentId+'r_vote_advice'">
+          :for="fragmentId+'r_vote_advice'"
+        >
           {{ Translator.trans('fragment.voteAdvice') }}
         </label>
         <dp-multiselect
@@ -55,39 +63,45 @@
           :allow-empty="false"
           label="name"
           :options="computedAdviceValues"
-          track-by="value">
+          track-by="value"
+        >
           <template v-slot:option="{ props }">
             {{ props.option.name }}
           </template>
         </dp-multiselect>
         <input
+          :id="fragmentId+':r_vote_advice'"
           type="hidden"
           :value="voteAdvice.title"
           :name="fragmentId+':r_vote_advice'"
-          :id="fragmentId+':r_vote_advice'">
+        >
       </template>
 
       <div class="u-mt space-inline-s">
         <dp-button
           :busy="saving === 'saveButton'"
           :text="Translator.trans('save')"
-          @click="save('saveButton')" />
+          @click="save('saveButton')"
+        />
         <button
           type="reset"
           class="btn btn--secondary"
           @click="reset"
-          v-text="Translator.trans('discard.changes')" />
+          v-text="Translator.trans('discard.changes')"
+        />
       </div>
     </fieldset><!--
 
     Complete reviewing fragment, assign back to planner
  --><fieldset class="layout__item u-1-of-2">
       <legend
-        class="hide-visually"
-        v-text="Translator.trans('fragment.update.complete.button')" />
+        class="sr-only"
+        v-text="Translator.trans('fragment.update.complete.button')"
+/>
       <div
         v-if="hasPermission('feature_statements_fragment_update_complete')"
-        class="o-box u-p-0_5 u-mt-1_5">
+        class="o-box u-p-0_5 u-mt-1_5"
+>
         <div class="weight--bold">
           {{ Translator.trans('fragment.update.complete') }}
         </div>
@@ -100,14 +114,15 @@
           class="u-ml-0"
           :busy="saving === 'notifyButton'"
           :text="Translator.trans('fragment.update.complete.button')"
-          @click="save('notifyButton')" />
+          @click="save('notifyButton')"
+/>
       </div>
     </fieldset>
   </form>
 </template>
 
 <script>
-import { checkResponse, DpButton, DpEditor, DpMultiselect, makeFormPost } from '@demos-europe/demosplan-ui'
+import { DpButton, DpEditor, DpMultiselect, makeFormPost } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpFragmentEdit',
@@ -115,68 +130,72 @@ export default {
   components: {
     DpButton,
     DpEditor,
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     fragmentId: {
       required: true,
-      type: String
+      type: String,
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     considerationAdviceInitial: {
       required: false,
       default: '',
-      type: String
+      type: String,
     },
 
     voteAdviceInitial: {
       required: false,
       default: '',
-      type: String
+      type: String,
     },
 
     adviceValues: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     elementId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     paragraphId: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
+
+  emits: [
+    'closeEditMode',
+  ],
 
   data () {
     return {
       voteAdvice: Object.entries(this.adviceValues).reduce((acc, val) => [...acc, { value: val[1], name: Translator.trans(val[1]), title: val[0] }], [{ value: '', title: '', name: '-' }]).find(el => el.title === this.voteAdviceInitial),
       considerationAdvice: this.considerationAdviceInitial ? this.considerationAdviceInitial : 'k.A.',
-      saving: ''
+      saving: '',
     }
   },
 
   computed: {
     computedAdviceValues () {
       return Object.entries(this.adviceValues).reduce((acc, val) => [...acc, { value: val[1], name: Translator.trans(val[1]), title: val[0] }], [{ value: '', title: '', name: '-' }])
-    }
+    },
   },
 
   methods: {
@@ -204,7 +223,7 @@ export default {
         } else {
           saveData.push({
             name: this.fragmentId + ':r_notify',
-            value: 'r_notify'
+            value: 'r_notify',
           })
         }
       }
@@ -215,20 +234,19 @@ export default {
         dataForRequest[el.name] = el.value
       })
       return makeFormPost(dataForRequest, Routing.generate('DemosPlan_statement_fragment_edit_reviewer_ajax', { fragmentId: this.fragmentId }))
-        .then(checkResponse)
-        .then(response => {
+        .then(({ data }) => {
           /*
            *  If fragment has been reassigned to planners by clicking 'fragment.update.complete.button',
            *  remove respective item from DOM
            */
           if (button === 'notifyButton') {
-            this.$root.$emit('fragment-reassigned', response.data)
+            this.$root.$emit('fragment:reassigned', data.data)
           } else {
-            this.$root.$emit('fragment-saved', response.data)
+            this.$root.$emit('fragment:saved', data.data)
 
             //  Set this to new data
-            this.considerationAdvice = response.data.considerationAdvice
-            this.voteAdvice = response.data.voteAdvice || { name: '-', title: '', value: '' }
+            this.considerationAdvice = data.data.considerationAdvice
+            this.voteAdvice = data.data.voteAdvice || { name: '-', title: '', value: '' }
           }
         })
         .catch(err => {
@@ -237,7 +255,7 @@ export default {
         .then(() => {
           this.saving = ''
         })
-    }
-  }
+    },
+  },
 }
 </script>

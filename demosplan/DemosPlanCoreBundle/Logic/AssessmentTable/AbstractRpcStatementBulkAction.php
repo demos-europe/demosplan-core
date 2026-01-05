@@ -36,6 +36,7 @@ use Exception;
 use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterface
 {
@@ -101,7 +102,8 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         StatementService $statementService,
         StatementCopier $statementCopier,
         private readonly TransactionService $transactionService,
-        protected readonly StatementDeleter $statementDeleter
+        protected readonly EventDispatcherInterface $eventDispatcher,
+        protected readonly StatementDeleter $statementDeleter,
     ) {
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
         $this->conditionFactory = $conditionFactory;
@@ -166,10 +168,9 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
      */
     private function loadRequestedStatements(array $statementIds, string $procedureId): array
     {
-        $idCondition = $this->conditionFactory->propertyHasAnyOfValues(
-            $statementIds,
-            $this->statementResourceType->id
-        );
+        $idCondition = [] === $statementIds
+            ? $this->conditionFactory->false()
+            : $this->conditionFactory->propertyHasAnyOfValues($statementIds, $this->statementResourceType->id);
         $procedureCondition = $this->conditionFactory->propertyHasValue(
             $procedureId,
             $this->statementResourceType->procedure->id

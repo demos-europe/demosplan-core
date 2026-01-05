@@ -7,14 +7,15 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { del, set } from 'vue'
+import { dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
 import { transformHTMLPositionsToProsemirrorPositions } from './storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
 
 const SplitStatementStore = {
   namespaced: true,
-  name: 'splitstatement',
+
+  name: 'SplitStatement',
+
   state: {
     assignableUsers: [],
     availablePlaces: [],
@@ -25,7 +26,7 @@ const SplitStatementStore = {
     // Segment currently being edited
     editingSegment: null,
     initialData: null,
-    initialSegments: null,
+    initialSegments: [],
     initText: '',
     // Loading state for save+finish button
     isBusy: false,
@@ -42,14 +43,14 @@ const SplitStatementStore = {
     statementText: null,
     statementId: '',
     tagTopics: [],
-    uncategorizedTags: []
+    uncategorizedTags: [],
   },
 
   mutations: {
     deleteSegment (state, id) {
       const index = state.segments.findIndex((el) => el.id === id)
       if (index >= 0) {
-        del(state.segments, index)
+        state.segments.splice(index, 1)
       }
     },
 
@@ -89,7 +90,7 @@ const SplitStatementStore = {
     replaceSegment (state, { id, newSegment }) {
       const oldSegmentIndex = state.segments.findIndex((el) => el.id === id)
       if (oldSegmentIndex >= 0) {
-        set(state.segments, oldSegmentIndex, newSegment)
+        state.segments.oldSegmentIndex = newSegment
       }
     },
 
@@ -97,12 +98,12 @@ const SplitStatementStore = {
       state.segments = state.initialSegments
     },
 
-    setProperty (state, data) {
-      set(state, data.prop, data.val)
+    setProperty (state, { prop, val }) {
+      state[prop] = val
     },
 
     setStatementSegmentDraftList (state, segmentDraftList) {
-      set(state.statement.attributes, 'segmentDraftList', segmentDraftList || null)
+      state.statement.attributes.segmentDraftList = segmentDraftList || null
     },
 
     /**
@@ -110,21 +111,21 @@ const SplitStatementStore = {
      * Add, replace or delete a property
      * @param data  {Object}  needs this format: { prop: 'propToUpdate', obj: { resourceObject } }
      */
-    updateProperty (state, data) {
-      const titleIdx = state[data.prop].findIndex(el => el.attributes.title === data.obj.attributes.title)
-      const idIdx = state[data.prop].findIndex(el => el.id === data.obj.id)
+    updateProperty (state, { prop, obj }) {
+      const titleIdx = state[prop].findIndex(el => el.attributes.title === obj.attributes.title)
+      const idIdx = state[prop].findIndex(el => el.id === obj.id)
 
       // If neither id nor title exist, add element
       if (idIdx < 0 && titleIdx < 0) {
-        set(state[data.prop], state[data.prop].length, data.obj)
+        state[prop][state[prop].length] = obj
       } else if (idIdx < 0 && titleIdx >= 0) {
         // If title exists, but id doesn't, replace element
-        set(state[data.prop], titleIdx, data.obj)
+        state[prop][titleIdx] = obj
       } else if (idIdx >= 0 && titleIdx >= 0) {
         // If id and title exist, delete element
-        del(state[data.prop], idIdx)
+        state[prop].splice(idIdx, 1)
       }
-    }
+    },
   },
 
   actions: {
@@ -153,25 +154,37 @@ const SplitStatementStore = {
 
     /**
      */
-    createTagAction ({ state, commit }, { tag, topicId }) {
+    async createTagAction ({ state, commit }, { tag, topicId }) {
       const payload = JSON.parse(JSON.stringify({
         data: {
           type: 'Tag',
           attributes: {
-            title: tag.title
+            title: tag.title,
           },
           relationships: {
             topic: {
               data: {
                 id: topicId,
-                type: 'TagTopic'
-              }
-            }
-          }
-        }
+                type: 'TagTopic',
+              },
+            },
+          },
+        },
       }))
 
-      return dpApi.post(Routing.generate('api_resource_create', { resourceType: 'Tag' }), {}, { data: payload.data })
+      const response = await dpApi.post(Routing.generate('api_resource_create', { resourceType: 'Tag' }), {}, { data: payload.data })
+
+      return {
+        ...response,
+        relationship: {
+          topic: {
+            data: {
+              id: topicId,
+              type: 'TagTopic',
+            },
+          },
+        },
+      }
     },
 
     createTopicAction ({ state, dispatch }, topic) {
@@ -179,17 +192,17 @@ const SplitStatementStore = {
         data: {
           type: 'TagTopic',
           attributes: {
-            title: topic.title
+            title: topic.title,
           },
           relationships: {
             procedure: {
               data: {
                 id: state.procedureId,
-                type: 'Procedure'
-              }
-            }
-          }
-        }
+                type: 'Procedure',
+              },
+            },
+          },
+        },
       }
 
       return dpApi.post(Routing.generate('api_resource_create', { resourceType: 'TagTopic' }), {}, { data: payload.data })
@@ -209,9 +222,9 @@ const SplitStatementStore = {
         resourceId: state.statementId,
         fields: {
           Statement: [
-            'segmentDraftList'
-          ].join()
-        }
+            'segmentDraftList',
+          ].join(),
+        },
       }))
         .then(({ data }) => {
           if (!hasOwnProp(data.data.attributes.segmentDraftList, 'data')) {
@@ -224,7 +237,7 @@ const SplitStatementStore = {
              * (because often that are closing or opening tags)
              * and should probably not be needed in a real world scenario.
              */
-            .filter(segment => (segment.charEnd - segment.charStart) > 10)
+            .filter(segment => segment && (segment.charEnd - segment.charStart) > 10)
 
           // Check if we are getting overlapping segments from pipeline that would cause errors
           if (doUpdate) {
@@ -306,7 +319,7 @@ const SplitStatementStore = {
             if (dplanTag) {
               return {
                 ...tag,
-                id: dplanTag.id
+                id: dplanTag.id,
               }
             } else {
               return tag
@@ -347,11 +360,11 @@ const SplitStatementStore = {
             'segmentDraftList',
             'submitDate',
             'submitName',
-            'submitType'
-          ].join()
-        }
+            'submitType',
+          ].join(),
+        },
       }))
-        .then((response) => {
+        .then(response => {
           commit('setProperty', { prop: 'statement', val: response.data.data })
         })
     },
@@ -362,9 +375,9 @@ const SplitStatementStore = {
         resourceId: statementId || state.statementId,
         fields: {
           Statement: [
-            'segmentDraftList'
-          ].join()
-        }
+            'segmentDraftList',
+          ].join(),
+        },
       }))
     },
 
@@ -414,14 +427,14 @@ const SplitStatementStore = {
       const payload = {
         id: state.statementId,
         type: 'Statement',
-        attributes: {}
+        attributes: {},
       }
       payload.attributes.segmentDraftList = {
-        data: dataToSend
+        data: dataToSend,
       }
       return dpApi.patch(Routing.generate('api_resource_update', {
         resourceType: 'Statement',
-        resourceId: state.statementId
+        resourceId: state.statementId,
       }), {}, { data: payload })
         .then((response) => {
           dispatch('fetchInitialData', false)
@@ -440,24 +453,33 @@ const SplitStatementStore = {
       dataToSend.attributes.segments = state.segmentsWithText
       dataToSend.attributes.statementText = state.statementText
 
-      return dpApi.post(Routing.generate('dplan_drafts_list_confirm', { statementId: state.statementId, procedureId: state.procedureId }), {}, { data: dataToSend })
-        .then(checkResponse)
-        .then((response) => {
-          if (response.data.nextStatementId !== '') {
+      return dpApi.post(Routing.generate('dplan_drafts_list_confirm', {
+        statementId: state.statementId,
+        procedureId: state.procedureId,
+      }), {}, { data: dataToSend })
+        .then(response => {
+          if (response.data.data.nextStatementId !== '') {
             const form = document.createElement('form')
-            const path = Routing.generate('dplan_drafts_list_claim', { statementId: response.data.nextStatementId, procedureId: state.procedureId })
+            const path = Routing.generate('dplan_drafts_list_claim', {
+              statementId: response.data.data.nextStatementId,
+              procedureId: state.procedureId,
+            })
+
             form.setAttribute('action', path)
             form.setAttribute('method', 'post')
             document.body.appendChild(form)
+
             form.submit()
           } else {
             window.location.href = Routing.generate('DemosPlan_procedure_dashboard', { procedure: state.procedureId })
           }
+
           return Promise.resolve(true)
         })
         .catch((err) => {
           // Reset view to last saved data - set segments from last initial data
           commit('setProperty', { prop: 'segments', val: state.initialSegments })
+
           return Promise.reject(err)
         })
     },
@@ -475,8 +497,8 @@ const SplitStatementStore = {
           procedureId: state.procedureId,
           segments: [],
           statementId: state.statementId,
-          textualReference: state.statement.attributes.fullText
-        }
+          textualReference: state.statement.attributes.fullText,
+        },
       }
 
       commit('setProperty', { prop: 'initialData', val: initialData })
@@ -517,7 +539,7 @@ const SplitStatementStore = {
     splitStatementAction ({ state }, id) {
       dpRpc('segment.statement', { statementId: id })
         .catch(err => console.error(err))
-    }
+    },
   },
 
   getters: {
@@ -530,6 +552,7 @@ const SplitStatementStore = {
     editingSegment: (state) => state.editingSegment,
     editingSegmentId: (state) => state.editingSegment ? state.editingSegment.id : null,
     initialData: (state) => state.initialData,
+    initialSegments: (state) => state.initialSegments,
     initText: (state) => state.initText,
     isBusy: (state) => state.isBusy,
     procedureId: (state) => state.procedureId,
@@ -542,8 +565,8 @@ const SplitStatementStore = {
     tagTopics: (state) => state.tagTopics,
     tagsByCategoryId: (state) => (categoryId) => state.categorizedTags.filter(tag => tag.relationships.topic.data.id === categoryId),
     uncategorizedTagById: (state) => (id) => state.uncategorizedTags.find((el) => el.id === id),
-    uncategorizedTags: (state) => state.uncategorizedTags
-  }
+    uncategorizedTags: (state) => state.uncategorizedTags,
+  },
 }
 
 export default SplitStatementStore

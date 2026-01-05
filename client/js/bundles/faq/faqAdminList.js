@@ -15,11 +15,11 @@ import DpFaqList from '@DpJs/components/faq/DpFaqList'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpFaqList
+  DpFaqList,
 }
 
 const stores = {}
 
-const apiStores = ['faq', 'faqCategory']
+const apiStores = ['Faq', 'FaqCategory']
 
 initialize(components, stores, apiStores)

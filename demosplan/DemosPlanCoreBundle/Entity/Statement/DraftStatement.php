@@ -53,6 +53,15 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     protected $id;
 
     /**
+     * used to either limit the visibility scope within the drafts-folder to only the author
+     * or in case this value is set to false - the scope is set
+     * visible for all members of the {{ @see self::$organisation }}.
+     *
+     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
+     */
+    protected bool $authorOnly = true;
+
+    /**
      * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
@@ -459,7 +468,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
      *
      * @ORM\Column(name="_ds_misc_data", type="array", nullable=true)
      */
-    protected $miscData;
+    protected $miscData = [];
 
     /**
      * True in case of the draft-statement was given anonymously.
@@ -481,7 +490,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         $this->rejectedDate = DateTime::createFromFormat('d.m.Y', '2.1.1970');
         $this->statementAttributes = new ArrayCollection();
         $this->files = new ArrayCollection();
-        $this->miscData = [];
     }
 
     public function getId(): ?string
@@ -495,6 +503,16 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     public function getIdent(): ?string
     {
         return $this->getId();
+    }
+
+    public function getAuthorOnly(): bool
+    {
+        return $this->authorOnly;
+    }
+
+    public function setAuthorOnly(bool $authorOnly): void
+    {
+        $this->authorOnly = $authorOnly;
     }
 
     /**
@@ -795,12 +813,10 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
 
     public function removeFile(DraftStatementFileInterface $draftStatementFile): self
     {
-        if ($this->files->removeElement($draftStatementFile)) {
-            // set the owning side to null (unless already changed)
-            if ($draftStatementFile->getDraftStatement() === $this) {
-                // set to null to activate orphan removal
-                $draftStatementFile->setDraftStatement(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->files->removeElement($draftStatementFile) && $draftStatementFile->getDraftStatement() === $this) {
+            // set to null to activate orphan removal
+            $draftStatementFile->setDraftStatement(null);
         }
 
         return $this;
@@ -1051,9 +1067,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         return $this->uStreet;
     }
 
-    /**
-     * @return mixed
-     */
     public function getCategories()
     {
         if ($this->categories instanceof Collection) {
@@ -1063,9 +1076,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         return [];
     }
 
-    /**
-     * @param mixed $categories
-     */
     public function setCategories($categories)
     {
         $this->categories = $categories;
@@ -1369,11 +1379,8 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
             if ($this->isDeleted()) {
                 return false;
             }
-            if ($this->getProcedure()->isDeleted()) {
-                return false;
-            }
 
-            return true;
+            return !$this->getProcedure()->isDeleted();
         } catch (Exception) {
             return false;
         }
@@ -1740,7 +1747,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
 
     /**
      * @param string $key
-     * @param mixed  $value
      *
      * @return DraftStatementInterface
      */

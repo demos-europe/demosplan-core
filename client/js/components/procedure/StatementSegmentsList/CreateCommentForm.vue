@@ -11,19 +11,22 @@
   <div>
     <dp-label
       :for="`createComment:${segmentId}`"
-      :text="Translator.trans('comment.add')" />
+      :text="Translator.trans('comment.add')"
+    />
     <dp-editor
       :id="`createComment:${segmentId}`"
       ref="createComment"
       :value="text"
-      @input="update" />
+      @input="update"
+    />
     <dp-button-row
       class="u-mt"
       primary
       secondary
       :busy="isLoading"
       @primary-action="save"
-      @secondary-action="resetCurrentComment" />
+      @secondary-action="resetCurrentComment"
+    />
   </div>
 </template>
 
@@ -38,33 +41,37 @@ export default {
   components: {
     DpButtonRow,
     DpEditor,
-    DpLabel
+    DpLabel,
   },
 
   props: {
     currentUser: {
       type: Object,
-      required: true
+      required: true,
     },
 
     segmentId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
+  emits: [
+    'update',
+  ],
+
   computed: {
-    ...mapGetters('segmentSlidebar', [
+    ...mapGetters('SegmentSlidebar', [
       'commentsList',
-      'currentCommentText'
+      'currentCommentText',
     ]),
 
-    ...mapState('statementSegment', {
-      segments: 'items'
+    ...mapState('StatementSegment', {
+      segments: 'items',
     }),
 
-    ...mapState('segmentSlidebar', [
-      'isLoading'
+    ...mapState('SegmentSlidebar', [
+      'isLoading',
     ]),
 
     segment () {
@@ -73,30 +80,30 @@ export default {
 
     text () {
       return this.currentCommentText || ''
-    }
+    },
   },
 
   methods: {
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       listSegments: 'list',
-      restoreSegmentAction: 'restoreFromInitial'
+      restoreSegmentAction: 'restoreFromInitial',
     }),
 
-    ...mapMutations('segmentSlidebar', [
+    ...mapMutations('SegmentSlidebar', [
       'setContent',
-      'setProperty'
+      'setProperty',
     ]),
 
-    ...mapMutations('statementSegment', {
-      updateSegment: 'update'
+    ...mapMutations('StatementSegment', {
+      updateSegment: 'update',
     }),
 
-    ...mapMutations('segmentComment', {
-      setComment: 'setItem'
+    ...mapMutations('SegmentComment', {
+      setComment: 'setItem',
     }),
 
     resetCurrentComment (show = true) {
-      this.setContent({ prop: 'commentsList', val: { ...this.commentsList, currentCommentText: '', showForm: false, show: show } })
+      this.setContent({ prop: 'commentsList', val: { ...this.commentsList, currentCommentText: '', showForm: false, show } })
       this.$refs.createComment.resetEditor()
     },
 
@@ -105,28 +112,28 @@ export default {
 
       const payload = {
         attributes: {
-          text: this.currentCommentText
+          text: this.currentCommentText,
         },
         relationships: {
           place: {
-            data: this.segment.relationships.place?.data?.id
-              ? { id: this.segment.relationships.place.data.id, type: 'Place' }
-              : null
+            data: this.segment.relationships.place?.data?.id ?
+              { id: this.segment.relationships.place.data.id, type: 'Place' } :
+              null,
           },
           segment: {
             data: {
               id: this.segmentId,
-              type: 'StatementSegment'
-            }
+              type: 'StatementSegment',
+            },
           },
           submitter: {
             data: {
               id: this.currentUser.id,
-              type: 'User'
-            }
-          }
+              type: 'User',
+            },
+          },
         },
-        type: 'SegmentComment'
+        type: 'SegmentComment',
       }
 
       return dpApi.post(Routing.generate('api_resource_create', { resourceType: 'SegmentComment' }), {}, { data: payload })
@@ -135,43 +142,43 @@ export default {
           const payloadRel = payload.relationships
           const newCommentData = {
             ...payload,
-            id: id,
+            id,
             attributes: {
               ...payload.attributes,
-              creationDate: dayjs().toISOString() // Since we don't have the value from the Backend, this should be close enough for ordering
+              creationDate: dayjs().toISOString(), // Since we don't have the value from the Backend, this should be close enough for ordering
             },
             // We have to hack it like this, because the types for relationships here are in camelCase and not in PascalCase
             relationships: {
               place: {
-                data: payloadRel.place?.data?.id
-                  ? {
-                      id: payloadRel.place.data.id,
-                      type: 'place'
-                    }
-                  : null
+                data: payloadRel.place?.data?.id ?
+                  {
+                    id: payloadRel.place.data.id,
+                    type: 'Place',
+                  } :
+                  null,
               },
               segment: {
                 data: {
                   id: payloadRel.segment.data.id,
-                  type: 'statementSegment'
-                }
+                  type: 'StatementSegment',
+                },
               },
               submitter: {
                 data: {
                   id: payloadRel.submitter.data.id,
-                  type: 'user'
-                }
-              }
-            }
+                  type: 'User',
+                },
+              },
+            },
           }
           const relationPayload = {
             id: this.segment.id,
             relationship: 'comments',
             action: 'add',
             value: {
-              id: id,
-              type: 'segmentComment'
-            }
+              id,
+              type: 'SegmentComment',
+            },
           }
 
           this.setComment(newCommentData)
@@ -187,7 +194,7 @@ export default {
 
     update (val) {
       this.setContent({ prop: 'commentsList', val: { ...this.commentsList, currentCommentText: val } })
-    }
-  }
+    },
+  },
 }
 </script>

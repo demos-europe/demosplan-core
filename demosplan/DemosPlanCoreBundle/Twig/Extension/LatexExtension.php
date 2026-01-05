@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Twig\TwigFilter;
@@ -82,8 +83,12 @@ class LatexExtension extends ExtensionBase
         '</ins>'                               => '',
     ];
 
-    public function __construct(ContainerInterface $container, FileService $serviceFile, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        ContainerInterface $container,
+        FileService $serviceFile,
+        private readonly FilesystemOperator $defaultStorage,
+        private readonly LoggerInterface $logger,
+    ) {
         parent::__construct($container);
         $this->fileService = $serviceFile;
     }
@@ -97,12 +102,7 @@ class LatexExtension extends ExtensionBase
     {
         return [
             new TwigFilter(
-                'latex', function (
-                    $string,
-                    $listwidth = 7
-                ) {
-                    return $this->latexFilter($string, $listwidth);
-                }
+                'latex', fn ($string, $listwidth = 7) => $this->latexFilter($string, $listwidth)
             ),
             new TwigFilter('nl2texnl', $this->latexNewlineFilter(...)),
             new TwigFilter('latexPrepareImage', $this->prepareImage(...)),
@@ -158,7 +158,7 @@ class LatexExtension extends ExtensionBase
             $urlPlaceholderPattern = '-+-+-+';
             foreach ($urlHits[0] as $hit) {
                 $hitRegex = sprintf('/%s(\s|$|<)/', preg_quote((string) $hit, '/'));
-                $text = preg_replace($hitRegex, $urlPlaceholderPattern.++$hitcount.'$1', $text);
+                $text = preg_replace($hitRegex, $urlPlaceholderPattern.++$hitcount.'$1', (string) $text);
 
                 // urls may contain % chars, these need to be sanitized for latex
                 $sanitizedHit = str_replace('%', '\%', (string) $hit);
@@ -179,26 +179,26 @@ class LatexExtension extends ExtensionBase
             $text = preg_replace(
                 '/<span style=\"text-decoration\: underline\;\">(.*)<\/span>/Usi',
                 '<u>\\1</u>',
-                $text
+                (string) $text
             );
 
             // Durchstreichungen behandeln
             $text = preg_replace(
                 '/<span style=\"text-decoration\: line\-through\;\">(.*)<\/span>/Usi',
                 '<del>\\1</del>',
-                $text
+                (string) $text
             );
 
             // Alle Tag-Parameter killen
             $text = preg_replace(
                 '/<(p|br|table|tr|td|th|div|ol|u|del|i|strike|ul|li|b|strong|em|span)\s.*>/Usi',
                 '<\\1>',
-                $text
+                (string) $text
             );
 
             // Alle anderen Tags beseitigen
             $text = strip_tags(
-                $text,
+                (string) $text,
                 '<p><table><tr><td><tcs2><tcs><tcs3><tcs4><tcs5><tcs6><th><br><ol><strike><u><s><del><i><ol><ul><li><b><strong><em><span><ins><mark><dp-obscure>'
             );
 
@@ -309,18 +309,14 @@ class LatexExtension extends ExtensionBase
             $firstrow = $countCellsArray[0][0];
             $numberofcells = substr_count((string) $firstrow, '<td>');
 
-            if ($numberofcells > 0) {
-                $cellwidth = round(14 / $numberofcells, 2);
-            } else {
-                $cellwidth = 14;
-            }
+            $cellwidth = $numberofcells > 0 ? round(14 / $numberofcells, 2) : 14;
 
             // Oben gefundene Multicolmn-Tags durch den entsprechenden LaTex-Code ersetzen
             for ($tci = 1; $tci < 11; ++$tci) {
                 $currenttable = preg_replace(
                     '/<tcs'.$tci.">(.*)<\/td>/Usi",
                     "\multicolumn{".$tci.'}{|p{'.$tci * $cellwidth.'cm}|} {\\1}',
-                    $currenttable
+                    (string) $currenttable
                 );
             }
 
@@ -328,7 +324,7 @@ class LatexExtension extends ExtensionBase
             $oneTablerowsarray = null;
             preg_match_all(
                 "/<tr>.*<\/tr>/isU",
-                $currenttable,
+                (string) $currenttable,
                 $oneTablerowsarray
             );
 
@@ -418,7 +414,7 @@ class LatexExtension extends ExtensionBase
             PREG_PATTERN_ORDER
         );
         // Wenn du kein Bild gefunden hast, durchsuche den nächsten Absatz
-        if (count($imageMatches[1]) > 0) {
+        if ([] !== $imageMatches[1]) {
             // Wenn du ein oder mehrere Bilder gefunden hast gehe sie durch
             foreach ($imageMatches[1] as $matchKey => $match) {
                 // und ersetze den Platzhalter durch das Imagetag mit dem korrkten Hash
@@ -426,7 +422,7 @@ class LatexExtension extends ExtensionBase
                 $text = preg_replace(
                     '|'.$imageMatches[0][$matchKey].'|',
                     $currentImageTex,
-                    $text
+                    (string) $text
                 );
             }
         }
@@ -456,7 +452,7 @@ class LatexExtension extends ExtensionBase
             // build placeholderstring
             $currentImageTex = 'IMAGEPLACEHOLDER-';
 
-            preg_match('|src=[\\\'"](\/app_dev\.php)?\/file\/([\w-]*)[\\\'"]|', (string) $imageMatch, $src);
+            preg_match('|src=[\\\'"](\/app_dev\.php)?\/file\/([\w-]*[\/\w-]*)[\\\'"]|', (string) $imageMatch, $src);
             $currentImageTex .= $src[2] ?? '';
 
             // only add width and height if both are provided
@@ -492,7 +488,7 @@ class LatexExtension extends ExtensionBase
             PREG_PATTERN_ORDER
         );
         // Wenn du kein Bild gefunden hast, durchsuche den nächsten Absatz
-        if (count($imageMatches[1]) > 0) {
+        if ([] !== $imageMatches[1]) {
             // Wenn du ein oder mehrere Bilder gefunden hast gehe sie durch
             foreach ($imageMatches[1] as $matchKey => $match) {
                 // und ersetze den Platzhalter durch das Imagetag mit dem korrkten Hash
@@ -523,16 +519,22 @@ class LatexExtension extends ExtensionBase
         preg_match_all(
             // '/[.*]?IMAGEPLACEHOLDER-([\\a-z0-9\-&=]*)[.*]?(IMAGEPLACEHOLDEREND)?/U',
             '/[.*]?IMAGEPLACEHOLDER-([^IMAGEPLACEHOLDEREND]+)/',
-            $text,
+            (string) $text,
             $imageMatches,
             PREG_PATTERN_ORDER
         );
         // Wenn du kein Bild gefunden hast, durchsuche den nächsten Absatz
-        if (count($imageMatches[1]) > 0) {
+        if ([] !== $imageMatches[1]) {
             // Wenn du ein oder mehrere Bilder gefunden hast gehe sie durch
             foreach ($imageMatches[1] as $matchKey => $match) {
                 $parts = explode('\&', $match);
-                $fileHash = $parts[0];
+                // if contains / explode
+                if (str_contains($parts[0], '/')) {
+                    $parts = explode('/', $parts[0]);
+                    $fileHash = $parts[1];
+                } else {
+                    $fileHash = $parts[0];
+                }
                 // Bestimme die Größe des Bildes
                 if (isset($parts[1]) && isset($parts[2])) {
                     $widthParts = explode('=', $parts[1]);
@@ -555,16 +557,16 @@ class LatexExtension extends ExtensionBase
 \\
 ';
                 // Ersetze die \ durch \\ im Regex
-                $pregReplacePatternFileinfo = '/'.str_replace(
+                $pregReplacePatternFileinfo = '|'.str_replace(
                     '\\',
                     '\\\\',
                     $imageMatches[0][$matchKey]
-                ).'IMAGEPLACEHOLDEREND/';
+                ).'IMAGEPLACEHOLDEREND|';
                 // Füge das Latexmarkup ein
                 $text = preg_replace(
                     $pregReplacePatternFileinfo,
                     $currentImageTex,
-                    $text
+                    (string) $text
                 );
             }
         }
@@ -595,16 +597,12 @@ class LatexExtension extends ExtensionBase
             $wFactor = $widthCm / $maxWidthCm;
             $hFactor = $heightCm / $maxHeightCm;
 
-            if ($wFactor > $hFactor) {
-                $factor = $wFactor;
-            } else {
-                $factor = $hFactor;
-            }
+            $factor = $wFactor > $hFactor ? $wFactor : $hFactor;
 
             // resize Image
             if (0 != $factor) {
-                $widthCm = $widthCm / $factor;
-                $heightCm = $heightCm / $factor;
+                $widthCm /= $factor;
+                $heightCm /= $factor;
             }
             $this->logger->info('Image resize to width: '.$widthCm.' and height: '.$heightCm);
         }
@@ -623,8 +621,8 @@ class LatexExtension extends ExtensionBase
     {
         try {
             $fileInfo = $this->fileService->getFileInfo($hash);
-            if (is_file($fileInfo->getAbsolutePath())) {
-                $sizeArray = getimagesize($fileInfo->getAbsolutePath());
+            if ($this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+                $sizeArray = getimagesizefromstring($this->defaultStorage->read($fileInfo->getAbsolutePath()));
 
                 return $this->getLatexSizeCommand($sizeArray[0], $sizeArray[1]);
             }

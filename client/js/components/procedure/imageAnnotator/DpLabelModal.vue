@@ -10,25 +10,26 @@
 <template>
   <dp-modal
     ref="labelModal"
-    content-classes="w-14">
-    <template>
-      <h3>
-        {{ Translator.trans('format') }}
-      </h3>
-      <div class="flex space-inline-s">
-        <dp-select
-          v-model="selectedLabel"
-          classes="w-12"
-          name="labelSelect"
-          placeholder="-"
-          :options="labels" />
-        <button
-          @click="setLabel"
-          class="btn btn--primary">
-          {{ Translator.trans('accept') }}
-        </button>
-      </div>
-    </template>
+    content-classes="w-14"
+  >
+    <h3>
+      {{ Translator.trans('format') }}
+    </h3>
+    <div class="flex space-inline-s">
+      <dp-select
+        v-model="selectedLabel"
+        classes="w-12"
+        name="labelSelect"
+        placeholder="-"
+        :options="labels"
+      />
+      <button
+        class="btn btn--primary"
+        @click="setLabel"
+      >
+        {{ Translator.trans('accept') }}
+      </button>
+    </div>
   </dp-modal>
 </template>
 
@@ -40,25 +41,29 @@ export default {
 
   components: {
     DpModal,
-    DpSelect
+    DpSelect,
   },
 
   props: {
     labels: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
+
+  emits: [
+    'setLabel',
+  ],
 
   data () {
     return {
-      selectedLabel: ''
+      selectedLabel: '',
     }
   },
 
   methods: {
     setLabel () {
-      this.$emit('set-label', this.selectedLabel)
+      this.$emit('setLabel', this.selectedLabel)
       this.toggleModal()
     },
 
@@ -67,7 +72,7 @@ export default {
         this.selectedLabel = preselectedLabel
       }
       this.$refs.labelModal.toggle()
-    }
-  }
+    },
+  },
 }
 </script>

@@ -10,10 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use ArrayIterator;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleImportedTagsRecordsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistTagsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -41,6 +47,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\GetOriginalFileFromAnnotatedStatementEvent;
 use demosplan\DemosPlanCoreBundle\Event\MultipleStatementsSubmittedEvent;
+use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterHandleImportedTagsRecordsEvent;
+use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterPrePersistTagsEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\AsynchronousStateException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -76,7 +84,6 @@ use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
@@ -88,6 +95,8 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
+use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
+use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
@@ -102,9 +111,10 @@ use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
-use Goodby\CSV\Import\Standard\Interpreter;
-use Goodby\CSV\Import\Standard\Lexer;
+use Illuminate\Support\Collection;
+use League\Csv\Reader;
 use ReflectionException;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints\Email;
@@ -114,11 +124,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
-use Tightenco\Collect\Support\Collection;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+use Webmozart\Assert\Assert;
 
 use function array_key_exists;
 use function is_string;
@@ -172,9 +182,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     /** @var ServiceOutput */
     protected $procedureOutput;
 
-    /** @var array */
-    protected $csvImportDatasets = [];
-
     /** @var UserService */
     protected $userService;
 
@@ -183,9 +190,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
     /** @var Environment */
     protected $twig;
-
-    /** @var Lexer */
-    protected $tagImportService;
 
     /** @var QueryFragment */
     protected $esQueryFragment;
@@ -222,7 +226,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         private readonly GlobalConfigInterface $globalConfig,
         private readonly JsonApiActionService $jsonApiActionService,
         MailService $mailService,
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         MunicipalityService $municipalityService,
         private readonly OrgaService $orgaService,
         ParagraphService $paragraphService,
@@ -244,7 +248,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         UserService $userService,
         private readonly StatementCopier $statementCopier,
         private readonly ValidatorInterface $validator,
-        private readonly StatementDeleter $statementDeleter
+        private readonly StatementDeleter $statementDeleter,
+        private readonly TagRepository $tagRepository,
+        private readonly TagTopicRepository $tagTopicRepository,
+        private readonly ManagerRegistry $doctrine,
     ) {
         parent::__construct($messageBag);
         $this->assignService = $assignService;
@@ -1016,14 +1023,11 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $mandatoryErrors[] = $this->createMandatoryErrorMessage('statement.use.name');
             }
 
-            if ('email' === $data['r_getEvaluation']
-                && $this->permissions->hasPermission('feature_statements_feedback_check_email')) {
-                if (isset($data['r_email2']) && trim((string) $data['r_email']) != trim((string) $data['r_email2'])) {
-                    $mandatoryErrors[] = [
-                        'type'    => 'error',
-                        'message' => $this->translator->trans('error.email.repeated'),
-                    ];
-                }
+            if ('email' === $data['r_getEvaluation'] && $this->permissions->hasPermission('feature_statements_feedback_check_email') && (isset($data['r_email2']) && trim((string) $data['r_email']) !== trim((string) $data['r_email2']))) {
+                $mandatoryErrors[] = [
+                    'type'    => 'error',
+                    'message' => $this->translator->trans('error.email.repeated'),
+                ];
             }
         }
 
@@ -1069,7 +1073,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
         $statement['miscData'] = $miscData->toArray();
 
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             if ($this->isDisplayNotices()) {
                 $this->flashMessageHandler->setFlashMessages($mandatoryErrors);
             }
@@ -1122,7 +1126,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $draftStatementIds,
         $notificationReceiverId = '',
         $public = false,
-        bool $gdprConsentReceived = false
+        bool $gdprConsentReceived = false,
     ): array {
         if (!is_array($draftStatementIds)) {
             $draftStatementIds = [$draftStatementIds];
@@ -1148,7 +1152,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         array $draftStatementIds,
         $notificationReceiverId = '',
         $public = false,
-        bool $gdprConsentReceived = false
+        bool $gdprConsentReceived = false,
     ): array {
         $permissions = $this->permissions;
         // throw exception if GDPR consent is required, but was not given
@@ -1207,7 +1211,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $statementFragmentService = $this->statementFragmentService;
 
         // if there are selected items, select only them:
-        if (is_array($fragmentIds) && 0 < count($fragmentIds)) {
+        if (is_array($fragmentIds) && [] !== $fragmentIds) {
             $esQuery->addFilterMust('id', $fragmentIds);
         }
 
@@ -1274,11 +1278,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
         $content = base64_decode($response);
 
-        if (is_array($procedure)) {
-            $name = $filenamePrefix.'.pdf';
-        } else {
-            $name = $filenamePrefix.'_'.$procedure->getName().'.pdf';
-        }
+        $name = is_array($procedure) ? $filenamePrefix.'.pdf' : $filenamePrefix.'_'.$procedure->getName().'.pdf';
         $this->getLogger()->debug('Got Response: '.DemosPlanTools::varExport($content, true));
 
         return new PdfFile($name, $content);
@@ -1938,22 +1938,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     }
 
     /**
-     * @return Lexer
-     */
-    protected function getTagImportService()
-    {
-        return $this->tagImportService;
-    }
-
-    /**
-     * @param Lexer $tagImportService
-     */
-    public function setTagImportService($tagImportService)
-    {
-        $this->tagImportService = $tagImportService;
-    }
-
-    /**
      * Definition der incoming Data.
      */
     protected function incomingDataDefinition()
@@ -2241,35 +2225,30 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
         }
 
-        if (array_key_exists('r_paragraph', $data)) {
-            // If another paragraph is selected we create a new version later.
-            // If it is the same we don't assign it
-            if ($data['r_paragraph'] != $fragmentToUpdate->getParagraphParentId()) {
-                if ($data['r_paragraph'] instanceof Paragraph) {
-                    $statementFragmentData['paragraph'] = $data['r_paragraph'];
-                } else {
-                    $statementFragmentData['paragraphId'] = $data['r_paragraph'];
-                }
+        // If another paragraph is selected we create a new version later.
+        // If it is the same we don't assign it
+        if (array_key_exists('r_paragraph', $data) && $data['r_paragraph'] != $fragmentToUpdate->getParagraphParentId()) {
+            if ($data['r_paragraph'] instanceof Paragraph) {
+                $statementFragmentData['paragraph'] = $data['r_paragraph'];
+            } else {
+                $statementFragmentData['paragraphId'] = $data['r_paragraph'];
             }
         }
 
-        if ($this->permissions->hasPermission('feature_single_document_fragment')
-            && array_key_exists('r_document', $data)) {
-            // Check if the incoming document is already set. Version stuff here
-            if ($data['r_document'] != $fragmentToUpdate->getDocumentParentId()) {
-                if ('' == $data['r_document']) {
-                    $statementFragmentData['document'] = null;
-                } else {
-                    $singleDocumentRepository = $this->entityManager->getRepository(SingleDocument::class);
-                    /** @var SingleDocumentVersionRepository $singleDocumentVersionRepository */
-                    $singleDocumentVersionRepository = $this->entityManager->getRepository(SingleDocumentVersion::class);
-                    $document = $singleDocumentRepository->findOneBy(['id' => $data['r_document']]);
-                    $documentVersion = $singleDocumentVersionRepository->createVersion($document);
-                    $statementFragmentData['document'] = $documentVersion;
-                }
-                $statementFragmentData['paragraph'] = '';
-                $statementFragmentData['paragraphId'] = '';
+        // Check if the incoming document is already set. Version stuff here
+        if ($this->permissions->hasPermission('feature_single_document_fragment') && array_key_exists('r_document', $data) && $data['r_document'] != $fragmentToUpdate->getDocumentParentId()) {
+            if ('' == $data['r_document']) {
+                $statementFragmentData['document'] = null;
+            } else {
+                $singleDocumentRepository = $this->entityManager->getRepository(SingleDocument::class);
+                /** @var SingleDocumentVersionRepository $singleDocumentVersionRepository */
+                $singleDocumentVersionRepository = $this->entityManager->getRepository(SingleDocumentVersion::class);
+                $document = $singleDocumentRepository->findOneBy(['id' => $data['r_document']]);
+                $documentVersion = $singleDocumentVersionRepository->createVersion($document);
+                $statementFragmentData['document'] = $documentVersion;
             }
+            $statementFragmentData['paragraph'] = '';
+            $statementFragmentData['paragraphId'] = '';
         }
 
         $unchangedStatus = !array_key_exists('r_status', $data)
@@ -2291,37 +2270,63 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * Import a CSV-file with tags in it and create the according tag- and topic-
      * entities associated to the given procedure.
      *
-     * @param string $file
+     * @param resource $fileResource
      *
      * @throws Exception
      */
-    public function importTags(string $procedureId, $file)
+    public function importTags(string $procedureId, $fileResource): void
     {
-        $hash = explode(':', $file)[1];
-        $fileInfo = $this->fileService->getFileInfo($hash);
+        $reader = Reader::from($fileResource);
+        $reader->setEscape('');
+        $reader->setDelimiter(';');
+        $reader->setEnclosure('"');
+        // Ensure proper UTF-8 encoding by detecting and converting from potential encodings
+        $records = $reader->getRecords();
+        $convertedRecords = [];
 
-        $lexer = $this->getTagImportService();
-        $this->csvImportDatasets = [];
-        $interpreter = new Interpreter();
-        $interpreter->addObserver(function (array $row) {
-            // Do not use line if all fields are empty
-            if (array_reduce($row, fn ($carry, $item) => $carry && ('' == $item), true)) {
-                return;
+        // Process records to ensure UTF-8 encoding
+        foreach ($records as $record) {
+            $convertedRow = [];
+            foreach ($record as $cell) {
+                $convertedRow[] = mb_convert_encoding($cell, 'UTF-8',
+                    mb_detect_encoding((string) $cell, 'UTF-8, ISO-8859-1, ISO-8859-15', true));
             }
-            $this->csvImportDatasets[] = $row;
-        });
-        $lexer->parse($fileInfo->getAbsolutePath(), $interpreter);
+            $convertedRecords[] = $convertedRow;
+        }
 
-        // Acquire data
-        $newTags = [];
-        foreach ($this->csvImportDatasets as $dataset) {
-            $newTagData = [
-                'topic'          => $dataset[0] ?? '',
-                'tag'            => $dataset[1] ?? '',
-                'useBoilerplate' => isset($dataset[2]) ? 'ja' === $dataset[2] : 'nein',
-                'boilerplate'    => $dataset[3] ?? '',
-            ];
-            $newTags[] = $newTagData;
+        // Create a new records collection from the converted data
+        $records = new ArrayIterator($convertedRecords);
+        $records->rewind();
+        $columnTitles = [];
+        if ($records->valid()) {
+            $columnTitles = $records->current();
+            $records->next();
+        }
+
+        $event = $this->eventDispatcher->dispatch(
+            new ExcelImporterHandleImportedTagsRecordsEvent($records, $columnTitles),
+            ExcelImporterHandleImportedTagsRecordsEventInterface::class
+        );
+
+        $newTags = $event->getTags();
+
+        if (empty($newTags)) {
+            while ($records->valid()) {
+                $dataset = $records->current();
+                // Do not use line if all fields are empty
+                if (array_reduce($dataset, static fn ($carry, $item) => $carry && '' === $item, true)) {
+                    $records->next();
+                    continue;
+                }
+                $newTagData = [
+                    'topic'          => $dataset[0] ?? '',
+                    'tag'            => $dataset[1] ?? '',
+                    'useBoilerplate' => isset($dataset[2]) && 'ja' === $dataset[2],
+                    'boilerplate'    => $dataset[3] ?? '',
+                ];
+                $newTags[] = $newTagData;
+                $records->next();
+            }
         }
 
         // Create objects
@@ -2330,42 +2335,68 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // Will be filled with the tag topics needed to create the imported tags
         // with the tag topic title as key and the object as value.
         $topics = [];
+        $newTagsAndOrMatchingExistingTags = [];
 
         foreach ($newTags as $tagData) {
             $currentTopicTitle = $tagData['topic'];
             $currentTagTitle = $tagData['tag'];
             // Create topic if not already present
-            if ($currentTopicTitle != $lastTopic) {
+
+            if ($currentTopicTitle !== $lastTopic) {
                 try {
-                    $topics[$currentTopicTitle] = $this->createTopic($currentTopicTitle, $procedureId);
-                    $lastTopic = $currentTopicTitle;
-                } catch (DuplicatedTagTopicTitleException) {
-                    // better do not try to heal import as it may have unforeseen
-                    // consequences?
-                    $this->getMessageBag()->add('warning', 'topic.create.duplicated.title');
+                    Assert::stringNotEmpty($currentTopicTitle);
+                    Assert::stringNotEmpty($currentTagTitle);
+
+                    // Check if topic already exists before creating
+                    $existingTopic = $this->tagTopicRepository->findOneByTitle($currentTopicTitle, $procedureId);
+                    if ($existingTopic instanceof TagTopic) {
+                        $topics[$currentTopicTitle] = $existingTopic;
+                    } else {
+                        $topics[$currentTopicTitle] = $this->createTopic($currentTopicTitle, $procedureId);
+                    }
+                } catch (Exception $e) {
+                    $this->logger->error('Error creating topic during tag import', [
+                        'topicTitle'  => $currentTopicTitle,
+                        'tagTitle'    => $currentTagTitle,
+                        'procedureId' => $procedureId,
+                        'exception'   => $e->getMessage(),
+                        'trace'       => $e->getTraceAsString(),
+                    ]);
+                    $this->getMessageBag()->add('warning', 'tag.or.topic.name.empty.error');
                     continue;
                 }
+                $lastTopic = $currentTopicTitle;
             }
 
             // Create the tag
-            $tag = $this->tagService->createTag(
-                $currentTagTitle,
-                $topics[$currentTopicTitle]
-            );
+            // Check if tag already exists in the target topic
+            $existingTagInTopic = $this->findExistingTagInTopic($currentTagTitle, $topics[$currentTopicTitle]);
 
-            // Create and attach a boilerplate object if required
-            if ($tagData['useBoilerplate']) {
-                $boilerplateData = [
-                    'title' => $currentTagTitle,
-                    'text'  => $tagData['boilerplate'],
-                ];
-                $boilerplate = $this->procedureService->addBoilerplate(
+            if ($existingTagInTopic instanceof Tag) {
+                // Tag already exists in target topic - add to event array but skip boilerplate processing
+                $newTagsAndOrMatchingExistingTags[] = $existingTagInTopic;
+            } else {
+                // Tag doesn't exist in target topic - proceed with import using integrated boilerplate handling
+                $tag = $this->handleTagImportWithBoilerplate(
+                    $currentTagTitle,
+                    $topics[$currentTopicTitle],
                     $procedureId,
-                    $boilerplateData
+                    $tagData['useBoilerplate'],
+                    $tagData['useBoilerplate'] ? $currentTagTitle : '',
+                    $tagData['useBoilerplate'] ? $tagData['boilerplate'] : ''
                 );
-                $this->tagService->attachBoilerplateToTag($tag, $boilerplate);
+
+                // Only add tag to event array if it was successfully created (not null due to conflicts)
+                if ($tag instanceof Tag) {
+                    $newTagsAndOrMatchingExistingTags[] = $tag;
+                }
             }
         }
+
+        $this->eventDispatcher->dispatch(
+            new ExcelImporterPrePersistTagsEvent(tags: $newTagsAndOrMatchingExistingTags),
+            ExcelImporterPrePersistTagsEventInterface::class
+        );
     }
 
     /**
@@ -2477,6 +2508,165 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 ]
             );
         }
+    }
+
+    /**
+     * Finds an existing tag by title within a specific procedure.
+     *
+     * @throws Exception
+     */
+    protected function findExistingTagInProcedure(string $procedureId, string $tagTitle): ?Tag
+    {
+        $procedure = $this->procedureService->getProcedure($procedureId);
+        $matchingTags = $procedure->getTags()->filter(
+            static fn (Tag $tag) => $tag->getTitle() === $tagTitle
+        );
+
+        return $matchingTags->isEmpty() ? null : $matchingTags->first();
+    }
+
+    /**
+     * Finds an existing tag with the given title in the specified topic.
+     *
+     * @param string   $tagTitle The title of the tag to find
+     * @param TagTopic $topic    The topic to search in
+     *
+     * @return Tag|null The existing tag if found, null otherwise
+     */
+    protected function findExistingTagInTopic(string $tagTitle, TagTopic $topic): ?Tag
+    {
+        $topicTags = $topic->getTags();
+        $existingTags = $topicTags->filter(
+            static fn (Tag $tag) => $tag->getTitle() === $tagTitle
+        );
+
+        if (!$existingTags->isEmpty()) {
+            /* @var Collection<TagInterface> $existingTags */
+            return $existingTags->first();
+        }
+
+        return null;
+    }
+
+    /**
+     * Creates a new tag and optionally attaches a boilerplate to it.
+     *
+     * @param string   $tagTitle         The title of the tag to create
+     * @param TagTopic $topic            The target topic for the tag
+     * @param string   $procedureId      The procedure ID for boilerplate lookup
+     * @param bool     $useBoilerplate   Whether to attach boilerplate
+     * @param string   $boilerplateTitle The title of the boilerplate (if useBoilerplate is true)
+     * @param string   $boilerplateText  The text of the boilerplate (if useBoilerplate is true)
+     *
+     * @return Tag The newly created tag
+     *
+     * @throws Exception
+     */
+    protected function createTagWithOptionalBoilerplate(
+        string $tagTitle,
+        TagTopic $topic,
+        string $procedureId,
+        bool $useBoilerplate = false,
+        string $boilerplateTitle = '',
+        string $boilerplateText = '',
+    ): Tag {
+        // Create the tag
+        $tag = $this->tagService->createTag($tagTitle, $topic);
+
+        // Attach boilerplate if requested
+        if ($useBoilerplate) {
+            $this->handleBoilerplateImportForTag($tag, $boilerplateTitle, $boilerplateText, $procedureId);
+        }
+
+        return $tag;
+    }
+
+    /**
+     * Handles tag import with integrated boilerplate processing.
+     * This method combines tag creation and boilerplate attachment in a single operation.
+     *
+     * @param string   $tagTitle         The title of the tag to create
+     * @param TagTopic $topic            The target topic for the tag
+     * @param string   $procedureId      The procedure ID for uniqueness checking
+     * @param bool     $useBoilerplate   Whether to attach boilerplate
+     * @param string   $boilerplateTitle The title of the boilerplate (if useBoilerplate is true)
+     * @param string   $boilerplateText  The text of the boilerplate (if useBoilerplate is true)
+     *
+     * @return Tag|null The created tag entity, or null if conflicts prevent creation
+     *
+     * @throws Exception
+     */
+    protected function handleTagImportWithBoilerplate(
+        string $tagTitle,
+        TagTopic $topic,
+        string $procedureId,
+        bool $useBoilerplate = false,
+        string $boilerplateTitle = '',
+        string $boilerplateText = '',
+    ): ?Tag {
+        // Check if tag title exists elsewhere in this procedure
+        if (!$this->tagRepository->isTagTitleFree($procedureId, $tagTitle)) {
+            // Tag exists in different topic - add error message and skip processing
+            $existingTagInProcedure = $this->findExistingTagInProcedure($procedureId, $tagTitle);
+            if ($existingTagInProcedure instanceof Tag) {
+                $existingTopic = $existingTagInProcedure->getTopic();
+                $this->getMessageBag()->add('error', 'tags.import.conflict.tag.exists.in.different.topic', [
+                    'tagTitle'      => $tagTitle,
+                    'existingTopic' => $existingTopic->getTitle(),
+                    'targetTopic'   => $topic->getTitle(),
+                ]);
+
+                return null;
+            }
+
+            // Inconsistent state: isTagTitleFree said tag exists but findExistingTagInProcedure found nothing
+            $this->logger->error('Tag import inconsistency: isTagTitleFree returned false but tag not found', [
+                'procedureId'   => $procedureId,
+                'tagTitle'      => $tagTitle,
+                'targetTopicId' => $topic->getId(),
+            ]);
+            throw new TagNotFoundException("Tag title '{$tagTitle}' reported as taken in procedure '{$procedureId}' but tag not found");
+        }
+
+        // Tag doesn't exist anywhere in procedure - create new one with optional boilerplate
+        return $this->createTagWithOptionalBoilerplate(
+            $tagTitle,
+            $topic,
+            $procedureId,
+            $useBoilerplate,
+            $boilerplateTitle,
+            $boilerplateText
+        );
+    }
+
+    /**
+     * Handles boilerplate creation for a tag during import.
+     * Since all tags calling this method are new during import, they won't have existing boilerplates attached.
+     * Looks for existing boilerplate with matching title and text in procedure.
+     * If found, attaches the existing one to the tag.
+     * If not found, creates new boilerplate and attaches it to the tag.
+     *
+     * @throws Exception
+     */
+    protected function handleBoilerplateImportForTag(Tag $tag, string $title, string $text, string $procedureId): void
+    {
+        // Look for existing boilerplate with matching title AND text in procedure
+        $existingBoilerplates = $this->procedureService->getBoilerplateList($procedureId);
+        $matchingBoilerplate = collect($existingBoilerplates)
+            ->filter(fn (BoilerplateInterface $boilerplate) => $boilerplate->getTitle() === $title && $boilerplate->getText() === $text)
+            ->first();
+
+        if (null === $matchingBoilerplate) {
+            // Create new boilerplate and attach to tag
+            $boilerplateData = ['title' => $title, 'text' => $text];
+            $boilerplate = $this->procedureService->addBoilerplate($procedureId, $boilerplateData);
+        } else {
+            // Use existing matching boilerplate
+            $boilerplate = $matchingBoilerplate;
+        }
+
+        // Attach the boilerplate (new or existing) to the tag
+        $this->tagService->attachBoilerplateToTag($tag, $boilerplate);
     }
 
     /**
@@ -2893,6 +3083,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     ManualStatementCreatedEventInterface::class
                 );
                 $assessableStatement = $assessableStatementEvent->getStatement();
+                $newOriginalStatement->setStatementsCreatedFromOriginal(new ArrayCollection([$assessableStatement]));
 
                 $routeName = 'dm_plan_assessment_single_view';
                 $routeParameters = ['procedureId' => $newOriginalStatement->getProcedureId(), 'statement' => $assessableStatement->getId()];
@@ -2952,7 +3143,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         if (!array_key_exists('r_similarStatementSubmitters', $data)
             || !is_array($data['r_similarStatementSubmitters'])
-            || 0 === count($data['r_similarStatementSubmitters'])) {
+            || [] === $data['r_similarStatementSubmitters']) {
             $statementToAttachTo->setSimilarStatementSubmitters(new ArrayCollection());
 
             return $statementToAttachTo;
@@ -3072,9 +3263,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         foreach ($paragraphDocumentList['result'] as $value) {
             $ptitle = $value['title'];
             $templateVars['paragraph'][$value['elementId']][] = [
-                'ident' => $value['ident'],
-                'id'    => $value['id'],
-                'title' => $ptitle,
+                'ident'     => $value['ident'],
+                'id'        => $value['id'],
+                'title'     => $ptitle,
+                'elementId' => $value['elementId'],
             ];
         }
         foreach ($singleDocumentList['result'] as $value) {
@@ -3121,7 +3313,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         if ($tag->getStatements()->isEmpty()) {
             $fragments = $this->statementFragmentService->getStatementFragmentsTag($tag->getId());
-            if (0 === count((array) $fragments)) {
+            if ([] === (array) $fragments) {
                 return false;
             }
         }
@@ -3362,7 +3554,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      */
     protected function validateStatementsProcedure(string $procedureId, array $statements): bool
     {
-        if (0 < count($statements)) {
+        if ([] !== $statements) {
             $firstStatementProcedureId = $statements[0]->getProcedureId();
             if ($firstStatementProcedureId != $procedureId) {
                 $this->getLogger()->info('Statements does not belong to procedure '.$procedureId);
@@ -3374,7 +3566,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
             foreach ($statements as $statement) {
                 if ($statement instanceof Statement) {
-                    if (!($procedureId === $statement->getProcedureId())) {
+                    if ($procedureId !== $statement->getProcedureId()) {
                         $this->getLogger()->info('Statements do not belong to same procedure');
                         $this->getMessageBag()->add('error', 'warning.statement.cluster.removed.placeholder');
 
@@ -3428,7 +3620,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $headStatement = new Statement();
         try {
             // do not check for instance of Statement because of Proxy Object in Unit tests (will fail)
-            if (null === $headStatement) {
+            if (!$headStatement instanceof Statement) {
                 $this->getLogger()->error('Could not choose Statement to create Cluster');
                 throw new InvalidArgumentException('Could not choose Statement to create Cluster');
             }
@@ -3526,14 +3718,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * @param bool $ignoreAssignmentOfStatement     - Determines if a assignment statement will be updated regardless
      * @param bool $ignoreAssignmentOfHeadStatement - Determines if a assignment headStatement will be updated regardless
      *
-     * @return statement|bool - false the given statementToAdd was not added to the given headStatement,
+     * @return Statement|bool - false the given statementToAdd was not added to the given headStatement,
      *                        otherwise the headStatement
      */
     public function addStatementToCluster(
         Statement $headStatement,
         Statement $statementToAdd,
         $ignoreAssignmentOfStatement = false,
-        $ignoreAssignmentOfHeadStatement = false
+        $ignoreAssignmentOfHeadStatement = false,
     ) {
         try {
             if (!$headStatement->isClusterStatement()) {
@@ -3928,7 +4120,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             if (array_key_exists('departmentId', $updateData)) {
                 $updateData['status'] = null === $updateData['departmentId'] ? 'fragment.status.new' : 'fragment.status.assignedToFB';
             }
-
             // When department finished working the archivedOrgaName is set and departmentId is null
             if (array_key_exists('archivedOrgaName', $updateData) && null != $updateData['archivedOrgaName']
                 && array_key_exists('departmentId', $updateData)
@@ -3936,7 +4127,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $updateData['status'] = 'fragment.status.assignedBackFromFB';
                 $updateData['archivedDepartment'] = $statementFragmentToUpdate->getDepartment();
             }
-
             // manually unset State?
             if (array_key_exists('status', $updateData) && null == $updateData['status']) {
                 $updateData['status'] = 'fragment.status.new';
@@ -3945,17 +4135,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     $updateData['archivedDepartment'] = $statementFragmentToUpdate->getDepartment();
                 }
             }
-        } else {
+        } elseif (array_key_exists('departmentId', $updateData) && null !== $updateData['departmentId']) {
             // unverify manually:
-
-            if (array_key_exists('departmentId', $updateData) && null !== $updateData['departmentId']) {
-                $updateData['status'] = 'fragment.status.assignedToFB';
-            } elseif (null !== $currentArchivedOrgaName) {
-                $updateData['status'] = 'fragment.status.assignedBackFromFB';
-                $updateData['archivedDepartment'] = $statementFragmentToUpdate->getDepartmentId();
-            } else {
-                $updateData['status'] = 'fragment.status.new';
-            }
+            $updateData['status'] = 'fragment.status.assignedToFB';
+        } elseif (null !== $currentArchivedOrgaName) {
+            $updateData['status'] = 'fragment.status.assignedBackFromFB';
+            $updateData['archivedDepartment'] = $statementFragmentToUpdate->getDepartmentId();
+        } else {
+            $updateData['status'] = 'fragment.status.new';
         }
         if ($setVerified) {
             $updateData['status'] = 'fragment.status.verified';
@@ -4038,8 +4225,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
 
             /** @var StatementRepository $statementRepository */
-            $statementRepository = $this->statementService
-                ->getDoctrine()
+            $statementRepository = $this->doctrine
                 ->getManager()
                 ->getRepository(Statement::class);
             $voteObjects = $statementRepository
@@ -4224,7 +4410,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         $statements = $this->excludePlaceholderStatements($statements);
 
-        if (0 === count($statements)) {
+        if ([] === $statements) {
             throw new InvalidArgumentException('Create statement failed: No items in the given clusterStatementArray');
         }
 
@@ -4485,7 +4671,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 }
             }
 
-            if (0 < count($statementsNotClaimedByUser)) {
+            if ([] !== $statementsNotClaimedByUser) {
                 $this->getMessageBag()->add(
                     'warning', 'statement.cluster.not.assigned',
                     ['ids' => implode(', ', $statementsNotClaimedByUser)]
@@ -4494,7 +4680,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $this->getLogger()->info('Folowing statements are not claimed by current user: '.implode(', ', $statementsNotClaimedByUser));
                 $areAllElementsClaimedByUser = false;
             }
-            if (0 < count($stmtFragmentsNotClaimedByUser)) {
+            if ([] !== $stmtFragmentsNotClaimedByUser) {
                 $this->getMessageBag()->add(
                     'warning', 'statement.cluster.fragments.not.claimed.by.current.user',
                     ['ids' => implode(', ', $stmtFragmentsNotClaimedByUser)]

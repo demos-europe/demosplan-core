@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\PublicAffairsAgentNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use Exception;
 
 class PublicAffairsAgentHandler extends CoreHandler
@@ -25,7 +25,7 @@ class PublicAffairsAgentHandler extends CoreHandler
         return $this->orgaHandler;
     }
 
-    public function __construct(private readonly OrgaHandler $orgaHandler, MessageBag $messageBag)
+    public function __construct(private readonly OrgaHandler $orgaHandler, MessageBagInterface $messageBag)
     {
         parent::__construct($messageBag);
     }

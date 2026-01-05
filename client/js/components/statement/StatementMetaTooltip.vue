@@ -12,7 +12,9 @@
     <button
       v-if="toggleButton"
       class="btn--blank o-link--default float-right"
-      @click="$emit('toggle')">
+      data-cy="pinInformation"
+      @click="$emit('toggle')"
+    >
       {{ Translator.trans('information.pin') }}
     </button>
 
@@ -38,7 +40,8 @@
 
     <statement-meta-data
       :statement="statement"
-      :submit-type-options="submitTypeOptions">
+      :submit-type-options="submitTypeOptions"
+    >
       <template
         v-slot:default="{
           formattedAuthoredDate,
@@ -51,7 +54,8 @@
           submitName,
           submitType,
           location
-        }">
+        }"
+      >
         <dl class="description-list-inline u-mb-0_5">
           <dt>{{ Translator.trans('submitter') }}:</dt>
           <dd>{{ submitName }}</dd>
@@ -77,8 +81,9 @@
         </dl>
 
         <dl
+          v-if="hasPermission('field_statement_memo')"
           class="description-list"
-          v-if="hasPermission('field_statement_memo')">
+        >
           <dt>{{ Translator.trans('memo') }}:</dt>
           <dd class="max-h-12 overflow-auto">
             {{ memo }}
@@ -96,36 +101,36 @@ export default {
   name: 'StatementMetaTooltip',
 
   components: {
-    StatementMetaData
+    StatementMetaData,
   },
 
   props: {
     // Array of objects with id and name
     assignableUsers: {
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     // Array of objects with id and name
     places: {
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     segment: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     statement: {
       type: Object,
-      required: true
+      required: true,
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     /**
@@ -134,9 +139,13 @@ export default {
     toggleButton: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
+
+  emits: [
+    'toggle',
+  ],
 
   computed: {
     isSegmentWithAssignee () {
@@ -148,17 +157,17 @@ export default {
     },
 
     segmentAssignee () {
-      return this.segment?.relationships?.assignee?.data
-        ? this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
-        : {}
+      return this.segment?.relationships?.assignee?.data ?
+        this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id) :
+        {}
     },
 
     // Object with id and name
     segmentPlace () {
-      return Object.keys(this.segment).length && this.segment.relationships.place
-        ? this.places.find(place => place.id === this.segment.relationships.place.data.id)
-        : {}
-    }
-  }
+      return Object.keys(this.segment).length && this.segment.relationships.place ?
+        this.places.find(place => place.id === this.segment.relationships.place.data.id) :
+        {}
+    },
+  },
 }
 </script>

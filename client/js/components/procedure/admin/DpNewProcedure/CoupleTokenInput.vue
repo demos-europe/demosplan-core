@@ -10,8 +10,9 @@
 <template>
   <div class="space-stack-s">
     <dp-input
-      aria-labelledby="token-notification"
       id="procedureCoupleToken"
+      v-model="currentToken"
+      aria-labelledby="token-notification"
       data-cy="procedureCoupleToken"
       data-dp-validate-if="#procedureCoupleToken!==''"
       :label="{
@@ -20,13 +21,15 @@
       :maxlength="`${tokenLength}`"
       :minlength="`${tokenLength}`"
       name="procedureCoupleToken"
-      @input="validateToken" />
+      @update:model-value="validateToken"
+    />
     <dp-inline-notification
       v-if="notification"
-      class="u-mb-0"
       id="token-notification"
+      class="mt-3 mb-0"
       :message="notification.text"
-      :type="notification.type" />
+      :type="notification.type"
+    />
   </div>
 </template>
 <script>
@@ -37,16 +40,17 @@ export default {
 
   components: {
     DpInlineNotification,
-    DpInput
+    DpInput,
   },
 
   props: {
-    tokenLength: length
+    tokenLength: length,
   },
 
   data () {
     return {
-      notification: null
+      currentToken: '',
+      notification: null,
     }
   },
 
@@ -54,26 +58,28 @@ export default {
     async validateToken (token) {
       if (token.length === this.tokenLength) {
         const notification = {}
-        const response = await dpRpc('procedure.token.usage', { token: token })
+        const response = await dpRpc('procedure.token.usage', { token })
         const sourceProcedure = response.data[0].result.sourceProcedure
         const targetProcedure = response.data[0].result.targetProcedure
 
         if (sourceProcedure && targetProcedure) {
           notification.text = Translator.trans('procedure.couple_token.validation.already_used')
           notification.type = 'warning'
+          this.currentToken = ''
         } else if (sourceProcedure) {
           notification.text = Translator.trans('procedure.couple_token.validation.success', { orgaName: sourceProcedure.orgaName, procedureName: sourceProcedure.name })
           notification.type = 'confirm'
         } else {
           notification.text = Translator.trans('procedure.couple_token.validation.not_found')
           notification.type = 'error'
+          this.currentToken = ''
         }
 
         this.notification = notification
       } else {
         this.notification = null
       }
-    }
-  }
+    },
+  },
 }
 </script>

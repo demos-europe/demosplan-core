@@ -5,7 +5,7 @@
         procedure is defined and
         procedure is not null and
         (
-                hasPermission('area_statements') or hasPermission('area_admin_assessmenttable')
+                hasPermission('area_statements') or hasPermission('area_admin')
         )
     )
 %}
@@ -26,7 +26,7 @@
                 {# additional link to be inserted via link_caption / link #}
                     {% if link_caption|default != '' %}
                         <a
-                            class="{{ 'c-pageheader__link'|prefixClass }}"
+                            class="{{ 'c-pageheader__link mr-3'|prefixClass }}"
                             data-cy="pageHeader:backTo"
                             href="{{ link }}">
                             <i class="{{ 'fa fa-angle-left'|prefixClass }}" aria-hidden="true"></i> {{ link_caption|default }}
@@ -38,7 +38,7 @@
                     {# export procedure #}
                     {% if hasPermission('feature_admin_export_procedure') and hasPermission('feature_admin_export_procedure_in_detail_view') %}
                         <a
-                            class="{{ 'c-pageheader__link u-ml-0_75'|prefixClass }}"
+                            class="{{ 'c-pageheader__link mr-3'|prefixClass }}"
                             target="_blank"
                             rel="noopener"
                             data-cy="pageHeader:procedureExport"
@@ -59,8 +59,12 @@
                         hasPermission('area_admin') and
                         ownsProcedure(proceduresettings)
                     %}
-                        <a class="{{ 'btn btn--outline-reversed btn--primary btn--rounded float-right u-mt-0_25 u-mr'|prefixClass }}" href="{{ path('DemosPlan_procedure_dashboard', {'procedure': procedure}) }}">
-                            <i class="{{ 'fa fa-pencil u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>{{ 'procedure.edit'|trans }}
+                        <a
+                            class="{{ 'btn btn--outline-reversed btn--primary btn--rounded float-right u-mt-0_25 u-mr'|prefixClass }}"
+                            data-cy="pageHeader:editProcedure"
+                            href="{{ path('DemosPlan_procedure_dashboard', {'procedure': procedure}) }}">
+                            <i class="{{ 'fa fa-pencil u-mr-0_25'|prefixClass }}" aria-hidden="true"></i>
+                            {{ 'procedure.edit'|trans }}
                         </a>
                     {% endif %}
                 {% endif %}

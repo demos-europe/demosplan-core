@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\OrgaServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
@@ -25,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\EmailAddressInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\OrganisationReportEntryFactory;
@@ -51,12 +51,13 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\FunctionInterface;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class OrgaService extends CoreService
+class OrgaService implements OrgaServiceInterface
 {
     /** @var MailService */
     protected $mailService;
@@ -105,7 +106,8 @@ class OrgaService extends CoreService
         private readonly SortMethodFactory $sortMethodFactory,
         TokenStorageInterface $tokenStorage,
         private readonly TranslatorInterface $translator,
-        private readonly UserService $userService
+        private readonly UserService $userService,
+        private readonly LoggerInterface $logger,
     ) {
         $this->addressService = $addressService;
         $this->contentService = $contentService;
@@ -158,7 +160,7 @@ class OrgaService extends CoreService
         string $userLastName,
         string $email,
         Customer $customer,
-        array $orgaTypeNames
+        array $orgaTypeNames,
     ): Orga {
         $masterUserRoles = $this->roleService->getUserRolesByCodes([Role::ORGANISATION_ADMINISTRATION]);
         $masterUserRole = $masterUserRoles[0];
@@ -834,7 +836,7 @@ class OrgaService extends CoreService
     }
 
     /**
-     * Get single orgaobject by filter.
+     * Gets a list of orgaInterfaces by filter.
      *
      * @param array $filter
      *

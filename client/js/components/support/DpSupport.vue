@@ -15,40 +15,50 @@ All rights reserved
     <p class="u-mt-0_75">
       {{ Translator.trans('support.introduction') }}
     </p>
-    <p>
+    <p v-if="hasPermission('feature_customer_support_technical_read')">
       {{ Translator.trans('support.contact.advice') }}
     </p>
     <h3
       v-if="Object.keys(contacts).length > 0"
-      class="u-mt-0_75">
+      class="u-mt-0_75"
+    >
       {{ Translator.trans('support') }}
     </h3>
     <ul
       class="u-mb-0_75"
-      :class="{ 'grid lg:grid-cols-3 gap-3': Object.keys(contacts).length !== 1 }">
+      :class="{ 'grid lg:grid-cols-3 gap-3': Object.keys(contacts).length !== 1 }"
+    >
       <li
         v-for="contact in contacts"
         :key="contact.id"
         class="bg-color--white"
-        :class="{ 'lg:w-8/12': Object.keys(contacts).length === 1 }">
+        :class="{ 'lg:w-8/12': Object.keys(contacts).length === 1 }"
+      >
         <dp-support-card
           :title="contact.attributes.title"
           :email="contact.attributes.eMailAddress"
           :phone-number="contact.attributes.phoneNumber"
-          :reachability="{ officeHours: contact.attributes.text }" />
+          :reachability="{ officeHours: contact.attributes.text }"
+        />
       </li>
     </ul>
-    <h3>
+    <h3
+      v-if="hasPermission('feature_customer_support_technical_read')"
+    >
       {{ Translator.trans('support.technical') }}
     </h3>
-    <div class="lg:w-8/12">
+    <div
+      v-if="hasPermission('feature_customer_support_technical_read')"
+      class="lg:w-8/12"
+    >
       <dp-support-card
         :phone-number="Translator.trans('support.contact.number')"
         :reachability="{
           service: Translator.trans('support.contact.service'),
           officeHours: Translator.trans('support.contact.office_hours'),
           exception: Translator.trans('support.contact.exception')
-        }" />
+        }"
+      />
     </div>
   </div>
 </template>
@@ -56,6 +66,7 @@ All rights reserved
 
 import { mapActions, mapState } from 'vuex'
 import DpSupportCard from './DpSupportCard'
+import { hasPermission } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpSupport',
@@ -68,19 +79,19 @@ export default {
       email: '',
       phoneNumber: '',
       reachability: {},
-      title: ''
+      title: '',
     }
   },
 
   computed: {
-    ...mapState('customerContact', {
-      contacts: 'items'
-    })
+    ...mapState('CustomerContact', {
+      contacts: 'items',
+    }),
   },
 
   methods: {
-    ...mapActions('customerContact', {
-      fetchContacts: 'list'
+    ...mapActions('CustomerContact', {
+      fetchContacts: 'list',
     }),
 
     fetchCustomerContactsData () {
@@ -90,9 +101,9 @@ export default {
             'title',
             'phoneNumber',
             'text',
-            'eMailAddress'
-          ].join()
-        }
+            'eMailAddress',
+          ].join(),
+        },
       }
 
       if (hasPermission('feature_customer_support_contact_administration')) {
@@ -102,19 +113,19 @@ export default {
             onlyVisible: {
               condition: {
                 path: 'visible',
-                value: 1
-              }
-            }
-          }
+                value: 1,
+              },
+            },
+          },
         }
       }
 
       this.fetchContacts(params)
-    }
+    },
   },
 
   mounted () {
     this.fetchCustomerContactsData()
-  }
+  },
 }
 </script>

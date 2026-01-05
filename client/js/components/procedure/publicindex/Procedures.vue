@@ -17,11 +17,13 @@
       :is-public-user="isPublicUser"
       :projection-name="projectionName"
       :projection-string="projectionString"
-      :project-version="projectVersion" />
+      :project-version="projectVersion"
+    />
   </div>
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue'
 import DpDrawer from './drawer/Drawer'
 import { mapActions } from 'vuex'
 
@@ -29,61 +31,61 @@ export default {
   name: 'DpProcedures',
 
   components: {
-    DpMap: () => import('./map/Map'),
-    DpDrawer
+    DpMap: defineAsyncComponent(() => import('./map/Map')),
+    DpDrawer,
   },
 
   props: {
     initialMapSettings: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     isPublicAgency: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     isPublicUser: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     mapData: {
       type: Object,
-      required: true
+      required: true,
     },
 
     projectionName: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     projectionString: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     projectVersion: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   methods: {
-    ...mapActions('procedure', {
-      getProcedures: 'get'
-    })
+    ...mapActions('Procedure', {
+      getProcedures: 'get',
+    }),
   },
 
   created () {
     this.getProcedures()
-  }
+  },
 }
 </script>

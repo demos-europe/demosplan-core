@@ -23,7 +23,7 @@
 
     // Max width to tackle resize of the sidebar
     @include media-query('lap-up') {
-        max-width: $map-toolbar-width - $inuit-base-spacing-unit--small;
+        max-width: $map-toolbar-width
     }
 
     // Box without buttons
@@ -94,7 +94,7 @@
     // Title + main action
     &__title,
     &__title--button {
-        color: $actionbox-color-contrast !important;
+        color: $actionbox-color-contrast;
 
         font-family: $normal-font-family;
         font-weight: $normal-font-weight;
@@ -121,15 +121,13 @@
 
         text-align: center;
 
-        &,
         &:hover {
-            color: $actionbox-color-inactive !important;
-
+            color: $actionbox-color-inactive;
             text-decoration: none;
         }
 
         &.is-active:active {
-            box-shadow: $dp-box-shadow;
+            box-shadow: $dp-box-shadow-sm;
             color: $actionbox-color-dark;
         }
 
@@ -143,7 +141,7 @@
 
         &.is-active {
             background-color: $actionbox-color-contrast;
-            box-shadow: $dp-box-shadow;
+            box-shadow: $dp-box-shadow-sm;
             color: $actionbox-color;
 
             &:hover:not(:active),
@@ -160,6 +158,12 @@
             i {
                 padding-right: 8px;
             }
+        }
+
+        &:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            color: $actionbox-color-inactive;
         }
     }
 

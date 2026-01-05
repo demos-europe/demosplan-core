@@ -7,19 +7,17 @@
  * All rights reserved
  */
 
-import { del } from 'vue'
-
 const Voter = {
-
   namespaced: true,
-  name: 'voter',
+
+  name: 'Voter',
 
   state: {
-    voters: {}
+    voters: {},
   },
 
   getters: {
-    getVoters: state => state.voters
+    getVoters: state => state.voters,
   },
 
   mutations: {
@@ -33,10 +31,10 @@ const Voter = {
       Object.assign(state.voters[index], newData)
     },
     removeVoter (state, index) {
-      del(state.voters, index)
-    }
+      delete state.voters[index]
+    },
 
-  }
+  },
 }
 
 export default Voter

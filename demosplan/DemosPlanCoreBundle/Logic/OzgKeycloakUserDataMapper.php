@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -20,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\DepartmentMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -29,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator;
 use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserDataInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
@@ -48,25 +51,22 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class OzgKeycloakUserDataMapper
 {
     private KeycloakUserDataInterface $ozgKeycloakUserData;
-    private const ROLETITLE_TO_ROLECODE = [
-        'Mandanten Administration'          => Role::CUSTOMER_MASTER_USER,
-        'Organisationsadministration'       => Role::ORGANISATION_ADMINISTRATION,
-        'Fachplanung Planungsbüro'          => Role::PRIVATE_PLANNING_AGENCY,
-        // 'Verfahrens-Planungsbüro'           => Role::PRIVATE_PLANNING_AGENCY,
-        'Fachplanung Administration'        => Role::PLANNING_AGENCY_ADMIN,
-        // 'Verfahrensmanager'                 => Role::PLANNING_AGENCY_ADMIN,
-        'Fachplanung Sachbearbeitung'       => Role::PLANNING_AGENCY_WORKER,
-        // 'Verfahrens Sachbearbeitung'        => Role::PLANNING_AGENCY_WORKER,
-        'Institutions Koordination'         => Role::PUBLIC_AGENCY_COORDINATION,
-        'Institutions Sachbearbeitung'      => Role::PUBLIC_AGENCY_WORKER,
-        'Support'                           => Role::PLATFORM_SUPPORT,
-        'Redaktion'                         => Role::CONTENT_EDITOR,
-        'Privatperson-Angemeldet'           => Role::CITIZEN,
-        'Fachliche Leitstelle'              => Role::PROCEDURE_CONTROL_UNIT,
-        'Datenerfassung'                    => Role::PROCEDURE_DATA_INPUT,
-    ];
 
-    public function __construct(private readonly CustomerService $customerService, private readonly DepartmentRepository $departmentRepository, private readonly EntityManagerInterface $entityManager, private readonly GlobalConfig $globalConfig, private readonly LoggerInterface $logger, private readonly OrgaRepository $orgaRepository, private readonly OrgaService $orgaService, private readonly OrgaTypeRepository $orgaTypeRepository, private readonly RoleRepository $roleRepository, private readonly UserRepository $userRepository, private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository, private readonly UserService $userService, private readonly ValidatorInterface $validator)
+    public function __construct(
+        private readonly CustomerService $customerService,
+        private readonly DepartmentRepository $departmentRepository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly LoggerInterface $logger,
+        private readonly OrgaRepository $orgaRepository,
+        private readonly OrgaService $orgaService,
+        private readonly OrgaTypeRepository $orgaTypeRepository,
+        private readonly RoleRepository $roleRepository,
+        private readonly UserRepository $userRepository,
+        private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository,
+        private readonly UserService $userService,
+        private readonly ValidatorInterface $validator,
+        private readonly DepartmentMapper $departmentMapper,
+        private readonly OzgKeycloakGroupBasedRoleMapper $groupBasedRoleMapper)
     {
     }
 
@@ -109,15 +109,22 @@ class OzgKeycloakUserDataMapper
         // try to find an existing Organisation that matches the given data (preferably gwId or otherwise name)
         $existingOrga = $this->tryLookupOrgaByGwId();
 
-        // At this point we handle users that have the role CITIZEN within their requested roles.
+        // At this point we handle users that are private persons (citizens).
+        // Check the isPrivatePerson attribute from the token first, then fall back to role-based detection.
         // Or the desired Orga ist the CITIZEN orga.
         // CITIZEN are special as they have to be put in their specific organisation
-        if ($this->isUserCitizen($requestedRoles)
-            || (null !== $existingOrga && User::ANONYMOUS_USER_ORGA_ID === $existingOrga->getId())
-        ) {
+        $isPrivatePersonByAttribute = $this->ozgKeycloakUserData->isPrivatePerson();
+        $isPrivatePersonByRole = $this->isUserCitizen($requestedRoles);
+        $isPrivatePersonByOrga = $existingOrga instanceof Orga && UserInterface::ANONYMOUS_USER_ORGA_ID === $existingOrga->getId();
+
+        if ($isPrivatePersonByAttribute) {
+            $this->logger->info('User identified as private person via isPrivatePerson token attribute');
+        }
+
+        if ($isPrivatePersonByAttribute || $isPrivatePersonByRole || $isPrivatePersonByOrga) {
             // was the user in a different Organisation beforehand - get him out of there and reset his department
             // except it was the CITIZEN organisation already.
-            if (null !== $existingUser && !$this->isCurrentlyInCitizenOrga($existingUser)) {
+            if ($existingUser instanceof User && !$this->isCurrentlyInCitizenOrga($existingUser)) {
                 $this->detachUserFromOrgaAndDepartment($existingUser);
             }
             // just return the CITIZEN organisation and do not update the orga in this case
@@ -130,16 +137,16 @@ class OzgKeycloakUserDataMapper
         // and an existing user could be found using the given user attributes:
         // If the organisations are different - the assumption is that the user wants to change the orga.
         $moveUserToAnotherOrganisation =
-            null !== $existingUser
-            && null !== $existingOrga
-            && null !== $existingUser->getOrga()
+            $existingUser instanceof User
+            && $existingOrga instanceof Orga
+            && $existingUser->getOrga() instanceof OrgaInterface
             && $existingUser->getOrga()->getId() !== $existingOrga->getId();
 
         if ($moveUserToAnotherOrganisation) {
             $this->detachUserFromOrgaAndDepartment($existingUser);
         }
 
-        if (null !== $existingOrga) {
+        if ($existingOrga instanceof Orga) {
             return $this->updateOrganisation($existingOrga, $requestedRoles);
         }
 
@@ -165,7 +172,7 @@ class OzgKeycloakUserDataMapper
     private function detachUserFromOrgaAndDepartment(User $existingUser): void
     {
         $oldOrga = $existingUser->getOrga();
-        if ($oldOrga) {
+        if ($oldOrga instanceof OrgaInterface) {
             // get user out of his old organisation
             $oldOrga->removeUser($existingUser);
             $this->entityManager->persist($oldOrga);
@@ -193,6 +200,12 @@ class OzgKeycloakUserDataMapper
          */
         if (User::ANONYMOUS_USER_ORGA_NAME !== $this->ozgKeycloakUserData->getOrganisationName()) {
             $existingOrga->setName($this->ozgKeycloakUserData->getOrganisationName());
+
+            $existingOrga->setStreet($this->ozgKeycloakUserData->getStreet());
+            $existingOrga->setAddressExtension($this->ozgKeycloakUserData->getAddressExtension());
+            $existingOrga->setHouseNumber($this->ozgKeycloakUserData->getHouseNumber());
+            $existingOrga->setPostalcode($this->ozgKeycloakUserData->getPostalCode());
+            $existingOrga->setCity($this->ozgKeycloakUserData->getCity());
         }
         // what OrgaTypes are needed to be set and accepted regarding the requested Roles?
         $orgaTypesNeededToBeAccepted = $this->getOrgaTypesToSetupRequestedRoles($requstedRoles);
@@ -219,7 +232,7 @@ class OzgKeycloakUserDataMapper
             }
         }
         $this->entityManager->persist($existingOrga);
-        $this->entityManager->flush();
+        // Removed flush() call - let the main transaction handle persistence
 
         $this->logger->info(
             'Organisation updated',
@@ -317,7 +330,7 @@ class OzgKeycloakUserDataMapper
             'gwId'          => $this->ozgKeycloakUserData->getUserId(),
             'customer'      => $this->customerService->getCurrentCustomer(),
             'organisation'  => $userOrga,
-            'department'    => $this->getDepartmentToSetForUser($userOrga),
+            'department'    => $this->departmentMapper->findOrCreateDepartment($userOrga, $this->ozgKeycloakUserData->getCompanyDepartment()),
             'roles'         => $requestedRoles,
         ];
 
@@ -363,7 +376,7 @@ class OzgKeycloakUserDataMapper
     {
         $orgaTypesNeeded = [];
         foreach ($requestedRoles as $requestedRole) {
-            foreach (OrgaType::ORGATYPE_ROLE as $orgaType => $type) {
+            foreach (OrgaTypeInterface::ORGATYPE_ROLE as $orgaType => $type) {
                 if (in_array($requestedRole->getCode(), $type, true)
                     && !in_array($orgaType, $orgaTypesNeeded, true)
                 ) {
@@ -384,61 +397,36 @@ class OzgKeycloakUserDataMapper
      */
     private function mapUserRoleData(): array
     {
+        // Special handling for private persons - automatically assign CITIZEN role
+        if ($this->ozgKeycloakUserData->isPrivatePerson()) {
+            return $this->getCitizenRoleForPrivatePerson();
+        }
+
         $rolesOfCustomer = $this->ozgKeycloakUserData->getCustomerRoleRelations();
         $customer = $this->customerService->getCurrentCustomer();
-        $recognizedRoleCodes = [];
-        $unIdentifiedRoles = [];
-        // If we received partially recognizable roles - we try to ignore the garbage data...
-        // ['Fachplanung-Administration', 'Sachplanung-Fachbearbeitung', ''] counts as ['Fachplanung-Administration']
-        if (array_key_exists($customer->getSubdomain(), $rolesOfCustomer)) {
-            foreach ($rolesOfCustomer[$customer->getSubdomain()] as $roleName) {
-                $this->logger->info('Role found for subdomain '.$customer->getSubdomain().': '.$roleName);
-                if (array_key_exists($roleName, self::ROLETITLE_TO_ROLECODE)) {
-                    $this->logger->info('Role recognized: '.$roleName);
-                    $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$roleName];
-                } else {
-                    $this->logger->info('Role not recognized: '.$roleName);
-                    $unIdentifiedRoles[] = $roleName;
-                }
-            }
-        }
-        if (0 !== count($unIdentifiedRoles)) {
-            $this->logger->error('at least one non recognizable role was requested!', $unIdentifiedRoles);
-        }
-        $requestedRoles = $this->filterNonAvailableRolesInProject($recognizedRoleCodes);
-        if (0 === count($requestedRoles)) {
-            throw new AuthenticationCredentialsNotFoundException('no roles could be identified');
-        }
-        $this->logger->info('Finally recognized Roles: ', [$requestedRoles]);
 
-        return $requestedRoles;
+        return $this->groupBasedRoleMapper->mapGroupBasedRoles(
+            $rolesOfCustomer,
+            $customer->getSubdomain()
+        );
     }
 
     /**
-     * @param array<int, string> $requestedRoleCodes
+     * Get CITIZEN role for private persons.
      *
      * @return array<int, Role>
+     *
+     * @throws AuthenticationCredentialsNotFoundException
      */
-    private function filterNonAvailableRolesInProject(array $requestedRoleCodes): array
+    private function getCitizenRoleForPrivatePerson(): array
     {
-        $unavailableRoles = [];
-        $availableRequestedRoles = [];
-        foreach ($requestedRoleCodes as $roleCode) {
-            if (in_array($roleCode, $this->globalConfig->getRolesAllowed(), true)) {
-                $this->logger->info('try to fetch role entity for role code', [$roleCode]);
-                $availableRequestedRoles[] = $this->roleRepository->findOneBy(['code' => $roleCode]);
-                $this->logger->info('current available requested roles', [$availableRequestedRoles]);
-            } else {
-                $this->logger->info('try to fetch role entity for not allowed role code', [$roleCode]);
-                $unavailableRoles[] = $this->roleRepository->findOneBy(['code' => $roleCode]);
-                $this->logger->info('current unavailable requested roles', [$unavailableRoles]);
-            }
-        }
-        if (0 !== count($unavailableRoles)) {
-            $this->logger->info('the following requested roles are not available in project', $unavailableRoles);
+        $this->logger->info('Private person detected - automatically assigning CITIZEN role');
+        $citizenRole = $this->roleRepository->findOneBy(['code' => Role::CITIZEN]);
+        if (null === $citizenRole) {
+            throw new AuthenticationCredentialsNotFoundException('CITIZEN role not found in system');
         }
 
-        return $availableRequestedRoles;
+        return [$citizenRole];
     }
 
     private function getCitizenOrga(): ?Orga
@@ -517,10 +505,9 @@ class OzgKeycloakUserDataMapper
         }
 
         $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
-        $departmentToSet = $this->getDepartmentToSetForUser($orga);
-        if ($dplanUser->getDepartment() !== $departmentToSet) {
-            $this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
-        }
+
+        $this->departmentMapper->assignUserDepartmentFromToken($dplanUser, $orga, $this->ozgKeycloakUserData->getCompanyDepartment());
+
         $violations = new ConstraintViolationList([]);
         $violations->addAll($this->validator->validate($dplanUser));
         $violations->addAll($this->validator->validate($orga));
@@ -528,8 +515,11 @@ class OzgKeycloakUserDataMapper
             throw ViolationsException::fromConstraintViolationList($violations);
         }
 
+        // user is provided by the identity provider
+        $dplanUser->setProvidedByIdentityProvider(true);
+
         $this->entityManager->persist($dplanUser);
-        $this->entityManager->flush();
+        // Removed flush() call - let the main transaction handle persistence
 
         $this->logger->info(
             'Existing user was updated.',
@@ -549,13 +539,6 @@ class OzgKeycloakUserDataMapper
         return $dplanUser;
     }
 
-    private function getDepartmentToSetForUser(Orga $userOrga): Department
-    {
-        return $userOrga->getDepartments()->filter(
-            static fn (Department $department): bool => Department::DEFAULT_DEPARTMENT_NAME === $department->getName()
-        )->first() ?? $userOrga->getDepartments()->first();
-    }
-
     private function hasUserAttributeToUpdate($dplanUserAttribute, $keycloakUserAttribute): bool
     {
         /*
@@ -569,7 +552,7 @@ class OzgKeycloakUserDataMapper
                 return true;
             }
 
-            return !empty(array_diff($keycloakUserAttribute, $dplanUserAttribute));
+            return [] !== array_diff($keycloakUserAttribute, $dplanUserAttribute);
         }
 
         return $dplanUserAttribute !== $keycloakUserAttribute;
@@ -586,11 +569,11 @@ class OzgKeycloakUserDataMapper
     {
         // 1) have they logged in with Keycloak before? Easy!
         $existingUser = $this->fetchExistingUserViaGatewayId();
-        if (null === $existingUser) {
+        if (!$existingUser instanceof User) {
             // 2) do we have a matching user by login
             $existingUser = $this->fetchExistingUserViaLoginAttribute();
         }
-        if (null === $existingUser) {
+        if (!$existingUser instanceof User) {
             // 3) do we have a matching user by email?
             $existingUser = $this->fetchExistingUserViaEmail();
         }

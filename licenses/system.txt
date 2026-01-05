@@ -1,5 +1,0 @@
-Licenses of third party systems as of Jan 05, 2023:
-
-Elasticsearch depending on the version Apache 2.0, Elastic License 2.0 or Server Side Public License (SSPL)
-MariaDB: GPLv2
-RabbitMQ: Mozilla Public License

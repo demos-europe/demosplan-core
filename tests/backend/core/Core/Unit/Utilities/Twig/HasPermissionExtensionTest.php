@@ -30,14 +30,10 @@ class HasPermissionExtensionTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->twigExtension = new HasPermissionExtension(self::$container, self::$container->get(PermissionsInterface::class));
+        $this->twigExtension = new HasPermissionExtension(self::getContainer(), self::getContainer()->get(PermissionsInterface::class));
     }
 
     /**
-     * @param bool $county
-     * @param bool $municipality
-     * @param bool $priorityArea
-     * @param bool $fragmentAdd
      * @param bool $cluster
      *
      * @return Session

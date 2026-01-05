@@ -10,12 +10,14 @@
 <template>
   <div>
     <dl class="description-list u-mb-0_5">
-      <dt class="weight--bold">
-        {{ Translator.trans('username') }}
-      </dt>
-      <dd class="u-mb color--grey">
-        {{ userData.userName }}
-      </dd>
+      <template v-if="!hasIdentityProvider">
+        <dt class="weight--bold">
+          {{ Translator.trans('username') }}
+        </dt>
+        <dd class="u-mb color--grey">
+          {{ userData.userName }}
+        </dd>
+      </template>
 
       <template v-if="hasPermission('area_mydata_organisation')">
         <dt class="weight--bold">
@@ -44,22 +46,27 @@
       <dd class="u-mb color--grey">
         {{ userData.firstName }}
       </dd>
-      <dt class="weight--bold">
-        {{ Translator.trans('email') }}
-      </dt>
-      <dd class="u-mb color--grey">
-        {{ userData.email }}
-      </dd>
+
+      <template v-if="!hasIdentityProvider">
+        <dt class="weight--bold">
+          {{ Translator.trans('email') }}
+        </dt>
+        <dd class="u-mb color--grey">
+          {{ userData.email }}
+        </dd>
+      </template>
     </dl>
 
     <input
       type="hidden"
       name="email"
-      :value="user.email">
+      :value="user.email"
+    >
     <input
       type="hidden"
       name="lastname"
-      :value="user.lastName">
+      :value="user.lastName"
+    >
 
     <template v-if="hasPermission('feature_send_assigned_task_notification_email_setting')">
       <dp-checkbox
@@ -71,7 +78,8 @@
           text: Translator.trans('email.daily.subscribe')
         }"
         name="assignedTaskNotification"
-        value-to-send="on" />
+        value-to-send="on"
+      />
       <p>
         {{ Translator.trans('email.daily.assigned.tasks.explanation') }}
       </p>
@@ -95,24 +103,34 @@ const userProperties = [
   'lastName',
   'firstName',
   'userName',
-  'email'
+  'email',
 ]
 
 export default {
   name: 'PersonalData',
 
   components: {
-    DpCheckbox
+    DpCheckbox,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
+  /**
+   * If the User logs in through a service provider (via Keycloak), the username becomes cryptic and can be confusing.
+   * Therefor we want to hide it from the user.
+   */
+    hasIdentityProvider: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
     isDailyDigestEnabled: {
       type: Boolean,
-      default: true
+      default: true,
     },
 
     user: {
@@ -120,24 +138,24 @@ export default {
       required: true,
       validator: (prop) => {
         return Object.keys(prop).every(key => userProperties.includes(key))
-      }
-    }
+      },
+    },
   },
 
   data () {
     return {
       isDailyDigestChecked: this.isDailyDigestEnabled,
-      userData: this.setUserData()
+      userData: this.setUserData(),
     }
   },
 
   computed: {
     explanation () {
-      const transkey = hasPermission('feature_statement_gdpr_consent_may_revoke')
-        ? 'statements.yours.list.description.short.gdpr_consent_may_revoke'
-        : 'statements.yours.list.description.short'
+      const transkey = hasPermission('feature_statement_gdpr_consent_may_revoke') ?
+        'statements.yours.list.description.short.gdpr_consent_may_revoke' :
+        'statements.yours.list.description.short'
       return Translator.trans(transkey, { href: Routing.generate('DemosPlan_user_statements') })
-    }
+    },
   },
 
   methods: {
@@ -155,7 +173,7 @@ export default {
       }
 
       return user
-    }
-  }
+    },
+  },
 }
 </script>

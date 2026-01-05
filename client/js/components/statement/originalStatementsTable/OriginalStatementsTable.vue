@@ -15,43 +15,53 @@
     :action="Routing.generate('dplan_assessmenttable_view_original_table', { procedureId: procedureId, '_fragment': 'start', 'filterHash': filterHash })"
     method="post"
     data-sticky-context
-    :data-assessment-original-statements="procedureId">
+    :data-assessment-original-statements="procedureId"
+  >
     <input
       type="hidden"
       name="r_ident"
-      value="">
+      value=""
+    >
     <input
       type="hidden"
       name="r_text"
-      value="">
+      value=""
+    >
     <input
       type="hidden"
       name="r_action"
-      :value="action">
+      :value="action"
+    >
     <input
       type="hidden"
       name="r_export_format"
-      value="">
+      value=""
+    >
     <input
       type="hidden"
       name="r_export_choice"
-      value="">
+      value=""
+    >
     <input
       type="hidden"
       name="searchFields"
-      value="">
+      value=""
+    >
     <!-- The hidden Input is required for the form post needed to update the items per page -->
     <input
       type="hidden"
       name="r_limit"
-      :value="pageSize">
+      :value="pageSize"
+    >
     <input
       name="_token"
       type="hidden"
-      :value="csrfToken">
+      :value="csrfToken"
+    >
 
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page')"
+      :key="`pager1_${pagination.current_page}_${pagination.count}`"
       :class="{ 'invisible': isLoading }"
       class="u-pt-0_5 text-right u-1-of-1"
       :current-page="pagination.current_page"
@@ -61,49 +71,60 @@
       :limits="pagination.limits"
       @page-change="handlePageChange"
       @size-change="handleSizeChange"
-      :key="`pager1_${pagination.current_page}_${pagination.count}`" />
+    />
 
-    <dp-export-modal
+    <export-modal
       v-if="hasPermission('feature_assessmenttable_export')"
+      ref="exportModal"
+      :has-selected-elements="Object.keys(selectedElements).length > 0"
       :procedure-id="procedureId"
       :options="exportOptions"
-      view="original_statements" />
+      view="original_statements"
+    />
 
     <dp-map-modal
       ref="mapModal"
-      :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+    />
 
     <slot
+      v-bind="{ allItemsOnPageSelected, copyStatements, isNoItemSelected, procedureId }"
       name="filter"
-      v-bind="{ procedureId, allItemsOnPageSelected, copyStatements }" />
+      :toggle-export-modal="toggleExportModal"
+    />
 
     <!-- If there are statements, display statement list -->
     <dp-loading
       v-if="isLoading"
-      class="u-mt u-ml" />
+      class="u-mt u-ml"
+    />
 
     <table
-      :aria-label="Translator.trans('statements.original')"
       v-else-if="Object.keys(statements).length"
-      class="c-at-orig">
+      :aria-label="Translator.trans('statements.original')"
+      class="c-at-orig"
+    >
       <colgroup>
         <col class="w-[10%]">
         <col class="w-[10%] text-left">
         <col
           span="3"
-          class="w-1/4">
+          class="w-1/4"
+        >
         <col class="w-[5%]">
       </colgroup>
       <thead class="c-at-orig__header">
         <tr>
           <th
+            v-tooltip="Translator.trans('statement.id')"
             scope="col"
-            v-tooltip="Translator.trans('statement.id')">
+          >
             {{ Translator.trans('id') }}
           </th>
           <th
+            v-tooltip="Translator.trans('statement.date.submitted')"
             scope="col"
-            v-tooltip="Translator.trans('statement.date.submitted')">
+          >
             {{ Translator.trans('date') }}
           </th>
           <th scope="col">
@@ -121,20 +142,22 @@
       <tbody>
         <original-statements-table-item
           v-for="(statement, idx) in statements"
+          :key="idx"
           :current-table-view="currentTableView"
           :is-selected="getSelectionStateById(statement.id)"
-          :key="idx"
           :procedure-id="procedureId"
           :statement-id="statement.id"
-          @add-to-selection="addToSelectionAction"
-          @remove-from-selection="removeFromSelectionAction" />
+          @add-to-selection="() => addToSelectionAction({ id: statement.id})"
+          @remove-from-selection="removeFromSelectionAction"
+        />
       </tbody>
     </table>
 
     <dp-inline-notification
       v-else
       :message="Translator.trans('explanation.noentries')"
-      type="info" />
+      type="info"
+    />
   </form>
 </template>
 
@@ -142,7 +165,8 @@
 import { DpLoading, DpPager } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import changeUrlforPager from '../assessmentTable/utils/changeUrlforPager'
-import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
+import { defineAsyncComponent } from 'vue'
+import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import OriginalStatementsTableItem from './OriginalStatementsTableItem'
 
 export default {
@@ -150,31 +174,31 @@ export default {
 
   components: {
     DpLoading,
-    DpExportModal,
-    DpInlineNotification: async () => {
+    ExportModal,
+    DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    },
-    DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal'),
+    }),
+    DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
     DpPager,
-    OriginalStatementsTableItem
+    OriginalStatementsTableItem,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     exportOptions: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initFilterHash: {
       type: String,
-      required: true
+      required: true,
     },
 
     initPagination: {
@@ -184,14 +208,14 @@ export default {
         current_page: 1,
         per_page: 25,
         count: 1,
-        limits: () => [10, 25, 50]
-      })
+        limits: () => [10, 25, 50],
+      }),
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -201,46 +225,51 @@ export default {
       currentTableView: 'expanded',
       filterHash: this.initFilterHash,
       isLoading: true,
-      pageSize: this.initPagination.count
+      pageSize: this.initPagination.count,
     }
   },
 
   computed: {
-    ...mapState('statement', [
+    ...mapState('Statement', [
       'statements',
       'selectedElements',
-      'pagination'
+      'pagination',
     ]),
 
-    ...mapGetters('statement', [
-      'getSelectionStateById'
+    ...mapGetters('Statement', [
+      'getSelectionStateById',
     ]),
 
     allItemsOnPageSelected () {
       return Object.keys(this.statements).length === 0 ? false : Object.keys(this.statements).every(stn => Object.keys(this.selectedElements).includes(stn))
-    }
+    },
+
+    isNoItemSelected () {
+      return Object.keys(this.selectedElements).length === 0
+    },
+
   },
 
   methods: {
-    ...mapActions('assessmentTable', [
-      'applyBaseData'
+    ...mapActions('AssessmentTable', [
+      'applyBaseData',
     ]),
 
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'addToSelectionAction',
       'getStatementAction',
       'removeFromSelectionAction',
       'resetSelection',
-      'setSelectionAction'
+      'setSelectionAction',
     ]),
 
-    ...mapMutations('statement', [
+    ...mapMutations('Statement', [
       'updatePagination',
-      'updatePersistStatementSelection'
+      'updatePersistStatementSelection',
     ]),
 
-    ...mapMutations('assessmentTable', [
-      'setProperty'
+    ...mapMutations('AssessmentTable', [
+      'setProperty',
     ]),
 
     /**
@@ -252,29 +281,31 @@ export default {
 
       window.history.pushState({
         html: newUrl.join('?'),
-        pageTitle: document.title
+        pageTitle: document.title,
       }, document.title, newUrl.join('?'))
     },
 
     copyStatements () {
-      if (dpconfirm(Translator.trans('check.entries.marked.copy'))) {
-        this.action = 'copy'
-        this.$nextTick(() => {
-          this.$refs.bpform.submit()
-        })
+      if (!dpconfirm(Translator.trans('check.entries.marked.copy'))) {
+        return
       }
+
+      this.action = 'copy'
+      this.$nextTick(() => {
+        this.$refs.bpform.submit()
+      })
     },
 
     handlePageChange (newPage) {
       const tmpPager = Object.assign(this.pagination, {
         current_page: newPage,
-        count: this.pagination.per_page
+        count: this.pagination.per_page,
       })
       this.updatePagination(tmpPager)
       this.changeUrl(tmpPager)
       this.setProperty({
         prop: 'isLoading',
-        val: true
+        val: true,
       })
       this.triggerApiCallForStatements()
     },
@@ -289,7 +320,7 @@ export default {
     toggleAllCheckboxes () {
       const status = this.allCheckboxesToggled
       const statements = JSON.parse(JSON.stringify(this.statements))
-      const payload = { status: status, statements: statements }
+      const payload = { status, statements }
 
       if (status) {
         for (const statementId in statements) {
@@ -298,13 +329,17 @@ export default {
             movedToProcedure: (statements[statementId].movedToProcedureId !== ''),
             assignee: statements[statementId].assignee,
             extid: (statements[statementId].parentId && statements[statementId].originalId && statements[statementId].originalId !== statements[statementId].parentId) ? Translator.trans('copyof') + ' ' + statements[statementId].externId : statements[statementId].externId,
-            isCluster: statements[statementId].isCluster
+            isCluster: statements[statementId].isCluster,
           }
         }
         payload.statements = statements
       }
 
       this.setSelectionAction(payload)
+    },
+
+    toggleExportModal (tab) {
+      this.$refs.exportModal.toggleModal(tab)
     },
 
     triggerApiCallForStatements () {
@@ -314,7 +349,7 @@ export default {
         procedureId: this.procedureId,
         pagination: this.pagination,
         view_mode: '',
-        sort: ''
+        sort: '',
       })
     },
 
@@ -325,7 +360,7 @@ export default {
         url[0] = url[0].substring(0, url[0].length - 12) + hash
         window.history.pushState({ html: url.join('?'), pageTitle: document.title }, document.title, url.join('?'))
       }
-    }
+    },
   },
 
   mounted () {
@@ -343,7 +378,7 @@ export default {
         this.isLoading = false
       })
 
-    this.$root.$on('toggle-select-all', () => {
+    this.$root.$on('toggleSelectAll', () => {
       this.allCheckboxesToggled = !this.allCheckboxesToggled
       this.toggleAllCheckboxes()
     })
@@ -351,6 +386,6 @@ export default {
     this.$root.$on('current-table-view', (currentTableView) => {
       this.currentTableView = currentTableView
     })
-  }
+  },
 }
 </script>

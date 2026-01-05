@@ -12,10 +12,14 @@ namespace demosplan\DemosPlanCoreBundle\Command\ClassGenerator;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use DemosEurope\DemosplanAddon\EntityPath\StatementPath;
+use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseStatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\PlatformFaq;
 use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ResourceTypeStore;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\DqlQuerying\ClassGeneration\AbstractTypeFromInterfaceDetector;
 use EDT\DqlQuerying\ClassGeneration\PathClassFromEntityGenerator;
@@ -29,6 +33,7 @@ use EDT\Parsing\Utilities\Types\NonClassOrInterfaceType;
 use EDT\PathBuilding\DocblockPropertyByTraitEvaluator;
 use Exception;
 use ReflectionClass;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -41,13 +46,18 @@ use Webmozart\Assert\Assert;
  * FIXME: this command should be automatically executed. Approaches may be using the "cache warmer" or coupling it to a doctrine:diff execution.
  *
  * TODO: this class does not automatically delete generated classes whose corresponding entities do no longer exist.
+ *
+ * Generates 4 types of classes:
+ *
+ * * Path classes like {@link StatementPath}, needs to be moved into `demosplan-addon` after generation
+ * * entry point path class: {@link Paths}, needs to be moved into `demosplan-addon` after generation
+ * * easy access to resource: {@link ResourceTypeStore}
+ * * resource property schema config classes: e.g. {@link BaseStatementResourceConfigBuilder}, needs to be moved into `demosplan-addon` after generation
  */
+#[AsCommand(name: 'dplan:generator:entity:companion', description: 'Generate companion classes for entities.')]
 class EntityCompanionGeneratorCommand extends CoreCommand
 {
     use EntityClassGeneratorTrait;
-
-    protected static $defaultName = 'dplan:generator:entity:companion';
-    protected static $defaultDescription = 'Generate companion classes for entities.';
 
     private readonly ClassOrInterfaceType $sortingClass;
     private readonly ClassOrInterfaceType $conditionClass;
@@ -62,7 +72,7 @@ class EntityCompanionGeneratorCommand extends CoreCommand
         protected readonly PathClassFromEntityGenerator $pathClassGenerator,
         protected readonly TypeHolderGenerator $typeHolderGenerator,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
 
@@ -192,13 +202,13 @@ class EntityCompanionGeneratorCommand extends CoreCommand
 
     protected function getConfigClassGenerator(ClassOrInterfaceType $entityType): ResourceConfigBuilderFromEntityGenerator
     {
-        $parentDetector = new class() extends AbstractTypeFromInterfaceDetector {
+        $parentDetector = new class extends AbstractTypeFromInterfaceDetector {
             protected function isCorrectInterface(string $interface, ReflectionClass $class): bool
             {
                 return match ($class->getName()) {
                     PlatformFaq::class         => FaqInterface::class === $interface,
                     PlatformFaqCategory::class => FaqCategoryInterface::class === $interface,
-                    default                    => str_ends_with($interface, "DemosEurope\DemosplanAddon\Contracts\Entities\\{$class->getShortName()}Interface")
+                    default                    => str_ends_with($interface, "DemosEurope\DemosplanAddon\Contracts\Entities\\{$class->getShortName()}Interface"),
                 };
             }
         };

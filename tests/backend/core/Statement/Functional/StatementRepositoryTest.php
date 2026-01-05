@@ -44,7 +44,7 @@ class StatementRepositoryTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(StatementRepository::class);
+        $this->sut = self::getContainer()->get(StatementRepository::class);
         $this->testStatementFragment = $this->fixtures->getReference('testStatementFragment1');
         $this->testUser = $this->fixtures->getReference('testUser');
         $this->logIn($this->testUser);

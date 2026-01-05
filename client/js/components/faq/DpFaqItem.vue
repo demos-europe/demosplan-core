@@ -22,7 +22,8 @@
         :options="availableGroupOptions"
         track-by="id"
         :value="selectedGroups"
-        @input="selectGroups">
+        @input="selectGroups"
+      >
         <template v-slot:option="{ props }">
           <span>{{ props.option.title }}</span>
         </template>
@@ -33,42 +34,53 @@
               aria-hidden="true"
               class="multiselect__tag-icon"
               tabindex="1"
-              @click="props.remove(props.option)" />
+              @click="props.remove(props.option)"
+            />
           </span>
         </template>
       </dp-multiselect>
     </div><!--
  --><div class="layout__item u-2-of-12 text-center u-pv-0_25">
       <dp-toggle
-        v-model="itemEnabled"
-        class="u-mt-0_125" />
+        class="u-mt-0_125"
+        data-cy="enabledFaqItem"
+        :aria-label="faqItem.attributes.title"
+        :value="isFaqEnabled"
+        @input="handleToggle"
+    />
     </div><!--
- --><div class="layout__item u-2-of-12 text-center u-pv-0_25">
-      <a
-        class="btn--blank o-link--default u-mh-0_25"
-        :href="Routing.generate('DemosPlan_faq_administration_faq_edit', {faqID: this.faqItem.id})"
-        :aria-label="Translator.trans('item.edit')"
-        data-cy="editElement">
-        <i
-          class="fa fa-pencil"
-          aria-hidden="true" />
-      </a>
-      <button
-        type="button"
-        @click="deleteFaqItem"
-        data-cy="deleteFaqItem"
-        :aria-label="Translator.trans('item.delete')"
-        class="btn--blank o-link--default u-mh-0_25">
-        <i
-          class="fa fa-trash"
-          aria-hidden="true" />
-      </button>
+ --><div class="layout__item u-2-of-12 text-center py-1">
+      <div class="flex flex-col sm:flex-row justify-center">
+        <a
+          class="btn--blank o-link--default"
+          :href="Routing.generate('DemosPlan_faq_administration_faq_edit', {faqID: faqItem.id})"
+          :aria-label="Translator.trans('item.edit')"
+          data-cy="editFaqItem"
+        >
+          <i
+            class="fa fa-pencil"
+            aria-hidden="true"
+          />
+        </a>
+        <button
+          type="button"
+          data-cy="deleteFaqItem"
+          :aria-label="Translator.trans('item.delete')"
+          class="btn--blank o-link--default sm:ml-2"
+          @click="deleteFaqItem"
+        >
+          <i
+            class="fa fa-trash"
+            aria-hidden="true"
+          />
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { DpMultiselect, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { DpMultiselect, DpToggle } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 
 export default {
@@ -76,76 +88,52 @@ export default {
 
   components: {
     DpMultiselect,
-    DpToggle
+    DpToggle,
   },
 
   props: {
     availableGroupOptions: {
       type: Array,
-      required: true
+      required: true,
     },
 
     faqItem: {
       type: Object,
-      required: true
+      required: true,
     },
 
     parentId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       /**
-       * This fifo-queue performs all API request in order. If a request should be performed an API request has to be pushed
-       * to the end of the queue.
-       * The request MUST be set in a reactive way.
-       * The request MUST be a function returning a Promise.
-       * example
-       * let request = () => Promise.resolve(true)
-       * this.queue.push(request)
-       * see the queue-watcher for implementation details
+       * This queue ensures that API requests are executed sequentially (FIFO order). To enqueue a request,
+       * push a function (that returns a Promise) to the end of the queue. For example:
+       *
+       *   const request = () => Promise.resolve(true)
+       *   this.queue.push(request)
+       *   this.processQueue() // Starts processing the queued requests
        */
-      queue: []
+      isFaqEnabled: false,
+      isQueueProcessing: false,
+      queue: [],
     }
   },
 
   computed: {
-    ...mapState('faq', {
-      faqItems: state => state.items
+    ...mapState('Faq', {
+      faqItems: 'items',
     }),
-    ...mapState('faqCategory', {
-      faqCategories: state => state.items
+    ...mapState('FaqCategory', {
+      faqCategories: 'items',
     }),
 
     currentParentItem () {
       return this.faqCategories[this.parentId]
-    },
-
-    itemEnabled: {
-      get () {
-        return this.faqItems[this.faqItem.id]?.attributes?.enabled
-      },
-
-      set (val) {
-        if (val !== this.faqItem.attributes.enabled) {
-          const faqCpy = JSON.parse(JSON.stringify(this.faqItem))
-          faqCpy.attributes.enabled = val
-
-          this.updateFaq({ ...faqCpy, id: faqCpy.id })
-          const saveAction = () => {
-            return this.saveFaq(this.faqItem.id).then(() => {
-              dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-            }).catch(() => {
-              dplan.notify.error(Translator.trans('error.changes.not.saved'))
-            })
-          }
-
-          this.queue.push(saveAction)
-        }
-      }
     },
 
     selectedGroups () {
@@ -168,39 +156,59 @@ export default {
       return {
         fpVisible: faq.fpVisible,
         invitableInstitutionVisible: faq.invitableInstitutionVisible,
-        publicVisible: faq.publicVisible
+        publicVisible: faq.publicVisible,
       }
-    }
-  },
-
-  watch: {
-    queue (newQueue) {
-      if (newQueue.length) {
-        newQueue[0]().finally(() => {
-          newQueue.shift()
-          this.queue = newQueue
-        })
-      }
-    }
+    },
   },
 
   methods: {
-    ...mapActions('faq', {
+    ...mapActions('Faq', {
       deleteFaq: 'delete',
-      saveFaq: 'save'
+      restoreFaqAction: 'restoreFromInitial',
+      saveFaq: 'save',
     }),
-    ...mapMutations('faq', {
-      updateFaq: 'setItem'
+    ...mapMutations('Faq', {
+      updateFaq: 'setItem',
     }),
-    ...mapMutations('faqCategory', {
-      updateCategory: 'setItem'
+    ...mapMutations('FaqCategory', {
+      updateCategory: 'setItem',
     }),
+
+    handleToggle (isEnabled) {
+      if (isEnabled !== this.isFaqEnabled) {
+        const { attributes, id, type } = this.faqItem
+        const faqCopy = {
+          id,
+          type,
+          attributes: {
+            ...attributes,
+            enabled: isEnabled,
+          },
+        }
+
+        this.updateFaq({ ...faqCopy, id: faqCopy.id })
+
+        const saveAction = () => {
+          return this.saveFaq(this.faqItem.id)
+            .then(() => {
+              this.isFaqEnabled = isEnabled
+              dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+            })
+            .catch(() => {
+              this.restoreFaqAction(this.faqItem.id)
+              dplan.notify.error(Translator.trans('error.changes.not.saved'))
+            })
+        }
+        this.queue.push(saveAction)
+        this.processQueue()
+      }
+    },
 
     selectGroups (val) {
       const selectedGroups = val.reduce((acc, group) => {
         return {
           ...acc,
-          ...{ [group.id]: true }
+          ...{ [group.id]: true },
         }
       }, {})
       let newSelection = {}
@@ -223,16 +231,21 @@ export default {
         return this.faqItem.attributes[key] !== value
       }).length !== 0
       if (hasChangedAttributes === true) {
-        this.updateFaq({ ...faqCpy, id: faqCpy.id })
+        const { attributes, id, type } = faqCpy
+
+        this.updateFaq({ id, type, attributes })
         const saveAction = () => {
-          return this.saveFaq(this.faqItem.id).then(() => {
-            dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-          }).catch(() => {
-            dplan.notify.error(Translator.trans('error.changes.not.saved'))
-          })
+          return this.saveFaq(this.faqItem.id)
+            .then(() => {
+              dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+            })
+            .catch(() => {
+              dplan.notify.error(Translator.trans('error.changes.not.saved'))
+            })
         }
 
         this.queue.push(saveAction)
+        this.processQueue()
       }
     },
 
@@ -250,9 +263,25 @@ export default {
           })
         }
 
-        this.queue.push(deleteAction())
+        this.queue.push(deleteAction)
+        this.processQueue()
       }
-    }
-  }
+    },
+
+    processQueue () {
+      if (this.isQueueProcessing || !this.queue.length) return
+
+      this.isQueueProcessing = true
+      const action = this.queue.shift()
+      action().finally(() => {
+        this.isQueueProcessing = false
+        this.processQueue()
+      })
+    },
+  },
+
+  mounted () {
+    this.isFaqEnabled = this.faqItem.attributes.enabled
+  },
 }
 </script>

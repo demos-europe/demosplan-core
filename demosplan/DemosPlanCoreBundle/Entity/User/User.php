@@ -26,13 +26,15 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as AddonUserInte
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\RoleAllowedConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\UserWithMatchingDepartmentInOrgaConstraint;
-use demosplan\DemosPlanCoreBundle\Logic\SAML\SamlAttributesParser;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
+use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface as EmailTwoFactorInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface as TotpTwoFactorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
 
@@ -49,11 +51,12 @@ use function in_array;
  *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
-class User implements SamlUserInterface, AddonUserInterface
+class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactorInterface
 {
     public const HEARING_AUTHORITY_ROLES = [RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER];
     public const PLANNING_AGENCY_ROLES = [RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER];
     public const PUBLIC_AGENCY_ROLES = [RoleInterface::PUBLIC_AGENCY_COORDINATION, RoleInterface::PUBLIC_AGENCY_WORKER];
+    public const CUSTOMER_MASTER_USER_ROLE = [RoleInterface::CUSTOMER_MASTER_USER];
     /**
      * @var string|null
      *
@@ -196,7 +199,7 @@ class User implements SamlUserInterface, AddonUserInterface
      *
      * @ORM\Column(type="array", nullable=false)
      */
-    protected $flags;
+    protected $flags = [];
 
     /**
      * Get Newsletter.
@@ -301,19 +304,11 @@ class User implements SamlUserInterface, AddonUserInterface
     protected $currentCustomer;
 
     /**
-     * @var Collection<int, SurveyVoteInterface>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote",
-     *      mappedBy="user", cascade={"persist", "remove"})
-     */
-    protected $surveyVotes;
-
-    /**
      * List of Role codes that are allowed in current project.
      *
      * @var array<int, string>
      */
-    protected $rolesAllowed;
+    protected $rolesAllowed = [];
 
     /**
      * Reference to another User Entity that is combined with this user but represents the same
@@ -352,15 +347,36 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     private $providedByIdentityProvider = false;
 
+    /**
+     * Value used for two factor authentication via totp.
+     *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private ?string $totpSecret = null;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false, options={"default": false})
+     */
+    private bool $totpEnabled = false;
+
+    /**
+     * Value used for two factor authentication via email.
+     *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private ?string $authCode = null;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false, options={"default": false})
+     */
+    private bool $authCodeEmailEnabled = false;
+
     public function __construct()
     {
         $this->addresses = new ArrayCollection();
         $this->departments = new ArrayCollection();
-        $this->flags = [];
         $this->orga = new ArrayCollection();
         $this->roleInCustomers = new ArrayCollection();
-        $this->rolesAllowed = [];
-        $this->surveyVotes = new ArrayCollection();
         $this->authorizedProcedures = new ArrayCollection();
     }
 
@@ -540,9 +556,9 @@ class User implements SamlUserInterface, AddonUserInterface
     /**
      * Symfony > 6 needs getUserIdentifier() for auth system.
      */
-    public function getUserIdentifier(): ?string
+    public function getUserIdentifier(): string
     {
-        return $this->getLogin();
+        return $this->getLogin() ?? '';
     }
 
     public function setPassword(?string $password): void
@@ -685,7 +701,7 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function isLegacy(): bool
     {
-        return 32 === strlen($this->getPassword());
+        return 32 === strlen((string) $this->getPassword());
     }
 
     /**
@@ -956,7 +972,7 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function getOrganisationId()
     {
-        return null === $this->getOrga() ? null : $this->getOrga()->getId();
+        return $this->getOrga() instanceof OrgaInterface ? $this->getOrga()->getId() : null;
     }
 
     /**
@@ -1085,6 +1101,17 @@ class User implements SamlUserInterface, AddonUserInterface
         }
     }
 
+    public function removeRoleInCustomer(RoleInterface $role, CustomerInterface $customer): UserRoleInCustomerInterface
+    {
+        $roleInCustomer = $this->getRoleInCustomers()->filter(
+            fn (UserRoleInCustomerInterface $roleInCustomer) => $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId()
+        )->first();
+
+        $this->roleInCustomers->removeElement($roleInCustomer);
+
+        return $roleInCustomer;
+    }
+
     /**
      * Unset Department.
      */
@@ -1147,7 +1174,7 @@ class User implements SamlUserInterface, AddonUserInterface
     {
         $firstAddress = $this->getAddress();
 
-        return null === $firstAddress ? '' : $firstAddress->getPostalcode();
+        return $firstAddress instanceof AddressInterface ? $firstAddress->getPostalcode() : '';
     }
 
     /**
@@ -1169,7 +1196,7 @@ class User implements SamlUserInterface, AddonUserInterface
     {
         $firstAddress = $this->getAddress();
 
-        return null === $firstAddress ? '' : $firstAddress->getCity();
+        return $firstAddress instanceof AddressInterface ? $firstAddress->getCity() : '';
     }
 
     /**
@@ -1191,7 +1218,7 @@ class User implements SamlUserInterface, AddonUserInterface
     {
         $firstAddress = $this->getAddress();
 
-        return null === $firstAddress ? '' : $firstAddress->getStreet();
+        return $firstAddress instanceof AddressInterface ? $firstAddress->getStreet() : '';
     }
 
     /**
@@ -1201,7 +1228,7 @@ class User implements SamlUserInterface, AddonUserInterface
     {
         $firstAddress = $this->getAddress();
 
-        return null === $firstAddress ? '' : $firstAddress->getHouseNumber();
+        return $firstAddress instanceof AddressInterface ? $firstAddress->getHouseNumber() : '';
     }
 
     /**
@@ -1233,7 +1260,7 @@ class User implements SamlUserInterface, AddonUserInterface
     {
         $firstAddress = $this->getAddress();
 
-        return null === $firstAddress ? '' : $firstAddress->getState();
+        return $firstAddress instanceof AddressInterface ? $firstAddress->getState() : '';
     }
 
     /**
@@ -1687,34 +1714,19 @@ class User implements SamlUserInterface, AddonUserInterface
         return '';
     }
 
-    /**
-     * @return Collection<int, SurveyVoteInterface>
-     */
     public function getSurveyVotes(): Collection
     {
-        return $this->surveyVotes;
+        return new ArrayCollection();
     }
 
-    /**
-     * Returns SurveyVote with the given id or null if none exists.
-     *
-     * @param string $surveyVoteId
-     */
     public function getSurveyVote($surveyVoteId): ?SurveyVoteInterface
     {
-        /** @var SurveyVoteInterface $surveyVote */
-        foreach ($this->surveyVotes as $surveyVote) {
-            if ($surveyVote->getId() === $surveyVoteId) {
-                return $surveyVote;
-            }
-        }
-
         return null;
     }
 
     public function addSurveyVote(SurveyVoteInterface $surveyVote): void
     {
-        $this->surveyVotes[] = $surveyVote;
+        // removed
     }
 
     /**
@@ -1723,17 +1735,6 @@ class User implements SamlUserInterface, AddonUserInterface
     public function shouldBeIndexed(): bool
     {
         return !$this->deleted;
-    }
-
-    /**
-     * This method will be used to fill user properties from saml providers.
-     */
-    public function setSamlAttributes(array $attributes): void
-    {
-        // later on this could be a factory e.g to distinguish between akdb and osi
-        // identity provider
-        $parser = new SamlAttributesParser($this, $attributes);
-        $parser->parse();
     }
 
     public function isDefaultGuestUser(): bool
@@ -1754,5 +1755,66 @@ class User implements SamlUserInterface, AddonUserInterface
     private function hasInvalidRoleCache(): bool
     {
         return null === $this->rolesArrayCache || count($this->rolesArrayCache) !== $this->roleInCustomers->count();
+    }
+
+    public function isTotpAuthenticationEnabled(): bool
+    {
+        return $this->isTotpEnabled();
+    }
+
+    public function getTotpAuthenticationUsername(): string
+    {
+        return $this->getUserIdentifier();
+    }
+
+    public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
+    {
+        // period and digits are chosen to be compatible with Google Authenticator
+        return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
+    }
+
+    public function getTotpSecret(): ?string
+    {
+        return $this->totpSecret;
+    }
+
+    public function setTotpSecret(?string $totpSecret): void
+    {
+        $this->totpSecret = $totpSecret;
+    }
+
+    public function isTotpEnabled(): bool
+    {
+        return $this->totpEnabled;
+    }
+
+    public function setTotpEnabled(bool $totpEnabled): void
+    {
+        $this->totpEnabled = $totpEnabled;
+    }
+
+    public function isEmailAuthEnabled(): bool
+    {
+        return $this->authCodeEmailEnabled;
+    }
+
+    public function setAuthCodeEmailEnabled(bool $authCodeEmailEnabled): void
+    {
+        $this->authCodeEmailEnabled = $authCodeEmailEnabled;
+    }
+
+    public function getEmailAuthRecipient(): string
+    {
+        return $this->getEmail();
+    }
+
+    public function getEmailAuthCode(): string
+    {
+        return $this->authCode ?? '';
+    }
+
+    public function setEmailAuthCode(string $authCode): void
+    {
+        $this->authCode = $authCode;
     }
 }

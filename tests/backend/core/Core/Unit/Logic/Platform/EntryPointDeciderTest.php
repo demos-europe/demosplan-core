@@ -26,16 +26,16 @@ class EntryPointDeciderTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(EntryPointDecider::class);
+        $this->sut = self::getContainer()->get(EntryPointDecider::class);
     }
 
-//    /**
-//     * @param User $user
-//     * @param Permissions $permissions
-//     * @param string $path
-//     * @dataProvider entryPointDataProvider
-//     */
-//    public function testDetermineEntryPointForUser(User $user, Permissions $permissions, string $path): void
+    //    /**
+    //     * @param User $user
+    //     * @param Permissions $permissions
+    //     * @param string $path
+    //     * @dataProvider entryPointDataProvider
+    //     */
+    //    public function testDetermineEntryPointForUser(User $user, Permissions $permissions, string $path): void
     public function testDetermineEntryPointForUser(): void
     {
         self::markSkippedForCIIntervention();
@@ -67,7 +67,7 @@ class EntryPointDeciderTest extends FunctionalTestCase
 
     public function entryPointDataProvider(): array
     {
-        $permissions = self::$container->get(PermissionsInterface::class);
+        $permissions = self::getContainer()->get(PermissionsInterface::class);
 
         $entryPointCombinations = [];
 

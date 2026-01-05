@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
+use Illuminate\Support\Collection;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
 use Twig\TwigFunction;
 
 /**
@@ -32,7 +32,7 @@ class TwigToolsExtension extends ExtensionBase
     public function __construct(
         ContainerInterface $container,
         ParameterBagInterface $parameterBag,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         parent::__construct($container);
         $this->formOptions = $parameterBag->get('form_options');
@@ -62,8 +62,6 @@ class TwigToolsExtension extends ExtensionBase
      * @param string $key
      * @param bool   $translate     Translate option values
      * @param string $sortDirection
-     *
-     * @return mixed
      */
     public function getFormOption($key = null, $translate = false, $sortDirection = 'ASC')
     {
@@ -81,7 +79,7 @@ class TwigToolsExtension extends ExtensionBase
 
         if ('asc' === strtolower($sortDirection)) {
             $options = $options->sort(
-                fn($val1, $val2) => strcasecmp((string) $val1, (string) $val2)
+                fn ($val1, $val2) => strcasecmp((string) $val1, (string) $val2)
             );
         }
 
@@ -104,6 +102,7 @@ class TwigToolsExtension extends ExtensionBase
                 if (is_string($value)) {
                     return $this->translator->trans($value);
                 }
+
                 // default: just return the value
                 return $value;
             }

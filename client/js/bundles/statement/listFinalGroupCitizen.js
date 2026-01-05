@@ -19,11 +19,11 @@ import Tabs from '@DpJs/lib/statement/Tabs'
 
 const components = {
   DpMapModal,
-  DpPublicStatementList
+  DpPublicStatementList,
 }
 
 const stores = {
-  publicStatement
+  publicStatement,
 }
 
 initialize(components, stores).then(() => {

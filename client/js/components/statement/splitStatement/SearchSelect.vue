@@ -15,28 +15,34 @@
       :clear-on-select="false"
       :close-on-select="false"
       label="title"
-      :options="options"
+      :options="filteredOptions"
       :placeholder="placeHolder"
       :preserve-search="true"
       selection-controls
       track-by="title"
-      @input="updateSelected">
+      :use-default-search="false"
+      @input="updateSelected"
+      @search-change="updateSearchValue"
+    >
       <template v-slot:option="{ props }">
         <input
-          type="checkbox"
           :id="`tag_${props.option.id}`"
+          type="checkbox"
           :checked="typeof selected.find(el => el.id === props.option.id || el.attributes.title === props.option.title) !== 'undefined'"
-          :value="props.option.id">
+          :value="props.option.id"
+        >
         <label
           class="pointer-events-none"
-          :for="`tag_${props.option.id}`">
+          :for="`tag_${props.option.id}`"
+        >
           {{ props.option.title }}
         </label>
       </template>
       <template v-slot:beforeList>
         <button
-          @click="$emit('open-create-form')"
-          class="btn--blank o-link--default weight--bold u-ph-0_5 u-pv-0_5 text-left u-1-of-1 whitespace-nowrap">
+          class="btn--blank o-link--default weight--bold u-ph-0_5 u-pv-0_5 text-left u-1-of-1 whitespace-nowrap"
+          @click="$emit('openCreateForm')"
+        >
           {{ Translator.trans('tag.topic.new') }}
         </button>
       </template>
@@ -52,39 +58,89 @@ export default {
   name: 'SearchSelect',
 
   components: {
-    DpMultiselect
+    DpMultiselect,
+  },
+
+  data () {
+    return {
+      search: ''
+    }
   },
 
   props: {
     options: {
       type: Array,
-      required: true
+      required: true,
     },
 
     placeHolder: {
       type: String,
-      default: ''
+      default: '',
     },
 
     selected: {
       type: Array,
-      default: () => ([])
-    }
+      default: () => ([]),
+    },
   },
 
+  emits: [
+    'openCreateForm',
+  ],
+
   computed: {
-    ...mapGetters('splitstatement', {
+    ...mapGetters('SplitStatement', {
       availableTags: 'availableTags',
       currentSegment: 'editingSegment',
       tagById: 'tagById',
-      categorizedTags: 'categorizedTags'
-    })
+      categorizedTags: 'categorizedTags',
+    }),
+
+    filteredOptions () {
+      const searchValue = this.search.toLowerCase()
+
+      if (!searchValue) {
+        return this.options
+      }
+
+      const matches = this.options.filter(option =>
+        option.title.toLowerCase().includes(searchValue)
+      )
+
+      /**
+       * Sorting:
+       * - prioritize items whose titles START with the search value
+       * - followed by items that only CONTAIN the search value
+       */
+      return matches.sort((a, b) => {
+        const aTitle = a.title.toLowerCase()
+        const bTitle = b.title.toLowerCase()
+
+        const aStarts = aTitle.startsWith(searchValue)
+        const bStarts = bTitle.startsWith(searchValue)
+
+        if (aStarts && !bStarts) {
+          return -1
+        }
+
+        if (!aStarts && bStarts) {
+          return 1
+        }
+
+        /* If both items match equally well, sort them alphabetically */
+        return aTitle.localeCompare(bTitle, 'de')
+      })
+    }
   },
 
   methods: {
-    ...mapActions('splitstatement', [
-      'updateCurrentTags'
+    ...mapActions('SplitStatement', [
+      'updateCurrentTags',
     ]),
+
+    updateSearchValue (value) {
+      this.search = value.toLowerCase()
+    },
 
     /**
      * @typedef {Object} Tag
@@ -98,7 +154,7 @@ export default {
      */
     updateSelected (tag) {
       this.updateCurrentTags({ id: tag.id, tagName: tag.title })
-    }
-  }
+    },
+  },
 }
 </script>

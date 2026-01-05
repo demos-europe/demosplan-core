@@ -136,7 +136,7 @@
 
 <span class="{{ 'layout__item u-1-of-6 u-1-of-1-palm u-pl-palm u-pb-0_5-lap-up u-pb-0_25-palm weight--bold'|prefixClass }}{{ statement.text|default()|isNot(' color--grey')|prefixClass }}">
         {{ "statementtext"|trans }}:
-</span><span class="{{ 'layout__item u-5-of-6 u-1-of-1-palm u-pl-palm u-pr-0_25-palm break-words u-pr'|prefixClass }}{{ statement.text|default()|isNot(' color--grey')|prefixClass }}">
+</span><span class="{{ 'layout__item u-5-of-6 u-1-of-1-palm u-pl-palm u-pr-0_25-palm break-words u-pr c-styled-html'|prefixClass }}{{ statement.text|default()|isNot(' color--grey')|prefixClass }}">
     {{ statement.text|default( "<p>" ~ "notspecified"|trans ~ "</p>" )|dpObscure|wysiwyg }}
 </span>
 

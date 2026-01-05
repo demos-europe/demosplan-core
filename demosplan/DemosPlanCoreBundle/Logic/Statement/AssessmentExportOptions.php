@@ -13,13 +13,13 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentExportOptionsException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use Illuminate\Support\Collection;
 use JsonSerializable;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
 
 /**
  * A configuration container for export options of statements, original statements and fragments.
@@ -57,6 +57,7 @@ class AssessmentExportOptions implements JsonSerializable
      */
     final public const FORMATS = [
         'docx',
+        'odt',
         'pdf',
         'xlsx',
         'zip',
@@ -92,6 +93,7 @@ class AssessmentExportOptions implements JsonSerializable
 
         return $this->cache->get($cacheKey, function (ItemInterface $item) {
             $optionsFiles = [];
+            // local file only, no need for flysystem
             $fs = new Filesystem();
 
             // no need to evaluate assessment_export_options.yml folders dynamically as we can define allowed folders
@@ -103,6 +105,7 @@ class AssessmentExportOptions implements JsonSerializable
 
             $optionsFiles[] = DemosPlanPath::getConfigPath('statement/assessment_export_options.yml');
 
+            // uses local file, no need for flysystem
             $optionsYaml = collect($optionsFiles)->map(static fn ($filename) => file_exists($filename) ? file_get_contents($filename) : null)->filter(static fn ($yaml) => null !== $yaml && is_string($yaml))->all();
 
             $coreOptions = [];
@@ -198,7 +201,7 @@ class AssessmentExportOptions implements JsonSerializable
      */
     public function validateOptionSet(array $options, $isOverrideConfig = false)
     {
-        if (count($options) > 0 && !array_key_exists('defaults', $options)) {
+        if ([] !== $options && !array_key_exists('defaults', $options)) {
             throw AssessmentExportOptionsException::noDefaultsException();
         }
 
@@ -206,7 +209,7 @@ class AssessmentExportOptions implements JsonSerializable
 
         foreach (self::SECTIONS as $section) {
             if (!isset($options[$section]) || is_null($options[$section])) {
-                array_push($missingSections, $section);
+                $missingSections[] = $section;
                 continue;
             }
 

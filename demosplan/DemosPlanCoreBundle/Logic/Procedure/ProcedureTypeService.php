@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourcePersister;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureBehaviorDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
@@ -37,9 +36,10 @@ use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use Exception;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 
-class ProcedureTypeService extends CoreService implements ProcedureTypeServiceInterface
+class ProcedureTypeService implements ProcedureTypeServiceInterface
 {
     public function __construct(
         private readonly ProcedureBehaviorDefinitionRepository $procedureBehaviorDefinitionRepository,
@@ -49,7 +49,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         private readonly ProcedureUiDefinitionRepository $procedureUiDefinitionRepository,
         private readonly ResourcePersister $resourcePersister,
         private readonly SortMethodFactory $sortMethodFactory,
-        private readonly StatementFormDefinitionRepository $statementFormDefinitionRepository
+        private readonly StatementFormDefinitionRepository $statementFormDefinitionRepository,
     ) {
     }
 
@@ -58,7 +58,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         $this->statementFormDefinitionRepository->deleteObject($statementFormDefinition);
     }
 
-    public function deleteProcedureBehaviorDefinition(ProcedureBehaviorDefinition $procedureBehaviorDefinition
+    public function deleteProcedureBehaviorDefinition(ProcedureBehaviorDefinition $procedureBehaviorDefinition,
     ): void {
         $this->procedureBehaviorDefinitionRepository->deleteObject($procedureBehaviorDefinition);
     }
@@ -88,7 +88,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         string $description,
         StatementFormDefinition $statementFormDefinition,
         ProcedureBehaviorDefinition $procedureBehaviorDefinition,
-        ProcedureUiDefinition $procedureUiDefinition
+        ProcedureUiDefinition $procedureUiDefinition,
     ): ProcedureType {
         $this->statementFormDefinitionRepository->addObject($statementFormDefinition);
         $this->procedureBehaviorDefinitionRepository->addObject($procedureBehaviorDefinition);
@@ -123,7 +123,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      */
     public function copyProcedureTypeContent(
         ProcedureType $procedureTypeToCopyContent,
-        Procedure $targetProcedure
+        Procedure $targetProcedure,
     ): Procedure {
         $this->copyProcedureBehaviorDefinition(
             $procedureTypeToCopyContent->getProcedureBehaviorDefinition(),
@@ -161,7 +161,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      */
     private function copyProcedureUiDefinition(
         ProcedureUiDefinition $procedureUiDefinitionToCopy,
-        Procedure $targetProcedure
+        Procedure $targetProcedure,
     ): ProcedureUiDefinition {
         $copiedProcedureUiDefinition = new ProcedureUiDefinition();
         $copiedProcedureUiDefinition->setProcedure($targetProcedure);
@@ -194,7 +194,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      */
     private function copyProcedureBehaviorDefinition(
         ProcedureBehaviorDefinition $definitionToCopy,
-        Procedure $targetProcedure
+        Procedure $targetProcedure,
     ): ProcedureBehaviorDefinition {
         $copiedDefinition = new ProcedureBehaviorDefinition();
         $copiedDefinition->setProcedure($targetProcedure);
@@ -218,7 +218,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      */
     private function copyStatementFormDefinition(
         StatementFormDefinition $statementFormDefinitionToCopy,
-        Procedure $targetProcedure
+        Procedure $targetProcedure,
     ): StatementFormDefinition {
         $copiedStatementFromDefinition = new StatementFormDefinition();
         $copiedStatementFromDefinition->setProcedure($targetProcedure);
@@ -235,7 +235,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      */
     private function copyStatementFieldDefinitions(
         StatementFormDefinition $statementFormDefinitionToCopy,
-        StatementFormDefinition $targetStatementFromDefinition
+        StatementFormDefinition $targetStatementFromDefinition,
     ): StatementFormDefinition {
         /** @var StatementFieldDefinition $field */
         foreach ($statementFormDefinitionToCopy->getFieldDefinitions() as $field) {
@@ -259,7 +259,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      */
     public function updateProcedureUiDefinition(
         ProcedureUiDefinition $procedureUiDefinition,
-        array $properties
+        array $properties,
     ): void {
         $procedureUiDefinition->setMapHintDefault($properties['mapHintDefault']);
         $procedureUiDefinition->setStatementFormHintPersonalData($properties['statementFormHintPersonalData']);
@@ -275,7 +275,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      */
     public function updateProcedureBehaviorDefinition(
         ProcedureBehaviorDefinition $procedureBehaviorDefinition,
-        array $properties
+        array $properties,
     ): void {
         $procedureBehaviorDefinition->setAllowedToEnableMap($properties['allowedToEnableMap']);
         $procedureBehaviorDefinition->setHasPriorityArea($properties['hasPriorityArea']);
@@ -287,7 +287,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      */
     public function updateStatementFieldDefinition(
         StatementFieldDefinition $statementFieldDefinition,
-        array $properties
+        array $properties,
     ): void {
         $statementFieldDefinition->setEnabled($properties['enabled']);
         $statementFieldDefinition->setRequired($properties['required']);
@@ -324,7 +324,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      */
     public function calculateStatementFieldDefinitionChanges(
         array $fieldDefinitions,
-        StatementFieldDefinitionResourceType $statementFieldDefinitionResourceType
+        StatementFieldDefinitionResourceType $statementFieldDefinitionResourceType,
     ): array {
         $statementFieldDefinitionChanges = [];
         foreach ($fieldDefinitions as $fieldDefinition) {
@@ -351,7 +351,7 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
      * handling in case of a redirect to the form.
      */
     public function addMissingRequestData(
-        Request $request
+        Request $request,
     ): Request {
         $params = $request->request->all();
         $originalProcedureTypeEntity = $this->procedureTypeResourceType->getEntity($params['id']);
@@ -359,12 +359,15 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         $originalParticipationGuestOnly =
             $originalProcedureTypeEntity->getProcedureBehaviorDefinition()->isParticipationGuestOnly();
 
-        $procedureBehaviorDefinition = $request->request->get('procedureBehaviorDefinition');
-        if (is_array($procedureBehaviorDefinition)) {
+        $procedureBehaviorDefinition = ['participationGuestOnly' => $originalParticipationGuestOnly];
+        try {
+            // override default value if given by request
+            $procedureBehaviorDefinition = $request->request->all('procedureBehaviorDefinition');
             $procedureBehaviorDefinition['participationGuestOnly'] = $originalParticipationGuestOnly;
-        } else {
-            $procedureBehaviorDefinition = ['participationGuestOnly' => $originalParticipationGuestOnly];
+        } catch (BadRequestException) {
+            // default value already set
         }
+
         $request->request->set('procedureBehaviorDefinition', $procedureBehaviorDefinition);
 
         // Fills field definitions based on the original if they are missing.

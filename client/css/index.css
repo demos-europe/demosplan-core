@@ -1,7 +1,0 @@
-/**
- * @noinspection
- * PHPStorm complains about unset css vars in rendered css. This is irritating and can be suppressed.
- */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;

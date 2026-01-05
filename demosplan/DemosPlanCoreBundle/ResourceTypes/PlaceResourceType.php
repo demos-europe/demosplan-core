@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BasePlaceResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
@@ -29,13 +30,14 @@ use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
  *
  * @property-read End                   $name
  * @property-read End                   $description
+ * @property-read End                   $solved
  * @property-read End                   $sortIndex
  * @property-read ProcedureResourceType $procedure
  */
 final class PlaceResourceType extends DplanResourceType
 {
     public function __construct(
-        private readonly PlaceRepository $placeRepository
+        private readonly PlaceRepository $placeRepository,
     ) {
     }
 
@@ -58,7 +60,7 @@ final class PlaceResourceType extends DplanResourceType
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 
@@ -93,6 +95,9 @@ final class PlaceResourceType extends DplanResourceType
         $configBuilder->description
             ->readable()
             ->updatable();
+        $configBuilder->solved
+            ->readable()
+            ->updatable();
         $configBuilder->sortIndex
             ->readable(true)
             ->filterable()
@@ -104,8 +109,9 @@ final class PlaceResourceType extends DplanResourceType
             ->filterable();
 
         if ($this->currentUser->hasPermission('area_manage_segment_places')) {
-            $configBuilder->id->initializable(false, true);
+            $configBuilder->id->initializable();
             $configBuilder->name->updatable()->initializable(false, null, true);
+            $configBuilder->solved->updatable()->initializable(true);
             $configBuilder->description->updatable()->initializable(true);
         }
 

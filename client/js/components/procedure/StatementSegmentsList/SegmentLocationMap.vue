@@ -11,23 +11,31 @@
   <div>
     <h2
       class="u-mb-0_75"
-      v-text="heading" />
+      v-text="heading"
+    />
 
     <div class="c-slidebar__content overflow-y-auto u-mr">
       <dp-ol-map
         ref="map"
+        :layers="mapData.layers"
         :procedure-id="procedureId"
+        map-id="segmentLocationMap"
         :map-options="{
           procedureMaxExtent: mapData.mapExtent ?? []
         }"
         :options="{
           autoSuggest: false,
           defaultAttribution: mapData.copyright,
-          initialExtent: mapData.boundingBox ?? [],
-        }">
+          initialExtent: mapData.boundingBox ?? mapData.mapExtent ?? []
+        }"
+      >
         <template v-if="hasPermission('feature_segment_polygon_set')">
           <dp-ol-map-draw-feature
             ref="drawPoint"
+            v-tooltip="{
+              content: Translator.trans('map.relation.set'),
+              classes: 'z-ultimate'
+            }"
             data-cy="setMapRelation"
             :features="pointData"
             icon
@@ -35,80 +43,83 @@
             name="Point"
             :options="{ multiplePoints: true }"
             render-control
+            type="Point"
+            @layer-features:changed="data => updateDrawings('Point', data)"
+          />
+          <dp-ol-map-draw-feature
+            ref="drawLine"
             v-tooltip="{
-              content: Translator.trans('map.relation.set'),
+              content: Translator.trans('statement.map.draw.mark_line'),
               classes: 'z-ultimate'
             }"
-            type="Point"
-            @layerFeatures:changed="data => updateDrawings('Point', data)" />
-          <dp-ol-map-draw-feature
             data-cy="setMapLine"
-            ref="drawLine"
             :features="lineData"
             icon
             icon-class="fa-minus u-mb-0_25 font-size-h2"
             name="Line"
             render-control
-            v-tooltip="{
-              content: Translator.trans('statement.map.draw.mark_line'),
-              classes: 'z-ultimate'
-            }"
             type="LineString"
-            @layerFeatures:changed="data => updateDrawings('LineString', data)" />
+            @layer-features:changed="data => updateDrawings('LineString', data)"
+          />
           <dp-ol-map-draw-feature
             ref="drawPolygon"
+            v-tooltip="{
+              content: Translator.trans('statement.map.draw.mark_polygon'),
+              classes: 'z-ultimate'
+            }"
             data-cy="setMapTerritory"
             :features="polygonData"
             icon
             icon-class="fa-square-o u-mb-0_25 font-size-h2"
             name="Polygon"
             render-control
-            v-tooltip="{
-              content: Translator.trans('statement.map.draw.mark_polygon'),
-              classes: 'z-ultimate'
-            }"
             type="Polygon"
-            @layerFeatures:changed="data => updateDrawings('Polygon', data)" />
+            @layer-features:changed="data => updateDrawings('Polygon', data)"
+          />
           <dp-ol-map-edit-feature
             class="border--left u-ml-0_25"
-            :target="['Polygon', 'Line', 'Point']">
+            :target="['Polygon', 'Line', 'Point']"
+          >
             <template v-slot:editButtonDesc>
               <i
                 class="fa fa-pencil-square-o u-mb-0_25 font-size-h2"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </template>
             <template v-slot:removeButtonDesc>
               <i
                 class="fa fa-eraser u-mb-0_25 font-size-h2"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </template>
             <template v-slot:removeAllButtonDesc>
               <i
                 class="fa fa-trash u-mb-0_25 font-size-h2"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </template>
           </dp-ol-map-edit-feature>
         </template>
       </dp-ol-map>
       <dp-button-row
         class="u-mt"
-        :disabled="!hasChanges"
+        :disabled="{ primary: !hasChanges }"
         primary
         secondary
         @primary-action="save"
-        @secondary-action="closeSlidebar" />
+        @secondary-action="closeSlidebar"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import { checkResponse, DpButtonRow } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButtonRow } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
 import { extend } from 'ol/extent'
-import { fromExtent } from 'ol/geom/Polygon'
 
 export default {
   name: 'SegmentLocationMap',
@@ -124,76 +135,60 @@ export default {
     mapData: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     segmentId: {
       type: String,
-      required: true
+      required: true,
     },
 
     statementId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       currentPolygons: [],
       hasChanges: true,
-      initPolygons: []
+      initPolygons: [],
     }
   },
 
   computed: {
-    ...mapState('statementSegment', {
-      segments: 'items'
+    ...mapState('StatementSegment', {
+      segments: 'items',
     }),
 
-    ...mapState('segmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', [
+      'slidebar',
+    ]),
 
     pointData () {
       return {
         type: 'FeatureCollection',
-        features: this.initPolygons.filter(f => f.geometry.type === 'Point') || []
-      }
-    },
-
-    features () {
-      /*
-       *  Transform the value that is saved as a string into valid GeoJSON
-       *  to be able to use it with a generic vector layer component
-       */
-      return {
-        boundingBox: this.mapData.boundingBox
-          ? {
-              type: 'Feature',
-              geometry: {
-                type: 'Polygon',
-                coordinates: fromExtent(JSON.parse(`[${this.mapData.boundingBox}]`)).getCoordinates()
-              }
-            }
-          : null
+        features: this.initPolygons.filter(f => f.geometry.type === 'Point') || [],
       }
     },
 
     lineData () {
       return {
         type: 'FeatureCollection',
-        features: this.initPolygons.filter(f => f.geometry.type === 'LineString') || []
+        features: this.initPolygons.filter(f => f.geometry.type === 'LineString') || [],
       }
     },
 
     polygonData () {
       return {
         type: 'FeatureCollection',
-        features: this.initPolygons.filter(f => f.geometry.type === 'Polygon') || []
+        features: this.initPolygons.filter(f => f.geometry.type === 'Polygon') || [],
       }
     },
 
@@ -204,37 +199,44 @@ export default {
     featuresObject () {
       return {
         type: 'FeatureCollection',
-        features: this.currentPolygons
+        features: this.currentPolygons,
       }
     },
 
     segment () {
       return this.segments[this.segmentId] || null
-    }
+    },
   },
 
   watch: {
-    segmentId (newVal) {
-      if (newVal) {
-        this.setInitDrawings()
-        if (this.featuresObject.features.length > 0) {
+    'slidebar.showTab': {
+      handler (newTab, oldTab) {
+        // Initialize map when it becomes visible
+        if (newTab === 'map' && oldTab !== 'map') {
           this.$nextTick(() => {
-            this.setCenterAndExtent()
-          })
-        } else if (this.mapData.boundingBox) {
-          this.$nextTick(() => {
-            this.setInitExtent()
+            this.initMap()
           })
         }
-      }
-    }
+      },
+    },
+
+    'slidebar.segmentId': {
+      handler (newId, oldId) {
+        // Reinitialize map when segment changes while map is visible
+        if (this.slidebar.showTab === 'map' && newId !== oldId && newId !== '') {
+          this.$nextTick(() => {
+            this.initMap()
+          })
+        }
+      },
+    },
   },
 
   methods: {
-    ...mapMutations('statementSegment', ['setItem']),
+    ...mapMutations('StatementSegment', ['setItem']),
 
-    ...mapActions('statementSegment', {
-      saveSegmentAction: 'save'
+    ...mapActions('StatementSegment', {
+      saveSegmentAction: 'save',
     }),
 
     clearTools () {
@@ -247,11 +249,21 @@ export default {
       this.$root.$emit('hide-slidebar')
     },
 
+    initMap () {
+      this.setInitDrawings()
+      if (this.featuresObject.features.length > 0) {
+        this.$nextTick(() => {
+          this.setCenterAndExtent()
+        })
+      } else if (this.mapData.boundingBox.length > 0) {
+        this.$nextTick(() => {
+          this.setInitExtent()
+        })
+      }
+    },
+
     resetCurrentMap () {
       this.clearTools()
-      if (this.slidebar.isOpen) {
-        this.setInitDrawings()
-      }
 
       this.$nextTick(() => {
         this.$refs.map.updateMapInstance()
@@ -259,17 +271,27 @@ export default {
     },
 
     save () {
-      this.setItem({
-        ...this.segment,
-        attributes: {
-          ...this.segment.attributes,
-          polygon: JSON.stringify(this.featuresObject)
-        }
-      })
+      const attributes = {
+        polygon: JSON.stringify(this.featuresObject),
+      }
+      const payload = {
+        type: 'StatementSegment',
+        id: this.segmentId,
+        attributes,
+      }
 
-      return this.saveSegmentAction(this.segmentId)
-        .then(checkResponse)
+      /**
+       * Vuex-json-api may include relationships in the PATCH request,
+       * and it does not support excluding them from the payload.
+       * To avoid unintentionally sending relationship data, use a dpApi method with a manually constructed payload
+       * and update the store after a successful response.
+       */
+      return dpApi.patch(Routing.generate('api_resource_update', {
+        resourceType: 'StatementSegment',
+        resourceId: this.segmentId,
+      }), {}, { data: payload })
         .then(() => {
+          this.updateStore(attributes.polygon)
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(() => {
@@ -308,12 +330,30 @@ export default {
 
       this.initPolygons = JSON.parse(this.segments[this.segmentId].attributes.polygon || '{ "features": [] }').features
       this.currentPolygons = JSON.parse(JSON.stringify(this.initPolygons))
+
+      this.$nextTick(() => {
+        this.$refs.drawPolygon.init()
+        this.$refs.drawPoint.init()
+        this.$refs.drawLine.init()
+      })
     },
 
     updateDrawings (type, data) {
       this.currentPolygons = this.currentPolygons.filter(f => f.geometry.type !== type)
       this.currentPolygons = [...this.currentPolygons, ...JSON.parse(data).features]
-    }
-  }
+    },
+
+    updateStore (polygon) {
+      const storePayload = {
+        ...this.segment,
+        attributes: {
+          ...this.segment.attributes,
+          polygon,
+        },
+        id: this.segment.id,
+      }
+      this.setItem(storePayload)
+    },
+  },
 }
 </script>

@@ -13,14 +13,10 @@
 }
 
 %break-words-with-hyphens {
-    // These are technically the same, but use both
-    // it seems that some browsers support one and some the other
+    // Break long words to prevent overflow
     // don't use break-all -> this will make the text unreadable
-    // old IEs can't break words
-    overflow-wrap: break-word;
-    -ms-word-wrap: break-word;
-    word-wrap: break-word;
-    word-break: break-word;
+    overflow-wrap: anywhere;
+    word-break: normal;
 
     // Adds a hyphen where the word breaks, if supported (No Blink)
     hyphens: auto;

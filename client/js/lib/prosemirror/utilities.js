@@ -47,22 +47,27 @@ function flattenNode (node, descend = true) {
  */
 const getMarks = (nodes, markName, attrId) => {
   const marks = {}
+
   nodes.forEach(({ node, pos }) => {
     node.marks
       .filter(mark => mark.type.name === markName)
       .forEach(mark => {
-        let storedMark = marks[mark.attrs[attrId]]
+        const markAttr = mark.attrs[attrId]
+        let storedMark = marks[markAttr]
+
         if (!storedMark) {
           storedMark = { marks: [] }
-          storedMark.rangeId = mark.attrs[attrId]
+          storedMark.rangeId = markAttr
           storedMark.from = pos
-          marks[mark.attrs[attrId]] = storedMark
+          marks[markAttr] = storedMark
         }
+
         storedMark.to = pos + node.nodeSize
         storedMark.isConfirmed = mark.attrs.isConfirmed
         storedMark.marks = [...storedMark.marks, { from: pos, to: storedMark.to }]
       })
   })
+
   return marks
 }
 
@@ -196,6 +201,7 @@ const createCreatorMenu = (view, anchor, head) => {
 
   const addBtn = document.createElement('button')
   addBtn.setAttribute('class', 'editor-menububble__button')
+  addBtn.setAttribute('data-cy', 'menuBubbleButton')
   const icon = document.createElement('i')
   icon.setAttribute('class', 'fa fa-plus')
   addBtn.appendChild(icon)
@@ -222,6 +228,11 @@ const createCreatorMenu = (view, anchor, head) => {
     if (bubbleMenu) {
       bubbleMenu.destroy()
     }
+
+    // Matomo Tracking Event Tagging & Slicing
+    if (window._paq) {
+      window._paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('tag.new')])
+    }
   })
 
   const bubbleMenu = tippy(view.dom, {
@@ -229,17 +240,19 @@ const createCreatorMenu = (view, anchor, head) => {
     arrow: false,
     theme: 'light-border',
     getReferenceClientRect: () => {
-      const positions = view.coordsAtPos(head, -1)
+      const pickPositionProps = ({ top, bottom, left, right }) => ({ top, bottom, left, right })
+      const positions = pickPositionProps(view.coordsAtPos(head, -1))
+
       return {
         height: 10,
         width: 0,
-        ...positions
+        ...positions,
       }
     },
     content: wrapper,
     interactive: true,
     trigger: 'manual',
-    showOnCreate: true
+    showOnCreate: true,
   })
 
   wrapper.appendChild(addBtn)
@@ -276,7 +289,7 @@ const generateRangeChangeMap = (oldRanges, newRanges) => {
     newRanges,
     deletedRanges,
     createdRanges,
-    updatedRanges
+    updatedRanges,
   }
 }
 
@@ -290,5 +303,5 @@ export {
   range,
   isSuperset,
   createCreatorMenu,
-  generateRangeChangeMap
+  generateRangeChangeMap,
 }

@@ -26,7 +26,7 @@ class CountyServiceTest extends FunctionalTestCase
         parent::setUp();
 
         // @improve T14122
-        $this->sut = self::$container->get(CountyService::class);
+        $this->sut = self::getContainer()->get(CountyService::class);
     }
 
     public function testGetCounty()

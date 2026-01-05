@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\FaqHandlerInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
@@ -25,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Exception\FaqNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
@@ -34,9 +34,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Illuminate\Support\Collection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
 use UnexpectedValueException;
 
 class FaqHandler extends CoreHandler implements FaqHandlerInterface
@@ -47,7 +47,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
     protected $contentService;
 
     public function __construct(
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
         private readonly FaqResourceType $faqResourceType,
@@ -56,7 +56,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
         private readonly RoleHandler $roleHandler,
         private readonly RoleRepository $roleRepository,
         ContentService $contentService,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
         parent::__construct($messageBag);
         $this->contentService = $contentService;
@@ -181,7 +181,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
      * @throws CustomerNotFoundException
      * @throws MessageBagException
      */
-    public function addOrUpdateFaq($data, Faq $faq = null): ?Faq
+    public function addOrUpdateFaq($data, ?Faq $faq = null): ?Faq
     {
         // improve:
         // Sanitize and validate fields
@@ -226,7 +226,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
             );
         }
 
-        if (true === $mandatoryErrors) {
+        if ($mandatoryErrors) {
             return null;
         }
         if (255 < strlen((string) $data['r_title'])) {
@@ -363,7 +363,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
         try {
             $categoryTitle = $faqCategory->getTitle();
 
-            if (0 !== count($this->faqService->getEnabledAndDisabledFaqList($faqCategory))) {
+            if ([] !== $this->faqService->getEnabledAndDisabledFaqList($faqCategory)) {
                 $this->getMessageBag()->add(
                     'warning',
                     'category.delete.deny.because.of.related.content',
@@ -400,7 +400,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
     public function deleteFaqById(string $faqId): void
     {
         $faq = $this->getFaq($faqId);
-        if (null === $faq) {
+        if (!$faq instanceof Faq) {
             throw FaqNotFoundException::createFromId($faqId);
         }
         $this->deleteFaq($faq);

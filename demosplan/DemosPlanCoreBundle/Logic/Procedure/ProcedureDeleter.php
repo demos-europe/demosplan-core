@@ -18,7 +18,7 @@ use Exception;
 class ProcedureDeleter
 {
     public function __construct(
-        private readonly SqlQueriesService $queriesService
+        private readonly SqlQueriesService $queriesService,
     ) {
     }
 
@@ -50,6 +50,10 @@ class ProcedureDeleter
 
         // delete procedure news
         $this->deleteProcedureNews($procedureIds, $isDryRun);
+
+        // delete custom fields
+
+        $this->deleteCustomFields($procedureIds, $isDryRun);
 
         // delete tag topics -> tags
         $this->processTags($procedureIds, $isDryRun);
@@ -103,9 +107,6 @@ class ProcedureDeleter
         // delete hashed queries
         $this->deleteHashedQueries($procedureIds, $isDryRun);
 
-        // delete surveys and their votes
-        $this->deleteSurveysAndVotes($procedureIds, $isDryRun);
-
         // delete procedure-category relations
         $this->deleteProcedureCategoryRelation($procedureIds, $isDryRun);
 
@@ -143,7 +144,11 @@ class ProcedureDeleter
         $this->deleteProcedureSettingsAllowedSegmentProcedures($procedureIds, $isDryRun);
 
         // procedure_slug
+        $slugsIds = array_column($this->queriesService->fetchFromTableByParameter(['s_id'], 'procedure_slug', 'p_id', $procedureIds), 's_id');
+
         $this->deleteProcedureSlug($procedureIds, $isDryRun);
+
+        $this->deleteSlugs($slugsIds, $isDryRun);
 
         // procedure_user
         $this->deleteProcedureUser($procedureIds, $isDryRun);
@@ -398,6 +403,14 @@ class ProcedureDeleter
     private function deleteProcedureSlug(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('procedure_slug', 'p_id', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function deleteSlugs(array $slugsIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('slug', 'id', $slugsIds, $isDryRun);
     }
 
     /**
@@ -691,35 +704,6 @@ class ProcedureDeleter
     /**
      * @throws Exception
      */
-    private function deleteSurveysAndVotes(array $procedureIds, bool $isDryRun): void
-    {
-        $surveyIds = array_column(
-            $this->queriesService->fetchFromTableByParameter(
-                ['id'],
-                'survey',
-                'p_id',
-                $procedureIds
-            ),
-            'id'
-        );
-
-        $this->queriesService->deleteFromTableByIdentifierArray(
-            'survey_vote',
-            'survey_id',
-            $surveyIds,
-            $isDryRun
-        );
-        $this->queriesService->deleteFromTableByIdentifierArray(
-            'survey',
-            'p_id',
-            $procedureIds,
-            $isDryRun
-        );
-    }
-
-    /**
-     * @throws Exception
-     */
     private function deleteProcedureCategoryRelation(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray(
@@ -823,6 +807,30 @@ class ProcedureDeleter
     private function deleteProcedureNews(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('_news', '_p_id', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * Deletes custom fields for both PROCEDURE and PROCEDURE_TEMPLATE entity classes.
+     *
+     * This handles both cases since procedures and procedure templates share the same
+     * database table (templates are just procedures with isMaster=true), but are
+     * referenced as separate entity classes in the custom_field_configuration table.
+     *
+     * @throws Exception
+     */
+    private function deleteCustomFields(array $procedureIds, bool $isDryRun): void
+    {
+        $entityClasses = ['PROCEDURE', 'PROCEDURE_TEMPLATE'];
+
+        foreach ($entityClasses as $entityClass) {
+            $this->queriesService->deleteFromTableByMultipleConditions(
+                'custom_field_configuration',
+                'source_entity_id',
+                $procedureIds,
+                ['source_entity_class' => $entityClass],
+                $isDryRun
+            );
+        }
     }
 
     /**

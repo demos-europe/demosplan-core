@@ -15,17 +15,17 @@ use ReflectionClass;
 use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Routing\RouteLoaderInterface;
 use Symfony\Component\Config\FileLocatorInterface;
-use Symfony\Component\Routing\Loader\AnnotationClassLoader;
-use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
+use Symfony\Component\Routing\Loader\AttributeClassLoader;
+use Symfony\Component\Routing\Loader\AttributeDirectoryLoader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
-class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoaderInterface
+class AddonRoutingLoader extends AttributeDirectoryLoader implements RouteLoaderInterface
 {
     public function __construct(
         private readonly AddonRegistry $addonRegistry,
         FileLocatorInterface $locator,
-        AnnotationClassLoader $loader
+        AttributeClassLoader $loader,
     ) {
         parent::__construct($locator, $loader);
     }
@@ -34,7 +34,7 @@ class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoade
     {
         $routeCollection = new RouteCollection();
         foreach ($this->addonRegistry->getAddonInfos() as $addonInfo) {
-            if ($addonInfo->isEnabled()) {
+            if ($addonInfo->isEnabled(false)) {
                 $this->addControllers($addonInfo, $routeCollection);
             }
         }

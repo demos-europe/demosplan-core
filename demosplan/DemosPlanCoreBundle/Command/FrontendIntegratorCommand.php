@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use cebe\openapi\exceptions\TypeErrorException;
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\Writer;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
@@ -21,16 +22,22 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiDocumentation\JsApiResourceDefinitionBuilder;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator;
+use EDT\JsonApi\ApiDocumentation\GetActionConfig;
+use EDT\JsonApi\ApiDocumentation\ListActionConfig;
+use EDT\JsonApi\ApiDocumentation\OpenApiWording;
+use EDT\JsonApi\Manager;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Yaml\Yaml;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function file_put_contents;
 use function str_replace;
@@ -39,21 +46,21 @@ use function str_replace;
  * This command fetches all required data and runs necessary sub commands to feed
  * the frontend toolchain with required information.
  */
+#[AsCommand(name: 'dplan:frontend:integrator', description: 'This command outputs a bunch of data needed by the FE tooling')]
 class FrontendIntegratorCommand extends CoreCommand
 {
     private const OPEN_API_JSON_FILE = 'client/js/generated/openApi.json';
 
     private const RESOURCE_TYPES_FILE = 'client/js/generated/ResourceTypes.js';
 
-    protected static $defaultName = 'dplan:frontend:integrator';
-    protected static $defaultDescription = 'This command outputs a bunch of data needed by the FE tooling';
-
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         private readonly JsApiResourceDefinitionBuilder $resourceDefinitionBuilder,
-        private readonly OpenAPISchemaGenerator $apiDocumentationGenerator,
+        private readonly Manager $manager,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        private readonly RouterInterface $router,
+        private readonly TranslatorInterface $translator,
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -65,7 +72,7 @@ class FrontendIntegratorCommand extends CoreCommand
 
     public function execute(
         InputInterface $input,
-        OutputInterface $output
+        OutputInterface $output,
     ): int {
         $data = $this->getParameters();
 
@@ -130,6 +137,8 @@ class FrontendIntegratorCommand extends CoreCommand
      * should result in all (non-procedure) permission checks evaluating true.
      *
      * With this user, all possible ResourceTypes should be included in the spec build.
+     *
+     * @throws TypeErrorException
      */
     private function getOpenApiSpec(): OpenApi
     {
@@ -142,7 +151,16 @@ class FrontendIntegratorCommand extends CoreCommand
         $allPermissions = Yaml::parseFile(DemosPlanPath::getConfigPath(Permissions::PERMISSIONS_YML));
         $this->currentUser->getPermissions()->enablePermissions(array_keys($allPermissions));
 
-        $openApiSpec = $this->apiDocumentationGenerator->getOpenAPISpecification();
+        $schemaGenerator = $this->manager->createOpenApiDocumentBuilder();
+
+        $schemaGenerator->setGetActionConfig(
+            new GetActionConfig($this->router, $this->translator)
+        );
+        $schemaGenerator->setListActionConfig(
+            new ListActionConfig($this->router, $this->translator)
+        );
+
+        $openApiSpec = $schemaGenerator->buildDocument(new OpenApiWording($this->translator));
 
         // just to be safe, reset permissions after getting everything we want
         $this->currentUser->getPermissions()->initPermissions($user);
@@ -152,6 +170,7 @@ class FrontendIntegratorCommand extends CoreCommand
 
     private function saveOpenApiSpec(OpenApi $openApiSpec): void
     {
+        // local file is valid, no need for flysystem
         file_put_contents(
             DemosPlanPath::getRootPath(self::OPEN_API_JSON_FILE),
             Writer::writeToJson($openApiSpec)

@@ -18,11 +18,10 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\CoordinatesViewport;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use Exception;
 use Intervention\Image\ImageManager;
-use Symfony\Component\Filesystem\Filesystem;
 
 class WmsToWmtsCoordinatesConverter
 {
-    public function __construct(private readonly Filesystem $fileSystem, private readonly ImageManager $imageManager, private readonly MapProjectionConverter $mapProjectionConverter, private readonly UrlFileReader $urlFileReader)
+    public function __construct(private readonly ImageManager $imageManager, private readonly MapProjectionConverter $mapProjectionConverter, private readonly UrlFileReader $urlFileReader)
     {
     }
 
@@ -37,7 +36,7 @@ class WmsToWmtsCoordinatesConverter
      */
     public function convert(array $layers): array
     {
-        if (empty($layers)) {
+        if ([] === $layers) {
             throw new Exception('No Layers received');
         }
 
@@ -52,7 +51,7 @@ class WmsToWmtsCoordinatesConverter
      */
     private function adaptWmsLayerCoordinates(MapLayer $bgLayer, array $layers): array
     {
-        if (empty($layers)) {
+        if ([] === $layers) {
             return [$bgLayer];
         }
 
@@ -86,7 +85,7 @@ class WmsToWmtsCoordinatesConverter
      */
     private function getWmsLayersWithWmtsLayerCoordinates(
         MapLayer $wmtsLayer,
-        array $wmsLayers
+        array $wmsLayers,
     ): array {
         $newWmsLayerImages = [];
         foreach ($wmsLayers as $wmsLayer) {
@@ -105,15 +104,16 @@ class WmsToWmtsCoordinatesConverter
      */
     private function getSingleWmsLayerWithWmtsLayerCoordinates(
         MapLayer $wmsLayer,
-        MapLayer $wmtsLayer
+        MapLayer $wmtsLayer,
     ): MapLayer {
         $wmsUrl = $this->getWmsUrlWithWmtsLayerCoordinates(
             $wmsLayer->getUrl(),
             $wmtsLayer
         );
         $imageContent = $this->urlFileReader->getFileContents($wmsUrl);
-        $newWmsImage = $this->imageManager->make($imageContent);
-        $newWmsLayer = new MapLayer(
+        $newWmsImage = $this->imageManager->read($imageContent);
+
+        return new MapLayer(
             new CoordinatesViewport(
                 $wmtsLayer->getLeft(),
                 $wmtsLayer->getBottom(),
@@ -124,9 +124,6 @@ class WmsToWmtsCoordinatesConverter
             '',
             $wmsUrl
         );
-        $this->fileSystem->remove($wmsLayer->getImage()->basePath());
-
-        return $newWmsLayer;
     }
 
     /**
@@ -134,7 +131,7 @@ class WmsToWmtsCoordinatesConverter
      */
     private function getWmsUrlWithWmtsLayerCoordinates(
         string $wmsUrl,
-        MapLayer $wmtsLayer
+        MapLayer $wmtsLayer,
     ): string {
         $wmsLayerParsedUrl = parse_url($wmsUrl);
         parse_str($wmsLayerParsedUrl['query'], $wmsLayerUrlParameters);
@@ -184,7 +181,7 @@ class WmsToWmtsCoordinatesConverter
      */
     private function splitSuccessiveWMSLayers(array $layers): array
     {
-        if (empty($layers)) {
+        if ([] === $layers) {
             return [];
         }
         $successiveWmsLayers = [];

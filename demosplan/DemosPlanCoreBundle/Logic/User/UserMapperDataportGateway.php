@@ -24,14 +24,14 @@ use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use DOMDocument;
 use Exception;
+use Illuminate\Support\Collection;
 use Monolog\Logger;
-use Patchwork\Utf8;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 use SimpleXMLElement;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Tightenco\Collect\Support\Collection;
+use Symfony\Component\String\UnicodeString;
 
 abstract class UserMapperDataportGateway implements UserMapperInterface
 {
@@ -95,7 +95,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
         LoggerInterface $logger,
         OrgaService $orgaService,
         UserService $userService,
-        private RequestStack $requestStack
+        private RequestStack $requestStack,
     ) {
         $this->customerHandler = $customerHandler;
         $this->addressService = $addressService;
@@ -329,7 +329,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
         // Es können kodierte Zeichen enthalten sein.
         // die XML Doppeldekodierung, die aus dem GW kommt wird von DOMElement::getAttribute() einfach decodiert:
         //  Testplanungsb&amp;amp;#252;ro => Testplanungsb&amp;#252;ro
-        $string = Utf8::filter($string);
+        $string = (new UnicodeString($string))->normalize()->toString();
         $string = html_entity_decode((string) $string, ENT_QUOTES);
 
         return trim($string);
@@ -354,7 +354,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
             }
         }
 
-        if (empty($roles)) {
+        if ([] === $roles) {
             $this->logger->debug('Roles not found', [DemosPlanTools::varExport($this->data['roles'], true)]);
             $this->logger->debug('Set default role: RINTPA (Interessent)');
             $roles[] = Role::PROSPECT;
@@ -396,9 +396,9 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
      */
     protected function findRole($roleName): Collection
     {
-        return $this->roles->filter(fn($value) =>
+        return $this->roles->filter(fn ($value) =>
             // compare filtered strings to avoid encoding problems
-            Utf8::filter($value['key']) === Utf8::filter($roleName))->values();
+            (new UnicodeString($value['key']))->normalize()->toString() === (new UnicodeString($roleName))->normalize()->toString())->values();
     }
 
     /**
@@ -542,7 +542,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
             $update['deleted'] = false;
         }
 
-        if (!empty($update)) {
+        if ([] !== $update) {
             $user = $this->userService->updateUser($user->getId(), $update);
             $this->logger->debug('Update User: ', ['id' => $user->getId(), 'update'.DemosPlanTools::varExport($update, true)]);
         }
@@ -641,7 +641,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
             }
         }
 
-        if (!empty($update)) {
+        if ([] !== $update) {
             $this->logger->info('Update Orga: ', ['id' => $orga->getId(), 'update' => DemosPlanTools::varExport($update, true)]);
             $orga = $this->userService->updateOrga($orga->getId(), $update);
         } else {
@@ -739,12 +739,12 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
     {
         $userUpdated = false;
         if ($user->getOrga() instanceof Orga) {
-            $this->logger->info('Remove User '.$user->getLogin().' from Orga '.$user->getOrgaName());
+            $this->logger->info('Remove User '.$user->getLogin().' from Orga '.$user->getOrgaName(), ['oId' => $user->getOrganisationId()]);
             $user->getOrga()->removeUser($user);
             $userUpdated = true;
         }
         if ($user->getDepartment() instanceof Department) {
-            $this->logger->info('Remove User '.$user->getLogin().' from Department '.$user->getDepartment()->getName());
+            $this->logger->info('Remove User '.$user->getLogin().' from Department '.$user->getDepartment()->getName(), ['dId' => $user->getDepartmentId()]);
             $user->getDepartment()->removeUser($user);
             $userUpdated = true;
         }
@@ -935,9 +935,9 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
         }
 
         $this->logger->info('Geparste Variablen aus dem Gateway', [
-                'UserDataResult' => $userDataResult,
-                'XmlUserData'    => $xmlUserData,
-                ]
+            'UserDataResult' => $userDataResult,
+            'XmlUserData'    => $xmlUserData,
+        ]
         );
 
         return [$userDataResult, $xmlUserData];

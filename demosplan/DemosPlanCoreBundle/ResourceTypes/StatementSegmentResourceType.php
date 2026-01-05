@@ -13,6 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementSegmentResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -24,8 +27,12 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\PropertyConfig\Builder\PropertyConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathException;
+use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use Elastica\Index;
 
 /**
@@ -45,8 +52,9 @@ use Elastica\Index;
  * @property-read TagResourceType $tags
  * @property-read PlaceResourceType $place
  * @property-read SegmentCommentResourceType $comments
+ * @property-read End $customFields
  */
-final class StatementSegmentResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface
+final class StatementSegmentResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface, StatementSegmentResourceTypeInterface
 {
     /**
      * @var Index
@@ -57,7 +65,8 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         private readonly QuerySegment $esQuery,
         JsonApiEsService $jsonApiEsService,
         private readonly PlaceResourceType $placeResourceType,
-        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+        private readonly CustomFieldValueCreator $customFieldValueCreator,
     ) {
         $this->esType = $jsonApiEsService->getElasticaTypeForTypeName(self::getName());
     }
@@ -86,10 +95,13 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         return $this->currentUser->hasPermission('feature_json_api_statement_segment');
     }
 
+    /**
+     * @throws PathException
+     */
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 
@@ -103,10 +115,9 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
             ->filterNonOwnedProcedureIds($currentUser, ...$allowedProcedures);
         $procedureIds[] = $procedureId;
 
-        return [$this->conditionFactory->propertyHasAnyOfValues(
-            $procedureIds,
-            $this->parentStatementOfSegment->procedure->id
-        )];
+        return [] === $procedureIds
+            ? [$this->conditionFactory->false()]
+            : [$this->conditionFactory->propertyHasAnyOfValues($procedureIds, $this->parentStatementOfSegment->procedure->id)];
     }
 
     public function getFacetDefinitions(): array
@@ -114,12 +125,12 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         // just in case a user has access to places in different procedures,
         // we add a limitation for the current one only
         $currentProcedure = $this->currentProcedureService->getProcedure();
-        $placeCondition = null === $currentProcedure
-            ? $this->conditionFactory->false()
-            : $this->conditionFactory->propertyHasValue(
+        $placeCondition = $currentProcedure instanceof Procedure
+            ? $this->conditionFactory->propertyHasValue(
                 $currentProcedure->getId(),
                 $this->placeResourceType->procedure->id
-            );
+            )
+            : $this->conditionFactory->false();
         $placeSortMethod = $this->sortMethodFactory->propertyAscending(
             $this->placeResourceType->sortIndex
         );
@@ -182,6 +193,30 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         }
         if ($this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
             $recommendation->updatable();
+        }
+
+        if ($this->currentUser->hasPermission('field_segments_custom_fields')) {
+            $properties[] = $this->createAttribute($this->customFields)
+                ->setReadableByCallable(static fn (Segment $segment): ?array => $segment->getCustomFields()?->toJson())
+                ->addUpdateBehavior(
+                    new CallbackAttributeSetBehaviorFactory(
+                        [],
+                        function (Segment $segment, array $customFields): array {
+                            $customFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
+                            $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+                                $customFieldList,
+                                $customFields,
+                                $segment->getProcedure()->getId(),
+                                'PROCEDURE',
+                                'SEGMENT'
+                            );
+                            $segment->setCustomFields($customFieldList);
+
+                            return [];
+                        },
+                        OptionalField::YES
+                    )
+                );
         }
 
         return array_map(

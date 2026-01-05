@@ -18,7 +18,7 @@ describe('convertExtentToObject', () => {
     const result = convertExtentToObject(extentArray)
     expect(result).toEqual({
       start: { latitude: 1, longitude: 2 },
-      end: { latitude: 3, longitude: 4 }
+      end: { latitude: 3, longitude: 4 },
     })
   })
 })

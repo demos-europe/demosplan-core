@@ -87,7 +87,7 @@ class ProcedureUiDefinitionFormType extends AbstractBaseResourceFormType
                     'required'   => false,
                     'empty_data' => '',
                     'attr'       => [
-                        'hint'       => $this->translator->trans('edit.statement.confirm.info.explanation').'<br><br>'.$this->translator->trans('error.length.text', ['count' => 500]),
+                        'hint'       => $this->translator->trans('edit.statement.confirm.info.explanation').'<br><br>',
                         'attributes' => [
                             'maxlength=500',
                         ],

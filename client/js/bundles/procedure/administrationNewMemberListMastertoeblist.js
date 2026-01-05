@@ -14,7 +14,7 @@ import DpMasterToebList from '@DpJs/components/user/DpMasterToebList'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpMasterToebList
+  DpMasterToebList,
 }
 
 initialize(components)
