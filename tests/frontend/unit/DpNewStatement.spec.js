@@ -17,17 +17,17 @@ describe('DpNewStatement', () => {
         counties: [
           { id: '1', name: 'Berlin' },
           { id: '2', name: 'Hamburg' },
-          { id: '3', name: 'Bremen' }
+          { id: '3', name: 'Bremen' },
         ],
         municipalities: [
           { id: '1', name: 'München' },
-          { id: '2', name: 'Hannover' }
+          { id: '2', name: 'Hannover' },
         ],
         priorityAreas: [],
         tags: [],
         elements: {},
         paragraph: {},
-        documents: {}
+        documents: {},
       },
       getters: {
         counties: state => state.counties,
@@ -37,17 +37,17 @@ describe('DpNewStatement', () => {
         elements: state => state.elements,
         paragraph: state => state.paragraph,
         documents: state => state.documents,
-        procedurePhases: () => () => []
+        procedurePhases: () => () => [],
       },
       actions: {
-        applyBaseData: mockApplyBaseData
-      }
+        applyBaseData: mockApplyBaseData,
+      },
     }
 
     store = new Vuex.Store({
       modules: {
-        AssessmentTable: assessmentTable
-      }
+        AssessmentTable: assessmentTable,
+      },
     })
   })
 
@@ -55,13 +55,13 @@ describe('DpNewStatement', () => {
     it('adds counties from location data and sorts them', () => {
       wrapper = shallowMount(DpNewStatement, {
         global: {
-          plugins: [store]
+          plugins: [store],
         },
         props: {
           procedureId: '123',
           currentExternalPhase: 'participation',
-          currentInternalPhase: 'evaluation'
-        }
+          currentInternalPhase: 'evaluation',
+        },
       })
 
       const sortSelectedSpy = jest.spyOn(wrapper.vm, 'sortSelected')

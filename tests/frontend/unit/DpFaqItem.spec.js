@@ -20,14 +20,14 @@ describe('DpFaqItem', () => {
           '1': {
             id: '1',
             relationships: {
-              faq: { data: [{ id: '1', type: 'Faq' }] }
-            }
-          }
-        }
+              faq: { data: [{ id: '1', type: 'Faq' }] },
+            },
+          },
+        },
       },
       mutations: {
-        setItem: mockUpdateCategory
-      }
+        setItem: mockUpdateCategory,
+      },
     }
 
     faq = {
@@ -39,21 +39,21 @@ describe('DpFaqItem', () => {
             type: 'Faq',
             attributes: {
               enabled: true,
-              title: 'Test FAQ Item'
-            }
-          }
-        }
+              title: 'Was ist eine Hansestadt?',
+            },
+          },
+        },
       },
       actions: {
-        delete: mockDeleteFaq
-      }
+        delete: mockDeleteFaq,
+      },
     }
 
     store = new Vuex.Store({
       modules: {
         Faq: faq,
-        FaqCategory: faqCategory
-      }
+        FaqCategory: faqCategory,
+      },
     })
 
     global.dpconfirm = jest.fn(() => true)
@@ -72,21 +72,21 @@ describe('DpFaqItem', () => {
           dpconfirm: global.dpconfirm,
           dplan: global.dplan,
           Translator: global.Translator,
-          Routing: global.Routing
-        }
+          Routing: global.Routing,
+        },
       },
       props: {
         faqItem: {
           id: '1',
           type: 'Faq',
-          attributes: { title: 'Test FAQ Item', enabled: true }
+          attributes: { title: 'Was ist eine Hansestadt?', enabled: true }
         },
         parentId: '1',
         availableGroupOptions: [
           { id: 'fpVisible', title: 'Fachplaner' },
-          { id: 'publicVisible', title: 'Öffentlichkeit' }
+          { id: 'publicVisible', title: 'Öffentlichkeit' },
         ]
-      }
+      },
     })
 
     await wrapper.vm.$nextTick()
