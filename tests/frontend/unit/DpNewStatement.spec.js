@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals'
-import { shallowMount } from '@vue/test-utils'
 import DpNewStatement from '../../../client/js/components/assessmenttable/DpNewStatement.vue'
+import { shallowMount } from '@vue/test-utils'
 import Vuex from 'vuex'
 
 describe('DpNewStatement', () => {
