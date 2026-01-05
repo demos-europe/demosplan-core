@@ -59,7 +59,7 @@ class PurgeSentEmailsMessageHandlerTest extends UnitTestCase
             ->method('info')
             ->willReturnCallback(function ($message, $context = []) {
                 static $callCount = 0;
-                $callCount++;
+                ++$callCount;
 
                 if (1 === $callCount) {
                     $this->assertSame('Maintenance: deleteAfterDays()', $message);
