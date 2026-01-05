@@ -491,6 +491,10 @@ class XlsxSegmentImport
 
         foreach ($eventsToCheck as $eventName) {
             try {
+                $allEvents = $eventManager->getAllListeners();
+                if (!array_key_exists($eventName, $allEvents)) {
+                    continue;
+                }
                 $listeners = $eventManager->getListeners($eventName);
             } catch (Throwable $e) {
                 // Skip events that have no registered listeners
