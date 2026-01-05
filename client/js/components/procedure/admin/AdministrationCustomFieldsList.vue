@@ -24,7 +24,8 @@
           class="mb-2"
           :label="{
             text: Translator.trans('statements.fields.configurable.required')
-          }" />
+          }"
+        />
         <dp-label
           class="mb-1"
           required
@@ -176,7 +177,8 @@
       <template v-slot:isRequired="rowData">
         <div
           v-if="isStatementField"
-          class="mt-1">
+          class="mt-1"
+        >
           {{ rowData.isRequired ? Translator.trans('yes') : Translator.trans('no') }}
         </div>
       </template>

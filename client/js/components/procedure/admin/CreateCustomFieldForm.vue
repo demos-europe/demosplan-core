@@ -54,7 +54,8 @@
           }"
           :options="typeOptions"
           :disabled="disableTypeSelection"
-          :required="preselectedType === ''" />
+          :required="preselectedType === ''"
+        />
 
         <slot />
 
