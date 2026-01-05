@@ -55,9 +55,19 @@ class PurgeSentEmailsMessageHandlerTest extends UnitTestCase
             ->with(30)
             ->willReturn(15);
 
-        $this->logger->expects($this->once())
+        $this->logger->expects($this->exactly(2))
             ->method('info')
-            ->with('Deleted 15 old emails');
+            ->willReturnCallback(function ($message, $context = []) {
+                static $callCount = 0;
+                $callCount++;
+
+                if (1 === $callCount) {
+                    $this->assertSame('Maintenance: deleteAfterDays()', $message);
+                    $this->assertNotEmpty($context); // Expects [spl_object_id($message)]
+                } elseif (2 === $callCount) {
+                    $this->assertSame('Deleted 15 old emails', $message);
+                }
+            });
 
         // Act
         ($this->sut)(new PurgeSentEmailsMessage());

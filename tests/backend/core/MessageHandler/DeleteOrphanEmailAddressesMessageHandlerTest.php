@@ -45,9 +45,19 @@ class DeleteOrphanEmailAddressesMessageHandlerTest extends UnitTestCase
             ->method('deleteOrphanEmailAddresses')
             ->willReturn(10);
 
-        $this->logger->expects($this->once())
+        $this->logger->expects($this->exactly(2))
             ->method('info')
-            ->with('Deleted 10 orphan email addresses');
+            ->willReturnCallback(function ($message, $context = []) {
+                static $callCount = 0;
+                $callCount++;
+
+                if (1 === $callCount) {
+                    $this->assertSame('Maintenance: deleteOrphanEmailAddresses()', $message);
+                    $this->assertNotEmpty($context); // Expects [spl_object_id($message)]
+                } elseif (2 === $callCount) {
+                    $this->assertSame('Deleted 10 orphan email addresses', $message);
+                }
+            });
 
         // Act
         ($this->sut)(new DeleteOrphanEmailAddressesMessage());
