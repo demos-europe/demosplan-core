@@ -24,11 +24,10 @@ class ConfigurePermissionsListenerCommand
     ) {
     }
 
-     public function __invoke(): void
-     {
-         // For console commands no real user is available, but we need to
-         // initialize permissions nonetheless to receive the global project permissions.
-         $this->permissions->initPermissions(new AnonymousUser());
-     }
-
+    public function __invoke(): void
+    {
+        // For console commands no real user is available, but we need to
+        // initialize permissions nonetheless to receive the global project permissions.
+        $this->permissions->initPermissions(new AnonymousUser());
+    }
 }
