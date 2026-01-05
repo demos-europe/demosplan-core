@@ -8,7 +8,6 @@ describe('DpFaqItem', () => {
   let wrapper
   let faqCategory, faq
 
-  // Vuex Actions & Mutations
   const mockDeleteFaq = jest.fn(async (_context, payload) => payload)
   const mockUpdateCategory = jest.fn()
 
