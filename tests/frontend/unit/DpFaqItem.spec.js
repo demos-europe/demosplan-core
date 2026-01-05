@@ -1,24 +1,32 @@
-import { createLocalVue, flushPromises } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, jest } from '@jest/globals'
+import { shallowMount, flushPromises } from '@vue/test-utils'
 import DpFaqItem from '../../../client/js/components/faq/DpFaqItem.vue'
-import shallowMountWithGlobalMocks from '../../../client/js/VueConfigLocal'
 import Vuex from 'vuex'
-
-const localVue = createLocalVue()
-localVue.use(Vuex)
 
 describe('DpFaqItem', () => {
   let store
   let wrapper
   let faqCategory, faq
-  const mockDeleteFaqItem = jest.fn()
+
+  // Vuex Actions & Mutations
+  const mockDeleteFaq = jest.fn(async (_context, payload) => payload)
+  const mockUpdateCategory = jest.fn()
 
   beforeEach(() => {
     faqCategory = {
       namespaced: true,
       state: {
         items: {
-          faqItemParentId: {}
+          '1': {
+            id: '1',
+            relationships: {
+              faq: { data: [{ id: '1', type: 'Faq' }] }
+            }
+          }
         }
+      },
+      mutations: {
+        setItem: mockUpdateCategory
       }
     }
 
@@ -26,12 +34,18 @@ describe('DpFaqItem', () => {
       namespaced: true,
       state: {
         items: {
-          1: {
+          '1': {
+            id: '1',
+            type: 'Faq',
             attributes: {
-              enabled: true
+              enabled: true,
+              title: 'Test FAQ Item'
             }
           }
         }
+      },
+      actions: {
+        delete: mockDeleteFaq
       }
     }
 
@@ -42,46 +56,49 @@ describe('DpFaqItem', () => {
       }
     })
 
-    store.dispatch = jest.fn()
-
-    // Ensure dplan.notify.notify and dplan.notify.error are mocked if they are not globally available
+    global.dpconfirm = jest.fn(() => true)
     global.dplan = {
-      notify: {
-        notify: jest.fn(),
-        error: jest.fn()
-      }
+      notify: { notify: jest.fn(), error: jest.fn() }
     }
-
-    // Mock the `Translator.trans` if it's not globally available
-    global.Translator = {
-      trans: jest.fn().mockImplementation(key => key) // Return the key for simplicity
-    }
+    global.Translator = { trans: jest.fn(key => key) }
+    global.Routing = { generate: jest.fn((route, params) => `/faq/${params.faqID}`) }
   })
+
   it('button triggers delete', async () => {
-    wrapper = shallowMountWithGlobalMocks(DpFaqItem, {
-      store,
-      localVue,
-      methods: {
-        deleteFaqItem: mockDeleteFaqItem
+    wrapper = shallowMount(DpFaqItem, {
+      global: {
+        plugins: [store],
+        mocks: {
+          dpconfirm: global.dpconfirm,
+          dplan: global.dplan,
+          Translator: global.Translator,
+          Routing: global.Routing
+        }
       },
-      propsData: {
+      props: {
         faqItem: {
-          id: 1,
-          attributes: {
-            title: 'hello',
-            id: 1
-          }
+          id: '1',
+          type: 'Faq',
+          attributes: { title: 'Test FAQ Item', enabled: true }
         },
         parentId: '1',
-        availableGroupOptions: ['a', 'b'],
-        transformedCategoriesData: ['a', 'b']
+        availableGroupOptions: [
+          { id: 'fpVisible', title: 'Fachplaner' },
+          { id: 'publicVisible', title: 'Öffentlichkeit' }
+        ]
       }
     })
-    await wrapper.vm.$nextTick() // Ensure the component has finished rendering.
+
+    await wrapper.vm.$nextTick()
 
     const deleteButton = wrapper.find('[data-cy="deleteFaqItem"]')
     await deleteButton.trigger('click')
+    await flushPromises()
 
-    expect(mockDeleteFaqItem).toHaveBeenCalledTimes(1)
+    expect(global.dpconfirm).toHaveBeenCalledTimes(1)
+    expect(mockUpdateCategory).toHaveBeenCalledTimes(1)
+    expect(mockDeleteFaq).toHaveBeenCalledTimes(1)
+    expect(mockDeleteFaq.mock.calls[0][1]).toBe('1')
+    expect(global.dplan.notify.notify).toHaveBeenCalledWith('confirm', 'confirm.faq.deleted')
   })
 })
