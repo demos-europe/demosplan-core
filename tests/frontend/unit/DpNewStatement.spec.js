@@ -20,8 +20,8 @@ describe('DpNewStatement', () => {
           { id: '3', name: 'Bremen' }
         ],
         municipalities: [
-          { id: '1', name: 'Altona' },
-          { id: '2', name: 'Wandsbek' }
+          { id: '1', name: 'München' },
+          { id: '2', name: 'Hannover' }
         ],
         priorityAreas: [],
         tags: [],
