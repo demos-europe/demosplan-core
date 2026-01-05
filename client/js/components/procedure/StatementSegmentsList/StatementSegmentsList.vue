@@ -767,7 +767,7 @@ export default {
     },
 
     toggleInfobox () {
-      this.showInfobox = true
+      this.currentAction = 'editText'
       this.$refs.metadataFlyout.isExpanded = false
     },
 

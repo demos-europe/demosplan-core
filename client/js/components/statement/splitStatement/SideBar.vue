@@ -41,7 +41,7 @@
     <!-- Tags Section -->
     <div
       aria-labelledby="floatingContextButton_tags"
-      :class="['flex-1', 'flex', 'pl-2', 'pr-5', '-mr-4', { 'overflow-y-hidden': availableTags.length && tagTopics.length > 8 }]"
+      :class="['flex-1', 'flex', 'pl-2', 'pr-5', '-mr-4', { 'overflow-y-scroll': availableTags.length && tagTopics.length > 8 }]"
       @mouseover="showFloatingContextButton.tags = true"
       @mouseleave="showFloatingContextButton.tags = false"
     >

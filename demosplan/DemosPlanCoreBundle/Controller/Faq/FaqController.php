@@ -217,8 +217,8 @@ class FaqController extends BaseController
 
         $breadcrumb->addItem(
             [
-                'title' => $translator->trans('faq.list', [], 'page-title'),
-                'url'   => $this->generateUrl('DemosPlan_faq'),
+                'title' => $translator->trans('faq.admin', [], 'page-title'),
+                'url'   => $this->generateUrl('DemosPlan_faq_administration_faq'),
             ]
         );
 
@@ -287,8 +287,8 @@ class FaqController extends BaseController
         // reichere die breadcrumb mit extraItem an
         $breadcrumb->addItem(
             [
-                'title' => $translator->trans('faq.list', [], 'page-title'),
-                'url'   => $this->generateUrl('DemosPlan_faq'),
+                'title' => $translator->trans('faq.admin', [], 'page-title'),
+                'url'   => $this->generateUrl('DemosPlan_faq_administration_faq'),
             ]
         );
 
@@ -429,8 +429,8 @@ class FaqController extends BaseController
 
         $breadcrumb->addItem(
             [
-                'title' => $translator->trans('faq.list', [], 'page-title'),
-                'url'   => $this->generateUrl('DemosPlan_faq'),
+                'title' => $translator->trans('faq.admin', [], 'page-title'),
+                'url'   => $this->generateUrl('DemosPlan_faq_administration_faq'),
             ]
         );
 
