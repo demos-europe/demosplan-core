@@ -11,7 +11,8 @@ All rights reserved
   <fieldset data-dp-validate="statementPublicationAndVotingData">
     <legend
       id="publicationAndVoting"
-      class="mb-3 color-text-muted font-normal">
+      class="mb-3 color-text-muted font-normal"
+    >
       {{ Translator.trans('publication.and.voting') }}
     </legend>
     <div class="font-semibold">
@@ -26,7 +27,8 @@ All rights reserved
       :public-verified="localStatement.attributes.publicVerified"
       :public-verified-trans-key="statement.attributes.publicVerifiedTranslation"
       :submitter-email="statement.attributes.submitterEmailAddress"
-      @update="val => localStatement.attributes.publicVerified = val" />
+      @update="val => localStatement.attributes.publicVerified = val"
+    />
 
     <template v-if="hasPermission('feature_statements_vote')">
       <div class="font-semibold">
@@ -34,7 +36,8 @@ All rights reserved
       </div>
       <p
         class="color-text-muted"
-        v-text="Translator.trans('statement_vote.length', { count: votesLength })" />
+        v-text="Translator.trans('statement_vote.length', { count: votesLength })"
+      />
       <dp-loading v-if="isLoading" />
       <dp-editable-list
         v-else
@@ -45,37 +48,44 @@ All rights reserved
         :translation-keys="translationKeys"
         @delete="id => deleteVote(id)"
         @reset="resetForm()"
-        @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)"
-        @showUpdateForm="id => updateFormFields(id)">
+        @save-entry="index => dpValidateAction('newVoterForm', () => addVote(index), false)"
+        @show-update-form="id => updateFormFields(id)"
+      >
         <template v-slot:list="{ entry }">
           <span
             v-if="entry.attributes.name"
-            class="o-list__item separated">
+            class="o-list__item separated"
+          >
             {{ entry.attributes.name }}
           </span>
           <span
             v-if="entry.attributes.organisationName"
-            class="o-list__item separated">
+            class="o-list__item separated"
+          >
             {{ entry.attributes.organisationName }}
           </span>
           <span
             v-if="entry.attributes.departmentName"
-            class="o-list__item separated">
+            class="o-list__item separated"
+          >
             {{ entry.attributes.departmentName }}
           </span>
           <span
             v-if="entry.attributes.postcode"
-            class="o-list__item separated">
+            class="o-list__item separated"
+          >
             {{ entry.attributes.postcode }}
           </span>
           <span
             v-if="entry.attributes.city"
-            class="o-list__item separated">
+            class="o-list__item separated"
+          >
             {{ entry.attributes.city }}
           </span>
           <span
             v-if="entry.attributes.email"
-            class="o-list__item separated">
+            class="o-list__item separated"
+          >
             {{ entry.attributes.email }}
           </span>
         </template>
@@ -83,7 +93,8 @@ All rights reserved
           <div
             v-if="editable && statement.attributes.isManual"
             data-dp-validate="newVoterForm"
-            class="space-stack-s border-t border-neutral py-3">
+            class="space-stack-s border-t border-neutral py-3"
+          >
             <!-- Role -->
             <div class="flex">
               <dp-radio
@@ -94,7 +105,8 @@ All rights reserved
                 }"
                 value="true"
                 :checked="formFields.createdByCitizen"
-                @change="formFields.createdByCitizen = true" />
+                @change="formFields.createdByCitizen = true"
+              />
               <dp-radio
                 id="createdByCitizen_false"
                 class="ml-5"
@@ -104,11 +116,13 @@ All rights reserved
                 }"
                 value="false"
                 :checked="formFields.createdByCitizen === false"
-                @change="formFields.createdByCitizen = false" />
+                @change="formFields.createdByCitizen = false"
+              />
             </div>
             <div
               v-show="isInstitutionParticipation && (hasPermission('field_statement_meta_orga_name') || hasPermission('field_statement_meta_orga_department_name'))"
-              class="flex">
+              class="flex"
+            >
               <dp-input
                 v-show="hasPermission('field_statement_meta_orga_name')"
                 id="voter_publicagency"
@@ -117,7 +131,8 @@ All rights reserved
                 class="pr-2"
                 :label="{
                   text: Translator.trans('invitable_institution')
-                }" />
+                }"
+              />
               <dp-input
                 v-show="hasPermission('field_statement_meta_orga_department_name')"
                 id="voter_department"
@@ -126,7 +141,8 @@ All rights reserved
                 class="pl-2"
                 :label="{
                   text: Translator.trans('department')
-                }" />
+                }"
+              />
             </div>
 
             <div class="flex">
@@ -138,7 +154,8 @@ All rights reserved
                 class="pr-2"
                 :label="{
                   text: Translator.trans('statement.form.name')
-                }" />
+                }"
+              />
               <dp-input
                 v-if="hasPermission('field_statement_meta_email')"
                 id="voter_email"
@@ -148,7 +165,8 @@ All rights reserved
                 :label="{
                   text: Translator.trans('email')
                 }"
-                type="email" />
+                type="email"
+              />
             </div>
 
             <div class="flex w-1/2">
@@ -161,7 +179,8 @@ All rights reserved
                 :label="{
                   text: Translator.trans('postalcode')
                 }"
-                pattern="^[0-9]{4,5}$" />
+                pattern="^[0-9]{4,5}$"
+              />
               <dp-input
                 v-if="hasPermission('field_statement_meta_city')"
                 id="voter_city"
@@ -171,7 +190,8 @@ All rights reserved
                 :class="hasPermission('field_statement_meta_postal_code') ? ' u-3-of-4' : ''"
                 :label="{
                   text: Translator.trans('city')
-                }" />
+                }"
+              />
             </div>
           </div>
         </template>
@@ -191,7 +211,8 @@ All rights reserved
           data-cy="numberOfAnonymVotes"
           :disabled="!editable"
           name="numberOfAnonymVotes"
-          type="number" />
+          type="number"
+        />
       </div>
     </template>
 
@@ -201,7 +222,8 @@ All rights reserved
       primary
       secondary
       @primary-action="dpValidateAction('statementPublicationAndVotingData', save, false)"
-      @secondary-action="reset" />
+      @secondary-action="reset"
+    />
   </fieldset>
 </template>
 

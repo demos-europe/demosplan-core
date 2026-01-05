@@ -13,7 +13,8 @@
     @focus="event => $emit('focus', event)"
     @focusout="$emit('focusout')"
     @mouseleave="$emit('mouseleave')"
-    @mouseover="event => $emit('mouseover', event)">
+    @mouseover="event => $emit('mouseover', event)"
+  >
     <div
       id="editor"
       class="c-styled-html"

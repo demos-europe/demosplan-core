@@ -13,7 +13,8 @@ All rights reserved
       <a
         class="btn btn--primary"
         :href="pathForNewsCreation"
-        data-cy="newNews">
+        data-cy="newNews"
+      >
         {{ Translator.trans('news.new') }}
       </a>
     </div>
@@ -21,16 +22,19 @@ All rights reserved
       v-if="selectedItems.length > 0"
       class="layout__item u-12-of-12"
       :selected-items-text="Translator.trans('news.notes.selected', { count: selectedItems.length })"
-      @reset-selection="resetSelection">
+      @reset-selection="resetSelection"
+    >
       <button
         class="btn-icns u-m-0"
         name="newsdelete"
         data-cy="deleteSelectedNews"
         type="button"
-        @click.prevent="deleteEntries">
+        @click.prevent="deleteEntries"
+      >
         <i
           aria-hidden="true"
-          class="fa fa-times u-mr-0_125" />
+          class="fa fa-times u-mr-0_125"
+        />
         {{ Translator.trans('delete') }}
       </button>
     </dp-bulk-edit-header>
@@ -42,13 +46,15 @@ All rights reserved
       is-selectable
       :should-be-selected-items="shouldBeSelected"
       @changed-order="changeManualsort"
-      @items-selected="setShouldBeSelected">
+      @items-selected="setShouldBeSelected"
+    >
       <template v-slot:title="{ id, pId, title }">
         <div class="o-hellip__wrapper">
           <a
             class="o-hellip block"
             data-cy="newsTitleLink"
-            :href="generateEditPath(id, pId)">
+            :href="generateEditPath(id, pId)"
+          >
             {{ title }}
           </a>
         </div>
@@ -60,13 +66,15 @@ All rights reserved
           :switch-state="rowData.designatedState ? 'released' : 'blocked'"
           :news-status="rowData.enabled"
           :determined-to-switch="rowData.determinedToSwitch || false"
-          @status-changed="setItemStatus($event, rowData.id)" />
+          @status-changed="setItemStatus($event, rowData.id)"
+        />
       </template>
       <template v-slot:picture="{ picture }">
         <i
           v-if="picture !== ''"
           class="fa fa-check"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
       </template>
     </dp-data-table>
   </div>

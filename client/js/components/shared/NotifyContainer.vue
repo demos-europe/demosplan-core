@@ -11,16 +11,19 @@
 <template>
   <div
     :class="prefixClass('c-notify')"
-    :aria-live="liveState">
+    :aria-live="liveState"
+  >
     <transition-group
       name="transition-slide-up"
-      tag="span">
+      tag="span"
+    >
       <dp-notification
         v-for="message in messages"
         :key="message.uid"
         :message="message"
         :role="messageRole"
-        @dp-notify-remove="removeMessage" />
+        @dp-notify-remove="removeMessage"
+      />
     </transition-group>
   </div>
 </template>

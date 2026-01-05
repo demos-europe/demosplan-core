@@ -11,13 +11,15 @@
   <div>
     <dp-toggle
       :value="newsStatus"
-      @input="e => $emit('statusChanged', e)" />
+      @input="e => $emit('statusChanged', e)"
+    />
     <dp-contextual-help
       v-if="determinedToSwitch"
       class="u-ml-0_25"
       icon="clock"
       large
-      :text="tooltipText" />
+      :text="tooltipText"
+    />
   </div>
 </template>
 

@@ -116,7 +116,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
     {
         $customFieldConfigurations = $this->findCustomFieldConfigurationByCriteria($sourceEntity, $sourceEntityId, $targetEntity);
 
-        if (empty($customFieldConfigurations)) {
+        if (null === $customFieldConfigurations || [] === $customFieldConfigurations) {
             return new ArrayCollection();
         }
 
@@ -131,5 +131,20 @@ class CustomFieldConfigurationRepository extends CoreRepository
                 $customFieldConfigurations
             )
         );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function deleteObject(CustomFieldConfiguration $customFieldConfiguration): bool
+    {
+        try {
+            $this->getEntityManager()->remove($customFieldConfiguration);
+
+            return true;
+        } catch (Exception $e) {
+            $this->logger->error('Delete CustomFieldConfiguration failed: ', [$e]);
+            throw $e;
+        }
     }
 }

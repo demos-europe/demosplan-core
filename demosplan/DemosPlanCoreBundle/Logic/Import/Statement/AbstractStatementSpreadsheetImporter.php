@@ -126,7 +126,7 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
 
     public function hasErrors(): bool
     {
-        return 0 !== count($this->errors);
+        return [] !== $this->errors;
     }
 
     protected function getStatementTextConstraint(): Constraint
@@ -150,9 +150,8 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
     public function addImportViolations(
         ConstraintViolationListInterface $errors,
         int $currentLineNumber,
-        string $currentWorksheetTitle
-    ): void
-    {
+        string $currentWorksheetTitle,
+    ): void {
         // $currentLineNumber is the index of the statement/segment array derived from the xlsx. +2 is needed to
         // compensate for arrays starting at 0 (while xslx tables start at 1) and also the first line being the headings
         $currentLineNumber += 2;

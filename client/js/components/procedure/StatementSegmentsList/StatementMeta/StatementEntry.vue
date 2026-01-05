@@ -11,7 +11,8 @@ All rights reserved
   <fieldset data-dp-validate="statementEntryData">
     <legend
       id="entry"
-      class="mb-3 color-text-muted font-normal">
+      class="mb-3 color-text-muted font-normal"
+    >
       {{ Translator.trans('entry') }}
     </legend>
 
@@ -26,61 +27,74 @@ All rights reserved
         :label="{
           text: Translator.trans('statement.date.authored')
         }"
-        :model-value="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : '-'" />
+        :model-value="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : '-'"
+      />
 
       <!-- authoredDate: if not manual statement -->
-      <div
-        v-else
-        class="mb-2">
-        <dp-label
-          :text="Translator.trans('statement.date.authored')"
-          for="authoredDateDatepicker" />
         <dp-datepicker
+          v-else
           id="authoredDateDatepicker"
           class="o-form__control-wrapper"
           data-cy="statementEntry:authoredDate"
+          :label="{
+            text: Translator.trans('statement.date.authored')
+          }"
           :max-date="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : currentDate"
           :value="localStatement.attributes.authoredDate"
-          @input="val => setDate(val, 'authoredDate')" />
+          @input="val => setDate(val, 'authoredDate')"
+        />
       </div>
 
       <!-- submitDate: if manual statement -->
       <dp-input
         v-if="isStatementManual ? true : !editable"
         id="statementSubmitDate"
-        class="o-form__group-item"
+        class="o-form__group-item mb-2"
         data-cy="statementEntry:submitDate"
         :disabled="true"
         :label="{
           text: Translator.trans('statement.date.submitted')
         }"
-        :model-value="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : '-'" />
+        :model-value="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : '-'"
+      />
 
       <!-- submitDate: if not manual statement -->
-      <div v-else>
-        <dp-label
-          :text="Translator.trans('statement.date.submitted')"
-          for="submitDateDatepicker" />
         <dp-datepicker
+          v-else
           id="submitDateDatepicker"
           class="o-form__control-wrapper"
           data-cy="statementEntry:submitDate"
+          :label="{
+            text: Translator.trans('statement.date.submitted')
+          }"
           :max-date="currentDate"
           :min-date="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : ''"
           :value="getFormattedDate(localStatement.attributes.submitDate)"
-          @input="val => setDate(val, 'submitDate')" />
-      </div>
+          @input="val => setDate(val, 'submitDate')"
+        />
 
       <dp-select
+        v-if="editable"
         id="statementSubmitType"
         v-model="localStatement.attributes.submitType"
-        class="mb-2"
+        class="space-y-0.5 mb-2"
         data-cy="statementEntry:submitType"
-        :disabled="!editable"
         :label="{
           text: Translator.trans('submit.type')
         }"
-        :options="submitTypeOptions" />
+        :options="submitTypeOptions"
+      />
+      <dl
+        v-else
+        class="u-mb-0_5"
+      >
+        <dt class="font-semibold u-mb-0_25">
+          {{ Translator.trans('submit.type') }}
+        </dt>
+        <dd class="text-muted">
+          {{ submitTypeOptions.find(opt => opt.value === localStatement.attributes.submitType)?.label || '-' }}
+        </dd>
+      </dl>
 
       <dp-input
         v-if="editable"
@@ -108,6 +122,7 @@ All rights reserved
 
       <template v-if="hasPermission('field_statement_phase')">
         <dp-select
+          v-if="availableProcedurePhases.length > 1"
           id="statementProcedurePhase"
           v-model="localStatement.attributes.procedurePhase.key"
           class="mb-3"
@@ -116,9 +131,21 @@ All rights reserved
           :label="{
             text: Translator.trans('procedure.public.phase')
           }"
-          :options="availableProcedurePhases" />
+          :options="availableProcedurePhases"
+        />
+        <dl
+          v-else
+          class="mb-3"
+        >
+          <dt class="font-semibold u-mb-0_25">
+            {{ Translator.trans('procedure.public.phase') }}
+          </dt>
+          <dd class="text-muted">
+            {{ localStatement.attributes.procedurePhase?.name || '-' }}
+          </dd>
+        </dl>
       </template>
-    </div>
+
     <dp-text-area
       v-if="hasPermission('field_statement_memo')"
       id="r_memo"
@@ -127,7 +154,8 @@ All rights reserved
       :disabled="!editable"
       :label="Translator.trans('memo')"
       name="r_memo"
-      reduced-height />
+      reduced-height
+    />
 
     <dp-button-row
       v-if="editable"
@@ -135,7 +163,8 @@ All rights reserved
       primary
       secondary
       @primary-action="dpValidateAction('statementEntryData', save, false)"
-      @secondary-action="reset" />
+      @secondary-action="reset"
+    />
   </fieldset>
 </template>
 

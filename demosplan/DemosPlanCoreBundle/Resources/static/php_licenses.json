@@ -35,6 +35,11 @@
         "website": "https://github.com/composer/package-versions-deprecated"
     },
     {
+        "license": "Apache-2.0",
+        "package": "cyclonedx/cyclonedx-php-composer",
+        "website": "https://github.com/CycloneDX/cyclonedx-php-composer"
+    },
+    {
         "license": "MIT",
         "package": "demos-europe/demosplan-addon",
         "website": "https://github.com/demos-europe/demosplan-addon"
@@ -300,7 +305,7 @@
         "website": "https://github.com/PHPOffice/PhpSpreadsheet"
     },
     {
-        "license": "LGPL-3.0",
+        "license": "LGPL-3.0-only",
         "package": "phpoffice/phpword",
         "website": "https://github.com/PHPOffice/PHPWord"
     },
@@ -328,6 +333,11 @@
         "license": "BSD-3-Clause",
         "package": "phpunit/phpunit",
         "website": "https://github.com/sebastianbergmann/phpunit"
+    },
+    {
+        "license": "MIT",
+        "package": "predis/predis",
+        "website": "https://github.com/predis/predis"
     },
     {
         "license": "LGPL-2.1",
@@ -628,6 +638,11 @@
         "license": "MIT",
         "package": "symfony/yaml",
         "website": "https://github.com/symfony/yaml"
+    },
+    {
+        "license": "MIT",
+        "package": "thenetworg/oauth2-azure",
+        "website": "https://github.com/TheNetworg/oauth2-azure"
     },
     {
         "license": "MIT",

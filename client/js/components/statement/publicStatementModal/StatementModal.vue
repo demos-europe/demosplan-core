@@ -12,15 +12,18 @@
     <dp-modal
       ref="statementModal"
       content-header-classes="border--none"
-      @modal:toggled="handleModalToggle">
+      @modal:toggled="handleModalToggle"
+    >
       <template
         v-if="showHeader"
-        v-slot:header>
+        v-slot:header
+      >
         <span :class="prefixClass('color-highlight')">
           <i
             aria-hidden="true"
             class="fa"
-            :class="commentingIcon" />
+            :class="commentingIcon"
+          />
           {{ Translator.trans('statement.yours') }}
         </span>
       </template>
@@ -31,15 +34,18 @@
           :class="prefixClass('c-statement__close btn-icns color-highlight u-m-0_25 p-0 absolute u-right-0')"
           :title="Translator.trans('statement.dialog.close')"
           type="button"
-          @click="toggleModal(false)">
+          @click="toggleModal(false)"
+        >
           <span
             id="statementDialogCloseTitle"
-            :class="prefixClass('sr-only')">
+            :class="prefixClass('sr-only')"
+          >
             {{ Translator.trans('explanation.statement.autosave') }}
           </span>
           <i
             aria-hidden="true"
-            :class="prefixClass('fa fa-compress fa-2x')" />
+            :class="prefixClass('fa fa-compress fa-2x')"
+          />
         </button>
       </template>
 
@@ -54,7 +60,8 @@
             :active-step="step"
             :class="prefixClass('pb-0')"
             :steps="stepsData"
-            @change-step="val => step = val" />
+            @change-step="val => step = val"
+          />
         </div>
 
         <!-- Mobile -->
@@ -67,7 +74,8 @@
             <i
               v-if="stepsData[step].icon"
               :class="[prefixClass('fa'), prefixClass(stepsData[step].icon), prefixClass('text-lg leading-none mt-[2px]')]"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
             <h3 :class="prefixClass('m-0 text-lg leading-none font-medium')">
               {{ stepsData[step].label }}
             </h3>
@@ -86,19 +94,23 @@
         dismissible
         dismissible-key="statementModalCloseExplanation"
         :message="Translator.trans('explanation.statement.autosave')"
-        type="info" />
+        type="info"
+      />
 
       <!-- Statement form incl. documents and location -->
       <section
         v-show="step === 0"
-        data-dp-validate="statementForm">
+        data-dp-validate="statementForm"
+      >
         <dp-inline-notification
           v-if="loggedIn === false"
           :class="prefixClass('mb-2')"
-          type="info">
+          type="info"
+        >
           <p
             v-if="statementFormHintStatement"
-            v-cleanhtml="statementFormHintStatement" />
+            v-cleanhtml="statementFormHintStatement"
+          />
           <p v-cleanhtml="Translator.trans('statement.modal.step.write.privacy_policy')" />
           <p>{{ Translator.trans('error.mandatoryfields') }}</p>
         </dp-inline-notification>
@@ -108,15 +120,18 @@
           id="statementFormErrors"
           :class="prefixClass('mb-2')"
           aria-labelledby="statementFormErrorsContent"
-          tabindex="0">
+          tabindex="0"
+        >
           <p
             id="statementFormErrorsContent"
-            v-cleanhtml="createErrorMessage('statementForm')" />
+            v-cleanhtml="createErrorMessage('statementForm')"
+          />
         </dp-inline-notification>
 
         <div
           v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement"
-          class="flex mt-4">
+          class="flex mt-4"
+        >
           <dp-radio
             id="negative_report_false"
             name="r_isNegativeReport"
@@ -127,7 +142,8 @@
               text: Translator.trans('public.participation.participate')
             }"
             value="0"
-            @change="() => { setStatementData({ r_isNegativeReport: '0'}) }" />
+            @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
+          />
           <dp-radio
             id="negative_report_true"
             :checked="formData.r_isNegativeReport === '1'"
@@ -147,7 +163,8 @@
           <dp-label
             :text="Translator.trans('statement.detail.form.statement_text')"
             for="statementText"
-            :required="formData.r_isNegativeReport !== '1'" />
+            :required="formData.r_isNegativeReport !== '1'"
+          />
           <dp-editor
             id="statementText"
             ref="statementEditor"
@@ -161,11 +178,13 @@
             }"
             :value="formData.r_text || ''"
             hidden-input="r_text"
-            @input="val => setStatementData({r_text: val})" />
+            @input="val => setStatementData({r_text: val})"
+          />
         </div>
         <div
           v-if="loggedIn === false"
-          :class="prefixClass('u-mb')">
+          :class="prefixClass('u-mb')"
+        >
           <dp-checkbox
             id="confirmPrivacy"
             :checked="formData.r_privacy === 'on'"
@@ -176,10 +195,12 @@
             }"
             name="r_privacy"
             required
-            @change="val => setStatementData({r_privacy: val ? 'on' : 'off'})" />
+            @change="val => setStatementData({r_privacy: val ? 'on' : 'off'})"
+          />
         </div>
         <div
-          :class="prefixClass('u-mb')">
+          :class="prefixClass('u-mb')"
+        >
           <dp-checkbox
             v-if="hasPermission('field_statement_public_allowed') && publicParticipationPublicationEnabled && hasPermission('feature_statement_public_allowed_needs_verification')"
             id="r_makePublic"
@@ -189,7 +210,8 @@
               text: makePublicLabel
             }"
             name="r_makePublic"
-            @change="val => setStatementData({r_makePublic: val ? 'on' : 'off'})" />
+            @change="val => setStatementData({r_makePublic: val ? 'on' : 'off'})"
+          />
         </div>
 
         <template v-if="hasPermission('field_statement_add_assignment') && hasPlanningDocuments">
@@ -204,23 +226,28 @@
               :class="prefixClass('btn--blank o-link--default text-left')"
               data-cy="statementModal:elementAssign"
               :disabled="formData.r_isNegativeReport !== '0'"
-              @click="gotoTab('procedureDetailsDocumentlist')">
+              @click="gotoTab('procedureDetailsDocumentlist')"
+            >
               <i
                 aria-hidden="true"
-                :class="prefixClass('fa fa-plus')" />
+                :class="prefixClass('fa fa-plus')"
+              />
               {{ Translator.trans('element.assign') }}
             </button>
 
             <div
               v-if="formData.r_element_id !== ''"
-              :class="prefixClass('mb-3')">
+              :class="prefixClass('mb-3')"
+            >
               <button
                 aria-labelledby="documentReference"
                 :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up w-fit')"
-                @click="gotoTab('procedureDetailsDocumentlist')">
+                @click="gotoTab('procedureDetailsDocumentlist')"
+              >
                 <i
                   aria-hidden="true"
-                  :class="prefixClass('fa fa-pencil')" />
+                  :class="prefixClass('fa fa-pencil')"
+                />
                 {{ Translator.trans('document.reference.change') }}
               </button>
 
@@ -228,17 +255,20 @@
                 aria-labelledby="documentReference"
                 :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up w-fit')"
                 :href="Routing.generate( 'DemosPlan_procedure_public_detail', { procedure: procedureId }) + '#procedureDetailsDocumentlist'"
-                @click="removeDocumentRelation">
+                @click="removeDocumentRelation"
+              >
                 <i
                   aria-hidden="true"
-                  :class="prefixClass('fa fa-trash')" />
+                  :class="prefixClass('fa fa-trash')"
+                />
                 {{ Translator.trans('document.reference.delete') }}
               </button>
             </div>
 
             <dl
               v-if="formData.r_element_id !== ''"
-              :class="[highlighted.documents ? prefixClass('animation--bg-highlight-grey--light-2 space-y-2') : prefixClass('bg-color--grey-light-2'), 'mb-1 py-1 px-2']">
+              :class="[highlighted.documents ? prefixClass('animation--bg-highlight-grey--light-2 space-y-2') : prefixClass('bg-color--grey-light-2'), 'mb-1 py-1 px-2']"
+            >
               <div :class="prefixClass('md:flex')">
                 <dt :class="prefixClass('font-semibold w-1/6')">
                   {{ Translator.trans('document') }}:
@@ -250,7 +280,8 @@
 
               <div
                 v-if="formData.r_paragraph_id !== ''"
-                :class="prefixClass('md:flex')">
+                :class="prefixClass('md:flex')"
+              >
                 <dt :class="prefixClass('font-semibold w-1/6')">
                   {{ Translator.trans('paragraph') }}:
                 </dt>
@@ -261,7 +292,8 @@
 
               <div
                 v-if="formData.r_document_id !== ''"
-                :class="prefixClass('md:flex')">
+                :class="prefixClass('md:flex')"
+              >
                 <dt :class="prefixClass('font-semibold w-1/6')">
                   {{ Translator.trans('file') }}:
                 </dt>
@@ -284,34 +316,41 @@
             :disabled="formData.r_isNegativeReport !== '0'"
             :required="formDefinition.required && formData.r_isNegativeReport !== '1'"
             :logged-in="loggedIn"
-            :counties="counties" />
+            :counties="counties"
+          />
         </template>
 
         <template v-if="loggedIn">
           <fieldset>
             <legend
               class="sr-only"
-              v-text="Translator.trans('files.upload')" />
+              v-text="Translator.trans('files.upload')"
+            />
             <div
               v-if="hasPermission('field_statement_file')"
-              :class="prefixClass('u-mb-0_25 layout')">
+              :class="prefixClass('u-mb-0_25 layout')"
+            >
               <div
                 v-if="initialFiles.length > 0"
-                :class="prefixClass('layout__item u-1-of-2')">
+                :class="prefixClass('layout__item u-1-of-2')"
+              >
                 <p
-                  :class="prefixClass('weight--bold u-mb-0_25')">
+                  :class="prefixClass('weight--bold u-mb-0_25')"
+                >
                   {{ Translator.trans('attachments') }}
                 </p>
 
                 <div
                   v-for="(file, idx ) in initialFiles"
                   :key="`file_${idx}`"
-                  :class="prefixClass('o-hellip')">
+                  :class="prefixClass('o-hellip')"
+                >
                   <a
                     :class="prefixClass('align-top')"
                     :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"
                     rel="noopener"
-                    target="_blank">
+                    target="_blank"
+                  >
                     {{ file.name }}
                   </a>
                   <label :class="prefixClass('lbl--text float-right')">
@@ -319,7 +358,8 @@
                       :value="file.hash"
                       name="delete_file[]"
                       type="checkbox"
-                      @change="() => updateDeleteFile(file.hash)">
+                      @change="() => updateDeleteFile(file.hash)"
+                    >
                     {{ Translator.trans('attachment.delete') }}
                   </label>
                 </div>
@@ -328,7 +368,8 @@
                 <dp-label
                   :class="prefixClass('mb-2')"
                   :text="Translator.trans('upload.files')"
-                  for="r_file" />
+                  for="r_file"
+                />
 
                 <dp-upload-files
                   id="upload_files"
@@ -343,12 +384,14 @@
                   :tus-endpoint="dplan.paths.tusEndpoint"
                   :storage-name="fileStorageName"
                   @file-remove="removeUnsavedFile"
-                  @upload-success="addUnsavedFile" />
+                  @upload-success="addUnsavedFile"
+                />
               </div>
             </div>
             <div
               v-if="hasPermission('feature_statements_represent_orga')"
-              :class="prefixClass('layout')">
+              :class="prefixClass('layout')"
+            >
               <dp-input
                 id="r_represents"
                 :class="prefixClass('layout__item md:w-1/2')"
@@ -358,25 +401,29 @@
                 name="r_represents"
                 :placeholder="Translator.trans('institution.represents')"
                 :model-value="formData.r_represents"
-                @input="val => setStatementData({r_represents: val})" />
+                @update:model-value="val => setStatementData({r_represents: val})"
+              />
             </div>
           </fieldset>
         </template>
         <div
           v-if="loggedIn"
-          :class="prefixClass('text-right sm:text-center md:text-right mb-2 flow-root')">
+          :class="prefixClass('text-right sm:text-center md:text-right mb-2 flow-root')"
+        >
           <!-- Logged in, existing draft statement -->
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
-            hide-label />
+            hide-label
+          />
           <button
             v-if="displayEditSubmit"
             type="submit"
             :disabled="isLoading"
             :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm')"
             data-cy="saveChangedStatement"
-            @click="sendStatement">
+            @click="sendStatement"
+          >
             {{ Translator.trans('save.and.close') }}
           </button>
           <button
@@ -385,7 +432,8 @@
             :disabled="isLoading"
             :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm u-ml-0_5-desk-up')"
             data-cy="saveChangedStatementWothoutClosing"
-            @click="e => sendStatement(e,false, true)">
+            @click="e => sendStatement(e,false, true)"
+          >
             {{ Translator.trans('save') }}
           </button>
 
@@ -397,7 +445,8 @@
               :disabled="isLoading"
               data-cy="statementModal:statementSaveImmediate"
               :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down')"
-              @click="e => sendStatement(e,true)">
+              @click="e => sendStatement(e,true)"
+            >
               {{ Translator.trans('statement.save.immediate') }}
             </button>
             <button
@@ -408,7 +457,8 @@
                 prefixClass('btn u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')
               ]"
               data-cy="statementModal:saveAsDraft"
-              @click="sendStatement">
+              @click="sendStatement"
+            >
               <template v-if="draftStatementId === ''">
                 {{ Translator.trans('statement.save.as.draft') }}
               </template>
@@ -422,24 +472,28 @@
             data-cy="statementModal:discardChanges"
             :disabled="isLoading"
             :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')"
-            @click.prevent="() => reset()">
+            @click.prevent="() => reset()"
+          >
             {{ Translator.trans('discard.changes') }}
           </button>
         </div>
         <!-- for not logged in users -->
         <div
           v-else
-          :class="prefixClass('flex flex-col sm:flex-row justify-end gap-2 mt-4')">
+          :class="prefixClass('flex flex-col sm:flex-row justify-end gap-2 mt-4')"
+        >
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
-            hide-label />
+            hide-label
+          />
           <button
             type="reset"
             :disabled="isLoading"
             :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
             data-cy="statementModal:discardStatement"
-            @click.prevent="() => reset()">
+            @click.prevent="() => reset()"
+          >
             {{ Translator.trans('discard.statement') }}
           </button>
           <button
@@ -448,7 +502,8 @@
             :disabled="isLoading"
             :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
             form-name="statementForm"
-            @click="validateStatementStep">
+            @click="validateStatementStep"
+          >
             {{ Translator.trans('continue.personal_data') }}
           </button>
         </div>
@@ -458,13 +513,16 @@
       <form
         v-show="step === 1"
         autocomplete="on"
-        data-dp-validate="submitterForm">
+        data-dp-validate="submitterForm"
+      >
         <dp-inline-notification
           :class="prefixClass('mt-3 mb-2')"
-          type="info">
+          type="info"
+        >
           <p
             v-if="statementFormHintPersonalData"
-            v-cleanhtml="statementFormHintPersonalData" />
+            v-cleanhtml="statementFormHintPersonalData"
+          />
           <p>
             {{ Translator.trans('error.mandatoryfields') }}
           </p>
@@ -478,14 +536,17 @@
           id="submitterFormErrors"
           tabindex="0"
           aria-labelledby="submitterFormErrorsContent"
-          :class="prefixClass('c-statement__formhint flash-error mb-2')">
+          :class="prefixClass('c-statement__formhint flash-error mb-2')"
+        >
           <i
             aria-hidden="true"
-            :class="prefixClass('c-statement__hint-icon fa fa-lg fa-exclamation-circle')" />
+            :class="prefixClass('c-statement__hint-icon fa fa-lg fa-exclamation-circle')"
+          />
           <div
             id="submitterFormErrorsContent"
             v-cleanhtml="createErrorMessage('submitterForm')"
-            :class="prefixClass('ml-4')" />
+            :class="prefixClass('ml-4')"
+          />
         </div>
 
         <!-- Show radio buttons if anonymous statements are allowed -->
@@ -522,7 +583,8 @@
 
             <div
               v-show="formData.r_useName === '1'"
-              :class="prefixClass('layout mb-3 ml-2')">
+              :class="prefixClass('layout mb-3 ml-2')"
+            >
               <component
                 :is="formDefinition.component"
                 v-for="formDefinition in personalDataFormDefinitions"
@@ -539,7 +601,8 @@
             :class="[
               formData.r_useName === '0' ? prefixClass('bg-color--grey-light-2') : '',
               prefixClass('c-statement__formblock')
-            ]">
+            ]"
+          >
             <dp-radio
               id="r_useName_0"
               :checked="formData.r_useName === '0'"
@@ -585,7 +648,8 @@
           :key="formDefinition.key"
           :draft-statement-id="draftStatementId"
           :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
-          :required="formDefinition.required" />
+          :required="formDefinition.required"
+        />
         <div :class="prefixClass('flex flex-col sm:flex-row justify-between gap-2 mt-6')">
           <button
             :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
@@ -611,37 +675,44 @@
       <!-- recheck -->
       <section
         v-show="step === 2"
-        data-dp-validate="recheckForm">
+        data-dp-validate="recheckForm"
+      >
         <statement-modal-recheck
           :allow-anonymous-statements="allowAnonymousStatements"
           :form-fields="formFields"
           :statement="formData"
           :public-participation-publication-enabled="publicParticipationPublicationEnabled"
+          :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
           :statement-feedback-definitions="statementFeedbackDefinitions"
           :statement-form-hint-recheck="statementFormHintRecheck"
-          @edit-input="handleEditInput" />
+          @edit-input="handleEditInput"
+        />
 
         <label
           v-if="hasPermission('feature_statement_data_protection')"
           id="data_protection_label"
           :class="prefixClass('u-mb-0 weight--normal')"
-          :title="Translator.trans('statements.required.field')">
+          :title="Translator.trans('statements.required.field')"
+        >
           <input
             id="data_protection"
             type="checkbox"
             name="r_data_protection"
             required
-            aria-labelledby="explanation-statement-data-protection">
+            aria-labelledby="explanation-statement-data-protection"
+          >
           <span
             id="explanation-statement-data-protection"
-            aria-hidden="true">
+            aria-hidden="true"
+          >
             {{ Translator.trans('explanation.statement.data.protection') }}
             <a
               :aria-label="Translator.trans('data.protection.more')"
               :class="prefixClass('o-link--default')"
               :href="Routing.generate('DemosPlan_misccontent_static_dataprotection')"
               rel="noopener"
-              target="_blank">
+              target="_blank"
+            >
               {{ Translator.trans('data.protection.more') }}
             </a>
             <span aria-hidden="true">*</span>
@@ -660,21 +731,24 @@
           }"
           name="r_gdpr_consent"
           required
-          @change="val => setStatementData({r_gdpr_consent: val ? 'on' : 'off'})" />
+          @change="val => setStatementData({r_gdpr_consent: val ? 'on' : 'off'})"
+        />
 
         <div :class="prefixClass('flex flex-col sm:flex-row justify-between gap-2 mt-6')">
           <button
             :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
             data-cy="statementModal:backToPersonalData"
             type="button"
-            @click.prevent="goToPreviousStep">
+            @click.prevent="goToPreviousStep"
+          >
             {{ Translator.trans('go.back.to.personal.data') }}
           </button>
 
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
-            hide-label />
+            hide-label
+          />
           <button
             :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
             :disabled="isLoading"
@@ -689,26 +763,31 @@
       <section v-show="step === 3">
         <div
           v-if="responseHtml !== ''"
-          v-cleanhtml="responseHtml" />
+          v-cleanhtml="responseHtml"
+        />
         <template v-else>
           <h2
             id="statementModalTitle"
             :class="prefixClass('color-highlight')"
             data-title="confirmation"
-            aria-describedby="successConfirmation">
+            aria-describedby="successConfirmation"
+          >
             <i
               :class="prefixClass('fa fa-comment')"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
             {{ Translator.trans('participation.thank.you') }}
           </h2>
 
           <span
             id="successConfirmation"
-            :class="prefixClass('u-mb')">
+            :class="prefixClass('u-mb')"
+          >
             <p :class="prefixClass('flash-confirm c-statement__formhint')">
               <i
                 :class="prefixClass('fa fa-check fa-lg')"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
               <span v-cleanhtml="Translator.trans('confirm.statement.submitted.public', { externId: extId })" />
             </p>
 
@@ -720,10 +799,12 @@
               :href="Routing.generate('DemosPlan_statement_single_export_pdf',{ sId: draftStatementId , procedure: procedureId })"
               data-cy="statementModal:downloadPDF"
               rel="noopener"
-              target="_blank">
+              target="_blank"
+            >
               <i
                 :class="prefixClass('fa fa-file')"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
               {{ Translator.trans('pdf.download') }}
             </a>
 
@@ -733,7 +814,8 @@
                 :href="Routing.generate('DemosPlan_procedure_public_detail', { procedure: procedureId })"
                 data-cy="statementModal:close"
                 rel="noopener"
-                @click="toggleModal">
+                @click="toggleModal"
+              >
                 {{ Translator.trans('close') }}
               </a>
             </span>

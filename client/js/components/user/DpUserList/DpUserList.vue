@@ -22,17 +22,20 @@
           data-cy="search:currentSearchTerm"
           :placeholder="Translator.trans('searchterm')"
           @search="handleSearch"
-          @reset="handleReset" />
+          @reset="handleReset"
+        />
         <dp-contextual-help :text="tooltipContent" />
       </div>
     </div>
     <dp-loading
       v-if="isLoading"
-      class="u-ml u-mt" />
+      class="u-ml u-mt"
+    />
     <!-- List of all items -->
     <div
       v-if="false === isLoading"
-      class="layout">
+      class="layout"
+    >
       <div class="u-mt flex">
         <!-- 'Select all'-Checkbox -->
         <div class="layout__item u-3-of-7">
@@ -41,41 +44,48 @@
             type="checkbox"
             data-cy="allSelected"
             :checked="allSelected"
-            @change="dpToggleAll(!allSelected, items)">
+            @change="dpToggleAll(!allSelected, items)"
+          >
           <label
             v-if="hasPermission('feature_user_delete') || true"
             for="select_all"
-            class="cursor-pointer btn-icns inline-block">
+            class="cursor-pointer btn-icns inline-block"
+          >
             {{ Translator.trans('select.all.on.page') }}
           </label>
         </div>
         <!--Button row -->
         <div class="text-right u-4-of-7 u-mb-0_5">
-          <button
-            class="btn btn--primary mb-1.5"
+          <dp-button
+            class="mb-1.5 mr-0.5"
+            color="primary"
             data-cy="userList:manageUsers"
             value="inviteSelected"
             name="manageUsers"
-            type="submit">
-            {{ Translator.trans('user.marked.invite') }}
-          </button>
-
-          <button
+            type="submit"
+            :disabled="!isUserSelected"
+            :text="Translator.trans('user.marked.invite')"
+          />
+          <dp-button
             v-if="hasPermission('feature_user_delete') || true"
-            class="btn btn--warning mb-1.5"
-            type="button"
+            class="mb-1.5"
+            color="warning"
             data-cy="deleteSelectedItems"
-            @click="deleteItems(selectedItems)">
-            {{ deleteSelectedUsersLabel }}
-          </button>
+            type="button"
+            :disabled="!isUserSelected"
+            :text="deleteSelectedUsersLabel"
+            @click="deleteItems(selectedItems)"
+          />
         </div>
       </div>
     </div>
     <template
-      v-if="false === isLoading">
+      v-if="false === isLoading"
+    >
       <ul
         class="o-list o-list--card u-mb"
-        data-cy="userList:userListWrapper">
+        data-cy="userList:userListWrapper"
+      >
         <dp-user-list-item
           v-for="(item, idx, index) in items"
           :key="idx"
@@ -84,20 +94,30 @@
           :user="item"
           :data-cy="`userList:userListBlk:${index}`"
           :project-name="projectName"
-          @item:selected="dpToggleOne" />
+          @item:selected="dpToggleOne"
+        />
       </ul>
 
       <dp-sliding-pagination
         :current="currentPage"
         :total="totalPages"
         :non-sliding-size="10"
-        @page-change="getItemsByPage" />
+        @page-change="getItemsByPage"
+      />
     </template>
   </div>
 </template>
 
 <script>
-import { debounce, DpContextualHelp, DpLoading, DpSearchField, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
+import {
+  debounce,
+  DpButton,
+  DpContextualHelp,
+  DpLoading,
+  DpSearchField,
+  dpSelectAllMixin,
+  hasOwnProp,
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 
@@ -105,6 +125,7 @@ export default {
   name: 'DpUserList',
 
   components: {
+    DpButton,
     DpContextualHelp,
     DpLoading,
     DpSearchField,
@@ -160,6 +181,10 @@ export default {
       return Translator.trans('entities.marked.delete', { entities: Translator.trans('users'), sum: this.selectedItems.length })
     },
 
+    isUserSelected () {
+      return this.selectedItems.length > 0
+    },
+
     selectedItems () {
       return Object.keys(this.items).filter(id => this.itemSelections[id])
     },
@@ -202,18 +227,35 @@ export default {
 
       if (!isConfirmed) return
 
-      /* Ensures all deletions attempt to execute, even if one fails. Each deletion resolves to { status: 'fulfilled' | 'rejected', value | reason } */
+      let successCount = 0
+      let errorCount = 0
+
       const deleteResults = await Promise.allSettled(
+        /* Ensures all deletions attempt to execute, even if one fails. Each deletion resolves to { status: 'fulfilled' | 'rejected', value | reason } */
         ids.map(async id => {
           try {
-            await this.deleteAdministratableUser(id)
-            delete this.itemSelections[id]
-            dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+            const response = await this.deleteAdministratableUser(id)
+            // Check if the HTTP response indicates an error
+            if (response && (response.status >= 400 || response.ok === false)) {
+              errorCount++
+            } else {
+              delete this.itemSelections[id]
+              successCount++
+            }
           } catch (error) {
             console.error(`Failed to delete user with ID ${id}:`, error)
+            errorCount++
           }
         }),
       )
+
+      // Show appropriate messages
+      if (successCount > 0) {
+        dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
+      }
+      if (errorCount > 0) {
+        dplan.notify.notify('error', Translator.trans('error.delete.user'))
+      }
 
       // Reload items only if at least one deletion was successful
       if (deleteResults.some(result => result.status === 'fulfilled')) {

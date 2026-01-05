@@ -11,30 +11,35 @@ All rights reserved
   <fieldset data-dp-validate="statementFinalEmail">
     <legend
       id="finalEmail"
-      class="mb-3 color-text-muted font-normal">
+      class="mb-3 color-text-muted font-normal"
+    >
       {{ Translator.trans('statement.final.send') }}
     </legend>
     <dp-inline-notification
       v-if="explanationNoSendingEmail"
       class="mb-3"
       :message="explanationNoSendingEmail"
-      type="info" />
+      type="info"
+    />
     <template v-else>
       <dp-inline-notification
         v-if="finalEmailOnlyToVoters"
         class="mb-3"
         :message="Translator.trans('explanation.statement.final.sent.only.voters')"
-        type="info" />
+        type="info"
+      />
       <dp-inline-notification
         v-if="statement.attributes.sentAssessment"
         class="mb-3"
         :message="Translator.trans('confirm.statement.final.sent.date', { date: formattedSentAssessmentDate })"
-        type="info" />
+        type="info"
+      />
       <dp-inline-notification
         v-else
         class="mb-3"
         :message="Translator.trans('confirm.statement.final.not.sent')"
-        type="info" />
+        type="info"
+      />
       <dp-input
         v-if="hasPermission('field_organisation_email2_cc')"
         id="email2"
@@ -44,7 +49,8 @@ All rights reserved
           text: Translator.trans('email.recipient')
         }"
         read-only
-        :value="email2InputValue" />
+        :value="email2InputValue"
+      />
       <dp-input
         v-if="ccEmail2"
         id="email2cc"
@@ -54,7 +60,8 @@ All rights reserved
           text: Translator.trans('recipients.additional')
         }"
         read-only
-        :value="ccEmail2" />
+        :value="ccEmail2"
+      />
       <dp-input
         id="emailCC"
         v-model="emailsCC"
@@ -64,7 +71,8 @@ All rights reserved
         :label="{
           text: Translator.trans('email.cc'),
           hint: editable ? Translator.trans('explanation.email.cc') : ''
-        }" />
+        }"
+      />
       <dp-input
         id="emailSubject"
         v-model="emailSubject"
@@ -73,7 +81,8 @@ All rights reserved
         :disabled="!editable"
         :label="{
           text: Translator.trans('subject')
-        }" />
+        }"
+      />
       <detail-view-final-email-body
         ref="emailBody"
         class="u-mb-0_5"
@@ -81,11 +90,13 @@ All rights reserved
         :editable="editable"
         :init-text="emailBodyText"
         :procedure-id="procedure.id"
-        @emailBody:input="updateEmailBodyText" />
+        @email-body:input="updateEmailBodyText"
+      />
       <template v-if="editable">
         <dp-label
           :text="Translator.trans('documents.attach')"
-          for="uploadEmailAttachments" />
+          for="uploadEmailAttachments"
+        />
         <dp-upload-files
           id="uploadEmailAttachments"
           ref="uploadEmailAttachments"
@@ -98,7 +109,8 @@ All rights reserved
           :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '10GB' }) }"
           :tus-endpoint="dplan.paths.tusEndpoint"
           @file-remove="removeAttachment"
-          @upload-success="addAttachment" />
+          @upload-success="addAttachment"
+        />
       </template>
       <div class="text-right">
         <dp-button
@@ -107,7 +119,8 @@ All rights reserved
           icon="mail"
           name="sendFinalEmail"
           :text="Translator.trans('send')"
-          @click="sendFinalEmail" />
+          @click="sendFinalEmail"
+        />
       </div>
     </template>
   </fieldset>

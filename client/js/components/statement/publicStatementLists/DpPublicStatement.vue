@@ -10,11 +10,13 @@
 <template>
   <dp-table-card
     class="c-public-statement"
-    :open="isOpen">
+    :open="isOpen"
+  >
     <template v-slot:header="">
       <div
         class="c-public-statement__header"
-        :class="{'border--bottom': isOpen}">
+        :class="{'border--bottom': isOpen}"
+      >
         <div class="layout__item u-11-of-12 u-1-of-4-desk-up align-sub u-pl-0">
           <div class="inline-block u-mr-0_5">
             <input
@@ -22,14 +24,17 @@
               :id="number"
               type="checkbox"
               name="item_check[]"
-              :value="id">
+              :value="id"
+            >
             <span
               v-tooltip="renderTooltipContent(tooltipContent)"
-              class="c-public-statement__tooltip">
+              class="c-public-statement__tooltip"
+            >
               <label
                 :for="number"
                 data-cy="statementNumber"
-                class="inline u-mb-0">
+                class="inline u-mb-0"
+              >
                 {{ `${ number || externId }` }}
               </label>
             </span>
@@ -41,10 +46,12 @@
               v-bind="unsavedChangesItem.attrs"
               :key="unsavedChangesItem.name"
               class="btn--blank o-link--default"
-              @click.prevent.stop="(e) => typeof unsavedChangesItem.callback === 'function' ? unsavedChangesItem.callback(e, _self) : false">
+              @click.prevent.stop="(e) => typeof unsavedChangesItem.callback === 'function' ? unsavedChangesItem.callback(e, _self) : false"
+            >
               <i
                 v-tooltip="Translator.trans('unsaved.changes')"
-                class="fa fa-exclamation-circle color-message-severe-fill u-mr-0_5" />
+                class="fa fa-exclamation-circle color-message-severe-fill u-mr-0_5"
+              />
             </button>
           </div>
         </div><!--
@@ -53,25 +60,29 @@
             <div
               v-for="item in menuItems"
               :key="item.id"
-              class="inline u-mr-0_5">
+              class="inline u-mr-0_5"
+            >
               <button
                 v-if="item.type === 'button'"
                 v-bind="item.attrs"
                 class="btn--blank o-link--default align-middle"
-                @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false">
+                @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false"
+              >
                 {{ item.text }}
               </button>
               <a
                 v-else-if="item.type === 'link'"
                 v-bind="item.attrs"
                 class="o-link--default align-middle"
-                :href="item.url">
+                :href="item.url"
+              >
                 {{ item.text }}
               </a>
               <h4
                 v-else-if="item.type === 'heading'"
                 v-bind="item.attrs"
-                class="color--grey u-mb-0 u-mt-0_25 font-size-small align-middle">
+                class="color--grey u-mb-0 u-mt-0_25 font-size-small align-middle"
+              >
                 {{ item.text }}
               </h4>
             </div>
@@ -80,25 +91,29 @@
             <dp-flyout>
               <div
                 v-for="item in menuItems"
-                :key="item.id">
+                :key="item.id"
+              >
                 <a
                   v-if="item.type === 'link'"
                   v-bind="item.attrs"
                   class="o-link--default"
-                  :href="item.url">
+                  :href="item.url"
+                >
                   {{ item.text }}
                 </a>
                 <button
                   v-if="item.type === 'button'"
                   v-bind="item.attrs"
                   class="btn--blank o-link--default"
-                  @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false">
+                  @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false"
+                >
                   {{ item.text }}
                 </button>
                 <h4
                   v-if="item.type === 'heading'"
                   v-bind="item.attrs"
-                  class="color--grey u-mb-0 u-mt-0_25 font-size-small">
+                  class="color--grey u-mb-0 u-mt-0_25 font-size-small"
+                >
                   {{ item.text }}
                 </h4>
               </div>
@@ -108,10 +123,12 @@
             <button
               type="button"
               class="btn--blank o-link--default u-pr-0_25 c-public-statement__toggle"
-              @click="isOpen = false === isOpen">
+              @click="isOpen = false === isOpen"
+            >
               <i
                 class="fa"
-                :class="isOpen ? 'fa-angle-up': 'fa-angle-down'" />
+                :class="isOpen ? 'fa-angle-up': 'fa-angle-down'"
+              />
             </button>
           </div>
         </div>
@@ -129,8 +146,9 @@
       </div><!--
    --><div class="u-1-of-1 c-public-statement__content-item">
         <div
-            v-if="showAuthor"
-            class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+          v-if="showAuthor"
+          class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label"
+        >
         {{ Translator.trans('authored.by') }}
       </div><!--
    --><div class="inline-block u-2-of-3 u-1-of-1-palm">
@@ -163,7 +181,8 @@
       </div><!--
  --><div
       v-if="hasPermission('feature_documents_new_statement')"
-      class="u-1-of-1 c-public-statement__content-item">
+      class="u-1-of-1 c-public-statement__content-item"
+    >
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('paragraph') }}
       </div><!--
@@ -184,7 +203,8 @@
             class="btn--blank o-link--default"
             type="button"
             :aria-label="`${Translator.trans('statement.map.drawing.show')} ${Translator.trans('statement')}: ${number}`"
-            @click.prevent.stop="$emit('openMapModal', polygon)">
+            @click.prevent.stop="$emit('openMapModal', polygon)"
+          >
             {{ Translator.trans('see') }}
           </button>
           <span v-else>
@@ -195,7 +215,8 @@
     </div><!--
  --><div
       v-if="priorityAreas !== null"
-      class="u-1-of-1 c-public-statement__content-item">
+      class="u-1-of-1 c-public-statement__content-item"
+    >
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('potential.areas') }}
       </div><!--
@@ -205,7 +226,8 @@
     </div><!--
    --><div
         v-if="county !== null"
-        class="u-1-of-1 c-public-statement__content-item">
+        class="u-1-of-1 c-public-statement__content-item"
+      >
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('county') }}
       </div><!--
@@ -219,13 +241,15 @@
       </div><!--
    --><div
         v-cleanhtml="renderAttachments(attachments)"
-        class="inline-block u-2-of-3 u-1-of-1-palm break-words" />
+        class="inline-block u-2-of-3 u-1-of-1-palm break-words"
+      />
       </div>
     </div>
     <dp-inline-notification
       v-if="rejectedReason"
       class="mt"
-      type="info">
+      type="info"
+    >
       <div>{{ Translator.trans('statement.rejected.with.reason') }}:</div>
       <div>{{ rejectedReason }}</div>
     </dp-inline-notification>
@@ -235,7 +259,8 @@
       </div>
       <div
         v-cleanhtml="text"
-        class="c-styled-html" />
+        class="c-styled-html"
+      />
     </div>
   </dp-table-card>
 </template>

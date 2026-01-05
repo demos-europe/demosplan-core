@@ -76,6 +76,11 @@ const AssessmentTable = {
         show: false,
         statementId: null,
       },
+      // Visibility state of MoveStatementModal and statementId
+      moveStatementModal: {
+        show: false,
+        statementId: null,
+      },
     },
     procedureStatementPriorityArea: false,
     publicParticipationPublicationEnabled: false,
@@ -228,6 +233,8 @@ const AssessmentTable = {
     consolidateModal: state => state.modals.consolidateModal,
 
     copyStatementModal: state => state.modals.copyStatementModal,
+
+    moveStatementModal: state => state.modals.moveStatementModal,
 
     /**
      *

@@ -15,11 +15,13 @@
   <fieldset>
     <legend
       class="sr-only"
-      v-text="title" />
+      v-text="title"
+    />
     <dp-accordion
       :data-cy="dataCy !== '' ? dataCy : false"
       :is-open="isOpen"
-      :title="title">
+      :title="title"
+    >
       <div class="o-box--dark u-p">
         <slot />
       </div>

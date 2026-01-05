@@ -14,35 +14,41 @@
       v-if="label !== ''"
       class="layout__item weight--bold u-pb-0_25"
       :class="[labelGrid]"
-      :data-cy="label">
+      :data-cy="label"
+    >
       {{ Translator.trans(label) }}:
     </dt><!--
-   --><dd
-        v-if="false === readonly"
-        class="c-edit-field layout__item"
-        data-cy="editingEnabled"
-        :class="[(editingEnabled || loading) ? 'is-editing': '', inputGrid, {'u-ml-0': noMargin, 'u-pl-0': noMargin}]">
-        <!-- Editing -->
-        <div
-          v-if="editable && editingEnabled"
-          class="c-edit-field__editing">
-          <slot name="edit" />
-        </div>
-        <!-- Displaying value in non-edit mode, also toggles edit mode -->
-        <div
-          v-if="!editable || !editingEnabled"
-          :class="{'cursor-pointer': editable}"
-          :title="Translator.trans('edit.entity', { entity: translatedLabel })"
-          @click="toggleEditing">
-          <slot name="display" />
-        </div>
-        <!-- Edit Trigger -->
-        <div
-          class="c-edit-field__trigger"
-          :class="{ 'block': persistIcons }">
-          <dp-loading
-            v-if="loading"
-            hide-label />
+ --><dd
+      v-if="false === readonly"
+      class="c-edit-field layout__item"
+      data-cy="editingEnabled"
+      :class="[(editingEnabled || loading) ? 'is-editing': '', inputGrid, {'u-ml-0': noMargin, 'u-pl-0': noMargin}]"
+    >
+      <!-- Editing -->
+      <div
+        v-if="editable && editingEnabled"
+        class="c-edit-field__editing"
+      >
+        <slot name="edit" />
+      </div>
+      <!-- Displaying value in non-edit mode, also toggles edit mode -->
+      <div
+        v-if="!editable || !editingEnabled"
+        :class="{'cursor-pointer': editable}"
+        :title="Translator.trans('edit.entity', { entity: translatedLabel })"
+        @click="toggleEditing"
+      >
+        <slot name="display" />
+      </div>
+      <!-- Edit Trigger -->
+      <div
+        class="c-edit-field__trigger"
+        :class="{ 'block': persistIcons }"
+      >
+        <dp-loading
+          v-if="loading"
+          hide-label
+        />
           <template v-else>
             <template v-if="editable && editingEnabled">
               <button
@@ -50,19 +56,23 @@
                 :title="Translator.trans('save')"
                 class="btn--blank o-link--default"
                 data-cy="saveField"
-                @click="save">
+                @click="save"
+              >
                 <i
                   aria-hidden="true"
-                  class="fa fa-check" />
+                  class="fa fa-check"
+                />
               </button>
               <button
                 type="button"
                 :title="Translator.trans('reset')"
                 class="btn--blank o-link--default"
-                @click="reset">
+                @click="reset"
+              >
                 <i
                   aria-hidden="true"
-                  class="fa fa-times" />
+                  class="fa fa-times"
+                />
               </button>
             </template>
             <button
@@ -72,10 +82,12 @@
               :disabled="!editable"
               :title="editable ? Translator.trans('edit.entity', {entity: translatedLabel}) : Translator.trans('locked.title')"
               class="btn--blank o-link--default"
-              @click="toggleEditing">
+              @click="toggleEditing"
+            >
               <i
                 aria-hidden="true"
-                class="fa fa-pencil" />
+                class="fa fa-pencil"
+              />
             </button>
           </template>
         </div>
@@ -83,7 +95,8 @@
     <dd
       v-else
       class="c-edit-field layout__item"
-      :class="[inputGrid, {'u-ml-0': noMargin, 'u-pl-0': noMargin}]">
+      :class="[inputGrid, {'u-ml-0': noMargin, 'u-pl-0': noMargin}]"
+    >
       <slot name="display" />
     </dd>
   </dl>

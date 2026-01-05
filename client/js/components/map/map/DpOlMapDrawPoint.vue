@@ -12,10 +12,12 @@
     type="button"
     data-cy="map:mapDrawPoint"
     :class="[prefixClass('btn--blank o-link--default weight--bold'), active ? prefixClass('color-highlight') : '']"
-    @click="activate">
+    @click="activate"
+  >
     <i
       :class="prefixClass('fa fa-map-marker')"
-      aria-hidden="true" />
+      aria-hidden="true"
+    />
     {{ Translator.trans('map.relation.set') }}
   </button>
 </template>

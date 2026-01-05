@@ -3,21 +3,25 @@
     :class="prefixClass('u-mt')"
     :action="Routing.generate('DemosPlan_orga_edit_save', { orgaId: organisation.id })"
     method="post"
-    data-dp-validate="orgadata">
+    data-dp-validate="orgadata"
+  >
     <input
       data-cy="editOrga:organisationId"
       type="hidden"
       name="organisation_ident"
-      :value="organisation.id">
+      :value="organisation.id"
+    >
     <input
       data-cy="editOrga:addressIdent"
       type="hidden"
       name="address_ident"
-      :value="organisation.addressId">
+      :value="organisation.addressId"
+    >
     <input
       type="hidden"
       name="_token"
-      :value="csrfToken">
+      :value="csrfToken"
+    >
     <fieldset :class="prefixClass('w-3/4')">
       <legend :class="prefixClass('font-size-large weight--normal mb-3')">
         {{ Translator.trans('organisation.data') }}
@@ -34,7 +38,8 @@
           text: Translator.trans('name.legal')
         }"
         :disabled="!isOrgaDataEditable"
-        required />
+        required
+      />
 
       <!-- Street -->
       <div :class="prefixClass('flex items-start gap-1 mb-2')">
@@ -48,7 +53,8 @@
             text: Translator.trans('street')
           }"
           :size="!isOrgaDataEditable ? organisation.street.length : null"
-          :disabled="!isOrgaDataEditable" />
+          :disabled="!isOrgaDataEditable"
+        />
 
         <dp-input
           v-if="showDetailedInfo"
@@ -60,7 +66,8 @@
             text: Translator.trans('street.number.short')
           }"
           :size="5"
-          :disabled="!isOrgaDataEditable" />
+          :disabled="!isOrgaDataEditable"
+        />
 
         <dp-input
           v-if="showDetailedInfo"
@@ -73,7 +80,8 @@
             text: Translator.trans('address.extension')
           }"
           :size="!isOrgaDataEditable ? organisation.addressExtension.length : null"
-          :disabled="!isOrgaDataEditable" />
+          :disabled="!isOrgaDataEditable"
+        />
       </div>
 
       <!-- Postal Code and City -->
@@ -89,7 +97,8 @@
           }"
           :pattern="isOrgaDataEditable ? '^[0-9]{5}$' : ''"
           :size="5"
-          :disabled="!isOrgaDataEditable" />
+          :disabled="!isOrgaDataEditable"
+        />
 
         <dp-input
           id="orga_address_city"
@@ -99,7 +108,8 @@
           :label="{
             text: Translator.trans('city')
           }"
-          :disabled="!isOrgaDataEditable" />
+          :disabled="!isOrgaDataEditable"
+        />
       </div>
 
       <!-- Phone -->
@@ -113,7 +123,8 @@
         :label="{
           text: Translator.trans('phone')
         }"
-        :disabled="!isOrgaDataEditable" />
+        :disabled="!isOrgaDataEditable"
+      />
 
       <!-- Types -->
       <dp-select
@@ -127,13 +138,15 @@
         :label="{
           text: Translator.trans('type')
         }"
-        :disabled="!isOrgaDataEditable" />
+        :disabled="!isOrgaDataEditable"
+      />
 
       <!-- Slug -->
       <div v-if="hasPermission('feature_orga_slug') && hasPermission('feature_orga_slug_edit')">
         <label
           for="orga_slug"
-          :class="prefixClass('o-form__label')">
+          :class="prefixClass('o-form__label')"
+        >
           {{ Translator.trans('organisation.procedurelist.slug') }}
         </label>
         <small :class="prefixClass('lbl_hint block')">
@@ -149,18 +162,21 @@
             v-model="organisation.currentSlugName"
             data-cy="organisationData:currentSlugName"
             :data-organisation-id="organisation.id"
-            :name="`${organisation.id}:slug`" />
+            :name="`${organisation.id}:slug`"
+          />
         </div>
 
         <div>
           <label
             :for="`${organisation.id}:urlPreview`"
-            :class="prefixClass('o-form__label')">
+            :class="prefixClass('o-form__label')"
+          >
             {{ Translator.trans('preview') }}
           </label>
           <p
             :id="`${organisation.id}:urlPreview`"
-            :data-shorturl="proceduresDirectlinkPrefix + '/'">
+            :data-shorturl="proceduresDirectlinkPrefix + '/'"
+          >
             {{ proceduresDirectlinkPrefix }}/{{ organisation.currentSlugName || '' }}
           </p>
         </div>
@@ -170,7 +186,8 @@
       <template v-if="showDetailedInfo">
         <dl
           v-if="displaySlug || displayCustomer"
-          :class="prefixClass('description-list space-stack-s')">
+          :class="prefixClass('description-list space-stack-s')"
+        >
           <div v-if="displaySlug">
             <dt class="font-semibold">
               {{ Translator.trans('organisation.procedurelist.slug') }}
@@ -187,7 +204,8 @@
             <dd
               v-for="(customer, index) in customers"
               :key="customer.id"
-              :class="prefixClass('color--grey inline')">
+              :class="prefixClass('color--grey inline')"
+            >
               {{ customer.name }}<span v-if="index < customers.length - 1">, </span>
             </dd>
           </div>
@@ -199,14 +217,16 @@
     <fieldset
       v-if="hasPermission('feature_change_submission_type')"
       id="submissionType"
-      :class="prefixClass('w-3/4 mb-2')">
+      :class="prefixClass('w-3/4 mb-2')"
+    >
       <legend :class="prefixClass('font-size-large weight--normal mb-3')">
         {{ Translator.trans('statement.submission.type') }}
       </legend>
       <input
         type="hidden"
         :name="`${organisation.id}:current_submission_type`"
-        :value="organisation.submissionType">
+        :value="organisation.submissionType"
+      >
       <dp-radio
         id="submission_type_short"
         :name="`${organisation.id}:submission_type`"
@@ -217,7 +237,8 @@
           bold: true,
           hint: Translator.trans('explanation.statement.submit.process.short')
         }"
-        :checked="organisation.submissionType === submissionTypeShort" />
+        :checked="organisation.submissionType === submissionTypeShort"
+      />
       <dp-radio
         id="submission_type_default"
         :name="`${organisation.id}:submission_type`"
@@ -228,40 +249,48 @@
           bold: true,
           hint: Translator.trans('explanation.statement.submit.process.default')
         }"
-        :checked="organisation.submissionType === submissionTypeDefault" />
+        :checked="organisation.submissionType === submissionTypeDefault"
+      />
     </fieldset>
 
     <email-notification-settings
       :organisation="organisation"
       :user="user"
       :will-receive-new-statement-notification="willReceiveNewStatementNotification"
-      :has-notification-section="hasNotificationSection" />
+      :has-notification-section="hasNotificationSection"
+    />
 
     <paper-copy-preferences
       v-if="hasPaperCopyPermission"
-      :organisation="organisation" />
+      :organisation="organisation"
+    />
 
     <organisation-competence
       v-if="hasPermission('field_organisation_competence')"
-      :organisation="organisation" />
+      :organisation="organisation"
+    />
 
     <organisation-branding-settings
       :organisation="organisation"
-      :project-name="projectName" />
+      :project-name="projectName"
+    />
 
     <div
       v-if="displayButtons"
-      :class="prefixClass('text-right space-inline-s')">
+      :class="prefixClass('text-right space-inline-s')"
+    >
       <dp-button
         data-cy="organisationData:saveButton"
         :text="Translator.trans('save')"
-        @click="handleSubmit" />
+        @click="handleSubmit"
+      />
 
       <dp-button
         type="reset"
         color="secondary"
         data-cy="organisationData:abortButton"
-        :text="Translator.trans('reset')" />
+        :text="Translator.trans('reset')"
+      />
     </div>
   </form>
 </template>

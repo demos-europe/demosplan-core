@@ -18,7 +18,8 @@
       id="currentUser"
       type="hidden"
       :value="currentUserId"
-      name="currentUser">
+      name="currentUser"
+    >
 
     <!-- hidden input with assigneeId of selected statement cluster-->
     <input
@@ -26,7 +27,8 @@
       type="hidden"
       :value="selectedCluster.assignee.id"
       name="claimedClusterAssignee"
-      :data-dp-validate-should-equal="selected.name !== '-' && selected.id ? '#currentUser' : false">
+      :data-dp-validate-should-equal="selected.name !== '-' && selected.id ? '#currentUser' : false"
+    >
 
     <!-- select statement cluster -->
     <dp-multiselect
@@ -39,7 +41,8 @@
       :custom-label="option =>`${option.externId ? option.externId : ''} ${option.name ? option.name : ''}`"
       :options="clusterList"
       track-by="id"
-      @input="closeMultiselect">
+      @input="closeMultiselect"
+    >
       <template v-slot:option="{ props }">
         <strong>{{ props.option.externId ? props.option.externId : '' }}</strong>
         <span class="weight--normal">{{ props.option.name ? ` ${props.option.name}` : '' }}</span>
@@ -49,12 +52,14 @@
       id="r_head_statement"
       type="hidden"
       name="r_head_statement"
-      :value="inputValue">
+      :value="inputValue"
+    >
 
     <!-- claim icon for selected statement cluster -->
     <div
       v-if="hasPermission('feature_statement_assignment')"
-      class="layout__item u-1-of-1 u-pt-0_25 u-pl-0">
+      class="layout__item u-1-of-1 u-pt-0_25 u-pl-0"
+    >
       <dp-claim
         v-if="'' !== inputValue"
         :key="selected.assignee.id"
@@ -67,10 +72,12 @@
         :current-user-id="currentUserId"
         :current-user-name="currentUserName"
         :is-loading="updatingClaimState"
-        @click="updateClaim" />
+        @click="updateClaim"
+      />
       <p
         v-if="currentUserId !== selected.assignee.id && inputValue !== ''"
-        class="inline-block lbl__hint u-n-ml-0_5">
+        class="inline-block lbl__hint u-n-ml-0_5"
+      >
         {{ Translator.trans('statement.cluster.assign.self') }}
       </p>
     </div>

@@ -11,20 +11,24 @@
   <dp-card :heading="Translator.trans('statements.grouped.status', { count: 0 })">
     <dp-loading
       v-if="isLoading"
-      class="u-mt" />
+      class="u-mt"
+    />
     <div
       v-else
-      class="mt-2">
+      class="mt-2"
+    >
       <div
         v-if="statementsTotal > 0"
-        class="layout--flush">
+        class="layout--flush"
+      >
         <p>
           {{ statementsTotal }} {{ Translator.trans('statements.total') }}
         </p>
         <div
           v-for="(element, idx) in procedureStatistics"
           :key="`statementCharts_${idx}`"
-          class="layout__item text-center u-1-of-3 u-1-of-1-lap-down mt-2">
+          class="layout__item text-center u-1-of-3 u-1-of-1-lap-down mt-2"
+        >
           <div
             :id="element.id"
             :data-items="JSON.stringify([{ label: element.label, count: element.count, percentage: element.percentage }])"
@@ -33,13 +37,15 @@
               'no-data-fallback' : Translator.trans('statements.none'),
               'data-names' : Translator.trans('statements'),
               'data-name' : Translator.trans('statement')
-            })" />
+            })"
+          />
           <div :id="element.legendId" />
         </div>
       </div>
       <p
         v-else
-        class="u-mt u-mb-0">
+        class="u-mt u-mb-0"
+      >
         {{ Translator.trans('statements.none') }}
       </p>
     </div>

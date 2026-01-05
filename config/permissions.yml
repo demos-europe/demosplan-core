@@ -200,7 +200,7 @@ area_data_protection_text:
 area_demosplan:
     description: |-
         This is a global Feature which should always be true.
-        It should be used as `@DplanPermissions` value if there
+        It should be used as `DplanPermissions` value if there
         is no more concerete permission to apply.
     label: 'Global area which is always enabled.'
     loginRequired: false
@@ -902,6 +902,11 @@ feature_export_docx_elements_view_mode_only:
     label: 'always export elements view in docx export'
     loginRequired: true
     parent: area_admin_assessmenttable
+feature_export_odt_instead_of_docx:
+    description: 'When enabled, export with ODT format when no other format is specified in assessmenttable'
+    label: 'Export ODT instead of DOCX as default format'
+    loginRequired: true
+    parent: feature_admin
 feature_export_protocol:
     expose: true
     label: 'Exportieren des Verfahrensprotokolls'
@@ -930,6 +935,11 @@ feature_gdpr_consent_revoke_by_token:
     description: 'When a statement is submitted the submitter may need to give his GDPR consent (depending feature_statement_gdpr_consent). When this permission is enabled a token is generated for statements submitted user with this permission enabled (if they have provided an email address). The token is send in the submission-confirm email address and can be used by anyone (if this permission is enabled) to open a site where they enters the token and their email address to revoke their GDPR consent which issues the anonymization of the statement. All statements copied from the original statement are affected too.'
     expose: false
     label: 'Allows sending and usage of tokens to revoke the GDPR consent given on statement submission.'
+    loginRequired: false
+feature_geocoder_address_search:
+    description: 'Enables the address search via external API call to Geocoder. Provides an auto-suggestion for addresses.'
+    expose: false
+    label: 'Enables Geocoder address search'
     loginRequired: false
 feature_has_logout_landing_page:
     label: 'Wird beim Logout auf eine Zwischenseite weitergeleitet die ausloggen im Gateway ermöglicht?'
@@ -1460,6 +1470,7 @@ feature_procedure_agency_email_addresses:
         project specific behaviors. When possible the permission based approach should be preferred.
     label: 'Enables the general configuration and usage of agency email addresses within a procedure'
     loginRequired: false
+    expose: true
 feature_procedure_analytics:
     description: |-
         This permission is used for the whole display of procedure analytics.
@@ -1808,6 +1819,7 @@ feature_public_consultation:
     label: 'This features enables public consultation in general globally'
     loginRequired: false
 feature_public_index_map:
+    description: 'Shows map on the public index page and makes it possible to search and filter procedures that are shown on the map.'
     expose: true
     label: 'Hat public index eine Karte?'
     loginRequired: false
@@ -1820,11 +1832,6 @@ feature_public_index_map_fit_bounds:
     label: 'Improved default behavior of old public index map'
     loginRequired: false
     parent: feature_public_index_map
-feature_reply_statement:
-    description: 'This will be displayed as link in public area. In case the url is not an empty string, the statement will be marked as answered. Feature created for a specific project, to enable the user to jump directly from statement to the answer.'
-    expose: false
-    label: 'Enables setting a statement as replied, by defining a url/link to the answer of the statement.'
-    loginRequired: false
 feature_require_locality_confirmation:
     description: |-
         When an already safed draft statement is submitted as actual statement an additional
@@ -2549,6 +2556,11 @@ field_data_protection_text_customized_edit_orga:
     label: 'Edit customized data protection text for orga'
     expose: true
     parent: feature_data_protection_text_customized_view
+field_expand_procedure_description:
+    description: 'Expand full procedure description on page load'
+    expose: true
+    label: 'Expand procedure description'
+    loginRequired: true
 field_fragment_status:
     description: 'Set and show the status of fragment (new, assigned, editing etc).'
     expose: true
@@ -2870,6 +2882,12 @@ field_statement_phase:
     label: 'Procedure phase (Verfahrensschritt) of statement'
     loginRequired: true
     parent: field_statement
+field_statement_tags_and_topics_export:
+    description: 'Controls whether tags (Schlagwort) and topics (Kategorie) are exported in XLSX/DOCX exports. This permission is independent from feature_statements_tag and only affects exports, not the UI.'
+    expose: true
+    label: 'Export Tags and Topics in Statement Exports'
+    loginRequired: true
+    parent: field_statement
 field_statement_polygon:
     description: 'Enable drawing as a map reference for statement.'
     expose: true
@@ -2993,4 +3011,3 @@ feature_auto_delete_original_statement:
     expose: false
     loginRequired: true
     parent: feature_statement_delete
-

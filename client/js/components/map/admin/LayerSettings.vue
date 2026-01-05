@@ -51,7 +51,8 @@
     <input
       v-model="serviceType"
       name="r_serviceType"
-      type="hidden">
+      type="hidden"
+    >
 
     <dp-checkbox
       v-if="hasPermission('feature_xplan_defaultlayers') && showXplanDefaultLayer"
@@ -84,8 +85,8 @@
       required
       selection-controls
       @input="filterMatrixSetByLayers"
-      @selectAll="selectAllLayers"
-      @deselectAll="deselectAllLayers"
+      @select-all="selectAllLayers"
+      @deselect-all="deselectAllLayers"
     >
       <template v-slot:tag="{ props }">
         <span class="multiselect__tag">
@@ -109,7 +110,8 @@
     <input
       :value="layersInputValue"
       name="r_layers"
-      type="hidden">
+      type="hidden"
+    >
 
     <dp-ol-map
       v-if="hasPermission('feature_map_layer_preview') && hasPreview"
@@ -137,7 +139,8 @@
     <input
       v-model="matrixSet"
       name="r_tileMatrixSet"
-      type="hidden">
+      type="hidden"
+    >
 
     <dp-select
       id="r_layerProjection"
@@ -155,12 +158,14 @@
     <input
       v-model="projection"
       name="r_layerProjection"
-      type="hidden">
+      type="hidden"
+    >
 
     <input
       v-model="version"
       name="r_layerVersion"
-      type="hidden">
+      type="hidden"
+    >
   </div>
 </template>
 

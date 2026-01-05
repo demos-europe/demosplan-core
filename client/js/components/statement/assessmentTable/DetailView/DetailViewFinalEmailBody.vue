@@ -14,14 +14,16 @@
     hidden-input="r_send_body"
     :readonly="!editable"
     :toolbar-items="toolbarItems"
-    @input="$emit('emailBody:input', $event)">
+    @input="$emit('emailBody:input', $event)"
+  >
     <template v-slot:modal="modalProps">
       <dp-boiler-plate-modal
         v-if="hasPermission('area_admin_boilerplates')"
         ref="boilerPlateModal"
         boiler-plate-type="email"
         :procedure-id="procedureId"
-        @insert="text => modalProps.handleInsertText(text)" />
+        @insert="text => modalProps.handleInsertText(text)"
+      />
     </template>
     <template v-slot:button>
       <button
@@ -29,7 +31,8 @@
         v-tooltip="Translator.trans('boilerplate.insert')"
         :class="prefixClass('menubar__button')"
         type="button"
-        @click.stop="openBoilerPlate">
+        @click.stop="openBoilerPlate"
+      >
         <i :class="prefixClass('fa fa-puzzle-piece')" />
       </button>
     </template>

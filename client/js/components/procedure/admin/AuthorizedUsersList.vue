@@ -12,7 +12,8 @@
     <dp-accordion
       :is-open="showCreateForm"
       :title="Translator.trans('authorization.create')"
-      @item:toggle="showCreateForm = !showCreateForm">
+      @item:toggle="showCreateForm = !showCreateForm"
+    >
       <div class="layout">
         <p class="layout__item u-mt-0_25">
           {{ Translator.trans('authorization.create.hint') }}
@@ -20,7 +21,8 @@
 
         <div
           data-dp-validate="createToken"
-          class="layout__item u-2-of-7">
+          class="layout__item u-2-of-7"
+        >
           <dp-input
             id="submitterName"
             v-model="newUser.submitterName"
@@ -28,14 +30,16 @@
             :label="{
               text: Translator.trans('name')
             }"
-            required />
+            required
+          />
           <dp-input
             id="submitterEmailAddress"
             v-model="newUser.submitterEmailAddress"
             :label="{
               text: Translator.trans('email.address')
             }"
-            type="email" />
+            type="email"
+          />
         </div><!--
 
      --><div class="layout__item u-2-of-7">
@@ -46,7 +50,8 @@
               class="o-form__group-item"
               :label="{
                 text: Translator.trans('street')
-              }" />
+              }"
+            />
             <dp-input
               id="submitterHouseNumber"
               v-model="newUser.submitterHouseNumber"
@@ -54,7 +59,8 @@
               :size="5"
               :label="{
                 text: Translator.trans('street.number.short')
-              }" />
+              }"
+            />
           </div>
 
           <div class="o-form__group">
@@ -66,14 +72,16 @@
                 text: Translator.trans('postalcode')
               }"
               pattern="^[0-9]{5}$"
-              :size="5" />
+              :size="5"
+            />
             <dp-input
               id="submitterCity"
               v-model="newUser.submitterCity"
               class="o-form__group-item"
               :label="{
                 text: Translator.trans('city')
-              }" />
+              }"
+            />
           </div>
         </div><!--
 
@@ -82,7 +90,8 @@
             id="memo"
             v-model="newUser.note"
             :label="Translator.trans('memo')"
-            maxlength="1000" />
+            maxlength="1000"
+          />
         </div>
 
         <dp-button-row
@@ -91,7 +100,8 @@
           primary
           secondary
           @primary-action="dpValidateAction('createToken', createToken, false)"
-          @secondary-action="abortCreate" />
+          @secondary-action="abortCreate"
+        />
       </div>
     </dp-accordion>
 
@@ -99,12 +109,14 @@
       <a :href="exportRoute">
         <i
           class="fa fa-share-square pr-1"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
         {{ Translator.trans('export') }}
       </a>
       <dp-contextual-help
         class="inline-block ml-1"
-        :text="Translator.trans('consultation.export.bulk.letter.explanation')" />
+        :text="Translator.trans('consultation.export.bulk.letter.explanation')"
+      />
     </div>
 
     <dp-data-table-extended
@@ -117,12 +129,14 @@
       is-sortable
       :table-items="tokens"
       track-by="tokenId"
-      @updated:sortOrder="setSortOptions">
+      @updated:sort-order="setSortOptions"
+    >
       <template v-slot:submitterName="rowData">
         <div class="o-hellip__wrapper">
           <div
             v-tooltip="user(rowData.tokenId).submitterName"
-            class="o-hellip--nowrap">
+            class="o-hellip--nowrap"
+          >
             {{ user(rowData.tokenId).submitterName }}
           </div>
         </div>
@@ -132,12 +146,14 @@
           <div
             v-if="rowData.authorName && !rowData.anonymous"
             v-tooltip="rowData.submitterEmailAddress"
-            class="o-hellip--nowrap">
+            class="o-hellip--nowrap"
+          >
             {{ user(rowData.tokenId).submitterEmailAddress }}
           </div>
           <div
             v-else
-            class="o-hellip--nowrap">
+            class="o-hellip--nowrap"
+          >
             {{ Translator.trans('anonymous') }}
           </div>
         </div>
@@ -145,7 +161,8 @@
       <template v-slot:note="rowData">
         <div
           v-tooltip="user(rowData.tokenId).note"
-          class="o-hellip__wrapper max-w-[90%]">
+          class="o-hellip__wrapper max-w-[90%]"
+        >
           <span class="o-hellip--nowrap block">
             {{ user(rowData.tokenId).note }}
           </span>
@@ -163,10 +180,12 @@
                 }"
                 required
                 :model-value="rowData.submitterName"
-                @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterName = val" />
+                @update:model-value="val => updateUserField(rowData.tokenId, 'submitterName', val)"
+              />
               <div
                 v-if="!rowData.authorName || rowData.anonymous"
-                class="mt-3 mb-2">
+                class="mt-3 mb-2"
+              >
                 <strong :id="`submitterEmailAddressAnonymous:${rowData.tokenId}`">
                   {{ Translator.trans('email') }}
                 </strong>
@@ -184,7 +203,8 @@
                 }"
                 type="email"
                 :model-value="rowData.submitterEmailAddress"
-                @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterEmailAddress = val" />
+                @update:model-value="val => updateUserField(rowData.tokenId, 'submitterEmailAddress', val)"
+              />
               <div class="flex flex-row mb-2 mt-3">
                 <dp-input
                   :id="`street:${rowData.tokenId}`"
@@ -194,7 +214,8 @@
                     text: Translator.trans('street')
                   }"
                   :model-value="rowData.submitterStreet"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterStreet = val" />
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterStreet', val)"
+                />
                 <dp-input
                   :id="`houseNumber:${rowData.tokenId}`"
                   :disabled="!rowData.isManual || !rowData.isEditable"
@@ -204,7 +225,8 @@
                   :model-value="rowData.submitterHouseNumber"
                   :size="5"
                   width="auto"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterHouseNumber = val" />
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterHouseNumber', val)"
+                />
               </div>
               <div class="flex flex-row mb-2 mt-3">
                 <dp-input
@@ -218,7 +240,8 @@
                   pattern="^[0-9]{5}$"
                   :size="5"
                   width="auto"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterPostalCode = val" />
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterPostalCode', val)"
+                />
                 <dp-input
                   :id="`city:${rowData.tokenId}`"
                   class="w-full"
@@ -227,24 +250,28 @@
                     text: Translator.trans('city')
                   }"
                   :model-value="rowData.submitterCity"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterCity = val" />
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterCity', val)"
+                />
               </div>
             </div>
             <div class="align-top u-4-of-9 mt-4">
               <div class="px-3 py-1 mb-3 bg-surface-medium flex w-10">
                 <p
                   :id="`userToken:${rowData.tokenId}`"
-                  class="m-0">
+                  class="m-0"
+                >
                   {{ rowData.token }}
                 </p>
                 <button
                   type="button"
                   class="btn-icns ml-0.5 my-0"
                   :aria-label="Translator.trans('clipboard.copy_to')"
-                  @click="copyTokenToClipboard(rowData.tokenId)">
+                  @click="copyTokenToClipboard(rowData.tokenId)"
+                >
                   <i
                     class="fa fa-copy"
-                    aria-hidden="true" />
+                    aria-hidden="true"
+                  />
                 </button>
               </div>
               <div v-if="rowData.usedEmailAddress">
@@ -262,19 +289,23 @@
                 :label="Translator.trans('memo')"
                 :maxlength="rowData.isEditable ? '1000' : false"
                 :value="rowData.note"
-                @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).note = val" />
+                @input="val => updateUserField(rowData.tokenId, 'note', val)"
+              />
               <dp-button-row
                 v-if="rowData.isEditable"
                 primary
                 secondary
                 @primary-action="dpValidateAction('saveEditAuthorisedUser', () => saveEditAuthorisedUser({ statementId: rowData.statementId, tokenId: rowData.tokenId }), false)"
-                @secondary-action="toggleIsRowEditable({ id: rowData.tokenId, isEditable: false })" />
+                @secondary-action="toggleIsRowEditable({ id: rowData.tokenId, isEditable: false })"
+              />
               <div
                 v-else
-                class="text-right">
+                class="text-right"
+              >
                 <dp-button
                   :text="Translator.trans('edit')"
-                  @click="toggleIsRowEditable({ id: rowData.tokenId })" />
+                  @click="toggleIsRowEditable({ id: rowData.tokenId })"
+                />
               </div>
             </div>
           </div>
@@ -379,6 +410,14 @@ export default {
     abortCreate () {
       this.resetCreateForm()
       this.closeCreateForm()
+    },
+
+    updateUserField (tokenId, fieldName, value) {
+      const user = this.localUsers.find(user => user.tokenId === tokenId)
+
+      if (user) {
+        user[fieldName] = value
+      }
     },
 
     copyTokenToClipboard (tokenId) {

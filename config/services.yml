@@ -18,6 +18,9 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\AzureUserDataMapper: ~
 
+    demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper:
+        public: true # unfortunately ci tests seem to need this
+
     demosplan\DemosPlanCoreBundle\ValueObject\AzureUserData: ~
 
     # Start CustomField validation services
@@ -50,6 +53,14 @@ services:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
 
+    # CustomField cleanup services
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\EntityCustomFieldUsageStrategyFactory:
+        arguments:
+            $strategies: !tagged_iterator entity_custom_field_usage_removal_strategy
+
+
+    DemosEurope\DemosplanAddon\Contracts\Services\TagServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Statement\TagService'
+
     DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\CustomerService'
@@ -59,6 +70,8 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateFactory'
 
     DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateCategoryFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateCategoryFactory'
+
+    DemosEurope\DemosplanAddon\Contracts\Factory\SegmentFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\SegmentFactory'
 
     DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
@@ -162,6 +175,10 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType
+        public: true
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementSegmentResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType
         public: true
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\UserResourceTypeInterface:
@@ -305,13 +322,7 @@ services:
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AzureUserBadgeCreator: ~
 
-    demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher: ~
-
-    demosplan\DemosPlanCoreBundle\EventListener\ApcuClearListener:
-        tags:
-            - { name: kernel.event_listener, event: kernel.controller, method: onControllerRequest, priority: 20 }
-
-    demosplan\DemosPlanCoreBundle\EventListener\ApiControllerListener:
+    demosplan\DemosPlanCoreBundle\EventListener\ApiControllerEventSubscriber:
         tags:
             - name: kernel.event_listener
               event: kernel.controller
@@ -320,38 +331,18 @@ services:
     demosplan\DemosPlanCoreBundle\EventListener\BaseEventListener:
         abstract: true
 
-    # Specific priority set to ensure this listener is invoked before the ApiControllerListener,
-    # which needs the permission-settings to execute its logic.
-    demosplan\DemosPlanCoreBundle\EventListener\CheckPermissionListener:
-        tags:
-            - { name: kernel.event_listener, event: kernel.controller, method: onControllerRequest, priority: 4 }
-
-    demosplan\DemosPlanCoreBundle\EventListener\DemosPlanRequestListener:
-        tags:
-            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
-
-    demosplan\DemosPlanCoreBundle\EventListener\DemosPlanResponseListener:
-        tags:
-            - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse }
-
     demosplan\DemosPlanCoreBundle\EventListener\DoctrineLoggerListener:
         tags:
             - { name: doctrine.event_listener, event: postUpdate, method: postUpdate }
 
-    demosplan\DemosPlanCoreBundle\EventListener\ExceptionListener:
+    demosplan\DemosPlanCoreBundle\EventListener\ExceptionEventSubscriber:
         arguments:
             $logger: '@monolog.logger.dplan_404'
             $debug: '%kernel.debug%'
-        tags:
-            - { name: kernel.event_listener, event: kernel.exception, method: handleException }
-            - { name: kernel.event_listener, event: kernel.controller, method: trackController }
 
-    demosplan\DemosPlanCoreBundle\EventListener\PopulateElasticaListener:
+    demosplan\DemosPlanCoreBundle\EventListener\PopulateElasticaEventSubscriber:
         arguments:
             $indexManager: '@fos_elastica.index_manager'
-        tags:
-            - { name: kernel.event_listener, event: FOS\ElasticaBundle\Event\PreIndexPopulateEvent, method: preIndexPopulate }
-            - { name: kernel.event_listener, event: FOS\ElasticaBundle\Event\PostIndexPopulateEvent, method: postIndexPopulate }
 
     demosplan\DemosPlanCoreBundle\EventListener\RoleEntityListener:
         lazy: true
@@ -363,15 +354,9 @@ services:
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\County, lazy: true }
 
-    demosplan\DemosPlanCoreBundle\EventListener\SubdomainListener:
-        tags:
-            - { name: kernel.event_listener, event: kernel.request, method: handle, priority: 22 }
-
     demosplan\DemosPlanCoreBundle\EventSubscriber\LocaleSubscriber:
         arguments: ['%kernel.default_locale%']
         tags: [kernel.event_subscriber]
-
-    demosplan\DemosPlanCoreBundle\EventSubscriber\ProcedureCoupleTokenSubscriber: ~
 
     demosplan\DemosPlanCoreBundle\Form\ProcedureTypeFormType: ~
 
@@ -391,6 +376,14 @@ services:
         abstract: true
 
     demosplan\DemosPlanCoreBundle\Logic\CoreService: ~
+
+    # Dynamic session handler service
+    app.session_handler:
+        class: SessionHandlerInterface
+        factory: ['@demosplan\DemosPlanCoreBundle\Logic\SessionHandlerFactory', 'createSessionHandler']
+        arguments:
+            - '%env(SESSION_HANDLER)%'
+        public: true
 
     demosplan\DemosPlanCoreBundle\Logic\DefaultTwigVariablesService:
         arguments:
@@ -514,10 +507,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface:
         '@demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDecider'
-
-    demosplan\DemosPlanCoreBundle\Logic\SessionHandler:
-        tags:
-            - { name: monolog.logger, channel: session }
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler:
         lazy: true
@@ -1052,6 +1041,15 @@ services:
         tags:
             - { name: "dplan.assessment.table.exporter" }
 
+    # Document Writer Selector
+    demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector: ~
+
+    # ODT HTML Processor
+    demosplan\DemosPlanCoreBundle\Logic\Export\OdtHtmlProcessor: ~
+
+    # DOCX Exporter (explicit configuration for proper DI)
+    demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter: ~
+
     # File Response Generator Strategy
     demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy:
         lazy: true
@@ -1358,7 +1356,12 @@ services:
 
     demosplan\DemosPlanCoreBundle\Command\InitializeWorkflowPlacesCommand: ~
 
-    Intervention\Image\ImageManager: ~
+    Intervention\Image\Drivers\Gd\Driver: ~
+
+    Intervention\Image\ImageManager:
+        arguments:
+            $driver: '@Intervention\Image\Drivers\Gd\Driver'
+
 
     Nelmio\SecurityBundle\EventListener\ContentSecurityPolicyListener: '@nelmio_security.csp_listener'
 
@@ -1378,3 +1381,5 @@ services:
     DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiResourceTypeService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SegmentServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService'
+
+    DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface: '@demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoToSegmentTransformer'

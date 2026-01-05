@@ -8,7 +8,8 @@
       :data-cy="isExpanded ? 'showLessText' : 'showMoreText'"
       type="button"
       :aria-label="Translator.trans('aria.toggle')"
-      @click.stop="toggle">
+      @click.stop="toggle"
+    >
       {{ Translator.trans(isExpanded ? 'show.less' : 'show.more') }}
     </button>
   </div>

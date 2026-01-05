@@ -13,7 +13,8 @@
       <button
         :class="[unfolded ? prefixClass('is-active') : '', prefixClass('c-map__group-header c-map__group-item c-map__toggle btn--blank o-link--default u-pv-0_25')]"
         data-cy="customLayer:layerUserDefined"
-        @click="toggle">
+        @click="toggle"
+      >
         {{ Translator.trans('layer.userdefined') }}
       </button>
     </div>
@@ -21,17 +22,20 @@
     <form
       v-show="unfolded"
       data-dp-validate="customLayer"
-      :class="prefixClass('c-map__group c-map__group-item-color u-p-0_25')">
+      :class="prefixClass('c-map__group c-map__group-item-color u-p-0_25')"
+    >
       <layer-settings
         ref="layerSettings"
         :available-projections="mappedAvailableProjections"
-        :show-xplan-default-layer="false" />
+        :show-xplan-default-layer="false"
+      />
       <button
         id="addCustomLayer"
         :class="prefixClass('btn btn--primary u-mb-0_25')"
         data-cy="customLayer:layerShow"
         type="button"
-        @click="dpValidateAction('customLayer', emitAddLayer, false)">
+        @click="dpValidateAction('customLayer', emitAddLayer, false)"
+      >
         {{ Translator.trans('layer.show') }}
       </button>
     </form>

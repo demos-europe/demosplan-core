@@ -14,13 +14,15 @@ All rights reserved
         align="left"
         :aria-label="Translator.trans('filters.more')"
         class="bg-surface-medium rounded pb-1 pt-[4px] rounded-md"
-        data-cy="clientSideTagFilter:filterCategories">
+        data-cy="clientSideTagFilter:filterCategories"
+      >
         <template v-slot:trigger>
           <span :title="Translator.trans('filters.more')">
             <dp-icon
               aria-hidden="true"
               class="inline"
-              icon="faders" />
+              icon="faders"
+            />
           </span>
         </template>
         <!-- 'More filters' flyout -->
@@ -29,7 +31,8 @@ All rights reserved
             class="btn--blank o-link--default ml-auto"
             data-cy="clientSideTagFilter:toggleFilterCategories"
             @click="toggleAllCategories"
-            v-text="Translator.trans('toggle_all')" />
+            v-text="Translator.trans('toggle_all')"
+          />
           <div v-if="!isLoading">
             <dp-checkbox
               v-for="category in filterCategories"
@@ -41,7 +44,8 @@ All rights reserved
               :label="{
                 text: `${category.label} (${getSelectedOptionsCount(appliedFilterQuery, category.id)})`
               }"
-              @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
+              @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))"
+            />
           </div>
         </div>
       </dp-flyout>
@@ -53,13 +57,16 @@ All rights reserved
       ref="filterFlyout"
       :category="{ id: category.id, label: category.label }"
       class="inline-block mt-1"
+      align="left"
       :data-cy="`ClientSideTagFilter:${category.label}`"
       :initial-query-ids="queryIds"
       :member-of="category.memberOf"
       :operator="category.comparisonOperator"
       :path="category.rootPath"
-      @filterApply="(filtersToBeApplied) => applyFilter(filtersToBeApplied, category.id)"
-      @filterOptions:request="(params) => createFilterOptions({ ...params, categoryId: category.id})" />
+      variant="dark"
+      @filter-apply="(filtersToBeApplied) => applyFilter(filtersToBeApplied, category.id)"
+      @filter-options:request="(params) => createFilterOptions({ ...params, categoryId: category.id})"
+    />
   </div>
 
   <dp-button
@@ -69,7 +76,8 @@ All rights reserved
     :disabled="!isQueryApplied"
     :text="Translator.trans('reset')"
     variant="outline"
-    @click="reset" />
+    @click="reset"
+  />
 </template>
 
 <script>

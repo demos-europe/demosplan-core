@@ -10,7 +10,8 @@
 <template>
   <dp-modal
     ref="labelModal"
-    content-classes="w-14">
+    content-classes="w-14"
+  >
     <h3>
       {{ Translator.trans('format') }}
     </h3>
@@ -20,10 +21,12 @@
         classes="w-12"
         name="labelSelect"
         placeholder="-"
-        :options="labels" />
+        :options="labels"
+      />
       <button
         class="btn btn--primary"
-        @click="setLabel">
+        @click="setLabel"
+      >
         {{ Translator.trans('accept') }}
       </button>
     </div>

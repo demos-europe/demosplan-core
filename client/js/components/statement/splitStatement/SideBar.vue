@@ -11,19 +11,22 @@
   <div
     ref="sideBar"
     :style="`max-height: calc(100vh - ${offset}px - 8px);`"
-    class="side-bar flex flex-col">
+    class="side-bar flex flex-col"
+  >
     <!-- Selected Tags Section -->
     <div class="relative px-2 py-2">
       <dp-label
         :text="Translator.trans('tags')"
         for="searchSelect"
-        class="mb-1" />
+        class="mb-1"
+      />
       <assigned-tags
         :available-tags="availableTags"
         :current-segment="currentSegment"
         :initial-segments="initialSegments"
         :segment="editingSegment"
-        @remove="updateCurrentTags" />
+        @remove="updateCurrentTags"
+      />
       <floating-context-button
         class="right-[-24px] bottom-[-30px]"
         section="tags"
@@ -31,26 +34,30 @@
         :is-content-collapsed="isCollapsed.tags"
         @toggle-content-visibility="toggleVisibility"
         @show="showFloatingContextButton.tags = true"
-        @hide="showFloatingContextButton.tags = false" />
+        @hide="showFloatingContextButton.tags = false"
+      />
     </div>
 
     <!-- Tags Section -->
     <div
       aria-labelledby="floatingContextButton_tags"
-      :class="['flex-1', 'flex', 'pl-2', 'pr-5', '-mr-4', { 'overflow-y-hidden': availableTags.length && tagTopics.length > 8 }]"
+      :class="['flex-1', 'flex', 'pl-2', 'pr-5', '-mr-4', { 'overflow-y-scroll': availableTags.length && tagTopics.length > 8 }]"
       @mouseover="showFloatingContextButton.tags = true"
-      @mouseleave="showFloatingContextButton.tags = false">
+      @mouseleave="showFloatingContextButton.tags = false"
+    >
       <button
         v-if="!isCollapsed.tags"
         data-cy="sidebar:toggleVisibility:tags"
         class="relative btn--blank o-link--default font-semibold w-full text-left pr-2 pt-0.5"
-        @click="toggleVisibility('tags')">
+        @click="toggleVisibility('tags')"
+      >
         {{ Translator.trans('tags.select') }}
       </button>
 
       <div
         v-else
-        class="flex flex-col w-full">
+        class="flex flex-col w-full"
+      >
         <div>
           <!-- search available tags -->
           <search-select
@@ -58,18 +65,21 @@
             :selected="selectedTags"
             :place-holder="Translator.trans('tag.search')"
             :options="searchableTags"
-            @open-create-form="showCreateForm = true" />
+            @open-create-form="showCreateForm = true"
+          />
 
           <!-- create tags + topics -->
           <dp-create-tag
             v-else
-            @close-create-form="showCreateForm = false" />
+            @close-create-form="showCreateForm = false"
+          />
         </div>
 
         <div
           v-if="tagTopics.length"
           :class="['flex-1', 'mt-2', 'pr-1', { 'overflow-y-scroll': tagTopics.length > 8 }]"
-          data-cy="tagTopicsContainer">
+          data-cy="tagTopicsContainer"
+        >
           <!-- categorized tags -->
           <tag-select
             v-for="(topic, idx) in tagTopics"
@@ -77,14 +87,16 @@
             :class="{'mb-1': idx < tagTopics.length + 1}"
             :dropdown-direction="idx < 6 ? 'bottom' : ''"
             :entity="topic"
-            :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic')) ? tag.relationships.topic.data.id === topic.id : false)" />
+            :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic')) ? tag.relationships.topic.data.id === topic.id : false)"
+          />
           <!-- uncategorized tags -->
           <tag-select
             v-if="tags.length > 0"
             key="category_none"
             class="u-mb-0_5"
             :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') || (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic'))) === false)"
-            :entity="{ id: 'category.none', attributes: { title: Translator.trans('category.none') } }" />
+            :entity="{ id: 'category.none', attributes: { title: Translator.trans('category.none') } }"
+          />
         </div>
       </div>
     </div>
@@ -94,7 +106,8 @@
       aria-labelledby="floatingContextButton_placesAndAssignee"
       class="relative py-1 pl-2 pr-5 -mr-4"
       @mouseover="showFloatingContextButton.placesAndAssignee = true"
-      @mouseleave="showFloatingContextButton.placesAndAssignee = false">
+      @mouseleave="showFloatingContextButton.placesAndAssignee = false"
+    >
       <FloatingContextButton
         class="right-0 top-0"
         section="placesAndAssignee"
@@ -102,20 +115,23 @@
         :is-content-collapsed="isCollapsed.placesAndAssignee"
         @toggle-content-visibility="toggleVisibility"
         @show="showFloatingContextButton.placesAndAssignee = true"
-        @hide="showFloatingContextButton.placesAndAssignee = false" />
+        @hide="showFloatingContextButton.placesAndAssignee = false"
+      />
 
       <button
         v-if="!isCollapsed.placesAndAssignee"
         data-cy="sidebar:toggleVisibility:placesAndAssignee"
         class="relative btn--blank o-link--default font-semibold text-left w-full"
-        @click="toggleVisibility('placesAndAssignee')">
-        {{ Translator.trans('workflow.place') }}
+        @click="toggleVisibility('placesAndAssignee')"
+      >
+        {{ Translator.trans('workflow.place.and.assignment') }}
       </button>
 
       <div v-else>
         <label
           class="inline-block m-0"
-          for="setPlace">
+          for="setPlace"
+        >
           {{ Translator.trans('workflow.place') }}
         </label>
         <dp-multiselect
@@ -127,18 +143,21 @@
           :allow-empty="false"
           :options="availablePlaces"
           :show-placeholder="false"
-          track-by="id">
+          track-by="id"
+        >
           <template v-slot:option="{ props }">
             {{ props.option.name }}
             <dp-contextual-help
               v-if="props.option.description"
               class="float-right"
-              :text="props.option.description" />
+              :text="props.option.description"
+            />
           </template>
         </dp-multiselect>
         <label
           class="inline-block mb-0"
-          for="assignUser">
+          for="assignUser"
+        >
           {{ Translator.trans('assignee') }}
         </label>
         <dp-multiselect
@@ -150,7 +169,8 @@
           :allow-empty="false"
           :options="assignableUsers"
           :show-placeholder="false"
-          track-by="id" />
+          track-by="id"
+        />
       </div>
     </div>
 
@@ -162,7 +182,8 @@
       primary
       variant="outline"
       @primary-action="save"
-      @secondary-action="$emit('abort')" />
+      @secondary-action="$emit('abort')"
+    />
   </div>
 </template>
 

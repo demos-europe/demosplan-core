@@ -10,14 +10,15 @@
 <template>
   <dp-table-card
     class="layout__item c-card u-1-of-1"
-    :open="isOpen">
+    :open="isOpen"
+  >
     <!-- card header -->
-    <template
-      v-slot:header="">
+    <template v-slot:header="">
       <div
         :class="{ 'u-pb-0_5 border--bottom': isOpen }"
         class="cursor-pointer"
-        @click="handleToggle">
+        @click="handleToggle"
+      >
         <div class="w-[20px] u-pv-0_25 inline-block">
           <input
             :id="`selected` + user.id"
@@ -25,18 +26,16 @@
             :checked="selected"
             :value="user.id"
             @click.stop="$emit('change')"
-            @change="$emit('item:selected', user.id)">
+            @change="$emit('item:selected', user.id)"
+          >
         </div><!--
-     --><div
-          class="layout__item u-1-of-4 u-pv-0_25">
+     --><div class="layout__item u-1-of-4 u-pv-0_25">
           {{ user.attributes?.firstname }} {{ user.attributes?.lastname }}
         </div><!--
-     --><div
-          class="break-words layout__item u-1-of-4 u-pv-0_25">
+     --><div class="break-words layout__item u-1-of-4 u-pv-0_25">
           {{ user.attributes?.login }}
         </div><!--
-     --><div
-        class="layout__item u-1-of-4 u-ml-0_25 u-pv-0_25">
+     --><div class="layout__item u-1-of-4 u-ml-0_25 u-pv-0_25">
           {{ user.attributes?.email }}
         </div><!--
       --><div class="text-right layout__item u-ml-0_5 u-1-of-5 u-pv-0_25">
@@ -46,17 +45,21 @@
               class="btn--blank o-link--default u-mr"
               data-cy="deleteItem"
               :aria-label="Translator.trans('item.delete')"
-              @click.prevent.stop="$emit('delete')">
+              @click.prevent.stop="$emit('delete')"
+            >
               <i
                 class="fa fa-trash"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </button>
             <button
               type="button"
-              class="btn--blank o-link--default">
+              class="btn--blank o-link--default"
+            >
               <i
                 class="fa"
-                :class="isOpen ? 'fa-angle-up': 'fa-angle-down'" />
+                :class="isOpen ? 'fa-angle-up': 'fa-angle-down'"
+              />
             </button>
         </div><!--
    -->
@@ -66,7 +69,8 @@
     <!-- card content -->
     <dl
       :class="{'u-pt-0_5' : isOpen}"
-      class="layout c-at-item__row u-pl-1_5 u-mr u-1-of-1">
+      class="layout c-at-item__row u-pl-1_5 u-mr u-1-of-1"
+    >
       <dd class="layout__item u-pr u-1-of-2">
         <dp-edit-field-single-select
           :entity-id="user.id"
@@ -77,7 +81,8 @@
           :readonly="!hasPermission('feature_user_edit')"
           :value="currentOrganisation"
           @field:input="(val) => updateRelationship('currentOrganisation', val)"
-          @field:save="saveUser" />
+          @field:save="saveUser"
+        />
       </dd><!--
    --><dd class="layout__item u-1-of-2">
         <dp-edit-field-single-select
@@ -90,7 +95,8 @@
           :readonly="!hasPermission('feature_user_edit')"
           :value="currentDepartment"
           @field:input="(val) => updateRelationship('currentDepartment', val)"
-          @field:save="saveUser" />
+          @field:save="saveUser"
+        />
       </dd>
     </dl>
   </dp-table-card>

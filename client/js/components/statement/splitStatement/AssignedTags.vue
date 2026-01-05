@@ -1,18 +1,21 @@
 <template>
   <div
     v-if="segment && segment.tags.length > 0"
-    class="flex flex-wrap gap-1 bg-white">
+    class="flex flex-wrap gap-1 bg-white"
+  >
     <div
       v-for="(tag, idx) in segment.tags"
       :key="`tag_${idx}`"
-      :class="assignTagSizeClasses(tag,idx)">
+      :class="assignTagSizeClasses(tag,idx)"
+    >
       <div
         v-tooltip="tag.tagName"
         :class="[
           'tag flex whitespace-nowrap overflow-hidden text-sm px-0.5 py-0.5',
           isTagAppliedToSegment(tag.id) ? 'bg-status-neutral': 'bg-status-complete',
           isLastTagWithEvenPosition(idx) ? 'w-fit' : ''
-        ]">
+        ]"
+      >
         <span class="overflow-hidden text-ellipsis">
           {{ tag.tagName }}
         </span>
@@ -20,10 +23,12 @@
           type="button"
           class="tag__remove btn--blank o-link--default ml-1"
           data-cy="sidebar:removeTag"
-          @click="removeTag(tag.id)">
+          @click="removeTag(tag.id)"
+        >
           <dp-icon
             icon="close"
-            size="small" />
+            size="small"
+          />
         </button>
       </div>
     </div>

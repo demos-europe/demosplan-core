@@ -12,7 +12,8 @@
     <dp-inline-notification
       v-if="transformedStatements.length === 0"
       :message="Translator.trans('statement.list.empty')"
-      type="info" />
+      type="info"
+    />
     <div class="space-stack-m">
       <dp-public-statement
         v-for="(statement, idx) in transformedStatements"
@@ -23,26 +24,31 @@
         :show-author="showAuthor"
         :show-checkbox="showCheckbox"
         @open-map-modal="openMapModal"
-        @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)" />
+        @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
+      />
       <dp-map-modal
         ref="mapModal"
-        :procedure-id="procedureId" />
+        :procedure-id="procedureId"
+      />
     </div>
   </div>
   <dp-tabs
     v-else
     :active-id="activeTabId"
-    @change="id => activeTabId = id">
+    @change="id => activeTabId = id"
+  >
     <slot>
       <dp-tab
         id="publicStatements"
         :is-active="activeTabId === 'publicStatements'"
-        :label="Translator.trans('statements.draft.organisation')">
+        :label="Translator.trans('statements.draft.organisation')"
+      >
         <div class="space-stack-m pt-2">
           <dp-inline-notification
             v-if="hasPublicStatements"
             :message="Translator.trans('statement.list.empty')"
-            type="info" />
+            type="info"
+          />
           <dp-public-statement
             v-for="(statement, idx) in publicStatements"
             v-bind="statement"
@@ -52,21 +58,25 @@
             :show-author="showAuthor"
             :show-checkbox="showCheckbox"
             @open-map-modal="openMapModal"
-            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)" />
+            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
+          />
           <dp-map-modal
             ref="mapModal"
-            :procedure-id="procedureId" />
+            :procedure-id="procedureId"
+          />
         </div>
       </dp-tab>
       <dp-tab
         id="privateStatements"
         :is-active="activeTabId === 'privateStatements'"
-        :label="Translator.trans('statements.draft')">
+        :label="Translator.trans('statements.draft')"
+      >
         <div class="space-stack-m pt-2">
           <dp-inline-notification
             v-if="hasNoPublicStatements"
             :message="Translator.trans('statement.list.empty')"
-            type="info" />
+            type="info"
+          />
           <dp-public-statement
             v-for="(statement, idx) in privateStatements"
             v-bind="statement"
@@ -76,7 +86,8 @@
             :show-author="showAuthor"
             :show-checkbox="showCheckbox"
             @open-map-modal="openMapModal"
-            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)" />
+            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
+          />
         </div>
       </dp-tab>
     </slot>

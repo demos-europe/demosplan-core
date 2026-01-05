@@ -10,17 +10,20 @@
 <template>
   <tr
     :id="`itemdisplay_${statement.id}`"
-    class="c-at-orig__row">
+    class="c-at-orig__row"
+  >
     <td
       colspan="6"
-      class="overflow-visible">
+      class="overflow-visible"
+    >
       <table :aria-label="Translator.trans('statement')">
         <colgroup>
           <col class="w-[10%]">
           <col class="w-[10%] text-left">
           <col
             span="3"
-            class="w-1/4">
+            class="w-1/4"
+          >
           <col class="w-[5%] text-right">
         </colgroup>
         <thead>
@@ -45,7 +48,8 @@
         </thead>
         <tbody
           class="c-at-orig__body c-at-orig__headrow"
-          data-cy="originalStatementHeader">
+          data-cy="originalStatementHeader"
+        >
           <tr>
             <td>
               <label class="whitespace-nowrap u-m-0">
@@ -56,7 +60,8 @@
                   data-cy="originalStatementCheckItem"
                   :checked="isSelected"
                   :value="statement.id"
-                  @change="toggleSelection">
+                  @change="toggleSelection"
+                >
                 {{ statement.externId }}
               </label>
             </td>
@@ -74,7 +79,8 @@
               <dp-flyout v-if="hasPermission('area_statement_anonymize')">
                 <a
                   class="u-pt-0 block leading-[2] whitespace-nowrap"
-                  :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: statement.id })">
+                  :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: statement.id })"
+                >
                   {{ Translator.trans('statement.anonymize', { externId: statement.externId }) }}
                 </a>
               </dp-flyout>
@@ -86,7 +92,8 @@
       <div
         v-if="currentTableView === 'expanded'"
         data-cy="originalStatementText"
-        class="c-at-orig__body">
+        class="c-at-orig__body"
+      >
         <div class="c-at-orig__statement-text u-ph">
           <h3 class="font-size-medium weight--bold">
             {{ Translator.trans('statementtext') }}
@@ -97,20 +104,23 @@
             :is-shortened="statement.textIsTruncated"
             element="statement"
             class="c-styled-html u-mr"
-            @heightLimit:toggle="loadFullText"
+            @height-limit:toggle="loadFullText"
           />
         </div>
 
         <div
           v-if="statement.sourceAttachment || statement.files.length > 0 || statement.polygon !== ''"
-          class="u-ml u-pr text-left border--top">
+          class="u-ml u-pr text-left border--top"
+        >
           <div
             v-if="statement.sourceAttachment || statement.files.length > 0"
-            class="break-words">
+            class="break-words"
+          >
             <i
               :title="Translator.trans('attachment.original')"
               aria-hidden="true"
-              class="fa fa-paperclip color--grey" />
+              class="fa fa-paperclip color--grey"
+            />
             <a
               v-if="statement.sourceAttachment && hasPermission('feature_read_source_statement_via_api')"
               :title="statement.sourceAttachment.filename"
@@ -118,7 +128,8 @@
               rel="noopener"
               class="o-hellip"
               :class="statement.files.length > 0 ? 'border--right border-color--grey-light u-mr-0_5 u-pr-0_5' : ''"
-              :href="Routing.generate('core_file_procedure', { hash: statement.sourceAttachment.hash, procedureId: procedureId })">
+              :href="Routing.generate('core_file_procedure', { hash: statement.sourceAttachment.hash, procedureId: procedureId })"
+            >
               {{ statement.sourceAttachment.filename }}
             </a>
 
@@ -129,7 +140,8 @@
               target="_blank"
               rel="noopener"
               class="o-hellip"
-              :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })">
+              :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"
+            >
               {{ file.filename }}
             </a>
           </div>
@@ -138,10 +150,12 @@
             v-if="statement.polygon !== ''"
             class="btn--blank o-link--default"
             type="button"
-            @click="toggleModal">
+            @click="toggleModal"
+          >
             <i
               class="fa fa-map-marker"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
             {{ Translator.trans('see') }}
           </button>
         </div>
@@ -149,16 +163,19 @@
         <template v-if="hasPermission('feature_statement_gdpr_consent')">
           <div
             v-if="statement.consented"
-            class="border--top">
+            class="border--top"
+          >
             <input
               type="checkbox"
               checked
-              disabled>
+              disabled
+            >
             <span> {{ Translator.trans('personal.data.usage.allowed') }} </span>
           </div>
           <div
             v-else-if="statement.consentRevoked"
-            class="border--top">
+            class="border--top"
+          >
             <span> {{ Translator.trans('personal.data.usage.revoked') }} </span>
             <span> {{ Translator.trans('personal.data.usage.revoked.statement') }} </span>
           </div>
@@ -166,7 +183,8 @@
 
         <div
           v-if="hasPermission('area_statement_anonymize') && (statement.submitterAndAuthorMetaDataAnonymized || statement.textPassagesAnonymized || statement.attachmentsDeleted)"
-          class="border--top">
+          class="border--top"
+        >
           <ul class="u-mb-0 u-ml-0_5">
             <li v-if="statement.submitterAndAuthorMetaDataAnonymized">
               {{ Translator.trans('statement.anonymized.submitter.data') }}

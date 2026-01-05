@@ -1,16 +1,19 @@
 <template>
   <dp-card
-    :heading="Translator.trans('tasks.my')">
+    :heading="Translator.trans('tasks.my')"
+  >
     <div class="u-mt">
       <span v-cleanhtml="Translator.trans('segments.assigned.now', { count: assignedSegmentCount })" />
     </div>
     <div
       v-if="assignedSegmentCount !== 0"
-      class="text-right u-mt">
+      class="text-right u-mt"
+    >
       <dp-button
         data-cy="dashboardTaskCard:tasksView"
         :href="userFilteredSegmentUrl"
-        :text="Translator.trans('tasks.view')" />
+        :text="Translator.trans('tasks.view')"
+      />
     </div>
   </dp-card>
 </template>

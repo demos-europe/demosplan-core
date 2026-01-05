@@ -13,7 +13,8 @@
     :class="[
       prefixClass('c-statement__formblock'),
       { [prefixClass('bg-color--grey-light-2')]: statement.r_getFeedback === 'on' }
-    ]">
+    ]"
+  >
     <dp-checkbox
       id="r_getFeedback"
       aria-labelledby="statement-detail-require-information-mail"
@@ -22,11 +23,13 @@
         text: Translator.trans('statement.detail.form.personal.require_information_mail')
       }"
       name="r_getFeedback"
-      @change="val => setStatementData({r_getFeedback: val ? 'on' : 'off'})" />
+      @change="val => setStatementData({r_getFeedback: val ? 'on' : 'off'})"
+    />
 
     <div
       v-show="statement.r_getFeedback === 'on'"
-      :class="prefixClass('u-mt-0_5')">
+      :class="prefixClass('u-mt-0_5')"
+    >
       <!--              {# email address #}-->
       <div :class="prefixClass('layout')">
         <dp-input
@@ -43,7 +46,8 @@
           required
           type="email"
           :model-value="statement.r_email"
-          @input="val => hasPermission('feature_statements_feedback_check_email') ? setStatementData({r_email: val}) : setStatementData({r_email: val, r_email2: val})" /><!--
+          @update:model-value="val => hasPermission('feature_statements_feedback_check_email') ? setStatementData({r_email: val}) : setStatementData({r_email: val, r_email2: val})"
+        /><!--
 
         if repeating of email input is enforced, display second email field
    --><dp-input
@@ -62,7 +66,8 @@
         required
         type="email"
         :model-value="statement.r_email2"
-        @input="val => setStatementData({r_email2: val})" />
+        @update:model-value="val => setStatementData({r_email2: val})"
+/>
       </div>
     </div>
   </div>

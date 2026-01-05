@@ -11,7 +11,8 @@ All rights reserved
   <fieldset data-dp-validate="statementSubmitterData">
     <legend
       id="submitter"
-      class="mb-3 color-text-muted font-normal">
+      class="mb-3 color-text-muted font-normal"
+    >
       {{ Translator.trans('submitted.author') }}
     </legend>
 
@@ -19,7 +20,8 @@ All rights reserved
     <div
       v-if="hasPermission('field_statement_meta_orga_name')"
       aria-labelledby="submitter"
-      class="mb-2">
+      class="mb-2"
+    >
       {{ submitterRole }}
     </div>
 

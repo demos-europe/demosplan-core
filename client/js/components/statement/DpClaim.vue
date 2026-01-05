@@ -48,18 +48,22 @@ the FB is ready with editing of fragments.
     :data-assigned="isAssignedToMe ? 'true' : 'false'"
     data-cy="claimIcon"
     :aria-label="status.text"
-    @click.prevent.stop="updateAssignment">
+    @click.prevent.stop="updateAssignment"
+  >
     <dp-loading
       v-if="isLoading"
-      hide-label />
+      hide-label
+    />
     <i
       v-else
       class="fa"
       :class="status.icon"
-      aria-hidden="true" />
+      aria-hidden="true"
+    />
     <span
       v-if="label"
-      v-text="label" />
+      v-text="label"
+    />
   </button>
 </template>
 
@@ -219,14 +223,14 @@ export default {
       // If the user want to 'steal' the entity from another user, ask if it's by purpose
       if (this.assignedId !== this.currentUserId && this.assignedId !== '') {
         let transkey
-        switch (this.entityType) {
-          case 'Statement':
+        switch (this.entityType.toLowerCase()) {
+          case 'statement':
             transkey = 'warning.statement.needLock.generic'
             break
-          case 'Fragment':
+          case 'fragment':
             transkey = 'warning.fragment.needLock.generic'
             break
-          case 'Segment':
+          case 'segment':
             transkey = 'warning.segment.needLock.generic'
             break
         }

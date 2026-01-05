@@ -18,34 +18,40 @@
       selectable
       @reset-search="resetSearch"
       @select-all="val => dpToggleAll(val, users)"
-      @search="val => handleSearch(val)">
+      @search="val => handleSearch(val)"
+    >
       <template
         v-if="hasPermission('feature_user_delete')"
-        v-slot:header-buttons>
+        v-slot:header-buttons
+      >
         <div class="layout__item u-1-of-2 text-right u-mb-0_5">
           <dp-button
             color="warning"
             data-cy="deleteSelectedItems"
             :text="deleteSelectedUserLabel"
-            @click.prevent="deleteUsers(selectedItems)" />
+            @click.prevent="deleteUsers(selectedItems)"
+          />
           <dp-button
             class="u-ml-0_25"
             color="secondary"
             data-cy="resetSelectedItems"
             :text="Translator.trans('unselect')"
-            @click="dpToggleAll(false, users)" />
+            @click="dpToggleAll(false, users)"
+          />
         </div>
       </template>
     </dp-table-card-list-header>
 
     <dp-loading
       v-if="isLoading"
-      class="u-ml u-mt" />
+      class="u-ml u-mt"
+    />
 
     <!-- card items -->
     <ul
       v-if="isLoading === false"
-      class="u-ml-0">
+      class="u-ml-0"
+    >
       <dp-user-list-extended-item
         v-for="(user, id) in users"
         :key="user.id"
@@ -55,7 +61,8 @@
         :selected="Object.hasOwn(itemSelections, user.id) && itemSelections[user.id] === true"
         @delete="deleteSingelUser(user.id)"
         @card:toggle="setExpandedCardId(id)"
-        @item:selected="dpToggleOne" />
+        @item:selected="dpToggleOne"
+      />
     </ul>
 
     <!-- pager -->
@@ -64,7 +71,8 @@
       class="u-mr-0_25 u-ml-0_5 u-mt-0_5"
       :current="currentPage"
       :total="totalPages"
-      @page-change="getUsersByPage" />
+      @page-change="getUsersByPage"
+    />
   </div>
 </template>
 
@@ -149,8 +157,19 @@ export default {
       }
 
       return this.deleteUser(id)
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+        .then((response) => {
+          // Check if the HTTP response indicates an error
+          if (response && (response.status >= 400 || response.ok === false)) {
+            // HTTP error status, show error message
+            dplan.notify.notify('error', Translator.trans('error.delete.user'))
+          } else {
+            // Successful deletion, show success message
+            dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to delete user:', error)
+          dplan.notify.notify('error', Translator.trans('error.delete.user'))
         })
     },
 
@@ -159,11 +178,30 @@ export default {
         return
       }
 
-      ids.map(id => {
+      let successCount = 0
+      let errorCount = 0
+
+      Promise.allSettled(ids.map(id => {
         return this.deleteUser(id)
-          .then(() => {
-            dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+          .then((response) => {
+            // Check if the HTTP response indicates an error
+            if (response && (response.status >= 400 || response.ok === false)) {
+              errorCount++
+            } else {
+              successCount++
+            }
           })
+          .catch((error) => {
+            console.error('Failed to delete user:', error)
+            errorCount++
+          })
+      })).then(() => {
+        if (successCount > 0) {
+          dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
+        }
+        if (errorCount > 0) {
+          dplan.notify.notify('error', Translator.trans('error.delete.user'))
+        }
       })
     },
 

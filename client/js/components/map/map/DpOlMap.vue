@@ -58,17 +58,20 @@
   <div>
     <div
       id="DpOlMap"
-      :class="[small ? prefixClass('c-ol-map--small') : '', prefixClass('c-ol-map')]">
+      :class="[small ? prefixClass('c-ol-map--small') : '', prefixClass('c-ol-map')]"
+    >
       <!-- Components that depend on OpenLayers instance are mounted after map is initialized -->
       <div v-if="Boolean(map)">
         <!-- Controls -->
         <div :class="prefixClass('c-ol-map__controls flow-root')">
           <slot
             :map="map"
-            name="controls" />
+            name="controls"
+          />
           <div :class="prefixClass('float-right')">
             <dp-autocomplete
               v-if="_options.autoSuggest.enabled"
+              id="ol_map_autosuggest"
               :class="prefixClass('u-mb inline-block w-11 bg-color--white')"
               :options="autoCompleteOptions"
               :route-generator="(searchString) => {
@@ -82,11 +85,13 @@
               track-by="value"
               data-cy="autoCompleteInput"
               @search-changed="setAutoCompleteOptions"
-              @selected="zoomToSuggestion" />
+              @selected="zoomToSuggestion"
+            />
 
             <dp-ol-map-scale-select
               v-if="_options.scaleSelect"
-              :class="prefixClass('u-ml-0_5 u-mb-0_5 align-top')" />
+              :class="prefixClass('u-ml-0_5 u-mb-0_5 align-top')"
+            />
           </div>
         </div>
 
@@ -99,7 +104,8 @@
           :attributions="options?.defaultAttribution"
           :layers="baselayerLayers"
           :projection="baseLayerProjection"
-          :url="baselayer" />
+          :url="baselayer"
+        />
 
         <!-- Layer from outside -->
         <dp-ol-map-layer
@@ -111,7 +117,8 @@
           :url="layer.url"
           :layers="layer.layers"
           :projection="layer.projectionValue"
-          :layer-type="layer.layerType || 'overlay'" />
+          :layer-type="layer.layerType || 'overlay'"
+        />
       </div>
 
       <!-- Map container -->
@@ -119,16 +126,19 @@
         :id="mapId"
         ref="mapContainer"
         data-cy="map:mapContainer"
-        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 relative')]">
+        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 relative')]"
+      >
         <dp-loading
           v-if="!Boolean(map)"
-          overlay />
+          overlay
+        />
       </div>
 
       <!-- These blocks make it possible to set colors in _map.scss which then are read by map script -->
       <div
         ref="mapDrawStyles"
-        :class="prefixClass('hidden')">
+        :class="prefixClass('hidden')"
+      >
         <span :class="prefixClass('c-map__draw-fill')">&nbsp;</span>
         <span :class="prefixClass('c-map__draw-stroke')">&nbsp;</span>
         <span :class="prefixClass('c-map__draw-image')">&nbsp;</span>
@@ -140,6 +150,7 @@
 <script>
 import { Attribution, FullScreen, MousePosition, ScaleLine, Zoom } from 'ol/control'
 import {
+  debounce,
   deepMerge,
   dpApi,
   DpAutocomplete,
@@ -292,6 +303,16 @@ export default {
     },
   },
 
+  watch: {
+    'mapOptions.baseLayer' (newVal) {
+      this.debouncedUpdateBaselayer(newVal)
+    },
+
+    'mapOptions.baseLayerLayers' (newVal) {
+      this.debouncedUpdateBaselayerLayers(newVal)
+    },
+  },
+
   methods: {
     createMap () {
       const namedProjections = [
@@ -319,6 +340,14 @@ export default {
 
       return MasterportalApi.createMap(config, '2D', { mapParams: { controls } })
     },
+
+    debouncedUpdateBaselayer: debounce(function (newVal) {
+      this.baselayer = newVal
+    }, 1000),
+
+    debouncedUpdateBaselayerLayers: debounce(function (newVal) {
+      this.baselayerLayers = newVal
+    }, 1000),
 
     /**
      * Define extent for map

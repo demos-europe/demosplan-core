@@ -12,7 +12,8 @@
     <li
       v-for="tag in selectedTags"
       :key="tag.id"
-      class="inline-block border bg-color--white color--grey-dark rounded-md px-1 py-0.5">
+      class="inline-block border bg-color--white color--grey-dark rounded-md px-1 py-0.5"
+    >
       {{ tag.title }}
     </li>
   </ul>

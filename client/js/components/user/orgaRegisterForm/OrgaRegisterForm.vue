@@ -11,7 +11,8 @@
   <div>
     <p
       :class="hasPermission('feature_identity_broker_login') ? prefixClass('u-3-of-4-desk-up u-mb-2') : prefixClass('c-login-register__col c-login-register__col-full')"
-      v-html="Translator.trans('register.orga.description', { customer: customer })" />
+      v-html="Translator.trans('register.orga.description', { customer: customer })"
+    />
 
     <div :class="prefixClass(`${hasPermission('feature_identity_broker_login') ? 'is-separated' : ''} c-login-register u-mt-desk-up u-mb-2-desk-up`)">
       <div :class="prefixClass(`${hasPermission('feature_identity_broker_login') ? 'c-login-register__col-left' : 'c-login-register__col-full'} c-login-register__col`)">
@@ -19,11 +20,13 @@
           :action="Routing.generate('DemosPlan_orga_register')"
           data-dp-validate
           method="post"
-          name="login">
+          name="login"
+        >
           <slot />
           <h2
             :class="prefixClass('font-size-large u-mb')"
-            v-text="Translator.trans('register.email')" />
+            v-text="Translator.trans('register.email')"
+          />
           <fieldset>
             <div :class="prefixClass('mb-0.5')">
               <dp-input
@@ -35,7 +38,8 @@
                   text: Translator.trans('organisation.name')
                 }"
                 name="r_organame"
-                required />
+                required
+              />
               <dp-input
                 id="r_orgaphone"
                 data-cy="orga_phone"
@@ -45,7 +49,8 @@
                 }"
                 name="r_orgaphone"
                 required
-                type="tel" />
+                type="tel"
+              />
             </div>
           </fieldset>
 
@@ -65,7 +70,8 @@
                   hint: Translator.trans('register.institution.hint')
                 }"
                 name="r_orgatype[]"
-                value-to-send="OPSORG" />
+                value-to-send="OPSORG"
+              />
               <dp-checkbox
                 id="orgatype_municipality"
                 data-cy="orgatype_municipality"
@@ -74,7 +80,8 @@
                   hint: Translator.trans('register.municipality.hint')
                 }"
                 name="r_orgatype[]"
-                value-to-send="OLAUTH" />
+                value-to-send="OLAUTH"
+              />
               <dp-checkbox
                 id="orgatype_planningagency"
                 data-cy="orgatype_planningagency"
@@ -83,7 +90,8 @@
                   hint: Translator.trans('register.planningagency.hint')
                 }"
                 name="r_orgatype[]"
-                value-to-send="OPAUTH" />
+                value-to-send="OPAUTH"
+              />
             </div>
           </fieldset>
 
@@ -102,7 +110,8 @@
                 }"
                 name="r_useremail"
                 required
-                type="email" />
+                type="email"
+              />
               <dp-input
                 id="r_firstname"
                 data-cy="user_firstname"
@@ -111,7 +120,8 @@
                   text: Translator.trans('name.first')
                 }"
                 name="r_firstname"
-                required />
+                required
+              />
               <dp-input
                 id="r_lastname"
                 data-cy="user_lastname"
@@ -120,7 +130,8 @@
                   text: Translator.trans('name.last')
                 }"
                 name="r_lastname"
-                required />
+                required
+              />
             </div>
           </fieldset>
 
@@ -133,45 +144,54 @@
             }"
             name="gdpr_consent"
             required
-            value-to-send="on" />
+            value-to-send="on"
+          />
 
           <input
             name="_csrf_token"
             type="hidden"
-            :value="csrfToken">
+            :value="csrfToken"
+          >
 
           <dp-button
             :class="prefixClass('u-mt-0_5 u-mb-0_25')"
             data-cy="submit"
             :text="Translator.trans('register.orga')"
-            type="submit" />
+            type="submit"
+          />
         </form>
       </div>
 
       <div
         v-if="hasPermission('feature_identity_broker_login')"
-        :class="prefixClass('c-login-register__col c-login-register__col-right')">
+        :class="prefixClass('c-login-register__col c-login-register__col-right')"
+      >
         <h2
           :class="prefixClass('font-size-large u-mb u-mt-lap-down')"
-          v-text="Translator.trans('login.other_account')" />
+          v-text="Translator.trans('login.other_account')"
+        />
         <p
           :class="prefixClass('u-mb-0_125')"
-          v-html="Translator.trans('login.bund.description')" />
+          v-html="Translator.trans('login.bund.description')"
+        />
 
         <!-- Insert identity broker Url when activated -->
         <dp-button
           href="#"
           :text="Translator.trans('login.bund.action')"
-          variant="outline" />
+          variant="outline"
+        />
         <div
-          :class="prefixClass('u-mt u-mb-0_125')">
+          :class="prefixClass('u-mt u-mb-0_125')"
+        >
           <p v-html="Translator.trans('faq.section', { url: Routing.generate('DemosPlan_faq') })" />
         </div>
       </div>
     </div>
     <p
       :class="hasPermission('feature_identity_broker_login') ? '' : prefixClass('c-login-register__col c-login-register__col-full')"
-      v-html="Translator.trans('register.navigation.alternative_text', { login: Routing.generate('DemosPlan_user_login_alternative'), registrationType: Translator.trans('citizen.alternative'), registrationLink: Routing.generate('DemosPlan_citizen_registration_form') })" />
+      v-html="Translator.trans('register.navigation.alternative_text', { login: Routing.generate('DemosPlan_user_login_alternative'), registrationType: Translator.trans('citizen.alternative'), registrationLink: Routing.generate('DemosPlan_citizen_registration_form') })"
+    />
   </div>
 </template>
 

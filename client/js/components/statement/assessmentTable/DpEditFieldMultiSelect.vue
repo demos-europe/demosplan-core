@@ -13,18 +13,21 @@
     :label="label"
     :label-grid-cols="labelGridCols"
     @save="save"
-    @toggleEditing="isEditing => $emit('toggleEditing', isEditing)"
-    @reset="reset">
+    @toggle-editing="isEditing => $emit('toggleEditing', isEditing)"
+    @reset="reset"
+  >
     <template v-slot:display>
       <div>
         <ul
           v-if="0 < selected.length"
-          class="o-list o-list--csv">
+          class="o-list o-list--csv"
+        >
           <li
             v-for="item in selected"
             :key="item.id"
             class="o-list__item o-hellip max-w-full"
-            v-text="item.name" />
+            v-text="item.name"
+          />
         </ul>
         <span v-if="0 === selected.length || 'undefined' === typeof selected">-</span>
       </div>
@@ -42,7 +45,8 @@
         :name="`${entityId}:${fieldKey}`"
         :options="options"
         track-by="id"
-        @input="val => handleInput(val)">
+        @input="val => handleInput(val)"
+      >
         <template v-slot:option="{ props }">
           <strong v-if="props.option.$isLabel">{{ props.option.$groupLabel }}</strong>
           <span v-else>{{ props.option.name }}</span>
@@ -54,7 +58,8 @@
               aria-hidden="true"
               class="multiselect__tag-icon"
               tabindex="1"
-              @click="props.remove(props.option)" />
+              @click="props.remove(props.option)"
+            />
           </span>
         </template>
       </dp-multiselect>

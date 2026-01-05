@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\GeoJsonToFeaturesConverter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayer;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
-use Geometry;
+use geoPHP\Geometry\Geometry;
 use Illuminate\Support\Collection;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Tests\Base\UnitTestCase;
@@ -43,9 +43,6 @@ class GeoJsonToFeaturesConverterTest extends UnitTestCase
 
     public function testConversion(): void
     {
-        // test fails because reprojection of coordinates is not yet included in this test
-        self::markSkippedForCIIntervention();
-
         // This test accesses external resources, consider rewriting it to run
         // offline which would massively decrease the run time and increase the
         // reliabilty

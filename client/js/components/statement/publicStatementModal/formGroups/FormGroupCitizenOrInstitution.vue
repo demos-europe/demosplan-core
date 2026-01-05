@@ -14,21 +14,25 @@
         <div :class="prefixClass('layout')">
           <p
             id="submitterRoleLabel"
-            :class="prefixClass('layout__item u-1-of-2 weight--bold u-mb-0')">
+            :class="prefixClass('layout__item u-1-of-2 weight--bold u-mb-0')"
+          >
             {{ Translator.trans('submitter') }}
             <span
               v-if="required"
-              aria-hidden="true">*</span>
+              aria-hidden="true"
+            >*</span>
           </p>
           <fieldset
             id="submitterTypeFieldset"
             :required="statement.r_useName === '1' && required"
             role="radiogroup"
             aria-labelledby="submitterRoleLabel"
-            aria-required="true">
+            aria-required="true"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('submitter')" />
+              v-text="Translator.trans('submitter')"
+            />
             <div :class="prefixClass('layout__item u-1-of-2 u-1-of-1-lap-down')">
               <dp-radio
                 id="citizen"
@@ -38,7 +42,8 @@
                 name="r_submitter_role"
                 :checked="statement.r_submitter_role === 'citizen'"
                 value="citizen"
-                @change="() => { setStatementData({r_submitter_role: 'citizen'}) }" />
+                @change="() => { setStatementData({r_submitter_role: 'citizen'}) }"
+              />
             </div><!--
          --><div :class="prefixClass('layout__item u-1-of-2 u-1-of-1-lap-down')">
               <dp-radio
@@ -49,7 +54,8 @@
                 name="r_submitter_role"
                 :checked="statement.r_submitter_role === 'publicagency'"
                 value="publicagency"
-                @change="() => { setStatementData({r_submitter_role: 'publicagency'}) }" />
+                @change="() => { setStatementData({r_submitter_role: 'publicagency'}) }"
+/>
             </div>
           </fieldset>
         </div>
@@ -64,7 +70,8 @@
         required
         :model-value="statement.r_userOrganisation"
         width="u-1-of-2 u-1-of-1-lap-down"
-        @input="val => setStatementData({ r_userOrganisation: val})" />
+        @update:model-value="val => setStatementData({ r_userOrganisation: val})"
+/>
     </div>
   </div>
 </template>

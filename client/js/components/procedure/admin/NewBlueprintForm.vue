@@ -13,28 +13,34 @@
     :action="Routing.generate('DemosPlan_master_new')"
     enctype="multipart/form-data"
     method="post"
-    data-dp-validate>
+    data-dp-validate
+  >
     <input
       type="hidden"
       name="_token"
-      :value="tokenVarsValue">
+      :value="tokenVarsValue"
+    >
     <input
       type="hidden"
       name="action"
-      value="new">
+      value="new"
+    >
     <input
       type="hidden"
       name="r_master"
-      value="true">
+      value="true"
+    >
     <input
       name="_token"
       type="hidden"
-      :value="csrfToken">
+      :value="csrfToken"
+    >
 
     <fieldset>
       <legend
         class="sr-only"
-        v-text="Translator.trans('blueprint.data')" />
+        v-text="Translator.trans('blueprint.data')"
+      />
       <dp-input
         id="r_name"
         v-model="name"
@@ -59,21 +65,25 @@
         name="r_copymaster"
         :options="blueprintOptions"
         :show-placeholder="false"
-        @select="setValuesFromSelectedBlueprint" />
+        @select="setValuesFromSelectedBlueprint"
+      />
 
       <div class="relative mt-4">
         <dp-loading
           v-if="isLoading"
-          overlay />
+          overlay
+        />
 
         <dp-text-area
           id="r_desc"
           data-cy="NewBlueprintForm:internalNote"
           :label="Translator.trans('internalnote')"
           name="r_desc"
-          reduced-height />
+          reduced-height
+        />
 
         <dp-input
+          v-if="hasAgencyMailAddressesPermission"
           :id="agencyMainEmailId"
           v-model="mainEmail"
           class="mt-4"
@@ -84,19 +94,30 @@
             tooltip: Translator.trans('email.procedure.agency.help')
           }"
           name="agencyMainEmailAddress[fullAddress]"
-          type="email" />
+          type="email"
+        />
+        <input
+          v-else
+          type="hidden"
+          name="agencyMainEmailAddress[fullAddress]"
+          value=""
+        >
 
         <dp-label
+          v-if="hasAgencyMailAddressesPermission"
           class="mt-4"
           for="emailList"
           :text="Translator.trans('email.address.more')"
           :hint="Translator.trans('email.address.more.explanation')"
-          :tooltip="Translator.trans('email.address.more.explanation.help')" />
+          :tooltip="Translator.trans('email.address.more.explanation.help')"
+        />
         <dp-email-list
+          v-if="hasAgencyMailAddressesPermission"
           id="emailList"
           allow-updates-from-outside
           :class="`${mainEmail === '' ? 'opacity-70 pointer-events-none' : '' } mt-2`"
-          :init-emails="emailAddresses" />
+          :init-emails="emailAddresses"
+        />
 
         <dp-text-area
           v-if="hasPermission('field_procedure_contact_person')"
@@ -105,7 +126,8 @@
           :label="Translator.trans('public.participation.contact')"
           :hint="Translator.trans('explanation.public.participation.contact')"
           name="r_publicParticipationContact"
-          :value="publicParticipationContact" />
+          :value="publicParticipationContact"
+        />
 
         <dp-checkbox
           v-if="hasPermission('feature_admin_customer_master_procedure_template')"
@@ -116,12 +138,14 @@
             hint: Translator.trans('explanation.customer.masterblueprint'),
             text: Translator.trans('master.of.customer.set')
           }"
-          name="r_customerMasterBlueprint" />
+          name="r_customerMasterBlueprint"
+        />
 
         <dp-inline-notification
           v-if="isCustomerMasterBlueprintExisting && hasPermission('feature_admin_customer_master_procedure_template')"
           :message="Translator.trans('explanation.customer.masterblueprint.uncheck.existing')"
-          type="warning" />
+          type="warning"
+        />
 
         <div class="text-right space-inline-s">
           <input
@@ -129,12 +153,14 @@
             class="btn btn--primary"
             type="submit"
             :value="Translator.trans('save')"
-            data-cy="NewBlueprintForm:saveButton">
+            data-cy="NewBlueprintForm:saveButton"
+          >
 
           <a
             class="btn btn--secondary"
             data-cy="NewBlueprintForm:abortButton"
-            :href="Routing.generate('DemosPlan_procedure_templates_list')">
+            :href="Routing.generate('DemosPlan_procedure_templates_list')"
+          >
             {{ Translator.trans('abort') }}
           </a>
         </div>
@@ -243,6 +269,12 @@ export default {
       selectedBlueprint: this.masterBlueprintId,
       emailAddresses: this.initEmailAddresses,
     }
+  },
+
+  computed: {
+    hasAgencyMailAddressesPermission () {
+      return hasPermission('feature_procedure_agency_email_addresses')
+    },
   },
 
   methods: {

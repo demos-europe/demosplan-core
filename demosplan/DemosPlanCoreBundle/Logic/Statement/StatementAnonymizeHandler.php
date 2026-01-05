@@ -52,7 +52,7 @@ class StatementAnonymizeHandler extends CoreHandler
         private readonly ManagerRegistry $doctrine,
         MessageBagInterface $messageBag,
         private readonly PermissionsInterface $permissions,
-        private readonly StatementAnonymizeService $statementAnonymizeService
+        private readonly StatementAnonymizeService $statementAnonymizeService,
     ) {
         parent::__construct($messageBag);
         $this->currentUserInterface = $currentUserInterface;

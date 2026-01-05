@@ -13,14 +13,17 @@
     :required="required"
     role="radiogroup"
     aria-labelledby="statementMapReference"
-    aria-required="true">
+    aria-required="true"
+  >
     <p
       id="statementMapReference"
-      :class="prefixClass('weight--bold u-mt u-mb-0')">
+      :class="prefixClass('weight--bold u-mt u-mb-0')"
+    >
       {{ Translator.trans('statement.map.reference') }}
       <span
         v-if="required"
-        aria-hidden="true">*</span>
+        aria-hidden="true"
+      >*</span>
     </p>
     <div
       v-if="hasPermission('field_statement_location')"
@@ -28,7 +31,8 @@
       :class="[
         statement.location_is_set === 'county' ? prefixClass('bg-color--grey-light-2') : '',
         prefixClass('c-statement__formblock layout__item sm:h-8 u-1-of-1-palm u-3-of-10')
-      ]">
+      ]"
+    >
       <dp-radio
         id="locationcounty"
         :label="{
@@ -37,7 +41,8 @@
         name="r_location"
         :checked="statement.location_is_set === 'county'"
         value="county"
-        @change="() => { setStatementData({ r_location: 'county', location_is_set: 'county' }) }" />
+        @change="() => { setStatementData({ r_location: 'county', location_is_set: 'county' }) }"
+      />
       <select
         v-if="statement.location_is_set === 'county'"
         id="r_county"
@@ -45,12 +50,14 @@
         name="r_county"
         :class="prefixClass('o-form__control-select')"
         :value="statement.r_county"
-        @change="val => setStatementData({r_county: val.target.value})">
+        @change="val => setStatementData({r_county: val.target.value})"
+      >
         <option
           v-for="county in counties"
           :key="county.value"
           :selected="county.selected"
-          :value="county.value">
+          :value="county.value"
+        >
           {{ county.label }}
         </option>
       </select>
@@ -61,7 +68,8 @@
         statement.location_is_set === 'notLocated' ? prefixClass('bg-color--grey-light-2') : '',
         loggedIn ? prefixClass('u-1-of-3') : prefixClass('u-2-of-10'),
         prefixClass('c-statement__formblock layout__item sm:h-8 u-1-of-1-palm')
-      ]">
+      ]"
+    >
       <dp-radio
         id="locationNone"
         :label="{
@@ -70,7 +78,8 @@
         name="r_location"
         :checked="statement.location_is_set === 'notLocated'"
         value="notLocated"
-        @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }" />
+        @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }"
+      />
     </div>
   </fieldset>
 </template>

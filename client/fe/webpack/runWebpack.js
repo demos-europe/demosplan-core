@@ -139,7 +139,21 @@ function runWebpack (mode) {
     }
 
     // Create the webpack runner object
-    const webpackRunner = webpack(webpackConfig)
+    let webpackRunner = null
+    try {
+      webpackRunner = webpack(webpackConfig)
+    } catch (e) {
+      // Prevent webpack from kind of uselessly dumping the whole config. That's just a scroll-fest that nobody needs
+      log(chalk.red('Error during webpack configuration'))
+      log(e.message)
+
+      process.exit(1)
+    } finally {
+      if (webpackRunner === null) {
+        log(chalk.red('Could not create webpack runner'))
+        process.exit(1)
+      }
+    }
 
     // Patch in the progress bar if needed
     configureProgressBar(options, webpackRunner)
@@ -151,41 +165,63 @@ function runWebpack (mode) {
   }
 }
 
+/**
+ * Handle webpacks error objects.
+ * Why are there two? I bet they don't even know
+ *
+ * @param {Object} err Webpack Error object
+ * @param {Object} stats Webpack Stats object
+ */
 function showErrorMessage (err, stats) {
-  if (err || stats.hasErrors()) {
-    log(chalk.red('Build encountered errors'))
-
-    // Handle webpacks error objects. why are there two? i bet they don't even know
+  // Handle case where stats is undefined (early webpack failure)
+  if (!stats) {
     if (err) {
+      log(chalk.red('Build failed'))
       log(chalk.red(err.stack || err))
-
       if (err.details) {
         log(err.details)
       }
-
-      return
+    } else {
+      log(chalk.red('Build failed: Unknown error (no stats or error information available)'))
     }
-
-    const info = stats.toJson()
-
-    if (stats.hasErrors()) {
-      for (const error of info.errors) {
-        log(chalk.red(error.message))
-      }
-    }
-
-    if (stats.hasWarnings()) {
-      for (const warning of info.warnings) {
-        log(chalk.yellow(warning.message))
-      }
-    }
-  } else if (stats.hasWarnings()) {
-    // Always show warnings, even when there are no errors
-    const info = stats.toJson()
-    for (const warning of info.warnings) {
-      log(chalk.yellow(warning.message))
-    }
+    return
   }
+
+  const info = stats.toJson()
+
+  if (err || stats.hasErrors() || stats.hasWarnings()) {
+    log(chalk.red('Build failed'))
+  }
+
+  if (err) {
+    log(chalk.red(err.stack || err))
+
+    if (err.details) {
+      log(err.details)
+    }
+
+    return
+  }
+
+  if (stats.hasErrors()) {
+    printStatsMessageList(info.errors ?? [], chalk.red)
+  }
+
+  if (stats.hasWarnings()) {
+    printStatsMessageList(info.warnings, chalk.yellow)
+  }
+}
+
+/**
+ * Prints a list of log messages using the given color function
+ *
+ * @param {Array} messageList Array of webpack stats messages to print
+ * @param {chalk.Chalk} colorFunction Chalk color function
+ */
+function printStatsMessageList (messageList, colorFunction) {
+  messageList.forEach(message => {
+    log(colorFunction(message.message))
+  })
 }
 
 function showWebpackRunMessage (userFeedbackCallback, mode, project, webpackConfig, webpackRunner) {
@@ -203,7 +239,7 @@ function showWebpackRunMessage (userFeedbackCallback, mode, project, webpackConf
 }
 
 function showWebpackStatisticsMessage (options, stats) {
-  if (options.stats) {
+  if (options.stats && stats) {
     const webpackStatisticsOptions = {
       chunks: false,
     }

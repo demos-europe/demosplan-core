@@ -20,16 +20,19 @@
       v-show="selectedElements.length > 0"
       class="layout__item u-12-of-12 u-mv-0_5"
       :selected-items-text="Translator.trans('elements.selected', { count: selectedElements.length })"
-      @reset-selection="resetSelection">
+      @reset-selection="resetSelection"
+    >
       <template v-slot:default>
         <button
           v-if="hasPermission('feature_auto_switch_element_state')"
           type="button"
           class="btn--blank o-link--default u-mr-0_5"
-          @click="bulkEdit">
+          @click="bulkEdit"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-pencil u-mr-0_125" />
+            class="fa fa-pencil u-mr-0_125"
+          />
           {{ Translator.trans('change.state.at.date') }}
         </button>
         <button
@@ -37,10 +40,12 @@
           type="button"
           class="btn--blank o-link--default u-mr-0_5"
           :title="Translator.trans('plandocuments.delete')"
-          @click="bulkDelete">
+          @click="bulkDelete"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-trash u-mr-0_125" />
+            class="fa fa-trash u-mr-0_125"
+          />
           {{ Translator.trans('delete') }}
         </button>
       </template>
@@ -48,7 +53,8 @@
     <dp-loading v-if="isLoading" />
     <p
       v-else-if="treeData.length < 1"
-      v-text="Translator.trans('plandocuments.no_elements')" />
+      v-text="Translator.trans('plandocuments.no_elements')"
+    />
     <dp-tree-list
       v-else
       ref="treeList"
@@ -59,7 +65,8 @@
       :tree-data="treeData"
       @end="(event, item, parentId) => saveNewSort(event, parentId)"
       @node-selection-change="nodeSelectionChange"
-      @tree:change="updateTreeData">
+      @tree:change="updateTreeData"
+    >
       <template v-slot:header="">
         <span class="color--grey">
           {{ Translator.trans('procedure.documents') }}
@@ -74,11 +81,13 @@
             class="u-mr-auto"
             :hash="nodeElement.attributes.fileInfo.hash"
             :name="nodeElement.attributes.fileInfo.name"
-            :size="nodeElement.attributes.fileInfo.size" />
+            :size="nodeElement.attributes.fileInfo.size"
+          />
           <icon-published :published="nodeElement.attributes.visible" />
           <icon-statement-enabled
             v-if="hasPermission('feature_single_document_statement')"
-            :enabled="nodeElement.attributes.statementEnabled" />
+            :enabled="nodeElement.attributes.statementEnabled"
+          />
         </div>
       </template>
     </dp-tree-list>
@@ -115,6 +124,7 @@ export default {
   data () {
     return {
       canDrag: true,
+      expandedNodeRefs: new Map(), // Map of nodeId -> component ref
       hasBulkEdit: hasAnyPermissions(['feature_admin_element_bulk_delete', 'feature_auto_switch_element_state']),
       isLoading: true,
       treeData: [],
@@ -163,6 +173,30 @@ export default {
     }),
 
     /**
+     * Apply optimistic UI update by updating idx values and rebuilding tree
+     * @param {Array} reorderedFolders - Folders in new order
+     */
+    applyOptimisticReorder (reorderedFolders) {
+      // Update idx values to reflect the new order
+      for (const [index, folder] of reorderedFolders.entries()) {
+        const storeElement = this.elements[folder.id]
+
+        if (storeElement) {
+          this.setElement({
+            ...storeElement,
+            attributes: {
+              ...storeElement.attributes,
+              idx: index,
+            },
+          })
+        }
+      }
+
+      // Rebuild tree with temporary idx values
+      this.buildTreeWithPreservedExpandedState(true)
+    },
+
+    /**
      * Build a tree representation of the elements, nested by node.attributes.parentId
      * and sorted by node.attributes.index.
      *
@@ -173,7 +207,22 @@ export default {
       const elementsCopy = JSON.parse(JSON.stringify(Object.values(this.elements)))
       const tree = this.listToTree(elementsCopy)
 
-      this.treeData = this.sortRecursive(tree, sortField)
+      this.treeData = this.sortRecursively(tree, sortField)
+    },
+
+    buildTreeWithPreservedExpandedState (updateOrder) {
+      // Preserve expanded state before rebuilding
+      this.collectExpandedNodes()
+
+      if (updateOrder) {
+        // Rebuild tree with temporary idx values to show optimistic state
+        this.buildTree('idx')
+      } else {
+        this.buildTree()
+      }
+
+      // Restore expanded state after rebuild
+      this.restoreExpandedNodes()
     },
 
     /**
@@ -210,7 +259,90 @@ export default {
 
     bulkEdit () {
       lscache.set(`${dplan.procedureId}:selectedElements`, this.selectedElements)
-      window.location.href = Routing.generate('dplan_elements_bulk_edit', { procedureId: dplan.procedureId })
+      globalThis.location.href = Routing.generate('dplan_elements_bulk_edit', { procedureId: dplan.procedureId })
+    },
+
+    /**
+     * Collect ids and refs of all currently expanded nodes
+     * @param tree
+     * @param parentComponent - The parent component to access child refs from
+     */
+    collectExpandedNodes (tree = this.treeData, parentComponent = null) {
+      if (!this.$refs.treeList) {
+        return
+      }
+
+      // Clear previous state to ensure we have current state
+      if (tree === this.treeData) {
+        this.expandedNodeRefs.clear()
+      }
+
+      // Use the parent component if provided, otherwise use root treeList
+      const componentToSearch = parentComponent || this.$refs.treeList
+
+      for (const node of tree) {
+        if (node.type === 'Elements') {
+          const nodeRef = componentToSearch.$refs[`node_${node.id}`]
+
+          if (nodeRef && nodeRef[0] && nodeRef[0].isExpanded) {
+            // Store both the node ID and its component ref for fast restoration
+            this.expandedNodeRefs.set(node.id, nodeRef[0])
+          }
+
+          // Recursively check children, passing the current node's component as parent
+          if (node.children && node.children.length > 0 && nodeRef && nodeRef[0]) {
+            this.collectExpandedNodes(node.children, nodeRef[0])
+          }
+        }
+      }
+    },
+
+    /**
+     * Fetch elements from API and initialize the tree
+     */
+    fetchElements () {
+      this.elementList({
+        include: ['children', 'documents'].join(),
+        filter: {
+          sameProcedure: {
+            condition: {
+              path: 'procedure.id',
+              value: dplan.procedureId,
+            },
+          },
+        },
+        fields: {
+          Elements: [
+            'category',
+            'children',
+            'designatedSwitchDate',
+            'documents',
+            'enabled',
+            'fileInfo',
+            'filePathWithHash',
+            'index',
+            'parentId',
+            'title',
+          ].join(),
+          SingleDocument: [
+            'fileInfo',
+            'index',
+            'statementEnabled',
+            'title',
+            'visible',
+          ].join(),
+        },
+      })
+        .then(() => {
+          this.buildTree()
+          this.getAllFiles()
+
+          // Clear cache from previously selected items.
+          lscache.remove(`${dplan.procedureId}:selectedElements`)
+
+          // Finally, kickoff rendering
+          this.isLoading = false
+        })
     },
 
     /**
@@ -221,8 +353,12 @@ export default {
      */
     findNodeById (tree, nodeId) {
       return tree.reduce((acc, node) => {
-        if (acc) return acc
-        if (node.id === nodeId) return node
+        if (acc) {
+          return acc
+        }
+        if (node.id === nodeId) {
+          return node
+        }
         if (hasOwnProp(node, 'children')) {
           return this.findNodeById(node.children, nodeId)
         }
@@ -263,6 +399,60 @@ export default {
           return documents
         }
       }, [])
+    },
+
+    /**
+     * Get reordered folders and target backend index
+     * @param {Array} siblingsList - List of siblings
+     * @param {String} itemId - ID of the item being moved
+     * @param {Number} newIndex - New position index
+     * @return {Object} Object containing reorderedFolders and targetBackendIndex
+     */
+    getReorderedData (siblingsList, itemId, newIndex) {
+      // Filter to get only folders (Elements), not files (SingleDocument)
+      const foldersOnly = siblingsList.filter(node => node.type === 'Elements')
+
+      // Sort by current order
+      const sortedFolders = [...foldersOnly]
+        .sort((a, b) => a.attributes.index - b.attributes.index)
+
+      // Find current position of moved folder
+      const currentPosition = sortedFolders.findIndex(folder => folder.id === itemId)
+
+      const reorderedFolders = [...sortedFolders]
+      // Simulate the move: remove from old position and insert at new position
+      const [movedFolder] = reorderedFolders.splice(currentPosition, 1)
+      reorderedFolders.splice(newIndex, 0, movedFolder)
+
+      // Find the folder that will come AFTER the moved folder
+      const folderAfterMove = reorderedFolders[newIndex + 1]
+      const targetBackendIndex = folderAfterMove ? folderAfterMove.attributes.index : null
+
+      return {
+        reorderedFolders,
+        targetBackendIndex,
+      }
+    },
+
+    /**
+     * Get the siblings list for a given parent
+     * @param {String|null} parentId - The parent ID, or null for root level
+     * @return {Array|null} The siblings list, or null if parent not found
+     */
+    getSiblingsList (parentId) {
+      if (parentId === null) {
+        // Root level - use treeData directly
+        return this.treeData
+      }
+
+      // Find the parent node in the tree
+      const parentNode = this.findNodeById(this.treeData, parentId)
+
+      if (!parentNode || !parentNode.children) {
+        return null
+      }
+
+      return parentNode.children
     },
 
     /**
@@ -312,21 +502,6 @@ export default {
     },
 
     /**
-     * Move an element in treeData from one index to another
-     * @param {Object} data
-     * @param {Number} data.indexToMoveFrom old index of the element
-     * @param {Number} data.indexToMoveTo new index of the element
-     */
-    moveElementInList (data) {
-      const { indexToMoveFrom, indexToMoveTo } = data
-
-      // Remove element from oldIndex in treeData
-      const removedItem = this.treeData.splice(indexToMoveFrom, 1)[0]
-      // Add element again at newIndex
-      this.treeData.splice(indexToMoveTo, 0, removedItem)
-    },
-
-    /**
      * Set the selection state for the different items.
      *
      * @param selected{Array<Object>}
@@ -353,9 +528,64 @@ export default {
       return isAllowedTarget
     },
 
+    /**
+     * Prepare reorder by getting siblings and calculating reordered data
+     * @param {String|null} parentId - Parent ID or null for root
+     * @param {String} itemId - ID of item being moved
+     * @param {Number} newIndex - New position index
+     * @return {Object|null} Reordered data or null if siblings not found
+     */
+    prepareReorder (parentId, itemId, newIndex) {
+      const siblingsList = this.getSiblingsList(parentId)
+
+      if (!siblingsList) {
+        return null
+      }
+
+      return this.getReorderedData(siblingsList, itemId, newIndex)
+    },
+
     resetSelection () {
       this.selectedElements = []
       this.$refs.treeList.unselectAll()
+    },
+
+    /**
+     * Restore expanded state for previously expanded nodes (O(n) single traversal)
+     */
+    restoreExpandedNodes () {
+      if (this.expandedNodeRefs.size === 0) {
+        return
+      }
+
+      this.$nextTick(() => {
+        this.restoreExpandedNodesRecursively()
+      })
+    },
+
+    /**
+     * Restore expanded state by traversing tree once and checking against cached ids
+     * @param tree
+     * @param parentComponent
+     */
+    restoreExpandedNodesRecursively (tree = this.treeData, parentComponent = null) {
+      const componentToSearch = parentComponent || this.$refs.treeList
+
+      for (const node of tree) {
+        if (node.type === 'Elements') {
+          const nodeRef = componentToSearch.$refs[`node_${node.id}`]
+
+          // If this node was expanded, restore it
+          if (nodeRef && nodeRef[0] && this.expandedNodeRefs.has(node.id)) {
+            nodeRef[0].isExpanded = true
+          }
+
+          // Recursively restore children
+          if (node.children && node.children.length > 0 && nodeRef && nodeRef[0]) {
+            this.restoreExpandedNodesRecursively(node.children, nodeRef[0])
+          }
+        }
+      }
     },
 
     /**
@@ -373,55 +603,66 @@ export default {
         return
       }
 
-      // Do an optimistic FE update, so there is no lag until item is displayed in new position
-      this.moveElementInList({ indexToMoveFrom: oldIndex, indexToMoveTo: newIndex })
+      const reorderData = this.prepareReorder(parentId, id, newIndex)
 
-      // Find the element that is directly following the moved element (only folders, no files)
-      const nextSibling = this.treeData.filter(node => node.type === 'Elements')[newIndex + 1]
-      // Either send the index of the element that is being "pushed down" or null (if the moved element is the last item)
-      const index = nextSibling ? nextSibling.attributes.index : null
+      if (!reorderData) {
+        return
+      }
+
+      const { reorderedFolders, targetBackendIndex } = reorderData
+
+      // Apply optimistic UI update
+      this.applyOptimisticReorder(reorderedFolders)
 
       this.canDrag = false
 
       dpRpc('planningCategoryList.reorder', {
         elementId: id,
-        newIndex: newIndex === 0 ? newIndex : index,
+        newIndex: newIndex === 0 ? newIndex : targetBackendIndex,
         parentId,
       })
         .then(response => {
-          /*
-           * The response of the rpc should be an object with the elementIds as key
-           * and the updated { index, parentId } as value. The store is then updated
-           * with those values to rebuild the hierarchy with the correct indexes.
-           */
+          // Update store with backend response
           const elementsMap = response.data[0].result
-          for (const id in elementsMap) {
-            const storeElement = this.elements[id]
-            const mapElement = elementsMap[id]
+          this.updateElementsFromResponse(elementsMap)
 
-            if (typeof storeElement !== 'undefined') {
-              this.setElement({
-                ...storeElement,
-                attributes: {
-                  ...storeElement.attributes,
-                  index: mapElement.index,
-                  parentId: mapElement.parentId,
-                },
-              })
-            }
-          }
+          // Rebuild tree with backend data
+          this.buildTreeWithPreservedExpandedState(false)
 
-          this.buildTree()
           this.canDrag = true
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(error => {
-          // Undo optimistic FE update
-          this.moveElementInList({ indexToMoveFrom: newIndex, indexToMoveTo: oldIndex })
-
           console.error(error)
+
+          // Rebuild tree to revert optimistic changes
+          this.buildTreeWithPreservedExpandedState(false)
+
+          this.canDrag = true
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
         })
+    },
+
+    /**
+     * Update store elements with backend response data
+     * @param {Object} elementsMap - Map of elementId to {index, parentId}
+     */
+    updateElementsFromResponse (elementsMap) {
+      for (const id in elementsMap) {
+        const storeElement = this.elements[id]
+        const mapElement = elementsMap[id]
+
+        if (storeElement) {
+          this.setElement({
+            ...storeElement,
+            attributes: {
+              ...storeElement.attributes,
+              index: mapElement.index,
+              parentId: mapElement.parentId,
+            },
+          })
+        }
+      }
     },
 
     /**
@@ -431,20 +672,28 @@ export default {
      * @param sortField
      * @return {*}
      */
-    sortRecursive (tree, sortField) {
+    sortRecursively (tree, sortField) {
       tree.sort((a, b) => {
-        if (a.type !== 'SingleDocument' && b.type === 'SingleDocument') { return -1 }
-        if (a.type === 'SingleDocument' && b.type !== 'SingleDocument') { return 1 }
+        if (a.type !== 'SingleDocument' && b.type === 'SingleDocument') {
+          return -1
+        }
+
+        if (a.type === 'SingleDocument' && b.type !== 'SingleDocument') {
+          return 1
+        }
+
         if (a.type === 'SingleDocument' && b.type === 'SingleDocument') {
           return a.attributes.index - b.attributes.index
         }
+
         return a.attributes[sortField] - b.attributes[sortField]
       })
-      tree.forEach(el => {
+
+      for (const el of tree) {
         if (hasOwnProp(el, 'children')) {
-          this.sortRecursive(el.children, sortField)
+          this.sortRecursively(el.children, sortField)
         }
-      })
+      }
 
       return tree
     },
@@ -455,27 +704,28 @@ export default {
      */
     updateTreeData (updatedSort) {
       if (hasOwnProp(updatedSort, 'newOrder')) {
-        updatedSort.newOrder
-          // Filter out items not represented in this.elements (files)
+        // Filter out items not represented in this.elements (files)
+        const filteredOrder = updatedSort.newOrder
           .filter(el => typeof this.elements[el.id] !== 'undefined')
-          /*
-           * Iterate over items that are present in updated order, set new index and parentId
-           * in order to rebuild the tree structure to apply the new state to draggable inside DpTreeList.
-           * idx is only a temporary index because in the backend, elements ids are not always counting
-           * from 0 upwards, so the strategy to use the indexes that start from 0 here just applies
-           * the new order to the ui until the rpc response in `saveNewSort()` sends the correct values
-           * from the backend. The tree is then rebuild again with the proper values from there.
-           */
-          .forEach((el, idx) => {
-            this.setElement({
-              ...this.elements[el.id],
-              attributes: {
-                ...this.elements[el.id].attributes,
-                idx,
-                parentId: updatedSort.nodeId,
-              },
-            })
+
+        /*
+         * Iterate over items that are present in updated order, set new index and parentId
+         * in order to rebuild the tree structure to apply the new state to draggable inside DpTreeList.
+         * idx is only a temporary index because in the backend, elements ids are not always counting
+         * from 0 upwards, so the strategy to use the indexes that start from 0 here just applies
+         * the new order to the ui until the rpc response in `saveNewSort()` sends the correct values
+         * from the backend. The tree is then rebuild again with the proper values from there.
+         */
+        for (const [idx, el] of filteredOrder.entries()) {
+          this.setElement({
+            ...this.elements[el.id],
+            attributes: {
+              ...this.elements[el.id].attributes,
+              idx,
+              parentId: updatedSort.nodeId,
+            },
           })
+        }
 
         this.buildTree('idx')
       }
@@ -483,49 +733,7 @@ export default {
   },
 
   mounted () {
-    // Initially get data from endpoint
-    this.elementList({
-      include: ['children', 'documents'].join(),
-      filter: {
-        sameProcedure: {
-          condition: {
-            path: 'procedure.id',
-            value: dplan.procedureId,
-          },
-        },
-      },
-      fields: {
-        Elements: [
-          'category',
-          'children',
-          'designatedSwitchDate',
-          'documents',
-          'enabled',
-          'fileInfo',
-          'filePathWithHash',
-          'index',
-          'parentId',
-          'title',
-        ].join(),
-        SingleDocument: [
-          'fileInfo',
-          'index',
-          'statementEnabled',
-          'title',
-          'visible',
-        ].join(),
-      },
-    })
-      .then(() => {
-        this.buildTree()
-        this.getAllFiles()
-
-        // Clear cache from previously selected items.
-        lscache.remove(`${dplan.procedureId}:selectedElements`)
-
-        // Finally, kickoff rendering
-        this.isLoading = false
-      })
+    this.fetchElements()
   },
 }
 </script>

@@ -18,7 +18,8 @@
       :memo="statement.attributes.memo || '-'"
       :submit-name="submitName"
       :submit-type="submitType"
-      :location="location" />
+      :location="location"
+    />
   </div>
 </template>
 

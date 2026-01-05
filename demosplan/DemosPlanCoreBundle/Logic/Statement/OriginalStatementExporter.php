@@ -14,6 +14,7 @@ use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
@@ -37,6 +38,7 @@ class OriginalStatementExporter extends SegmentsExporter
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
+        DocumentWriterSelector $writerSelector,
     ) {
         parent::__construct(
             $currentUser,
@@ -45,6 +47,7 @@ class OriginalStatementExporter extends SegmentsExporter
             $slugify,
             $styleInitializer,
             $translator,
+            $writerSelector,
             self::STATEMENT_ID_COLUMN_WIDTH,
             self::STATEMENT_TEXT_COLUMN_WIDTH);
     }
@@ -55,7 +58,7 @@ class OriginalStatementExporter extends SegmentsExporter
 
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
 
-        if (empty($statements)) {
+        if ([] === $statements) {
             return $this->exportEmptyStatements($phpWord, $procedure);
         }
 

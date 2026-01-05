@@ -11,7 +11,8 @@
   <div class="inline-block">
     <label
       class="inline-block u-m-0"
-      for="customScaleControl">
+      for="customScaleControl"
+    >
       {{ Translator.trans('map.scale') }}
     </label>
     <select
@@ -19,12 +20,14 @@
       name="customScaleControl"
       data-cy="map:customScaleControl"
       class="c-ol-map__select"
-      @change="setScale">
+      @change="setScale"
+    >
       <option
         v-for="(scaleObj, key) in scales"
         :key="key"
         :value="scaleObj.scale"
-        :selected="currentScale === scaleObj.scale">
+        :selected="currentScale === scaleObj.scale"
+      >
         1:{{ scaleObj.scale.toLocaleString() }}
       </option>
     </select>

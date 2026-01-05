@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,17 +23,15 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:addon:build-frontend', description: 'Build frontend assets for an addon')]
 class AddonBuildFrontendCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:addon:build-frontend';
-    protected static $defaultDescription = 'Build frontend assets for an addon';
-
     public function __construct(private readonly AddonRegistry $registry, ParameterBagInterface $parameterBag, ?string $name = null)
     {
         parent::__construct($parameterBag, $name);
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('addon-name', InputArgument::OPTIONAL, 'Addon name, du\'h.');
     }
@@ -45,7 +44,7 @@ class AddonBuildFrontendCommand extends CoreCommand
 
         if (null === $addonName) {
             $enabledAddons = $this->registry->getEnabledAddons();
-            if (0 === count($enabledAddons)) {
+            if ([] === $enabledAddons) {
                 $output->warning('No addons enabled, nothing to do.');
 
                 return self::SUCCESS;

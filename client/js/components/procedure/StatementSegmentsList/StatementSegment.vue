@@ -14,15 +14,18 @@
     class="segment-list-row"
     :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
     @mouseenter="isHover = true"
-    @mouseleave="isHover = false">
+    @mouseleave="isHover = false"
+  >
     <div class="flex flex-col justify-start basis-1/5 u-pt-0_5 u-pl-0_5">
       <v-popover
         :container="$refs.statementSegment"
-        trigger="hover focus">
+        trigger="hover focus"
+      >
         <i
           class="fa fa-hashtag color--grey-light"
           :class="{'color--grey-dark': isAssignedToMe || isHover}"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
         <span>{{ segment.attributes.externId }}</span>
         <template v-slot:popover>
           <div class="c-statement-meta-tooltip u-ph-0 u-pv-0">
@@ -57,7 +60,8 @@
               <template v-if="hasPermission('field_segments_custom_fields')">
                 <div
                   v-for="customField in segment.attributes.customFields"
-                  :key="customField.id">
+                  :key="customField.id"
+                >
                   <dt class="weight--bold">
                     {{ Object.values(customFields).find(field => field.id === customField.id)?.attributes?.name || '' }}:
                   </dt>
@@ -79,42 +83,50 @@
         :current-user-id="currentUserId"
         :current-user-name="currentUserName"
         :is-loading="claimLoading"
-        @click="toggleClaimSegment" />
+        @click="toggleClaimSegment"
+      />
     </div>
     <text-content-renderer
       class="segment-list-col--l overflow-word-break c-styled-html"
-      :text="visibleSegmentText" />
+      :text="visibleSegmentText"
+    />
     <div class="segment-list-col--s">
       <button
         v-if="!isFullscreen"
         class="segment-list-toggle-button btn--blank u-mh-auto"
         :class="{'reverse': !isCollapsed}"
         :aria-label="Translator.trans('aria.expand')"
-        @click="isCollapsed = !isCollapsed">
+        @click="isCollapsed = !isCollapsed"
+      >
         <i
           class="fa fa-arrow-up"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
         <i
           class="fa fa-arrow-down"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
       </button>
     </div>
     <div class="segment-list-col--l overflow-word-break">
       <image-modal
         ref="imageModal"
-        data-cy="recommendation:imgModal" />
+        data-cy="recommendation:imgModal"
+      />
       <div
         v-if="isAssignedToMe === false"
         ref="recommendationContainer"
         v-cleanhtml="visibleRecommendation || Translator.trans('segment.recommendation.none')"
         :class="{ 'color--grey': visibleRecommendation === '' }"
-        :title="visibleRecommendation ? Translator.trans('explanation.segment.claim.to.edit.recommendation') : Translator.trans('explanation.segment.claim.to.add.recommendation')" />
+        :title="visibleRecommendation ? Translator.trans('explanation.segment.claim.to.edit.recommendation') : Translator.trans('explanation.segment.claim.to.add.recommendation')"
+      />
       <div v-else-if="isAssignedToMe && isEditing === false">
         <div
           v-if="visibleRecommendation !== ''"
           ref="recommendationContainer"
           v-cleanhtml="visibleRecommendation"
-          class="u-mb-0_5" />
+          class="u-mb-0_5"
+        />
       </div>
       <div v-else>
         <dp-editor
@@ -131,7 +143,8 @@
           }"
           :tus-endpoint="dplan.paths.tusEndpoint"
           :value="segment.attributes.recommendation"
-          @input="value => updateSegment('recommendation', value)">
+          @input="value => updateSegment('recommendation', value)"
+        >
           <template v-slot:modal="modalProps">
             <dp-boiler-plate-modal
               v-if="hasPermission('area_admin_boilerplates')"
@@ -139,11 +152,14 @@
               boiler-plate-type="consideration"
               editor-id="recommendationText"
               :procedure-id="procedureId"
-              @insert="text => modalProps.handleInsertText(text)" />
+              :preview-segment-id="segment.id"
+              @insert="text => modalProps.handleInsertText(text)"
+            />
             <dp-modal
               ref="recommendationModal"
               class="recommendation-modal"
-              content-classes="u-2-of-3">
+              content-classes="u-2-of-3"
+            >
               <div class="flex w-full">
                 <h3 class="u-mb">
                   {{ Translator.trans('segment.recommendation.insert.similar') }}
@@ -153,24 +169,28 @@
                   class="u-ml-0_25"
                   icon="ai"
                   size="large"
-                  :text="Translator.trans('segment.oracle.tooltip')" />
+                  :text="Translator.trans('segment.oracle.tooltip')"
+                />
                 <dp-badge
                   v-if="activeId === 'oracleRec'"
                   v-tooltip="Translator.trans('segment.oracle.beta.tooltip')"
                   class="absolute right-4"
                   size="smaller"
-                  :text="Translator.trans('segment.oracle.beta')" />
+                  :text="Translator.trans('segment.oracle.beta')"
+                />
               </div>
               <dp-tabs
                 v-if="recommendationTabAddonsLoaded"
                 :active-id="activeId"
-                @change="handleTabChange">
+                @change="handleTabChange"
+              >
                 <dp-tab
                   v-for="addon in recommendationModalAddons"
                   :id="addon.options.id"
                   :key="addon.options.id"
                   :is-active="activeId === addon.options.id"
-                  :label="Translator.trans(addon.options.title)">
+                  :label="Translator.trans(addon.options.title)"
+                >
                   <slot>
                     <component
                       :is="addon.component"
@@ -179,7 +199,8 @@
                       :demosplan-ui="demosplanUi"
                       :procedure-id="addonProps.procedureId"
                       :segment-id="addonProps.segmentId"
-                      @recommendation:insert="closeRecommendationModalAfterInsert" />
+                      @recommendation:insert="closeRecommendationModalAfterInsert"
+                    />
                   </slot>
                 </dp-tab>
               </dp-tabs>
@@ -192,7 +213,8 @@
               :class="prefixClass('menubar__button')"
               data-cy="segmentEditor:boilerplate"
               type="button"
-              @click.stop="openBoilerPlate">
+              @click.stop="openBoilerPlate"
+            >
               <i :class="prefixClass('fa fa-puzzle-piece')" />
             </button>
             <button
@@ -201,7 +223,8 @@
               :class="prefixClass('menubar__button')"
               data-cy="segmentEditor:similarRecommendation"
               type="button"
-              @click.stop="toggleRecommendationModal">
+              @click.stop="toggleRecommendationModal"
+            >
               <i :class="prefixClass('fa fa-lightbulb-o')" />
             </button>
           </template>
@@ -213,27 +236,32 @@
           v-model="showWorkflowActions"
           :label="{
             text: displayEditableFieldsLabel
-          }" />
+          }"
+        />
         <div
           v-if="showWorkflowActions"
-          class="u-mv-0_5">
+          class="u-mv-0_5"
+        >
           <dp-label
             class="mb-0.5 mt-2"
             :text="Translator.trans('assignee')"
             :bold="false"
-            for="assignableUsersSegment" />
+            for="assignableUsersSegment"
+          />
           <dp-multiselect
             id="assignableUsersSegment"
             v-model="selectedAssignee"
             :options="assignableUsers"
             class="u-1-of-1"
             label="name"
-            track-by="id" />
+            track-by="id"
+          />
           <dp-label
             :text="Translator.trans('workflow.place')"
             :bold="false"
             class="mb-0.5 mt-2"
-            for="segmentPlace" />
+            for="segmentPlace"
+          />
           <dp-multiselect
             id="segmentPlace"
             v-model="selectedPlace"
@@ -242,45 +270,52 @@
             label="name"
             :options="places"
             :sub-slots="['option', 'singleLabel', 'tag']"
-            track-by="id">
+            track-by="id"
+          >
             <template v-slot:option="{ props }">
               <div
                 v-for="prop in props"
                 :key="prop.id"
-                v-tooltip="prop.description">
+                v-tooltip="prop.description"
+              >
                 {{ prop.name }}
                 <dp-contextual-help
                   v-if="prop.solved"
                   class="float-right color--grey"
                   icon="check"
                   size="small"
-                  :text="Translator.trans('statement.solved.description')" />
+                  :text="Translator.trans('statement.solved.description')"
+                />
               </div>
             </template>
             <template v-slot:singleLabel="{ props }">
               <div
                 v-for="prop in props"
                 :key="prop.id"
-                v-tooltip="prop.description">
+                v-tooltip="prop.description"
+              >
                 {{ prop.name }}
                 <dp-contextual-help
                   v-if="prop.solved"
                   class="float-right color--grey mt-0.5"
                   icon="check"
                   size="small"
-                  :text="Translator.trans('statement.solved.description')" />
+                  :text="Translator.trans('statement.solved.description')"
+                />
               </div>
             </template>
           </dp-multiselect>
           <template v-if="hasPermission('field_segments_custom_fields')">
             <template
               v-for="field in Object.values(customFields)"
-              :key="field.id">
+              :key="field.id"
+            >
               <dp-label
                 :bold="false"
                 class="mb-0.5 mt-2"
                 :for="field.id"
-                :text="field.attributes.name" />
+                :text="field.attributes.name"
+              />
               <dp-multiselect
                 :id="field.id"
                 allow-empty
@@ -288,7 +323,8 @@
                 label="name"
                 :options="customFieldsOptions[field.id]"
                 track-by="id"
-                @select="(value) => setCustomFieldValue(value)" />
+                @select="(value) => setCustomFieldValue(value)"
+              />
             </template>
           </template>
         </div>
@@ -300,12 +336,14 @@
         primary
         secondary
         @primary-action="save"
-        @secondary-action="abort" />
+        @secondary-action="abort"
+      />
     </div>
     <div class="segment-list-col--m text-right shrink-2 u-ph-0_5">
       <div
         class="segment-list-toolbar"
-        :class=" isAssignedToMe ? '' : 'segment-list-toolbar--dark'">
+        :class=" isAssignedToMe ? '' : 'segment-list-toolbar--dark'"
+      >
         <button
           v-tooltip="{
             container: `#segment_${segment.id}`,
@@ -314,11 +352,13 @@
           class="segment-list-toolbar__button btn--blank"
           data-cy="editorFullscreen"
           :aria-label="Translator.trans('editor.fullscreen')"
-          @click="isFullscreen = !isFullscreen">
+          @click="isFullscreen = !isFullscreen"
+        >
           <dp-icon
             class="inline-block"
             :icon="isFullscreen ? 'compress' : 'expand'"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
         </button>
 
         <button
@@ -330,10 +370,12 @@
           class="segment-list-toolbar__button btn btn--primary icon-only"
           data-cy="segmentEdit"
           :aria-label="Translator.trans('edit')"
-          @click="startEditing">
+          @click="startEditing"
+        >
           <i
             class="fa fa-pencil"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
         </button>
 
         <button
@@ -346,10 +388,12 @@
           type="button"
           :aria-label="Translator.trans('history')"
           data-cy="segmentVersionHistory"
-          @click.prevent="showSegmentVersionHistory">
+          @click.prevent="showSegmentVersionHistory"
+        >
           <dp-icon
             class="inline-block"
-            icon="history" />
+            icon="history"
+          />
         </button>
 
         <button
@@ -363,13 +407,16 @@
           type="button"
           :aria-label="Translator.trans('comments')"
           data-cy="segmentComments"
-          @click.prevent="showComments">
+          @click.prevent="showComments"
+        >
           <i
             class="fa fa-comment-o"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           <span
             v-if="commentCount > 0"
-            class="segment-list-toolbar__badge o-badge--darker block absolute u-ml u-n-mt">
+            class="segment-list-toolbar__badge o-badge--darker block absolute u-ml u-n-mt"
+          >
             {{ commentCount }}
           </span>
         </button>
@@ -384,7 +431,8 @@
           type="button"
           :aria-label="Translator.trans('public.participation.relation')"
           data-cy="segmentMap"
-          @click.prevent="showMap">
+          @click.prevent="showMap"
+        >
           <dp-icon
             class="mx-auto"
             icon="map-pin"
@@ -1022,7 +1070,6 @@ export default {
       this.$parent.$parent.resetSlidebar()
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'map' } })
       this.$root.$emit('show-slidebar')
-      this.$root.$emit('segmentMap:show')
     },
 
     showSegmentVersionHistory () {

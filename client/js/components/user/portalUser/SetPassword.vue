@@ -17,11 +17,13 @@
       :action="Routing.generate('DemosPlan_user_password_set', {'token': token, 'uId': userId})"
       class="u-mt space-stack-m"
       data-dp-validate="changePasswordForm"
-      method="POST">
+      method="POST"
+    >
       <input
         name="_token"
         type="hidden"
-        :value="csrfToken">
+        :value="csrfToken"
+      >
 
       <dp-input
         id="password_new"
@@ -34,7 +36,8 @@
         name="password"
         pattern="(?=.*){8,}"
         required
-        type="password" />
+        type="password"
+      />
       <dp-input
         id="password_new_2"
         v-model="passwordNewConfirm"
@@ -46,14 +49,16 @@
         name="password_new_2"
         pattern="(?=.*){8,}"
         required
-        type="password" />
+        type="password"
+      />
 
       <dp-button-row
         primary
         :primary-text="Translator.trans('password.set.action')"
         secondary
         @primary-action="dpValidateAction('changePasswordForm', submit, false)"
-        @secondary-action="resetPassword" />
+        @secondary-action="resetPassword"
+      />
     </form>
   </div>
 </template>

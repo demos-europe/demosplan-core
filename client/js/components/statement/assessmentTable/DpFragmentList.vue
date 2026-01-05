@@ -19,17 +19,20 @@ Hopefully in the future we will be able to refactor this and write it in a corre
   <div class="fragment-list">
     <dp-loading
       v-if="fragmentsLoading"
-      class="u-p-0_5" />
+      class="u-p-0_5"
+    />
 
     <p
       v-if="(hasOwnProp(fragmentsByStatement(statementId),'fragments') ? fragmentsByStatement(statementId).fragments.length : initialTotalFragmentsCount) === 0 && !fragmentsLoading "
-      class="u-ph-0_5 u-pt-0_5">
+      class="u-ph-0_5 u-pt-0_5"
+    >
       {{ Translator.trans('no.fragments.available') }}
     </p>
 
     <p
       v-else-if="isFiltered && displayedFragments.length === 0 && !fragmentsLoading "
-      class="u-ph-0_5 u-pt-0_5">
+      class="u-ph-0_5 u-pt-0_5"
+    >
       {{ Translator.trans('autocomplete.noResults') }}
     </p>
 
@@ -43,7 +46,8 @@ Hopefully in the future we will be able to refactor this and write it in a corre
       :statement="statement"
       :procedure-id="procedureId"
       :current-user-id="currentUserId"
-      :current-user-name="currentUserName" />
+      :current-user-name="currentUserName"
+    />
   </div>
 </template>
 

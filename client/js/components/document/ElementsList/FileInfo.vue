@@ -11,10 +11,12 @@
   <a
     class="flex break-words font-size-small"
     target="_blank"
-    :href="path">
+    :href="path"
+  >
     <i
       class="fa fa-file-o u-mr-0_25"
-      aria-hidden="true" />
+      aria-hidden="true"
+    />
     {{ name }} ({{ byteSize }})
   </a>
 </template>

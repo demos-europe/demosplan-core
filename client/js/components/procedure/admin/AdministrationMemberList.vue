@@ -17,7 +17,8 @@ All rights reserved
     :header-fields="headerFields"
     resource-type="InvitedToeb"
     :procedure-id="procedureId"
-    @selected-items="setSelectedItems">
+    @selected-items="setSelectedItems"
+  >
     <template v-slot:bulkActions>
       <!-- Bulk Actions Section -->
       <div class="my-2">
@@ -26,10 +27,12 @@ All rights reserved
           :data-form-actions-confirm="Translator.trans('check.invitable_institutions.marked.delete')"
           data-cy="administrationMemberList:deleteSelected"
           type="button"
-          @click="deleteSelected">
+          @click="deleteSelected"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-times-circle" />
+            class="fa fa-times-circle"
+          />
           {{ Translator.trans('remove') }}
         </button>
 
@@ -37,10 +40,12 @@ All rights reserved
           class="btn--blank o-link--default u-mr-0_5"
           data-cy="administrationMemberList:writeEmail"
           type="button"
-          @click="writeEmail">
+          @click="writeEmail"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-envelope" />
+            class="fa fa-envelope"
+          />
           {{ Translator.trans('email.invitation.write') }}
         </button>
 
@@ -48,10 +53,12 @@ All rights reserved
           class="btn--blank o-link--default"
           data-cy="administrationMemberList:exportPdf"
           type="button"
-          @click="exportPdf">
+          @click="exportPdf"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-file" />
+            class="fa fa-file"
+          />
           {{ Translator.trans('pdf.export') }}
         </button>
 

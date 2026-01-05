@@ -14,15 +14,18 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\EntityCustomFieldUsageStrategyFactory;
 use Ramsey\Uuid\Uuid;
 
 class CustomFieldUpdater
 {
     public function __construct(
-        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
-    {
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
+        private readonly EntityCustomFieldUsageStrategyFactory $entityCustomFieldUsageStrategyFactory,
+    ) {
     }
 
     public function updateCustomField(string $entityId, array $attributes): CustomFieldInterface
@@ -40,7 +43,7 @@ class CustomFieldUpdater
         $customField->setId($customFieldConfiguration->getId());
 
         $this->updateBasicFields($customField, $attributes);
-        $this->updateOptionsIfPresent($customField, $attributes);
+        $this->updateOptionsIfPresent($customField, $attributes, $customFieldConfiguration->getTargetEntityClass());
         // Save back to CustomFieldConfiguration
         $customFieldConfiguration->setConfiguration($customField);
         $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
@@ -59,7 +62,7 @@ class CustomFieldUpdater
         }
     }
 
-    private function updateOptionsIfPresent(CustomFieldInterface $customField, array $attributes): void
+    private function updateOptionsIfPresent(CustomFieldInterface $customField, array $attributes, string $targetEntityClass): void
     {
         if (!isset($attributes['options'])) {
             return;
@@ -69,6 +72,15 @@ class CustomFieldUpdater
         $customField->validate($newOptions);
 
         $currentOptions = $customField->getOptions();
+
+        // Find which options are being deleted
+        $deletedOptionIds = $this->findDeletedOptionIds($currentOptions, $newOptions);
+
+        if ([] !== $deletedOptionIds) {
+            $entityStrategy = $this->entityCustomFieldUsageStrategyFactory->createUsageRemovalStrategy($targetEntityClass);
+            $entityStrategy->removeOptionUsages($customField->getId(), $deletedOptionIds);
+        }
+
         $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
         $customField->setOptions($updatedOptions);
     }
@@ -94,5 +106,18 @@ class CustomFieldUpdater
                 return $customFieldOption;
             })
             ->toArray();
+    }
+
+    /**
+     * @param CustomFieldOption[] $currentOptions
+     *
+     * @return string[]
+     */
+    private function findDeletedOptionIds(array $currentOptions, array $newOptions): array
+    {
+        $currentOptionIds = array_map(fn (CustomFieldOption $option) => $option->getId(), $currentOptions);
+        $newOptionIds = array_filter(array_map(fn ($option) => $option['id'] ?? null, $newOptions));
+
+        return array_diff($currentOptionIds, $newOptionIds);
     }
 }

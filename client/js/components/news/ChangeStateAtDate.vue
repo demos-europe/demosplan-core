@@ -36,7 +36,8 @@ All rights reserved
         }"
         :name="regularDropdownId"
 
-        :options="statusOptions" />
+        :options="statusOptions"
+      />
     </div>
     <div class="layout">
       <div class="layout__item u-5-of-12 u-12-of-12-lap-down u-mt-0_125">
@@ -47,24 +48,29 @@ All rights reserved
             value="1"
             type="checkbox"
             :checked="active"
-            @click="toggleCheckbox">
+            @click="toggleCheckbox"
+          >
           <label
             :for="checkSwitchId"
-            class="o-form__label inline-block">
+            class="o-form__label inline-block"
+          >
             {{ Translator.trans('change.state.at.date') }}
           </label>
         </span>
       </div><!--
    --><div
         v-if="active"
-        class="u-mt-0_125">
+        class="u-mt-0_125"
+      >
         <div
           class="layout__item u-2-of-12 u-6-of-12-lap-down"
-          :class="{ 'color--grey': active === false }">
+          :class="{ 'color--grey': active === false }"
+        >
           <dp-label
             required
             :text="Translator.trans('on')"
-            :for="dateId" />
+            :for="dateId"
+          />
           <dp-datepicker
             :id="dateId"
             v-model="changeDate"
@@ -74,7 +80,8 @@ All rights reserved
             :min-date="disabledDates.to"
             :disabled="active === false"
             :calendars-after="2"
-            @change="dateChanged" />
+            @change="dateChanged"
+          />
         </div><!--
      --><dp-select
           v-model="futureStatus"
@@ -83,7 +90,8 @@ All rights reserved
             text: Translator.trans('change.state.to')
           }"
           :name="delayedSwitchDropdownId"
-          :options="statusOptions" />
+          :options="statusOptions"
+        />
       </div>
     </div>
   </div>

@@ -21,23 +21,27 @@
             text: radioLabel(entity)
           }"
           :value="entity.key"
-          @change="active = entity.key" />
+          @change="active = entity.key"
+        />
       </template>
       <p
         v-else
         class="weight--bold"
-        v-html="radioLabel(availableEntities[0])" />
+        v-html="radioLabel(availableEntities[0])"
+      />
     </div>
 
     <form
       :action="Routing.generate(activeEntity.uploadPath, { procedureId: procedureId })"
       class="space-stack-s"
       method="post"
-      enctype="multipart/form-data">
+      enctype="multipart/form-data"
+    >
       <input
         name="_token"
         type="hidden"
-        :value="csrfToken">
+        :value="csrfToken"
+      >
 
       <dp-upload-files
         allowed-file-types="xls"
@@ -49,13 +53,15 @@
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file.allowed.formats', { browse: '{browse}', allowedFormats: '.xls, .xlsx, .ods', maxUploadSize: '100 MB' }) }"
         :tus-endpoint="dplan.paths.tusEndpoint"
         @file-remove="removeFileIds"
-        @upload-success="setFileIds" />
+        @upload-success="setFileIds"
+      />
       <div class="text-right">
         <button
           :disabled="fileIds.length === 0"
           type="submit"
           data-cy="statementImport"
-          class="btn btn--primary">
+          class="btn btn--primary"
+        >
           {{ Translator.trans('import.verb') }}
         </button>
       </div>

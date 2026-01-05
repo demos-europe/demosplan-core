@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionClass;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -29,12 +30,10 @@ use function array_flip;
 use function array_map;
 use function collect;
 
+#[AsCommand(name: 'dplan:documentation:project-permissions', description: 'Extend the permissions documentation with project information')]
 class ProjectPermissionsDocumentationCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:documentation:project-permissions';
-    protected static $defaultDescription = 'Extend the permissions documentation with project information';
-
-    public function __construct(ParameterBagInterface $parameterBag, private readonly PermissionsInterface $permissions, string $name = null)
+    public function __construct(ParameterBagInterface $parameterBag, private readonly PermissionsInterface $permissions, ?string $name = null)
     {
         parent::__construct($parameterBag, $name);
     }

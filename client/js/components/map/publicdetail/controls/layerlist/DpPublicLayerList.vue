@@ -11,7 +11,8 @@
   <ul
     v-if="layers.length"
     v-show="unfolded"
-    :class="prefixClass('c-map__group')">
+    :class="prefixClass('c-map__group')"
+  >
     <template v-for="(layer, idx) in attributedLayers">
       <dp-public-layer-list-layer
         v-if="layer.type === 'GisLayer' && (layerType === 'overlay' || showBaseLayers)"
@@ -21,7 +22,8 @@
         :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
         :layer-type="layerType"
         :parent-is-visible="parentIsVisible"
-        :visible="layer.attributes.layerType === 'overlay' ? layer.attributes.hasDefaultVisibility : (layer.id === firstActiveBaseLayerId)" />
+        :visible="layer.attributes.layerType === 'overlay' ? layer.attributes.hasDefaultVisibility : (layer.id === firstActiveBaseLayerId)"
+      />
       <dp-public-layer-list-category
         v-else
         :key="`category:${layer.id}`"
@@ -29,7 +31,8 @@
         :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
         :layer-type="layerType"
         :parent-is-visible="parentIsVisible"
-        :visible="true" />
+        :visible="true"
+      />
     </template>
   </ul>
 </template>

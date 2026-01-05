@@ -10,14 +10,17 @@
 <template>
   <ul
     class="bg-color--grey-light-2"
-    :class="depth === 0 ? 'c-toc c-toc--level-0 h-full overflow-x-auto u-ph u-pv-0_25' : 'c-toc--level-1'">
+    :class="depth === 0 ? 'c-toc c-toc--level-0 h-full overflow-x-auto u-ph u-pv-0_25' : 'c-toc--level-1'"
+  >
     <li
       v-for="(subgroup, idx) in group.subgroups"
-      :key="`subGroup:${idx}`">
+      :key="`subGroup:${idx}`"
+    >
       <div :class="{ 'u-pl-0_25': depth === 1, 'u-pl': depth === 2 }">
         <a
           class="o-link--default"
-          :href="`#viewMode_${getElementId(subgroup.title)}`">
+          :href="`#viewMode_${getElementId(subgroup.title)}`"
+        >
           {{ subgroup.title }}
         </a>
         <span class="u-pl-0_25">
@@ -28,7 +31,8 @@
       <assessment-table-toc-group
         v-if="subgroup.subgroups.length"
         :group="subgroup"
-        :parent-id="getElementId(subgroup.title)" />
+        :parent-id="getElementId(subgroup.title)"
+      />
     </li>
   </ul>
 </template>

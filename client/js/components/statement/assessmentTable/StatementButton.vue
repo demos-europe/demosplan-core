@@ -12,10 +12,12 @@
     class="c-at-item__tab-trigger o-link--icon inline-block u-pv-0_5 u-ph u-ml-0_5"
     :class="{'is-active-toggle':active}"
     :href="'#' + statementId + '_statement'"
-    @click="showStatement(statementId)">
+    @click="showStatement(statementId)"
+  >
     <i
       class="fa fa-file-o"
-      aria-hidden="true" />
+      aria-hidden="true"
+    />
     {{ Translator.trans('statement') }}
   </a>
 </template>

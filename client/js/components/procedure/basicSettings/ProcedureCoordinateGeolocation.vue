@@ -17,7 +17,8 @@
 
     <div
       v-else
-      class="flex">
+      class="flex"
+    >
       <dp-input
         id="postalcode"
         v-model="locationPostalCode"
@@ -27,7 +28,8 @@
           text: Translator.trans('postalcode')
         }"
         name="r_locationPostCode"
-        width="w-9" />
+        width="w-9"
+      />
       <dp-input
         id="locationName"
         v-model="locationName"
@@ -38,7 +40,8 @@
           text: Translator.trans('city')
         }"
         name="r_locationName"
-        width="w-9" />
+        width="w-9"
+      />
       <dp-input
         id="municipalCode"
         v-model="municipalCode"
@@ -49,7 +52,8 @@
           text: Translator.trans('municipal_code')
         }"
         name="r_municipalCode"
-        width="w-10" />
+        width="w-10"
+      />
       <dp-input
         id="ars"
         v-model="ars"
@@ -60,7 +64,8 @@
           text: Translator.trans('ars')
         }"
         name="r_ars"
-        width="w-10" />
+        width="w-10"
+      />
     </div>
   </div>
 </template>

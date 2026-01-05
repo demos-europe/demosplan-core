@@ -13,20 +13,23 @@
       <dp-version-history
         v-show="slidebar.showTab === 'history'"
         class="u-pr"
-        :procedure-id="procedure.id" />
+        :procedure-id="procedure.id"
+      />
       <segment-comments-list
         v-if="hasPermission('feature_segment_comment_list_on_segment')"
         v-show="slidebar.showTab === 'comments'"
         ref="commentsList"
         class="u-mb-2 u-pr"
-        :current-user="currentUser" />
+        :current-user="currentUser"
+      />
       <segment-location-map
         v-show="slidebar.showTab === 'map'"
         ref="locationMap"
         :map-data="procedureMapSettings"
         :procedure-id="procedure.id"
         :segment-id="slidebar.segmentId"
-        :statement-id="statementId" />
+        :statement-id="statementId"
+      />
     </dp-slidebar>
 
     <dp-sticky-element>
@@ -34,25 +37,29 @@
         <div class="inline-flex space-inline-m">
           <status-badge
             class="mr-2"
-            :status="statement.attributes.status || 'new'" />
+            :status="statement.attributes.status || 'new'"
+          />
           <h1 class="font-size-larger align-middle inline-block u-m-0">
             #{{ statementExternId }}
           </h1>
           <div
             v-if="hasPermission('feature_segment_recommendation_edit')"
-            class="btn-group">
+            class="btn-group"
+          >
             <button
               class="btn btn--outline btn--primary"
               :class="{'is-current': currentAction === 'addRecommendation'}"
               data-cy="addRecommendation"
-              @click="currentAction = 'addRecommendation'">
+              @click="currentAction = 'addRecommendation'"
+            >
               {{ Translator.trans('segment.recommendation') }}
             </button>
             <button
               class="btn btn--outline btn--primary"
               :class="{'is-current': currentAction === 'editText'}"
               data-cy="editText"
-              @click="currentAction = 'editText'">
+              @click="currentAction = 'editText'"
+            >
               {{ Translator.trans('edit') }}
             </button>
           </div>
@@ -68,13 +75,15 @@
               entity-type="statement"
               :is-loading="isLoading"
               :label="Translator.trans(`${currentUser.id === currentAssignee.id ? 'assigned' : 'assign'}`)"
-              @click="toggleClaimStatement" />
+              @click="toggleClaimStatement"
+            />
           </li>
           <li>
             <statement-export-modal
               data-cy="statementSegmentsList:export"
               is-single-statement-export
-              @export="showHintAndDoExport" />
+              @export="showHintAndDoExport"
+            />
           </li>
           <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
@@ -84,24 +93,28 @@
                   <span v-text="attachmentsAndOriginalPdfCount" />
                   <i
                     class="fa fa-angle-down"
-                    aria-hidden="true" />
+                    aria-hidden="true"
+                  />
                 </span>
               </template>
               <template v-if="statement">
                 <div class="overflow-x-scroll break-words max-h-13 max-w-14 w-max">
                   <span
                     v-if="originalAttachment.hash"
-                    class="block weight--bold">
+                    class="block weight--bold"
+                  >
                     {{ Translator.trans('original.pdf') }}
                   </span>
                   <statement-meta-attachments-link
                     v-if="originalAttachment.hash"
                     class="block whitespace-normal u-mr-0_75"
                     :attachment="originalAttachment"
-                    :procedure-id="procedure.id" />
+                    :procedure-id="procedure.id"
+                  />
                   <span
                     v-if="additionalAttachments.length > 0"
-                    class="block weight--bold">
+                    class="block weight--bold"
+                  >
                     {{ Translator.trans('more.attachments') }}
                   </span>
                   <statement-meta-attachments-link
@@ -109,7 +122,8 @@
                     :key="attachment.hash"
                     class="block whitespace-normal u-mr-0_75"
                     :attachment="attachment"
-                    :procedure-id="procedure.id" />
+                    :procedure-id="procedure.id"
+                  />
                 </div>
               </template>
             </dp-flyout>
@@ -121,7 +135,8 @@
                   {{ Translator.trans('statement.metadata') }}
                   <i
                     class="fa fa-angle-down"
-                    aria-hidden="true" />
+                    aria-hidden="true"
+                  />
                 </span>
               </template>
               <statement-meta-tooltip
@@ -129,7 +144,8 @@
                 :statement="statement"
                 :submit-type-options="submitTypeOptions"
                 toggle-button
-                @toggle="toggleInfobox" />
+                @toggle="toggleInfobox"
+              />
             </dp-flyout>
           </li>
         </ul>
@@ -146,6 +162,7 @@
         :available-priority-areas="availablePriorityAreas"
         :current-user-id="currentUser.id"
         :editable="editable"
+        :is-source-and-coupled-procedure="isSourceAndCoupledProcedure"
         :statement-form-definitions="statementFormDefinitions"
         :procedure="procedure"
         :procedure-statement-priority-area="procedureStatementPriorityArea"
@@ -154,12 +171,14 @@
         @close="showInfobox = false"
         @input="checkStatementClaim"
         @save="(statement) => saveStatement(statement)"
-        @updatedVoters="getStatement" />
+        @updated-voters="getStatement"
+      />
       <segments-recommendations
         v-if="currentAction === 'addRecommendation' && hasPermission('feature_segment_recommendation_edit')"
         :current-user="currentUser"
         :procedure-id="procedure.id"
-        :statement-id="statementId" />
+        :statement-id="statementId"
+      />
       <statement-segments-edit
         v-else-if="currentAction === 'editText'"
         :current-user="currentUser"
@@ -167,21 +186,33 @@
         :has-draft-segments="hasDraftSegments()"
         :statement-id="statementId"
         @statement-text:updated="checkStatementClaim"
-        @save-statement="saveStatement" />
+        @save-statement="saveStatement"
+      />
     </div>
+    <dp-button
+      class="mt-4"
+      color="primary"
+      :href="sanitizedReturnLink"
+      :text="sourcePageButtonText"
+      @click="removeNavigationSourceStorageEntry"
+    />
   </div>
 </template>
 
 <script>
 import {
   dpApi,
+  DpButton,
   DpFlyout,
   DpSlidebar,
   DpStickyElement,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { buildDetailedStatementQuery } from '../Shared/utils/statementQueryBuilder'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
+import lscache from 'lscache'
+import { sanitizeUrl } from '@braintree/sanitize-url'
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'
 import SegmentsRecommendations from './SegmentsRecommendations'
@@ -196,6 +227,7 @@ export default {
   name: 'StatementSegmentsList',
 
   components: {
+    DpButton,
     DpClaim,
     DpFlyout,
     DpSlidebar,
@@ -308,9 +340,11 @@ export default {
       currentAction: 'addRecommendation',
       isLoading: false,
       procedureMapSettings: {},
+      returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedure.id }),
       segmentDraftList: '',
       // Add key to meta box to rerender the component in case the save request fails and the data is store in set back to initial values
       showInfobox: false,
+      sourcePage: '',
       statementClaimChecked: false,
       submittersList: '',
     }
@@ -432,6 +466,10 @@ export default {
       return !this.originalAttachment.hash && this.additionalAttachments.length === 0
     },
 
+    navigationSource () {
+      return lscache.get(`${this.procedure.id}:navigation:source`)
+    },
+
     originalAttachment () {
       const originalAttachment = this.statement.hasRelationship('sourceAttachment') ?
         Object.values(this.statement.relationships.sourceAttachment.list())[0] :
@@ -446,6 +484,18 @@ export default {
           id: originalAttachment.id,
         } :
         {}
+    },
+
+    sanitizedReturnLink () {
+      return sanitizeUrl(this.returnLink)
+    },
+
+    sourcePageButtonText () {
+      if (this.sourcePage === 'StatementsList') {
+        return Translator.trans('back.to.statements.list')
+      }
+
+      return Translator.trans('back.to.segments.list')
     },
 
     statement () {
@@ -568,153 +618,19 @@ export default {
     },
 
     getStatement () {
-      const statementFields = [
-        'assignee',
-        'authoredDate',
-        'authorName',
-        'consentRevoked',
-        'counties',
-        'document',
-        'elements',
-        'fullText',
-        'genericAttachments',
-        'initialOrganisationCity',
-        'initialOrganisationDepartmentName',
-        'initialOrganisationHouseNumber',
-        'initialOrganisationName',
-        'initialOrganisationPostalCode',
-        'initialOrganisationStreet',
-        'internId',
-        'isManual',
-        'isSubmittedByCitizen',
-        'memo',
-        'municipalities',
-        'numberOfAnonymVotes',
-        'paragraph',
-        'paragraphParentId',
-        'paragraphVersion',
-        'polygon',
-        'priorityAreas',
-        'priorityAreas',
-        'procedurePhase',
-        'publicVerified',
-        'publicVerifiedTranslation',
-        'recommendation',
-        'segmentDraftList',
-        'sourceAttachment',
-        'submitDate',
-        'submitName',
-        'submitterAndAuthorMetaDataAnonymized',
-        'submitterEmailAddress',
-        'submitType',
-        'status',
-        'votes',
-      ]
-
-      if (this.isSourceAndCoupledProcedure) {
-        statementFields.push('synchronized')
-      }
-
-      if (hasPermission('field_statement_phase')) {
-        statementFields.push('availableProcedurePhases')
-      }
-
-      if (hasPermission('area_statement_segmentation')) {
-        statementFields.push('segmentDraftList')
-      }
-
-      if (hasPermission('feature_similar_statement_submitter')) {
-        statementFields.push('similarStatementSubmitters')
-      }
-
-      if (hasPermission('field_send_final_email')) {
-        statementFields.push('authorFeedback', 'feedback', 'initialOrganisationEmail', 'publicStatement', 'sentAssessment', 'sentAssessmentDate', 'user')
-      }
-
-      const allFields = {
-        ElementsDetails: [
-          'documents',
-          'paragraphs',
-          'title',
-        ].join(),
-        File: [
-          'hash',
-          'filename',
-        ].join(),
-        GenericStatementAttachment: [
-          'file',
-        ].join(),
-        ParagraphVersion: [
-          'title',
-        ].join(),
-        SingleDocument: [
-          'title',
-        ].join(),
-        SourceStatementAttachment: [
-          'file',
-        ].join(),
-        Statement: statementFields.join(),
-      }
-
-      if (hasPermission('feature_statements_vote')) {
-        allFields.StatementVote = [
-          'city',
-          'createdByCitizen',
-          'departmentName',
-          'email',
-          'name',
-          'organisationName',
-          'postcode',
-        ].join()
-      }
-
-      if (hasPermission('feature_similar_statement_submitter')) {
-        allFields.SimilarStatementSubmitter = [
-          'city',
-          'emailAddress',
-          'fullName',
-          'postalCode',
-          'streetName',
-          'streetNumber',
-        ].join()
-      }
-
-      if (hasPermission('field_send_final_email')) {
-        allFields.User = [
-          'orga',
-        ].join()
-      }
-
-      const include = [
-        'assignee',
-        'document',
-        'elements',
-        'genericAttachments',
-        'genericAttachments.file',
-        'paragraph',
-        'paragraphVersion.paragraph',
-        'sourceAttachment',
-        'sourceAttachment.file',
-        'votes',
-      ]
-
-      if (hasPermission('feature_similar_statement_submitter')) {
-        include.push('similarStatementSubmitters')
-      }
-
-      if (hasPermission('field_send_final_email')) {
-        include.push('user', 'user.orga')
-      }
-
-      return this.getStatementAction({
-        id: this.statementId,
-        include: include.join(),
-        fields: allFields,
+      const params = buildDetailedStatementQuery(this.statementId, {
+        isSourceAndCoupledProcedure: this.isSourceAndCoupledProcedure,
       })
+
+      return this.getStatementAction(params)
     },
 
     hasDraftSegments () {
       return Boolean(this.statement?.attributes?.segmentDraftList?.data?.attributes?.segments?.length)
+    },
+
+    removeNavigationSourceStorageEntry () {
+      lscache.remove(`${this.procedure.id}:navigation:source`)
     },
 
     resetSlidebar () {
@@ -767,6 +683,23 @@ export default {
 
       const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'addRecommendation' : 'editText'
       this.currentAction = action || defaultAction
+    },
+
+    setReturnLink () {
+      const currentQueryHash =
+        lscache.get(`${this.procedure.id}:segments:currentQueryHash`)
+
+      if (currentQueryHash && (!this.sourcePage || this.sourcePage === 'SegmentsList')) {
+        this.returnLink =
+          Routing.generate('dplan_segments_list_by_query_hash', {
+            procedureId: this.procedure.id,
+            queryHash: currentQueryHash,
+          })
+      } else if (this.sourcePage === 'StatementsList') {
+        this.returnLink = Routing.generate('dplan_procedure_statement_list', {
+          procedureId: this.procedure.id
+        })
+      }
     },
 
     showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
@@ -834,7 +767,7 @@ export default {
     },
 
     toggleInfobox () {
-      this.showInfobox = true
+      this.currentAction = 'editText'
       this.$refs.metadataFlyout.isExpanded = false
     },
 
@@ -870,11 +803,15 @@ export default {
 
   created () {
     this.setInitialAction()
-    this.$root.$on('statementAttachments:added', this.getStatement)
   },
 
   mounted () {
     this.getStatement()
+
+    this.sourcePage = this.navigationSource
+
+    this.setReturnLink()
+
     if (hasPermission('field_segments_custom_fields')) {
       this.fetchCustomFields()
     }

@@ -13,13 +13,15 @@
     :header-fields="headerFields"
     resource-type="InvitableToeb"
     :procedure-id="procedureId"
-    @selected-items="setSelectedItems" />
+    @selected-items="setSelectedItems"
+  />
 
   <div class="mt-2 pt-2 flex">
     <div class="w-1/3 inline-block">
       <span
         v-if="selectedItems.length"
-        class="weight--bold line-height--1_6">
+        class="weight--bold line-height--1_6"
+      >
         {{ selectedItemsText }}
       </span>
     </div>

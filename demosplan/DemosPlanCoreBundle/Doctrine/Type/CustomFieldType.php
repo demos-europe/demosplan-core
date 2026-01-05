@@ -63,7 +63,7 @@ class CustomFieldType extends JsonType
                 }
             )
             ->filter(
-                static fn (CustomFieldInterface $field) =>  $fieldType === $field->getFormat()
+                static fn (CustomFieldInterface $field) =>  $fieldType === $field->getFieldType()
             )
             ->map(
                 static function (CustomFieldInterface $field) use (

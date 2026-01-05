@@ -556,8 +556,8 @@
         {% endif %}
 
         {% if hasPermission('field_statement_polygon') and formDefinitions.mapAndCountyReference.enabled == true %}
-            <div class="layout--flush u-mb">
-                <strong class="layout__item u-1-of-4 block u-mb-0_25">
+            <div class="layout--flush mb-4">
+                <strong class="layout__item u-1-of-4 block mb-1">
                     {{ "location"|trans }}
                 </strong>
                 {% if statement.polygon is defined and statement.polygon != '' %}
@@ -573,13 +573,13 @@
         {% if hasPermission('field_statement_county') %}
 
             {% if readonly %}
-                <div class="layout--flush u-mb-0_75">
-                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
+                <div class="layout--flush mb-3">
+                    <strong class="layout__item u-1-of-4 block mb-1">
                         {{ "counties"|trans }}
                     </strong>
                     {% if statement.counties is defined %}
                         {% if statement.counties|default(false) != false %}
-                            <ul class="o-list o-list--csv layout__item u-1-of-1 u-mb-0_5 color--grey">
+                            <ul class="o-list o-list--csv layout__item u-1-of-1 mb-2 color--grey">
                                 {% for county in templateVars.availableCounties %}
                                     {% if county in statement.counties|default(false) %}
                                         <li class="o-list__item">{{ county.name }}</li>
@@ -592,18 +592,18 @@
                     {% endif %}
                 </div>
             {% else %}
-                <div class="layout--flush u-mb">
-                    <strong class="layout__item u-1-of-4 block u-mb-0_25">
+                <div class="layout--flush mb-4">
+                    <strong class="layout__item u-1-of-4 block mb-1">
                         {{ "counties"|trans }}
                     </strong>
                     <dp-multiselect
-                        v-model="selectedCounties"
+                        :value="selectedCounties"
                         class="layout__item u-1-of-1 inline-block"
                         label="name"
                         multiple
                         :options="counties"
                         track-by="id"
-                        @input="sortSelected('Counties')">
+                        @input="handleCountiesInput">
                         <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
@@ -648,13 +648,13 @@
                         {{ "municipalities"|trans }}
                     </strong>
                     <dp-multiselect
-                        v-model="selectedMunicipalities"
+                        :value="selectedMunicipalities"
                         class="layout__item u-1-of-1 inline-block"
                         label="name"
                         multiple
                         :options="municipalities"
                         track-by="id"
-                        @input="sortSelected('Municipalities')">
+                        @input="handleMunicipalitiesInput">
                         <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
@@ -699,22 +699,22 @@
                         {{ "priorityArea"|trans }}
                     </strong>
                     <dp-multiselect
-                        v-model="selectedPriorityAreas"
+                        :value="selectedPriorityAreas"
                         class="layout__item u-1-of-1 inline-block"
                         label="name"
                         multiple
                         :options="priorityAreas"
                         track-by="id"
-                        @input="sortSelected('PriorityAreas')">
+                        @input="handlePriorityAreasInput">
                         <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
                         <template v-slot:tag="{ props }">
-                                    <span class="multiselect__tag">
-                                        {% verbatim %}{{ props.option.name }}{% endverbatim %}
-                                        <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
-                                        <input type="hidden" :value="props.option.id" name="r_priorityAreas[]"/>
-                                    </span>
+                            <span class="multiselect__tag">
+                                {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                <input type="hidden" :value="props.option.id" name="r_priorityAreas[]"/>
+                            </span>
                         </template>
                     </dp-multiselect>
                 </div>

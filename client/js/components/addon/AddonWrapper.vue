@@ -1,5 +1,7 @@
 <template>
-  <div>
+  <div
+    v-if="loadedAddons.length > 0"
+    :class="wrapperClasses">
     <component
       v-bind="{ demosplanUi, ...addonProps }"
       :is="addon.component"
@@ -7,7 +9,8 @@
       :key="`addon:${addon.name}`"
       :ref="`${addon.name}${refComponent}`"
       :data-cy="`addon:${addon.name}`"
-      @addonEvent:emit="(event) => $emit(event.name, event.payload)" />
+      @addon-event:emit="(event) => $emit(event.name, event.payload)"
+    />
   </div>
 </template>
 
@@ -42,6 +45,12 @@ export default {
       type: String,
       required: false,
       default: 'Addon',
+    },
+
+    wrapperClasses: {
+      type: String,
+      required: false,
+      default: '',
     },
   },
 

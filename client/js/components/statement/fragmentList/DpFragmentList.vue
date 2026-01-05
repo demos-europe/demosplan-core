@@ -19,11 +19,13 @@
         :statement-id="missKeyValue(fragment.statement.id, 0)"
         :current-user-id="currentUserId"
         :current-user-name="currentUserName"
-        :advice-values="adviceValues" />
+        :advice-values="adviceValues"
+      />
     </template>
     <article
       v-else
-      class="c-at-item u-mb">
+      class="c-at-item u-mb"
+    >
       {{ Translator.trans('fragments.none') }}
     </article>
   </section>

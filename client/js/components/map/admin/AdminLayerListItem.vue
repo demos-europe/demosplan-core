@@ -26,141 +26,166 @@
       'cursor-pointer' : (!layer.attributes.isBaseLayer && layer.type !== 'GisLayerCategory' && !isChildOfCategoryThatAppearsAsLayer),
     }"
     data-cy="adminLayerListItem:setLayerActive"
-    :disabled="layer.attributes.isBaseLayer || layer.type === 'GisLayerCategory' || isChildOfCategoryThatAppearsAsLayer"
+    :aria-disabled="isDisabled"
     :aria-pressed="isActive"
     :aria-label="layer.attributes.name + (isActive ? ' (active)' : ' (inactive)')"
-    @click="setActiveState"
+    @click="handleClick"
     @mouseover="mouseOverElement"
     @mouseout="mouseOutElement"
     @focus="mouseOverElement"
-    @blur="mouseOutElement">
+    @blur="mouseOutElement"
+  >
     <span class="c-at-item__row-icon inline-block">
       <i
         class="fa fa-bars handle w-[20px] cursor-grab"
         aria-hidden="true"
-        :title="Translator.trans('move')" />
+        :title="Translator.trans('move')"
+      />
     </span><!--
  --><span
-    class="inline-block layout--flush c-at-item__row"
-    data-cy="mapLayerListItem">
-    <span
-      class="inline-block"
-      :class="hasPermission('feature_map_layer_visibility') ? 'w-8/12 ' : 'w-10/12'">
-      <!-- regular categories -->
-      <i
-        v-if="layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden"
-        aria-hidden="true"
-        class="fa u-mr-0_125"
-        :class="[childElements.length > 0 ? (showChildren ? 'fa-folder-open' : 'fa-folder') :'fa-folder-o']"
-        @click="toggleChildren" />
-      {{ layer.attributes.name }}
+      class="inline-block layout--flush c-at-item__row"
+      data-cy="mapLayerListItem"
+    >
       <span
-        v-if="isChildOfCategoryThatAppearsAsLayer && 'mapOrder' === sortingType"
-        class="font-size-smaller mr-2">
-          <!-- children of categories that should appear as Layer
-                    only in map-list (where no categories are shown)
-                    -->
-        <br>{{ Translator.trans('maplayer.hidden.child.of.category') }}
-      </span>
-      <span
-        v-if="layer.attributes.layerWithChildrenHidden"
-        class="font-size-smaller mr-2">
-          <!-- categories that should appear as Layer -->
-        <br>{{ Translator.trans('maplayer.category.with.hidden.children') }}
-      </span>
-      <span
-        v-if="layer.attributes.description"
-        class="font-size-smaller mr-2">
-        <br>{{ layer.attributes.description }}
-      </span>
-      <span
-        v-if="layer.attributes.isBplan"
-        class="font-size-smaller mr-2">
-        <br>{{ Translator.trans('explanation.gislayer.useas.bplan') }}
-      </span>
-      <span
-        v-if="layer.attributes.isScope"
-        class="font-size-smaller mr-2">
-        <br>{{ Translator.trans('explanation.gislayer.useas.scope') }}
-      </span>
-      <span
-        v-if="false === layer.attributes.isEnabled"
-        class="font-size-smaller">
-        <br>{{ Translator.trans('explanation.gislayer.useas.invisible') }}
-      </span>
-      <span
-        v-if="layer.attributes.isPrint"
-        class="font-size-smaller">
-        <br>{{ Translator.trans('explanation.gislayer.useas.print') }}
-      </span>
-    </span><!--
-            Show this Stuff (Visibility-group / show initially on load) only for layer, not for Categories
- --><template v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')">
-<!--
-    --><div class="inline-block w-1/12 text-right">
-      <button
-        v-if="layer.attributes.isBaseLayer === false && isChildOfCategoryThatAppearsAsLayer === false"
-        type="button"
-        data-cy="adminLayerListItem:toggleVisibilityGroup"
-        class="w-full flex items-center justify-center cursor-pointer"
-        :title="hintTextForLockedLayer"
-        @click.stop="toggleVisibilityGroup"
-        @mouseover="setIconHoverState"
-        @mouseout="unsetIconHoverState"
-        @focus="setIconHoverState"
-        @blur="unsetIconHoverState">
+        class="inline-block"
+        :class="hasPermission('feature_map_layer_visibility') ? 'w-8/12 ' : 'w-10/12'"
+      >
+        <!-- regular categories -->
         <i
-          :aria-label="Translator.trans('gislayer.visibilitygroup.toggle')"
-          :class="[iconClass,showGroupableIcon]" />
-      </button>
-    </div><!--
-    --><div class="inline-block w-1/12 text-right">
-      <input
-        type="checkbox"
-        data-cy="adminLayerListItem:toggleDefaultVisibility"
-        :disabled="layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
-        :checked="hasDefaultVisibility"
-        :class="[iconClass, 'o-sortablelist__checkbox']"
-        @change.prevent="toggleHasDefaultVisibility">
-      </div><!--
-  -->
-</template><!--
-          Show this Stuff for 'special category that looks like an Layer and hides all his children'
- --><template v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)">
-<!--
-   --><div class="inline-block w-2/12 text-right">
-        <input
-          type="checkbox"
-          data-cy="adminLayerListItem:toggleDefaultVisibility"
-          :checked="hasDefaultVisibility"
-          :class="[iconClass, 'o-sortablelist__checkbox']"
-          @change.prevent="toggleHasDefaultVisibility">
-      </div><!--
-     -->
-    </template><!--
-  --><span
-      v-if="(layer.type !== 'GisLayer' && (false === layer.attributes.layerWithChildrenHidden))"
-      class="inline-block w-2/12 text-right">
-      <!-- spacer for groups -->
-    </span><!--
-  --><span class="inline-block w-2/12 text-right">
-      <a
-        :href="editLink"
-        data-cy="editLink">
-        <i
-          class="fa fa-pencil mr-2"
+          v-if="layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden"
           aria-hidden="true"
-          :title="Translator.trans('edit')" /><span class="sr-only">{{ Translator.trans('edit') }}</span>
-      </a>
-      <button
-        v-if="childElements.length <= 0"
-        class="btn--blank o-link--default mr-2 align-bottom"
-        data-cy="adminLayerListItem:deleteElement"
-        :title="Translator.trans('delete')"
-        @click.prevent="deleteElement">
-        <i
-          class="fa fa-trash"
-          aria-hidden="true" /><span class="sr-only">{{ Translator.trans('delete') }}</span>
+          class="fa u-mr-0_125"
+          :class="[childElements.length > 0 ? (showChildren ? 'fa-folder-open' : 'fa-folder') :'fa-folder-o']"
+          @click="toggleChildren"
+        />
+        {{ layer.attributes.name }}
+        <span
+          v-if="isChildOfCategoryThatAppearsAsLayer && 'mapOrder' === sortingType"
+          class="font-size-smaller mr-2"
+        >
+          <!-- children of categories that should appear as Layer only in map-list (where no categories are shown) -->
+          <br>{{ Translator.trans('maplayer.hidden.child.of.category') }}
+        </span>
+        <span
+          v-if="layer.attributes.layerWithChildrenHidden"
+          class="font-size-smaller mr-2"
+        >
+            <!-- categories that should appear as Layer -->
+          <br>{{ Translator.trans('maplayer.category.with.hidden.children') }}
+        </span>
+        <span
+          v-if="layer.attributes.description"
+          class="font-size-smaller mr-2"
+        >
+          <br>{{ layer.attributes.description }}
+        </span>
+        <span
+          v-if="layer.attributes.isBplan"
+          class="font-size-smaller mr-2"
+        >
+          <br>{{ Translator.trans('explanation.gislayer.useas.bplan') }}
+        </span>
+        <span
+          v-if="layer.attributes.isScope"
+          class="font-size-smaller mr-2"
+        >
+          <br>{{ Translator.trans('explanation.gislayer.useas.scope') }}
+        </span>
+        <span
+          v-if="false === layer.attributes.isEnabled"
+          class="font-size-smaller"
+        >
+          <br>{{ Translator.trans('explanation.gislayer.useas.invisible') }}
+        </span>
+        <span
+          v-if="layer.attributes.isPrint"
+          class="font-size-smaller"
+        >
+          <br>{{ Translator.trans('explanation.gislayer.useas.print') }}
+        </span>
+      </span><!--
+      Show this Stuff (Visibility-group / show initially on load) only for layer, not for Categories
+   --><template v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')">
+<!--
+     --><div class="inline-block w-1/12 text-right">
+          <button
+            v-if="layer.attributes.isBaseLayer === false && isChildOfCategoryThatAppearsAsLayer === false"
+            type="button"
+            data-cy="adminLayerListItem:toggleVisibilityGroup"
+            class="w-full flex items-center justify-center cursor-pointer"
+            :title="hintTextForLockedLayer"
+            @click.stop="toggleVisibilityGroup"
+            @mouseover="setIconHoverState"
+            @mouseout="unsetIconHoverState"
+            @focus="setIconHoverState"
+            @blur="unsetIconHoverState"
+          >
+            <i
+              :aria-label="Translator.trans('gislayer.visibilitygroup.toggle')"
+              :class="[iconClass,showGroupableIcon]"
+            />
+          </button>
+        </div><!--
+     --><div class="inline-block w-1/12 text-right">
+          <input
+            type="checkbox"
+            data-cy="adminLayerListItem:toggleDefaultVisibility"
+            :disabled="layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
+            :checked="hasDefaultVisibility"
+            :class="[iconClass, 'o-sortablelist__checkbox']"
+            @change.prevent="toggleHasDefaultVisibility"
+          >
+        </div><!--
+  -->
+      </template><!--
+        Show this Stuff for 'special category that looks like an Layer and hides all his children'
+   --><template v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)">
+<!--
+     --><div class="inline-block w-2/12 text-right">
+          <input
+            type="checkbox"
+            data-cy="adminLayerListItem:toggleDefaultVisibility"
+            :checked="hasDefaultVisibility"
+            :class="[iconClass, 'o-sortablelist__checkbox']"
+            @change.prevent="toggleHasDefaultVisibility"
+          >
+        </div><!--
+     -->
+      </template><!--
+   --><span
+        v-if="(layer.type !== 'GisLayer' && (false === layer.attributes.layerWithChildrenHidden))"
+        class="inline-block w-2/12 text-right"
+      >
+      <!-- spacer for groups -->
+      </span><!--
+   --><span class="inline-block w-2/12 text-right">
+        <a
+          :href="editLink"
+          data-cy="editLink"
+        >
+          <i
+            class="fa fa-pencil mr-2"
+            aria-hidden="true"
+            :title="Translator.trans('edit')"
+          />
+          <span class="sr-only">
+            {{ Translator.trans('edit') }}
+          </span>
+        </a>
+        <button
+          v-if="childElements.length <= 0"
+          class="btn--blank o-link--default mr-2 align-bottom"
+          data-cy="adminLayerListItem:deleteElement"
+          :title="Translator.trans('delete')"
+          @click.prevent="deleteElement"
+        >
+          <i
+            class="fa fa-trash"
+            aria-hidden="true"
+          />
+          <span class="sr-only">
+            {{ Translator.trans('delete') }}
+          </span>
         </button>
       </span>
     </span>
@@ -173,7 +198,8 @@
       :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
       :opts="draggableOptions"
       :content-data="childElements"
-      @end="updateChildren">
+      @end="updateChildren"
+    >
       <admin-layer-list-item
         v-for="(item, idx) in childElements"
         :key="item.id"
@@ -181,10 +207,12 @@
         :sorting-type="sortingType"
         :layer-type="layerType"
         :parent-order-position="orderPosition"
-        :index="idx" />
+        :index="idx"
+      />
       <div
         v-if="childElements.length <= 0"
-        class="o-sortablelist__spacer" />
+        class="o-sortablelist__spacer"
+      />
     </dp-draggable>
 
     <!-- if special category that looks like an Layer and hides all his children -->
@@ -196,7 +224,8 @@
       :opts="draggableOptions"
       :content-data="childElements"
       :node-id="layer.id"
-      @end="updateChildren">
+      @end="updateChildren"
+    >
       <admin-layer-list-item
         v-for="(item, idx) in childElements"
         :key="item.id"
@@ -204,10 +233,12 @@
         :index="idx"
         :layer-type="layerType"
         :parent-order-position="orderPosition"
-        :sorting-type="sortingType" />
+        :sorting-type="sortingType"
+      />
       <div
         v-if="childElements.length <= 0"
-        class="o-sortablelist__spacer" />
+        class="o-sortablelist__spacer"
+      />
     </dp-draggable>
   </button>
 </template>
@@ -262,6 +293,8 @@ export default {
     },
   },
 
+  emits: ['visibilityToggled'],
+
   data () {
     return {
       drag: false,
@@ -272,6 +305,12 @@ export default {
   },
 
   computed: {
+    isDisabled () {
+      return this.layer.attributes.isBaseLayer ||
+        this.layer.type === 'GisLayerCategory' ||
+        this.isChildOfCategoryThatAppearsAsLayer
+    },
+
     parentCategory () {
       // Get parentLayer and check if it hides its children
       const parentLayer = this.$store.getters['Layers/element']({
@@ -335,7 +374,7 @@ export default {
        *
        */
       const toggleMyIconInSameGroup = (this.isLinkedWithCurrentlyHovered && this.showCurrentIconState)
-      const toggleMyIconWithoutGroup = (this.showCurrentIconState && this.visibilityGroupIdOfHoveredLayer === '')
+      const toggleMyIconWithoutGroup = (this.showCurrentIconState && !this.visibilityGroupIdOfHoveredLayer)
 
       if (this.isActive) {
         if (this.hasSettingsThatPreventGrouping) {
@@ -457,7 +496,7 @@ export default {
     },
 
     hasGroupId () {
-      return this.layer.attributes.visibilityGroupId !== ''
+      return !!this.layer.attributes.visibilityGroupId
     },
 
     /**
@@ -581,7 +620,7 @@ export default {
         return Translator.trans('explanation.gislayer.visibility.group.locked.different.not.togglable')
       }
 
-      if (this.layer.attributes.visibilityGroupId !== this.activeLayerVisibilityGroupId || this.layer.attributes.visibilityGroupId !== '') {
+      if (this.layer.attributes.visibilityGroupId !== this.activeLayerVisibilityGroupId && !!this.layer.attributes.visibilityGroupId) {
         return Translator.trans('explanation.gislayer.visibility.group.locked.different.group')
       }
 
@@ -598,7 +637,7 @@ export default {
      * returns Boolean
      */
     isLinkedWithCurrentlyActive () {
-      return (this.layer.attributes.visibilityGroupId === this.activeLayerVisibilityGroupId && this.layer.attributes.visibilityGroupId !== '')
+      return (this.layer.attributes.visibilityGroupId === this.activeLayerVisibilityGroupId && !!this.layer.attributes.visibilityGroupId)
     },
     /**
      * Checks if this element is in the same visibility-group as the hovered Layer
@@ -606,7 +645,7 @@ export default {
      * returns Boolean
      */
     isLinkedWithCurrentlyHovered () {
-      return (this.layer.attributes.visibilityGroupId === this.visibilityGroupIdOfHoveredLayer && this.layer.attributes.visibilityGroupId !== '' && this.hoverLayerId !== this.layer.id)
+      return (this.layer.attributes.visibilityGroupId === this.visibilityGroupIdOfHoveredLayer && !!this.layer.attributes.visibilityGroupId && this.hoverLayerId !== this.layer.id)
     },
 
     /**
@@ -794,9 +833,23 @@ export default {
         this.setAttributeForLayer({
           id: el.id,
           attribute: 'visibilityGroupId',
-          value: '',
+          value: null,
         })
       })
+    },
+
+    /**
+     * For base layers, categories, and children of categories that appear as layers (= isDisabled), it should not be
+     * possible to set them to 'active' for the visibility group feature
+     * Since disabling the button also removes the drag+drop functionality (which should not be disabled!) in firefox (in
+     * chrome, drag+drop still works), we need to handle it like this + via styling of the button
+     */
+    handleClick () {
+      if (this.isDisabled) {
+        return
+      }
+
+      this.setActiveState()
     },
 
     /**
@@ -868,11 +921,18 @@ export default {
         return
       }
 
+      const newValue = !this.layer.attributes.hasDefaultVisibility
+
       this.setAttributeForLayer({
         id: this.layer.id,
         attribute: 'hasDefaultVisibility',
-        value: (this.layer.attributes.hasDefaultVisibility === false),
+        value: newValue,
       })
+
+      // If this is a base layer being set to visible, emit event to parent
+      if (this.layer.attributes.isBaseLayer && newValue === true) {
+        this.$emit('visibilityToggled', this.layer.id)
+      }
 
       // If the Category hides his children we have to change the Value for the Children too so it will work in public detail
       if (this.layer.attributes.layerWithChildrenHidden) {
@@ -889,19 +949,19 @@ export default {
        * so we set the clicked one as active instead
        * base-layer can't be grouped at all
        */
-      let newVisibilityGroupId = (typeof this.activeLayer.attributes === 'undefined') ? '' : this.activeLayer.attributes.visibilityGroupId
+      let newVisibilityGroupId = (typeof this.activeLayer.attributes === 'undefined') ? null : this.activeLayer.attributes.visibilityGroupId
       this.preventActiveFromToggeling = true
 
       if (typeof this.activeLayer.id === 'undefined' ||
         this.layerType === 'base' ||
         this.isActive ||
-        (this.layer.attributes.visibilityGroupId !== newVisibilityGroupId && this.layer.attributes.visibilityGroupId !== '') ||
+        (this.layer.attributes.visibilityGroupId !== newVisibilityGroupId && !!this.layer.attributes.visibilityGroupId) ||
         this.hasSettingsThatPreventGrouping ||
         this.isLoading) {
         return false
       }
 
-      if (newVisibilityGroupId === '' || typeof newVisibilityGroupId === 'undefined') {
+      if (!newVisibilityGroupId) {
         // If the active Layer has no visibilitygroupId, create one and attach it to the active and the clicked Layer
         newVisibilityGroupId = uuid()
         this.setAttributeForLayer({

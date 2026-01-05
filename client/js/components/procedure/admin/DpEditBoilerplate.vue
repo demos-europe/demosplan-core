@@ -11,7 +11,8 @@
   <div>
     <slot
       :boilerplate-group="boilerplateGroup"
-      :set-boilerplate-group="setBoilerplateGroup" />
+      :set-boilerplate-group="setBoilerplateGroup"
+    />
   </div>
 </template>
 

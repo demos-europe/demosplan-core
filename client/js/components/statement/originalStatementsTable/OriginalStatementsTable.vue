@@ -15,40 +15,49 @@
     :action="Routing.generate('dplan_assessmenttable_view_original_table', { procedureId: procedureId, '_fragment': 'start', 'filterHash': filterHash })"
     method="post"
     data-sticky-context
-    :data-assessment-original-statements="procedureId">
+    :data-assessment-original-statements="procedureId"
+  >
     <input
       type="hidden"
       name="r_ident"
-      value="">
+      value=""
+    >
     <input
       type="hidden"
       name="r_text"
-      value="">
+      value=""
+    >
     <input
       type="hidden"
       name="r_action"
-      :value="action">
+      :value="action"
+    >
     <input
       type="hidden"
       name="r_export_format"
-      value="">
+      value=""
+    >
     <input
       type="hidden"
       name="r_export_choice"
-      value="">
+      value=""
+    >
     <input
       type="hidden"
       name="searchFields"
-      value="">
+      value=""
+    >
     <!-- The hidden Input is required for the form post needed to update the items per page -->
     <input
       type="hidden"
       name="r_limit"
-      :value="pageSize">
+      :value="pageSize"
+    >
     <input
       name="_token"
       type="hidden"
-      :value="csrfToken">
+      :value="csrfToken"
+    >
 
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page')"
@@ -61,7 +70,8 @@
       :per-page="pagination.count"
       :limits="pagination.limits"
       @page-change="handlePageChange"
-      @size-change="handleSizeChange" />
+      @size-change="handleSizeChange"
+    />
 
     <export-modal
       v-if="hasPermission('feature_assessmenttable_export')"
@@ -69,44 +79,52 @@
       :has-selected-elements="Object.keys(selectedElements).length > 0"
       :procedure-id="procedureId"
       :options="exportOptions"
-      view="original_statements" />
+      view="original_statements"
+    />
 
     <dp-map-modal
       ref="mapModal"
-      :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+    />
 
     <slot
       v-bind="{ allItemsOnPageSelected, copyStatements, isNoItemSelected, procedureId }"
       name="filter"
-      :toggle-export-modal="toggleExportModal" />
+      :toggle-export-modal="toggleExportModal"
+    />
 
     <!-- If there are statements, display statement list -->
     <dp-loading
       v-if="isLoading"
-      class="u-mt u-ml" />
+      class="u-mt u-ml"
+    />
 
     <table
       v-else-if="Object.keys(statements).length"
       :aria-label="Translator.trans('statements.original')"
-      class="c-at-orig">
+      class="c-at-orig"
+    >
       <colgroup>
         <col class="w-[10%]">
         <col class="w-[10%] text-left">
         <col
           span="3"
-          class="w-1/4">
+          class="w-1/4"
+        >
         <col class="w-[5%]">
       </colgroup>
       <thead class="c-at-orig__header">
         <tr>
           <th
             v-tooltip="Translator.trans('statement.id')"
-            scope="col">
+            scope="col"
+          >
             {{ Translator.trans('id') }}
           </th>
           <th
             v-tooltip="Translator.trans('statement.date.submitted')"
-            scope="col">
+            scope="col"
+          >
             {{ Translator.trans('date') }}
           </th>
           <th scope="col">
@@ -130,14 +148,16 @@
           :procedure-id="procedureId"
           :statement-id="statement.id"
           @add-to-selection="() => addToSelectionAction({ id: statement.id})"
-          @remove-from-selection="removeFromSelectionAction" />
+          @remove-from-selection="removeFromSelectionAction"
+        />
       </tbody>
     </table>
 
     <dp-inline-notification
       v-else
       :message="Translator.trans('explanation.noentries')"
-      type="info" />
+      type="info"
+    />
   </form>
 </template>
 

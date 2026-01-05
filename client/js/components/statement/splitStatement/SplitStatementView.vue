@@ -13,24 +13,28 @@
       <dp-sticky-element border>
         <header
           id="header"
-          class="u-pv-0_25 flow-root">
+          class="u-pv-0_25 flow-root"
+        >
           <dp-inline-notification
             v-if="!isLoading && availablePlaces.length < 1"
             class="mt-3 mb-2"
             :message="Translator.trans('error.split_statement.no_place.link', { href: Routing.generate('DemosPlan_procedure_places_list', { procedureId: procedureId }) })"
-            type="warning" />
+            type="warning"
+          />
           <dp-inline-notification
             v-if="!isLoading && isSegmentDraftUpdated"
             class="mt-3 mb-2"
             :message="Translator.trans('last.saved', { date: lastSavedTime })"
-            type="info" />
+            type="info"
+          />
           <h1 class="font-size-h1 align-bottom inline-block u-m-0">
             {{ Translator.trans('statement.do.segment', { id: statementExternId }) }}
           </h1>
 
           <ul
             v-if="segmentationStatus === 'inUserSegmentation'"
-            class="float-right u-pt-0_25 u-m-0">
+            class="float-right u-pt-0_25 u-m-0"
+          >
             <li class="inline-block">
               <dp-flyout ref="metadataFlyout">
                 <template v-slot:trigger>
@@ -38,14 +42,16 @@
                     {{ Translator.trans('statement.information', { id: statementExternId }) }}
                     <i
                       class="fa fa-angle-down"
-                      aria-hidden="true" />
+                      aria-hidden="true"
+                    />
                   </span>
                 </template>
                 <statement-meta-tooltip
                   v-if="statement"
                   :statement="statement"
                   toggle-button
-                  @toggle="toggleInfobox" />
+                  @toggle="toggleInfobox"
+                />
               </dp-flyout>
             </li>
           </ul>
@@ -61,24 +67,29 @@
         }"
         hook-name="split.statement.preprocessor"
         @addons:loaded="fetchSegments"
-        @segmentationStatus:change="setSegmentationStatus" />
+        @segmentation-status:change="setSegmentationStatus"
+      />
 
       <transition
         name="slide-fade"
-        mode="out-in">
+        mode="out-in"
+      >
         <div v-if="segmentationStatus === 'inUserSegmentation'">
           <transition
             name="slide-fade"
-            mode="out-in">
+            mode="out-in"
+          >
             <button
               v-show="displayScrollButton"
               :aria-label="Translator.trans('scroll.back.to.segment')"
               class="scroll-button text-center"
               :style="scrollButtonStyles"
-              @click="scrollToSegment">
+              @click="scrollToSegment"
+            >
               <i
                 :class="scrollButtonPosition.direction === 'top' ? 'fa fa-angle-double-up' : scrollButtonPosition.direction === 'bottom' ? 'fa fa-angle-double-down' : ''"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </button>
           </transition>
 
@@ -86,7 +97,8 @@
             v-if="statement && showInfobox"
             :statement="statement"
             :submit-type-options="submitTypeOptions"
-            @close="showInfobox = false" />
+            @close="showInfobox = false"
+          />
 
           <div v-if="isLoading">
             <dp-loading class="u-mt u-ml" />
@@ -94,42 +106,48 @@
           <main
             v-else-if="initialData"
             ref="main"
-            class="container pt-2">
+            class="container pt-2"
+          >
             <segmentation-editor
               :init-statement-text="initText ?? ''"
               :segments="segments"
               :range-change-callback="handleSegmentChanges"
               :class="{ 'is-fullwidth': !showTags }"
               @prosemirror:initialized="runPostInitTasks"
-              @prosemirror:maxRange="setMaxRange"
+              @prosemirror:max-range="setMaxRange"
               @focus="event => handleMouseOver(event)"
               @focusout="handleMouseLeave"
               @mouseover="event => handleMouseOver(event)"
-              @mouseleave="handleMouseLeave" />
+              @mouseleave="handleMouseLeave"
+            />
 
             <transition
               name="slide-fade"
-              mode="out-in">
+              mode="out-in"
+            >
               <card-pane
                 v-if="showTags && editModeActive === false && maxRange"
                 id="cardPane"
                 :key="tagsCounter"
-                class="u-ml"
+                class="ml-4"
                 :max-range="maxRange"
                 :offset="headerOffset"
                 @segment:confirm="handleSegmentConfirmation"
                 @segment:edit="enableEditMode"
-                @segment:delete="immediatelyDeleteSegment" />
+                @segment:delete="immediatelyDeleteSegment"
+              />
             </transition>
 
             <transition
               name="slide-fade"
-              mode="out-in">
+              mode="out-in"
+            >
               <dp-sticky-element
                 v-if="editModeActive"
                 :apply-z-index="false"
                 :context="$refs.main"
-                :offset="headerOffset">
+                :offset="headerOffset"
+              >
                 <side-bar
                   id="sideBar"
                   ref="sideBar"
@@ -137,20 +155,23 @@
                   :offset="headerOffset"
                   @abort="abortEdit"
                   @keydown.esc="toggleSideBar"
-                  @save="save(editingSegment)" />
+                  @save="save(editingSegment)"
+                />
               </dp-sticky-element>
             </transition>
           </main>
 
           <div
             v-if="editModeActive === false"
-            class="button-container">
+            class="button-container"
+          >
             <dp-button
               :busy="isBusy"
               :text="Translator.trans('statement.split.complete')"
               data-cy="statementSplitComplete"
               variant="outline"
-              @click="saveAndFinish" />
+              @click="saveAndFinish"
+            />
           </div>
         </div>
       </transition>

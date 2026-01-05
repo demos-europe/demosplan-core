@@ -11,7 +11,8 @@
   <dp-modal
     ref="assignModal"
     content-classes="u-1-of-2"
-    @modal:toggled="handleClose">
+    @modal:toggled="handleClose"
+  >
     <!-- modal header -->
     <template v-slot:header>
       {{ Translator.trans('assignment.entity.assign.to.other', { entity: Translator.trans(entityType) }) }}
@@ -33,7 +34,8 @@
           :name="`r_${entityId}`"
           :options="[{ id: '', name: '-'}, ...users]"
           :max-height="150"
-          track-by="id">
+          track-by="id"
+        >
           <template v-slot:option="{ props }">
             {{ props.option.name }} {{ props.option.id === currentUserId ? ` (Sie)` : '' }}
           </template>
@@ -43,7 +45,8 @@
         class="u-mt float-right"
         :busy="loading"
         :text="Translator.trans('assignment.generic.assign.to.chosen', { entity: Translator.trans(entityType) })"
-        @click="assignEntity" />
+        @click="assignEntity"
+      />
     </div>
   </dp-modal>
 </template>

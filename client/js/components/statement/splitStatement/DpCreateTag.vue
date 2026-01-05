@@ -18,13 +18,15 @@
       :label="{
         text: Translator.trans('tag')
       }"
-      required />
+      required
+    />
 
     <dp-label
       :text="Translator.trans('topic')"
       for="newTagTopic"
       class="u-mt-0_25"
-      required />
+      required
+    />
     <!-- topic select -->
     <dp-multiselect
       v-if="showSelect"
@@ -35,11 +37,13 @@
       :options="tagTopics"
       required
       selection-controls
-      track-by="id">
+      track-by="id"
+    >
       <template v-slot:beforeList>
         <button
           class="btn--blank o-link--default weight--bold u-ph-0_5 u-pv-0_5 text-left u-1-of-1 whitespace-nowrap"
-          @click="showInput">
+          @click="showInput"
+        >
           {{ Translator.trans('topic.new') }}
         </button>
       </template>
@@ -53,14 +57,16 @@
       class="u-mb-0_5"
       required
       @blur="handleClickOutside"
-      @reset="handleReset" />
+      @reset="handleReset"
+    />
 
     <addon-wrapper
       class="block mb-4"
       hook-name="tag.create.form"
       :addon-props="{
         hasInlineNotification: false
-      }" />
+      }"
+    />
 
     <dp-button-row
       alignment="left"
@@ -68,7 +74,8 @@
       secondary
       variant="outline"
       @primary-action="dpValidateAction('createTag', save, false)"
-      @secondary-action="closeForm" />
+      @secondary-action="closeForm"
+    />
   </div>
 </template>
 

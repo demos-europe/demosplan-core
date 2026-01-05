@@ -46,7 +46,7 @@ class ClaimConstraintValidator extends ConstraintValidator
         }
 
         $authorized = $this->procedureService->isUserAuthorized($procedureId, $user);
-        if (true !== $authorized) {
+        if (!$authorized) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{statementId}', $value->getId())
                 ->setParameter('{userId}', $user->getId())

@@ -48,7 +48,8 @@
     :readonly="readonly"
     @save="save"
     @reset="reset"
-    @toggleEditing="isEditing => $emit('toggleEditing', isEditing)">
+    @toggle-editing="isEditing => $emit('toggleEditing', isEditing)"
+  >
     <template v-slot:display>
       <div class="break-words">
         {{ selected.title }}
@@ -66,7 +67,8 @@
         :name="`${entityId}:${fieldKey}`"
         :options="options"
         track-by="id"
-        @input="val => $emit('field:input', val)">
+        @input="val => $emit('field:input', val)"
+      >
         <template v-slot:option="{ props }">
           {{ props.option.title }}
         </template>

@@ -10,27 +10,31 @@
 <template>
   <div
     v-if="element"
-    class="flex space-inline-xs">
+    class="flex space-inline-xs"
+  >
     <a
       class="weight--bold u-mr-auto"
       data-cy="documentCategoryName"
       :href="Routing.generate('DemosPlan_elements_administration_edit', {
         procedure: dplan.procedureId,
         elementId: elementId
-      })">
+      })"
+    >
       {{ element.attributes.title }}
     </a>
     <dp-contextual-help
       v-if="hasPermission('feature_auto_switch_element_state') && element.attributes.designatedSwitchDate !== null"
       icon="clock"
       large
-      :text="designatedSwitchDate" />
+      :text="designatedSwitchDate"
+    />
     <dp-toggle
       v-model="itemEnabled"
       v-tooltip="Translator.trans(itemEnabled ? 'published' : 'unpublished')"
       class="u-mt-0_125"
       data-cy="categoryStatusSwitcher"
-      :disabled="element.attributes.designatedSwitchDate !== null" />
+      :disabled="element.attributes.designatedSwitchDate !== null"
+    />
   </div>
 </template>
 

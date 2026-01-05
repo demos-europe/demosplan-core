@@ -11,19 +11,22 @@
   <div>
     <dp-label
       :for="`createComment:${segmentId}`"
-      :text="Translator.trans('comment.add')" />
+      :text="Translator.trans('comment.add')"
+    />
     <dp-editor
       :id="`createComment:${segmentId}`"
       ref="createComment"
       :value="text"
-      @input="update" />
+      @input="update"
+    />
     <dp-button-row
       class="u-mt"
       primary
       secondary
       :busy="isLoading"
       @primary-action="save"
-      @secondary-action="resetCurrentComment" />
+      @secondary-action="resetCurrentComment"
+    />
   </div>
 </template>
 

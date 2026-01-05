@@ -17,7 +17,8 @@
       :is-public-user="isPublicUser"
       :projection-name="projectionName"
       :projection-string="projectionString"
-      :project-version="projectVersion" />
+      :project-version="projectVersion"
+    />
   </div>
 </template>
 

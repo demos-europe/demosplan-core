@@ -1,22 +1,26 @@
 <template>
   <form
     class="grid grid-cols-[1fr_auto_auto] items-center gap-1"
-    data-dp-validate="editTagOrCategoryForm">
+    data-dp-validate="editTagOrCategoryForm"
+  >
     <div class="flex space-x-1">
       <dp-icon
         v-if="item.type === 'InstitutionTag'"
         class="text-muted mt-[2px]"
-        icon="tag" />
+        icon="tag"
+      />
       <div
         v-if="!isEditing"
-        v-text="item.name" />
+        v-text="item.name"
+      />
       <dp-input
         v-else
         id="tagName"
         v-model="name"
         data-cy="tagListItem:tagName"
         maxlength="250"
-        required />
+        required
+      />
     </div>
     <div class="flex">
       <template v-if="!isEditing">
@@ -28,7 +32,8 @@
           icon="edit"
           :text="Translator.trans('edit')"
           variant="subtle"
-          @click="edit" />
+          @click="edit"
+        />
         <dp-button
           color="secondary"
           data-cy="tagListItem:delete"
@@ -36,7 +41,8 @@
           icon="delete"
           :text="Translator.trans('delete')"
           variant="subtle"
-          @click="deleteItem" />
+          @click="deleteItem"
+        />
       </template>
       <template v-else>
         <dp-button
@@ -46,7 +52,8 @@
           icon="check"
           :text="Translator.trans('save')"
           variant="subtle"
-          @click="dpValidateAction('editTagOrCategoryForm', save, false)" />
+          @click="dpValidateAction('editTagOrCategoryForm', save, false)"
+        />
         <dp-button
           class="u-pl-0"
           color="primary"
@@ -55,7 +62,8 @@
           icon="xmark"
           :text="Translator.trans('abort')"
           variant="subtle"
-          @click="abort" />
+          @click="abort"
+        />
       </template>
     </div>
   </form>

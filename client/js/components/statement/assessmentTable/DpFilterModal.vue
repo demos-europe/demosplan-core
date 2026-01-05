@@ -23,12 +23,14 @@
     <button
       type="button"
       :class="{'color-highlight': noFilterApplied === false }"
-      class="btn--blank o-link--default inline-block u-mb-0 u-p-0 u-mt-0_125"
+      class="btn--blank o-link--default inline-block u-mb-0 u-p-0"
       data-cy="openFilterModal"
-      @click.prevent="openModal">
+      @click.prevent="openModal"
+    >
       <i
         class="fa fa-lg fa-filter"
-        aria-hidden="true" />
+        aria-hidden="true"
+      />
       {{ Translator.trans('filter.verb') }}
     </button>
 
@@ -37,7 +39,8 @@
       ref="filterModalInner"
       class="layout"
       content-classes="u-1-of-2"
-      @modal:toggled="isOpen => resetUnsavedOptions(isOpen)">
+      @modal:toggled="isOpen => resetUnsavedOptions(isOpen)"
+    >
       <dp-loading v-if="isLoading" />
 
       <!-- Show filters -->
@@ -48,22 +51,26 @@
 
         <!-- Select with saved filter sets -->
         <div
-          v-if="userFilterSetSaveEnabled">
+          v-if="userFilterSetSaveEnabled"
+        >
           <dp-multiselect
             id="userFilterSets"
             v-model="selectedUserFilterSet"
             :custom-label="nameFromAttributes"
             data-cy="userFilterSets"
             :options="userFilterSets"
-            track-by="id">
+            track-by="id"
+          >
             <template v-slot:option="{ props }">
               <a
                 class="multiselect__option-extention"
                 href="#"
-                @click.prevent="deleteSavedFilterSet(props.option.id)">
+                @click.prevent="deleteSavedFilterSet(props.option.id)"
+              >
                 <i
                   class="fa fa-trash"
-                  aria-hidden="true" />
+                  aria-hidden="true"
+                />
               </a>
               {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
             </template>
@@ -77,7 +84,8 @@
               type="button"
               class="btn btn--primary"
               data-cy="loadUserFilterSet"
-              @click.prevent="loadUserFilterSet">
+              @click.prevent="loadUserFilterSet"
+            >
               {{ Translator.trans('filter.saveFilterSet.load') }}
             </button>
           </div>
@@ -87,7 +95,8 @@
         <dp-tabs
           :active-id="activeTabId"
           tab-size="medium"
-          @change="setActiveTabId">
+          @change="setActiveTabId"
+        >
           <dp-tab
             v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
             :id="filterGroup.label"
@@ -95,7 +104,8 @@
             class="u-pt-0_5"
             :is-active="activeTabId === filterGroup.type"
             :label="Translator.trans(filterGroup.label)"
-            :suffix="createSelectedFiltersBadge(filterGroup)">
+            :suffix="createSelectedFiltersBadge(filterGroup)"
+          >
             <dp-filter-modal-select-item
               v-for="filterItem in filterByType(filterGroup.type)"
               :key="filterItem.id"
@@ -104,7 +114,8 @@
               :filter-group="filterGroup"
               @update-selected="updateSelectedOptions"
               @updating-filters="disabledInteractions = true"
-              @updated-filters="disabledInteractions = false" />
+              @updated-filters="disabledInteractions = false"
+            />
           </dp-tab>
         </dp-tabs>
 
@@ -115,11 +126,13 @@
           :key="optionKey"
           :name="option.name"
           multiple
-          style="display: none">
+          style="display: none"
+        >
           <option
             :key="optionKey"
             :value="option.value"
-            selected>
+            selected
+          >
             {{ option.label }}
           </option>
         </select>
@@ -130,14 +143,16 @@
           <label
             for="r_save_filter_set"
             class="layout__item u-2-of-3 u-pt-0_5"
-            :class="{'color--grey': noFilterSelected}">
+            :class="{'color--grey': noFilterSelected}"
+          >
             <input
               id="r_save_filter_set"
               v-model="saveFilterSet"
               type="checkbox"
               name="r_save_filter_set"
               :disabled="noFilterSelected"
-              data-cy="saveFilterSet">
+              data-cy="saveFilterSet"
+            >
             {{ Translator.trans('filter.saveFilterSet.label') }}
           </label>
         </template>
@@ -150,13 +165,15 @@
             :class="{'pointer-events-none':disabledInteractions}"
             data-cy="submitOrNext"
             @click.prevent="submitOrNext"
-            v-text="Translator.trans(saveFilterSet ? 'filter.saveFilterSet.next' : 'filter.apply')" />
+            v-text="Translator.trans(saveFilterSet ? 'filter.saveFilterSet.next' : 'filter.apply')"
+          />
           <button
             type="button"
             class="btn btn--secondary"
             data-cy="filterReset"
             @click="reset"
-            v-text="Translator.trans('filter.reset')" />
+            v-text="Translator.trans('filter.reset')"
+          />
         </div>
       </template>
 
@@ -166,7 +183,8 @@
 
         <label
           for="r_save_filter_set_name"
-          class="u-pt-0_5">
+          class="u-pt-0_5"
+        >
           {{ Translator.trans('filter.saveFilterSet.label') }}
           <input
             id="r_save_filter_set_name"
@@ -174,19 +192,22 @@
             type="text"
             name="r_save_filter_set_name"
             data-cy="filterSetName"
-            :value="filterSetName">
+            :value="filterSetName"
+          >
         </label>
 
         <div
           v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
           :key="index"
-          class="visuallyhidden">
+          class="visuallyhidden"
+        >
           <dp-filter-modal-select-item
             v-for="filterItem in filterByType(filterGroup.type)"
             :key="filterItem.id"
             :filter-item="filterItem"
             :filter-group="filterGroup"
-            hidden />
+            hidden
+          />
         </div>
 
         <!-- Button row -->
@@ -196,13 +217,15 @@
             :class="{'pointer-events-none': disabledInteractions}"
             type="submit"
             data-cy="submitWithSave"
-            @click.stop="submitWithSave">
+            @click.stop="submitWithSave"
+          >
             {{ Translator.trans('filter.saveFilterSet.submit') }}
           </button>
           <button
             type="button"
             class="btn btn--secondary"
-            @click="back">
+            @click="back"
+          >
             {{ Translator.trans('filter.saveFilterSet.back') }}
           </button>
         </div>
@@ -261,7 +284,6 @@ export default {
     return {
       activeTabId: null,
       disabledInteractions: false, // Do not submit form if filters are currently updating
-      disabledOpenModalButton: true, // Do not open modal if AT is still loading
       isLoading: true,
       saveFilterSet: false,
       saveFilterSetView: false,
@@ -513,12 +535,6 @@ export default {
     userFilterSetFilterHash (userFilterSet) {
       return this.getFilterHash(userFilterSet)
     },
-  },
-
-  mounted () {
-    this.$root.$on('assessmentTable:loaded', () => {
-      this.disabledOpenModalButton = false
-    })
   },
 }
 </script>

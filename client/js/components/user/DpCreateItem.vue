@@ -20,18 +20,22 @@
   <dp-accordion
     :is-open="isOpen"
     :title="Translator.trans(itemTitle)"
-    @item:toggle="(open) => { toggleItem(open) }">
+    @item:toggle="(open) => { toggleItem(open) }"
+  >
     <div class="o-box--dark soft">
       <div
         class="px-3 py-3"
         :data-cy="customComponent[entity].formName"
-        :data-dp-validate="customComponent[entity].formName">
+        :data-dp-validate="customComponent[entity].formName"
+      >
         <!-- Form fields   -->
         <component
           v-bind="dynamicComponentProps"
           :is="dynamicComponent"
           ref="formFields"
-          @[dynamicEvent]="update" />
+          @[dynamicEvent]="update"
+          @reset:complete="shouldResetForm = false"
+        />
 
         <!-- Save/Abort buttons   -->
         <dp-button-row
@@ -41,7 +45,8 @@
           primary
           secondary
           @primary-action="dpValidateAction(customComponent[entity].formName, save)"
-          @secondary-action="reset" />
+          @secondary-action="reset"
+        />
       </div>
     </div>
   </dp-accordion>
@@ -146,9 +151,7 @@ export default {
 
   emits: [
     'items:get',
-    'organisation:reset',
     'organisation:update',
-    'user:reset',
     'user:update',
   ],
 
@@ -159,7 +162,6 @@ export default {
        * componentName: {String}
        * componentProps: {Object}
        * formName: {String} needed for dpValidateAction
-       * resetEvent: {String}
        * updateEvent: {String}
        */
       customComponent: {
@@ -169,19 +171,18 @@ export default {
             availableOrgaTypes: this.availableOrgaTypes,
           },
           formName: 'newOrganisationForm',
-          resetEvent: 'organisation:reset',
           updateEvent: 'organisation:update',
         },
         user: {
           componentName: 'dp-user-form-fields',
           componentProps: {},
           formName: 'newUserForm',
-          resetEvent: 'user:reset',
           updateEvent: 'user:update',
         },
       },
       isOpen: false,
       item: {},
+      shouldResetForm: false,
     }
   },
 
@@ -191,7 +192,10 @@ export default {
     },
 
     dynamicComponentProps () {
-      return this.customComponent[this.entity].componentProps
+      return {
+        ...this.customComponent[this.entity].componentProps,
+        triggerReset: this.shouldResetForm,
+      }
     },
 
     dynamicEvent () {
@@ -255,11 +259,14 @@ export default {
     reset () {
       this.isOpen = false
       this.item = {}
-      this.$root.$emit(this.customComponent[this.entity].resetEvent)
+      this.shouldResetForm = true
+
       const inputsWithErrors = this.$el.querySelector('[data-dp-validate]').querySelectorAll('.is-invalid')
+
       Array.from(inputsWithErrors).forEach(input => {
         input.classList.remove('is-invalid')
         const inputNodeName = input.nodeName
+
         if (inputNodeName === 'INPUT' || inputNodeName === 'SELECT') {
           input.setCustomValidity('')
         }

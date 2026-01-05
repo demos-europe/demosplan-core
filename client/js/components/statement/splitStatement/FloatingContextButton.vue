@@ -7,12 +7,14 @@
     :data-cy="`sidebar:floatingContextButton:${section}`"
     @click="toggleContentVisibility"
     @mouseover="show"
-    @mouseleave="hide">
+    @mouseleave="hide"
+  >
     <dp-icon
       :aria-label="Translator.trans('content.show/hide')"
       class="w-4 h-4 rounded-xs text-interactive hover:text-interactive-hover active:text-interactive-active hover:bg-interactive-subtle-hover active:bg-interactive-subtle-active"
       :icon="isContentCollapsed ? 'chevron-up' : 'chevron-down'"
-      size="medium" />
+      size="medium"
+    />
   </button>
 </template>
 

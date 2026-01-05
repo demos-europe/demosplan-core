@@ -4,12 +4,14 @@
       v-if="currentForm === 'tag'"
       id="new-tag-form"
       class="border rounded-sm p-4 my-4"
-      data-dp-validate="addNewTagForm">
+      data-dp-validate="addNewTagForm"
+    >
       <dp-label
         class="mb-4"
         for="new-tag-form"
         :text="Translator.trans('entity.create', { entity: Translator.trans('tag') })"
-        bold />
+        bold
+      />
       <dp-input
         id="new-tag-title"
         v-model="newTag.title"
@@ -19,7 +21,8 @@
           text: Translator.trans('title')
         }"
         maxlength="250"
-        required />
+        required
+      />
       <dp-select
         v-model="newTag.topic"
         class="mb-4"
@@ -28,30 +31,35 @@
           text: Translator.trans('entity.choose', { entity: Translator.trans('tag.category') })
         }"
         :options="topicsAsOptions"
-        required />
+        required
+      />
       <addon-wrapper
         class="block mb-4"
         hook-name="tag.create.form"
         @input="updateForm"
-        @change="updateForm" />
+        @change="updateForm"
+      />
       <dp-button-row
         data-cy="tagsList:addNewTag"
         primary
         secondary
         @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(), false)"
-        @secondary-action="closeForm" />
+        @secondary-action="closeForm"
+      />
     </div>
 
     <div
       v-else-if="currentForm === 'topic'"
       id="new-topic-form"
       class="border rounded-sm p-4 my-4"
-      data-dp-validate="addNewTopicForm">
+      data-dp-validate="addNewTopicForm"
+    >
       <dp-label
         class="mb-4"
         for="new-topic-form"
         :text="Translator.trans('entity.create', { entity: Translator.trans('tag.category')})"
-        bold />
+        bold
+      />
       <dp-input
         id="new-topic-title"
         v-model="newTopic.title"
@@ -60,29 +68,34 @@
           text: Translator.trans('title')
         }"
         maxlength="250"
-        required />
+        required
+      />
       <div class="flex justify-end mt-2">
         <dp-button-row
           data-cy="tagsList:addNewTopic"
           primary
           secondary
           @primary-action="dpValidateAction('addNewTopicForm', () => saveNewTopic(), false)"
-          @secondary-action="closeForm" />
+          @secondary-action="closeForm"
+        />
       </div>
     </div>
 
     <div
       v-else
-      class="flex gap-2 justify-end my-4">
+      class="flex gap-2 justify-end my-4"
+    >
       <dp-button
         data-cy="tagsList:openTagForm"
         :text="Translator.trans('entity.create', { entity: Translator.trans('tag') })"
-        @click="() => openForm('tag')" />
+        @click="() => openForm('tag')"
+      />
       <dp-button
         data-cy="tagsList:openTopicForm"
         :text="Translator.trans('entity.create', { entity: Translator.trans('tag.category') })"
         variant="outline"
-        @click="() => openForm('topic')" />
+        @click="() => openForm('topic')"
+      />
     </div>
   </div>
 </template>

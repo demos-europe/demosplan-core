@@ -11,20 +11,24 @@
   <div class="space-stack-s">
     <div class="flex justify-between">
       <p
-        v-text="Translator.trans('text.procedures.list')" />
+        v-text="Translator.trans('text.procedures.list')"
+      />
 
       <div
         v-if="hasPermission('feature_admin_new_procedure')"
-        class="text-right">
+        class="text-right"
+      >
         <dp-button
           data-cy="createNewProcedure"
           data-extern-dataport="newProcedure"
           :href="Routing.generate('DemosPlan_procedure_new')"
-          :text="Translator.trans('procedure.create')" />
+          :text="Translator.trans('procedure.create')"
+        />
         <p
           v-if="hasPermission('feature_show_free_disk_space') && freeDiskSpace.length"
           class="u-mt-0_5"
-          v-text="freeDiskSpace" />
+          v-text="freeDiskSpace"
+        />
       </div>
     </div>
 
@@ -33,7 +37,8 @@
         class="w-full"
         input-width="u-1-of-2"
         @search="searchTerm => searchAdministrationProceduresList(searchTerm)"
-        @reset="resetAdministrationProceduresList" />
+        @reset="resetAdministrationProceduresList"
+      />
 
       <dp-select
         class="w-11 ml-auto"
@@ -41,32 +46,38 @@
         :options="options"
         :selected="selectedSort"
         :show-placeholder="false"
-        @select="applySort" />
+        @select="applySort"
+      />
     </div>
 
     <form
       v-if="hasPermission('feature_admin_delete_procedure') || hasPermission('feature_admin_export_procedure')"
       ref="procedureForm"
-      name="procedureForm">
+      name="procedureForm"
+    >
       <dp-button
         v-if="hasPermission('feature_admin_delete_procedure')"
         data-cy="deleteProcedure"
+        :disabled="!isProcedureSelected"
         icon="delete"
         name="deleteProcedure"
         :text="Translator.trans('delete')"
         type="submit"
         variant="subtle"
-        @click="deleteProcedures" />
+        @click="deleteProcedures"
+      />
 
       <dp-button
         v-if="hasPermission('feature_admin_export_procedure')"
         data-cy="ExportProcedure"
+        :disabled="!isProcedureSelected"
         icon="download"
         name="exportProcedure"
         :text="Translator.trans('print.and.export')"
         type="submit"
         variant="subtle"
-        @click="exportProcedures" />
+        @click="exportProcedures"
+      />
 
       <!-- Hidden inputs needed for export and delete functionalities -->
       <input
@@ -74,12 +85,14 @@
         :key="selectedItem"
         name="procedure_selected[]"
         type="hidden"
-        :value="selectedItem">
+        :value="selectedItem"
+      >
     </form>
 
     <dp-loading
       v-if="isLoading"
-      class="u-mt-2" />
+      class="u-mt-2"
+    />
 
     <dp-data-table
       v-else
@@ -89,26 +102,31 @@
       :items="items"
       :search-string="searchString"
       track-by="id"
-      @items-selected="setSelectedItems">
+      @items-selected="setSelectedItems"
+    >
       <template
         v-if="showInternalPhases"
-        v-slot:header-internalPhase>
+        v-slot:header-internalPhase
+      >
         <span v-text="Translator.trans('procedure.public.phase')" />
         <div v-text="Translator.trans('institution')" />
       </template>
       <template
         v-if="showStatementCount"
-        v-slot:header-count>
+        v-slot:header-count
+      >
         {{ Translator.trans('quantity') }}
         <dp-icon
           v-tooltip="Translator.trans('procedures.statements.count')"
           icon="info"
-          size="small" />
+          size="small"
+        />
       </template>
 
       <template
         v-if="showInternalPhases"
-        v-slot:header-externalPhase>
+        v-slot:header-externalPhase
+      >
         <div />
         <div v-text="Translator.trans('public')" />
       </template>
@@ -117,7 +135,8 @@
         <a
           data-cy="procedurePath"
           :data-cy-procedure-id="id"
-          :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: id })">
+          :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: id })"
+        >
           <strong v-text="name" />
         </a>
         <div v-if="externalName !== name">
@@ -130,16 +149,19 @@
 
       <template
         v-if="showStatementCount"
-        v-slot:count="{ statementsCount, originalStatementsCount }">
+        v-slot:count="{ statementsCount, originalStatementsCount }"
+      >
         <div
           v-tooltip="statementsTooltipCount(statementsCount, originalStatementsCount)"
           class="text-center"
-          v-text="statementsCount" />
+          v-text="statementsCount"
+        />
       </template>
 
       <template v-slot:internalPhase="{ internalPhase, internalStartDate, internalEndDate }">
         <div
-          class="float-left u-m-0">
+          class="float-left u-m-0"
+        >
           <span v-text="internalPhase" />
           <div v-text="internalStartDate + ' - ' + internalEndDate" />
         </div>
@@ -240,6 +262,10 @@ export default {
       ]
 
       return fields.filter(field => field.isVisible)
+    },
+
+    isProcedureSelected () {
+      return this.selectedItems.length > 0
     },
   },
 

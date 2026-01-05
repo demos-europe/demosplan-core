@@ -13,20 +13,23 @@
       v-if="allComponentsLoaded"
       :active-id="activeTabId"
       use-url-fragment
-      @change="setActiveTabId">
+      @change="setActiveTabId"
+    >
       <dp-tab
         v-for="(option, index) in availableImportOptions"
         :id="option.name"
         :key="index"
         :is-active="activeTabId === option.name"
-        :label="Translator.trans(option.title)">
+        :label="Translator.trans(option.title)"
+      >
         <slot>
           <keep-alive>
             <component
               :is="option.name"
               class="u-mt"
               :demosplan-ui="demosplanUi"
-              :csrf-token="csrfToken" />
+              :csrf-token="csrfToken"
+            />
           </keep-alive>
         </slot>
       </dp-tab>
@@ -34,7 +37,8 @@
 
     <dp-loading
       v-else
-      class="u-mv" />
+      class="u-mv"
+    />
   </div>
 </template>
 

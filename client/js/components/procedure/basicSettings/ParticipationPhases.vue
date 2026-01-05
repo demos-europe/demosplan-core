@@ -39,7 +39,8 @@
 
     <div
       v-if="hasPermission('feature_auto_switch_to_procedure_end_phase') && !hasPermission('feature_auto_switch_procedure_phase') && isInParticipation"
-      class="lbl__hint u-mt-0_25 u-mb-0">
+      class="lbl__hint u-mt-0_25 u-mb-0"
+    >
       {{ autoswitchHint }}
     </div>
   </div>

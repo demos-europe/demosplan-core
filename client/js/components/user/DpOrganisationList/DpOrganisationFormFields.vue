@@ -15,13 +15,15 @@
         <label
           v-if="canEdit('name')"
           :for="organisation.id + ':orgaName'"
-          class="u-mb-0_25">
+          class="u-mb-0_25"
+        >
           {{ Translator.trans('name.legal') }}*
         </label>
         <label
           v-else
           :for="organisation.id + ':orgaName'"
-          class="u-mb-0_25">
+          class="u-mb-0_25"
+        >
           {{ Translator.trans('name.legal') }}
         </label>
         <input
@@ -33,10 +35,12 @@
           style="height: 27px;"
           data-cy="orgaFormField:orgaName"
           required
-          @input="emitOrganisationUpdate">
+          @input="emitOrganisationUpdate"
+        >
         <p
           v-else-if="false === canEdit('name')"
-          class="color--grey u-mb-0_5">
+          class="color--grey u-mb-0_5"
+        >
           {{ organisation.attributes.name }}
         </p>
       </div>
@@ -44,7 +48,8 @@
       <div class="layout__item u-4-of-12">
         <label
           :for="organisation.id + 'addressStreet'"
-          class="u-mb-0_25">
+          class="u-mb-0_25"
+        >
           {{ Translator.trans('street') }}
         </label>
         <input
@@ -55,25 +60,30 @@
           class="w-full u-mb-0_5"
           style="height: 27px;"
           data-cy="orgaFormField:addressStreet"
-          @input="emitOrganisationUpdate">
+          @input="emitOrganisationUpdate"
+        >
         <p
           v-else-if="false === canEdit('street') && organisation.attributes.street !== ''"
-          class="color--grey u-mb-0_5">
+          class="color--grey u-mb-0_5"
+        >
           {{ organisation.attributes.street }}
         </p>
         <p
           v-else-if="false === canEdit('street') && organisation.attributes.street === ''"
-          class="color--grey u-mb-0_5">
+          class="color--grey u-mb-0_5"
+        >
           -
         </p>
       </div><!--
 
    --><div
         v-if="canEdit('houseNumber') || organisation.attributes.houseNumber !== ''"
-        class="layout__item u-2-of-12">
+        class="layout__item u-2-of-12"
+      >
         <label
           :for="organisation.id + 'addressHouseNumber'"
-          class="u-mb-0_25">
+          class="u-mb-0_25"
+        >
           {{ Translator.trans('street.number') }}
         </label>
         <input
@@ -84,20 +94,24 @@
           class="w-full u-mb-0_5"
           style="height: 27px;"
           data-cy="orgaFormField:addressHouseNumber"
-          @input="emitOrganisationUpdate">
+          @input="emitOrganisationUpdate"
+        >
         <p
           v-else-if="false === canEdit('houseNumber') && organisation.attributes.houseNumber !== ''"
-          class="color--grey u-mb-0_5">
+          class="color--grey u-mb-0_5"
+        >
           {{ organisation.attributes.houseNumber }}
         </p>
       </div><!--
    -->
       <div
         v-if="canEdit('addressExtension') || organisation.attributes.addressExtension !== ''"
-        class="layout__item u-2-of-12">
+        class="layout__item u-2-of-12"
+      >
         <label
           :for="organisation.id + 'addressExtension'"
-          class="u-mb-0_25">
+          class="u-mb-0_25"
+        >
           {{ Translator.trans('address.extension') }}
         </label>
         <input
@@ -108,10 +122,12 @@
           class="w-full u-mb-0_5"
           style="height: 27px;"
           data-cy="orgaFormField:addressExtension"
-          @input="emitOrganisationUpdate">
+          @input="emitOrganisationUpdate"
+        >
         <p
           v-else-if="false === canEdit('addressExtension') && organisation.attributes.addressExtension !== ''"
-          class="color--grey u-mb-0_5">
+          class="color--grey u-mb-0_5"
+        >
           {{ organisation.attributes.addressExtension }}
         </p>
       </div>
@@ -120,7 +136,8 @@
           <div class="layout__item u-2-of-6">
             <label
               :for="organisation.id + ':addressPostalCode'"
-              class="u-mb-0_25">
+              class="u-mb-0_25"
+            >
               {{ Translator.trans('postalcode') }}
             </label>
             <input
@@ -132,22 +149,26 @@
               style="height: 27px;"
               data-cy="orgaFormField:addressPostalCode"
               pattern="^[0-9]{5}$"
-              @input="emitOrganisationUpdate">
+              @input="emitOrganisationUpdate"
+            >
             <p
               v-else-if="false === canEdit('postalcode') && organisation.attributes.postalcode !== ''"
-              class="color--grey u-mb-0_5">
+              class="color--grey u-mb-0_5"
+            >
               {{ organisation.attributes.postalcode }}
             </p>
             <p
               v-else-if="false === canEdit('postalcode') && organisation.attributes.postalcode === ''"
-              class="color--grey u-mb-0_5">
+              class="color--grey u-mb-0_5"
+            >
               -
             </p>
           </div><!--
        --><div class="layout__item u-4-of-6">
             <label
               :for="organisation.id + ':addressCity'"
-              class="u-mb-0_25">
+              class="u-mb-0_25"
+            >
               {{ Translator.trans('city') }}
             </label>
             <input
@@ -158,15 +179,18 @@
               class="w-full"
               style="height: 27px;"
               data-cy="orgaFormField:addressCity"
-              @input="emitOrganisationUpdate">
+              @input="emitOrganisationUpdate"
+            >
             <p
               v-else-if="false === canEdit('city') && organisation.attributes.city !== ''"
-              class="color--grey u-mb-0_5">
+              class="color--grey u-mb-0_5"
+            >
               {{ organisation.attributes.city }}
             </p>
             <p
               v-else-if="false === canEdit('city') && organisation.attributes.city === ''"
-              class="color--grey u-mb-0_5">
+              class="color--grey u-mb-0_5"
+            >
               -
             </p>
           </div>
@@ -174,10 +198,12 @@
       </div>
       <div
         v-if="hasPermission('field_organisation_phone')"
-        class="layout__item u-2-of-6">
+        class="layout__item u-2-of-6"
+      >
         <label
           :for="organisation.id + ':addressPhone'"
-          class="u-mb-0_25">
+          class="u-mb-0_25"
+        >
           {{ Translator.trans('phone') }}
         </label>
         <input
@@ -188,15 +214,18 @@
           class="w-full u-mb-0_5"
           style="height: 27px;"
           data-cy="orgaFormField:addressPhone"
-          @input="emitOrganisationUpdate">
+          @input="emitOrganisationUpdate"
+        >
         <p
           v-else-if="false === canEdit('phone') && organisation.attributes.phone !== ''"
-          class="color--grey u-mb-0_5">
+          class="color--grey u-mb-0_5"
+        >
           {{ organisation.attributes.phone }}
         </p>
         <p
           v-else-if="false === canEdit('phone') && organisation.attributes.phone === ''"
-          class="color--grey u-mb-0_5">
+          class="color--grey u-mb-0_5"
+        >
           -
         </p>
       </div>
@@ -211,9 +240,10 @@
           relationshipKey: 'orga'
         }"
         class="w-1/2"
-        @resourceList:loaded="setAdditionalFieldOptions"
+        @resource-list:loaded="setAdditionalFieldOptions"
         @selected="updateAddonPayload"
-        @blur="updateAddonPayload" />
+        @blur="updateAddonPayload"
+      />
 
       <div class="layout__item u-1-of-1 u-mt">
         <legend class="u-pb-0_5">
@@ -225,11 +255,13 @@
           <div
             v-for="(registrationStatus, idx) in registrationStatuses"
             :key="`lbl${idx}`"
-            class="layout">
+            class="layout"
+          >
             <div class="layout__item u-1-of-4">
               <label
                 class="u-mb-0_5"
-                :for="`type_${registrationStatus.type}:${organisation.id}`">
+                :for="`type_${registrationStatus.type}:${organisation.id}`"
+              >
                 {{ registrationTypeLabel(registrationStatus.type) }}
               </label>
             </div><!--
@@ -240,12 +272,14 @@
                 class="u-1-of-1"
                 :name="`type_${registrationStatus.type}:${organisation.id}`"
                 data-cy="orgaFormField:editRegistrationStatus"
-                @change="emitOrganisationUpdate">
+                @change="emitOrganisationUpdate"
+              >
                 <option
                   v-for="typeStatus in typeStatuses"
                   :key="typeStatus.value"
                   :value="typeStatus.value"
-                  :selected="typeStatus.value === registrationStatus.status">
+                  :selected="typeStatus.value === registrationStatus.status"
+                >
                   {{ typeStatus.label }}
                 </option>
               </select>
@@ -258,13 +292,16 @@
           <div
             v-for="(registrationStatus, idx) in registrationStatuses"
             :key="idx"
-            class="layout u-mb-0_25">
+            class="layout u-mb-0_25"
+          >
             <div
-              class="layout__item u-1-of-4 weight--bold">
+              class="layout__item u-1-of-4 weight--bold"
+            >
               {{ registrationStatus.label }}
             </div><!--
          --><div
-              class="layout__item u-1-of-4">
+              class="layout__item u-1-of-4"
+            >
               {{ registrationStatusLabel(registrationStatus.status) }}
             </div>
           </div>
@@ -272,30 +309,35 @@
 
         <!-- Assign new permissions -->
         <template
-          v-if="availableRegistrationTypes.length > 0 && (canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage'))">
+          v-if="availableRegistrationTypes.length > 0 && (canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage'))"
+        >
           <button
             v-if="showAddStatusForm === false"
             class="btn btn--primary u-mt-0_25 u-mb-0_5"
             data-cy="orgaFormField:showAddStatusForm"
             type="button"
-            @click="showAddStatusForm = true">
+            @click="showAddStatusForm = true"
+          >
             {{ Translator.trans('permission.new') }}
           </button>
 
           <div
             v-if="showAddStatusForm"
-            class="layout">
+            class="layout"
+          >
             <!-- Select row  -->
             <div class="layout__item u-1-of-4">
               <select
                 v-model="statusForm.type"
                 class="u-1-of-1"
                 :title="Translator.trans('organisation.type')"
-                data-cy="orgaFormField:organisationType">
+                data-cy="orgaFormField:organisationType"
+              >
                 <option
                   v-for="type in availableRegistrationTypes"
                   :key="type.value"
-                  :value="type.value">
+                  :value="type.value"
+                >
                   {{ Translator.trans(type.label) }}
                 </option>
               </select>
@@ -305,11 +347,13 @@
                 v-model="statusForm.status"
                 class="u-1-of-1"
                 :title="Translator.trans('permission.status')"
-                data-cy="orgaFormField:permissionStatus">
+                data-cy="orgaFormField:permissionStatus"
+              >
                 <option
                   v-for="typeStatus in typeStatuses"
                   :key="typeStatus.value"
-                  :value="typeStatus.value">
+                  :value="typeStatus.value"
+                >
                   {{ typeStatus.label }}
                 </option>
               </select>
@@ -321,14 +365,16 @@
                 class="btn btn--primary"
                 data-cy="orgaFormField:saveNewRegistrationStatus"
                 type="button"
-                @click="saveNewRegistrationStatus">
+                @click="saveNewRegistrationStatus"
+              >
                 {{ Translator.trans('permission.add') }}
               </button><!--
            --><button
                 v-if="registrationStatuses.length > 0"
                 class="btn btn--secondary"
                 type="button"
-                @click="resetRegistrationStatus">
+                @click="resetRegistrationStatus"
+              >
                 {{ Translator.trans('abort') }}
               </button>
             </div>
@@ -345,12 +391,14 @@
             text: Translator.trans('procedure.canCreate'),
             bold: true
           }"
-          @change="emitOrganisationUpdate" />
+          @change="emitOrganisationUpdate"
+        />
       </div>
 
       <div
         v-if="canEdit('cssvars') && hasPermission('feature_orga_branding_edit')"
-        class="layout__item u-1-of-1 u-mt">
+        class="layout__item u-1-of-1 u-mt"
+      >
         <legend class="u-pb-0_5">
           {{ Translator.trans('branding.label') }}
         </legend>
@@ -361,10 +409,12 @@
           :hint="Translator.trans('branding.styling.hint')"
           :label="Translator.trans('branding.styling.input')"
           reduced-height
-          @input="emitOrganisationUpdate" />
+          @input="emitOrganisationUpdate"
+        />
         <dp-details
           data-cy="organisationFormFields:brandingStyling"
-          :summary="Translator.trans('branding.styling.details')">
+          :summary="Translator.trans('branding.styling.details')"
+        >
           <span v-html="Translator.trans('branding.styling.details.description')" />
         </dp-details>
       </div>
@@ -372,10 +422,12 @@
       <!-- Orga slug -->
       <div
         v-if="hasPermission('feature_orga_slug_edit') && canEdit('slug')"
-        class="layout__item u-mt">
+        class="layout__item u-mt"
+      >
         <label
           :for="organisation.id + ':slug'"
-          class="u-mb-0_25">
+          class="u-mb-0_25"
+        >
           {{ Translator.trans('organisation.procedurelist.slug') }}
         </label>
         <p class="lbl__hint">
@@ -389,13 +441,15 @@
           type="text"
           :data-organisation-id="organisation.id"
           data-slug
-          :value="organisationSlug">
+          :value="organisationSlug"
+        >
 
         <div>
           <strong v-if="canEdit('slug')">{{ Translator.trans('preview') }}:</strong>
           <p
             :id="organisation.id + ':urlPreview'"
-            :data-shorturl="proceduresDirectLinkPrefix + '/'">
+            :data-shorturl="proceduresDirectLinkPrefix + '/'"
+          >
             {{ proceduresDirectLinkPrefix }}/{{ organisationSlug }}
           </p>
         </div>
@@ -403,18 +457,21 @@
 
       <div
         v-if="organisationId !== ''"
-        class="layout__item u-mt">
+        class="layout__item u-mt"
+      >
         <label class="u-mb-0_25">
           {{ Translator.trans('customer', { count: hasOwnProp(organisation.relationships, 'customers') ? organisation.relationships.customers.data.length : 0 }) }}
         </label>
         <p
           v-if="hasOwnProp(organisation.relationships,'customers') && organisation.relationships.customers.data.length !== 0"
-          class="color--grey">
+          class="color--grey"
+        >
           {{ customers }}
         </p>
         <p
           v-else
-          class="u-p-0 color--grey">
+          class="u-p-0 color--grey"
+        >
           -
         </p>
       </div>
@@ -431,7 +488,8 @@
           :value="submissionTypeShort"
           :checked="localOrganisation.attributes.submissionType === submissionTypeShort"
           :disabled="false === canEdit('submissionType')"
-          @input="emitOrganisationUpdate">
+          @input="emitOrganisationUpdate"
+        >
         {{ Translator.trans('statement.submission.shorthand') }}
 
         <p class="u-ml-0_75 weight--normal">
@@ -445,7 +503,8 @@
           :value="submissionTypeDefault"
           :checked="localOrganisation.attributes.submissionType === submissionTypeDefault"
           :disabled="false === canEdit('submissionType')"
-          @input="emitOrganisationUpdate">
+          @input="emitOrganisationUpdate"
+        >
         {{ Translator.trans('statement.submission.default') }}
 
         <p class="u-ml-0_75 weight--normal">
@@ -463,11 +522,13 @@
         <div v-if="canEdit('email2')">
           <label
             :for="organisation.id + ':email2'"
-            class="u-mb-0_25">
+            class="u-mb-0_25"
+          >
             {{ Translator.trans('email.participation') }}
             <p
               v-cleanhtml="Translator.trans('explanation.organisation.email.participation')"
-              class="weight--normal lbl__hint" />
+              class="weight--normal lbl__hint"
+            />
           </label>
           <input
             v-if="canEdit('email2')"
@@ -477,22 +538,26 @@
             style="height: 27px;"
             data-cy="orgaFormField:emailParticipation"
             type="email"
-            @input="emitOrganisationUpdate">
+            @input="emitOrganisationUpdate"
+          >
         </div>
 
         <div v-else-if="false === canEdit('email2')">
           <strong
-            class="u-mb-0_25">
+            class="u-mb-0_25"
+          >
             {{ Translator.trans('email.participation') }}
           </strong>
           <p
             v-if="organisation.attributes.email2 !== ''"
-            class="color--grey">
+            class="color--grey"
+          >
             {{ organisation.attributes.email2 }}
           </p>
           <p
             v-if="organisation.attributes.email2 === ''"
-            class="color--grey">
+            class="color--grey"
+          >
             -
           </p>
         </div>
@@ -503,14 +568,16 @@
               {{ Translator.trans('email.cc.participation') }}
               <p
                 v-cleanhtml="Translator.trans('explanation.organisation.email.cc')"
-                class="weight--normal lbl__hint" />
+                class="weight--normal lbl__hint"
+              />
               <input
                 v-model="localOrganisation.attributes.ccEmail2"
                 class="layout__item u-1-of-2"
                 style="height: 27px;"
                 type="email"
                 data-cy="orgaFormField:emailCC"
-                @input="emitOrganisationUpdate">
+                @input="emitOrganisationUpdate"
+              >
             </label>
           </div>
 
@@ -519,12 +586,14 @@
               {{ Translator.trans('email.cc.participation') }}
               <p
                 v-if="organisation.attributes.ccEmail2 !== ''"
-                class="color--grey">
+                class="color--grey"
+              >
                 {{ organisation.attributes.ccEmail2 }}
               </p>
               <p
                 v-else-if="organisation.attributes.ccEmail2 === ''"
-                class="color--grey">
+                class="color--grey"
+              >
                 {{ organisation.attributes.ccEmail2 }}
               </p>
             </label>
@@ -537,31 +606,36 @@
           {{ Translator.trans('email.reviewer.admin') }}
           <p
             v-cleanhtml="Translator.trans('explanation.organisation.email.reviewer.admin')"
-            class="weight--normal" />
+            class="weight--normal"
+          />
           <input
             v-model="localOrganisation.attributes.reviewerEmail"
             class="layout__item u-1-of-2"
             style="height: 27px;"
             type="email"
-            @input="emitOrganisationUpdate">
+            @input="emitOrganisationUpdate"
+          >
         </label>
       </div>
 
       <!-- show 'notification for new statements' & 'notification for ending procedure' fields only if editable -->
       <div
         v-if="hasPermission('feature_orga_edit_all_fields') && (hasPermission('feature_notification_statement_new') || hasPermission('feature_notification_ending_phase'))"
-        class="u-mt-0_5">
+        class="u-mt-0_5"
+      >
         <strong class="u-mb-0_25">
           {{ Translator.trans('email.notifications') }}
         </strong>
         <div v-if="hasPermission('feature_notification_statement_new') && showNewStatementNotification">
           <label
-            class="weight--normal u-mb-0_25">
+            class="weight--normal u-mb-0_25"
+          >
             <input
               v-model="localOrganisation.attributes.emailNotificationNewStatement"
               type="checkbox"
               :name="organisation.id + ':emailNotificationNewStatement'"
-              @change="emitOrganisationUpdate">
+              @change="emitOrganisationUpdate"
+            >
             {{ Translator.trans('explanation.notification.new.statement') }}
           </label>
         </div>
@@ -573,7 +647,8 @@
               type="checkbox"
               :name="organisation.id + ':emailNotificationEndingPhase'"
               data-cy="orgaFormField:notificationEndingPhase"
-              @change="emitOrganisationUpdate">
+              @change="emitOrganisationUpdate"
+            >
             {{ Translator.trans('explanation.notification.ending.phase') }}
           </label>
         </div>
@@ -595,27 +670,31 @@
           :options="paperCopyCountOptions"
           :show-placeholder="false"
           data-cy="orgaFormField:organisationCopiesPaper"
-          @select="emitOrganisationUpdate" />
+          @select="emitOrganisationUpdate"
+        />
       </div>
 
       <label v-if="hasPermission('field_organisation_paper_copy_spec') && canEdit('paperCopySpec')">
         {{ Translator.trans('copies.kind') }}
         <p
           v-cleanhtml="Translator.trans('explanation.organisation.copies.kind')"
-          class="font-size-6 weight--normal" />
+          class="font-size-6 weight--normal"
+        />
 
         <textarea
           v-model="localOrganisation.attributes.copySpec"
           class="h-9"
           data-cy="orgaFormField:copiesKind"
-          @input="emitOrganisationUpdate" />
+          @input="emitOrganisationUpdate"
+        />
       </label>
     </fieldset>
 
     <label v-if="hasPermission('field_organisation_competence') && canEdit('competence')">
       {{ Translator.trans('competence.explanation') }}
       <p
-        class="font-size-6 weight--normal">
+        class="font-size-6 weight--normal"
+      >
         {{ Translator.trans('explanation.organisation.competence') }}
       </p>
 
@@ -623,27 +702,32 @@
         v-model="localOrganisation.attributes.competence"
         class="h-9"
         data-cy="orgaFormField:competence"
-        @input="emitOrganisationUpdate" />
+        @input="emitOrganisationUpdate"
+      />
     </label>
 
     <div
       v-else-if="hasPermission('field_organisation_competence') && false === canEdit('competence')"
-      class="u-mt-0">
+      class="u-mt-0"
+    >
       <strong>
         {{ Translator.trans('competence.explanation') }}
       </strong>
       <p
-        class="font-size-6 weight--normal">
+        class="font-size-6 weight--normal"
+      >
         {{ Translator.trans('explanation.organisation.competence.extern') }}
       </p>
       <p
         v-if="localOrganisation.attributes.competence !== ''"
-        class="color--grey weight--normal">
+        class="color--grey weight--normal"
+      >
         {{ localOrganisation.attributes.competence }}
       </p>
       <p
         v-else-if="localOrganisation.attributes.competence === ''"
-        class="color--grey weight--normal">
+        class="color--grey weight--normal"
+      >
         -
       </p>
     </div>
@@ -667,12 +751,14 @@
             data-cy="orgaFormField:listShow"
             :name="organisation.id + ':showlist'"
             :disabled="false === canEdit('showlist')"
-            @change="emitOrganisationUpdate">
+            @change="emitOrganisationUpdate"
+          >
           {{ Translator.trans('invitable_institution.list.show.text') }}
         </label>
         <label
           v-if="canEdit('showlistChangeReason') && hasChanged('showlist') && typeof initialOrganisation.attributes !== 'undefined'"
-          class="u-ml u-mb-0">
+          class="u-ml u-mb-0"
+        >
           <span class="inline-block weight--normal u-mb-0_25">
             {{ Translator.trans('reason.change') }}*
           </span>
@@ -682,7 +768,8 @@
             data-cy="orgaFormField:listShowChange"
             :name="organisation.id + ':showlistChangeReason'"
             required
-            @input="emitOrganisationUpdate" />
+            @input="emitOrganisationUpdate"
+          />
         </label>
       </div>
 
@@ -700,7 +787,8 @@
               type="checkbox"
               data-cy="orgaFormField:agree"
               :name="organisation.id + ':showname'"
-              @change="emitOrganisationUpdate">
+              @change="emitOrganisationUpdate"
+            >
             {{ Translator.trans('agree.publication.text') }}
           </label>
         </div>
@@ -710,12 +798,14 @@
           </p>
           <p
             v-if="localOrganisation.attributes.showname === true"
-            class="color--grey">
+            class="color--grey"
+          >
             {{ Translator.trans('organisation.publication.agreed', { organisation: organisation.attributes.name }) }}
           </p>
           <p
             v-else-if="localOrganisation.attributes.showname === false"
-            class="color--grey">
+            class="color--grey"
+          >
             {{ Translator.trans('organisation.publication.disagreed', { organisation: organisation.attributes.name }) }}
           </p>
         </div>
@@ -735,7 +825,8 @@
           headings: [2,3,4],
           linkButton: true
         }"
-        @input="emitOrganisationUpdate" />
+        @input="emitOrganisationUpdate"
+      />
     </fieldset>
 
     <!-- Data Protection -->
@@ -751,7 +842,8 @@
           headings: [2,3,4],
           linkButton: true
         }"
-        @input="emitOrganisationUpdate" />
+        @input="emitOrganisationUpdate"
+      />
     </fieldset>
   </div>
 </template>
@@ -871,12 +963,19 @@ export default {
       required: false,
       default: '',
     },
+
+    triggerReset: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
 
   emits: [
     'addon:update',
     'addonOptions:loaded',
     'organisation:update',
+    'reset:complete',
   ],
 
   data () {
@@ -967,6 +1066,22 @@ export default {
     },
   },
 
+  watch: {
+    organisation: {
+      handler () {
+        this.setInitialOrganisation()
+      },
+      deep: true,
+    },
+
+    triggerReset (shouldReset) {
+      if (shouldReset) {
+        this.setInitialOrganisation()
+        this.$emit('reset:complete')
+      }
+    },
+  },
+
   methods: {
     canEdit (field) {
       return hasPermission('feature_orga_edit_all_fields') && this.writableFields.includes(field)
@@ -984,7 +1099,7 @@ export default {
     },
 
     hasChanged (field) {
-      if (typeof this.initialOrganisation.attributes !== 'undefined') {
+      if (this.initialOrganisation.attributes !== 'undefined') {
         return hasOwnProp(this.initialOrganisation.attributes, field) ?
           this.localOrganisation.attributes[field] !== this.initialOrganisation.attributes[field] :
           false
@@ -1010,7 +1125,8 @@ export default {
 
     registrationTypeLabel (type) {
       const orgaType = this.availableOrgaTypes.find(el => el.value === type)
-      return Translator.trans(orgaType.label)
+
+      return orgaType ? Translator.trans(orgaType.label) : type
     },
 
     saveNewRegistrationStatus () {
@@ -1024,6 +1140,14 @@ export default {
       this.resetRegistrationStatus()
     },
 
+    setInitialOrganisation () {
+      this.localOrganisation = JSON.parse(JSON.stringify(this.organisation))
+
+      if (this.organisation && typeof this.organisation.hasRelationship === 'function' && this.organisation.hasRelationship('branding')) {
+        this.localOrganisation.attributes.cssvars = this.organisation.rel('branding').attributes.cssvars
+      }
+    },
+
     setAdditionalFieldOptions (options) {
       this.$emit('addonOptions:loaded', options)
     },
@@ -1034,16 +1158,10 @@ export default {
   },
 
   created () {
-    this.localOrganisation = JSON.parse(JSON.stringify(this.organisation))
-    if (this.organisation && typeof this.organisation.hasRelationship === 'function' && this.organisation.hasRelationship('branding')) {
-      this.localOrganisation.attributes.cssvars = this.organisation.rel('branding').attributes.cssvars
-    }
+    this.setInitialOrganisation()
   },
 
   mounted () {
-    this.$root.$on('organisation:reset', () => {
-      this.localOrganisation = JSON.parse(JSON.stringify(this.organisation))
-    })
     if (this.registrationStatuses.length === 0) {
       this.showAddStatusForm = true
     }

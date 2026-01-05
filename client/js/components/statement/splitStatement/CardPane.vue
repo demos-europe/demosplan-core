@@ -10,7 +10,8 @@
 <template>
   <div
     class="card-pane"
-    :style="{ 'min-height': containerMinHeight }">
+    :style="{ 'min-height': containerMinHeight }"
+  >
     <card-pane-card
       v-for="segment in filteredSortedSegments"
       :key="'card' + segment.id + Math.random()"
@@ -18,14 +19,15 @@
       :segment="segment"
       :data-range="segment.id"
       :offset="offset"
-      @card:checkOverlap="positionCards"
+      @card:check-overlap="positionCards"
       @segment:confirm="$emit('segment:confirm', segment.id)"
       @segment:edit="$emit('segment:edit', segment.id)"
       @segment:delete="$emit('segment:delete', segment.id)"
       @focusin="handleMouseEnter(segment.id)"
       @focusout="handleMouseLeave(segment.id)"
       @mouseenter="handleMouseEnter(segment.id)"
-      @mouseleave="handleMouseLeave(segment.id)" />
+      @mouseleave="handleMouseLeave(segment.id)"
+    />
   </div>
 </template>
 

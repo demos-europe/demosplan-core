@@ -2,14 +2,16 @@
   <fieldset data-dp-validate="statementLocationAndDocumentReference">
     <legend
       id="locationAndDocuments"
-      class="mb-3 color-text-muted font-normal">
+      class="mb-3 color-text-muted font-normal"
+    >
       {{ Translator.trans( hasPermission('field_statement_polygon') ? 'location.and.document.reference' : 'document.reference') }}
     </legend>
 
     <!-- Location reference -->
     <div
       v-if="hasPermission('field_statement_polygon')"
-      class="font-semibold mb-0.5">
+      class="font-semibold mb-0.5"
+    >
       {{ Translator.trans('location') }}
     </div>
 
@@ -21,10 +23,12 @@
             data-cy="statementMeta:toggleLocationReference"
             :text="Translator.trans('map.view')"
             variant="outline"
-            @click="toggleLocationModal" />
+            @click="toggleLocationModal"
+          />
           <dp-map-modal
             ref="locationReferenceModal"
-            :procedure-id="procedureId" />
+            :procedure-id="procedureId"
+          />
         </template>
         <template v-else>
           <p class="color-text-muted">
@@ -36,7 +40,8 @@
       <!-- Document reference -->
       <div
         v-if="editable"
-        class="grid grid-cols-1 gap-x-4 md:grid-cols-2">
+        class="grid grid-cols-1 gap-x-4 md:grid-cols-2"
+      >
         <dp-select
           v-model="selectedElementId"
           data-cy="statement:elementSelect"
@@ -44,7 +49,8 @@
             text: Translator.trans('plandocument')
           }"
           :options="elementsOptions"
-          @select="handleSelect" />
+          @select="handleSelect"
+        />
 
         <dp-select
           v-if="paragraphOptions.length > 0"
@@ -54,7 +60,8 @@
             text: Translator.trans('paragraph')
           }"
           :options="paragraphOptions"
-          required />
+          required
+        />
 
         <dp-select
           v-if="documentOptions.length > 0"
@@ -64,12 +71,14 @@
             text: Translator.trans('file')
           }"
           :options="documentOptions"
-          required />
+          required
+        />
       </div>
 
       <dl
         v-else
-        class="grid grid-cols-1 gap-x-4 md:grid-cols-2 mb-0">
+        class="grid grid-cols-1 gap-x-4 md:grid-cols-2 mb-0"
+      >
         <div>
           <dt class="font-semibold">
             {{ Translator.trans('plandocument') }}
@@ -104,7 +113,8 @@
         primary
         secondary
         @primary-action="dpValidateAction('statementLocationAndDocumentReference', save, false)"
-        @secondary-action="reset" />
+        @secondary-action="reset"
+      />
     </div>
   </fieldset>
 </template>

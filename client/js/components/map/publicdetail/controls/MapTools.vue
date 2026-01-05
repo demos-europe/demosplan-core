@@ -14,37 +14,43 @@
         <button
           :class="[unfolded ? prefixClass('is-active') : '', prefixClass('c-map__group-header c-map__group-item btn--blank o-link--default u-pv-0_25')]"
           data-cy="mapTools:mapToolsTap"
-          @click="toggle">
+          @click="toggle"
+        >
           {{ Translator.trans('maptools') }}
         </button>
         <dp-contextual-help
           v-if="unfolded"
           class="c-map__layerhelp"
-          :text="Translator.trans('maptools.explanation')" />
+          :text="Translator.trans('maptools.explanation')"
+        />
       </div>
     </div>
 
     <ul
       v-show="unfolded"
       id="mapTools"
-      :class="prefixClass('c-map__group')">
+      :class="prefixClass('c-map__group')"
+    >
       <li
         v-for="tool in toolList"
         :id="tool.id"
         :key="tool.id"
         :class="prefixClass('c-map__group-item c-map__layer c-map__measure-tool js__mapcontrol')"
-        :title="tool.title">
+        :title="tool.title"
+      >
         <button
           :class="prefixClass('btn--blank o-link--default')"
           :aria-label="tool.title + ' ' + Translator.trans('map.interactive.pointer.needed')"
-          :data-cy="`mapTools:${tool.id}`">
+          :data-cy="`mapTools:${tool.id}`"
+        >
           <!-- Active and inactive tool icons -->
           <svg
             v-if="tool.isActive"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 12 17"
             :class="prefixClass('c-map__group-item u-p-0 inline')"
-            style="width: 16px; height: 16px; vertical-align: text-top;">
+            style="width: 16px; height: 16px; vertical-align: text-top;"
+          >
             <defs>
               <clipPath :id="'a' + tool.id">
                 <path d="M0 0h12v17H0z" />
@@ -53,7 +59,8 @@
             <g :clip-path="`url(#a${tool.id})`">
               <path
                 d="M0 0v17l4.849-4.973H12z"
-                fill="#1e3884" />
+                fill="#1e3884"
+              />
             </g>
           </svg>
 
@@ -62,7 +69,8 @@
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 12 17"
             :class="prefixClass('c-map__group-item u-p-0 inline')"
-            style="width: 16px; height: 16px; vertical-align: text-top;">
+            style="width: 16px; height: 16px; vertical-align: text-top;"
+          >
             <defs>
               <clipPath :id="'a' + tool.id">
                 <path d="M0 0h12v17H0z" />
@@ -70,11 +78,13 @@
             </defs>
             <g
               fill="none"
-              :clip-path="`url(#a${tool.id})`">
+              :clip-path="`url(#a${tool.id})`"
+            >
               <path d="M0 0v17l4.849-4.973H12z" />
               <path
                 d="M1 14.542l3.132-3.212.295-.302h5.162L1 2.418v12.124M0 17V0l12 12.028H4.85L-.002 17z"
-                fill="#707070" />
+                fill="#707070"
+              />
             </g>
           </svg>
           {{ Translator.trans(tool.transkey) }}
@@ -84,13 +94,16 @@
         id="measureRemoveButton"
         :class="prefixClass('c-map__group-item u-ph-0_5 u-pv-0_25 js__mapcontrol')"
         title="Messungen entfernen"
-        :aria-label="Translator.trans('map.measure.remove') + ' ' + Translator.trans('map.interactive.pointer.needed')">
+        :aria-label="Translator.trans('map.measure.remove') + ' ' + Translator.trans('map.interactive.pointer.needed')"
+      >
         <button
           :class="prefixClass('btn--blank o-link--default')"
-          data-cy="mapTools:mapMeasureRemove">
+          data-cy="mapTools:mapMeasureRemove"
+        >
           <i
             :class="prefixClass('fa fa-times')"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           {{ Translator.trans('map.measure.remove') }}
         </button>
       </li>
@@ -98,11 +111,13 @@
       <li
         id="resetZoomButton"
         :class="prefixClass('c-map__group-item u-ph-0_5 u-pv-0_25 js__mapcontrol zoom-reset')"
-        title="Zoom der Karte zurücksetzen">
+        title="Zoom der Karte zurücksetzen"
+      >
         <button
           :class="prefixClass('btn--blank o-link--default')"
           :aria-label="Translator.trans('map.zoom.reset') + ' ' + Translator.trans('map.interactive.pointer.needed')"
-          data-cy="mapTools:mapZoomReset">
+          data-cy="mapTools:mapZoomReset"
+        >
           {{ Translator.trans('map.zoom.reset') }}
         </button>
       </li>

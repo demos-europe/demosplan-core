@@ -14,14 +14,16 @@
     <!-- Update button -->
     <transition
       name="slide-fade"
-      mode="out-in">
+      mode="out-in"
+    >
       <dp-button
         v-show="isRefreshButtonVisible"
         class="u-ml-0_5 u-mb-0_5"
         icon="refresh"
         :text="Translator.trans('refresh')"
         variant="outline"
-        @click="triggerUpdate" />
+        @click="triggerUpdate"
+      />
     </transition>
   </div>
 </template>

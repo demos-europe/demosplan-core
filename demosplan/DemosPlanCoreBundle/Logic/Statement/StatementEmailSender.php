@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -50,7 +51,7 @@ class StatementEmailSender
     {
         try {
             $statement = $this->statementService->getStatement($statementId);
-            if (null === $statement) {
+            if (!$statement instanceof Statement) {
                 $this->messageBag->add('error', 'error.statement.final.send');
 
                 return false;
@@ -95,7 +96,7 @@ class StatementEmailSender
                 /** @var User $user */
                 $user = $this->userService->getSingleUser($statement->getUId());
                 $recipientEmailAddress = $this->determineRecipientEmailAddressInstitution($statement, $user);
-                if (!empty($recipientEmailAddress)) {
+                if ([] !== $recipientEmailAddress) {
                     $successMessageTranslationParams['sent_to'] = 'institution_only';
                     $this->sendFinalStatementEmail(
                         $statement,
@@ -113,7 +114,7 @@ class StatementEmailSender
 
                 $recipientEmailAddress = $this->determineRecipientEmailAddressInstitutionCoordinator($statement, $user);
 
-                if (!empty($recipientEmailAddress)) {
+                if ('' !== $recipientEmailAddress && '0' !== $recipientEmailAddress) {
                     $successMessageTranslationParams['sent_to'] = 'institution_and_coordination';
                     $this->sendFinalStatementEmail(
                         $statement,
@@ -175,7 +176,7 @@ class StatementEmailSender
         if (null !== $statement->getMeta()->getSubmitUId()) {
             $submitUser = $this->userService->getSingleUser($statement->getMeta()->getSubmitUId());
 
-            if (false === stripos($user->getEmail(), $submitUser->getEmail())) {
+            if (false === stripos((string) $user->getEmail(), $submitUser->getEmail())) {
                 return $submitUser->getEmail();
             }
         }
@@ -189,7 +190,7 @@ class StatementEmailSender
         /** @var User $user */
 
         // Participation email address is found on Statement details view > Grundeinstellungen > Intern section > E-Mail Verfahrensträger
-        if (0 < strlen($user->getOrga()->getParticipationEmail())) {
+        if (0 < strlen((string) $user->getOrga()->getParticipationEmail())) {
             $recipients[] = $user->getOrga()->getParticipationEmail();
         }
 
@@ -293,7 +294,7 @@ class StatementEmailSender
         $syntaxEmailErrors = [];
         $emailcc = [];
         // Split string into individual email addresses
-        $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $sendEmailCC);
+        $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', (string) $sendEmailCC);
         // Check each email address for validity
         foreach ($mailsCC as $mail) {
             // Remove all whitespace at the beginning and end
@@ -309,7 +310,7 @@ class StatementEmailSender
         }
 
         // if email addresses are incorrect, generate an error message
-        if (0 < count($syntaxEmailErrors)) {
+        if ([] !== $syntaxEmailErrors) {
             throw new InvalidDataException('Invalid Emails provided in CC field.');
         }
 
@@ -349,7 +350,7 @@ class StatementEmailSender
     public function createSendableAttachment(string $fileString): array
     {
         $file = $this->fileService->getFileFromFileString($fileString);
-        if (null === $file) {
+        if (!$file instanceof File) {
             throw new InvalidArgumentException("File not found for ID: $fileString");
         }
 

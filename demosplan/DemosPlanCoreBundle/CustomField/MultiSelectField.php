@@ -29,7 +29,7 @@ class MultiSelectField extends AbstractCustomField
 
     protected bool $isRequired = false;
 
-    public function getFormat(): string
+    public function getFieldType(): string
     {
         return 'multiSelect';
     }
@@ -63,16 +63,6 @@ class MultiSelectField extends AbstractCustomField
         ];
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
     public function getOptions(): array
     {
         return $this->options;
@@ -81,16 +71,6 @@ class MultiSelectField extends AbstractCustomField
     public function setOptions(array $options): void
     {
         $this->options = $options;
-    }
-
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $description): void
-    {
-        $this->description = $description;
     }
 
     public function setRequired(bool $isRequired): void
@@ -103,21 +83,6 @@ class MultiSelectField extends AbstractCustomField
         return $this->isRequired;
     }
 
-    public function getCustomFieldsList(): ?array
-    {
-        return [];
-    }
-
-    public function setFieldType(string $type): void
-    {
-        $this->fieldType = $type;
-    }
-
-    public function getType(): string
-    {
-        return 'multiSelect';
-    }
-
     public function isValueValid(?string $value): bool
     {
         if (null === $value) {
@@ -127,16 +92,6 @@ class MultiSelectField extends AbstractCustomField
         return collect($this->options)->contains(function ($option) use ($value) {
             return $option->getId() === $value;
         });
-    }
-
-    public function setId($id): void
-    {
-        $this->id = $id;
-    }
-
-    public function getId(): string
-    {
-        return $this->id;
     }
 
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption

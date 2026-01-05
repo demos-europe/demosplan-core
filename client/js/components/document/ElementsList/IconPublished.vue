@@ -20,7 +20,8 @@
     />
     <span
       class="sr-only"
-      v-text="text" />
+      v-text="text"
+    />
   </div>
 </template>
 

@@ -12,7 +12,8 @@
     data-cy="statementMetaAttachmentsLink"
     :href="Routing.generate('core_file_procedure', { hash: attachment.hash, procedureId: procedureId})"
     rel="noopener"
-    target="_blank">
+    target="_blank"
+  >
     {{ attachment.filename }}
   </a>
 </template>

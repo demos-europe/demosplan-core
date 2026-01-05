@@ -13,7 +13,8 @@
       :header-fields="headerFields"
       :login-route="loginRoute"
       :password="password"
-      :row-items="rowItems" />
+      :row-items="rowItems"
+    />
   </div>
 </template>
 

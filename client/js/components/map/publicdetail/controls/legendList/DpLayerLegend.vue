@@ -11,13 +11,15 @@
   <div>
     <div
       v-if="hasPermission('feature_map_layer_legend_file') || hasPermission('feature_map_use_plan_draw_pdf')"
-      :class="prefixClass('c-map__group')">
+      :class="prefixClass('c-map__group')"
+    >
       <button
         :class="[unfolded ? prefixClass('is-active') : '', prefixClass('c-map__group-header c-map__group-item c-map__toggle btn--blank o-link--default u-pv-0_25')]"
         data-cy="layerLegend:legend"
         :disabled="!hasLegend"
         :title="buttonTitle"
-        @click="toggle">
+        @click="toggle"
+      >
         {{ Translator.trans('legend') }}
       </button>
     </div>
@@ -25,16 +27,19 @@
     <template v-if="hasPermission('feature_map_layer_get_legend') || hasPermission('feature_map_use_plan_draw_pdf')">
       <ul
         v-show="unfolded"
-        :class="prefixClass('c-map__group js__mapLayerLegends')">
+        :class="prefixClass('c-map__group js__mapLayerLegends')"
+      >
         <li v-if="hasPermission('feature_map_use_plan_pdf') && planPdf.hash">
           <a
             :class="prefixClass('c-map__group-item block')"
             target="_blank"
             :href="Routing.generate('core_file_procedure', { hash: planPdf.hash, procedureId: procedureId})"
-            :title="planPdfTitle">
+            :title="planPdfTitle"
+          >
             <i
               :class="prefixClass('fa fa-download')"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
             {{ Translator.trans('legend.download') }}
           </a>
         </li>
@@ -42,18 +47,21 @@
         <dp-layer-legend-item
           v-for="item in legends"
           :key="item.id"
-          :legend="item" />
+          :legend="item"
+        />
 
         <template v-if="hasPermission('feature_map_layer_legend_file')">
           <li
             v-for="(layer, idx) in layersWithLegendFiles"
             :key="idx"
-            :data-layername="layer.name">
+            :data-layername="layer.name"
+          >
             <a
               :class="prefixClass('c-map__group-item block')"
               target="_blank"
               :href="Routing.generate('core_file_procedure', { hash: layer.legend.hash, procedureId: procedureId })"
-              :title="`${layer.name} (${layer.legend.mimeType}, ${layer.legend.fileSize})`">
+              :title="`${layer.name} (${layer.legend.mimeType}, ${layer.legend.fileSize})`"
+            >
               {{ layer.name }}
             </a>
           </li>

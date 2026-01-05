@@ -16,7 +16,8 @@
       }"
       :options="procedureTypes"
       :selected="selectedId"
-      @select="handleSelect" />
+      @select="handleSelect"
+    />
   </div>
 </template>
 

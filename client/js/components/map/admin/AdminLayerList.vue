@@ -36,12 +36,14 @@
             :class="{'has-dropdown': hasPermission('feature_map_category')}"
             class="btn btn--primary"
             data-cy="createNewGisLayer"
-            :href="Routing.generate('DemosPlan_map_administration_gislayer_new',{ procedure: procedureId })">
+            :href="Routing.generate('DemosPlan_map_administration_gislayer_new',{ procedure: procedureId })"
+          >
             {{ Translator.trans('gislayer.create') }}
           </a>
           <template
             v-if="hasPermission('feature_map_category')"
-            v-slot:dropdown>
+            v-slot:dropdown
+          >
             <a :href="Routing.generate('DemosPlan_map_administration_gislayer_category_new',{ procedureId: procedureId })">
               {{ Translator.trans('maplayer.category.new') }}
             </a>
@@ -52,26 +54,31 @@
 
     <div
       class="relative"
-      :class="{'pointer-events-none': false === isEditable}">
+      :class="{'pointer-events-none': false === isEditable}"
+    >
       <div class="mt-4 flex">
         <h3
           v-if="hasPermission('feature_map_baselayer')"
-          class="flex-1 w-1/3">
+          class="flex-1 w-1/3"
+        >
           {{ Translator.trans('map.overlays') }}
         </h3>
         <div
           v-if="canHaveCategories"
-          class="flex-1 w-2/3 text-right">
+          class="flex-1 w-2/3 text-right"
+        >
           <button
             class="btn--blank o-link--default"
             :class="{'o-link--active':currentTab === 'treeOrder'}"
-            @click.prevent="setActiveTab('treeOrder')">
+            @click.prevent="setActiveTab('treeOrder')"
+          >
             {{ Translator.trans('map.set.order.tree') }}
           </button>
           <button
             class="btn--blank o-link--default ml-4"
             :class="{'o-link--active':currentTab === 'mapOrder'}"
-            @click.prevent="setActiveTab('mapOrder')">
+            @click.prevent="setActiveTab('mapOrder')"
+          >
             {{ Translator.trans('map.set.order.map') }}
           </button>
         </div>
@@ -88,17 +95,21 @@
           </div>
           <div
             v-if="hasPermission('feature_map_layer_visibility')"
-            class="w-1/12 text-right">
+            class="w-1/12 text-right"
+          >
             <i
               v-tooltip="{ content: Translator.trans('explanation.gislayer.visibilitygroup'), classes: 'max-w-none' }"
-              class="fa fa-link mr-2" />
+              class="fa fa-link mr-2"
+            />
           </div>
           <div
             v-if="hasPermission('feature_map_layer_visibility')"
-            class="w-1/12 text-right">
+            class="w-1/12 text-right"
+          >
             <i
               v-tooltip="Translator.trans('explanation.gislayer.visibility')"
-              class="fa fa-eye mr-2" />
+              class="fa fa-eye mr-2"
+            />
           </div>
 
           <div class="w-2/12 text-right">
@@ -112,7 +123,8 @@
         :class="{ 'color--grey': false === isEditable }"
         :content-data="currentList"
         :opts="draggableOptions"
-        @end="updateChildren">
+        @end="updateChildren"
+      >
         <admin-layer-list-item
           v-for="(item, idx) in currentList"
           :key="item.id"
@@ -122,16 +134,19 @@
           :is-loading="(false === isEditable)"
           layer-type="overlay"
           :parent-order-position="1"
-          :sorting-type="currentTab" />
+          :sorting-type="currentTab"
+        />
       </dp-draggable>
 
       <dp-loading
         v-if="isLoading"
-        class="list__item py-2 border--top" />
+        class="list__item py-2 border--top"
+      />
 
       <div
         v-if="(0 === currentList.length ) && false === isLoading"
-        class="list__item py-2 border--top color--grey">
+        class="list__item py-2 border--top color--grey"
+      >
         {{ Translator.trans('no.data') }}
       </div>
 
@@ -144,18 +159,20 @@
           <div class="c-at-item__row-icon pl-0">
             <!-- DragHandler -->
           </div>
-          <div class="flex">
-            <div class="flex-1 pl-2">
+          <div class="flex pl-2">
+            <div class="flex-1">
               {{ Translator.trans('description') }}
             </div>
             <div
               v-if="hasPermission('feature_map_layer_visibility')"
-              class="w-1/12 text-right">
+              class="w-1/12 text-right"
+            >
               <i
                 v-tooltip="Translator.trans('explanation.gislayer.visibility')"
-                class="fa fa-eye mr-2" />
+                class="fa fa-eye mr-2"
+              />
             </div>
-            <div class="w-1/12 text-right">
+            <div class="w-2/12 text-right">
               {{ Translator.trans('edit') }}
             </div>
           </div>
@@ -165,7 +182,8 @@
           :opts="draggableOptionsForBaseLayer"
           :content-data="currentBaseList"
           :class="{'color--grey': false === isEditable}"
-          @end="updateChildren">
+          @end="updateChildren"
+        >
           <admin-layer-list-item
             v-for="(item, idx) in currentBaseList"
             :key="item.id"
@@ -174,7 +192,9 @@
             :index="idx"
             :is-loading="(false === isEditable)"
             layer-type="base"
-            :sorting-type="currentTab" />
+            :sorting-type="currentTab"
+            @visibility-toggled="ensureSingleBaseLayerVisible"
+          />
         </dp-draggable>
         <div class="my-4">
           <h3>
@@ -187,14 +207,16 @@
             <select
               v-model="currentMinimapLayer"
               class="o-form__control-select w-1/2"
-              data-cy="adminLayerList:currentMinimapLayer">
+              data-cy="adminLayerList:currentMinimapLayer"
+            >
               <option :value="{id: '', attributes: { name: 'default' }}">
                 {{ Translator.trans('selection.no') }}
               </option>
               <option
                 v-for="item in mapBaseList"
                 :key="item.id"
-                :value="item">
+                :value="item"
+              >
                 {{ item.attributes.name }}
               </option>
             </select>
@@ -203,7 +225,8 @@
       </template>
       <div
         v-if="!isLoading"
-        class="text-right mt-5 space-x-2">
+        class="text-right mt-5 space-x-2"
+      >
         <dp-button
           :busy="!isEditable"
           :text="Translator.trans('save')"
@@ -278,6 +301,8 @@ export default {
     ]),
 
     ...mapGetters('Layers', [
+      'element',
+      'elementsListByAttribute',
       'gisLayerList',
       'elementListForLayerSidebar',
       'minimapLayer',
@@ -361,31 +386,23 @@ export default {
       'updateState',
     ]),
 
-    updateChildren (ev) {
-      this.setChildrenFromCategory({
-        newCategoryId: ev.to.id,
-        oldCategoryId: ev.from.id,
-        movedElement: {
-          id: ev.item.id,
-          newIndex: ev.newIndex,
-          oldIndex: ev.oldIndex,
-        },
-        orderType: this.currentTab,
-        parentOrder: this.parentOrderPosition,
+    /**
+     * Dissolves a visibility group if it has only 1 member remaining
+     *
+     * @param {string} groupId - The visibility group ID to check
+     */
+    cleanUpOrphanedVisibilityGroup (groupId) {
+      const remainingMembers = this.elementsListByAttribute({
+        type: 'visibilityGroupId',
+        value: groupId,
       })
 
-      // If there is just one order (map) -then the treeorder should match the map-order
-      if (this.currentTab === 'mapOrder' && !this.canHaveCategories) {
-        this.setChildrenFromCategory({
-          newCategoryId: ev.to.id,
-          oldCategoryId: ev.from.id,
-          movedElement: {
-            id: ev.item.id,
-            newIndex: ev.newIndex,
-            oldIndex: ev.oldIndex,
-          },
-          orderType: 'treeOrder',
-          parentOrder: this.parentOrderPosition,
+      // If only 1 member left, dissolve the group
+      if (remainingMembers.length === 1) {
+        this.setAttributeForLayer({
+          id: remainingMembers[0].id,
+          attribute: 'visibilityGroupId',
+          value: null,
         })
       }
     },
@@ -413,6 +430,136 @@ export default {
     setActiveTab (sortOrder) {
       this.currentTab = sortOrder
       lscache.set('layerOrderTab', sortOrder, 300)
+    },
+
+    /**
+     * Synchronizes all children of a category that appears as a layer
+     * Recursively updates hasDefaultVisibility and clears visibilityGroupId
+     *
+     * @param {string} categoryId - ID of the parent category
+     * @returns {Object} Object with ungroupedLayers array and affectedGroupIds Set
+     */
+    syncChildrenOfCategoryThatAppearsAsLayer (categoryId) {
+      const category = this.element({
+        id: categoryId,
+        type: 'GisLayerCategory',
+      })
+
+      if (!category) {
+        return { ungroupedLayers: [], affectedGroupIds: new Set() }
+      }
+
+      const children = this.elementListForLayerSidebar(categoryId, 'overlay', true)
+      const ungroupedLayers = []
+      const affectedGroupIds = new Set()
+
+      children.forEach((child) => {
+        // Match parent's default visibility
+        this.setAttributeForLayer({
+          id: child.id,
+          attribute: 'hasDefaultVisibility',
+          value: category.attributes.hasDefaultVisibility,
+        })
+
+        // Clear visibility group for child layers
+        if (child.type === 'GisLayer') {
+          // Track layers that were in a visibility group
+          if (child.attributes.visibilityGroupId) {
+            ungroupedLayers.push(child)
+            affectedGroupIds.add(child.attributes.visibilityGroupId)
+          }
+
+          this.setAttributeForLayer({
+            id: child.id,
+            attribute: 'visibilityGroupId',
+            value: null,
+          })
+        }
+
+        // If child is also a category, recursively sync its children
+        if (child.type === 'GisLayerCategory') {
+          const nestedResult = this.syncChildrenOfCategoryThatAppearsAsLayer(child.id)
+          ungroupedLayers.push(...nestedResult.ungroupedLayers)
+          nestedResult.affectedGroupIds.forEach(groupId => affectedGroupIds.add(groupId))
+        }
+      })
+
+      return { ungroupedLayers, affectedGroupIds }
+    },
+
+    ensureSingleBaseLayerVisible (changedLayerId) {
+      // Get all base layers with hasDefaultVisibility true
+      const visibleBaseLayers = this.mapBaseList.filter(
+        layer => layer.attributes.hasDefaultVisibility === true,
+      )
+
+      // If more than one base layer is visible on load, disable all except the one that was just changed
+      if (visibleBaseLayers.length > 1) {
+        visibleBaseLayers.forEach(layer => {
+          if (layer.id !== changedLayerId) {
+            this.setAttributeForLayer({
+              id: layer.id,
+              attribute: 'hasDefaultVisibility',
+              value: false,
+            })
+          }
+        })
+
+        dplan.notify.notify('info', Translator.trans('map.baselayer.visibility.single'))
+      }
+    },
+
+    updateChildren (ev) {
+      this.setChildrenFromCategory({
+        newCategoryId: ev.to.id,
+        oldCategoryId: ev.from.id,
+        movedElement: {
+          id: ev.item.id,
+          newIndex: ev.newIndex,
+          oldIndex: ev.oldIndex,
+        },
+        orderType: this.currentTab,
+        parentOrder: this.parentOrderPosition,
+      })
+
+      // If there is just one order (map) -then the treeorder should match the map-order
+      if (this.currentTab === 'mapOrder' && !this.canHaveCategories) {
+        this.setChildrenFromCategory({
+          newCategoryId: ev.to.id,
+          oldCategoryId: ev.from.id,
+          movedElement: {
+            id: ev.item.id,
+            newIndex: ev.newIndex,
+            oldIndex: ev.oldIndex,
+          },
+          orderType: 'treeOrder',
+          parentOrder: this.parentOrderPosition,
+        })
+      }
+
+      // If dropped into a category that hides children, sync all its children
+      const newCategory = this.element({
+        id: ev.to.id,
+        type: 'GisLayerCategory',
+      })
+
+      if (newCategory && newCategory.attributes.layerWithChildrenHidden) {
+        this.$nextTick(() => {
+          const { ungroupedLayers, affectedGroupIds } = this.syncChildrenOfCategoryThatAppearsAsLayer(ev.to.id)
+
+          // Clean up orphaned visibility groups (groups with only 1 member left)
+          affectedGroupIds.forEach(groupId => {
+            this.cleanUpOrphanedVisibilityGroup(groupId)
+          })
+
+          // Notify user if any layers were removed from visibility groups
+          if (ungroupedLayers.length > 0) {
+            const layerNames = ungroupedLayers.map(layer => layer.attributes.name).join(', ')
+
+            dplan.notify.notify('warning', Translator.trans('gislayer.removed.from.visibility.group', { layers: layerNames }))
+          }
+        })
+      }
     },
   },
 

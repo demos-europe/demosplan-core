@@ -11,7 +11,8 @@
   <fieldset>
     <legend
       id="attachments"
-      class="mb-3 color-text-muted font-normal">
+      class="mb-3 color-text-muted font-normal"
+    >
       {{ Translator.trans('attachments') }}
     </legend>
     <div class="space-stack-m">
@@ -19,34 +20,41 @@
       <div>
         <p
           class="weight--bold u-m-0"
-          v-text="Translator.trans('attachment.original')" />
+          v-text="Translator.trans('attachment.original')"
+        />
         <div
           v-if="localAttachments.originalAttachment.hash"
-          class="flex mb-2">
+          class="flex mb-2"
+        >
           <statement-meta-attachments-link
             :attachment="localAttachments.originalAttachment"
             :aria-disabled="isSourceAttachmentMarkedForDeletion ? 'true' : 'false'"
             class="block mt-1 mb-1 text-ellipsis overflow-hidden whitespace-nowrap"
             :class="{ 'line-through text-muted pointer-events-none': isSourceAttachmentMarkedForDeletion }"
             :procedure-id="procedureId"
-            :tabindex="isSourceAttachmentMarkedForDeletion ? -1 : 0" />
-          <button
-            class="o-link--default"
-            :class="isSourceAttachmentMarkedForDeletion ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+            :tabindex="isSourceAttachmentMarkedForDeletion ? -1 : 0"
+          />
+          <dp-button
+            v-if="editable"
+            class="o-link--default ml-1"
             data-cy="statementMetaAttachments:removeSourceAttachment"
-            :disabled="isSourceAttachmentMarkedForDeletion"
+            hide-text
+            icon="delete"
+            icon-size="medium"
             type="button"
-            @click="fileIdSourceAttachment === localAttachments.originalAttachment.hash ? removeSourceAttachment() : markSourceAttachmentForDeletion()">
-            <dp-icon
-              class="ml-2"
-              icon="delete" />
-          </button>
+            variant="subtle"
+            :class="isSourceAttachmentMarkedForDeletion ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+            :disabled="isSourceAttachmentMarkedForDeletion"
+            :text="Translator.trans('delete')"
+            @click="fileIdSourceAttachment === localAttachments.originalAttachment.hash ? removeSourceAttachment() : markSourceAttachmentForDeletion()"
+          />
         </div>
 
         <p
           v-if="!localAttachments.originalAttachment.hash && !editable"
           class="color-text-muted"
-          v-text="Translator.trans('none')" />
+          v-text="Translator.trans('none')"
+        />
 
         <template v-if="editable">
           <dp-upload
@@ -62,7 +70,8 @@
             name="uploadSourceStatementAttachment"
             :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
             :tus-endpoint="dplan.paths.tusEndpoint"
-            @upload-success="handleSourceAttachmentUploadSuccess" />
+            @upload-success="handleSourceAttachmentUploadSuccess"
+          />
 
           <div class="text-right">
             <dp-button-row
@@ -72,7 +81,8 @@
               primary
               secondary
               @primary-action="saveSourceAttachment"
-              @secondary-action="handleResetSourceAttachment" />
+              @secondary-action="handleResetSourceAttachment"
+            />
           </div>
         </template>
       </div>
@@ -82,38 +92,46 @@
         <dp-label
           class="mb-0.5"
           :text="Translator.trans('more.attachments')"
-          for="uploadStatementAttachment" />
+          for="uploadStatementAttachment"
+        />
 
         <!-- List of existing attachments -->
         <ul
           v-if="localAttachments.additionalAttachments.length > 0"
-          class="mb-3">
+          class="mb-3"
+        >
           <li
             v-for="attachment in localAttachments.additionalAttachments"
             :key="attachment.hash"
-            class="flex">
+            class="flex"
+          >
             <statement-meta-attachments-link
               :attachment="attachment"
               class="block mt-1 text-ellipsis overflow-hidden whitespace-nowrap"
               :class="{ 'line-through text-muted pointer-events-none': genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) }"
-              :procedure-id="procedureId" />
-            <button
-              class="o-link--default mt-1"
-              :class="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+              :procedure-id="procedureId"
+            />
+            <dp-button
+              v-if="editable"
+              class="o-link--default ml-1"
               data-cy="statementMetaAttachments:removeGenericAttachment"
-              :disabled="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id )"
+              hide-text
+              icon="delete"
+              icon-size="medium"
               type="button"
-              @click="fileIds.includes(attachment.hash) ? removeGenericAttachment(attachment.hash) : markGenericAttachmentForDeletion(attachment.id)">
-              <dp-icon
-                class="ml-2"
-                icon="delete" />
-            </button>
+              variant="subtle"
+              :class="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+              :disabled="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id )"
+              :text="Translator.trans('delete')"
+              @click="fileIds.includes(attachment.hash) ? removeGenericAttachment(attachment.hash) : markGenericAttachmentForDeletion(attachment.id)"
+            />
           </li>
         </ul>
         <p
           v-if="localAttachments.additionalAttachments.length === 0 && !editable"
           class="color-text-muted"
-          v-text="Translator.trans('none')" />
+          v-text="Translator.trans('none')"
+        />
 
         <!-- File upload -->
         <template v-if="editable">
@@ -129,7 +147,8 @@
             name="uploadStatementAttachment"
             :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
             :tus-endpoint="dplan.paths.tusEndpoint"
-            @upload-success="handleGenericAttachmentUploadSuccess" />
+            @upload-success="handleGenericAttachmentUploadSuccess"
+          />
 
           <div class="text-right">
             <dp-button-row
@@ -139,7 +158,8 @@
               primary
               secondary
               @primary-action="saveGenericAttachments"
-              @secondary-action="handleResetGenericAttachments" />
+              @secondary-action="handleResetGenericAttachments"
+            />
           </div>
         </template>
       </div>
@@ -150,19 +170,21 @@
 <script>
 import {
   dpApi,
+  DpButton,
   DpButtonRow,
-  DpIcon,
   DpLabel,
   DpUpload,
 } from '@demos-europe/demosplan-ui'
+import { buildDetailedStatementQuery } from '../../Shared/utils/statementQueryBuilder'
+import { mapActions } from 'vuex'
 import StatementMetaAttachmentsLink from './StatementMetaAttachmentsLink'
 
 export default {
   name: 'StatementMetaAttachments',
 
   components: {
+    DpButton,
     DpButtonRow,
-    DpIcon,
     DpLabel,
     DpUpload,
     StatementMetaAttachmentsLink,
@@ -182,6 +204,12 @@ export default {
      * but keep the uploaded files list accessible at the same time.
      */
     editable: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
+    isSourceAndCoupledProcedure: {
       type: Boolean,
       required: false,
       default: false,
@@ -251,6 +279,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('Statement', {
+      getStatementAction: 'get',
+    }),
+
     createSourceAttachment () {
       this.isProcessingSourceAttachment = true
 
@@ -505,7 +537,11 @@ export default {
     },
 
     triggerStatementRequest () {
-      this.$root.$emit('statementAttachments:added')
+      const params = buildDetailedStatementQuery(this.statementId, {
+        isSourceAndCoupledProcedure: this.isSourceAndCoupledProcedure,
+      })
+
+      return this.getStatementAction(params)
     },
   },
 }

@@ -8,6 +8,9 @@
 @import "tailwindcss/utilities.css" layer(utilities) source(none);
 @import "@demos-europe/demosplan-ui/styles/utilities.css";
 
+/* Import cookie consent CSS */
+@import "@demos-europe/dp-consent/src/css/style.css";
+
 /* Addons may contain Tailwind classes, too, so we need to include them here */
 @source "../../addons/vendor/demos-europe/demosplan-addon-*/client/**/*.{js,vue}";
 

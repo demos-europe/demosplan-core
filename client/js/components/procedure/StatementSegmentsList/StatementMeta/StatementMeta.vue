@@ -15,7 +15,8 @@
       </h2>
       <button
         class="btn--blank o-link--default ml-auto"
-        @click="close">
+        @click="close"
+      >
         <dp-icon icon="close" />
       </button>
     </div>
@@ -25,7 +26,8 @@
         <ul
           aria-label="Metadaten Menü"
           class="pr-5"
-          role="menu">
+          role="menu"
+        >
           <li
             v-for="entry in filteredMenuEntries"
             :key="entry.id"
@@ -33,37 +35,43 @@
               'bg-selected': activeItem === entry.id
             }"
             class="p-1.5 rounded-sm"
-            role="presentation">
+            role="presentation"
+          >
             <button
               class="text-left"
               role="menuitem"
               @click="setActiveItem(entry.id)"
-              v-text="Translator.trans(entry.transKey)" />
+              v-text="Translator.trans(entry.transKey)"
+            />
           </li>
         </ul>
       </div>
       <form
         class="mt-2 pt-1.5 mr-5 basis-3/4 max-w-[80%]"
-        data-dp-validate="statementMetaData">
+        data-dp-validate="statementMetaData"
+      >
         <statement-entry
           :editable="editable"
           :statement="statement"
           :submit-type-options="submitTypeOptions"
-          @save="(data) => save(data)" />
+          @save="(data) => save(data)"
+        />
 
         <statement-submitter
           :editable="editable"
           :procedure="procedure"
           :statement="statement"
           :statement-form-definitions="statementFormDefinitions"
-          @save="(data) => save(data)" />
+          @save="(data) => save(data)"
+        />
 
         <statement-publication-and-voting
           v-if="hasPermission('feature_statements_vote') || hasPermission('feature_statements_publication')"
           :editable="editable"
           :statement="statement"
           @save="(data) => save(data)"
-          @updatedVoters="() => $emit('updatedVoters')" />
+          @updated-voters="() => $emit('updatedVoters')"
+        />
 
         <!-- need to add statement.attributes.counties and availableCounties in the BE (Array) -->
         <statement-meta-multiselect
@@ -73,7 +81,8 @@
           name="counties"
           :options="availableCounties"
           :value="localStatement.attributes.counties"
-          @change="updateLocalStatementProperties" />
+          @change="updateLocalStatementProperties"
+        />
 
         <!-- need to add statement.attributes.municipalities and availableMunicipalities in the BE (Array) -->
         <statement-meta-multiselect
@@ -83,7 +92,8 @@
           name="municipalities"
           :options="availableMunicipalities"
           :value="localStatement.attributes.municipalities"
-          @change="updateLocalStatementProperties" />
+          @change="updateLocalStatementProperties"
+        />
 
         <!-- need to add statement.attributes.priorityAreas and availablePriorityAreas in the BE (Array) -->
         <statement-meta-multiselect
@@ -93,7 +103,8 @@
           name="priorityAreas"
           :options="availablePriorityAreas"
           :value="localStatement.attributes.priorityAreas"
-          @change="updateLocalStatementProperties" />
+          @change="updateLocalStatementProperties"
+        />
 
         <statement-meta-location-and-document-reference
           v-if="hasPermission('feature_statements_location_and_document_refrence')"
@@ -103,20 +114,24 @@
           :initially-selected-paragraph-id="initiallySelectedParagraphId"
           :procedure-id="procedure.id"
           :statement="statement"
-          @save="updatedStatement => save(updatedStatement)" />
+          @save="updatedStatement => save(updatedStatement)"
+        />
 
         <statement-meta-attachments
           :initial-attachments="attachments"
           :editable="editable"
+          :is-source-and-coupled-procedure="isSourceAndCoupledProcedure"
           :procedure-id="procedure.id"
           :statement-id="statement.id"
-          @change="(value) => emitInput('attachments', value)" />
+          @change="(value) => emitInput('attachments', value)"
+        />
 
         <statement-meta-final-email
           v-if="hasPermission('field_send_final_email')"
           :editable="editable"
           :procedure="procedure"
-          :statement="statement" />
+          :statement="statement"
+        />
       </form>
     </div>
   </div>
@@ -186,6 +201,12 @@ export default {
     editable: {
       required: false,
       type: Boolean,
+      default: false,
+    },
+
+    isSourceAndCoupledProcedure: {
+      type: Boolean,
+      required: false,
       default: false,
     },
 
@@ -356,6 +377,14 @@ export default {
       }
     },
 
+    scrollToItemFromHash () {
+      const hash = globalThis.location.hash.slice(1)
+
+      if (hash) {
+        this.setActiveItem(hash)
+      }
+    },
+
     setActiveItem (id) {
       this.activeItem = id
       this.scrollToItem(id)
@@ -377,6 +406,7 @@ export default {
 
   mounted () {
     window.addEventListener('scroll', this.handleScroll)
+    this.scrollToItemFromHash()
   },
 
   beforeUnmount () {

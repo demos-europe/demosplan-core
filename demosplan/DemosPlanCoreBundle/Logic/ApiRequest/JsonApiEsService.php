@@ -79,7 +79,7 @@ class JsonApiEsService implements JsonApiEsServiceInterface
         // We can only paginate via Elasticsearch if its sorting is to be used,
         // otherwise we will fetch the content over all pages from Elasticsearch
         // and paginate it later when the entities are fetched from Doctrine.
-        if (null !== $pagination && $scoredSort) {
+        if ($pagination instanceof APIPagination && $scoredSort) {
             $page = $pagination->getNumber();
             $limit = $pagination->getSize();
         } else {
@@ -160,7 +160,7 @@ class JsonApiEsService implements JsonApiEsServiceInterface
         // If the array fields are missing for some reason we assume zero hits.
         $totalHits = $elasticsearchResult['hits']['total']['value'] ?? 0;
         $paginator = null;
-        if (null !== $pagination) {
+        if ($pagination instanceof APIPagination) {
             // get the paginator of the Elasticsearch query
             /** @var DemosPlanPaginator $paginator */
             $paginator = $elasticsearchResult['pager'];
@@ -183,7 +183,7 @@ class JsonApiEsService implements JsonApiEsServiceInterface
                 $entities = self::sortAndFilterByKeys($esIds, $entities);
                 $entities = array_values($entities);
             }
-        } elseif (null === $pagination) {
+        } elseif (!$pagination instanceof APIPagination) {
             // Without pagination and without scored sorting, we need to fetch all
             // entities corresponding to the IDs from Doctrine with the requested
             // sorting. The sorting of the Elasticsearch result doesn't matter.
@@ -273,7 +273,7 @@ class JsonApiEsService implements JsonApiEsServiceInterface
         }
         $searchParams = new SearchParams($searchParamArray);
 
-        if (null === $pagination) {
+        if (!$pagination instanceof PagePagination) {
             $apiPagination = null;
         } else {
             $apiPagination = new APIPagination();

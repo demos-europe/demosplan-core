@@ -3,7 +3,8 @@
     <label
       for="r_scales"
       class="mb-0"
-      v-text="Translator.trans('map.scales')" />
+      v-text="Translator.trans('map.scales')"
+    />
     <dp-multiselect
       id="r_scales"
       v-model="scales"
@@ -12,7 +13,8 @@
       multiple
       :options="availableScales"
       track-by="value"
-      @input="updateScales">
+      @input="updateScales"
+    >
       <template v-slot:option="{ props }">
         {{ props.option.label }}
       </template>
@@ -23,11 +25,13 @@
             aria-hidden="true"
             tabindex="1"
             class="multiselect__tag-icon"
-            @click="props.remove(props.option)" />
+            @click="props.remove(props.option)"
+          />
           <input
             type="hidden"
             :value="props.option.value"
-            name="r_scales[]">
+            name="r_scales[]"
+          >
         </span>
       </template>
     </dp-multiselect>
@@ -38,7 +42,8 @@
       v-if="!areScalesSuitable"
       class="mt-3 mb-2"
       :message="Translator.trans('map.scales.select.error')"
-      type="error" />
+      type="error"
+    />
   </div>
 </template>
 

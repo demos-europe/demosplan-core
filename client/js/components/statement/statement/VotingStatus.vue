@@ -7,7 +7,8 @@
     <div class="flex mt-1">
       <div
         class="mt-1 mr-1 w-2 h-2 rounded-full"
-        :class="publicVerified === 'publication_approved' ? 'bg-status-complete' : 'bg-color--grey-light-1'" />
+        :class="publicVerified === 'publication_approved' ? 'bg-status-complete' : 'bg-color--grey-light-1'"
+      />
       <span v-text="votingStatusTranslation" />
     </div>
   </div>

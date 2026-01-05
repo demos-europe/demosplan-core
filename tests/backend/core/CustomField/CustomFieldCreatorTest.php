@@ -23,6 +23,11 @@ use Tests\Base\UnitTestCase;
 
 class CustomFieldCreatorTest extends UnitTestCase
 {
+    private const TEST_FIELD_NAME = 'Test Field';
+    private const TEST_DESCRIPTION = 'Test';
+    private const TEST_OPTIONS_ONE_TWO = [['label' => 'One'], ['label' => 'Two']];
+    private const TEST_OPTIONS_ONLY_ONE_TWO = [['label' => 'Only One'], ['label' => 'Two']];
+
     /**
      * @var CustomFieldCreator|null
      */
@@ -66,7 +71,7 @@ class CustomFieldCreatorTest extends UnitTestCase
         static::assertInstanceOf(RadioButtonField::class, $result);
         static::assertEquals('Priority Level', $result->getName());
         static::assertEquals('Select priority level for this item', $result->getDescription());
-        static::assertEquals('singleSelect', $result->getType());
+        static::assertEquals('singleSelect', $result->getFieldType());
 
         // Verify options are properly created with UUIDs
         $options = $result->getOptions();
@@ -118,7 +123,7 @@ class CustomFieldCreatorTest extends UnitTestCase
         static::assertInstanceOf(MultiSelectField::class, $result);
         static::assertEquals('Categories', $result->getName());
         static::assertEquals('Select applicable categories', $result->getDescription());
-        static::assertEquals('multiSelect', $result->getType());
+        static::assertEquals('multiSelect', $result->getFieldType());
 
         // Test MultiSelect specific behavior - has isRequired
         static::assertTrue($result->getRequired() ?? false);
@@ -155,9 +160,9 @@ class CustomFieldCreatorTest extends UnitTestCase
             'invalidFieldType' => [
                 'attributes' => [
                     'fieldType'   => 'invalidType',
-                    'name'        => 'Test Field',
-                    'description' => 'Test',
-                    'options'     => [['label' => 'One'], ['label' => 'Two']],
+                    'name'        => self::TEST_FIELD_NAME,
+                    'description' => self::TEST_DESCRIPTION,
+                    'options'     => self::TEST_OPTIONS_ONE_TWO,
                 ],
                 'expectedErrorMessage' => 'No validator found for field type: invalidType',
             ],
@@ -167,9 +172,9 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'sourceEntityId' => 'invalid-id',
                     'sourceEntity'   => 'PROCEDURE',
                     'targetEntity'   => 'SEGMENT', // Wrong target for singleSelect
-                    'name'           => 'Test Field',
-                    'description'    => 'Test',
-                    'options'        => [['label' => 'One'], ['label' => 'Two']],
+                    'name'           => self::TEST_FIELD_NAME,
+                    'description'    => self::TEST_DESCRIPTION,
+                    'options'        => self::TEST_OPTIONS_ONE_TWO,
                 ],
                 'expectedErrorMessage' => 'The sourceEntityId "invalid-id" was not found in the sourceEntity "PROCEDURE"',
             ],
@@ -178,9 +183,9 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'fieldType'    => 'singleSelect',
                     'sourceEntity' => 'PROCEDURE',
                     'targetEntity' => 'STATEMENT', // Wrong target for singleSelect
-                    'name'         => 'Test Field',
-                    'description'  => 'Test',
-                    'options'      => [['label' => 'Only One'], ['label' => 'Two']],
+                    'name'         => self::TEST_FIELD_NAME,
+                    'description'  => self::TEST_DESCRIPTION,
+                    'options'      => self::TEST_OPTIONS_ONLY_ONE_TWO,
                 ],
                 'expectedErrorMessage' => 'The target entity "STATEMENT" does not match the expected target entity "SEGMENT" for source entity "PROCEDURE".',
             ],
@@ -189,9 +194,9 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'fieldType'    => 'multiSelect',
                     'sourceEntity' => 'PROCEDURE',
                     'targetEntity' => 'SEGMENT', // Wrong target for multiSelect
-                    'name'         => 'Test Field',
-                    'description'  => 'Test',
-                    'options'      => [['label' => 'Only One'], ['label' => 'Two']],
+                    'name'         => self::TEST_FIELD_NAME,
+                    'description'  => self::TEST_DESCRIPTION,
+                    'options'      => self::TEST_OPTIONS_ONLY_ONE_TWO,
                 ],
                 'expectedErrorMessage' => 'The target entity "SEGMENT" does not match the expected target entity "STATEMENT" for source entity "PROCEDURE".',
             ],

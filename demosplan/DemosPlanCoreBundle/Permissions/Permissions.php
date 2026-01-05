@@ -161,7 +161,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         // Load role-based permissions from access_control table
         $permissions = $this->accessControlPermission->getPermissions($this->user->getOrga(), $this->user->getCurrentCustomer(), $this->user->getRoles());
 
-        if (!empty($permissions)) {
+        if ([] !== $permissions) {
             $this->enablePermissions($permissions);
         }
 
@@ -737,14 +737,14 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         $dataInputOrgaIds = $dataInputOrganisations?->map(fn ($orga) => $orga->getId())->toArray() ?? [];
 
         // Keine Institution eingeladen und keine Datenerfasser-Organisationen
-        if (0 === count($invitedOrgaIds) && 0 === count($dataInputOrgaIds)) {
+        if ([] === $invitedOrgaIds && 0 === count($dataInputOrgaIds)) {
             $this->logger->debug('Procedure doesn\'t have Orgas or DataInput Orgas');
 
             return false;
         }
 
         // Ist eine eingeladene Institution oder Datenerfasser-Organisation
-        if (!isset($this->user) || !$this->user instanceof User) {
+        if (null === $this->user || !$this->user instanceof User) {
             $this->logger->debug('No User defined');
 
             return false;
@@ -970,14 +970,14 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     public function checkPermissions($permissions): void
     {
-        if (is_array($permissions) && 0 < count($permissions)) {
+        if (is_array($permissions) && [] !== $permissions) {
             foreach ($permissions as $permissionToTest) {
                 $this->checkPermission($permissionToTest);
             }
         } else {
             // Give devs a hint that the permissions here need to be reworked
             $this->logger->debug('This area has no explicit permission specified! '
-                        .'Please provide a permission to be checked using the attribute #[DplanPermissions] or annotation @DplanPermissions.', \debug_backtrace(0, 4));
+                        .'Please provide a permission to be checked using the attribute #[DplanPermissions].', \debug_backtrace(0, 4));
         }
     }
 
@@ -1034,7 +1034,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
         // addon permission, evaluating via resolver
         $resolvablePermission = $this->getAddonPermission($permissionName, $addonIdentifier);
-        if (null === $resolvablePermission) {
+        if (!$resolvablePermission instanceof ResolvablePermission) {
             throw AccessDeniedException::unknownAddonPermission($permissionName, $addonIdentifier, $this->user);
         }
         if (!$this->isResolvablePermissionEnabled($resolvablePermission)) {
@@ -1066,7 +1066,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         // addon permission, evaluating via resolver
         $resolvablePermission = $this->getAddonPermission($permissionName, $addonIdentifier);
 
-        return null !== $resolvablePermission && $this->isResolvablePermissionEnabled($resolvablePermission);
+        return $resolvablePermission instanceof ResolvablePermission && $this->isResolvablePermissionEnabled($resolvablePermission);
     }
 
     public function isPermissionKnown($permissionIdentifier): bool
@@ -1079,7 +1079,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
 
         // addon permission, check if it exists in the correct collection
-        return null !== $this->getAddonPermission($permissionName, $addonIdentifier);
+        return $this->getAddonPermission($permissionName, $addonIdentifier) instanceof ResolvablePermission;
     }
 
     /**
@@ -1115,7 +1115,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     protected function evaluatePermission($permission): void
     {
         // deny permission when permissions are not defined at all
-        if (!is_array($this->permissions) || 0 === count($this->permissions)) {
+        if (!is_array($this->permissions) || [] === $this->permissions) {
             throw AccessDeniedException::missingPermissions($this->user);
         }
 
@@ -1130,10 +1130,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
 
         if ($this->permissions[$permission]->isEnabled()) {
-            if ($this->permissions[$permission]->isLoginRequired()) {
-                if (null === $this->user || !$this->user->isLoggedIn()) {
-                    throw new SessionUnavailableException('Für diese Aktion müssen Sie angemeldet sein.', 1001);
-                }
+            if ($this->permissions[$permission]->isLoginRequired() && (null === $this->user || !$this->user->isLoggedIn())) {
+                throw new SessionUnavailableException('Für diese Aktion müssen Sie angemeldet sein.', 1001);
             }
         } else {
             // handle guest Exceptions differently as redirects

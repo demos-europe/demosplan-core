@@ -15,13 +15,15 @@
 <template>
   <dp-flyout
     :class="{'u-mr-0_5': entity === 'fragment'}"
-    data-cy="flyoutMenu">
+    data-cy="flyoutMenu"
+  >
     <!-- Original statement view (statement entity only) -->
     <a
       v-if="entity === 'statement' && statementOriginalId"
       class="block leading-[2] whitespace-nowrap"
       :href="Routing.generate('dplan_assessmenttable_view_original_table', { procedureId: procedureId, fragment: `itemdisplay_${$parent.statement.originalId}` })"
-      rel="noopener">
+      rel="noopener"
+    >
       {{ Translator.trans('statement.original') }}
     </a>
 
@@ -31,7 +33,8 @@
       class="block leading-[2] whitespace-nowrap"
       data-cy="detailView"
       :href="statementDetailPath"
-      rel="noopener">
+      rel="noopener"
+    >
       {{ Translator.trans('detail.view') }}
     </a>
 
@@ -41,14 +44,16 @@
       type="button"
       class="btn--blank o-link--default leading-[2] whitespace-nowrap"
       data-cy="versionHistory"
-      @click.prevent="showVersionHistory">
+      @click.prevent="showVersionHistory"
+    >
       {{ Translator.trans('history') }}
     </button>
 
     <!-- Heading to separate actions from views - show only if at least one of the menu items below is visible -->
     <h4
       v-if="hasActions"
-      class="color--grey u-mb-0 u-mt-0_25 font-size-small">
+      class="color--grey u-mb-0 u-mt-0_25 font-size-small"
+    >
       {{ Translator.trans('actions') }}
     </h4>
 
@@ -57,7 +62,8 @@
       v-if="entity === 'statement' && hasPermission('feature_statement_assignment')"
       type="button"
       class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
-      @click.prevent="toggleAssignEntityModal('statement', $parent.statement.assignee.id)">
+      @click.prevent="toggleAssignEntityModal('statement', $parent.statement.assignee.id)"
+    >
       {{ Translator.trans('assignment.generic.assign.to.other') }}
     </button>
 
@@ -70,7 +76,8 @@
       data-cy="createFragments"
       :href="editable ? Routing.generate('DemosPlan_statement_fragment',{ statementId: entityId, procedure: procedureId }) : false"
       rel="noopener"
-      role="button">
+      role="button"
+    >
       {{ Translator.trans('split.in.fragments') }}
     </a>
 
@@ -80,7 +87,8 @@
       type="button"
       class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
       :disabled="editable === false"
-      @click.prevent="$emit('statement:copy', entityId)">
+      @click.prevent="$emit('statement:copy', entityId)"
+    >
       {{ Translator.trans('copy.to.procedure') }}
     </button>
 
@@ -90,7 +98,8 @@
       type="button"
       class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
       :disabled="editable === false"
-      @click.prevent="$emit('statement:move', entityId)">
+      @click.prevent="$emit('statement:move', entityId)"
+    >
       {{ Translator.trans('move.to.procedure') }}
     </button>
 
@@ -101,7 +110,8 @@
       class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
       :disabled="fragmentAssigneeId !== currentUserId"
       :title="fragmentAssigneeId === currentUserId ? false : Translator.trans('locked.title')"
-      v-on="fragmentAssigneeId === currentUserId ? { click: () => $emit('fragment:delete', entityId) } : {}">
+      v-on="fragmentAssigneeId === currentUserId ? { click: () => $emit('fragment:delete', entityId) } : {}"
+    >
       {{ Translator.trans('delete') }}
     </button>
 
@@ -110,7 +120,8 @@
       v-if="entity === 'fragment' && hasPermission('feature_statement_assignment')"
       type="button"
       class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
-      @click.prevent="toggleAssignEntityModal('fragment', fragmentAssigneeId)">
+      @click.prevent="toggleAssignEntityModal('fragment', fragmentAssigneeId)"
+    >
       {{ Translator.trans('assignment.generic.assign.to.other', { entity: Translator.trans('fragment') }) }}
     </button>
   </dp-flyout>

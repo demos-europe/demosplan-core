@@ -23,10 +23,12 @@
         bold: modelValue,
         text: label
       }"
-      @change="isChecked => $emit('update:modelValue', isChecked)" />
+      @change="isChecked => $emit('update:modelValue', isChecked)"
+    />
     <div
       v-if="modelValue"
-      class="u-ml">
+      class="u-ml"
+    >
       <slot />
     </div>
   </div>

@@ -18,7 +18,8 @@
         disabled
         :label="{
           text: Translator.trans('max_extent')
-        }" />
+        }"
+      />
       <dp-input
         id="boundingBox"
         v-model="boundingBox"
@@ -26,7 +27,8 @@
         disabled
         :label="{
           text: Translator.trans('initial_extent')
-        }" />
+        }"
+      />
     </div>
     <map-view
       v-if="mapSettingsLoaded"
@@ -40,7 +42,8 @@
       :procedure-coordinates="procedureMapSettings.attributes.coordinate"
       :procedure-init-territory="Array.isArray(procedureMapSettings.attributes.territory) ? {} : procedureMapSettings.attributes.territory"
       :scales="procedureMapSettings.attributes.availableScales"
-      @field:update="setField" />
+      @field:update="setField"
+    />
 
     <div class="layout__item">
       <map-admin-scales
@@ -48,7 +51,8 @@
         class="u-mb"
         :selected-scales="procedureMapSettings.attributes.scales || []"
         @update="value => procedureMapSettings.attributes.scales = value"
-        @suitableScalesChange="value => areScalesSuitable = value" />
+        @suitable-scales-change="value => areScalesSuitable = value"
+      />
 
       <dp-input
         v-if="!procedureMapSettings.attributes.useGlobalInformationUrl && hasPermission('feature_map_feature_info')"
@@ -59,7 +63,8 @@
         :label="{
           text: Translator.trans('url.information'),
           hint: Translator.trans('url.information.hint', { buttonlabel: 'map.getfeatureinfo.label' })
-        }" />
+        }"
+      />
 
       <dp-input
         v-if="hasPermission('feature_map_attribution')"
@@ -70,7 +75,8 @@
         :label="{
           text: Translator.trans('map.attribution'),
           hint: Translator.trans('map.attribution.placeholder')
-        }" />
+        }"
+      />
     </div>
 
     <dp-checkbox
@@ -82,7 +88,8 @@
         bold: true,
         hint: Translator.trans('explanation.gislayer.layergroup.toggle.alternating.visibility.extended'),
         text: Translator.trans('explanation.gislayer.layergroup.toggle.alternating.visibility')
-      }" />
+      }"
+    />
 
     <div class="layout__item u-1-of-1 text-right u-mt-0_5 space-inline-s">
       <dp-button
@@ -91,7 +98,8 @@
         name="saveConfig"
         :text="Translator.trans('save')"
         type="submit"
-        @click="() => save()" />
+        @click="() => save()"
+      />
       <dp-button
         v-if="hasPermission('area_admin_single_document')"
         data-cy="saveAndReturn"
@@ -99,19 +107,22 @@
         name="submit_item_return_button"
         :text="Translator.trans('save.and.return.to.list')"
         type="submit"
-        @click="() => save(true)" />
+        @click="() => save(true)"
+      />
       <dp-button
         v-if="hasPermission('area_admin_single_document')"
         color="secondary"
         data-cy="abort"
         :href="Routing.generate('DemosPlan_element_administration', { procedure: procedureId })"
-        :text="Translator.trans('abort')" />
+        :text="Translator.trans('abort')"
+      />
       <dp-button
         v-else
         color="secondary"
         data-cy="reset"
         :text="Translator.trans('reset')"
-        @click="reset" />
+        @click="reset"
+      />
     </div>
   </div>
 </template>
@@ -287,8 +298,6 @@ export default {
       dpApi.patch(url, {}, payload)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('text.mapsection.updated'))
-          this.$refs.mapView.$refs.map.getMapOptions()
-
           if (returnToOverview) {
             window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
           }

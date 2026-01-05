@@ -3,7 +3,8 @@
     <dp-label
       class="my-1"
       :for="name"
-      :text="label" />
+      :text="label"
+    />
     <dp-multiselect
       v-if="editable"
       :id="name"
@@ -13,7 +14,8 @@
       multiple
       :options="options"
       track-by="id"
-      @input="(changedValue) => $emit('change', changedValue, name)">
+      @input="(changedValue) => $emit('change', changedValue, name)"
+    >
       <template v-slot:option="{ props }">
         {{ props.option.name }}
       </template>
@@ -24,23 +26,27 @@
             aria-hidden="true"
             tabindex="1"
             class="multiselect__tag-icon"
-            @click="props.remove(props.option)" />
+            @click="props.remove(props.option)"
+          />
           <input
             type="hidden"
             :value="props.option.id"
-            :name="name">
+            :name="name"
+          >
         </span>
       </template>
     </dp-multiselect>
     <ul
       v-else
       :id="name"
-      class="o-list o-list--csv color--grey">
+      class="o-list o-list--csv color--grey"
+    >
       <template v-if="filteredByOptionsValue.length > 0">
         <li
           v-for="value in filteredByOptionsValue"
           :key="`${name}-${value.name}`"
-          class="o-list__item">
+          class="o-list__item"
+        >
           {{ value.name }}
         </li>
       </template>

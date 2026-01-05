@@ -13,25 +13,30 @@
     :id="id"
     :title="layerTitle"
     :class="[(isVisible && layer.attributes.canUserToggleVisibility) ? prefixClass('is-active') : '', prefixClass('c-map__group-item c-map__layer flex items-center space-x-1')]"
-    @click="toggleFromSelf(false)">
+    @click="toggleFromSelf(false)"
+  >
     <span
       :class="prefixClass('c-map__group-item-controls')"
       @mouseover="toggleOpacityControl(true)"
-      @mouseout="toggleOpacityControl(false)">
+      @mouseout="toggleOpacityControl(false)"
+    >
       <button
         :class="prefixClass('btn--blank btn--focus w-3 text-left flex')"
         :aria-label="layer.attributes.name + ' ' + statusAriaText"
         :data-cy="dataCy"
         @focus="toggleOpacityControl(true)"
         @click.prevent.stop="toggleFromSelf(true)"
-        @keydown.tab.shift.exact="toggleOpacityControl(false)">
+        @keydown.tab.shift.exact="toggleOpacityControl(false)"
+      >
         <i
           :class="prefixedStatusIcon"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
       </button>
       <span
         v-show="showOpacityControl && isVisible"
-        :class="prefixClass('c-map__opacity-control u-ml-0_5')">
+        :class="prefixClass('c-map__opacity-control u-ml-0_5')"
+      >
         <input
           type="range"
           min="0"
@@ -46,18 +51,21 @@
           @change="setOpacity"
           @focus="toggleOpacityControl(true)"
           @blur="toggleOpacityControl(false)"
-          @click.stop="">
+          @click.stop=""
+        >
       </span>
     </span>
     <span
       v-show="!showOpacityControl"
-      :class="prefixClass('c-map__group-item-name o-hellip--nowrap')">
+      :class="prefixClass('c-map__group-item-name o-hellip--nowrap')"
+    >
       {{ layer.attributes.name }}
     </span>
     <dp-contextual-help
       v-if="contextualHelpText"
       class="c-map__layerhelp u-mt-0_125"
-      :text="contextualHelpText" />
+      :text="contextualHelpText"
+    />
   </li>
 </template>
 

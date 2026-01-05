@@ -17,18 +17,21 @@
       <template v-if="pendingOrganisationsLoading">
         <dp-loading
           v-if="isInitialLoad"
-          class="u-ml u-mt u-mb-2" />
+          class="u-ml u-mt u-mb-2"
+        />
         <dp-skeleton-box
           v-for="(idx) in pendingOrgs"
           v-else
           :key="`skeleton:${idx}`"
           class="u-mb-0_5"
-          height="54px" />
+          height="54px"
+        />
       </template>
       <template v-else-if="Object.keys(pendingOrgs).length">
         <ul
           class="o-list o-list--card u-mb"
-          data-cy="pendingOrganisationList">
+          data-cy="pendingOrganisationList"
+        >
           <dp-organisation-list-item
             v-for="(item, idx) in pendingOrgs"
             :key="`pendingOrganisation:${idx}`"
@@ -39,18 +42,21 @@
             module-name="Pending"
             :organisation="item"
             :selectable="false"
-            @addonOptions:loaded="setAdditionalFieldOptions" />
+            @addon-options:loaded="setAdditionalFieldOptions"
+          />
         </ul>
         <dp-sliding-pagination
           v-if="pendingOrganisationsTotalPages > 1"
           :current="pendingOrganisationsCurrentPage"
           :total="pendingOrganisationsTotalPages"
           :non-sliding-size="10"
-          @page-change="(page) => getItemsByPage(page, true)" />
+          @page-change="(page) => getItemsByPage(page, true)"
+        />
       </template>
       <p
         v-else-if="Object.keys(pendingOrgs).length === 0 && pendingOrganisationsLoading === false"
-        class="color--grey u-mb-2">
+        class="color--grey u-mb-2"
+      >
         {{ Translator.trans('organisations.pending.none') }}
       </p>
 
@@ -66,20 +72,24 @@
       <dp-search-field
         class="inline-block u-pv-0_5"
         @search="handleSearch"
-        @reset="resetSearch" />
+        @reset="resetSearch"
+      />
       <dp-checkbox-group
         class="inline-block u-pv-0_5 float-right"
         data-cy="organisationList:filterItems"
         :label="filterLabel"
         :options="filterItems"
         inline
-        @update="handleFilter" />
+        @update="handleFilter"
+      />
 
       <div
         v-if="hasPermission('feature_orga_delete')"
-        class="block u-mb">
+        class="block u-mb"
+      >
         <div
-          class="layout__item u-3-of-7 u-mt u-pl-0_5">
+          class="layout__item u-3-of-7 u-mt u-pl-0_5"
+        >
           <div class="o-form__element--checkbox">
             <input
               id="select_all"
@@ -87,53 +97,63 @@
               data-cy="allSelected"
               class="o-form__control-input"
               :checked="allSelected"
-              @change="dpToggleAll(!allSelected, items)">
+              @change="dpToggleAll(!allSelected, items)"
+            >
             <label
               for="select_all"
-              class="o-form__label">
+              class="o-form__label"
+            >
               {{ Translator.trans('select.all.on.page') }}
             </label>
           </div>
         </div><!--
      --><div
-          class="layout__item text-right u-4-of-7 u-mt u-mb-0_5">
+          class="layout__item text-right u-4-of-7 u-mt u-mb-0_5"
+        >
           <dp-button
             color="warning"
             data-cy="deleteSelectedItems"
             :text="Translator.trans('entities.marked.delete', { entities: Translator.trans('organisations'), sum: selectedItems.length })"
-            @click.prevent="deleteItems(selectedItems)" />
+            @click.prevent="deleteItems(selectedItems)"
+          />
           <dp-button
             class="u-ml-0_25"
             color="secondary"
             data-cy="resetSelectedItems"
             :text="Translator.trans('unselect')"
-            @click="dpToggleAll(false, items)" />
+            @click="dpToggleAll(false, items)"
+          />
         </div>
       </div>
     </div>
     <div
       v-if="noResults"
       v-cleanhtml="Translator.trans('search.no.results', {searchterm: searchTerm})"
-      class="u-mt-0_75" />
+      class="u-mt-0_75"
+    />
 
     <!-- Organisations list -->
     <template v-if="isLoading">
       <dp-loading
         v-if="isInitialLoad"
-        class="u-ml u-mt u-mb-2" />
+        class="u-ml u-mt u-mb-2"
+      />
       <dp-skeleton-box
         v-for="(idx) in items"
         v-else
         :key="`skeleton:${idx}`"
         class="u-mb-0_5"
-        height="54px" />
+        height="54px"
+      />
     </template>
     <div
       v-else
-      class="layout">
+      class="layout"
+    >
       <div
         class="layout__item u-1-of-1"
-        data-cy="organisationList">
+        data-cy="organisationList"
+      >
         <ul class="o-list o-list--card u-mb">
           <dp-organisation-list-item
             v-for="(item, idx) in items"
@@ -145,8 +165,9 @@
             :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
             :selectable="hasPermission('feature_orga_delete')"
             :organisation="item"
-            @addonOptions:loaded="setAdditionalFieldOptions"
-            @item:selected="dpToggleOne" />
+            @addon-options:loaded="setAdditionalFieldOptions"
+            @item:selected="dpToggleOne"
+          />
         </ul>
 
         <dp-sliding-pagination
@@ -154,7 +175,8 @@
           :current="currentPage"
           :total="totalPages"
           :non-sliding-size="10"
-          @page-change="getItemsByPage" />
+          @page-change="getItemsByPage"
+        />
       </div>
     </div>
   </div>

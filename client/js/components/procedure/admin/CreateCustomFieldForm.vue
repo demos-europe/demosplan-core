@@ -2,21 +2,26 @@
   <div data-dp-validate="createCustomFieldForm">
     <div
       v-if="!isOpen"
-      class="text-right mb-4">
+      class="text-right mb-4"
+    >
       <dp-button
         data-cy="customFields:addField"
         :text="Translator.trans('add')"
-        @click="open" />
+        @click="open"
+      />
     </div>
 
     <div
       v-if="isOpen"
-      class="relative mb-4">
+      class="relative mb-4"
+    >
       <dp-loading
         v-if="isLoading"
-        overlay />
+        overlay
+      />
       <div
-        class="border rounded-sm space-stack-m space-inset-m">
+        class="border rounded-sm space-stack-m space-inset-m"
+      >
         <dp-input
           id="newFieldName"
           v-model="customField.name"
@@ -26,7 +31,8 @@
             text: Translator.trans('name')
           }"
           maxlength="250"
-          required />
+          required
+        />
         <dp-input
           id="newFieldDescription"
           v-model="customField.description"
@@ -35,7 +41,8 @@
           :label="{
             text: Translator.trans('description')
           }"
-          maxlength="250" />
+          maxlength="250"
+        />
         <dp-select
           id="newFieldType"
           v-model="customField.fieldType"
@@ -57,7 +64,8 @@
           primary
           secondary
           @primary-action="dpValidateAction('createCustomFieldForm', () => handleSave(), false)"
-          @secondary-action="handleAbort" />
+          @secondary-action="handleAbort"
+        />
       </div>
     </div>
   </div>

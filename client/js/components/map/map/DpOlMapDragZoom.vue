@@ -12,7 +12,8 @@
     type="button"
     data-cy="map:zoomWindow"
     :class="[active ? prefixClass('color-highlight') : '', prefixClass('btn--blank u-ml-0_5 o-link--default weight--bold')]"
-    @click="toggle">
+    @click="toggle"
+  >
     {{ Translator.trans('zoomwindow') }}
   </button>
 </template>
@@ -36,6 +37,7 @@ export default {
   data () {
     return {
       active: false,
+      dragZoom: null,
       name: 'dragzoom',
     }
   },
@@ -48,13 +50,21 @@ export default {
 
   methods: {
     activateTool () {
+      if (this.dragZoom) {
+        this.map.removeInteraction(this.dragZoom)
+      }
+      this.dragZoom = new DragZoom({ condition: always, className: this.prefixClass('border--normal') })
       this.map.addInteraction(this.dragZoom)
       this.$emit('tool:activated', true)
       this.active = true
     },
 
     deactivateTool () {
-      this.map.removeInteraction(this.dragZoom)
+      if (this.dragZoom) {
+        this.map.removeInteraction(this.dragZoom)
+        this.dragZoom = null
+      }
+
       this.$emit('tool:activated', false)
       this.active = false
     },
@@ -62,10 +72,6 @@ export default {
     toggle () {
       this.active ? this.deactivateTool() : this.activateTool()
     },
-  },
-
-  mounted () {
-    this.dragZoom = new DragZoom({ condition: always, className: this.prefixClass('border--normal') })
   },
 }
 </script>

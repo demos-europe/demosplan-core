@@ -16,7 +16,8 @@
       v-if="singleCheckedFieldId"
       class="mt-3 mb-2"
       :message="Translator.trans('field.selectionRequired')"
-      type="warning" />
+      type="warning"
+    />
     <dp-checkbox
       id="check_all"
       v-model="allChecked"
@@ -27,11 +28,13 @@
         bold: true,
         text: Translator.trans('aria.select.all')
       }"
-      @change="toggleAll" />
+      @change="toggleAll"
+    />
     <div class="inline-block u-pr align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb">
       <p
         id="submitter"
-        class="weight--bold u-mb-0_25">
+        class="weight--bold u-mb-0_25"
+      >
         {{ Translator.trans('submitter') }}
       </p>
       <dp-checkbox-group
@@ -39,7 +42,8 @@
         :options="submitterFields"
         data-cy="exportSettingsSubmitter"
         :selected-options="getSelectedOptions(submitterFields)"
-        @update="checked => updateCheckedFields(checked)" />
+        @update="checked => updateCheckedFields(checked)"
+      />
     </div><!--
  --><dp-checkbox-group
       :label="Translator.trans('statement.data')"
@@ -47,7 +51,8 @@
       data-cy="exportSettingsMetaData"
       :selected-options="getSelectedOptions(metaDataFields)"
       class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb u-pr-2"
-    @update="checked => updateCheckedFields(checked)" /><!--
+    @update="checked => updateCheckedFields(checked)"
+    /><!--
  --><dp-checkbox-group
       v-if="hasPermission('field_procedure_elements')"
       :label="Translator.trans('documents')"
@@ -55,14 +60,16 @@
       data-cy="exportSettingsDocuments"
       :selected-options="getSelectedOptions(documentFields)"
       class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm u-mb"
-    @update="checked => updateCheckedFields(checked)" /><!--
+    @update="checked => updateCheckedFields(checked)"
+    /><!--
  --><dp-checkbox-group
       :label="Translator.trans('publication')"
       :options="publicationField"
       data-cy="exportSettingsPublication"
       :selected-options="getSelectedOptions(publicationField)"
       class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm"
-      @update="checked => updateCheckedFields(checked)" />
+      @update="checked => updateCheckedFields(checked)"
+    />
   </div>
 </template>
 

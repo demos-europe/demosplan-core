@@ -13,7 +13,8 @@
       v-if="toggleButton"
       class="btn--blank o-link--default float-right"
       data-cy="pinInformation"
-      @click="$emit('toggle')">
+      @click="$emit('toggle')"
+    >
       {{ Translator.trans('information.pin') }}
     </button>
 
@@ -39,7 +40,8 @@
 
     <statement-meta-data
       :statement="statement"
-      :submit-type-options="submitTypeOptions">
+      :submit-type-options="submitTypeOptions"
+    >
       <template
         v-slot:default="{
           formattedAuthoredDate,
@@ -52,7 +54,8 @@
           submitName,
           submitType,
           location
-        }">
+        }"
+      >
         <dl class="description-list-inline u-mb-0_5">
           <dt>{{ Translator.trans('submitter') }}:</dt>
           <dd>{{ submitName }}</dd>
@@ -79,7 +82,8 @@
 
         <dl
           v-if="hasPermission('field_statement_memo')"
-          class="description-list">
+          class="description-list"
+        >
           <dt>{{ Translator.trans('memo') }}:</dt>
           <dd class="max-h-12 overflow-auto">
             {{ memo }}

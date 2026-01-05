@@ -21,13 +21,15 @@
       :maxlength="`${tokenLength}`"
       :minlength="`${tokenLength}`"
       name="procedureCoupleToken"
-      @input="validateToken" />
+      @update:model-value="validateToken"
+    />
     <dp-inline-notification
       v-if="notification"
       id="token-notification"
       class="mt-3 mb-0"
       :message="notification.text"
-      :type="notification.type" />
+      :type="notification.type"
+    />
   </div>
 </template>
 <script>

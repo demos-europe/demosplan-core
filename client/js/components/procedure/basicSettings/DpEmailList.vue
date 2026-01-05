@@ -16,15 +16,17 @@
       :translation-keys="translationKeys"
       @delete="handleDelete"
       @reset="resetForm"
-      @saveEntry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
-      @show-update-form="showUpdateForm">
+      @save-entry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
+      @show-update-form="showUpdateForm"
+    >
       <template v-slot:list="entry">
         <span>{{ entry.mail }}
           <input
             type="email"
             :value="entry.mail"
             :name="formFieldName"
-            class="sr-only">
+            class="sr-only"
+          >
         </span>
       </template>
 
@@ -36,7 +38,8 @@
           :placeholder="Translator.trans('email.address')"
           type="email"
           width="u-1-of-2"
-          @enter="handleSubmit(itemIndex !== null ? itemIndex : 'new')" />
+          @enter="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
+        />
       </template>
     </dp-editable-list>
   </div>
@@ -76,6 +79,10 @@ export default {
       required: false,
       default: 'agencyExtraEmailAddresses[][fullAddress]',
     },
+  },
+
+  compatConfig: {
+    WATCH_ARRAY: false,
   },
 
   emits: [

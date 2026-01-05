@@ -18,16 +18,19 @@
       class="u-mt space-stack-m"
       :action="Routing.generate('DemosPlan_user_change_password')"
       method="POST"
-      data-dp-validate>
+      data-dp-validate
+    >
       <input
         type="hidden"
         name="userId"
         :value="userId"
-        required>
+        required
+      >
       <input
         name="_token"
         type="hidden"
-        :value="csrfToken">
+        :value="csrfToken"
+      >
 
       <dp-input
         id="password_old"
@@ -38,7 +41,8 @@
         }"
         name="password_old"
         required
-        type="password" />
+        type="password"
+      />
 
       <dp-input
         id="password_new"
@@ -49,7 +53,8 @@
         }"
         name="password_new"
         required
-        type="password" />
+        type="password"
+      />
 
       <dp-input
         id="password_new_2"
@@ -60,14 +65,16 @@
         }"
         name="password_new_2"
         required
-        type="password" />
+        type="password"
+      />
 
       <dp-button-row
         primary
         :primary-text="Translator.trans('password.change')"
         secondary
         @primary-action="submit"
-        @secondary-action="resetPassword" />
+        @secondary-action="resetPassword"
+      />
     </form>
   </div>
 </template>

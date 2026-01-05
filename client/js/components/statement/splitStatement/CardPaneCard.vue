@@ -16,19 +16,23 @@
     @focusin="$emit('focusin')"
     @focusout="$emit('focusout')"
     @mouseenter="$emit('mouseenter')"
-    @mouseleave="$emit('mouseleave')">
+    @mouseleave="$emit('mouseleave')"
+  >
     <div class="u-pr-0_25">
       <i
         :title="Translator.trans('tags')"
-        class="fa fa-tag color--grey-light w-3 text-center" />
+        class="fa fa-tag color--grey-light w-3 text-center"
+      />
       <ul
         v-if="segment.tags.length > 0"
-        class="o-list o-list--csv inline">
+        class="o-list o-list--csv inline"
+      >
         <li
           v-for="(tag, idx) in segment.tags"
           :key="idx"
           class="o-list__item break-words color--grey"
-          v-text="tag.tagName" />
+          v-text="tag.tagName"
+        />
       </ul>
       <template v-else>
         ---
@@ -37,10 +41,12 @@
 
     <p
       v-if="segment.place.id"
-      class="u-mb-0 u-pr-0_25">
+      class="u-mb-0 u-pr-0_25"
+    >
       <i
         :title="Translator.trans('workflow.place')"
-        class="fa fa-map-marker w-3 text-center color--grey-light" />
+        class="fa fa-map-marker w-3 text-center color--grey-light"
+      />
       <span class="color--grey">
         {{ placeName }}
       </span>
@@ -48,10 +54,12 @@
 
     <p
       v-if="segment.assigneeId"
-      class="u-mb-0 u-pr-0_25">
+      class="u-mb-0 u-pr-0_25"
+    >
       <i
         :title="Translator.trans('assigned.to')"
-        class="fa fa-user w-3 text-center color--grey-light" />
+        class="fa fa-user w-3 text-center color--grey-light"
+      />
       <span class="color--grey">
         {{ assigneeName }}
       </span>
@@ -66,7 +74,8 @@
       @blur="isFocused = false"
       @click="$emit('segment:edit', segment.id)"
       @focus="isFocused = !isMouseEvent"
-      @mousedown="isMouseEvent = true" />
+      @mousedown="isMouseEvent = true"
+    />
     <addon-wrapper
       :addon-props="{
         class: 'mt-1',
@@ -74,7 +83,8 @@
       }"
       class="inline-block"
       hook-name="split.statement.buttons"
-      @segment:confirm="$emit('segment:confirm', segment.id)" />
+      @segment:confirm="$emit('segment:confirm', segment.id)"
+    />
     <dp-button
       :class="{ 'ml-1': isFocused }"
       hide-text
@@ -84,7 +94,8 @@
       @blur="isFocused = false"
       @click="$emit('segment:delete', segment.id)"
       @focus="isFocused = !isMouseEvent"
-      @mousedown="isMouseEvent = true" />
+      @mousedown="isMouseEvent = true"
+    />
   </div>
 </template>
 

@@ -10,30 +10,36 @@
 <template>
   <form
     action="#"
-    method="post">
+    method="post"
+  >
     <!-- save elements and paragraphs -->
     <input
       type="hidden"
       :name="fragmentId+':r_element'"
-      :value="elementId">
+      :value="elementId"
+    >
     <input
       type="hidden"
       :name="fragmentId+':r_paragraph'"
-      :value="paragraphId">
+      :value="paragraphId"
+    >
     <input
       name="_token"
       type="hidden"
-      :value="csrfToken">
+      :value="csrfToken"
+    >
 
     <!-- consideration advice, vote advice -->
     <fieldset class="layout__item u-1-of-2 u-pl-0">
       <legend
         class="sr-only"
-        v-text="Translator.trans('fragment.voteAdvice')" />
+        v-text="Translator.trans('fragment.voteAdvice')"
+      />
       <template v-if="hasPermission('feature_statements_fragment_consideration_advice')">
         <label
           class="u-mb-0_25 u-mt-0"
-          :for="fragmentId+':r_considerationAdvice'">
+          :for="fragmentId+':r_considerationAdvice'"
+        >
           {{ Translator.trans('fragment.consideration') }}
         </label>
         <dp-editor
@@ -41,13 +47,15 @@
           v-model="considerationAdvice"
           :procedure-id="procedureId"
           :entity-id="fragmentId"
-          :hidden-input="fragmentId + ':r_considerationAdvice'" />
+          :hidden-input="fragmentId + ':r_considerationAdvice'"
+        />
       </template>
 
       <template v-if="hasPermission('feature_statements_fragment_advice')">
         <label
           class="u-mb-0_25"
-          :for="fragmentId+'r_vote_advice'">
+          :for="fragmentId+'r_vote_advice'"
+        >
           {{ Translator.trans('fragment.voteAdvice') }}
         </label>
         <dp-multiselect
@@ -55,7 +63,8 @@
           :allow-empty="false"
           label="name"
           :options="computedAdviceValues"
-          track-by="value">
+          track-by="value"
+        >
           <template v-slot:option="{ props }">
             {{ props.option.name }}
           </template>
@@ -64,19 +73,22 @@
           :id="fragmentId+':r_vote_advice'"
           type="hidden"
           :value="voteAdvice.title"
-          :name="fragmentId+':r_vote_advice'">
+          :name="fragmentId+':r_vote_advice'"
+        >
       </template>
 
       <div class="u-mt space-inline-s">
         <dp-button
           :busy="saving === 'saveButton'"
           :text="Translator.trans('save')"
-          @click="save('saveButton')" />
+          @click="save('saveButton')"
+        />
         <button
           type="reset"
           class="btn btn--secondary"
           @click="reset"
-          v-text="Translator.trans('discard.changes')" />
+          v-text="Translator.trans('discard.changes')"
+        />
       </div>
     </fieldset><!--
 
@@ -84,10 +96,12 @@
  --><fieldset class="layout__item u-1-of-2">
       <legend
         class="sr-only"
-        v-text="Translator.trans('fragment.update.complete.button')" />
+        v-text="Translator.trans('fragment.update.complete.button')"
+/>
       <div
         v-if="hasPermission('feature_statements_fragment_update_complete')"
-        class="o-box u-p-0_5 u-mt-1_5">
+        class="o-box u-p-0_5 u-mt-1_5"
+>
         <div class="weight--bold">
           {{ Translator.trans('fragment.update.complete') }}
         </div>
@@ -100,7 +114,8 @@
           class="u-ml-0"
           :busy="saving === 'notifyButton'"
           :text="Translator.trans('fragment.update.complete.button')"
-          @click="save('notifyButton')" />
+          @click="save('notifyButton')"
+/>
       </div>
     </fieldset>
   </form>

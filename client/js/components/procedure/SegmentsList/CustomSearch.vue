@@ -14,33 +14,39 @@
         data-cy="customSearch:currentSearchTerm"
         :placeholder="Translator.trans('searchterm')"
         @search="term => handleSearch(term)"
-        @reset="$emit('reset')">
+        @reset="$emit('reset')"
+      >
         <dp-flyout
           align="left"
           data-cy="customSearch:searchCustomLimitFields"
           class="top-0.5 right-0"
           position="absolute"
-          :padded="false">
+          :padded="false"
+        >
           <template v-slot:trigger>
             <dp-icon
               :class="{ 'color-message-severe-fill': selectedFields.length > 0 }"
-              icon="settings" />
+              icon="settings"
+            />
           </template>
           <!-- Checkboxes to specify in which fields to search -->
           <div class="space-stack-s space-inset-s w-14">
             <div class="flex">
               <span
                 class="weight--bold"
-                v-text="Translator.trans('search.custom.limit_fields')" />
+                v-text="Translator.trans('search.custom.limit_fields')"
+              />
               <button
                 class="btn--blank o-link--default ml-auto"
                 data-cy="customSearch:searchCustomToggleAll"
                 @click="toggleAllFields(selectedFields.length < fields.length)"
-                v-text="Translator.trans('toggle_all')" />
+                v-text="Translator.trans('toggle_all')"
+              />
             </div>
             <div
               v-if="isLoading === false"
-              class="o-list--col-3">
+              class="o-list--col-3"
+            >
               <dp-checkbox
                 v-for="({label, value}, i) in fields"
                 :id="value"
@@ -50,22 +56,26 @@
                 :label="{
                   text: Translator.trans(label)
                 }"
-                @change="handleChange(value, !selectedFields.includes(value))" />
+                @change="handleChange(value, !selectedFields.includes(value))"
+              />
             </div>
             <div
               class="font-size-small"
-              v-text="Translator.trans('search.custom.explanation')" />
+              v-text="Translator.trans('search.custom.explanation')"
+            />
           </div>
           <hr class="border--top u-m-0">
           <!-- Explanation of search options and special characters -->
           <div
             class="space-stack-xs space-inset-s w-14 overflow-y-auto"
-            :style="maxHeight">
+            :style="maxHeight"
+          >
             <dp-details
               v-for="explanation in explanations"
               :key="explanation.title"
               :summary="explanation.title"
-              :data-cy="explanation.dataCy">
+              :data-cy="explanation.dataCy"
+            >
               <span v-html="explanation.description" />
             </dp-details>
           </div>

@@ -13,17 +13,20 @@
     <a
       class="block cursor-pointer border--top u-pt-0_25"
       :class="{'is-active-toggle': isActive}"
-      @click="toggle">
+      @click="toggle"
+    >
       <i
         class="o-toggle__icon o-toggle__icon--caret u-pr-0_25"
-        aria-hidden="true" />
+        aria-hidden="true"
+      />
       {{ Translator.trans('consideration.versions') }}
     </a>
 
     <!-- Content -->
     <div
       v-show="isActive"
-      class="max-h-12 overflow-x-auto u-mv-0_25">
+      class="max-h-12 overflow-x-auto u-mv-0_25"
+    >
       <dp-loading v-if="items === null" />
 
       <div v-if="items && items.length === 0">
@@ -38,12 +41,14 @@
         v-for="item in items"
         v-else
         :key="item.id"
-        class="layout__item u-pl-0 u-pr-0_5 u-mv-0_25">
+        class="layout__item u-pl-0 u-pr-0_5 u-mv-0_25"
+      >
         <div class="border--bottom u-mb-0_25">
           <div class="inline-block u-1-of-4">
             <div
               class="u-mr inline-block weight--bold cursor-help"
-              :title="Translator.trans('date')">
+              :title="Translator.trans('date')"
+            >
               {{ itemCreatedDate(item) }}
             </div>
           </div><!--
@@ -55,7 +60,8 @@
               :status="item.voteAdvice === null ? '' : fixCompoundVotes(item.voteAdvice)"
               :tooltip="false"
               :badge="true"
-              class="inline-block u-mv-0_25 u-mh-0_5">
+              class="inline-block u-mv-0_25 u-mh-0_5"
+>
               <template v-slot:title>
                   {{ Translator.trans('fragment.voteAdvice.short') }}
               </template>
@@ -65,7 +71,8 @@
               :status="item.vote === null ? '' : item.vote"
               :tooltip="false"
               class="inline-block u-mv-0_25 u-mh-0_5"
-              :badge="true">
+              :badge="true"
+>
               <template v-slot:title>
                   {{ Translator.trans('fragment.vote.short') }}
               </template>
@@ -76,7 +83,8 @@
         <div
           v-cleanhtml="item.considerationAdvice ? item.considerationAdvice : item.consideration"
           class="cursor-help"
-          :title="Translator.trans('fragment.consideration')">
+          :title="Translator.trans('fragment.consideration')"
+        >
           {{ item.consideration }}
         </div>
       </div>
