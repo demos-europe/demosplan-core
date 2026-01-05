@@ -49,50 +49,37 @@ describe('DpNewStatement', () => {
         AssessmentTable: assessmentTable,
       },
     })
+
+    wrapper = shallowMount(DpNewStatement, {
+      global: {
+        plugins: [store],
+      },
+      props: {
+        procedureId: '123',
+        currentExternalPhase: 'participation',
+        currentInternalPhase: 'evaluation',
+      },
+    })
   })
 
-  describe('addLocationPrompt method', () => {
-    it('adds counties from location data and sorts them', () => {
-      wrapper = shallowMount(DpNewStatement, {
-        global: {
-          plugins: [store],
-        },
-        props: {
-          procedureId: '123',
-          currentExternalPhase: 'participation',
-          currentInternalPhase: 'evaluation',
-        },
-      })
+  it('adds counties from data and sorts them', () => {
+    const sortSelectedSpy = jest.spyOn(wrapper.vm, 'sortSelected')
 
-      const sortSelectedSpy = jest.spyOn(wrapper.vm, 'sortSelected')
+    const data = { counties: ['2', '1'] }
+    wrapper.vm.addLocationPrompt(data)
 
-      const data = { counties: ['2', '1'] }
-      wrapper.vm.addLocationPrompt(data)
+    expect(wrapper.vm.values.counties).toHaveLength(2)
+    expect(wrapper.vm.values.counties[0].name).toBe('Berlin')
+    expect(wrapper.vm.values.counties[1].name).toBe('Hamburg')
+    expect(wrapper.vm.countiesPromptAdded).toBe(true)
+    expect(sortSelectedSpy).toHaveBeenCalledWith('counties')
+  })
 
-      expect(wrapper.vm.values.counties).toHaveLength(2)
-      expect(wrapper.vm.values.counties[0].name).toBe('Berlin')
-      expect(wrapper.vm.values.counties[1].name).toBe('Hamburg')
-      expect(wrapper.vm.countiesPromptAdded).toBe(true)
-      expect(sortSelectedSpy).toHaveBeenCalledWith('counties')
-    })
+  it('resets counties when no county IDs are provided', () => {
+    const data = { counties: [] }
+    wrapper.vm.addLocationPrompt(data)
 
-    it('clears counties when empty data is provided', () => {
-      wrapper = shallowMount(DpNewStatement, {
-        global: {
-          plugins: [store]
-        },
-        props: {
-          procedureId: '123',
-          currentExternalPhase: 'participation',
-          currentInternalPhase: 'evaluation'
-        }
-      })
-
-      const data = { counties: [] }
-      wrapper.vm.addLocationPrompt(data)
-
-      expect(wrapper.vm.values.counties).toEqual([])
-      expect(wrapper.vm.countiesPromptAdded).toBe(false)
-    })
+    expect(wrapper.vm.values.counties).toEqual([])
+    expect(wrapper.vm.countiesPromptAdded).toBe(false)
   })
 })
