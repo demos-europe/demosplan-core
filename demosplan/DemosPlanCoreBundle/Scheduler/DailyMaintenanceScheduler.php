@@ -43,7 +43,7 @@ use Symfony\Component\Scheduler\ScheduleProviderInterface;
  * @see PurgeSentEmailsMessageHandler
  * @see CleanupFilesMessageHandler
  */
-#[AsSchedule]
+#[AsSchedule('daily_maintenance')]
 class DailyMaintenanceScheduler implements ScheduleProviderInterface
 {
     public function __construct(private readonly LockFactory $lockFactory)
