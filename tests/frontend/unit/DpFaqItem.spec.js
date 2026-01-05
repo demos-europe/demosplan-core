@@ -37,8 +37,8 @@ describe('DpFaqItem', () => {
 
     store = new Vuex.Store({
       modules: {
-        faq: faq,
-        faqCategory: faqCategory
+        Faq: faq,
+        FaqCategory: faqCategory
       }
     })
 
@@ -77,7 +77,6 @@ describe('DpFaqItem', () => {
         transformedCategoriesData: ['a', 'b']
       }
     })
-    console.log(wrapper.props())
     await wrapper.vm.$nextTick() // Ensure the component has finished rendering.
 
     const deleteButton = wrapper.find('[data-cy="deleteFaqItem"]')
