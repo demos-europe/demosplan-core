@@ -25,7 +25,7 @@ use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
 
-#[AsSchedule('main')]
+#[AsSchedule('maintenance')]
 class MainScheduler implements ScheduleProviderInterface
 {
     private const MAINTENANCE_OFFSET = '5 seconds';
