@@ -52,18 +52,18 @@ class DailyMaintenanceScheduler implements ScheduleProviderInterface
 
     public function getSchedule(): Schedule
     {
-        // Run all daily maintenance tasks at 1:00 AM
+        // Run all daily maintenance tasks at 0:00 AM
         // Tasks are staggered by 5 minutes to prevent resource contention
         return (new Schedule())
-            ->add(RecurringMessage::cron('0 1 * * *', new DailyMaintenanceEventMessage()))
-            ->add(RecurringMessage::cron('5 1 * * *', new SendDeadlineNotificationsMessage()))
-            ->add(RecurringMessage::cron('10 1 * * *', new CreateUnsubmittedDraftEmailsMessage()))
-            ->add(RecurringMessage::cron('15 1 * * *', new SwitchNewsStatesMessage()))
-            ->add(RecurringMessage::cron('20 1 * * *', new AutoSwitchProcedurePhasesMessage()))
-            ->add(RecurringMessage::cron('25 1 * * *', new SendAssignedTaskNotificationEmailsMessage()))
-            ->add(RecurringMessage::cron('30 1 * * *', new DeleteOrphanEmailAddressesMessage()))
-            ->add(RecurringMessage::cron('35 1 * * *', new PurgeSentEmailsMessage()))
-            ->add(RecurringMessage::cron('40 1 * * *', new CleanupFilesMessage()))
+            ->add(RecurringMessage::cron('1 0 * * *', new AutoSwitchProcedurePhasesMessage()))
+            ->add(RecurringMessage::cron('5 0 * * *', new DailyMaintenanceEventMessage()))
+            ->add(RecurringMessage::cron('10 0 * * *', new SendDeadlineNotificationsMessage()))
+            ->add(RecurringMessage::cron('15 0 * * *', new CreateUnsubmittedDraftEmailsMessage()))
+            ->add(RecurringMessage::cron('20 0 * * *', new SwitchNewsStatesMessage()))
+            ->add(RecurringMessage::cron('25 0 * * *', new SendAssignedTaskNotificationEmailsMessage()))
+            ->add(RecurringMessage::cron('30 0 * * *', new DeleteOrphanEmailAddressesMessage()))
+            ->add(RecurringMessage::cron('35 0 * * *', new PurgeSentEmailsMessage()))
+            ->add(RecurringMessage::cron('40 0 * * *', new CleanupFilesMessage()))
             ->lock($this->lockFactory->createLock('demosplan_daily_maintenance_scheduler_lock'))
         ;
     }
