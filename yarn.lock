@@ -1855,6 +1855,42 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cesium/engine@npm:^20.0.1":
+  version: 20.0.1
+  resolution: "@cesium/engine@npm:20.0.1"
+  dependencies:
+    "@cesium/wasm-splats": "npm:^0.1.0-alpha.2"
+    "@spz-loader/core": "npm:0.3.0"
+    "@tweenjs/tween.js": "npm:^25.0.0"
+    "@zip.js/zip.js": "npm:^2.7.70 <2.8.0"
+    autolinker: "npm:^4.0.0"
+    bitmap-sdf: "npm:^1.0.3"
+    dompurify: "npm:^3.0.2"
+    draco3d: "npm:^1.5.1"
+    earcut: "npm:^3.0.0"
+    grapheme-splitter: "npm:^1.0.4"
+    jsep: "npm:^1.3.8"
+    kdbush: "npm:^4.0.1"
+    ktx-parse: "npm:^1.0.0"
+    lerc: "npm:^2.0.0"
+    mersenne-twister: "npm:^1.1.0"
+    meshoptimizer: "npm:^0.25.0"
+    pako: "npm:^2.0.4"
+    protobufjs: "npm:^7.1.0"
+    rbush: "npm:^4.0.1"
+    topojson-client: "npm:^3.1.0"
+    urijs: "npm:^1.19.7"
+  checksum: 10c0/cb4c6992c2ddcf20cd5dfb08bc8ed946b5fcc113445c4aee2fd5ce27cbedac7c73bf54748385c7618b117ed135cfe6a6f76d839741fb4c6c2dfcfa3d5512806d
+  languageName: node
+  linkType: hard
+
+"@cesium/wasm-splats@npm:^0.1.0-alpha.2":
+  version: 0.1.0-alpha.2
+  resolution: "@cesium/wasm-splats@npm:0.1.0-alpha.2"
+  checksum: 10c0/658aec14f4a2210cbbb6083cc411599ff2ab590ca10d656e32b1d741e5d7571b9f50346912f7795f1c60ef33d6bd5142103bdbec0c5d9cbc46c3d73eb53ef141
+  languageName: node
+  linkType: hard
+
 "@cesium/widgets@npm:^11.0.0":
   version: 11.0.0
   resolution: "@cesium/widgets@npm:11.0.0"
@@ -3756,6 +3792,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@spz-loader/core@npm:0.3.0":
+  version: 0.3.0
+  resolution: "@spz-loader/core@npm:0.3.0"
+  checksum: 10c0/aa8aa13369bd324c787c39ed441ffacd6ee6b7555de866710c5b8ba8d60228398498c6ce2c59ec710c62dc6a8bd841a4f913f6dc5517ae4e72ebc25e9aad5068
+  languageName: node
+  linkType: hard
+
 "@tailwindcss/node@npm:4.1.17":
   version: 4.1.17
   resolution: "@tailwindcss/node@npm:4.1.17"
@@ -5476,6 +5519,13 @@ __metadata:
   version: 2.7.57
   resolution: "@zip.js/zip.js@npm:2.7.57"
   checksum: 10c0/fdb25fc5e9a78992ee61dae382a8ea54cdaeefe6d48e583df52218b0316bf8cc0cf91eb02898237cd91d27d417c90f0022b396abf129784306b5dad94da0f49a
+  languageName: node
+  linkType: hard
+
+"@zip.js/zip.js@npm:^2.7.70 <2.8.0":
+  version: 2.7.73
+  resolution: "@zip.js/zip.js@npm:2.7.73"
+  checksum: 10c0/498606d35665bda8e045d39e74ebd79b1ea71d467f1551ab890ebd29739015cf9601f39c24360ab5b52247d6398cfdda2577615f160326e5fd0b05dc1f42180d
   languageName: node
   linkType: hard
 
@@ -7570,7 +7620,7 @@ __metadata:
     "@babel/plugin-transform-runtime": "npm:^7.28.5"
     "@babel/preset-env": "npm:^7.28.5"
     "@babel/runtime": "npm:^7.28.4"
-    "@cesium/engine": "npm:^15.0.0"
+    "@cesium/engine": "npm:^20.0.1"
     "@demos-europe/demosplan-ui": "npm:0.5.9-hotfix.2"
     "@demos-europe/dp-consent": "npm:^1.3"
     "@efrane/vuex-json-api": "npm:^0.1.3"
@@ -7630,7 +7680,7 @@ __metadata:
     leaflet.markercluster: "npm:^1.5.3"
     lscache: "npm:^1.3.2"
     mini-css-extract-plugin: "npm:^2.9.4"
-    ol: "npm:10.6.0"
+    ol: "npm:^10.7.0"
     olcs: "npm:2.22.1"
     plyr: "npm:^3.8.3"
     postcss: "npm:^8.5.6"
@@ -11252,6 +11302,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"meshoptimizer@npm:^0.25.0":
+  version: 0.25.0
+  resolution: "meshoptimizer@npm:0.25.0"
+  checksum: 10c0/2d6a5b8a306a3cb615de94e9dab9623d117f456c0bc55bff29ab9fd261971ffc0e5236c20753851774ef15e55b1a44c35f69a80801bf5f1a34ea7db5d70c6273
+  languageName: node
+  linkType: hard
+
 "mgrs@npm:1.0.0":
   version: 1.0.0
   resolution: "mgrs@npm:1.0.0"
@@ -11724,19 +11781,6 @@ __metadata:
   peerDependencies:
     ol: "*"
   checksum: 10c0/962c3c87afe4b0158b0467456629c35d4870f9410bb39fbd3c89f4acd088d12dcf7124f65fa7c4d5d64cf26f55f76569f501f599f5574927902f930d1ffb46dd
-  languageName: node
-  linkType: hard
-
-"ol@npm:10.6.0":
-  version: 10.6.0
-  resolution: "ol@npm:10.6.0"
-  dependencies:
-    "@types/rbush": "npm:4.0.0"
-    earcut: "npm:^3.0.0"
-    geotiff: "npm:^2.1.3"
-    pbf: "npm:4.0.1"
-    rbush: "npm:^4.0.0"
-  checksum: 10c0/5aa6a42d3b0423dd3bc18ae1a5ad8a50c449ccca89a5ecdd55a83c4b2e97379d01e70bbc0d133a917f4f8d810ca3cacf8a407500a25c0bc405db726e3dba41f5
   languageName: node
   linkType: hard
 
@@ -13392,7 +13436,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rbush@npm:^4.0.0":
+"rbush@npm:^4.0.0, rbush@npm:^4.0.1":
   version: 4.0.1
   resolution: "rbush@npm:4.0.1"
   dependencies:
