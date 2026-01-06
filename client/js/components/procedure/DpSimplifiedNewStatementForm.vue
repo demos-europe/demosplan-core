@@ -288,7 +288,7 @@
               }"
               name="r_internId"
               :pattern="internIdsPattern"
-              value=""
+              model-value=""
             />
           </div>
 

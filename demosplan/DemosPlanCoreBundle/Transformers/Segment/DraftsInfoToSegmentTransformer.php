@@ -78,7 +78,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         $draftsInfoArray = Json::decodeToArray($draftsInfo);
         $statementId = $this->draftsInfoHandler->extractStatementId($draftsInfoArray);
         $statement = $this->statementHandler->getStatement($statementId);
-        if (null === $statement) {
+        if (!$statement instanceof Statement) {
             throw StatementNotFoundException::createFromId($statementId);
         }
 
@@ -195,7 +195,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         $defaultTagTopicTitle = $this->translator->trans('tag_topic.name.default');
         $topics = $this->tagService->getTagTopicsByTitle($procedure, $defaultTagTopicTitle);
         $defaultTagTopic = array_shift($topics);
-        if (null !== $defaultTagTopic && 0 < count($topics)) {
+        if (null !== $defaultTagTopic && [] !== $topics) {
             $defaultTagTopicId = $defaultTagTopic->getId();
             $this->logger->warning(
                 "Found multiple matches usable as default tagTopic in procedure {$procedureId}. Using the first one: {$defaultTagTopicId}"

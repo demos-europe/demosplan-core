@@ -20,10 +20,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FileNameGenerator
 {
-    protected TranslatorInterface $translator;
-
-    protected Slugify $slugify;
-
     public const PLACEHOLDER_ID = '{ID}';
     public const PLACEHOLDER_NAME = '{NAME}';
     public const PLACEHOLDER_EINGANGSNR = '{EINGANGSNR}';
@@ -32,12 +28,8 @@ class FileNameGenerator
 
     public const DEFAULT_TEMPLATE_NAME_CENSORED = self::PLACEHOLDER_ID;
 
-    public function __construct(
-        Slugify $slugify,
-        TranslatorInterface $translator)
+    public function __construct(protected Slugify $slugify, protected TranslatorInterface $translator)
     {
-        $this->translator = $translator;
-        $this->slugify = $slugify;
     }
 
     public function getSynopseFileName(Procedure $procedure, string $suffix): string

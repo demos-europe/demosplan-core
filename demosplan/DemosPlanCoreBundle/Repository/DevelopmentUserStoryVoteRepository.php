@@ -76,19 +76,17 @@ class DevelopmentUserStoryVoteRepository extends FluentRepository implements Arr
             $this->deleteVotes($data['releaseId'], $data['userId']);
 
             foreach ($data['votes'] as $vote) {
-                if ($this->isStoryOfRelease($data['releaseId'], $vote['userStoryId'])) {
-                    if (!is_null($vote['userStoryId']) || 0 <= $vote['numberOfVotes']) {
-                        $votes = $this->findVotesByUserIdAndStoryId($data['userId'], $vote['userStoryId']);
-                        if (1 >= sizeof($votes)) {
-                            if (empty($votes)) {
-                                $this->addVote($data['userId'], $data['orgaId'], $vote);
-                                array_push($responseVoteList, $vote);
-                            } else {
-                                // sollte nur auftreten, wenn in einer anfrageliste mehrmals eine bestimmte userstory vorkommt
-                                array_push($responseVoteList, $this->addNumberOfVotes($vote, $votes[0]));
-                            }
-                            $this->recalculateAndUpdateVotesOfStory($vote['userStoryId']);
+                if ($this->isStoryOfRelease($data['releaseId'], $vote['userStoryId']) && (!is_null($vote['userStoryId']) || 0 <= $vote['numberOfVotes'])) {
+                    $votes = $this->findVotesByUserIdAndStoryId($data['userId'], $vote['userStoryId']);
+                    if (1 >= count($votes)) {
+                        if (empty($votes)) {
+                            $this->addVote($data['userId'], $data['orgaId'], $vote);
+                            $responseVoteList[] = $vote;
+                        } else {
+                            // sollte nur auftreten, wenn in einer anfrageliste mehrmals eine bestimmte userstory vorkommt
+                            $responseVoteList[] = $this->addNumberOfVotes($vote, $votes[0]);
                         }
+                        $this->recalculateAndUpdateVotesOfStory($vote['userStoryId']);
                     }
                 }
             }
@@ -222,7 +220,7 @@ class DevelopmentUserStoryVoteRepository extends FluentRepository implements Arr
 
             /** @var DevelopmentUserStoryVote $vote */
             foreach ($votes as $vote) {
-                $sum = $sum + $vote->getNumberOfVotes();
+                $sum += $vote->getNumberOfVotes();
             }
 
             $story->setOnlineVotes($sum);

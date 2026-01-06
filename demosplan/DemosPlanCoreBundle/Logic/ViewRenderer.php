@@ -44,7 +44,7 @@ class ViewRenderer
     public function processRequestParameters(
         string $view,
         array $parameters = [],
-        Response $response = null
+        ?Response $response = null,
     ): array {
         $request = $this->getRequest();
 
@@ -124,7 +124,7 @@ class ViewRenderer
      *
      * @return RedirectResponse|Response Response
      *
-     * @deprecated use DplanPermissions({"permission"}) Annotation on controllers instead
+     * @deprecated use DplanPermissions({"permission"}) Attribute on controllers instead
      *     try/catch can be omitted, this error handling has moved to ExceptionListener
      *     and CheckPermissionListener
      *
@@ -134,30 +134,29 @@ class ViewRenderer
     {
         $logger = $this->logger;
         $request = $this->getRequest();
-
         // Fehlertemplate ausgeben
-        switch (true) {
-            case $e instanceof SessionUnavailableException:
-                $logger->info($e);
+        if ($e instanceof SessionUnavailableException) {
+            $logger->info($e);
 
-                return $this->redirectWithCurrentRouteState('sessionExpired');
+            return $this->redirectWithCurrentRouteState('sessionExpired');
+        }
+        if ($e instanceof AccessDeniedGuestException) {
+            $logger->info($e);
 
-            case $e instanceof AccessDeniedGuestException:
-                $logger->info($e);
+            return $this->redirectWithCurrentRouteState('accessdenied');
+        }
+        if ($e instanceof AccessDeniedException) {
+            $logger->warning($e);
 
-                return $this->redirectWithCurrentRouteState('accessdenied');
+            // do not set redirect LoggedIn Route Cookie as it may lead to
+            // infinite redirects
+            return $this->redirectWithCurrentRouteState('accessdenied', false);
+        }
+        if ($e instanceof EntityNotFoundException) {
+            $logger->error($e);
+            $procedureId = $request->attributes->get('procedureId');
 
-            case $e instanceof AccessDeniedException:
-                $logger->warning($e);
-                // do not set redirect LoggedIn Route Cookie as it may lead to
-                // infinite redirects
-                return $this->redirectWithCurrentRouteState('accessdenied', false);
-
-            case $e instanceof EntityNotFoundException:
-                $logger->error($e);
-                $procedureId = $request->attributes->get('procedureId');
-
-                return $this->redirectToRoute('dplan_assessmenttable_view_table', ['procedureId' => $procedureId]);
+            return $this->redirectToRoute('dplan_assessmenttable_view_table', ['procedureId' => $procedureId]);
         }
 
         return null;
@@ -210,7 +209,7 @@ class ViewRenderer
     {
         $request = $this->requestStack->getCurrentRequest();
 
-        if (null === $request) {
+        if (!$request instanceof Request) {
             throw new RuntimeException('Tried to render without a request');
         }
 

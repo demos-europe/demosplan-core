@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Transformers;
 use DemosEurope\DemosplanAddon\Contracts\PercentageDistributionTransformerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
 use demosplan\DemosPlanCoreBundle\ValueObject\PercentageDistribution;
-use Enqueue\Util\UUID;
+use Ramsey\Uuid\Uuid;
 
 class PercentageDistributionTransformer extends BaseTransformer implements PercentageDistributionTransformerInterface
 {
@@ -22,7 +22,7 @@ class PercentageDistributionTransformer extends BaseTransformer implements Perce
     public function transform(PercentageDistribution $percentageDistribution): array
     {
         return [
-            'id'          => UUID::generate(),
+            'id'          => Uuid::uuid4()->toString(),
             'total'       => $percentageDistribution->getTotal(),
             'percentages' => $percentageDistribution->getPercentages(),
             'absolutes'   => $percentageDistribution->getAbsolutes(),

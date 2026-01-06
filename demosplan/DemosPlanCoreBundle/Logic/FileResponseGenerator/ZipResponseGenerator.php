@@ -44,8 +44,11 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
     private const ATTACHMENT_GENERIC = 'error.statements.zip.export.generic.attachment';
     private const XLSX_GENERIC = 'error.statements.zip.export.generic.xlsx';
     private const ZIP_NOT_CREATED = 'error.statements.zip.export';
-    private array $errorMessages;
-    private array $errorCount;
+    private array $errorMessages = [];
+    private array $errorCount = [
+        'attachmentNotAddedCount'    => 0,
+        'attachmentUnkownErrorCount' => 0,
+    ];
 
     public function __construct(
         array $supportedTypes,
@@ -56,11 +59,6 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
     ) {
         parent::__construct($nameGenerator);
         $this->supportedTypes = $supportedTypes;
-        $this->errorMessages = [];
-        $this->errorCount = [
-            'attachmentNotAddedCount'    => 0,
-            'attachmentUnkownErrorCount' => 0,
-        ];
     }
 
     /**
@@ -69,7 +67,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
     public function __invoke(array $file): Response
     {
         try {
-            self::checkIfNeededArrayKeysExist($file);
+            $this->checkIfNeededArrayKeysExist($file);
         } catch (InvalidArgumentException $e) {
             $this->logger->error($e->getMessage(), $file);
             throw new AssessmentTableZipExportException('error', self::ZIP_NOT_CREATED);
@@ -97,7 +95,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
             $this->addOriginalStatementPdfsTopZip($zipStream, $file);
         }
         $this->addCountedErrorMessages();
-        if (0 < count($this->errorMessages)) {
+        if ([] !== $this->errorMessages) {
             $this->addErrorTextFile($zipStream);
         }
     }
@@ -216,7 +214,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
     /**
      * @throws InvalidArgumentException
      */
-    private static function checkIfNeededArrayKeysExist(array $file): void
+    private function checkIfNeededArrayKeysExist(array $file): void
     {
         $logSuffix = ', in zip response generation.';
         $prefix = 'Array key expected: ';

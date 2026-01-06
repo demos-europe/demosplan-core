@@ -38,6 +38,7 @@ use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -55,6 +56,7 @@ use Wrep\Daemonizable\Exception\ShutdownEndlessCommandException;
  *
  * Class MaintenanceCommand
  */
+#[AsCommand(name: 'dplan:maintenance', aliases: ['demos:maintenance'])]
 class MaintenanceCommand extends EndlessContainerAwareCommand
 {
     protected static $defaultDescription = 'DemosPlan Maintenance daemon';
@@ -94,7 +96,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
 
     /** @var Proj */
     protected $targetProjection;
-
 
     /** @var ProcedureRepository */
     protected $procedureRepository;
@@ -151,15 +152,14 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     {
         // Since this command has an alias this command **cannot** be lazyfied at the moment!
         // Add an alias until we have reconfigured the dev services
-        $this->setName('dplan:maintenance')
-            ->setAliases(['demos:maintenance'])
+        $this
             ->setTimeout(5); // Set the timeout in seconds between two calls to the "execute" method
         parent::configure();
     }
 
     // This is a normal Command::initialize() method and it's called exactly once before the first execute call
 
-    protected function initialize(InputInterface $input, OutputInterface $output)
+    protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         // Never init permissions like this, because the session has no user we can't check permissions.
         // This way i can only check if it is enabled in project

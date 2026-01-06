@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class FileController extends BaseController
 {
@@ -35,12 +35,11 @@ class FileController extends BaseController
     /**
      * Serve file.
      *
-     * @DplanPermissions("area_main_file")
-     *
      * @return BinaryFileDownload|Response
      */
+    #[DplanPermissions('area_main_file')]
     #[Route(path: '/file/{hash}', name: 'core_file', options: ['expose' => true])]
-    public function fileAction(FileService $fileService, string $hash)
+    public function fileHash(FileService $fileService, string $hash): Response
     {
         try {
             return $this->prepareResponseWithHash($fileService, $hash, true);
@@ -52,11 +51,10 @@ class FileController extends BaseController
 
     /**
      * Check Procedure permissions when procedureId is given in route and serve file if allowed.
-     *
-     * @DplanPermissions("area_main_file")
      */
+    #[DplanPermissions('area_main_file')]
     #[Route(path: '/file/{procedureId}/{hash}', name: 'core_file_procedure', options: ['expose' => true])]
-    public function fileProcedureAction(FileService $fileService, string $procedureId, string $hash): Response
+    public function fileProcedure(FileService $fileService, string $procedureId, string $hash): Response
     {
         try {
             return $this->prepareResponseWithHash($fileService, $hash, true, $procedureId);
@@ -70,9 +68,9 @@ class FileController extends BaseController
      * Distinct route for ai api file access to allow for jwt authentication via query parameter.
      * Check Procedure permissions when procedureId is given in route and serve file if allowed.
      */
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions(permissions: ['area_main_file'])]
+    #[DplanPermissions('area_main_file')]
     #[Route(path: '/api/ai/file/{procedureId}/{hash}', name: 'core_file_procedure_api_ai', options: ['expose' => true])]
-    public function fileProcedureApiAction(FileService $fileService, string $procedureId, string $hash): Response
+    public function fileProcedureApi(FileService $fileService, string $procedureId, string $hash): Response
     {
         try {
             return $this->prepareResponseWithHash($fileService, $hash, true, $procedureId);
@@ -126,12 +124,11 @@ class FileController extends BaseController
      *
      * TODO: This should probably be renamed to `core_image`, `core_logo` is misleading
      *
-     * @DplanPermissions("area_demosplan")
-     *
      * @param string $hash
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/image/{hash}', name: 'core_logo', options: ['expose' => true])]
-    public function imageAction(Request $request, FileService $fileService, $hash): Response
+    public function image(Request $request, FileService $fileService, $hash): Response
     {
         try {
             // create a Response with an ETag and/or a Last-Modified header

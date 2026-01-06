@@ -416,7 +416,7 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
             ->andWhere('e.pId = :pId')
             ->setParameter('pId', $procedureId);
 
-        if (0 !== count($elementIdsWithParagraphsOrDocuments)) {
+        if ([] !== $elementIdsWithParagraphsOrDocuments) {
             $queryBuilder = $queryBuilder->andWhere($queryBuilder->expr()->notIn('e.id', $elementIdsWithParagraphsOrDocuments));
         }
 

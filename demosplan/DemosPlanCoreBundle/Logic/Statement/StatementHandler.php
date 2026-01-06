@@ -1023,14 +1023,11 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $mandatoryErrors[] = $this->createMandatoryErrorMessage('statement.use.name');
             }
 
-            if ('email' === $data['r_getEvaluation']
-                && $this->permissions->hasPermission('feature_statements_feedback_check_email')) {
-                if (isset($data['r_email2']) && trim((string) $data['r_email']) != trim((string) $data['r_email2'])) {
-                    $mandatoryErrors[] = [
-                        'type'    => 'error',
-                        'message' => $this->translator->trans('error.email.repeated'),
-                    ];
-                }
+            if ('email' === $data['r_getEvaluation'] && $this->permissions->hasPermission('feature_statements_feedback_check_email') && (isset($data['r_email2']) && trim((string) $data['r_email']) !== trim((string) $data['r_email2']))) {
+                $mandatoryErrors[] = [
+                    'type'    => 'error',
+                    'message' => $this->translator->trans('error.email.repeated'),
+                ];
             }
         }
 
@@ -1076,7 +1073,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
         $statement['miscData'] = $miscData->toArray();
 
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             if ($this->isDisplayNotices()) {
                 $this->flashMessageHandler->setFlashMessages($mandatoryErrors);
             }
@@ -1214,7 +1211,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $statementFragmentService = $this->statementFragmentService;
 
         // if there are selected items, select only them:
-        if (is_array($fragmentIds) && 0 < count($fragmentIds)) {
+        if (is_array($fragmentIds) && [] !== $fragmentIds) {
             $esQuery->addFilterMust('id', $fragmentIds);
         }
 
@@ -1281,11 +1278,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
         $content = base64_decode($response);
 
-        if (is_array($procedure)) {
-            $name = $filenamePrefix.'.pdf';
-        } else {
-            $name = $filenamePrefix.'_'.$procedure->getName().'.pdf';
-        }
+        $name = is_array($procedure) ? $filenamePrefix.'.pdf' : $filenamePrefix.'_'.$procedure->getName().'.pdf';
         $this->getLogger()->debug('Got Response: '.DemosPlanTools::varExport($content, true));
 
         return new PdfFile($name, $content);
@@ -2232,35 +2225,30 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
         }
 
-        if (array_key_exists('r_paragraph', $data)) {
-            // If another paragraph is selected we create a new version later.
-            // If it is the same we don't assign it
-            if ($data['r_paragraph'] != $fragmentToUpdate->getParagraphParentId()) {
-                if ($data['r_paragraph'] instanceof Paragraph) {
-                    $statementFragmentData['paragraph'] = $data['r_paragraph'];
-                } else {
-                    $statementFragmentData['paragraphId'] = $data['r_paragraph'];
-                }
+        // If another paragraph is selected we create a new version later.
+        // If it is the same we don't assign it
+        if (array_key_exists('r_paragraph', $data) && $data['r_paragraph'] != $fragmentToUpdate->getParagraphParentId()) {
+            if ($data['r_paragraph'] instanceof Paragraph) {
+                $statementFragmentData['paragraph'] = $data['r_paragraph'];
+            } else {
+                $statementFragmentData['paragraphId'] = $data['r_paragraph'];
             }
         }
 
-        if ($this->permissions->hasPermission('feature_single_document_fragment')
-            && array_key_exists('r_document', $data)) {
-            // Check if the incoming document is already set. Version stuff here
-            if ($data['r_document'] != $fragmentToUpdate->getDocumentParentId()) {
-                if ('' == $data['r_document']) {
-                    $statementFragmentData['document'] = null;
-                } else {
-                    $singleDocumentRepository = $this->entityManager->getRepository(SingleDocument::class);
-                    /** @var SingleDocumentVersionRepository $singleDocumentVersionRepository */
-                    $singleDocumentVersionRepository = $this->entityManager->getRepository(SingleDocumentVersion::class);
-                    $document = $singleDocumentRepository->findOneBy(['id' => $data['r_document']]);
-                    $documentVersion = $singleDocumentVersionRepository->createVersion($document);
-                    $statementFragmentData['document'] = $documentVersion;
-                }
-                $statementFragmentData['paragraph'] = '';
-                $statementFragmentData['paragraphId'] = '';
+        // Check if the incoming document is already set. Version stuff here
+        if ($this->permissions->hasPermission('feature_single_document_fragment') && array_key_exists('r_document', $data) && $data['r_document'] != $fragmentToUpdate->getDocumentParentId()) {
+            if ('' == $data['r_document']) {
+                $statementFragmentData['document'] = null;
+            } else {
+                $singleDocumentRepository = $this->entityManager->getRepository(SingleDocument::class);
+                /** @var SingleDocumentVersionRepository $singleDocumentVersionRepository */
+                $singleDocumentVersionRepository = $this->entityManager->getRepository(SingleDocumentVersion::class);
+                $document = $singleDocumentRepository->findOneBy(['id' => $data['r_document']]);
+                $documentVersion = $singleDocumentVersionRepository->createVersion($document);
+                $statementFragmentData['document'] = $documentVersion;
             }
+            $statementFragmentData['paragraph'] = '';
+            $statementFragmentData['paragraphId'] = '';
         }
 
         $unchangedStatus = !array_key_exists('r_status', $data)
@@ -2288,7 +2276,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      */
     public function importTags(string $procedureId, $fileResource): void
     {
-        $reader = Reader::createFromStream($fileResource);
+        $reader = Reader::from($fileResource);
         $reader->setEscape('');
         $reader->setDelimiter(';');
         $reader->setEnclosure('"');
@@ -2301,7 +2289,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $convertedRow = [];
             foreach ($record as $cell) {
                 $convertedRow[] = mb_convert_encoding($cell, 'UTF-8',
-                    mb_detect_encoding($cell, 'UTF-8, ISO-8859-1, ISO-8859-15', true));
+                    mb_detect_encoding((string) $cell, 'UTF-8, ISO-8859-1, ISO-8859-15', true));
             }
             $convertedRecords[] = $convertedRow;
         }
@@ -2361,7 +2349,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
                     // Check if topic already exists before creating
                     $existingTopic = $this->tagTopicRepository->findOneByTitle($currentTopicTitle, $procedureId);
-                    if (null !== $existingTopic) {
+                    if ($existingTopic instanceof TagTopic) {
                         $topics[$currentTopicTitle] = $existingTopic;
                     } else {
                         $topics[$currentTopicTitle] = $this->createTopic($currentTopicTitle, $procedureId);
@@ -2384,7 +2372,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             // Check if tag already exists in the target topic
             $existingTagInTopic = $this->findExistingTagInTopic($currentTagTitle, $topics[$currentTopicTitle]);
 
-            if (null !== $existingTagInTopic) {
+            if ($existingTagInTopic instanceof Tag) {
                 // Tag already exists in target topic - add to event array but skip boilerplate processing
                 $newTagsAndOrMatchingExistingTags[] = $existingTagInTopic;
             } else {
@@ -2399,7 +2387,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 );
 
                 // Only add tag to event array if it was successfully created (not null due to conflicts)
-                if (null !== $tag) {
+                if ($tag instanceof Tag) {
                     $newTagsAndOrMatchingExistingTags[] = $tag;
                 }
             }
@@ -2620,7 +2608,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         if (!$this->tagRepository->isTagTitleFree($procedureId, $tagTitle)) {
             // Tag exists in different topic - add error message and skip processing
             $existingTagInProcedure = $this->findExistingTagInProcedure($procedureId, $tagTitle);
-            if (null !== $existingTagInProcedure) {
+            if ($existingTagInProcedure instanceof Tag) {
                 $existingTopic = $existingTagInProcedure->getTopic();
                 $this->getMessageBag()->add('error', 'tags.import.conflict.tag.exists.in.different.topic', [
                     'tagTitle'      => $tagTitle,
@@ -3155,7 +3143,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         if (!array_key_exists('r_similarStatementSubmitters', $data)
             || !is_array($data['r_similarStatementSubmitters'])
-            || 0 === count($data['r_similarStatementSubmitters'])) {
+            || [] === $data['r_similarStatementSubmitters']) {
             $statementToAttachTo->setSimilarStatementSubmitters(new ArrayCollection());
 
             return $statementToAttachTo;
@@ -3325,7 +3313,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         if ($tag->getStatements()->isEmpty()) {
             $fragments = $this->statementFragmentService->getStatementFragmentsTag($tag->getId());
-            if (0 === count((array) $fragments)) {
+            if ([] === (array) $fragments) {
                 return false;
             }
         }
@@ -3566,7 +3554,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      */
     protected function validateStatementsProcedure(string $procedureId, array $statements): bool
     {
-        if (0 < count($statements)) {
+        if ([] !== $statements) {
             $firstStatementProcedureId = $statements[0]->getProcedureId();
             if ($firstStatementProcedureId != $procedureId) {
                 $this->getLogger()->info('Statements does not belong to procedure '.$procedureId);
@@ -3578,7 +3566,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
             foreach ($statements as $statement) {
                 if ($statement instanceof Statement) {
-                    if (!($procedureId === $statement->getProcedureId())) {
+                    if ($procedureId !== $statement->getProcedureId()) {
                         $this->getLogger()->info('Statements do not belong to same procedure');
                         $this->getMessageBag()->add('error', 'warning.statement.cluster.removed.placeholder');
 
@@ -3632,7 +3620,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $headStatement = new Statement();
         try {
             // do not check for instance of Statement because of Proxy Object in Unit tests (will fail)
-            if (null === $headStatement) {
+            if (!$headStatement instanceof Statement) {
                 $this->getLogger()->error('Could not choose Statement to create Cluster');
                 throw new InvalidArgumentException('Could not choose Statement to create Cluster');
             }
@@ -4132,7 +4120,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             if (array_key_exists('departmentId', $updateData)) {
                 $updateData['status'] = null === $updateData['departmentId'] ? 'fragment.status.new' : 'fragment.status.assignedToFB';
             }
-
             // When department finished working the archivedOrgaName is set and departmentId is null
             if (array_key_exists('archivedOrgaName', $updateData) && null != $updateData['archivedOrgaName']
                 && array_key_exists('departmentId', $updateData)
@@ -4140,7 +4127,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $updateData['status'] = 'fragment.status.assignedBackFromFB';
                 $updateData['archivedDepartment'] = $statementFragmentToUpdate->getDepartment();
             }
-
             // manually unset State?
             if (array_key_exists('status', $updateData) && null == $updateData['status']) {
                 $updateData['status'] = 'fragment.status.new';
@@ -4149,17 +4135,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     $updateData['archivedDepartment'] = $statementFragmentToUpdate->getDepartment();
                 }
             }
-        } else {
+        } elseif (array_key_exists('departmentId', $updateData) && null !== $updateData['departmentId']) {
             // unverify manually:
-
-            if (array_key_exists('departmentId', $updateData) && null !== $updateData['departmentId']) {
-                $updateData['status'] = 'fragment.status.assignedToFB';
-            } elseif (null !== $currentArchivedOrgaName) {
-                $updateData['status'] = 'fragment.status.assignedBackFromFB';
-                $updateData['archivedDepartment'] = $statementFragmentToUpdate->getDepartmentId();
-            } else {
-                $updateData['status'] = 'fragment.status.new';
-            }
+            $updateData['status'] = 'fragment.status.assignedToFB';
+        } elseif (null !== $currentArchivedOrgaName) {
+            $updateData['status'] = 'fragment.status.assignedBackFromFB';
+            $updateData['archivedDepartment'] = $statementFragmentToUpdate->getDepartmentId();
+        } else {
+            $updateData['status'] = 'fragment.status.new';
         }
         if ($setVerified) {
             $updateData['status'] = 'fragment.status.verified';
@@ -4427,7 +4410,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         $statements = $this->excludePlaceholderStatements($statements);
 
-        if (0 === count($statements)) {
+        if ([] === $statements) {
             throw new InvalidArgumentException('Create statement failed: No items in the given clusterStatementArray');
         }
 
@@ -4688,7 +4671,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 }
             }
 
-            if (0 < count($statementsNotClaimedByUser)) {
+            if ([] !== $statementsNotClaimedByUser) {
                 $this->getMessageBag()->add(
                     'warning', 'statement.cluster.not.assigned',
                     ['ids' => implode(', ', $statementsNotClaimedByUser)]
@@ -4697,7 +4680,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $this->getLogger()->info('Folowing statements are not claimed by current user: '.implode(', ', $statementsNotClaimedByUser));
                 $areAllElementsClaimedByUser = false;
             }
-            if (0 < count($stmtFragmentsNotClaimedByUser)) {
+            if ([] !== $stmtFragmentsNotClaimedByUser) {
                 $this->getMessageBag()->add(
                     'warning', 'statement.cluster.fragments.not.claimed.by.current.user',
                     ['ids' => implode(', ', $stmtFragmentsNotClaimedByUser)]

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
+use DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
@@ -35,6 +36,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 {
     public function __construct(
         private readonly ClientRegistry $clientRegistry,
+        private readonly CustomerServiceInterface $customerService,
         private readonly EntityManagerInterface $entityManager,
         private readonly OzgKeycloakUserData $ozgKeycloakUserData,
         private readonly LoggerInterface $logger,
@@ -65,7 +67,8 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             $tokenValues = $accessToken->getValues();
             $this->keycloakLogoutManager->storeTokenAndExpirationInSession($request->getSession(), $tokenValues);
 
-            $this->ozgKeycloakUserData->fill($client->fetchUserFromToken($accessToken));
+            $customerSubdomain = $this->customerService->getCurrentCustomer()->getSubdomain();
+            $this->ozgKeycloakUserData->fill($client->fetchUserFromToken($accessToken), $customerSubdomain);
             $this->logger->info('Found user data: '.$this->ozgKeycloakUserData);
             $user = $this->ozgKeycloakUserDataMapper->mapUserData($this->ozgKeycloakUserData);
 
@@ -86,9 +89,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         }
 
         return new SelfValidatingPassport(
-            new UserBadge($user->getUserIdentifier(), function () use ($user) {
-                return $user;
-            })
+            new UserBadge($user->getUserIdentifier(), fn () => $user)
         );
     }
 

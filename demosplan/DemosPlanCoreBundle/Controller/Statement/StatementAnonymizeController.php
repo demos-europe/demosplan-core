@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class StatementAnonymizeController extends BaseController
 {
@@ -28,15 +28,14 @@ class StatementAnonymizeController extends BaseController
      *
      * @throws MessageBagException
      * @throws Exception
-     *
-     * @DplanPermissions("area_statement_anonymize")
      */
+    #[DplanPermissions('area_statement_anonymize')]
     #[Route(path: '/procedure/{procedureId}/statement/{statementId}/anonymize', name: 'DemosPlan_statement_anonymize_view', options: ['expose' => true])]
-    public function statementAnonymizeAction(
+    public function statementAnonymize(
         AssessmentHandler $assessmentHandler,
         StatementHandler $statementHandler,
         string $procedureId,
-        string $statementId
+        string $statementId,
     ): Response {
         $statement = $statementHandler->getStatement($statementId);
 

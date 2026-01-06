@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent;
@@ -33,7 +33,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
@@ -46,14 +46,13 @@ class MaintenanceController extends BaseController
     /**
      * User facing page for active service mode.
      *
-     * @DplanPermissions("area_demosplan")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/servicemode', name: 'core_service_mode')]
-    public function serviceModeAction(GlobalConfigInterface $globalConfig)
+    public function serviceMode(GlobalConfigInterface $globalConfig)
     {
         /** @var GlobalConfig $globalConfig */
         if (false === $globalConfig->getPlatformServiceMode()) {
@@ -73,11 +72,10 @@ class MaintenanceController extends BaseController
 
     /**
      * Simple Action to evaluate response code for heartbeat monitoring.
-     *
-     * @DplanPermissions("area_demosplan")
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/_heartbeat', name: 'core_server_heartbeat')]
-    public function heartbeatAction(): Response
+    public function heartbeat(): Response
     {
         return new Response('OK');
     }
@@ -88,14 +86,13 @@ class MaintenanceController extends BaseController
      * These tasks are run regularily *and* require a session which is
      * why they are currently managed in this action
      *
-     * @DplanPermissions("area_demosplan")
-     *
      * @param string $key
      *
      * @throws Throwable
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/maintenance/{key}', name: 'core_maintenance')]
-    public function maintenanceTasksAction(
+    public function maintenanceTasks(
         EventDispatcherInterface $eventDispatcher,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,

@@ -48,6 +48,7 @@ export default () => {
     {
       node: document.querySelector('input[name="r_user_toggle_visibility"]'),
       defaultValue: true,
+      hideParent: true,
     },
     {
       node: document.querySelector('input[name="r_opacity"]'),
@@ -55,51 +56,80 @@ export default () => {
     },
   ]
 
-  // Check if base layer and disable user toggling on load
+  // If base layer, hide toggleVisibility checkbox and its parent (the label)
   if (document.querySelector('input[name="r_type"][value="base"]')?.checked) {
     elementsHiddenForBaseMap.forEach((element) => {
-      disableNode(element.node, element.defaultValue)
+      disableNode(element.node, element.defaultValue, element.hideParent)
     })
   }
 
   // Add event listener to handle checkbox change
   Array.from(document.querySelectorAll('input[name="r_type"]')).forEach(el => el.addEventListener('change', handleUserToggle))
 
-  function createHiddenNode (node) {
-    const hiddenElement = node.cloneNode()
-    hiddenElement.setAttribute('hidden', true)
+  function createHiddenNode (node, defaultValue) {
+    const hiddenElement = document.createElement('input')
+
+    hiddenElement.setAttribute('type', 'hidden')
+    hiddenElement.setAttribute('name', node.getAttribute('name'))
     hiddenElement.setAttribute('id', `hidden_${node.getAttribute('id')}`)
+
+    // For checkboxes, only set value if checked (defaultValue is true)
+    if (node.type === 'checkbox') {
+      if (defaultValue) {
+        hiddenElement.setAttribute('value', '1')
+      }
+    } else {
+      hiddenElement.setAttribute('value', defaultValue)
+    }
 
     return hiddenElement
   }
 
-  function disableNode (node, defaultValue) {
+  function disableNode (node, defaultValue, hideParent = false) {
     if (node.type === 'checkbox') {
       node.checked = defaultValue
     } else {
       node.value = defaultValue
     }
-    document.getElementById('form').appendChild(createHiddenNode(node))
+    document.getElementById('form').appendChild(createHiddenNode(node, defaultValue))
     node.setAttribute('disabled', 'true')
+
+    if (hideParent) {
+      const parentLabel = node.closest('label')
+
+      if (parentLabel) {
+        parentLabel.style.display = 'none'
+      }
+    }
   }
 
-  function enableNode (node) {
+  function enableNode (node, hideParent = false) {
     node.removeAttribute('disabled')
     const hidden = document.getElementById(`hidden_${node.getAttribute('id')}`)
+
     if (hidden) {
-      document.getElementById('form').removeChild(hidden)
+      hidden.remove()
+    }
+
+    if (hideParent) {
+      const parentLabel = node.closest('label')
+
+      if (parentLabel) {
+        parentLabel.style.display = ''
+      }
     }
   }
 
   function handleUserToggle (e) {
     const radioVal = e.target.value
+
     if (radioVal === 'base') {
       elementsHiddenForBaseMap.forEach((element) => {
-        disableNode(element.node, element.defaultValue)
+        disableNode(element.node, element.defaultValue, element.hideParent)
       })
     } else {
       elementsHiddenForBaseMap.forEach((element) => {
-        enableNode(element.node)
+        enableNode(element.node, element.hideParent)
       })
     }
   }

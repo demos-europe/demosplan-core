@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -22,16 +22,14 @@ use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AuthorizedUsersController extends BaseController
 {
-    /**
-     * @DplanPermissions("area_admin_consultations")
-     */
+    #[DplanPermissions('area_admin_consultations')]
     #[Route(path: '/verfahren/{procedureId}/berechtigte', name: 'dplan_admin_procedure_authorized_users', methods: ['HEAD', 'GET'])]
-    public function listAction(string $procedureId)
+    public function list(string $procedureId)
     {
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_authorized_users_list.html.twig',
@@ -42,11 +40,9 @@ class AuthorizedUsersController extends BaseController
         );
     }
 
-    /**
-     * @DplanPermissions("area_admin_consultations")
-     */
+    #[DplanPermissions('area_admin_consultations')]
     #[Route(path: '/verfahren/{procedureId}/berechtigte/export', name: 'dplan_admin_procedure_authorized_users_export', methods: ['HEAD', 'GET'], options: ['expose' => true])]
-    public function exportAction(
+    public function export(
         ConsultationTokenService $consultationTokenService,
         CurrentUserInterface $currentUser,
         FileResponseGeneratorStrategy $responseGenerator,

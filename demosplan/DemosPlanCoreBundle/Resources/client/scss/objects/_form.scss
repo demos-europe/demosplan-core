@@ -421,6 +421,7 @@ input.disabled {
 
         &-textarea {
             min-height: $element-height; // [1]
+            background:  $dp-color-white;
             border-radius: $form-radius !important;
 
             &[disabled],

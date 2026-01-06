@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
@@ -21,10 +21,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService;
 use Exception;
 use PhpOffice\PhpWord\Settings;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Seitenausgabe Protokolldaten.
@@ -34,16 +33,15 @@ class DemosPlanReportController extends BaseController
     /**
      * Show a report.
      *
-     * @DplanPermissions("area_admin_protocol")
-     *
      * @param string $procedureId
      *
      * @return Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_protocol')]
     #[Route(name: 'dm_plan_report_table_view', path: '/report/view/{procedureId}')]
-    public function viewReportAction(Request $request, $procedureId)
+    public function viewReport($procedureId)
     {
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanReport/list.html.twig',
@@ -57,17 +55,16 @@ class DemosPlanReportController extends BaseController
     /**
      * Generates a PDF Report for the given procedure.
      *
-     * @DplanPermissions({"area_admin_protocol", "feature_export_protocol"})
-     *
      * @throws Exception
      */
+    #[DplanPermissions(['area_admin_protocol', 'feature_export_protocol'])]
     #[Route(
         name: 'dplan_export_report',
         path: '/report/export/{procedureId}',
         methods: ['GET'],
         options: ['expose' => true]
     )]
-    public function exportProcedureReportAction(
+    public function exportProcedureReport(
         ExportReportService $reportService,
         ParameterBagInterface $parameterBag,
         NameGenerator $nameGenerator,

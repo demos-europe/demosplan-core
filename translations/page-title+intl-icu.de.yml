@@ -120,7 +120,7 @@ procedure.admin.list: Verfahren verwalten
 procedure.analysis: Auswertung
 procedure.boilerplates: Textbausteine
 procedure.boilerplate.edit: Textbaustein bearbeiten
-procedure.boilerplateGroup.edit: Textbausteingruppe bearbetien
+procedure.boilerplateGroup.edit: Textbausteingruppe bearbeiten
 procedure.list: Beteiligung
 procedure.mail.submitters.send: E-Mail an alle Einreichenden verfassen
 procedure.mail.submitters.send.confirm: E-Mail an alle Einreichenden versenden

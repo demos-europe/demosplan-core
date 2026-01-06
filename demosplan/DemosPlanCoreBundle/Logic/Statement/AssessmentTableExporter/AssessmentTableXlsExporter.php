@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
 use Carbon\Carbon;
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -23,11 +25,13 @@ use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use League\HTMLToMarkdown\HtmlConverter;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -49,6 +53,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
+        private readonly CurrentUserInterface $currentUser,
         DocumentWriterSelector $writerSelector,
         private readonly EditorService $editorService,
         Environment $twig,
@@ -180,6 +185,97 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     }
 
     /**
+     * Adds an info sheet to the Excel document with export information.
+     *
+     * @param IWriter                  $writer    The Excel writer
+     * @param StatementExportTagFilter $tagFilter The tag filter containing filter information
+     *
+     * @throws Exception
+     */
+    public function addFilterInfoSheet(IWriter $writer, StatementExportTagFilter $tagFilter): void
+    {
+        /** @var Spreadsheet $spreadsheet */
+        $spreadsheet = $writer->getSpreadsheet();
+        $infoSheet = $spreadsheet->createSheet(0);
+        $infoSheet->setTitle($this->translator->trans('export.info'));
+
+        $currentDate = new DateTime();
+        $procedure = $this->currentProcedureService->getProcedure();
+        $userName = $this->currentUser->getUser()->getFullname();
+
+        $row = 1;
+
+        // Title with date
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans('segments.export.statement.export.date.filtered', ['date' => $currentDate->format('d.m.Y')]));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true)->setSize(14);
+        $row += 2;
+
+        // Procedure name
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans('procedure.name'));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true);
+        $infoSheet->setCellValue("B{$row}", $procedure->getName());
+        $row += 2;
+
+        // Export user
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans('export.user'));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true);
+        $infoSheet->setCellValue("B{$row}", $userName);
+        $row += 2;
+
+        // Filter information
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans('export.filter.applied'));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true);
+        ++$row;
+
+        $this->addTagFilterInfo($infoSheet, $tagFilter, $row);
+
+        // Auto-size columns
+        $infoSheet->getColumnDimension('A')->setAutoSize(true);
+        $infoSheet->getColumnDimension('B')->setAutoSize(true);
+
+        // Move info sheet to first position
+        $spreadsheet->setActiveSheetIndex(0);
+    }
+
+    /**
+     * Adds the tag filter information to the info sheet.
+     *
+     * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $infoSheet The info sheet
+     * @param StatementExportTagFilter                      $tagFilter The tag filter
+     * @param int                                           $row       Current row number (passed by reference)
+     */
+    private function addTagFilterInfo($infoSheet, StatementExportTagFilter $tagFilter, int &$row): void
+    {
+        // Accumulate tag filter labels if any tag filter is active
+        $tagFilterLabels = [];
+        if ($tagFilter->isTagIdFilterActive()) {
+            $tagFilterLabels[] = $this->translator->trans('tag.ids');
+        }
+        if ($tagFilter->isTagTitleFilterActive()) {
+            $tagFilterLabels[] = $this->translator->trans('tag.titles');
+        }
+        if (!empty($tagFilterLabels)) {
+            $infoSheet->setCellValue("A{$row}", implode(', ', $tagFilterLabels));
+            $infoSheet->setCellValue("B{$row}", $tagFilter->getTagFiltersHumanReadable());
+            ++$row;
+        }
+
+        // Accumulate topic filter labels if any topic filter is active
+        $topicFilterLabels = [];
+        if ($tagFilter->isTagTopicIdFilterActive()) {
+            $topicFilterLabels[] = $this->translator->trans('tag.topic.ids');
+        }
+        if ($tagFilter->isTagTopicTitleFilterActive()) {
+            $topicFilterLabels[] = $this->translator->trans('tag.topic.titles');
+        }
+        if (!empty($topicFilterLabels)) {
+            $infoSheet->setCellValue("A{$row}", implode(', ', $topicFilterLabels));
+            $infoSheet->setCellValue("B{$row}", $tagFilter->getTopicFiltersHumanReadable());
+            ++$row;
+        }
+    }
+
+    /**
      * Depending on the given format identifier, the corresponding column definitions will be returned.
      * The retuning definition includes the following informations:
      * - order of columns
@@ -262,8 +358,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         );
         $this->addColumnDefinition($columnsDefinition, 'countyNames', 'field_statement_county', 'county');
 
-        $this->addColumnDefinition($columnsDefinition, 'tagNames', 'feature_statements_tag', 'tag');
-        $this->addColumnDefinition($columnsDefinition, 'topicNames', 'feature_statements_tag', 'tag.category');
+        $this->addColumnDefinition($columnsDefinition, 'tagNames', 'field_statement_tags_and_topics_export', 'tag');
+        $this->addColumnDefinition($columnsDefinition, 'topicNames', 'field_statement_tags_and_topics_export', 'tag.category');
 
         if ($isStatement) {
             $columnsDefinition[] = $this->createColumnDefinition('elementTitle', 'document.category');
@@ -412,7 +508,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                     if (!array_key_exists($attributeKey, $statement)) {
                         continue;
                     }
-                    $isNotEmptyArray = is_array($statement[$attributeKey]) && 0 < count($statement[$attributeKey]);
+                    $isNotEmptyArray = is_array($statement[$attributeKey]) && [] !== $statement[$attributeKey];
                     $isCausingNewLine = $attributeKeysWhichCauseNewLine->contains($attributeKey);
                     $isSortable = $isNotEmptyArray && $isCausingNewLine;
                 }
@@ -463,10 +559,10 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $text = preg_replace('/<u>(.*?)<\/u>/s', '|underline|$1|underline|', $text);
 
         // Replace <s> tags with ~~ markers before conversion
-        $text = preg_replace('/<s>(.*?)<\/s>/s', '~~$1~~', $text);
+        $text = preg_replace('/<s>(.*?)<\/s>/s', '~~$1~~', (string) $text);
 
         // Replace <mark> tags with |mark| markers before conversion
-        $text = preg_replace('/<mark(?:\s+title="[^"]*")?\s*>(.*?)<\/mark>/s', '|mark|$1|mark|', $text);
+        $text = preg_replace('/<mark(?:\s+title="[^"]*")?\s*>(.*?)<\/mark>/s', '|mark|$1|mark|', (string) $text);
 
         // Convert to markdown using the HTML converter
         $htmlConverter = new HtmlConverter(['strip_tags' => true]);
@@ -475,9 +571,9 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         // Replace |underline| markers back to <u> tags after conversion
         $convertedText = preg_replace('/\|underline\|(.*?)\|underline\|/s', '<u>$1</u>', $convertedText);
         // Replace |underline| markers back to <u> tags after conversion
-        $convertedText = preg_replace('/~~(.*?)~~/s', '<s>$1</s>', $convertedText);
+        $convertedText = preg_replace('/~~(.*?)~~/s', '<s>$1</s>', (string) $convertedText);
         // Replace |mark| markers back to <mark> tags after conversion
-        $convertedText = preg_replace('/\|mark\|(.*?)\|mark\|/s', '<mark title="markierter Text">$1</mark>', $convertedText);
+        $convertedText = preg_replace('/\|mark\|(.*?)\|mark\|/s', '<mark title="markierter Text">$1</mark>', (string) $convertedText);
 
         return $convertedText;
     }

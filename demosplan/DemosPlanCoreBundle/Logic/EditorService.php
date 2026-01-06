@@ -50,7 +50,7 @@ class EditorService
 
         $imageComments = explode($this::IMAGE_ID_OPENING_TAG, $text);
 
-        if (0 < count($imageComments)) {
+        if ([] !== $imageComments) {
             $text = implode($this::EDITOR_IMAGE_PLACEHOLDER.$this::IMAGE_ID_OPENING_TAG, $imageComments);
         }
 
@@ -188,11 +188,11 @@ class EditorService
 
         while ($offset < $inLength) {
             if ('<' == $string[$offset]) {
-                if (substr($string, $offset, $openTagLength) == $this::OBSCURE_TAG_OPEN) {
+                if (substr($string, $offset, $openTagLength) === $this::OBSCURE_TAG_OPEN) {
                     ++$depth;
                     $offset += $openTagLength;
                     continue;
-                } elseif (substr($string, $offset, $closeTagLength) == $this::OBSCURE_TAG_CLOSE) {
+                } elseif (substr($string, $offset, $closeTagLength) === $this::OBSCURE_TAG_CLOSE) {
                     --$depth;
                     $offset += $closeTagLength;
                     continue;
@@ -286,7 +286,7 @@ class EditorService
     {
         $imageComments = explode($this::IMAGE_ID_OPENING_TAG, $text);
 
-        if (0 < count($imageComments)) {
+        if ([] !== $imageComments) {
             foreach ($imageComments as $imageComment) {
                 // if image existing
                 if (strpos($imageComment, (string) $this::IMAGE_ID_CLOSING_TAG)) {

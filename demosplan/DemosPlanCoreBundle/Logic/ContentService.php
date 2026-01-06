@@ -287,7 +287,7 @@ class ContentService
     {
         try {
             // Wurde ein Filter übergeben
-            if (null === $filter) {
+            if (!$filter instanceof SettingsFilter) {
                 $settings = $this->settingRepository->get($key);
             } else {
                 $settings = $this->settingRepository->getSettingsByKeyAndSetting($key, $filter->asArray());
@@ -583,7 +583,7 @@ class ContentService
                 break;
         }
 
-        if (true === $settingExists) {
+        if ($settingExists) {
             return $this->putSetting($key, $putData);
         }
 
