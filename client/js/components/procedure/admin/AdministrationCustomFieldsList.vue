@@ -640,24 +640,14 @@ export default {
      * @returns {String} The appropriate text message or empty string
      */
     getTextForEnabledFieldTypes (textType, multiplePermissionsText) {
-      const permissionToText = {}
+      const permissions = Object.keys(this.enabledFieldsTextConfig)
+        .filter(permission => this.enabledFieldsTextConfig[permission][textType] && this.hasPermission(permission))
 
-      Object.keys(this.enabledFieldsTextConfig).forEach(permission => {
-        if (this.enabledFieldsTextConfig[permission][textType]) {
-          permissionToText[permission] = this.enabledFieldsTextConfig[permission][textType]
-        }
-      })
-
-      const truePermissions = Object.keys(permissionToText).filter(permission =>
-        this.hasPermission(permission),
-      )
-
-      if (truePermissions.length > 1) {
+      if (permissions.length > 1) {
         return multiplePermissionsText
-      } else if (truePermissions.length === 1) {
-        return permissionToText[truePermissions[0]]
+      } else if (permissions.length === 1) {
+        return this.enabledFieldsTextConfig[permissions[0]][textType]
       }
-
       return ''
     },
 
