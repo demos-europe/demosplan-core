@@ -104,16 +104,28 @@
     <!-- @improve T18818 -->
     <div
       v-if="isBobHH"
-      class="layout__item u-1-of-1"
+      class="layout__item w-full -mt-3"
     >
-      <p>
-        <u>{{ Translator.trans('statement.invitable_institution.hint') }}</u>:
-        {{ Translator.trans('statement.invitable_institution.assessment.table.print') }}
-      </p>
-      <p>
-        <u>{{ Translator.trans('statement.citizen.hint') }}</u>:
-        {{ Translator.trans('statement.citizen.assessment.table.print') }}
-      </p>
+      <dp-inline-notification
+        v-if="currentRole === '0'"
+        :message="Translator.trans('statement.citizen.assessment.table.print')"
+        class="mb-3"
+        type="info"
+      />
+
+      <dp-inline-notification
+        v-if="currentRole === '1'"
+        :message="Translator.trans('statement.invitable_institution.assessment.table.print')"
+        class="mb-3"
+        type="info"
+      />
+
+      <dp-inline-notification
+        v-if="currentRole === '1' && !submitter.entityId"
+        :message="institutionNotificationText"
+        class="mb-3"
+        type="warning"
+      />
     </div>
 
     <!-- User fields that are specific to institutions: orga, department. These fields shall not be changeable in Bob-HH, but visible and present to submit their values when filled by autoFill function -->
@@ -165,7 +177,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpContextualHelp, DpInput, DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpContextualHelp, DpInlineNotification, DpInput, DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const emptySubmitterData = {
   city: '',
@@ -183,6 +195,7 @@ export default {
 
   components: {
     DpContextualHelp,
+    DpInlineNotification,
     DpInput,
     DpMultiselect,
   },
@@ -411,6 +424,16 @@ export default {
     //  Shortcut for permission checks for citizen select
     hasCitizenSelect () {
       return hasPermission('feature_statement_create_autofill_submitter_citizens')
+    },
+
+    // Notification message guiding the user to add or select an institution
+    institutionNotificationText () {
+      if (this.currentListIsEmpty) {
+        return Translator.trans('institution.add', {
+          href: Routing.generate('DemosPlan_procedure_member_index', { procedure: this.procedureId })
+        })
+      }
+      return Translator.trans('institution.select')
     },
 
     //  Shortcut to check project name

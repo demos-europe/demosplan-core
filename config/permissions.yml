@@ -1470,6 +1470,7 @@ feature_procedure_agency_email_addresses:
         project specific behaviors. When possible the permission based approach should be preferred.
     label: 'Enables the general configuration and usage of agency email addresses within a procedure'
     loginRequired: false
+    expose: true
 feature_procedure_analytics:
     description: |-
         This permission is used for the whole display of procedure analytics.
