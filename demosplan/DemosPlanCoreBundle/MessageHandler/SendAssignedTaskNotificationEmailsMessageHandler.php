@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Message\SendAssignedTaskNotificationEmailsMessage;
+use demosplan\DemosPlanCoreBundle\Traits\InitializesAnonymousUserPermissionsTrait;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -23,6 +24,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final class SendAssignedTaskNotificationEmailsMessageHandler
 {
+    use InitializesAnonymousUserPermissionsTrait;
+
     public function __construct(
         private readonly EntityContentChangeService $entityContentChangeService,
         private readonly PermissionsInterface $permissions,
@@ -32,6 +35,8 @@ final class SendAssignedTaskNotificationEmailsMessageHandler
 
     public function __invoke(SendAssignedTaskNotificationEmailsMessage $message): void
     {
+        $this->initializeAnonymousUserPermissions();
+
         if (!$this->permissions->hasPermission('feature_send_assigned_task_notification_email')) {
             $this->logger->info('Skipping assigned task notification emails: permission not granted');
 

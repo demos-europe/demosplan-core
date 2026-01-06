@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanCoreBundle\Message\CreateUnsubmittedDraftEmailsMessage;
+use demosplan\DemosPlanCoreBundle\Traits\InitializesAnonymousUserPermissionsTrait;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -22,6 +23,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final class CreateUnsubmittedDraftEmailsMessageHandler
 {
+    use InitializesAnonymousUserPermissionsTrait;
+
     private const DAYS_BEFORE_DEADLINE = 7;
 
     public function __construct(
@@ -33,6 +36,8 @@ final class CreateUnsubmittedDraftEmailsMessageHandler
 
     public function __invoke(CreateUnsubmittedDraftEmailsMessage $message): void
     {
+        $this->initializeAnonymousUserPermissions();
+
         if (!$this->permissions->hasPermission('feature_send_email_on_procedure_ending_phase_send_mails')) {
             $this->logger->info('Skipping unsubmitted draft emails: permission not granted');
 

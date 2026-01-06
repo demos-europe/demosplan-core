@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Message\AutoSwitchProcedurePhasesMessage;
+use demosplan\DemosPlanCoreBundle\Traits\InitializesAnonymousUserPermissionsTrait;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -22,6 +23,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final class AutoSwitchProcedurePhasesMessageHandler
 {
+    use InitializesAnonymousUserPermissionsTrait;
+
     public function __construct(
         private readonly ProcedureHandler $procedureHandler,
         private readonly PermissionsInterface $permissions,
@@ -31,6 +34,8 @@ final class AutoSwitchProcedurePhasesMessageHandler
 
     public function __invoke(AutoSwitchProcedurePhasesMessage $message): void
     {
+        $this->initializeAnonymousUserPermissions();
+
         if (!$this->permissions->hasPermission('feature_auto_switch_to_procedure_end_phase')) {
             $this->logger->info('Skipping auto-switch to evaluation phase: permission not granted');
 
