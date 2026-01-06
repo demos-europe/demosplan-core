@@ -241,12 +241,6 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
                 $relevantRoleCodes = [];
                 foreach ($acceptedOrgaTypes as $orgaType) {
                     $orgaTypeName = $orgaType->getName();
-                    $this->logger->info('DEBUG canCreateProcedures', [
-                        'orgaId' => $orga->getId(),
-                        'orgaTypeName' => $orgaTypeName,
-                        'relevantRoleCodes' => $relevantRoleCodes,
-                        'hasRoleMapping' => isset(OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeName])
-                    ]);
                     if (isset(OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeName])) {
                         $relevantRoleCodes = array_merge(
                             $relevantRoleCodes,
@@ -254,12 +248,6 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
                         );
                     }
                 }
-
-                $this->logger->info('DEBUG before permissionExist check', [
-                    'orgaId' => $orga->getId(),
-                    'finalRelevantRoleCodes' => $relevantRoleCodes,
-                    'isEmpty' => empty($relevantRoleCodes)
-                ]);
 
                 // If no relevant roles found, permission cannot exist
                 if (empty($relevantRoleCodes)) {
