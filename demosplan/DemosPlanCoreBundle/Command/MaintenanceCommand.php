@@ -44,15 +44,15 @@ class MaintenanceCommand extends CoreCommand
         $output->writeln('<comment>DEPRECATION NOTICE: dplan:maintenance is deprecated!</comment>');
         $output->writeln('');
         $output->writeln('All maintenance tasks have been migrated to Symfony Scheduler + Messenger.');
-        $output->writeln('Starting messenger:consume scheduler_default for backwards compatibility...');
+        $output->writeln('Starting messenger:consume scheduler_maintenance scheduler_daily_maintenance for backwards compatibility...');
         $output->writeln('');
         $output->writeln('Please update your scripts to use:');
-        $output->writeln('  <info>php bin/console messenger:consume scheduler_default</info>');
+        $output->writeln('  <info>php bin/console messenger:consume scheduler_maintenance scheduler_daily_maintenance</info>');
         $output->writeln('');
 
         // For backwards compatibility, start the messenger consumer using Process
         // Process component properly handles terminal signals (SIGINT/SIGTERM)
-        $process = new Process(['php', 'bin/console', 'messenger:consume', 'scheduler_default']);
+        $process = new Process(['php', 'bin/console', 'messenger:consume', 'scheduler_daily_maintenance', 'scheduler_maintenance']);
         $process->setTimeout(null);
         $process->setTty(Process::isTtySupported());
         $process->setEnv([
