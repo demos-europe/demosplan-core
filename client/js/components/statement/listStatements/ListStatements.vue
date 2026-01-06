@@ -406,8 +406,10 @@ export default {
       ],
       searchFieldsSelected: null,
       searchValue: '',
-      selectedSort: '-submitDate',
+      selectedSort: '-externId',
       sortOptions: [
+        { value: '-externId', label: Translator.trans('sort.externId.descending') },
+        { value: 'externId', label: Translator.trans('sort.externId.ascending') },
         { value: '-submitDate', label: Translator.trans('sort.date.descending') },
         { value: 'submitDate', label: Translator.trans('sort.date.ascending') },
         { value: '-submitName', label: Translator.trans('sort.author.descending') },
