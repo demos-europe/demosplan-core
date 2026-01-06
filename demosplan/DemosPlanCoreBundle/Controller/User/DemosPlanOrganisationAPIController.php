@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Event\User\NewOrgaCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\User\OrgaAdminEditedEvent;
+use demosplan\DemosPlanCoreBundle\Event\User\OrgaTypeChangedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -491,6 +492,15 @@ class DemosPlanOrganisationAPIController extends APIController
                 }
             }
 
+            // Store old organization types before update for comparison
+            $oldOrgaTypes = $preUpdateOrga->getStatusInCustomers()
+                ->filter(static fn (OrgaStatusInCustomer $status): bool =>
+                    OrgaStatusInCustomer::STATUS_ACCEPTED === $status->getStatus()
+                    && $status->getCustomer() === $customerHandler->getCurrentCustomer())
+                ->map(static fn (OrgaStatusInCustomer $status): string =>
+                    $status->getOrgaType()->getName())
+                ->toArray();
+
             $updatedOrga = $userHandler->updateOrga($orgaId, $orgaDataArray);
 
             if ($updatedOrga instanceof Orga) {
@@ -511,14 +521,45 @@ class DemosPlanOrganisationAPIController extends APIController
                 $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaType::MUNICIPALITY, $customersWithPendingPlanner, $currentCustomer);
                 $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaType::PLANNING_AGENCY, $customersWithPendingPlanningAgency, $currentCustomer);
 
-                $item = $this->resourceService->makeItemOfResource($updatedOrga, OrgaResourceType::getName());
-
                 try {
                     $newOrgaCreatedEvent = new OrgaAdminEditedEvent($updatedOrga, $canCreateProcedures);
                     $eventDispatcher->dispatch($newOrgaCreatedEvent);
                 } catch (Exception $e) {
                     $this->logger->warning('Could not successfully perform orga created event', [$e]);
                 }
+
+                // Dispatch OrgaTypeChangedEvent if organization types changed
+                try {
+                    $newOrgaTypes = $updatedOrga->getStatusInCustomers()
+                        ->filter(static fn (OrgaStatusInCustomer $status): bool =>
+                            OrgaStatusInCustomer::STATUS_ACCEPTED === $status->getStatus()
+                            && $status->getCustomer() === $customerHandler->getCurrentCustomer())
+                        ->map(static fn (OrgaStatusInCustomer $status): string =>
+                            $status->getOrgaType()->getName())
+                        ->toArray();
+
+                    // Check if types actually changed
+                    $typesChanged = count(array_diff($oldOrgaTypes, $newOrgaTypes)) > 0
+                        || count(array_diff($newOrgaTypes, $oldOrgaTypes)) > 0;
+
+                    if ($typesChanged) {
+                        $orgaTypeChangedEvent = new OrgaTypeChangedEvent($updatedOrga, $oldOrgaTypes);
+                        $eventDispatcher->dispatch($orgaTypeChangedEvent);
+                        $this->logger->info('OrgaTypeChangedEvent dispatched', [
+                            'orgaId' => $updatedOrga->getId(),
+                            'oldTypes' => $oldOrgaTypes,
+                            'newTypes' => $newOrgaTypes,
+                        ]);
+                    }
+                } catch (Exception $e) {
+                    $this->logger->warning('Could not successfully dispatch OrgaTypeChangedEvent', [
+                        'exception' => $e->getMessage(),
+                        'orgaId' => $updatedOrga->getId(),
+                    ]);
+                }
+
+                // Create item AFTER events are dispatched to include updated permissions
+                $item = $this->resourceService->makeItemOfResource($updatedOrga, OrgaResourceType::getName());
 
                 return $this->renderResource($item);
             }
