@@ -12,9 +12,13 @@
  */
 
 import AdministrationImport from '@DpJs/components/procedure/AdministrationImport/AdministrationImport'
+import SegmentImportJobList from '@DpJs/components/procedure/AdministrationImport/SegmentImportJobList'
 import { initialize } from '@DpJs/InitVue'
 
-const components = { AdministrationImport }
+const components = {
+  AdministrationImport,
+  SegmentImportJobList
+}
 const stores = {}
 const apiStores = ['AnnotatedStatementPdf']
 
