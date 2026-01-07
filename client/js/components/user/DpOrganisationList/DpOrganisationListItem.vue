@@ -18,6 +18,7 @@
       <div class="flex">
         <input
           v-if="editable && selectable"
+          :aria-label="Translator.trans('organisation.select', { name: `${ organisation.attributes.name}` })"
           :id="`selected` + organisation.id"
           type="checkbox"
           :checked="selected"
