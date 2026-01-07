@@ -2483,9 +2483,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:0.5.9-hotfix.2":
-  version: 0.5.9-hotfix.2
-  resolution: "@demos-europe/demosplan-ui@npm:0.5.9-hotfix.2"
+"@demos-europe/demosplan-ui@npm:0.5.9-hotfix.3":
+  version: 0.5.9-hotfix.3
+  resolution: "@demos-europe/demosplan-ui@npm:0.5.9-hotfix.3"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.6.0"
@@ -2539,7 +2539,7 @@ __metadata:
     vue-click-outside: "npm:^1.1.0"
     vue-multiselect: "npm:^3.1.0"
     vue-sliding-pagination: "npm:^v2.0.0-alpha-1"
-  checksum: 10c0/4b11fb7966e778d14959f1932d19f4ecbba66f3af085b1808b5f0654952665fac2703088d77d24f00cf92f2445fe1f4a7d877d04f392cfe38e7b86534aa5a0a8
+  checksum: 10c0/951a93e36d53508c8c5a8f30c206bc2ce4c6d8275f17306f2db7b8e571c45854cce8c7535fa0abe6f41b8d5cb27a439def0e5a7c77f0af47f9a73c7f7d21d077
   languageName: node
   linkType: hard
 
