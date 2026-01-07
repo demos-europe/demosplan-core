@@ -16,6 +16,9 @@ use Tests\Base\FunctionalTestCase;
 
 class ExcelValidationServiceTest extends FunctionalTestCase
 {
+    /** @var ExcelValidationService */
+    protected $sut;
+
     protected function setUp(): void
     {
         parent::setUp();
