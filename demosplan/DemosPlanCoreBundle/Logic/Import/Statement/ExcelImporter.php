@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use Carbon\Carbon;
 use DateTime;
+use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
@@ -62,6 +63,7 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use InvalidArgumentException;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -70,6 +72,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use UnexpectedValueException;
@@ -700,14 +703,16 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $newOriginalStatement->setInternId($statementData['Eingangsnummer']);
         $newOriginalStatement->setMemo($statementData['Memo'] ?? '');
 
-        // necessary to check incoming date-string:
-        // use symfony forms + kleiner service um validator zu bauen um die folgene zeile zu vermeiden:
-        //        $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
-        $violations = $this->validator->validate($statementData['Einreichungsdatum'], [new DateStringConstraint()]);
-        if (0 === $violations->count()) {
-            $newOriginalStatement->setSubmit(Carbon::parse($statementData['Einreichungsdatum'])->toDate());
-        } else {
-            $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+        // Handle Einreichungsdatum - can be Excel serial date or string
+        $submitDateValue = $statementData['Einreichungsdatum'];
+
+        if (null !== $submitDateValue && $submitDateValue !== '') {
+            $result = $this->parseAndValidateExcelDate($submitDateValue);
+            if ($result instanceof \DateTime) {
+                $newOriginalStatement->setSubmit($result);
+            } else {
+                $this->addImportViolations($result, $line, $currentWorksheetTitle);
+            }
         }
 
         $statementText = $this->getValidatedStatementText($statementData[self::STATEMENT_TEXT] ?? '', $line, $currentWorksheetTitle);
@@ -721,13 +726,16 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $newStatementMeta->setOrgaStreet($statementData['Straße'] ?? '');
         $newStatementMeta->setHouseNumber((string) ($statementData['Hausnummer'] ?? ''));
 
-        $violations = $this->validator->validate($statementData['Verfassungsdatum'], new DateStringConstraint());
-        if (0 === $violations->count()) {
-            $dateString = $statementData['Verfassungsdatum'];
-            $dateString = null == $dateString ? null : Carbon::parse($dateString)->toDate();
-            $newStatementMeta->setAuthoredDate($dateString);
+        $dateValue = $statementData['Verfassungsdatum'];
+        if (null === $dateValue || $dateValue === '') {
+            $newStatementMeta->setAuthoredDate(null);
         } else {
-            $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+            $result = $this->parseAndValidateExcelDate($dateValue);
+            if ($result instanceof \DateTime) {
+                $newStatementMeta->setAuthoredDate($result);
+            } else {
+                $this->addImportViolations($result, $line, $currentWorksheetTitle);
+            }
         }
 
         $newStatementMeta->setSubmitOrgaId($this->currentUser->getUser()->getOrganisationId());
@@ -843,6 +851,50 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $pattern = implode('|', array_diff($translatedSubmitTypes, ['']));
 
         return "/(^($pattern)$)|(^$)/";
+    }
+
+    /**
+     * Parse and validate a date value from Excel import.
+     *
+     * Handles both Excel serial dates (numeric) and string date formats.
+     * Validates numeric dates are within valid Excel date range.
+     *
+     * @param DateTimeInterface|String|float|int $dateValue The date value from Excel (can be numeric or string, but not null/empty)
+     *
+     * @return DateTime|ConstraintViolationListInterface Returns DateTime if valid, ConstraintViolationList if invalid
+     */
+    private function parseAndValidateExcelDate(DateTimeInterface|String|float|int $dateValue): ConstraintViolationListInterface|DateTime
+    {
+        $parsedDate = null;
+        // Handle both Excel serial dates and string dates
+        if (is_numeric($dateValue) && $dateValue > 1) {
+            // It's an Excel serial date number - validate and convert to DateTime
+            if (is_string($dateValue)) {
+                $dateValue = (int)$dateValue;
+            }
+            // Validate Excel serial date is in valid range (1 = 1900-01-01, 2958465 = 9999-12-31)
+            $violations = $this->validator->validate($dateValue, [
+                new \Symfony\Component\Validator\Constraints\Range([
+                    'min' => 1,
+                    'max' => 2958465,
+                    'notInRangeMessage' => 'Das Excel-Datumsnummer "{{ value }}" ist ungültig. Gültige Werte: {{ min }} bis {{ max }}.',
+                ])
+            ]);
+            if ($violations->count() > 0) {
+                return $violations;
+            }
+
+            $parsedDate = Date::excelToDateTimeObject($dateValue);
+        } else {
+            // It's a string date - validate and parse
+            $violations = $this->validator->validate($dateValue, [new DateStringConstraint()]);
+            if ($violations->count() > 0) {
+                return $violations;
+            }
+
+            $parsedDate = Carbon::parse($dateValue)->toDate();
+        }
+        return $parsedDate;
     }
 
     /**
