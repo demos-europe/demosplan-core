@@ -706,9 +706,9 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         // Handle Einreichungsdatum - can be Excel serial date or string
         $submitDateValue = $statementData['Einreichungsdatum'];
 
-        if (null !== $submitDateValue && $submitDateValue !== '') {
+        if (null !== $submitDateValue && '' !== $submitDateValue) {
             $result = $this->parseAndValidateExcelDate($submitDateValue);
-            if ($result instanceof \DateTime) {
+            if ($result instanceof DateTime) {
                 $newOriginalStatement->setSubmit($result);
             } else {
                 $this->addImportViolations($result, $line, $currentWorksheetTitle);
@@ -727,11 +727,11 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $newStatementMeta->setHouseNumber((string) ($statementData['Hausnummer'] ?? ''));
 
         $dateValue = $statementData['Verfassungsdatum'];
-        if (null === $dateValue || $dateValue === '') {
+        if (null === $dateValue || '' === $dateValue) {
             $newStatementMeta->setAuthoredDate(null);
         } else {
             $result = $this->parseAndValidateExcelDate($dateValue);
-            if ($result instanceof \DateTime) {
+            if ($result instanceof DateTime) {
                 $newStatementMeta->setAuthoredDate($result);
             } else {
                 $this->addImportViolations($result, $line, $currentWorksheetTitle);
@@ -859,26 +859,26 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * Handles both Excel serial dates (numeric) and string date formats.
      * Validates numeric dates are within valid Excel date range.
      *
-     * @param DateTimeInterface|String|float|int $dateValue The date value from Excel (can be numeric or string, but not null/empty)
+     * @param DateTimeInterface|string|float|int $dateValue The date value from Excel (can be numeric or string, but not null/empty)
      *
      * @return DateTime|ConstraintViolationListInterface Returns DateTime if valid, ConstraintViolationList if invalid
      */
-    private function parseAndValidateExcelDate(DateTimeInterface|String|float|int $dateValue): ConstraintViolationListInterface|DateTime
+    private function parseAndValidateExcelDate(DateTimeInterface|string|float|int $dateValue): ConstraintViolationListInterface|DateTime
     {
         $parsedDate = null;
         // Handle both Excel serial dates and string dates
         if (is_numeric($dateValue) && $dateValue > 1) {
             // It's an Excel serial date number - validate and convert to DateTime
             if (is_string($dateValue)) {
-                $dateValue = (int)$dateValue;
+                $dateValue = (int) $dateValue;
             }
             // Validate Excel serial date is in valid range (1 = 1900-01-01, 2958465 = 9999-12-31)
             $violations = $this->validator->validate($dateValue, [
                 new \Symfony\Component\Validator\Constraints\Range([
-                    'min' => 1,
-                    'max' => 2958465,
+                    'min'               => 1,
+                    'max'               => 2958465,
                     'notInRangeMessage' => 'Das Excel-Datumsnummer "{{ value }}" ist ungültig. Gültige Werte: {{ min }} bis {{ max }}.',
-                ])
+                ]),
             ]);
             if ($violations->count() > 0) {
                 return $violations;
@@ -894,6 +894,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
             $parsedDate = Carbon::parse($dateValue)->toDate();
         }
+
         return $parsedDate;
     }
 
