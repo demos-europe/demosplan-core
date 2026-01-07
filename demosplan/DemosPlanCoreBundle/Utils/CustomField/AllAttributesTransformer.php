@@ -19,6 +19,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\AttributeReadabilityInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
 use InvalidArgumentException;
+use League\Fractal\ParamBag;
 use League\Fractal\Scope;
 use Psr\Log\LoggerInterface;
 
@@ -64,7 +65,7 @@ class AllAttributesTransformer extends DynamicTransformer
     protected function getEffectiveAttributeReadabilities(Scope $scope): array
     {
         $fieldsetBag = $scope->getManager()->getFieldset($this->typeName);
-        if (null === $fieldsetBag) {
+        if (!$fieldsetBag instanceof ParamBag) {
             $fieldInstance = $scope->getResource()->getData();
             // Check if it's already a CustomField instance
             if ($fieldInstance instanceof CustomFieldInterface) {
