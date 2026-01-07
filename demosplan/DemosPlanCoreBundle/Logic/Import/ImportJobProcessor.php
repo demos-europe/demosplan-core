@@ -42,7 +42,7 @@ class ImportJobProcessor
     }
 
     /**
-     * Process pending import jobs (called from MaintenanceCommand).
+     * Process pending import jobs (called via ProcessImportJobsMessageHandler).
      * Returns number of jobs processed.
      */
     public function processPendingJobs(): int
