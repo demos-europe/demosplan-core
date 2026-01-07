@@ -278,6 +278,9 @@ parameters:
     pictogram_min_width: 500
     pictogram_min_height: 300
 
+    # TUS resumable upload cache TTL in seconds (how long incomplete uploads are remembered)
+    tus_cache_ttl: 604800  # 1 week
+
     # Karten
 
     # Maximale Boundingbox für das Projekt. Standard ist deutschlandweit
