@@ -46,7 +46,6 @@ use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
 use EDT\Wrapping\ResourceBehavior\ResourceUpdatability;
-use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
 use IteratorAggregate;
 use League\Fractal\TransformerAbstract;
@@ -158,7 +157,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     protected function getRepository(): RepositoryInterface
     {
-
         return new CustomFieldJsonRepository(
             $this->getEntityManager(),
             $this->conditionFactory,
@@ -256,7 +254,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     {
         return $this->getResourceConfig()->getUpdatability();
     }
-
 
     public function createEntity(CreationDataInterface $entityData): ModifiedEntity
     {
