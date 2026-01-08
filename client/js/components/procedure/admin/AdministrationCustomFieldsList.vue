@@ -654,6 +654,7 @@ export default {
       } else if (permissions.length === 1) {
         return this.enabledFieldsTextConfig[permissions[0]][textType]
       }
+
       return ''
     },
 
