@@ -90,7 +90,7 @@ class PhpStanCommand extends CoreCommand
 
         // Handle host path format
         if (str_starts_with($containerPath, $rootPath)) {
-            $containerPath = substr($containerPath, strlen($rootPath) + 1);
+            $containerPath = substr($containerPath, strlen($rootPath));
         }
 
         // Ensure the container path exists and is accessible
@@ -135,11 +135,6 @@ class PhpStanCommand extends CoreCommand
         if (0 < $level) {
             $cmd[] = '-l';
             $cmd[] = $level;
-        }
-
-        if ($isCi) {
-            $cmd[] = '--error-format';
-            $cmd[] = 'raw';
         }
 
         $output->writeln(implode(' ', $cmd));
