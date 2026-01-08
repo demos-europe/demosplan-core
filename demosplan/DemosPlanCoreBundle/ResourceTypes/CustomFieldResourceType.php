@@ -242,7 +242,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isListAllowed(): bool
     {
-        return true;
+        return $this->currentUser->hasPermission('feature_statements_custom_fields');
     }
 
     public function isUpdateAllowed(): bool
