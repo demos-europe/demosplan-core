@@ -137,7 +137,7 @@ class SegmentsExportController extends BaseController
         $obscureParameter = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
 
         $response = new StreamedResponse(
-            static function () use (
+            function () use (
                 $tableHeaders,
                 $procedure,
                 $statementEntities,
@@ -150,6 +150,7 @@ class SegmentsExportController extends BaseController
                     $tableHeaders,
                     $procedure,
                     $obscureParameter,
+                    $this->statementExportTagFilter->hasAnySupportedFilterSet(),
                     $censorCitizenData,
                     $censorInstitutionData,
                     ...$statementEntities
@@ -197,8 +198,11 @@ class SegmentsExportController extends BaseController
         $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
 
         $response = new StreamedResponse(
-            static function () use ($statementEntities, $exporter) {
-                $exportedDoc = $exporter->exportAllXlsx(...$statementEntities);
+            function () use ($statementEntities, $exporter) {
+                $exportedDoc = $exporter->exportAllXlsx(
+                    $this->statementExportTagFilter,
+                    ...$statementEntities
+                );
                 $exportedDoc->save('php://output');
             }
         );
@@ -270,7 +274,7 @@ class SegmentsExportController extends BaseController
 
         return $zipExportService->buildZipStreamResponse(
             $fileNameGenerator->getSynopseFileName($procedure, 'zip'),
-            static function (ZipStream $zipStream) use (
+            function (ZipStream $zipStream) use (
                 $statements,
                 $exporter,
                 $zipExportService,
@@ -281,7 +285,7 @@ class SegmentsExportController extends BaseController
                 $obscureParameter
             ): void {
                 array_map(
-                    static function (Statement $statement, string $filePathInZip) use (
+                    function (Statement $statement, string $filePathInZip) use (
                         $exporter,
                         $zipExportService,
                         $zipStream,
@@ -297,7 +301,8 @@ class SegmentsExportController extends BaseController
                             $tableHeaders,
                             $censorCitizenData,
                             $censorInstitutionData,
-                            $obscureParameter
+                            $obscureParameter,
+                            $this->statementExportTagFilter->hasAnySupportedFilterSet()
                         );
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(

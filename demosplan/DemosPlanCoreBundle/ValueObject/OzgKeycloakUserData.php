@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
+use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\RoleMapper;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use Psr\Log\LoggerInterface;
 use Stringable;
@@ -21,7 +22,10 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  */
 class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInterface, Stringable
 {
+    private const RESOURCE_ACCESS = 'resource_access';
+    private const GROUPS = 'groups';
     private readonly string $keycloakGroupRoleString;
+    private readonly string $keycloakClientId;
     private const COMPANY_STREET_ADDRESS = 'UnternehmensanschriftStrasse';
     private const COMPANY_ADDRESS_EXTENSION = 'UnternehmensanschriftAdressergaenzung';
     private const COMPANY_HOUSE_NUMBER = 'UnternehmensanschriftHausnummer';
@@ -29,26 +33,46 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const COMPANY_CITY_ADDRESS = 'UnternehmensanschriftOrt';
     private const COMPANY_DEPARTMENT = 'Organisationseinheit';
     private const COMPANY_DEPARTMENT_EN = 'organisationUnit';
+    private const IS_PRIVATE_PERSON = 'isPrivatePerson';
 
     protected string $addressExtension = '';
     protected string $city = '';
     protected string $companyDepartment = '';
+    protected bool $isPrivatePerson = false;
 
     public function __construct(
         private readonly LoggerInterface $logger,
         ParameterBagInterface $parameterBag,
+        private readonly RoleMapper $roleMapper,
     ) {
         $this->keycloakGroupRoleString = $parameterBag->get('keycloak_group_role_string');
+        $this->keycloakClientId = $parameterBag->get('oauth_keycloak_client_id');
     }
 
-    public function fill(ResourceOwnerInterface $resourceOwner): void
+    public function fill(ResourceOwnerInterface $resourceOwner, ?string $customerSubdomain = null): void
     {
         $userInformation = $resourceOwner->toArray();
 
-        if (array_key_exists('groups', $userInformation)
-            && is_array($userInformation['groups'])
-        ) {
-            $this->mapCustomerRoles($userInformation['groups']);
+        // Try to extract roles from resource_access claim first (preferred method)
+        // Requires customerSubdomain parameter since resource_access can contain multiple clients
+        if (null !== $customerSubdomain
+            && array_key_exists(self::RESOURCE_ACCESS, $userInformation)
+            && is_array($userInformation[self::RESOURCE_ACCESS])) {
+            $mappedRoles = $this->roleMapper->mapResourceAccessRoles(
+                $userInformation[self::RESOURCE_ACCESS],
+                $this->keycloakClientId,
+                $customerSubdomain
+            );
+
+            if ([] !== $mappedRoles) {
+                $this->customerRoleRelations = $mappedRoles;
+            }
+        }
+
+        // FALLBACK: If no roles were extracted from resource_access, use group-based extraction for backward compatibility
+        if ([] === $this->customerRoleRelations && array_key_exists(self::GROUPS, $userInformation) && is_array($userInformation[self::GROUPS])) {
+            $this->logger->info('No roles found in resource_access, falling back to group-based role extraction');
+            $this->mapCustomerRoles($userInformation[self::GROUPS]);
         }
 
         $this->userId = $userInformation['sub'] ?? '';
@@ -66,12 +90,16 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         $this->city = $userInformation[self::COMPANY_CITY_ADDRESS] ?? '';
         $this->companyDepartment = $userInformation[self::COMPANY_DEPARTMENT] ?? $userInformation[self::COMPANY_DEPARTMENT_EN] ?? '';
 
+        // Extract isPrivatePerson attribute from token
+        $this->isPrivatePerson = isset($userInformation[self::IS_PRIVATE_PERSON])
+            && ('true' === $userInformation[self::IS_PRIVATE_PERSON] || true === $userInformation[self::IS_PRIVATE_PERSON]);
+
         $this->lock();
         $this->checkMandatoryValuesExist();
     }
 
     /**
-     * Mapping of roles of customer based on string-comparison.
+     * Mapping of roles of customer based on string-comparison (LEGACY fallback method).
      * Example of data structure of $groups:
      * [
      *      "/Beteiligung-Organisation/OrgaName1",
@@ -97,6 +125,50 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         }
     }
 
+    public function isPrivatePerson(): bool
+    {
+        return $this->isPrivatePerson;
+    }
+
+    /**
+     * Override parent method to make roles and organization optional when isPrivatePerson is true.
+     *
+     * For private persons authenticated via the isPrivatePerson token attribute:
+     * - Roles are assigned automatically (CITIZEN role), so customerRoleRelations may be empty
+     * - Organization attributes are optional, as they'll be assigned to the private organization
+     * - Only validates: userId, userName, emailAddress, and name (firstName/lastName)
+     *
+     * For organization users, standard validation including roles and organization is performed.
+     */
+    public function checkMandatoryValuesExist(): void
+    {
+        if ($this->isPrivatePerson) {
+            // For private persons, validate only essential fields (skip roles and organization)
+            $missingMandatoryValues = [];
+
+            if ('' === $this->userId) {
+                $missingMandatoryValues[] = 'userId';
+            }
+
+            if ('' === $this->userName) {
+                $missingMandatoryValues[] = 'userName';
+            }
+
+            if ('' === $this->emailAddress) {
+                $missingMandatoryValues[] = 'emailAddress';
+            }
+
+            if ('' === $this->firstName && '' === $this->lastName) {
+                $missingMandatoryValues[] = 'name';
+            }
+
+            $this->throwIfMandatoryValuesMissing($missingMandatoryValues);
+        } else {
+            // Organization users: use standard validation including role and organization checks
+            parent::checkMandatoryValuesExist();
+        }
+    }
+
     public function __toString(): string
     {
         $parentString = parent::__toString();
@@ -104,6 +176,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         return $parentString.
             ', addressExtension: '.$this->addressExtension.
             ', city: '.$this->city.
-            ', company department: '.$this->companyDepartment;
+            ', company department: '.$this->companyDepartment.
+            ', isPrivatePerson: '.($this->isPrivatePerson ? 'true' : 'false');
     }
 }

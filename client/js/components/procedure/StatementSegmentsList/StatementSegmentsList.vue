@@ -189,12 +189,20 @@
         @save-statement="saveStatement"
       />
     </div>
+    <dp-button
+      class="mt-4"
+      color="primary"
+      :href="sanitizedReturnLink"
+      :text="sourcePageButtonText"
+      @click="removeNavigationSourceStorageEntry"
+    />
   </div>
 </template>
 
 <script>
 import {
   dpApi,
+  DpButton,
   DpFlyout,
   DpSlidebar,
   DpStickyElement,
@@ -203,6 +211,8 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { buildDetailedStatementQuery } from '../Shared/utils/statementQueryBuilder'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
+import lscache from 'lscache'
+import { sanitizeUrl } from '@braintree/sanitize-url'
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'
 import SegmentsRecommendations from './SegmentsRecommendations'
@@ -217,6 +227,7 @@ export default {
   name: 'StatementSegmentsList',
 
   components: {
+    DpButton,
     DpClaim,
     DpFlyout,
     DpSlidebar,
@@ -329,9 +340,11 @@ export default {
       currentAction: 'addRecommendation',
       isLoading: false,
       procedureMapSettings: {},
+      returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedure.id }),
       segmentDraftList: '',
       // Add key to meta box to rerender the component in case the save request fails and the data is store in set back to initial values
       showInfobox: false,
+      sourcePage: '',
       statementClaimChecked: false,
       submittersList: '',
     }
@@ -453,6 +466,10 @@ export default {
       return !this.originalAttachment.hash && this.additionalAttachments.length === 0
     },
 
+    navigationSource () {
+      return lscache.get(`${this.procedure.id}:navigation:source`)
+    },
+
     originalAttachment () {
       const originalAttachment = this.statement.hasRelationship('sourceAttachment') ?
         Object.values(this.statement.relationships.sourceAttachment.list())[0] :
@@ -467,6 +484,18 @@ export default {
           id: originalAttachment.id,
         } :
         {}
+    },
+
+    sanitizedReturnLink () {
+      return sanitizeUrl(this.returnLink)
+    },
+
+    sourcePageButtonText () {
+      if (this.sourcePage === 'StatementsList') {
+        return Translator.trans('back.to.statements.list')
+      }
+
+      return Translator.trans('back.to.segments.list')
     },
 
     statement () {
@@ -600,6 +629,10 @@ export default {
       return Boolean(this.statement?.attributes?.segmentDraftList?.data?.attributes?.segments?.length)
     },
 
+    removeNavigationSourceStorageEntry () {
+      lscache.remove(`${this.procedure.id}:navigation:source`)
+    },
+
     resetSlidebar () {
       this.$refs.commentsList.$refs.createForm.resetCurrentComment(!this.commentsList.show)
       if (this.$refs.locationMap) {
@@ -650,6 +683,23 @@ export default {
 
       const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'addRecommendation' : 'editText'
       this.currentAction = action || defaultAction
+    },
+
+    setReturnLink () {
+      const currentQueryHash =
+        lscache.get(`${this.procedure.id}:segments:currentQueryHash`)
+
+      if (currentQueryHash && (!this.sourcePage || this.sourcePage === 'SegmentsList')) {
+        this.returnLink =
+          Routing.generate('dplan_segments_list_by_query_hash', {
+            procedureId: this.procedure.id,
+            queryHash: currentQueryHash,
+          })
+      } else if (this.sourcePage === 'StatementsList') {
+        this.returnLink = Routing.generate('dplan_procedure_statement_list', {
+          procedureId: this.procedure.id
+        })
+      }
     },
 
     showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
@@ -717,7 +767,7 @@ export default {
     },
 
     toggleInfobox () {
-      this.showInfobox = true
+      this.currentAction = 'editText'
       this.$refs.metadataFlyout.isExpanded = false
     },
 
@@ -757,6 +807,11 @@ export default {
 
   mounted () {
     this.getStatement()
+
+    this.sourcePage = this.navigationSource
+
+    this.setReturnLink()
+
     if (hasPermission('field_segments_custom_fields')) {
       this.fetchCustomFields()
     }

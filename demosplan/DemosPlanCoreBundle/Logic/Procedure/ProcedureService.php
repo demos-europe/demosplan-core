@@ -764,8 +764,8 @@ class ProcedureService implements ProcedureServiceInterface
      * Current user can assign statements & datasets to authorized user. To do that, we need a list. This gets the list.
      *
      * @param string $procedureId
-     * @param User   $user                            User is needed as s/he ony may see
-     *                                                Members of same Organisation; if no user was given then the current user will be used
+     * @param User   $user                            User is needed as s/he only may see
+     *                                                members of same organisation; if no user was given then the current user will be used
      * @param bool   $excludeUser                     exclude given user from list?
      * @param bool   $excludeProcedureAuthorizedUsers filter users who may not administer this Procedure
      *

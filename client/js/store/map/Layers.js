@@ -727,6 +727,13 @@ const LayersStore = {
         await dispatch('toggleVisiblityGroup', { visibilityGroupId: layer.attributes.visibilityGroupId, value: isVisible })
       } else if (layerGroupsAlternateVisibility && isVisible && layer.attributes.layerType === 'overlay') {
         dispatch('toggleCategoryAlternatively', layer)
+      } else if (layer.type === 'GisLayerCategory') {
+        dispatch('toggleCategoryAndItsChildren', { id, isVisible })
+
+        // If visible, ensure parent of the category is also visible
+        if (isVisible && parentId && parentId !== rootId) {
+          dispatch('updateLayerVisibility', { id: parentId, isVisible, layerGroupsAlternateVisibility, exclusively })
+        }
       } else {
         commit('setLayerState', { id, key: 'isVisible', value: isVisible })
 

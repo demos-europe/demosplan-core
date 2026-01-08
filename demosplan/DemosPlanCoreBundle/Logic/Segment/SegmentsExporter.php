@@ -103,7 +103,7 @@ abstract class SegmentsExporter
         }
     }
 
-    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
+    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null, bool $exportFilteredByTags = false): void
     {
         $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
         $header->addText(
@@ -115,8 +115,9 @@ abstract class SegmentsExporter
         $this->addPreambleIfFirstHeader($header, $headerType);
 
         $currentDate = new DateTime();
+        $translationKey = $exportFilteredByTags ? 'segments.export.statement.export.date.filtered' : 'segments.export.statement.export.date';
         $header->addText(
-            $this->translator->trans('segments.export.statement.export.date', ['date' => $currentDate->format('d.m.Y')]),
+            $this->translator->trans($translationKey, ['date' => $currentDate->format('d.m.Y')]),
             $this->styles['currentDateFont'],
             $this->styles['currentDateParagraph']
         );
@@ -328,11 +329,11 @@ abstract class SegmentsExporter
     /**
      * @throws Exception
      */
-    protected function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure): WriterInterface
+    protected function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure, bool $exportFilteredByTags = false): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST);
-        $this->addHeader($section, $procedure);
+        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTags);
+        $this->addHeader($section, $procedure, null, $exportFilteredByTags);
 
         return $this->addNoStatementsMessage($phpWord, $section);
     }
@@ -374,10 +375,11 @@ abstract class SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscure,
+        bool $exportFilteredByTags = false,
     ): WriterInterface {
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST);
-        $this->addHeader($section, $procedure);
+        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTags);
+        $this->addHeader($section, $procedure, null, $exportFilteredByTags);
 
         foreach ($statements as $index => $statement) {
             $censored = $this->needsToBeCensored(

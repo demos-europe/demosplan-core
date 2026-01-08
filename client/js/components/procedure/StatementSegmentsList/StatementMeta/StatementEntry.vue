@@ -31,18 +31,14 @@ All rights reserved
       />
 
       <!-- authoredDate: if not manual statement -->
-      <div
-        v-else
-        class="mb-2"
-      >
-        <dp-label
-          :text="Translator.trans('statement.date.authored')"
-          for="authoredDateDatepicker"
-        />
         <dp-datepicker
+          v-else
           id="authoredDateDatepicker"
           class="o-form__control-wrapper"
           data-cy="statementEntry:authoredDate"
+          :label="{
+            text: Translator.trans('statement.date.authored')
+          }"
           :max-date="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : currentDate"
           :value="localStatement.attributes.authoredDate"
           @input="val => setDate(val, 'authoredDate')"
@@ -63,21 +59,19 @@ All rights reserved
       />
 
       <!-- submitDate: if not manual statement -->
-      <div v-else>
-        <dp-label
-          :text="Translator.trans('statement.date.submitted')"
-          for="submitDateDatepicker"
-        />
         <dp-datepicker
+          v-else
           id="submitDateDatepicker"
           class="o-form__control-wrapper"
           data-cy="statementEntry:submitDate"
+          :label="{
+            text: Translator.trans('statement.date.submitted')
+          }"
           :max-date="currentDate"
           :min-date="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : ''"
           :value="getFormattedDate(localStatement.attributes.submitDate)"
           @input="val => setDate(val, 'submitDate')"
         />
-      </div>
 
       <dp-select
         v-if="editable"
@@ -92,7 +86,8 @@ All rights reserved
       />
       <dl
         v-else
-        class="u-mb-0_5">
+        class="u-mb-0_5"
+      >
         <dt class="font-semibold u-mb-0_25">
           {{ Translator.trans('submit.type') }}
         </dt>
@@ -140,17 +135,17 @@ All rights reserved
         />
         <dl
           v-else
-          class="mb-3">
+          class="mb-3"
+        >
           <dt class="font-semibold u-mb-0_25">
             {{ Translator.trans('procedure.public.phase') }}
           </dt>
           <dd class="text-muted">
-            {{ localStatement.attributes.procedurePhase.name || '-' }}
+            {{ localStatement.attributes.procedurePhase?.name || '-' }}
           </dd>
         </dl>
-
       </template>
-    </div>
+
     <dp-text-area
       v-if="hasPermission('field_statement_memo')"
       id="r_memo"
