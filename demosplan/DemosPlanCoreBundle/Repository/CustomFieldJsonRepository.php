@@ -54,7 +54,7 @@ class CustomFieldJsonRepository implements RepositoryInterface
         throw new InvalidArgumentException();
     }
 
-    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, int $limit = null): array
+    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, ?int $limit = null): array
     {
         return $this->customFieldConfigurationRepository->getEntities($conditions, $sortMethods);
     }
