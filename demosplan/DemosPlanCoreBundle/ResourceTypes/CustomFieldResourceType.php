@@ -128,7 +128,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         $configBuilder->description->setReadableByPath()->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->targetEntity->addPathCreationBehavior();
         $configBuilder->sourceEntity->addPathCreationBehavior();
-        $configBuilder->sourceEntityId->addPathCreationBehavior();
+        $configBuilder->sourceEntityId->addPathCreationBehavior()->setFilterable();
 
         return $configBuilder->build();
     }
@@ -158,12 +158,23 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     protected function getRepository(): RepositoryInterface
     {
+
         return new CustomFieldJsonRepository(
             $this->getEntityManager(),
             $this->conditionFactory,
             $this->reindexer,
             $this->customFieldConfigurationRepository
         );
+
+        /*$repository = $this->getEntityManager()->getRepository(CustomFieldConfiguration::class);
+        $fluentRepositoryClass = FluentRepository::class;
+        Assert::isInstanceOf(
+            $repository,
+            $fluentRepositoryClass,
+            "No repository found extending `$fluentRepositoryClass` for entity `{$this->getEntityClass()}`."
+        );
+
+        return $repository;*/
     }
 
     public function isCreateAllowed(): bool
@@ -246,10 +257,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         return $this->getResourceConfig()->getUpdatability();
     }
 
-    protected function getSchemaPathProcessor(): SchemaPathProcessor
-    {
-        return $this->getJsonApiResourceTypeService()->getSchemaPathProcessor();
-    }
 
     public function createEntity(CreationDataInterface $entityData): ModifiedEntity
     {
