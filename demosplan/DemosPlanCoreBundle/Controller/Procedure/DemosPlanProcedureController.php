@@ -2697,6 +2697,11 @@ class DemosPlanProcedureController extends BaseController
             return;
         }
 
+        // Support users and other users with API access permission can access all procedures
+        if ($this->permissions->hasPermission('feature_procedure_api_access')) {
+            return;
+        }
+
         throw new AccessDeniedException('Access denied to the procedure.');
     }
 
