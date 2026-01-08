@@ -12,16 +12,14 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\RecommendationRequestEventInterface;
-use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Statement\RecommendationRequestEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
-use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
@@ -31,10 +29,10 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
+use demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
-use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -42,7 +40,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentController extends BaseController
 {
@@ -172,11 +169,10 @@ class SegmentController extends BaseController
     #[Route(name: 'dplan_segments_process_import', methods: 'POST', path: '/verfahren/{procedureId}/abschnitte/speichern', options: ['expose' => true])]
     public function importSegmentsFromXlsx(
         CurrentProcedureService $currentProcedureService,
+        CurrentUserInterface $currentUser,
+        EntityManagerInterface $entityManager,
         FileService $fileService,
-        PermissionsInterface $permissions,
         Request $request,
-        XlsxSegmentImport $importer,
-        TranslatorInterface $translator,
         string $procedureId,
     ): Response {
         $requestPost = $request->request->all();
@@ -193,86 +189,130 @@ class SegmentController extends BaseController
             $file = $fileService->getFileInfo($uploadHash);
             $fileName = $file->getFileName();
             try {
-                $localPath = $fileService->ensureLocalFile($file->getAbsolutePath());
-                $localFileInfo = new FileInfo(
-                    $file->getHash(),
-                    '',
-                    0,
-                    '',
-                    $localPath,
-                    $localPath,
-                    null
-                );
-                $result = $importer->importFromFile($localFileInfo);
+                $job = new ImportJob();
+                $job->setProcedure($procedure);
+                $job->setUser($currentUser->getUser());
+                $job->setFilePath($uploadHash);
+                $job->setFileName($fileName);
 
-                if ($result->hasErrors()) {
-                    return $this->render(
-                        '@DemosPlanCore/DemosPlanProcedure/administration_excel_import_errors.html.twig',
-                        [
-                            'procedure'  => $procedureId,
-                            'context'    => 'segments',
-                            'title'      => 'segments.import',
-                            'errors'     => $result->getErrorsAsArray(),
-                        ]
-                    );
-                }
+                $entityManager->persist($job);
+                $entityManager->flush();
 
-                // on success:
-                $numberOfCreatedStatements = $result->getStatementCount();
-                $numberOfCreatedSegments = $result->getSegmentCount();
-
-                $this->getMessageBag()->add(
-                    'confirm',
-                    'confirm.segments.imported.from.xlsx',
-                    ['%countStatements%' => $numberOfCreatedStatements, '%countSegments%' => $numberOfCreatedSegments, '%fileName%' => $fileName]
-                );
-                $route = 'dplan_segments_list';
-                // Change redirect target if data input user
-                if ($permissions->hasPermission('feature_statement_data_input_orga')) {
-                    $route = 'DemosPlan_statement_orga_list';
-                }
-
-                // cleanup import files
-                $fileService->deleteFile($file->getHash());
-                $fileService->deleteLocalFile($localPath);
-
-                return $this->redirectToRoute(
-                    $route,
-                    ['procedureId' => $procedureId]
-                );
-            } catch (AddonResourceNotFoundException) {
-                $this->getMessageBag()->add(
-                    'error',
-                    'error.import_segment.no_place',
-                    [],
-                    'messages',
-                    'DemosPlan_procedure_places_list',
-                    ['procedureId' => $procedureId],
-                    $translator->trans('places.addPlace')
-                );
-            } catch (MissingDataException) {
-                $this->getMessageBag()->add('error', 'error.missing.data',
-                    ['%fileName%' => $fileName]);
-            } catch (Exception $e) {
-                $this->logger->error('Unexpected error during document import', [
-                    'fileName'  => $fileName,
-                    'exception' => $e,
-                    'trace'     => $e->getTraceAsString(),
+                $this->logger->info('Import job queued', [
+                    'jobId'       => $job->getId(),
+                    'fileName'    => $fileName,
+                    'procedureId' => $procedureId,
                 ]);
 
                 $this->getMessageBag()->add(
-                    'error',
-                    'statements.import.error.document.unexpected',
-                    ['%doc%' => $fileName]
+                    'confirm',
+                    'confirm.segments.import.queued',
+                    [
+                        '%fileName%' => $fileName,
+                        '%jobId%'    => $job->getId(),
+                    ]
                 );
-                break;
+
+                // File cleanup happens in ImportJobProcessor after processing
+            } catch (Exception $e) {
+                $this->logger->error('Failed to queue import job', [
+                    'fileName'  => $fileName,
+                    'exception' => $e->getMessage(),
+                    'trace'     => $e->getTraceAsString(),
+                ]);
+
+                // Mark job as failed if it was created
+                if (isset($job)) {
+                    $job->markAsFailed($e->getMessage());
+                    $entityManager->flush();
+                }
+
+                $this->getMessageBag()->add(
+                    'error',
+                    'error.segments.import.queue.failed',
+                    ['%fileName%' => $fileName]
+                );
             }
         }
 
+        // Redirect back to import page to show job list
         return $this->redirectToRoute(
             'DemosPlan_procedure_import',
             ['procedureId' => $procedureId]
         );
+    }
+
+    /**
+     * List all import jobs for a procedure.
+     */
+    #[DplanPermissions('area_statement_segmentation')]
+    #[Route(
+        name: 'dplan_import_jobs_list',
+        path: '/verfahren/{procedureId}/import/jobs',
+        methods: ['GET']
+    )]
+    public function listImportJobs(
+        CurrentProcedureService $currentProcedureService,
+        string $procedureId,
+    ): Response {
+        $procedure = $currentProcedureService->getProcedure();
+
+        if (null === $procedure) {
+            throw ProcedureNotFoundException::createFromId($procedureId);
+        }
+
+        return $this->renderTemplate(
+            '@DemosPlanCore/DemosPlanSegment/import_jobs_list.html.twig',
+            [
+                'procedure' => $procedure,
+                'title'     => 'import.jobs.list',
+            ]
+        );
+    }
+
+    /**
+     * Get import jobs list data (JSON API for Vue component).
+     * Returns last 20 jobs only (no pagination needed).
+     */
+    #[DplanPermissions('area_statement_segmentation')]
+    #[Route(
+        name: 'dplan_import_jobs_api',
+        path: '/verfahren/{procedureId}/import/jobs/api',
+        methods: ['GET'],
+        options: ['expose' => true]
+    )]
+    public function getImportJobsApi(
+        CurrentProcedureService $currentProcedureService,
+        CurrentUserInterface $currentUser,
+        ImportJobRepository $importJobRepository,
+        string $procedureId,
+    ): JsonResponse {
+        $procedure = $currentProcedureService->getProcedure();
+
+        if (null === $procedure) {
+            return $this->json(['error' => 'Procedure not found'], 404);
+        }
+
+        $jobs = $importJobRepository->findJobsForProcedure(
+            $procedure,
+            $currentUser->getUser()
+        );  // Returns last 20 jobs
+
+        $items = array_map(function (ImportJob $job) {
+            return [
+                'id'             => $job->getId(),
+                'fileName'       => $job->getFileName(),
+                'status'         => $job->getStatus(),
+                'result'         => $job->getResult(),
+                'error'          => $job->getError(),
+                'createdAt'      => $job->getCreatedAt()->format('Y-m-d H:i:s'),
+                'lastActivityAt' => $job->getLastActivityAt()?->format('Y-m-d H:i:s'),
+            ];
+        }, $jobs);
+
+        return $this->json([
+            'items' => $items,
+        ]);
     }
 
     #[DplanPermissions('area_statement_segmentation')]

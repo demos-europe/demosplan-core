@@ -58,4 +58,11 @@ interface GroupedFacetInterface extends FacetInterface
      * @return array<int,FunctionInterface<bool>>
      */
     public function getGroupsLoadConditions(): array;
+
+    /**
+     * Sort methods to apply when loading groups for the facet.
+     *
+     * @return array<int,\EDT\Querying\Contracts\SortMethodInterface>
+     */
+    public function getGroupsSortMethods(): array;
 }
