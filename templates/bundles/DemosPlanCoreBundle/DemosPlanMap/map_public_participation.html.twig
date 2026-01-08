@@ -64,6 +64,8 @@
             map = L.map('map', {
                 center: new L.LatLng(initialLat, initialLon),
                 zoom: initialZoom,
+                zoomSnap: 0.5,
+                zoomDelta: 0.5,
                 layers: [publicBaselayer],
                 maxBounds: bbox,
                 attributionControl: false
