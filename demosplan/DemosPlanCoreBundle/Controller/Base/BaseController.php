@@ -271,6 +271,7 @@ abstract class BaseController extends AbstractController
     {
         return $this->globalConfig->getFormOptions()[$key] ?? null;
     }
+
     protected function render(string $view, array $parameters = [], ?Response $response = null): Response
     {
         $this->viewRenderer->processRequestStatus();
