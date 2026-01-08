@@ -217,7 +217,7 @@
             v-if="!rowData.edit"
             ref="deleteConfirmDialog"
             data-cy="customFields:deleteConfirm"
-            :message="Translator.trans('warning.custom_field.delete.message')"
+            :message="Translator.trans(deleteWarningMessage)"
           />
 
           <template v-else>
@@ -251,7 +251,7 @@
 
           <dp-confirm-dialog
             ref="confirmDialog"
-            :message="Translator.trans('warning.custom_field.edit.message')"
+            :message="Translator.trans(editWarningMessage)"
             data-cy="customFields:saveEditConfirm"
           />
 
@@ -346,11 +346,13 @@ export default {
       enabledFieldsTextConfig: {
         field_segments_custom_fields: {
           info: 'segments.fields.edit.info',
-          warning: 'segments.field.edit.message.warning',
+          edit: 'warning.custom_field.segments.edit.message:',
+          delete: 'warning.custom_field.segments.delete.message',
         },
         field_statements_custom_fields: {
           info: 'statements.fields.edit.info',
-          warning: 'statements.field.edit.message.warning',
+          edit: 'warning.custom_field.statements.edit.message',
+          delete: 'warning.custom_field.statements.delete.message',
         },
       },
       initialRowData: {},
@@ -388,6 +390,10 @@ export default {
       return this.newFieldOptions.filter((option, index) => index > 1)
     },
 
+    deleteWarningMessage () {
+      return this.getTextForEnabledFieldTypes('delete', 'custom.field.delete.message.warning')
+    },
+
     displayedOptions () {
       return (rowData) => {
         if (rowData.edit && this.newRowData.options) {
@@ -395,6 +401,10 @@ export default {
         }
         return rowData.open ? rowData.options : rowData.options.slice(0, 2)
       }
+    },
+
+    editWarningMessage () {
+      return this.getTextForEnabledFieldTypes('edit', 'custom.field.edit.message.warning')
     },
 
     fieldTypeText () {
@@ -454,10 +464,6 @@ export default {
 
     isStatementField () {
       return this.hasPermission('field_statements_custom_fields')
-    },
-
-    warningMessage () {
-      return this.getTextForEnabledFieldTypes('warning', 'custom.fields.edit.message.warning')
     },
   },
 
