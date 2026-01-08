@@ -1097,6 +1097,7 @@ class DemosPlanStatementController extends BaseController
             $this->generateUrl('DemosPlan_statement_list_draft', ['procedure' => $procedure]).$urlFragment
         );
     }
+
     /**
      * Combined route for draft statement email (handles both GET and POST).
      *
@@ -1115,7 +1116,7 @@ class DemosPlanStatementController extends BaseController
         Breadcrumb $breadcrumb,
         TranslatorInterface $translator,
         string $procedure,
-        string $statementID
+        string $statementID,
     ): Response {
         if ($request->isMethod('POST')) {
             return $this->processSendStatement(
@@ -1155,7 +1156,7 @@ class DemosPlanStatementController extends BaseController
         Breadcrumb $breadcrumb,
         TranslatorInterface $translator,
         string $procedure,
-        string $statementID
+        string $statementID,
     ): Response {
         if ($request->isMethod('POST')) {
             return $this->processSendStatement(
@@ -1195,7 +1196,7 @@ class DemosPlanStatementController extends BaseController
         Breadcrumb $breadcrumb,
         TranslatorInterface $translator,
         string $procedure,
-        string $statementID
+        string $statementID,
     ): Response {
         if ($request->isMethod('POST')) {
             return $this->processSendStatement(
@@ -1235,7 +1236,7 @@ class DemosPlanStatementController extends BaseController
         Breadcrumb $breadcrumb,
         TranslatorInterface $translator,
         string $procedure,
-        string $statementID
+        string $statementID,
     ): Response {
         if ($request->isMethod('POST')) {
             return $this->processSendStatement(
@@ -1273,13 +1274,13 @@ class DemosPlanStatementController extends BaseController
         string $statementID,
         string $statementType,
         string $backRoute,
-        string $breadcrumbTitleKey
+        string $breadcrumbTitleKey,
     ): Response {
         try {
             // Add breadcrumb item
             $breadcrumb->addItem([
                 'title' => $translator->trans($breadcrumbTitleKey, [], 'page-title'),
-                'url' => $this->generateUrl($backRoute, ['procedure' => $procedure]),
+                'url'   => $this->generateUrl($backRoute, ['procedure' => $procedure]),
             ]);
 
             // Fetch draft statement
@@ -1304,15 +1305,15 @@ class DemosPlanStatementController extends BaseController
 
             // Build email template variables
             $mailTemplateVars = [
-                'user_name' => $this->currentUser->getUser()->getFullname(),
-                'user_email' => $this->currentUser->getUser()->getEmail(),
-                'procedure_name' => $this->currentProcedureService->getProcedure()->getName(),
-                'organisation_name' => $this->currentProcedureService->getProcedure()->getOrgaName(),
-                'statement_id' => $draftStatement['number'],
-                'statement_document' => $statementDocument,
-                'statement_paragraph' => $statementParagraph,
+                'user_name'                => $this->currentUser->getUser()->getFullname(),
+                'user_email'               => $this->currentUser->getUser()->getEmail(),
+                'procedure_name'           => $this->currentProcedureService->getProcedure()->getName(),
+                'organisation_name'        => $this->currentProcedureService->getProcedure()->getOrgaName(),
+                'statement_id'             => $draftStatement['number'],
+                'statement_document'       => $statementDocument,
+                'statement_paragraph'      => $statementParagraph,
                 'statement_singleDocument' => $statementSingleDocument,
-                'statement_text' => \html_entity_decode(
+                'statement_text'           => \html_entity_decode(
                     \strip_tags((string) $draftStatement['text']),
                     \ENT_QUOTES,
                     'utf-8'
@@ -1326,12 +1327,12 @@ class DemosPlanStatementController extends BaseController
 
             // Prepare template variables
             $templateVars = [
-                'breadcrumb' => $breadcrumb,
-                'mailbody' => $mailbody,
-                'procedure' => $procedure,
-                'backroute' => $backRoute,
-                'statementID' => $statementID,
-                'statementType' => $statementType,
+                'breadcrumb'     => $breadcrumb,
+                'mailbody'       => $mailbody,
+                'procedure'      => $procedure,
+                'backroute'      => $backRoute,
+                'statementID'    => $statementID,
+                'statementType'  => $statementType,
                 'procedureLayer' => 'participation',
             ];
 
@@ -1339,9 +1340,9 @@ class DemosPlanStatementController extends BaseController
                 '@DemosPlanCore/DemosPlanStatement/send_statement.html.twig',
                 [
                     'templateVars' => $templateVars,
-                    'procedure' => $procedure,
-                    'target' => $backRoute,
-                    'title' => 'statements.send.per.email',
+                    'procedure'    => $procedure,
+                    'target'       => $backRoute,
+                    'title'        => 'statements.send.per.email',
                 ]
             );
         } catch (Exception $e) {
@@ -1358,7 +1359,7 @@ class DemosPlanStatementController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         string $procedure,
-        string $backRoute
+        string $backRoute,
     ): RedirectResponse {
         $requestPost = $request->request;
 
@@ -1373,7 +1374,7 @@ class DemosPlanStatementController extends BaseController
             return $this->redirectToRoute(
                 $request->attributes->get('_route'),
                 [
-                    'procedure' => $procedure,
+                    'procedure'   => $procedure,
                     'statementID' => $request->request->get('statementID'),
                 ]
             );
@@ -1421,10 +1422,10 @@ class DemosPlanStatementController extends BaseController
         $target = $request->query->get('target', 'draft');
 
         $routeMap = [
-            'draft' => 'DemosPlan_statement_draft_send',
-            'released' => 'DemosPlan_statement_released_send',
+            'draft'          => 'DemosPlan_statement_draft_send',
+            'released'       => 'DemosPlan_statement_released_send',
             'released_group' => 'DemosPlan_statement_released_group_send',
-            'final_group' => 'DemosPlan_statement_final_send',
+            'final_group'    => 'DemosPlan_statement_final_send',
         ];
 
         return $this->redirectToRoute(
