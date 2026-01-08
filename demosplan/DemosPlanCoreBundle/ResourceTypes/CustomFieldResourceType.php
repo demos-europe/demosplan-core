@@ -233,7 +233,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isListAllowed(): bool
     {
-        return false;
+        return true;
     }
 
     public function isUpdateAllowed(): bool
