@@ -286,7 +286,7 @@
               }"
               name="r_internId"
               :pattern="internIdsPattern"
-              model-value=""
+              v-model="values.internId"
             />
           </div>
 
@@ -576,13 +576,14 @@ export default {
       isSaving: false,
       values: {
         authoredDate: '',
+        internId: '',
         memo: '',
         quickSave: '',
         submittedDate: '',
+        submitter: submitterProperties,
         tags: [],
         text: '',
-        submitter: submitterProperties,
-      },
+      }
     }
   },
 

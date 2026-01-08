@@ -96,6 +96,7 @@
 
 ## v4.4.0 (2025-06-13)
 
+## v4.3.5 (2025-11-24)
 ## 4.3.4 (2025-11-14)
 - implement option to import additional submitters via statement ID in statement imports via xlsx
 - adjust example statement import xlsx files
