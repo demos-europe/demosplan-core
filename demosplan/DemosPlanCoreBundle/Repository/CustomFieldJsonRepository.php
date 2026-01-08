@@ -56,7 +56,14 @@ class CustomFieldJsonRepository implements RepositoryInterface
 
     public function getEntities(array $conditions, array $sortMethods, int $offset = 0, ?int $limit = null): array
     {
-        return $this->customFieldConfigurationRepository->getEntities($conditions, $sortMethods);
+        $customFieldConfigurations = $this->customFieldConfigurationRepository->getEntities($conditions, $sortMethods);
+
+        return array_map(function ($customFieldConfiguration) {
+            $customField = $customFieldConfiguration->getConfiguration();
+            $customField->setId($customFieldConfiguration->getId());
+            return $customField;
+        }, $customFieldConfigurations);
+
     }
 
     public function getEntitiesForPage(array $conditions, array $sortMethods, PagePagination $pagination): Pagerfanta
