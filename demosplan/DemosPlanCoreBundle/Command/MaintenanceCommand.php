@@ -47,7 +47,7 @@ class MaintenanceCommand extends CoreCommand
         $output->writeln('Starting messenger:consume scheduler_maintenance scheduler_daily_maintenance for backwards compatibility...');
         $output->writeln('');
         $output->writeln('Please update your scripts to use:');
-        $output->writeln('  <info>php bin/console messenger:consume scheduler_maintenance scheduler_daily_maintenance</info>');
+        $output->writeln('  <info>php bin/console messenger:consume scheduler_maintenance scheduler_daily_maintenance -e prod --no-debug</info>');
         $output->writeln('');
 
         // For backwards compatibility, start the messenger consumer using Process
@@ -57,6 +57,8 @@ class MaintenanceCommand extends CoreCommand
         $process->setTty(Process::isTtySupported());
         $process->setEnv([
             'ACTIVE_PROJECT' => $this->parameterBag->get('demosplan.project_name'),
+            'APP_ENV' => $this->parameterBag->get('kernel.environment'),
+            'APP_DEBUG' => $this->parameterBag->get('kernel.debug') ? '1' : '0',
         ]);
 
         return $process->run(function ($type, $buffer) use ($output) {
