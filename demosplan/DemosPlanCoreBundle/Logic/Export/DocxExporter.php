@@ -598,6 +598,7 @@ class DocxExporter
             'publicVerified'            => $statement['publicVerified'] ?? null,
             'publicVerifiedTranslation' => $statement['publicVerifiedTranslation'] ?? null,
             'recommendation'            => $statement['recommendation'] ?? null,
+            'votePla'                   => $statement['votePla'] ?? null,
             'submit'                    => $statement['submit'] ?? null,
             'submitName'                => $statement['meta']['submitName'] ?? null,
             'authorName'                => $statement['meta']['authorName'] ?? null,
@@ -682,6 +683,17 @@ class DocxExporter
                 }
 
                 $cell3 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
+                if (isset($item['votePla'])
+                    && true === $this->permissions->hasPermission('field_vote_advice_docx')) {
+                    try {
+                        $statementAdviceValues = $this->config->getFormOptions()['statement_fragment_advice_values'] ?? [];
+                        $translationKey = $statementAdviceValues[$item['votePla']];
+                        $voteTextShort = $this->translator->trans($translationKey);
+                        Html::addHtml($cell3, '<p>'.$voteTextShort.'</p><br />');
+                    } catch (Exception $e) {
+                        $this->getLogger()->warning('statement with invalid \'votePla\' value given to condensed export', [$e]);
+                    }
+                }
                 if (isset($item['recommendation'])) {
                     $this->addHtml($cell3, $item['recommendation'], $styles);
                 }
