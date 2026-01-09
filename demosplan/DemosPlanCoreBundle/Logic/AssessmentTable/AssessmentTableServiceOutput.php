@@ -788,6 +788,7 @@ class AssessmentTableServiceOutput
             'publicVerified'                => $statement['publicVerified'] ?? null,
             'publicVerifiedTranslation'     => $statement['publicVerifiedTranslation'] ?? null,
             'recommendation'                => $statement['recommendation'] ?? null,
+            'votePla'                       => $statement['votePla'] ?? null,
             'submit'                        => $statement['submit'] ?? null,
             'submitName'                    => $statement['meta']['submitName'] ?? null,
             'authorName'                    => $statement['meta']['authorName'] ?? null,
