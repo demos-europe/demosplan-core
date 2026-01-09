@@ -560,6 +560,8 @@ class DraftStatementHandler extends CoreHandler
             $statement['negativ'] = true;
         }
 
+        //@todo Detect custom fields here
+
         $statement['elementId'] = $this->draftStatementService->determineStatementCategory($procedureId, $data);
 
         $statement['pId'] = $procedureId;
@@ -584,6 +586,15 @@ class DraftStatementHandler extends CoreHandler
         ];
 
         return array_merge($data, $userData);
+    }
+
+    public function addCustomFieldValues(array $data): array
+    {
+        foreach ($customFields as $key => $value) {
+            $statement[$key] = $value;
+        }
+
+        return $statement;
     }
 
     /**
