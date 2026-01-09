@@ -46,7 +46,6 @@ use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
 use EDT\Wrapping\ResourceBehavior\ResourceUpdatability;
-use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
 use IteratorAggregate;
 use League\Fractal\TransformerAbstract;
@@ -128,7 +127,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         $configBuilder->description->setReadableByPath()->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->targetEntity->addPathCreationBehavior();
         $configBuilder->sourceEntity->addPathCreationBehavior();
-        $configBuilder->sourceEntityId->addPathCreationBehavior();
+        $configBuilder->sourceEntityId->addPathCreationBehavior()->setFilterable();
 
         return $configBuilder->build();
     }
@@ -164,6 +163,16 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             $this->reindexer,
             $this->customFieldConfigurationRepository
         );
+
+        /*$repository = $this->getEntityManager()->getRepository(CustomFieldConfiguration::class);
+        $fluentRepositoryClass = FluentRepository::class;
+        Assert::isInstanceOf(
+            $repository,
+            $fluentRepositoryClass,
+            "No repository found extending `$fluentRepositoryClass` for entity `{$this->getEntityClass()}`."
+        );
+
+        return $repository;*/
     }
 
     public function isCreateAllowed(): bool
@@ -233,7 +242,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isListAllowed(): bool
     {
-        return false;
+        return $this->currentUser->hasPermission('feature_statements_custom_fields');
     }
 
     public function isUpdateAllowed(): bool
@@ -244,11 +253,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     public function getUpdatability(): ResourceUpdatability
     {
         return $this->getResourceConfig()->getUpdatability();
-    }
-
-    protected function getSchemaPathProcessor(): SchemaPathProcessor
-    {
-        return $this->getJsonApiResourceTypeService()->getSchemaPathProcessor();
     }
 
     public function createEntity(CreationDataInterface $entityData): ModifiedEntity
