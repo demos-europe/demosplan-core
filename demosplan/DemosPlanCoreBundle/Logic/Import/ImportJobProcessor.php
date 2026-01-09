@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
 use demosplan\DemosPlanCoreBundle\Exception\ImportJobNotFoundException;
@@ -33,6 +34,7 @@ class ImportJobProcessor
         private readonly CurrentUserService $currentUserService,
         private readonly EntityManagerInterface $entityManager,
         private readonly FileService $fileService,
+        private readonly GlobalConfigInterface $globalConfig,
         private readonly ImportJobRepository $importJobRepository,
         private readonly LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
@@ -139,6 +141,7 @@ class ImportJobProcessor
         }
 
         $customer = $job->getProcedure()->getCustomer();
+        $this->globalConfig->setSubdomain($customer->getSubdomain());
         $this->currentUserService->setUser($user, $customer);
         $this->permissions->setProcedure($job->getProcedure());
         $this->permissions->initPermissions($user);
