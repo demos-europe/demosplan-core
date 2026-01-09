@@ -30,7 +30,7 @@ jobs:
       - run: npm install --ignore-scripts -g corepack && corepack enable && yarn set version 4.2.2
 
       - name: Cache yarn dependencies
-        uses: actions/cache@v4.2.4
+        uses: actions/cache@v5.0.1
         with:
           path: |
             ~/.yarn/cache
@@ -52,7 +52,7 @@ jobs:
           tools: composer:v2
 
       - name: Cache php modules
-        uses: actions/cache@v4.3.0
+        uses: actions/cache@v5.0.1
         with:
           path: |
             ~/.composer/cache
@@ -62,7 +62,7 @@ jobs:
             ${{ runner.os }}-build-php-
 
       - name: Miscellaneous runtime caches
-        uses: actions/cache@v4.3.0
+        uses: actions/cache@v5.0.1
         with:
           path: |
             config/.runtime/cache
