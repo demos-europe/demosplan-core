@@ -24,7 +24,7 @@ jobs:
     if: github.event.pull_request.draft == false
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '24.11.1'
       - run: npm install --ignore-scripts -g corepack && corepack enable && yarn set version 4.2.2
