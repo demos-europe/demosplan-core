@@ -23,6 +23,32 @@ services:
 
     demosplan\DemosPlanCoreBundle\ValueObject\AzureUserData: ~
 
+    # Start CustomField validation services
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldTypeValidatorRegistry:
+        arguments:
+            $validators: !tagged custom_field_type_validator
+
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\SingleSelectFieldValidator:
+        tags:
+            -   name: custom_field_type_validator
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\MultiSelectFieldValidator:
+        tags:
+            -   name: custom_field_type_validator
+    # End CustomField validation services
+
+    # Start CustomField Factories
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\CustomFieldFactoryRegistry:
+        arguments:
+            $factories: !tagged custom_field.factory
+
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\SingleSelectFieldFactory:
+        tags:
+            -   name: custom_field.factory
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\MultiSelectFieldFactory:
+        tags:
+            -   name: custom_field.factory
+    # End CustomField Factories
+
     demosplan\DemosPlanCoreBundle\Controller\Document\DemosPlanDocumentDashboardAPIController:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'

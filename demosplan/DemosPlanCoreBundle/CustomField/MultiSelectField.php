@@ -14,22 +14,24 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 
-class RadioButtonField extends AbstractCustomField
+class MultiSelectField extends AbstractCustomField
 {
     protected string $id = '';
 
-    protected string $fieldType = 'singleSelect';
+    protected string $fieldType = 'multiSelect';
 
     /**
-     * Radio button options.
+     * Options for multi-select field (checkboxes).
      */
     protected array $options = [];
 
     protected string $description = '';
 
+    protected bool $isRequired = false;
+
     public function getFieldType(): string
     {
-        return 'singleSelect';
+        return 'multiSelect';
     }
 
     public function fromJson(array $json): void
@@ -37,6 +39,7 @@ class RadioButtonField extends AbstractCustomField
         $this->fieldType = $json['fieldType'];
         $this->name = $json['name'];
         $this->description = $json['description'];
+        $this->isRequired = $json['isRequired'];
         $this->options = array_map(static function ($optionData) {
             $customFieldOption = new CustomFieldOption();
             $customFieldOption->fromJson($optionData);
@@ -47,12 +50,15 @@ class RadioButtonField extends AbstractCustomField
 
     public function toJson(): array
     {
-        $options = array_map(static fn ($customField) => $customField->toJson(), $this->options);
+        $options = array_map(static function ($customField) {
+            return $customField->toJson();
+        }, $this->options);
 
         return [
             'fieldType'     => $this->fieldType,
             'name'          => $this->name,
             'description'   => $this->description,
+            'isRequired'    => $this->isRequired,
             'options'       => $options,
         ];
     }
@@ -67,13 +73,25 @@ class RadioButtonField extends AbstractCustomField
         $this->options = $options;
     }
 
+    public function setRequired(bool $isRequired): void
+    {
+        $this->isRequired = $isRequired;
+    }
+
+    public function getRequired(): bool
+    {
+        return $this->isRequired;
+    }
+
     public function isValueValid(?string $value): bool
     {
         if (null === $value) {
             return true;
         }
 
-        return collect($this->options)->contains(fn ($option) => $option->getId() === $value);
+        return collect($this->options)->contains(function ($option) use ($value) {
+            return $option->getId() === $value;
+        });
     }
 
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption
@@ -90,7 +108,7 @@ class RadioButtonField extends AbstractCustomField
     protected function validateFieldSpecific(array $options): void
     {
         if (count($options) < 2) {
-            throw new InvalidArgumentException('Radio button fields must have at least 2 options');
+            throw new InvalidArgumentException('Multi select fields must have at least 2 options');
         }
     }
 }

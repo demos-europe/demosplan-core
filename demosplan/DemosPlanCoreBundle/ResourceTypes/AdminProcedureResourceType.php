@@ -49,6 +49,7 @@ use EDT\PathBuilding\End;
  * @property-read End                           $externalPhaseIdentifier
  * @property-read End                           $externalPhaseTranslationKey
  * @property-read CustomFieldResourceType       $segmentCustomFields
+ * @property-read CustomFieldResourceType       $statementCustomFields
  * @property-read CustomerResourceType          $customer
  */
 final class AdminProcedureResourceType extends DplanResourceType
@@ -128,9 +129,18 @@ final class AdminProcedureResourceType extends DplanResourceType
                 }),
                 $this->createAttribute($this->externalStartDate)->readable()->aliasedPath($this->publicParticipationPhase->startDate)];
 
-            if ($this->currentUser->hasAnyPermissions('area_admin_custom_fields')) {
+            if ($this->currentUser->hasAllPermissions('area_admin_custom_fields', 'field_segments_custom_fields')) {
                 $properties[] = $this->createToManyRelationship($this->segmentCustomFields)
-                    ->readable(true, fn (Procedure $procedure): ?ArrayCollection => $this->customFieldConfigurationRepository->getCustomFields('PROCEDURE', $procedure->getId(), 'SEGMENT'));
+                    ->readable(true, function (Procedure $procedure): ?ArrayCollection {
+                        return $this->customFieldConfigurationRepository->getCustomFields('PROCEDURE', $procedure->getId(), 'SEGMENT');
+                    });
+            }
+
+            if ($this->currentUser->hasAllPermissions('area_admin_custom_fields', 'field_statements_custom_fields')) {
+                $properties[] = $this->createToManyRelationship($this->statementCustomFields)
+                    ->readable(true, function (Procedure $procedure): ?ArrayCollection {
+                        return $this->customFieldConfigurationRepository->getCustomFields('PROCEDURE', $procedure->getId(), 'STATEMENT');
+                    });
             }
         }
 

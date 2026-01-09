@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldDeleter;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldUpdater;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\ResourceConfigInterface;
@@ -116,6 +117,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
         $configBuilder->id->setReadableByPath();
         $configBuilder->name->setReadableByPath(DefaultField::YES)->addPathCreationBehavior()->addPathUpdateBehavior();
+        $configBuilder->isRequired->setReadableByPath()->addPathCreationBehavior(OptionalField::YES)->addPathUpdateBehavior();
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->options
             ->setReadableByCallable(
