@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Exception\ImportJobNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ImportJobUserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -139,7 +138,7 @@ class ImportJobProcessor
             throw ImportJobUserNotFoundException::create($job->getId());
         }
 
-        $customer = $this->entityManager->getRepository(Customer::class)->findOneBy(['subdomain' => 'sh']);
+        $customer = $job->getProcedure()->getCustomer();
         $this->currentUserService->setUser($user, $customer);
         $this->permissions->setProcedure($job->getProcedure());
         $this->permissions->initPermissions($user);
