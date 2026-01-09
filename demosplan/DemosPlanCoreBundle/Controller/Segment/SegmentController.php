@@ -102,7 +102,7 @@ class SegmentController extends BaseController
             RecommendationRequestEventInterface::class
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_statement_segments_list.html.twig',
             [
                 'procedure'                  => [
@@ -331,7 +331,7 @@ class SegmentController extends BaseController
         $filterNames = $filterUiDataProvider->getFilterNames();
         $filterNames = $filterUiDataProvider->addSelectedField($filterNames, $filter);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_segments_list.html.twig',
             [
                 'filterNames'      => $filterNames,
