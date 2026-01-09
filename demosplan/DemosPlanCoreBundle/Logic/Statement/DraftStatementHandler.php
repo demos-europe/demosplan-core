@@ -560,7 +560,7 @@ class DraftStatementHandler extends CoreHandler
             $statement['negativ'] = true;
         }
 
-        //@todo Detect custom fields here
+        // @todo Detect custom fields here
 
         $statement['elementId'] = $this->draftStatementService->determineStatementCategory($procedureId, $data);
 
