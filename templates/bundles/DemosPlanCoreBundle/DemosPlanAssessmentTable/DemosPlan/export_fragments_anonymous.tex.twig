@@ -25,7 +25,7 @@
                         "statement"|trans|latex|raw,
                         "considerationadvice"|trans|latex|raw,
                         statement.text|default("notspecified"|trans)|dpObscure|latex(listwidth=templateVars.listwidth)|raw,
-                        statement.recommendation|default("notspecified"|trans)|dpObscure|latex|raw,
+                        (statement.voteText is defined and statement.voteText is not empty ? (statement.voteText|latex|raw ~ '\n\n') : '') ~ statement.recommendation|default("notspecified"|trans)|dpObscure|latex|raw,
                         statement,
                         procedure) }}
                 {% endif %}
@@ -68,7 +68,7 @@
                                     "statement"|trans|latex|raw,
                                     "considerationadvice"|trans|latex|raw,
                                     statement.text|default("notspecified"|trans)|dpObscure|latex(listwidth=templateVars.listwidth)|raw,
-                                    statement.recommendation|default("notspecified"|trans)|dpObscure|latex|raw,
+                                    (statement.voteText is defined and statement.voteText is not empty ? (statement.voteText|latex|raw ~ '\n\n') : '') ~ statement.recommendation|default("notspecified"|trans)|dpObscure|latex|raw,
                                     statement,
                                     procedure) }}
                             {% endif %}
