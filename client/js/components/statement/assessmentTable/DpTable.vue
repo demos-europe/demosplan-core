@@ -141,7 +141,7 @@
     />
 
     <!-- Version History Slidebar -->
-    <dp-slidebar>
+    <dp-slidebar ref="slidebar">
       <dp-version-history :procedure-id="procedureId" />
     </dp-slidebar>
 
@@ -429,6 +429,19 @@ export default {
       type: String,
       default: '',
     },
+  },
+
+  provide () {
+    return {
+      slidebarControl: {
+        show: () => {
+          this.$refs.slidebar?.showSlidebar()
+        },
+        hide: () => {
+          this.$refs.slidebar?.hideSlidebar()
+        },
+      },
+    }
   },
 
   data () {

@@ -68,7 +68,17 @@ if (hasPermission('area_admin_boilerplates')) {
   components.DpBoilerPlateModal = DpBoilerPlateModal
 }
 
-initialize(components, stores).then(() => {
-  dpValidate()
-  AssessmentStatement()
+const app = initialize(components, stores)
+
+// Provide slidebar control for child components
+app.provide('slidebarControl', {
+  show: () => {
+    app.$refs.slidebar?.showSlidebar()
+  },
+  hide: () => {
+    app.$refs.slidebar?.hideSlidebar()
+  },
 })
+
+dpValidate()
+AssessmentStatement()

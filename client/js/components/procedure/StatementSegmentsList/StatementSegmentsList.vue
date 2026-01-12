@@ -9,7 +9,10 @@
 
 <template>
   <div v-if="statement">
-    <dp-slidebar @close="resetSlidebar">
+    <dp-slidebar
+      ref="slidebar"
+      @close="resetSlidebar"
+    >
       <dp-version-history
         v-show="slidebar.showTab === 'history'"
         class="u-pr"
@@ -248,6 +251,14 @@ export default {
     return {
       procedureId: this.procedure.id,
       recommendationProcedureIds: this.recommendationProcedureIds,
+      slidebarControl: {
+        show: () => {
+          this.$refs.slidebar?.showSlidebar()
+        },
+        hide: () => {
+          this.$refs.slidebar?.hideSlidebar()
+        },
+      },
     }
   },
 

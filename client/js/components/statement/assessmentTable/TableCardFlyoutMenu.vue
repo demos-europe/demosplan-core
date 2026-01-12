@@ -218,6 +218,12 @@ export default {
     'version:history',
   ],
 
+  inject: {
+    slidebarControl: {
+      default: null,
+    },
+  },
+
   data () {
     return {
       procedureId: this.$store.state.Statement.procedureId,
@@ -237,7 +243,7 @@ export default {
 
     showVersionHistory () {
       this.$root.$emit('version:history', this.entityId, this.entity, this.externId)
-      this.$root.$emit('show-slidebar')
+      this.slidebarControl.show()
     },
 
     toggleAssignEntityModal (entity, assigneeId) {
