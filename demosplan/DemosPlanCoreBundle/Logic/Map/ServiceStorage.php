@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\Services\MapServiceStorageInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MapValidationException;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
+use demosplan\DemosPlanCoreBundle\Logic\Map\GisLayerValidator\BaseLayerVisibilityValidator;
 use demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -47,6 +48,7 @@ class ServiceStorage implements MapServiceStorageInterface
         private readonly LoggerInterface $logger,
         private readonly MapHandler $handler,
         MapService $service,
+        private readonly BaseLayerVisibilityValidator $baseLayerVisibilityValidator,
         private readonly TranslatorInterface $translator,
     ) {
         $this->serviceGetFeatureInfo = $getFeatureInfo;
@@ -258,14 +260,17 @@ class ServiceStorage implements MapServiceStorageInterface
             $gislayer['projectionValue'] = $this->getProjectionValueByServiceType($gislayer, $data, $projectionLabel);
         }
 
-        // Globale GIS-Layer haben kein Procedure
         if (is_string($procedure)) {
             $gislayer['pId'] = $procedure;
         }
 
         $this->validateGisLayer($gislayer);
 
-        return $this->service->addGis($gislayer);
+        $addedGisLayer = $this->service->addGis($gislayer);
+
+        $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($procedure, $addedGisLayer);
+
+        return $addedGisLayer;
     }
 
     /**
@@ -489,7 +494,11 @@ class ServiceStorage implements MapServiceStorageInterface
 
         $this->validateGisLayer($gislayer);
 
-        return $this->handler->updateGis($gislayer);
+        $updatedGisLayer = $this->handler->updateGis($gislayer);
+
+        $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($procedure, $updatedGisLayer);
+
+        return $updatedGisLayer;
     }
 
     private function isOaf(array $data): bool

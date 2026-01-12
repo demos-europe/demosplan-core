@@ -24,8 +24,25 @@ jobs:
     if: github.event.pull_request.draft == false
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.11.1'
+      - run: npm install --ignore-scripts -g corepack && corepack enable && yarn set version 4.2.2
 
-      - uses: reviewdog/action-setup@v1.3.2
+      - name: Cache yarn dependencies
+        uses: actions/cache@v4.2.4
+        with:
+          path: |
+            ~/.yarn/cache
+            .yarn/cache
+            node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - run: yarn install --immutable
+
+      - uses: reviewdog/action-setup@v1.5
 
       - name: Setup PHP with composer v2
         uses: shivammathur/setup-php@v2
@@ -42,7 +59,7 @@ jobs:
             vendor
           key: ${{ runner.os }}-build-php-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
-            ${{ runner.os }}-build-php-${{ hashFiles('**/composer.lock') }}
+            ${{ runner.os }}-build-php-
 
       - name: Miscellaneous runtime caches
         uses: actions/cache@v4.3.0
@@ -59,9 +76,16 @@ jobs:
           composer install --no-interaction
 
       - name: Warmup cache
-        run: DEVELOPMENT_CONTAINER=1 php bin/test cache:clear
+        env:
+          DEVELOPMENT_CONTAINER: 1
+        run: php bin/test cache:clear
 
-      - name: Woof
+      - name: Generate PHPStan config
+        env:
+          DEVELOPMENT_CONTAINER: 1
+        run: php bin/test dplan:phpstan --only-dump-config --ci
+
+      - name: Run linters with reviewdog
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
