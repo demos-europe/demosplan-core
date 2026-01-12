@@ -26,19 +26,15 @@ class MultiSelectValue extends AbstractCustomFieldValue
     public function setValue(mixed $value): void
     {
         // Type enforcement: must be array or null
-        if ($value !== null && !is_array($value)) {
-            throw new InvalidArgumentException(
-                'MultiSelectValue requires array or null, got '.gettype($value)
-            );
+        if (null !== $value && !is_array($value)) {
+            throw new InvalidArgumentException('MultiSelectValue requires array or null, got '.gettype($value));
         }
 
         // Validate array structure: all elements must be strings
         if (is_array($value)) {
             foreach ($value as $item) {
                 if (!is_string($item)) {
-                    throw new InvalidArgumentException(
-                        'All MultiSelectValue array elements must be strings'
-                    );
+                    throw new InvalidArgumentException('All MultiSelectValue array elements must be strings');
                 }
             }
 

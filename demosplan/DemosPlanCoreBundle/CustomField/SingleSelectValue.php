@@ -26,10 +26,8 @@ class SingleSelectValue extends AbstractCustomFieldValue
     public function setValue(mixed $value): void
     {
         // Type enforcement: must be string or null
-        if ($value !== null && !is_string($value)) {
-            throw new InvalidArgumentException(
-                'SingleSelectValue requires string or null, got '.gettype($value)
-            );
+        if (null !== $value && !is_string($value)) {
+            throw new InvalidArgumentException('SingleSelectValue requires string or null, got '.gettype($value));
         }
 
         $this->value = $value;
