@@ -42,7 +42,7 @@ class Config {
         'addons/vendor/demos-europe/demosplan-addon-*/client/**/*.{js,vue}',
         'client/**/*.{js,vue}',
         '{demosplan,templates}/**/*.html.twig',
-        'node_modules/@demos-europe/demosplan-ui/dist/**/*.js',
+        'node_modules/@demos-europe/demosplan-ui/src/**/*.{vue,js,ts}',
         `projects/${project}/**/*.{vue,html.twig}`,
       ],
       // These are css selectors that may be generated dynamically, or otherwise go unnoticed.
@@ -64,10 +64,14 @@ class Config {
           /plyr.+/,
           /uppy-.+/,
           /^color-.+/,
+          /tiptap/,
+          /editor__content/,
         ],
         greedy: [
           /tooltip/,
           /swagger-ui/,
+          /tiptap/,
+          /editor__content/,
         ],
       },
     }
