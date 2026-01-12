@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
+use BadMethodCallException;
+
 class CustomFieldValuesList
 {
     /** @var AbstractCustomFieldValue[] */
@@ -25,9 +27,7 @@ class CustomFieldValuesList
 
         // For now, this creates generic CustomFieldValue objects
         // The actual type-specific creation happens in CustomFieldValueCreator
-        throw new \BadMethodCallException(
-            'fromJson() is deprecated. Use CustomFieldValueFactory via CustomFieldValueCreator instead.'
-        );
+        throw new BadMethodCallException('fromJson() is deprecated. Use CustomFieldValueFactory via CustomFieldValueCreator instead.');
     }
 
     public function toJson(): array

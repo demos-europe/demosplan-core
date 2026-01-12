@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\AbstractCustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
-use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectValue;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
@@ -24,7 +23,7 @@ class CustomFieldValueCreator
 {
     public function __construct(
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
-        private readonly CustomFieldValueFactory $customFieldValueFactory
+        private readonly CustomFieldValueFactory $customFieldValueFactory,
     ) {
     }
 
