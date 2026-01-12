@@ -109,14 +109,14 @@ class MultiSelectField extends AbstractCustomField
         $validOptionIds = collect($this->options)->pluck('id')->toArray();
 
         // Validate each value in the array
-        foreach ($value as $singleValue) {
+        foreach ($value as $singleOptionValueId) {
             // Each element must be a string
-            if (!is_string($singleValue)) {
+            if (!is_string($singleOptionValueId)) {
                 return false;
             }
 
             // Each element must be a valid option ID
-            if (!in_array($singleValue, $validOptionIds, true)) {
+            if(null === $this->getCustomOptionValueById($singleOptionValueId)) {
                 return false;
             }
         }
