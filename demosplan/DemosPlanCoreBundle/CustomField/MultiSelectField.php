@@ -124,7 +124,6 @@ class MultiSelectField extends AbstractCustomField
         return true;
     }
 
-
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption
     {
         foreach ($this->options as $option) {
