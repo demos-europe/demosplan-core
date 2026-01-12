@@ -5,12 +5,6 @@
   "version": "v4.3.5",
   "license": "EUPL-1.2",
   "minimum-stability": "stable",
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/mussbach/ConsoleAdditions.git"
-    }
-  ],
   "require": {
     "php": "^8.1 || ^8.2",
     "ext-ctype": "*",
@@ -51,7 +45,7 @@
     "doctrine/orm": "^2.0",
     "doctrine/persistence": "^2.0",
     "dompdf/dompdf": "^3.0.0",
-    "efrane/console-additions": "dev-fix/uninitialized-typed-properties",
+    "efrane/console-additions": "^0.6.1",
     "efrane/tus-bundle": "^0.6",
     "egulias/email-validator": "^4.0",
     "endroid/qr-code-bundle": "^5.0",
