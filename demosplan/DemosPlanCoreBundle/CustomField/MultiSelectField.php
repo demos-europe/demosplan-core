@@ -116,7 +116,7 @@ class MultiSelectField extends AbstractCustomField
             }
 
             // Each element must be a valid option ID
-            if(null === $this->getCustomOptionValueById($singleOptionValueId)) {
+            if (null === $this->getCustomOptionValueById($singleOptionValueId)) {
                 return false;
             }
         }

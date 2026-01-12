@@ -351,8 +351,6 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             $entity->setCustomFields($data['custom_fields']);
         }
 
-
-
         return $entity;
     }
 

@@ -564,7 +564,7 @@ class DraftStatementHandler extends CoreHandler
         }
 
         if (array_key_exists('customFields', $data)) {
-            //make validation here
+            // make validation here
             $customFieldValues = json_decode($data['customFields'], true);
             $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
                 new CustomFieldValuesList(),
@@ -574,7 +574,7 @@ class DraftStatementHandler extends CoreHandler
                 'STATEMENT'
             );
 
-            $statement['custom_fields'] =  $customFieldList;
+            $statement['custom_fields'] = $customFieldList;
         }
 
         // @todo Detect custom fields here
