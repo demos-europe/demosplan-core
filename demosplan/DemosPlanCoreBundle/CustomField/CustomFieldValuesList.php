@@ -14,37 +14,46 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 
 class CustomFieldValuesList
 {
+    /** @var AbstractCustomFieldValue[] */
     protected array $customFieldValues = [];
 
     public function fromJson(array $json): void
     {
-        $this->customFieldValues = array_map(static function ($fieldData) {
-            $customFieldValue = new CustomFieldValue();
-            $customFieldValue->fromJson($fieldData);
+        // NOTE: This method signature is kept for backward compatibility,
+        // but should not be used directly. Use CustomFieldValueCreator instead
+        // which uses the factory to create proper typed values.
 
-            return $customFieldValue;
-        }, $json);
+        // For now, this creates generic CustomFieldValue objects
+        // The actual type-specific creation happens in CustomFieldValueCreator
+        throw new \BadMethodCallException(
+            'fromJson() is deprecated. Use CustomFieldValueFactory via CustomFieldValueCreator instead.'
+        );
     }
 
     public function toJson(): array
     {
-        return array_map(static fn ($customField) => $customField->toJson(), $this->customFieldValues);
+        return array_map(
+            static fn (AbstractCustomFieldValue $customField) => $customField->toJson(),
+            $this->customFieldValues
+        );
     }
 
+    /**
+     * @return AbstractCustomFieldValue[]|null
+     */
     public function getCustomFieldsValues(): ?array
     {
         return $this->customFieldValues;
     }
 
-    public function addCustomFieldValue(CustomFieldValue $customFieldValue): void
+    public function addCustomFieldValue(AbstractCustomFieldValue $customFieldValue): void
     {
-        // If no matching ID is found, add the new custom field value
         $this->customFieldValues[] = $customFieldValue;
     }
 
-    public function findById(string $fieldId): ?CustomFieldValue
+    public function findById(string $fieldId): ?AbstractCustomFieldValue
     {
-        foreach ($this->getCustomFieldsValues() as $customFieldValue) {
+        foreach ($this->customFieldValues as $customFieldValue) {
             if ($customFieldValue->getId() === $fieldId) {
                 return $customFieldValue;
             }
@@ -53,11 +62,11 @@ class CustomFieldValuesList
         return null;
     }
 
-    public function removeCustomFieldValue(CustomFieldValue $customFieldValue): void
+    public function removeCustomFieldValue(AbstractCustomFieldValue $customFieldValue): void
     {
         $this->customFieldValues = array_filter(
             $this->customFieldValues,
-            static fn (CustomFieldValue $fieldValue) => $fieldValue->getId() !== $customFieldValue->getId()
+            static fn (AbstractCustomFieldValue $fieldValue) => $fieldValue->getId() !== $customFieldValue->getId()
         );
     }
 
@@ -68,7 +77,10 @@ class CustomFieldValuesList
 
     public function sortByFieldId(): void
     {
-        usort($this->customFieldValues, fn (CustomFieldValue $a, CustomFieldValue $b) => strcmp($a->getId(), $b->getId()));
+        usort(
+            $this->customFieldValues,
+            fn (AbstractCustomFieldValue $a, AbstractCustomFieldValue $b) => strcmp($a->getId(), $b->getId())
+        );
     }
 
     public function isEmpty(): bool
