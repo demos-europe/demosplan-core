@@ -96,7 +96,7 @@ class DemosPlanMailController extends BaseController
                 ->trans('procedure.mail.submitters.help.extended'),
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_send_email.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -169,7 +169,7 @@ class DemosPlanMailController extends BaseController
             'preparationMail' => $preparationMail,
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_send_email_confirm.html.twig',
             [
                 'templateVars' => $templateVars,

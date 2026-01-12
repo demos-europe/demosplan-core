@@ -288,20 +288,18 @@ class ImportJobProcessor
             }
 
             // Always cleanup the original file from S3/Flysystem storage
-            if (isset($fileIdent)) {
-                try {
-                    $this->fileService->deleteFile($fileIdent);
-                    $this->logger->info('Cleaned up S3 file after import job', [
-                        'jobId'     => $job->getId(),
-                        'fileIdent' => $fileIdent,
-                    ]);
-                } catch (Exception $e) {
-                    $this->logger->warning('Failed to cleanup S3 file', [
-                        'jobId'     => $job->getId(),
-                        'fileIdent' => $fileIdent,
-                        'error'     => $e->getMessage(),
-                    ]);
-                }
+            try {
+                $this->fileService->deleteFile($fileIdent);
+                $this->logger->info('Cleaned up S3 file after import job', [
+                    'jobId'     => $job->getId(),
+                    'fileIdent' => $fileIdent,
+                ]);
+            } catch (Exception $e) {
+                $this->logger->warning('Failed to cleanup S3 file', [
+                    'jobId'     => $job->getId(),
+                    'fileIdent' => $fileIdent,
+                    'error'     => $e->getMessage(),
+                ]);
             }
         }
     }

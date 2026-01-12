@@ -97,7 +97,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
             return $this->redirectToRoute('DemosPlan_statement_administration_tags', ['procedure' => $procedure]);
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/edit_tag.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -128,7 +128,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         $title = $translator->trans('tag.administration');
         $templateVars['procedureTemplate'] = $currentProcedureService->getProcedure()?->getMaster() ?? false;
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_tags.html.twig',
             [
                 'templateVars' => $templateVars,
