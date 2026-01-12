@@ -28,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use RuntimeException;
 use SplFileInfo;
@@ -43,6 +42,7 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use ZipArchive;
@@ -165,19 +165,15 @@ class AddonInstallFromZipCommand extends CoreCommand
             return Command::FAILURE;
         }
 
-        try {
-            // The '-a' flag for the composer update is strictly necessary as it generates the authorative
-            // classmap with all classes which we then use for our own extended autoloading.
-            $composerReturn = Batch::create($this->getApplication(), $output)
-                ->addShell(['composer', 'clearcache'])
-                ->addShell(['composer', 'dump-autoload'])
-                ->addShell(['composer', 'bin', 'addons', 'update', '-a', '-o', '--prefer-lowest'])
-                ->run();
-        } catch (Exception $e) {
-            $output->error($e->getMessage());
+        // The '-a' flag for the composer update is strictly necessary as it generates the authorative
+        // classmap with all classes which we then use for our own extended autoloading.
+        $composerCommands = [
+            ['composer', 'clearcache'],
+            ['composer', 'dump-autoload'],
+            ['composer', 'bin', 'addons', 'update', '-a', '-o', '--prefer-lowest'],
+        ];
 
-            return Command::FAILURE;
-        }
+        $composerReturn = $this->runShellCommands($composerCommands, $output);
 
         if (0 !== $composerReturn) {
             $output->error('Composer commands failed! This is most likely due to a conflict in dependency versions. Please check manually!');
@@ -194,16 +190,16 @@ class AddonInstallFromZipCommand extends CoreCommand
             /** @var DemosPlanKernel $kernel */
             $activeProject = $kernel->getActiveProject();
 
-            $batch = Batch::create($this->getApplication(), $output)
-                ->addShell(["bin/{$activeProject}", 'cache:clear', '-e', $environment]);
+            $shellCommands = [
+                ["bin/{$activeProject}", 'cache:clear', '-e', $environment],
+            ];
+
             // if addon has a package.json, build the frontend assets
             if (file_exists($this->zipCachePath.'package.json')) {
-                $batch->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name, '-e', $environment]);
+                $shellCommands[] = ["bin/{$activeProject}", 'dplan:addon:build-frontend', $name, '-e', $environment];
             }
-            $batchReturn = $batch->run();
-            if ($batch->hasException()) {
-                $output->error($batch->getLastException()->getMessage());
-            }
+
+            $batchReturn = $this->runShellCommands($shellCommands, $output);
 
             if (0 === $batchReturn) {
                 $output->success("Addon {$name} successfully installed. Please remember to ".
@@ -213,8 +209,6 @@ class AddonInstallFromZipCommand extends CoreCommand
             }
         } catch (Exception $e) {
             $output->error($e->getMessage());
-            // this hint may be removed in symfony6 when we can update the efrane/console-additions
-            // to a version bigger than 0.7, as the batch will not swallow the exception anymore
             $output->info('If you have no clue why this happened, you may try to install '.
                 'the addon manually by performing
                 `composer bin addons update --prefer-lowest -a -o`');
@@ -628,5 +622,31 @@ class AddonInstallFromZipCommand extends CoreCommand
         }
 
         return $this->getGithubItem($ghUrl, $ghOptions, $input, $output);
+    }
+
+    /**
+     * Runs shell commands sequentially, stopping on first failure.
+     *
+     * @param array<int, array<int, string>> $commands
+     *
+     * @return int Exit code (0 on success, non-zero on failure)
+     */
+    private function runShellCommands(array $commands, OutputInterface $output): int
+    {
+        foreach ($commands as $command) {
+            $process = new Process($command);
+            $process->setTimeout(300);
+            $process->run(function ($type, $buffer) use ($output) {
+                $output->write($buffer);
+            });
+
+            if (!$process->isSuccessful()) {
+                $output->writeln('<error>Command failed: '.implode(' ', $command).'</error>');
+
+                return $process->getExitCode();
+            }
+        }
+
+        return 0;
     }
 }
