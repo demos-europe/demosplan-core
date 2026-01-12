@@ -102,7 +102,7 @@ class SegmentController extends BaseController
             RecommendationRequestEventInterface::class
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_statement_segments_list.html.twig',
             [
                 'procedure'                  => [
@@ -188,8 +188,8 @@ class SegmentController extends BaseController
         foreach ($uploads as $uploadHash) {
             $file = $fileService->getFileInfo($uploadHash);
             $fileName = $file->getFileName();
+            $job = new ImportJob();
             try {
-                $job = new ImportJob();
                 $job->setProcedure($procedure);
                 $job->setUser($currentUser->getUser());
                 $job->setFilePath($uploadHash);
@@ -222,10 +222,8 @@ class SegmentController extends BaseController
                 ]);
 
                 // Mark job as failed if it was created
-                if (isset($job)) {
-                    $job->markAsFailed($e->getMessage());
-                    $entityManager->flush();
-                }
+                $job->markAsFailed($e->getMessage());
+                $entityManager->flush();
 
                 $this->getMessageBag()->add(
                     'error',
@@ -333,7 +331,7 @@ class SegmentController extends BaseController
         $filterNames = $filterUiDataProvider->getFilterNames();
         $filterNames = $filterUiDataProvider->addSelectedField($filterNames, $filter);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_segments_list.html.twig',
             [
                 'filterNames'      => $filterNames,

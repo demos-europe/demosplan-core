@@ -143,7 +143,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             $templateVars['filterHash'] = $request->getSession()->get('filterHash', null);
             $templateVars['procedure'] = $procedure;
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanStatement/fragment_statement.html.twig',
                 [
                     'templateVars' => $templateVars,
@@ -227,7 +227,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         $templateVars['filterSet']['activeFilters'] = $filterSet;
         // </temporaryHack>
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_statement_fragments_archive.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -326,7 +326,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         $templateVars['filterSet']['activeFilters'] = $filterSet;
         // </temporaryHack>
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_statement_fragments.html.twig',
             [
                 'templateVars' => $templateVars,

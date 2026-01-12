@@ -66,7 +66,7 @@ class DemosPlanCustomerController extends BaseController
                 'imprintUrl'    => $router->generate('DemosPlan_misccontent_static_imprint', [], RouterInterface::ABSOLUTE_URL),
             ];
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanUser/customer_settings.html.twig',
                 [
                     'templateVars' => $templateVars,
@@ -142,7 +142,7 @@ class DemosPlanCustomerController extends BaseController
             $emailAddresses = $userService->getEmailsOfUsersOfOrgas($currentCustomer);
             $templateVars['usersCount'] = count($emailAddresses);
             if ($request->isMethod('GET')) {
-                return $this->renderTemplate(
+                return $this->render(
                     '@DemosPlanCore/DemosPlanUser/customer_settings_update_mail.html.twig',
                     [
                         'templateVars' => $templateVars,
@@ -166,7 +166,7 @@ class DemosPlanCustomerController extends BaseController
             );
             $this->getMessageBag()->add('confirm', 'confirm.email.sent');
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanUser/customer_settings_update_mail.html.twig',
                 [
                     'templateVars' => $templateVars,

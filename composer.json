@@ -133,7 +133,6 @@
     "symfony/serializer": "6.*.*",
     "symfony/stopwatch": "6.*.*",
     "symfony/string": "6.*.*",
-    "symfony/templating": "6.*.*",
     "symfony/translation": "6.*.*",
     "symfony/twig-bridge": "6.*.*",
     "symfony/twig-bundle": "6.*.*",
