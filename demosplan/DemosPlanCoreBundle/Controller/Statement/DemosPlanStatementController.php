@@ -863,7 +863,7 @@ class DemosPlanStatementController extends BaseController
             // avoid brute force attacks
             if (false === $limiter->consume(1)->isAccepted()) {
                 if (true === $parameterBag->get('ratelimit_public_statement_enable')) {
-                    throw new TooManyRequestsHttpException();
+                 //   throw new TooManyRequestsHttpException();
                 }
                 $this->logger->warning('Rate limiting for public statement is disabled but would have been active now.', ['ip' => $request->getClientIp()]);
             }

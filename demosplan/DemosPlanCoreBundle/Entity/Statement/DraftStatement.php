@@ -1800,4 +1800,9 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     {
         $this->anonymous = $anonymous;
     }
+
+    public function setCustomFields($customFields): void
+    {
+        $this->customFields = $customFields;
+    }
 }
