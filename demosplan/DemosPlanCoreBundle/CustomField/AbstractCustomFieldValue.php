@@ -34,7 +34,7 @@ abstract class AbstractCustomFieldValue
 
     /**
      * Get the value stored in this field.
-     * Return type varies by implementation (string, array, DateTime, etc.)
+     * Return type varies by implementation (string, array, DateTime, etc.).
      */
     abstract public function getValue(): mixed;
 
