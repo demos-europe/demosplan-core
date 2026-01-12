@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
-use demosplan\DemosPlanCoreBundle\CustomField\AbstractCustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -21,10 +21,8 @@ use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 
 class CustomFieldValueCreator
 {
-    public function __construct(
-        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
-        private readonly CustomFieldValueFactory $customFieldValueFactory,
-    ) {
+    public function __construct(private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
+    {
     }
 
     public function updateOrAddCustomFieldValues(
@@ -34,85 +32,78 @@ class CustomFieldValueCreator
         string $sourceEntityClass,
         string $targetEntityClass,
     ): CustomFieldValuesList {
-        // Create a completely new object - DON'T modify the passed-in object
+        // Store original data as JSON representation before making any changes
+        // Create a completely new object - DON'T modify the passed-in object at all
         $updatedCustomFieldValuesList = new CustomFieldValuesList();
 
         // Copy all existing values to the new object first
         if ($currentCustomFieldValuesList->getCustomFieldsValues()) {
             foreach ($currentCustomFieldValuesList->getCustomFieldsValues() as $existingValue) {
-                // Clone using factory to ensure proper type
-                $clonedValue = $this->customFieldValueFactory->createFromValue($existingValue);
-                $updatedCustomFieldValuesList->addCustomFieldValue($clonedValue);
+                $newValue = new CustomFieldValue();
+                $newValue->fromJson($existingValue->toJson());
+                $updatedCustomFieldValuesList->addCustomFieldValue($newValue);
             }
         }
 
-        // Process each new value
-        foreach ($newCustomFieldValuesData as $newValueData) {
-            // Use factory to create the correct value type
-            $newCustomFieldValue = $this->customFieldValueFactory->createFromJson(
-                $newValueData,
-                $sourceEntityClass,
-                $sourceEntityId,
-                $targetEntityClass
-            );
+        // Parse the new values
+        $newCustomFieldValuesList = new CustomFieldValuesList();
+        $newCustomFieldValuesList->fromJson($newCustomFieldValuesData);
 
-            // Get field configuration for validation
+        // Now apply changes to our new copy
+        foreach ($newCustomFieldValuesList->getCustomFieldsValues() as $newCustomFieldValue) {
+            /** @var CustomFieldValue $newCustomFieldValue */
             $customField = $this->getCustomField(
                 $sourceEntityClass,
                 $sourceEntityId,
                 $targetEntityClass,
-                $newCustomFieldValue->getId()
-            );
+                $newCustomFieldValue->getId());
+            $this->validateCustomFieldValue($customField, $newCustomFieldValue->getValue());
 
-            // Validate the value against business rules
-            $this->validateCustomFieldValue($customField, $newCustomFieldValue);
-
-            // Find existing value in our new list
+            // Find in our new copy, not in the original
             $existingCustomFieldValue = $updatedCustomFieldValuesList->findById($newCustomFieldValue->getId());
 
-            if ($existingCustomFieldValue instanceof AbstractCustomFieldValue) {
-                $this->handleExistingCustomField(
-                    $updatedCustomFieldValuesList,
-                    $existingCustomFieldValue,
-                    $newCustomFieldValue
-                );
+            if ($existingCustomFieldValue instanceof CustomFieldValue) {
+                $this->handleExistingCustomField($updatedCustomFieldValuesList, $existingCustomFieldValue, $newCustomFieldValue);
             } else {
                 $this->handleNewCustomField($updatedCustomFieldValuesList, $newCustomFieldValue);
             }
         }
 
-        // Sort fields to ensure consistent ordering
+        // Sort fields to ensure consistent ordering in the database
         $updatedCustomFieldValuesList->sortByFieldId();
 
-        // Reindex array
+        // At the very end, before returning, ensure array is properly indexed
         $updatedCustomFieldValuesList->reindexValues();
 
+        // Never modify the passed-in object - return a completely new one
         return $updatedCustomFieldValuesList;
     }
 
     protected function handleExistingCustomField(
         CustomFieldValuesList $updatedCustomFieldValuesList,
-        AbstractCustomFieldValue $existingCustomFieldValue,
-        AbstractCustomFieldValue $newCustomFieldValue,
+        CustomFieldValue $existingCustomFieldValue,
+        CustomFieldValue $newCustomFieldValue,
     ): void {
         // If the value is null, remove this field from the updated list
+
         if (null === $newCustomFieldValue->getValue()) {
-            $updatedCustomFieldValuesList->removeCustomFieldValue($existingCustomFieldValue);
+            $updatedCustomFieldValuesList->removeCustomFieldValue($newCustomFieldValue);
 
             return;
         }
 
-        // Update the existing value
         $existingCustomFieldValue->setValue($newCustomFieldValue->getValue());
     }
 
     protected function handleNewCustomField(
         CustomFieldValuesList $updatedCustomFieldValuesList,
-        AbstractCustomFieldValue $newCustomFieldValue,
+        CustomFieldValue $newCustomFieldValue,
     ): void {
         // Skip adding fields marked for removal
         if (null !== $newCustomFieldValue->getValue()) {
-            $updatedCustomFieldValuesList->addCustomFieldValue($newCustomFieldValue);
+            $brandNewValue = new CustomFieldValue();
+            $brandNewValue->fromJson($newCustomFieldValue->toJson());
+            $updatedCustomFieldValuesList->addCustomFieldValue($brandNewValue);
         }
     }
 
