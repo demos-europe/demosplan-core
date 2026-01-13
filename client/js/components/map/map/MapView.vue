@@ -94,6 +94,9 @@
           <dp-contextual-help
             class="float-right"
             :text="Translator.trans('explanation.territory.desc')" />
+          <p class="lbl__hint mt-1">
+           {{ Translator.trans('map.territory.hint') }}
+          </p>
         </div>
 
         <div

@@ -1829,6 +1829,7 @@ gislayer.xplan: "XPlan-Layer"
 gislayer: "Kartenebenen"
 gislayer.defined: 'Kartenebenen sind definiert'
 gislayer.define: 'Kartenebenen definieren'
+gislayer.scope.hint: "Ist die Option \"Geltungsbereich\" aktiviert, wird diese Kartenebene als Geltungsbereich in der Beteiligungsebene verwendet. Ein manuell eingezeichneter Geltungsbereich wird in diesem Fall nicht angezeigt. Um den manuellen Geltungsbereich zu verwenden, stellen Sie sicher, dass diese Option in allen Kartenebenen deaktiviert ist."
 globalnews.administrate: "Portal-Mitteilungen verwalten"
 globalnews: "Portal-Mitteilungen"
 goto.participation: "Zur Beteiligung: {procedure}"
@@ -2160,6 +2161,7 @@ maplayer.no.supported.matrix: "Für die ausgewählten Layer wird kein gemeinsame
 maps: "Karten"
 mapsection.define: "Kartenausschnitt definieren"
 mapsection: "Startkartenausschnitt / Kartenbegrenzung"
+map.territory.hint: " Um den hier eingezeichneten Geltungsbereich in der Beteiligungsebene anzuzeigen, stellen Sie bitte sicher, dass für keine der in diesem Verfahren hinterlegten Kartenebenen die Option \"Geltungsbereich\" ausgewählt ist. Ansonsten wird die jeweilige Kartenebene als Geltungsbereich angezeigt, und der hier eingezeichnete Geltungsbereich wird nicht angezeigt."
 maptools: "Kartenwerkzeuge"
 maptools.explanation: "Kartenwerkzeug durch Klick aktivieren oder deaktivieren. Die Messung durch Klick in die Karte starten. Die Messung durch Doppelklick beenden. Die Messungen bleiben sichtbar bis sie mit \"Messungen entfernen\" aus der Karte entfernt werden."
 markall: "Alle markieren"
