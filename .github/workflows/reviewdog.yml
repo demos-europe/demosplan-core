@@ -24,7 +24,7 @@ jobs:
     if: github.event.pull_request.draft == false
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '24.11.1'
       - run: npm install --ignore-scripts -g corepack && corepack enable && yarn set version 4.2.2
@@ -42,12 +42,12 @@ jobs:
 
       - run: yarn install --immutable
 
-      - uses: reviewdog/action-setup@v1.4
+      - uses: reviewdog/action-setup@v1.5
 
       - name: Setup PHP with composer v2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: '8.2'
           extensions: gd soap sockets zip
           tools: composer:v2
 

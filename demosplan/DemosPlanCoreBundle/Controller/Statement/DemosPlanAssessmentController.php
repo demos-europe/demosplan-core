@@ -129,7 +129,7 @@ class DemosPlanAssessmentController extends BaseController
             'procedureId' => $procedureId,
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_orga_statements.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -203,7 +203,7 @@ class DemosPlanAssessmentController extends BaseController
 
         // atm use Template from DemosPlanAssessmentTableBundle as refactoring it to this Bundle
         // generates quite a hassle as it needs to be done in all projects
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_new_statement.html.twig',
             [
                 'procedure'    => $procedureId,
@@ -249,7 +249,7 @@ class DemosPlanAssessmentController extends BaseController
             ]
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
             ['title' => $title, 'templateVars' => $templateVars]
         );
@@ -269,7 +269,7 @@ class DemosPlanAssessmentController extends BaseController
         $templateVars['table']['statement'] = $statement;
         $templateVars['table']['procedure'] = $statement->getProcedure();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
             [
                 'templateVars' => $templateVars,
