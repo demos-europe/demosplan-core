@@ -72,10 +72,10 @@
                                         >
                                         {{ "layer.territory"|trans }}
                                     </label>
-                                    <p id="scopeHint" class="lbl__hint{% if gislayer.scope|default(false) != true %} hidden{% endif %}">
-                                        Ist die Option "Geltungsbereich" aktiviert, wird diese Kartenebene als Geltungsbereich in der Beteiligungsebene verwendet.
-                                        Ein manuell eingezeichneter Geltungsbereich wird in diesem Fall nicht angezeigt. Um den manuellen
-                                        Geltungsbereich zu verwenden, stellen Sie sicher, dass diese Option in allen Kartenebenen deaktiviert ist.
+                                    <p
+                                        id="scopeHint"
+                                        class="lbl__hint{% if gislayer.scope|default(false) != true %} hidden{% endif %}">
+                                        {{ 'gislayer.scope.hint'|trans }}
                                     </p>
                                 </li>
                             {% endif %}
