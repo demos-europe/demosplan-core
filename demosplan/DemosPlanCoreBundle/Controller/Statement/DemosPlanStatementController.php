@@ -74,7 +74,6 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use Doctrine\Common\Annotations\AnnotationReader;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use Exception;
 use RuntimeException;
@@ -119,7 +118,7 @@ class DemosPlanStatementController extends BaseController
         private readonly PermissionsInterface $permissions,
         private readonly NameGenerator $nameGenerator,
         private readonly ConditionFactoryInterface $conditionFactory,
-        private readonly CustomFieldResourceType $customFieldResourceType,)
+        private readonly CustomFieldResourceType $customFieldResourceType, )
     {
     }
 
@@ -433,7 +432,7 @@ class DemosPlanStatementController extends BaseController
                 }
             }
 
-            //@todo possible to load customFields to send them here to twig template usage
+            // @todo possible to load customFields to send them here to twig template usage
             if ($this->currentUser->hasPermission('feature_statements_custom_fields')) {
                 $templateVars['customFields'] = $this->loadCustomFields($procedureId);
             }
@@ -475,7 +474,8 @@ class DemosPlanStatementController extends BaseController
     protected function loadCustomFields(string $procedureId): array
     {
         $procedureCondition = $this->conditionFactory->propertyHasValue($procedureId, ['sourceEntityId']);
-        return $this->customFieldResourceType->getEntities([ $procedureCondition], []);
+
+        return $this->customFieldResourceType->getEntities([$procedureCondition], []);
     }
 
     /**
