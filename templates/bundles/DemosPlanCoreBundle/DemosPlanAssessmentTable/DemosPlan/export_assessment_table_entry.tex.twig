@@ -72,7 +72,7 @@
         \end{Parallel}
     \begin{Parallel}{\columnsep}{\columnsep}
     \ParallelLText{{ '{' }}{{ statement.text|default("notspecified"|trans)|latex(listwidth=templateVars.listwidth)|raw }}{{ '}' }}
-    \ParallelRText{{ '{' }}{% if statement.voteText is defined and statement.voteText is not empty %}{{ statement.voteText|latex|raw }}{{ '\n\n' }}{% endif %}{{ statement.recommendation|default("notspecified"|trans)|latex|raw }}{{ '}' }}
+    \ParallelRText{{ '{' }}{{ statement_macros.render_vote_text(statement) }}{{ statement.recommendation|default("notspecified"|trans)|latex|raw }}{{ '}' }}
     \end{Parallel}
     {% if statement.mapFile is defined and statement.mapFile != "" %}
     {% if statement.mapFile != "---" %}
