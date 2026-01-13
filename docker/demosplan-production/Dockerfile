@@ -135,7 +135,7 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
     touch /var/log/php8.3-fpm.log && chown www-data:www-data /var/log/php8.3-fpm.log
 
-FROM demosdeutschland/demosplan-base:latest AS fpm
+FROM build AS fpm
 
 ARG PROJECT_NAME
 ENV PROJECT_PREFIX=$PROJECT_NAME \
