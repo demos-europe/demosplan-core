@@ -44,6 +44,26 @@ export default () => {
     }
   })
 
+  // Handle scope checkbox hint visibility
+  const scopeCheckbox = document.querySelector('#scope')
+  const bPlanCheckbox = document.querySelector('#bPlan')
+  const scopeHint = document.querySelector('#scopeHint')
+
+  if (scopeCheckbox && scopeHint) {
+    scopeCheckbox.addEventListener('change', (e) => {
+      scopeHint.classList.toggle('hidden', !e.target.checked)
+    })
+  }
+
+  // Hide scope hint when bPlan is checked (since it unchecks scope)
+  if (bPlanCheckbox && scopeHint) {
+    bPlanCheckbox.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        scopeHint.classList.add('hidden')
+      }
+    })
+  }
+
   const elementsHiddenForBaseMap = [
     {
       node: document.querySelector('input[name="r_user_toggle_visibility"]'),
