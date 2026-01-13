@@ -1122,7 +1122,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         TagTopic $miscTopic,
         Segment $segment,
         int $line,
-        string $worksheetTitle
+        string $worksheetTitle,
     ): void {
         $procedureId = $statement->getProcedure()->getId();
         if (is_numeric($tagTitles)) {
