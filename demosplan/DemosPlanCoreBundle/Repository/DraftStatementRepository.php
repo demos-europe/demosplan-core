@@ -347,6 +347,10 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             $entity->setAuthorOnly($data['authorOnly']);
         }
 
+        if (array_key_exists('custom_fields', $data)) {
+            $entity->setCustomFields($data['custom_fields']);
+        }
+
         return $entity;
     }
 

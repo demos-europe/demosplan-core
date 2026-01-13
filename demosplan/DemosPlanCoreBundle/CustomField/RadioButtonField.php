@@ -67,10 +67,15 @@ class RadioButtonField extends AbstractCustomField
         $this->options = $options;
     }
 
-    public function isValueValid(?string $value): bool
+    public function isValueValid(mixed $value): bool
     {
         if (null === $value) {
             return true;
+        }
+
+        // SingleSelect must be a string, not an array
+        if (!is_string($value)) {
+            return false;
         }
 
         return collect($this->options)->contains(fn ($option) => $option->getId() === $value);

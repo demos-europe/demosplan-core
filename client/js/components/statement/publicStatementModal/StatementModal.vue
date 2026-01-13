@@ -1549,6 +1549,14 @@ export default {
         delete dataToSend.r_email
       }
 
+      /*
+       * DataToSend.customFields = JSON.stringify([{
+       *id: 'MULTISELECT_CUSTOM_FIELD_ID',
+       *value: ['MULTISELECT_CUSTOM_FIELD_VALUE_ID_1', 'MULTISELECT_CUSTOM_FIELD_VALUE_ID_12'],
+       *}])
+       */
+
+
       return dataToSend
     },
 
