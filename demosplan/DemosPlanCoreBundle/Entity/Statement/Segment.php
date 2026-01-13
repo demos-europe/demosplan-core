@@ -78,13 +78,6 @@ class Segment extends Statement implements SegmentInterface
     #[Assert\NotBlank(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, SegmentInterface::VALIDATION_GROUP_IMPORT])]
     private $place;
 
-    /**
-     * @var CustomFieldValuesList
-     *
-     * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
-     */
-    private $customFields;
-
     public function __construct()
     {
         parent::__construct();
@@ -149,15 +142,5 @@ class Segment extends Statement implements SegmentInterface
         $this->comments->add($comment);
 
         return $this;
-    }
-
-    public function getCustomFields(): ?CustomFieldValuesList
-    {
-        return $this->customFields;
-    }
-
-    public function setCustomFields($customFields): void
-    {
-        $this->customFields = $customFields;
     }
 }
