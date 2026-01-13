@@ -967,6 +967,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $statement['statementAttributes']['county'] = '';
         }
 
+        if (array_key_exists('customFields', $data)) {
+            $statement['customFields'] = $data['customFields'];
+        }
+
         // Alle Stellungnahmen sind externe SN
         $statement['publicStatement'] = Statement::EXTERNAL;
 
@@ -1985,6 +1989,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 'r_document_title',
                 'r_phone',
                 'r_submitter_role',
+                'customFields',
             ],
         ];
     }
