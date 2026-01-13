@@ -1985,6 +1985,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 'r_document_title',
                 'r_phone',
                 'r_submitter_role',
+                'customFields'
             ],
         ];
     }
