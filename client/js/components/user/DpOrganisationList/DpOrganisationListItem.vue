@@ -19,6 +19,7 @@
         <input
           v-if="editable && selectable"
           :id="`selected` + organisation.id"
+          :aria-label="Translator.trans('organisation.select', { name: `${ organisation.attributes.name}` })"
           type="checkbox"
           :checked="selected"
           data-cy="organisationItemSelect"

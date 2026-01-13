@@ -11,11 +11,12 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && echo "deb https://packages.sury.org/php/ bookworm main" > /etc/apt/sources.list.d/deb.sury.org.list \
     && apt-get update -y \
     && apt-get --no-install-recommends install acl bind9-host ca-certificates composer curl  \
-    default-mysql-client gettext-base lnav npm php8.2 php8.2-apcu php8.2-bcmath php8.2-bz2 php8.2-cli  \
-    php8.2-common php8.2-curl php-excimer php8.2-fpm php8.2-gd php8.2-intl php8.2-mbstring php8.2-mysqli php8.2-soap  \
-    php8.2-sqlite3 php8.2-xml php8.2-zip unzip vim-tiny -y \
+    default-mysql-client gettext-base lnav npm php8.3 php8.3-apcu php8.3-bcmath php8.3-bz2 php8.3-cli  \
+    php8.3-common php8.3-curl php-excimer php8.3-fpm php8.3-gd php8.3-intl php8.3-mbstring php8.3-mysqli php8.3-soap  \
+    php8.3-sqlite3 php8.3-xml php8.3-zip unzip vim-tiny -y \
+    && update-alternatives --set php /usr/bin/php8.3 \
     && mkdir -p /opt/uploads
-COPY zzz-dplan-cli.ini /etc/php/8.2/cli/conf.d/zzz-dplan-cli.ini
+COPY zzz-dplan-cli.ini /etc/php/8.3/cli/conf.d/zzz-dplan-cli.ini
 
 WORKDIR /srv/www
 
