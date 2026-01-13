@@ -1308,6 +1308,28 @@ export default {
       }
     },
 
+    handleCustomFieldChange () {
+      this.$nextTick(() => {
+        if (!this.selectableCustomFields || this.selectableCustomFields.length === 0) {
+          this.setStatementData({ customFields: [] })
+          return
+        }
+
+        // Transform all custom fields to storage format
+        const customFields = this.selectableCustomFields
+          .filter(field => field.selected && field.selected.length > 0)
+          .map(field => ({
+            id: field.id,
+            value: field.selected.reduce((acc, option) => {
+              acc[option.id] = option.id
+              return acc
+            }, {})
+          }))
+
+        this.setStatementData({ customFields })
+      })
+    },
+
     fieldIsActive (fieldKey) {
       return this.formFields.map(el => el.name).includes(fieldKey)
     },
