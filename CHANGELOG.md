@@ -7,6 +7,7 @@
 ## UNRELEASED
 
 ### Added
+- Add support for Abwägungsvorschlag (vote advice) dropdown functionality for statements, including display in PDF and DOCX exports.
 - StatementExportModal: Adds a tags filter to the export modal, allowing statements to be filtered by tags during export
 
 - Add permission check for agency email fields
@@ -96,6 +97,7 @@
 
 ## v4.4.0 (2025-06-13)
 
+## v4.3.5 (2025-11-24)
 ## 4.3.4 (2025-11-14)
 - implement option to import additional submitters via statement ID in statement imports via xlsx
 - adjust example statement import xlsx files

@@ -40,7 +40,7 @@ export default {
     agenciesOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     authorizedUsersOptions: {

@@ -61,7 +61,7 @@
           :tree-data="tagCategoriesWithTags"
         >
           <template v-slot:header>
-            <div>
+            <div id="categoryOrTagLabel">
               {{ Translator.trans('category_or_tag') }}
             </div>
           </template>
