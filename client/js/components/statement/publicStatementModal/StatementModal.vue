@@ -159,6 +159,28 @@
           />
         </div>
 
+        <div
+          v-for="(selectableCustomField) in selectableCustomFields"
+          class="mb-2">
+          <dp-label
+            :text="selectableCustomField.name"
+            :for="selectableCustomField.id"
+            class="mb-2"
+          />
+
+          <dp-multiselect
+            :id="selectableCustomField.name"
+            v-model="selectableCustomField.selected"
+            :data-dp-validate-error-fieldname="selectableCustomField.name"
+            :options="selectableCustomField.options"
+            :required="selectableCustomField.isRequired"
+            label="label"
+            multiple
+            track-by="id"
+            @input="handleCustomFieldChange"
+          />
+        </div>
+
         <div :class="prefixClass('c-statement__text')">
           <dp-label
             :text="Translator.trans('statement.detail.form.statement_text')"
@@ -685,6 +707,7 @@
           :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
           :statement-feedback-definitions="statementFeedbackDefinitions"
           :statement-form-hint-recheck="statementFormHintRecheck"
+          :selectable-custom-fields="selectableCustomFields"
           @edit-input="handleEditInput"
         />
 
@@ -1074,6 +1097,7 @@ export default {
         },
       },
       continueWriting: false,
+      selectableCustomFields: [],
       draftStatementId: '',
       editDraftDataInPublicDetail: true,
       formFields: [...this.statementFormFields, ...this.personalDataFormFields, ...this.feedbackFormFields],
