@@ -605,15 +605,6 @@ class DraftStatementHandler extends CoreHandler
         return array_merge($data, $userData);
     }
 
-    public function addCustomFieldValues(array $data): array
-    {
-        foreach ($customFields as $key => $value) {
-            $statement[$key] = $value;
-        }
-
-        return $statement;
-    }
-
     /**
      * Verarbeitet alle Anfragen aus der Listenansicht.
      * Liefert eine Liste von Verfahren.
