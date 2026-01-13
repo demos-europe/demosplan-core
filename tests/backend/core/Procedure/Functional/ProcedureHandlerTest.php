@@ -43,7 +43,7 @@ class ProcedureHandlerTest extends FunctionalTestCase
     public function testGetAllProceduresWithSoonEndingPhases(): void
     {
         $externalWritePhaseKeys = $this->sut->getDemosplanConfig()->getInternalPhaseKeys('write');
-        $procedures = $this->sut->getAllProceduresWithSoonEndingPhases($externalWritePhaseKeys, 6);
+        $procedures = $this->sut->getAllProceduresWithSoonEndingPhases($externalWritePhaseKeys, 7);
         static::assertCount(1, $procedures);
     }
 
