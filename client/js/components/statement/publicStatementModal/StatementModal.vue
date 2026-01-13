@@ -1259,6 +1259,55 @@ export default {
       return `<p>${Translator.trans('error.in.fields')}</p><ul class="list-disc u-ml-0_75">${uniqueFieldDescriptions.join('')}</ul>`
     },
 
+    async fetchCustomFields () {
+      if (!hasPermission('feature_statements_custom_fields')) {
+        return
+      }
+
+      try {
+        const url = Routing.generate('api_resource_list', {
+          resourceType: 'CustomField'
+        })
+
+        const params = {
+          fields: {
+            CustomField: [
+              'name',
+              'description',
+              'options',
+              'fieldType',
+              'isRequired'
+            ].join()
+          },
+          filter: {
+            sourceEntityId: {
+              condition: {
+                path: 'sourceEntityId',
+                value: this.procedureId,
+              }
+            }
+          }
+        }
+
+        const response = await dpApi.get(url, params)
+
+        const customFields = response.data.data || []
+
+        this.selectableCustomFields = customFields.map(field => ({
+          id: field.id,
+          name: field.attributes.name,
+          description: field.attributes.description,
+          isRequired: field.attributes.isRequired || false,
+          options: Array.isArray(field.attributes.options) ? field.attributes.options : [],
+          selected: []
+        }))
+      } catch (error) {
+        console.log(error)
+
+        this.selectableCustomFields = []
+      }
+    },
+
     fieldIsActive (fieldKey) {
       return this.formFields.map(el => el.name).includes(fieldKey)
     },
@@ -1762,6 +1811,8 @@ export default {
   },
 
   mounted () {
+    this.fetchCustomFields()
+
     if (!this.allowAnonymousStatements && this.formData.r_useName !== '1') {
       this.setPrivacyPreference({ r_useName: '1' })
     }
