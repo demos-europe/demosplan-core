@@ -12,7 +12,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && apt-get update -y \
     && apt-get --no-install-recommends install acl bind9-host ca-certificates composer curl  \
     default-mysql-client gettext-base lnav npm php8.3 php8.3-apcu php8.3-bcmath php8.3-bz2 php8.3-cli  \
-    php8.3-common php8.3-curl php-excimer php8.3-fpm php8.3-gd php8.3-intl php8.3-mbstring php8.3-mysqli php8.3-soap  \
+    php8.3-common php8.3-curl php8.3-excimer php8.3-fpm php8.3-gd php8.3-intl php8.3-mbstring php8.3-mysqli php8.3-soap  \
     php8.3-sqlite3 php8.3-xml php8.3-zip unzip vim-tiny -y \
     && update-alternatives --set php /usr/bin/php8.3 \
     && mkdir -p /opt/uploads
@@ -141,7 +141,7 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
     touch /var/log/php8.3-fpm.log && chown www-data:www-data /var/log/php8.3-fpm.log
 
-FROM demosdeutschland/demosplan-base:latest AS fpm
+FROM build AS fpm
 
 ARG PROJECT_NAME
 ENV PROJECT_PREFIX=$PROJECT_NAME \
