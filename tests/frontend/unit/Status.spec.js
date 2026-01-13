@@ -25,11 +25,11 @@ describe('Status', () => {
         badge: false,
         tooltip: true,
         transNone: 'fragment.voteAdvice.status.none',
-        transDone: 'fragment.voteAdvice.status.done'
+        transDone: 'fragment.voteAdvice.status.done',
       },
       global: {
-        renderStubDefaultSlot: true
-      }
+        renderStubDefaultSlot: true,
+      },
     })
   })
 

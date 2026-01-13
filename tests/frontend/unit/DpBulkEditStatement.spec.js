@@ -18,19 +18,19 @@ describe('DpBulkEditStatement', () => {
   beforeEach(() => {
     store = createStore({
       modules: {
-        Statement: StatementStore
-      }
+        Statement: StatementStore,
+      },
     })
 
     wrapper = shallowMountWithGlobalMocks(DpBulkEditStatement, {
       props: {
         authorisedUsers: [],
         currentUserId: '1',
-        procedureId: '1'
+        procedureId: '1',
       },
       global: {
-        plugins: [store]
-      }
+        plugins: [store],
+      },
     })
   })
 

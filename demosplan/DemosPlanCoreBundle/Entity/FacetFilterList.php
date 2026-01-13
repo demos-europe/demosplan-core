@@ -55,7 +55,7 @@ class FacetFilterList
         }
 
         // Der Filter ist registriert, erhöhe den Count um einen
-        if (true === $entitySet) {
+        if ($entitySet) {
             $filter = $this->list[$filter->getFilterName()][$filter->getEntityId()];
             $filter->setCount($filter->getCount() + 1);
         }

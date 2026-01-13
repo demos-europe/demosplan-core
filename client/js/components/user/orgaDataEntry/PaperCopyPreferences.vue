@@ -2,37 +2,42 @@
   <fieldset
     v-if="hasPaperCopyPermission"
     id="paperCopy"
-    class="w-3/4">
+    class="w-3/4"
+  >
     <legend class="font-size-large weight--normal u-mb-0_75">
       {{ Translator.trans('copies.paper') }}
     </legend>
 
     <div
       v-if="hasPermission('field_organisation_paper_copy')"
-      class="w-full mb-3">
+      class="w-full mb-3"
+    >
       <dp-select
         id="orga_paperCopy"
-        :name="`${organisation.id}:paperCopy`"
         v-model="organisation.paperCopy"
+        :name="`${organisation.id}:paperCopy`"
         data-cy="organisationData:paperCopy:select"
         :label="{
           text: Translator.trans('copies.paper'),
           hint: Translator.trans('explanation.organisation.copies.paper')
         }"
         :selected="organisation.paperCopy"
-        :options="paperCopyCountOptions()" />
+        :options="paperCopyCountOptions()"
+      />
     </div>
 
     <div
       v-if="hasPermission('field_organisation_paper_copy_spec')"
-      class="w-full mb-3">
+      class="w-full mb-3"
+    >
       <dp-text-area
         id="orga_paperCopySpec"
         data-cy="organisationData:paperCopy:specification"
         :name="`${organisation.id}:paperCopySpec`"
         :v-model="organisation.paperCopySpec"
         :label="Translator.trans('copies.kind')"
-        :hint="Translator.trans('explanation.organisation.copies.kind')" />
+        :hint="Translator.trans('explanation.organisation.copies.kind')"
+      />
     </div>
   </fieldset>
 </template>
@@ -45,30 +50,30 @@ export default {
 
   components: {
     DpSelect,
-    DpTextArea
+    DpTextArea,
   },
 
   props: {
     organisation: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
     hasPaperCopyPermission () {
       return hasPermission('field_organisation_paper_copy') ||
         hasPermission('field_organisation_paper_copy_spec')
-    }
+    },
   },
 
   methods: {
     paperCopyCountOptions () {
       return Array.from({ length: 11 }, (_, i) => ({
         label: i.toString(),
-        value: i
+        value: i,
       }))
-    }
-  }
+    },
+  },
 }
 </script>

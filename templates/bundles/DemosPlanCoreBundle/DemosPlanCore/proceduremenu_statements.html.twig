@@ -6,13 +6,15 @@
     {# the orga of the current user has to handle the draftstatements, not the ownerorga of the proceudre#}
     {% set isDefaultSubmissionProcess = currentUser.orga.submissionType|default(defaultSubmissionType) == defaultSubmissionType %}
     <nav
-        class="{{ 'c-pageheader__flyout c-flyout inline-block u-ml-lap-up u-mt-0_25-palm'|prefixClass }}"
-        data-actionmenu aria-label="{{ 'procedure.statements.mine'|trans }}"
+        aria-label="{{ 'procedure.statements.mine'|trans }}"
+        class="{{ 'c-pageheader__flyout c-flyout block sm:inline-block mt-1 sm:mt-0'|prefixClass }}"
+        data-actionmenu
         data-cy="flyOutActionMenu">
 
         <button
             class="{{ 'c-flyout__trigger'|prefixClass }}"
             data-cy="procedureMenuStatements:procedureStatements"
+            data-touch-flyout
             type="button"
             aria-haspopup="true">
             <span class="{{ 'c-flyout__trigger-inner'|prefixClass }}">

@@ -11,16 +11,18 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Help;
 
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository;
 use Doctrine\ORM\NoResultException;
 use Exception;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 
-class HelpService extends CoreService
+class HelpService
 {
-    public function __construct(private readonly ContextualHelpRepository $contextualHelpRepository)
-    {
+    public function __construct(
+        private readonly ContextualHelpRepository $contextualHelpRepository,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
@@ -107,7 +109,7 @@ class HelpService extends CoreService
             }
         } catch (NoResultException $e) {
             $this->logger->error('UpdateSingleContextualHelp failed, Ident: '.$id.' ExceptionMessage: ', [$e]);
-            throw new InvalidArgumentException();
+            throw new InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
         } catch (Exception $e) {
             $type = $e::class;
             $this->logger->error('UpdateSingleContextualHelp failed Ident: '.$id.', ExceptionClass: '.$type.' ExceptionMessage: ', [$e]);
@@ -136,7 +138,7 @@ class HelpService extends CoreService
 
             return $help;
         } catch (Exception $e) {
-            $this->getLogger()->error('Create ContextualHelp failed: ', [$e]);
+            $this->logger->error('Create ContextualHelp failed: ', [$e]);
             throw $e;
         }
     }

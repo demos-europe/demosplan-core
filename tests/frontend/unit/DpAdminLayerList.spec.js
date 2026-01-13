@@ -20,17 +20,15 @@ describe('AdminLayerList', () => {
 
   beforeEach(() => {
     mutations = {
-      setDraggableOptions: jest.fn(),
-      setDraggableOptionsForBaseLayer: jest.fn(),
-      setMinimapBaseLayer: jest.fn()
+      setMinimapBaseLayer: jest.fn(),
+      updateState: jest.fn(),
     }
 
     actions = {
       get: jest.fn(),
-      setDraggableOptions: jest.fn(),
       setListOrder: jest.fn(),
       resetOrder: jest.fn(),
-      save: jest.fn()
+      save: jest.fn(),
     }
 
     store = createStore({
@@ -40,20 +38,20 @@ describe('AdminLayerList', () => {
           state: LayersStore.state,
           mutations,
           actions,
-          getters: LayersStore.getters
-        }
-      }
+          getters: LayersStore.getters,
+        },
+      },
     })
   })
 
   it('should have the correct prop-values', () => {
     const wrapper = shallowMountWithGlobalMocks(AdminLayerList, {
       props: {
-        procedureId: 'some-id'
+        procedureId: 'some-id',
       },
       global: {
-        plugins: [store]
-      }
+        plugins: [store],
+      },
     })
 
     expect(wrapper.props().procedureId).toBe('some-id')
@@ -62,11 +60,11 @@ describe('AdminLayerList', () => {
   it('should render a empty admin layer list', () => {
     const wrapper = shallowMountWithGlobalMocks(AdminLayerList, {
       props: {
-        procedureId: 'some-id'
+        procedureId: 'some-id',
       },
       global: {
-        plugins: [store]
-      }
+        plugins: [store],
+      },
     })
     expect(wrapper.html()).toMatchSnapshot()
   })

@@ -97,10 +97,10 @@
     {% endfor %}
 
     <dp-basic-settings
-        inline-template
         plis-id="{{ proceduresettings.plisId|default }}"
         procedure-external-desc="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}"
         init-procedure-name="{{ proceduresettings.name|default( 'notspecified'|trans ) }}"
+        :agencies-options="JSON.parse('{{ agencies|default([])|json_encode|e('js', 'utf-8') }}')"
         :authorized-users-options="JSON.parse('{{ authUsers|default([])|json_encode|e('js', 'utf-8') }}')"
         :init-agencies="JSON.parse('{{ selectedAgencies|default([])|json_encode|e('js', 'utf-8') }}')"
         :init-auth-users="JSON.parse('{{ selectedAuthUsers|default([])|json_encode|e('js', 'utf-8') }}')"
@@ -109,7 +109,23 @@
         init-procedure-phase-internal="{{ proceduresettings.phase }}"
         init-procedure-phase-public="{{ proceduresettings.publicParticipationPhase }}"
         :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
+        :init-public-participation-feedback-enabled="{{ proceduresettings.settings.publicParticipationFeedbackEnabled ? 'true' : 'false' }}"
+        init-pictogram-alt-text="{{ proceduresettings.pictogramAltText|default }}"
+        init-pictogram-copyright="{{ proceduresettings.pictogramCopyright|default }}"
         procedure-id="{{ proceduresettings.id|default }}">
+
+        <template #default="{
+            authUsersOptions,
+            selectAllAuthUsers,
+            setSelectedInternalPhase,
+            setSelectedPublicPhase,
+            sortedAgenciesOptions,
+            state,
+            submit,
+            unselectAllAuthUsers,
+            updateAddonPayload
+          }">
+
         <form
             ref="configForm"
             name="configForm"
@@ -164,11 +180,11 @@
 
                                     <dp-multiselect
                                         id="r_agency"
-                                        v-model="selectedAgencies"
+                                        v-model="state.selectedAgencies"
                                         data-cy="internal:selectedAgencies"
                                         label="name"
                                         multiple
-                                        :options="JSON.parse('{{ agencies|default([])|json_encode|e('js', 'utf-8') }}')"
+                                        :options="sortedAgenciesOptions"
                                         track-by="id">
                                         <template v-slot:option="{ props }">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
@@ -205,7 +221,7 @@
                                     name="agencyMainEmailAddress[fullAddress]"
                                     required
                                     type="email"
-                                    value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}">
+                                    model-value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}">
                                 </dp-input>
                             </div>
 
@@ -253,8 +269,8 @@
 
                                     <dp-multiselect
                                         id="r_dataInputOrgaTest"
+                                        v-model="state.selectedDataInputOrgas"
                                         data-cy="internal:selectedDataInputOrgas"
-                                        v-model="selectedDataInputOrgas"
                                         label="name"
                                         multiple
                                         :options="JSON.parse('{{ dataInputOrgas|default([])|json_encode|e('js', 'utf-8') }}')"
@@ -286,15 +302,15 @@
 
                                     <dp-multiselect
                                         id="r_authorizedUsers"
-                                        v-model="selectedAuthUsers"
+                                        v-model="state.selectedAuthUsers"
                                         data-cy="internal:selectedAuthUsers"
                                         label="name"
                                         multiple
                                         :options="authUsersOptions"
                                         selection-controls
                                         track-by="id"
-                                        @select-all="selectAllAuthUsers"
-                                        @unselect-all="unselectAllAuthUsers">
+                                        @selectAll="selectAllAuthUsers"
+                                        @deselectAll="unselectAllAuthUsers">
                                         <template v-slot:option="{ props }">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </template>
@@ -336,19 +352,17 @@
                                     showPlainHint: true
                                 } %}
                                 {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
-                                <textarea
-                                    class="o-form__control-textarea h-7"
+                                <dp-text-area
+                                    class="bg-surface"
                                     data-cy="internal:internalNote"
+                                    grow-to-parent
                                     id="r_desc"
-                                    name="r_desc">
-                                    {%- if proceduresettings.desc is defined %}
-                                        {{- proceduresettings.desc -}}
-                                    {% else %}
-                                        {{- 'notspecified'|trans -}}
-                                    {% endif -%}
-                                </textarea>
+                                    name="r_desc"
+                                    reduced-height
+                                    value="{{ proceduresettings.desc is defined ? proceduresettings.desc
+                                    : 'notspecified'|trans }}"
+                                />
                             </div>
-
                         </div>
 
                         <label class="o-wizard__mark u-mb-0">
@@ -384,6 +398,7 @@
                         name="infoForm"
                         {% if proceduresettings.infoComplete is defined %}data-wizard-finished="true"{% endif %}
                         data-wizard-topic="{{ 'wizard.topic.info'|trans }}"
+                        data-dp-validate-topic="{{ 'wizard.topic.info'|trans }}"
                         class="o-wizard"
                         data-dp-validate="infoForm">
 
@@ -415,12 +430,30 @@
                                                 id="counter_oeb_desc_input"
                                                 hidden-input="r_externalDesc"
                                                 data-cy="procedureInfo:procedureDescriptionPublic"
-                                                :toolbar-items="{ listButtons: false }"
+                                                :toolbar-items="{ linkButton: true, listButtons: false }"
                                                 :maxlength="10000"
                                                 value="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}">
                                             </dp-editor>
                                         </div>
                                     {% endblock oeb_desc %}
+                                {% endif %}
+
+                                {% if hasPermission('field_expand_procedure_description') %}
+                                    <dp-checkbox
+                                        id="expandProcedureDescription"
+                                        :checked="{{ proceduresettings.expandProcedureDescription ? 'true' : 'false' }}"
+                                        :label="{ text: Translator.trans('procedure.description.expand') }"
+                                        class="mb-4"
+                                        data-cy="procedure:descriptionExpanded"
+                                        name="expandProcedureDescription">
+                                    </dp-checkbox>
+                                {% else %}
+                                    <dp-input
+                                        id="expandProcedureDescription"
+                                        :model-value="{{ proceduresettings.expandProcedureDescription|default(false) ? '1' : '0' }}"
+                                        name="expandProcedureDescription"
+                                        type="hidden">
+                                    </dp-input>
                                 {% endif %}
 
                                 {% if hasPermission('field_procedure_contact_person') %}
@@ -445,7 +478,7 @@
                                             hidden-input="r_publicParticipationContact"
                                             data-cy="procedureInfo:publicParticipationContact"
                                             data-dp-validate-error-fieldname="{{ 'public.participation.contact'|trans }}"
-                                            :toolbar-items="{ listButtons: false }"
+                                            :toolbar-items="{ linkButton: true, listButtons: false }"
                                             :maxlength="2000"
                                             value="{{ proceduresettings.publicParticipationContact|default((hasPermission('feature_require_procedure_contact_person') ? '' : 'notspecified')|trans ) }}"
                                             {% if hasPermission('feature_require_procedure_contact_person') %}required{% endif %}>
@@ -460,7 +493,10 @@
                                         </label>
                                         {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
                                             <br><br>
-                                            <img class="layout__item u-1-of-6 u-pl-0 u-mb" src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"><!--
+                                            <img
+                                                class="layout__item u-1-of-6 u-pl-0 u-mb"
+                                                src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"
+                                                alt="{{ proceduresettings.settings.pictogramAltText|default('procedure.pictogram'|trans) }}"><!--
                                          --><label class="layout__item u-1-of-3 cursor-pointer weight--normal">
                                             {{ 'procedure.pictogram.delete'|trans }}
                                             <input name="r_deletePictogram" type="checkbox" value="1">
@@ -488,26 +524,26 @@
 
                                         <dp-input
                                             id="r_pictogramCopyright"
-                                            class="my-2"
-                                            data-cy="procedure:pictogramCopyright"
-                                            name="r_pictogramCopyright"
+                                            v-model="state.pictogramCopyright"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.copyright')
                                             }"
-                                            value="{{ proceduresettings.pictogramCopyright|default }}"
+                                            class="my-2"
+                                            data-cy="procedure:pictogramCopyright"
+                                            name="r_pictogramCopyright"
                                             required>
                                         </dp-input>
 
                                         <dp-input
                                             id="r_pictogramAltText"
-                                            class="my-2"
-                                            data-cy="procedure:pictogramAltText"
-                                            name="r_pictogramAltText"
+                                            v-model="state.pictogramAltText"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.altText'),
                                                 tooltip: Translator.trans('procedure.pictogram.altText.toolTipp')
                                             }"
-                                            value="{{ proceduresettings.pictogramAltText|default }}"
+                                            class="my-2"
+                                            data-cy="procedure:pictogramAltText"
+                                            name="r_pictogramAltText"
                                             required>
                                         </dp-input>
                                     </div>
@@ -521,7 +557,7 @@
                                         </label>
                                         <dp-multiselect
                                             id="r_procedure_categories"
-                                            v-model="selectedProcedureCategories"
+                                            v-model="state.selectedProcedureCategories"
                                             label="name"
                                             multiple
                                             :options="JSON.parse('{{ availableProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
@@ -537,7 +573,12 @@
                                                     </span>
                                             </template>
                                         </dp-multiselect>
-                                        <input v-if="selectedProcedureCategories.length === 0" type="hidden" value="" name="r_procedure_categories" />
+                                        <input
+                                            v-if="state.selectedProcedureCategories.length === 0"
+                                            type="hidden"
+                                            value=""
+                                            name="r_procedure_categories"
+                                        />
                                     </div>
                                 {% endif %}
 
@@ -608,44 +649,7 @@
                                 class="o-wizard__content"
                             >
                                 <div class="o-wizard__main">
-
-                                    {% if not hasPermission('feature_procedures_located_by_maintenance_service') %}
-                                        {% block location %}
-                                            <div class="u-mb">
-                                                <div class="inline-block weight--bold u-mb-0">
-                                                    {{ "public.participation.relation"|trans }}
-                                                </div>
-                                                {# different wording if autocomplete via openGeoDb is enabled #}
-                                                {% if useOpenGeoDb == true %}
-                                                    {% set location_name_trans_help = 'text.procedure.edit.external.location_name'|trans ~ 'text.procedure.edit.external.location_name.autocomplete'|trans %}
-                                                {% else %}
-                                                    {% set location_name_trans_help = 'text.procedure.edit.external.location_name'|trans %}
-                                                {% endif %}
-                                                {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                                    helpText: location_name_trans_help,
-                                                    cssClasses:'mb-1',
-                                                    showPlainHint: true
-                                                } %}
-                                                <label class="layout__item u-1-of-6 u-pl-0 u-mb-0">
-                                                    {{ "postalcode"|trans }}
-                                                    {# Atm broken (was not reimplemented after removing jQuery autocomplete) #}
-                                                    <input
-                                                        class="o-form__control-input w-full js__locationName"
-                                                        type="text"
-                                                        value="{% if proceduresettings.locationPostCode is defined %}{{ proceduresettings.locationPostCode }}{% else %}{{ "notspecified"|trans }}{% endif %}"
-                                                        name="r_locationPostCode">
-                                                </label><!--
-                                             --><label class="layout__item u-5-of-6 u-mb-0">
-                                                    {{ "public.participation.location"|trans }}
-                                                    <input
-                                                        class="o-form__control-input w-full"
-                                                        type="text"
-                                                        value="{% if proceduresettings.locationName is defined %}{{ proceduresettings.locationName }}{% else %}{{ "notspecified"|trans }}{% endif %}"
-                                                        name="r_locationName">
-                                                </label>
-                                            </div>
-                                        {% endblock location %}
-                                    {% endif %}
+                                    {% block location %}{% endblock location %}
 
                                     <div class="u-mb">
                                         <div class="inline-block weight--bold u-mb-0">
@@ -739,6 +743,7 @@
                                             permissionset: phase.permissionset,
                                         }]) %}
                                     {% endfor %}
+
                                     <participation-phases
                                         autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: evaluatingPhase|trans|default('') }) }}"
                                         data-cy="internalPhase"
@@ -754,7 +759,7 @@
                                             name: 'r_phase_iteration',
                                             tooltip: Translator.trans('text.procedure.phasecounter'),
                                             value: '{{ proceduresettings.phaseObject.iteration }}'
-                                        }"
+                                            }"
                                         @phase:select="setSelectedInternalPhase">
                                     </participation-phases>
                                 {% endif %}
@@ -784,33 +789,37 @@
                                 {% endif %}
 
                                 <div class="u-mb">
-                                    <label class="inline-block u-mb-0" for="r_startdate">
-                                        {{ "period.institutions"|trans }}*
-                                    </label>
-                                    {% set helpTextInternalStartDate = 'text.procedure.edit.internal.start_date' %}
-                                    {% if hasPermission('feature_auto_switch_to_procedure_end_phase') and hasPermission('feature_auto_switch_procedure_phase') %}
-                                        {% set helpTextInternalStartDate = 'text.procedure.edit.internal.start_date.autoswitch_phase' %}
-                                    {% endif %}
-                                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                        helpText: helpTextInternalStartDate|trans,
-                                        cssClasses:'mb-1',
-                                        showPlainHint: true
-                                    } %}
+                                    <fieldset class="pb-0">
+                                        <legend class="weight--bold block is-label">
+                                            {{ "period.institutions"|trans }}*
+                                        </legend>
+                                        {% set helpTextInternalStartDate = 'text.procedure.edit.internal.start_date' %}
+                                        {% if hasPermission('feature_auto_switch_to_procedure_end_phase') and hasPermission('feature_auto_switch_procedure_phase') %}
+                                            {% set helpTextInternalStartDate = 'text.procedure.edit.internal.start_date.autoswitch_phase' %}
+                                        {% endif %}
+                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                                            helpText: helpTextInternalStartDate|trans,
+                                            cssClasses:'mb-1',
+                                            showPlainHint: true
+                                        } %}
 
-                                    <dp-date-range-picker
-                                        class="u-2-of-4"
-                                        data-cy="procedurePeriod"
-                                        data-dp-validate-error-fieldname="{{ "period.institutions"|trans }}"
-                                        start-id="r_startdate"
-                                        start-name="r_startdate"
-                                        start-value="{{ proceduresettings.startDate|default|dplanDate }}"
-                                        end-id="r_enddate"
-                                        end-name="r_enddate"
-                                        end-value="{{ proceduresettings.endDate|default|dplanDate }}"
-                                        :required="true"
-                                        :calendars-after="2"
-                                        enforce-plausible-dates>
-                                    </dp-date-range-picker>
+                                        <dp-date-range-picker
+                                            class="u-2-of-4"
+                                            data-cy="procedurePeriod"
+                                            data-dp-validate-error-fieldname="{{ "period.institutions"|trans }}"
+                                            end-label="{{ 'end'|trans }}"
+                                            start-id="r_startdate"
+                                            start-label="{{ 'start'|trans }}"
+                                            start-name="r_startdate"
+                                            start-value="{{ proceduresettings.startDate|default|dplanDate }}"
+                                            end-id="r_enddate"
+                                            end-name="r_enddate"
+                                            end-value="{{ proceduresettings.endDate|default|dplanDate }}"
+                                            :required="true"
+                                            :calendars-after="2"
+                                            enforce-plausible-dates>
+                                        </dp-date-range-picker>
+                                    </fieldset>
                                 </div>
 
                                 {# Change Procedure Step Institutions #}
@@ -828,7 +837,7 @@
                                         init-switch-date="{{ proceduresettings.phaseObject.designatedSwitchDate|default|isoDate }}"
                                         is-internal
                                         min-switch-date="{{ 'now'|date('d.m.Y') }}"
-                                        :selected-current-phase="selectedInternalPhase">
+                                        :selected-current-phase="state.selectedInternalPhase">
                                     </auto-switch-procedure-phase-form>
                                 {% endif %}
                             </div>
@@ -888,6 +897,7 @@
                                             permissionset: phase.permissionset,
                                         }]) %}
                                     {% endfor %}
+
                                     <participation-phases
                                         autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.external.evaluating'|trans }) }}"
                                         data-cy="publicPhase"
@@ -903,41 +913,45 @@
                                             name: 'r_public_participation_phase_iteration',
                                             tooltip: Translator.trans('text.procedure.phasecounter'),
                                             value: '{{ proceduresettings.publicParticipationPhaseObject.iteration }}'
-                                        }"
+                                            }"
                                         @phase:select="setSelectedPublicPhase">
                                     </participation-phases>
                                 {% endif %}
 
                                 {# start/end date for public participation #}
                                 <div>
-                                    <label class="inline-block u-mb-0" for="r_publicParticipationStartDate">
-                                        {{ "period.public"|trans }}*
-                                    </label>
+                                    <fieldset class="pb-0">
+                                        <legend class="weight--bold block is-label">
+                                            {{ "period.public"|trans }}*
+                                        </legend>
 
-                                    {% set helpTextExternalStartDate = 'text.procedure.edit.external.public_participations_start_date' %}
-                                    {% if hasPermission('feature_auto_switch_to_procedure_end_phase') and hasPermission('feature_auto_switch_procedure_phase') %}
-                                        {% set helpTextExternalStartDate = 'text.procedure.edit.external.public_participations_start_date.autoswitch_phase' %}
-                                    {% endif %}
+                                        {% set helpTextExternalStartDate = 'text.procedure.edit.external.public_participations_start_date' %}
+                                        {% if hasPermission('feature_auto_switch_to_procedure_end_phase') and hasPermission('feature_auto_switch_procedure_phase') %}
+                                            {% set helpTextExternalStartDate = 'text.procedure.edit.external.public_participations_start_date.autoswitch_phase' %}
+                                        {% endif %}
 
-                                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                        helpText: helpTextExternalStartDate|trans,
-                                        cssClasses:'mb-1',
-                                        showPlainHint: true
-                                    } %}
-                                    <dp-date-range-picker
-                                        class="u-2-of-4"
-                                        data-cy="publicParticipationPeriod"
-                                        data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
-                                        start-id="r_publicParticipationStartDate"
-                                        start-name="r_publicParticipationStartDate"
-                                        start-value="{{  proceduresettings.publicParticipationStartDate|default|dplanDate }}"
-                                        end-id="r_publicParticipationEndDate"
-                                        end-name="r_publicParticipationEndDate"
-                                        end-value="{{ proceduresettings.publicParticipationEndDate|default|dplanDate }}"
-                                        :required="true"
-                                        :calendars-after="2"
-                                        enforce-plausible-dates>
-                                    </dp-date-range-picker>
+                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                                            helpText: helpTextExternalStartDate|trans,
+                                            cssClasses:'mb-1',
+                                            showPlainHint: true
+                                        } %}
+                                        <dp-date-range-picker
+                                            class="u-2-of-4"
+                                            data-cy="publicParticipationPeriod"
+                                            data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
+                                            start-id="r_publicParticipationStartDate"
+                                            start-label="{{ 'start'|trans }}"
+                                            start-name="r_publicParticipationStartDate"
+                                            start-value="{{  proceduresettings.publicParticipationStartDate|default|dplanDate }}"
+                                            end-id="r_publicParticipationEndDate"
+                                            end-label="{{ 'end'|trans }}"
+                                            end-name="r_publicParticipationEndDate"
+                                            end-value="{{ proceduresettings.publicParticipationEndDate|default|dplanDate }}"
+                                            :required="true"
+                                            :calendars-after="2"
+                                            enforce-plausible-dates>
+                                        </dp-date-range-picker>
+                                    </fieldset>
                                 </div>
 
                                 {# Change Procedure Step public participation #}
@@ -954,7 +968,7 @@
                                         init-selected-phase="{{ proceduresettings.publicParticipationPhaseObject.designatedPhase }}"
                                         init-switch-date="{{ proceduresettings.publicParticipationPhaseObject.designatedSwitchDate|default|isoDate }}"
                                         min-switch-date="{{ 'now'|date('d.m.Y') }}"
-                                        :selected-current-phase="selectedPublicPhase">
+                                        :selected-current-phase="state.selectedPublicPhase">
                                     </auto-switch-procedure-phase-form>
                                 {% endif %}
 
@@ -966,6 +980,36 @@
                                 {% else %}
                                     {# allow publishing of Statements by default #}
                                     <input type="hidden" name="r_publicParticipationPublicationEnabled" value="1">
+                                {% endif %}
+
+                                {% if hasPermission('feature_feedback_on_statement_controllable') %}
+                                    <label>
+                                        <input type="checkbox" name="r_publicParticipationFeedbackEnabled" v-model="publicParticipationFeedbackEnabled">
+                                        <span>{{ "public.participation.feedback"|trans }}</span>
+                                        <span v-if="!publicParticipationFeedbackEnabled" class="block flash flash-warning mt-1 mx-3"><i class="fa u-mt-0_125 u-mr-0_25 float-left fa-exclamation-triangle" aria-hidden="true"></i>{{ "warning.disable.feedback.feature"|trans }}</span>
+                                    </label>
+                                {% else %}
+                                    {# allow publishing the possibility of Feedback by default #}
+                                    <input type="hidden" name="r_publicParticipationFeedbackEnabled" value="1">
+                                {% endif %}
+
+                                {% if hasPermission('field_submit_anonymous_statements') %}
+                                    <dp-checkbox
+                                        id="allowAnonymousStatements"
+                                        :checked="{{ proceduresettings.allowAnonymousStatements ? 'true' : 'false' }}"
+                                        :label="{ text: Translator.trans('public.participation.anonymous.statements') }"
+                                        class="mb-4"
+                                        data-cy="procedure:publicParticipationPublicationEnabled"
+                                        name="allowAnonymousStatements">
+                                    </dp-checkbox>
+                                {% else %}
+                                    {# Allow anonymous statements by default #}
+                                    <dp-input
+                                        id="allowAnonymousStatements"
+                                        :model-value="{{ proceduresettings.allowAnonymousStatements|default(true) ? '1' : '0' }}"
+                                        name="allowAnonymousStatements"
+                                        type="hidden">
+                                    </dp-input>
                                 {% endif %}
                             </div>
 
@@ -1134,53 +1178,53 @@
                 {# end wizard item: Name und Webadresse #}
 
                 {% if hasPermission('feature_data_in_export') %}
-                {# wizard item: Daten im Export #}
-                <fieldset
-                    name="settingsForm"
-                    {% if proceduresettings.exportSettingsComplete is defined %}data-wizard-finished="true"{% endif %}
-                    data-wizard-topic="{{ 'wizard.topic.export.settings'|trans }}"
-                    data-dp-validate-topic="{{ 'wizard.topic.export.settings'|trans }}"
-                    class="o-wizard"
-                    data-dp-validate="settingsForm">
-                    <legend
-                        data-toggle-id="exportSettings"
-                        class="js__toggleAnything"
-                        data-cy="exportSettings">
-                        <i class="caret"></i>
-                        {{ 'wizard.topic.export.settings'|trans }}
-                        <i class="fa fa-check"></i>
-                    </legend>
+                    {# wizard item: Daten im Export #}
+                    <fieldset
+                        name="settingsForm"
+                        {% if proceduresettings.exportSettingsComplete is defined %}data-wizard-finished="true"{% endif %}
+                        data-wizard-topic="{{ 'wizard.topic.export.settings'|trans }}"
+                        data-dp-validate-topic="{{ 'wizard.topic.export.settings'|trans }}"
+                        class="o-wizard"
+                        data-dp-validate="settingsForm">
+                        <legend
+                            data-toggle-id="exportSettings"
+                            class="js__toggleAnything"
+                            data-cy="exportSettings">
+                            <i class="caret"></i>
+                            {{ 'wizard.topic.export.settings'|trans }}
+                            <i class="fa fa-check"></i>
+                        </legend>
 
-                    <div data-toggle-id="phasesParticipation" class="o-wizard__content">
-                        <div class="o-wizard__main">
-                            <div>
-                                <export-settings
-                                    :field-definitions="JSON.parse('{{ fieldDefinitions|default({})|json_encode|e('js', 'utf-8') }}')"
-                                    :initial-settings="JSON.parse('{{ proceduresettings.exportSettings|default([])|json_encode|e('js', 'utf-8') }}')">
-                                </export-settings>
+                        <div data-toggle-id="phasesParticipation" class="o-wizard__content">
+                            <div class="o-wizard__main">
+                                <div>
+                                    <export-settings
+                                        :field-definitions="JSON.parse('{{ fieldDefinitions|default({})|json_encode|e('js', 'utf-8') }}')"
+                                        :initial-settings="JSON.parse('{{ proceduresettings.exportSettings|default([])|json_encode|e('js', 'utf-8') }}')">
+                                    </export-settings>
+                                </div>
                             </div>
+
+                            <label class="o-wizard__mark u-mb-0">
+                                <input
+                                    data-wizard-cb
+                                    name="fieldCompletions[]"
+                                    value="exportSettingsComplete"
+                                    type="checkbox"
+                                    {% if proceduresettings.exportSettingsComplete is defined %}checked="checked"{% endif %} />
+                                {{ "wizard.mark_as_done"|trans }}
+                            </label>
                         </div>
 
-                        <label class="o-wizard__mark u-mb-0">
-                            <input
-                                data-wizard-cb
-                                name="fieldCompletions[]"
-                                value="exportSettingsComplete"
-                                type="checkbox"
-                                {% if proceduresettings.exportSettingsComplete is defined %}checked="checked"{% endif %} />
-                            {{ "wizard.mark_as_done"|trans }}
-                        </label>
-                    </div>
-
-                    <button
-                        type="button"
-                        data-cy="wizardNext"
-                        data-dp-validate-capture-click
-                        class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
-                        {{ "wizard.next"|trans }}
-                    </button>
-                </fieldset>
-                {# end wizard item: Daten im Export #}
+                        <button
+                            type="button"
+                            data-cy="wizardNext"
+                            data-dp-validate-capture-click
+                            class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
+                            {{ "wizard.next"|trans }}
+                        </button>
+                    </fieldset>
+                    {# end wizard item: Daten im Export #}
                 {% endif %}
 
                 {# wizard item: Erweiterte Einstellungen #}
@@ -1335,7 +1379,7 @@
                     name="saveConfig"
                     data-cy="saveConfig"
                     type="button"
-                    @click="submit">
+                    @click="submit($refs.configForm)">
                     {{ "save"|trans }}
                 </button>
                 <a
@@ -1347,11 +1391,8 @@
             </div>
 
         </form>
-
+        </template>
     </dp-basic-settings>
-
-
-
 {% endblock demosplanbundlecontent %}
 
 {% block stylesheets %}

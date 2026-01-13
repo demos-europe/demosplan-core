@@ -56,8 +56,7 @@
         </div>
     {% endif %}
 
-    <dp-element-admin-edit
-        inline-template
+    <element-admin-edit
         {% if templateVars.element.designatedSwitchDate|default|length > 0 %}
             :designated-to-switch="true"
         {% endif %}
@@ -69,9 +68,31 @@
         procedure="{{ procedure }}"
         :documents="JSON.parse('{{ documentsForTable|default([])|json_encode|e('js', 'utf-8') }}')"
     >
-        <div
-            @keydown="handleKeyDown"
-            @keyup="closeOnSelect = true">
+        <template #default="{
+            changeDatetime,
+            closeOnSelect,
+            currentSort,
+            deleteElements,
+            designatedToSwitchState,
+            handleKeyDown,
+            headerFields,
+            manualSortUpdateRoute,
+            orgasOfProcedure,
+            resetCloseOnSelect,
+            saveManualSort,
+            selectedElements,
+            selectedOrgas,
+            setSelection,
+            setTableElements,
+            sortSelected,
+            tableElements,
+            toggleAutoSwitchState,
+            updateChangeDatetime,
+            updateSelectedOrgas
+        }">
+            <div
+                @keydown="handleKeyDown"
+                @keyup="resetCloseOnSelect">
 
             {# general settings for category #}
             <form
@@ -176,13 +197,14 @@
                             class="layout--flush u-pv-0_5"
                             v-show="designatedToSwitchState">
                             <dp-datetime-picker
-                                hidden-input
+                                :hidden-input="true"
                                 id="r_designatedSwitchDate"
                                 label="{{ 'phase.autoswitch.datetime'|trans }}"
                                 min-date="{{ 'now'|date('d.m.Y') }}"
                                 name="r_designatedSwitchDate"
                                 :required="designatedToSwitchState"
-                                v-model="changeDatetime">
+                                :value="changeDatetime"
+                                @input="updateChangeDatetime">
                             </dp-datetime-picker>
                         </div>
                     </div>
@@ -246,14 +268,14 @@
                         </p>
                     </label>
                     <dp-multiselect
-                        v-model="selectedOrgas"
-                        class="layout__item u-1-of-1 u-pl-0 u-mb-0_75"
+                        :value="selectedOrgas"
+                        class="layout__item w-full pl-0 mb-3"
                         :close-on-select="closeOnSelect"
                         label="name"
-                        multiple
+                        :multiple="true"
                         :options="orgasOfProcedure"
                         track-by="id"
-                        @input="sortSelected('Orgas')">
+                        @input="updateSelectedOrgas">
                         <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
@@ -271,9 +293,9 @@
                     <input
                         class="btn btn--primary"
                         type="submit"
-                        value="{{ "save"|trans }}"
+                        value="{{ 'save'|trans }}"
                         data-cy="saveCategory">
-                    <a class="btn btn--secondary" href="{{ path('DemosPlan_element_administration', {'procedure':procedure}) }}">
+                    <a class="btn btn--secondary" href="{{ path('DemosPlan_element_administration', {procedure:procedure}) }}">
                         {{ "abort"|trans }}
                     </a>
                 </div>
@@ -303,8 +325,8 @@
                         {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                         <fieldset class="u-pb-0">
-                            <legend>{{ "category.delete"|trans }}</legend>
-                            <p>{{ "explanation.category.delete"|trans }}</p>
+                            <legend>{{ 'category.delete'|trans }}</legend>
+                            <p>{{ 'explanation.category.delete'|trans }}</p>
                             <input
                                 class="btn btn--warning"
                                 type="submit"
@@ -316,8 +338,9 @@
                     </form>
                 {% endif %}
             {% endif %}
-        </div>
-    </dp-element-admin-edit>
+            </div>
+        </template>
+    </element-admin-edit>
 
 {% endblock %}
 {% block javascripts %}

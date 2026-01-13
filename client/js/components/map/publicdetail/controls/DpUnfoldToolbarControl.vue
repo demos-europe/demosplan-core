@@ -23,14 +23,16 @@
 <template>
   <div
     :class="prefixClass('c-map__unfold-button')"
+    draggable="true"
     @mousedown.prevent="startDrag"
     @touchstart="startDrag"
-    draggable="true">
+  >
     <slot>
       <div :class="prefixClass('c-map__unfold-button-inner')">
         <i
           aria-hidden="true"
-          :class="prefixClass('c-map__unfold-button-handle')" />
+          :class="prefixClass('c-map__unfold-button-handle')"
+        />
       </div>
     </slot>
   </div>
@@ -48,25 +50,25 @@ export default {
     dragTarget: {
       required: false,
       type: String,
-      default: '#app'
+      default: '#app',
     },
 
     // This number is used to have a "margin" for the max-value. So we prevent a scrollbar and can see the handle at max-scale
     magicNumber: {
       required: false,
       type: Number,
-      default: 100
+      default: 100,
     },
 
     direction: {
       required: false,
       type: String,
-      default: 'right'
-    }
+      default: 'right',
+    },
   },
 
   emits: [
-    'toolbar:drag'
+    'toolbar:drag',
   ],
 
   data () {
@@ -75,7 +77,7 @@ export default {
       target: null,
       initialSize: 0,
       currentSize: 0,
-      maxSize: 0
+      maxSize: 0,
     }
   },
 
@@ -93,7 +95,7 @@ export default {
 
     parentPadding () {
       return parseInt(getComputedStyle(this.target.parentElement)[this.dimensionPadding[0]].slice(0, -2)) + parseInt(getComputedStyle(this.target.parentElement)[this.dimensionPadding[1]].slice(0, -2))
-    }
+    },
   },
 
   methods: {
@@ -138,7 +140,7 @@ export default {
     setMaxSize () {
       const containerDimensions = {
         width: this.target.parentElement.offsetWidth,
-        height: this.target.parentElement.offsetHeight
+        height: this.target.parentElement.offsetHeight,
       }
       this.maxSize = containerDimensions[this.dimension] - this.magicNumber - this.parentPadding
     },
@@ -168,7 +170,7 @@ export default {
     stopDrag () {
       window.removeEventListener('mousemove', this.handleDrag)
       window.removeEventListener('touchmove', this.handleDrag)
-    }
+    },
   },
 
   mounted () {
@@ -196,6 +198,6 @@ export default {
     window.removeEventListener('mouseup', this.stopDrag)
     window.removeEventListener('touchend', this.stopDrag)
     window.removeEventListener('resize', this.handleResize)
-  }
+  },
 }
 </script>

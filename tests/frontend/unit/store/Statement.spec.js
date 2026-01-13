@@ -9,7 +9,7 @@
 
 import { createApp } from 'vue'
 import { createStore } from 'vuex'
-import Statement from '.@DpJs/store/statement/Statement'
+import Statement from '@DpJs/store/statement/Statement'
 
 const localVue = createApp({})
 let StubStore

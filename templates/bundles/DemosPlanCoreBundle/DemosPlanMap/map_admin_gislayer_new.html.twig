@@ -105,6 +105,7 @@
 
         {% block baseSettings %}
             <layer-settings
+                has-preview
                 init-name="{{ templateVars.inData.r_name|default }}"
                 init-service-type="{{ templateVars.inData.r_serviceType|default }}"
                 init-url="{{ templateVars.inData.r_url|default }}"
@@ -113,6 +114,7 @@
                 xplan-default-layer="{{ mapglobals.xplanDefaultLayers|default }}"
                 init-matrix-set="{{ templateVars.inData.r_tileMatrixSet|default }}"
                 init-projection="{{ templateVars.inData.r_projection|default }}"
+                procedure-id="{{ procedure }}"
                 :available-projections="JSON.parse('{{ templateVars.availableProjections|map(el => { label: el['label'], value: el['label'] })|json_encode|e('js', 'utf-8') }}')"
             ></layer-settings>
         {% endblock baseSettings %}
@@ -175,6 +177,12 @@
             </label>
         {% endif %}
         {% if hasPermission('feature_map_layer_visibility') %}
+            <dp-inline-notification
+                id="defaultVisibilityHint"
+                class="mb-2 hidden"
+                message="{{ 'hint.gislayer.default.visibility'|trans }}"
+                type="info">
+            </dp-inline-notification>
             <label class="u-mb-0_5">
                 <input
                     type="checkbox"

@@ -3,15 +3,18 @@
     <label
       for="r_scales"
       class="mb-0"
-      v-text="Translator.trans('map.scales')" />
+      v-text="Translator.trans('map.scales')"
+    />
     <dp-multiselect
+      id="r_scales"
       v-model="scales"
       label="label"
       data-cy="map:mapAdminScales"
       multiple
       :options="availableScales"
       track-by="value"
-      @input="updateScales">
+      @input="updateScales"
+    >
       <template v-slot:option="{ props }">
         {{ props.option.label }}
       </template>
@@ -20,13 +23,15 @@
           {{ props.option.label }}
           <i
             aria-hidden="true"
-            @click="props.remove(props.option)"
             tabindex="1"
-            class="multiselect__tag-icon" />
+            class="multiselect__tag-icon"
+            @click="props.remove(props.option)"
+          />
           <input
             type="hidden"
             :value="props.option.value"
-            name="r_scales[]">
+            name="r_scales[]"
+          >
         </span>
       </template>
     </dp-multiselect>
@@ -37,7 +42,8 @@
       v-if="!areScalesSuitable"
       class="mt-3 mb-2"
       :message="Translator.trans('map.scales.select.error')"
-      type="error" />
+      type="error"
+    />
   </div>
 </template>
 
@@ -49,33 +55,33 @@ export default {
 
   components: {
     DpInlineNotification,
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
     availableScales: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     selectedScales: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   emits: [
     'change',
     'suitableScalesChange',
-    'update'
+    'update',
   ],
 
   data () {
     return {
       areScalesSuitable: false,
-      scales: this.selectedScales
+      scales: this.selectedScales,
     }
   },
 
@@ -84,8 +90,8 @@ export default {
       handler (newVal) {
         this.scales = newVal
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -122,13 +128,13 @@ export default {
       this.sortSelected()
       this.$emit('suitableScalesChange', this.areScalesSuitable)
       this.$emit('update', scales)
-    }
+    },
   },
 
   mounted () {
     this.areScalesSuitable = this.checkIfScalesAreSuitable()
     this.sortSelected()
     this.$emit('suitableScalesChange', this.areScalesSuitable)
-  }
+  },
 }
 </script>

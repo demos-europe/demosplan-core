@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Event\CreateReportEntryEvent;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ParagraphReportEntryFactory;
@@ -28,10 +27,11 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class ParagraphService extends CoreService implements ParagraphServiceInterface
+class ParagraphService implements ParagraphServiceInterface
 {
     public function __construct(
         private readonly DateHelper $dateHelper,
@@ -41,6 +41,7 @@ class ParagraphService extends CoreService implements ParagraphServiceInterface
         private readonly ParagraphReportEntryFactory $reportEntryFactory,
         private readonly ReportService $reportService,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -254,7 +255,7 @@ class ParagraphService extends CoreService implements ParagraphServiceInterface
             $returnValue = 0;
             foreach ($paragraph->getChildren() as $child) {
                 $childOrder = $this->calculateLastOrder($child->getId());
-                $returnValue = $childOrder > $returnValue ? $childOrder : $returnValue;
+                $returnValue = max($childOrder, $returnValue);
             }
         }
 
@@ -508,7 +509,7 @@ class ParagraphService extends CoreService implements ParagraphServiceInterface
 
         unset($result['result']['search']);
         unset($paragraphList['search']);
-        $result['total'] = sizeof($paragraphList);
+        $result['total'] = count($paragraphList);
 
         return $result;
     }
@@ -610,14 +611,14 @@ class ParagraphService extends CoreService implements ParagraphServiceInterface
             // Test, whether paragraph to change order with has same parent
             // Only ordering within one level is allowed atm
             if ($nextParagraph->getParent() != $paragraphToMove->getParent()) {
-                $this->getLogger()->warning('Ordering only levelwise allowed');
+                $this->logger->warning('Ordering only levelwise allowed');
                 throw new InvalidArgumentException('Ordering only levelwise allowed');
             }
             // We cannot switch a paragraph with itself. This check also covers
             // paragraphs that are at the beginning (in case of moveUp) or at the
             // end (in case of moveDown) and cannot be moved beyond the level borders.
             if ($nextParagraph->getId() == $paragraphToMove->getId()) {
-                $this->getLogger()->warning('Cannot switch a paragraph with itself or reached border of level');
+                $this->logger->warning('Cannot switch a paragraph with itself or reached border of level');
                 throw new InvalidArgumentException('Cannot switch a paragraph with itself or reached border of level');
             }
 

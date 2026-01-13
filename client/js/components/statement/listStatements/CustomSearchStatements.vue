@@ -3,14 +3,16 @@
     data-cy="customSearchStatements:search"
     :placeholder="Translator.trans('searchterm')"
     @reset="$emit('reset')"
-    @search="term => handleSearch(term)">
+    @search="term => handleSearch(term)"
+  >
     <template v-slot:default>
       <dp-flyout
         align="left"
-        class="top-px right-0 absolute"
+        class="top-0.5 right-0"
         data-cy="customSearch:searchCustomLimitFields"
-        :has-menu="false"
-        :padded="false">
+        position="absolute"
+        :padded="false"
+      >
         <template v-slot:trigger>
           <dp-icon icon="settings" />
         </template>
@@ -18,25 +20,28 @@
           <div class="flex">
             <span
               class="weight--bold"
-              v-text="Translator.trans('search.custom.limit_fields')" />
+              v-text="Translator.trans('search.custom.limit_fields')"
+            />
             <button
               class="btn--blank o-link--default ml-auto"
               data-cy="customSearch:searchCustomToggleAll"
+              @click="toggleAllFields(selectedFields.length < filterCheckBoxesItems.length)"
               v-text="Translator.trans('toggle_all')"
-              @click="toggleAllFields(selectedFields.length < filterCheckBoxesItems.length)" />
+            />
           </div>
 
           <!-- Checkboxes -->
           <div class="layout--flush">
             <dp-checkbox
               v-for="({label, value}, i) in filterCheckBoxesItems"
+              :id="'filteredCheckbox' + i"
+              :key="i"
               :checked="selectedFields.includes(value)"
               class="layout__item u-1-of-2"
               :data-cy="`searchModal:${value}`"
-              :id="'filteredCheckbox' + i"
-              :key="i"
               :label="{ text: Translator.trans(label) }"
-              @change="handleChange(value, !selectedFields.includes(value))" />
+              @change="handleChange(value, !selectedFields.includes(value))"
+            />
           </div>
 
           <!-- Search options and special characters -->
@@ -45,7 +50,8 @@
             <dp-details
               v-for="(explanation, index) in explanations"
               :key="index"
-              :summary="explanation.title">
+              :summary="explanation.title"
+            >
               <span v-html="explanation.description" />
             </dp-details>
           </div>
@@ -62,7 +68,7 @@ import {
   DpFlyout,
   DpIcon,
   DpSearchField,
-  hasAnyPermissions
+  hasAnyPermissions,
 } from '@demos-europe/demosplan-ui'
 import availableFilterFields from './availableFilterFields.json'
 import lscache from 'lscache'
@@ -88,7 +94,7 @@ export default {
     DpDetails,
     DpFlyout,
     DpIcon,
-    DpSearchField
+    DpSearchField,
   },
 
   props: {
@@ -99,14 +105,14 @@ export default {
     localStorageKey: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'changeFields',
     'reset',
-    'search'
+    'search',
   ],
 
   data: () => ({
@@ -114,16 +120,16 @@ export default {
     explanations: [
       {
         title: Translator.trans('search.options'),
-        description: Translator.trans('search.options.description')
+        description: Translator.trans('search.options.description'),
       },
       {
         title: Translator.trans('search.special.characters'),
-        description: Translator.trans('search.special.characters.description')
-      }
+        description: Translator.trans('search.special.characters.description'),
+      },
     ],
     availableFilterFields,
     fields,
-    selectedFields: []
+    selectedFields: [],
   }),
 
   computed: {
@@ -138,7 +144,7 @@ export default {
 
     storeSelection () {
       return this.localStorageKey !== ''
-    }
+    },
   },
 
   methods: {
@@ -170,7 +176,7 @@ export default {
       } else if (!selectField) {
         this.selectedFields = this.selectedFields.filter(f => f !== field)
       }
-    }
-  }
+    },
+  },
 }
 </script>

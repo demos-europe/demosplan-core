@@ -5,6 +5,97 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+### Added
+- StatementExportModal: Adds a tags filter to the export modal, allowing statements to be filtered by tags during export
+
+- Add permission check for agency email fields
+- Move Maillane-specific database migrations to demosplan-addon-maillane
+  - Remove maillane_connection and maillane_allowed_sender_email_address table creation from Version20200106150455
+  - Remove maillane_connection_id field and index from _procedure table in Version20200106150455
+  - Delete Version20220928083055 (procedure_id restructuring) - moved to addon
+  - Maillane table management is now handled entirely by the addon migrations
+- Add extra Info-WorkSheet to xksx exports by TagFilter
+  Add docx Title to "Teilexport ..." if a TagFilter was applied
+- Add tag-based filtering for segments of Statement exports (DOCX, XLSX, ZIP)
+  that filters segments within statements
+  by tag ID, tag title, tag topic ID, or tag topic title.
+  Statements without matching segments are excluded from export.
+  No applied tag-filter will still export all statements unchanged
+
+- Add similar submitters to the Submitter List
+- Add segment text to the boilerplate modal, if the segment and its text is available
+- Attribute isPrivatePerson is used during keycloak login to recognize a private person. As a fallback Groups may still be used.
+- Add a back to segments list button to the segment edit and recommendation dialog, that keeps former set filters for segments list
+- Fix missing form fields in procedure basic settings
+- Add anonymous voters column to statement XLSX export
+
+## v4.25.0 (2025-11-06)
+## v4.24.0 (2025-11-06)
+- Detect Company Department from OzgKeycloak token and assign it to user
+## v4.23.0 (2025-10-22)
+## v4.21.0 (2025-10-22)
+## v4.18.1 (2025-10-16)
+## v4.18.0 (2025-10-13)
+## v4.16.1 (2025-10-16)
+- Fix addon asset build during docker build
+
+## v4.16.0 (2025-09-30)
+- Allow project specific CSS
+- allow sessions to be stored in redis
+
+-  Add checkbox in procedure settings to expand procedure description in public view on page load
+- Use external Geocoder API as service for address auto-suggestions
+
+- Turn projects into yarn workspaces
+
+### Features
+- Add possibility to delete custom fields and their options
+
+## v4.15.3 (2025-12-02)
+## v4.15.2 (2025-10-24)
+- fix zip download for older uploads
+
+## v4.15.0 (2025-09-15)
+## v4.14.2 (2025-12-02)
+## v4.14.0 (2025-09-15)
+- Add html paragraph import from odt files
+
+## v4.12.0 (2025-09-10)
+- Add ODT export functionality for assessment tables
+- Add checkbox in procedure settings to expand procedure description in public view on page load
+- Use external Geocoder API as service for address auto-suggestions
+- Update demosplan-addon from v0.59 to v0.60
+
+## v4.11.0 (2025-08-27)
+- Allow to edit custom field type singleSelect
+- Mark outdated map layers in the map settings
+
+## v4.10.1 (2025-08-13)
+- Display Keycloak logout countdown warning in the header and logout automatically
+
+## v4.10.0 (2025-07-30)
+## v4.9.1 (2025-08-07)
+- Fix time based procedure phase switch
+
+## v4.9.0 (2025-07-30)
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
+- Add configurable feedback control for public participation statements
+- Migrate to Tailwind CSS v4
+
+## v4.7.0 (2025-07-18)
+## v4.6.0 (2025-07-18)
+- Allow to configure procedures to accept or not anonymous statements
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
+- Add configurable feedback control for public participation statements 
+
+
+## v4.5.0 (2025-06-25)
+- Export Original Statements as docx in the Statement List
+- Allow filtering of institution tags in DpAddOrganizationList
+
+## v4.4.0 (2025-06-13)
+
 ## v4.3.5 (2025-11-24)
 ## 4.3.4 (2025-11-14)
 - implement option to import additional submitters via statement ID in statement imports via xlsx

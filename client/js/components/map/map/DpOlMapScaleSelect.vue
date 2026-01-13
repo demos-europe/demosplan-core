@@ -11,20 +11,23 @@
   <div class="inline-block">
     <label
       class="inline-block u-m-0"
-      for="customScaleControl">
+      for="customScaleControl"
+    >
       {{ Translator.trans('map.scale') }}
     </label>
     <select
-      name="customScaleControl"
       id="customScaleControl"
+      name="customScaleControl"
       data-cy="map:customScaleControl"
+      class="c-ol-map__select"
       @change="setScale"
-      class="c-ol-map__select">
+    >
       <option
-        :value="scaleObj.scale"
         v-for="(scaleObj, key) in scales"
+        :key="key"
+        :value="scaleObj.scale"
         :selected="currentScale === scaleObj.scale"
-        :key="key">
+      >
         1:{{ scaleObj.scale.toLocaleString() }}
       </option>
     </select>
@@ -43,7 +46,7 @@ export default {
   data () {
     return {
       currentScale: null,
-      scales: []
+      scales: [],
     }
   },
 
@@ -56,8 +59,8 @@ export default {
       handler () {
         this.init()
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
-    }
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
@@ -94,9 +97,9 @@ export default {
       this.view.animate({
         resolution,
         duration: 250,
-        easing: easeOut
+        easing: easeOut,
       })
-    }
+    },
 
   },
 
@@ -104,6 +107,6 @@ export default {
     await this.olMapState.map
     //  Setup state + behavior
     this.init()
-  }
+  },
 }
 </script>

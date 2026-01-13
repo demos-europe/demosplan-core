@@ -27,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -47,6 +46,7 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -55,7 +55,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
-class ElementsService extends CoreService implements ElementsServiceInterface
+class ElementsService implements ElementsServiceInterface
 {
     /**
      * @var SingleDocumentService
@@ -84,6 +84,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         private readonly ElementReportEntryFactory $reportEntryFactory,
         private readonly ReportService $reportService,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
         $this->paragraphService = $paragraphService;
         $this->singleDocumentService = $singleDocumentService;
@@ -199,7 +200,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         // return IDs only:
         return collect(array_merge($mapCategories, $hiddenByConfigCategories))
-            ->sort(fn ($elementA, $elementB) => strcasecmp($elementA->getTitle(), $elementB->getTitle()))
+            ->sort(fn ($elementA, $elementB) => strcasecmp((string) $elementA->getTitle(), (string) $elementB->getTitle()))
             ->map(
                 fn ($element) =>
                     /* @var Elements $element */
@@ -470,7 +471,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                         foreach ($elementEntity->getDocuments() as $singleDocument) {
                             $deletedDocument = $this->singleDocumentService->deleteSingleDocument($singleDocument->getId());
                             if (false === $deletedDocument) {
-                                $this->getLogger()->error(sprintf(
+                                $this->logger->error(sprintf(
                                     'deleteElement: Single Document %s. could not be deleted.',
                                     $singleDocument->getTitle()
                                 ));
@@ -483,7 +484,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
                     $paragraphDeleted = $this->paragraphService->deleteParaDocument($paragraphIds);
                     if (false === $paragraphDeleted) {
-                        $this->getLogger()->error(sprintf(
+                        $this->logger->error(sprintf(
                             'deleteElement: Error while deleting a Kapitel of the element with ID: %s',
                             $elementId
                         ));
@@ -494,7 +495,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                         foreach ($elementEntity->getChildren() as $child) {
                             $deleted = $this->deleteElement($child->getId());
                             if (false === $deleted) {
-                                $this->getLogger()->error(sprintf(
+                                $this->logger->error(sprintf(
                                     'deleteElement: Element %s could not be deleted',
                                     $child->getTitle()
                                 ));
@@ -612,7 +613,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             if (!is_array($orgaIds)) {
                 $orgaIds = [$orgaIds];
             }
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->entityManager;
             $elementEntity = $this->getElementsRepository()
                 ->get($elementId);
 
@@ -630,11 +631,11 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             $em->persist($elementEntity);
             $em->flush();
 
-            $this->getLogger()->info('Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden für die Kategorie '.$elementId.' berechtigt');
+            $this->logger->info('Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden für die Kategorie '.$elementId.' berechtigt');
 
             return true;
         } catch (Exception $e) {
-            $this->getLogger()->error('Organisation konnte nicht für die Kategorie '.$elementId.' berechtigt werden ', [$e]);
+            $this->logger->error('Organisation konnte nicht für die Kategorie '.$elementId.' berechtigt werden ', [$e]);
 
             return false;
         }
@@ -652,7 +653,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             if (!is_array($orgaIds)) {
                 $orgaIds = [$orgaIds];
             }
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->entityManager;
             $elementEntity = $this->getElementsRepository()
                 ->get($elementId);
 
@@ -666,11 +667,11 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             $em->persist($elementEntity);
             $em->flush();
 
-            $this->getLogger()->info('Berechtigungen der Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden von der Kategorie '.$elementId.' entfernt');
+            $this->logger->info('Berechtigungen der Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden von der Kategorie '.$elementId.' entfernt');
 
             return true;
         } catch (Exception $e) {
-            $this->getLogger()->error('Berechtigungen der Organisation konnten nicht von der Kategorie '.$elementId.' entfernt werden ', [$e]);
+            $this->logger->error('Berechtigungen der Organisation konnten nicht von der Kategorie '.$elementId.' entfernt werden ', [$e]);
 
             return false;
         }
@@ -700,7 +701,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             'search'     => $paragraphList['search'],
         ];
         unset($result['result']['search'], $paragraphList['search']);
-        $result['total'] = sizeof($paragraphList);
+        $result['total'] = count($paragraphList);
 
         return $result;
     }
@@ -894,7 +895,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                 $fileString = $singleDocument->getDocument();
 
                 $newFile = $this->fileService->createCopyOfFile($fileString, $newProcedure->getId());
-                if (null !== $newFile) {
+                if ($newFile instanceof File) {
                     $singleDocument->setDocument($newFile->getFileString());
                     $this->singleDocumentRepository->updateObjects([$singleDocument]);
                 }
@@ -910,7 +911,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         foreach ($newProcedure->getElements() as $element) {
             if ('' !== $element->getFile()) {
                 $newFile = $this->fileService->createCopyOfFile($element->getFile(), $newProcedure->getId());
-                if (null !== $newFile) {
+                if ($newFile instanceof File) {
                     $element->setFile($newFile->getFileString());
                 }
             }
@@ -933,7 +934,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         if (isset($data['r_parent'])) {
             $parentId = $data['r_parent'];
             $parent = $this->getElementObject($parentId);
-            if (null === $parent) {
+            if (!$parent instanceof Elements) {
                 throw StatementElementNotFoundException::missingParent($parentId);
             }
             $parentsCount = $this->countParents($parent) + 1;
@@ -953,7 +954,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     private function countParents(Elements $element): int
     {
         $parent = $element->getParent();
-        if (null === $parent) {
+        if (!$parent instanceof Elements) {
             return 0;
         }
 

@@ -12,11 +12,13 @@
     class="c-publicindex__handle o-link--default text-left absolute"
     :class="{ 'shadow-md': !isOpen }"
     type="button"
-    @click="$emit('input', !isOpen)">
+    @click="$emit('input', !isOpen)"
+  >
     <i
       aria-hidden="true"
       class="c-publicindex__handle-icon fa"
-      :class="{ 'fa-chevron-left': isOpen, 'fa-chevron-right': !isOpen }" />
+      :class="{ 'fa-chevron-left': isOpen, 'fa-chevron-right': !isOpen }"
+    />
   </button>
 </template>
 
@@ -27,12 +29,12 @@ export default {
   props: {
     isOpen: {
       type: Boolean,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'input'
-  ]
+    'input',
+  ],
 }
 </script>

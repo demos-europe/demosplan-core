@@ -27,9 +27,11 @@ use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use InvalidArgumentException;
 use Jfcherng\Diff\DiffHelper;
+use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
@@ -44,7 +46,7 @@ use function array_key_exists;
 /**
  * Class EntityContentChangeService.
  */
-class EntityContentChangeService extends CoreService
+class EntityContentChangeService
 {
     /**
      * Mapping from classes to a list of properties, with each property mapping to a list of meta information.
@@ -68,6 +70,8 @@ class EntityContentChangeService extends CoreService
         private readonly TranslatorInterface $translator,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
         private readonly CurrentUserService $currentUserService,
+        private readonly LoggerInterface $logger,
+        private readonly ManagerRegistry $doctrine,
     ) {
         $this->tokenStorage = $tokenStorage;
     }
@@ -178,7 +182,7 @@ class EntityContentChangeService extends CoreService
                 );
             }
         } catch (Exception $e) {
-            $this->getLogger()->warning('Could not calculate content changes', [$e, $e->getTraceAsString()]);
+            $this->logger->warning('Could not calculate content changes', [$e, $e->getTraceAsString()]);
             throw $e;
         }
     }
@@ -251,7 +255,7 @@ class EntityContentChangeService extends CoreService
                 $postUpdateIdentifier = $postUpdateValue;
             }
 
-            // ensure defined values:
+            // ensure defined values (restored original logic):
             $preUpdateValue ??= '';
             $postUpdateValue ??= '';
             $preUpdateIdentifier ??= $preUpdateValue;
@@ -282,7 +286,42 @@ class EntityContentChangeService extends CoreService
                     );
                 }
 
+                // Handle mixed types: string vs array (e.g., empty string vs collection, or collection vs empty string)
+                if ((is_string($preUpdateValue) && is_array($postUpdateValue))
+                    || (is_array($preUpdateValue) && is_string($postUpdateValue))) {
+                    // Convert both to version strings for comparison
+                    $preVersionString = is_array($preUpdateValue)
+                        ? $this->convertToVersionString($preUpdateIdentifiers)
+                        : (string) $preUpdateIdentifier;
+                    $postVersionString = is_array($postUpdateValue)
+                        ? $this->convertToVersionString($postUpdateIdentifiers)
+                        : (string) $postUpdateIdentifier;
+
+                    return $this->getUnifiedDiffOfTwoStrings(
+                        $preVersionString,
+                        $postVersionString,
+                        $propertyName,
+                        $entityType
+                    );
+                }
+
                 // change detected, but not arrays or strings?
+                $this->logger->error('EntityContentChangeService: Unhandled type combination', [
+                    'propertyName'   => $propertyName,
+                    'entityType'     => $entityType,
+                    'preUpdateValue' => [
+                        'type'     => gettype($preUpdateValue),
+                        'value'    => is_scalar($preUpdateValue) ? $preUpdateValue : '[non-scalar]',
+                        'isArray'  => is_array($preUpdateValue),
+                        'isString' => is_string($preUpdateValue),
+                    ],
+                    'postUpdateValue' => [
+                        'type'     => gettype($postUpdateValue),
+                        'value'    => is_scalar($postUpdateValue) ? $postUpdateValue : '[non-scalar]',
+                        'isArray'  => is_array($postUpdateValue),
+                        'isString' => is_string($postUpdateValue),
+                    ],
+                ]);
                 throw new NotYetImplementedException('should have been string or array.');
             }
         }
@@ -354,8 +393,8 @@ class EntityContentChangeService extends CoreService
             );
             $this->entityContentChangeRepository->persistAndDelete($entries, []);
         } catch (Exception $e) {
-            $this->getLogger()->warning('Unable on addEntityContentChangeEntry. ', [$e]);
-            throw new InvalidArgumentException('Unable on addEntityContentChangeEntry.');
+            $this->logger->warning('Unable on addEntityContentChangeEntry. ', [$e]);
+            throw new InvalidArgumentException('Unable on addEntityContentChangeEntry.', $e->getCode(), $e);
         }
     }
 
@@ -397,7 +436,7 @@ class EntityContentChangeService extends CoreService
                     $isCustomFieldChange
                 );
 
-                if (null !== $entry) {
+                if ($entry instanceof EntityContentChange) {
                     $entries[] = $entry;
                 }
             }
@@ -438,7 +477,7 @@ class EntityContentChangeService extends CoreService
             $changedEntityField,
             $contentChange,
             $changer,
-            $this->getDoctrine()->getManager()->getClassMetadata(ClassUtils::getClass($updatedObject))->getName(),
+            $this->doctrine->getManager()->getClassMetadata(ClassUtils::getClass($updatedObject))->getName(),
             $creationDate,
             $isCustomFieldChange
         );
@@ -489,13 +528,7 @@ class EntityContentChangeService extends CoreService
             $prefix = $this->getMappingValue($fieldName, $entityType, 'translationPrefix') ?: '';
 
             // merge with prefix
-            if ('' !== $prefix && !str_contains($content, $prefix)) {
-                // add prefix, but only once
-                $completeContent = $prefix.$content;
-            } else {
-                // do not add prefix
-                $completeContent = $content;
-            }
+            $completeContent = '' !== $prefix && !str_contains($content, $prefix) ? $prefix.$content : $content;
 
             return [
                 'content' => $this->translator->trans($completeContent),
@@ -1046,8 +1079,8 @@ class EntityContentChangeService extends CoreService
         ?CustomFieldValuesList $preUpdateCustomFieldValueList,
         ?CustomFieldValuesList $postUpdateCustomFieldValueList,
     ): array {
-        $emptyPre = null === $preUpdateCustomFieldValueList || $preUpdateCustomFieldValueList->isEmpty();
-        $emptyPost = null === $postUpdateCustomFieldValueList || $postUpdateCustomFieldValueList->isEmpty();
+        $emptyPre = !$preUpdateCustomFieldValueList instanceof CustomFieldValuesList || $preUpdateCustomFieldValueList->isEmpty();
+        $emptyPost = !$postUpdateCustomFieldValueList instanceof CustomFieldValuesList || $postUpdateCustomFieldValueList->isEmpty();
 
         if ($emptyPre && $emptyPost) {
             return [];
@@ -1059,7 +1092,7 @@ class EntityContentChangeService extends CoreService
             $preUpdateValues = $preUpdateCustomFieldValueList->toJson();
             $preUpdateValues = collect($preUpdateValues)->mapWithKeys(
                 fn (array $preUpdateValue) => [
-                    $this->getCustomFieldName($preUpdateValue['id']) => $preUpdateValue['value'],
+                    $this->getCustomFieldName($preUpdateValue['id']) => $this->getCustomFieldValueName($preUpdateValue['id'], $preUpdateValue['value']),
                 ]
             );
         }
@@ -1069,7 +1102,7 @@ class EntityContentChangeService extends CoreService
             $postUpdateValues = $postUpdateCustomFieldValueList->toJson();
             $postUpdateValues = collect($postUpdateValues)->mapWithKeys(
                 fn (array $postUpdateValues) => [
-                    $this->getCustomFieldName($postUpdateValues['id']) => $postUpdateValues['value'],
+                    $this->getCustomFieldName($postUpdateValues['id']) => $this->getCustomFieldValueName($postUpdateValues['id'], $postUpdateValues['value']),
                 ]
             );
         }
@@ -1106,6 +1139,11 @@ class EntityContentChangeService extends CoreService
             ->getConfiguration()->getName();
     }
 
+    public function getCustomFieldValueName(string $customFieldId, string $customFieldValueId): string
+    {
+        return $this->customFieldValueCreator->getCustomFieldConfigurationById($customFieldId)->getCustomOptionValueById($customFieldValueId)->getLabel();
+    }
+
     /**
      * @return array<string, string|array<string,string>>
      *
@@ -1119,7 +1157,7 @@ class EntityContentChangeService extends CoreService
     ): array {
         $changes = [];
 
-        foreach ($fieldsToTrack as $propertyName => $fieldMetaInfo) {
+        foreach (array_keys($fieldsToTrack) as $propertyName) {
             if ('customFields' === $propertyName) {
                 $changes['customFields'] = $this->diffCustomFields(
                     $preUpdateArray['customFields'] ?? null,
@@ -1166,28 +1204,24 @@ class EntityContentChangeService extends CoreService
         $changes = [];
         $class = ClassUtils::getClass($preUpdateObject);
 
-        foreach ($fieldsToTrack as $propertyName => $fieldMetaInfo) {
+        foreach (array_keys($fieldsToTrack) as $propertyName) {
             if ('customFields' === $propertyName) {
                 $changes['customFields'] = $this->diffCustomFields(
                     $preUpdateObject->getCustomFields(),
                     $incomingDataArray['customFields'] ?? null
                 );
-            } else {
-                if (array_key_exists($propertyName, $incomingDataArray)) {
-                    $methodName = $this->getGetterMethodName($preUpdateObject, $propertyName);
-                    $postUpdateValue = $incomingDataArray[$propertyName];
-                    $preUpdateValue = $preUpdateObject->$methodName();
-
-                    $contentChangeString = $this->createContentChangeData(
-                        $preUpdateValue,
-                        $postUpdateValue,
-                        $propertyName,
-                        $class
-                    );
-
-                    if (null !== $contentChangeString) {
-                        $changes[$propertyName] = $contentChangeString;
-                    }
+            } elseif (array_key_exists($propertyName, $incomingDataArray)) {
+                $methodName = $this->getGetterMethodName($preUpdateObject, $propertyName);
+                $postUpdateValue = $incomingDataArray[$propertyName];
+                $preUpdateValue = $preUpdateObject->$methodName();
+                $contentChangeString = $this->createContentChangeData(
+                    $preUpdateValue,
+                    $postUpdateValue,
+                    $propertyName,
+                    $class
+                );
+                if (null !== $contentChangeString) {
+                    $changes[$propertyName] = $contentChangeString;
                 }
             }
         }

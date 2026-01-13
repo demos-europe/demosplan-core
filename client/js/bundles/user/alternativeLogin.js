@@ -21,7 +21,7 @@ const components = {
   AlternativeLogin,
   DpDataTableExtended,
   RegisterFlyout,
-  IdpLoginForm
+  IdpLoginForm,
 }
 
 initialize(components).then(() => {

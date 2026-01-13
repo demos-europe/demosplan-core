@@ -28,7 +28,7 @@ const presetModules = [
   'elements',
   'single_documents',
   'paragraphs',
-  'drawings'
+  'drawings',
 ]
   .filter(name => hasPermission('feature_procedure_report_' + name))
   .map(name => {
@@ -36,8 +36,8 @@ const presetModules = [
     return {
       name: camelName,
       defaultQuery: {
-        group: camelName
-      }
+        group: camelName,
+      },
     }
   })
 

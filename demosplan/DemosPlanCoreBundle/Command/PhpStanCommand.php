@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,12 +19,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 
+#[AsCommand(name: 'dplan:phpstan', description: 'Run PHPStan')]
 class PhpStanCommand extends CoreCommand
 {
     private const PHPSTAN_CONFIG_PATH = 'config/linters/phpstan.template.neon';
-
-    protected static $defaultName = 'dplan:phpstan';
-    protected static $defaultDescription = 'Run PHPStan';
 
     public function configure(): void
     {
@@ -91,13 +90,13 @@ class PhpStanCommand extends CoreCommand
 
         // Handle host path format
         if (str_starts_with($containerPath, $rootPath)) {
-            $containerPath = substr($containerPath, strlen($rootPath) + 1);
+            $containerPath = substr($containerPath, strlen($rootPath));
         }
 
         // Ensure the container path exists and is accessible
-        if (file_exists($rootPath . '/' . $containerPath)) {
+        if (file_exists($rootPath.'/'.$containerPath)) {
             $output->writeln(sprintf('Using container path: %s', $containerPath));
-        } elseif (file_exists('/srv/www/' . $containerPath)) {
+        } elseif (file_exists('/srv/www/'.$containerPath)) {
             $output->writeln(sprintf('Using container path: %s (in container)', $containerPath));
         } else {
             $output->writeln(sprintf('<warning>Warning: Container file not found. Using best guess: %s</warning>', $containerPath));
@@ -136,11 +135,6 @@ class PhpStanCommand extends CoreCommand
         if (0 < $level) {
             $cmd[] = '-l';
             $cmd[] = $level;
-        }
-
-        if ($isCi) {
-            $cmd[] = '--error-format';
-            $cmd[] = 'raw';
         }
 
         $output->writeln(implode(' ', $cmd));

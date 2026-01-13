@@ -21,35 +21,30 @@ final class SegmentExcelImportResult
     /**
      * @var Statement[]
      */
-    private $statements;
+    private $statements = [];
 
     /**
      * @var Segment[]
      */
-    private $segments;
+    private $segments = [];
 
     /**
      * @var ImportError[]
      */
-    private $errors;
+    private $errors = [];
 
     /**
      * @var int
      */
-    private $segmentCount;
+    private $segmentCount = 0;
 
     /**
      * @var int
      */
-    private $statementCount;
+    private $statementCount = 0;
 
     public function __construct()
     {
-        $this->errors = [];
-        $this->segments = [];
-        $this->statements = [];
-        $this->segmentCount = 0;
-        $this->statementCount = 0;
     }
 
     public function getStatements(): array

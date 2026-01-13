@@ -3,23 +3,26 @@
     <div
       v-if="currentForm === 'tag'"
       id="new-tag-form"
-      class="border rounded p-4 my-4"
-      data-dp-validate="addNewTagForm">
+      class="border rounded-sm p-4 my-4"
+      data-dp-validate="addNewTagForm"
+    >
       <dp-label
         class="mb-4"
         for="new-tag-form"
         :text="Translator.trans('entity.create', { entity: Translator.trans('tag') })"
-        bold />
+        bold
+      />
       <dp-input
-        v-model="newTag.title"
         id="new-tag-title"
+        v-model="newTag.title"
         class="mb-4"
         data-cy="tagsList:newTag:title"
         :label="{
           text: Translator.trans('title')
         }"
         maxlength="250"
-        required />
+        required
+      />
       <dp-select
         v-model="newTag.topic"
         class="mb-4"
@@ -28,61 +31,71 @@
           text: Translator.trans('entity.choose', { entity: Translator.trans('tag.category') })
         }"
         :options="topicsAsOptions"
-        required />
+        required
+      />
       <addon-wrapper
         class="block mb-4"
         hook-name="tag.create.form"
         @input="updateForm"
-        @change="updateForm" />
+        @change="updateForm"
+      />
       <dp-button-row
         data-cy="tagsList:addNewTag"
         primary
         secondary
         @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(), false)"
-        @secondary-action="closeForm" />
+        @secondary-action="closeForm"
+      />
     </div>
 
     <div
       v-else-if="currentForm === 'topic'"
       id="new-topic-form"
-      class="border rounded p-4 my-4"
-      data-dp-validate="addNewTopicForm">
+      class="border rounded-sm p-4 my-4"
+      data-dp-validate="addNewTopicForm"
+    >
       <dp-label
         class="mb-4"
         for="new-topic-form"
         :text="Translator.trans('entity.create', { entity: Translator.trans('tag.category')})"
-        bold />
+        bold
+      />
       <dp-input
-        v-model="newTopic.title"
         id="new-topic-title"
+        v-model="newTopic.title"
         class="mb-4"
         :label="{
           text: Translator.trans('title')
         }"
         maxlength="250"
-        required />
+        required
+      />
       <div class="flex justify-end mt-2">
         <dp-button-row
           data-cy="tagsList:addNewTopic"
           primary
           secondary
           @primary-action="dpValidateAction('addNewTopicForm', () => saveNewTopic(), false)"
-          @secondary-action="closeForm" />
+          @secondary-action="closeForm"
+        />
       </div>
     </div>
 
     <div
       v-else
-      class="flex gap-2 justify-end my-4">
+      class="flex gap-2 justify-end my-4"
+    >
       <dp-button
         data-cy="tagsList:openTagForm"
         :text="Translator.trans('entity.create', { entity: Translator.trans('tag') })"
-        @click="() => openForm('tag')" />
+        @click="() => openForm('tag')"
+      />
       <dp-button
         data-cy="tagsList:openTopicForm"
         :text="Translator.trans('entity.create', { entity: Translator.trans('tag.category') })"
         variant="outline"
-        @click="() => openForm('topic')" />
+        @click="() => openForm('topic')"
+      />
     </div>
   </div>
 </template>
@@ -94,7 +107,7 @@ import {
   DpInput,
   DpLabel,
   DpSelect,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
@@ -108,7 +121,7 @@ export default {
     DpButtonRow,
     DpInput,
     DpLabel,
-    DpSelect
+    DpSelect,
   },
 
   mixins: [dpValidateMixin],
@@ -117,13 +130,13 @@ export default {
     isMasterProcedure: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -131,17 +144,17 @@ export default {
       currentForm: '',
       newTag: {
         title: '',
-        topic: ''
+        topic: '',
       },
       newTopic: {
-        title: ''
-      }
+        title: '',
+      },
     }
   },
 
   computed: {
     ...mapState('TagTopic', {
-      TagTopic: 'items'
+      TagTopic: 'items',
     }),
 
     topicsAsOptions () {
@@ -151,25 +164,25 @@ export default {
 
           return {
             label: attributes.title,
-            value: id
-        }
-      })
+            value: id,
+          }
+        })
         .sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true, sensitivity: 'base' }))
-    }
+    },
   },
 
   methods: {
     ...mapMutations('TagTopic', {
-      updateTagTopic: 'setItem'
+      updateTagTopic: 'setItem',
     }),
 
     ...mapActions('Tag', {
-      createTag: 'create'
+      createTag: 'create',
     }),
 
     ...mapActions('TagTopic', {
       createTagTopic: 'create',
-      saveTagTopic: 'save'
+      saveTagTopic: 'save',
     }),
 
     closeForm () {
@@ -185,7 +198,7 @@ export default {
       this.newTopic.title = ''
       this.newTag = {
         title: '',
-        topic: ''
+        topic: '',
       }
     },
 
@@ -193,16 +206,16 @@ export default {
       this.createTag({
         type: 'Tag',
         attributes: {
-          title: this.newTag.title
+          title: this.newTag.title,
         },
         relationships: {
           topic: {
             data: {
               type: 'TagTopic',
-              id: this.newTag.topic
-            }
-          }
-        }
+              id: this.newTag.topic,
+            },
+          },
+        },
       })
         .then(response => {
           if (!response.data.Tag || !this.TagTopic[this.newTag.topic]) {
@@ -216,21 +229,21 @@ export default {
             id: this.newTag.topic,
             type: 'TagTopic',
             attributes: parentTopic.attributes,
-            relationships: parentTopic.relationships
-              ? {
-                  ...parentTopic.relationships,
-                  tags: {
-                    data: parentTopic.relationships.tags.data.concat({
-                      type: 'Tag',
-                      id: newTagId
-                    })
-                  }
-                }
-              : {
-                  tags: {
-                    data: [{ type: 'Tag', id: newTagId }]
-                  }
-                }
+            relationships: parentTopic.relationships ?
+              {
+                ...parentTopic.relationships,
+                tags: {
+                  data: parentTopic.relationships.tags.data.concat({
+                    type: 'Tag',
+                    id: newTagId,
+                  }),
+                },
+              } :
+              {
+                tags: {
+                  data: [{ type: 'Tag', id: newTagId }],
+                },
+              },
           })
 
           this.saveTagTopic(this.newTag.topic)
@@ -243,16 +256,16 @@ export default {
       this.createTagTopic({
         type: 'TagTopic',
         attributes: {
-          title: this.newTopic.title
+          title: this.newTopic.title,
         },
         relationships: {
           procedure: {
             data: {
               type: this.isMasterProcedure ? 'ProcedureTemplate' : 'Procedure',
-              id: this.procedureId
-            }
-          }
-        }
+              id: this.procedureId,
+            },
+          },
+        },
       })
         .then(() => {
           this.closeForm()
@@ -261,7 +274,7 @@ export default {
 
     updateForm (value) {
       this.newTag[value.key] = value.value
-    }
-  }
+    },
+  },
 }
 </script>

@@ -47,48 +47,58 @@
 <template>
   <dp-flyout
     ref="flyout"
-    align="left"
+    :align="flyoutAlign"
+    :appearance="appearance"
     :data-cy="category.label"
-    variant="dark"
+    :flyout-position="flyoutPosition"
     :padded="false"
+    :variant="variant"
     @close="handleClose"
-    @open="handleOpen">
+    @open="handleOpen"
+  >
     <template v-slot:trigger>
       <span :class="{ 'weight--bold' : (appliedQuery.length > 0) }">
         {{ category.label }}
         <span
+          v-if="appliedQuery.length > 0"
           class="o-badge o-badge--small o-badge--transparent mb-px mr-1"
-          v-if="appliedQuery.length > 0">
+        >
           {{ appliedQuery.length }}
         </span>
       </span>
       <i
         class="fa"
         :class="isExpanded ? 'fa-angle-up' : 'fa-angle-down'"
-        aria-hidden="true" />
+        aria-hidden="true"
+      />
     </template>
 
     <div
-      class="min-w-12 border--bottom u-p-0_5">
+      class="min-w-12 border--bottom u-p-0_5 leading-[2] whitespace-nowrap"
+    >
       <dp-resettable-input
-        :data-cy="`searchField:${path}`"
         :id="`searchField_${path}`"
+        v-model="searchTerm"
+        :data-cy="`searchField:${path}`"
         :input-attributes="{ placeholder: Translator.trans('search.list'), type: 'search' }"
         @reset="resetSearch"
-        v-model="searchTerm" />
+      />
     </div>
 
     <dp-loading
       v-if="isLoading"
-      class="u-mt u-ml-0_5 u-pb" />
+      class="u-mt u-ml-0_5 u-pb"
+    />
 
     <div v-else>
       <div
-        :style="maxHeight"
-        class="w-full border--bottom overflow-y-scroll u-p-0_5">
+        :style="flyoutHeightStyle"
+        class="w-full border--bottom overflow-y-scroll u-p-0_5"
+      >
         <ul
           v-if="ungroupedOptions?.length > 0"
-          class="o-list line-height--1_6">
+          class="o-list line-height--1_6"
+        >
           <filter-flyout-checkbox
             v-for="option in searchedUngroupedOptions"
             :key="option.id"
@@ -96,12 +106,14 @@
             instance="ungrouped"
             :option="option"
             :show-count="showCount.ungroupedOptions"
-            @change="updateQuery" />
+            @change="updateQuery"
+          />
         </ul>
         <ul
           v-for="group in searchedGroupedOptions"
+          :key="`list_${group.id}}`"
           class="o-list line-height--1_6"
-          :key="`list_${group.id}}`">
+        >
           <span class="font-size-small">
             {{ group.label }}
           </span>
@@ -112,7 +124,8 @@
             :instance="group.id"
             :option="option"
             :show-count="showCount.groupedOptions"
-            @change="updateQuery" />
+            @change="updateQuery"
+          />
         </ul>
 
         <span v-if="searchedGroupedOptions.length === 0 && searchedUngroupedOptions?.length === 0">
@@ -120,22 +133,26 @@
         </span>
       </div>
       <div
-        v-if="itemsSelected.length > 0"
-        class="flow-root">
+        v-if="itemsSelected.length"
+        class="flow-root"
+      >
         <h3
-          class="inline-block font-size-small weight--normal u-m-0_5">
+          class="inline-block font-size-small weight--normal u-m-0_5"
+        >
           {{ Translator.trans('filter.active') }}
         </h3>
         <button
           v-if="currentQuery.length"
           class="o-link--default btn--blank font-size-small u-m-0_5 float-right"
           :data-cy="`filter:removeActiveFilter:${path}`"
-          @click="resetAndApply">
+          @click="resetAndApply"
+        >
           {{ Translator.trans('filter.active.remove') }}
         </button>
       </div>
       <ul
-        class="o-list u-p-0_5 u-pt-0 line-height--1_6">
+        class="o-list u-p-0_5 u-pt-0 line-height--1_6"
+      >
         <filter-flyout-checkbox
           v-for="item in itemsSelected"
           :key="`itemsSelected_${item.id}}`"
@@ -143,20 +160,23 @@
           :highlight="appliedQuery.includes(item.id) === false"
           instance="itemsSelected"
           :option="item"
-          @change="updateQuery" />
+          @change="updateQuery"
+        />
       </ul>
       <div class="flow-root u-p-0_5 u-pt-0">
         <dp-button
           class="float-left"
           :data-cy="`filter:applyFilter:${path}`"
           :text="Translator.trans('apply')"
-          @click="apply" />
+          @click="apply"
+        />
         <dp-button
           class="float-right"
           color="secondary"
           :data-cy="`filter:abortFilter:${path}`"
           :text="Translator.trans('abort')"
-          @click="close" />
+          @click="close"
+        />
       </div>
     </div>
   </dp-flyout>
@@ -169,7 +189,7 @@ import {
   DpFlyout,
   DpLoading,
   DpResettableInput,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
@@ -182,14 +202,21 @@ export default {
     DpFlyout,
     DpLoading,
     DpResettableInput,
-    FilterFlyoutCheckbox
+    FilterFlyoutCheckbox,
   },
 
   props: {
     additionalQueryParams: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
+    },
+
+    appearance: {
+      required: false,
+      type: String,
+      default: 'interactive',
+      validator: (prop) => ['interactive', 'basic'].includes(prop),
     },
 
     category: {
@@ -197,14 +224,14 @@ export default {
       required: true,
       validator: prop => {
         return hasOwnProp(prop, 'label') && hasOwnProp(prop, 'id')
-      }
+      },
     },
 
     // Contains ids of applied filters from this and the neighboring filterFlyouts
     initialQueryIds: {
       type: Array,
       required: false,
-      default: () => ([])
+      default: () => ([]),
     },
 
     /**
@@ -219,17 +246,31 @@ export default {
     memberOf: {
       type: String,
       required: false,
-      default: ''
+      default: '',
+    },
+
+    flyoutAlign: {
+      required: false,
+      type: String,
+      default: 'right',
+      validator: (prop) => ['left', 'right', 'top'].includes(prop),
+    },
+
+    flyoutPosition: {
+      required: false,
+      type: String,
+      default: 'absolute',
+      validator: (prop) => ['relative', 'absolute'].includes(prop),
     },
 
     operator: {
       type: String,
-      required: true
+      required: true,
     },
 
     path: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -240,17 +281,25 @@ export default {
       required: false,
       default: () => ({
         groupedOptions: false,
-        ungroupedOptions: false
+        ungroupedOptions: false,
       }),
       validator: prop => {
         return Object.keys(prop).length === 2 && hasOwnProp(prop, 'groupedOptions') && hasOwnProp(prop, 'ungroupedOptions')
-      }
-    }
+      },
+    },
+
+    variant: {
+      required: false,
+      type: String,
+      default: 'light',
+      validator: (prop) => ['light', 'dark'].includes(prop),
+    },
   },
 
   emits: [
     'filterApply',
-    'filterOptions:request'
+    'filterOptions:request',
+    'update:expanded',
   ],
 
   data () {
@@ -262,7 +311,7 @@ export default {
        * contains only ids
        */
       currentQuery: [],
-      searchTerm: ''
+      searchTerm: '',
     }
   },
 
@@ -273,7 +322,7 @@ export default {
       'getInitialFlyoutFilterIdsByCategoryId',
       'getIsExpandedByCategoryId',
       'getIsLoadingByCategoryId',
-      'getUngroupedOptionsByCategoryId'
+      'getUngroupedOptionsByCategoryId',
     ]),
 
     initialFlyoutFilterIds () {
@@ -293,22 +342,22 @@ export default {
           filter[id] = {
             condition: {
               path: this.path,
-              operator: 'IS NULL'
-            }
+              operator: 'IS NULL',
+            },
           }
         } else {
           filter[id] = {
             condition: {
               path: this.path,
               value: id,
-              operator: this.operator
-            }
+              operator: this.operator,
+            },
           }
 
           if (this.memberOf) {
             filter[id].condition = {
               ...filter[id].condition,
-              memberOf: this.memberOf
+              memberOf: this.memberOf,
             }
           }
         }
@@ -325,20 +374,15 @@ export default {
       return this.getIsLoadingByCategoryId(this.category.id) ?? false
     },
 
-    /*
-     * The maxHeight for the scrollable options is calculated to better match devices.
-     */
-    maxHeight () {
-      const offsetTop = this.$el?.getBoundingClientRect().top + document.documentElement.scrollTop
-      const searchFieldHeight = 58
-      const buttonRowHeight = 58
-      /*
-       * The "26" equals the height of one option, whereas the
-       * 42 equals the height of the "Active Filters" row.
-       */
-      const selectedItemsHeight = (this.itemsSelected.length + 1) * 26 + 42
-      const subtractedHeight = selectedItemsHeight + offsetTop + searchFieldHeight + buttonRowHeight
-      return `max-height: calc(100vh - ${subtractedHeight}px);min-height: 100px;`
+    flyoutHeightStyle () {
+      const scrollOffset = this.getParentScrollTop()
+      const elementTop = this.$el?.getBoundingClientRect().top ?? 0
+      const elementOffset = elementTop + scrollOffset
+
+      const maxHeight = this.getMaxHeight(elementOffset)
+      const minHeight = this.getMinHeight()
+
+      return `max-height: ${maxHeight};min-height: ${minHeight}px;`
     },
 
     isExpanded () {
@@ -351,7 +395,7 @@ export default {
     itemsSelected () {
       const items = [
         ...this.ungroupedOptions,
-        ...this.groupedOptions.flatMap(group => group.options)
+        ...this.groupedOptions.flatMap(group => group.options),
       ]
       return items.filter((item) => item.selected)
     },
@@ -359,7 +403,7 @@ export default {
     searchedGroupedOptions () {
       return this.groupedOptions.map(group => ({
         ...group,
-        options: dataTableSearch(this.searchTerm, group.options, ['label'])
+        options: dataTableSearch(this.searchTerm, group.options, ['label']),
       })).filter(group => group.options.length > 0)
     },
 
@@ -369,7 +413,7 @@ export default {
 
     ungroupedOptions () {
       return this.getUngroupedOptionsByCategoryId(this.category.id) || []
-    }
+    },
   },
 
   watch: {
@@ -386,20 +430,20 @@ export default {
           this.setCurrentQuery(newIds)
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
     ...mapActions('FilterFlyout', {
-      updateFilters: 'updateFilterQuery'
+      updateFilters: 'updateFilterQuery',
     }),
 
     ...mapMutations('FilterFlyout', {
       setGroupedSelected: 'setGroupedOptionSelected',
       setIsExpanded: 'setIsExpanded',
       setIsLoading: 'setIsLoading',
-      setUngroupedSelected: 'setUngroupedOptionSelected'
+      setUngroupedSelected: 'setUngroupedOptionSelected',
     }),
 
     /**
@@ -419,6 +463,40 @@ export default {
       this.$refs.flyout.close()
     },
 
+    /**
+     * The maxHeight for the scrollable options is calculated to better match devices.
+     */
+    getMaxHeight (elementOffset) {
+      const ACTIVE_FILTERS_ROW_HEIGHT = 42
+      const BUTTON_ROW_HEIGHT = 58
+      const OPTION_HEIGHT = 26
+      const SEARCH_FIELD_HEIGHT = 58
+
+      // Dynamic heights
+      const selectedItemsHeight = (this.itemsSelected.length + 1) * OPTION_HEIGHT + ACTIVE_FILTERS_ROW_HEIGHT
+      const totalUsedHeight = selectedItemsHeight + elementOffset + SEARCH_FIELD_HEIGHT + BUTTON_ROW_HEIGHT
+
+      return `calc(100vh - ${totalUsedHeight}px)`
+    },
+
+    getMinHeight () {
+      const MIN_HEIGHT_SMALL = 100
+      const MIN_HEIGHT_LARGE = 300
+      const hasManyOptions = this.groupedOptions.length > 10 || this.ungroupedOptions.length > 10
+
+      return hasManyOptions ? MIN_HEIGHT_LARGE : MIN_HEIGHT_SMALL
+    },
+
+    getParentScrollTop () {
+      const modal = this.$el?.closest('.o-modal__body')
+
+      if (modal) {
+        return modal.scrollTop ?? 0
+      }
+
+      return document.documentElement.scrollTop || 0
+    },
+
     isChecked (id) {
       return this.currentQuery.includes(id)
     },
@@ -433,11 +511,13 @@ export default {
       this.resetSearch()
       this.restoreAppliedFilterQuery()
       this.currentQuery = JSON.parse(JSON.stringify(this.appliedQuery))
+      this.$emit('update:expanded', this.isExpanded)
     },
 
     handleOpen () {
       this.setIsExpanded({ categoryId: this.category.id, isExpanded: true })
       this.requestFilterOptions()
+      this.$emit('update:expanded', this.isExpanded)
     },
 
     /**
@@ -450,7 +530,8 @@ export default {
         additionalQueryParams: this.additionalQueryParams,
         filter: this.getFilterQuery,
         isInitialWithQuery,
-        path: this.path
+        path: this.path,
+        currentQuery: this.currentQuery,
       })
     },
 
@@ -532,7 +613,7 @@ export default {
       }
 
       this.requestFilterOptions()
-    }
+    },
   },
 
   mounted () {
@@ -550,6 +631,6 @@ export default {
         this.currentQuery = selectedIds
       }
     }
-  }
+  },
 }
 </script>

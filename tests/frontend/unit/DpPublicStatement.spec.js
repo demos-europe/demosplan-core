@@ -35,8 +35,8 @@ describe('DpPublicStatement', () => {
         rejectedReason: '',
         submittedDate: null,
         text: '',
-        user: 'buerger new'
-      }
+        user: 'buerger new',
+      },
     })
 
     expect(wrapper).toBeDefined()

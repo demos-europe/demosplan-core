@@ -15,13 +15,13 @@ use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Transformers\SlugDraftTransformer;
 use demosplan\DemosPlanCoreBundle\ValueObject\SlugDraftValueObject;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Class SlugDraftApiController.
@@ -36,12 +36,11 @@ class SlugDraftApiController extends APIController
      * "is-slug-already-taken"-functionality, in this case adjust the permissions
      * accordingly.
      *
-     * @DplanPermissions("feature_short_url")
-     *
      * @return APIResponse|JsonResponse
      */
+    #[DplanPermissions('feature_short_url')]
     #[Route(methods: ['POST'], name: 'create')]
-    public function createAction(SlugDraftTransformer $slugDraftTransformer)
+    public function create(SlugDraftTransformer $slugDraftTransformer): APIResponse
     {
         $slugDraftType = $slugDraftTransformer->getType();
 

@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -36,13 +37,13 @@ use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementFragmentNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
 use demosplan\DemosPlanCoreBundle\Repository\FragmentElasticsearchRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentVersionRepository;
@@ -77,9 +78,10 @@ use Elastica\ResultSet;
 use Exception;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class StatementFragmentService extends CoreService
+class StatementFragmentService
 {
     use RefreshElasticsearchIndexTrait;
 
@@ -140,6 +142,9 @@ class StatementFragmentService extends CoreService
         TranslatorInterface $translator,
         private readonly UserRepository $userRepository,
         UserService $userService,
+        private readonly LoggerInterface $logger,
+        private readonly ManagerRegistry $doctrine,
+        private readonly ProfilerService $profilerService,
     ) {
         $this->assignService = $assignService;
         $this->elementService = $elementService;
@@ -237,7 +242,7 @@ class StatementFragmentService extends CoreService
         $fragmentToDelete = $this->statementFragmentRepository->get($statementFragmentId);
 
         if (null === $fragmentToDelete) {
-            $this->getLogger()->warning('Fehler beim Löschen eines Fragments: Fragment '.$statementFragmentId.' nicht gefunden.');
+            $this->logger->warning('Fehler beim Löschen eines Fragments: Fragment '.$statementFragmentId.' nicht gefunden.');
             throw new EntityIdNotFoundException(sprintf('Fragment-ID not found: %s', $statementFragmentId));
         }
 
@@ -259,7 +264,7 @@ class StatementFragmentService extends CoreService
 
             $success = true;
         } catch (Exception $e) {
-            $this->getLogger()->error('Fehler beim Löschen eines StatementFragments: ', [$e]);
+            $this->logger->error('Fehler beim Löschen eines StatementFragments: ', [$e]);
             $success = false;
         }
 
@@ -404,7 +409,7 @@ class StatementFragmentService extends CoreService
         try {
             foreach ($fragmentsToCopy as $fragmentToCopy) {
                 if (!$fragmentToCopy instanceof StatementFragment) {
-                    $this->getLogger()->error('Fragment to copy should be a fragment');
+                    $this->logger->error('Fragment to copy should be a fragment');
                 }
 
                 $permissionEnabled = $this->permissions->hasPermission('feature_statement_assignment');
@@ -413,7 +418,7 @@ class StatementFragmentService extends CoreService
                 // T5140: unable to create Fragment if permission is enabled and Statement is not assigned to current user
                 $statementAssignedToCurrentUser = $this->assignService->isStatementObjectAssignedToCurrentUser($statement);
                 if ($permissionEnabled && !$statementAssignedToCurrentUser) {
-                    $this->getLogger()->error(
+                    $this->logger->error(
                         'Tried to copy fragments of an unassigned Statement.'
                     );
                     throw NotAssignedException::mustBeAssignedException();
@@ -421,7 +426,7 @@ class StatementFragmentService extends CoreService
 
                 // T5505 do not copy fragment if assigned ro reviewer
                 if (!$ignoreReviewer && $permissionEnabled && null !== $fragmentToCopy->getDepartmentId()) {
-                    $this->getLogger()->error('Tried to copy an fragment that is assigned to a reviewer.');
+                    $this->logger->error('Tried to copy an fragment that is assigned to a reviewer.');
                     $this->messageBag->add(
                         'warning',
                         'warning.statement.copy.fragment.assigned.to.reviewer',
@@ -442,12 +447,12 @@ class StatementFragmentService extends CoreService
                 }
 
                 $this->statementFragmentRepository->addObject($newFragment);
-                $this->getLogger()->debug('Cluster single fragment copied');
+                $this->logger->debug('Cluster single fragment copied');
             }
         } catch (NotAssignedException) {
             throw NotAssignedException::mustBeAssignedException();
         } catch (Exception $e) {
-            $this->getLogger()->error('Could not copy StatementFragment', [$e]);
+            $this->logger->error('Could not copy StatementFragment', [$e]);
 
             return null;
         }
@@ -539,7 +544,7 @@ class StatementFragmentService extends CoreService
         // get variables
         $assignee = $fragmentObject->getAssignee();
         $currentUserLayerObject = $this->currentUser->getUser();
-        if (null === $currentUserLayerObject) {
+        if (!$currentUserLayerObject instanceof UserInterface) {
             throw new NullPointerException('Current user is null.');
         }
         $currentUserUserObject = $this->userRepository->get($currentUserLayerObject->getId());
@@ -607,9 +612,9 @@ class StatementFragmentService extends CoreService
                     }
                 }
             }
-            $this->profilerStart('ES');
+            $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
             $fragmentList = $repos->searchFragments($esQuery);
-            $this->profilerStop('ES');
+            $this->profilerService->profilerStop(ProfilerService::ELASTICSEARCH_PROFILER);
             $resultList = [];
             foreach ($fragmentList['hits']['hits'] as $fragment) {
                 $resultList[] = $fragment['_source'];
@@ -641,7 +646,7 @@ class StatementFragmentService extends CoreService
             }
             $filters['includeVersions'] = true;
             $esResult = $this->getElasticsearchStatementFragmentResult($filters);
-            $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null, 'result');
+            $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null);
             $fieldVersions = [];
             // compute versioned Fields
             foreach ($esResult->getResult() as $fragment) {
@@ -684,7 +689,7 @@ class StatementFragmentService extends CoreService
         try {
             $filters['procedureId'] = $procedureId;
             $esResult = $this->getElasticsearchStatementFragmentResult($filters, '', null, $limit, $page);
-            $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null, 'result');
+            $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null);
         } catch (Exception $e) {
             $this->logger->error('Could not get StatementFragment Procedure List', [$e]);
 
@@ -756,7 +761,7 @@ class StatementFragmentService extends CoreService
             }
 
             $esResult = $this->getElasticsearchStatementFragmentResult($userFilters, $search, null, $limit, $page, [], false);
-            $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null, 'result');
+            $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null);
         } catch (Exception $e) {
             $this->logger->error('Could not get StatementFragment Statement List', [$e]);
 
@@ -857,7 +862,7 @@ class StatementFragmentService extends CoreService
     public function updateStatementFragmentObject(StatementFragment $fragment)
     {
         try {
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->doctrine->getManager();
             $user = $this->currentUser->getUser();
 
             if ($user instanceof User) {
@@ -869,7 +874,7 @@ class StatementFragmentService extends CoreService
                 );
 
                 if (null === $user->getDepartmentId()) {
-                    $this->getLogger()->error('Current User does not have a department!');
+                    $this->logger->error('Current User does not have a department!');
                 }
             }
 
@@ -881,17 +886,17 @@ class StatementFragmentService extends CoreService
                 $version = new StatementFragmentVersion($result);
 
                 if (null === $version->getModifiedByDepartment()) {
-                    $this->getLogger()->error('A StatementFragmentVersion was created without a modifiedByDepartment');
+                    $this->logger->error('A StatementFragmentVersion was created without a modifiedByDepartment');
                 }
 
                 if (null === $version->getModifiedByUser()) {
-                    $this->getLogger()->error('A StatementFragmentVersion was created without a modifiedByUser');
+                    $this->logger->error('A StatementFragmentVersion was created without a modifiedByUser');
                 }
 
                 $this->createStatementFragmentVersion($version);
             }
         } catch (Exception $e) {
-            $this->getLogger()->error('Could not update StatementFragment', [$e]);
+            $this->logger->error('Could not update StatementFragment', [$e]);
 
             return null;
         }
@@ -906,7 +911,7 @@ class StatementFragmentService extends CoreService
      */
     public function getParagraphVersionsForFragmentArray(array $fragmentArray)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->doctrine->getManager();
         $fragmentId = $this->entityHelper->extractId($fragmentArray);
         $currentFragment = $this->getStatementFragment($fragmentId);
 
@@ -972,17 +977,17 @@ class StatementFragmentService extends CoreService
                 $version = new StatementFragmentVersion($result);
 
                 if (null === $version->getModifiedByDepartment()) {
-                    $this->getLogger()->error('A StatementFragmentVersion was created without a modifiedByDepartment');
+                    $this->logger->error('A StatementFragmentVersion was created without a modifiedByDepartment');
                 }
 
                 if (null === $version->getModifiedByUser()) {
-                    $this->getLogger()->error('A StatementFragmentVersion was created without a modifiedByUser');
+                    $this->logger->error('A StatementFragmentVersion was created without a modifiedByUser');
                 }
 
                 $this->createStatementFragmentVersion($version);
             }
         } catch (Exception $e) {
-            $this->getLogger()->error('Could not update StatementFragment', [$e]);
+            $this->logger->error('Could not update StatementFragment', [$e]);
 
             return null;
         }
@@ -1011,7 +1016,7 @@ class StatementFragmentService extends CoreService
             }
             $fragmentList = $this->getStatementFragmentsDepartment($esQuery, $requestValues);
 
-            if (0 === count((array) $fragmentList)) {
+            if ([] === (array) $fragmentList) {
                 return $result;
             }
 
@@ -1136,7 +1141,7 @@ class StatementFragmentService extends CoreService
         $aggregation = [];
         $result = [];
         try {
-            $this->profilerStart('ES');
+            $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
 
             // if a Searchterm is set use it
             if (is_string($search) && 0 < \strlen($search)) {
@@ -1163,7 +1168,7 @@ class StatementFragmentService extends CoreService
                         }
                     }
                     // if no searchfields match User does not want to search in fragments
-                    if (0 === count($usedSearchfields)) {
+                    if ([] === $usedSearchfields) {
                         return $this->searchService->getESEmptyResult()->lock();
                     }
                 }
@@ -1260,7 +1265,7 @@ class StatementFragmentService extends CoreService
                             }
                         }
                         // user wants to see not existent query as well as some filter
-                        if (0 < count($shouldNotFilter)) {
+                        if ([] !== $shouldNotFilter) {
                             $shouldNotBool = new BoolQuery();
                             array_map($shouldNotBool->addMustNot(...), $shouldNotFilter);
                             $shouldQuery->addShould($shouldNotBool);
@@ -1520,7 +1525,7 @@ class StatementFragmentService extends CoreService
             $elasticsearchResultStatement->setAggregations($aggregation);
             $elasticsearchResultStatement->setPager($paginator);
 
-            $this->profilerStop('ES');
+            $this->profilerService->profilerStop(ProfilerService::ELASTICSEARCH_PROFILER);
         } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementAggregation failed. ', [$e]);
             $elasticsearchResultStatement = $this->searchService->getESEmptyResult();
@@ -1545,14 +1550,14 @@ class StatementFragmentService extends CoreService
             $permissionEnabled = $this->permissions->hasPermission('feature_statement_assignment');
             $statement = $this->statementService->getStatement($data['statementId']);
 
-            if (null === $statement) {
-                $this->getLogger()->error('Create StatementFragment failed: Related Statement not found.', ['id' => $data['statementId']]);
+            if (!$statement instanceof Statement) {
+                $this->logger->error('Create StatementFragment failed: Related Statement not found.', ['id' => $data['statementId']]);
                 throw new EntityNotFoundException('Create StatementFragment failed: Statement not found.');
             }
 
             // T5140: unable to creating Fragment if permission is enabled and Statement is not assigned to current user
             if ($permissionEnabled && false === $this->assignService->isStatementObjectAssignedToCurrentUser($statement)) {
-                $this->getLogger()->error('Tried to fragment an unassigned Statement.');
+                $this->logger->error('Tried to fragment an unassigned Statement.');
                 throw NotAssignedException::mustBeAssignedException();
             }
 
@@ -1573,7 +1578,7 @@ class StatementFragmentService extends CoreService
             $this->esStatementFragmentType,
             $this->managerRegistry,
             $this->globalConfig,
-            $this->getLogger(),
+            $this->logger,
             $this->reindexer,
             $this->translator,
             $this->sortMethodFactory,
@@ -1621,7 +1626,7 @@ class StatementFragmentService extends CoreService
                 return $updatedFragment;
             }
         } catch (InvalidArgumentException $e) {
-            $this->getLogger()->error('Update StatementFragment failed:', [$e]);
+            $this->logger->error('Update StatementFragment failed:', [$e]);
 
             return false;
         }
@@ -1644,7 +1649,7 @@ class StatementFragmentService extends CoreService
         // transaction is needed here, because we want both the StatementFragment changes and the
         // ContentChange creations inside a single transaction
         /** @var Connection $connection */
-        $connection = $this->getDoctrine()->getConnection();
+        $connection = $this->doctrine->getConnection();
 
         try {
             $connection->beginTransaction();
@@ -1688,7 +1693,7 @@ class StatementFragmentService extends CoreService
             }
             $connection->commit();
         } catch (Exception $e) {
-            $this->getLogger()->log('warning', 'Could not complete transaction; rolling back the relational database; be aware about the possible danger of desynchronizations to Elasticsearch', [$e]);
+            $this->logger->log('warning', 'Could not complete transaction; rolling back the relational database; be aware about the possible danger of desynchronizations to Elasticsearch', [$e]);
             $connection->rollBack();
             $this->refreshElasticsearchIndexes();
             // The Elasticsearch and relational database may be desynchronized at this point, because

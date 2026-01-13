@@ -19,18 +19,21 @@
     <form
       v-else
       :action="formAction"
-      method="POST">
+      method="POST"
+    >
       <input
         name="_token"
         type="hidden"
-        :value="csrfToken">
+        :value="csrfToken"
+      >
 
       <dp-tree-list
         :branch-identifier="isBranch()"
         :draggable="false"
         :options="treeListOptions"
         :tree-data="recursiveElements"
-        @node-selection-change="nodeSelectionChange">
+        @node-selection-change="nodeSelectionChange"
+      >
         <template v-slot:header="">
           <span class="color--grey">Dokumente des Verfahrens</span>
         </template>
@@ -40,22 +43,26 @@
           </div>
           <div
             v-if="nodeElement.attributes.text"
+            v-cleanhtml="nodeElement.attributes.text"
             class="whitespace-pre-line"
-            v-cleanhtml="nodeElement.attributes.text" />
+          />
         </template>
         <template v-slot:leaf="{ nodeElement }">
           <file-info
             :hash="nodeElement.attributes.fileInfo.hash"
             :name="nodeElement.attributes.fileInfo.name"
-            :size="nodeElement.attributes.fileInfo.size" />
+            :size="nodeElement.attributes.fileInfo.size"
+          />
         </template>
         <template v-slot:footer="">
           <button
             type="submit"
-            class="btn btn--primary">
+            class="btn btn--primary"
+          >
             <i
               class="fa fa-download u-mr-0_25"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
             {{ buttonLabel }}
           </button>
           <p class="lbl__hint u-mt-0_125">
@@ -78,31 +85,31 @@ export default {
   components: {
     DpLoading,
     DpTreeList,
-    FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo'))
+    FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo')),
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       isLoading: true,
       recursiveElements: [],
-      selectedFiles: []
+      selectedFiles: [],
     }
   },
 
   computed: {
     ...mapState('Elements', {
-      elements: 'items'
+      elements: 'items',
     }),
 
     buttonLabel () {
@@ -127,23 +134,23 @@ export default {
         rootDraggable: false,
         checkboxIdentifier: {
           branch: 'elementSelected',
-          leaf: 'documentSelected'
+          leaf: 'documentSelected',
         },
         selectOn: {
           childSelect: false,
-          parentSelect: true
+          parentSelect: true,
         },
         deselectOn: {
           childDeselect: false,
-          parentDeselect: true
-        }
+          parentDeselect: true,
+        },
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('Elements', {
-      elementList: 'list'
+      elementList: 'list',
     }),
 
     // The accumulated file size of an array of files objects, converted to readable format
@@ -175,22 +182,26 @@ export default {
      * See https://stackoverflow.com/questions/18017869/build-tree-array-from-flat-array-in-javascript
      */
     listToTree (list) {
-      const map = {}
+      /* Create a shallow copy of each item, so it can be modified safely */
+      const listCopy = list.map(item => ({
+        ...item,
+        children: [],
+      }))
+      let map = {}
       let node
       let roots = []
       let index
 
-      // Initialize map and children in list elements
-      for (index = 0; index < list.length; index += 1) {
-        map[list[index].id] = index
-        list[index].children = []
+      // Initialize map
+      for (index = 0; index < listCopy.length; index += 1) {
+        map[listCopy[index].id] = index
       }
 
-      for (index = 0; index < list.length; index += 1) {
-        node = list[index]
+      for (index = 0; index < listCopy.length; index += 1) {
+        node = listCopy[index]
         const isTopLevel = node.attributes.parentId === null
 
-        // Make documents direct children of node, if there are any
+        // Attach visible documents directly as children of the current node (if any exist)
         if (node.hasRelationship('visibleDocuments')) {
           node.children = [...node.children, ...Object.values(node.relationships.visibleDocuments.list())]
         }
@@ -201,7 +212,7 @@ export default {
           const hasEnabledParent = typeof nodeParentIdx !== 'undefined'
 
           if (hasEnabledParent) {
-            list[nodeParentIdx].children.push(node)
+            listCopy[nodeParentIdx].children.push(node)
           }
         } else {
           roots.push(node)
@@ -231,7 +242,7 @@ export default {
       })
 
       return list
-    }
+    },
   },
 
   mounted () {
@@ -242,11 +253,11 @@ export default {
         enabledElements: {
           condition: {
             path: 'enabled',
-            value: 1
-          }
-        }
+            value: 1,
+          },
+        },
       },
-      procedureId: dplan.procedureId
+      procedureId: dplan.procedureId,
     })
       .then(() => {
         // Transform the object into an array, transform that into a recursive tree structure
@@ -267,6 +278,6 @@ export default {
         // Finally, kickoff rendering
         this.isLoading = false
       })
-  }
+  },
 }
 </script>

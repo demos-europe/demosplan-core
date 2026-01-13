@@ -7,19 +7,19 @@ export default {
   name: 'TextContentRenderer',
 
   components: {
-    DpLoading
+    DpLoading,
   },
 
   props: {
     text: {
       type: String,
-      default: ''
+      default: '',
     },
 
     dataText: {
       type: Object,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
   /**
    * Rendering dynamic elements is done by tricking the renderer into
@@ -51,14 +51,14 @@ export default {
       template: `<div class='text-wrapper w-fit' data-cy='textWrapper'>${sanitizedText}</div>`,
       data () {
         return this.dataText || {}
-      }
+      },
     }
 
     const DpLoading = resolveComponent('dp-loading')
 
-    return (this.text)
-      ? h(immediateComponent)
-      : h(DpLoading, { props: { isLoading: true } })
-  }
+    return (this.text) ?
+      h(immediateComponent) :
+      h(DpLoading, { props: { isLoading: true } })
+  },
 }
 </script>

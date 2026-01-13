@@ -16,30 +16,28 @@
       <!-- Pagination above segments list -->
       <div
         v-if="pagination && pagination.currentPage"
-        class="flex justify-between items-center mb-4">
+        class="flex justify-between items-center mb-4"
+      >
         <dp-pager
+          :key="`segmentsPagerTopEdit_${pagination.currentPage}_${pagination.count || 0}`"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
-          :key="`segmentsPagerTopEdit_${pagination.currentPage}_${pagination.count || 0}`"
           :limits="pagination.limits || defaultPagination.limits"
           :per-page="pagination.perPage || defaultPagination.perPage"
           :total-pages="pagination.totalPages || 1"
           :total-items="pagination.total || 0"
           @page-change="handlePageChange"
-          @size-change="handleSizeChange" />
+          @size-change="handleSizeChange"
+        />
       </div>
 
       <div
         v-for="segment in segments"
-        class="u-ph-0_25"
-        :class="{ 'bg-color--grey-light-2': hoveredSegment === segment.id }"
         :id="'segmentTextEdit_' + segment.id"
         :key="segment.id"
-        @mouseenter="hoveredSegment = segment.id"
-        @mouseleave="hoveredSegment = null">
-        <div
-          class="inline-block"
-          style="width: 5%">
+        class="px-1 hover:bg-interactive-secondary-subtle-hover"
+      >
+        <div class="inline-block w-[5%]">
           <dp-claim
             class="c-at-item__row-icon inline-block"
             :assigned-id="assigneeBySegment(segment.id).id"
@@ -49,34 +47,36 @@
             :current-user-name="currentUser.firstname + ' ' + currentUser.lastname"
             entity-type="segment"
             :is-loading="claimLoading === segment.id"
-            @click="() => toggleClaimSegment(segment)" />
+            @click="() => toggleClaimSegment(segment)"
+          />
         </div><!--
-        --><div
-            class="inline-block break-words"
-            style="width: 95%">
+     --><div class="inline-block break-words w-[95%]">
           <dp-edit-field
+            :ref="`editField_${segment.id}`"
             class="c-styled-html"
             :editable="isAssigneeEditable(segment)"
             label=""
             :label-grid-cols="0"
             no-margin
             persist-icons
-            :ref="`editField_${segment.id}`"
             @reset="() => reset(segment.id)"
-            @toggleEditing="() => addToEditing(segment.id)"
-            @save="() => saveSegment(segment.id)">
+            @toggle-editing="() => addToEditing(segment.id)"
+            @save="() => saveSegment(segment.id)"
+          >
             <template v-slot:display>
               <text-content-renderer
                 class="pr-3"
-                :text="segment.attributes.text" />
+                :text="segment.attributes.text"
+              />
             </template>
             <template v-slot:edit>
               <dp-editor
-                class="u-mr u-pt-0_25"
+                class="mr-4 pt-1"
                 :toolbar-items="{ linkButton: true, obscure: hasPermission('feature_obscure_text') }"
                 :value="segment.attributes.text"
-                @transformObscureTag="transformObscureTag"
-                @input="(val) => updateSegmentText(segment.id, val)" />
+                @transform-obscure-tag="transformObscureTag"
+                @input="(val) => updateSegmentText(segment.id, val)"
+              />
             </template>
           </dp-edit-field>
         </div>
@@ -85,17 +85,19 @@
       <!-- Pagination below segments list -->
       <div
         v-if="pagination && pagination.currentPage"
-        class="flex justify-between items-center mt-4">
+        class="flex justify-between items-center mt-4"
+      >
         <dp-pager
+          :key="`segmentsPagerBottomEdit_${pagination.currentPage}_${pagination.count || 0}`"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
-          :key="`segmentsPagerBottomEdit_${pagination.currentPage}_${pagination.count || 0}`"
           :limits="pagination.limits || defaultPagination.limits"
           :per-page="pagination.perPage || defaultPagination.perPage"
           :total-pages="pagination.totalPages || 1"
           :total-items="pagination.total || 0"
           @page-change="handlePageChange"
-          @size-change="handleSizeChange" />
+          @size-change="handleSizeChange"
+        />
       </div>
     </template>
 
@@ -107,25 +109,29 @@
           required
           :toolbar-items="{ linkButton: true}"
           :value="statement.attributes.fullText || ''"
-          @transformObscureTag="transformObscureTag"
-          @input="updateStatementText" />
+          @transform-obscure-tag="transformObscureTag"
+          @input="updateStatementText"
+        />
         <dp-button-row
           class="u-mv"
           primary
           secondary
           :secondary-text="Translator.trans('discard.changes')"
           @primary-action="dpValidateAction('segmentsStatementForm', saveStatement, false)"
-          @secondary-action="resetStatement" />
+          @secondary-action="resetStatement"
+        />
       </template>
       <div
         v-else
-        class="border space-inset-s">
+        class="border space-inset-s"
+      >
         <dp-inline-notification
           v-if="hasDraftSegments"
           class="mt mb-2"
           :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
-          type="warning" />
-        <p class="weight--bold">
+          type="warning"
+        />
+        <p class="font-semibold">
           {{ Translator.trans('statement.text.short') }}
         </p>
         <div v-cleanhtml="statement.attributes.fullText || ''" />
@@ -136,23 +142,22 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpButtonRow,
   DpInlineNotification,
   DpLoading,
   DpPager,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
+import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
-import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
-import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
 
 export default {
   name: 'StatementSegmentsEdit',
@@ -168,11 +173,11 @@ export default {
       return DpEditor
     }),
     DpInlineNotification,
-    TextContentRenderer
+    TextContentRenderer,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [dpValidateMixin, paginationMixin],
@@ -180,85 +185,78 @@ export default {
   props: {
     currentUser: {
       type: Object,
-      required: true
+      required: true,
     },
 
     editable: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     hasDraftSegments: {
-      type: Object,
+      type: Boolean,
       required: false,
-      default: () => {}
+      default: false,
     },
 
     statementId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'save-statement',
-    'statement-text-updated'
+    'saveStatement',
+    'statementText:updated',
   ],
 
   data () {
     return {
       claimLoading: null,
       editingSegmentIds: [],
-      hoveredSegment: null,
       isLoading: false,
       obscuredText: '',
       defaultPagination: {
         currentPage: 1,
         limits: [10, 20, 50],
-        perPage: 20
+        perPage: 20,
       },
       pagination: {},
       storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`,
-      segmentNavigation: null
+      segmentNavigation: null,
     }
   },
 
   computed: {
     ...mapState('StatementSegment', {
-      segments: 'items'
+      segments: 'items',
     }),
 
     ...mapState('Statement', {
-      statements: 'items'
+      statements: 'items',
     }),
 
     assigneeBySegment () {
       return segmentId => {
         const segment = this.segments[segmentId]
-        try {
-          const assignee = segment.rel('assignee')
-          const orga = assignee ? assignee.rel('orga') : ''
 
+        // Bypass segment.rel() to avoid library crash on null relationships
+        if (!segment.hasRelationship('assignee') || !segment.relationships?.assignee?.data) {
           return {
-            id: assignee.id,
-            name: assignee.attributes.firstname + ' ' + assignee.attributes.lastname,
-            orgaName: orga ? orga.attributes.name : ''
+            id: '',
+            name: '',
+            orgaName: '',
           }
-        } catch (err) {
-          if (segment.hasRelationship('assignee') && segment.relationships.assignee.data.id === this.currentUser.id) {
-            return {
-              id: this.currentUser.id,
-              name: this.currentUser.firstname + ' ' + this.currentUser.lastname,
-              orgaName: this.currentUser.orgaName
-            }
-          } else {
-            return {
-              id: '',
-              name: '',
-              orgaName: ''
-            }
-          }
+        }
+
+        const assignee = segment.rel('assignee')
+        const orga = assignee.rel('orga')
+
+        return {
+          id: assignee.id || '',
+          name: (assignee.attributes?.firstname || '') + ' ' + (assignee.attributes?.lastname || ''),
+          orgaName: orga?.attributes?.name || '',
         }
       }
     },
@@ -269,28 +267,28 @@ export default {
 
     statement () {
       return this.statements[this.statementId] || null
-    }
+    },
   },
 
   methods: {
     ...mapMutations('StatementSegment', {
       updateSegment: 'update',
-      setSegment: 'setItem'
+      setSegment: 'setItem',
     }),
 
     ...mapActions('StatementSegment', {
       updateSegmentAction: 'update',
       restoreSegmentAction: 'restoreFromInitial',
       saveSegmentAction: 'save',
-      listSegments: 'list'
+      listSegments: 'list',
     }),
 
     ...mapActions('Statement', {
-      restoreStatementAction: 'restoreFromInitial'
+      restoreStatementAction: 'restoreFromInitial',
     }),
 
     ...mapMutations('Statement', {
-      setStatement: 'setItem'
+      setStatement: 'setItem',
     }),
 
     addToEditing (id) {
@@ -309,22 +307,39 @@ export default {
             assignee: {
               data: {
                 type: 'AssignableUser',
-                id: this.currentUser.id
-              }
-            }
-          }
-        }
+                id: this.currentUser.id,
+              },
+            },
+          },
+        },
       }
 
-      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }), {}, payload)
-        .then(checkResponse)
+      return dpApi.patch(
+        Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }),
+        {},
+        payload,
+        {
+          messages: {
+            200: {
+              text: Translator.trans('segment.claim.success'),
+              type: 'confirm',
+            },
+            204: {
+              text: Translator.trans('segment.claim.success'),
+              type: 'confirm',
+            },
+            400: {
+              text: Translator.trans('segment.claim.fail'),
+              type: 'error',
+            },
+          },
+        },
+      )
         .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('segment.claim.success'))
           this.claimLoading = null
         })
         .catch((err) => {
           console.error(err)
-          dplan.notify.notify('error', Translator.trans('segment.claim.fail'))
           // Restore segment in store if it didn't work
           this.restoreSegmentAction(segment.id)
           this.claimLoading = null
@@ -352,6 +367,12 @@ export default {
     },
 
     saveSegment (segmentId) {
+      if (!this.segments[segmentId].attributes.text) {
+        this.$refs[`editField_${segmentId}`][0].loading = false
+
+        return dplan.notify.error(Translator.trans('error.segment.empty.text'))
+      }
+
       // Use the transformed text if available
       const textToSave = this.obscuredText || this.segments[segmentId].attributes.text
 
@@ -375,7 +396,7 @@ export default {
     },
 
     saveStatement () {
-      this.$emit('save-statement', this.statement)
+      this.$emit('saveStatement', this.statement)
     },
 
     scrollToSegment () {
@@ -394,7 +415,8 @@ export default {
      */
     toggleClaimSegment (segment) {
       this.claimLoading = segment.id
-      const userIdToSet = segment.hasRelationship('assignee') && segment.relationships.assignee.data.id === this.currentUser.id ? null : this.currentUser.id
+      const assigneeData = segment.relationships?.assignee?.data
+      const userIdToSet = (segment.hasRelationship('assignee') && assigneeData?.id === this.currentUser.id) ? null : this.currentUser.id
       const isClaim = userIdToSet !== null
 
       if (isClaim) {
@@ -411,13 +433,12 @@ export default {
           id: segment.id,
           relationships: {
             assignee: {
-              data: null
-            }
-          }
-        }
+              data: null,
+            },
+          },
+        },
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }), {}, payload)
-        .then(checkResponse)
         .then(() => {
           const dataToUpdate = JSON.parse(JSON.stringify(segment))
           delete dataToUpdate.relationships.assignee
@@ -437,8 +458,8 @@ export default {
         ...this.segments[segmentId],
         attributes: {
           ...this.segments[segmentId].attributes,
-          text: fullText
-        }
+          text: fullText,
+        },
       }
       this.setSegment({ ...updated, id: segmentId })
     },
@@ -446,14 +467,14 @@ export default {
     updateStatementText (val) {
       const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
 
-      this.$emit('statement-text-updated')
+      this.$emit('statementText:updated')
 
       const updated = {
         ...this.statement,
         attributes: {
           ...this.statement.attributes,
-          fullText
-        }
+          fullText,
+        },
       }
       this.setStatement({ ...updated, id: this.statement.id })
     },
@@ -491,7 +512,7 @@ export default {
         'internId',
         'orderInProcedure',
         'polygon',
-        'recommendation'
+        'recommendation',
       ]
 
       if (hasPermission('field_segments_custom_fields')) {
@@ -506,20 +527,20 @@ export default {
           SegmentComment: ['creationDate', 'place', 'submitter', 'text'].join(),
           StatementSegment: statementSegmentFields.join(),
           User: ['lastname', 'firstname', 'orga'].join(),
-          Orga: ['name'].join()
+          Orga: ['name'].join(),
         },
         page: {
           number: page,
-          size: this.pagination?.perPage || this.defaultPagination.perPage
+          size: this.pagination?.perPage || this.defaultPagination.perPage,
         },
         filter: {
           parentStatementOfSegment: {
             condition: {
               path: 'parentStatement.id',
-              value: this.statementId
-            }
-          }
-        }
+              value: this.statementId,
+            },
+          },
+        },
       })
 
       // Update pagination with response metadata
@@ -530,14 +551,14 @@ export default {
 
       this.isLoading = false
 
-      await this.$nextTick(() => {
-        this.scrollToSegment()
+      await this.$nextTick()
 
-        // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
-        if (shouldRemoveSegmentParam) {
-          this.segmentNavigation.removeSegmentParameter()
-        }
-      })
+      this.scrollToSegment()
+
+      // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
+      if (shouldRemoveSegmentParam) {
+        this.segmentNavigation.removeSegmentParameter()
+      }
     },
 
     handlePageChange (page) {
@@ -553,7 +574,7 @@ export default {
       const page = Math.floor((this.pagination?.perPage * (this.pagination?.currentPage - 1) / newSize) + 1)
       this.pagination.perPage = newSize
       this.fetchSegments(page)
-    }
+    },
   },
 
   created () {
@@ -561,7 +582,7 @@ export default {
       statementId: this.statementId,
       storageKey: this.storageKeyPagination,
       currentPerPage: this.pagination?.perPage,
-      defaultPagination: this.defaultPagination
+      defaultPagination: this.defaultPagination,
     })
   },
 
@@ -592,6 +613,6 @@ export default {
     if (this.hasSegments === false && this.segment) {
       this.resetStatement()
     }
-  }
+  },
 }
 </script>

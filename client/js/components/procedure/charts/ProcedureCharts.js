@@ -20,7 +20,7 @@ export default class ProcedureCharts {
       MovedStatements: this.initSankeyDiagram('#movedStatements'),
       StatementNewCountDonut: initDonutChart('#statementNewCount', '#statementNewCountLegend'),
       StatementProcessingCountDonut: initDonutChart('#statementProcessingCount', '#statementProcessingCount'),
-      StatementCompletedCountDonut: initDonutChart('#statementCompletedCount', '#statementCompletedCountLegend')
+      StatementCompletedCountDonut: initDonutChart('#statementCompletedCount', '#statementCompletedCountLegend'),
     }
   }
 
@@ -46,18 +46,18 @@ export default class ProcedureCharts {
       const data = {}
       data.nodes = [{
         title: currentProcedureTitle,
-        id: currentProcedureId
+        id: currentProcedureId,
       },
       {
         title: ' ',
-        id: 'fake-node'
+        id: 'fake-node',
       }]
       data.links = [{
         source: currentProcedureId,
         target: 'fake-node',
         value: currentProcedureStatementsTotal,
         linkTitle: Translator.trans('statement.sum', { count: currentProcedureStatementsTotal }),
-        color: colors.current
+        color: colors.current,
       }]
 
       /*
@@ -78,7 +78,7 @@ export default class ProcedureCharts {
           value: el.value,
           direction: 'r',
           linkTitle: el.title + ' --> ' + currentProcedureTitle,
-          color: colors.toThisProcedure
+          color: colors.toThisProcedure,
         }
 
         data.links.push(link)
@@ -102,7 +102,7 @@ export default class ProcedureCharts {
           value: el.value,
           direction: 'l',
           linkTitle: currentProcedureTitle + ' --> ' + el.title,
-          color: colors.fromThisProcedure
+          color: colors.fromThisProcedure,
         }
 
         data.links.push(link)
@@ -126,7 +126,7 @@ export default class ProcedureCharts {
         target: elementId,
         data,
         dimensions: diagramDimensions,
-        colors
+        colors,
       })
     }
   }

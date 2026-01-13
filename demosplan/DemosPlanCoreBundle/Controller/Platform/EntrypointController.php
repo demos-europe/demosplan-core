@@ -11,8 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -26,7 +25,7 @@ use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -51,11 +50,10 @@ class EntrypointController extends BaseController
      * Logged in users get different index pages depending on their role or
      * role combination. Guests that end up here will be redirected to
      * the platform's external start page.
-     *
-     * @DplanPermissions("area_demosplan")
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/loggedin', name: 'core_home_loggedin')]
-    public function loggedInIndexEntrypointAction(Request $request): Response
+    public function loggedInIndexEntrypoint(Request $request): Response
     {
         // check whether user tried to call route before login
         if (!$this->isAlreadyRedirected($request) && $request->cookies->has(PreviousRouteCookie::NAME)) {
@@ -94,7 +92,7 @@ class EntrypointController extends BaseController
 
         // redirect to public index on session failures
         if (!$user instanceof User) {
-            return $this->forward('demosplan\DemosPlanCoreBundle\Controller\Platform\EntrypointController::indexAction');
+            return $this->forward('demosplan\DemosPlanCoreBundle\Controller\Platform\EntrypointController::index');
         }
 
         $entrypointRoute = $this->entryPointDecider->determineEntryPointForUser($user);
@@ -128,17 +126,16 @@ class EntrypointController extends BaseController
      * ends up at this page, they may need to be re-routed to
      * their designated logged-in index page.
      *
-     * @DplanPermissions("area_demosplan")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/', name: 'core_home', options: ['expose' => true])]
-    public function indexAction(
+    public function index(
         ContentService $contentService,
         PublicIndexProcedureLister $procedureLister,
-        Request $request
+        Request $request,
     ) {
         if ($this->currentUserService->hasPermission('area_public_participation')) {
             return $this->renderPublicIndexList(
@@ -153,7 +150,7 @@ class EntrypointController extends BaseController
         return $this->processEntrypointRoute($entrypointRoute);
     }
 
-    #[AttributeDplanPermissions('area_demosplan')]
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/idp/login/error', name: 'core_login_idp_error', options: ['expose' => true])]
     public function loginIdpError(CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType): RedirectResponse|Response
     {
@@ -161,7 +158,7 @@ class EntrypointController extends BaseController
         // therefore it is ok to pass the first entry of the array via reset($array)
         $loginSupportEntities = $customerLoginSupportContactResourceType->getEntities([], []);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/login_idp_error.html.twig',
             [
                 'templateVars' => ['customerLoginSupport' => reset($loginSupportEntities)],
@@ -202,7 +199,7 @@ class EntrypointController extends BaseController
     protected function renderPublicIndexList(
         ContentService $contentService,
         PublicIndexProcedureLister $procedureLister,
-        Request $request
+        Request $request,
     ) {
         $templateVars = $procedureLister->getPublicIndexProcedureList($request);
         $templateVars = $procedureLister->reformatPhases(
@@ -235,7 +232,7 @@ class EntrypointController extends BaseController
         $templateVars['publicUser'] = $user->isPublicUser();
         $templateVars['publicAgency'] = $user->isPublicAgency();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/public_index.html.twig',
             [
                 'templateVars' => $templateVars,

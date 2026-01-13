@@ -13,31 +13,35 @@
       <template v-if="availableEntities.length > 1">
         <dp-radio
           v-for="(entity, index) in availableEntities"
-          :key="`entity_type_${entity.key}`"
           :id="entity.key"
+          :key="`entity_type_${entity.key}`"
           :checked="entity.key === active"
           :data-cy="`entity_type_${index}`"
-          @change="active = entity.key"
           :label="{
             text: radioLabel(entity)
           }"
-          :value="entity.key" />
+          :value="entity.key"
+          @change="active = entity.key"
+        />
       </template>
       <p
         v-else
         class="weight--bold"
-        v-html="radioLabel(availableEntities[0])" />
+        v-html="radioLabel(availableEntities[0])"
+      />
     </div>
 
     <form
       :action="Routing.generate(activeEntity.uploadPath, { procedureId: procedureId })"
       class="space-stack-s"
       method="post"
-      enctype="multipart/form-data">
+      enctype="multipart/form-data"
+    >
       <input
         name="_token"
         type="hidden"
-        :value="csrfToken">
+        :value="csrfToken"
+      >
 
       <dp-upload-files
         allowed-file-types="xls"
@@ -49,13 +53,15 @@
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file.allowed.formats', { browse: '{browse}', allowedFormats: '.xls, .xlsx, .ods', maxUploadSize: '100 MB' }) }"
         :tus-endpoint="dplan.paths.tusEndpoint"
         @file-remove="removeFileIds"
-        @upload-success="setFileIds" />
+        @upload-success="setFileIds"
+      />
       <div class="text-right">
         <button
           :disabled="fileIds.length === 0"
           type="submit"
           data-cy="statementImport"
-          class="btn btn--primary">
+          class="btn btn--primary"
+        >
           {{ Translator.trans('import.verb') }}
         </button>
       </div>
@@ -89,14 +95,14 @@ export default {
   props: {
     csrfToken: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       active: '',
-      fileIds: []
+      fileIds: [],
     }
   },
 
@@ -108,15 +114,15 @@ export default {
           label: 'statements.import',
           key: 'statements',
           permission: 'feature_statements_import_excel',
-          uploadPath: 'DemosPlan_statement_import'
+          uploadPath: 'DemosPlan_statement_import',
         },
         {
           exampleFile: '/files/segment_import_template.xlsx',
           label: 'segments.import',
           key: 'segments',
           permission: 'feature_segments_import_excel',
-          uploadPath: 'dplan_segments_process_import'
-        }
+          uploadPath: 'dplan_segments_process_import',
+        },
       ].filter(component => hasPermission(component.permission))
     },
 
@@ -141,11 +147,11 @@ export default {
 
     setFileIds (file) {
       this.fileIds.push(file.hash)
-    }
+    },
   },
 
   created () {
     this.active = this.availableEntities[0].key
-  }
+  },
 }
 </script>

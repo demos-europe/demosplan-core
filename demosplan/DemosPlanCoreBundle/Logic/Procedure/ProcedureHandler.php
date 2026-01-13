@@ -636,7 +636,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             }
         }
 
-        if (0 === count($proceduresWithSoonEndingPhase)) {
+        if ([] === $proceduresWithSoonEndingPhase) {
             $this->getLogger()->info('No soon ending procedures found');
         }
 
@@ -743,7 +743,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                     ->lock(),
                 false
             );
-            if (is_array($settings) && 0 === count($settings)) {
+            if (is_array($settings) && [] === $settings) {
                 $this->contentService->setSetting('markedParticipated', [
                     'procedureId' => $procedureId,
                     'userId'      => $this->currentUser->getUser()->getId(),
@@ -870,18 +870,18 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // T17248: necessary because of different phasekeys per project:
         if ($internalPhaseKey === $internalPhaseName) { // not found?
             $internalPhaseKey = 'analysis';
-            $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
         }
 
         /** @var Procedure $endedInternalProcedure */
         foreach ($endedInternalProcedures as $endedInternalProcedure) {
             if (null !== $endedInternalProcedure->getEndDate()
                 && !$endedInternalProcedure->getMaster() && !$endedInternalProcedure->isDeleted()) {
-                $endedInternalProcedure->setPhaseKey($internalPhaseKey);
-                $endedInternalProcedure->setPhaseName($internalPhaseName);
-                $endedInternalProcedure->setCustomer($endedInternalProcedure->getCustomer());
-
-                $updatedProcedure = $this->procedureService->updateProcedureObject($endedInternalProcedure);
+                $data = [
+                    'id'       => $endedInternalProcedure->getId(),
+                    'phase'    => $internalPhaseKey,
+                    'customer' => $endedInternalProcedure->getCustomer(),
+                ];
+                $updatedProcedure = $this->procedureService->updateProcedure($data, isSystem: true);
                 $changedInternalProcedures->push($updatedProcedure);
             }
         }
@@ -895,18 +895,18 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // T17248: necessary because of different phasekeys per project:
         if ($externalPhaseKey === $externalPhaseName) { // not found?
             $externalPhaseKey = 'analysis';
-            $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
         }
 
         /** @var Procedure $endedExternalProcedure */
         foreach ($endedExternalProcedures as $endedExternalProcedure) {
             if (null !== $endedExternalProcedure->getPublicParticipationEndDate()
                 && !$endedExternalProcedure->getMaster() && !$endedExternalProcedure->isDeleted()) {
-                $endedExternalProcedure->setPublicParticipationPhase($externalPhaseKey);
-                $endedExternalProcedure->setPublicParticipationPhaseName($externalPhaseName);
-                $endedExternalProcedure->setCustomer($endedExternalProcedure->getCustomer());
-
-                $updatedProcedure = $this->procedureService->updateProcedureObject($endedExternalProcedure);
+                $data = [
+                    'id'                       => $endedExternalProcedure->getId(),
+                    'publicParticipationPhase' => $externalPhaseKey,
+                    'customer'                 => $endedExternalProcedure->getCustomer(),
+                ];
+                $updatedProcedure = $this->procedureService->updateProcedure($data, isSystem: true);
                 $changedExternalProcedures->push($updatedProcedure);
             }
         }
@@ -915,7 +915,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         $this->getLogger()->info('Switched phases to evaluation of '.$changedInternalProcedures->count().' internal/toeb procedures.');
         $this->getLogger()->info('Switched phases to evaluation of '.$changedExternalProcedures->count().' external/public procedures.');
 
-        return $changedExternalProcedures->merge($changedInternalProcedures)->unique();
+        return $changedExternalProcedures->merge($changedInternalProcedures)->unique('id');
     }
 
     /**
@@ -938,7 +938,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $ccEmailAddresses->add(trim((string) $additionalAddress));
         }
         // alle E-Mail-Adressen aus dem CC-Feld
-        if (0 < count($formEmailCC)) {
+        if ([] !== $formEmailCC) {
             foreach ($formEmailCC as $mailAddress) {
                 $ccEmailAddresses->add(trim((string) $mailAddress));
             }
@@ -956,15 +956,15 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         /** @var Orga $orgaData */
         foreach ($orgas as $orgaData) {
             if (in_array($orgaData->getId(), $orgaSelected, true)) {
-                if (0 < strlen(trim($orgaData->getEmail2()))) {
+                if (0 < strlen(trim((string) $orgaData->getEmail2()))) {
                     $recipientOrga = [
                         'ident'     => $orgaData->getId(),
                         'nameLegal' => $orgaData->getName(),
                         'email2'    => $orgaData->getEmail2(),
                     ];
                     // Füge eventuelle CC-Email für Beteiligung hinzu
-                    if (0 < strlen(trim($orgaData->getCcEmail2()))) {
-                        $ccEmailAdresses = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $orgaData->getCcEmail2());
+                    if (0 < strlen(trim((string) $orgaData->getCcEmail2()))) {
+                        $ccEmailAdresses = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', (string) $orgaData->getCcEmail2());
                         $recipientOrga['ccEmails'] = $ccEmailAdresses;
                     }
                     $recipientsWithEmail[] = $recipientOrga;

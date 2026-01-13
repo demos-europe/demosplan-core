@@ -43,7 +43,7 @@ const AssessmentTable = {
       status: {},
       tags: [],
       internalPhases: {},
-      externalPhases: {}
+      externalPhases: {},
     },
     assessmentBaseLoaded: false,
     boilerPlates: [],
@@ -65,17 +65,22 @@ const AssessmentTable = {
        * ('statement' or 'fragment'), initialAssigneeId, and parentStatementId
        */
       assignEntityModal: {
-        show: false
+        show: false,
       },
       // Visibility state of ConsolidateModal
       consolidateModal: {
-        show: false
+        show: false,
       },
       // Visibility state of CopyStatementModal and statementId
       copyStatementModal: {
         show: false,
-        statementId: null
-      }
+        statementId: null,
+      },
+      // Visibility state of MoveStatementModal and statementId
+      moveStatementModal: {
+        show: false,
+        statementId: null,
+      },
     },
     procedureStatementPriorityArea: false,
     publicParticipationPublicationEnabled: false,
@@ -84,7 +89,7 @@ const AssessmentTable = {
     showSearchModal: false,
     sort: '',
     statementFormDefinitions: {},
-    viewMode: ''
+    viewMode: '',
   },
 
   mutations: {
@@ -151,7 +156,7 @@ const AssessmentTable = {
      */
     setProperty (state, data) {
       state[data.prop] = data.val
-    }
+    },
   },
 
   actions: {
@@ -161,14 +166,13 @@ const AssessmentTable = {
      * @param {String} procedureId
      */
     async applyBaseData ({ commit, state }, procedureId) {
-      const data = await dpApi({
+      const { data } = await dpApi({
         method: 'GET',
-        url: Routing.generate('DemosPlan_assessment_base_ajax', { procedureId })
+        url: Routing.generate('DemosPlan_assessment_base_ajax', { procedureId }),
       })
-        .then(this.api.checkResponse)
         .then(response => response.data)
 
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         // To prevent invalid type error mismatch of array and object
         if (Array.isArray(data.accessibleProcedures)) {
           data.accessibleProcedures = {}
@@ -186,7 +190,7 @@ const AssessmentTable = {
 
         return resolve(true)
       })
-    }
+    },
   },
 
   getters: {
@@ -211,7 +215,7 @@ const AssessmentTable = {
     adviceValues: state => {
       const statusArray = []
       Object.entries(state.assessmentBase.adviceValues).forEach(
-        ([key, value]) => statusArray.push({ id: key, name: Translator.trans(value), title: Translator.trans(value) })
+        ([key, value]) => statusArray.push({ id: key, name: Translator.trans(value), title: Translator.trans(value) }),
       )
       //  Move empty option to beginning of array so it will be displayed as first option
       const result = statusArray.find(obj => {
@@ -229,6 +233,8 @@ const AssessmentTable = {
     consolidateModal: state => state.modals.consolidateModal,
 
     copyStatementModal: state => state.modals.copyStatementModal,
+
+    moveStatementModal: state => state.modals.moveStatementModal,
 
     /**
      *
@@ -357,7 +363,7 @@ const AssessmentTable = {
     status: state => {
       const statusArray = []
       Object.entries(state.assessmentBase.status).forEach(
-        ([key, value]) => statusArray.push({ id: key, name: Translator.trans(value), title: Translator.trans(value) })
+        ([key, value]) => statusArray.push({ id: key, name: Translator.trans(value), title: Translator.trans(value) }),
       )
       //  Move empty option to beginning of array so it will be displayed as first option
       const result = statusArray.find(obj => {
@@ -406,8 +412,8 @@ const AssessmentTable = {
         phases = Object.values(state.assessmentBase.externalPhases)
       }
       return phases
-    }
-  }
+    },
+  },
 
 }
 

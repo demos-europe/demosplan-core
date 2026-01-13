@@ -15,8 +15,8 @@ const fetchResourcesByProcedureId = (mutationName, url, includes = []) => ({ com
     method: 'GET',
     url: Routing.generate(url, {
       procedureId,
-      includes
-    })
+      includes,
+    }),
   }).then(response => {
     commit(mutationName, normalize(response.data))
   })

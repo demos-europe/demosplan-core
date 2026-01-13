@@ -26,12 +26,10 @@ class FakeDataGeneratorFactory
     /**
      * @var array<string,DataGeneratorInterface>|DataGeneratorInterface[]
      */
-    private $generators;
+    private $generators = [];
 
     public function __construct(iterable $generators)
     {
-        $this->generators = [];
-
         foreach ($generators as $generator) {
             $this->generators[$generator->getFileExtension()] = $generator;
         }

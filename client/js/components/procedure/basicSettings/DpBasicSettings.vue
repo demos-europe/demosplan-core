@@ -7,129 +7,177 @@
   All rights reserved
 </license>
 
+<template>
+  <div>
+    <slot
+      :auth-users-options="authUsersOptions"
+      :select-all-auth-users="selectAllAuthUsers"
+      :set-selected-internal-phase="setSelectedInternalPhase"
+      :set-selected-public-phase="setSelectedPublicPhase"
+      :sorted-agencies-options="sortedAgenciesOptions"
+      :state="state"
+      :submit="submit"
+      :unselect-all-auth-users="unselectAllAuthUsers"
+      :update-addon-payload="updateAddonPayload"
+    />
+  </div>
+</template>
+
 <script>
+import { computed, reactive } from 'vue'
 import {
-  checkResponse,
   dpApi,
-  DpButton,
-  DpContextualHelp,
-  DpDateRangePicker,
-  DpDatetimePicker,
-  DpEditor,
-  DpInlineNotification,
-  DpInput,
-  DpMultiselect,
   dpValidateMixin,
-  sortAlphabetically
+  sortAlphabetically,
 } from '@demos-europe/demosplan-ui'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
-import { defineAsyncComponent } from 'vue'
-import DpEmailList from './DpEmailList'
-import ExportSettings from './ExportSettings'
-import ParticipationPhases from './ParticipationPhases'
 
 export default {
   name: 'DpBasicSettings',
 
-  components: {
-    AddonWrapper,
-    AutoSwitchProcedurePhaseForm: () => import(/* webpackChunkName: "auto-switch-procedure-phase-form" */ '@DpJs/components/procedure/basicSettings/AutoSwitchProcedurePhaseForm'),
-    DpButton,
-    DpContextualHelp,
-    DpDateRangePicker,
-    DpDatetimePicker,
-    DpEditor,
-    DpEmailList,
-    DpInlineNotification,
-    DpInput,
-    DpMultiselect,
-    DpProcedureCoordinate: defineAsyncComponent(() => import(/* webpackChunkName: "dp-procedure-coordinate" */ './DpProcedureCoordinate')),
-    DpUploadFiles: defineAsyncComponent(async () => {
-      const { DpUploadFiles } = await import('@demos-europe/demosplan-ui')
-      return DpUploadFiles
-    }),
-    ExportSettings,
-    ParticipationPhases
-  },
-
   mixins: [dpValidateMixin],
 
   props: {
-    authorizedUsersOptions: {
+    agenciesOptions: {
       type: Array,
       required: false,
       default: () => []
+    },
+
+    authorizedUsersOptions: {
+      type: Array,
+      required: false,
+      default: () => [],
     },
 
     initAgencies: {
       required: false,
       type: Array,
-      default: () => []
-    },
-
-    initDataInputOrgas: {
-      required: false,
-      type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initAuthUsers: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
+    },
+
+    initDataInputOrgas: {
+      required: false,
+      type: Array,
+      default: () => [],
+    },
+
+    initPictogramAltText: {
+      required: false,
+      type: String,
+      default: '',
+    },
+
+    initPictogramCopyright: {
+      required: false,
+      type: String,
+      default: '',
     },
 
     initProcedureCategories: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initProcedureName: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initProcedurePhaseInternal: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initProcedurePhasePublic: {
       required: false,
       type: String,
-      default: ''
+      default: '',
+    },
+
+    initPublicParticipationFeedbackEnabled: {
+      required: false,
+      type: Boolean,
+      default: false,
     },
 
     initSimilarRecommendationProcedures: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     participationPhases: {
       required: false,
       type: Array,
-      default: () => []
-    },
-
-    plisId: {
-      required: false,
-      type: String,
-      default: ''
+      default: () => [],
     },
 
     procedureExternalDesc: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
+    },
+  },
+
+  setup (props) {
+    const state = reactive({
+      pictogramAltText: props.initPictogramAltText,
+      pictogramCopyright: props.initPictogramCopyright,
+      procedureDescription: props.procedureExternalDesc,
+      procedureName: props.initProcedureName,
+      publicParticipationFeedbackEnabled: props.initPublicParticipationFeedbackEnabled,
+      selectedAgencies: props.initAgencies,
+      selectedAuthUsers: sortAlphabetically(structuredClone(props.initAuthUsers), 'name'),
+      selectedDataInputOrgas: props.initDataInputOrgas,
+      selectedInternalPhase: props.initProcedurePhaseInternal,
+      selectedProcedureCategories: props.initProcedureCategories,
+      selectedPublicPhase: props.initProcedurePhasePublic,
+      selectedSimilarRecommendationProcedures: props.initSimilarRecommendationProcedures,
+    })
+
+    const authUsersOptions = computed(() =>
+      sortAlphabetically([...props.authorizedUsersOptions], 'name'),
+    )
+
+    const sortedAgenciesOptions = computed(() =>
+      sortAlphabetically([...props.agenciesOptions], 'name'),
+    )
+
+    const setSelectedInternalPhase = phase => {
+      state.selectedInternalPhase = phase
+    }
+    const setSelectedPublicPhase = phase => {
+      state.selectedPublicPhase = phase
+    }
+    const selectAllAuthUsers = () => {
+      state.selectedAuthUsers = props.authorizedUsersOptions
+    }
+    const unselectAllAuthUsers = () => {
+      state.selectedAuthUsers = []
+    }
+
+    return {
+      authUsersOptions,
+      selectAllAuthUsers,
+      setSelectedInternalPhase,
+      setSelectedPublicPhase,
+      sortedAgenciesOptions,
+      state,
+      unselectAllAuthUsers,
     }
   },
 
@@ -141,25 +189,9 @@ export default {
         initValue: '',
         resourceType: '',
         url: '',
-        value: ''
+        value: '',
       },
       isLoadingPlisData: false,
-      selectedAgencies: this.initAgencies,
-      selectedDataInputOrgas: this.initDataInputOrgas,
-      selectedAuthUsers: this.initAuthUsers,
-      selectedInternalPhase: this.initProcedurePhaseInternal,
-      selectedPublicPhase: this.initProcedurePhasePublic,
-      selectedProcedureCategories: this.initProcedureCategories,
-      selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures,
-      procedureDescription: this.procedureExternalDesc,
-      procedureName: this.initProcedureName
-    }
-  },
-
-  computed: {
-    authUsersOptions () {
-      const users = JSON.parse(JSON.stringify(this.authorizedUsersOptions))
-      return sortAlphabetically(users, 'name')
     }
   },
 
@@ -169,28 +201,18 @@ export default {
       return {
         type: resourceType,
         attributes,
-        relationships: url === 'api_resource_update'
-          ? undefined
-          : {
-              procedure: {
-                data: {
-                  type: 'Procedure',
-                  id: this.procedureId
-                }
-              }
+        relationships: url === 'api_resource_update' ?
+          undefined :
+          {
+            procedure: {
+              data: {
+                type: 'Procedure',
+                id: this.procedureId,
+              },
             },
-        ...(url === 'api_resource_update' ? { id } : {})
+          },
+        ...(url === 'api_resource_update' ? { id } : {}),
       }
-    },
-
-    getDataPlis (plisId, routeName) {
-      return dpApi({
-        method: 'GET',
-        url: Routing.generate(routeName, { uuid: plisId })
-      })
-        .then(data => {
-          return data.data
-        })
     },
 
     handleAddonRequest () {
@@ -200,15 +222,14 @@ export default {
         method: this.addonPayload.url === 'api_resource_update' ? 'PATCH' : 'POST',
         url: Routing.generate(this.addonPayload.url, {
           resourceType: this.addonPayload.resourceType,
-          ...(this.addonPayload.url === 'api_resource_update' && { resourceId: this.addonPayload.id })
+          ...(this.addonPayload.url === 'api_resource_update' && { resourceId: this.addonPayload.id }),
         }),
         data: {
-          data: payload
-        }
+          data: payload,
+        },
       })
 
       return addonRequest
-        .then(checkResponse)
         .catch(error => {
           /** The 'is-invalid' class would be added to the addon field in case of an error */
           const input = document.getElementById('addonAdditionalField')
@@ -218,49 +239,28 @@ export default {
         })
     },
 
-    selectAllAuthUsers () {
-      this.selectedAuthUsers = this.authorizedUsersOptions
-    },
-
-    setSelectedInternalPhase (phase) {
-      this.selectedInternalPhase = phase
-    },
-
-    setSelectedPublicPhase (phase) {
-      this.selectedPublicPhase = phase
-    },
-
-    submit () {
+    submit (formElement) {
       const addonExists = !!window.dplan.loadedAddons['addon.additional.field']
       const addonHasValue = !!this.addonPayload.value || !!this.addonPayload.initValue
 
       this.dpValidateAction('configForm', () => {
         if (addonExists && addonHasValue) {
           this.handleAddonRequest().then(() => {
-            this.submitConfigForm()
+            this.submitConfigForm(formElement)
           })
         } else {
-          this.submitConfigForm()
+          this.submitConfigForm(formElement)
         }
       }, false)
     },
 
-    submitConfigForm () {
-      this.$refs.configForm.submit()
-    },
-
-    unselectAllAuthUsers () {
-      this.selectedAuthUsers = []
+    submitConfigForm (formElement) {
+      formElement.submit()
     },
 
     updateAddonPayload (payload) {
       this.addonPayload = payload
-    }
+    },
   },
-
-  mounted () {
-    const users = JSON.parse(JSON.stringify(this.initAuthUsers))
-    this.selectedAuthUsers = sortAlphabetically(users, 'name')
-  }
 }
 </script>

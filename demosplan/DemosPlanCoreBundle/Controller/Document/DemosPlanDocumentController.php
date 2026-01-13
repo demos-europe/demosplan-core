@@ -16,7 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Events\ElementsAdminListSaveEventInterf
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -61,9 +61,10 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\UnicodeString;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -72,7 +73,6 @@ use ZipStream\ZipStream;
 
 use function array_key_exists;
 use function array_merge;
-use function compact;
 use function explode;
 use function is_array;
 use function set_time_limit;
@@ -93,8 +93,6 @@ class DemosPlanDocumentController extends BaseController
     }
 
     /**
-     * @DplanPermissions("area_admin_paragraphed_document")
-     *
      * @param string $procedure
      * @param string $elementId
      *
@@ -102,8 +100,9 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_paragraphed_document')]
     #[Route(name: 'DemosPlan_plandocument_administration_element', path: '/verfahren/{procedure}/verwalten/element/{elementId}')]
-    public function paragraphAdminSaveAction(
+    public function paragraphAdminSave(
         DocumentHandler $documentHandler,
         ElementHandler $elementHandler,
         FileUploadService $fileUploadService,
@@ -112,7 +111,7 @@ class DemosPlanDocumentController extends BaseController
         ServiceImporter $serviceImporter,
         $procedure,
         $elementId,
-    ) {
+    ): RedirectResponse {
         $route = 'DemosPlan_elements_administration_edit';
 
         $elementService = $this->elementsService;
@@ -138,7 +137,7 @@ class DemosPlanDocumentController extends BaseController
             if ($storageResult) {
                 $this->getMessageBag()->add('confirm', 'confirm.paragraph.marked.deleted');
 
-                return $this->redirectToRoute($route, compact('procedure', 'elementId'));
+                return $this->redirectToRoute($route, ['procedure' => $procedure, 'elementId' => $elementId]);
             }
         }
 
@@ -150,7 +149,7 @@ class DemosPlanDocumentController extends BaseController
             if (false !== $storageResult && !array_key_exists('fault', $storageResult)) {
                 $this->getMessageBag()->add('confirm', 'confirm.file.updated');
 
-                return $this->redirectToRoute($route, compact('procedure', 'elementId'));
+                return $this->redirectToRoute($route, ['procedure' => $procedure, 'elementId' => $elementId]);
             }
         }
 
@@ -258,8 +257,6 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Planunterlagen Absatz Edit.
      *
-     * @DplanPermissions("area_admin_paragraphed_document")
-     *
      * @param string $procedure
      * @param string $documentID
      *
@@ -267,8 +264,9 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_paragraphed_document')]
     #[Route(name: 'DemosPlan_plandocument_administration_paragraph_edit', path: '/verfahren/{procedure}/verwalten/paragraph/{documentID}')]
-    public function paragraphAdminEditAction(
+    public function paragraphAdminEdit(
         Breadcrumb $breadcrumb,
         DocumentHandler $documentHandler,
         EditorService $editorService,
@@ -345,7 +343,7 @@ class DemosPlanDocumentController extends BaseController
             ]
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanDocument/paragraph_admin_edit.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -360,8 +358,6 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Planunterlagen Absatz - Neu.
      *
-     * @DplanPermissions("area_admin_paragraphed_document")
-     *
      * @param string $procedure
      * @param string $elementId
      *
@@ -369,8 +365,9 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_paragraphed_document')]
     #[Route(name: 'DemosPlan_plandocument_administration_paragraph_new', path: '/verfahren/{procedure}/verwalten/paragraph/neu/{elementId}')]
-    public function paragraphAdminNewAction(
+    public function paragraphAdminNew(
         Breadcrumb $breadcrumb,
         DocumentHandler $documentHandler,
         ParagraphHandler $paragraphHandler,
@@ -433,7 +430,7 @@ class DemosPlanDocumentController extends BaseController
                 'url' => $this->generateUrl('DemosPlan_plandocument_administration_element', ['procedure' => $procedure, 'elementId' => $elementId]), ]);
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/paragraph_admin_new.html.twig', [
+        return $this->render('@DemosPlanCore/DemosPlanDocument/paragraph_admin_new.html.twig', [
             'templateVars' => $templateVars,
             'procedure'    => $procedure,
             'category'     => $category,
@@ -445,8 +442,6 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Planunterlagen Einzeldokument Neu.
      *
-     * @DplanPermissions("area_admin_single_document")
-     *
      * @param string $procedure
      * @param string $elementId
      * @param string $category
@@ -455,11 +450,12 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_single_document')]
     #[Route(
         name: 'DemosPlan_singledocument_administration_new',
         path: '/verfahren/{procedure}/verwalten/planunterlagen/dokument/{elementId}/neu/{category}'
     )]
-    public function singleDocumentAdminNewAction(
+    public function singleDocumentAdminNew(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
         Request $request,
@@ -490,7 +486,7 @@ class DemosPlanDocumentController extends BaseController
 
                     return $this->redirectToRoute(
                         'DemosPlan_elements_administration_edit',
-                        compact('procedure', 'elementId')
+                        ['procedure' => $procedure, 'elementId' => $elementId]
                     );
                 }
             }
@@ -511,7 +507,7 @@ class DemosPlanDocumentController extends BaseController
             ]
         );
 
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/single_document_admin_new.html.twig', [
+        return $this->render('@DemosPlanCore/DemosPlanDocument/single_document_admin_new.html.twig', [
             'templateVars' => $templateVars,
             'procedure'    => $procedure,
             'category'     => $category,
@@ -523,8 +519,6 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Planunterlagen Einzeldokument Edit.
      *
-     * @DplanPermissions("area_admin_single_document")
-     *
      * @param string $procedure
      * @param string $documentID
      *
@@ -532,8 +526,9 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_single_document')]
     #[Route(name: 'DemosPlan_singledocument_administration_edit', path: '/verfahren/{procedure}/verwalten/planunterlagen/dokument/{documentID}/edit', options: ['expose' => true])]
-    public function singleDocumentAdminEditAction(
+    public function singleDocumentAdminEdit(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
         PermissionsInterface $permissions,
@@ -607,7 +602,7 @@ class DemosPlanDocumentController extends BaseController
         }
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/single_document_admin_edit.html.twig', [
+        return $this->render('@DemosPlanCore/DemosPlanDocument/single_document_admin_edit.html.twig', [
             'templateVars' => $templateVars,
             'procedure'    => $procedure,
             'title'        => 'element.detail.document.edit',
@@ -633,14 +628,13 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Planunterlagen Kategorie Adminliste.
      *
-     * @DplanPermissions("area_admin_single_document")
-     *
      * @return Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_single_document')]
     #[Route(name: 'DemosPlan_element_administration', path: '/verfahren/{procedure}/verwalten/planunterlagen', options: ['expose' => true])]
-    public function elementAdminListAction(
+    public function elementAdminList(
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
@@ -670,7 +664,9 @@ class DemosPlanDocumentController extends BaseController
          *
          * @see DemosPlanDocumentController::saveImportedElementsAdminAction
          * */
-        $errorReports = $session->getFlashBag()->get('errorReports');
+        /** @var FlashBagInterface $flashBag */
+        $flashBag = $session->getBag('flashes');
+        $errorReports = $flashBag->get('errorReports');
         $templateVars['errorReport'] = [];
 
         if ((is_countable($errorReports) ? count($errorReports) : 0) > 0) {
@@ -685,29 +681,28 @@ class DemosPlanDocumentController extends BaseController
 
         $procedureSettings = $currentProcedureArray['settings'];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanDocument/elements_admin_list.html.twig',
-            compact('templateVars', 'title', 'procedureSettings')
+            ['templateVars' => $templateVars, 'title' => $title, 'procedureSettings' => $procedureSettings]
         );
     }
 
     /**
      * Save imported elements and redirect to route: @see elementAdminListAction.
      *
-     * @DplanPermissions("area_admin_single_document")
-     *
      * @return Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_single_document')]
     #[Route(name: 'DemosPlan_save_imported_elements_administration', path: '/verfahren/{procedure}/verwalten/planunterlagen/import/speichern', options: ['expose' => true])]
-    public function saveImportedElementsAdminAction(
+    public function saveImportedElementsAdmin(
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
         DocumentHandler $documentHandler,
         Request $request,
         EventDispatcherInterface $eventDispatcher,
-        string $procedure)
+        string $procedure): RedirectResponse
     {
         $session = $request->getSession();
 
@@ -735,7 +730,9 @@ class DemosPlanDocumentController extends BaseController
         );
 
         // Redirect so that the documents are not recharged with a reload and the files are displayed immediately
-        $session->getFlashBag()->add('errorReports', $errorReport);
+        /** @var FlashBagInterface $flashBag */
+        $flashBag = $session->getBag('flashes');
+        $flashBag->add('errorReports', $errorReport);
 
         return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
     }
@@ -743,14 +740,13 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Importer für die Planungsdokumentenkategorien und Dateien.
      *
-     * @DplanPermissions({"area_admin_single_document","feature_admin_element_import"})
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions(['area_admin_single_document', 'feature_admin_element_import'])]
     #[Route(name: 'DemosPlan_element_import', path: '/verfahren/{procedureId}/verwalten/planunterlagen/import')]
-    public function elementAdminImportAction(
+    public function elementAdminImport(
         CurrentUserInterface $currentUser,
         Request $request,
         FileUploadService $fileUploadService,
@@ -827,7 +823,7 @@ class DemosPlanDocumentController extends BaseController
                 }
 
                 // Falls gar kein valider Filename ermittelt werden konnte, lieber einen Hash als nix
-                if ('' == $filename) {
+                if ('' === $filename) {
                     $filename = md5(random_int(0, 9999));
                     $this->getLogger()->warning('Es konnte via kein gültiger Name gefunden werden. RandomHash: '.DemosPlanTools::varExport($filename, true));
                 } else {
@@ -840,7 +836,7 @@ class DemosPlanDocumentController extends BaseController
                 $zip->extractTo($extractDir, $zip->getNameIndex($indexInZipFile));
             }
 
-            if ($indexInZipFile != $successFiles + $folderCount) {
+            if ($indexInZipFile !== $successFiles + $folderCount) {
                 $this->getMessageBag()->add('warning', 'error.elementimport.unpacking_failed');
             }
 
@@ -867,7 +863,7 @@ class DemosPlanDocumentController extends BaseController
         $templateVars['statusHash'] = $statusHash;
         $templateVars['basePath'] = $request->getBasePath();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanDocument/elements_admin_import.html.twig',
             [
                 'entries'      => $fileDir,
@@ -1030,18 +1026,17 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Planunterlagen Kategorie Admin-Edit.
      *
-     * @DplanPermissions("area_admin_single_document")
-     *
      * @return Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_single_document')]
     #[Route(
         name: 'DemosPlan_elements_administration_edit',
         path: '/verfahren/{procedure}/verwalten/planunterlagen/{elementId}/edit',
         options: ['expose' => true]
     )]
-    public function elementAdminEditAction(
+    public function elementAdminEdit(
         Breadcrumb $breadcrumb,
         CurrentProcedureService $currentProcedureService,
         ElementHandler $elementHandler,
@@ -1062,7 +1057,7 @@ class DemosPlanDocumentController extends BaseController
 
         if (!empty($requestPost['r_action']) && 'singledocumentdelete' === $requestPost['r_action'] && array_key_exists('document_delete', $requestPost)) {
             $storageResult = $singleDocumentService->deleteSingleDocument($requestPost['document_delete']);
-            if (true === $storageResult) {
+            if ($storageResult) {
                 $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.deleted');
             }
         }
@@ -1085,7 +1080,7 @@ class DemosPlanDocumentController extends BaseController
                     if (!$this->permissions->hasPermission('feature_admin_element_edit')) {
                         $this->getMessageBag()->add('error', 'error.without.authorization');
 
-                        return $this->redirectToRoute('DemosPlan_element_administration', compact('procedure'));
+                        return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
                     }
 
                     $storageResult = $elementHandler->administrationElementDeleteHandler($inData['r_ident']);
@@ -1093,7 +1088,7 @@ class DemosPlanDocumentController extends BaseController
                         $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.deleted');
                     }
 
-                    return $this->redirectToRoute('DemosPlan_element_administration', compact('procedure'));
+                    return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
                 } else {
                     $storageResult = $elementHandler->administrationElementEditHandler($procedure, $inData);
                     if (array_key_exists('ident', $storageResult) && !array_key_exists('mandatoryfieldwarning', $storageResult)) {
@@ -1122,7 +1117,7 @@ class DemosPlanDocumentController extends BaseController
         if ('file' === $templateVars['element']['category']) {
             $templateVars['documentEnable'] = true;
             $templateVars['deleteEnable'] = true;
-            if (is_array($templateVars['element']['documents']) && 0 < count($templateVars['element']['documents'])) {
+            if (is_array($templateVars['element']['documents']) && [] !== $templateVars['element']['documents']) {
                 $templateVars['documents'] = $templateVars['element']['documents'];
             }
         }
@@ -1177,13 +1172,11 @@ class DemosPlanDocumentController extends BaseController
             $view = '@DemosPlanCore/DemosPlanDocument/single_document_admin_list.html.twig';
         }
 
-        return $this->renderTemplate($view, $renderData);
+        return $this->render($view, $renderData);
     }
 
     /**
      * Neue Kategorien anlegen.
-     *
-     * @DplanPermissions({"area_admin_single_document","feature_admin_element_edit"})
      *
      * @param string $procedure
      *
@@ -1191,8 +1184,9 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
+    #[DplanPermissions(['area_admin_single_document', 'feature_admin_element_edit'])]
     #[Route(name: 'DemosPlan_elements_administration_new', path: '/verfahren/{procedure}/verwalten/planunterlagen/new')]
-    public function elementAdminNewAction(
+    public function elementAdminNew(
         Breadcrumb $breadcrumb,
         ElementHandler $elementHandler,
         Request $request,
@@ -1202,11 +1196,11 @@ class DemosPlanDocumentController extends BaseController
     ) {
         $title = 'element.admin.category.new';
         $inData = $this->prepareIncomingData($request, 'elementnew');
-        if (is_array($inData) && 0 < count($inData)) {
+        if (is_array($inData) && [] !== $inData) {
             if (array_key_exists('r_title', $inData) && '' === trim((string) $inData['r_title'])) {
                 $this->getMessageBag()->add('warning', 'error.mandatoryfields');
 
-                return $this->renderTemplate(
+                return $this->render(
                     '@DemosPlanCore/DemosPlanDocument/elements_admin_edit.html.twig',
                     [
                         'procedure' => $procedure,
@@ -1245,7 +1239,7 @@ class DemosPlanDocumentController extends BaseController
         );
         $templateVars['orgasOfProcedure'] = $serviceOutput->getMembersOfProcedure($procedure);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanDocument/elements_admin_edit.html.twig',
             [
                 'procedure'    => $procedure,
@@ -1264,10 +1258,9 @@ class DemosPlanDocumentController extends BaseController
      * @param string $title
      *
      * @throws Exception
-     *
-     * @DplanPermissions("area_public_participation")
      */
-    public function publicDocumentListAction(
+    #[DplanPermissions('area_public_participation')]
+    public function publicDocumentList(
         CurrentProcedureService $currentProcedureService,
         CurrentUserInterface $currentUser,
         ElementsService $elementsService,
@@ -1293,7 +1286,7 @@ class DemosPlanDocumentController extends BaseController
             $templateVars['draftStatementId'] = $request->get('draftStatementId');
         }
 
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/public_elements_list.html.twig', [
+        return $this->render('@DemosPlanCore/DemosPlanDocument/public_elements_list.html.twig', [
             'procedure'    => $procedure,
             'templateVars' => $templateVars,
             'title'        => $title,
@@ -1309,12 +1302,11 @@ class DemosPlanDocumentController extends BaseController
      *
      * @return RedirectResponse|Response
      *
-     * @DplanPermissions("area_public_participation")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('area_public_participation')]
     #[Route(name: 'DemosPlan_public_plandocument_paragraph', path: '/verfahren/{procedure}/public/paragraph/{elementId}', defaults: ['category' => 'paragraph', 'type' => 'all'], options: ['expose' => true])]
-    public function publicParagraphListAction(
+    public function publicParagraphList(
         BrandingService $brandingService,
         CountyService $countyService,
         CurrentProcedureService $currentProcedureService,
@@ -1337,19 +1329,8 @@ class DemosPlanDocumentController extends BaseController
             $documentList = $documentHandler->getPublicParaDocuments($procedureId, $elementId);
         } catch (RuntimeException $e) {
             if ('Access to this document is forbidden.' === $e->getMessage()) {
-                $templateVars = [];
-
-                if ($this->permissions instanceof Permissions
-                    && $this->permissions->hasPermission('area_combined_participation_area')
-                ) {
-                    $templateVars['procedureLayer'] = 'participation';
-                }
-
-                return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/public_paragaph_not_allowed.html.twig', [
-                    'procedure'    => $procedureId,
-                    'templateVars' => $templateVars,
-                    'title'        => 'element.paragraph',
-                    'category'     => $category,
+                return $this->redirectToRoute('core_404', [
+                    'currentPage' => $request->getPathInfo(),
                 ]);
             }
         }
@@ -1408,7 +1389,7 @@ class DemosPlanDocumentController extends BaseController
 
         $templateVars['procedure'] = $currentProcedureService->getProcedure();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanDocument/public_paragraph_document.html.twig',
             [
                 'procedure'    => $procedureId,
@@ -1571,7 +1552,7 @@ class DemosPlanDocumentController extends BaseController
                     PREG_PATTERN_ORDER
                 );
                 // Wenn du kein Bild gefunden hast, durchsuche den nächsten Absatz
-                if (0 === count($matches[1])) {
+                if ([] === $matches[1]) {
                     continue;
                 }
                 // Wenn du ein oder mehrere Bilder gefunden hast gehe sie durch
@@ -1617,7 +1598,7 @@ class DemosPlanDocumentController extends BaseController
                         $documentList[$docKey]['text'] = preg_replace(
                             '|ALTTEXT|',
                             $parts[3],
-                            $documentList[$docKey]['text']
+                            (string) $documentList[$docKey]['text']
                         );
                     }
                 }
@@ -1709,23 +1690,24 @@ class DemosPlanDocumentController extends BaseController
         $fileService = $this->fileService;
         $elementHandler = $this->elementHandler;
         $filesRequestInfo = $this->getFilesRequestInfo($request);
-        $filesToZip = empty($filesRequestInfo)
+        $filesToZip = [] === $filesRequestInfo
                         ? $this->getAllProcedureFilesInfo($procedureId)
                         : $filesRequestInfo;
         $filesToZip = $this->validatefilesToZip($filesToZip, $procedureId);
         $fileInfo = [];
         foreach ($filesToZip as $fileRequestInfo) {
             $singleDocId = $fileRequestInfo['id'];
-            $fileId = $fileService->getFileIdFromSingleDocumentId($singleDocId);
-            $fileEntity = $fileService->getFileById($fileId);
-            if (null === $fileEntity) {
-                $this->logger->error("No File Entity found for id: $fileId");
-                throw new \InvalidArgumentException('error.generic');
-            }
-            $fileName = $fileEntity->getFilename();
-            $fileFullPath = $fileEntity->getFilePathWithHash();
-            if (!$this->defaultStorage->fileExists($fileFullPath)) {
-                $this->getLogger()->warning('Could not find file to add to zip', [$fileEntity->getId()]);
+            try {
+                $fileHash = $fileService->getFileIdFromSingleDocumentId($singleDocId);
+                $fileInfoObj = $fileService->getFileInfo($fileHash, $procedureId);
+                $fileName = $fileInfoObj->getFileName();
+                $fileFullPath = $fileInfoObj->getAbsolutePath();
+                if (!$this->defaultStorage->fileExists($fileFullPath)) {
+                    $this->getLogger()->warning('Could not find file to add to zip', [$fileInfoObj->getHash()]);
+                    continue;
+                }
+            } catch (Exception $e) {
+                $this->getLogger()->warning('Could not find file to add to zip', [$singleDocId, $e]);
                 continue;
             }
             // $fileName might be an empty string. If for some reasons it is empty, better use a random string than fail
@@ -1757,14 +1739,14 @@ class DemosPlanDocumentController extends BaseController
             $filesInfo
         );
         $otherProcedureFileIds = $singleDocumentService->getSingleDocumentsNotInProcedure($filesToZipIds, $procedureId);
-        if (!empty($otherProcedureFileIds)) {
+        if ([] !== $otherProcedureFileIds) {
             $this->logger->error('SingleDocuments '.Json::encode(array_values($otherProcedureFileIds)).' are not in procedure '.$procedureId.' and can\'t be downloaded');
             throw new \InvalidArgumentException('files.download.error.try_later');
         }
 
         // Validate that none of the files to be zipped are set as not visible
         $invisibleFileIds = $singleDocumentService->getNotVisibleSingleDocuments($filesToZipIds, $procedureId);
-        if (!empty($invisibleFileIds)) {
+        if ([] !== $invisibleFileIds) {
             $this->logger->error('SingleDocuments '.Json::encode(array_values($invisibleFileIds)).' are disabled and can\'t be downloaded.');
             throw new \InvalidArgumentException('files.download.error.try_later');
         }
@@ -1778,12 +1760,12 @@ class DemosPlanDocumentController extends BaseController
         );
         $elementsToZip = array_unique(array_merge([], ...$elementsToZip));
         $disabledElementsToZip = array_diff($elementsToZip, $enabledElementIds);
-        if (!empty($disabledElementsToZip)) {
+        if ([] !== $disabledElementsToZip) {
             // remove files from zip that have disabled element (parents)
             $filesInfo = collect($filesInfo)->reject(static function ($file) use ($disabledElementsToZip) {
                 $disabledElementsInPath = array_intersect($file['path'], $disabledElementsToZip);
 
-                return 0 < count($disabledElementsInPath);
+                return [] !== $disabledElementsInPath;
             })->toArray();
         }
 
@@ -1793,14 +1775,13 @@ class DemosPlanDocumentController extends BaseController
     /**
      * Receives an array of File entity ids, zips the correspondent files and starts the download of the zip file.
      *
-     * @DplanPermissions("feature_element_export")
-     *
      * @return RedirectResponse|StreamedResponse
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('feature_element_export')]
     #[Route(name: 'DemosPlan_document_zip_files', path: '/verfahren/{procedureId}/planunterlagen/zipfiles', options: ['expose' => true])]
-    public function zipFilesAction(Request $request, TranslatorInterface $translator, string $procedureId)
+    public function zipFiles(Request $request, TranslatorInterface $translator, string $procedureId)
     {
         try {
             $filesInfo = $this->getFilesInfo($request, $procedureId);

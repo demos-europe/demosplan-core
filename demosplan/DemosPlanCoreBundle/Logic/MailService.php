@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\MailAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
+use demosplan\DemosPlanCoreBundle\Entity\MailTemplate;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
 use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
@@ -23,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
@@ -36,7 +38,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class MailService extends CoreService
+class MailService
 {
     /**
      * @var string
@@ -64,16 +66,16 @@ class MailService extends CoreService
     public function __construct(
         private readonly FilesystemOperator $defaultStorage,
         GlobalConfigInterface $globalConfig,
-        LoggerInterface $logger,
+        private readonly LoggerInterface $logger,
         MailerInterface $mailer,
         private readonly MailRepository $mailRepository,
         private readonly TranslatorInterface $translator,
+        private readonly ManagerRegistry $doctrine,
     ) {
         $this->emailIsLiveSystem = $globalConfig->isEmailIsLiveSystem();
         $this->emailSubjectPrefix = $globalConfig->getEmailSubjectPrefix();
         $this->emailSystem = $globalConfig->getEmailSystem();
         $this->globalConfig = $globalConfig;
-        $this->logger = $logger;
         $this->mailer = $mailer;
     }
 
@@ -120,7 +122,7 @@ class MailService extends CoreService
         $emailBcc = $this->checkEMailField($bcc);
 
         $emailTemplate = $this->mailRepository->getTemplate($template);
-        if (null === $emailTemplate) {
+        if (!$emailTemplate instanceof MailTemplate) {
             throw new InvalidArgumentException("No template entity found for the given template label: '$template'");
         }
         $emailTitle = $this->mailRepository->replacePlaceholder($emailTemplate->getTitle(), $vars);
@@ -195,7 +197,7 @@ class MailService extends CoreService
         $vars = [],
         $attachments = [],
     ) {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->doctrine->getManager();
         $em->getConnection()->beginTransaction();
         try {
             foreach ($to as $receiver) {
@@ -247,7 +249,7 @@ class MailService extends CoreService
      */
     public function sendMailsFromQueue($limit = 200)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->doctrine->getManager();
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
         $emailsSent = 0;
         try {
@@ -367,6 +369,9 @@ class MailService extends CoreService
                     $this->mailer->send($message);
                     $mail->setStatus('sent');
                     $mail->setSendDate(new DateTime());
+                    // Clear any previous error information on successful send
+                    $mail->setErrorCode('');
+                    $mail->setErrorMessage('');
                 } catch (TransportExceptionInterface $e) {
                     $this->logger->warning('Could not send Mail',
                         [
@@ -381,12 +386,16 @@ class MailService extends CoreService
                     );
                     // update number of send attempts
                     $mail->setSendAttempt($mail->getSendAttempt() + 1);
+                    $mail->setErrorCode($e->getCode());
+                    $mail->setErrorMessage($e->getMessage());
                     $em->persist($mail);
 
                     continue;
                 } catch (Exception $e) {
                     $this->logger->error('General exception on sending e-mail.', [$e]);
                     $mail->setSendAttempt($mail->getSendAttempt() + 1);
+                    $mail->setErrorCode($e->getCode());
+                    $mail->setErrorMessage($e->getMessage());
                     $em->persist($mail);
 
                     continue;
@@ -409,11 +418,11 @@ class MailService extends CoreService
                 foreach ($mail->getAttachments() as $attachment) {
                     try {
                         if ($attachment->getDeleteOnSent()
-                            && $mail->getStatus() === 'sent'
+                            && 'sent' === $mail->getStatus()
                             && $this->defaultStorage->fileExists($attachment->getFilename())
-                            ) {
-                                $this->defaultStorage->delete($attachment->getFilename());
-                            }
+                        ) {
+                            $this->defaultStorage->delete($attachment->getFilename());
+                        }
                     } catch (Exception $exception) {
                         $this->logger->warning('failed to remove email attachment', [$exception]);
                     }
@@ -462,7 +471,7 @@ class MailService extends CoreService
             if (false !== filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $return[] = $email;
             } else {
-                $this->getLogger()->warning('Deleted invalid Email ', [$address]);
+                $this->logger->warning('Deleted invalid Email ', [$address]);
             }
         }
 

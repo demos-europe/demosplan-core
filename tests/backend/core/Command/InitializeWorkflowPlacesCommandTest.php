@@ -25,7 +25,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Tests\Base\FunctionalTestCase;
-use Zenstruck\Foundry\Persistence\Proxy;
 
 class InitializeWorkflowPlacesCommandTest extends FunctionalTestCase
 {

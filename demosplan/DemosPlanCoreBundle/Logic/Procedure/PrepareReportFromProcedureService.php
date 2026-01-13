@@ -15,6 +15,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -27,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Event\Procedure\ProcedureEditedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
@@ -38,12 +38,13 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
 
-class PrepareReportFromProcedureService extends CoreService
+class PrepareReportFromProcedureService
 {
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
@@ -58,6 +59,7 @@ class PrepareReportFromProcedureService extends CoreService
         private readonly TranslatorInterface $translator,
         private readonly PlanDrawReportEntryFactory $planDrawReportEntryFactory,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -102,7 +104,7 @@ class PrepareReportFromProcedureService extends CoreService
             );
             $this->reportService->persistAndFlushReportEntries($reportEntry);
         } catch (Exception $e) {
-            $this->getLogger()->error('Could not add report to protocol: ', [$e]);
+            $this->logger->error('Could not add report to protocol: ', [$e]);
         }
     }
 
@@ -156,7 +158,7 @@ class PrepareReportFromProcedureService extends CoreService
      *
      * @throws Exception
      */
-    public function createReportEntry(Procedure $sourceProcedure, Procedure $destinationProcedure)
+    public function createReportEntry(Procedure $sourceProcedure, Procedure $destinationProcedure, bool $isSystem = false): void
     {
         $sourceProcedureSettings = $sourceProcedure->getSettings();
         $destinationProcedureSettings = $destinationProcedure->getSettings();
@@ -232,7 +234,7 @@ class PrepareReportFromProcedureService extends CoreService
             $dstProcedureAuthorizedUsersArray = $destinationProcedure->getAuthorizedUsers()->toArray();
             $srcProcedureAuthorizedUsersArray = $sourceProcedure->getAuthorizedUsers()->toArray();
             $changes = array_udiff($dstProcedureAuthorizedUsersArray, $srcProcedureAuthorizedUsersArray, fn (User $user1, User $user2) => strcmp((string) $user1->getId(), (string) $user2->getId()));
-            if (0 !== count($changes)) {
+            if ([] !== $changes) {
                 $update['oldAuthorizedUsers'] = implode(', ', $sourceProcedure->getAuthorizedUserNames());
                 $update['newAuthorizedUsers'] = implode(', ', $destinationProcedure->getAuthorizedUserNames());
             }
@@ -273,13 +275,13 @@ class PrepareReportFromProcedureService extends CoreService
             $sourceProcedure,
             $destinationProcedure,
             $this->getUserForReportEntry(),
-            false
+            $isSystem
         );
-        if (null !== $phaseChangeEntry) {
+        if ($phaseChangeEntry instanceof ReportEntry) {
             $this->reportService->persistAndFlushReportEntries($phaseChangeEntry);
         }
 
-        if (0 !== count($update)) {
+        if ([] !== $update) {
             $updateReportEntry = $this->procedureReportEntryFactory->createUpdateEntry(
                 $sourceProcedure,
                 $update
@@ -299,7 +301,7 @@ class PrepareReportFromProcedureService extends CoreService
         } catch (UserNotFoundException $e) {
             $this->logger->info('No user found for report entry creation, falling back to default.', [$e]);
         }
-        if (null !== $user && '' !== $user->getFullname()) {
+        if ($user instanceof UserInterface && '' !== $user->getFullname()) {
             return $user;
         }
 
@@ -321,7 +323,7 @@ class PrepareReportFromProcedureService extends CoreService
         if ($this->hasPhaseChanged($sourceProcedure, $destinationProcedure)) {
             $phaseChangeMessage = $this->createPhaseChangeMessageData($sourceProcedure, $destinationProcedure);
 
-            if (0 !== count($phaseChangeMessage)) {
+            if ([] !== $phaseChangeMessage) {
                 $phaseChangeMessage['createdBySystem'] = $createdBySystem;
 
                 return $this->procedureReportEntryFactory->createPhaseChangeEntry(
@@ -347,7 +349,7 @@ class PrepareReportFromProcedureService extends CoreService
      */
     public function addReportsOnProcedureCouple(ProcedureCoupleToken $token, User $user): void
     {
-        if (null === $token->getTargetProcedure()) {
+        if (!$token->getTargetProcedure() instanceof Procedure) {
             throw new ProcedureNotFoundException('Target procedure must be set to generate report entries on procedure coupling');
         }
 
@@ -454,11 +456,11 @@ class PrepareReportFromProcedureService extends CoreService
             }
         }
 
-        if (0 !== count($elements)) {
+        if ([] !== $elements) {
             $changes['elements'] = $elements;
         }
 
-        if (0 !== count($paragraphs)) {
+        if ([] !== $paragraphs) {
             $changes['paragraphs'] = $paragraphs;
         }
 
@@ -516,7 +518,7 @@ class PrepareReportFromProcedureService extends CoreService
 
     private function getTimestamp(?DateTime $dateTime): ?int
     {
-        if (null === $dateTime) {
+        if (!$dateTime instanceof DateTime) {
             return null;
         }
 
@@ -558,7 +560,7 @@ class PrepareReportFromProcedureService extends CoreService
         }
 
         // add entry to report data
-        if (0 < count($elementEntry)) {
+        if ([] !== $elementEntry) {
             $elements[$element->getTitle()] = $elementEntry;
         }
 
@@ -588,7 +590,7 @@ class PrepareReportFromProcedureService extends CoreService
                 $documents[$document->getTitle()] = $document->getDocument();
             }
         }
-        if (0 !== count($documents)) {
+        if ([] !== $documents) {
             $elementEntry['files'] = $documents;
         }
 
@@ -597,13 +599,13 @@ class PrepareReportFromProcedureService extends CoreService
                 $access[] = $orga->getName();
             }
 
-            if (0 !== count($access)) {
+            if ([] !== $access) {
                 $elementEntry['access'] = $access;
             }
         }
 
         // add entry to report data
-        if (0 < count($elementEntry)) {
+        if ([] !== $elementEntry) {
             $elements[$element->getTitle()] = $elementEntry;
         }
 

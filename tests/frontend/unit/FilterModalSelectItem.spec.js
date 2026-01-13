@@ -19,8 +19,8 @@ describe('FilterModalSelectItem', () => {
   beforeEach(() => {
     store = createStore({
       modules: {
-        Filter
-      }
+        Filter,
+      },
     })
 
     wrapper = shallowMountWithGlobalMocks(FilterModalSelectItem, {
@@ -31,14 +31,14 @@ describe('FilterModalSelectItem', () => {
           id: 'testId',
           attributes: {
             label: 'Test Label',
-            name: 'Test Name'
-          }
+            name: 'Test Name',
+          },
         },
-        hidden: false
+        hidden: false,
       },
       global: {
-        plugins: [store]
-      }
+        plugins: [store],
+      },
     })
   })
 

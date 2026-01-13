@@ -132,7 +132,7 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
 
     public function hasErrors(): bool
     {
-        return 0 !== count($this->errors);
+        return [] !== $this->errors;
     }
 
     protected function getStatementTextConstraint(): Constraint

@@ -14,12 +14,13 @@ namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
@@ -28,17 +29,30 @@ class LogoutSubscriber implements EventSubscriberInterface
     private array $allowedCookieNames = [PreviousRouteCookie::NAME];
 
     public function __construct(
-        private readonly CustomerService $customerService,
         private readonly LoggerInterface $logger,
         private readonly ParameterBagInterface $parameterBag,
         private readonly PermissionsInterface $permissions,
         private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly OzgKeycloakLogoutManager $ozgKeycloakLogoutManager,
     ) {
     }
 
+    /**
+     * Set this listener with priority 1 to execute before Symfony's default LogoutListener:
+     *
+     * @see \Symfony\Component\Security\Http\EventListener\SessionLogoutListener
+     * This prevents the session from being invalidated prematurely,
+     * as we need the session to access the stored Keycloak ID token for logout.
+     * The token is detected on Keycloak side,
+     * enabling silent logout without Keycloak user confirmation dialog.
+     *
+     * @return array[]
+     */
     public static function getSubscribedEvents(): array
     {
-        return [LogoutEvent::class => 'onLogout'];
+        return [
+            LogoutEvent::class => ['onLogout', 1],
+        ];
     }
 
     public function onLogout(LogoutEvent $event): void
@@ -46,7 +60,7 @@ class LogoutSubscriber implements EventSubscriberInterface
         // get the current response, if it is already set by another listener
         $response = $event->getResponse();
 
-        if (null === $response) {
+        if (!$response instanceof Response) {
             $response = $this->redirectToRoute('core_home');
         }
 
@@ -54,17 +68,15 @@ class LogoutSubscriber implements EventSubscriberInterface
         $user = $event->getToken()?->getUser();
         if ($user && method_exists($user, 'isProvidedByIdentityProvider') && $user->isProvidedByIdentityProvider()) {
             // Keycloak logout
-            if ('' !== $this->parameterBag->get('oauth_keycloak_logout_route')) {
+            if ($this->ozgKeycloakLogoutManager->isKeycloakConfigured()) {
+                $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN);
+                $event->getRequest()->getSession()->invalidate();
                 $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
                 $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
-                // add subdomain for redirect
+
+                // add additional parameters to keycloak logout url for redirect
                 try {
-                    $currentCustomer = $this->customerService->getCurrentCustomer();
-                    $logoutRoute = str_replace(
-                        'post_logout_redirect_uri=https://',
-                        'post_logout_redirect_uri=https://'.$currentCustomer->getSubdomain().'.',
-                        $logoutRoute
-                    );
+                    $logoutRoute = $this->ozgKeycloakLogoutManager->getLogoutUrl($logoutRoute, $keycloakToken);
                     $this->logger->info('Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
                 } catch (Exception $e) {
                     $this->logger->error('Could not get current customer', [$e->getMessage()]);

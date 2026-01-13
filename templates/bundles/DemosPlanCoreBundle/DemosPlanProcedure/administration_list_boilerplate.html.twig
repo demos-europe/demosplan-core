@@ -111,7 +111,8 @@
                             <a
                                 href="{{ path('DemosPlan_procedure_boilerplate_edit',{procedure: procedure, 'boilerplateId': boilerplate.ident }) }}"
                                 data-cy="administrationListBoilerplate:boilerplateEdit"
-                                class="o-toggle__trigger u-mr-0_5 align-middle js__toggleAnything">
+                                class="o-toggle__trigger u-mr-0_5 align-middle js__toggleAnything"
+                                aria-label="{{ 'boilerplate.edit'|trans }}">
                                 <i
                                     class="fa fa-pencil"
                                     aria-hidden="true">
@@ -174,17 +175,19 @@
                     <td class="text-center">
                         <dp-flyout>
                             <a
+                                class="block o-link--default leading-[2] whitespace-nowrap"
                                 href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure, 'selectedGroupId': boilerplateGroup.id}) }}"
                                 data-cy="administrationListBoilerplate:addNewBoilerplate">
                                 {{ 'boilerplate.generate' |trans }}
                             </a>
                             <a
+                                class="block o-link--default leading-[2] whitespace-nowrap"
                                 href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure, 'boilerplateGroupId': boilerplateGroup.id}) }}"
                                 data-cy="administrationListBoilerplate:boilerplateGroupEdit">
                                 {{ 'group.edit' |trans }}
                             </a>
                             <button
-                                class="btn--blank o-link--default"
+                                class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
                                 value="{{ boilerplateGroup.id }}"
                                 name="boilerplateGroupDeleteAllContent"
                                 data-cy="administrationListBoilerplate:boilerplateGroupDelete"

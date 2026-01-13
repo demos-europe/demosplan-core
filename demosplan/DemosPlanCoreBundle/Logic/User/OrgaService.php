@@ -26,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\EmailAddressInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\OrganisationReportEntryFactory;
@@ -52,12 +51,13 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\FunctionInterface;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class OrgaService extends CoreService implements OrgaServiceInterface
+class OrgaService implements OrgaServiceInterface
 {
     /** @var MailService */
     protected $mailService;
@@ -107,6 +107,7 @@ class OrgaService extends CoreService implements OrgaServiceInterface
         TokenStorageInterface $tokenStorage,
         private readonly TranslatorInterface $translator,
         private readonly UserService $userService,
+        private readonly LoggerInterface $logger,
     ) {
         $this->addressService = $addressService;
         $this->contentService = $contentService;

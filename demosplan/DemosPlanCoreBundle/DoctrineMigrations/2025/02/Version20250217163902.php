@@ -31,7 +31,10 @@ class Version20250217163902 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('CREATE INDEX IF NOT EXISTS IDX_8C0DACC5DCE34FD9 ON _files (_f_hash)');
+        $table = $schema->getTable('_files');
+        if (!$table->hasIndex('IDX_8C0DACC5DCE34FD9')) {
+            $table->addIndex(['_f_hash'], 'IDX_8C0DACC5DCE34FD9');
+        }
     }
 
     /**
@@ -41,7 +44,10 @@ class Version20250217163902 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('DROP INDEX IF EXISTS IDX_8C0DACC5DCE34FD9 ON _files');
+        $table = $schema->getTable('_files');
+        if ($table->hasIndex('IDX_8C0DACC5DCE34FD9')) {
+            $table->dropIndex('IDX_8C0DACC5DCE34FD9');
+        }
     }
 
     /**

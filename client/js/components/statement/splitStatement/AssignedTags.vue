@@ -1,18 +1,21 @@
 <template>
   <div
     v-if="segment && segment.tags.length > 0"
-    class="flex flex-wrap gap-1 bg-white">
+    class="flex flex-wrap gap-1 bg-white"
+  >
     <div
       v-for="(tag, idx) in segment.tags"
       :key="`tag_${idx}`"
-      :class="assignTagSizeClasses(tag,idx)">
+      :class="assignTagSizeClasses(tag,idx)"
+    >
       <div
+        v-tooltip="tag.tagName"
         :class="[
           'tag flex whitespace-nowrap overflow-hidden text-sm px-0.5 py-0.5',
           isTagAppliedToSegment(tag.id) ? 'bg-status-neutral': 'bg-status-complete',
           isLastTagWithEvenPosition(idx) ? 'w-fit' : ''
         ]"
-        v-tooltip="tag.tagName">
+      >
         <span class="overflow-hidden text-ellipsis">
           {{ tag.tagName }}
         </span>
@@ -20,10 +23,12 @@
           type="button"
           class="tag__remove btn--blank o-link--default ml-1"
           data-cy="sidebar:removeTag"
-          @click="removeTag(tag.id)">
+          @click="removeTag(tag.id)"
+        >
           <dp-icon
             icon="close"
-            size="small" />
+            size="small"
+          />
         </button>
       </div>
     </div>
@@ -37,33 +42,33 @@ export default {
   name: 'AssignedTags',
 
   components: {
-    DpIcon
+    DpIcon,
   },
 
   props: {
     availableTags: {
       type: Array,
-      required: true
+      required: true,
     },
 
     currentSegment: {
       type: Object,
-      required: true
+      required: true,
     },
 
     initialSegments: {
       type: Array,
-      required: true
+      required: true,
     },
 
     segment: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'remove'
+    'remove',
   ],
 
   methods: {
@@ -113,7 +118,7 @@ export default {
     removeTag (id) {
       const tagToBeDeleted = this.availableTags.find(tag => tag.id === id)
       this.$emit('remove', { id, tagName: tagToBeDeleted.attributes.title })
-    }
-  }
+    },
+  },
 }
 </script>

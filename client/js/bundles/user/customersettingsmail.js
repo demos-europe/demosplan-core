@@ -16,7 +16,7 @@ import { initialize } from '@DpJs/InitVue'
 const components = {
   DpLabel,
   DpInput,
-  DpEditor
+  DpEditor,
 }
 
 const stores = {}

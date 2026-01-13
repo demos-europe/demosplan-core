@@ -15,7 +15,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
@@ -28,7 +27,7 @@ use function collect;
 /**
  * @deprecated Use Procedure Object instead
  */
-class ProcedureToLegacyConverter extends CoreService
+class ProcedureToLegacyConverter
 {
     public function __construct(private readonly DateHelper $dateHelper, private readonly EntityHelper $entityHelper, private readonly ProcedureRepository $procedureRepository)
     {
@@ -69,6 +68,9 @@ class ProcedureToLegacyConverter extends CoreService
             $procedureArray['pictogram'] = $procedureArray['settings']['pictogram'];
             $procedureArray['pictogramCopyright'] = $procedureArray['settings']['pictogramCopyright'];
             $procedureArray['pictogramAltText'] = $procedureArray['settings']['pictogramAltText'];
+            $procedureArray['allowAnonymousStatements'] = $procedureArray['settings']['allowAnonymousStatements'];
+            $procedureArray['expandProcedureDescription'] = $procedureArray['settings']['expandProcedureDescription'];
+            $procedureArray['publicParticipationFeedbackEnabled'] = $procedureArray['settings']['publicParticipationFeedbackEnabled'];
         }
 
         $procedureArray['isMapEnabled'] = false;

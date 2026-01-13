@@ -11,49 +11,57 @@
   <div class="u-mt-0_5">
     <div
       v-if="!addNewTag && !addNewCategory"
-      class="text-right">
+      class="text-right"
+    >
       <dp-button
         data-cy="tagList:newTag"
         :disabled="tagCategoriesWithTags.length === 0"
         :text="Translator.trans('tag.new')"
-        @click="handleAddNewTagForm" />
+        @click="handleAddNewTagForm"
+      />
       <dp-button
         class="ml-1"
         :color="tagCategoriesWithTags.length === 0 ? 'primary' : 'secondary'"
         data-cy="tagList:newCategory"
         :text="Translator.trans('tag.category.new')"
-        @click="handleAddNewCategoryForm" />
+        @click="handleAddNewCategoryForm"
+      />
     </div>
     <new-tag-form
       v-if="addNewTag"
       :tag-categories="tagCategoriesWithTags"
-      @newTagForm:close="closeNewTagForm"
-      @newTag:created="getInstitutionTagCategories" />
+      @new-tag-form:close="closeNewTagForm"
+      @new-tag:created="getInstitutionTagCategories"
+    />
 
     <new-category-form
       v-if="addNewCategory"
       :tag-categories="tagCategoriesWithTags"
-      @newCategoryForm:close="closeNewCategoryForm"
-      @newCategory:created="getInstitutionTagCategories" />
+      @new-category-form:close="closeNewCategoryForm"
+      @new-category:created="getInstitutionTagCategories"
+    />
 
     <div class="mt-4">
       <dp-loading
         v-if="isLoading"
-        class="min-h-[32px]" />
+        class="min-h-[32px]"
+      />
       <template v-else>
         <dp-inline-notification
           v-if="tagCategoriesWithTags.length === 0"
           type="info"
           class="u-mt-1_5 mb-4"
-          :message="Translator.trans('explanation.noentries')" />
+          :message="Translator.trans('explanation.noentries')"
+        />
 
         <dp-tree-list
           v-else
           align-toggle="center"
           :branch-identifier="isBranch"
-          :tree-data="tagCategoriesWithTags">
+          :tree-data="tagCategoriesWithTags"
+        >
           <template v-slot:header>
-            <div>
+            <div id="categoryOrTagLabel">
               {{ Translator.trans('category_or_tag') }}
             </div>
           </template>
@@ -61,13 +69,15 @@
             <tag-list-item
               :item="nodeElement"
               @item:deleted="handleItemDeleted"
-              @item:saved="handleItemSaved" />
+              @item:saved="handleItemSaved"
+            />
           </template>
           <template v-slot:leaf="{ nodeElement }">
             <tag-list-item
               :item="nodeElement"
               @item:deleted="handleItemDeleted"
-              @item:saved="handleItemSaved" />
+              @item:saved="handleItemSaved"
+            />
           </template>
         </dp-tree-list>
       </template>
@@ -80,7 +90,7 @@ import {
   DpButton,
   DpInlineNotification,
   DpLoading,
-  DpTreeList
+  DpTreeList,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import NewCategoryForm from './NewCategoryForm'
@@ -97,7 +107,7 @@ export default {
     DpTreeList,
     NewCategoryForm,
     NewTagForm,
-    TagListItem
+    TagListItem,
   },
 
   data () {
@@ -108,23 +118,23 @@ export default {
       editingCategoryId: null,
       editingTagId: null,
       isLoading: false,
-      tagCategoriesWithTags: []
+      tagCategoriesWithTags: [],
     }
   },
 
   computed: {
     ...mapState('InstitutionTagCategory', {
-      institutionTagCategories: 'items'
+      institutionTagCategories: 'items',
     }),
 
     ...mapState('InstitutionTag', {
-      institutionTags: 'items'
-    })
+      institutionTags: 'items',
+    }),
   },
 
   methods: {
     ...mapActions('InstitutionTagCategory', {
-      listInstitutionTagCategories: 'list'
+      listInstitutionTagCategories: 'list',
     }),
 
     closeNewCategoryForm () {
@@ -143,19 +153,19 @@ export default {
           InstitutionTagCategory: [
             'creationDate',
             'name',
-            'tags'
+            'tags',
           ].join(),
           InstitutionTag: [
             'creationDate',
             'isUsed',
             'name',
-            'category'
-          ].join()
+            'category',
+          ].join(),
         },
         include: [
           'tags',
-          'tags.category'
-        ].join()
+          'tags.category',
+        ].join(),
       })
         .then(() => {
           this.tagCategoriesWithTags = this.transformTagsAndCategories()
@@ -244,17 +254,17 @@ export default {
                   categoryId: category.id,
                   isUsed: attributes.isUsed,
                   name: attributes.name,
-                  type
+                  type,
                 }
               }),
-            type
+            type,
           }
         })
-    }
+    },
   },
 
   mounted () {
     this.getInstitutionTagCategories()
-  }
+  },
 }
 </script>

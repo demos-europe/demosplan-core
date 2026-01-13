@@ -29,28 +29,27 @@ const DPVueCorePlugin = {
   install: function (app) {
     app.config.globalProperties.dplan = window.dplan
     app.config.globalProperties.hasPermission = window.hasPermission
-  }
+  },
 }
 
 // Mocking global stuff
 const hasPermission = jest.fn(() => true)
 
 const Translator = {
-  trans: jest.fn(key => key)
+  trans: jest.fn(key => key),
 }
 const Routing = {
-  generate: jest.fn(key => key)
+  generate: jest.fn(key => key),
 }
 const dplan = {
   settings: {
     debug: false,
-    publicCSSClassPrefix: 'dp-'
+    publicCSSClassPrefix: 'dp-',
   },
-  debug: false
+  debug: false,
 }
 
 const dpApi = jest.fn(() => Promise.resolve())
-const checkResponse = jest.fn(data => Promise.resolve(data))
 
 const globalMocks = {
   hasPermission,
@@ -59,7 +58,6 @@ const globalMocks = {
   dplan,
   lscache,
   dpApi,
-  checkResponse
 }
 
 // Create a local Vue instance
@@ -94,38 +92,38 @@ const shallowMountWithGlobalMocks = (component, options) => {
       global: {
         plugins: [
           DPVueCorePlugin,
-          ...(global?.plugins || [])
+          ...(global?.plugins || []),
         ],
         config: {
           globalProperties: {
             ...globalMocks,
-            ...(global?.config?.globalProperties || {})
-          }
+            ...(global?.config?.globalProperties || {}),
+          },
         },
         mixins: [
-          ...[global?.mixins || []]
+          ...[global?.mixins || []],
         ],
         mocks: {
-          ...(global?.mocks || {})
+          ...(global?.mocks || {}),
         },
         provide: {
-          ...(global?.provide || {})
+          ...(global?.provide || {}),
         },
         components: {
           DpObscure,
           DpMultiselect,
-          ...(global?.components || {})
+          ...(global?.components || {}),
         },
         directives: {
           tooltip: VTooltip,
-          ...(global?.directives || {})
+          ...(global?.directives || {}),
         },
         stubs: {
-          ...(global?.stubs || {})
+          ...(global?.stubs || {}),
         },
-        renderStubDefaultSlot: global?.renderStubDefaultSlot || false
+        renderStubDefaultSlot: global?.renderStubDefaultSlot || false,
       },
-      ...optionsWithoutGlobal
+      ...optionsWithoutGlobal,
     })
 }
 

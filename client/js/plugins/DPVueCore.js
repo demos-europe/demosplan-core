@@ -18,7 +18,7 @@ const DPVueCorePlugin = {
 
     app.config.globalProperties.dplan = window.dplan
     app.config.globalProperties.hasPermission = window.hasPermission
-  }
+  },
 }
 
 export default DPVueCorePlugin

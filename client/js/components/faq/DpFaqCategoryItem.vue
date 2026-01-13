@@ -16,23 +16,27 @@
       <div class="flex flex-col sm:flex-row justify-center">
         <a
           class="btn--blank o-link--default"
-          :href="Routing.generate('DemosPlan_faq_administration_category_edit', {categoryId: this.faqCategoryItem.id})"
+          :href="Routing.generate('DemosPlan_faq_administration_category_edit', {categoryId: faqCategoryItem.id})"
           :aria-label="Translator.trans('item.edit')"
-          data-cy="editCategoryItem">
+          data-cy="editCategoryItem"
+        >
           <i
             class="fa fa-pencil"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
         </a>
         <div class="sm:ml-2 min-w-1">
           <a
             v-if="categoryChildren.length === 0"
             class="btn--blank o-link--default"
-            :href="Routing.generate('DemosPlan_faq_administration_category_delete', {categoryId: this.faqCategoryItem.id})"
+            :href="Routing.generate('DemosPlan_faq_administration_category_delete', {categoryId: faqCategoryItem.id})"
             :aria-label="Translator.trans('item.delete')"
-            data-cy="deleteCategoryItem">
+            data-cy="deleteCategoryItem"
+          >
             <i
               class="fa fa-trash"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
           </a>
         </div>
       </div>
@@ -48,17 +52,17 @@ export default {
   props: {
     faqCategoryItem: {
       type: Object,
-      required: true
+      required: true,
     },
 
     categoryChildren: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
 
   methods: {
-    deleteCategoryItem () {}
-  }
+    deleteCategoryItem () {},
+  },
 }
 </script>

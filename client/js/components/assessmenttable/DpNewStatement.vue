@@ -7,61 +7,60 @@
   All rights reserved
 </license>
 
+<template>
+  <div>
+    <slot
+      :values="values"
+      :counties="counties"
+      :municipalities="municipalities"
+      :priority-areas="priorityAreas"
+      :tags="tags"
+      :elements="elements"
+      :paragraph="paragraph"
+      :documents="documents"
+      :phases="phases"
+      :element-has-paragraphs="elementHasParagraphs"
+      :element-has-files="elementHasFiles"
+      :counties-prompt-added="countiesPromptAdded"
+      :institution-selected="institutionSelected"
+      :used-intern-ids-pattern="usedInternIdsPattern"
+      :add-location-prompt="addLocationPrompt"
+      :handle-role-change="handleRoleChange"
+      :check-for-paragraphs-and-files="checkForParagraphsAndFiles"
+      :set-phase-value="setPhaseValue"
+      :sort-selected="sortSelected"
+      :dp-validate-action="dpValidateAction"
+      :submit="submit"
+    />
+  </div>
+</template>
+
 <script>
 import {
-  DpAccordion,
-  DpButton,
-  DpDatepicker,
-  DpEditor,
-  DpInput,
-  DpLabel,
-  DpMultiselect,
-  DpSelect,
-  DpUploadFiles,
   dpValidateMixin,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters } from 'vuex'
-import DpAutofillSubmitterData from '@DpJs/components/statement/statement/DpAutofillSubmitterData'
-import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster'
-import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
-import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
 
 export default {
   name: 'DpNewStatement',
-
-  components: {
-    DpAccordion,
-    DpAutofillSubmitterData,
-    DpButton,
-    DpDatepicker,
-    DpInput,
-    DpLabel,
-    DpMultiselect,
-    DpSelect,
-    DpSelectStatementCluster,
-    StatementPublish,
-    DpEditor,
-    DpUploadFiles,
-    StatementVoter
-  },
 
   mixins: [dpValidateMixin],
 
   props: {
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     currentExternalPhase: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentInternalPhase: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -71,13 +70,13 @@ export default {
     defaultPhase: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     defaultSubmitType: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     /**
@@ -86,7 +85,7 @@ export default {
     externalPhases: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     /**
@@ -95,44 +94,50 @@ export default {
     internalPhases: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     requestText: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     requestHeadStatement: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     requestCounties: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     requestMunicipalities: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     requestPriorityAreas: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     usedInternIdsPattern: {
       required: false,
-      type: Array,
-      default: () => []
-    }
+      type: String,
+      default: '',
+    },
+
+    userOrganisation: {
+      required: false,
+      type: String,
+      default: '',
+    },
   },
 
   data () {
@@ -154,13 +159,14 @@ export default {
         submitter: {},
         submitType: this.defaultSubmitType,
         tags: [],
-        text: this.requestText
+        text: this.requestText,
+        userOrganisation: this.userOrganisation,
       },
       elementHasParagraphs: false,
       elementHasFiles: false,
       internalPhaseOptions: this.internalPhases,
       externalPhaseOptions: this.externalPhases,
-      institutionSelected: false
+      institutionSelected: false,
     }
   },
 
@@ -173,34 +179,34 @@ export default {
       'elements',
       'paragraph',
       'documents',
-      'procedurePhases'
+      'procedurePhases',
     ]),
 
     phases () {
       if (this.institutionSelected) {
         return this.procedurePhases({
           internal: true,
-          external: false
+          external: false,
         }).map(el => {
           return {
             ...el,
             value: el.key,
-            label: el.name
+            label: el.name,
           }
         })
       } else {
         return this.procedurePhases({
           internal: false,
-          external: true
+          external: true,
         }).map(el => {
           return {
             ...el,
             value: el.key,
-            label: el.name
+            label: el.name,
           }
         })
       }
-    }
+    },
   },
 
   methods: {
@@ -230,10 +236,6 @@ export default {
       this.values.document = { id: '', title: '-' }
       this.elementHasParagraphs = hasOwnProp(this.paragraph, selectedElement.id)
       this.elementHasFiles = hasOwnProp(this.documents, selectedElement.id)
-    },
-
-    handlePhaseSelect () {
-      this.values.phase = document.querySelector('select[name="r_phase"]').value
     },
 
     /**
@@ -274,17 +276,14 @@ export default {
 
     handleRoleChange (newValue) {
       const isInstitution = newValue === '1'
+
       this.setDefaultPhase(isInstitution)
       this.institutionSelected = isInstitution
-    }
+    },
   },
 
   mounted () {
     this.applyBaseData([this.procedureId])
-
-    // Set initial options for phase select
-    const initialRole = this.$refs.submitter.currentRole
-    this.handleRoleChange(initialRole)
-  }
+  },
 }
 </script>

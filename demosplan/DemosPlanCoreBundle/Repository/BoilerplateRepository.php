@@ -206,7 +206,7 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
         $boilerplate->setProcedure($procedure);
 
         $boilerplateCategories = $this->getOrCreateRelevantCategories($categories, $procedure);
-        if (0 < count($boilerplateCategories)) {
+        if ([] !== $boilerplateCategories) {
             $boilerplate->setCategories($boilerplateCategories);
         }
 

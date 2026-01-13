@@ -35,6 +35,11 @@
         "website": "https://github.com/composer/package-versions-deprecated"
     },
     {
+        "license": "Apache-2.0",
+        "package": "cyclonedx/cyclonedx-php-composer",
+        "website": "https://github.com/CycloneDX/cyclonedx-php-composer"
+    },
+    {
         "license": "MIT",
         "package": "demos-europe/demosplan-addon",
         "website": "https://github.com/demos-europe/demosplan-addon"
@@ -98,11 +103,6 @@
         "license": "MIT",
         "package": "endroid/qr-code-bundle",
         "website": "https://github.com/endroid/qr-code-bundle"
-    },
-    {
-        "license": "MIT",
-        "package": "enqueue/elastica-bundle",
-        "website": "https://github.com/php-enqueue/enqueue-elastica-bundle"
     },
     {
         "license": "MIT",
@@ -305,7 +305,7 @@
         "website": "https://github.com/PHPOffice/PhpSpreadsheet"
     },
     {
-        "license": "LGPL-3.0",
+        "license": "LGPL-3.0-only",
         "package": "phpoffice/phpword",
         "website": "https://github.com/PHPOffice/PHPWord"
     },
@@ -335,6 +335,11 @@
         "website": "https://github.com/sebastianbergmann/phpunit"
     },
     {
+        "license": "MIT",
+        "package": "predis/predis",
+        "website": "https://github.com/predis/predis"
+    },
+    {
         "license": "LGPL-2.1",
         "package": "proj4php/proj4php",
         "website": "https://github.com/proj4php/proj4php"
@@ -358,6 +363,11 @@
         "license": "MIT",
         "package": "rollerworks/password-strength-bundle",
         "website": "https://github.com/rollerworks/PasswordStrengthBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "ruflin/elastica",
+        "website": "https://github.com/ruflin/Elastica"
     },
     {
         "license": "MIT",
@@ -628,6 +638,11 @@
         "license": "MIT",
         "package": "symfony/yaml",
         "website": "https://github.com/symfony/yaml"
+    },
+    {
+        "license": "MIT",
+        "package": "thenetworg/oauth2-azure",
+        "website": "https://github.com/TheNetworg/oauth2-azure"
     },
     {
         "license": "MIT",

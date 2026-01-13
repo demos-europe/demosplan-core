@@ -21,7 +21,7 @@ const ProcedureStore = {
     isDrawerOpened: true,
     isLoading: true,
     procedures: [],
-    shouldMapZoomBeSet: false
+    shouldMapZoomBeSet: false,
   },
 
   mutations: {
@@ -37,7 +37,7 @@ const ProcedureStore = {
 
     setProperty (state, data) {
       state[data.prop] = data.val
-    }
+    },
   },
 
   actions: {
@@ -47,7 +47,7 @@ const ProcedureStore = {
 
       // Prepare params
       const urlParams = {
-        search: args.search
+        search: args.search,
       }
 
       const pathArray = window.location.pathname.split('/')
@@ -58,14 +58,14 @@ const ProcedureStore = {
 
       return dpApi({
         method: 'GET',
-        url: Routing.generate('DemosPlan_procedure_search_ajax', urlParams)
+        url: Routing.generate('DemosPlan_procedure_search_ajax', urlParams),
       }).then(response => {
         commit('reset')
         nextTick(() => {
           const procedures = response.data.data.map(el => {
             return {
               ...el.attributes,
-              id: el.id
+              id: el.id,
             }
           })
           commit('setProcedures', procedures)
@@ -83,7 +83,7 @@ const ProcedureStore = {
 
       commit('setProperty', { prop: 'currentView', val: 'DpDetailView' })
       commit('setProperty', { prop: 'isDrawerOpened', val: true })
-    }
+    },
   },
 
   getters: {
@@ -91,8 +91,8 @@ const ProcedureStore = {
     currentView: state => state.currentView,
     isDrawerOpened: state => state.isDrawerOpened,
     isLoading: state => state.isLoading,
-    shouldMapZoomBeSet: state => state.shouldMapZoomBeSet
-  }
+    shouldMapZoomBeSet: state => state.shouldMapZoomBeSet,
+  },
 }
 
 export default ProcedureStore

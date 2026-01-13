@@ -17,10 +17,9 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 
-class CustomFieldValueCreator extends CoreService
+class CustomFieldValueCreator
 {
     public function __construct(private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
     {
@@ -63,7 +62,7 @@ class CustomFieldValueCreator extends CoreService
             // Find in our new copy, not in the original
             $existingCustomFieldValue = $updatedCustomFieldValuesList->findById($newCustomFieldValue->getId());
 
-            if ($existingCustomFieldValue) {
+            if ($existingCustomFieldValue instanceof CustomFieldValue) {
                 $this->handleExistingCustomField($updatedCustomFieldValuesList, $existingCustomFieldValue, $newCustomFieldValue);
             } else {
                 $this->handleNewCustomField($updatedCustomFieldValuesList, $newCustomFieldValue);
@@ -131,6 +130,16 @@ class CustomFieldValueCreator extends CoreService
         }
 
         return $customFieldConfigurations;
+    }
+
+    public function getCustomFieldConfigurationById(string $customFieldId): CustomFieldInterface
+    {
+        $customFieldConfiguration = $this->customFieldConfigurationRepository->find($customFieldId);
+        if (null === $customFieldConfiguration) {
+            throw new InvalidArgumentException('No custom field configuration found for given ID.');
+        }
+
+        return $customFieldConfiguration->getConfiguration();
     }
 
     private function validateCustomFieldValue(CustomFieldInterface $customField, mixed $value): void

@@ -106,7 +106,7 @@ class TransformMessageBagServiceTest extends FunctionalTestCase
     private function getSut($messageBag, $flashBag, $env): TransformMessageBagService
     {
         $sessionMethods = [
-            new MockMethodDefinition('getFlashBag', $flashBag),
+            new MockMethodDefinition('getBag', $flashBag),
         ];
         $sessionMock = $this->getMock(Session::class, $sessionMethods);
         $requestMethods = [

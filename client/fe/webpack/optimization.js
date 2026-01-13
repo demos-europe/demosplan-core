@@ -18,24 +18,24 @@ const chunkSplitting = {
     core: {
       name: 'core',
       chunks: 'all',
-      minChunks: 40,
+      minChunks: 10,
       enforce: true,
       test: /[\\/]node_modules[\\/]|[\\/]demosplan[\\/]DemosPlanCoreBundle[\\/]Resources[\\/]client[\\/]js[\\/](InitVue)\.js/,
-      priority: 2
+      priority: 2,
     },
     common: {
       name: 'common',
       chunks: 'all',
       enforce: true,
       test: /[\\/]client[\\/]js[\\/]generated[\\/](translations|routes)\.json/,
-      priority: 2
+      priority: 2,
     },
     bs: {
       name: 'bs',
       chunks: 'all',
       enforce: true,
       test: /([\\/]demosplan[\\/]DemosPlanCoreBundle[\\/]Resources[\\/]client[\\/]js[\\/]lib)|([\\/]client[\\/]js[\\/]lib)/,
-      priority: 2
+      priority: 2,
     },
     ol: {
       name: 'ol',
@@ -52,30 +52,30 @@ const chunkSplitting = {
             module.resource.includes(`${path.sep}node_modules${path.sep}sax${path.sep}`)
           )
       },
-      priority: -5
+      priority: -5,
     },
     d3: {
       name: 'd3',
       chunks: 'all',
       enforce: true,
       test: /[\\/]node_modules[\\/]d3.*[\\/]/,
-      priority: -5
+      priority: -5,
     },
     leaflet: {
       name: 'leaflet',
       chunks: 'all',
       enforce: true,
       test: /[\\/]node_modules[\\/](leaflet|vue2-leaflet|leaflet.markercluster)[\\/]/,
-      priority: -5
-    }
-  }
+      priority: -5,
+    },
+  },
 }
 
 function optimization () {
   let optimization = {
     splitChunks: chunkSplitting,
     runtimeChunk: 'single',
-    minimize: false
+    minimize: false,
   }
 
   if (config.isProduction === true) {
@@ -91,18 +91,27 @@ function optimization () {
               drop_console: true,
               drop_debugger: true,
               global_defs: {
-                PROJECT: config.project
-              }
+                PROJECT: config.project,
+              },
+              // More conservative settings for OpenLayers compatibility
+              passes: 1, // Single pass to avoid over-optimization
+              unsafe_math: false, // Don't optimize numeric expressions
+              unsafe: false, // Disable unsafe optimizations
             },
             format: {
               comments: false,
-              indent_level: 2
-            }
+              indent_level: 2,
+              ascii_only: false, // Allow unicode characters
+              safari10: true, // Fix Safari 10 issues
+            },
+            mangle: {
+              safari10: true, // Safari 10 compatibility
+            },
           },
-          extractComments: false
+          extractComments: false,
         }),
-        new CssMinimizerPlugin()
-      ]
+        new CssMinimizerPlugin(),
+      ],
     }, optimization)
   }
 

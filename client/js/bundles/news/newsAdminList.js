@@ -15,7 +15,7 @@ import DpNewsAdminList from '@DpJs/components/news/DpNewsAdminList'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpNewsAdminList
+  DpNewsAdminList,
 }
 
 initialize(components)

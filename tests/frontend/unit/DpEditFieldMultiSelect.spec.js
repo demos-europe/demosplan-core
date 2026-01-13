@@ -22,8 +22,8 @@ describe('DpEditFieldMultiSelect', () => {
 
     },
     getters: {
-      assessmentBaseLoaded: jest.fn()
-    }
+      assessmentBaseLoaded: jest.fn(),
+    },
 
   }
 
@@ -35,9 +35,9 @@ describe('DpEditFieldMultiSelect', () => {
         AssessmentTable: {
           state: AssessmentTable.state,
           getters: AssessmentTable.getters,
-          actions: AssessmentTable.actions
-        }
-      }
+          actions: AssessmentTable.actions,
+        },
+      },
     })
   })
 
@@ -47,17 +47,17 @@ describe('DpEditFieldMultiSelect', () => {
         entityId: 'entId',
         fieldKey: 'aaa',
         options: [],
-        label: 'label'
+        label: 'label',
       },
       computed: {
-        assessmentBaseLoaded: () => true
+        assessmentBaseLoaded: () => true,
       },
       stubs: {
-        'dp-multiselect': true
+        'dp-multiselect': true,
       },
       global: {
-        plugins: [store]
-      }
+        plugins: [store],
+      },
     })
 
     expect(instance.vm.assessmentBaseLoaded).toBe(true)

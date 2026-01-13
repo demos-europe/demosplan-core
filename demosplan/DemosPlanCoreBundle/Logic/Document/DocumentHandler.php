@@ -180,21 +180,8 @@ class DocumentHandler extends CoreHandler
         $createdDocuments = [];
 
         foreach ($entries as $entry) {
-            $fileName = (string) $entry['title'];
-            // Ensure the string is properly encoded to UTF-8
-            $fileName = mb_convert_encoding($fileName, 'UTF-8', mb_detect_encoding($fileName,self::POSSIBLE_ENCODINGS, true));
-            if (in_array($entry['path'], $sessionElementImportList)) {
-                $keys = array_keys($sessionElementImportList, $entry['path']);
-                if (is_array($keys)
-                    && isset($request[$keys[0]])
-                    && 0 < strlen((string) $request[$keys[0]])
-                ) {
-                    $fileName = $request[$keys[0]];
-                    // Also ensure the string from request is properly encoded to UTF-8
-                    $fileName = mb_convert_encoding($fileName, 'UTF-8',
-                        mb_detect_encoding($fileName,self::POSSIBLE_ENCODINGS, true));
-                }
-            }
+            $fileName = $this->resolveImportFileName($entry, $sessionElementImportList, $request);
+
             // Ordner werden als neue Elements abgespeichert
             if (true === $entry['isDir']) {
                 $element = ['r_title' => $fileName];
@@ -283,6 +270,41 @@ class DocumentHandler extends CoreHandler
         }
 
         return $result;
+    }
+
+    /**
+     * Resolves the final filename/folder name to use during import.
+     *
+     * Checks if the user provided a custom name for this entry during the import process.
+     * If a user-adjusted name exists in the request data, it will be used instead of
+     * the original filename. All names are normalized to UTF-8 encoding.
+     *
+     * @param array $entry                    The file/folder entry being processed (contains 'title' and 'path')
+     * @param array $sessionElementImportList Session mapping of hashes to file paths
+     * @param array $request                  The request data containing user-provided custom names
+     *
+     * @return string The resolved filename - either user-adjusted or original filename
+     */
+    private function resolveImportFileName(array $entry, array $sessionElementImportList, array $request): string
+    {
+        $fileName = (string) $entry['title'];
+        // Ensure the string is properly encoded to UTF-8
+        $fileName = mb_convert_encoding($fileName, 'UTF-8', mb_detect_encoding($fileName, self::POSSIBLE_ENCODINGS, true));
+        $entryPath = '/'.ltrim((string) $entry['path'], '/'); // Ensure leading slash
+        if (in_array($entryPath, $sessionElementImportList)) {
+            $keys = array_keys($sessionElementImportList, $entryPath);
+            if (is_array($keys)
+                && isset($request[$keys[0]])
+                && 0 < strlen((string) $request[$keys[0]])
+            ) {
+                $fileName = $request[$keys[0]]; // here the name is taken from the request
+                // Also ensure the string from request is properly encoded to UTF-8
+                $fileName = mb_convert_encoding($fileName, 'UTF-8',
+                    mb_detect_encoding((string) $fileName, self::POSSIBLE_ENCODINGS, true));
+            }
+        }
+
+        return $fileName;
     }
 
     /**
@@ -399,7 +421,7 @@ class DocumentHandler extends CoreHandler
         $result = $this->getParagraphService()->getParaDocumentList($procedure, $elementId);
 
         // check whether User may
-        if (0 < count($result)) {
+        if ([] !== $result) {
             $firstParagraph = $result[0];
             if (array_key_exists('element', $firstParagraph)) {
                 $element = $firstParagraph['element'];

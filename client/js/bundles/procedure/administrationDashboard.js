@@ -24,7 +24,7 @@ const components = {
   DpContextualHelp,
   DpDashboardTaskCard,
   DpStatementSegmentsStatusCharts,
-  ProcedureAnalyticsChart
+  ProcedureAnalyticsChart,
 }
 
 initialize(components).then(() => {

@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Exception\ImportJobNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ImportJobUserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -34,6 +34,7 @@ class ImportJobProcessor
         private readonly CurrentUserService $currentUserService,
         private readonly EntityManagerInterface $entityManager,
         private readonly FileService $fileService,
+        private readonly GlobalConfigInterface $globalConfig,
         private readonly ImportJobRepository $importJobRepository,
         private readonly LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
@@ -42,7 +43,7 @@ class ImportJobProcessor
     }
 
     /**
-     * Process pending import jobs (called from MaintenanceCommand).
+     * Process pending import jobs (called via ProcessImportJobsMessageHandler).
      * Returns number of jobs processed.
      */
     public function processPendingJobs(): int
@@ -139,7 +140,8 @@ class ImportJobProcessor
             throw ImportJobUserNotFoundException::create($job->getId());
         }
 
-        $customer = $this->entityManager->getRepository(Customer::class)->findOneBy(['subdomain' => 'sh']);
+        $customer = $job->getProcedure()->getCustomer();
+        $this->globalConfig->setSubdomain($customer->getSubdomain());
         $this->currentUserService->setUser($user, $customer);
         $this->permissions->setProcedure($job->getProcedure());
         $this->permissions->initPermissions($user);
@@ -288,20 +290,18 @@ class ImportJobProcessor
             }
 
             // Always cleanup the original file from S3/Flysystem storage
-            if (isset($fileIdent)) {
-                try {
-                    $this->fileService->deleteFile($fileIdent);
-                    $this->logger->info('Cleaned up S3 file after import job', [
-                        'jobId'     => $job->getId(),
-                        'fileIdent' => $fileIdent,
-                    ]);
-                } catch (Exception $e) {
-                    $this->logger->warning('Failed to cleanup S3 file', [
-                        'jobId'     => $job->getId(),
-                        'fileIdent' => $fileIdent,
-                        'error'     => $e->getMessage(),
-                    ]);
-                }
+            try {
+                $this->fileService->deleteFile($fileIdent);
+                $this->logger->info('Cleaned up S3 file after import job', [
+                    'jobId'     => $job->getId(),
+                    'fileIdent' => $fileIdent,
+                ]);
+            } catch (Exception $e) {
+                $this->logger->warning('Failed to cleanup S3 file', [
+                    'jobId'     => $job->getId(),
+                    'fileIdent' => $fileIdent,
+                    'error'     => $e->getMessage(),
+                ]);
             }
         }
     }

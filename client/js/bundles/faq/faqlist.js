@@ -18,7 +18,7 @@ import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 
 const components = {
   DpSupport,
-  RegisterFlyout
+  RegisterFlyout,
 }
 
 const apiStores = ['CustomerContact']

@@ -48,7 +48,7 @@ const FilterFlyoutStore = {
      * Object with categoryIds as keys and array of ungrouped options as values
      * Each option has id, label, count, description
      */
-    ungroupedOptions: {}
+    ungroupedOptions: {},
   },
 
   mutations: {
@@ -63,8 +63,8 @@ const FilterFlyoutStore = {
         if (!groupExits) {
           state.filterQuery[groupKey] = {
             group: {
-              conjunction: 'OR'
-            }
+              conjunction: 'OR',
+            },
           }
         }
       }
@@ -198,7 +198,7 @@ const FilterFlyoutStore = {
           option.selected = value
         }
       }
-    }
+    },
   },
 
   actions: {
@@ -241,7 +241,7 @@ const FilterFlyoutStore = {
       } else {
         state.filterQuery = filter
       }
-    }
+    },
   },
 
   getters: {
@@ -299,8 +299,8 @@ const FilterFlyoutStore = {
      */
     getUngroupedOptionsByCategoryId: (state) => (categoryId) => {
       return state.ungroupedOptions[categoryId]
-    }
-  }
+    },
+  },
 }
 
 export default FilterFlyoutStore

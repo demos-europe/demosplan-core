@@ -32,6 +32,7 @@ use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use RuntimeException;
 use SplFileInfo;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
@@ -54,19 +55,17 @@ use ZipArchive;
  *
  * It does **NOT** handle addon activation!
  */
+#[AsCommand(name: 'dplan:addon:install', description: 'Installs an addon based on a given zip-file')]
 class AddonInstallFromZipCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:addon:install';
-    protected static $defaultDescription = 'Installs an addon based on a given zip-file';
-
     private string $zipSourcePath;
     private string $zipCachePath;
     private string $addonsDirectory;
     private string $addonsCacheDirectory;
-    private ?string $folder;
-    private ?string $branch;
-    private ?string $tag;
-    private ?string $name;
+    private ?string $folder = null;
+    private ?string $branch = null;
+    private ?string $tag = null;
+    private ?string $name = null;
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
@@ -195,10 +194,10 @@ class AddonInstallFromZipCommand extends CoreCommand
             $activeProject = $kernel->getActiveProject();
 
             $batch = Batch::create($this->getApplication(), $output)
-                ->addShell(["bin/{$activeProject}", 'cache:clear', '-e', $environment]);
+                ->addShell(['bin/console', 'cache:clear', '-e', $environment], null, ['ACTIVE_PROJECT' => $activeProject]);
             // if addon has a package.json, build the frontend assets
             if (file_exists($this->zipCachePath.'package.json')) {
-                $batch->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name, '-e', $environment]);
+                $batch->addShell(['bin/console', 'dplan:addon:build-frontend', $name, '-e', $environment], null, ['ACTIVE_PROJECT' => $activeProject]);
             }
             $batchReturn = $batch->run();
             if ($batch->hasException()) {
@@ -274,10 +273,8 @@ class AddonInstallFromZipCommand extends CoreCommand
     private function createDirectoryIfNecessary(string $directory): void
     {
         // uses local file, no need for flysystem
-        if (!file_exists($directory)) {
-            if (!mkdir($directory, 0777, true) && !is_dir($directory)) {
-                throw new RuntimeException(sprintf('Directory "%s" was not created', $directory));
-            }
+        if (!file_exists($directory) && (!mkdir($directory, 0777, true) && !is_dir($directory))) {
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $directory));
         }
     }
 
@@ -383,7 +380,7 @@ class AddonInstallFromZipCommand extends CoreCommand
     {
         $zips = glob(DemosPlanPath::getRootPath($this->folder).'/*.zip');
 
-        if (!is_array($zips) || 0 === count($zips)) {
+        if (!is_array($zips) || [] === $zips) {
             throw new RuntimeException("No Addon zips found in Folder {$this->folder}");
         }
 
@@ -418,7 +415,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         try {
             $availableAddons = Json::decodeToArray($existingTagsContent);
         } catch (JsonException $exception) {
-            throw new RuntimeException('Could not decode response from repository. '.$exception->getMessage().' Response was '.$existingTagsContent);
+            throw new RuntimeException('Could not decode response from repository. '.$exception->getMessage().' Response was '.$existingTagsContent, $exception->getCode(), $exception);
         }
         $repoQuestion = new ChoiceQuestion('Which addon do you want to install? ', $availableAddons);
         /** @var QuestionHelper $questionHelper */
@@ -522,12 +519,8 @@ class AddonInstallFromZipCommand extends CoreCommand
     private function askItem(string $existingContent, InputInterface $input, SymfonyStyle $output): mixed
     {
         $items = collect(Json::decodeToArray($existingContent))->filter(
-            function ($item) {
-                return !str_contains($item['name'], 'rc');
-            }
-        )->map(function ($item) {
-            return $item['name'];
-        })
+            fn ($item) => !str_contains((string) $item['name'], 'rc')
+        )->map(fn ($item) => $item['name'])
             ->reverse()
             ->values()
             ->toArray();
@@ -568,14 +561,17 @@ class AddonInstallFromZipCommand extends CoreCommand
         }
 
         $localAddons = glob($addonDevFolder.'/*');
-        if (!is_array($localAddons) || 0 === count($localAddons)) {
+        if (!is_array($localAddons) || [] === $localAddons) {
             throw new RuntimeException("No local addons found in folder {$addonDevFolder}. Please check out the demosplan-addon-* repositories into this folder.");
         }
         $question = new ChoiceQuestion('Which addon do you want to install from your local development environment?', $localAddons);
-        $path = $this->getHelper('question')->ask($input, $output, $question);
+
+        /** @var QuestionHelper $questionHelper */
+        $questionHelper = $this->getHelper('question');
+        $path = $questionHelper->ask($input, $output, $question);
 
         // create symlink from cache to addonsDev
-        $addonFolder = explode('/', $path)[count(explode('/', $path)) - 1];
+        $addonFolder = explode('/', (string) $path)[count(explode('/', (string) $path)) - 1];
         $fs->symlink($path, $this->addonsCacheDirectory.'/'.$addonFolder);
 
         return $path;
@@ -599,16 +595,10 @@ class AddonInstallFromZipCommand extends CoreCommand
             $ghReposUrl
         );
         $availableAddons = collect($availableRepositories)->filter(
-            function ($repo) {
-                return str_contains($repo['name'], 'demosplan-addon-');
-            }
+            fn ($repo) => str_contains((string) $repo['name'], 'demosplan-addon-')
         )
-            ->map(function ($repo) {
-                return $repo['name'];
-            })
-            ->sortBy(function ($repo) {
-                return $repo;
-            })
+            ->map(fn ($repo) => $repo['name'])
+            ->sortBy(fn ($repo) => $repo)
             ->values()
             ->toArray();
         $question = new ChoiceQuestion(

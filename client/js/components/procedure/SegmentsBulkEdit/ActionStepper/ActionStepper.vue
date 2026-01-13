@@ -11,22 +11,26 @@
   <div>
     <h3
       class="u-mb-0_5"
-      v-text="stepTitle" />
+      v-text="stepTitle"
+    />
 
     <template v-if="step === 1">
       <slot name="step-1" />
 
       <div class="u-mt flow-root">
         <dp-button
-          color="secondary"
           :href="sanitizedReturnLink"
-          :text="Translator.trans('bulk.edit.actions.back.to.list')" />
+          :text="Translator.trans('back.to.segments.list')"
+          color="secondary"
+          icon="chevron-left"
+        />
         <dp-button
           class="float-right"
           :disabled="!valid"
           icon-after="chevron-right"
           :text="Translator.trans('continue.confirm')"
-          @click="$emit('confirm')" />
+          @click="$emit('confirm')"
+        />
       </div>
     </template>
 
@@ -38,13 +42,15 @@
           color="secondary"
           icon="chevron-left"
           :text="Translator.trans('bulk.edit.actions.edit')"
-          @click="$emit('edit')" />
+          @click="$emit('edit')"
+        />
         <dp-button
           class="float-right"
           :busy="busy"
           icon-after="chevron-right"
           :text="Translator.trans('bulk.edit.actions.apply')"
-          @click="$emit('apply')" />
+          @click="$emit('apply')"
+        />
       </div>
     </template>
 
@@ -54,7 +60,8 @@
       <div class="u-mt">
         <dp-button
           :href="sanitizedReturnLink"
-          :text="Translator.trans('bulk.edit.actions.back.to.list')" />
+          :text="Translator.trans('back.to.segments.list')"
+        />
       </div>
     </template>
   </div>
@@ -68,41 +75,41 @@ export default {
   name: 'ActionStepper',
 
   components: {
-    DpButton
+    DpButton,
   },
 
   props: {
     busy: {
       type: Boolean,
-      required: true
+      required: true,
     },
 
     valid: {
       type: Boolean,
-      required: true
+      required: true,
     },
 
     returnLink: {
       required: true,
-      type: String
+      type: String,
     },
 
     selectedElements: {
       required: true,
-      type: Number
+      type: Number,
     },
 
     step: {
       required: false,
       type: Number,
-      default: 1
-    }
+      default: 1,
+    },
   },
 
   emits: [
     'apply',
     'confirm',
-    'edit'
+    'edit',
   ],
 
   computed: {
@@ -117,10 +124,10 @@ export default {
         return Translator.trans([
           'bulk.edit.title.actions.choose',
           'bulk.edit.title.actions.apply',
-          'confirm.saved.plural'
+          'confirm.saved.plural',
         ][this.step - 1], { count: this.selectedElements })
       }
-    }
-  }
+    },
+  },
 }
 </script>

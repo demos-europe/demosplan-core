@@ -40,7 +40,7 @@
             </a>
 
             {# flyout content #}
-            <span class="{{ 'c-flyout__content text-left'|prefixClass }}" role="menu" data-extern-dataport="userMenu">
+            <div class="{{ 'c-flyout__content text-left'|prefixClass }}" data-extern-dataport="userMenu">
 
                 {# display roles of current user #}
                 <div class="{{ 'c-flyout__item u-mt-0_5'|prefixClass }}">
@@ -109,6 +109,7 @@
                         <a
                             class="{{ 'c-flyout__item flow-root'|prefixClass }}"
                             href="{{ path("DemosPlan_orga_edit_view", {'orgaId': currentUser.organisationId }) }}"
+                            data-cy="userBox:orgaName"
                             data-actionmenu-menuitem>
                             <i class="{{ 'fa fa-building-o float-left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
                             <span class="{{ 'block u-ml'|prefixClass }}" data-extern-dataport="orgaName">
@@ -148,6 +149,7 @@
                 <a
                     class="{{ 'c-flyout__item flow-root'|prefixClass }}"
                     href="{{ path("DemosPlan_user_portal") }}"
+                    data-cy="userBox:userProfile"
                     data-actionmenu-menuitem>
                     <i class="{{ 'fa fa-cog float-left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
                     <span class="{{ 'block u-ml'|prefixClass }}" data-extern-dataport="userProfile">
@@ -176,6 +178,7 @@
                     <a
                         class="{{ 'c-flyout__item flow-root'|prefixClass }}"
                         href="{{ path('core_home_loggedin') }}"
+                        data-cy="userBox:administer"
                         data-actionmenu-menuitem>
                         <i class="{{ 'fa fa-wrench float-left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
                         <span class="{{ 'block u-ml'|prefixClass }}" data-extern-dataport="administer">
@@ -203,13 +206,14 @@
                         class="{{ 'c-flyout__item c-flyout__item--btn flow-root'|prefixClass }} {{ hasOrgaSwitcher ? '' : ' u-mt-0_5'|prefixClass }}"
                         data-actionmenu-menuitem
                         data-extern-dataport="logout"
+                        data-cy="logout"
                         href="{{ path("DemosPlan_user_logout") }}">
                         <i class="{{ 'fa fa-sign-out float-left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
                         {{ "logout"|trans }}
                     </a>
                 {% endblock logoutButton %}
 
-            </span>
+            </div>
 
         </div>
 
@@ -234,12 +238,11 @@
                             {{ "login"|trans }}
                         </span>
                     {% endblock loginButtonGateway %}
-
                 </a>
 
                 {# flyout with information about gateway login #}
                 {% if loggedout_simple is not defined and hasPermission('area_login_dialog') %}
-                    <span class="{{ 'c-flyout__content text-left'|prefixClass }}" role="menu" id="explanationLoginGateway">
+                    <div class="{{ 'c-flyout__content text-left'|prefixClass }}" id="explanationLoginGateway">
                         <p class="{{ 'u-ph-0_5 u-pv-0_25 u-mb-0'|prefixClass }}">
                             {{ "explanation.login.gateway"|trans }}
                         </p>
@@ -250,7 +253,7 @@
                             aria-label="{{ 'more.information'|trans }} {{ "explanation.login.gateway"|trans }}">
                             Weitere Infos...
                         </a>
-                    </span>
+                    </div>
                 {% endif %}
 
             {% elseif projectType == 'portal' %}

@@ -156,6 +156,7 @@
 
                 {% block baseSettings %}
                     <layer-settings
+                        has-preview
                         init-name="{{ gislayer.name|default }}"
                         init-service-type="{{ gislayer.serviceType|default }}"
                         init-url="{{ gislayer.url|default }}"
@@ -163,6 +164,7 @@
                         init-matrix-set="{{ gislayer.tileMatrixSet|default }}"
                         init-projection="{{ gislayer.projectionLabel|default }}"
                         init-version="{{ gislayer.layerVersion|default }}"
+                        procedure-id="{{ procedure }}"
                         :available-projections="JSON.parse('{{ templateVars.availableProjections|map(el => { label: el['label'], value: el['label'] })|json_encode|e('js', 'utf-8') }}')"
                         :show-xplan-default-layer="false"
                     ></layer-settings>
@@ -256,6 +258,12 @@
                 </label>
             {% endif %}
             {% if hasPermission('feature_map_layer_visibility') %}
+                <dp-inline-notification
+                    id="defaultVisibilityHint"
+                    class="mb-2 hidden"
+                    message="{{ 'hint.gislayer.default.visibility'|trans }}"
+                    type="info">
+                </dp-inline-notification>
                 <label class="u-mb-0_5">
                     <input
                         data-cy="editMapLayerDefaultVisibility"

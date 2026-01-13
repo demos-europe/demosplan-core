@@ -21,7 +21,7 @@ const stores = {}
 const components = {
   DpCreateItem,
   DpOrganisationList,
-  DpEditor
+  DpEditor,
 }
 
 const include = ['currentSlug']
@@ -44,14 +44,14 @@ const presetStoreModules = {
         registerStatus: {
           condition: {
             path: 'statusInCustomers.status',
-            value: 'Pending'
-          }
-        }
+            value: 'Pending',
+          },
+        },
       },
       include: include.join(),
-      group: 'Pending'
-    }
-  }]
+      group: 'Pending',
+    },
+  }],
 }
 
 initialize(components, stores, apiStores, presetStoreModules).then(() => {

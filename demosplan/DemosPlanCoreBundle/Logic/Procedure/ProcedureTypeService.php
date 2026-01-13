@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourcePersister;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureBehaviorDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
@@ -40,7 +39,7 @@ use Exception;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 
-class ProcedureTypeService extends CoreService implements ProcedureTypeServiceInterface
+class ProcedureTypeService implements ProcedureTypeServiceInterface
 {
     public function __construct(
         private readonly ProcedureBehaviorDefinitionRepository $procedureBehaviorDefinitionRepository,

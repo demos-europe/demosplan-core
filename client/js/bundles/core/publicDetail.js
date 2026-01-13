@@ -23,11 +23,11 @@ const components = {
   DpPublicDetailNoMap,
   DpUploadFiles,
   DpVideoPlayer,
-  RegisterFlyout
+  RegisterFlyout,
 }
 
 const stores = {
-  publicStatement
+  publicStatement,
 }
 
 const apiStores = ['Elements']

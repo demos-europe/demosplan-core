@@ -17,51 +17,61 @@
   <dp-table-card
     :id="user.id"
     class="o-accordion u-ph-0_5"
-    :open="isOpen">
+    :open="isOpen"
+  >
     <!-- Item header -->
     <template v-slot:header>
       <div class="flex items-start">
         <div class="relative z-above-zero u-mt-0_75">
           <input
+            :aria-label="Translator.trans('user.select', { name: `${user.attributes.firstname} ${user.attributes.lastname}` })"
             type="checkbox"
             :checked="selected"
             name="elementsToAdminister[]"
             :value="user.id"
             data-cy="userItemSelect"
-            @change="$emit('item:selected', user.id)">
+            @change="$emit('item:selected', user.id)"
+          >
         </div>
         <div
-          @click="isOpen = false === isOpen"
           class="cursor-pointer u-pv-0_75 u-ph-0_25 grow"
-          data-cy="organisationListTitle">
+          data-cy="organisationListTitle"
+          @click="isOpen = false === isOpen"
+        >
           <div
             data-cy="editItemToggle"
-            class="layout">
+            class="layout"
+          >
             <div class="layout__item u-1-of-1 weight--bold u-mb-0_5 o-hellip--nowrap">
               {{ user.attributes.firstname }} {{ user.attributes.lastname }}
             </div>
             <div
+              v-if="hasRoles"
               class="u-1-of-2 layout__item"
-              v-if="hasRoles">
+            >
               <div
                 v-for="(role, idx) in userRoles"
-                :key="idx">
+                :key="idx"
+              >
                 {{ Translator.trans(role.attributes.name) }}<br>
               </div>
             </div><!--
          --><div
               v-else
-              class="u-4-of-12 layout__item">
+              class="u-4-of-12 layout__item"
+            >
               {{ Translator.trans('unknown') }}<br>
             </div><!--
          --><div
               v-if="userOrga"
-              class="layout__item u-1-of-2">
+              class="layout__item u-1-of-2"
+            >
               {{ Translator.trans(userOrga.attributes.name) }}
               <br>
               <div
                 v-if="userDepartment !== null"
-                class="u-1-of-2 inline">
+                class="u-1-of-2 inline"
+              >
                 {{ Translator.trans(userDepartment.attributes.name) }}
               </div>
             </div>
@@ -83,14 +93,16 @@
           </div>
         </div>
         <button
-          @click="isOpen = false === isOpen"
           type="button"
           data-cy="userListItemToggle"
-          class="btn--blank o-link--default u-pv-0_75">
+          class="btn--blank o-link--default u-pv-0_75"
+          @click="isOpen = false === isOpen"
+        >
           <dp-icon
             aria-hidden="true"
             :aria-label="ariaLabel"
-            :icon="icon" />
+            :icon="icon"
+          />
         </button>
       </div>
     </template>
@@ -98,19 +110,21 @@
     <!-- Item content / editable data -->
     <div
       data-cy="userForm"
-      data-dp-validate="userForm">
+      data-dp-validate="userForm"
+    >
       <dp-user-form-fields
         :user="user"
         :user-id="user.id"
         @user:update="updateUser"
-        :ref="'user-form-fields-' + user.id" />
+      />
 
       <dp-button-row
         form-name="userForm"
         primary
         secondary
         @primary-action="dpValidateAction('userForm', save, false)"
-        @secondary-action="reset" />
+        @secondary-action="reset"
+      />
     </div>
   </dp-table-card>
 </template>
@@ -128,7 +142,7 @@ export default {
     DpButtonRow,
     DpIcon,
     DpTableCard,
-    DpUserFormFields
+    DpUserFormFields,
   },
 
   mixins: [dpValidateMixin],
@@ -137,37 +151,37 @@ export default {
     filterValue: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     selected: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     // User from store
     user: {
       required: true,
-      type: Object
-    }
+      type: Object,
+    },
   },
 
   emits: [
-    'item:selected'
+    'item:selected',
   ],
 
   data () {
     return {
       isOpen: false,
       editMode: false,
-      isLoading: true
+      isLoading: true,
     }
   },
 
   computed: {
     ...mapState('Role', {
-      roles: 'items'
+      roles: 'items',
     }),
 
     ariaLabel () {
@@ -223,13 +237,13 @@ export default {
         names = roles.map(role => role.attributes.name)
       }
       return names
-    }
+    },
   },
 
   methods: {
     ...mapActions('AdministratableUser', {
       saveUserAction: 'save',
-      restoreUser: 'restoreFromInitial'
+      restoreUser: 'restoreFromInitial',
     }),
 
     ...mapMutations('AdministratableUser', ['setItem']),
@@ -237,19 +251,7 @@ export default {
     // Close item and reset roles multiselect
     reset () {
       this.restoreUser(this.user.id).then(() => {
-        const userFormFields = this.$refs[`user-form-fields-${this.user.id}`]
-        userFormFields.$data.localUser = JSON.parse(JSON.stringify(userFormFields.$props.user))
-        userFormFields.setInitialOrgaData()
         this.isOpen = !this.isOpen
-
-        const inputsWithErrors = this.$el.querySelector('[data-dp-validate="userForm"]').querySelectorAll('.is-invalid')
-        Array.from(inputsWithErrors).forEach(input => {
-          input.classList.remove('is-invalid')
-          const inputNodeName = input.nodeName
-          if (inputNodeName === 'INPUT' || inputNodeName === 'SELECT') {
-            input.setCustomValidity('')
-          }
-        })
       })
     },
 
@@ -264,7 +266,7 @@ export default {
 
     updateUser (payload) {
       this.setItem({ ...payload })
-    }
-  }
+    },
+  },
 }
 </script>

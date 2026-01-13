@@ -17,7 +17,8 @@
       :is-public-user="isPublicUser"
       :projection-name="projectionName"
       :projection-string="projectionString"
-      :project-version="projectVersion" />
+      :project-version="projectVersion"
+    />
   </div>
 </template>
 
@@ -31,60 +32,60 @@ export default {
 
   components: {
     DpMap: defineAsyncComponent(() => import('./map/Map')),
-    DpDrawer
+    DpDrawer,
   },
 
   props: {
     initialMapSettings: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     isPublicAgency: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     isPublicUser: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     mapData: {
       type: Object,
-      required: true
+      required: true,
     },
 
     projectionName: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     projectionString: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     projectVersion: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   methods: {
     ...mapActions('Procedure', {
-      getProcedures: 'get'
-    })
+      getProcedures: 'get',
+    }),
   },
 
   created () {
     this.getProcedures()
-  }
+  },
 }
 </script>

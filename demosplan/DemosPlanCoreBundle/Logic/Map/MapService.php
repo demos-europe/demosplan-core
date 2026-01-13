@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementOrDraftStatementNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -35,8 +34,9 @@ use demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapOptions;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
+use Psr\Log\LoggerInterface;
 
-class MapService extends CoreService
+class MapService
 {
     final public const PSEUDO_MERCATOR_PROJECTION_LABEL = 'EPSG:3857';
     final public const PSEUDO_MERCATOR_PROJECTION_VALUE = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs';
@@ -85,6 +85,7 @@ class MapService extends CoreService
         MapScreenshotter $mapScreenshotter,
         private readonly MasterTemplateService $masterTemplateService,
         private readonly StatementService $statementService,
+        private readonly LoggerInterface $logger,
     ) {
         $this->fileService = $fileService;
         $this->httpCall = $httpCall;
@@ -336,7 +337,7 @@ class MapService extends CoreService
             return $this->mapRepository->reOrderGisLayers($gisLayerIds);
         } catch (Exception $e) {
             $this->logger->error('ReOrder gis  failed ', ['idents' => Json::encode($gisLayerIds), 'exception' => $e]);
-            throw new Exception('ContentService error', 5012);
+            throw new Exception('ContentService error', 5012, $e);
         }
     }
 
@@ -411,7 +412,7 @@ class MapService extends CoreService
             // Make screenshot and return file name and path
             $copyrightText = $this->getReplacedMapAttribution($kindOfStatement->getProcedure());
             $polygon = $kindOfStatement->getPolygon();
-            $this->getLogger()->info('Found polygon: '.DemosPlanTools::varExport($polygon, true));
+            $this->logger->info('Found polygon: '.DemosPlanTools::varExport($polygon, true));
             $file = $this->mapScreenshotter->makeScreenshot($polygon, $gisLayer, $copyrightText);
 
             // Speichere die Datei via Fileservice
@@ -428,7 +429,7 @@ class MapService extends CoreService
                     $this->fileService::VIRUSCHECK_NONE
                 )->getId();
             } catch (Exception $e) {
-                $this->getLogger()->error('Could not write ScreenshotFile: ', [$e]);
+                $this->logger->error('Could not write ScreenshotFile: ', [$e]);
             }
 
             $update = [
@@ -438,7 +439,7 @@ class MapService extends CoreService
 
             // check what kind of statement and save
             $statement = $this->statementService->getStatement($draftStatementOrStatementId);
-            if (null === $statement) {
+            if (!$statement instanceof Statement) {
                 $this->getServiceDraftStatement()->updateDraftStatement($update, true, false);
             } else {
                 $this->statementService->updateStatement($update, true, true, true);
@@ -446,7 +447,7 @@ class MapService extends CoreService
 
             return $fileName.':'.$hash;
         } catch (Exception $e) {
-            $this->getLogger()->error('Fehler beim Erstellen des Screenshots ', [$e]);
+            $this->logger->error('Fehler beim Erstellen des Screenshots ', [$e]);
 
             return '';
         }
@@ -494,7 +495,7 @@ class MapService extends CoreService
                             if ('VERSION' === $keyToRemove && isset($urlParameterSplit[1])) {
                                 $version = $urlParameterSplit[1];
                             }
-                            if (array_key_exists($keyToRemove, $defaultValues) && '' != $keyToRemove) {
+                            if (array_key_exists($keyToRemove, $defaultValues) && '' !== $keyToRemove) {
                                 unset($defaultValues[$keyToRemove]);
                             }
                         }
@@ -825,7 +826,7 @@ class MapService extends CoreService
 
     private function ifNoPrintLayerRemainsThenResortToParametersYml(array $gisLayerList): array
     {
-        if (0 === count($gisLayerList)) {
+        if ([] === $gisLayerList) {
             $defaultBasePrintLayer = new GisLayer();
             $defaultBasePrintLayer->set(
                 [

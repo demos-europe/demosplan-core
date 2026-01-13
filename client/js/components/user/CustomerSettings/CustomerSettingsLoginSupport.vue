@@ -10,7 +10,8 @@
         text: Translator.trans('contact.name')
       }"
       required
-      type="text" />
+      type="text"
+    />
     <dp-input
       id="loginSupportPhone"
       v-model="contact.phoneNumber"
@@ -23,7 +24,8 @@
       }"
       pattern="^(\(?\+?)(-| |[0-9]|\(|\))*$"
       required
-      type="tel" />
+      type="tel"
+    />
     <dp-input
       id="loginSupportEmail"
       v-model="contact.eMailAddress"
@@ -33,28 +35,32 @@
       :label="{
         text: Translator.trans('email.address')
       }"
-      type="email" />
+      type="email"
+    />
     <dp-editor
-      class="u-mb-0_75"
       v-model="contact.text"
+      class="u-mb-0_75"
       hidden-input="supportText"
       :toolbar-items="{
         fullscreenButton: true,
         headings: [2,3,4],
         linkButton: true
       }"
-      :tus-endpoint="dplan.paths.tusEndpoint" />
+      :tus-endpoint="dplan.paths.tusEndpoint"
+    />
     <dp-button-row
       primary
       secondary
       :secondary-text="Translator.trans('reset')"
       @primary-action="dpValidateAction('loginSupport', () => updateContact(), false)"
-      @secondary-action="setFormFromStore">
+      @secondary-action="setFormFromStore"
+    >
       <dp-button
         color="secondary"
-        :disabled="this.contact.id === emptyContact.id"
+        :disabled="contact.id === emptyContact.id"
         :text="Translator.trans('delete')"
-        @click.prevent="deleteContact" />
+        @click.prevent="deleteContact"
+      />
     </dp-button-row>
   </div>
 </template>
@@ -68,7 +74,7 @@ const emptyContact = {
   phoneNumber: '',
   eMailAddress: '',
   text: '',
-  id: 'new'
+  id: 'new',
 }
 export default {
   name: 'CustomerSettingsloginSupport',
@@ -77,7 +83,7 @@ export default {
     DpButton,
     DpButtonRow,
     DpEditor,
-    DpInput
+    DpInput,
   },
 
   mixins: [dpValidateMixin],
@@ -93,16 +99,16 @@ export default {
         abort: Translator.trans('abort'),
         update: Translator.trans('contact.update'),
         noEntries: Translator.trans('contact.no_entries'),
-        delete: Translator.trans('contact.delete')
+        delete: Translator.trans('contact.delete'),
       },
-      updating: false
+      updating: false,
     }
   },
 
   computed: {
     ...mapState('CustomerLoginSupportContact', {
-      contacts: 'items'
-    })
+      contacts: 'items',
+    }),
   },
 
   methods: {
@@ -110,11 +116,11 @@ export default {
       create: 'create',
       delete: 'delete',
       fetch: 'list',
-      save: 'save'
+      save: 'save',
     }),
 
     ...mapMutations('CustomerLoginSupportContact', {
-      update: 'setItem'
+      update: 'setItem',
     }),
 
     checkIfContactIsEmpty () {
@@ -145,9 +151,9 @@ export default {
             'title',
             'phoneNumber',
             'text',
-            'eMailAddress'
-          ].join()
-        }
+            'eMailAddress',
+          ].join(),
+        },
       }).then(() => {
         this.setFormFromStore()
       })
@@ -157,15 +163,15 @@ export default {
       const contact = Object.values(this.contacts)[0]
       const attrs = contact?.attributes || { ...this.emptyContact }
 
-      this.contact = contact
-        ? {
-            eMailAddress: attrs.eMailAddress || '',
-            id: contact?.id || emptyContact.id,
-            phoneNumber: attrs.phoneNumber,
-            text: attrs.text || '',
-            title: attrs.title
-          }
-        : { ...this.emptyContact }
+      this.contact = contact ?
+        {
+          eMailAddress: attrs.eMailAddress || '',
+          id: contact?.id || emptyContact.id,
+          phoneNumber: attrs.phoneNumber,
+          text: attrs.text || '',
+          title: attrs.title,
+        } :
+        { ...this.emptyContact }
     },
 
     updateContact () {
@@ -184,8 +190,8 @@ export default {
           title: this.contact.title,
           phoneNumber: this.contact.phoneNumber,
           text: this.contact.text ? this.contact.text : null,
-          eMailAddress: this.contact.eMailAddress ? this.contact.eMailAddress : null
-        }
+          eMailAddress: this.contact.eMailAddress ? this.contact.eMailAddress : null,
+        },
       }
 
       if (id === emptyContact.id) {
@@ -202,11 +208,11 @@ export default {
             dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           })
       }
-    }
+    },
   },
 
   mounted () {
     this.getContacts()
-  }
+  },
 }
 </script>

@@ -11,7 +11,6 @@
 namespace Tests\Core\Core\Unit\Logic\Segment\RpcBulkEditor;
 
 use DateTime;
-use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
@@ -19,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFacto
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
-use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
@@ -81,12 +79,20 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
         $segment1 = SegmentFactory::createOne()->setProcedure($procedure->_real());
         $segment2 = SegmentFactory::createOne()->setProcedure($procedure->_real());
 
-        $customField1 = $this->createCustomField($procedure, 'Favourite Color', 'Your favourite color', ['Blue', 'Orange', 'Green']);
-        $customField2 = $this->createCustomField($procedure, 'Favourite Food', 'Your favourite food', ['Pizza', 'Sushi', 'Bread']);
+        $customField1 = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->asRadioButton('Color1')->create();
+
+        $customField2 = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->asRadioButton('Color2')->create();
+
+        $customField1Option1 = $customField1->getConfiguration()->getOptions()[0];
+        $customField2Option2 = $customField2->getConfiguration()->getOptions()[1];
 
         $customFieldsValuesToUpdate = [
-            ['id' => $customField1->getId(), 'value' => 'Orange'],
-            ['id' => $customField2->getId(), 'value' => 'Bread'],
+            ['id' => $customField1->getId(), 'value' => $customField1Option1->getId()],
+            ['id' => $customField2->getId(), 'value' => $customField2Option2->getId()],
         ];
 
         $this->sut->updateSegments([$segment1, $segment2], [], [], $this->user, null, $customFieldsValuesToUpdate);
@@ -102,27 +108,10 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
             $segment2->getCustomFields()->getCustomFieldsValues()
         );
 
-        // Check both 'Orange' and 'Bread' are in both segments' custom field values
-        self::assertContains('Orange', $segment1Values);
-        self::assertContains('Bread', $segment1Values);
-        self::assertContains('Orange', $segment2Values);
-        self::assertContains('Bread', $segment2Values);
-    }
-
-    private function createCustomField($procedure, string $name, string $description, array $options): CustomFieldConfiguration
-    {
-        $radioButton = new RadioButtonField();
-        $radioButton->setName($name);
-        $radioButton->setDescription($description);
-        $radioButton->setFieldType('singleSelect');
-        $radioButton->setOptions($options);
-
-        return CustomFieldConfigurationFactory::createOne([
-            'sourceEntityClass' => 'PROCEDURE',
-            'sourceEntityId'    => $procedure->getId(),
-            'targetEntityClass' => 'SEGMENT',
-            'configuration'     => $radioButton,
-        ])->_real();
+        self::assertContains($customField1Option1->getId(), $segment1Values);
+        self::assertContains($customField2Option2->getId(), $segment1Values);
+        self::assertContains($customField1Option1->getId(), $segment2Values);
+        self::assertContains($customField2Option2->getId(), $segment2Values);
     }
 
     public function testUpdateSegmentsWithNullAssignee(): void
@@ -193,24 +182,25 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
     public function testGetValidTags(): void
     {
         $procedure = ProcedureFactory::createOne();
-        $tag1 = TagFactory::createOne();
-        $tag2 = TagFactory::createOne();
         $tagTopic = TagTopicFactory::createOne();
 
         $tagTopic->setProcedure($procedure->_real());
-        $tagTopic->addTag($tag1->_real());
-        $tagTopic->addTag($tag2->_real());
         $tagTopic->_save();
+
+        $tag1 = TagFactory::createOne([
+            'title' => 'Unique Tag Title 1',
+            'topic' => $tagTopic->_real(),
+        ]);
+        $tag2 = TagFactory::createOne([
+            'title' => 'Unique Tag Title 2',
+            'topic' => $tagTopic->_real(),
+        ]);
 
         $procedure->addTagTopic($tagTopic->_real());
         $procedure->_save();
         /** @var Procedure $procedureReal */
         $procedureReal = $procedure->_real();
 
-        $tag1->setTopic($tagTopic->_real());
-        $tag2->setTopic($tagTopic->_real());
-        $tag1->_save();
-        $tag2->_save();
         /** @var Tag $tag1Real */
         $tag1Real = $tag1->_real();
         /** @var Tag $tag2Real */

@@ -41,7 +41,7 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
      *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
-    protected ?string $id;
+    protected ?string $id = null;
 
     /**
      * Virtual property
@@ -50,19 +50,9 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     protected string $name = '';
 
     /**
-     * @ORM\Column(name="phase_key", type="string", nullable=false)
-     */
-    protected string $key = 'configuration';
-
-    /**
      * Virtual Property bound on phase configuration in procedurephases.yml.
      */
     protected string $permissionSet = ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
-
-    /**
-     * @ORM\Column(type="string", length=25, nullable=false, options={"default":""})
-     */
-    protected string $step = '';
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
@@ -101,6 +91,11 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     protected ?DateTime $designatedSwitchDate = null;
 
     /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    protected ?int $designatedSwitchDateTimestamp = null;
+
+    /**
      * OnDelete set NULL at this site, will set the userID to null in case of the user will be deleted.
      * Doing this by a doctrine relation is not simply possible because,
      * the user has no defined relation in its class.
@@ -124,10 +119,15 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     #[Assert\Positive]
     protected int $iteration = 1;
 
-    public function __construct(string $key, string $step)
+    public function __construct(/**
+     * @ORM\Column(type="string", length=25, nullable=false, options={"default":""})
+     */
+        protected string $step,
+        /**
+         * @ORM\Column(name="phase_key", type="string", nullable=false)
+         */
+        protected string $key = 'configuration')
     {
-        $this->key = $key;
-        $this->step = $step;
         $this->permissionSet = ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
         $this->endDate = new DateTime();
         $this->startDate = new DateTime();
@@ -235,6 +235,16 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->designatedSwitchDate = $designatedSwitchDate;
     }
 
+    public function getDesignatedSwitchDateTimestamp(): ?int
+    {
+        return $this->designatedSwitchDateTimestamp;
+    }
+
+    public function setDesignatedSwitchDateTimestamp(?int $designatedSwitchDateTimestamp): void
+    {
+        $this->designatedSwitchDateTimestamp = $designatedSwitchDateTimestamp;
+    }
+
     public function getDesignatedPhaseChangeUser(): ?UserInterface
     {
         return $this->designatedPhaseChangeUser;
@@ -267,13 +277,14 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     public function copyValuesFromPhase(ProcedurePhaseInterface $sourcePhase): void
     {
-        $this->key = $sourcePhase->key;
-        $this->step = $sourcePhase->step;
-        $this->name = $sourcePhase->name;
-        $this->designatedEndDate = $sourcePhase->designatedEndDate;
-        $this->designatedSwitchDate = $sourcePhase->designatedSwitchDate;
-        $this->designatedPhase = $sourcePhase->designatedPhase;
-        $this->permissionSet = $sourcePhase->permissionSet;
+        $this->key = $sourcePhase->getKey();
+        $this->step = $sourcePhase->getStep();
+        $this->name = $sourcePhase->getName();
+        $this->designatedEndDate = $sourcePhase->getDesignatedEndDate();
+        $this->designatedSwitchDate = $sourcePhase->getDesignatedSwitchDate();
+        $this->designatedSwitchDateTimestamp = $sourcePhase->getDesignatedSwitchDateTimestamp();
+        $this->designatedPhase = $sourcePhase->getDesignatedPhase();
+        $this->permissionSet = $sourcePhase->getPermissionSet();
         $this->startDate = $sourcePhase->getStartDate();
         $this->endDate = $sourcePhase->getEndDate();
     }

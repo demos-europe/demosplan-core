@@ -151,7 +151,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->andWhere('p.deleted = :deleted')
                 ->setParameter('deleted', false);
 
-            if (null !== $customer) {
+            if ($customer instanceof Customer) {
                 $queryBuilder->andWhere('p.customer = :customer')->setParameter('customer', $customer);
             }
 
@@ -314,7 +314,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             if (!is_array($procedureIds)) {
                 $procedureIds = [$procedureIds];
             }
-            if (0 === count($procedureIds)) {
+            if ([] === $procedureIds) {
                 throw new \InvalidArgumentException('No ProcedureIds given to delete');
             }
 
@@ -493,10 +493,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             ->findBy(['procedure' => $procedureId]);
         foreach ($procedureSettingsToDelete as $procedureSetting) {
             if (0 < strlen($procedureSetting->getPlanPDF())) {
-                array_push($filesToDelete, $procedureSetting->getPlanPDF());
+                $filesToDelete[] = $procedureSetting->getPlanPDF();
             }
             if (0 < strlen($procedureSetting->getPlanDrawPDF())) {
-                array_push($filesToDelete, $procedureSetting->getPlanDrawPDF());
+                $filesToDelete[] = $procedureSetting->getPlanDrawPDF();
             }
         }
 
@@ -801,6 +801,15 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             if (array_key_exists('pictogram', $data['settings'])) {
                 $procedureSettings->setPictogram($data['settings']['pictogram']);
             }
+            if (array_key_exists('allowAnonymousStatements', $data['settings'])) {
+                $procedureSettings->setAllowAnonymousStatements($data['settings']['allowAnonymousStatements']);
+            }
+            if (array_key_exists('expandProcedureDescription', $data['settings'])) {
+                $procedureSettings->setExpandProcedureDescription($data['settings']['expandProcedureDescription']);
+            }
+            if (array_key_exists('publicParticipationFeedbackEnabled', $data['settings'])) {
+                $procedureSettings->setPublicParticipationFeedbackEnabled($data['settings']['publicParticipationFeedbackEnabled']);
+            }
             if (array_key_exists('pictogramCopyright', $data['settings'])) {
                 $procedureSettings->setPictogramCopyright($data['settings']['pictogramCopyright']);
             }
@@ -809,6 +818,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             }
             if (array_key_exists('planningArea', $data['settings'])) {
                 $procedureSettings->setPlanningArea($data['settings']['planningArea']);
+            }
+
+            if (array_key_exists('publicParticipationFeedbackEnabled', $data['settings'])) {
+                $procedureSettings->setPublicParticipationFeedbackEnabled($data['settings']['publicParticipationFeedbackEnabled']);
             }
 
             $this->transferDesignatedExternalSwitch($procedureSettings, $data);
@@ -1354,6 +1367,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      */
     public function getProceduresReadyToSwitchPhases(): array
     {
+        $now = Carbon::now()->getTimestamp();
         $query = $this->createFluentQuery();
         $conditionDefinition = $query->getConditionDefinition()
             ->propertyHasValue(false, ['deleted'])
@@ -1362,15 +1376,15 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
         $orCondition = $conditionDefinition->anyConditionApplies();
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull(['phase', 'designatedSwitchDate'])
+            ->propertyIsNotNull(['phase', 'designatedSwitchDateTimestamp'])
             ->propertyIsNotNull(['phase', 'designatedPhase'])
             ->propertyIsNotNull(['phase', 'designatedEndDate'])
-            ->propertyHasValueBeforeNow(['phase', 'designatedSwitchDate']);
+            ->valueSmallerThan($now, ['phase', 'designatedSwitchDateTimestamp']);
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull(['publicParticipationPhase', 'designatedSwitchDate'])
+            ->propertyIsNotNull(['publicParticipationPhase', 'designatedSwitchDateTimestamp'])
             ->propertyIsNotNull(['publicParticipationPhase', 'designatedPhase'])
             ->propertyIsNotNull(['publicParticipationPhase', 'designatedEndDate'])
-            ->propertyHasValueBeforeNow(['publicParticipationPhase', 'designatedSwitchDate']);
+            ->valueSmallerThan($now, ['publicParticipationPhase', 'designatedSwitchDateTimestamp']);
 
         return $query->getEntities();
     }

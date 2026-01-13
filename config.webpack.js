@@ -27,7 +27,7 @@ const baseConfig = {
   output: {
     filename: './[name].[contenthash:6].js',
     chunkFilename: './[name].[contenthash:6].js',
-    clean: true
+    clean: true,
   },
   devtool: (config.isProduction) ? false : 'eval',
   plugins: (() => {
@@ -52,10 +52,10 @@ const baseConfig = {
   })(),
   cache: true,
   performance: {
-    hints: false
+    hints: false,
   },
   module: {
-    rules: moduleRules
+    rules: moduleRules,
   },
   resolve: {
     fallback: {
@@ -76,25 +76,27 @@ const baseConfig = {
       tls: false,
       buffer: false,
       stream: false,
-      path: false
-    }
-  }
+      path: false,
+    },
+  },
 }
+
+const bundles = bundleEntryPoints(config)
 
 const bundlesConfig = merge(baseConfig, {
   name: 'main',
   entry: () => {
     return {
-      ...bundleEntryPoints(config.clientBundleGlob),
+      ...bundles,
       style: config.stylesEntryPoint,
       'style-public': config.publicStylesEntryPoint,
       preflight: resolveDir('./client/css/preflight.css'),
-      'demosplan-ui-style': resolveDir('./client/css/tailwind.css') // In the End we will get the styling from demosplan-ui
+      'demosplan-ui-style': resolveDir('./client/css/tailwind.css'), // In the End we will get the styling from demosplan-ui
     }
   },
   output: {
     path: config.projectRoot + '/web/js/bundles',
-    publicPath: config.urlPathPrefix + '/js/bundles/'
+    publicPath: config.urlPathPrefix + '/js/bundles/',
   },
   devtool: (config.isProduction) ? false : 'eval',
   resolve: {
@@ -102,12 +104,13 @@ const bundlesConfig = merge(baseConfig, {
     extensions: ['...', '.js', '.vue', '.json', '.ts', '.tsx'],
     alias: {
       '@DpJs': config.absoluteRoot + 'client/js',
+      '@DpJsProject': config.projectRoot + '/client/js',
       vue: config.absoluteRoot + 'node_modules/@vue/compat/dist/vue.esm-bundler',
       // To Fix masterportal issues, we have to resolve some imports within olcs manually
       './olcs/olcsMap.js': config.absoluteRoot + 'node_modules/@masterportal/masterportalapi/src/maps/olcs/olcsMap.js',
       './olcs': config.absoluteRoot + 'node_modules/olcs/lib/olcs',
-      'olcs/lib': config.absoluteRoot + 'node_modules/olcs/lib'
-    }
+      'olcs/lib': config.absoluteRoot + 'node_modules/olcs/lib',
+    },
   },
   optimization: optimization(),
   plugins: [
@@ -115,10 +118,10 @@ const bundlesConfig = merge(baseConfig, {
       URL_PATH_PREFIX: JSON.stringify(config.urlPathPrefix), // Path prefix for dynamically generated urls
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false, // Vue CLI is in maintenance mode, and probably won't merge my PR to fix this in their tooling  https://github.com/vuejs/vue-cli/pull/7443
       __VUE_OPTIONS_API__: true,
-      __VUE_PROD_DEVTOOLS__: false
+      __VUE_PROD_DEVTOOLS__: false,
     }),
     new WebpackManifestPlugin({
-      fileName: '../../dplan.manifest.json'
+      fileName: '../../dplan.manifest.json',
     }),
     // To Fix masterportal issues, we have to resolve some imports within olcs manually
     new NormalModuleReplacementPlugin(
@@ -127,9 +130,9 @@ const bundlesConfig = merge(baseConfig, {
         if (resource.context.includes('olcs')) {
           resource.request = config.absoluteRoot + 'node_modules/olcs/lib/olcs/core.js'
         }
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 
 const stylesConfig = merge(baseConfig, {
@@ -138,7 +141,7 @@ const stylesConfig = merge(baseConfig, {
     return {
       style: config.stylesEntryPoint,
       'style-public': config.publicStylesEntryPoint,
-      'demosplan-ui-style': './client/css/tailwind.css'
+      'demosplan-ui-style': './client/css/tailwind.css',
     }
   },
   output: {
@@ -154,19 +157,19 @@ const stylesConfig = merge(baseConfig, {
        */
       keep (asset) {
         return !/style\.|style-public\./.test(asset)
-      }
-    }
+      },
+    },
   },
   devtool: (config.isProduction) ? false : 'eval',
   optimization: optimization(),
   plugins: [
     new DefinePlugin({
-      URL_PATH_PREFIX: JSON.stringify(config.urlPathPrefix) // Path prefix for dynamically generated urls
+      URL_PATH_PREFIX: JSON.stringify(config.urlPathPrefix), // Path prefix for dynamically generated urls
     }),
     new WebpackManifestPlugin({
-      fileName: '../../styles.manifest.json'
-    })
-  ]
+      fileName: '../../styles.manifest.json',
+    }),
+  ],
 })
 
 const legacyBundlesConfig = {
@@ -175,29 +178,29 @@ const legacyBundlesConfig = {
   entry: resolveDir('client/js/legacy/legacy.js'),
   output: {
     path: config.projectRoot + '/web/js/legacy',
-    publicPath: config.urlPathPrefix + '/js/legacy/'
+    publicPath: config.urlPathPrefix + '/js/legacy/',
   },
   cache: true,
   performance: {
-    hints: false
+    hints: false,
   },
   plugins: [
     new WebpackManifestPlugin({
-      fileName: '../../legacy.manifest.json'
+      fileName: '../../legacy.manifest.json',
     }),
     new CopyWebpackPlugin({
       patterns: [
         {
           from: resolveDir('client/js/legacy/'),
-          to: `${config.projectRoot}/web/js/legacy`
-        }
-      ]
-    })
-  ]
+          to: `${config.projectRoot}/web/js/legacy`,
+        },
+      ],
+    }),
+  ],
 }
 
 module.exports = [
   bundlesConfig,
   legacyBundlesConfig,
-  stylesConfig
+  stylesConfig,
 ]

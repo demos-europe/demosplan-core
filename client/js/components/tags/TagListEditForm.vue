@@ -2,79 +2,96 @@
   <div class="flex items-center">
     <dp-input
       v-if="isInEditState === nodeElement.id"
-      class="flex-1"
+      aria-labelledby="categoryOrTagLabel"
       :id="`edit-${type}-${nodeElement.id}`"
-      v-model="unsavedItem.title" />
+      v-model="unsavedItem.title"
+      class="flex-1"
+    />
     <div
       v-else
       class="flex-1 break-words"
-      v-text="nodeElement.attributes.title" />
+      v-text="nodeElement.attributes.title"
+    />
+    <addon-wrapper
+      :addon-props="{ tag: nodeElement }"
+      hook-name="tag.edit.form"
+    />
     <div class="text-center w-9">
       <dp-contextual-help
         v-if="nodeElement.relationships?.boilerplate"
         icon="file"
-        :text="nodeElement.relationships.boilerplate.attributes.title" />
+        :text="nodeElement.relationships.boilerplate.attributes.title"
+      />
     </div>
-    <addon-wrapper
-      :addon-props="{ tag: nodeElement }"
-      hook-name="tag.edit.form" />
     <div class="flex-0 justify-center w-8 flex">
       <button
         v-if="isInEditState !== nodeElement.id && nodeElement.type !== 'Tag'"
         :aria-label="Translator.trans('item.edit')"
         class="btn--blank o-link--default"
         :data-cy="`tags:edit${type}`"
-        @click="editItem">
+        @click="editItem"
+      >
         <dp-icon
           aria-hidden="true"
-          icon="edit" />
+          icon="edit"
+        />
       </button>
       <a
         v-if="isInEditState !== nodeElement.id && nodeElement.type === 'Tag'"
         :aria-label="Translator.trans('item.edit')"
         class="btn--blank o-link--default"
         :data-cy="`tags:edit${type}`"
-        :href="Routing.generate('DemosPlan_statement_administration_tag', { tag: nodeElement.id, procedure: procedureId })">
+        :href="Routing.generate('DemosPlan_statement_administration_tag', { tag: nodeElement.id, procedure: procedureId })"
+      >
         <dp-icon
           aria-hidden="true"
-          icon="edit" />
+          icon="edit"
+        />
       </a>
       <button
         v-if="isInEditState !== nodeElement.id"
         :aria-label="Translator.trans('delete')"
         class="btn--blank o-link--default"
         :data-cy="`tags:abortEdit${type}`"
-        @click="deleteItem">
+        @click="deleteItem"
+      >
         <dp-icon
           aria-hidden="true"
-          icon="delete" />
+          icon="delete"
+        />
       </button>
       <div
         v-else
-        class="flex">
+        class="flex"
+      >
         <button
           :aria-label="Translator.trans('save')"
           class="btn--blank o-link--default u-mr-0_25"
           :data-cy="`tags:save${type}`"
-          @click="saveItem">
+          @click="saveItem"
+        >
           <dp-icon
             aria-hidden="true"
-            icon="check" />
+            icon="check"
+          />
         </button>
         <button
           class="btn--blank o-link--default"
           :data-cy="`tags:abortEdit${type}`"
+          :aria-label="Translator.trans('abort')"
           @click="abort"
-          :aria-label="Translator.trans('abort')">
+        >
           <dp-icon
             aria-hidden="true"
-            icon="xmark" />
+            icon="xmark"
+          />
         </button>
       </div>
       <dp-confirm-dialog
         ref="confirmDialog"
         data-cy="removeTagOrTopic"
-        :message="setConfirmMessage()" />
+        :message="setConfirmMessage()"
+      />
     </div>
   </div>
 </template>
@@ -84,7 +101,7 @@ import {
   DpConfirmDialog,
   DpContextualHelp,
   DpIcon,
-  DpInput
+  DpInput,
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
@@ -96,43 +113,43 @@ export default {
     DpConfirmDialog,
     DpContextualHelp,
     DpIcon,
-    DpInput
+    DpInput,
   },
 
   props: {
     isInEditState: {
       type: String,
-      required: true
+      required: true,
     },
 
     nodeElement: {
       type: Object,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     type: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
     'abort',
     'delete',
     'edit',
-    'save'
+    'save',
   ],
 
   data () {
     return {
       unsavedItem: {
-        title: ''
-      }
+        title: '',
+      },
     }
   },
 
@@ -158,9 +175,9 @@ export default {
       const isTagTopic = type === 'TagTopic'
       const topicConfirmMessage = isTagTopic && children?.length === 0 ? 'check.topic.delete' : 'check.topic.delete.tags'
 
-      return isTagTopic
-        ? Translator.trans(topicConfirmMessage, { topic: attributes.title })
-        : Translator.trans('check.tag.delete', { tag: attributes.title })
+      return isTagTopic ?
+        Translator.trans(topicConfirmMessage, { topic: attributes.title }) :
+        Translator.trans('check.tag.delete', { tag: attributes.title })
     },
 
     editItem () {
@@ -171,7 +188,7 @@ export default {
     saveItem () {
       const isTitleChanged = this.nodeElement.attributes.title !== this.unsavedItem.title
       this.$emit('save', { id: this.nodeElement.id, attributes: this.unsavedItem, type: this.nodeElement.type, isTitleChanged })
-    }
-  }
+    },
+  },
 }
 </script>

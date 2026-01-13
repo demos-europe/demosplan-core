@@ -20,6 +20,7 @@
 
     {% if selectedPublicAgencies|length == 0 %}
         <dp-inline-notification
+            class="mb-2"
             message="{{ 'invitable_institutions.select.explanation'|trans }}"
             type="warning"></dp-inline-notification>
     {% else %}
@@ -32,15 +33,16 @@
         {% endif %}
 
         <dp-inline-notification
+            class="mb-2"
             message="{{ message }}"
             type="{{ type }}"></dp-inline-notification>
 
         <dp-accordion
             data-cy="administrationMemberEmail:recipients"
             title="{{ 'recipients'|trans }}"
-            class="u-mb"
+            class="mb-2"
             compressed>
-            <div class="u-mt-0_5">
+            <div class="mt-2">
                 <table class="c-table">
                     <thead>
                         <tr>
@@ -66,6 +68,7 @@
     {% endif %}
 
     <dp-inline-notification
+        class="mb-2"
         message="{{ 'invitable_institutions.invitation.hint'|trans }}"
         type="warning"></dp-inline-notification>
 
@@ -123,7 +126,17 @@
 
         {% set emailText = templateVars.procedure.settings.emailText|default %}
         {% if hasPermission('feature_email_invitable_institution_additional_invitation_text') and templateVars.emailTextAdded is defined %}
-            {% set emailText = emailText ~ '<br/><br/>' ~ templateVars.emailTextAdded|wysiwyg|nl2br %}
+            {# Remove existing footer to replace with updated one #}
+            {% set footerMarker = '---------' %}
+            {% set hasExistingFooter = false %}
+            {% if emailText and footerMarker in emailText %}
+                {% set emailTextParts = emailText|split(footerMarker) %}
+                {% set emailText = emailTextParts[0]|trim %}
+                {% set hasExistingFooter = true %}
+            {% endif %}
+            {# Add current footer with selected TÖBs - no br/br if footer existed #}
+            {% set spacing = hasExistingFooter ? '' : '<br/><br/>' %}
+            {% set emailText = emailText ~ spacing ~ templateVars.emailTextAdded|wysiwyg|nl2br %}
         {% endif %}
 
         <div class="{{ 'u-mb-0_75'|prefixClass }}">

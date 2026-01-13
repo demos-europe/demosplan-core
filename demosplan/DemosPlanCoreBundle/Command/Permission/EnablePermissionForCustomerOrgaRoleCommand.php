@@ -17,16 +17,15 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
  * This Command is used to enable a specific permission for a given customer, organization, and role.
  */
+#[AsCommand(name: 'dplan:permission:enable:customer-orga-role', description: 'Enables a specific permission for a given customer, organization, and role')]
 class EnablePermissionForCustomerOrgaRoleCommand extends PermissionForCustomerOrgaRoleCommand
 {
-    protected static $defaultName = 'dplan:permission:enable:customer-orga-role';
-    protected static $defaultDescription = 'Enables a specific permission for a given customer, organization, and role';
-
     public function __construct(
         ParameterBagInterface $parameterBag,
         CustomerService $customerService,

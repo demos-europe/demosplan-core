@@ -19,12 +19,9 @@ class DemosPlanTools
     /**
      * Wrapper for varExport to avoid memory errors.
      *
-     * @param mixed $expression
-     * @param bool  $return
-     *
-     * @return mixed
+     * @param bool $return
      */
-    public static function varExport($expression, $return = false)
+    public static function varExport(mixed $expression, $return = false)
     {
         try {
             // if object generate array to limit the "level of information to the first level

@@ -240,7 +240,7 @@ const genEditingDecorations = (state, from, to, id, activePosition = null) => {
 
   return DecorationSet.create(state.doc, [
     start,
-    end
+    end,
   ])
 }
 
@@ -341,5 +341,5 @@ export {
   replaceMarkInRange,
   removeMarkByName,
   replaceRange,
-  toggleRangeEdit
+  toggleRangeEdit,
 }

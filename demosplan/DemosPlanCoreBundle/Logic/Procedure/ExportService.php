@@ -725,13 +725,13 @@ class ExportService
             );
             $statementsCitizenPdf = $draftStatementService->generatePdf($outputResult->getResult(), 'list_final_group_citizen', $procedureId);
             $this->zipExportService->addStringToZipStream(
-                $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['finals'].'_Buerger/Freigaben_Buerger_Liste.pdf', $statementsCitizenPdf->getContent(),
+                $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['finals'].'_Privatperson/Freigaben_Privatperson_Liste.pdf', $statementsCitizenPdf->getContent(),
                 $zip
             );
-            $this->attachStatementFilesToZip($statementEntities, $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['finals'].'_Buerger/'.$this->literals['attachment'].'/', $zip);
-            $this->logger->info('Endfassungen_Buerger created', ['id' => $procedureId, 'name' => $procedureName]);
+            $this->attachStatementFilesToZip($statementEntities, $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['finals'].'_Privatperson/'.$this->literals['attachment'].'/', $zip);
+            $this->logger->info('Privatperson created', ['id' => $procedureId, 'name' => $procedureName]);
         } catch (Exception $e) {
-            $this->logger->warning('Endfassungen_Buerger could not be created. ', [$e]);
+            $this->logger->warning('Privatperson could not be created. ', [$e]);
         }
 
         return $zip;

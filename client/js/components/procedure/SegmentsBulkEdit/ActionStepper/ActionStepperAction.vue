@@ -18,15 +18,17 @@
   <div class="u-pv space-stack-s">
     <dp-checkbox
       :id="id"
-      :checked="checked"
+      :checked="modelValue"
       :label="{
-        bold: checked,
+        bold: modelValue,
         text: label
       }"
-      @change="isChecked => $emit('change', isChecked)" />
+      @change="isChecked => $emit('update:modelValue', isChecked)"
+    />
     <div
-      v-if="checked"
-      class="u-ml">
+      v-if="modelValue"
+      class="u-ml"
+    >
       <slot />
     </div>
   </div>
@@ -39,34 +41,33 @@ export default {
   name: 'ActionStepperAction',
 
   components: {
-    DpCheckbox
+    DpCheckbox,
   },
 
-  model: {
-    prop: 'checked',
-    event: 'change'
+  compatConfig: {
+    COMPONENT_V_MODEL: false,
   },
 
   props: {
-    checked: {
+    modelValue: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     id: {
       required: true,
-      type: String
+      type: String,
     },
 
     label: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   emits: [
-    'change'
-  ]
+    'update:modelValue',
+  ],
 }
 </script>

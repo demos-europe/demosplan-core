@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
 use Exception;
+use Psr\Log\LoggerInterface;
 
 final class ImageLinkConverter
 {
@@ -37,7 +38,8 @@ final class ImageLinkConverter
     private array $currentImagesFromRecommendationText = [];
     private int $imageCounter = 1;
 
-    public function __construct(private readonly HtmlHelper $htmlHelper, private readonly FileService $fileService, private readonly EditorService $editorService)
+    public function __construct(private readonly HtmlHelper $htmlHelper, private readonly FileService $fileService, private readonly EditorService $editorService,
+        private readonly LoggerInterface $logger)
     {
     }
 
@@ -122,7 +124,7 @@ final class ImageLinkConverter
     private function processImageTag(array $matches, string $statementExternId, bool $asLinkedReference): string
     {
         $src = $matches[3];
-        $srcParts = explode('/', $src);
+        $srcParts = explode('/', (string) $src);
         $hash = $srcParts[array_key_last($srcParts)];
 
         $imageReference =
@@ -144,7 +146,14 @@ final class ImageLinkConverter
     {
         try {
             return $this->fileService->ensureLocalFileFromHash($hash);
-        } catch (Exception) {
+        } catch (Exception $e) {
+            // Log the specific error to help debug file storage issues
+            $this->logger->error('Failed to retrieve file from storage', [
+                'hash'  => $hash,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             // The src attribute probably didn't contain a hash --> assume it is a valid path instead.
             return trim($hash);
         }

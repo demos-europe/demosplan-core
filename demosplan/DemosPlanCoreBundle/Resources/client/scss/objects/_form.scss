@@ -418,10 +418,10 @@ input.disabled {
 
         // Styles for the textarea element.
         // [1] Set a minimum height to disable resizing the textarea to a height smaller than input field height
-        // [2] !important is used to override textarea default styling
+
         &-textarea {
             min-height: $element-height; // [1]
-            border: $form-border-width solid $form-border-color !important; // [2]
+            background:  $dp-color-white;
             border-radius: $form-radius !important;
 
             &[disabled],
@@ -455,7 +455,6 @@ input.disabled {
             height: $element-height;
 
             padding: 3px 24px 3px 6px; // The right padding prevents text from running into the arrow icon
-            border: $form-border-width solid $form-border-color !important;
             border-radius: $form-radius;
 
             cursor: pointer;
@@ -505,7 +504,8 @@ input.disabled {
             > label,
             > .o-form__label {
                 padding-left: $inuit-base-spacing-unit;
-                word-break: break-word;
+                overflow-wrap: anywhere;
+                word-break: normal;
             }
         }
 
@@ -525,7 +525,8 @@ input.disabled {
             > label,
             > .o-form__label {
                 padding-left: $inuit-base-spacing-unit;
-                word-break: break-word;
+                overflow-wrap: anywhere;
+                word-break: normal;
             }
         }
     }

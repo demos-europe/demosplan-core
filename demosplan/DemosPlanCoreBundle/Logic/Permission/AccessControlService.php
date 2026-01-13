@@ -17,13 +17,14 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 
 /**
  * This file is part of the package demosplan.
@@ -32,7 +33,8 @@ use InvalidArgumentException;
  *
  * All rights reserved
  */
-class AccessControlService extends CoreService
+// @SuppressWarnings(php:S1448) - Class has logical cohesion despite method count
+class AccessControlService
 {
     public const CREATE_PROCEDURES_PERMISSION = 'feature_admin_new_procedure';
 
@@ -40,7 +42,15 @@ class AccessControlService extends CoreService
         private readonly AccessControlRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
         private readonly OrgaService $orgaService,
+        private readonly LoggerInterface $logger,
     ) {
+    }
+
+    public function createPermissions(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, array $roles)
+    {
+        foreach ($roles as $role) {
+            $this->createPermission($permissionName, $orga, $customer, $role);
+        }
     }
 
     public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): ?AccessControl
@@ -78,7 +88,7 @@ class AccessControlService extends CoreService
 
             $role = $this->roleHandler->getRoleByCode($roleName);
 
-            if (null === $role) {
+            if (!$role instanceof RoleInterface) {
                 continue;
             }
 
@@ -98,15 +108,15 @@ class AccessControlService extends CoreService
 
         $criteria = [];
 
-        if (null !== $role) {
+        if ($role instanceof RoleInterface) {
             $criteria['role'] = [$role];
         }
 
-        if (null !== $orga) {
+        if ($orga instanceof OrgaInterface) {
             $criteria['organisation'] = [$orga];
         }
 
-        if (null !== $customer) {
+        if ($customer instanceof CustomerInterface) {
             $criteria['customer'] = [$customer];
         }
 
@@ -125,6 +135,13 @@ class AccessControlService extends CoreService
         $enabledPermissions = array_unique($enabledPermissions);
 
         return $enabledPermissions;
+    }
+
+    public function removePermissions(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, array $roles): void
+    {
+        foreach ($roles as $role) {
+            $this->removePermission($permissionName, $orga, $customer, $role);
+        }
     }
 
     public function removePermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): void
@@ -173,14 +190,14 @@ class AccessControlService extends CoreService
             $permissions = $this->getEnabledPermissionNames(null, $orga, $customer, $permissionToCheck);
         }
 
-        return !empty($permissions);
+        return [] !== $permissions;
     }
 
     public function addPermissionToGivenRole(OrgaInterface $orga, CustomerInterface $customer, string $roleName): void
     {
         $role = $this->roleHandler->getRoleByCode($roleName);
 
-        if (null === $role) {
+        if (!$role instanceof RoleInterface) {
             return;
         }
 
@@ -191,7 +208,7 @@ class AccessControlService extends CoreService
     {
         $role = $this->roleHandler->getRoleByCode($roleName);
 
-        if (null === $role) {
+        if (!$role instanceof RoleInterface) {
             return;
         }
 
@@ -206,7 +223,7 @@ class AccessControlService extends CoreService
 
         foreach ($organizationsToProcess as $orgaToProcess) {
             // If permission is already stored, skip it
-            if (true === $this->permissionExist($permissionToEnable, $orgaToProcess, $customer, [$role->getCode()])) {
+            if ($this->permissionExist($permissionToEnable, $orgaToProcess, $customer, [$role->getCode()])) {
                 continue;
             }
 
@@ -217,7 +234,7 @@ class AccessControlService extends CoreService
 
             $updatedOrga = $this->addPermissionBasedOnOrgaType($permissionToEnable, $role, $orgaToProcess, $customer, $dryRun);
 
-            if (null !== $updatedOrga) {
+            if ($updatedOrga instanceof OrgaInterface) {
                 $updatedOrgas[] = $updatedOrga;
             }
         }
@@ -330,7 +347,7 @@ class AccessControlService extends CoreService
     {
         $specificOrga = $this->orgaService->getOrga($orgaId);
 
-        if (null === $specificOrga) {
+        if (!$specificOrga instanceof Orga) {
             throw new InvalidArgumentException(sprintf('Organization with ID "%s" not found', $orgaId));
         }
 

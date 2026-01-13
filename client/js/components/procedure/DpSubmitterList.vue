@@ -9,16 +9,17 @@
 
 <template>
   <div>
-    <p>
-      {{ Translator.trans('explanation.list.of.submitters') }}
-    </p>
+    <p>{{ Translator.trans('explanation.list.of.submitters') }}</p>
 
     <div class="flex items-center u-pv-0_5">
       <a
-        :href="exportSubmitterList">
+        :href="exportSubmitterList"
+        download
+      >
         <i
           class="fa fa-download"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
         {{ Translator.trans('export') }}
       </a>
 
@@ -27,49 +28,71 @@
         data-cy="submitterList:selectableColumns"
         :initial-selection="currentSelection"
         :selectable-columns="selectableColumns"
-        @selection-changed="setCurrentSelection"
         use-local-storage
-        local-storage-key="submitterList" />
+        local-storage-key="submitterList"
+        @selection-changed="setCurrentSelection"
+      />
     </div>
 
     <dp-loading v-if="isLoading" />
+
     <template v-else>
       <dp-data-table
-        class="overflow-x-auto"
         v-if="items.length"
+        class="overflow-x-auto"
         :header-fields="headerFields"
         :items="items"
-        track-by="id">
+        track-by="id"
+      >
         <template v-slot:statement="rowData">
           <a
-            :href="SubmitterListItem(rowData)"
-            data-cy="SubmitterListItem">
+            :href="getSegmentsListItemUrl(rowData)"
+            :aria-label="Translator.trans('aria.navigate.statement.details', { name: rowData.statement })"
+            data-cy="submitterList:navigate:segmentsListItem"
+          >
             {{ rowData.statement }}
           </a>
         </template>
+
+        <template v-slot:internId="{ internId }">
+          <div class="o-hellip__wrapper">
+            <div
+              v-tooltip="internId"
+              class="o-hellip--nowrap text-right"
+              dir="rtl"
+              v-cleanhtml="internId"
+            />
+          </div>
+        </template>
+
         <template v-slot:street="rowData">
           <div class="o-hellip--nowrap">
             <span v-cleanhtml="rowData.street" />
           </div>
         </template>
+
         <template v-slot:postalCodeAndCity="rowData">
           <div class="o-hellip--nowrap">
             <span v-cleanhtml="rowData.postalCodeAndCity" />
           </div>
         </template>
-        <template v-slot:internId="{ internId }">
-          <div
-            class="o-hellip__wrapper">
-            <div
-              v-text="internId"
-              class="o-hellip--nowrap text-right"
-              v-tooltip="internId"
-              dir="rtl" />
-          </div>
+
+        <template v-slot:similarSubmitters="rowData">
+          <span v-if="rowData.similarSubmittersCount === '-'">
+            {{ rowData.similarSubmittersCount }}
+          </span>
+          <a
+            v-else
+            :href="getSimilarSubmittersUrl(rowData)"
+            :aria-label="Translator.trans('aria.navigate.statement.details', { name: rowData.statement })"
+            data-cy="submitterList:navigate:similarSubmitters"
+          >
+            {{ rowData.similarSubmittersCount }}
+          </a>
         </template>
       </dp-data-table>
 
-      <div v-else-if="items.length === 0">
+      <div v-else>
         <p class="flash flash-info">
           {{ Translator.trans('statements.submitted.none') }}
         </p>
@@ -79,7 +102,8 @@
 </template>
 
 <script>
-import { CleanHtml, dpApi, DpColumnSelector, DpDataTable, DpLoading } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpColumnSelector, DpDataTable, DpLoading } from '@demos-europe/demosplan-ui'
+import { mapActions, mapState } from 'vuex'
 
 export default {
   name: 'DpSubmitterList',
@@ -87,7 +111,7 @@ export default {
   components: {
     DpColumnSelector,
     DpDataTable,
-    DpLoading
+    DpLoading,
   },
 
   directives: { cleanhtml: CleanHtml },
@@ -95,84 +119,121 @@ export default {
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       headerFieldsAvailable: [
         { field: 'name', label: Translator.trans('name') },
+        { field: 'statement', label: Translator.trans('id'), tooltip: Translator.trans('id.statement.long') },
+        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'email', label: Translator.trans('email') },
         { field: 'street', label: Translator.trans('street') },
         { field: 'postalCodeAndCity', label: Translator.trans('postalcode') + ' / ' + Translator.trans('city') },
         { field: 'organisationAndDepartment', label: Translator.trans('organisation') + ' / ' + Translator.trans('department') },
+        { field: 'similarSubmitters', label: Translator.trans('statement.similarSubmitters') },
         { field: 'memo', label: Translator.trans('memo') },
-        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
-        { field: 'statement', label: Translator.trans('id'), tooltip: Translator.trans('id.statement.long') }
       ],
       isLoading: false,
-      items: [],
-      currentSelection: ['name', 'organisationAndDepartment', 'statement']
+      currentSelection: ['name', 'organisationAndDepartment', 'statement'],
     }
   },
 
   computed: {
+    ...mapState('Statement', {
+      statements: 'items',
+    }),
+
     exportSubmitterList () {
       return Routing.generate('dplan_admin_procedure_submitter_export', {
-        procedureId: this.procedureId
+        procedureId: this.procedureId,
       })
     },
+
+    headerFields () {
+      return this.headerFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
+    },
+
+    items () {
+      return Object.values(this.statements)
+        .map(statement => this.handleEmptyAttrs(statement))
+        .sort((a, b) => Number(a.isCitizen) - Number(b.isCitizen))
+    },
+
     selectableColumns () {
       return this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
     },
-    headerFields () {
-      return this.headerFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
-    }
   },
 
   methods: {
-    async fetchStatements () {
-      this.isLoading = true
-      const response = await dpApi.get(Routing.generate('api_resource_list', { resourceType: 'Statement' }),
-        {
-          filter: {
-            procedureId: {
-              condition: {
-                path: 'procedure.id',
-                value: this.procedureId
-              }
-            }
-          },
-          fields: {
-            Statement: [
-              'authorName',
-              'externId',
-              'internId',
-              'initialOrganisationCity',
-              'initialOrganisationDepartmentName',
-              'initialOrganisationName',
-              'initialOrganisationPostalCode',
-              'initialOrganisationHouseNumber',
-              'initialOrganisationStreet',
-              'isCitizen',
-              'isSubmittedByCitizen',
-              'memo',
-              'submitName',
-              'submitterEmailAddress'
-            ].join()
-          }
-        }
-      )
+    ...mapActions('Statement', {
+      statementList: 'list',
+    }),
 
-      this.items = [...response.data.data]
-        .map(statement => {
-          return this.handleEmptyAttrs(statement)
-        })
-        .sort((a, b) => {
-          return (a.isCitizen === b.isCitizen) ? 0 : a.isCitizen ? 1 : -1
-        })
-      this.isLoading = false
+    fetchStatements () {
+      this.isLoading = true
+
+      const statementFields = [
+        'authorName',
+        'externId',
+        'internId',
+        'initialOrganisationCity',
+        'initialOrganisationDepartmentName',
+        'initialOrganisationName',
+        'initialOrganisationPostalCode',
+        'initialOrganisationHouseNumber',
+        'initialOrganisationStreet',
+        'isCitizen',
+        'isSubmittedByCitizen',
+        'memo',
+        'similarStatementSubmitters',
+        'submitName',
+        'submitterEmailAddress',
+      ]
+
+      const hasSimilarSubmitterFeature = hasPermission('feature_similar_statement_submitter')
+
+      if (hasSimilarSubmitterFeature) {
+        statementFields.push('similarStatementSubmitters')
+      }
+
+      const params = {
+        filter: {
+          procedureId: {
+            condition: {
+              path: 'procedure.id',
+              value: this.procedureId,
+            },
+          },
+        },
+        fields: {
+          Statement: statementFields.join(),
+        },
+        ...(hasSimilarSubmitterFeature && { include: 'similarStatementSubmitters' })
+      }
+
+      this.statementList(params)
+        .finally(() => {
+          this.isLoading = false
+      })
+    },
+
+    getSegmentsListItemUrl (rowData) {
+      return Routing.generate('dplan_statement_segments_list', { statementId: rowData.id, procedureId: this.procedureId })
+    },
+
+    getSimilarSubmittersUrl (rowData) {
+      const submittersHash = `#submitter`
+
+      const url = Routing.generate('dplan_statement_segments_list', {
+        statementId: rowData.id,
+        procedureId: this.procedureId,
+        action: 'editText',
+      })
+
+      return `${url}${submittersHash}`
     },
 
     /**
@@ -195,7 +256,7 @@ export default {
         isSubmittedByCitizen,
         memo,
         submitterEmailAddress: email,
-        submitName
+        submitName,
       } = resourceObj.attributes
 
       return {
@@ -207,8 +268,9 @@ export default {
         name: authorName || submitName || '-',
         organisationAndDepartment: this.handleOrgaAndDepartment(departmentName, organisationName, isSubmittedByCitizen),
         postalCodeAndCity: this.handleOrgaPostalCodeAndOrgaCity(city, postalCode),
+        similarSubmittersCount: resourceObj.relationships.similarStatementSubmitters.data.length || '-',
         statement: externId,
-        street: this.handleOrgaStreet(street, houseNumber)
+        street: this.handleOrgaStreet(street, houseNumber),
       }
     },
 
@@ -239,13 +301,9 @@ export default {
     setCurrentSelection (selection) {
       this.currentSelection = selection
     },
-
-    SubmitterListItem (rowData) {
-      return Routing.generate('dplan_statement_segments_list', { statementId: rowData.id, procedureId: this.procedureId })
-    }
   },
   mounted () {
     this.fetchStatements()
-  }
+  },
 }
 </script>

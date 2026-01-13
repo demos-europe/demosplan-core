@@ -79,6 +79,17 @@ final class UserFactory extends PersistentProxyObjectFactory
      */
     protected function initialize(): static
     {
-        return $this;
+        return $this->afterInstantiate(function (User $user): void {
+            // Set default flag values that match expected behavior for new users
+            $user->setNewUser(true);
+            $user->setProfileCompleted(false);
+            $user->setAccessConfirmed(false);
+            $user->setNewsletter(false);
+            $user->setForumNotification(false);
+            $user->setAssignedTaskNotification(false);
+
+            // For new users, modifiedDate should equal createdDate to indicate no activity
+            $user->setModifiedDate($user->getCreatedDate());
+        });
     }
 }

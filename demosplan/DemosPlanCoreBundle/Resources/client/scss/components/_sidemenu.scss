@@ -20,18 +20,15 @@
     }
 
     & > li {
-        border-bottom: $utility-border-thickness solid $utility-border-color;
+        border-bottom: $dp-border-thickness solid $dp-color-border-default;
 
         .o-accordion {
             background-color: $dp-color-white;
         }
 
         button {
-            padding: {
-                top: $inuit-base-spacing-unit--tiny;
-                bottom:$inuit-base-spacing-unit--tiny;
-                right: $inuit-base-spacing-unit--small;
-            }
+            background-color: $dp-color-white;
+            padding: $inuit-base-spacing-unit--tiny $inuit-base-spacing-unit--small;
         }
     }
 

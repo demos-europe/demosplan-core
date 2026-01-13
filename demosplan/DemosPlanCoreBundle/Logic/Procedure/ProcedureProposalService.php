@@ -17,15 +17,21 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureProposalNotFound;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureProposalRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Exception;
 
-class ProcedureProposalService extends CoreService
+class ProcedureProposalService
 {
-    public function __construct(private ContentService $contentService, private readonly CurrentUserInterface $currentUser, private readonly ProcedureProposalRepository $procedureProposalRepository, private readonly ProcedureService $procedureService, private readonly UserRepository $userRepository)
-    {
+    public $logger;
+
+    public function __construct(
+        private ContentService $contentService,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly ProcedureProposalRepository $procedureProposalRepository,
+        private readonly ProcedureService $procedureService,
+        private readonly UserRepository $userRepository,
+    ) {
     }
 
     /**
@@ -97,8 +103,8 @@ class ProcedureProposalService extends CoreService
 
         // Localization by MaintenanceService:
         $procedureCoordinate = $generatedProcedure->getCoordinate();
-        if ('' !== $procedureCoordinate && null !== $procedureCoordinate &&
-            $this->currentUser->hasPermission('feature_procedures_located_by_maintenance_service')) {
+        if ('' !== $procedureCoordinate && null !== $procedureCoordinate
+            && $this->currentUser->hasPermission('feature_procedures_located_by_maintenance_service')) {
             $this->contentService->setSetting('needLocalization', ['procedureId' => $generatedProcedure->getId()]);
         }
 

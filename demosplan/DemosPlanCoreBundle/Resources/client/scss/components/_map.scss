@@ -179,6 +179,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
             @include media-query('palm') {
                 height: 80vh;
+                padding-left: 24px;
             }
 
             z-index: 0;
@@ -541,6 +542,10 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             min-width: 200px;
             background-color: $dp-color-white;
             width: auto !important;
+
+            @include media-query('palm') {
+                left: 72px;
+            }
         }
 
         //  Custom zoom controls
@@ -644,23 +649,6 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         //  popup triggered with mapSingleClick()
         &__popup {
-
-            //  set popover fixed for mobile devices and handle long text-overflow
-            @include media-query('palm') {
-                inset: 2% 2% auto;
-                position: fixed;
-                z-index: 1040;
-
-                max-height: 96%;
-                min-height: 0;
-                overflow-y: auto;
-
-                //  hide the popup arrow which can not be positioned with overflow-y: auto
-                &::after {
-                    display: none;
-                }
-            }
-
             bottom: 12px;
             left: -50px;
             position: absolute;
@@ -891,6 +879,10 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
     .c-map .ol-zoom {
         left: $inuit-base-spacing-unit--small;
         top: $inuit-base-spacing-unit--small;
+
+        @include media-query('palm') {
+            left: 36px;
+        }
     }
 
     .c-map .ol-viewport {

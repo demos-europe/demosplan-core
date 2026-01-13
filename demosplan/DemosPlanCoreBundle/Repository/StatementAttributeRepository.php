@@ -37,7 +37,7 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
     {
         try {
             $em = $this->getEntityManager();
-            if (!(array_key_exists('stId', $data) ^ array_key_exists('dsId', $data) ^ array_key_exists('statement', $data) ^ array_key_exists('draftStatement', $data))) {
+            if ((array_key_exists('stId', $data) ^ array_key_exists('dsId', $data) ^ array_key_exists('statement', $data) ^ array_key_exists('draftStatement', $data)) === 0) {
                 throw new InvalidArgumentException('Trying to add a StatementAttribute without Statement- or DraftStatementId');
             }
             if (!array_key_exists('type', $data)) {
@@ -364,8 +364,8 @@ class StatementAttributeRepository extends CoreRepository implements ArrayInterf
      */
     private function assertIsSupportedType($entity)
     {
-        if (!(is_a($entity, Statement::class)
-            ^ is_a($entity, DraftStatement::class))) {
+        if ((is_a($entity, Statement::class)
+            ^ is_a($entity, DraftStatement::class)) === 0) {
             throw new Exception('Argument $entity must be Statement or DraftStatement');
         }
     }

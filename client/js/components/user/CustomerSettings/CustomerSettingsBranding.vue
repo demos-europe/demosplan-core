@@ -22,7 +22,8 @@
         <dp-label
           :hint="Translator.trans('explanation.upload.logo.dimensions')"
           :text="Translator.trans('logo.upload.new')"
-          for="r_customerLogo" />
+          for="r_customerLogo"
+        />
         <dp-upload-files
           id="r_customerLogo"
           ref="logoUpload"
@@ -36,29 +37,35 @@
           :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '200 KB' }) }"
           :tus-endpoint="dplan.paths.tusEndpoint"
           @file-remove="unsetFile"
-          @upload-success="setFile" />
+          @upload-success="setFile"
+        />
       </div><!--
    --><div
         v-if="uploadedFileId && uploadedFileId !== ''"
-        class="layout__item u-1-of-2">
+        class="layout__item u-1-of-2"
+      >
         <p
           class="weight--bold"
-          v-text="Translator.trans('logo.current')" />
+          v-text="Translator.trans('logo.current')"
+        />
         <img
           :alt="Translator.trans('logo.alt.customer')"
           :src="Routing.generate('core_logo', { hash: uploadedFileId })"
-          style="max-width: 300px">
+          style="max-width: 300px"
+        >
         <dp-button
           class="mt-2"
           data-cy="customerBranding:deleteLogo"
           :text="Translator.trans('logo.delete')"
           variant="outline"
-          @click.prevent="deleteLogo" />
+          @click.prevent="deleteLogo"
+        />
       </div>
     </template>
     <div
       v-if="hasPermission('feature_customer_branding_edit')"
-      class="layout__item u-1-of-1">
+      class="layout__item u-1-of-1"
+    >
       <dp-text-area
         id="r_styling"
         data-cy="customerSettingsBranding:brandingStylingInput"
@@ -67,13 +74,16 @@
         name="r_styling"
         reduced-height
         :value="branding.styling"
-        @input="branding = { key: 'styling', value: $event }" />
+        @input="branding = { key: 'styling', value: $event }"
+      />
       <dp-details
         data-cy="customerSettingsBranding:brandingStylingDetails"
-        :summary="Translator.trans('branding.styling.details')">
+        :summary="Translator.trans('branding.styling.details')"
+      >
         <span
           data-cy="customerSettingsBranding:brandingStylingDetailsDescription"
-          v-html="Translator.trans('branding.styling.details.description')" />
+          v-html="Translator.trans('branding.styling.details.description')"
+        />
       </dp-details>
     </div>
     <dp-button-row
@@ -81,7 +91,8 @@
       class="layout__item u-1-of-1"
       data-cy="customerSettingsBranding"
       primary
-      @primary-action="saveBrandingSettings" />
+      @primary-action="saveBrandingSettings"
+    />
   </div>
 </template>
 
@@ -98,30 +109,30 @@ export default {
     DpDetails,
     DpLabel,
     DpTextArea,
-    DpUploadFiles
+    DpUploadFiles,
   },
 
   props: {
     brandingId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
     return {
       isBusy: false,
-      uploadedFileId: null
+      uploadedFileId: null,
     }
   },
 
   computed: {
     ...mapState('Branding', {
-      brandingList: 'items'
+      brandingList: 'items',
     }),
 
     ...mapState('File', {
-      fileList: 'items'
+      fileList: 'items',
     }),
 
     branding: {
@@ -133,25 +144,25 @@ export default {
           ...this.brandingList[this.brandingId],
           attributes: {
             ...this.brandingList[this.brandingId].attributes,
-            [key]: value
-          }
+            [key]: value,
+          },
         })
-      }
-    }
+      },
+    },
   },
 
   methods: {
     ...mapActions('Branding', {
       fetchBranding: 'list',
-      saveBranding: 'save'
+      saveBranding: 'save',
     }),
 
     ...mapMutations('Branding', {
-      updateBranding: 'setItem'
+      updateBranding: 'setItem',
     }),
 
     ...mapMutations('File', {
-      updateFile: 'setItem'
+      updateFile: 'setItem',
     }),
 
     deleteLogo () {
@@ -163,13 +174,13 @@ export default {
         id: this.brandingId,
         type: 'Branding',
         attributes: {
-          ...this.branding
+          ...this.branding,
         },
         relationships: {
           logo: {
-            data: null
-          }
-        }
+            data: null,
+          },
+        },
       }
       this.updateBranding(payload)
       this.saveBranding(this.brandingId).then(() => {
@@ -196,15 +207,15 @@ export default {
         id: this.brandingId,
         type: 'Branding',
         attributes: {
-          ...this.brandingList[this.brandingId].attributes
-        }
+          ...this.brandingList[this.brandingId].attributes,
+        },
       }
 
       if (this.uploadedFileId || this.isLogoDeletable) {
         payload.relationships = {
           logo: {
-            data: this.isLogoDeletable ? null : { id: this.uploadedFileId, type: 'File' }
-          }
+            data: this.isLogoDeletable ? null : { id: this.uploadedFileId, type: 'File' },
+          },
         }
       }
 
@@ -223,11 +234,11 @@ export default {
     unsetFile () {
       this.updateFile({ id: null, attributes: { hash: null } })
       this.uploadedFileId = null
-    }
+    },
   },
   mounted () {
     const file = this.brandingList[this.brandingId].relationships?.logo?.data?.id ?? null
     this.uploadedFileId = file ? this.fileList[file].id : null
-  }
+  },
 }
 </script>

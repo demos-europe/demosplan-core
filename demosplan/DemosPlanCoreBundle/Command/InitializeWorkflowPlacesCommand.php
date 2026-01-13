@@ -14,10 +14,9 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
-use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -29,11 +28,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * Initialize default workflow places for procedures that don't have any places.
  */
+#[AsCommand(name: 'dplan:workflow:init-places', description: 'Add default workflow places to procedures that have none')]
 class InitializeWorkflowPlacesCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:workflow:init-places';
-    protected static $defaultDescription = 'Add default workflow places to procedures that have none';
-
     /**
      * Default places that will be created (same as in LoadWorkflowPlaceData fixture).
      */
@@ -49,7 +46,7 @@ class InitializeWorkflowPlacesCommand extends CoreCommand
         private readonly EntityManagerInterface $entityManager,
         private readonly ValidatorInterface $validator,
         ParameterBagInterface $parameterBag,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -106,7 +103,7 @@ EOT
             // Find procedures without workflow places
             $proceduresWithoutPlaces = $this->findProceduresWithoutPlaces($procedureId);
 
-            if (empty($proceduresWithoutPlaces)) {
+            if ([] === $proceduresWithoutPlaces) {
                 if ($procedureId) {
                     $io->success("Procedure {$procedureId} already has workflow places or doesn't exist.");
                 } else {
@@ -166,7 +163,6 @@ EOT
             $qb->andWhere('p.id = :procedureId')
                 ->setParameter('procedureId', $procedureId);
         }
-
 
         return $qb->getQuery()->getResult();
     }

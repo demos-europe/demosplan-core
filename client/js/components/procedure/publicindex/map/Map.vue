@@ -9,8 +9,9 @@
 
 <template>
   <l-map
-    class="c-publicindex__map isolate"
+    v-if="hasPermission('feature_public_index_map')"
     ref="map"
+    class="c-publicindex__map isolate"
     :aria-label="Translator.trans('map')"
     :zoom="initialZoom"
     :center="initialLocation"
@@ -18,7 +19,7 @@
     :max-zoom="18"
     :options="mapOptions"
     :crs="mapCRS"
-    v-if="hasPermission('feature_public_index_map')">
+  >
     <l-icon-default />
 
     <l-wms-tile-layer
@@ -34,19 +35,22 @@
       :bound="layer.bounds"
       :min-zoom="layer.minZoom"
 
-      layer-type="base" />
+      layer-type="base"
+    />
 
     <template v-if="procedures.length">
       <l-marker-cluster
         ref="clusters"
-        :options="clusterOptions">
+        :options="clusterOptions"
+      >
         <l-marker
           v-for="procedure in procedures"
           :key="procedure.id"
           :icon="customMarker(procedure)"
           :lat-lng="coordinate(procedure.coordinate)"
           :options="{ id: procedure.id }"
-          @click="activateMarker(procedure.id)">
+          @click="activateMarker(procedure.id)"
+        >
           <l-tooltip :options="{direction: 'top', offset: tooltipOffset}">
             {{ tooltipContent(procedure) }}
           </l-tooltip>
@@ -73,50 +77,50 @@ export default {
     LMarker,
     LMarkerCluster,
     LTooltip,
-    'l-wms-tile-layer': LWMSTileLayer
+    'l-wms-tile-layer': LWMSTileLayer,
   },
 
   props: {
     mapData: {
       type: Object,
-      required: true
+      required: true,
     },
 
     initialMapSettings: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     isPublicAgency: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     isPublicUser: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     projectionName: {
       type: String,
       required: false,
-      default: window.dplan.defaultProjectionLabel
+      default: window.dplan.defaultProjectionLabel,
     },
 
     projectionString: {
       type: String,
       required: false,
-      default: window.dplan.defaultProjectionString
+      default: window.dplan.defaultProjectionString,
     },
 
     projectVersion: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   data () {
@@ -128,9 +132,9 @@ export default {
           return L.divIcon({
             html: '<div><span>' + cluster.getChildCount() + '</span></div>',
             className: 'c-publicindex__marker-cluster',
-            iconSize: new L.Point(40, 40)
+            iconSize: new L.Point(40, 40),
           })
-        }
+        },
       },
       /*
        * Get color to fill the markers from css custom property, fallback to platform style.
@@ -140,7 +144,7 @@ export default {
        */
       markersColor: getCssVariable('--dp-token-color-brand-highlight') ? getCssVariable('--dp-token-color-brand-highlight').replace(' ', '').replace('#', '') : 'a4004c',
 
-      mapCRS: L.CRS[window.dplan.defaultProjectionLabel.replace(':', '')]
+      mapCRS: L.CRS[window.dplan.defaultProjectionLabel.replace(':', '')],
     }
   },
 
@@ -148,11 +152,11 @@ export default {
     ...mapGetters('Procedure', [
       'currentProcedureId',
       'currentView',
-      'shouldMapZoomBeSet'
+      'shouldMapZoomBeSet',
     ]),
 
     ...mapState('Procedure', {
-      proceduresFromStore: 'procedures'
+      proceduresFromStore: 'procedures',
     }),
 
     bbox () {
@@ -183,7 +187,7 @@ export default {
       return {
         maxBounds: this.bbox,
         attributionControl: false,
-        zoomControl: false
+        zoomControl: false,
       }
     },
 
@@ -208,9 +212,9 @@ export default {
         // MaxZoom: 14,
         minZoom: settings.minZoom,
         bounds: this.bbox,
-        transparent: true
+        transparent: true,
       }]
-    }
+    },
   },
 
   watch: {
@@ -223,7 +227,7 @@ export default {
           this.setZoom()
         }
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
 
     },
 
@@ -233,13 +237,13 @@ export default {
           this.$nextTick(() => this.setZoom())
         }
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
-    }
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
     ...mapActions('Procedure', [
-      'showDetailView'
+      'showDetailView',
     ]),
 
     activateMarker (id) {
@@ -261,7 +265,7 @@ export default {
       const attributionHtml = dataProtectionLink + imprintLink + termsLink + attribution
 
       L.control.attribution({
-        prefix: `<div class="c-publicindex__footer">${attributionHtml}</div>`
+        prefix: `<div class="c-publicindex__footer">${attributionHtml}</div>`,
       }).addTo(this.$refs.map.mapObject)
     },
 
@@ -277,8 +281,8 @@ export default {
     customMarker (procedure) {
       const accessType = this.determineAccessType(procedure)
 
-      return accessType === 'write'
-        ? L.icon({
+      return accessType === 'write' ?
+        L.icon({
           iconUrl: `data:image/svg+xml,%3Csvg
             xmlns='http://www.w3.org/2000/svg'
             width='30'
@@ -288,9 +292,9 @@ export default {
             d='M15.2915 6.66699c-4.764 0-8.625 3.11719-8.625 6.96431 0 1.6607.721 3.1808 1.92041 4.3761-.42114 1.6875-1.82944 3.1908-1.84628 3.2076-.07413.077-.09434.1908-.05054.2913.0438.1004.13813.1607.24595.1607 2.23374 0 3.90816-1.0647 4.73696-1.721 1.1018.4118 2.3248.6496 3.6185.6496 4.764 0 8.625-3.1172 8.625-6.9643 0-3.84712-3.861-6.96431-8.625-6.96431Z'
             fill='%23fff'
             /%3E%3C/svg%3E`,
-          iconSize: [30, 40]
-        })
-        : L.icon({
+          iconSize: [30, 40],
+        }) :
+        L.icon({
           iconUrl: `data:image/svg+xml,%3Csvg
             xmlns='http://www.w3.org/2000/svg'
             width='30'
@@ -298,7 +302,7 @@ export default {
             d='M13.4584 39.193C2.10703 22.7368 0 21.0479 0 15 0 6.7157 6.7157 0 15 0s15 6.7157 15 15c0 6.0479-2.107 7.7368-13.4584 24.193-.745 1.0761-2.3383 1.076-3.0832 0Z'
             fill='%23${this.markersColor}'
             /%3E%3C/svg%3E`,
-          iconSize: [30, 40]
+          iconSize: [30, 40],
         })
     },
 
@@ -379,12 +383,12 @@ export default {
       if (latLng) {
         this.$refs.map.mapObject.fitBounds([latLng, latLng])
       }
-    }
+    },
   },
 
   mounted () {
     this.addZoomControl()
     this.addFooter()
-  }
+  },
 }
 </script>

@@ -32,12 +32,14 @@ use demosplan\DemosPlanCoreBundle\Tools\VirusCheckInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Faker\Provider\Uuid;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToCopyFile;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -47,7 +49,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 
-class FileService extends CoreService implements FileServiceInterface
+class FileService implements FileServiceInterface
 {
     protected $container;
     protected $baseGetURL;
@@ -86,6 +88,8 @@ class FileService extends CoreService implements FileServiceInterface
         private readonly TranslatorInterface $translator,
         private readonly VirusCheckInterface $virusChecker,
         protected RpcClient $client,
+        private readonly ManagerRegistry $doctrine,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -112,7 +116,7 @@ class FileService extends CoreService implements FileServiceInterface
     {
         $file = $this->fileRepository->getFile($hash, $procedureId);
 
-        if (null !== $file) {
+        if ($file instanceof File) {
             $path = $file->getPath();
             $absolutePath = $this->getAbsolutePath($path);
 
@@ -226,12 +230,12 @@ class FileService extends CoreService implements FileServiceInterface
             /** @var File $file */
             $isUsed = $this->fileInUseChecker->isFileInUse($file->getId());
             if (!$isUsed) {
-                $this->getLogger()->info('Delete unused File', ['id' => $file->getId()]);
+                $this->logger->info('Delete unused File', ['id' => $file->getId()]);
                 try {
                     $file->setDeleted(true);
                     $this->fileRepository->updateObject($file);
                 } catch (Exception $e) {
-                    $this->getLogger()->warning('Could not update File', [$e, $e->getMessage()]);
+                    $this->logger->warning('Could not update File', [$e, $e->getMessage()]);
                 }
             }
         }
@@ -251,7 +255,7 @@ class FileService extends CoreService implements FileServiceInterface
         /** @var File $file */
         foreach ($allSoftDeletedFiles as $file) {
             try {
-                $this->getLogger()->info('Try to fully remove soft deleted File ', [$file->getId()]);
+                $this->logger->info('Try to fully remove soft deleted File ', [$file->getId()]);
                 $deleted = $this->deleteFile($file->getId());
                 if ($deleted) {
                     if (null === $file->getId()) {
@@ -261,7 +265,7 @@ class FileService extends CoreService implements FileServiceInterface
                 }
                 ++$filesDeleted;
             } catch (Exception $e) {
-                $this->getLogger()->warning('Could not delete soft deleted File', [$e, $e->getMessage()]);
+                $this->logger->warning('Could not delete soft deleted File', [$e, $e->getMessage()]);
             }
         }
 
@@ -292,20 +296,20 @@ class FileService extends CoreService implements FileServiceInterface
                     if (0 === $existingFile) {
                         try {
                             if ($this->defaultStorage->fileExists($file->path())) {
-                                $this->getLogger()->info('Remove orphaned file', [$filename]);
+                                $this->logger->info('Remove orphaned file', [$filename]);
                                 $this->defaultStorage->delete($file->path());
                             }
                             ++$filesDeleted;
                         } catch (Exception) {
-                            $this->getLogger()->warning('Could not remove orphaned file', [$file->path()]);
+                            $this->logger->warning('Could not remove orphaned file', [$file->path()]);
                         }
                     }
                 } catch (FilesystemException $e) {
-                    $this->getLogger()->error('Could not remove file '.$file->path().' '.$e->getMessage());
+                    $this->logger->error('Could not remove file '.$file->path().' '.$e->getMessage());
                 }
             }
         } catch (FilesystemException $e) {
-            $this->getLogger()->error('Could not list files in default storage '.$e->getMessage());
+            $this->logger->error('Could not list files in default storage '.$e->getMessage());
         }
 
         return $filesDeleted;
@@ -328,12 +332,12 @@ class FileService extends CoreService implements FileServiceInterface
             $fileTime = Carbon::createFromTimestamp($file->getMTime());
             // delete files older than one hour
             if (1 < Carbon::now()->diffInHours($fileTime)) {
-                $this->getLogger()->info('Remove old temporary upload file', [$file->getRealPath(), $file->getSize()]);
+                $this->logger->info('Remove old temporary upload file', [$file->getRealPath(), $file->getSize()]);
                 try {
                     $fs->remove($file->getRealPath());
                     ++$filesDeleted;
                 } catch (Exception) {
-                    $this->getLogger()->warning('Could not remove temporary upload file', [$file->getRealPath()]);
+                    $this->logger->warning('Could not remove temporary upload file', [$file->getRealPath()]);
                 }
             }
         }
@@ -486,7 +490,7 @@ class FileService extends CoreService implements FileServiceInterface
             $fileContainer->setEntityClass($entityClass);
             $fileContainer->setEntityId($entityId);
             $fileContainer->setEntityField(self::ENTITY_FIELD_FILE);
-            $file = $this->getDoctrine()->getManager()->getReference(File::class, $fileId);
+            $file = $this->doctrine->getManager()->getReference(File::class, $fileId);
             $fileContainer->setFile($file);
             $fileContainer->setFileString($fileString);
             // check whether we have a valid file
@@ -526,7 +530,7 @@ class FileService extends CoreService implements FileServiceInterface
     {
         $file = $this->fileRepository->get($fileId);
         $fileContainer = $this->fileContainerRepository->getByPairing($file, $entityId);
-        if (null !== $fileContainer) {
+        if ($fileContainer instanceof FileContainer) {
             $this->fileContainerRepository->delete($fileContainer->getId());
         }
     }
@@ -547,10 +551,10 @@ class FileService extends CoreService implements FileServiceInterface
             // removeOrphanedFiles() called in daily maintenance task
             // Files may be stored in different storages
             $file = $this->getFileInfo($hash);
-            $this->getLogger()->info('Try to remove File', ['hash' => $file->getHash(), 'absolutePath' => $file->getAbsolutePath()]);
+            $this->logger->info('Try to remove File', ['hash' => $file->getHash(), 'absolutePath' => $file->getAbsolutePath()]);
             $this->defaultStorage->delete($hash);
             $this->localStorage->delete($hash);
-            $this->getLogger()->info('Removed File', ['hash' => $file->getHash(), 'absolutePath' => $file->getAbsolutePath()]);
+            $this->logger->info('Removed File', ['hash' => $file->getHash(), 'absolutePath' => $file->getAbsolutePath()]);
         } catch (Exception $e) {
             $this->logger->warning('Could not delete File: ', [$e, $e->getMessage()]);
         }
@@ -594,7 +598,7 @@ class FileService extends CoreService implements FileServiceInterface
                 'error.file.notFound',
                 ['fileName' => $file->getFileName()]
             );
-            $this->getLogger()->error('Could not find file', [$file->getHash()]);
+            $this->logger->error('Could not find file', [$file->getHash()]);
 
             return null;
         }
@@ -811,7 +815,7 @@ class FileService extends CoreService implements FileServiceInterface
             $fs = new DemosFilesystem();
             $fs->remove($file->getPathname());
             $this->removeRequestFiles();
-            $this->getLogger()->error('Error in virusCheck:', [$e]);
+            $this->logger->error('Error in virusCheck:', [$e]);
             throw $e;
         }
     }
@@ -1053,7 +1057,7 @@ class FileService extends CoreService implements FileServiceInterface
             $uploadDirectoryFreeSpace = disk_free_space(DemosPlanPath::getProjectPath('web/uploads/files'));
             $smallerValue = $uploadDirectoryFreeSpace < $fileDirectoryFreeSpace ? $uploadDirectoryFreeSpace : $fileDirectoryFreeSpace;
         } catch (Exception $e) {
-            $this->getLogger()->error('Error on getRemainingDiskSpace(): ', [$e]);
+            $this->logger->error('Error on getRemainingDiskSpace(): ', [$e]);
         }
 
         return $smallerValue;
@@ -1124,12 +1128,12 @@ class FileService extends CoreService implements FileServiceInterface
         }
 
         // save file into files path
-        $this->getLogger()->info(
+        $this->logger->info(
             'Try to move file',
             ['from' => $symfonyFile->getRealPath(), 'to' => $path]
         );
         $hash = $this->moveLocalFile($symfonyFile, $path, $fileEntity->getHash());
-        $this->getLogger()->info('File moved', ['hash' => $hash]);
+        $this->logger->info('File moved', ['hash' => $hash]);
 
         return [$path, $hash];
     }
@@ -1178,7 +1182,7 @@ class FileService extends CoreService implements FileServiceInterface
     {
         if (null === $path) {
             $path = DemosPlanPath::getTemporaryPath(
-                sprintf('%s/%s', uniqid($hash, true), $hash ?? uniqid('', true))
+                sprintf('%s/%s', uniqid((string) $hash, true), $hash ?? uniqid('', true))
             );
         }
         // Move the file to local directory from flysystem
@@ -1200,7 +1204,7 @@ class FileService extends CoreService implements FileServiceInterface
         try {
             $fs->remove($localFilePath);
         } catch (Exception $e) {
-            $this->getLogger()->error('Could not remove local file', [$localFilePath, $e->getMessage()]);
+            $this->logger->error('Could not remove local file', [$localFilePath, $e->getMessage()]);
         }
     }
 
@@ -1211,7 +1215,7 @@ class FileService extends CoreService implements FileServiceInterface
                 return $absolutePath;
             }
         } catch (FilesystemException $e) {
-            $this->getLogger()->info('Could not check file existence', [$absolutePath, $e->getMessage()]);
+            $this->logger->info('Could not check file existence', [$absolutePath, $e->getMessage()]);
         }
 
         // try to strip the path prefix from the absolute path

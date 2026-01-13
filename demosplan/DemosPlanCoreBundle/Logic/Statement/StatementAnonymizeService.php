@@ -13,12 +13,12 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
@@ -27,7 +27,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class StatementAnonymizeService extends CoreService
+class StatementAnonymizeService
 {
     /** @var string Tag before anonymization, it means: "this still needs to be anonymized!" */
     private const TAG = 'anonymize-text';
@@ -110,7 +110,7 @@ class StatementAnonymizeService extends CoreService
     public function anonymizeAddressData(Statement $statement): void
     {
         $meta = $statement->getMeta();
-        if (null !== $meta) {
+        if ($meta instanceof StatementMeta) {
             if (!$this->permissions->hasPermission('feature_keep_street_on_anonymize')
                 // see permission description for why the house number is checked
                 || '' === $meta->getHouseNumber()) {
@@ -185,7 +185,7 @@ class StatementAnonymizeService extends CoreService
 
             // Do not delete the file if it belongs to a draft statement (private user)
             $draftStatements = $this->draftStatementFileHandler->getDraftStatementRelatedToThisFile($fileStringParts[1]);
-            if (0 === count($draftStatements)) {
+            if ([] === $draftStatements) {
                 $this->fileService->deleteFileFromFileString($fileString);
             }
         }
@@ -257,7 +257,7 @@ class StatementAnonymizeService extends CoreService
     private function anonymizeAuthorUserData(Statement $statement): void
     {
         $statement->setUser(null);
-        if (null !== $statement->getMeta()) {
+        if ($statement->getMeta() instanceof StatementMeta) {
             $statement->getMeta()->setAuthorName($this->translator->trans('anonymized'));
         }
     }
@@ -350,7 +350,7 @@ class StatementAnonymizeService extends CoreService
                             '<'.self::TAG.'>',
                             '</'.self::TAG.'>',
                         ],
-                        $texts[$i]
+                        (string) $texts[$i]
                     );
                 }
             }
@@ -374,7 +374,7 @@ class StatementAnonymizeService extends CoreService
      */
     private function anonymizeSubmitUserData(Statement $statement): void
     {
-        if (null !== $statement->getMeta()) {
+        if ($statement->getMeta() instanceof StatementMeta) {
             $statement->getMeta()->setSubmitUId(null);
             $statement->getMeta()->setSubmitName($this->translator->trans('anonymized'));
         }

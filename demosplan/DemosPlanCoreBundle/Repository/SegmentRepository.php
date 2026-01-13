@@ -101,6 +101,29 @@ class SegmentRepository extends CoreRepository
     }
 
     /**
+     * Find all segments that have a custom field with the given ID.
+     *
+     * @return array<Segment>
+     */
+    public function findSegmentsWithCustomField(string $customFieldId): array
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        // Escape JSON-breaking characters to prevent injection
+        $escapedCustomFieldId = str_replace(['\\', '"'], ['\\\\', '\\"'], $customFieldId);
+        $searchPattern = '%"id":"'.$escapedCustomFieldId.'"%';
+
+        return $qb
+            ->select('segment')
+            ->from(Segment::class, 'segment')
+            ->where('segment.customFields IS NOT NULL')
+            ->andWhere('segment.customFields LIKE :customFieldSearch')
+            ->setParameter('customFieldSearch', $searchPattern)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Get the position of a segment within its parent statement.
      *
      * @return array{segmentId: string, position: int, total: int}|null Returns null if segment not found

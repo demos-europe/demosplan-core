@@ -28,7 +28,7 @@ import StatementForm from '@DpJs/lib/statement/StatementForm'
 //  Vuex store modules (to be registered on core bundle vuex store)
 const stores = {
   layers,
-  publicStatement
+  publicStatement,
 }
 
 //  (Unmounted) vue parent components
@@ -42,7 +42,7 @@ const components = {
   DpUnfoldToolbarControl,
   DpUploadFiles,
   DpVideoPlayer,
-  RegisterFlyout
+  RegisterFlyout,
 }
 
 initialize(components, stores).then(() => {

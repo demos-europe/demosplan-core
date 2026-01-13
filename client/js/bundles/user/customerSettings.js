@@ -15,7 +15,7 @@ import CustomerSettings from '@DpJs/components/user/CustomerSettings/CustomerSet
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  CustomerSettings
+  CustomerSettings,
 }
 
 const apiStores = [
@@ -23,7 +23,7 @@ const apiStores = [
   'Customer',
   'CustomerContact',
   'CustomerLoginSupportContact',
-  'File'
+  'File',
 ]
 
 initialize(components, {}, apiStores)

@@ -21,50 +21,50 @@ export default {
     DpEditor,
     DpMultiselect,
     DpSelectDocument,
-    VPopover
+    VPopover,
   },
 
   props: {
     initTags: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initCounties: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initMunicipalities: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initPriorityAreas: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initFragmentText: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     statementText: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   data () {
@@ -74,12 +74,12 @@ export default {
       priorityAreas: [],
       tags: [],
       department: '',
-      fragmentText: ''
+      fragmentText: '',
     }
   },
 
   computed: {
-    ...mapGetters('AssessmentTable', ['assessmentBaseLoaded'])
+    ...mapGetters('AssessmentTable', ['assessmentBaseLoaded']),
   },
 
   methods: {
@@ -91,7 +91,7 @@ export default {
 
     setFragmentText () {
       this.fragmentText = this.statementText
-    }
+    },
   },
 
   mounted () {
@@ -114,6 +114,6 @@ export default {
     this.municipalities = this.initMunicipalities
     this.priorityAreas = this.initPriorityAreas
     this.fragmentText = this.initFragmentText
-  }
+  },
 }
 </script>

@@ -1,13 +1,16 @@
 <template>
-  <div>
+  <div
+    v-if="loadedAddons.length > 0"
+    :class="wrapperClasses">
     <component
-      v-for="addon in loadedAddons"
-      :is="addon.component"
-      :key="`addon:${addon.name}`"
-      :data-cy="`addon:${addon.name}`"
-      :ref="`${addon.name}${refComponent}`"
       v-bind="{ demosplanUi, ...addonProps }"
-      @addonEvent:emit="(event) => $emit(event.name, event.payload)" />
+      :is="addon.component"
+      v-for="addon in loadedAddons"
+      :key="`addon:${addon.name}`"
+      :ref="`${addon.name}${refComponent}`"
+      :data-cy="`addon:${addon.name}`"
+      @addon-event:emit="(event) => $emit(event.name, event.payload)"
+    />
   </div>
 </template>
 
@@ -26,7 +29,7 @@ export default {
     addonProps: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     /**
@@ -35,24 +38,30 @@ export default {
     hookName: {
       type: String,
       required: true,
-      default: ''
+      default: '',
     },
 
     refComponent: {
       type: String,
       required: false,
-      default: 'Addon'
-    }
+      default: 'Addon',
+    },
+
+    wrapperClasses: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
 
   emits: [
-    'addons:loaded'
+    'addons:loaded',
   ],
 
   data () {
     return {
       demosplanUi: shallowRef(demosplanUi),
-      loadedAddons: []
+      loadedAddons: [],
     }
   },
 
@@ -62,12 +71,12 @@ export default {
         addons.forEach(addon => {
           this.loadedAddons.push({
             component: shallowRef(window[addon.name].default),
-            name: addon.name
+            name: addon.name,
           })
         })
 
         this.$emit('addons:loaded', this.loadedAddons.map(addon => addon.name))
       })
-  }
+  },
 }
 </script>

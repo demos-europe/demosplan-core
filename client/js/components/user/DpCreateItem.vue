@@ -20,18 +20,22 @@
   <dp-accordion
     :is-open="isOpen"
     :title="Translator.trans(itemTitle)"
-    @item:toggle="(open) => { toggleItem(open) }">
+    @item:toggle="(open) => { toggleItem(open) }"
+  >
     <div class="o-box--dark soft">
       <div
         class="px-3 py-3"
         :data-cy="customComponent[entity].formName"
-        :data-dp-validate="customComponent[entity].formName">
+        :data-dp-validate="customComponent[entity].formName"
+      >
         <!-- Form fields   -->
         <component
           v-bind="dynamicComponentProps"
           :is="dynamicComponent"
           ref="formFields"
-          @[dynamicEvent]="update" />
+          @[dynamicEvent]="update"
+          @reset:complete="shouldResetForm = false"
+        />
 
         <!-- Save/Abort buttons   -->
         <dp-button-row
@@ -41,7 +45,8 @@
           primary
           secondary
           @primary-action="dpValidateAction(customComponent[entity].formName, save)"
-          @secondary-action="reset" />
+          @secondary-action="reset"
+        />
       </div>
     </div>
   </dp-accordion>
@@ -64,7 +69,7 @@ export default {
       submissionTypeShort: this.submissionTypeShort,
       showNewStatementNotification: this.showNewStatementNotification,
       presetUserOrgaId: this.presetUserOrgaId,
-      writableFields: this.writableFields
+      writableFields: this.writableFields,
     }
   },
 
@@ -72,7 +77,7 @@ export default {
     DpAccordion,
     DpButtonRow,
     DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationList/DpOrganisationFormFields')),
-    DpUserFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "user-form-fields" */ './DpUserList/DpUserFormFields'))
+    DpUserFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "user-form-fields" */ './DpUserList/DpUserFormFields')),
   },
 
   mixins: [dpValidateMixin],
@@ -81,7 +86,7 @@ export default {
     availableOrgaTypes: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     /**
@@ -90,7 +95,7 @@ export default {
      */
     entity: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -98,13 +103,13 @@ export default {
      */
     itemTitle: {
       type: String,
-      required: true
+      required: true,
     },
 
     presetUserOrgaId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     /**
@@ -113,7 +118,7 @@ export default {
     proceduresDirectLinkPrefix: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     /**
@@ -122,34 +127,32 @@ export default {
     projectName: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     showNewStatementNotification: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     subdomain: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     writableFields: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   emits: [
     'items:get',
-    'organisation:reset',
     'organisation:update',
-    'user:reset',
-    'user:update'
+    'user:update',
   ],
 
   data () {
@@ -159,29 +162,27 @@ export default {
        * componentName: {String}
        * componentProps: {Object}
        * formName: {String} needed for dpValidateAction
-       * resetEvent: {String}
        * updateEvent: {String}
        */
       customComponent: {
         organisation: {
           componentName: 'dp-organisation-form-fields',
           componentProps: {
-            availableOrgaTypes: this.availableOrgaTypes
+            availableOrgaTypes: this.availableOrgaTypes,
           },
           formName: 'newOrganisationForm',
-          resetEvent: 'organisation:reset',
-          updateEvent: 'organisation:update'
+          updateEvent: 'organisation:update',
         },
         user: {
           componentName: 'dp-user-form-fields',
           componentProps: {},
           formName: 'newUserForm',
-          resetEvent: 'user:reset',
-          updateEvent: 'user:update'
-        }
+          updateEvent: 'user:update',
+        },
       },
       isOpen: false,
-      item: {}
+      item: {},
+      shouldResetForm: false,
     }
   },
 
@@ -191,7 +192,10 @@ export default {
     },
 
     dynamicComponentProps () {
-      return this.customComponent[this.entity].componentProps
+      return {
+        ...this.customComponent[this.entity].componentProps,
+        triggerReset: this.shouldResetForm,
+      }
     },
 
     dynamicEvent () {
@@ -202,51 +206,51 @@ export default {
       const type = this.entity === 'user' ? 'AdministratableUser' : this.entity
       return {
         type,
-        ...this.item
+        ...this.item,
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('Orga', {
-      createOrganisation: 'create'
+      createOrganisation: 'create',
     }),
     ...mapActions('AdministratableUser', {
-      createUser: 'create'
+      createUser: 'create',
     }),
 
     ...mapMutations('AdministratableUser', {
-      updateAdministratableUser: 'setItem'
+      updateAdministratableUser: 'setItem',
     }),
 
     changeTypeToPascalCase (payload) {
       const newPayload = {
         ...payload,
         attributes: {
-          ...payload.attributes
+          ...payload.attributes,
         },
         relationships: {
           customers: {
-            data: payload.customers?.data[0].id
-              ? payload.customers.data.map(el => {
+            data: payload.customers?.data[0].id ?
+              payload.customers.data.map(el => {
                 return {
                   ...el,
-                  type: 'Customer'
+                  type: 'Customer',
                 }
-              })
-              : null
+              }) :
+              null,
           },
           departments: {
-            data: payload.departments?.data[0].id
-              ? payload.departments.data.map(el => {
+            data: payload.departments?.data[0].id ?
+              payload.departments.data.map(el => {
                 return {
                   ...el,
-                  type: 'Department'
+                  type: 'Department',
                 }
-              })
-              : null
-          }
-        }
+              }) :
+              null,
+          },
+        },
       }
 
       return newPayload
@@ -255,11 +259,14 @@ export default {
     reset () {
       this.isOpen = false
       this.item = {}
-      this.$root.$emit(this.customComponent[this.entity].resetEvent)
+      this.shouldResetForm = true
+
       const inputsWithErrors = this.$el.querySelector('[data-dp-validate]').querySelectorAll('.is-invalid')
+
       Array.from(inputsWithErrors).forEach(input => {
         input.classList.remove('is-invalid')
         const inputNodeName = input.nodeName
+
         if (inputNodeName === 'INPUT' || inputNodeName === 'SELECT') {
           input.setCustomValidity('')
         }
@@ -324,7 +331,7 @@ export default {
 
     update (item) {
       this.item = item
-    }
-  }
+    },
+  },
 }
 </script>

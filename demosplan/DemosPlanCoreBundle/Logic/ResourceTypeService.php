@@ -64,7 +64,7 @@ class ResourceTypeService implements ResourceTypeServiceInterface
      */
     public function checkWriteAccess(ResourceTypeInterface $type, array $properties, array $allowedProperties): void
     {
-        foreach ($properties as $propertyName => $propertyValue) {
+        foreach (array_keys($properties) as $propertyName) {
             if (!is_string($propertyName)) {
                 throw PropertyUpdateAccessException::intPropertyKey($type, $propertyName);
             }
@@ -86,14 +86,14 @@ class ResourceTypeService implements ResourceTypeServiceInterface
     public function checkRequiredProperties(ResourceTypeInterface $type, array $properties, array $requiredProperties): void
     {
         $missingProperties = array_diff_key($requiredProperties, $properties);
-        if (0 !== count($missingProperties)) {
+        if ([] !== $missingProperties) {
             $missingPropertiesString = implode(',', array_keys($missingProperties));
 
             throw new AccessException($type, "The following properties are required but were not provided when creating a new {$type->getTypeName()} resource: $missingPropertiesString");
         }
     }
 
-    public function validateObject(object $entity, array $groups = null): void
+    public function validateObject(object $entity, ?array $groups = null): void
     {
         $violationList = $this->validator->validate($entity, null, $groups);
         if (0 < $violationList->count()) {

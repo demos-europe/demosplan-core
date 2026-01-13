@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
 
@@ -114,7 +115,7 @@ final class GisLayerResourceType extends DplanResourceType
     protected function getAccessConditions(): array
     {
         $currentProcedure = $this->currentProcedureService->getProcedure();
-        if (null === $currentProcedure) {
+        if (!$currentProcedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 
@@ -186,7 +187,7 @@ final class GisLayerResourceType extends DplanResourceType
                 ->aliasedPath($this->category),
             $this->createAttribute($this->visibilityGroupId)
                 ->updatable()
-                ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getVisibilityGroupId() ?? ''),
+                ->readable(true, static fn (GisLayer $gisLayer): ?string => $gisLayer->getVisibilityGroupId() ?? null),
         ];
 
         if ($this->currentUser->hasPermission('area_admin_map')) {

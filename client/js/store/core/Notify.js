@@ -14,7 +14,7 @@ export default {
 
   state: {
     messages: [],
-    uid: 1
+    uid: 1,
   },
 
   mutations: {
@@ -27,6 +27,7 @@ export default {
      * @param {string} message.text Text of the message
      * @param {string} [message.linkUrl] Link url of the message
      * @param {string} [message.linkText] Link text of the message
+     * @param {boolean} [message.persist] Allow non-error notifications to persist (SessionTimer usage)
      */
     add (state, message) {
       state.messages.push({
@@ -34,7 +35,8 @@ export default {
         text: message.text || '',
         linkUrl: message.linkUrl || '',
         linkText: message.linkText || '',
-        uid: state.uid++
+        persist: message.persist || false,
+        uid: state.uid++,
       })
     },
 
@@ -51,6 +53,6 @@ export default {
      */
     remove (state, messageToRemove) {
       state.messages = state.messages.filter((message) => message.uid !== messageToRemove.uid)
-    }
-  }
+    },
+  },
 }

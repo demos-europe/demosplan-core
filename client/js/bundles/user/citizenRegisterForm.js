@@ -18,7 +18,7 @@ import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 
 const components = {
   CitizenRegisterForm,
-  RegisterFlyout
+  RegisterFlyout,
 }
 
 initialize(components).then(() => {

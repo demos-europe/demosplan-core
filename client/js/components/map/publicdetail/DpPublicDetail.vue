@@ -34,7 +34,7 @@ export default {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
       return DpVideoPlayer
     }),
-    StatementModal
+    StatementModal,
   },
 
   mixins: [prefixClassMixin],
@@ -43,18 +43,18 @@ export default {
     isMapEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     userId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
@@ -62,7 +62,7 @@ export default {
       activeTab: this.isMapEnabled ? '#procedureDetailsMap' : '#procedureDetailsDocumentlist',
       consultationTokenInputField: '',
       focusableElements: [],
-      lastFocusedElement: ''
+      lastFocusedElement: '',
     }
   },
 
@@ -72,12 +72,12 @@ export default {
       'showMapHint',
       'initForm',
       'statement',
-      'localStorageName'
+      'localStorageName',
     ]),
 
     activeStatement () {
       return this.initForm !== JSON.stringify(this.statement)
-    }
+    },
   },
 
   methods: {
@@ -159,7 +159,7 @@ export default {
       // This is doubled to start the green fading and allow to start at change again
       this.updateHighlighted({ key: 'documents', val: false })
       this.updateHighlighted({ key: 'documents', val: true })
-    }
+    },
   },
 
   created () {
@@ -171,6 +171,6 @@ export default {
     if (['#procedureDetailsMap', '#procedureDetailsDocumentlist', '#procedureDetailsStatementsPublic'].includes(currentHash)) {
       this.toggleTabs(currentHash)
     }
-  }
+  },
 }
 </script>

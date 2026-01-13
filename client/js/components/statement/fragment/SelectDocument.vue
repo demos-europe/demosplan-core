@@ -12,23 +12,26 @@
     <slot name="beforeElement">
       <label
         class="u-mb-0_25"
-        :for="elementsInputName">
+        :for="elementsInputName"
+      >
         {{ Translator.trans('document') }}
       </label>
     </slot>
     <div :class="selectboxWrapperClasses">
       <select
+        :id="elementsInputName"
         v-model="currentElementId"
         class="o-form__control-select"
         :name="elementsInputName"
-        :id="elementsInputName">
+      >
         <option value="">
           -
         </option>
         <option
           v-for="elem in elements"
           :key="elem.id"
-          :value="elem.id">
+          :value="elem.id"
+        >
           {{ elem.title }}
         </option>
       </select>
@@ -37,23 +40,26 @@
       <slot name="beforeParagraph">
         <label
           class="u-mb-0_25"
-          :for="paragraphsInputName">
+          :for="paragraphsInputName"
+        >
           {{ Translator.trans('paragraph') }}
         </label>
       </slot>
       <div :class="selectboxWrapperClasses">
         <select
+          :id="paragraphsInputName"
           v-model="currentParagraphId"
           class="o-form__control-select"
           :name="paragraphsInputName"
-          :id="paragraphsInputName">
+        >
           <option value="">
             -
           </option>
           <option
             v-for="paragraph in selectedElementParagraph"
             :key="paragraph.id"
-            :value="paragraph.id">
+            :value="paragraph.id"
+          >
             {{ paragraph.title }}
           </option>
         </select>
@@ -63,23 +69,26 @@
       <slot name="beforeParagraph">
         <label
           class="u-mb-0_25"
-          :for="fileInputName">
+          :for="fileInputName"
+        >
           {{ Translator.trans('file') }}
         </label>
       </slot>
       <div :class="selectboxWrapperClasses">
         <select
+          :id="fileInputName"
           v-model="currentFileId"
           class="layout__item"
           :name="fileInputName"
-          :id="fileInputName">
+        >
           <option value="">
             -
           </option>
           <option
             v-for="document in selectedElementFile"
             :key="document.id"
-            :value="document.id">
+            :value="document.id"
+          >
             {{ document.title }}
           </option>
         </select>
@@ -96,80 +105,80 @@ export default {
     elements: {
       required: true,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     paragraphs: {
       type: Object,
       required: true,
-      default: () => ({})
+      default: () => ({}),
     },
 
     documents: {
       type: Object,
       required: true,
-      default: () => ({})
+      default: () => ({}),
     },
 
     selectedElementId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     selectedElementTitle: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     selectedParagraphId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     selectedParagraphTitle: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     selectedFileId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     selectedFileTitle: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     elementsInputName: {
       required: false,
       type: String,
-      default: 'r_element'
+      default: 'r_element',
     },
 
     paragraphsInputName: {
       required: false,
       type: String,
-      default: 'r_paragraph'
+      default: 'r_paragraph',
     },
 
     fileInputName: {
       required: false,
       type: String,
-      default: 'r_document'
+      default: 'r_document',
     },
 
     selectboxWrapperClasses: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   data () {
@@ -179,7 +188,7 @@ export default {
       currentParagraphId: this.selectedParagraphId,
       currentParagraphTitle: this.selectedParagraphTitle,
       currentFileId: this.selectedFileId,
-      currentFileTitle: this.selectedFileTitle
+      currentFileTitle: this.selectedFileTitle,
     }
   },
 
@@ -218,7 +227,7 @@ export default {
      */
     selectedElementParagraph () {
       return this.paragraphs[this.currentElementId]
-    }
+    },
   },
 
   watch: {
@@ -229,7 +238,7 @@ export default {
           this.currentParagraphId = ''
         }
       },
-      deep: true
+      deep: true,
     },
 
     elementsHasFiles: {
@@ -239,8 +248,8 @@ export default {
           this.currentFileId = ''
         }
       },
-      deep: true
-    }
-  }
+      deep: true,
+    },
+  },
 }
 </script>

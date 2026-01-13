@@ -19,19 +19,19 @@ describe('DpLayerLegend', () => {
   beforeEach(() => {
     store = createStore({
       modules: {
-        Layers: LayersStore
-      }
+        Layers: LayersStore,
+      },
     })
 
     wrapper = shallowMountWithGlobalMocks(DpLayerLegend, {
       props: {
         layersWithLegendFiles: [],
         planPdf: {},
-        procedureId: '123'
+        procedureId: '123',
       },
       global: {
-        plugins: [store]
-      }
+        plugins: [store],
+      },
     })
   })
 

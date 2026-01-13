@@ -9,10 +9,11 @@
 
 <template>
   <div>
-    <div class="flex items-center space-inline-s u-mv-0_5">
+    <div class="flex items-center space-inline-s mt-2">
       <p
         class="weight--bold u-m-0"
-        v-text="Translator.trans('statement.similarStatementSubmitters')" />
+        v-text="Translator.trans('statement.similarStatementSubmitters')"
+      />
       <dp-contextual-help :text="Translator.trans('statement.similarStatementSubmitters.hint')" />
     </div>
     <dp-editable-list
@@ -23,72 +24,86 @@
       :translation-keys="translationKeys"
       @delete="deleteEntry"
       @reset="resetFormFields"
-      @saveEntry="index => dpValidateAction('similarStatementSubmitterForm', () => handleSaveEntry(index), false)"
-      @show-update-form="setFormFields">
+      @save-entry="index => dpValidateAction('similarStatementSubmitterForm', () => handleSaveEntry(index), false)"
+      @show-update-form="setFormFields"
+    >
       <template v-slot:list="{ entry, index }">
         <template v-if="isRequestFormPost">
           <input
             type="hidden"
             :name="'r_similarStatementSubmitters[' + index + '][fullName]'"
-            :value="entry.submitterName">
+            :value="entry.submitterName"
+          >
 
           <input
             type="hidden"
             :name="'r_similarStatementSubmitters[' + index + '][city]'"
-            :value="entry.submitterCity">
+            :value="entry.submitterCity"
+          >
 
           <input
             type="hidden"
             :name="'r_similarStatementSubmitters[' + index + '][streetName]'"
-            :value="entry.submitterAddress">
+            :value="entry.submitterAddress"
+          >
 
           <input
             type="hidden"
             :name="'r_similarStatementSubmitters[' + index + '][streetNumber]'"
-            :value="entry.submitterHouseNumber">
+            :value="entry.submitterHouseNumber"
+          >
 
           <input
             type="hidden"
             :name="'r_similarStatementSubmitters[' + index + '][postalCode]'"
-            :value="entry.submitterPostalCode">
+            :value="entry.submitterPostalCode"
+          >
 
           <input
             type="hidden"
             :name="'r_similarStatementSubmitters[' + index + '][emailAddress]'"
-            :value="entry.submitterEmailAddress">
+            :value="entry.submitterEmailAddress"
+          >
         </template>
 
         <span
           v-if="entry.submitterName"
           class="o-list__item separated"
-          v-text="entry.submitterName" />
+          v-text="entry.submitterName"
+        />
         <span
           v-if="entry.submitterEmailAddress"
           class="o-list__item separated"
-          v-text="entry.submitterEmailAddress" />
+          v-text="entry.submitterEmailAddress"
+        />
         <span
           v-if="entry.submitterAddress"
           class="o-list__item separated"
-          v-text="entry.submitterAddress" />
+          v-text="entry.submitterAddress"
+        />
         <span
           v-if="entry.submitterHouseNumber"
           class="o-list__item separated"
-          v-text="entry.submitterHouseNumber" />
+          v-text="entry.submitterHouseNumber"
+        />
         <span
           v-if="entry.submitterPostalCode"
           class="o-list__item separated"
-          v-text="entry.submitterPostalCode" />
+          v-text="entry.submitterPostalCode"
+        />
         <span
           v-if="entry.submitterCity"
           class="o-list__item separated"
-          v-text="entry.submitterCity" />
+          v-text="entry.submitterCity"
+        />
       </template>
 
       <template v-slot:form>
         <div
           class="grid grid-cols-1 gap-x-4"
           :class="fieldsFullWidth ? '' : 'md:grid-cols-2'"
-          data-dp-validate="similarStatementSubmitterForm">
+          data-dp-validate="similarStatementSubmitterForm"
+        >
           <dp-input
             id="statementSubmitterName"
             v-model="formFields.submitterName"
@@ -97,7 +112,8 @@
             :label="{
               text: Translator.trans('name')
             }"
-            required />
+            required
+          />
           <dp-input
             id="statementSubmitterEmail"
             v-model="formFields.submitterEmailAddress"
@@ -106,7 +122,8 @@
             :label="{
               text: Translator.trans('email')
             }"
-            type="email" />
+            type="email"
+          />
 
           <div class="o-form__group mb-2">
             <dp-input
@@ -116,29 +133,32 @@
               data-cy="voterStreet"
               :label="{
                 text: Translator.trans('street')
-              }" />
+              }"
+            />
             <dp-input
               id="statementSubmitterHouseNumber"
               v-model="formFields.submitterHouseNumber"
-              class="o-form__group-item shrink"
+              class="o-form__group-item !w-1/5 shrink"
               data-cy="voterHousenumber"
               :label="{
                 text: Translator.trans('street.number.short')
               }"
-              :size="3" />
+              :size="3"
+            />
           </div>
 
           <div class="o-form__group mb-2">
             <dp-input
               id="statementSubmitterPostalCode"
               v-model="formFields.submitterPostalCode"
-              class="o-form__group-item shrink"
+              class="o-form__group-item !w-1/4 shrink"
               data-cy="voterPostalCode"
               :label="{
                 text: Translator.trans('postalcode')
               }"
               pattern="^[0-9]{4,5}$"
-              :size="5" />
+              :size="5"
+            />
             <dp-input
               id="statementSubmitterCity"
               v-model="formFields.submitterCity"
@@ -146,7 +166,8 @@
               data-cy="voterCity"
               :label="{
                 text: Translator.trans('city')
-              }" />
+              }"
+            />
           </div>
         </div>
       </template>
@@ -156,14 +177,13 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpContextualHelp,
   DpEditableList,
   DpInput,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'SimilarStatementSubmitters',
@@ -171,7 +191,7 @@ export default {
   components: {
     DpContextualHelp,
     DpEditableList,
-    DpInput
+    DpInput,
   },
 
   mixins: [dpValidateMixin],
@@ -180,37 +200,37 @@ export default {
     editable: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     fieldsFullWidth: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     isRequestFormPost: {
       type: Boolean,
       default: false,
-      required: false
+      required: false,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     similarStatementSubmitters: {
       type: Array,
       default: () => ([]),
-      required: false
+      required: false,
     },
 
     statementId: {
       type: String,
       default: '',
-      required: false
-    }
+      required: false,
+    },
   },
 
   data () {
@@ -223,13 +243,17 @@ export default {
         submitterAddress: null,
         submitterHouseNumber: null,
         submitterPostalCode: null,
-        submitterCity: null
+        submitterCity: null,
       },
-      updating: false
+      updating: false,
     }
   },
 
   computed: {
+    ...mapState('Statement', {
+      statements: 'items',
+    }),
+
     /**
      * The "add" button text of EditableList is too long when inside the narrow context.
      * This is why a shorter button text is rendered there.
@@ -240,20 +264,21 @@ export default {
         new: Translator.trans('add'),
         add: Translator.trans(this.fieldsFullWidth ? 'add' : 'statement.similarStatementSubmitters.add'),
         abort: Translator.trans('abort'),
-        update: Translator.trans('save'),
+        update: Translator.trans('edit'),
         noEntries: Translator.trans('none'),
-        delete: Translator.trans('delete')
+        delete: Translator.trans('delete'),
       }
-    }
+    },
   },
 
   methods: {
     ...mapMutations('Statement', {
-      updateStatement: 'update'
+      updateStatement: 'update',
+      setInitialStatement: 'setItem',
     }),
 
     ...mapMutations('SimilarStatementSubmitter', {
-      setSimilarStatementSubmitter: 'setItem'
+      setSimilarStatementSubmitter: 'setItem',
     }),
 
     createSimilarStatementSubmitter () {
@@ -266,17 +291,17 @@ export default {
             data: [
               {
                 type: 'Statement',
-                id: this.statementId
-              }
-            ]
+                id: this.statementId,
+              },
+            ],
           },
           procedure: {
             data: {
               type: 'Procedure',
-              id: this.procedureId
-            }
-          }
-        }
+              id: this.procedureId,
+            },
+          },
+        },
       }
 
       dpApi.post(Routing.generate('api_resource_create', { resourceType: 'SimilarStatementSubmitter' }), {}, { data: payload })
@@ -291,37 +316,43 @@ export default {
             action: 'add',
             value: {
               id: similarStatementSubmitterId,
-              type: 'SimilarStatementSubmitter'
-            }
+              type: 'SimilarStatementSubmitter',
+            },
           })
+          this.setInitialStatement(this.statements[this.statementId])
 
           // Update local state - similarStatementSubmitter
           this.setSimilarStatementSubmitter({
             ...payload,
-            id: similarStatementSubmitterId
+            id: similarStatementSubmitterId,
           })
         })
     },
 
     deleteEntry (index) {
-      this.updateStatement({
-        id: this.statementId,
-        relationship: 'similarStatementSubmitters',
-        action: 'remove',
-        value: {
-          id: this.listEntries[index].id,
-          type: 'SimilarStatementSubmitter'
+      const name = this.listEntries[index]?.submitterName ? this.listEntries[index].submitterName : false
+
+      if (dpconfirm(Translator.trans('statement.similarStatementSubmitters.delete', { name }))) {
+        this.updateStatement({
+          id: this.statementId,
+          relationship: 'similarStatementSubmitters',
+          action: 'remove',
+          value: {
+            id: this.listEntries[index].id,
+            type: 'SimilarStatementSubmitter',
+          },
+        })
+        this.setInitialStatement(this.statements[this.statementId])
+
+        this.listEntries.splice(index, 1)
+
+        if (this.isRequestFormPost === false) {
+          this.deleteSimilarStatementSubmitter()
         }
-      })
 
-      this.listEntries.splice(index, 1)
-
-      if (this.isRequestFormPost === false) {
-        this.deleteSimilarStatementSubmitter()
-      }
-
-      if (this.isRequestFormPost) {
-        this.resetFormFields()
+        if (this.isRequestFormPost) {
+          this.resetFormFields()
+        }
       }
     },
 
@@ -331,13 +362,12 @@ export default {
         id: this.statementId,
         relationships: {
           similarStatementSubmitters: {
-            data: this.listEntries.map(entry => ({ type: 'SimilarStatementSubmitter', id: entry.id }))
-          }
-        }
+            data: this.listEntries.map(entry => ({ type: 'SimilarStatementSubmitter', id: entry.id })),
+          },
+        },
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statementId }), {}, { data: payload })
-        .then(response => { checkResponse(response) })
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.entry.deleted'))
         })
@@ -354,7 +384,7 @@ export default {
         streetName: this.listEntries[index].submitterAddress || null,
         streetNumber: this.listEntries[index].submitterHouseNumber || null,
         postalCode: this.listEntries[index].submitterPostalCode || null,
-        emailAddress: this.listEntries[index].submitterEmailAddress || null
+        emailAddress: this.listEntries[index].submitterEmailAddress || null,
       }
     },
 
@@ -369,7 +399,7 @@ export default {
       // The id is generated in the backend when adding a new entry
       const listEntry = {
         id: updatingExistingEntry ? this.listEntries[index].id : '',
-        ...this.formFields
+        ...this.formFields,
       }
 
       if (updatingExistingEntry) {
@@ -402,7 +432,7 @@ export default {
             submitterEmailAddress: emailAddress,
             submitterHouseNumber: streetNumber,
             submitterName: fullName,
-            submitterPostalCode: postalCode
+            submitterPostalCode: postalCode,
           }
         })
       }
@@ -426,11 +456,10 @@ export default {
       const payload = {
         type: 'SimilarStatementSubmitter',
         id: this.listEntries[index].id,
-        attributes: this.getSimilarStatementSubmitterAttributes(index)
+        attributes: this.getSimilarStatementSubmitterAttributes(index),
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'SimilarStatementSubmitter', resourceId: this.listEntries[index].id }), {}, { data: payload })
-        .then(response => { checkResponse(response) })
         .then(() => {
           // Update local state - similarStatementSubmitter.
           this.setSimilarStatementSubmitter(payload)
@@ -439,11 +468,11 @@ export default {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.entry.updated'))
         })
-    }
+    },
   },
 
   mounted () {
     this.loadInitialListEntries()
-  }
+  },
 }
 </script>

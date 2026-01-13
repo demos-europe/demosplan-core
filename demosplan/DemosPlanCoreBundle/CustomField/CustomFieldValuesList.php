@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -26,9 +28,7 @@ class CustomFieldValuesList
 
     public function toJson(): array
     {
-        return array_map(static function ($customField) {
-            return $customField->toJson();
-        }, $this->customFieldValues);
+        return array_map(static fn ($customField) => $customField->toJson(), $this->customFieldValues);
     }
 
     public function getCustomFieldsValues(): ?array
@@ -68,14 +68,11 @@ class CustomFieldValuesList
 
     public function sortByFieldId(): void
     {
-        usort($this->customFieldValues, function (CustomFieldValue $a,
-            CustomFieldValue $b) {
-            return strcmp($a->getId(), $b->getId());
-        });
+        usort($this->customFieldValues, fn (CustomFieldValue $a, CustomFieldValue $b) => strcmp($a->getId(), $b->getId()));
     }
 
     public function isEmpty(): bool
     {
-        return 0 === count($this->customFieldValues);
+        return [] === $this->customFieldValues;
     }
 }

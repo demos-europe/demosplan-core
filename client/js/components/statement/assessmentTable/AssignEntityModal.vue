@@ -10,8 +10,9 @@
 <template>
   <dp-modal
     ref="assignModal"
+    content-classes="u-1-of-2"
     @modal:toggled="handleClose"
-    content-classes="u-1-of-2">
+  >
     <!-- modal header -->
     <template v-slot:header>
       {{ Translator.trans('assignment.entity.assign.to.other', { entity: Translator.trans(entityType) }) }}
@@ -33,7 +34,8 @@
           :name="`r_${entityId}`"
           :options="[{ id: '', name: '-'}, ...users]"
           :max-height="150"
-          track-by="id">
+          track-by="id"
+        >
           <template v-slot:option="{ props }">
             {{ props.option.name }} {{ props.option.id === currentUserId ? ` (Sie)` : '' }}
           </template>
@@ -43,13 +45,14 @@
         class="u-mt float-right"
         :busy="loading"
         :text="Translator.trans('assignment.generic.assign.to.chosen', { entity: Translator.trans(entityType) })"
-        @click="assignEntity" />
+        @click="assignEntity"
+      />
     </div>
   </dp-modal>
 </template>
 
 <script>
-import { checkResponse, DpButton, DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { DpButton, DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {
@@ -58,25 +61,25 @@ export default {
   components: {
     DpButton,
     DpModal,
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
     authorisedUsers: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     currentUserId: {
       required: true,
-      type: String
+      type: String,
     },
 
     procedureId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
@@ -87,31 +90,31 @@ export default {
       loading: false,
       users: this.authorisedUsers,
       selected: '',
-      initialAssigneeId: ''
+      initialAssigneeId: '',
     }
   },
 
   computed: {
     ...mapGetters('AssessmentTable', [
-      'assignEntityModal'
+      'assignEntityModal',
     ]),
 
     actionParams () {
-      return this.entityType === 'statement'
-        ? { statementId: this.entityId, assigneeId: this.selected.id }
-        : this.entityType === 'fragment'
-          ? { fragmentId: this.entityId, statementId: this.parentStatementId, ignoreLastClaimed: false, assigneeId: this.selected.id }
-          : {}
+      return this.entityType === 'statement' ?
+        { statementId: this.entityId, assigneeId: this.selected.id } :
+        this.entityType === 'fragment' ?
+          { fragmentId: this.entityId, statementId: this.parentStatementId, ignoreLastClaimed: false, assigneeId: this.selected.id } :
+          {}
     },
 
     confirmationText () {
       return this.entityType === 'statement' ? 'assignment.generic.assign.to.other.confirmation.statement' : 'assignment.generic.assign.to.other.confirmation.fragment'
-    }
+    },
   },
 
   methods: {
     ...mapMutations('AssessmentTable', [
-      'setModalProperty'
+      'setModalProperty',
     ]),
 
     assignEntity () {
@@ -126,7 +129,6 @@ export default {
 
       //  Fire action from store
       this.$store.dispatch(`${this.capitalizeFirstLetter(this.entityType)}/setAssigneeAction`, this.actionParams)
-        .then(checkResponse)
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.api.generic'))
         })
@@ -162,7 +164,7 @@ export default {
     setInitUsers () {
       this.users = this.authorisedUsers
       this.users.sort((a, b) => a.name.localeCompare(b.name, 'de', { sensitivity: 'base' }))
-    }
+    },
   },
 
   created () {
@@ -173,7 +175,7 @@ export default {
     this.$nextTick(() => {
       this.toggleModal()
     })
-  }
+  },
 
 }
 </script>

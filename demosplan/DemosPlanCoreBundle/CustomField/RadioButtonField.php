@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -9,6 +11,8 @@
  */
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
+
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 
 class RadioButtonField extends AbstractCustomField
 {
@@ -33,16 +37,23 @@ class RadioButtonField extends AbstractCustomField
         $this->fieldType = $json['fieldType'];
         $this->name = $json['name'];
         $this->description = $json['description'];
-        $this->options = $json['options'];
+        $this->options = array_map(static function ($optionData) {
+            $customFieldOption = new CustomFieldOption();
+            $customFieldOption->fromJson($optionData);
+
+            return $customFieldOption;
+        }, $json['options']);
     }
 
     public function toJson(): array
     {
+        $options = array_map(static fn ($customField) => $customField->toJson(), $this->options);
+
         return [
             'fieldType'     => $this->fieldType,
             'name'          => $this->name,
             'description'   => $this->description,
-            'options'       => $this->options,
+            'options'       => $options,
         ];
     }
 
@@ -97,11 +108,7 @@ class RadioButtonField extends AbstractCustomField
             return true;
         }
 
-        if (in_array($value, $this->options, true)) {
-            return true;
-        }
-
-        return false;
+        return collect($this->options)->contains(fn ($option) => $option->getId() === $value);
     }
 
     public function setId($id): void
@@ -112,5 +119,23 @@ class RadioButtonField extends AbstractCustomField
     public function getId(): string
     {
         return $this->id;
+    }
+
+    public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption
+    {
+        foreach ($this->options as $option) {
+            if ($customFieldOptionValueId === $option->getId()) {
+                return $option;
+            }
+        }
+
+        return null;
+    }
+
+    protected function validateFieldSpecific(array $options): void
+    {
+        if (count($options) < 2) {
+            throw new InvalidArgumentException('Radio button fields must have at least 2 options');
+        }
     }
 }

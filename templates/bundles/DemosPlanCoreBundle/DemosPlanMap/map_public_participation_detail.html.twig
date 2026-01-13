@@ -87,7 +87,7 @@
                                 href="#publicStatementForm"
                                 id="statementModalButton"
                                 @click.stop.prevent="toggleStatementModal({})"
-                                class="{{ 'c-actionbox__title c-actionbox__title--button u-mb-0_5 is-active'|prefixClass }}"
+                                class="{{ 'c-actionbox__title c-actionbox__title--button text-h4 mb-0.5 is-active'|prefixClass }}"
                                 data-cy="publicStatementButton"
                                 aria-controls="statementModal"
                                 aria-describedby="statementActionDescriptionMap"
@@ -114,7 +114,7 @@
 
                             <button
                                 type="button"
-                                class="{{ 'c-actionbox__title c-actionbox__title--button o-spinner is-active u-mb-0_5 js__statementForm'|prefixClass }}"
+                                class="{{ 'c-actionbox__title c-actionbox__title--button text-h4 o-spinner is-active mb-0.5 js__statementForm'|prefixClass }}"
                                 data-statement-action="activateQueryAreaButton"
                                 id="queryAreaButton">
                                 {{  "statement.map.choose_priority_area"|trans }}
@@ -190,7 +190,7 @@
 
                                 <button
                                     type="button"
-                                    class="{{ 'c-actionbox__title--button u-mt-0_5 hidden'|prefixClass }}"
+                                    class="{{ 'c-actionbox__title--button text-h4 mt-2 hidden'|prefixClass }}"
                                     id="saveStatementButton"
                                     title="{{ "statement.map.draw.no_drawing_warning"|trans }}">
                                     {{ "statement.map.draw_to_map"|trans }}
@@ -204,7 +204,7 @@
                                 <button
                                     type="button"
                                     data-maptools-id="markLocationButtonResponsive"
-                                    class="{{ 'c-actionbox__title c-actionbox__title--button is-active'|prefixClass }}">
+                                    class="{{ 'c-actionbox__title c-actionbox__title--button text-h4 is-active'|prefixClass }}">
                                     {{ "statement.map.draw.mark_place"|trans }}
                                 </button>
 
@@ -225,7 +225,7 @@
                                 <button
                                     type="button"
                                     id="markLocationButton"
-                                    class="{{ 'c-actionbox__title c-actionbox__title--button o-spinner u-mb-0_5 is-active'|prefixClass }}">
+                                    class="{{ 'c-actionbox__title c-actionbox__title--button text-h4 o-spinner mb-0.5 is-active'|prefixClass }}">
                                     {{ "statement.map.draw.mark_place"|trans }}
                                 </button>
 
@@ -384,18 +384,18 @@
 <div id="dp-map" class="{{ 'c-map__canvas is-queryarea'|prefixClass }}" role="region" aria-label="{{ 'map.interactive'|trans }}. {{ 'map.interactive.pointer.needed'|trans }}" aria-describedby="mapHintContent">
     <dp-map
         :available-projections="JSON.parse('{{ templateVars.availableProjections|json_encode|e('js', 'utf-8') }}')"
-        procedure-id="{{ procedure|default('') }}"
+        :draft-statement= "JSON.parse('{{ draftStatement|json_encode|e('js', 'utf-8') }}')"
+        get-feature-info-url-planning-area="{{ getFeatureInfoUrlPlanningArea|default }}"
+        :layer-groups-alternate-visibility="Boolean({{ procedureSettings.layerGroupsAlternateVisibility }})"
+        map-danmark-layer="{{ mapDanmarkLayer|default }}"
+        procedure-id="{{ procedure|default }}"
         :procedure-settings="JSON.parse('{{ procedureSettings|json_encode|e('js', 'utf-8') }}')"
         :project-map-settings="JSON.parse('{{ projectMapSettings|json_encode|e('js', 'utf-8') }}')"
         :procedure-max-extent="JSON.parse('{{ templateVars.mapOptions.procedureMaxExtent|json_encode|e('js', 'utf-8') }}')"
         :procedure-initial-extent="JSON.parse('{{ templateVars.mapOptions.procedureInitialExtent|json_encode|e('js', 'utf-8') }}')"
         :procedure-default-max-extent="JSON.parse('{{ templateVars.mapOptions.procedureDefaultMaxExtent|json_encode|e('js', 'utf-8') }}')"
         :procedure-default-initial-extent="JSON.parse('{{ templateVars.mapOptions.procedureDefaultInitialExtent|json_encode|e('js', 'utf-8') }}')"
-        :draft-statement= "JSON.parse('{{ draftStatement|json_encode|e('js', 'utf-8') }}')"
-        get-feature-info-url-planning-area="{{ getFeatureInfoUrlPlanningArea|default('') }}"
-        map-danmark-layer="{{ mapDanmarkLayer|default('') }}"
-        @fullscreen-toggle="handleFullscreenFocus"
-    >
+        @fullscreen:toggle="handleFullscreenFocus">
 
         {#  @TODO make everything inside this slot vue-components and move to Map.vue template #}
         {% block callToActionLayerSwitcherButtons %}
@@ -427,7 +427,7 @@
                     <button id="popupAction" class="{{ 'c-map__popup__button btn btn--primary u-mt-0_5'|prefixClass }}">
                         <i :class="activeStatement ? prefixClass('fa fa-commenting') : prefixClass('fa fa-comment')" aria-hidden="true"></i>
                         <template v-if="activeStatement">
-                            {{ 'statement.form.edit.location_relation'|trans }}
+                            {{ 'statement.continue'|trans }}
                         </template>
                         <template v-else>
                             {{ 'statement.new'|trans }}
@@ -486,8 +486,6 @@
                     <div id="mapHintContent">
                         <div class="{{ 'c-map__hint__content text-left'|prefixClass }}">{{ procedureSettings.mapHint|default(templateVars.procedureUiDefinition.mapHintDefault|default)|nl2br }}</div>
                     </div>
-
-
                 </div>
 
                 <span

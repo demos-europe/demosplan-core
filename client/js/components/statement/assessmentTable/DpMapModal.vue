@@ -11,7 +11,8 @@
   <dp-modal
     ref="mapModal"
     content-classes="u-1-of-2 u-pb"
-    @modal:toggled="(open) => {isModalOpen = open}">
+    @modal:toggled="(open) => {isModalOpen = open}"
+  >
     <dp-ol-map
       v-if="isModalOpen"
       ref="map"
@@ -23,10 +24,12 @@
         scaleSelect: false,
         procedureExtent: true
       }"
-      :procedure-id="procedureId">
+      :procedure-id="procedureId"
+    >
       <dp-ol-map-layer-vector
         zoom-to-drawing
-        :features="drawing" />
+        :features="drawing"
+      />
     </dp-ol-map>
   </dp-modal>
 </template>
@@ -41,7 +44,7 @@ export default {
   components: {
     DpModal,
     DpOlMap: defineAsyncComponent(() => import('@DpJs/components/map/map/DpOlMap')),
-    DpOlMapLayerVector: defineAsyncComponent(() => import('@DpJs/components/map/map/DpOlMapLayerVector'))
+    DpOlMapLayerVector: defineAsyncComponent(() => import('@DpJs/components/map/map/DpOlMapLayerVector')),
   },
 
   mixins: [prefixClassMixin],
@@ -50,21 +53,21 @@ export default {
     procedureId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     mapOptionsRoute: {
       required: false,
       type: String,
-      default: 'dplan_api_map_options_public'
-    }
+      default: 'dplan_api_map_options_public',
+    },
   },
 
   data () {
     return {
       isLoading: true,
       drawingData: {},
-      isModalOpen: false
+      isModalOpen: false,
     }
   },
 
@@ -75,20 +78,20 @@ export default {
       } else {
         return {}
       }
-    }
+    },
   },
 
   methods: {
     toggleModal (drawingData) {
       this.drawingData = drawingData
       this.$refs.mapModal.toggle()
-    }
+    },
   },
 
   mounted () {
     this.$root.$on('toggleMapModal', (drawingData) => {
       this.toggleModal(drawingData)
     })
-  }
+  },
 }
 </script>

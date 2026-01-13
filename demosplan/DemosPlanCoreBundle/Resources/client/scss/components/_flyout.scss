@@ -45,7 +45,7 @@
             z-index: $dp-z-flyout;
 
             & .c-flyout__content {
-                display: block;
+                display: block !important;
             }
         }
     }
@@ -124,7 +124,7 @@
             z-index: $dp-z-flyout;
             right: 0;
 
-            display: block;
+            display: block !important;
             min-width: 100%;
         }
 
@@ -139,7 +139,7 @@
         }
 
         h3 {
-            color: $dp-color-white !important;
+            color: $dp-color-white;
         }
     }
 

@@ -10,6 +10,7 @@
 
 namespace Tests\Core\Statement\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadFileData;
@@ -17,14 +18,15 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadStatementData;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTablePdfExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableZipExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Formatter\StatementFormatter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
@@ -47,21 +49,26 @@ class StatementExportTest extends FunctionalTestCase
     private $statement;
     private $permissions;
     private $editorService;
-
     private $assessmentTableXlsExporter;
 
     public function setUp(): void
     {
         parent::setUp();
+        /** @var AssessmentHandler $assessmentHandler */
         $assessmentHandler = $this->getContainer()->get(AssessmentHandler::class);
         /** @var AssessmentTableServiceOutput $assessmentTableServiceOutput */
         $assessmentTableServiceOutput = $this->getContainer()->get(AssessmentTableServiceOutput::class);
         /** @var LoggerInterface $loggerInterface */
         $loggerInterface = $this->getContainer()->get(LoggerInterface::class);
+        /** @var StatementHandler $statementHandler */
         $statementHandler = $this->getContainer()->get(StatementHandler::class);
+        /** @var TranslatorInterface $translatorInterface */
         $translatorInterface = $this->getContainer()->get(TranslatorInterface::class);
+        /** @var StatementService $statementService */
         $statementService = $this->getContainer()->get(StatementService::class);
+        /** @var AssessmentTablePdfExporter $assessmentTablePdfExporter */
         $assessmentTablePdfExporter = $this->getContainer()->get(AssessmentTablePdfExporter::class);
+        /** @var FileService $fileService */
         $fileService = $this->getContainer()->get(FileService::class);
         $requestStack = $this->createMock(RequestStack::class);
         $sessionInterfaceMock = $this->createMock(SessionInterface::class);
@@ -77,32 +84,42 @@ class StatementExportTest extends FunctionalTestCase
         $this->getEntityManager()->flush();
         $currentProcedureService = $this->createMock(CurrentProcedureService::class);
         $currentProcedureService->method('getProcedure')->willReturn($this->statement->getProcedure());
+        /** @var Environment $twig */
         $twig = $this->getContainer()->get(Environment::class);
         $this->editorService = $this->getContainer()->get(EditorService::class);
-        /** @var FormOptionsResolver $formOptionsResolver */
-        $formOptionsResolver = $this->getContainer()->get(FormOptionsResolver::class);
+        /** @var StatementFormatter $statementFormatter */
+        $statementFormatter = $this->getContainer()->get(StatementFormatter::class);
         $this->permissions = $this->getContainer()->get(PermissionsInterface::class);
+        /** @var ServiceImporter $serviceImporter */
         $serviceImporter = $this->getContainer()->get(ServiceImporter::class);
+        /** @var SimpleSpreadsheetService $simpleSpreadsheetService */
         $simpleSpreadsheetService = $this->getContainer()->get(SimpleSpreadsheetService::class);
+        /** @var CurrentUserInterface $currentUserService */
+        $currentUserService = $this->getContainer()->get(CurrentUserInterface::class);
+        /** @var DocumentWriterSelector $documentWriterSelector */
+        $documentWriterSelector = $this->getContainer()->get(DocumentWriterSelector::class);
         $this->assessmentTableXlsExporter = new AssessmentTableXlsExporter(
             $assessmentHandler,
             $assessmentTableServiceOutput,
-            $this->getContainer()->get(CurrentProcedureService::class),
+            $currentProcedureService,
+            $currentUserService,
+            $documentWriterSelector,
             $this->editorService,
             $twig,
-            $formOptionsResolver,
             $loggerInterface,
             $this->permissions,
             $requestStack,
             $serviceImporter,
             $simpleSpreadsheetService,
             $statementHandler,
+            $statementFormatter,
             $translatorInterface
         );
         $this->sut = new AssessmentTableZipExporter(
             $assessmentHandler,
             $assessmentTableServiceOutput,
             $currentProcedureService,
+            $documentWriterSelector,
             $loggerInterface,
             $requestStack,
             $statementHandler,
@@ -153,134 +170,42 @@ class StatementExportTest extends FunctionalTestCase
     private function createComplexTestStatementData(): array
     {
         return [
-            'text' => '<p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore. statementjiahuu this was edited. Grüße aus
-  Cypress!</p>',
-            'textShort' => '<p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore. statementjiahuu this was edited. Grüße aus
-  Cypress!</p>',
-            'recommendation'            => '<p>Meine Empfehlung</p>',
-            'recommendationShort'       => '<p>Meine Empfehlung</p>',
-            'id'                        => 'c0ec1585-3f87-48f9-822e-503b797d41d2',
-            'ident'                     => 'c0ec1585-3f87-48f9-822e-503b797d41d2',
-            'name'                      => '',
-            'oId'                       => null,
-            'oName'                     => 'Meine Insti',
-            'dName'                     => 'Test Abteilung',
-            'uName'                     => 'A name',
-            'uId'                       => null,
-            'pId'                       => 'c7284d80-8c28-48ce-9d48-2239ca7a4a92',
-            'organisation'              => null,
-            'procedureId'               => 'c7284d80-8c28-48ce-9d48-2239ca7a4a92',
-            'phase'                     => 'Beteiligung TöB - § 4 (2) BauGB',
-            'polygon'                   => '',
-            'file'                      => '',
-            'files'                     => [],
-            'fileNames'                 => [],
-            'mapFile'                   => '',
-            'movedStatementId'          => null,
-            'movedToProcedureId'        => null,
-            'movedFromProcedureId'      => null,
-            'movedToProcedureName'      => null,
-            'movedFromProcedureName'    => null,
-            'isPlaceholder'             => false,
-            'formerExternId'            => null,
-            'status'                    => 'processing',
-            'publicStatement'           => 'internal',
-            'publicCheck'               => 'no',
-            'publicAllowed'             => false,
-            'publicVerified'            => 'no_check_since_not_allowed',
-            'publicVerifiedTranslation' => 'no',
-            'priority'                  => 'A-Punkt',
-            'prioritySort'              => 'A-Punkt',
-            'elementId'                 => '14700ba3-7722-41da-a801-47e35c839160',
-            'elementTitle'              => 'Gesamtstellungnahme',
-            'elementCategory'           => 'statement',
-            'elementOrder'              => 1,
-            'documentHash'              => null,
-            'documentId'                => null,
-            'documentParentId'          => null,
-            'documentTitle'             => null,
-            'paragraphId'               => null,
-            'paragraphParentId'         => null,
-            'paragraphParentTitle'      => '',
-            'paragraphOrder'            => null,
-            'paragraphTitle'            => '',
-            'originalId'                => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8',
-            'parentId'                  => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8',
-            'priorityAreaKeys'          => [],
-            'municipalityNames'         => [],
-            'countyNames'               => [],
-            'tags'                      => [
+            'externId'             => 'M1',
+            'text'                 => '<p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore. statementjiahuu this was edited. Grüße
+   aus Cypress!</p>',
+            'recommendation'       => '<p>Meine Empfehlung</p>',
+            'tagNames'             => ['Tag Name'],
+            'tags'                 => [
                 [
-                    'id'         => '5ee359b6-4b4a-477d-9985-5a9bce8b682a',
-                    'title'      => 'Tag Title',
-                    'name'       => 'Tag Name',
-                    'topicTitle' => 'Topic Title',
+                    'title'      => 'Tag Name',
+                    'topicTitle' => 'Topic Name',
                 ],
             ],
-            'tagNames'             => ['Tag Name'],
-            'topicNames'           => ['Topic Name'],
-            'externId'             => 'M1',
-            'internId'             => null,
+            'elementTitle'         => 'Gesamtstellungnahme',
+            'documentTitle'        => null,
+            'paragraphTitle'       => '',
+            'status'               => 'processing',
+            'priority'             => 'A-Punkt',
+            'oName'                => 'Meine Insti',
+            'dName'                => 'Test Abteilung',
+            'fileNames'            => [],
+            'submitDateString'     => '26.10.2023',
             'memo'                 => 'Mein Notiz!',
             'feedback'             => 'email',
-            'sentAssessment'       => true,
-            'type'                 => 'm',
-            'submitObject'         => '2023-10-26T12:00:19+00:00',
-            'submitDateString'     => '26.10.2023',
-            'submit'               => 1698321619,
-            'submitType'           => 'unspecified',
-            'submitTypeTranslated' => 'Sonstige',
-            'deleted'              => false,
-            'consented'            => false,
-            'consentRevoked'       => false,
-            'headStatementId'      => null,
-            'isClusterStatement'   => false,
             'votesNum'             => 5,
-            'voteStk'              => null,
-            'votePla'              => null,
-            'likesNum'             => 0,
-            'replied'              => false,
-            'cluster'              => [],
-            'assignee'             => null,
+            'phase'                => 'Beteiligung TöB - § 4 (2) BauGB',
+            'submitType'           => 'unspecified',
+            'sentAssessment'       => true,
             'meta'                 => [
-                'orgaName'           => 'Meine Insti',
-                'orgaDepartmentName' => 'Test Abteilung',
-                'orgaCity'           => 'Berlin',
-                'orgaStreet'         => 'A streetTeststraße',
-                'houseNumber'        => '111',
-                'orgaPostalCode'     => '10024',
-                'orgaEmail'          => 'totally.valid@e.mailcypress-test@mail.com',
-                'authorName'         => 'A name',
-                'authoredDate'       => '26.10.2023',
-                'submitName'         => 'A name',
-                'submitLastName'     => 'name',
-                'submitUId'          => null,
-                'caseWorkerName'     => 'Selta Seewind',
-                'caseWorkerLastName' => 'Seewind',
-                'userGroup'          => null,
-                'userPosition'       => null,
-                'userOrganisation'   => null,
-                'userState'          => null,
+                'authorName'     => 'A name',
+                'submitName'     => 'A name',
+                'orgaEmail'      => 'totally.valid@e.mailcypress-test@mail.com',
+                'orgaStreet'     => 'A streetTeststraße',
+                'houseNumber'    => '111',
+                'orgaPostalCode' => '10024',
+                'orgaCity'       => 'Berlin',
+                'authoredDate'   => '26.10.2023',
             ],
-            'votes' => [
-                ['uId' => null, 'firstName' => '', 'lastName' => 'Mary Merrywell'],
-                ['uId' => null, 'firstName' => '', 'lastName' => 'Another name'],
-                ['uId' => null, 'firstName' => '', 'lastName' => 'Jan Janssen'],
-                ['uId' => null, 'firstName' => '', 'lastName' => 'A different name'],
-            ],
-            'attachmentsDeleted'                   => false,
-            'submitterAndAuthorMetaDataAnonymized' => false,
-            'textPassagesAnonymized'               => false,
-            'isSubmittedByCitizen'                 => false,
-            'anonymous'                            => false,
-            'fragments'                            => [],
-            'original'                             => ['ident' => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8'],
-            'parent'                               => ['ident' => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8'],
-            'element'                              => ['title' => 'Gesamtstellungnahme'],
-            'document'                             => ['title' => null],
-            'paragraph'                            => ['title' => ''],
-            'fragments_total'                      => [],
-            'attachments'                          => [],
         ];
     }
 

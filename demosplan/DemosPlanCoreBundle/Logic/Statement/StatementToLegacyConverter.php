@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
@@ -27,15 +26,17 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\Common\Collections\Collection;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 
-class StatementToLegacyConverter extends CoreService
+class StatementToLegacyConverter
 {
     public function __construct(
         private readonly DateHelper $dateHelper,
         private readonly ElementsService $elementsService,
         private readonly EntityHelper $entityHelper,
         private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -44,7 +45,7 @@ class StatementToLegacyConverter extends CoreService
      */
     public function convert(?Statement $statement): ?array
     {
-        if (null === $statement) {
+        if (!$statement instanceof Statement) {
             return null;
         }
 

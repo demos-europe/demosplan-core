@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Event\RequestValidationStrictEvent;
 use demosplan\DemosPlanCoreBundle\Exception\HoneypotException;
 use demosplan\DemosPlanCoreBundle\Logic\FloodControlService;
 use demosplan\DemosPlanCoreBundle\Repository\FloodRepository;
-use Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,8 +40,8 @@ class HoneypotTest extends FunctionalTestCase
             $this->createMock(FloodRepository::class),
             $this->createMock(GlobalConfigInterface::class),
             $this->createMock(MessageBagInterface::class),
+            $this->createMock(LoggerInterface::class)
         );
-        $this->sut->setLogger(new NullLogger());
     }
 
     /**
