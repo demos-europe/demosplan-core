@@ -67,12 +67,14 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Logic\XlsxStatementImporterFactory;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomFieldResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use Exception;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -106,7 +108,17 @@ class DemosPlanStatementController extends BaseController
 {
     private const STATEMENT_IMPORT_ENCOUNTERED_ERRORS = 'statement import failed';
 
-    public function __construct(private readonly CurrentProcedureService $currentProcedureService, private readonly CurrentUserService $currentUser, private readonly DraftStatementHandler $draftStatementHandler, private readonly DraftStatementService $draftStatementService, private readonly Environment $twig, private readonly MailService $mailService, private readonly PermissionsInterface $permissions, private readonly NameGenerator $nameGenerator)
+    public function __construct(
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly CurrentUserService $currentUser,
+        private readonly DraftStatementHandler $draftStatementHandler,
+        private readonly DraftStatementService $draftStatementService,
+        private readonly Environment $twig,
+        private readonly MailService $mailService,
+        private readonly PermissionsInterface $permissions,
+        private readonly NameGenerator $nameGenerator,
+        private readonly ConditionFactoryInterface $conditionFactory,
+        private readonly CustomFieldResourceType $customFieldResourceType, )
     {
     }
 
@@ -420,6 +432,11 @@ class DemosPlanStatementController extends BaseController
                 }
             }
 
+            // @todo possible to load customFields to send them here to twig template usage
+            if ($this->currentUser->hasPermission('feature_statements_custom_fields')) {
+                $templateVars['customFields'] = $this->loadCustomFields($procedureId);
+            }
+
             $templateVars['statementList'] = $statementsToSubmit;
             $templateVars['list']['statementlist'] = $statementsToSubmit;
             $templateVars['statementsToSubmitIds'] = $statementsToSubmitIds;
@@ -452,6 +469,13 @@ class DemosPlanStatementController extends BaseController
 
             return $this->handleError($e);
         }
+    }
+
+    protected function loadCustomFields(string $procedureId): array
+    {
+        $procedureCondition = $this->conditionFactory->propertyHasValue($procedureId, ['sourceEntityId']);
+
+        return $this->customFieldResourceType->getEntities([$procedureCondition], []);
     }
 
     /**

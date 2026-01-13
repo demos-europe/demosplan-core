@@ -163,16 +163,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             $this->reindexer,
             $this->customFieldConfigurationRepository
         );
-
-        /*$repository = $this->getEntityManager()->getRepository(CustomFieldConfiguration::class);
-        $fluentRepositoryClass = FluentRepository::class;
-        Assert::isInstanceOf(
-            $repository,
-            $fluentRepositoryClass,
-            "No repository found extending `$fluentRepositoryClass` for entity `{$this->getEntityClass()}`."
-        );
-
-        return $repository;*/
     }
 
     public function isCreateAllowed(): bool
