@@ -2,9 +2,9 @@
   <div class="flex items-center">
     <dp-input
       v-if="isInEditState === nodeElement.id"
-      aria-labelledby="categoryOrTagLabel"
       :id="`edit-${type}-${nodeElement.id}`"
       v-model="unsavedItem.title"
+      aria-labelledby="categoryOrTagLabel"
       class="flex-1"
     />
     <div

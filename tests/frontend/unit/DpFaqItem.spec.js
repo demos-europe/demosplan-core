@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals'
-import { shallowMount, flushPromises } from '@vue/test-utils'
-import DpFaqItem from '../../../client/js/components/faq/DpFaqItem.vue'
+import { flushPromises, shallowMount } from '@vue/test-utils'
+import DpFaqItem from '../../../client/js/components/faq/DpFaqItem'
 import Vuex from 'vuex'
 
 describe('DpFaqItem', () => {

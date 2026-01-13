@@ -7,11 +7,11 @@
  * All rights reserved
  */
 
-import SegmentImportJobList from '@DpJs/components/procedure/AdministrationImport/SegmentImportJobList'
 import { initialize } from '@DpJs/InitVue'
+import SegmentImportJobList from '@DpJs/components/procedure/AdministrationImport/SegmentImportJobList'
 
 const components = {
-  SegmentImportJobList
+  SegmentImportJobList,
 }
 
 initialize(components)
