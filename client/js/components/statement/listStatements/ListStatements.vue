@@ -485,7 +485,6 @@ export default {
 
     exportRoute: function () {
       return (exportRoute, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds) => {
-
         const parameters = {
           filter: {
             procedureId: {
@@ -502,7 +501,7 @@ export default {
           },
           sort: this.selectedSort,
           tagsFilter: {
-            tagIds: tagFilterIds
+            tagIds: tagFilterIds,
           },
           isObscured,
           isInstitutionDataCensored,
