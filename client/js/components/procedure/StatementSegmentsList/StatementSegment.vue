@@ -475,7 +475,12 @@ import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 export default {
   name: 'StatementSegment',
 
-  inject: ['procedureId'],
+  inject: {
+    procedureId: {},
+    slidebarControl: {
+      default: null,
+    },
+  },
 
   components: {
     AddonWrapper,
@@ -1059,7 +1064,7 @@ export default {
         },
       })
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'comments' } })
-      this.$root.$emit('show-slidebar')
+      this.slidebarControl.show()
     },
 
     showMap () {
@@ -1069,7 +1074,7 @@ export default {
 
       this.$parent.$parent.resetSlidebar()
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'map' } })
-      this.$root.$emit('show-slidebar')
+      this.slidebarControl.show()
     },
 
     showSegmentVersionHistory () {
@@ -1078,7 +1083,7 @@ export default {
       }
 
       this.$root.$emit('version:history', this.segment.id, 'segment', this.segment.attributes.externId)
-      this.$root.$emit('show-slidebar')
+      this.slidebarControl.show()
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'history' } })
     },
 

@@ -34,7 +34,7 @@ import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import SessionTimer from '@DpJs/components/shared/SessionTimer'
 
-function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
+function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}, provides = {}) {
   bootstrap()
 
   return initStore(storeModules, apiStoreModules, presetStoreModules).then(store => {
@@ -108,6 +108,11 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
       } else {
         console.log(`${components[comp]} is undefined}`, components)
       }
+    })
+
+    // Apply provides before mounting
+    Object.keys(provides).forEach(key => {
+      app.provide(key, provides[key])
     })
 
     app.mount('#app')

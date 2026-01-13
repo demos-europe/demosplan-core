@@ -376,6 +376,12 @@ export default {
 
   mixins: [fullscreenModeMixin, paginationMixin, tableScrollbarMixin, tableSelectAllItems],
 
+  inject: {
+    slidebarControl: {
+      default: null,
+    },
+  },
+
   props: {
     currentUserId: {
       type: String,
@@ -1031,7 +1037,7 @@ export default {
 
     showVersionHistory (segmentId, externId) {
       this.$root.$emit('version:history', segmentId, 'segment', externId)
-      this.$root.$emit('showSlidebar')
+      this.slidebarControl?.show()
     },
 
     updateQueryHash () {

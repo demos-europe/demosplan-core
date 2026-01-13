@@ -34,4 +34,20 @@ const apiStores = [
   'TagTopic',
 ]
 
-initialize(components, stores, apiStores)
+// For this page, slidebar control will be set up via provide/inject
+// Create a control object that will be populated when slidebar mounts
+const slidebarControl = {
+  instance: null,
+  show() {
+    this.instance?.showSlidebar()
+  },
+  hide() {
+    this.instance?.hideSlidebar()
+  },
+}
+
+const provides = {
+  slidebarControl,
+}
+
+initialize(components, stores, apiStores, {}, provides)
