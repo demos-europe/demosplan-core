@@ -336,7 +336,7 @@
         </template>
 
         <dp-checkbox
-          v-if="hasPermission('feature_manage_procedure_creation_permission')"
+          v-if="hasPermission('feature_manage_procedure_creation_permission') && isPlanningOfficeOrMunicipalityAcceptedOrPending"
           :id="`${organisation.id}:procedureCreatePermission`"
           class="mt-2"
           data-cy="orgaFormField:procedureCreatePermission"
@@ -929,6 +929,10 @@ export default {
       } else {
         return ''
       }
+    },
+
+    isPlanningOfficeOrMunicipalityAcceptedOrPending () {
+      return this.registrationStatuses.some(registration => (registration.status === 'accepted' || registration.status === 'pending') && (registration.type === 'OPAUTH' || registration.type === 'OLAUTH'))
     },
 
     /**
