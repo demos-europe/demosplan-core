@@ -1,0 +1,46 @@
+name: Dynamic Release Backport
+on:
+    push:
+        branches:
+            - 'release_*'
+
+jobs:
+    create-backport-pr:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Check for Drift and Create PR
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  # Get the name of the branch that triggered the workflow
+                  SOURCE_BRANCH=${GITHUB_REF#refs/heads/}
+                  TARGET_BRANCH="main"
+
+                  echo "Checking for commits in $SOURCE_BRANCH that are not in $TARGET_BRANCH..."
+
+                  # Count commits that exist in release_* but not in main
+                  MISSING_COMMITS=$(git rev-list --count origin/$TARGET_BRANCH..origin/$SOURCE_BRANCH)
+
+                  if [ "$MISSING_COMMITS" -gt 0 ]; then
+                    echo "Found $MISSING_COMMITS unique commits in $SOURCE_BRANCH."
+
+                    # Check if a PR already exists to avoid duplicates
+                    EXISTING_PR=$(gh pr list --base $TARGET_BRANCH --head $SOURCE_BRANCH --json number --jq '.[0].number')
+
+                    if [ -z "$EXISTING_PR" ]; then
+                      gh pr create \
+                        --base $TARGET_BRANCH \
+                        --head $SOURCE_BRANCH \
+                        --title "Backport: $SOURCE_BRANCH -> $TARGET_BRANCH" \
+                        --body "Automated sync to ensure $TARGET_BRANCH contains all fixes from $SOURCE_BRANCH."
+                    else
+                      echo "PR #$EXISTING_PR already exists for this sync."
+                    fi
+                  else
+                    echo "Branches are perfectly in sync."
+                  fi
