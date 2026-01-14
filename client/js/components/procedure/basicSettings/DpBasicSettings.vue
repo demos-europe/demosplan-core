@@ -183,6 +183,8 @@ export default {
 
   data () {
     return {
+      addonCheckAutoSwitchEnabled: false,
+      addonCheckAutoSwitchPhase: '',
       addonPayload: { /** The payload required for addon requests. When a value is entered in the addon field, it emits data that must include the following fields */
         attributes: null,
         id: '',
@@ -191,8 +193,43 @@ export default {
         url: '',
         value: '',
       },
+      bypassAddonWarningModal: false,
       isLoadingPlisData: false,
     }
+  },
+
+  computed: {
+    // Needed for the addon-modal on submit
+    isAddonInterfaceActivated () {
+      return this.addonPayload.attributes?.isInterfaceActivated ?? false
+    },
+
+    isAddonLoaded () {
+      return !!globalThis.dplan.loadedAddons['interface.fields.to.transmit']
+    },
+
+    isPublicParticipationPhaseActive () {
+      const currentPhaseIsPublic = this.publicParticipationPhases.includes(this.selectedPublicPhase)
+      const autoSwitchPhaseIsPublic = this.addonCheckAutoSwitchEnabled &&
+        this.publicParticipationPhases.includes(this.addonCheckAutoSwitchPhase)
+
+      return currentPhaseIsPublic || autoSwitchPhaseIsPublic
+    },
+
+    publicParticipationPhases () {
+      return ['earlyparticipation', 'participation', 'anotherparticipation']
+    },
+
+    shouldShowInterfaceWarningModal () {
+      const checkbox = document.getElementById('interfaceFieldsToTransmit-checkbox')
+      const isInterfaceCheckboxEnabled = !(checkbox?.disabled ?? true)
+
+      return this.isAddonLoaded &&
+        !this.isAddonInterfaceActivated &&
+        this.isPublicParticipationPhaseActive &&
+        !this.bypassAddonWarningModal &&
+        isInterfaceCheckboxEnabled
+    },
   },
 
   methods: {
@@ -231,16 +268,23 @@ export default {
 
       return addonRequest
         .catch(error => {
-          /** The 'is-invalid' class would be added to the addon field in case of an error */
-          const input = document.getElementById('addonAdditionalField')
-          input.classList.add('is-invalid')
+          /** The 'is-invalid' class would be added to the addon input-field in case of an error */
+          const input = document.getElementById('interfaceFieldsToTransmit-input')
+          if (input) {
+            input.classList.add('is-invalid')
+          }
 
           throw error
         })
     },
 
     submit (formElement) {
-      const addonExists = !!window.dplan.loadedAddons['addon.additional.field']
+      if (this.shouldShowInterfaceWarningModal) {
+        this.$refs.interfaceWarningOnSubmit.toggle()
+        return
+      }
+
+      const addonExists = this.isAddonLoaded
       const addonHasValue = !!this.addonPayload.value || !!this.addonPayload.initValue
 
       this.dpValidateAction('configForm', () => {
@@ -260,6 +304,59 @@ export default {
 
     updateAddonPayload (payload) {
       this.addonPayload = payload
+    },
+
+    // Needed for the addon-modal on submit
+    activateInterface () {
+      this.collapseSectionsIfExpanded(['wizardNameUrl', 'wizardSettings'])
+      this.expandSectionIfCollapsed('wizardPhaseExternal')
+      this.scrollToInterfaceFields()
+      this.$refs.interfaceWarningOnSubmit.toggle()
+    },
+
+    collapseSectionsIfExpanded (sectionIds) {
+      sectionIds.forEach(sectionId => {
+        this.toggleInterfaceSection(sectionId, false)
+      })
+    },
+
+    expandSectionIfCollapsed (sectionId) {
+      this.toggleInterfaceSection(sectionId, true)
+    },
+
+    handleAutoSwitchPhaseUpdate (payload) {
+      if (!payload.isInternal) {
+        this.addonCheckAutoSwitchPhase = payload.phase
+        this.addonCheckAutoSwitchEnabled = payload.enabled
+      }
+    },
+
+    scrollToInterfaceFields () {
+      this.$nextTick(() => {
+        const addonWrapper = document.getElementById('interfaceFieldsToTransmit')
+        addonWrapper?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      })
+    },
+
+    submitWithoutInterfaceActivation () {
+      this.$refs.interfaceWarningOnSubmit.toggle()
+      this.bypassAddonWarningModal = true
+      this.submit()
+    },
+
+    toggleInterfaceSection (sectionId, shouldBeExpanded) {
+      const fieldset = document.getElementById(sectionId)
+      if (!fieldset) {
+        return
+      }
+
+      const wizardContent = fieldset.querySelector('.o-wizard__content')
+      const isCurrentlyExpanded = wizardContent?.classList.contains('is-active')
+
+      if (isCurrentlyExpanded !== shouldBeExpanded) {
+        const legend = fieldset.querySelector('legend')
+        legend?.click()
+      }
     },
   },
 }
