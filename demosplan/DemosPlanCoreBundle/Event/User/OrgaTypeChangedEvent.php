@@ -23,12 +23,12 @@ use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 class OrgaTypeChangedEvent extends DPlanEvent
 {
     /**
-     * @param Orga             $updatedOrga    The organization after the update
-     * @param array<string>    $oldOrgaTypes   Array of old organization type names before update (e.g., ['OLAUTH', 'OPAUTH'])
+     * @param Orga          $updatedOrga  The organization after the update
+     * @param array<string> $oldOrgaTypes Array of old organization type names before update (e.g., ['OLAUTH', 'OPAUTH'])
      */
     public function __construct(
         protected OrgaInterface $updatedOrga,
-        protected array $oldOrgaTypes
+        protected array $oldOrgaTypes,
     ) {
     }
 
