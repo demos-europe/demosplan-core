@@ -8,39 +8,33 @@ jobs:
     create-backport-pr:
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout
+            - name: Checkout main
               uses: actions/checkout@v4
               with:
+                  ref: main
                   fetch-depth: 0
 
-            - name: Check for Drift and Create PR
-              env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Merge release branch
+              id: merge
               run: |
-                  # Get the name of the branch that triggered the workflow
                   SOURCE_BRANCH=${GITHUB_REF#refs/heads/}
-                  TARGET_BRANCH="main"
+                  echo "source=$SOURCE_BRANCH" >> $GITHUB_OUTPUT
 
-                  echo "Checking for commits in $SOURCE_BRANCH that are not in $TARGET_BRANCH..."
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
 
-                  # Count commits that exist in release_* but not in main
-                  MISSING_COMMITS=$(git rev-list --count origin/$TARGET_BRANCH..origin/$SOURCE_BRANCH)
+                  # Attempt merge - will succeed or create conflict markers
+                  git merge origin/$SOURCE_BRANCH --no-edit || echo "has_conflicts=true" >> $GITHUB_OUTPUT
 
-                  if [ "$MISSING_COMMITS" -gt 0 ]; then
-                    echo "Found $MISSING_COMMITS unique commits in $SOURCE_BRANCH."
+            - name: Create Pull Request
+              uses: peter-evans/create-pull-request@v8
+              with:
+                  branch: backport/${{ steps.merge.outputs.source }}
+                  base: main
+                  title: "Backport: ${{ steps.merge.outputs.source }} -> main"
+                  body: |
+                      Automated backport of `${{ steps.merge.outputs.source }}` to `main`.
 
-                    # Check if a PR already exists to avoid duplicates
-                    EXISTING_PR=$(gh pr list --base $TARGET_BRANCH --head $SOURCE_BRANCH --json number --jq '.[0].number')
-
-                    if [ -z "$EXISTING_PR" ]; then
-                      gh pr create \
-                        --base $TARGET_BRANCH \
-                        --head $SOURCE_BRANCH \
-                        --title "Backport: $SOURCE_BRANCH -> $TARGET_BRANCH" \
-                        --body "Automated sync to ensure $TARGET_BRANCH contains all fixes from $SOURCE_BRANCH."
-                    else
-                      echo "PR #$EXISTING_PR already exists for this sync."
-                    fi
-                  else
-                    echo "Branches are perfectly in sync."
-                  fi
+                      ${{ steps.merge.outputs.has_conflicts && '**This PR has merge conflicts that need manual resolution.**' || 'Clean merge - ready for review.' }}
+                  labels: backport
+                  delete-branch: true
