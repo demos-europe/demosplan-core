@@ -253,6 +253,12 @@ parameters:
     sentry_traces_sample_rate: 0
     sentry_profiles_sample_rate: 0
 
+    # OpenTelemetry OTLP endpoint for logs
+    # Set to empty string to disable, or e.g. "http://otel-collector:4318" to enable
+    otel_exporter_endpoint: ""
+    otel_service_name: "demosplan"
+    otel_loglevel: "info"
+
     fileservice_filepath: "../../files"
 
     elasticsearch_urls: ["http://localhost:9200"]

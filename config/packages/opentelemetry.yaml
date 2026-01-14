@@ -1,0 +1,20 @@
+# OpenTelemetry Logging Configuration
+# Sends Monolog logs to an OTLP Collector endpoint (e.g., OpenTelemetry Collector, Grafana Agent)
+# Based on: "Track Every Request: Symfony Monitoring with OpenTelemetry and Grafana" by laurentmn
+
+services:
+    demosplan\DemosPlanCoreBundle\Monolog\Handler\OtlpHandler:
+        arguments:
+            $otlpEndpoint: '%otel_exporter_endpoint%'
+            $serviceName: '%otel_service_name%'
+            $serviceVersion: '%project_version%'
+            $environment: '%kernel.environment%'
+            $level: '%otel_loglevel%'
+
+when@prod:
+    monolog:
+        handlers:
+            otlp:
+                type: service
+                id: demosplan\DemosPlanCoreBundle\Monolog\Handler\OtlpHandler
+                level: '%otel_loglevel%'
