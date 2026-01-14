@@ -2572,6 +2572,7 @@ __metadata:
   languageName: node
   linkType: hard
 
+
 "@demos-europe/demosplan-ui@npm:0.5.9-hotfix.4":
   version: 0.5.9-hotfix.4
   resolution: "@demos-europe/demosplan-ui@npm:0.5.9-hotfix.4"
