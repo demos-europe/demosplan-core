@@ -15,13 +15,19 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
+use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Contraint\ValidMultiSelectValueConstraint;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CustomFieldValueCreator
 {
-    public function __construct(private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
+    public function __construct(
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
+        private readonly ValidatorInterface $validator)
     {
     }
 
@@ -144,6 +150,20 @@ class CustomFieldValueCreator
 
     private function validateCustomFieldValue(CustomFieldInterface $customField, mixed $value): void
     {
+        // Use Symfony validation for MultiSelectField
+        if ($customField instanceof MultiSelectField) {
+            $constraint = new ValidMultiSelectValueConstraint();
+            $constraint->field = $customField;
+
+            $violations = $this->validator->validate($value, $constraint);
+
+            if ($violations->count() > 0) {
+                throw ViolationsException::fromConstraintViolationList($violations);
+            }
+
+            return;
+        }
+
         if (!$customField->isValueValid($value)) {
             throw new InvalidArgumentException(sprintf('Value "%s" is not valid for custom field with ID "%s".', $value, $customField->getId()));
         }
