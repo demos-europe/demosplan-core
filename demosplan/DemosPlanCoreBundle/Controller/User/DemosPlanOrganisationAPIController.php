@@ -494,11 +494,9 @@ class DemosPlanOrganisationAPIController extends APIController
 
             // Store old organization types before update for comparison
             $oldOrgaTypes = $preUpdateOrga->getStatusInCustomers()
-                ->filter(static fn (OrgaStatusInCustomer $status): bool =>
-                    OrgaStatusInCustomer::STATUS_ACCEPTED === $status->getStatus()
+                ->filter(static fn (OrgaStatusInCustomer $status): bool => OrgaStatusInCustomer::STATUS_ACCEPTED === $status->getStatus()
                     && $status->getCustomer() === $customerHandler->getCurrentCustomer())
-                ->map(static fn (OrgaStatusInCustomer $status): string =>
-                    $status->getOrgaType()->getName())
+                ->map(static fn (OrgaStatusInCustomer $status): string => $status->getOrgaType()->getName())
                 ->toArray();
 
             $updatedOrga = $userHandler->updateOrga($orgaId, $orgaDataArray);
@@ -531,11 +529,9 @@ class DemosPlanOrganisationAPIController extends APIController
                 // Dispatch OrgaTypeChangedEvent if organization types changed
                 try {
                     $newOrgaTypes = $updatedOrga->getStatusInCustomers()
-                        ->filter(static fn (OrgaStatusInCustomer $status): bool =>
-                            OrgaStatusInCustomer::STATUS_ACCEPTED === $status->getStatus()
+                        ->filter(static fn (OrgaStatusInCustomer $status): bool => OrgaStatusInCustomer::STATUS_ACCEPTED === $status->getStatus()
                             && $status->getCustomer() === $customerHandler->getCurrentCustomer())
-                        ->map(static fn (OrgaStatusInCustomer $status): string =>
-                            $status->getOrgaType()->getName())
+                        ->map(static fn (OrgaStatusInCustomer $status): string => $status->getOrgaType()->getName())
                         ->toArray();
 
                     // Check if types actually changed
@@ -546,7 +542,7 @@ class DemosPlanOrganisationAPIController extends APIController
                         $orgaTypeChangedEvent = new OrgaTypeChangedEvent($updatedOrga, $oldOrgaTypes);
                         $eventDispatcher->dispatch($orgaTypeChangedEvent);
                         $this->logger->info('OrgaTypeChangedEvent dispatched', [
-                            'orgaId' => $updatedOrga->getId(),
+                            'orgaId'   => $updatedOrga->getId(),
                             'oldTypes' => $oldOrgaTypes,
                             'newTypes' => $newOrgaTypes,
                         ]);
@@ -554,7 +550,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 } catch (Exception $e) {
                     $this->logger->warning('Could not successfully dispatch OrgaTypeChangedEvent', [
                         'exception' => $e->getMessage(),
-                        'orgaId' => $updatedOrga->getId(),
+                        'orgaId'    => $updatedOrga->getId(),
                     ]);
                 }
 

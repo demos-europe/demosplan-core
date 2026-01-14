@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\OrgaResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\OrgaResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -230,12 +230,9 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
 
                 // Get accepted organization types for current customer
                 $acceptedOrgaTypes = $orga->getStatusInCustomers()
-                    ->filter(static fn (OrgaStatusInCustomer $orgaStatus): bool =>
-                        OrgaStatusInCustomer::STATUS_ACCEPTED === $orgaStatus->getStatus())
-                    ->filter(static fn (OrgaStatusInCustomer $orgaStatus): bool =>
-                        $orgaStatus->getCustomer() === $currentCustomer)
-                    ->map(static fn (OrgaStatusInCustomer $orgaStatus): OrgaType =>
-                        $orgaStatus->getOrgaType());
+                    ->filter(static fn (OrgaStatusInCustomer $orgaStatus): bool => OrgaStatusInCustomer::STATUS_ACCEPTED === $orgaStatus->getStatus())
+                    ->filter(static fn (OrgaStatusInCustomer $orgaStatus): bool => $orgaStatus->getCustomer() === $currentCustomer)
+                    ->map(static fn (OrgaStatusInCustomer $orgaStatus): OrgaType => $orgaStatus->getOrgaType());
 
                 // Get role codes for these organization types
                 $relevantRoleCodes = [];

@@ -1,4 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Application\Migrations;
 
@@ -41,7 +51,7 @@ class Version20260106175013 extends AbstractMigration
         $toDelete = [];
         $deletionReasons = [
             'orga_not_accepted' => [],
-            'role_mismatch' => [],
+            'role_mismatch'     => [],
         ];
 
         foreach ($allEntries as $entry) {
@@ -78,13 +88,13 @@ class Version20260106175013 extends AbstractMigration
                 // Orga not accepted in this customer - mark for deletion
                 $toDelete[] = $entryId;
                 $deletionReasons['orga_not_accepted'][] = [
-                    'id' => $entryId,
-                    'orgaId' => $orgaId,
-                    'orgaName' => $orgaName,
-                    'customerId' => $customerId,
+                    'id'                => $entryId,
+                    'orgaId'            => $orgaId,
+                    'orgaName'          => $orgaName,
+                    'customerId'        => $customerId,
                     'customerSubdomain' => $customerSubdomain,
-                    'roleId' => $roleId,
-                    'permission' => $permissionName,
+                    'roleId'            => $roleId,
+                    'permission'        => $permissionName,
                 ];
                 continue;
             }
@@ -99,16 +109,16 @@ class Version20260106175013 extends AbstractMigration
                 // Role doesn't exist - mark for deletion
                 $toDelete[] = $entryId;
                 $deletionReasons['role_mismatch'][] = [
-                    'id' => $entryId,
-                    'orgaId' => $orgaId,
-                    'orgaName' => $orgaName,
-                    'customerId' => $customerId,
+                    'id'                => $entryId,
+                    'orgaId'            => $orgaId,
+                    'orgaName'          => $orgaName,
+                    'customerId'        => $customerId,
                     'customerSubdomain' => $customerSubdomain,
-                    'roleId' => $roleId,
-                    'roleCode' => 'NOT_FOUND',
-                    'permission' => $permissionName,
-                    'acceptedTypes' => array_column($acceptedTypes, 'name'),
-                    'reason' => 'Role not found in database',
+                    'roleId'            => $roleId,
+                    'roleCode'          => 'NOT_FOUND',
+                    'permission'        => $permissionName,
+                    'acceptedTypes'     => array_column($acceptedTypes, 'name'),
+                    'reason'            => 'Role not found in database',
                 ];
                 continue;
             }
@@ -131,16 +141,16 @@ class Version20260106175013 extends AbstractMigration
                 // Role doesn't match any of the orga's current types - mark for deletion
                 $toDelete[] = $entryId;
                 $deletionReasons['role_mismatch'][] = [
-                    'id' => $entryId,
-                    'orgaId' => $orgaId,
-                    'orgaName' => $orgaName,
-                    'customerId' => $customerId,
+                    'id'                => $entryId,
+                    'orgaId'            => $orgaId,
+                    'orgaName'          => $orgaName,
+                    'customerId'        => $customerId,
                     'customerSubdomain' => $customerSubdomain,
-                    'roleId' => $roleId,
-                    'roleCode' => $roleCode,
-                    'permission' => $permissionName,
-                    'acceptedTypes' => $acceptedTypeNames,
-                    'reason' => 'Role not allowed for current organization types',
+                    'roleId'            => $roleId,
+                    'roleCode'          => $roleCode,
+                    'permission'        => $permissionName,
+                    'acceptedTypes'     => $acceptedTypeNames,
+                    'reason'            => 'Role not allowed for current organization types',
                 ];
             }
         }

@@ -31,7 +31,7 @@ class OrgaTypePermissionsCleanupSubscriber extends BaseEventSubscriber
     public function __construct(
         private readonly AccessControlService $accessControlService,
         private readonly CustomerHandler $customerHandler,
-        private readonly RoleHandler $roleHandler
+        private readonly RoleHandler $roleHandler,
     ) {
     }
 
@@ -52,7 +52,7 @@ class OrgaTypePermissionsCleanupSubscriber extends BaseEventSubscriber
         $currentCustomer = $this->customerHandler->getCurrentCustomer();
 
         $this->logger->info('OrgaTypePermissionsCleanupSubscriber: Processing organization type change', [
-            'orgaId' => $updatedOrga->getId(),
+            'orgaId'   => $updatedOrga->getId(),
             'oldTypes' => $oldOrgaTypes,
         ]);
 
@@ -109,7 +109,7 @@ class OrgaTypePermissionsCleanupSubscriber extends BaseEventSubscriber
 
         $this->logger->info('OrgaTypePermissionsCleanupSubscriber: Role codes for removed type', [
             'removedType' => $removedType,
-            'roleCodes' => $roleCodesToRemove,
+            'roleCodes'   => $roleCodesToRemove,
         ]);
 
         // Convert role codes to Role objects
@@ -120,7 +120,7 @@ class OrgaTypePermissionsCleanupSubscriber extends BaseEventSubscriber
                 $rolesToRemove[] = $role;
                 $this->logger->debug('OrgaTypePermissionsCleanupSubscriber: Role found', [
                     'roleCode' => $roleCode,
-                    'roleId' => $role->getId(),
+                    'roleId'   => $role->getId(),
                 ]);
             } else {
                 $this->logger->warning('OrgaTypePermissionsCleanupSubscriber: Role not found', [
@@ -139,10 +139,10 @@ class OrgaTypePermissionsCleanupSubscriber extends BaseEventSubscriber
         }
 
         $this->logger->info('OrgaTypePermissionsCleanupSubscriber: Removing permissions', [
-            'orgaId' => $updatedOrga->getId(),
+            'orgaId'     => $updatedOrga->getId(),
             'customerId' => $currentCustomer->getId(),
             'rolesCount' => count($rolesToRemove),
-            'roleCodes' => $roleCodesToRemove,
+            'roleCodes'  => $roleCodesToRemove,
         ]);
 
         $this->accessControlService->removePermissions(
@@ -153,8 +153,8 @@ class OrgaTypePermissionsCleanupSubscriber extends BaseEventSubscriber
         );
 
         $this->logger->info('OrgaTypePermissionsCleanupSubscriber: Successfully cleaned up permissions', [
-            'orgaId' => $updatedOrga->getId(),
-            'removedType' => $removedType,
+            'orgaId'       => $updatedOrga->getId(),
+            'removedType'  => $removedType,
             'removedRoles' => $roleCodesToRemove,
         ]);
     }
