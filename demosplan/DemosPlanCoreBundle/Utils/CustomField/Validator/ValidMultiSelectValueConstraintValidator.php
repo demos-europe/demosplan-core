@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator;
 
-
 use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Contraint\ValidMultiSelectValueConstraint;
 use Symfony\Component\Validator\Constraint;
@@ -41,6 +40,7 @@ class ValidMultiSelectValueConstraintValidator extends ConstraintValidator
         if (!is_array($value)) {
             $this->context->buildViolation($constraint->notArrayMessage)
                 ->addViolation();
+
             return;
         }
 
@@ -48,6 +48,7 @@ class ValidMultiSelectValueConstraintValidator extends ConstraintValidator
         if ($field->getRequired() && [] === $value) {
             $this->context->buildViolation($constraint->requiredEmptyMessage)
                 ->addViolation();
+
             return;
         }
 
@@ -73,5 +74,4 @@ class ValidMultiSelectValueConstraintValidator extends ConstraintValidator
             }
         }
     }
-
 }
