@@ -42,6 +42,7 @@ class SegmentsExportController extends BaseController
     private const CITIZEN_CENSOR_PARAMETER = 'isCitizenDataCensored';
     private const INSTITUTION_CENSOR_PARAMETER = 'isInstitutionDataCensored';
     private const OBSCURE_PARAMETER = 'isObscured';
+    private const EXCLUDE_STATEMENT_TEXT_PARAMETER = 'excludeStatementText';
 
     public function __construct(
         private readonly NameGenerator $nameGenerator,
@@ -76,16 +77,19 @@ class SegmentsExportController extends BaseController
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
+        $excludeStatementText = $this->getBooleanQueryParameter(self::EXCLUDE_STATEMENT_TEXT_PARAMETER);
+
 
         $response = new StreamedResponse(
-            static function () use ($procedure, $statement, $exporter, $tableHeaders, $censorCitizenData, $censorInstitutionData, $isObscure) {
+            static function () use ($procedure, $statement, $exporter, $tableHeaders, $censorCitizenData, $censorInstitutionData, $isObscure, $excludeStatementText) {
                 $exportedDoc = $exporter->export(
                     $procedure,
                     $statement,
                     $tableHeaders,
                     $censorCitizenData,
                     $censorInstitutionData,
-                    $isObscure
+                    $isObscure,
+                    $excludeStatementText
                 );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
@@ -129,6 +133,7 @@ class SegmentsExportController extends BaseController
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
         // geschwärzt
         $obscureParameter = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
+        $excludeStatementText = $this->getBooleanQueryParameter(self::EXCLUDE_STATEMENT_TEXT_PARAMETER);
 
         $response = new StreamedResponse(
             static function () use (
@@ -138,7 +143,8 @@ class SegmentsExportController extends BaseController
                 $exporter,
                 $censorCitizenData,
                 $censorInstitutionData,
-                $obscureParameter
+                $obscureParameter,
+                $excludeStatementText
             ) {
                 $exportedDoc = $exporter->exportAll(
                     $tableHeaders,
@@ -146,6 +152,7 @@ class SegmentsExportController extends BaseController
                     $obscureParameter,
                     $censorCitizenData,
                     $censorInstitutionData,
+                    $excludeStatementText,
                     ...$statementEntities
                 );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
