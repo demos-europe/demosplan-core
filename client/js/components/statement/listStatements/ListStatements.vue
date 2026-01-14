@@ -232,7 +232,7 @@
             </button>
           </dp-flyout>
         </template>
-        <template v-slot:expandedContent="{ text, fullText, id, isFulltextDisplayed}">
+        <template v-slot:expandedContent="{ text, fullText, id }">
           <!-- Statement meta data -->
           <statement-meta-data
             class="u-pt-0_5"
