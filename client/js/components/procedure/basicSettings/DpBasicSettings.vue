@@ -10,13 +10,16 @@
 <template>
   <div>
     <slot
+      :activate-interface="activateInterface"
       :auth-users-options="authUsersOptions"
+      :handle-auto-switch-phase-update="handleAutoSwitchPhaseUpdate"
       :select-all-auth-users="selectAllAuthUsers"
       :set-selected-internal-phase="setSelectedInternalPhase"
       :set-selected-public-phase="setSelectedPublicPhase"
       :sorted-agencies-options="sortedAgenciesOptions"
       :state="state"
       :submit="submit"
+      :submit-without-interface-activation="submitWithoutInterfaceActivation"
       :unselect-all-auth-users="unselectAllAuthUsers"
       :update-addon-payload="updateAddonPayload"
     />

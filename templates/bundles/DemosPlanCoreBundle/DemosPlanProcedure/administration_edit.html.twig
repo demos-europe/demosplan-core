@@ -115,13 +115,16 @@
         procedure-id="{{ proceduresettings.id|default }}">
 
         <template #default="{
+            activateInterface,
             authUsersOptions,
+            handleAutoSwitchPhaseUpdate,
             selectAllAuthUsers,
             setSelectedInternalPhase,
             setSelectedPublicPhase,
             sortedAgenciesOptions,
             state,
             submit,
+            submitWithoutInterfaceActivation,
             unselectAllAuthUsers,
             updateAddonPayload
           }">
@@ -985,9 +988,9 @@
 
                                 {% if hasPermission('feature_feedback_on_statement_controllable') %}
                                     <label>
-                                        <input type="checkbox" name="r_publicParticipationFeedbackEnabled" v-model="publicParticipationFeedbackEnabled">
+                                        <input type="checkbox" name="r_publicParticipationFeedbackEnabled" v-model="state.publicParticipationFeedbackEnabled">
                                         <span>{{ "public.participation.feedback"|trans }}</span>
-                                        <span v-if="!publicParticipationFeedbackEnabled" class="block flash flash-warning mt-1 mx-3"><i class="fa u-mt-0_125 u-mr-0_25 float-left fa-exclamation-triangle" aria-hidden="true"></i>{{ "warning.disable.feedback.feature"|trans }}</span>
+                                        <span v-if="!state.publicParticipationFeedbackEnabled" class="block flash flash-warning mt-1 mx-3"><i class="fa u-mt-0_125 u-mr-0_25 float-left fa-exclamation-triangle" aria-hidden="true"></i>{{ "warning.disable.feedback.feature"|trans }}</span>
                                     </label>
                                 {% else %}
                                     {# allow publishing the possibility of Feedback by default #}
