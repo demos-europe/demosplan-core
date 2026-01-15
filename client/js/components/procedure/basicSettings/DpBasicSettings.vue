@@ -271,12 +271,6 @@ export default {
 
       return addonRequest
         .catch(error => {
-          /** The 'is-invalid' class would be added to the addon input-field in case of an error */
-          const input = document.getElementById('interfaceFieldsToTransmit-input')
-          if (input) {
-            input.classList.add('is-invalid')
-          }
-
           throw error
         })
     },
