@@ -24,12 +24,10 @@ use OpenTelemetry\SDK\Logs\LoggerProvider;
 use OpenTelemetry\SDK\Logs\Processor\SimpleLogRecordProcessor;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SDK\Resource\ResourceInfoFactory;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Monolog handler that sends logs to OpenTelemetry Collector via OTLP HTTP.
- *
- * Based on the pattern from "Track Every Request: Symfony Monitoring with OpenTelemetry and Grafana"
- * by laurentmn (Dec 2025).
  */
 class OtlpHandler extends AbstractProcessingHandler
 {
@@ -40,11 +38,11 @@ class OtlpHandler extends AbstractProcessingHandler
     private string $environment;
 
     public function __construct(
-        string $otlpEndpoint,
-        string $serviceName,
-        string $serviceVersion = '1.0.0',
-        string $environment = 'prod',
-        int|string|Level $level = Level::Info,
+        #[Autowire('%otel_exporter_endpoint%')] string $otlpEndpoint,
+        #[Autowire('%otel_service_name%')] string $serviceName,
+        #[Autowire('%project_version%')] string $serviceVersion = '1.0.0',
+        #[Autowire('%kernel.environment%')] string $environment = 'prod',
+        #[Autowire('%otel_loglevel%')] int|string|Level $level = Level::Info,
         bool $bubble = true,
     ) {
         parent::__construct($level, $bubble);
