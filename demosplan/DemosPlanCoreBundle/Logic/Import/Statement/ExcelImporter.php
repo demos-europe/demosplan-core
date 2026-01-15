@@ -133,6 +133,15 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      */
     private array $firstWorkflowPlaceCache = [];
 
+    /**
+     * Track statement IDs that have been processed during segment import
+     * to avoid duplicate statement creation when metadata worksheet has
+     * multiple rows per statement (one row per segment).
+     *
+     * @var array<string|int, bool> Keyed by statement ID
+     */
+    private array $processedStatementIds = [];
+
     public function __construct(
         CurrentProcedureService $currentProcedureService,
         CurrentUserInterface $currentUser,
@@ -221,7 +230,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @throws UserNotFoundException
      * @throws AddonResourceNotFoundException
      */
-    public function processSegments(SplFileInfo $fileInfo, bool $flushAndPersist = false): SegmentExcelImportResult
+    public function processSegments(SplFileInfo $fileInfo): SegmentExcelImportResult
     {
         $result = new SegmentExcelImportResult();
 
@@ -233,6 +242,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $this->firstWorkflowPlaceCache = [];
         $this->generatedTags = [];
         $this->generatedStatements = [];
+        $this->processedStatementIds = [];
         $this->errors = [];
         $this->excelIdToStatementMapping = [];
 
@@ -1022,6 +1032,17 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         }
 
         $statementId = $statement[self::STATEMENT_ID];
+
+        // Check if this statement ID has already been processed during this import
+        // This prevents duplicate statement creation when metadata worksheet has multiple
+        // rows per statement (one row per segment)
+        if (isset($this->processedStatementIds[$statementId])) {
+            return 0;
+        }
+
+        // Mark this statement ID as processed
+        $this->processedStatementIds[$statementId] = true;
+
         $correspondingSegments = $segments[$statementId] ?? [];
 
         $idMatchViolations = $this->validator->validate(
@@ -1137,7 +1158,20 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $tagTitle = new UnicodeString($tagTitle);
             $tagTitle = $tagTitle->trim()->toString();
 
-            $matchingTag = $this->tagService->findUniqueByTitle($tagTitle, $procedureId);
+            // First, check if we already created this tag during this import (not yet flushed)
+            $matchingTag = null;
+            foreach ($this->generatedTags as $generatedTag) {
+                if ($generatedTag->getTitle() === $tagTitle) {
+                    $matchingTag = $generatedTag;
+                    break;
+                }
+            }
+
+            // If not found in generated tags, check the database
+            if (!$matchingTag instanceof Tag) {
+                $matchingTag = $this->tagService->findUniqueByTitle($tagTitle, $procedureId);
+            }
+
             $createNewTag = !$matchingTag instanceof Tag;
 
             if ($createNewTag) {
