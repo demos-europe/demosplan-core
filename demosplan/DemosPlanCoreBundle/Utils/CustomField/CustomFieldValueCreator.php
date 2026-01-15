@@ -60,7 +60,7 @@ class CustomFieldValueCreator
                 $sourceEntityId,
                 $targetEntityClass,
                 $newCustomFieldValue->getId());
-            $this->validateCustomFieldValue($customField, $newCustomFieldValue);
+            $this->validationService->validate($customField, $newCustomFieldValue);
 
             // Find in our new copy, not in the original
             $existingCustomFieldValue = $updatedCustomFieldValuesList->findById($newCustomFieldValue->getId());
@@ -143,12 +143,5 @@ class CustomFieldValueCreator
         }
 
         return $customFieldConfiguration->getConfiguration();
-    }
-
-    private function validateCustomFieldValue(CustomFieldInterface $customField, CustomFieldValue $value): void
-    {
-        // Single responsibility: delegate to validation service
-        // No if/else chains, no instanceof checks, fully extensible
-        $this->validationService->validate($customField, $value);
     }
 }
