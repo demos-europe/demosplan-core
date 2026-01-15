@@ -27,7 +27,7 @@ class CustomFieldValueCreator
 {
     public function __construct(
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
-        private readonly ValidatorInterface $validator)
+        private readonly CustomFieldValueValidationService $validationService)
     {
     }
 
@@ -63,7 +63,7 @@ class CustomFieldValueCreator
                 $sourceEntityId,
                 $targetEntityClass,
                 $newCustomFieldValue->getId());
-            $this->validateCustomFieldValue($customField, $newCustomFieldValue->getValue());
+            $this->validateCustomFieldValue($customField, $newCustomFieldValue);
 
             // Find in our new copy, not in the original
             $existingCustomFieldValue = $updatedCustomFieldValuesList->findById($newCustomFieldValue->getId());
@@ -148,24 +148,11 @@ class CustomFieldValueCreator
         return $customFieldConfiguration->getConfiguration();
     }
 
-    private function validateCustomFieldValue(CustomFieldInterface $customField, mixed $value): void
+    private function validateCustomFieldValue(CustomFieldInterface $customField, CustomFieldValue $value): void
     {
-        // Use Symfony validation for MultiSelectField
-        if ($customField instanceof MultiSelectField) {
-            $constraint = new ValidMultiSelectValueConstraint();
-            $constraint->field = $customField;
-
-            $violations = $this->validator->validate($value, $constraint);
-
-            if ($violations->count() > 0) {
-                throw ViolationsException::fromConstraintViolationList($violations);
-            }
-
-            return;
-        }
-
-        if (!$customField->isValueValid($value)) {
-            throw new InvalidArgumentException(sprintf('Value "%s" is not valid for custom field with ID "%s".', $value, $customField->getId()));
-        }
+        // Single responsibility: delegate to validation service
+        // No if/else chains, no instanceof checks, fully extensible
+        $this->validationService->validate($customField, $value);
     }
+
 }
