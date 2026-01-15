@@ -293,27 +293,16 @@
           <!-- Statement text -->
           <div class="u-pt-0_5 c-styled-html">
             <strong>{{ Translator.trans('statement.text.short') }}:</strong>
-            <template v-if="typeof fullText === 'undefined'">
-              <div v-cleanhtml="text" />
-              <a
-                v-if="statementsObject[id].attributes.textIsTruncated"
-                class="show-more cursor-pointer"
-                rel="noopener"
-                @click.prevent.stop="() => getStatementsFullText(id)"
-              >
-                {{ Translator.trans('show.more') }}
-              </a>
-            </template>
-            <template v-else>
-              <div v-cleanhtml="statementsObject[id].attributes.isFulltextDisplayed ? fullText : text" />
-              <a
-                class="cursor-pointer"
-                rel="noopener"
-                @click="() => toggleFulltext(id)"
-              >
-                {{ Translator.trans(statementsObject[id].attributes.isFulltextDisplayed ? 'show.less' : 'show.more') }}
-              </a>
-            </template>
+            <p v-cleanhtml="displayedText(id)"></p>
+            <a
+              v-if="statementsObject[id].attributes.textIsTruncated"
+              class="cursor-pointer"
+              :class="{ 'show-more': !statementsObject[id].attributes.isFulltextDisplayed }"
+              rel="noopener"
+              @click.prevent="handleFullTextAction(id)"
+            >
+              {{ toggleFullTextLabel(id) }}
+            </a>
           </div>
         </template>
       </dp-data-table>
@@ -563,6 +552,18 @@ export default {
       }
     },
 
+    displayedText (statementId) {
+      const { attributes } = this.statementsObject?.[statementId]
+
+      if (!attributes) {
+        return ''
+      }
+
+      return attributes.isFulltextDisplayed
+        ? attributes.fullText
+        : attributes.text
+    },
+
     getAssignee (statement) {
       if (this.assigneeId(statement)) {
         const assignee = this.assignableUsersObject[this.assigneeId(statement)]
@@ -589,6 +590,22 @@ export default {
         name: '',
         orgaName: '',
       }
+    },
+
+    handleFullTextAction (statementId) {
+      const attributes = this.statementsObject?.[statementId]?.attributes
+
+      if (!attributes) {
+        return
+      }
+
+      if (!attributes.isFulltextDisplayed) {
+        this.getStatementsFullText(statementId)
+        
+        return
+      }
+
+      this.toggleFulltext(statementId)
     },
 
     handleSizeChange (newSize) {
@@ -1008,6 +1025,16 @@ export default {
       const statement = this.statementsObject[statementId]
       const isFulltext = statement.attributes.isFulltextDisplayed
       this.setStatement({ ...{ ...statement, attributes: { ...statement.attributes, isFulltextDisplayed: !isFulltext }, id: statementId } })
+    },
+
+    toggleFullTextLabel (statementId) {
+      const { attributes } = this.statementsObject?.[statementId]
+
+      if (!attributes) {
+        return ''
+      }
+
+      return Translator.trans(attributes.isFulltextDisplayed ? 'show.less' : 'show.more')
     },
 
     updateSearchFields (selectedFields) {
