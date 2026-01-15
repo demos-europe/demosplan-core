@@ -180,9 +180,11 @@
             id="CustomFieldRequiredCheckbox"
             v-model="newRowData.isRequired"
             class="mb-2"
+            hide-label
             :label="{
-            text: Translator.trans('statements.fields.configurable.required')
-          }"
+              text: Translator.trans('statements.fields.configurable.required'),
+              hide: true,
+            }"
           />
         </div>
         <div v-else
@@ -592,8 +594,9 @@ export default {
       const isNameUnchanged = this.initialRowData.name === newRowData.name
       const areOptionsUnchanged = JSON.stringify(this.initialRowData.options) === JSON.stringify(newRowData.options)
       const isDescriptionUnchanged = this.initialRowData.description === newRowData.description
+      const isRequiredUnchanged = this.initialRowData.isRequired === newRowData.isRequired
 
-      this.isSaveDisabled[newRowData.id] = isNameUnchanged && areOptionsUnchanged && isDescriptionUnchanged
+      this.isSaveDisabled[newRowData.id] = isNameUnchanged && areOptionsUnchanged && isDescriptionUnchanged && isRequiredUnchanged
     },
 
     editCustomField (rowData) {
@@ -759,7 +762,7 @@ export default {
 
         if (isConfirmed) {
           const storeField = this.customFields[this.newRowData.id]
-          const { description = '', name, isRequired, options } = this.newRowData
+          const { description = '', fieldType, name, isRequired, options } = this.newRowData
 
           const updatedField = {
             ...storeField,
@@ -767,6 +770,7 @@ export default {
               Object.entries({
                 ...storeField.attributes,
                 description,
+                fieldType,
                 name,
                 isRequired,
                 options,
