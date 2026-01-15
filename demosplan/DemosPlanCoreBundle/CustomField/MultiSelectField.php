@@ -83,7 +83,6 @@ class MultiSelectField extends AbstractCustomField
         return $this->isRequired;
     }
 
-
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption
     {
         foreach ($this->options as $option) {
