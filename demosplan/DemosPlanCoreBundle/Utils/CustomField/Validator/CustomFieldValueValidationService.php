@@ -10,13 +10,12 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
+namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator\CustomFieldValueValidationStrategyInterface;
 
 /**
  * Orchestrates validation of custom field values by delegating to field-type-specific strategies.
@@ -33,12 +32,6 @@ class CustomFieldValueValidationService
 
     /**
      * Validate a value against a custom field definition.
-     *
-     * @param CustomFieldInterface $field The field definition
-     * @param mixed                $value The value to validate
-     *
-     * @throws ViolationsException      When validation fails
-     * @throws InvalidArgumentException When no strategy found for field type
      */
     public function validate(CustomFieldInterface $field, CustomFieldValue $value): void
     {

@@ -37,7 +37,7 @@ services:
     # End CustomField validation services
 
     # Start CustomFieldValue validation services
-    demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueValidationService:
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator\CustomFieldValueValidationService:
         arguments:
             $strategies: !tagged custom_field_value_validation_strategy
 
