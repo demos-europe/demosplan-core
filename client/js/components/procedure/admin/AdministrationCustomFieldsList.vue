@@ -175,7 +175,17 @@
       </template>
 
       <template v-slot:isRequired="rowData">
-        <div
+        <div v-if="rowData.edit">
+          <dp-checkbox
+            id="CustomFieldRequiredCheckbox"
+            v-model="newRowData.isRequired"
+            class="mb-2"
+            :label="{
+            text: Translator.trans('statements.fields.configurable.required')
+          }"
+          />
+        </div>
+        <div v-else
           v-if="isStatementField"
           class="mt-1"
         >
@@ -514,6 +524,10 @@ export default {
       this.newRowData.options.push({ label: '' })
     },
 
+    changeIsRequiredOnEdit (value) {
+      this.newRowData.isRequired = value
+    },
+
     /**
      * @param name { string }
      * @returns { boolean }
@@ -704,14 +718,13 @@ export default {
     },
 
     resetEditedUnsavedField (customField) {
-      const { description = '', name = '', options = [] } = this.initialRowData
-
+      const { description = '', name = '', isRequired = false, options = [] } = this.initialRowData
       customField.description = description
       customField.edit = false
       customField.name = name
+      customField.isRequired = isRequired
       customField.open = false
       customField.options = options
-
       this.newRowData = {}
     },
 
@@ -746,7 +759,7 @@ export default {
 
         if (isConfirmed) {
           const storeField = this.customFields[this.newRowData.id]
-          const { description = '', name, options } = this.newRowData
+          const { description = '', name, isRequired, options } = this.newRowData
 
           const updatedField = {
             ...storeField,
@@ -755,6 +768,7 @@ export default {
                 ...storeField.attributes,
                 description,
                 name,
+                isRequired,
                 options,
               }).filter(([key]) => key !== 'fieldType'),
             ),
@@ -833,21 +847,23 @@ export default {
     },
 
     setInitialRowData (rowData) {
-      const { description = '', name, options } = rowData
+      const { description = '', isRequired, name, options } = rowData
 
       this.initialRowData = {
         description,
+        isRequired,
         name,
         options: JSON.parse(JSON.stringify(options)),
       }
     },
 
     setNewRowData (rowData) {
-      const { id, description = '', name, options } = rowData
+      const { id, description = '', isRequired, name, options } = rowData
 
       this.newRowData = {
         id,
         description,
+        isRequired,
         name,
         options,
       }
