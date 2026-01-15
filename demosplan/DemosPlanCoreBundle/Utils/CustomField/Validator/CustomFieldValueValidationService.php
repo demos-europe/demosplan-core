@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 
 /**
  * Orchestrates validation of custom field values by delegating to field-type-specific strategies.
