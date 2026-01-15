@@ -318,7 +318,14 @@ export default {
       this.collapseSectionsIfExpanded(['wizardNameUrl', 'wizardSettings'])
       this.expandSectionIfCollapsed('wizardPhaseExternal')
       this.scrollToInterfaceFields()
-      this.$refs.interfaceWarningOnSubmit.toggle()
+      this.$nextTick(() => {
+        const checkbox = document.getElementById('interfaceFieldsToTransmit-checkbox')
+        if (checkbox && !checkbox.disabled && !checkbox.checked) {
+          checkbox.click()
+          dplan.notify.notify('confirm', Translator.trans('interface.activation.success'))
+        }
+      })
+      this.interfaceWarningModalRef?.toggle()
     },
 
     collapseSectionsIfExpanded (sectionIds) {
