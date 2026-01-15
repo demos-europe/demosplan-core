@@ -601,6 +601,7 @@ export default {
 
       if (!attributes.isFulltextDisplayed) {
         this.getStatementsFullText(statementId)
+        
         return
       }
 
