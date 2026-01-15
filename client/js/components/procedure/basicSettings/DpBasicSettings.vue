@@ -14,6 +14,7 @@
       :auth-users-options="authUsersOptions"
       :handle-auto-switch-phase-update="handleAutoSwitchPhaseUpdate"
       :select-all-auth-users="selectAllAuthUsers"
+      :set-interface-warning-modal-ref="setInterfaceWarningModalRef"
       :set-selected-internal-phase="setSelectedInternalPhase"
       :set-selected-public-phase="setSelectedPublicPhase"
       :sorted-agencies-options="sortedAgenciesOptions"
@@ -27,7 +28,7 @@
 </template>
 
 <script>
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import {
   dpApi,
   dpValidateMixin,
@@ -152,6 +153,8 @@ export default {
       selectedSimilarRecommendationProcedures: props.initSimilarRecommendationProcedures,
     })
 
+    const interfaceWarningModalRef = ref(null)
+
     const authUsersOptions = computed(() =>
       sortAlphabetically([...props.authorizedUsersOptions], 'name'),
     )
@@ -159,6 +162,10 @@ export default {
     const sortedAgenciesOptions = computed(() =>
       sortAlphabetically([...props.agenciesOptions], 'name'),
     )
+
+    const setInterfaceWarningModalRef = (el) => {
+      interfaceWarningModalRef.value = el
+    }
 
     const setSelectedInternalPhase = phase => {
       state.selectedInternalPhase = phase
@@ -175,7 +182,9 @@ export default {
 
     return {
       authUsersOptions,
+      interfaceWarningModalRef,
       selectAllAuthUsers,
+      setInterfaceWarningModalRef,
       setSelectedInternalPhase,
       setSelectedPublicPhase,
       sortedAgenciesOptions,
@@ -212,7 +221,7 @@ export default {
     },
 
     isPublicParticipationPhaseActive () {
-      const currentPhaseIsPublic = this.publicParticipationPhases.includes(this.selectedPublicPhase)
+      const currentPhaseIsPublic = this.publicParticipationPhases.includes(this.state.selectedPublicPhase)
       const autoSwitchPhaseIsPublic = this.addonCheckAutoSwitchEnabled &&
         this.publicParticipationPhases.includes(this.addonCheckAutoSwitchPhase)
 
@@ -277,7 +286,8 @@ export default {
 
     submit (formElement) {
       if (this.shouldShowInterfaceWarningModal) {
-        this.$refs.interfaceWarningOnSubmit.toggle()
+        this.interfaceWarningModalRef?.toggle()
+
         return
       }
 
@@ -335,10 +345,10 @@ export default {
       })
     },
 
-    submitWithoutInterfaceActivation () {
-      this.$refs.interfaceWarningOnSubmit.toggle()
+    submitWithoutInterfaceActivation (formElement) {
+      this.interfaceWarningModalRef?.toggle()
       this.bypassAddonWarningModal = true
-      this.submit()
+      this.submit(formElement)
     },
 
     toggleInterfaceSection (sectionId, shouldBeExpanded) {
