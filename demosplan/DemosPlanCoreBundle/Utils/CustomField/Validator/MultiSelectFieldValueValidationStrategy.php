@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator;
 
@@ -9,11 +18,10 @@ use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 
 /**
- * Validates values for MultiSelectField
+ * Validates values for MultiSelectField.
  */
 class MultiSelectFieldValueValidationStrategy implements CustomFieldValueValidationStrategyInterface
 {
-
     public function supports(CustomFieldInterface $field): bool
     {
         return $field instanceof MultiSelectField;
@@ -38,10 +46,8 @@ class MultiSelectFieldValueValidationStrategy implements CustomFieldValueValidat
 
         // Required fields must have at least one selection
         if ($field->getRequired() && [] === $value) {
-
             throw new InvalidArgumentException('Required fields must have at least one selection');
         }
-
 
         // Validate each value in the array
         foreach ($value as $singleOptionValueId) {
@@ -55,6 +61,5 @@ class MultiSelectFieldValueValidationStrategy implements CustomFieldValueValidat
                 throw new InvalidArgumentException('Each element must be a valid option ID');
             }
         }
-
     }
 }

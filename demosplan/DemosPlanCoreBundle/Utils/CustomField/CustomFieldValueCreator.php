@@ -15,13 +15,9 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
-use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Contraint\ValidMultiSelectValueConstraint;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CustomFieldValueCreator
 {
@@ -154,5 +150,4 @@ class CustomFieldValueCreator
         // No if/else chains, no instanceof checks, fully extensible
         $this->validationService->validate($customField, $value);
     }
-
 }

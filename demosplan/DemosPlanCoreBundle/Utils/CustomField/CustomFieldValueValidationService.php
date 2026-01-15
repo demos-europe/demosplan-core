@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
@@ -26,8 +35,9 @@ class CustomFieldValueValidationService
      * Validate a value against a custom field definition.
      *
      * @param CustomFieldInterface $field The field definition
-     * @param mixed $value The value to validate
-     * @throws ViolationsException When validation fails
+     * @param mixed                $value The value to validate
+     *
+     * @throws ViolationsException      When validation fails
      * @throws InvalidArgumentException When no strategy found for field type
      */
     public function validate(CustomFieldInterface $field, CustomFieldValue $value): void
@@ -35,16 +45,11 @@ class CustomFieldValueValidationService
         foreach ($this->strategies as $strategy) {
             if ($strategy->supports($field)) {
                 $strategy->validate($field, $value);
+
                 return;
             }
         }
 
-        throw new InvalidArgumentException(
-            sprintf(
-                'No validation strategy found for custom field type "%s". '
-                . 'Each field type must have a dedicated validation strategy.',
-                $field::class
-            )
-        );
+        throw new InvalidArgumentException(sprintf('No validation strategy found for custom field type "%s". Each field type must have a dedicated validation strategy.', $field::class));
     }
 }
