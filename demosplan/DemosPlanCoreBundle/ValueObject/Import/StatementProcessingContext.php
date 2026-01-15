@@ -18,7 +18,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
  * Context for processing statement rows during Excel import.
  * Groups worksheet-related parameters to reduce parameter count.
  */
-final readonly class StatementProcessingContext
+final class StatementProcessingContext
 {
     public function __construct(
         public Worksheet $worksheet,

@@ -277,6 +277,7 @@
           >
             <dp-input
               id="r_internId"
+              v-model="values.internId"
               data-cy="submitterForm:internId"
               :data-dp-validate-error="Translator.trans('validation.error.internId')"
               :label="{
@@ -286,7 +287,6 @@
               }"
               name="r_internId"
               :pattern="internIdsPattern"
-              v-model="values.internId"
             />
           </div>
 
@@ -583,7 +583,7 @@ export default {
         submitter: submitterProperties,
         tags: [],
         text: '',
-      }
+      },
     }
   },
 

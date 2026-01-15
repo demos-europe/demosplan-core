@@ -149,7 +149,7 @@ export default {
   props: {
     isIdp: {
       type: Boolean,
-      required: true,
+      required: false,
       default: false,
     },
 
@@ -161,7 +161,7 @@ export default {
 
     idpLoginPath: {
       type: String,
-      required: true,
+      required: false,
       default: '',
     },
 

@@ -72,7 +72,8 @@
       <h2>{{ Translator.trans('import.jobs.list') }}</h2>
       <segment-import-job-list
         :init-url="importJobsUrl"
-        :procedure-id="procedureId" />
+        :procedure-id="procedureId"
+      />
     </div>
   </div>
 </template>
@@ -89,7 +90,7 @@ export default {
   components: {
     DpRadio,
     DpUploadFiles,
-    SegmentImportJobList
+    SegmentImportJobList,
   },
 
   props: {
@@ -132,7 +133,7 @@ export default {
 
     importJobsUrl () {
       return Routing.generate('dplan_import_jobs_api', { procedureId: this.procedureId })
-    }
+    },
   },
 
   methods: {

@@ -598,6 +598,7 @@ class DocxExporter
             'publicVerified'            => $statement['publicVerified'] ?? null,
             'publicVerifiedTranslation' => $statement['publicVerifiedTranslation'] ?? null,
             'recommendation'            => $statement['recommendation'] ?? null,
+            'votePla'                   => $statement['votePla'] ?? null,
             'submit'                    => $statement['submit'] ?? null,
             'submitName'                => $statement['meta']['submitName'] ?? null,
             'authorName'                => $statement['meta']['authorName'] ?? null,
@@ -682,6 +683,7 @@ class DocxExporter
                 }
 
                 $cell3 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
+                $this->addVotePlaText($cell3, $item);
                 if (isset($item['recommendation'])) {
                     $this->addHtml($cell3, $item['recommendation'], $styles);
                 }
@@ -706,6 +708,25 @@ class DocxExporter
                 ->addText($movedStatementText, $styles['cellHeadingText'], $styles['textStyleStatementDetailsParagraphStyles']);
 
             $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
+        }
+    }
+
+    /**
+     * Add votePla (vote advice) text to a cell if permission is granted.
+     */
+    private function addVotePlaText(Cell $cell, array $item): void
+    {
+        if (!isset($item['votePla']) || !$this->permissions->hasPermission('field_vote_advice_docx')) {
+            return;
+        }
+
+        try {
+            $statementAdviceValues = $this->config->getFormOptions()['statement_fragment_advice_values'] ?? [];
+            $translationKey = $statementAdviceValues[$item['votePla']];
+            $voteTextShort = $this->translator->trans($translationKey);
+            Html::addHtml($cell, '<p>'.$voteTextShort.'</p><br />');
+        } catch (Exception $e) {
+            $this->getLogger()->warning('statement with invalid \'votePla\' value given to condensed export', [$e]);
         }
     }
 

@@ -61,12 +61,6 @@ export default {
     DpMultiselect,
   },
 
-  data () {
-    return {
-      search: ''
-    }
-  },
-
   props: {
     options: {
       type: Array,
@@ -82,6 +76,12 @@ export default {
       type: Array,
       default: () => ([]),
     },
+  },
+
+  data () {
+    return {
+      search: '',
+    }
   },
 
   emits: [
@@ -104,7 +104,7 @@ export default {
       }
 
       const matches = this.options.filter(option =>
-        option.title.toLowerCase().includes(searchValue)
+        option.title.toLowerCase().includes(searchValue),
       )
 
       /**
@@ -130,7 +130,7 @@ export default {
         /* If both items match equally well, sort them alphabetically */
         return aTitle.localeCompare(bTitle, 'de')
       })
-    }
+    },
   },
 
   methods: {

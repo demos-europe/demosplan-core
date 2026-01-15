@@ -7,7 +7,8 @@
       <!-- Last Refresh Timestamp -->
       <div
         v-if="lastRefreshAt"
-        class="mb-2 text-muted">
+        class="mb-2 text-muted"
+      >
         {{ Translator.trans('import.job.last_refresh') }}: {{ formatDateTime(lastRefreshAt) }}
       </div>
 
@@ -18,8 +19,8 @@
         :items="items"
         is-expandable
         track-by="id"
-        data-cy="segmentImportJobList">
-
+        data-cy="segmentImportJobList"
+      >
         <!-- Job ID Column -->
         <template v-slot:id="{ id }">
           <span class="u-1-of-8-palm">{{ id.substring(0, 8) }}</span>
@@ -31,19 +32,23 @@
             <dp-contextual-help
               v-if="rowData.status === 'pending'"
               icon="clock"
-              :text="Translator.trans('import.job.status.pending')" />
+              :text="Translator.trans('import.job.status.pending')"
+            />
             <dp-contextual-help
               v-else-if="rowData.status === 'processing'"
               icon="hourglass"
-              :text="Translator.trans('import.job.status.processing')" />
+              :text="Translator.trans('import.job.status.processing')"
+            />
             <dp-contextual-help
               v-else-if="rowData.status === 'completed'"
               icon="check"
-              :text="Translator.trans('terminated')" />
+              :text="Translator.trans('terminated')"
+            />
             <dp-contextual-help
               v-else-if="rowData.status === 'failed'"
               icon="warning"
-              :text="Translator.trans('error')" />
+              :text="Translator.trans('error')"
+            />
           </div>
         </template>
 
@@ -53,7 +58,7 @@
             {{ rowData.result.statements || 0 }} {{ Translator.trans('statements') }}, {{ rowData.result.segments || 0 }} {{ Translator.trans('segments') }}
           </span>
           <span v-else-if="rowData.status === 'failed'">
-           {{ Translator.trans('error.occurred') }}
+            {{ Translator.trans('error.occurred') }}
           </span>
           <span v-else>-</span>
         </template>
@@ -62,11 +67,13 @@
         <template v-slot:expandedContent="rowData">
           <div
             v-if="rowData.status === 'failed' && rowData.error"
-            class="px-1 pb-1">
+            class="px-1 pb-1"
+          >
             <strong class="mb-1 block">{{ Translator.trans('import.job.result') }}:</strong>
             <dp-inline-notification
               :message="Translator.trans('error.occurred')"
-              type="error">
+              type="error"
+            >
               <pre class="m-0 mt-2 max-h-[200px] overflow-auto text-sm">{{ rowData.error }}</pre>
             </dp-inline-notification>
           </div>
@@ -81,7 +88,10 @@
         </template>
       </dp-data-table>
 
-      <p v-else class="mt-4">
+      <p
+        v-else
+        class="mt-4"
+      >
         {{ Translator.trans('import.job.waiting') }}
       </p>
     </template>
@@ -94,7 +104,7 @@ import {
   DpDataTable,
   DpInlineNotification,
   DpLoading,
-  formatDate
+  formatDate,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -104,17 +114,17 @@ export default {
     DpContextualHelp,
     DpDataTable,
     DpInlineNotification,
-    DpLoading
+    DpLoading,
   },
 
   props: {
     initUrl: {
       type: String,
-      required: true
+      required: true,
     },
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
   },
@@ -127,14 +137,14 @@ export default {
       lastRefreshAt: null,
       pollInterval: 5000,        // Start at 5 seconds (adaptive polling)
       maxPollInterval: 60000,    // Max 60 seconds
-      pollTimeoutId: null         // Use setTimeout for adaptive intervals
+      pollTimeoutId: null,         // Use setTimeout for adaptive intervals
     }
   },
 
   computed: {
     hasActiveJobs () {
       return this.items.some(item =>
-        item.status === 'pending' || item.status === 'processing'
+        item.status === 'pending' || item.status === 'processing',
       )
     },
 
@@ -145,7 +155,7 @@ export default {
         { field: 'status', label: Translator.trans('status') },
         { field: 'createdAt', label: Translator.trans('created') },
         { field: 'lastActivityAt', label: Translator.trans('import.job.last_activity') },
-        { field: 'result', label: Translator.trans('result') }
+        { field: 'result', label: Translator.trans('result') },
       ]
     },
   },
@@ -195,7 +205,7 @@ export default {
     /**
      * Disables expand buttons for rows without errors, since there will be no content in the expanded row
      * Enables expand buttons for rows with errors, since the error message will be displayed in the expanded row
-      */
+     */
     setExpandButtonStates () {
       this.items.forEach((item, index) => {
         const expandButton = this.$el.querySelector(`[data-cy="isExpandableWrapTrigger:${index}"]`)
@@ -247,7 +257,7 @@ export default {
 
       // Only poll if there are active jobs and tab is visible
       const hasActiveJobs = this.items.some(
-        item => ['pending', 'processing'].includes(item.status)
+        item => ['pending', 'processing'].includes(item.status),
       )
 
       if (!hasActiveJobs || document.hidden) {
@@ -260,7 +270,7 @@ export default {
           // Gradually increase interval (1.2x multiplier)
           this.pollInterval = Math.min(
             this.pollInterval * 1.2,
-            this.maxPollInterval
+            this.maxPollInterval,
           )
           this.startPolling()  // Recursively schedule next poll
         })
@@ -293,7 +303,7 @@ export default {
       }
 
       return formatDate(dateTimeString, 'long')
-    }
+    },
   },
 
   mounted () {
@@ -314,6 +324,6 @@ export default {
     // Clean up polling interval and event listener
     this.stopPolling()
     document.removeEventListener('visibilitychange', this.handleVisibilityChange)
-  }
+  },
 }
 </script>

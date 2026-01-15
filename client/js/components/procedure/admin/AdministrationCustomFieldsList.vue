@@ -175,7 +175,19 @@
       </template>
 
       <template v-slot:isRequired="rowData">
-        <div
+        <div v-if="rowData.edit">
+          <dp-checkbox
+            id="CustomFieldRequiredCheckbox"
+            v-model="newRowData.isRequired"
+            class="mb-2"
+            hide-label
+            :label="{
+              text: Translator.trans('statements.fields.configurable.required'),
+              hide: true,
+            }"
+          />
+        </div>
+        <div v-else
           v-if="isStatementField"
           class="mt-1"
         >
@@ -514,6 +526,10 @@ export default {
       this.newRowData.options.push({ label: '' })
     },
 
+    changeIsRequiredOnEdit (value) {
+      this.newRowData.isRequired = value
+    },
+
     /**
      * @param name { string }
      * @returns { boolean }
@@ -578,8 +594,9 @@ export default {
       const isNameUnchanged = this.initialRowData.name === newRowData.name
       const areOptionsUnchanged = JSON.stringify(this.initialRowData.options) === JSON.stringify(newRowData.options)
       const isDescriptionUnchanged = this.initialRowData.description === newRowData.description
+      const isRequiredUnchanged = this.initialRowData.isRequired === newRowData.isRequired
 
-      this.isSaveDisabled[newRowData.id] = isNameUnchanged && areOptionsUnchanged && isDescriptionUnchanged
+      this.isSaveDisabled[newRowData.id] = isNameUnchanged && areOptionsUnchanged && isDescriptionUnchanged && isRequiredUnchanged
     },
 
     editCustomField (rowData) {
@@ -704,14 +721,13 @@ export default {
     },
 
     resetEditedUnsavedField (customField) {
-      const { description = '', name = '', options = [] } = this.initialRowData
-
+      const { description = '', name = '', isRequired = false, options = [] } = this.initialRowData
       customField.description = description
       customField.edit = false
       customField.name = name
+      customField.isRequired = isRequired
       customField.open = false
       customField.options = options
-
       this.newRowData = {}
     },
 
@@ -746,7 +762,7 @@ export default {
 
         if (isConfirmed) {
           const storeField = this.customFields[this.newRowData.id]
-          const { description = '', name, options } = this.newRowData
+          const { description = '', fieldType, name, isRequired, options } = this.newRowData
 
           const updatedField = {
             ...storeField,
@@ -754,7 +770,9 @@ export default {
               Object.entries({
                 ...storeField.attributes,
                 description,
+                fieldType,
                 name,
+                isRequired,
                 options,
               }).filter(([key]) => key !== 'fieldType'),
             ),
@@ -833,21 +851,23 @@ export default {
     },
 
     setInitialRowData (rowData) {
-      const { description = '', name, options } = rowData
+      const { description = '', isRequired, name, options } = rowData
 
       this.initialRowData = {
         description,
+        isRequired,
         name,
         options: JSON.parse(JSON.stringify(options)),
       }
     },
 
     setNewRowData (rowData) {
-      const { id, description = '', name, options } = rowData
+      const { id, description = '', isRequired, name, options } = rowData
 
       this.newRowData = {
         id,
         description,
+        isRequired,
         name,
         options,
       }

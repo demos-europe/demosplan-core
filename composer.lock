@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0ef7889ca579a6c62b9b90d6960943b8",
+    "content-hash": "1e8c169f8f4c0e94bc073dff1f338e31",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -18251,76 +18251,6 @@
             "time": "2025-11-21T18:03:05+00:00"
         },
         {
-            "name": "symfony/templating",
-            "version": "v6.4.24",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/templating.git",
-                "reference": "c55c6f96eafa9388390d3ba099fe844f892dbcd6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/templating/zipball/c55c6f96eafa9388390d3ba099fe844f892dbcd6",
-                "reference": "c55c6f96eafa9388390d3ba099fe844f892dbcd6",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.1",
-                "symfony/deprecation-contracts": "^2.5|^3",
-                "symfony/polyfill-ctype": "~1.8"
-            },
-            "require-dev": {
-                "psr/log": "^1|^2|^3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\Templating\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Provides all the tools needed to build any kind of template system",
-            "homepage": "https://symfony.com",
-            "support": {
-                "source": "https://github.com/symfony/templating/tree/v6.4.24"
-            },
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://github.com/nicolas-grekas",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2025-07-10T08:14:14+00:00"
-        },
-        {
             "name": "symfony/translation",
             "version": "v6.4.31",
             "source": {
@@ -20028,16 +19958,16 @@
         },
         {
             "name": "cyclonedx/cyclonedx-library",
-            "version": "v3.9.0",
+            "version": "v3.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CycloneDX/cyclonedx-php-library.git",
-                "reference": "0301e2c16ede56d0377626f581e5fab98ec987a3"
+                "reference": "e6bb0fca8d89f1e34755900c361061a6f5253e49"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CycloneDX/cyclonedx-php-library/zipball/0301e2c16ede56d0377626f581e5fab98ec987a3",
-                "reference": "0301e2c16ede56d0377626f581e5fab98ec987a3",
+                "url": "https://api.github.com/repos/CycloneDX/cyclonedx-php-library/zipball/e6bb0fca8d89f1e34755900c361061a6f5253e49",
+                "reference": "e6bb0fca8d89f1e34755900c361061a6f5253e49",
                 "shasum": ""
             },
             "require": {
@@ -20113,30 +20043,31 @@
                     "type": "other"
                 }
             ],
-            "time": "2025-12-02T10:32:20+00:00"
+            "time": "2026-01-07T13:45:46+00:00"
         },
         {
             "name": "cyclonedx/cyclonedx-php-composer",
-            "version": "v6.0.0",
+            "version": "v6.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CycloneDX/cyclonedx-php-composer.git",
-                "reference": "6a54048d5b9c6e92d6fc14c46fb44b2f3d31d2ae"
+                "reference": "d718efc4c201acd0da7d2c2e5690864b2a5c7116"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CycloneDX/cyclonedx-php-composer/zipball/6a54048d5b9c6e92d6fc14c46fb44b2f3d31d2ae",
-                "reference": "6a54048d5b9c6e92d6fc14c46fb44b2f3d31d2ae",
+                "url": "https://api.github.com/repos/CycloneDX/cyclonedx-php-composer/zipball/d718efc4c201acd0da7d2c2e5690864b2a5c7116",
+                "reference": "d718efc4c201acd0da7d2c2e5690864b2a5c7116",
                 "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^2.3",
-                "cyclonedx/cyclonedx-library": "^3.3",
+                "cyclonedx/cyclonedx-library": "^3.9",
                 "package-url/packageurl-php": "^1.0",
                 "php": "^8.1"
             },
             "require-dev": {
                 "composer/composer": "^2.3.0",
+                "marc-mabe/php-enum": "^4.6",
                 "roave/security-advisories": "dev-latest"
             },
             "type": "composer-plugin",
@@ -20189,7 +20120,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2025-11-17T14:18:23+00:00"
+            "time": "2026-01-07T13:45:28+00:00"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -20497,16 +20428,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.92.4",
+            "version": "v3.92.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "9e7488b19403423e02e8403cc1eb596baf4673b0"
+                "reference": "260cc8c4a1d2f6d2f22cd4f9c70aa72e55ebac58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/9e7488b19403423e02e8403cc1eb596baf4673b0",
-                "reference": "9e7488b19403423e02e8403cc1eb596baf4673b0",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/260cc8c4a1d2f6d2f22cd4f9c70aa72e55ebac58",
+                "reference": "260cc8c4a1d2f6d2f22cd4f9c70aa72e55ebac58",
                 "shasum": ""
             },
             "require": {
@@ -20589,7 +20520,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.92.4"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.92.5"
             },
             "funding": [
                 {
@@ -20597,7 +20528,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-01-04T00:38:52+00:00"
+            "time": "2026-01-08T21:57:37+00:00"
         },
         {
             "name": "goetas-webservices/xsd-reader",
@@ -25143,7 +25074,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
@@ -25171,9 +25102,9 @@
         "ext-zip": "*",
         "ext-zlib": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.1.12"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }

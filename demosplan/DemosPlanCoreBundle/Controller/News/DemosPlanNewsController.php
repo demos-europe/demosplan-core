@@ -89,7 +89,7 @@ class DemosPlanNewsController extends BaseController
             $templateVars['orgaBranding'] = $orgaBranding;
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanNews/public_newsdetail.html.twig',
             [
                 'procedure'    => $procedureId,
@@ -186,7 +186,7 @@ class DemosPlanNewsController extends BaseController
             'recentNewsList' => $recentNewsList,
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             // globale Newslist ausgeloggt
             '@DemosPlanCore/DemosPlanNews/globalnewslist_list_index.html.twig',
             [
@@ -229,7 +229,7 @@ class DemosPlanNewsController extends BaseController
                 'logo'      => $procedureArray['logo'],
             ];
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanNews/public_newslist.html.twig',
                 [
                     'templateVars' => $templateVars,
@@ -268,7 +268,7 @@ class DemosPlanNewsController extends BaseController
             ],
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanNews/news_admin_list.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -304,7 +304,7 @@ class DemosPlanNewsController extends BaseController
             ],
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanNews/news_admin_list.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -536,7 +536,7 @@ class DemosPlanNewsController extends BaseController
             ]
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanNews/newsdetail.html.twig',
             [
                 'procedure'    => null,
@@ -689,7 +689,7 @@ class DemosPlanNewsController extends BaseController
             $templateVars['isGlobal'] = true;
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanNews/news_admin_edit.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -721,7 +721,7 @@ class DemosPlanNewsController extends BaseController
         }
 
         // Ausgabe
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanNews/news_admin_new.html.twig',
             [
                 'templateVars' => $templateVars,

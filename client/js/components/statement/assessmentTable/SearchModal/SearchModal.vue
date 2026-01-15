@@ -395,7 +395,7 @@ export default {
       localStorage.setItem('selectedCheckboxes', JSON.stringify(selectedCheckboxes))
     },
 
-    submit(event) {
+    submit (event) {
       const inputElement = this.$refs.searchInput?.$el?.querySelector('input')
       const isEmpty = this.searchString.trim() === ''
       const isInvalid = !inputElement?.checkValidity() || isEmpty

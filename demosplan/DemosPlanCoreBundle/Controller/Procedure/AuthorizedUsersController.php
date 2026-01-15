@@ -31,7 +31,7 @@ class AuthorizedUsersController extends BaseController
     #[Route(path: '/verfahren/{procedureId}/berechtigte', name: 'dplan_admin_procedure_authorized_users', methods: ['HEAD', 'GET'])]
     public function list(string $procedureId)
     {
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_authorized_users_list.html.twig',
             [
                 'procedure'    => $procedureId,

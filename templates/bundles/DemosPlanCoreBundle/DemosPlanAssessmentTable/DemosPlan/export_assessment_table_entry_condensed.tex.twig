@@ -85,13 +85,13 @@
 
         {% set textWidth = templateVars.textwidth|default('24.5cm') %}
 
-        \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}24.5cm{{ '}' }}{{ '{' }}0cm{{ '}' }}
+        \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}12.25cm{{ '}' }}{{ '{' }}12.25cm{{ '}' }}
         \ParallelLText{{ '{' }} \textbf{{ '{' }}{{ "statement"|trans|latex|raw }}{{ '}' }}{{ '}' }}
-        \ParallelRText{{ '{' }}{{ '}' }}
+        \ParallelRText{{ '{' }}\textbf{{ '{' }}{{ "considerationadvice"|trans|latex|raw }}{{ '}' }}{{ '}' }}
         \end{Parallel}
-        \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}{{ textWidth ~ 'cm' }}{{ '}' }}{{ '{' }}0cm{{ '}' }}
+        \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}12.25cm{{ '}' }}{{ '{' }}12.25cm{{ '}' }}
         \ParallelLText{{ '{' }}{{ statement.text|default("notspecified"|trans)|latex(listwidth=templateVars.listwidth)|raw }}{{ '}' }}
-        \ParallelRText{{ '{' }}{{ '}' }}
+        \ParallelRText{{ '{' }}{{ statement_macros.render_vote_text(statement) }}{{ statement.recommendation|default("notspecified"|trans)|latex|raw }}{{ '}' }}
         \end{Parallel}
 
     {% else %}
@@ -102,7 +102,7 @@
         \end{Parallel}
         \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}12.25cm{{ '}' }}{{ '{' }}12.25cm{{ '}' }}
         \ParallelLText{{ '{' }}{{ statement.text|default("notspecified"|trans)|latex(listwidth=templateVars.listwidth)|raw }}{{ '}' }}
-        \ParallelRText{{ '{' }}{{ statement.recommendation|default("notspecified"|trans)|latex|raw }}{{ '}' }}
+        \ParallelRText{{ '{' }}{{ statement_macros.render_vote_text(statement) }}{{ statement.recommendation|default("notspecified"|trans)|latex|raw }}{{ '}' }}
         \end{Parallel}
 
     {% endif %}
