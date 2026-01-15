@@ -45,6 +45,10 @@ services:
         tags:
             - name: custom_field_value_validation_strategy
 
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator\SingleSelectFieldValueValidationStrategy:
+        tags:
+            -   name: custom_field_value_validation_strategy
+
     # End CustomFieldValue validation services
 
     # Start CustomField Factories
