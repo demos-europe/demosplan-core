@@ -12,13 +12,10 @@ declare(strict_types=1);
 
 namespace Tests\Core\CustomField;
 
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
-use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Base\FunctionalTestCase;
 
 /**
@@ -88,5 +85,4 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         static::assertNotNull($storedValue);
         static::assertEquals($selectedOptionId, $storedValue->getValue());
     }
-
 }
