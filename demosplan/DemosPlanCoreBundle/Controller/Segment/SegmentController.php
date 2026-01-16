@@ -259,7 +259,7 @@ class SegmentController extends BaseController
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanSegment/import_jobs_list.html.twig',
             [
                 'procedure' => $procedure,
