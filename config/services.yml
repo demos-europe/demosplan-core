@@ -1354,3 +1354,8 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Services\SegmentServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface: '@demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoToSegmentTransformer'
+
+    demosplan\DemosPlanCoreBundle\ApiResources\Serializer\PlainIdJsonApiNormalizer:
+        decorates: 'api_platform.jsonapi.normalizer.item'
+        arguments: ['@.inner']
+
