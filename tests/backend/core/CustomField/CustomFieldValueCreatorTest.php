@@ -157,7 +157,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
     #[DataProvider('multiSelectValidationErrorDataProvider')]
     public function testUpdateOrAddCustomFieldValuesMultiSelectValidationErrors(
         array $testData,
-        string $expectedErrorMessage
+        string $expectedErrorMessage,
     ): void {
         // Arrange
         $targetEntity = 'STATEMENT';
@@ -198,7 +198,6 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
     public static function multiSelectValidationErrorDataProvider(): array
     {
         return [
-
             'emptyArrayWhenRequired' => [
                 'testData' => [
                     'fieldType'    => 'multiSelect',
