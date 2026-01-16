@@ -641,6 +641,42 @@ export default {
       })
     },
 
+    /**
+     * Builds a WMS GetFeatureInfo URL for a layer at a specific coordinate
+     * Creates a temporary TileWMS to build the URL (not added to map)
+     *
+     * @param {object} storeLayer - Layer object from Vuex store
+     * @param {Array} coordinate - Map coordinate [x, y]
+     * @param {number} viewResolution - Current map view resolution
+     * @returns {string|null} GetFeatureInfo request URL, or null if data is missing
+     */
+    buildFeatureInfoUrl (storeLayer, coordinate, viewResolution) {
+      const { layers, layerVersion = '1.3.0', url } = storeLayer?.attributes || {}
+
+      if (!layers || !url) {
+        return null
+      }
+
+      const tempSource = new TileWMS({
+        url,
+        projection: this.mapprojection,
+        params: {
+          LAYERS: layers,
+          VERSION: layerVersion
+        }
+      })
+
+      return tempSource.getFeatureInfoUrl(
+        coordinate,
+        viewResolution,
+        this.mapprojection,
+        {
+          INFO_FORMAT: 'text/html',
+          QUERY_LAYERS: layers
+        }
+      )
+    },
+
     createBaseLayers () {
       const layers = this.getLayersOfType('base')
       const l = layers.length
