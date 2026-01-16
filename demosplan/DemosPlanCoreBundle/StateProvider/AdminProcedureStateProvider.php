@@ -72,14 +72,9 @@ class AdminProcedureStateProvider implements ProviderInterface
     {
 
         // Get all procedures and filter them using the voter
-        $conditions = $this->getAccessConditions();
-        $filterParam = $context['filters'];
-        if ($filterParam) {
-            $filterConditions = $this->getConditions($filterParam);
-            $conditions = array_merge($filterConditions, $conditions);
-        }
-
-
+        $accessConditions = $this->getAccessConditions();
+        $filterConditions = $this->getFilterConditions($context);
+        $conditions = array_merge($accessConditions, $filterConditions);
         $procedures = $this->procedureRepository->getEntities($conditions, []);
 
         $adminProcedures = [];
@@ -115,12 +110,17 @@ class AdminProcedureStateProvider implements ProviderInterface
     }
 
 
-    protected function getConditions($filterParam): array
+    protected function getFilterConditions(array $context = []): array
     {
-        if (!$filterParam) {
+        if (!$context) {
             return [];
         }
 
+        if (!array_key_exists('filters', $context)) {
+            return [];
+        }
+
+        $filterParam = $context['filters'];
         $filterParam = $this->filterParser->validateFilter($filterParam);
 
         return $this->filterParser->parseFilter($filterParam);
