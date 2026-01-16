@@ -80,7 +80,6 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
 
     /**
      * Test adding a single selection to a multi select value.
-     *
      */
     public function testAddNewMultiSelectValueWithOneSelectionSuccessfully(): void
     {
@@ -120,53 +119,48 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         static::assertContains($selectedOptionId, $storedValue->getValue());
     }
 
+    /**
+     * Test adding multiple selections to a multi select value.
+     */
+    public function testAddNewMultiSelectValueWithTwoSelectionsSuccessfully(): void
+    {
+        // Arrange
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($this->procedure->_real())
+            ->withRelatedTargetEntity('STATEMENT')
+            ->asMultiSelect('Favourite pets', options: ['Cat', 'Dog', 'Hamster', 'Parrot'], isRequired: false)
+            ->create();
 
+        $selectedOption1Id = $customField->getConfiguration()->getOptions()[0]->getId(); // 'Cat'
+        $selectedOption2Id = $customField->getConfiguration()->getOptions()[2]->getId(); // 'Hamster'
 
-  /**
-   * Test adding multiple selections to a multi select value.
+        $newCustomFieldValuesData = [
+            [
+                'id'    => $customField->getId(),
+                'value' => [$selectedOption1Id, $selectedOption2Id], // Array with two elements
+            ],
+        ];
 
-   */
-  public function testAddNewMultiSelectValueWithTwoSelectionsSuccessfully(): void
-  {
-      // Arrange
-      $customField = CustomFieldConfigurationFactory::new()
-          ->withRelatedProcedure($this->procedure->_real())
-          ->withRelatedTargetEntity('STATEMENT')
-          ->asMultiSelect('Favourite pets', options: ['Cat', 'Dog', 'Hamster', 'Parrot'], isRequired: false)
-          ->create();
+        // Act
+        $result = $this->sut->updateOrAddCustomFieldValues(
+            new CustomFieldValuesList(), // Empty current list
+            $newCustomFieldValuesData,
+            $this->procedure->getId(),
+            'PROCEDURE',
+            'STATEMENT'
+        );
 
-      $selectedOption1Id = $customField->getConfiguration()->getOptions()[0]->getId(); // 'Cat'
-      $selectedOption2Id = $customField->getConfiguration()->getOptions()[2]->getId(); // 'Hamster'
+        // Assert
+        static::assertInstanceOf(CustomFieldValuesList::class, $result);
+        static::assertCount(1, $result->getCustomFieldsValues());
 
-      $newCustomFieldValuesData = [
-          [
-              'id'    => $customField->getId(),
-              'value' => [$selectedOption1Id, $selectedOption2Id], // Array with two elements
-          ],
-      ];
-
-      // Act
-      $result = $this->sut->updateOrAddCustomFieldValues(
-          new CustomFieldValuesList(), // Empty current list
-          $newCustomFieldValuesData,
-          $this->procedure->getId(),
-          'PROCEDURE',
-          'STATEMENT'
-      );
-
-      // Assert
-      static::assertInstanceOf(CustomFieldValuesList::class, $result);
-      static::assertCount(1, $result->getCustomFieldsValues());
-
-      $storedValue = $result->findById($customField->getId());
-      static::assertNotNull($storedValue);
-      static::assertIsArray($storedValue->getValue());
-      static::assertCount(2, $storedValue->getValue());
-      static::assertContains($selectedOption1Id, $storedValue->getValue());
-      static::assertContains($selectedOption2Id, $storedValue->getValue());
-  }
-
-
+        $storedValue = $result->findById($customField->getId());
+        static::assertNotNull($storedValue);
+        static::assertIsArray($storedValue->getValue());
+        static::assertCount(2, $storedValue->getValue());
+        static::assertContains($selectedOption1Id, $storedValue->getValue());
+        static::assertContains($selectedOption2Id, $storedValue->getValue());
+    }
 
     #[DataProvider('singleSelectValidationErrorDataProvider')]
     public function testUpdateOrAddCustomFieldValuesSingleSelectValidationErrors(
