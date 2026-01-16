@@ -55,7 +55,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
-use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\Import\StatementProcessingContext;
@@ -153,7 +152,6 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         private readonly SegmentValidator $segmentValidator,
         StatementService $statementService,
         private readonly StatementValidator $statementValidator,
-        private readonly TagRepository $tagRepository,
         private readonly TagResourceType $tagResourceType,
         private readonly TagService $tagService,
         private readonly TagValidator $tagValidator,
