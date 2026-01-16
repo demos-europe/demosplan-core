@@ -10,13 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\OpenTelemetry;
 
-use OpenTelemetry\API\Trace\Span;
+use OpenTelemetry\API\Trace\Propagation\TraceContextPropagator;
 use OpenTelemetry\API\Trace\SpanInterface;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\API\Trace\StatusCode;
-use OpenTelemetry\Context\Context;
 use OpenTelemetry\Context\ScopeInterface;
-use OpenTelemetry\SDK\Trace\Propagation\TraceContextPropagator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -79,7 +77,7 @@ class TraceContextListener implements EventSubscriberInterface
                 'http.host'                   => $request->getHost(),
                 'http.scheme'                 => $request->getScheme(),
                 'http.user_agent'             => $request->headers->get('User-Agent', ''),
-                'http.request_content_length' => $request->headers->get('Content-Length', 0),
+                'http.request_content_length' => $request->headers->get('Content-Length', '0'),
             ]);
 
         // Add route parameters as attributes if available

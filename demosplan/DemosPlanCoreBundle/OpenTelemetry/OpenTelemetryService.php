@@ -119,13 +119,14 @@ class OpenTelemetryService
     /**
      * Start a new span with the given name.
      *
-     * @param int $kind One of SpanKind::KIND_* constants
+     * @param 0|1|2|3|4 $kind One of SpanKind::KIND_* constants
      */
     public function startSpan(
         string $name,
         int $kind = SpanKind::KIND_INTERNAL,
         ?iterable $attributes = null,
     ): SpanInterface {
+        /** @var 0|1|2|3|4 $kind */
         $spanBuilder = $this->getTracer()->spanBuilder($name)->setSpanKind($kind);
 
         if (null !== $attributes) {
