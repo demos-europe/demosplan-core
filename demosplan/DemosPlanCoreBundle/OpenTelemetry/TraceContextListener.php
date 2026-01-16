@@ -42,7 +42,7 @@ class TraceContextListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => ['onKernelRequest', 255],
+            KernelEvents::REQUEST   => ['onKernelRequest', 255],
             KernelEvents::EXCEPTION => ['onKernelException', 0],
             KernelEvents::TERMINATE => ['onKernelTerminate', -255],
         ];
@@ -73,12 +73,12 @@ class TraceContextListener implements EventSubscriberInterface
             ->setSpanKind(SpanKind::KIND_SERVER)
             ->setParent($parentContext)
             ->setAttributes([
-                'http.method' => $request->getMethod(),
-                'http.url' => $request->getUri(),
-                'http.target' => $request->getPathInfo(),
-                'http.host' => $request->getHost(),
-                'http.scheme' => $request->getScheme(),
-                'http.user_agent' => $request->headers->get('User-Agent', ''),
+                'http.method'                 => $request->getMethod(),
+                'http.url'                    => $request->getUri(),
+                'http.target'                 => $request->getPathInfo(),
+                'http.host'                   => $request->getHost(),
+                'http.scheme'                 => $request->getScheme(),
+                'http.user_agent'             => $request->headers->get('User-Agent', ''),
                 'http.request_content_length' => $request->headers->get('Content-Length', 0),
             ]);
 

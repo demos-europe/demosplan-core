@@ -87,8 +87,8 @@ class OpenTelemetryService
 
         // Create resource with service information
         $attributes = [
-            'service.name' => $this->serviceName,
-            'service.version' => $this->serviceVersion,
+            'service.name'           => $this->serviceName,
+            'service.version'        => $this->serviceVersion,
             'deployment.environment' => $this->environment,
         ];
         if ('' !== $this->tenantId) {
