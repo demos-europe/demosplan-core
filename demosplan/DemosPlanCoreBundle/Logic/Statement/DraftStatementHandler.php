@@ -579,7 +579,6 @@ class DraftStatementHandler extends CoreHandler
             }
         }
 
-
         $statement['elementId'] = $this->draftStatementService->determineStatementCategory($procedureId, $data);
 
         $statement['pId'] = $procedureId;
