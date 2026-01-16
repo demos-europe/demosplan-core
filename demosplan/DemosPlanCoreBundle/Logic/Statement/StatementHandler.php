@@ -102,6 +102,7 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldPropertyName;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\CountyNotificationData;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
@@ -967,8 +968,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $statement['statementAttributes']['county'] = '';
         }
 
-        if (array_key_exists('customFields', $data)) {
-            $statement['customFields'] = $data['customFields'];
+        if (array_key_exists(CustomFieldPropertyName::twigRequestName->value, $data)) {
+            $statement[CustomFieldPropertyName::twigRequestName->value] = $data[CustomFieldPropertyName::twigRequestName->value];
         }
 
         // Alle Stellungnahmen sind externe SN
@@ -1989,7 +1990,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 'r_document_title',
                 'r_phone',
                 'r_submitter_role',
-                'customFields',
+                CustomFieldPropertyName::twigRequestName->value,
             ],
         ];
     }

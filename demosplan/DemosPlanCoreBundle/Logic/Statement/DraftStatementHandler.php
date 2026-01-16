@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldPropertyName;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Doctrine\ORM\EntityManagerInterface;
@@ -563,9 +564,9 @@ class DraftStatementHandler extends CoreHandler
             $statement['negativ'] = true;
         }
 
-        if (array_key_exists('customFields', $data)) {
+        if (array_key_exists(CustomFieldPropertyName::twigRequestName->value, $data)) {
             // make validation here
-            $customFieldValues = json_decode($data['customFields'], true);
+            $customFieldValues = json_decode($data[CustomFieldPropertyName::twigRequestName->value], true);
             $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
                 new CustomFieldValuesList(),
                 $customFieldValues,
@@ -574,10 +575,8 @@ class DraftStatementHandler extends CoreHandler
                 'STATEMENT'
             );
 
-            $statement['custom_fields'] = $customFieldList;
+            $statement[CustomFieldPropertyName::ColumnName->value] = $customFieldList;
         }
-
-        // @todo Detect custom fields here
 
         $statement['elementId'] = $this->draftStatementService->determineStatementCategory($procedureId, $data);
 
