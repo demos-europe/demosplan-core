@@ -47,7 +47,7 @@ final class MultiSelectFieldFactory extends PersistentProxyObjectFactory
             'name'              => 'Categories',
             'description'       => 'Select applicable categories',
             'fieldType'         => 'multiSelect',
-            'required'        => false,
+            'required'          => false,
             'options'           => self::faker()->randomElements(
                 ['Environment', 'Traffic', 'Housing', 'Economy', 'Culture', 'Health'],
                 3

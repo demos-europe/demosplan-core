@@ -96,8 +96,6 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
      * @param string $description Field description
      * @param array  $options     Array of option labels (e.g., ['Tag1', 'Tag2', 'Tag3'])
      * @param bool   $isRequired  Whether at least one selection is required
-     *
-     * @return self
      */
     public function asMultiSelect(
         string $name = 'Categories',
@@ -115,10 +113,9 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
                 'name'              => $name,
                 'description'       => $description,
                 'fieldType'         => 'multiSelect',
-                'required'        => $isRequired,
+                'required'          => $isRequired,
                 'options'           => $customFieldOptions,
             ]),
         ]);
     }
-
 }
