@@ -42,8 +42,7 @@ class SingleSelectFieldValueValidationStrategy implements CustomFieldValueValida
         $isValidOption = collect($field->getOptions())->contains(fn ($option) => $option->getId() === $customFieldValue->getValue());
 
         if (!$isValidOption) {
-            throw new InvalidArgumentException(sprintf('SingleSelect invalid option id "%s" for CustomFieldId "%s".', $customFieldValue->getValue() , $field->getId()));
+            throw new InvalidArgumentException(sprintf('SingleSelect invalid option id "%s" for CustomFieldId "%s".', $customFieldValue->getValue(), $field->getId()));
         }
     }
-
 }
