@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.27.0 (2026-01-16)
 
 ### Added
 - Add support for Abwägungsvorschlag (vote advice) dropdown functionality for statements, including display in PDF and DOCX exports.
