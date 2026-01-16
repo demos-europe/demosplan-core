@@ -29,25 +29,21 @@ class SingleSelectFieldValueValidationStrategy implements CustomFieldValueValida
 
     public function validate(CustomFieldInterface $field, CustomFieldValue $customFieldValue): void
     {
-        $this->isValueValid($field, $customFieldValue->getValue());
-    }
-
-    public function isValueValid($field, mixed $value): void
-    {
         // Null is always valid (no selection)
-        if (null === $value) {
+        if (null === $customFieldValue->getValue()) {
             return;
         }
 
         // SingleSelect must be a string, not an array
-        if (!is_string($value)) {
-            throw new InvalidArgumentException('SingleSelect must be a string, not an array');
+        if (!is_string($customFieldValue->getValue())) {
+            throw new InvalidArgumentException(sprintf('SingleSelect must be a string for CustomFieldId "%s"', $field->getId()));
         }
 
-        $isValidOption = collect($field->getOptions())->contains(fn ($option) => $option->getId() === $value);
+        $isValidOption = collect($field->getOptions())->contains(fn ($option) => $option->getId() === $customFieldValue->getValue());
 
         if (!$isValidOption) {
-            throw new InvalidArgumentException('SingleSelect invalid option');
+            throw new InvalidArgumentException(sprintf('SingleSelect invalid option id "%s" for CustomFieldId "%s".', $customFieldValue->getValue() , $field->getId()));
         }
     }
+
 }
