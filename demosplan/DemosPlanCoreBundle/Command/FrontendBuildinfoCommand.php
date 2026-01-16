@@ -91,7 +91,7 @@ CSS;
             ->map(function ($file) use ($project) {
                 $basename = basename($file);
 
-                return "@source \"../../../projects/{$project}/client/css/{$basename}\";";
+                return "@import \"../../../projects/{$project}/client/css/{$basename}\";";
             })
             ->implode("\n");
         $projectCSS .= "\n";
