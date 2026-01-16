@@ -1,0 +1,40 @@
+name: Dynamic Release Backport
+on:
+    push:
+        branches:
+            - 'release_*'
+
+jobs:
+    create-backport-pr:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout main
+              uses: actions/checkout@v4
+              with:
+                  ref: main
+                  fetch-depth: 0
+
+            - name: Merge release branch
+              id: merge
+              run: |
+                  SOURCE_BRANCH=${GITHUB_REF#refs/heads/}
+                  echo "source=$SOURCE_BRANCH" >> $GITHUB_OUTPUT
+
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+
+                  # Attempt merge - will succeed or create conflict markers
+                  git merge origin/$SOURCE_BRANCH --no-edit || echo "has_conflicts=true" >> $GITHUB_OUTPUT
+
+            - name: Create Pull Request
+              uses: peter-evans/create-pull-request@98357b18bf14b5342f975ff684046ec3b2a07725 # v8
+              with:
+                  branch: backport/${{ steps.merge.outputs.source }}
+                  base: main
+                  title: "Backport: ${{ steps.merge.outputs.source }} -> main"
+                  body: |
+                      Automated backport of `${{ steps.merge.outputs.source }}` to `main`.
+
+                      ${{ steps.merge.outputs.has_conflicts && '**This PR has merge conflicts that need manual resolution.**' || 'Clean merge - ready for review.' }}
+                  labels: backport
+                  delete-branch: true
