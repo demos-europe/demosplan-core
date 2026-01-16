@@ -35,6 +35,6 @@ jobs:
                   body: |
                       Automated backport of `${{ steps.merge.outputs.source }}` to `main`.
 
-                      ${{ steps.merge.outputs.has_conflicts && '**This PR has merge conflicts that need manual resolution.**' || 'Clean merge - ready for review.' }}
+                      ${{ steps.merge.outputs.has_conflicts && '**This PR has merge conflicts that need manual resolution.**' || 'Clean merge - ready for review. **IMPORTANT: No not sqash the merge but use a merge commit**' }}
                   labels: backport
                   delete-branch: true
