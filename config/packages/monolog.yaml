@@ -38,24 +38,12 @@ when@prod:
     monolog:
         handlers:
             main:
-                type: group
-                members: [info_stderr, debug_on_error]
-            info_stderr:
-                type: stream
-                path: php://stderr
+                type: "%logging_strategy%"
+                path: "%logging_path%"
+                max_files: "%logging_max_files%"
                 level: "%symfony_loglevel%"
-                formatter: monolog.formatter.json
-            debug_on_error:
-                type: fingers_crossed
-                action_level: error
-                handler: debug_stderr
-                excluded_http_codes: [404, 405]
-                buffer_size: 50
-            debug_stderr:
-                type: stream
-                path: php://stderr
-                level: debug
-                formatter: monolog.formatter.json
+                formatter: "%logging_formatter%"
+                channels: ["!event", "!deprecation"]
             console:
                 type: console
                 process_psr_3_messages: false

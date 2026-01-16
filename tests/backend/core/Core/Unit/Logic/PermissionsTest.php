@@ -420,6 +420,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_organisation_email_reviewer_admin',
                     'field_procedure_linkbox',
                     'field_procedure_pictogram',
+                    'field_procedure_pictogram_view',
                     'field_required_procedure_end_date',
                     'field_statement_county',
                     'field_statement_intern_id',
@@ -3032,7 +3033,7 @@ class PermissionsTest extends FunctionalTestCase
         if (__CLASS__ !== static::class) {
             foreach ($roles as $role) {
                 if (!in_array($role, self::$rolesAllowed, true)) {
-                    self::fail('Project does not support role ' . $role . '. Testcase may be deleted');
+                    self::fail('Project does not support role '.$role.'. Testcase may be deleted');
                 }
                 self::$testedRoles[] = $role;
             }
