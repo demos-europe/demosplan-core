@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Base\FunctionalTestCase;
 
 /**
@@ -85,4 +86,86 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         static::assertNotNull($storedValue);
         static::assertEquals($selectedOptionId, $storedValue->getValue());
     }
+
+    #[DataProvider('singleSelectValidationErrorDataProvider')]
+    public function testUpdateOrAddCustomFieldValuesSingleSelectValidationErrors(
+        array $testData,
+        string $expectedErrorMessage
+    ): void {
+        // Arrange
+        $sourceEntity = 'PROCEDURE';
+        $targetEntity = 'SEGMENT';
+
+        $factory = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($this->procedure->_real())
+            ->withRelatedTargetEntity($targetEntity);
+
+        $customField = $factory->asRadioButton(
+            $testData['fieldName'] ,
+            options: $testData['fieldOptions']
+        )->create();
+
+        // Use actual field ID in test data if placeholder is present
+        $value = $testData['value'];
+
+        $newCustomFieldValuesData = [
+            [
+                'id'    => $customField->getId(),
+                'value' => $value,
+            ],
+        ];
+
+
+        // Assert & Act
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($expectedErrorMessage);
+
+        $this->sut->updateOrAddCustomFieldValues(
+            new CustomFieldValuesList(),
+            $newCustomFieldValuesData,
+            $this->procedure->getId(),
+            $sourceEntity,
+            $targetEntity
+        );
+    }
+
+
+    public static function singleSelectValidationErrorDataProvider(): array
+    {
+        return [
+            'arrayInsteadOfString' => [
+                'testData' => [
+                    'fieldType'    => 'singleSelect',
+                    'fieldName'    => 'Priority',
+                    'fieldOptions' => ['High', 'Medium', 'Low'],
+                    'value'        => ['invalid-array'], // Should be string, not array
+                ],
+                'expectedErrorMessage' => 'SingleSelect must be a string for CustomFieldId',
+            ],
+
+            'numericValue' => [
+                'testData' => [
+                    'fieldType'    => 'singleSelect',
+                    'fieldName'    => 'Status',
+                    'fieldOptions' => ['Active', 'Inactive'],
+                    'value'        => 123, // Should be string, not integer
+                ],
+                'expectedErrorMessage' => 'SingleSelect must be a string for CustomFieldId',
+            ],
+
+            'invalidOptionId' => [
+                'testData' => [
+                    'fieldType'    => 'singleSelect',
+                    'fieldName'    => 'Category',
+                    'fieldOptions' => ['Cat1', 'Cat2', 'Cat3'],
+                    'value'        => 'non-existent-option-uuid-12345',
+                ],
+                'expectedErrorMessage' => 'SingleSelect invalid option id "non-existent-option-uuid-12345" for CustomFieldId',
+            ]
+        ];
+    }
+
+
+
+
 }
