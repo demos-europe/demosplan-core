@@ -10642,16 +10642,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "2.3.0",
+            "version": "2.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "1e0cd5370df5dd2e556a36b9c62f62e555870495"
+                "reference": "16dbf9937da8d4528ceb2145c9c7c0bd29e26374"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/1e0cd5370df5dd2e556a36b9c62f62e555870495",
-                "reference": "1e0cd5370df5dd2e556a36b9c62f62e555870495",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/16dbf9937da8d4528ceb2145c9c7c0bd29e26374",
+                "reference": "16dbf9937da8d4528ceb2145c9c7c0bd29e26374",
                 "shasum": ""
             },
             "require": {
@@ -10683,9 +10683,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/2.3.0"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/2.3.1"
             },
-            "time": "2025-08-30T15:50:23+00:00"
+            "time": "2026-01-12T11:33:04+00:00"
         },
         {
             "name": "predis/predis",
@@ -21447,30 +21447,31 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "v1.22.0",
+            "version": "v1.24.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "35f1adb388946d92e6edab2aa2cb2b60e132ebd5"
+                "reference": "a24f1bda2d00a03877f7f99d9e6b150baf543f6d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/35f1adb388946d92e6edab2aa2cb2b60e132ebd5",
-                "reference": "35f1adb388946d92e6edab2aa2cb2b60e132ebd5",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/a24f1bda2d00a03877f7f99d9e6b150baf543f6d",
+                "reference": "a24f1bda2d00a03877f7f99d9e6b150baf543f6d",
                 "shasum": ""
             },
             "require": {
                 "doctrine/instantiator": "^1.2 || ^2.0",
-                "php": "^7.4 || 8.0.* || 8.1.* || 8.2.* || 8.3.* || 8.4.*",
+                "php": "8.2.* || 8.3.* || 8.4.* || 8.5.*",
                 "phpdocumentor/reflection-docblock": "^5.2",
                 "sebastian/comparator": "^3.0 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
-                "sebastian/recursion-context": "^3.0 || ^4.0 || ^5.0 || ^6.0 || ^7.0"
+                "sebastian/recursion-context": "^3.0 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
+                "symfony/deprecation-contracts": "^2.5 || ^3.1"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.40",
-                "phpspec/phpspec": "^6.0 || ^7.0",
+                "friendsofphp/php-cs-fixer": "^3.88",
+                "phpspec/phpspec": "^6.0 || ^7.0 || ^8.0",
                 "phpstan/phpstan": "^2.1.13",
-                "phpunit/phpunit": "^8.0 || ^9.0 || ^10.0"
+                "phpunit/phpunit": "^11.0 || ^12.0"
             },
             "type": "library",
             "extra": {
@@ -21511,9 +21512,9 @@
             ],
             "support": {
                 "issues": "https://github.com/phpspec/prophecy/issues",
-                "source": "https://github.com/phpspec/prophecy/tree/v1.22.0"
+                "source": "https://github.com/phpspec/prophecy/tree/v1.24.0"
             },
-            "time": "2025-04-29T14:58:06+00:00"
+            "time": "2025-11-21T13:10:52+00:00"
         },
         {
             "name": "phpspec/prophecy-phpunit",
