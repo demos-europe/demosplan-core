@@ -71,6 +71,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomFieldResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldProvider;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
@@ -117,8 +118,7 @@ class DemosPlanStatementController extends BaseController
         private readonly MailService $mailService,
         private readonly PermissionsInterface $permissions,
         private readonly NameGenerator $nameGenerator,
-        private readonly ConditionFactoryInterface $conditionFactory,
-        private readonly CustomFieldResourceType $customFieldResourceType, )
+        private readonly CustomFieldProvider $customFieldProvider)
     {
     }
 
@@ -432,9 +432,12 @@ class DemosPlanStatementController extends BaseController
                 }
             }
 
-            // @todo possible to load customFields to send them here to twig template usage
             if ($this->currentUser->hasPermission('feature_statements_custom_fields')) {
-                $templateVars['customFields'] = $this->loadCustomFields($procedureId);
+                $templateVars['customFields'] = $this->customFieldProvider->getCustomFieldsByCriteria(
+                    sourceEntity: 'PROCEDURE',
+                    sourceEntityId: $procedureId,
+                    targetEntity: 'STATEMENT',
+                );
             }
 
             $templateVars['statementList'] = $statementsToSubmit;
@@ -469,13 +472,6 @@ class DemosPlanStatementController extends BaseController
 
             return $this->handleError($e);
         }
-    }
-
-    protected function loadCustomFields(string $procedureId): array
-    {
-        $procedureCondition = $this->conditionFactory->propertyHasValue($procedureId, ['sourceEntityId']);
-
-        return $this->customFieldResourceType->getEntities([$procedureCondition], []);
     }
 
     /**
