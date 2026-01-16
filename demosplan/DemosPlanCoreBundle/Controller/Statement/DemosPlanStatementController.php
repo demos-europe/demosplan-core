@@ -70,6 +70,8 @@ use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldProvider;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldPropertyName;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
@@ -106,7 +108,16 @@ class DemosPlanStatementController extends BaseController
 {
     private const STATEMENT_IMPORT_ENCOUNTERED_ERRORS = 'statement import failed';
 
-    public function __construct(private readonly CurrentProcedureService $currentProcedureService, private readonly CurrentUserService $currentUser, private readonly DraftStatementHandler $draftStatementHandler, private readonly DraftStatementService $draftStatementService, private readonly Environment $twig, private readonly MailService $mailService, private readonly PermissionsInterface $permissions, private readonly NameGenerator $nameGenerator)
+    public function __construct(
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly CurrentUserService $currentUser,
+        private readonly DraftStatementHandler $draftStatementHandler,
+        private readonly DraftStatementService $draftStatementService,
+        private readonly Environment $twig,
+        private readonly MailService $mailService,
+        private readonly PermissionsInterface $permissions,
+        private readonly NameGenerator $nameGenerator,
+        private readonly CustomFieldProvider $customFieldProvider)
     {
     }
 
@@ -418,6 +429,14 @@ class DemosPlanStatementController extends BaseController
                     $statementsToSubmit[] = $draftStatement;
                     $statementsToSubmitIds[] = $draftStatementId;
                 }
+            }
+
+            if ($this->currentUser->hasPermission('feature_statements_custom_fields')) {
+                $templateVars[CustomFieldPropertyName::twigRequestName->value] = $this->customFieldProvider->getCustomFieldsByCriteria(
+                    sourceEntity: 'PROCEDURE',
+                    sourceEntityId: $procedureId,
+                    targetEntity: 'STATEMENT',
+                );
             }
 
             $templateVars['statementList'] = $statementsToSubmit;

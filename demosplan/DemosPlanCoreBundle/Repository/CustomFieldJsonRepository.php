@@ -54,9 +54,16 @@ class CustomFieldJsonRepository implements RepositoryInterface
         throw new InvalidArgumentException();
     }
 
-    public function getEntities(array $conditions, array $sortMethods): array
+    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, ?int $limit = null): array
     {
-        throw new InvalidArgumentException();
+        $customFieldConfigurations = $this->customFieldConfigurationRepository->getEntities($conditions, $sortMethods);
+
+        return array_map(function ($customFieldConfiguration) {
+            $customField = $customFieldConfiguration->getConfiguration();
+            $customField->setId($customFieldConfiguration->getId());
+
+            return $customField;
+        }, $customFieldConfigurations);
     }
 
     public function getEntitiesForPage(array $conditions, array $sortMethods, PagePagination $pagination): Pagerfanta
