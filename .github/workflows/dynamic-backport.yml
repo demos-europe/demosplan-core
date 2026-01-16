@@ -1,12 +1,51 @@
 name: Dynamic Release Backport
 on:
-    push:
-        branches:
-            - 'release_*'
+    schedule:
+        # Run once per night at 2:00 AM UTC
+        - cron: '0 2 * * *'
+    workflow_dispatch:
+        inputs:
+            release_branch:
+                description: 'Specific release branch to backport (leave empty for latest)'
+                required: false
+                type: string
 
 jobs:
-    create-backport-pr:
+    find-release-branches:
         runs-on: ubuntu-latest
+        outputs:
+            branches: ${{ steps.find.outputs.branches }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Find release branches
+              id: find
+              run: |
+                  if [ -n "${{ inputs.release_branch }}" ]; then
+                      # Use manually specified branch
+                      echo "branches=[\"${{ inputs.release_branch }}\"]" >> $GITHUB_OUTPUT
+                  else
+                      # Find all release branches that are ahead of main
+                      BRANCHES=$(git branch -r --list 'origin/release_*' | sed 's|origin/||' | while read branch; do
+                          # Check if branch has commits not in main
+                          if [ $(git rev-list --count main..origin/$branch 2>/dev/null || echo 0) -gt 0 ]; then
+                              echo "$branch"
+                          fi
+                      done | jq -R -s -c 'split("\n") | map(select(length > 0))')
+                      echo "branches=$BRANCHES" >> $GITHUB_OUTPUT
+                  fi
+
+    create-backport-pr:
+        needs: find-release-branches
+        if: needs.find-release-branches.outputs.branches != '[]' && needs.find-release-branches.outputs.branches != ''
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                branch: ${{ fromJson(needs.find-release-branches.outputs.branches) }}
+            fail-fast: false
         steps:
             - name: Checkout main
               uses: actions/checkout@v4
@@ -17,7 +56,7 @@ jobs:
             - name: Merge release branch
               id: merge
               run: |
-                  SOURCE_BRANCH=${GITHUB_REF#refs/heads/}
+                  SOURCE_BRANCH="${{ matrix.branch }}"
                   echo "source=$SOURCE_BRANCH" >> $GITHUB_OUTPUT
 
                   git config user.name "github-actions[bot]"
