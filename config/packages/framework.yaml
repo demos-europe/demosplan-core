@@ -18,10 +18,7 @@ framework:
         handler_id: app.session_handler
         cookie_secure: '%https_only%'
         # could not be strict, as otherwise keycloak login does not work with an "invalid state" error
-        # WARN: THIS IS A SECURITY RISK, AS IT ALLOWS ALL KINDS OF NON-DESIRABLE BEHAVIOUR
-        #       BUT WE NEED IT TO MAKE THE BMDS SHELL WORK PROPERLY AND FOR SOME REASON OVERRIDING THIS
-        #       IN THE PROJECT CONFIG DOES NOT (CURRENTLY) WORK
-        cookie_samesite: ~
+        cookie_samesite: lax
         gc_maxlifetime: '%env(int:SESSION_LIFETIME)%'
 
     fragments:       ~
