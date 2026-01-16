@@ -312,13 +312,23 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
      */
     private function createColumnsDefinitionForTopicsAndTags(): array
     {
-        return [
+        $columnsDefinition = [
             $this->createColumnDefinition('externId', 'id'),
             $this->createColumnDefinition('uName', 'name'),
             $this->createColumnDefinition('topicNames', 'topic', 30),
             $this->createColumnDefinition('tagNames', 'tag', 40),
-            $this->createColumnDefinition('recommendation', 'recommendation', 200),
         ];
+
+        $this->addColumnDefinition(
+            $columnsDefinition,
+            'votePla',
+            'field_statement_vote_pla',
+            'fragment.vote.short'
+        );
+
+        $columnsDefinition[] = $this->createColumnDefinition('recommendation', 'recommendation', 200);
+
+        return $columnsDefinition;
     }
 
     /**
