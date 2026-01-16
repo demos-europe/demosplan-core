@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use EDT\JsonApi\RequestHandling\FilterParserInterface;
+use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
@@ -30,7 +31,7 @@ class AdminProcedureStateProvider implements ProviderInterface
         private readonly CurrentUserInterface $currentUser,
         private readonly ProcedureService $procedureService,
         private readonly ProcedureRepository $procedureRepository,
-        protected readonly FilterParserInterface $filterParser,
+        protected readonly DrupalFilterParser $filterParser,
     ) {
     }
 
@@ -70,15 +71,16 @@ class AdminProcedureStateProvider implements ProviderInterface
     private function provideCollection(array $context = []): array
     {
 
+        // Get all procedures and filter them using the voter
+        $conditions = $this->getAccessConditions();
         $filterParam = $context['filters'];
         if ($filterParam) {
             $filterConditions = $this->getConditions($filterParam);
-            $procedures = $this->procedureRepository->getEntities($filterConditions, []);
-        } else {
-            // Get all procedures and filter them using the voter
-            $accessConditions = $this->getAccessConditions();
-            $procedures = $this->procedureRepository->getEntities($accessConditions, []);
+            $conditions = array_merge($filterConditions, $conditions);
         }
+
+
+        $procedures = $this->procedureRepository->getEntities($conditions, []);
 
         $adminProcedures = [];
         foreach ($procedures as $procedure) {
