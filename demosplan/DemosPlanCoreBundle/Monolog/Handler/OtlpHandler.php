@@ -16,6 +16,7 @@ use Monolog\LogRecord;
 use OpenTelemetry\API\Logs\LoggerProviderInterface;
 use OpenTelemetry\API\Logs\LogRecord as OtelLogRecord;
 use OpenTelemetry\API\Logs\Severity;
+use OpenTelemetry\API\Trace\Span;
 use OpenTelemetry\Contrib\Otlp\LogsExporter;
 use OpenTelemetry\Contrib\Otlp\OtlpHttpTransportFactory;
 use OpenTelemetry\SDK\Common\Attribute\Attributes;
@@ -35,12 +36,14 @@ class OtlpHandler extends AbstractProcessingHandler
     private string $otlpEndpoint;
     private string $serviceVersion;
     private string $environment;
+    private string $tenantId;
 
     public function __construct(
         #[Autowire('%otel_exporter_endpoint%')] string $otlpEndpoint,
         #[Autowire('%otel_service_name%')] string $serviceName,
         #[Autowire('%project_version%')] string $serviceVersion = '1.0.0',
         #[Autowire('%kernel.environment%')] string $environment = 'prod',
+        #[Autowire('%otel_tenant_id%')] string $tenantId = '',
         #[Autowire('%otel_loglevel%')] int|string|Level $level = Level::Info,
         bool $bubble = true,
     ) {
@@ -49,6 +52,7 @@ class OtlpHandler extends AbstractProcessingHandler
         $this->serviceName = $serviceName;
         $this->serviceVersion = $serviceVersion;
         $this->environment = $environment;
+        $this->tenantId = $tenantId;
     }
 
     protected function write(LogRecord $record): void
@@ -64,17 +68,31 @@ class OtlpHandler extends AbstractProcessingHandler
         // Convert Monolog level to OpenTelemetry severity
         $severity = Severity::fromPsr3($record->level->toPsrLogLevel());
 
-        // Build the log record following the PDF pattern
+        // Get current span context for trace correlation
+        $spanContext = Span::getCurrent()->getContext();
+        $traceId = $spanContext->getTraceId();
+        $spanId = $spanContext->getSpanId();
+
+        // Build attributes including trace correlation
+        $attributes = [
+            'level'   => $record->level->name,
+            'channel' => $record->channel,
+            'context' => json_encode($record->context, JSON_THROW_ON_ERROR),
+            'extra'   => json_encode($record->extra, JSON_THROW_ON_ERROR),
+        ];
+
+        // Add trace correlation if valid trace context exists
+        if ($spanContext->isValid()) {
+            $attributes['trace_id'] = $traceId;
+            $attributes['span_id'] = $spanId;
+        }
+
+        // Build the log record
         $logRecord = (new OtelLogRecord($record->message))
             ->setTimestamp((int) $record->datetime->format('Uu') * 1000) // microseconds to nanoseconds
             ->setSeverityNumber($severity)
             ->setSeverityText($record->level->name)
-            ->setAttributes([
-                'level'   => $record->level->name,
-                'channel' => $record->channel,
-                'context' => json_encode($record->context, JSON_THROW_ON_ERROR),
-                'extra'   => json_encode($record->extra, JSON_THROW_ON_ERROR),
-            ]);
+            ->setAttributes($attributes);
 
         $logger->emit($logRecord);
     }
@@ -95,14 +113,16 @@ class OtlpHandler extends AbstractProcessingHandler
         $exporter = new LogsExporter($transport);
 
         // Create resource with service information
+        $attributes = [
+            'service.name'           => $this->serviceName,
+            'service.version'        => $this->serviceVersion,
+            'deployment.environment' => $this->environment,
+        ];
+        if ('' !== $this->tenantId) {
+            $attributes['tenant.id'] = $this->tenantId;
+        }
         $resource = ResourceInfoFactory::emptyResource()->merge(
-            ResourceInfo::create(
-                Attributes::create([
-                    'service.name'           => $this->serviceName,
-                    'service.version'        => $this->serviceVersion,
-                    'deployment.environment' => $this->environment,
-                ])
-            )
+            ResourceInfo::create(Attributes::create($attributes))
         );
 
         // Build LoggerProvider with SimpleLogRecordProcessor (as shown in PDF)
