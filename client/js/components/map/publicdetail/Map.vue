@@ -1738,6 +1738,38 @@ export default {
       return this.procedureSettings.territory?.features?.length > 0
     },
 
+    /**
+     * Checks if a single GetFeatureInfo response contains tables and if they are empty
+     */
+    isEmptyFeatureInfoResponse(content) {
+      if (!content || content.trim().length === 0) {
+        return true
+      }
+
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(content, 'text/html')
+      const tables = doc.querySelectorAll('table')
+
+      // Response contains other elements than table - keep
+      if (tables.length === 0) {
+        return false
+      }
+
+      // Check if any table contains meaningful content
+      for (const table of tables) {
+        const cells = table.querySelectorAll('td, th')
+
+        for (const cell of cells) {
+          if (cell.textContent.trim().length > 0) {
+            return false // table has data - keep
+          }
+        }
+      }
+
+      // All tables are empty
+      return true
+    },
+
     removeOtherInteractions (reset) {
       this.map.getInteractions().forEach(interaction => {
         if (interaction instanceof Draw) {
