@@ -295,6 +295,15 @@ export default {
 
       return getResolutionsFromScales(procedureScales, this.projectionUnits)
     },
+
+    visibleOverlayLayers () {
+      const allOverlayLayers = this.$store.getters['Layers/gisLayerList']('overlay')
+
+      return allOverlayLayers.filter(layer => {
+        return this.$store.getters['Layers/isLayerVisible'](layer.id) &&
+          (layer.attributes.serviceType === 'wms')
+      })
+    },
   },
 
   watch: {
