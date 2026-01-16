@@ -563,20 +563,22 @@ class DraftStatementHandler extends CoreHandler
         if (array_key_exists('r_isNegativeReport', $data) && 1 == $data['r_isNegativeReport']) {
             $statement['negativ'] = true;
         }
+        if ($this->currentUser->hasPermission('feature_statements_custom_fields')) {
+            if (array_key_exists(CustomFieldPropertyName::twigRequestName->value, $data)) {
+                // make validation here
+                $customFieldValues = json_decode($data[CustomFieldPropertyName::twigRequestName->value], true);
+                $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+                    new CustomFieldValuesList(),
+                    $customFieldValues,
+                    $procedureId,
+                    'PROCEDURE',
+                    'STATEMENT'
+                );
 
-        if (array_key_exists(CustomFieldPropertyName::twigRequestName->value, $data)) {
-            // make validation here
-            $customFieldValues = json_decode($data[CustomFieldPropertyName::twigRequestName->value], true);
-            $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
-                new CustomFieldValuesList(),
-                $customFieldValues,
-                $procedureId,
-                'PROCEDURE',
-                'STATEMENT'
-            );
-
-            $statement[CustomFieldPropertyName::ColumnName->value] = $customFieldList;
+                $statement[CustomFieldPropertyName::ColumnName->value] = $customFieldList;
+            }
         }
+
 
         $statement['elementId'] = $this->draftStatementService->determineStatementCategory($procedureId, $data);
 
