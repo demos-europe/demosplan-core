@@ -20,12 +20,13 @@ use demosplan\DemosPlanCoreBundle\StateProcessor\AdminProcedureStateProcesor;
 use demosplan\DemosPlanCoreBundle\StateProvider\AdminProcedureStateProvider;
 
 #[ApiResource(
+    shortName: 'AdminProcedure',
     operations: [
         new Get(),
         new GetCollection(),
         new Patch(),
     ],
-    formats: ['json'],
+    formats: ['jsonapi'],
     routePrefix: '/3.0',
     provider: AdminProcedureStateProvider::class,
     processor: AdminProcedureStateProcesor::class,
