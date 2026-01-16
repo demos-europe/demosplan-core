@@ -83,47 +83,6 @@ class MultiSelectField extends AbstractCustomField
         return $this->isRequired;
     }
 
-    public function isValueValid(mixed $value): bool
-    {
-        // Null is always valid (no selection)
-        if (null === $value) {
-            return true;
-        }
-
-        // MultiSelect must be an array, not a string
-        if (!is_array($value)) {
-            return false;
-        }
-
-        // Required fields must have at least one selection
-        if ($this->isRequired && [] === $value) {
-            return false;
-        }
-
-        // Empty array is valid for non-required fields
-        if ([] === $value) {
-            return true;
-        }
-
-        // Get all valid option IDs
-        $validOptionIds = collect($this->options)->pluck('id')->toArray();
-
-        // Validate each value in the array
-        foreach ($value as $singleOptionValueId) {
-            // Each element must be a string
-            if (!is_string($singleOptionValueId)) {
-                return false;
-            }
-
-            // Each element must be a valid option ID
-            if (null === $this->getCustomOptionValueById($singleOptionValueId)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption
     {
         foreach ($this->options as $option) {

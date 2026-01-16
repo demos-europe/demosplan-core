@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldPropertyName;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Doctrine\ORM\EntityManagerInterface;
@@ -562,22 +563,21 @@ class DraftStatementHandler extends CoreHandler
         if (array_key_exists('r_isNegativeReport', $data) && 1 == $data['r_isNegativeReport']) {
             $statement['negativ'] = true;
         }
+        if ($this->currentUser->hasPermission('feature_statements_custom_fields')) {
+            if (array_key_exists(CustomFieldPropertyName::twigRequestName->value, $data)) {
+                // make validation here
+                $customFieldValues = json_decode($data[CustomFieldPropertyName::twigRequestName->value], true);
+                $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+                    new CustomFieldValuesList(),
+                    $customFieldValues,
+                    $procedureId,
+                    'PROCEDURE',
+                    'STATEMENT'
+                );
 
-        if (array_key_exists('customFields', $data)) {
-            // make validation here
-            $customFieldValues = json_decode($data['customFields'], true);
-            $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
-                new CustomFieldValuesList(),
-                $customFieldValues,
-                $procedureId,
-                'PROCEDURE',
-                'STATEMENT'
-            );
-
-            $statement['custom_fields'] = $customFieldList;
+                $statement[CustomFieldPropertyName::ColumnName->value] = $customFieldList;
+            }
         }
-
-        // @todo Detect custom fields here
 
         $statement['elementId'] = $this->draftStatementService->determineStatementCategory($procedureId, $data);
 
@@ -603,15 +603,6 @@ class DraftStatementHandler extends CoreHandler
         ];
 
         return array_merge($data, $userData);
-    }
-
-    public function addCustomFieldValues(array $data): array
-    {
-        foreach ($customFields as $key => $value) {
-            $statement[$key] = $value;
-        }
-
-        return $statement;
     }
 
     /**
