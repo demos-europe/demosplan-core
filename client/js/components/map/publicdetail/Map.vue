@@ -1770,6 +1770,84 @@ export default {
       return true
     },
 
+    /**
+     * Handles GetFeatureInfo queries for all visible WMS overlay layers
+     * @param {Event} evt - OpenLayers map click event
+     */
+    queryLayerFeatureInfo (evt) {
+      const coordinate = evt.coordinate
+      const viewResolution = this.mapview.getResolution()
+
+      if (this.visibleOverlayLayers.length === 0) {
+        dplan.notify.notify('warning', Translator.trans('map.getfeatureinfo.no.visible.wms.layers'))
+
+        return
+      }
+
+      const promises = this.visibleOverlayLayers.map(layer => {
+        const featureInfoUrl = this.buildFeatureInfoUrl(layer, coordinate, viewResolution)
+
+        if (!featureInfoUrl) {
+          return Promise.resolve(null)
+        }
+
+        // Each request catches its own errors (prevents Promise.all from failing completely)
+        return externalApi(featureInfoUrl)
+          .then(response => response.text())
+          .then(content => ({
+            layerName: layer.attributes.name,
+            layerId: layer.id,
+            content: content,
+            success: true
+          }))
+          .catch(error => {
+            console.error(`GetFeatureInfo failed for ${layer.attributes.name}:`, error)
+            return {
+              success: false,
+              error: error.message
+            }
+          })
+      })
+
+      Promise.all(promises)
+        .then(results => {
+          const allResults = results.filter(result => result !== null)
+
+          // Filter out responses with empty tables
+          const validResults = allResults.filter(result =>
+            result.success &&
+            result.content &&
+            !this.isEmptyFeatureInfoResponse(result.content)
+          )
+
+          const failedResults = allResults.filter(result => !result.success)
+
+          // All requests failed (server errors)
+          if (allResults.length > 0 && failedResults.length === allResults.length) {
+            dplan.notify.notify('error', Translator.trans('error.map.getfeatureinfo.request.failed'))
+
+            return
+          }
+
+          const sanitizedResults = validResults.map(result => ({
+            layerName: result.layerName,
+            layerId: result.layerId,
+            content: DomPurify.sanitize(result.content, {
+              ADD_ATTR: ['target'],
+              FORBID_TAGS: ['style', 'script']
+            })
+          }))
+
+          this.layerFeatureInfoResults = sanitizedResults
+
+          if (this.layerFeatureInfoResults.length > 0) {
+            this.$root.$emit('show-slidebar')
+          } else {
+            dplan.notify.notify('info', Translator.trans('map.getfeatureinfo.none'))
+          }
+        })
+    },
+
     removeOtherInteractions (reset) {
       this.map.getInteractions().forEach(interaction => {
         if (interaction instanceof Draw) {
