@@ -42,16 +42,6 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         $this->procedure = ProcedureFactory::createOne();
     }
 
-    // ==========================================
-    // SINGLE SELECT - SUCCESS CASES
-    // ==========================================
-
-    /**
-     * Test adding a new single select value to an empty list.
-     *
-     * Tests: CustomFieldValueCreator.php line 31-86 (full flow)
-     * Validates: SingleSelectFieldValueValidationStrategy.php line 35-51
-     */
     public function testAddNewSingleSelectValueSuccessfully(): void
     {
         // Arrange
@@ -160,6 +150,119 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
                     'value'        => 'non-existent-option-uuid-12345',
                 ],
                 'expectedErrorMessage' => 'SingleSelect invalid option id "non-existent-option-uuid-12345" for CustomFieldId',
+            ],
+        ];
+    }
+
+    #[DataProvider('multiSelectValidationErrorDataProvider')]
+    public function testUpdateOrAddCustomFieldValuesMultiSelectValidationErrors(
+        array $testData,
+        string $expectedErrorMessage
+    ): void {
+        // Arrange
+        $targetEntity = 'STATEMENT';
+
+        $factory = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($this->procedure->_real())
+            ->withRelatedTargetEntity($targetEntity);
+
+        $customField = $factory->asMultiSelect(
+            $testData['fieldName'],
+            options: $testData['fieldOptions'],
+            isRequired: $testData['isRequired']
+        )->create();
+
+        // Use actual field ID in test data if placeholder is present
+        $value = $testData['value'];
+
+        $newCustomFieldValuesData = [
+            [
+                'id'    => $customField->getId(),
+                'value' => $value,
+            ],
+        ];
+
+        // Assert & Act
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($expectedErrorMessage);
+
+        $this->sut->updateOrAddCustomFieldValues(
+            new CustomFieldValuesList(),
+            $newCustomFieldValuesData,
+            $this->procedure->getId(),
+            'PROCEDURE',
+            $targetEntity
+        );
+    }
+
+    public static function multiSelectValidationErrorDataProvider(): array
+    {
+        return [
+
+            'emptyArrayWhenRequired' => [
+                'testData' => [
+                    'fieldType'    => 'multiSelect',
+                    'fieldName'    => 'RequiredTags',
+                    'fieldOptions' => ['Tag1', 'Tag2', 'Tag3'],
+                    'isRequired'   => true,
+                    'value'        => [], // Empty array not allowed for required
+                ],
+                'expectedErrorMessage' => 'Required fields must have at least one selection',
+            ],
+
+            'arrayWithIntegerElement' => [
+                'testData' => [
+                    'fieldType'    => 'multiSelect',
+                    'fieldName'    => 'Items',
+                    'fieldOptions' => ['Item1', 'Item2'],
+                    'isRequired'   => false,
+                    'value'        => [123, 'valid-string'], // 123 is not a string
+                ],
+                'expectedErrorMessage' => 'Each element must be a string',
+            ],
+
+            'arrayWithBooleanElement' => [
+                'testData' => [
+                    'fieldType'    => 'multiSelect',
+                    'fieldName'    => 'Flags',
+                    'fieldOptions' => ['Flag1', 'Flag2'],
+                    'isRequired'   => false,
+                    'value'        => [true, 'valid-string'], // true is not a string
+                ],
+                'expectedErrorMessage' => 'Each element must be a string',
+            ],
+
+            'arrayWithNullElement' => [
+                'testData' => [
+                    'fieldType'    => 'multiSelect',
+                    'fieldName'    => 'Options',
+                    'fieldOptions' => ['Opt1', 'Opt2'],
+                    'isRequired'   => false,
+                    'value'        => [null, 'valid-string'], // null is not a string
+                ],
+                'expectedErrorMessage' => 'Each element must be a string',
+            ],
+
+            'invalidOptionIdInArray' => [
+                'testData' => [
+                    'fieldType'    => 'multiSelect',
+                    'fieldName'    => 'Topics',
+                    'fieldOptions' => ['Topic1', 'Topic2', 'Topic3'],
+                    'isRequired'   => false,
+                    'value'        => ['non-existent-uuid-abc123'], // Invalid UUID
+                ],
+                'expectedErrorMessage' => 'Each element must be a valid option ID',
+            ],
+
+            'mixedValidAndInvalidOptionIds' => [
+                'testData' => [
+                    'fieldType'    => 'multiSelect',
+                    'fieldName'    => 'Categories',
+                    'fieldOptions' => ['CatA', 'CatB'],
+                    'isRequired'   => false,
+                    'value'        => ['PLACEHOLDER_VALID_ID', 'invalid-uuid-xyz'], // Need to handle valid ID
+                ],
+                'expectedErrorMessage' => 'Each element must be a valid option ID',
             ],
         ];
     }
