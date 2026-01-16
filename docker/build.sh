@@ -7,6 +7,7 @@ function usage() {
   echo "  -p: If specified, images will be pushed to registry"
   echo "  -d: If specified, container will be built in dev mode, otherwise prod mode"
   echo "  -v: If specified, output logging for builds will be verbose"
+  return 0
 }
 
 # Parse arguments using getopts
@@ -29,11 +30,16 @@ while getopts "pdv" opt; do
       usage
       exit 2
       ;;
+    *)
+      echo "Unexpected option: -$opt" >&2
+      usage
+      exit 2
+      ;;
   esac
 done
 shift $((OPTIND -1))
 
-if [ $# -lt 3 ]; then
+if [[ $# -lt 3 ]]; then
   usage
   exit 2
 fi

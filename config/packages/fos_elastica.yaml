@@ -364,24 +364,24 @@ fos_elastica:
                         city: { type: keyword, index: false }
                 procedureId: {type: keyword, index: true}
                 phase: {type: keyword, index: true}
-                polygon: {type: text, index: true}
-                file: {type: keyword, index: true}
-                files: {type: text, index: true}
-                fileNames: {type: text, index: true}
-                mapFile: {type: keyword, index: true}
-                movedStatementId: {type: keyword, index: true}
-                movedToProcedureId: {type: keyword, index: true}
-                movedFromProcedureId: {type: keyword, index: true}
-                movedToProcedureName: {type: text, index: true}
-                movedFromProcedureName: {type: text, index: true}
+                polygon: {type: text, index: false}
+                file: {type: keyword, index: false}
+                files: {type: text, index: false}
+                fileNames: {type: text, index: false}
+                mapFile: {type: keyword, index: false}
+                movedStatementId: {type: keyword, index: false}
+                movedToProcedureId: {type: keyword, index: false}
+                movedFromProcedureId: {type: keyword, index: false}
+                movedToProcedureName: {type: text, index: false}
+                movedFromProcedureName: {type: text, index: false}
                 isPlaceholder: {type: boolean, index: true}
-                formerExternId: {type: keyword, index: true}
+                formerExternId: {type: keyword, index: false}
                 status: {type: keyword, index: true}
                 publicStatement: {type: keyword, index: true}
-                publicCheck: {type: keyword, index: true}
+                publicCheck: {type: keyword, index: false}
                 publicAllowed: {type: boolean, index: true}
-                publicVerified: {type: keyword, index: true}
-                publicVerifiedTranslation: {type: keyword, index: true}
+                publicVerified: {type: keyword, index: false}
+                publicVerifiedTranslation: {type: keyword, index: false}
                 priority: {type: keyword, index: true}
                 prioritySort: {type: keyword, index: true}
                 elementId: {type: keyword, index: true}
@@ -460,6 +460,7 @@ fos_elastica:
                 headStatementId: {type: keyword, index: true}
                 isClusterStatement: { type: boolean }
                 votesNum: { type: integer, null_value: 0 }
+                numberOfAnonymVotes: { type: integer, null_value: 0 }
                 voteStk: {type: keyword, index: true}
                 votePla: {type: keyword, index: true}
                 likesNum: { type: integer, null_value: 0 }

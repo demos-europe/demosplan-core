@@ -146,12 +146,12 @@
                     id="r_houseNumber"
                     v-model="values.submitter.housenumber"
                     data-cy="submitterForm:houseNumber"
-                    class="o-form__group-item shrink"
+                    class="o-form__group-item !w-1/7 shrink"
                     :label="{
                       text: Translator.trans('street.number.short')
                     }"
                     name="r_houseNumber"
-                    :size="3"
+                    :size="4"
                   />
                 </div>
 
@@ -161,7 +161,7 @@
                     id="r_orga_postalcode"
                     v-model="values.submitter.plz"
                     data-cy="submitterForm:orgaPostalcode"
-                    class="o-form__group-item shrink"
+                    class="o-form__group-item !w-1/6 shrink"
                     :label="{
                       text: Translator.trans('postalcode')
                     }"
@@ -217,11 +217,6 @@
             class="u-mv"
             :class="{ 'u-pr-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
           >
-            <dp-label
-              :text="Translator.trans('statement.date.submitted')"
-              :hint="Translator.trans('explanation.statement.date')"
-              for="r_submitted_date"
-            />
             <dp-datepicker
               id="r_submitted_date"
               v-model="values.submittedDate"
@@ -230,6 +225,10 @@
               name="r_submitted_date"
               value=""
               :calendars-before="2"
+              :label="{
+                text: Translator.trans('statement.date.submitted'),
+                hint: Translator.trans('explanation.statement.date')
+              }"
               :max-date="nowDate"
               :min-date="values.authoredDate"
             />
@@ -238,11 +237,6 @@
             class="u-mb"
             :class="{ 'u-pl-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
           >
-            <dp-label
-              :text="Translator.trans('statement.date.authored')"
-              :hint="Translator.trans('explanation.statement.date.authored')"
-              for="r_authored_date"
-            />
             <dp-datepicker
               id="r_authored_date"
               v-model="values.authoredDate"
@@ -251,6 +245,10 @@
               name="r_authored_date"
               value=""
               :calendars-before="2"
+              :label="{
+                text: Translator.trans('statement.date.authored'),
+                hint: Translator.trans('explanation.statement.date.authored')
+              }"
               :max-date="values.submittedDate || nowDate"
             />
           </div>
@@ -279,6 +277,7 @@
           >
             <dp-input
               id="r_internId"
+              v-model="values.internId"
               data-cy="submitterForm:internId"
               :data-dp-validate-error="Translator.trans('validation.error.internId')"
               :label="{
@@ -288,7 +287,6 @@
               }"
               name="r_internId"
               :pattern="internIdsPattern"
-              model-value=""
             />
           </div>
 
@@ -355,6 +353,7 @@
       <dp-editor
         ref="statementText"
         v-model="values.text"
+        :aria-label="Translator.trans('statement.text.short')"
         :procedure-id="procedureId"
         :toolbar-items="{ linkButton: true }"
         required
@@ -438,8 +437,8 @@ import {
   DpSelect,
   DpTextArea,
   DpUploadFiles,
-  dpValidateMixin
-  , hasOwnProp,
+  dpValidateMixin,
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import dayjs from 'dayjs'
 import { defineAsyncComponent } from 'vue'
@@ -577,12 +576,13 @@ export default {
       isSaving: false,
       values: {
         authoredDate: '',
+        internId: '',
         memo: '',
         quickSave: '',
         submittedDate: '',
+        submitter: submitterProperties,
         tags: [],
         text: '',
-        submitter: submitterProperties,
       },
     }
   },

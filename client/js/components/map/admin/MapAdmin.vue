@@ -298,8 +298,6 @@ export default {
       dpApi.patch(url, {}, payload)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('text.mapsection.updated'))
-          this.$refs.mapView.$refs.map.getMapOptions()
-
           if (returnToOverview) {
             window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
           }

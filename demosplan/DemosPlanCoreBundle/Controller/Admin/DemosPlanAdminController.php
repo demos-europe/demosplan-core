@@ -63,7 +63,7 @@ class DemosPlanAdminController extends BaseController
     private function renderStatisticsTemplate(array $templateVars, string $format, string $part): Response
     {
         if ('html' === $format) {
-            return $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.html.twig', [
+            return $this->render('@DemosPlanCore/DemosPlanAdmin/statistics.html.twig', [
                 'templateVars' => $templateVars,
                 'title'        => self::STATISTICS_TITLE,
             ]);
@@ -75,7 +75,7 @@ class DemosPlanAdminController extends BaseController
             fn ($twigEnv, $string, $charset) => str_replace('"', '""', (string) $string)
         );
 
-        $response = $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.csv.twig', [
+        $response = $this->render('@DemosPlanCore/DemosPlanAdmin/statistics.csv.twig', [
             'templateVars' => $templateVars,
             'title'        => self::STATISTICS_TITLE,
             'part'         => $part,

@@ -268,7 +268,7 @@ class DemosPlanAssessmentTableController extends BaseController
             $table->getFilterSet()['filters']
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_view.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -542,7 +542,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
         $templateVars['table']['baseData'] = Json::encode($baseData);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_original_view.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -733,7 +733,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
         // We need to rebuild the EnrichDataView event
 
-        return $this->renderTemplate(
+        return $this->render(
             $template,
             [
                 'templateVars' => $templateVars,
@@ -982,7 +982,7 @@ class DemosPlanAssessmentTableController extends BaseController
         );
         $templateVars['form'] = $statementBulkEditForm->createView();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/bulk_edit_statement.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -1011,7 +1011,7 @@ class DemosPlanAssessmentTableController extends BaseController
             $procedureId
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/bulk_edit_statement_fragment.html.twig',
             [
                 'templateVars' => $templateVars,

@@ -64,7 +64,7 @@ class FaqController extends BaseController
             ]
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanFaq/faqlist.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -108,7 +108,7 @@ class FaqController extends BaseController
 
         $templateVars['list'] = $templateCategories;
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanFaq/public_faqlist.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -161,7 +161,7 @@ class FaqController extends BaseController
             }
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanFaq/faq_admin_list.html.twig',
             [
                 'procedure'                 => $procedure,
@@ -217,8 +217,8 @@ class FaqController extends BaseController
 
         $breadcrumb->addItem(
             [
-                'title' => $translator->trans('faq.list', [], 'page-title'),
-                'url'   => $this->generateUrl('DemosPlan_faq'),
+                'title' => $translator->trans('faq.admin', [], 'page-title'),
+                'url'   => $this->generateUrl('DemosPlan_faq_administration_faq'),
             ]
         );
 
@@ -230,7 +230,7 @@ class FaqController extends BaseController
             'roleGroupsFaqVisibility'   => $globalConfig->getRoleGroupsFaqVisibility(),
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanFaq/faq_admin_edit.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -287,8 +287,8 @@ class FaqController extends BaseController
         // reichere die breadcrumb mit extraItem an
         $breadcrumb->addItem(
             [
-                'title' => $translator->trans('faq.list', [], 'page-title'),
-                'url'   => $this->generateUrl('DemosPlan_faq'),
+                'title' => $translator->trans('faq.admin', [], 'page-title'),
+                'url'   => $this->generateUrl('DemosPlan_faq_administration_faq'),
             ]
         );
 
@@ -299,7 +299,7 @@ class FaqController extends BaseController
             'roleGroupsFaqVisibility'   => $globalConfig->getRoleGroupsFaqVisibility(),
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanFaq/faq_admin_edit.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -429,12 +429,12 @@ class FaqController extends BaseController
 
         $breadcrumb->addItem(
             [
-                'title' => $translator->trans('faq.list', [], 'page-title'),
-                'url'   => $this->generateUrl('DemosPlan_faq'),
+                'title' => $translator->trans('faq.admin', [], 'page-title'),
+                'url'   => $this->generateUrl('DemosPlan_faq_administration_faq'),
             ]
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanFaq/faq_admin_category_edit.html.twig',
             [
                 'templateVars' => $templateVars,

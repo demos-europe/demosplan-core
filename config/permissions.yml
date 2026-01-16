@@ -1470,6 +1470,7 @@ feature_procedure_agency_email_addresses:
         project specific behaviors. When possible the permission based approach should be preferred.
     label: 'Enables the general configuration and usage of agency email addresses within a procedure'
     loginRequired: false
+    expose: true
 feature_procedure_analytics:
     description: |-
         This permission is used for the whole display of procedure analytics.
@@ -1617,6 +1618,16 @@ feature_procedure_export_include_statement_released:
         "Stellungnahmen/Freigaben" directory in each procedure directory in the export.
     expose: false
     label: 'Procedure export with released statement group'
+    loginRequired: true
+feature_procedure_export_include_segments:
+    description: |-
+        The procedure export generates a ZIP archive. If this permission is enabled
+        a document "Abschnitte_Gruppiert.docx" containing all statement segments
+        grouped by statement will be included.
+        The document will be placed in the "Abschnitte" directory in each procedure directory.
+        Attachments for statements will be placed in the "Abschnitte/Anhang" directory.
+    expose: false
+    label: 'Procedure export with segments'
     loginRequired: true
 feature_procedure_external_desc_crop:
     description: 'Crop external procedure description'

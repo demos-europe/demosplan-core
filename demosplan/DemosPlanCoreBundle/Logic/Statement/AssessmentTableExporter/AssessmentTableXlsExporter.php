@@ -21,14 +21,13 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
-use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Formatter\StatementFormatter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
-use League\HTMLToMarkdown\HtmlConverter;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -57,13 +56,13 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         DocumentWriterSelector $writerSelector,
         private readonly EditorService $editorService,
         Environment $twig,
-        private readonly FormOptionsResolver $formOptionsResolver,
         LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
         RequestStack $requestStack,
         ServiceImporter $serviceImport,
         SimpleSpreadsheetService $simpleSpreadsheetService,
         StatementHandler $statementHandler,
+        private readonly StatementFormatter $statementFormatter,
         TranslatorInterface $translator,
     ) {
         parent::__construct(
@@ -313,13 +312,23 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
      */
     private function createColumnsDefinitionForTopicsAndTags(): array
     {
-        return [
+        $columnsDefinition = [
             $this->createColumnDefinition('externId', 'id'),
             $this->createColumnDefinition('uName', 'name'),
             $this->createColumnDefinition('topicNames', 'topic', 30),
             $this->createColumnDefinition('tagNames', 'tag', 40),
-            $this->createColumnDefinition('recommendation', 'recommendation', 200),
         ];
+
+        $this->addColumnDefinition(
+            $columnsDefinition,
+            'votePla',
+            'field_statement_vote_pla',
+            'fragment.vote.short'
+        );
+
+        $columnsDefinition[] = $this->createColumnDefinition('recommendation', 'recommendation', 200);
+
+        return $columnsDefinition;
     }
 
     /**
@@ -418,6 +427,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $this->addColumnDefinition($columnsDefinition, 'memo', 'field_statement_memo', 'memo');
         $this->addColumnDefinition($columnsDefinition, 'feedback', 'field_statement_feedback', 'feedback');
         $this->addColumnDefinition($columnsDefinition, 'votesNum', 'feature_statements_vote', 'voters');
+        $this->addColumnDefinition($columnsDefinition, 'numberOfAnonymVotes', 'feature_statements_vote', 'statement.voter.anonym');
         $this->addColumnDefinition($columnsDefinition, 'phase', 'field_statement_phase', 'procedure.public.phase');
         $this->addColumnDefinition($columnsDefinition, 'submitType', 'field_statement_submit_type', 'submit.type');
         $this->addColumnDefinition(
@@ -498,7 +508,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         // collect Statements in unified data format
         foreach ($statements as $statement) {
             $pushed = false;
-            $formattedStatement = $this->formatStatement($keysOfAttributesToExport, $statement);
+            $formattedStatement = $this->statementFormatter->formatStatement($keysOfAttributesToExport, $statement);
 
             // loop again through the attributes
             foreach ($keysOfAttributesToExport as $attributeKey) {
@@ -547,98 +557,5 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         }
 
         return $formattedStatements->toArray();
-    }
-
-    /**
-     * Preserves underlined, strikethrough, and mark text when converting HTML to markdown
-     * Replaces <u>, <s>, and <mark> tags with markers before conversion and then back after conversion.
-     */
-    protected function preserveUnderlinedAndStrikethroughText(string $text): string
-    {
-        // Replace <u> tags with |underline| markers before conversion
-        $text = preg_replace('/<u>(.*?)<\/u>/s', '|underline|$1|underline|', $text);
-
-        // Replace <s> tags with ~~ markers before conversion
-        $text = preg_replace('/<s>(.*?)<\/s>/s', '~~$1~~', (string) $text);
-
-        // Replace <mark> tags with |mark| markers before conversion
-        $text = preg_replace('/<mark(?:\s+title="[^"]*")?\s*>(.*?)<\/mark>/s', '|mark|$1|mark|', (string) $text);
-
-        // Convert to markdown using the HTML converter
-        $htmlConverter = new HtmlConverter(['strip_tags' => true]);
-        $convertedText = $htmlConverter->convert($text);
-
-        // Replace |underline| markers back to <u> tags after conversion
-        $convertedText = preg_replace('/\|underline\|(.*?)\|underline\|/s', '<u>$1</u>', $convertedText);
-        // Replace |underline| markers back to <u> tags after conversion
-        $convertedText = preg_replace('/~~(.*?)~~/s', '<s>$1</s>', (string) $convertedText);
-        // Replace |mark| markers back to <mark> tags after conversion
-        $convertedText = preg_replace('/\|mark\|(.*?)\|mark\|/s', '<mark title="markierter Text">$1</mark>', (string) $convertedText);
-
-        return $convertedText;
-    }
-
-    protected function formatStatement(array $keysOfAttributesToExport, array $statementArray): array
-    {
-        $formattedStatement = [];
-
-        foreach ($keysOfAttributesToExport as $attributeKey) {
-            $formattedStatement[$attributeKey] = $statementArray[$attributeKey] ?? null;
-
-            // allow dot notation in export definition
-            $explodedParts = explode('.', (string) $attributeKey);
-            switch (count($explodedParts)) {
-                case 2:
-                    $formattedStatement[$attributeKey] = $statementArray[$explodedParts[0]][$explodedParts[1]];
-                    break;
-                case 3:
-                    $formattedStatement[$attributeKey] =
-                        $statementArray[$explodedParts[0]][$explodedParts[1]][$explodedParts[2]];
-                    break;
-                default:
-                    break;
-            }
-
-            // simplify every attribute which is an array (to stirng)
-            if (is_array($formattedStatement[$attributeKey])) {
-                $formattedStatement[$attributeKey] = implode("\n", $formattedStatement[$attributeKey]);
-            }
-
-            if (in_array($attributeKey, ['text', 'recommendation'])) {
-                $formattedStatement[$attributeKey] = $this->preserveUnderlinedAndStrikethroughText($formattedStatement[$attributeKey]);
-                $formattedStatement[$attributeKey] =
-                    str_replace('\_', '_', $formattedStatement[$attributeKey]);
-            }
-
-            if ('status' === $attributeKey) {
-                $formattedStatement[$attributeKey] = $this->formOptionsResolver->resolve(
-                    FormOptionsResolver::STATEMENT_STATUS,
-                    $formattedStatement[$attributeKey]
-                );
-            }
-
-            if ('votePla' === $attributeKey) {
-                $formattedStatement[$attributeKey] = $this->formOptionsResolver->resolve(
-                    FormOptionsResolver::STATEMENT_FRAGMENT_ADVICE_VALUES,
-                    $formattedStatement[$attributeKey] ?? ''
-                );
-            }
-
-            if (true === $formattedStatement[$attributeKey]) {
-                $formattedStatement[$attributeKey] = 'x';
-            }
-        }
-
-        $formattedStatement['externId'] = $this->assessmentTableOutput->createExternIdString($statementArray);
-
-        // in xlsx export, the information about moved Statement, have to be in the field of the externID
-        if (isset($statementArray['movedToProcedureName'])) {
-            $formattedStatement['externId'] .= ' '.$this->translator->trans(
-                'statement.moved',
-                ['name' => $statementArray['movedToProcedureName']]
-            );
-        }
-
-        return $formattedStatement;
     }
 }

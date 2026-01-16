@@ -49,6 +49,7 @@
       </dp-bulk-edit-header>
       <statement-export-modal
         data-cy="listStatements:export"
+        :procedure-id="procedureId"
         @export="showHintAndDoExport"
       />
       <div
@@ -472,7 +473,7 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored) => {
+      return (exportRoute, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds) => {
         const parameters = {
           filter: {
             procedureId: {
@@ -488,6 +489,9 @@ export default {
             ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {},
           },
           sort: this.selectedSort,
+          tagsFilter: {
+            tagIds: tagFilterIds,
+          },
           isObscured,
           isInstitutionDataCensored,
           isCitizenDataCensored,
@@ -992,8 +996,8 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
-      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored)
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds }) {
+      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds)
       if (!shouldConfirm || window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = url
       }
@@ -1001,7 +1005,6 @@ export default {
 
     storeNavigationContextInLocalStorage () {
       lscache.set(`${this.procedureId}:navigation:source`, 'StatementsList')
-      this.storeFilterInCache()
     },
 
     triggerStatementDeletion (id) {

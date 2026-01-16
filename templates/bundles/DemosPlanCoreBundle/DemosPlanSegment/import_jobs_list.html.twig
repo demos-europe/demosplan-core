@@ -1,0 +1,17 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+<h2>{{ 'import.jobs.list'|trans }}</h2>
+
+<div id="segmentImportJobListMount">
+  <segment-import-job-list
+    procedure-id="{{ procedure.id }}"
+    init-url="{{ path('dplan_import_jobs_api', { procedureId: procedure.id }) }}"
+  ></segment-import-job-list>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {{ webpackBundle('segment-segmentImportJobList.js') }}
+{% endblock %}

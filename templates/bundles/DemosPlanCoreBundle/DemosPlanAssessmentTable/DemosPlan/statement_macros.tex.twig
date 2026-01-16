@@ -44,3 +44,11 @@
     \end{Parallel}
     {{ statement_macros.statement_map(statement, procedure) }}
 {% endmacro %}
+
+{# Display planning authority vote advice: Votum der Planungsbehörde (votePla) #}
+{% macro render_vote_text(statement) %}
+    {%- if statement.voteText is defined and statement.voteText is not empty -%}
+        {{ statement.voteText|latex|raw }}{{ '\n\n' }}
+    {%- endif -%}
+{% endmacro %}
+
