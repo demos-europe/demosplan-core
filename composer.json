@@ -2,11 +2,11 @@
   "name": "demos-europe/demosplan-core",
   "description": "demosplan is a web application for public participation in planning processes",
   "type": "project",
-  "version": "v4.25.0",
+  "version": "v4.27.0",
   "license": "EUPL-1.2",
   "minimum-stability": "stable",
   "require": {
-    "php": "^8.1 || ^8.2",
+    "php": "^8.2 || ^8.3",
     "ext-ctype": "*",
     "ext-dom": "*",
     "ext-fileinfo": "*",
@@ -133,7 +133,6 @@
     "symfony/serializer": "6.*.*",
     "symfony/stopwatch": "6.*.*",
     "symfony/string": "6.*.*",
-    "symfony/templating": "6.*.*",
     "symfony/translation": "6.*.*",
     "symfony/twig-bridge": "6.*.*",
     "symfony/twig-bundle": "6.*.*",
@@ -231,7 +230,7 @@
       "cyclonedx/cyclonedx-php-composer": true
     },
     "platform": {
-      "php": "8.1.12"
+      "php": "8.2.0"
     }
   },
   "conflict": {

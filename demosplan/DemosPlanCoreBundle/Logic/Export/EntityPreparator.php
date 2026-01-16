@@ -162,7 +162,7 @@ class EntityPreparator
      *
      * @throws ExceptionInterface
      */
-    public function convert(ExportFieldsConfiguration $exportConfig, string $encode = null): array
+    public function convert(ExportFieldsConfiguration $exportConfig, ?string $encode = null): array
     {
         $encoders = [new XmlEncoder(), new JsonEncoder()];
         $normalizers = [new ObjectNormalizer()];

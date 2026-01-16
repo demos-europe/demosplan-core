@@ -35,7 +35,7 @@ describe('StatementExportModal', () => {
     wrapper = shallowMountWithGlobalMocks(StatementExportModal, {
       props: {
         isSingleStatementExport: false,
-        procedureId: MOCK_PROCEDURE_ID
+        procedureId: MOCK_PROCEDURE_ID,
       },
       global: {
         renderStubDefaultSlot: true,
@@ -49,7 +49,7 @@ describe('StatementExportModal', () => {
           'filter-flyout': {
             template: '<div></div>',
             methods: {
-              reset: jest.fn()
+              reset: jest.fn(),
             },
           },
         },
@@ -261,18 +261,18 @@ describe('StatementExportModal', () => {
     const filter = {
       MOCK_TAG_ID_1: {
         condition: {
-          operator: "ARRAY_CONTAINS_VALUE",
-          path: "tags",
+          operator: 'ARRAY_CONTAINS_VALUE',
+          path: 'tags',
           value: MOCK_TAG_ID_1,
-        }
+        },
       },
       MOCK_TAG_ID_2: {
         condition: {
-          operator: "ARRAY_CONTAINS_VALUE",
-          path: "tags",
+          operator: 'ARRAY_CONTAINS_VALUE',
+          path: 'tags',
           value: MOCK_TAG_ID_2,
-        }
-      }
+        },
+      },
     }
 
     wrapper.vm.getFilterValues(filter)
@@ -304,18 +304,18 @@ describe('StatementExportModal', () => {
     const filter = {
       MOCK_TAG_ID_1: {
         condition: {
-          operator: "ARRAY_CONTAINS_VALUE",
-          path: "tags",
+          operator: 'ARRAY_CONTAINS_VALUE',
+          path: 'tags',
           value: MOCK_TAG_ID_1,
-        }
+        },
       },
       MOCK_TAG_ID_2: {
         condition: {
-          operator: "ARRAY_CONTAINS_VALUE",
-          path: "tags",
+          operator: 'ARRAY_CONTAINS_VALUE',
+          path: 'tags',
           value: MOCK_TAG_ID_2,
-        }
-      }
+        },
+      },
     }
 
     wrapper.vm.getFilterValues(filter)

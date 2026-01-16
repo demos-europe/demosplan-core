@@ -3,4 +3,5 @@ runner:
         cmd: "yarn eslint client"
 
     phpstan:
-        cmd: "vendor/bin/phpstan analyse -c phpstan.neon demosplan -l 1"
+        cmd: "vendor/bin/phpstan analyse -c phpstan.neon demosplan -l 1 --error-format=checkstyle --no-progress"
+        format: checkstyle

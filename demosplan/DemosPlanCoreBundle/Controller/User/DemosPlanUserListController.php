@@ -43,7 +43,7 @@ class DemosPlanUserListController extends DemosPlanUserController
         // Teilnehmende Organisationen (öffentliche Liste)
         $templateVars['orgas'] = $orgaService->getParticipants();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/showParticipants.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -65,7 +65,7 @@ class DemosPlanUserListController extends DemosPlanUserController
     {
         $title = 'user.admin.user';
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/list_user.html.twig',
             ['title' => $title]
         );
@@ -89,7 +89,7 @@ class DemosPlanUserListController extends DemosPlanUserController
         }
         $templateVars['addressBookEntries'] = $addressBookEntryService->getAddressBookEntriesOfOrganisation($organisationId);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/unregistered_publicagency_list.html.twig',
             [
                 'templateVars' => $templateVars,

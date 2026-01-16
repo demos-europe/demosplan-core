@@ -34,7 +34,7 @@ class DemosPlanSubmitterController extends BaseController
     #[Route(name: 'dplan_submitters_list', methods: 'GET', path: '/verfahren/{procedureId}/submitters/list')]
     public function list(string $procedureId): Response
     {
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_list_submitters.html.twig',
             [
                 'procedure' => $procedureId,
