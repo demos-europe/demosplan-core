@@ -74,10 +74,10 @@ class OrgaTypePermissionsCleanupService extends CoreService
         }
 
         $this->logger->info('OrgaTypePermissionsCleanupService: Removing permissions', [
-            'orgaId'     => $orga->getId(),
-            'customerId' => $customer->getId(),
+            'orgaId'      => $orga->getId(),
+            'customerId'  => $customer->getId(),
             'removedType' => $removedType,
-            'roleCodes'  => $roleCodesToRemove,
+            'roleCodes'   => $roleCodesToRemove,
         ]);
 
         $this->accessControlService->removePermissions(
