@@ -13,13 +13,12 @@ namespace demosplan\DemosPlanCoreBundle\Monolog\Handler;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Level;
 use Monolog\LogRecord;
-use OpenTelemetry\API\Logs\LogRecord as OtelLogRecord;
 use OpenTelemetry\API\Logs\LoggerProviderInterface;
+use OpenTelemetry\API\Logs\LogRecord as OtelLogRecord;
 use OpenTelemetry\API\Logs\Severity;
 use OpenTelemetry\Contrib\Otlp\LogsExporter;
 use OpenTelemetry\Contrib\Otlp\OtlpHttpTransportFactory;
 use OpenTelemetry\SDK\Common\Attribute\Attributes;
-use OpenTelemetry\SDK\Common\Instrumentation\InstrumentationScopeFactory;
 use OpenTelemetry\SDK\Logs\LoggerProvider;
 use OpenTelemetry\SDK\Logs\Processor\SimpleLogRecordProcessor;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
@@ -71,10 +70,10 @@ class OtlpHandler extends AbstractProcessingHandler
             ->setSeverityNumber($severity)
             ->setSeverityText($record->level->name)
             ->setAttributes([
-                'level' => $record->level->name,
+                'level'   => $record->level->name,
                 'channel' => $record->channel,
                 'context' => json_encode($record->context, JSON_THROW_ON_ERROR),
-                'extra' => json_encode($record->extra, JSON_THROW_ON_ERROR),
+                'extra'   => json_encode($record->extra, JSON_THROW_ON_ERROR),
             ]);
 
         $logger->emit($logRecord);
@@ -99,8 +98,8 @@ class OtlpHandler extends AbstractProcessingHandler
         $resource = ResourceInfoFactory::emptyResource()->merge(
             ResourceInfo::create(
                 Attributes::create([
-                    'service.name' => $this->serviceName,
-                    'service.version' => $this->serviceVersion,
+                    'service.name'           => $this->serviceName,
+                    'service.version'        => $this->serviceVersion,
                     'deployment.environment' => $this->environment,
                 ])
             )
