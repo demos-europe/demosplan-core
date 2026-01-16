@@ -1024,6 +1024,19 @@ export default {
         })
       }
 
+      //  Add 'visible-layer GetFeatureInfo' button behavior
+      if (document.getElementById('layerFeatureInfoButton')) {
+        $('#layerFeatureInfoButton').on('pointerup keydown', (event) => {
+          // For keyboard events, execute only when enter was pressed
+          if (event.type === 'keydown' && event.keyCode !== 13) {
+            return
+          }
+          this.handleButtonInteraction('layerfeatureinfo', '#layerFeatureInfoButton', () => {
+            this.mapSingleClickListener = this.map.on('singleclick', this.queryLayerFeatureInfo)
+          })
+        })
+      }
+
       //  Add 'queryArea' behavior
       if (PROJECT && PROJECT === 'robobsh' && dplan.procedureStatementPriorityArea) {
         /*
