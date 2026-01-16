@@ -559,7 +559,7 @@ export default {
 
         this.setSelectedItems([])
       }
-    }
+    },
   },
 
   mounted () {

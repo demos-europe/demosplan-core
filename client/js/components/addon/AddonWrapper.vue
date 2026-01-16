@@ -1,7 +1,8 @@
 <template>
   <div
     v-if="loadedAddons.length > 0"
-    :class="wrapperClasses">
+    :class="wrapperClasses"
+  >
     <component
       v-bind="{ demosplanUi, ...addonProps }"
       :is="addon.component"

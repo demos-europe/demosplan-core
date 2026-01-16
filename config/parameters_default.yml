@@ -9,6 +9,10 @@ parameters:
     logging_strategy: "rotating_file"
     # maximum number of log files to keep (aka days to keep)
     logging_max_files: 60
+    # logging path - use "php://stderr" for stream or file path for rotating_file
+    logging_path: "%kernel.logs_dir%/%demosplan_main_logfile%"
+    # logging formatter - use "monolog.formatter.json" for structured logs (recommended for stream)
+    logging_formatter: "monolog.formatter.line"
 
     # Projekttyp, mögliche Werte: portal, gateway
     # #refactor: this variable should be removed

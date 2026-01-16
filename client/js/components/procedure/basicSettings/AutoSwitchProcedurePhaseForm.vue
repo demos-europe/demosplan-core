@@ -277,6 +277,13 @@ export default {
         this.switchTime = '00:00'
         this.updateSwitchDate()
       }
+
+      // Needed for the addon-modal on form-submit
+      this.$emit('phase-selected', {
+        phase: this.selectedPhase,
+        enabled: newVal,
+        isInternal: this.isInternal
+      })
     },
 
     selectedCurrentPhase: {
@@ -292,6 +299,17 @@ export default {
 
     switchDateOnly () {
       this.updateSwitchDate()
+    },
+
+    selectedPhase: {
+      handler (newVal) {
+        this.$emit('phase-selected', {
+          phase: newVal,
+          enabled: this.autoSwitchPhase,
+          isInternal: this.isInternal
+        })
+      },
+      immediate: true
     },
 
     switchDate: {
