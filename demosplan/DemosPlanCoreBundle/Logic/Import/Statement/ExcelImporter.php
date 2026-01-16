@@ -1158,20 +1158,12 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $tagTitle = new UnicodeString($tagTitle);
             $tagTitle = $tagTitle->trim()->toString();
 
-            // First, check if we already created this tag during this import (not yet flushed)
-            $matchingTag = null;
-            foreach ($this->generatedTags as $generatedTag) {
-                if ($generatedTag->getTitle() === $tagTitle) {
-                    $matchingTag = $generatedTag;
-                    break;
-                }
-            }
-
-            // If not found in generated tags, check the database
-            if (!$matchingTag instanceof Tag) {
-                $matchingTag = $this->tagService->findUniqueByTitle($tagTitle, $procedureId);
-            }
-
+            // Use the robust matching method that checks:
+            // 1. Generated tags array (tags created during this import)
+            // 2. EntityManager's UnitOfWork (persisted but not yet flushed)
+            // 3. Database
+            // All checks are case-insensitive and validate procedure ID
+            $matchingTag = $this->getMatchingTag($tagTitle, $procedureId);
             $createNewTag = !$matchingTag instanceof Tag;
 
             if ($createNewTag) {
@@ -1189,5 +1181,54 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 array_pop($this->generatedTags);
             }
         }
+    }
+
+    /**
+     * Get the first {@link Tag} entity with a title and procedure matching the given one.
+     *
+     * Searches in {@link ExcelImporter::$generatedTags} first and of no matching entity is
+     * found the database is searched.
+     *
+     * @throws PathException
+     */
+    private function getMatchingTag(string $tagTitle, string $procedureId): ?Tag
+    {
+        $tagTitleLower = mb_strtolower($tagTitle);
+
+        // First, search in generatedTags array (tags created during this import) - CASE-INSENSITIVE
+        foreach ($this->generatedTags as $tag) {
+            $topic = $tag->getTopic();
+            if (null !== $topic
+                && $topic->getProcedure()?->getId() === $procedureId
+                && mb_strtolower($tag->getTitle()) === $tagTitleLower) {
+                return $tag;
+            }
+        }
+
+        // If not found, check EntityManager's UnitOfWork for tags that are persisted but not yet flushed - CASE-INSENSITIVE
+        $uow = $this->entityManager->getUnitOfWork();
+        $scheduledInsertions = $uow->getScheduledEntityInsertions();
+
+        foreach ($scheduledInsertions as $entity) {
+            if ($entity instanceof Tag && mb_strtolower($entity->getTitle()) === $tagTitleLower) {
+                $topic = $entity->getTopic();
+                if (null !== $topic && $topic->getProcedure()?->getId() === $procedureId) {
+                    return $entity;
+                }
+            }
+        }
+
+        // If still not found, query the database (already case-insensitive due to utf8mb3_unicode_ci collation)
+        $titleCondition = $this->conditionFactory->allConditionsApply(
+            $this->conditionFactory->propertyHasValue($tagTitle, ['title']),
+            $this->conditionFactory->propertyHasValue($procedureId, ['topic', 'procedure', 'id']),
+        );
+        $matchingTags = $this->tagResourceType->getEntities([$titleCondition], []);
+
+        if ([] !== $matchingTags) {
+            return $matchingTags[0];
+        }
+
+        return null;
     }
 }
