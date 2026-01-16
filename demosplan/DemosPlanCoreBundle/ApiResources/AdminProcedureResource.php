@@ -19,6 +19,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use demosplan\DemosPlanCoreBundle\StateProcessor\AdminProcedureStateProcesor;
 use demosplan\DemosPlanCoreBundle\StateProvider\AdminProcedureStateProvider;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 
 #[ApiResource(
     shortName: 'AdminProcedure',
@@ -40,4 +41,7 @@ class AdminProcedureResource
     public string $name;
 
     public string $externalName;
+
+    #[SerializedName('creationDate')]
+    public \DateTime $createdDate;
 }
