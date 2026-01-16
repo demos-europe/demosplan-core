@@ -91,7 +91,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
     #[DataProvider('singleSelectValidationErrorDataProvider')]
     public function testUpdateOrAddCustomFieldValuesSingleSelectValidationErrors(
         array $testData,
-        string $expectedErrorMessage
+        string $expectedErrorMessage,
     ): void {
         // Arrange
         $sourceEntity = 'PROCEDURE';
@@ -102,7 +102,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
             ->withRelatedTargetEntity($targetEntity);
 
         $customField = $factory->asRadioButton(
-            $testData['fieldName'] ,
+            $testData['fieldName'],
             options: $testData['fieldOptions']
         )->create();
 
@@ -116,7 +116,6 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
             ],
         ];
 
-
         // Assert & Act
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($expectedErrorMessage);
@@ -129,7 +128,6 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
             $targetEntity
         );
     }
-
 
     public static function singleSelectValidationErrorDataProvider(): array
     {
@@ -162,11 +160,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
                     'value'        => 'non-existent-option-uuid-12345',
                 ],
                 'expectedErrorMessage' => 'SingleSelect invalid option id "non-existent-option-uuid-12345" for CustomFieldId',
-            ]
+            ],
         ];
     }
-
-
-
-
 }
