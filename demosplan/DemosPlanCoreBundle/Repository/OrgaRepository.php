@@ -23,7 +23,9 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaTypePermissionsCleanupService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\DataProtectionOrganisation;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\ImprintOrganisation;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -41,6 +43,19 @@ use Faker\Provider\Uuid;
  */
 class OrgaRepository extends SluggedRepository implements ArrayInterface
 {
+    private OrgaTypePermissionsCleanupService $orgaTypePermissionsCleanupService;
+
+    /**
+     * @return $this
+     */
+    #[Required]
+    public function setOrgaTypePermissionsCleanupService(OrgaTypePermissionsCleanupService $service): self
+    {
+        $this->orgaTypePermissionsCleanupService = $service;
+
+        return $this;
+    }
+
     /**
      * Get Entity by Id.
      *
@@ -519,13 +534,16 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
      * The Info in $data comes already filtered according to the user permissions to handle domains different from
      * current.
      *
+     * When a type loses 'accepted' status, automatically cleans up associated permissions.
+     *
      * @throws NonUniqueResultException
      */
     private function manageOrgaRegistrationStatus(Orga $orga, array $data): void
     {
+        // new status in customer
         $activationChanges = $this->getActivationChanges($data);
         foreach ($activationChanges as $activationChange) {
-            $status = $activationChange['status'];
+            $newStatus = $activationChange['status'];
             $orgaTypeName = $activationChange['type'];
             $orgaType = $this->getOrgaTypeByName($orgaTypeName);
             $customer = $activationChange['customer'];
@@ -534,19 +552,33 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
                 $this->getLogger()->warning('Could not find OrgaType by name', [$orgaTypeName]);
                 continue;
             }
+
+            // old status in customer
             $orgaStatusInCustomers = $orga->getStatusInCustomers();
             /** @var OrgaStatusInCustomer $orgaStatusInCustomer */
             foreach ($orgaStatusInCustomers as $orgaStatusInCustomer) {
                 $orgaSubdomain = $orgaStatusInCustomer->getCustomer()->getSubdomain();
                 $currentOrgaTypeName = $orgaStatusInCustomer->getOrgaType()->getName();
                 if ($orgaSubdomain === $subdomain && $currentOrgaTypeName === $orgaTypeName) {
-                    $orgaStatusInCustomer->setStatus($status);
+                    $oldStatus = $orgaStatusInCustomer->getStatus();
+
+                    // Cleanup permissions when type loses 'accepted' status
+                    if (OrgaStatusInCustomer::STATUS_ACCEPTED === $oldStatus
+                        && OrgaStatusInCustomer::STATUS_ACCEPTED !== $newStatus) {
+                        $this->orgaTypePermissionsCleanupService->cleanupPermissionsForRemovedType(
+                            $orgaTypeName,
+                            $orga,
+                            $customer
+                        );
+                    }
+
+                    $orgaStatusInCustomer->setStatus($newStatus);
                     continue 2;
                 }
             }
             // when no relation to update could be found create a new one
             $orgaStatusInCustomer = new OrgaStatusInCustomer();
-            $orgaStatusInCustomer->setStatus($status);
+            $orgaStatusInCustomer->setStatus($newStatus);
             $orgaStatusInCustomer->setOrgaType($orgaType);
             $orgaStatusInCustomer->setCustomer($customer);
             $orgaStatusInCustomer->setOrga($orga);
