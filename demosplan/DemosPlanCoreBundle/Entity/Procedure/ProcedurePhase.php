@@ -57,7 +57,7 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     /**
      * Virtual Property bound on phase configuration in procedurephases.yml.
      */
-    protected string $permissionSet;
+    protected string $permissionSet = ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
 
     /**
      * @ORM\Column(type="string", length=25, nullable=false, options={"default":""})
