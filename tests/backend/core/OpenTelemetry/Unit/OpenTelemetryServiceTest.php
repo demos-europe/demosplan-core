@@ -20,12 +20,14 @@ use PHPUnit\Framework\TestCase;
 
 class OpenTelemetryServiceTest extends TestCase
 {
+    private const TEST_SERVICE_VERSION = '1.0.0';
+
     public function testIsEnabledReturnsFalseWhenEndpointEmpty(): void
     {
         $service = new OpenTelemetryService(
             otlpEndpoint: '',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: ''
         );
@@ -38,7 +40,7 @@ class OpenTelemetryServiceTest extends TestCase
         $service = new OpenTelemetryService(
             otlpEndpoint: 'http://collector:4318',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: ''
         );
@@ -51,7 +53,7 @@ class OpenTelemetryServiceTest extends TestCase
         $service = new OpenTelemetryService(
             otlpEndpoint: '',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: ''
         );
@@ -66,7 +68,7 @@ class OpenTelemetryServiceTest extends TestCase
         $service = new OpenTelemetryService(
             otlpEndpoint: '',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: ''
         );
@@ -81,7 +83,7 @@ class OpenTelemetryServiceTest extends TestCase
         $service = new OpenTelemetryService(
             otlpEndpoint: '',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: ''
         );
@@ -96,7 +98,7 @@ class OpenTelemetryServiceTest extends TestCase
         $service = new OpenTelemetryService(
             otlpEndpoint: '',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: ''
         );
@@ -112,7 +114,7 @@ class OpenTelemetryServiceTest extends TestCase
         $service = new OpenTelemetryService(
             otlpEndpoint: '',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: ''
         );
@@ -132,7 +134,7 @@ class OpenTelemetryServiceTest extends TestCase
         $service = new OpenTelemetryService(
             otlpEndpoint: '',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: ''
         );

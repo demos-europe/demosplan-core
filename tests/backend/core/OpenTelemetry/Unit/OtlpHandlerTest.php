@@ -20,12 +20,15 @@ use PHPUnit\Framework\TestCase;
 
 class OtlpHandlerTest extends TestCase
 {
+    private const TEST_SERVICE_VERSION = '1.0.0';
+    private const TEST_MESSAGE = 'Test message';
+
     public function testHandlerSkipsWhenEndpointEmpty(): void
     {
         $handler = new OtlpHandler(
             otlpEndpoint: '',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: '',
             level: Level::Info
@@ -35,7 +38,7 @@ class OtlpHandlerTest extends TestCase
             datetime: new DateTimeImmutable(),
             channel: 'test',
             level: Level::Info,
-            message: 'Test message',
+            message: self::TEST_MESSAGE,
             context: [],
             extra: []
         );
@@ -51,7 +54,7 @@ class OtlpHandlerTest extends TestCase
         $handler = new OtlpHandler(
             otlpEndpoint: '',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: '',
             level: Level::Warning
@@ -84,7 +87,7 @@ class OtlpHandlerTest extends TestCase
         $handler = new OtlpHandler(
             otlpEndpoint: '',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: '',
             level: 'warning'
@@ -117,7 +120,7 @@ class OtlpHandlerTest extends TestCase
         $handler = new OtlpHandler(
             otlpEndpoint: '',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: 'tenant-123',
             level: Level::Info
@@ -127,7 +130,7 @@ class OtlpHandlerTest extends TestCase
             datetime: new DateTimeImmutable(),
             channel: 'test',
             level: Level::Info,
-            message: 'Test message',
+            message: self::TEST_MESSAGE,
             context: [],
             extra: []
         );
@@ -143,7 +146,7 @@ class OtlpHandlerTest extends TestCase
         $handler = new OtlpHandler(
             otlpEndpoint: '',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: '',
             level: Level::Info
@@ -169,7 +172,7 @@ class OtlpHandlerTest extends TestCase
         $handler = new OtlpHandler(
             otlpEndpoint: '',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: '',
             level: Level::Debug
@@ -208,7 +211,7 @@ class OtlpHandlerTest extends TestCase
         $handlerWithBubble = new OtlpHandler(
             otlpEndpoint: '',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: '',
             level: Level::Info,
@@ -218,7 +221,7 @@ class OtlpHandlerTest extends TestCase
         $handlerWithoutBubble = new OtlpHandler(
             otlpEndpoint: '',
             serviceName: 'test-service',
-            serviceVersion: '1.0.0',
+            serviceVersion: self::TEST_SERVICE_VERSION,
             environment: 'test',
             tenantId: '',
             level: Level::Info,
@@ -229,7 +232,7 @@ class OtlpHandlerTest extends TestCase
             datetime: new DateTimeImmutable(),
             channel: 'test',
             level: Level::Info,
-            message: 'Test message',
+            message: self::TEST_MESSAGE,
             context: [],
             extra: []
         );

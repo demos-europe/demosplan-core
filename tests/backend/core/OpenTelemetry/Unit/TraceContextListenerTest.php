@@ -25,6 +25,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class TraceContextListenerTest extends TestCase
 {
+    private const TEST_API_PATH = '/api/test';
+
     private TraceContextListener $listener;
     private OpenTelemetryService|MockObject $openTelemetryService;
 
@@ -84,7 +86,7 @@ class TraceContextListenerTest extends TestCase
     public function testOnKernelRequestCreatesSpanForMainRequest(): void
     {
         $kernel = $this->createMock(HttpKernelInterface::class);
-        $request = Request::create('/api/test', 'GET');
+        $request = Request::create(self::TEST_API_PATH, 'GET');
         $request->attributes->set('_route', 'api_test_route');
 
         $event = new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
@@ -102,7 +104,7 @@ class TraceContextListenerTest extends TestCase
     public function testOnKernelRequestExtractsTraceparentHeader(): void
     {
         $kernel = $this->createMock(HttpKernelInterface::class);
-        $request = Request::create('/api/test', 'GET');
+        $request = Request::create(self::TEST_API_PATH, 'GET');
         $request->headers->set('traceparent', '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01');
 
         $event = new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
@@ -119,7 +121,7 @@ class TraceContextListenerTest extends TestCase
     public function testOnKernelTerminateSetsHttpStatusCode(): void
     {
         $kernel = $this->createMock(HttpKernelInterface::class);
-        $request = Request::create('/api/test', 'GET');
+        $request = Request::create(self::TEST_API_PATH, 'GET');
 
         $requestEvent = new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
         $this->listener->onKernelRequest($requestEvent);
@@ -135,7 +137,7 @@ class TraceContextListenerTest extends TestCase
     public function testOnKernelTerminateHandlesErrorStatusCode(): void
     {
         $kernel = $this->createMock(HttpKernelInterface::class);
-        $request = Request::create('/api/test', 'GET');
+        $request = Request::create(self::TEST_API_PATH, 'GET');
 
         $requestEvent = new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
         $this->listener->onKernelRequest($requestEvent);
@@ -150,7 +152,7 @@ class TraceContextListenerTest extends TestCase
     public function testOnKernelTerminateHandlesServerErrorStatusCode(): void
     {
         $kernel = $this->createMock(HttpKernelInterface::class);
-        $request = Request::create('/api/test', 'GET');
+        $request = Request::create(self::TEST_API_PATH, 'GET');
 
         $requestEvent = new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
         $this->listener->onKernelRequest($requestEvent);
@@ -165,7 +167,7 @@ class TraceContextListenerTest extends TestCase
     public function testOnKernelTerminateWithoutPriorRequest(): void
     {
         $kernel = $this->createMock(HttpKernelInterface::class);
-        $request = Request::create('/api/test', 'GET');
+        $request = Request::create(self::TEST_API_PATH, 'GET');
         $response = new Response('OK', 200);
 
         $terminateEvent = new TerminateEvent($kernel, $request, $response);
