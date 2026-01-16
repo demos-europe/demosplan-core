@@ -25,6 +25,10 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaTypePermissionsCleanupService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
+use Doctrine\Persistence\ManagerRegistry;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Utilities\Reindexer;
 use Symfony\Contracts\Service\Attribute\Required;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\DataProtectionOrganisation;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\ImprintOrganisation;
@@ -43,17 +47,17 @@ use Faker\Provider\Uuid;
  */
 class OrgaRepository extends SluggedRepository implements ArrayInterface
 {
-    private OrgaTypePermissionsCleanupService $orgaTypePermissionsCleanupService;
 
-    /**
-     * @return $this
-     */
-    #[Required]
-    public function setOrgaTypePermissionsCleanupService(OrgaTypePermissionsCleanupService $service): self
+    public function __construct(
+        DqlConditionFactory $conditionFactory,
+        ManagerRegistry $registry,
+        Reindexer $reindexer,
+        SortMethodFactory $sortMethodFactory,
+        string $entityClass,
+        private readonly OrgaTypePermissionsCleanupService $orgaTypePermissionsCleanupService
+    )
     {
-        $this->orgaTypePermissionsCleanupService = $service;
-
-        return $this;
+        parent::__construct($conditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
 
     /**
