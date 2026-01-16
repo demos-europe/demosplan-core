@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\ApiResources\AdminProcedureResource;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
+use EDT\JsonApi\RequestHandling\FilterParserInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
@@ -29,6 +30,7 @@ class AdminProcedureStateProvider implements ProviderInterface
         private readonly CurrentUserInterface $currentUser,
         private readonly ProcedureService $procedureService,
         private readonly ProcedureRepository $procedureRepository,
+        protected readonly FilterParserInterface $filterParser,
     ) {
     }
 
@@ -67,11 +69,16 @@ class AdminProcedureStateProvider implements ProviderInterface
 
     private function provideCollection(array $context = []): array
     {
-        // Get all procedures and filter them using the voter
 
-        $accessConditions = $this->getAccessConditions();
-
-        $procedures = $this->procedureRepository->getEntities($accessConditions, []);
+        $filterParam = $context['filters'];
+        if ($filterParam) {
+            $filterConditions = $this->getConditions($filterParam);
+            $procedures = $this->procedureRepository->getEntities($filterConditions, []);
+        } else {
+            // Get all procedures and filter them using the voter
+            $accessConditions = $this->getAccessConditions();
+            $procedures = $this->procedureRepository->getEntities($accessConditions, []);
+        }
 
         $adminProcedures = [];
         foreach ($procedures as $procedure) {
@@ -103,5 +110,17 @@ class AdminProcedureStateProvider implements ProviderInterface
     public function isAvailable(): bool
     {
         return $this->currentUser->hasPermission('area_admin_procedures');
+    }
+
+
+    protected function getConditions($filterParam): array
+    {
+        if (!$filterParam) {
+            return [];
+        }
+
+        $filterParam = $this->filterParser->validateFilter($filterParam);
+
+        return $this->filterParser->parseFilter($filterParam);
     }
 }
