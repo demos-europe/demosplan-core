@@ -22,8 +22,8 @@ use demosplan\DemosPlanCoreBundle\StateProvider\AdminProcedureStateProvider;
 #[ApiResource(
     shortName: 'AdminProcedure',
     operations: [
-        new Get(),
-        new GetCollection(),
+        new Get(uriTemplate: '/AdminProcedure/{id}'),
+        new GetCollection(uriTemplate: '/AdminProcedure'),
         new Patch(),
     ],
     formats: ['jsonapi'],
