@@ -1879,14 +1879,72 @@ export default {
             return
           }
 
-          const sanitizedResults = validResults.map(result => ({
-            layerName: result.layerName,
-            layerId: result.layerId,
-            content: DomPurify.sanitize(result.content, {
+          const sanitizedResults = validResults.map(result => {
+            const cleanContent = DomPurify.sanitize(result.content, {
               ADD_ATTR: ['target'],
-              FORBID_TAGS: ['style', 'script']
+              FORBID_TAGS: ['style', 'script', 'a']
             })
-          }))
+
+            const parser = new DOMParser()
+            const doc = parser.parseFromString(cleanContent, 'text/html')
+
+            // Recursive function to process all text nodes
+            const processTextNodes = (node) => {
+              if (node.nodeType === Node.TEXT_NODE) {
+                const text = node.textContent
+                const urlRegex = /https?:\/\/[^\s<>]+/g
+                const matches = [...text.matchAll(urlRegex)]
+
+                if (matches.length > 0) {
+                  const fragment = document.createDocumentFragment()
+                  let lastIndex = 0
+
+                  matches.forEach(match => {
+                    let url = match[0]
+                    const index = match.index
+
+                    url = url.replace(/[.,;!?]+$/, '')
+
+                    // Keep text before URL
+                    if (index > lastIndex) {
+                      fragment.appendChild(
+                        document.createTextNode(text.slice(lastIndex, index))
+                      )
+                    }
+
+                    // Create link using DOM (browser handles URL encoding automatically)
+                    const link = document.createElement('a')
+                    link.href = url
+                    link.textContent = 'Link'
+                    link.target = '_blank'
+                    link.rel = 'noopener noreferrer'
+                    fragment.appendChild(link)
+
+                    lastIndex = index + url.length
+                  })
+
+                  // Keep remaining text
+                  if (lastIndex < text.length) {
+                    fragment.appendChild(
+                      document.createTextNode(text.slice(lastIndex))
+                    )
+                  }
+
+                  node.parentNode.replaceChild(fragment, node)
+                }
+              } else if (node.nodeType === Node.ELEMENT_NODE) {
+                Array.from(node.childNodes).forEach(processTextNodes)
+              }
+            }
+
+            processTextNodes(doc.body)
+
+            return {
+              layerName: result.layerName,
+              layerId: result.layerId,
+              content: doc.body.innerHTML
+            }
+          })
 
           this.layersFeatureInfoResults = sanitizedResults
 
