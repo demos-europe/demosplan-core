@@ -28,6 +28,43 @@
       @selected="zoomToSuggestion"
       @searched="selectFirstOption"
     />
+
+    <dp-slidebar data-cy="layerFeatureInfoSidebar">
+        <div
+          v-if="layersFeatureInfoResults?.length > 1"
+          class="flex items-baseline justify-between gap-4 mr-3 mb-4 max-w-full"
+        >
+          <dp-button
+            v-if="currentLayerFeatureInfoPage > 1"
+            :aria-label="Translator.trans('map.next.feature.info')"
+            color="primary"
+            variant="outline"
+            icon="chevron-left"
+            hide-text
+            @click="showPreviousLayerFeatureInfo"
+          />
+
+          <h3 class="flex-1 text-center font-bold truncate">
+            {{ currentLayerFeatureInfoResult.layerName }}
+          </h3>
+
+          <dp-button
+            v-if="currentLayerFeatureInfoPage < layersFeatureInfoResults.length"
+            :aria-label="Translator.trans('map.previous.feature.info')"
+            color="primary"
+            variant="outline"
+            icon="chevron-right"
+            hide-text
+            @click="showNextLayerFeatureInfo"
+          />
+        </div>
+
+        <div
+          v-if="currentLayerFeatureInfoResult"
+          v-html="currentLayerFeatureInfoResult.content"
+          class="mb-4"
+        />
+    </dp-slidebar>
     <slot />
   </div>
 </template>
@@ -38,7 +75,7 @@ import { addProjection, Projection, transform } from 'ol/proj'
 import { Attribution, FullScreen, MousePosition, OverviewMap, ScaleLine } from 'ol/control'
 import { Circle, Fill, Stroke, Style } from 'ol/style'
 import { defaults as defaultInteractions, DragZoom, Draw } from 'ol/interaction'
-import { dpApi, DpAutocomplete, externalApi, formatDate, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpAutocomplete, DpButton, DpSlidebar, externalApi, formatDate, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Circle as GCircle, LineString as GLineString, Polygon as GPolygon } from 'ol/geom'
 import { GeoJSON, WMTSCapabilities } from 'ol/format'
 import { getArea, getLength } from 'ol/sphere'
@@ -67,6 +104,8 @@ export default {
 
   components: {
     DpAutocomplete,
+    DpButton,
+    DpSlidebar,
   },
 
   mixins: [prefixClassMixin],
@@ -147,6 +186,7 @@ export default {
       activeclickcontrol: null,
       autocompleteOptions: [],
       bPlan: {},
+      currentLayerFeatureInfoPage: 1,
       hasTerritoryWMS: false,
       dragZoomAlways: new DragZoom({ condition: () => true }),
       layersFeatureInfoResults: null,
@@ -193,6 +233,11 @@ export default {
     ...mapGetters('Layers', {
       layers: 'gisLayerList',
     }),
+
+    currentLayerFeatureInfoResult () {
+      if (!this.layersFeatureInfoResults?.length) return null
+      return this.layersFeatureInfoResults[this.currentLayerFeatureInfoPage - 1]
+    },
 
     featureInfoUrl () {
       /**
@@ -308,6 +353,10 @@ export default {
   },
 
   watch: {
+    layersFeatureInfoResults() {
+      this.currentLayerFeatureInfoPage = 1
+    },
+
     layerStates: {
       handler (updatedLayerState, oldVal) {
         Object.entries(updatedLayerState).forEach(([id, { opacity, isVisible }]) => {
@@ -1880,6 +1929,18 @@ export default {
           this.measureTooltipsArray = []
         }
         this.$root.$emit('changeActive')
+      }
+    },
+
+    showNextLayerFeatureInfo () {
+      if (this.currentLayerFeatureInfoPage < this.layersFeatureInfoResults.length) {
+        this.currentLayerFeatureInfoPage++
+      }
+    },
+
+    showPreviousLayerFeatureInfo () {
+      if (this.currentLayerFeatureInfoPage > 1) {
+        this.currentLayerFeatureInfoPage--
       }
     },
 
