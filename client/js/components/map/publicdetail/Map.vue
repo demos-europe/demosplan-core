@@ -650,7 +650,7 @@ export default {
      * @param {number} viewResolution - Current map view resolution
      * @returns {string|null} GetFeatureInfo request URL, or null if data is missing
      */
-    buildFeatureInfoUrl (storeLayer, coordinate, viewResolution) {
+    buildLayerFeatureInfoUrl (storeLayer, coordinate, viewResolution) {
       const { layers, layerVersion = '1.3.0', url } = storeLayer?.attributes || {}
 
       if (!layers || !url) {
@@ -1785,14 +1785,14 @@ export default {
       }
 
       const promises = this.visibleOverlayLayers.map(layer => {
-        const featureInfoUrl = this.buildFeatureInfoUrl(layer, coordinate, viewResolution)
+        const layerFeatureInfoUrl = this.buildLayerFeatureInfoUrl(layer, coordinate, viewResolution)
 
-        if (!featureInfoUrl) {
+        if (!layerFeatureInfoUrl) {
           return Promise.resolve(null)
         }
 
         // Each request catches its own errors (prevents Promise.all from failing completely)
-        return externalApi(featureInfoUrl)
+        return externalApi(layerFeatureInfoUrl)
           .then(response => response.text())
           .then(content => ({
             layerName: layer.attributes.name,
