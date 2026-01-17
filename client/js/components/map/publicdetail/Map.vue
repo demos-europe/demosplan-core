@@ -149,6 +149,7 @@ export default {
       bPlan: {},
       hasTerritoryWMS: false,
       dragZoomAlways: new DragZoom({ condition: () => true }),
+      layersFeatureInfoResults: null,
       map: null,
       mapSingleClickListener: null,
       measureSource: new VectorSource({ projection: this.mapprojection }),
@@ -1838,9 +1839,9 @@ export default {
             })
           }))
 
-          this.layerFeatureInfoResults = sanitizedResults
+          this.layersFeatureInfoResults = sanitizedResults
 
-          if (this.layerFeatureInfoResults.length > 0) {
+          if (this.layersFeatureInfoResults.length > 0) {
             this.$root.$emit('show-slidebar')
           } else {
             dplan.notify.notify('info', Translator.trans('map.getfeatureinfo.none'))
