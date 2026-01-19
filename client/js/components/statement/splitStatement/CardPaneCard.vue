@@ -131,7 +131,6 @@ export default {
 
   emits: [
     'card:checkOverlap',
-    'card:check-overlap',
     'focusin',
     'focusout',
     'mouseenter',
