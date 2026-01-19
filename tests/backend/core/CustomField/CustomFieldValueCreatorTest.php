@@ -23,7 +23,6 @@ use Tests\Base\FunctionalTestCase;
 /**
  * Tests the updateOrAddCustomFieldValues method which stores custom field values.
  * This tests VALUE validation and storage, not field configuration.
- *
  */
 class CustomFieldValueCreatorTest extends FunctionalTestCase
 {
@@ -168,7 +167,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         array $testData,
         string $expectedErrorMessage,
         string $targetEntity,
-        callable $fieldCreator
+        callable $fieldCreator,
     ): void {
         $factory = CustomFieldConfigurationFactory::new()
             ->withRelatedProcedure($this->procedure->_real())
@@ -204,7 +203,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
             $testData,
             $expectedErrorMessage,
             'SEGMENT',
-            fn($factory, $data) => $factory->asRadioButton(
+            fn ($factory, $data) => $factory->asRadioButton(
                 $data['fieldName'],
                 options: $data['fieldOptions']
             )->create()
@@ -255,7 +254,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
             $testData,
             $expectedErrorMessage,
             'STATEMENT',
-            fn($factory, $data) => $factory->asMultiSelect(
+            fn ($factory, $data) => $factory->asMultiSelect(
                 $data['fieldName'],
                 options: $data['fieldOptions'],
                 isRequired: $data['isRequired']
