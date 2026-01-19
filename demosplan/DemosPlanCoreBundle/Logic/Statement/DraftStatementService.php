@@ -2063,7 +2063,8 @@ class DraftStatementService
         return $statement;
     }
 
-    public function extractCustomFields(array $data, array $statement, string $procedureId): array {
+    public function extractCustomFields(array $data, array $statement, string $procedureId): array
+    {
         if (!$this->currentUser->hasPermission('feature_statements_custom_fields')) {
             return $statement;
         }
