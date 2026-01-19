@@ -45,7 +45,8 @@ class AdminProcedureResource
 
     public string $externalName;
 
-    public \DateTime $creationDate;
+    #[SerializedName('creationDate')]
+    public \DateTime $createdDate;
     public \DateTime $internalStartDate;
     public \DateTime $internalEndDate;
 

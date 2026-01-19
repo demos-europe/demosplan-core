@@ -292,14 +292,14 @@ export default {
       }
     },
 
-    fetchAdministrationProceduresList (sort = '-creationDate') {
+    fetchAdministrationProceduresList (sort = '-createdDate') {
       this.isLoading = true
-      // const url = '/api/3.0/AdminProcedure'
-      const url = Routing.generate('api_resource_list', { resourceType: 'AdminProcedure' })
+      const url = '/api/3.0/AdminProcedure'
+      //const url = Routing.generate('api_resource_list', { resourceType: 'AdminProcedure' })
       const params = {
         fields: {
           AdminProcedure: [
-            'creationDate',
+            'createdDate',
             'name',
             'externalName',
             'externalStartDate',

@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use EDT\JsonApi\RequestHandling\FilterParserInterface;
+use EDT\JsonApi\RequestHandling\JsonApiSortingParser;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
@@ -32,6 +33,7 @@ class AdminProcedureStateProvider implements ProviderInterface
         private readonly ProcedureService $procedureService,
         private readonly ProcedureRepository $procedureRepository,
         protected readonly DrupalFilterParser $filterParser,
+        private readonly JsonApiSortingParser $sortingParser
     ) {
     }
 
@@ -74,9 +76,9 @@ class AdminProcedureStateProvider implements ProviderInterface
         // Get all procedures and filter them using the voter
         $accessConditions = $this->getAccessConditions();
         $filterConditions = $this->getFilterConditions($context);
-        //$sortMethods = $this->getSortMethods($context);
+        $sortMethods = $this->getSortMethods($context);
         $conditions = array_merge($accessConditions, $filterConditions);
-        $procedures = $this->procedureRepository->getEntities($conditions, []);
+        $procedures = $this->procedureRepository->getEntities($conditions, $sortMethods);
 
         $adminProcedures = [];
         foreach ($procedures as $procedure) {
@@ -101,7 +103,7 @@ class AdminProcedureStateProvider implements ProviderInterface
         $adminProcedure->id = $procedure->getId();
         $adminProcedure->name = $procedure->getName();
         $adminProcedure->externalName = $procedure->getExternalName();
-        $adminProcedure->creationDate = $procedure->getCreatedDate();
+        $adminProcedure->createdDate = $procedure->getCreatedDate();
 
         // Internal Phase Information
         $internalPhase = $procedure->getPhaseObject();
@@ -158,7 +160,7 @@ class AdminProcedureStateProvider implements ProviderInterface
         return $this->filterParser->parseFilter($filterParam);
     }
 
-    private function getSortMethods(array $context)
+    private function getSortMethods(array $context): array
     {
         if (!$context) {
             return [];
@@ -170,8 +172,6 @@ class AdminProcedureStateProvider implements ProviderInterface
 
         $sortQueryParamValue = $context['request']->query->get('sort');
 
-        $sortMethodsRaw = explode(',', $sortQueryParamValue);
-
-        return array_map([$this, 'parseSortMethod'], $sortMethodsRaw);
+        return $this->sortingParser->createFromQueryParamValue($sortQueryParamValue);
     }
 }
