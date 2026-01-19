@@ -98,44 +98,44 @@ class AdminProcedureStateProvider implements ProviderInterface
 
     private function mapProcedureToAdminProcedureResource(Procedure $procedure): AdminProcedureResource
     {
-        $adminProcedure = new AdminProcedureResource();
+        $adminProcedureResource = new AdminProcedureResource();
 
-        $adminProcedure->id = $procedure->getId();
-        $adminProcedure->name = $procedure->getName();
-        $adminProcedure->externalName = $procedure->getExternalName();
-        $adminProcedure->createdDate = $procedure->getCreatedDate();
+        $adminProcedureResource->id = $procedure->getId();
+        $adminProcedureResource->name = $procedure->getName();
+        $adminProcedureResource->externalName = $procedure->getExternalName();
+        $adminProcedureResource->createdDate = $procedure->getCreatedDate();
 
         // Internal Phase Information
         $internalPhase = $procedure->getPhaseObject();
-        $adminProcedure->internalStartDate = $internalPhase->getStartDate();
-        $adminProcedure->internalEndDate = $internalPhase->getEndDate();
-        $adminProcedure->internalPhaseIdentifier = $internalPhase->getKey();
+        $adminProcedureResource->internalStartDate = $internalPhase->getStartDate();
+        $adminProcedureResource->internalEndDate = $internalPhase->getEndDate();
+        $adminProcedureResource->internalPhaseIdentifier = $internalPhase->getKey();
 
         $procedureId = $procedure->getId();
         $originalCounts = $this->procedureService->getOriginalStatementsCounts([$procedureId]);
-        $adminProcedure->originalStatementsCount = $originalCounts[$procedureId] ?? 0;
+        $adminProcedureResource->originalStatementsCount = $originalCounts[$procedureId] ?? 0;
 
         $statementCounts = $this->procedureService->getStatementsCounts([$procedureId]);
-        $adminProcedure->statementsCounts = $statementCounts[$procedureId] ?? 0;
+        $adminProcedureResource->statementsCounts = $statementCounts[$procedureId] ?? 0;
 
         // Missing attributes - Phase Translation Keys
         // Note: This requires GlobalConfig to get phase translations
         // For now using the identifier as fallback
-        $adminProcedure->internalPhaseTranslationKey = $internalPhase->getKey();
+        $adminProcedureResource->internalPhaseTranslationKey = $internalPhase->getKey();
 
         // Missing attributes - External Phase Information
         $externalPhase = $procedure->getPublicParticipationPhaseObject();
-        $adminProcedure->externalStartDate = $externalPhase->getStartDate();
-        $adminProcedure->externalEndDate = $externalPhase->getEndDate();
-        $adminProcedure->externalPhaseIdentifier = $externalPhase->getKey();
+        $adminProcedureResource->externalStartDate = $externalPhase->getStartDate();
+        $adminProcedureResource->externalEndDate = $externalPhase->getEndDate();
+        $adminProcedureResource->externalPhaseIdentifier = $externalPhase->getKey();
 
         // Missing attributes - External Phase Translation Key
         // Note: This requires GlobalConfig to get phase translations
         // For now using the identifier as fallback
-        $adminProcedure->externalPhaseTranslationKey = $externalPhase->getKey();
+        $adminProcedureResource->externalPhaseTranslationKey = $externalPhase->getKey();
 
 
-        return $adminProcedure;
+        return $adminProcedureResource;
     }
 
     public function isAvailable(): bool
