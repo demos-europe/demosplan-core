@@ -294,6 +294,7 @@ export default {
 
     fetchAdministrationProceduresList (sort = '-creationDate') {
       this.isLoading = true
+      // const url = '/api/3.0/AdminProcedure'
       const url = Routing.generate('api_resource_list', { resourceType: 'AdminProcedure' })
       const params = {
         fields: {
