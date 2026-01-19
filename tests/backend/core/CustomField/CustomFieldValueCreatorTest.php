@@ -24,7 +24,6 @@ use Tests\Base\FunctionalTestCase;
  * Tests the updateOrAddCustomFieldValues method which stores custom field values.
  * This tests VALUE validation and storage, not field configuration.
  *
- * Pattern: Similar to CustomFieldCreatorTest but for storing VALUES instead of creating DEFINITIONS.
  */
 class CustomFieldValueCreatorTest extends FunctionalTestCase
 {
@@ -162,35 +161,28 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         static::assertContains($selectedOption2Id, $storedValue->getValue());
     }
 
-    #[DataProvider('singleSelectValidationErrorDataProvider')]
-    public function testUpdateOrAddCustomFieldValuesSingleSelectValidationErrors(
+    /**
+     * Helper method to test validation errors for custom field values.
+     */
+    private function assertValidationError(
         array $testData,
         string $expectedErrorMessage,
+        string $targetEntity,
+        callable $fieldCreator
     ): void {
-        // Arrange
-        $sourceEntity = 'PROCEDURE';
-        $targetEntity = 'SEGMENT';
-
         $factory = CustomFieldConfigurationFactory::new()
             ->withRelatedProcedure($this->procedure->_real())
             ->withRelatedTargetEntity($targetEntity);
 
-        $customField = $factory->asRadioButton(
-            $testData['fieldName'],
-            options: $testData['fieldOptions']
-        )->create();
-
-        // Use actual field ID in test data if placeholder is present
-        $value = $testData['value'];
+        $customField = $fieldCreator($factory, $testData);
 
         $newCustomFieldValuesData = [
             [
                 'id'    => $customField->getId(),
-                'value' => $value,
+                'value' => $testData['value'],
             ],
         ];
 
-        // Assert & Act
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($expectedErrorMessage);
 
@@ -198,8 +190,24 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
             new CustomFieldValuesList(),
             $newCustomFieldValuesData,
             $this->procedure->getId(),
-            $sourceEntity,
+            'PROCEDURE',
             $targetEntity
+        );
+    }
+
+    #[DataProvider('singleSelectValidationErrorDataProvider')]
+    public function testUpdateOrAddCustomFieldValuesSingleSelectValidationErrors(
+        array $testData,
+        string $expectedErrorMessage,
+    ): void {
+        $this->assertValidationError(
+            $testData,
+            $expectedErrorMessage,
+            'SEGMENT',
+            fn($factory, $data) => $factory->asRadioButton(
+                $data['fieldName'],
+                options: $data['fieldOptions']
+            )->create()
         );
     }
 
@@ -243,39 +251,15 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         array $testData,
         string $expectedErrorMessage,
     ): void {
-        // Arrange
-        $targetEntity = 'STATEMENT';
-
-        $factory = CustomFieldConfigurationFactory::new()
-            ->withRelatedProcedure($this->procedure->_real())
-            ->withRelatedTargetEntity($targetEntity);
-
-        $customField = $factory->asMultiSelect(
-            $testData['fieldName'],
-            options: $testData['fieldOptions'],
-            isRequired: $testData['isRequired']
-        )->create();
-
-        // Use actual field ID in test data if placeholder is present
-        $value = $testData['value'];
-
-        $newCustomFieldValuesData = [
-            [
-                'id'    => $customField->getId(),
-                'value' => $value,
-            ],
-        ];
-
-        // Assert & Act
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage($expectedErrorMessage);
-
-        $this->sut->updateOrAddCustomFieldValues(
-            new CustomFieldValuesList(),
-            $newCustomFieldValuesData,
-            $this->procedure->getId(),
-            'PROCEDURE',
-            $targetEntity
+        $this->assertValidationError(
+            $testData,
+            $expectedErrorMessage,
+            'STATEMENT',
+            fn($factory, $data) => $factory->asMultiSelect(
+                $data['fieldName'],
+                options: $data['fieldOptions'],
+                isRequired: $data['isRequired']
+            )->create()
         );
     }
 
