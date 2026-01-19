@@ -5,7 +5,7 @@
       data-cy="places:editInfo"
       dismissible
       :dismissible-key="helpTextDismissibleKey"
-      :message="Translator.trans(helpText)"
+      :message="helpText"
       type="info"
     />
 
@@ -217,7 +217,7 @@
             v-if="!rowData.edit"
             ref="deleteConfirmDialog"
             data-cy="customFields:deleteConfirm"
-            :message="Translator.trans('warning.custom_field.delete.message')"
+            :message="deleteWarningMessage"
           />
 
           <template v-else>
@@ -251,7 +251,7 @@
 
           <dp-confirm-dialog
             ref="confirmDialog"
-            :message="Translator.trans('warning.custom_field.edit.message')"
+            :message="editWarningMessage"
             data-cy="customFields:saveEditConfirm"
           />
 
@@ -343,20 +343,15 @@ export default {
   data () {
     return {
       customFieldItems: [],
-      enabledFieldsTextConfig: {
-        field_segments_custom_fields: {
-          info: 'segments.fields.edit.info',
-          warning: 'segments.field.edit.message.warning',
-        },
-        field_statements_custom_fields: {
-          info: 'statements.fields.edit.info',
-          warning: 'statements.field.edit.message.warning',
-        },
+      enabledFieldsEntities: {
+        field_segments_custom_fields: 'Abschnitten',
+        field_statements_custom_fields: 'Stellungnahmen',
       },
       initialRowData: {},
       isLoading: false,
       isNewFieldFormOpen: false,
       isSaveDisabled: {},
+      isRequired: false,
       isSuccess: false,
       newFieldOptions: [
         {
@@ -367,7 +362,11 @@ export default {
         },
       ],
       newRowData: {},
-      isRequired: false,
+      translationKeys: {
+        info: 'custom.fields.edit.info.entities',
+        delete: 'warning.custom_field.delete.message',
+        edit: 'warning.custom_field.edit.message',
+      },
     }
   },
 
@@ -388,6 +387,10 @@ export default {
       return this.newFieldOptions.filter((option, index) => index > 1)
     },
 
+    deleteWarningMessage () {
+      return this.getTextForEnabledFieldTypes('delete', 'custom.field.delete.message.warning')
+    },
+
     displayedOptions () {
       return (rowData) => {
         if (rowData.edit && this.newRowData.options) {
@@ -395,6 +398,10 @@ export default {
         }
         return rowData.open ? rowData.options : rowData.options.slice(0, 2)
       }
+    },
+
+    editWarningMessage () {
+      return this.getTextForEnabledFieldTypes('edit', 'custom.field.edit.message.warning')
     },
 
     fieldTypeText () {
@@ -405,6 +412,7 @@ export default {
 
       return (fieldType) => {
         const translationKey = fieldTypeMap[fieldType]
+
         return translationKey ? Translator.trans(translationKey) : fieldType
       }
     },
@@ -454,10 +462,6 @@ export default {
 
     isStatementField () {
       return this.hasPermission('field_statements_custom_fields')
-    },
-
-    warningMessage () {
-      return this.getTextForEnabledFieldTypes('warning', 'custom.fields.edit.message.warning')
     },
   },
 
@@ -635,19 +639,23 @@ export default {
 
     /**
      * Returns appropriate text based on which custom field types are enabled in the project
-     * @param textType {String} The type of text to retrieve (e.g., 'info', 'warning')
-     * @param multiplePermissionsText {String} Text to return when multiple field types are enabled
-     * @returns {String} The appropriate text message or empty string
+     * @param textType {String} The type of text to retrieve (e.g., 'info', 'delete', 'edit')
+     * @param multiplePermissionsText {String} Translation key to use when multiple field types are enabled
+     * @returns {String} The translated text message or empty string
      */
     getTextForEnabledFieldTypes (textType, multiplePermissionsText) {
-      const permissions = Object.keys(this.enabledFieldsTextConfig)
-        .filter(permission => this.enabledFieldsTextConfig[permission][textType] && this.hasPermission(permission))
+      const permissions = Object.keys(this.enabledFieldsEntities)
+        .filter(permission => this.hasPermission(permission))
 
       if (permissions.length > 1) {
-        return multiplePermissionsText
+        return Translator.trans(multiplePermissionsText)
       } else if (permissions.length === 1) {
-        return this.enabledFieldsTextConfig[permissions[0]][textType]
+        const translationKey = this.translationKeys[textType]
+        const entities = this.enabledFieldsEntities[permissions[0]]
+
+        return Translator.trans(translationKey, { entities })
       }
+
       return ''
     },
 

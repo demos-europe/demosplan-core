@@ -66,7 +66,7 @@ class StatementAnonymizeController extends BaseController
             $statement
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/statement_anonymize.html.twig',
             [
                 'procedureId'  => $procedureId,

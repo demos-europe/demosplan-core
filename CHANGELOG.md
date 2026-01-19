@@ -5,16 +5,18 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.27.0 (2026-01-16)
 
 ### Added
+- Add support for Abwägungsvorschlag (vote advice) dropdown functionality for statements, including display in PDF and DOCX exports.
 - StatementExportModal: Adds a tags filter to the export modal, allowing statements to be filtered by tags during export
 
 - Add permission check for agency email fields
 - Move Maillane-specific database migrations to demosplan-addon-maillane
-  - Remove maillane_connection and maillane_allowed_sender_email_address table creation from Version20200106150455
-  - Remove maillane_connection_id field and index from _procedure table in Version20200106150455
-  - Delete Version20220928083055 (procedure_id restructuring) - moved to addon
-  - Maillane table management is now handled entirely by the addon migrations
+    - Remove maillane_connection and maillane_allowed_sender_email_address table creation from Version20200106150455
+    - Remove maillane_connection_id field and index from _procedure table in Version20200106150455
+    - Delete Version20220928083055 (procedure_id restructuring) - moved to addon
+    - Maillane table management is now handled entirely by the addon migrations
 - Add extra Info-WorkSheet to xksx exports by TagFilter
   Add docx Title to "Teilexport ..." if a TagFilter was applied
 - Add tag-based filtering for segments of Statement exports (DOCX, XLSX, ZIP)
@@ -31,6 +33,19 @@
 - Add anonymous voters column to statement XLSX export
 
 ## v4.25.0 (2025-11-06)
+
+## v4.24.1 (2025-12-24)
+
+### Features
+- Add warning modal in procedure settings on form-submit when public participation phase is set and interface is not activated
+- Attribute isPrivatePerson is used during keycloak login to recognize a private person. As a fallback Groups may still be used.
+
+### Further changes
+- Add separate view permission for procedure pictogram (`field_procedure_pictogram_view`)
+- Move addon interface fields to public participation phase section in procedure settings
+- Rename addon hook from `addon.additional.field` to `interface.fields.to.transmit`
+- Make pictogram fields optional in procedure settings
+
 ## v4.24.0 (2025-11-06)
 - Detect Company Department from OzgKeycloak token and assign it to user
 ## v4.23.0 (2025-10-22)
@@ -44,7 +59,7 @@
 - Allow project specific CSS
 - allow sessions to be stored in redis
 
--  Add checkbox in procedure settings to expand procedure description in public view on page load
+- Add checkbox in procedure settings to expand procedure description in public view on page load
 - Use external Geocoder API as service for address auto-suggestions
 
 - Turn projects into yarn workspaces
@@ -96,6 +111,7 @@
 
 ## v4.4.0 (2025-06-13)
 
+## v4.3.5 (2025-11-24)
 ## 4.3.4 (2025-11-14)
 - implement option to import additional submitters via statement ID in statement imports via xlsx
 - adjust example statement import xlsx files

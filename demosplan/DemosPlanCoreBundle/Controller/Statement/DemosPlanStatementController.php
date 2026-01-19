@@ -242,7 +242,7 @@ class DemosPlanStatementController extends BaseController
         // Display as participationLayer
         $templateVars['procedureLayer'] = 'participation';
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_public.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -454,7 +454,7 @@ class DemosPlanStatementController extends BaseController
             ];
             $templateVars['procedure'] = $procedure;
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanStatement/new_public_participation_statement_confirm.html.twig',
                 [
                     'templateVars' => $templateVars,
@@ -717,7 +717,7 @@ class DemosPlanStatementController extends BaseController
         $templateVars['procedureBehaviorDefinition'] = $currentProcedure->getProcedureBehaviorDefinition();
         $templateVars['statementFormDefinition'] = $currentProcedure->getStatementFormDefinition();
 
-        return $this->renderTemplate(
+        return $this->render(
             $template,
             [
                 'templateVars' => $templateVars,
@@ -795,7 +795,7 @@ class DemosPlanStatementController extends BaseController
 
         $templateVars['procedure'] = $procedureService->getProcedure($procedureId);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/new_public_participation_statement_vote.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -983,7 +983,7 @@ class DemosPlanStatementController extends BaseController
                 $template = '@DemosPlanCore/DemosPlanProcedure/public_detail_form_confirmation.html.twig';
             }
 
-            $responseHtml = $this->renderTemplate(
+            $responseHtml = $this->render(
                 $template,
                 [
                     'templateVars' => [
@@ -1041,7 +1041,7 @@ class DemosPlanStatementController extends BaseController
             $templateVars['statement']['votesNum'] = $countVotes;
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_public_participation_published_entry.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -1241,7 +1241,7 @@ class DemosPlanStatementController extends BaseController
             $templateVars['statementID'] = $statementID;
             $templateVars['procedureLayer'] = 'participation';
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanStatement/send_statement.html.twig',
                 [
                     'templateVars' => $templateVars,
@@ -1299,7 +1299,7 @@ class DemosPlanStatementController extends BaseController
         $refererRoute = $routeInfos['_route'] ?? '';
         $templateVars['backToUrl'] = $refererRoute;
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/versions_of_statement.html.twig',
             [
                 'templateVars'    => $templateVars,
@@ -2528,7 +2528,7 @@ class DemosPlanStatementController extends BaseController
      */
     protected function createErrorResponse(string $procedureId, array $errors): Response
     {
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_excel_import_errors.html.twig',
             [
                 'procedure'  => $procedureId,
