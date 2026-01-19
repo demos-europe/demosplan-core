@@ -415,6 +415,7 @@ export default {
 
       return (fieldType) => {
         const translationKey = fieldTypeMap[fieldType]
+
         return translationKey ? Translator.trans(translationKey) : fieldType
       }
     },
