@@ -100,7 +100,7 @@ class AdminProcedureStateProvider implements ProviderInterface
         $adminProcedure->id = $procedure->getId();
         $adminProcedure->name = $procedure->getName();
         $adminProcedure->externalName = $procedure->getExternalName();
-        $adminProcedure->createdDate = $procedure->getCreatedDate();
+        $adminProcedure->creationDate = $procedure->getCreatedDate();
 
         return $adminProcedure;
     }

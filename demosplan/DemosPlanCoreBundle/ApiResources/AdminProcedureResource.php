@@ -12,11 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ApiResources;
 
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\StateProcessor\AdminProcedureStateProcesor;
 use demosplan\DemosPlanCoreBundle\StateProvider\AdminProcedureStateProvider;
 use Symfony\Component\Serializer\Attribute\SerializedName;
@@ -33,6 +35,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
     provider: AdminProcedureStateProvider::class,
     processor: AdminProcedureStateProcesor::class,
 )]
+#[ApiFilter(PropertyFilter::class)]
 class AdminProcedureResource
 {
     #[ApiProperty(readable: false, identifier: true)]
@@ -42,6 +45,5 @@ class AdminProcedureResource
 
     public string $externalName;
 
-    #[SerializedName('creationDate')]
-    public \DateTime $createdDate;
+    public \DateTime $creationDate;
 }
