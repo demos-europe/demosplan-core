@@ -102,6 +102,36 @@ class AdminProcedureStateProvider implements ProviderInterface
         $adminProcedure->externalName = $procedure->getExternalName();
         $adminProcedure->creationDate = $procedure->getCreatedDate();
 
+        // Internal Phase Information
+        $internalPhase = $procedure->getPhaseObject();
+        $adminProcedure->internalStartDate = $internalPhase->getStartDate();
+        $adminProcedure->internalEndDate = $internalPhase->getEndDate();
+        $adminProcedure->internalPhaseIdentifier = $internalPhase->getKey();
+
+        $procedureId = $procedure->getId();
+        $originalCounts = $this->procedureService->getOriginalStatementsCounts([$procedureId]);
+        $adminProcedure->originalStatementsCount = $originalCounts[$procedureId] ?? 0;
+
+        $statementCounts = $this->procedureService->getStatementsCounts([$procedureId]);
+        $adminProcedure->statementsCounts = $statementCounts[$procedureId] ?? 0;
+
+        // Missing attributes - Phase Translation Keys
+        // Note: This requires GlobalConfig to get phase translations
+        // For now using the identifier as fallback
+        $adminProcedure->internalPhaseTranslationKey = $internalPhase->getKey();
+
+        // Missing attributes - External Phase Information
+        $externalPhase = $procedure->getPublicParticipationPhaseObject();
+        $adminProcedure->externalStartDate = $externalPhase->getStartDate();
+        $adminProcedure->externalEndDate = $externalPhase->getEndDate();
+        $adminProcedure->externalPhaseIdentifier = $externalPhase->getKey();
+
+        // Missing attributes - External Phase Translation Key
+        // Note: This requires GlobalConfig to get phase translations
+        // For now using the identifier as fallback
+        $adminProcedure->externalPhaseTranslationKey = $externalPhase->getKey();
+
+
         return $adminProcedure;
     }
 

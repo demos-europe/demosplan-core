@@ -46,4 +46,27 @@ class AdminProcedureResource
     public string $externalName;
 
     public \DateTime $creationDate;
+    public \DateTime $internalStartDate;
+    public \DateTime $internalEndDate;
+
+    public int $originalStatementsCount;
+
+    public int $statementsCounts;
+
+    public string $internalPhaseIdentifier;
+
+    public string $internalPhaseTranslationKey;
+
+    public \DateTime $externalEndDate;
+
+    public string $externalPhaseIdentifier;
+
+    public string $externalPhaseTranslationKey;
+
+    public \DateTime $externalStartDate;
+
+
+
+
+
 }
