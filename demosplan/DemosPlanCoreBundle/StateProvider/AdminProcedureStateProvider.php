@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\StateProvider;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\AdminProcedureResource;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -33,7 +34,8 @@ class AdminProcedureStateProvider implements ProviderInterface
         private readonly ProcedureService $procedureService,
         private readonly ProcedureRepository $procedureRepository,
         protected readonly DrupalFilterParser $filterParser,
-        private readonly JsonApiSortingParser $sortingParser
+        private readonly JsonApiSortingParser $sortingParser,
+        private readonly GlobalConfigInterface $globalConfig,
     ) {
     }
 
@@ -109,7 +111,9 @@ class AdminProcedureStateProvider implements ProviderInterface
         $internalPhase = $procedure->getPhaseObject();
         $adminProcedureResource->internalStartDate = $internalPhase->getStartDate();
         $adminProcedureResource->internalEndDate = $internalPhase->getEndDate();
+
         $adminProcedureResource->internalPhaseIdentifier = $internalPhase->getKey();
+        $adminProcedureResource->internalPhaseTranslationKey = $this->getInternalPhaseTranslationKey($procedure);
 
         $procedureId = $procedure->getId();
         $originalCounts = $this->procedureService->getOriginalStatementsCounts([$procedureId]);
@@ -121,18 +125,14 @@ class AdminProcedureStateProvider implements ProviderInterface
         // Missing attributes - Phase Translation Keys
         // Note: This requires GlobalConfig to get phase translations
         // For now using the identifier as fallback
-        $adminProcedureResource->internalPhaseTranslationKey = $internalPhase->getKey();
+
 
         // Missing attributes - External Phase Information
         $externalPhase = $procedure->getPublicParticipationPhaseObject();
         $adminProcedureResource->externalStartDate = $externalPhase->getStartDate();
         $adminProcedureResource->externalEndDate = $externalPhase->getEndDate();
         $adminProcedureResource->externalPhaseIdentifier = $externalPhase->getKey();
-
-        // Missing attributes - External Phase Translation Key
-        // Note: This requires GlobalConfig to get phase translations
-        // For now using the identifier as fallback
-        $adminProcedureResource->externalPhaseTranslationKey = $externalPhase->getKey();
+        $adminProcedureResource->externalPhaseTranslationKey = $this->getExternalPhaseTranslationKey($procedure);
 
 
         return $adminProcedureResource;
@@ -173,5 +173,17 @@ class AdminProcedureStateProvider implements ProviderInterface
         $sortQueryParamValue = $context['request']->query->get('sort');
 
         return $this->sortingParser->createFromQueryParamValue($sortQueryParamValue);
+    }
+
+    private function getInternalPhaseTranslationKey(Procedure $procedure) {
+        $internalPhaseIdentifier = $procedure->getPhase();
+        $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
+        return $internalPhases[$internalPhaseIdentifier]['name'] ?? $internalPhaseIdentifier;
+    }
+
+    private function getExternalPhaseTranslationKey(Procedure $procedure) {
+        $externalPhaseIdentifier = $procedure->getPublicParticipationPhase();
+        $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
+        return $externalPhases[$externalPhaseIdentifier]['name'] ?? $externalPhaseIdentifier;
     }
 }
