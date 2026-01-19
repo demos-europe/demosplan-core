@@ -19,6 +19,7 @@
         v-for="(statement, idx) in transformedStatements"
         v-bind="statement"
         :key="idx"
+        :statement-custom-fields="getCustomFieldsForStatement(statement.id)"
         :menu-items-generator="menuItemCallback"
         :procedure-id="procedureId"
         :show-author="showAuthor"
@@ -57,6 +58,7 @@
             :procedure-id="procedureId"
             :show-author="showAuthor"
             :show-checkbox="showCheckbox"
+            :statement-custom-fields="getCustomFieldsForStatement(statement.id)"
             @open-map-modal="openMapModal"
             @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
           />
@@ -81,6 +83,7 @@
             v-for="(statement, idx) in privateStatements"
             v-bind="statement"
             :key="'authorOnly-' + idx"
+            :statement-custom-fields="getCustomFieldsForStatement(statement.id)"
             :menu-items-generator="menuItemCallback"
             :procedure-id="procedureId"
             :show-author="showAuthor"
@@ -95,7 +98,15 @@
 </template>
 
 <script>
-import { DpInlineNotification, dpSelectAllMixin, DpTab, DpTabs, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
+import {
+  dpApi,
+  DpInlineNotification,
+  dpSelectAllMixin,
+  DpTab,
+  DpTabs,
+  formatDate,
+  getFileInfo
+} from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
 import { generateMenuItems } from './menuItems'
@@ -211,6 +222,12 @@ export default {
       required: true,
     },
 
+    statementsCustomFieldsList: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
+
     target: {
       type: String,
       required: true,
@@ -225,6 +242,7 @@ export default {
     return {
       transformedStatements: this.transformStatements(this.statements),
       activeTabId: 'publicStatements',
+      customFieldDefinitions: [],
     }
   },
 
@@ -292,6 +310,77 @@ export default {
   },
 
   methods: {
+    fetchCustomFields () {
+      if (!hasPermission('feature_statements_custom_fields')) {
+        return
+      }
+
+      const url = Routing.generate('api_resource_list', {
+        resourceType: 'CustomField'
+      })
+
+      const params = {
+        fields: {
+          CustomField: ['name', 'description', 'options', 'fieldType'].join()
+        },
+        filter: {
+          sourceEntityId: {
+            condition: {
+              path: 'sourceEntityId',
+              value: this.procedureId
+            }
+          }
+        }
+      }
+
+      dpApi.get(url, params)
+        .then(response => {
+          this.customFieldDefinitions = response.data.data || []
+        })
+        .catch(error => {
+          console.error('Failed to load custom field definitions:', error)
+          this.customFieldDefinitions = []
+        })
+    },
+
+    /**
+     * Transform custom fields for a specific statement
+     * Matches IDs from Twig with definitions from API
+     */
+    getCustomFieldsForStatement (statementIdent) {
+      const statementCustomFields = this.statementsCustomFieldsList[statementIdent] || {}
+
+      // Create lookup map for definitions
+      const definitionsMap = new Map(
+        this.customFieldDefinitions.map(def => [def.id, def.attributes])
+      )
+
+      return Object.values(statementCustomFields)
+        .map(savedField => {
+          const definition = definitionsMap.get(savedField.id)
+
+          if (!definition) {
+            console.warn(`Custom field definition not found for ID: ${savedField.id}`)
+            return null
+          }
+
+          // Find selected options by matching IDs
+          const selectedOptions = (savedField.selectedOptionIds || [])
+            .map(optionId => {
+              const option = definition.options.find(opt => opt.id === optionId)
+              return option || null
+            })
+            .filter(opt => opt !== null)
+
+          return {
+            id: savedField.id,
+            name: definition.name,
+            selected: selectedOptions
+          }
+        })
+        .filter(field => field !== null && field.selected.length > 0)
+    },
+
     openMapModal (polygon) {
       this.$refs.mapModal.toggleModal(polygon)
     },
@@ -377,6 +466,10 @@ export default {
     transformStatements (statements) {
       return statements.map(s => this.transformStatement(s))
     },
+  },
+
+  mounted () {
+    this.fetchCustomFields()
   },
 }
 </script>

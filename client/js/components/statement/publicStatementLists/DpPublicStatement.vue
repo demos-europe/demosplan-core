@@ -262,11 +262,32 @@
         class="c-styled-html"
       />
     </div>
+    <dp-details
+      v-if="customFieldsWithValues.length > 0"
+      class="u-1-of-1 u-mt"
+      :summary="Translator.trans('more.data')"
+    >
+      <div
+        v-for="field in customFieldsWithValues"
+        :key="field.id"
+        class="u-mb-0_75"
+      >
+        <strong>{{ field.name }}:</strong>
+        <div class="u-ml-0_5">
+          <div
+            v-for="option in field.selected"
+            :key="option.id"
+          >
+            {{ option.label }}
+          </div>
+        </div>
+      </div>
+    </dp-details>
   </dp-table-card>
 </template>
 
 <script>
-import { CleanHtml, DpFlyout, DpInlineNotification } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpDetails, DpFlyout, DpInlineNotification } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
@@ -275,6 +296,7 @@ export default {
   name: 'DpPublicStatement',
 
   components: {
+    DpDetails,
     DpFlyout,
     DpInlineNotification,
     DpTableCard,
@@ -407,6 +429,12 @@ export default {
       type: String,
       required: true,
     },
+
+    statementCustomFields: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
   },
 
   emits: [
@@ -449,6 +477,12 @@ export default {
 
     unsavedChangesItem () {
       return (this.unsavedDrafts.findIndex(el => el === this.id) > -1) ? this.menuItems.find(el => el.name === 'edit') : false
+    },
+
+    customFieldsWithValues () {
+      return this.statementCustomFields.filter(
+        field => field.selected && field.selected.length > 0
+      )
     },
   },
 

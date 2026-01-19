@@ -41,10 +41,38 @@
 
 {# Füge das Template für den Bürger ein #}
 {% block statementList %}
+    {% set statementsCustomFieldsList = {} %}
+
+    {% if hasPermission('feature_statements_custom_fields') %}
+        {% for statement in templateVars.list.statementlist %}
+            {% if statement.customFields is not null %}
+                {% set statementCustomFields = {} %}
+
+                {% for customFieldValue in statement.customFields.getCustomFieldsValues() %}
+                    {# Match values with definitions from BE #}
+                    {% set statementCustomFields = statementCustomFields|merge({
+                        (customFieldValue.getId()): {
+                            'id': customFieldValue.getId(),
+                            'selectedOptionIds': customFieldValue.getValue()
+                        }
+                    }) %}
+                {% endfor %}
+
+                {# Add to global lookup map #}
+                {% if statementCustomFields|length > 0 %}
+                    {% set statementsCustomFieldsList = statementsCustomFieldsList|merge({
+                        (statement.ident): statementCustomFields
+                    }) %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
     <dp-public-statement-list
         class="layout__item"
         :statements="JSON.parse('{{ templateVars.list.statementlist|default([])|json_encode|e('js', 'utf-8') }}')"
         :counties="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
+        :statements-custom-fields-list="JSON.parse('{{ statementsCustomFieldsList|json_encode|e('js', 'utf-8') }}')"
         procedure-id="{{ templateVars.procedure|default('') }}"
         show-author
         show-checkbox
