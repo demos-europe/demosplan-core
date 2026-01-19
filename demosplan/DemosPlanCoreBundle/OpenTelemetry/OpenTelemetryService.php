@@ -20,7 +20,7 @@ use OpenTelemetry\SDK\Common\Attribute\Attributes;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SDK\Resource\ResourceInfoFactory;
 use OpenTelemetry\SDK\Trace\Sampler\AlwaysOnSampler;
-use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
+use OpenTelemetry\SDK\Trace\SpanProcessor\BatchSpanProcessor;
 use OpenTelemetry\SDK\Trace\TracerProvider;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -100,7 +100,7 @@ class OpenTelemetryService
 
         // Build TracerProvider
         $this->tracerProvider = TracerProvider::builder()
-            ->addSpanProcessor(new SimpleSpanProcessor($exporter))
+            ->addSpanProcessor(BatchSpanProcessor::builder($exporter)->build())
             ->setResource($resource)
             ->setSampler(new AlwaysOnSampler())
             ->build();
@@ -142,6 +142,7 @@ class OpenTelemetryService
     public function shutdown(): void
     {
         if ($this->tracerProvider instanceof TracerProvider) {
+            $this->tracerProvider->forceFlush();
             $this->tracerProvider->shutdown();
         }
     }

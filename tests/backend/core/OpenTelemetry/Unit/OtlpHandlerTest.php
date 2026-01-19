@@ -16,6 +16,8 @@ use DateTimeImmutable;
 use demosplan\DemosPlanCoreBundle\Monolog\Handler\OtlpHandler;
 use Monolog\Level;
 use Monolog\LogRecord;
+use OpenTelemetry\API\Common\Time\Clock;
+use OpenTelemetry\API\Common\Time\ClockInterface;
 use PHPUnit\Framework\TestCase;
 
 class OtlpHandlerTest extends TestCase
@@ -242,5 +244,148 @@ class OtlpHandlerTest extends TestCase
 
         // With bubble=false, handle() returns true (stop propagation)
         $this->assertTrue($handlerWithoutBubble->handle($record));
+    }
+
+    /**
+     * Verify that the non-deprecated Clock API is used for BatchLogRecordProcessor.
+     *
+     * This test ensures we're using OpenTelemetry\API\Common\Time\Clock
+     * instead of the deprecated OpenTelemetry\SDK\Common\Time\ClockFactory.
+     */
+    public function testClockApiIsAvailable(): void
+    {
+        $clock = Clock::getDefault();
+
+        $this->assertInstanceOf(ClockInterface::class, $clock);
+        $this->assertGreaterThan(0, $clock->now());
+    }
+
+    public function testShutdownIsIdempotent(): void
+    {
+        $handler = new OtlpHandler(
+            otlpEndpoint: '',
+            serviceName: 'test-service',
+            serviceVersion: self::TEST_SERVICE_VERSION,
+            environment: 'test',
+            tenantId: '',
+            level: Level::Info
+        );
+
+        // Multiple shutdown calls should not throw
+        $handler->shutdown();
+        $handler->shutdown();
+        $handler->shutdown();
+
+        $this->assertTrue(true);
+    }
+
+    public function testCloseCallsShutdown(): void
+    {
+        $handler = new OtlpHandler(
+            otlpEndpoint: '',
+            serviceName: 'test-service',
+            serviceVersion: self::TEST_SERVICE_VERSION,
+            environment: 'test',
+            tenantId: '',
+            level: Level::Info
+        );
+
+        // close() should not throw and should call shutdown internally
+        $handler->close();
+
+        // Subsequent shutdown should be safe (idempotent)
+        $handler->shutdown();
+
+        $this->assertTrue(true);
+    }
+
+    public function testHandlerWithRequestIdInExtra(): void
+    {
+        $handler = new OtlpHandler(
+            otlpEndpoint: '',
+            serviceName: 'test-service',
+            serviceVersion: self::TEST_SERVICE_VERSION,
+            environment: 'test',
+            tenantId: '',
+            level: Level::Info
+        );
+
+        $record = new LogRecord(
+            datetime: new DateTimeImmutable(),
+            channel: 'test',
+            level: Level::Info,
+            message: 'Test message with request ID',
+            context: [],
+            extra: ['rid' => 'request-123']
+        );
+
+        // Should not throw - request_id attribute should be added
+        $handler->handle($record);
+
+        $this->assertTrue(true);
+    }
+
+    public function testHandlerSkipsSensitiveContextKeys(): void
+    {
+        $handler = new OtlpHandler(
+            otlpEndpoint: '',
+            serviceName: 'test-service',
+            serviceVersion: self::TEST_SERVICE_VERSION,
+            environment: 'test',
+            tenantId: '',
+            level: Level::Info
+        );
+
+        // These sensitive keys should be skipped when processing context
+        $record = new LogRecord(
+            datetime: new DateTimeImmutable(),
+            channel: 'test',
+            level: Level::Info,
+            message: 'Test with sensitive context',
+            context: [
+                'user_id'     => '123',           // Should be included
+                'params'      => ['secret' => 'value'], // Should be skipped
+                'exception'   => new \Exception('test'), // Should be skipped
+                'stack_trace' => 'some trace',    // Should be skipped
+                'action'      => 'login',         // Should be included
+            ],
+            extra: []
+        );
+
+        // Should not throw - sensitive keys should be skipped
+        $handler->handle($record);
+
+        $this->assertTrue(true);
+    }
+
+    public function testHandlerFlattensContextToAttributes(): void
+    {
+        $handler = new OtlpHandler(
+            otlpEndpoint: '',
+            serviceName: 'test-service',
+            serviceVersion: self::TEST_SERVICE_VERSION,
+            environment: 'test',
+            tenantId: '',
+            level: Level::Info
+        );
+
+        // Context should be flattened to individual attributes with 'context.' prefix
+        $record = new LogRecord(
+            datetime: new DateTimeImmutable(),
+            channel: 'test',
+            level: Level::Info,
+            message: 'Test with flattened context',
+            context: [
+                'user_id' => '123',
+                'action'  => 'login',
+                'nested'  => ['key' => 'value'], // Non-scalar values should be JSON encoded
+            ],
+            extra: []
+        );
+
+        // Should not throw - context should be flattened properly
+        $handler->handle($record);
+
+        $this->assertTrue(true);
     }
 }

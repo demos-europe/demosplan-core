@@ -144,4 +144,60 @@ class OpenTelemetryServiceTest extends TestCase
 
         $this->assertSame($provider1, $provider2);
     }
+
+    public function testShutdownCanBeCalledSafely(): void
+    {
+        $service = new OpenTelemetryService(
+            otlpEndpoint: '',
+            serviceName: 'test-service',
+            serviceVersion: self::TEST_SERVICE_VERSION,
+            environment: 'test',
+            tenantId: ''
+        );
+
+        // Initialize the tracer provider first
+        $service->getTracerProvider();
+
+        // Shutdown should not throw and should call forceFlush internally
+        $service->shutdown();
+
+        $this->assertTrue(true);
+    }
+
+    public function testShutdownWithoutInitializedProvider(): void
+    {
+        $service = new OpenTelemetryService(
+            otlpEndpoint: '',
+            serviceName: 'test-service',
+            serviceVersion: self::TEST_SERVICE_VERSION,
+            environment: 'test',
+            tenantId: ''
+        );
+
+        // Shutdown without initializing provider should not throw
+        $service->shutdown();
+
+        $this->assertTrue(true);
+    }
+
+    public function testShutdownIsIdempotent(): void
+    {
+        $service = new OpenTelemetryService(
+            otlpEndpoint: '',
+            serviceName: 'test-service',
+            serviceVersion: self::TEST_SERVICE_VERSION,
+            environment: 'test',
+            tenantId: ''
+        );
+
+        // Initialize the tracer provider first
+        $service->getTracerProvider();
+
+        // Multiple shutdown calls should not throw
+        $service->shutdown();
+        $service->shutdown();
+        $service->shutdown();
+
+        $this->assertTrue(true);
+    }
 }

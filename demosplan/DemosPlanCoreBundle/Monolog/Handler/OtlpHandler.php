@@ -19,9 +19,10 @@ use OpenTelemetry\API\Logs\Severity;
 use OpenTelemetry\API\Trace\Span;
 use OpenTelemetry\Contrib\Otlp\LogsExporter;
 use OpenTelemetry\Contrib\Otlp\OtlpHttpTransportFactory;
+use OpenTelemetry\API\Common\Time\Clock;
 use OpenTelemetry\SDK\Common\Attribute\Attributes;
 use OpenTelemetry\SDK\Logs\LoggerProvider;
-use OpenTelemetry\SDK\Logs\Processor\SimpleLogRecordProcessor;
+use OpenTelemetry\SDK\Logs\Processor\BatchLogRecordProcessor;
 use OpenTelemetry\SDK\Resource\ResourceInfo;
 use OpenTelemetry\SDK\Resource\ResourceInfoFactory;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -32,11 +33,44 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 class OtlpHandler extends AbstractProcessingHandler
 {
     private ?LoggerProviderInterface $loggerProvider = null;
+    private bool $isShutdown = false;
     private string $serviceName;
     private string $otlpEndpoint;
     private string $serviceVersion;
     private string $environment;
     private string $tenantId;
+
+    /**
+     * Flush buffered logs and shutdown the logger provider.
+     *
+     *  Must be called before PHP process ends to ensure
+     * BatchLogRecordProcessor flushes buffered logs to the collector.
+     */
+    public function shutdown(): void
+    {
+        if ($this->isShutdown) {
+            return;
+        }
+
+        if ($this->loggerProvider instanceof LoggerProvider) {
+            $this->loggerProvider->forceFlush();
+            $this->loggerProvider->shutdown();
+        }
+
+        $this->isShutdown = true;
+    }
+
+    public function close(): void
+    {
+        $this->shutdown();
+        parent::close();
+    }
+
+    public function __destruct()
+    {
+        $this->shutdown();
+        parent::__destruct();
+    }
 
     public function __construct(
         #[Autowire('%otel_exporter_endpoint%')] string $otlpEndpoint,
@@ -77,9 +111,21 @@ class OtlpHandler extends AbstractProcessingHandler
         $attributes = [
             'level'   => $record->level->name,
             'channel' => $record->channel,
-            'context' => json_encode($record->context, JSON_THROW_ON_ERROR),
-            'extra'   => json_encode($record->extra, JSON_THROW_ON_ERROR),
         ];
+
+        // Flatten context as individual attributes (skip sensitive/verbose keys)
+        $skipKeys = ['params', 'exception', 'stack_trace'];
+        foreach ($record->context as $key => $value) {
+            if (in_array($key, $skipKeys, true)) {
+                continue;
+            }
+            $attributes['context.'.$key] = is_scalar($value) ? $value : json_encode($value, JSON_THROW_ON_ERROR);
+        }
+
+        // Add request ID from extra if present
+        if (isset($record->extra['rid'])) {
+            $attributes['request_id'] = $record->extra['rid'];
+        }
 
         // Add trace correlation if valid trace context exists
         if ($spanContext->isValid()) {
@@ -125,9 +171,9 @@ class OtlpHandler extends AbstractProcessingHandler
             ResourceInfo::create(Attributes::create($attributes))
         );
 
-        // Build LoggerProvider with SimpleLogRecordProcessor (as shown in PDF)
+        // Build LoggerProvider with BatchLogRecordProcessor for async export
         $this->loggerProvider = LoggerProvider::builder()
-            ->addLogRecordProcessor(new SimpleLogRecordProcessor($exporter))
+            ->addLogRecordProcessor(new BatchLogRecordProcessor($exporter, Clock::getDefault()))
             ->setResource($resource)
             ->build();
 
