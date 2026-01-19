@@ -343,7 +343,8 @@ class HTMLFragmentSlicer
             throw new InvalidArgumentException('Expected string, got '.gettype($originalFragment));
         }
 
-        $this->originalFragment = $originalFragment;
+        // Normalize plain text newlines to HTML breaks
+        $this->originalFragment = str_replace(["\r\n", "\r", "\n"], '<br>', $originalFragment);
 
         return $this;
     }
