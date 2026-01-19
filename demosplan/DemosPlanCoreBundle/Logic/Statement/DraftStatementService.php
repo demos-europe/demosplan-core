@@ -2063,23 +2063,25 @@ class DraftStatementService
         return $statement;
     }
 
-    public function extractCustomFields(array $data, array $statement, string $procedureId): array
-    {
-        if ($this->currentUser->hasPermission('feature_statements_custom_fields')) {
-            if (array_key_exists(CustomFieldPropertyName::twigRequestName->value, $data)) {
-                // make validation here
-                $customFieldValues = json_decode($data[CustomFieldPropertyName::twigRequestName->value], true);
-                $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
-                    new CustomFieldValuesList(),
-                    $customFieldValues,
-                    $procedureId,
-                    'PROCEDURE',
-                    'STATEMENT'
-                );
-
-                $statement[CustomFieldPropertyName::ColumnName->value] = $customFieldList;
-            }
+    public function extractCustomFields(array $data, array $statement, string $procedureId): array {
+        if (!$this->currentUser->hasPermission('feature_statements_custom_fields')) {
+            return $statement;
         }
+
+        if (!array_key_exists(CustomFieldPropertyName::twigRequestName->value, $data)) {
+            return $statement;
+        }
+
+        $customFieldValues = json_decode($data[CustomFieldPropertyName::twigRequestName->value], true);
+        $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+            new CustomFieldValuesList(),
+            $customFieldValues,
+            $procedureId,
+            'PROCEDURE',
+            'STATEMENT'
+        );
+
+        $statement[CustomFieldPropertyName::ColumnName->value] = $customFieldList;
 
         return $statement;
     }
