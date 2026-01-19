@@ -1317,15 +1317,11 @@ export default {
           return
         }
 
-        // Transform all custom fields to storage format
         const customFields = this.selectableCustomFields
           .filter(field => field.selected && field.selected.length > 0)
           .map(field => ({
             id: field.id,
-            value: field.selected.reduce((acc, option) => {
-              acc[option.id] = option.id
-              return acc
-            }, {})
+            value: field.selected.map(option => option.id)
           }))
 
         this.setStatementData({ customFields })
