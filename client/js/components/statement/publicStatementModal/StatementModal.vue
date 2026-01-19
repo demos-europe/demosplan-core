@@ -1097,7 +1097,7 @@ export default {
         },
       },
       continueWriting: false,
-      selectableCustomFields: [],
+      statementCustomFields: [],
       draftStatementId: '',
       editDraftDataInPublicDetail: true,
       formFields: [...this.statementFormFields, ...this.personalDataFormFields, ...this.feedbackFormFields],
