@@ -16,9 +16,10 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use Webmozart\Assert\Assert;
 
 /**
- * Validates values for MultiSelectField.
+ * Validates values for SingleSelect.
  */
 class SingleSelectFieldValueValidationStrategy implements CustomFieldValueValidationStrategyInterface
 {
@@ -29,12 +30,14 @@ class SingleSelectFieldValueValidationStrategy implements CustomFieldValueValida
 
     public function validate(CustomFieldInterface $field, CustomFieldValue $customFieldValue): void
     {
+        Assert::isInstanceOf($field, RadioButtonField::class);
+
         // Null is always valid (no selection)
         if (null === $customFieldValue->getValue()) {
             return;
         }
 
-        // SingleSelect must be a string, not an array
+        // SingleSelect must be a string
         if (!is_string($customFieldValue->getValue())) {
             throw new InvalidArgumentException(sprintf('SingleSelect must be a string for CustomFieldId "%s"', $field->getId()));
         }
