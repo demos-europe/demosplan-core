@@ -14,6 +14,7 @@ namespace Tests\Core\OpenTelemetry\Unit;
 
 use DateTimeImmutable;
 use demosplan\DemosPlanCoreBundle\Monolog\Handler\OtlpHandler;
+use Exception;
 use Monolog\Level;
 use Monolog\LogRecord;
 use OpenTelemetry\API\Common\Time\Clock;
@@ -345,7 +346,7 @@ class OtlpHandlerTest extends TestCase
             context: [
                 'user_id'     => '123',           // Should be included
                 'params'      => ['secret' => 'value'], // Should be skipped
-                'exception'   => new \Exception('test'), // Should be skipped
+                'exception'   => new Exception('test'), // Should be skipped
                 'stack_trace' => 'some trace',    // Should be skipped
                 'action'      => 'login',         // Should be included
             ],
