@@ -1254,8 +1254,10 @@ export default {
       const invalidFields = this.dpValidate.invalidFields[formId]
       const uniqueFieldDescriptions = Array.from(new Set(invalidFields.map(field => {
         const fieldId = field.getAttribute('id')
-        return `<li>${Translator.trans(fieldDescriptionsForErrors[fieldId])}</li>`
+
+        return `<li>${fieldDescriptionsForErrors[fieldId] ? Translator.trans(fieldDescriptionsForErrors[fieldId]) : field.dataset?.dpValidateErrorFieldname}</li>`
       })))
+
       return `<p>${Translator.trans('error.in.fields')}</p><ul class="list-disc u-ml-0_75">${uniqueFieldDescriptions.join('')}</ul>`
     },
 
@@ -1397,6 +1399,7 @@ export default {
       this.step = {
         r_text: 0,
         r_makePublic: 0,
+        r_customFields: 0,
         r_useName_0: 1,
         r_useName_1: 1,
         r_getFeedback: 1,
@@ -1405,6 +1408,12 @@ export default {
         // Focusing of the tiptap instance must be handled separately
         if (input === 'r_text') {
           this.$refs.statementEditor.editor.focus('end')
+        } else if (input === 'r_customFields') {
+          // scroll to first custom field
+          const firstCustomField = document.querySelector('[data-cy^="customField"]')
+          if (firstCustomField) {
+            firstCustomField.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
         } else {
           document.getElementById(input).focus()
         }
