@@ -257,6 +257,43 @@
         :class="prefixClass('sm:h-9 overflow-auto c-styled-html')"
       />
     </div>
+    <div
+      v-if="customFieldsWithValues.length > 0"
+      :class="prefixClass('flow-root border--top u-pt-0_25')"
+    >
+      <span :class="prefixClass('flow-root')">
+        <em>{{ Translator.trans('more.data') }}: </em>
+        <button
+          type="button"
+          data-cy="statementModalRecheck:customFieldsEdit"
+          :aria-label="Translator.trans('statement.form.input.change')"
+          :class="prefixClass('o-link--default btn-icns float-right')"
+          :title="Translator.trans('statement.form.input.change')"
+          @click="$emit('editInput', 'r_customFields')"
+        >
+          <i
+            :class="prefixClass('fa fa-pencil')"
+            aria-hidden="true"
+          />
+        </button>
+      </span>
+
+      <div
+        v-for="field in customFieldsWithValues"
+        :key="field.id"
+        :class="prefixClass('mb-1')"
+      >
+        <strong>{{ field.name }}:</strong>
+        <ul :class="prefixClass('ml-2')">
+          <li
+            v-for="option in field.selected"
+            :key="option.id"
+          >
+            {{ option.label }}
+          </li>
+        </ul>
+      </div>
+    </div>
   </fieldset>
 </template>
 
@@ -323,6 +360,12 @@ export default {
       required: false,
       default: '',
     },
+
+    selectableCustomFields: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
   },
 
   emits: [
@@ -356,6 +399,12 @@ export default {
 
     showStreet () {
       return this.statement.r_street && this.statement.r_street !== ''
+    },
+
+    customFieldsWithValues () {
+      return this.selectableCustomFields.filter(
+        field => field.selected && field.selected.length > 0
+      )
     },
   },
 
