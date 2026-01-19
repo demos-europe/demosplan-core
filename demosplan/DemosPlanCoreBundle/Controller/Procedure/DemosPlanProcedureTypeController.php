@@ -59,7 +59,7 @@ class DemosPlanProcedureTypeController extends BaseController
     {
         $procedureTypes = $procedureTypeService->getAllProcedureTypes();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_list.html.twig',
             [
                 'templateVars' => [
@@ -102,7 +102,7 @@ class DemosPlanProcedureTypeController extends BaseController
             ]
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             $template,
             [
                 'templateVars' => [
@@ -154,7 +154,7 @@ class DemosPlanProcedureTypeController extends BaseController
             ]
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             $template,
             [
                 'templateVars' => [
@@ -206,7 +206,7 @@ class DemosPlanProcedureTypeController extends BaseController
             ]
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             $template,
             [
                 'templateVars' => [
@@ -337,7 +337,7 @@ class DemosPlanProcedureTypeController extends BaseController
         $procedureTypes = $procedureTypeResourceType->getEntities([], []);
 
         // in case of invalid data or an exception
-        return $this->renderTemplate(
+        return $this->render(
             $template,
             [
                 'templateVars' => [
@@ -464,7 +464,7 @@ class DemosPlanProcedureTypeController extends BaseController
         $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
 
         // in case of invalid data or an exception
-        return $this->renderTemplate(
+        return $this->render(
             $template,
             [
                 'templateVars' => ['procedureTypeId' => $procedureTypeId],

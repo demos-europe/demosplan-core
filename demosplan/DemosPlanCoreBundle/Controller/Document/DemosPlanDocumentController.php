@@ -343,7 +343,7 @@ class DemosPlanDocumentController extends BaseController
             ]
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanDocument/paragraph_admin_edit.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -430,7 +430,7 @@ class DemosPlanDocumentController extends BaseController
                 'url' => $this->generateUrl('DemosPlan_plandocument_administration_element', ['procedure' => $procedure, 'elementId' => $elementId]), ]);
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/paragraph_admin_new.html.twig', [
+        return $this->render('@DemosPlanCore/DemosPlanDocument/paragraph_admin_new.html.twig', [
             'templateVars' => $templateVars,
             'procedure'    => $procedure,
             'category'     => $category,
@@ -507,7 +507,7 @@ class DemosPlanDocumentController extends BaseController
             ]
         );
 
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/single_document_admin_new.html.twig', [
+        return $this->render('@DemosPlanCore/DemosPlanDocument/single_document_admin_new.html.twig', [
             'templateVars' => $templateVars,
             'procedure'    => $procedure,
             'category'     => $category,
@@ -602,7 +602,7 @@ class DemosPlanDocumentController extends BaseController
         }
 
         // Ausgabe
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/single_document_admin_edit.html.twig', [
+        return $this->render('@DemosPlanCore/DemosPlanDocument/single_document_admin_edit.html.twig', [
             'templateVars' => $templateVars,
             'procedure'    => $procedure,
             'title'        => 'element.detail.document.edit',
@@ -681,7 +681,7 @@ class DemosPlanDocumentController extends BaseController
 
         $procedureSettings = $currentProcedureArray['settings'];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanDocument/elements_admin_list.html.twig',
             ['templateVars' => $templateVars, 'title' => $title, 'procedureSettings' => $procedureSettings]
         );
@@ -863,7 +863,7 @@ class DemosPlanDocumentController extends BaseController
         $templateVars['statusHash'] = $statusHash;
         $templateVars['basePath'] = $request->getBasePath();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanDocument/elements_admin_import.html.twig',
             [
                 'entries'      => $fileDir,
@@ -1172,7 +1172,7 @@ class DemosPlanDocumentController extends BaseController
             $view = '@DemosPlanCore/DemosPlanDocument/single_document_admin_list.html.twig';
         }
 
-        return $this->renderTemplate($view, $renderData);
+        return $this->render($view, $renderData);
     }
 
     /**
@@ -1200,7 +1200,7 @@ class DemosPlanDocumentController extends BaseController
             if (array_key_exists('r_title', $inData) && '' === trim((string) $inData['r_title'])) {
                 $this->getMessageBag()->add('warning', 'error.mandatoryfields');
 
-                return $this->renderTemplate(
+                return $this->render(
                     '@DemosPlanCore/DemosPlanDocument/elements_admin_edit.html.twig',
                     [
                         'procedure' => $procedure,
@@ -1239,7 +1239,7 @@ class DemosPlanDocumentController extends BaseController
         );
         $templateVars['orgasOfProcedure'] = $serviceOutput->getMembersOfProcedure($procedure);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanDocument/elements_admin_edit.html.twig',
             [
                 'procedure'    => $procedure,
@@ -1286,7 +1286,7 @@ class DemosPlanDocumentController extends BaseController
             $templateVars['draftStatementId'] = $request->get('draftStatementId');
         }
 
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/public_elements_list.html.twig', [
+        return $this->render('@DemosPlanCore/DemosPlanDocument/public_elements_list.html.twig', [
             'procedure'    => $procedure,
             'templateVars' => $templateVars,
             'title'        => $title,
@@ -1389,7 +1389,7 @@ class DemosPlanDocumentController extends BaseController
 
         $templateVars['procedure'] = $currentProcedureService->getProcedure();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanDocument/public_paragraph_document.html.twig',
             [
                 'procedure'    => $procedureId,
