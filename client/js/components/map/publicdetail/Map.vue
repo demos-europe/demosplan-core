@@ -1879,72 +1879,7 @@ export default {
             return
           }
 
-          const sanitizedResults = validResults.map(result => {
-            const cleanContent = DomPurify.sanitize(result.content, {
-              ADD_ATTR: ['target'],
-              FORBID_TAGS: ['style', 'script', 'a']
-            })
-
-            const parser = new DOMParser()
-            const doc = parser.parseFromString(cleanContent, 'text/html')
-
-            // Recursive function to process all text nodes
-            const processTextNodes = (node) => {
-              if (node.nodeType === Node.TEXT_NODE) {
-                const text = node.textContent
-                const urlRegex = /https?:\/\/[^\s<>]+/g
-                const matches = [...text.matchAll(urlRegex)]
-
-                if (matches.length > 0) {
-                  const fragment = document.createDocumentFragment()
-                  let lastIndex = 0
-
-                  matches.forEach(match => {
-                    let url = match[0]
-                    const index = match.index
-
-                    url = url.replace(/[.,;!?]+$/, '')
-
-                    // Keep text before URL
-                    if (index > lastIndex) {
-                      fragment.appendChild(
-                        document.createTextNode(text.slice(lastIndex, index))
-                      )
-                    }
-
-                    // Create link using DOM (browser handles URL encoding automatically)
-                    const link = document.createElement('a')
-                    link.href = url
-                    link.textContent = 'Link'
-                    link.target = '_blank'
-                    link.rel = 'noopener noreferrer'
-                    fragment.appendChild(link)
-
-                    lastIndex = index + url.length
-                  })
-
-                  // Keep remaining text
-                  if (lastIndex < text.length) {
-                    fragment.appendChild(
-                      document.createTextNode(text.slice(lastIndex))
-                    )
-                  }
-
-                  node.parentNode.replaceChild(fragment, node)
-                }
-              } else if (node.nodeType === Node.ELEMENT_NODE) {
-                Array.from(node.childNodes).forEach(processTextNodes)
-              }
-            }
-
-            processTextNodes(doc.body)
-
-            return {
-              layerName: result.layerName,
-              layerId: result.layerId,
-              content: doc.body.innerHTML
-            }
-          })
+          const sanitizedResults = this.sanitizeFeatureInfoResults(validResults)
 
           this.layersFeatureInfoResults = sanitizedResults
 
@@ -1988,6 +1923,97 @@ export default {
         }
         this.$root.$emit('changeActive')
       }
+    },
+
+    /**
+     * Sanitizes WMS feature info HTML content and converts plain URLs to clickable safe links
+     * @param {Array} validResults - Array of feature info results [{layerName, layerId, content}]
+     * @returns {Array} Sanitized results
+     */
+    sanitizeFeatureInfoResults (validResults) {
+      const processTextNodeUrls = (node) => {
+        const text = node.textContent
+        const urlRegex = /https?:\/\/[^\s<>]+/g
+        const matches = [...text.matchAll(urlRegex)]
+
+        if (matches.length === 0) {
+          return
+        }
+
+        const fragment = document.createDocumentFragment()
+        let lastIndex = 0
+
+        matches.forEach(match => {
+          let url = match[0]
+          const index = match.index
+          const trailingPunctuation = '.,;!?'
+          let endIndex = url.length
+          while (endIndex > 0 && trailingPunctuation.includes(url[endIndex - 1])) {
+            endIndex--
+          }
+
+          if (endIndex < url.length) {
+            url = url.slice(0, endIndex)
+          }
+
+          // Keep text before URL
+          if (index > lastIndex) {
+            fragment.appendChild(
+              document.createTextNode(text.slice(lastIndex, index))
+            )
+          }
+
+          // Create safe link
+          const link = document.createElement('a')
+          link.href = url
+          link.textContent = 'Link'
+          link.target = '_blank'
+          link.rel = 'noopener noreferrer'
+          fragment.appendChild(link)
+
+          lastIndex = index + url.length
+        })
+
+        // Keep remaining text
+        if (lastIndex < text.length) {
+          fragment.appendChild(
+            document.createTextNode(text.slice(lastIndex))
+          )
+        }
+
+        node.parentNode.replaceChild(fragment, node)
+      }
+
+      // Recursively process all nodes
+      const processTextNodes = (node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          processTextNodeUrls(node)
+
+          return
+        }
+
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          Array.from(node.childNodes).forEach(processTextNodes)
+        }
+      }
+
+      // Main processing
+      return validResults.map(result => {
+        const cleanContent = DomPurify.sanitize(result.content, {
+          ADD_ATTR: ['target'],
+          FORBID_TAGS: ['style', 'script', 'a']
+        })
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(cleanContent, 'text/html')
+
+        processTextNodes(doc.body)
+
+        return {
+          layerName: result.layerName,
+          layerId: result.layerId,
+          content: doc.body.innerHTML
+        }
+      })
     },
 
     showNextLayerFeatureInfo () {
