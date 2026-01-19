@@ -1554,6 +1554,10 @@ export default {
         delete dataToSend.r_email
       }
 
+      if (dataToSend.customFields && Array.isArray(dataToSend.customFields)) {
+        dataToSend.customFields = JSON.stringify(dataToSend.customFields)
+      }
+
       return dataToSend
     },
 
