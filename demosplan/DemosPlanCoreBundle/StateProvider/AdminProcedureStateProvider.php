@@ -115,12 +115,9 @@ class AdminProcedureStateProvider implements ProviderInterface
         $adminProcedureResource->internalPhaseIdentifier = $internalPhase->getKey();
         $adminProcedureResource->internalPhaseTranslationKey = $this->getInternalPhaseTranslationKey($procedure);
 
-        $procedureId = $procedure->getId();
-        $originalCounts = $this->procedureService->getOriginalStatementsCounts([$procedureId]);
-        $adminProcedureResource->originalStatementsCount = $originalCounts[$procedureId] ?? 0;
+        $adminProcedureResource->originalStatementsCount = $this->getOriginalStatementsCount($procedure);
 
-        $statementCounts = $this->procedureService->getStatementsCounts([$procedureId]);
-        $adminProcedureResource->statementsCounts = $statementCounts[$procedureId] ?? 0;
+        $adminProcedureResource->statementsCount = $this->getStatementsCount($procedure);
 
         // Missing attributes - Phase Translation Keys
         // Note: This requires GlobalConfig to get phase translations
@@ -185,5 +182,18 @@ class AdminProcedureStateProvider implements ProviderInterface
         $externalPhaseIdentifier = $procedure->getPublicParticipationPhase();
         $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
         return $externalPhases[$externalPhaseIdentifier]['name'] ?? $externalPhaseIdentifier;
+    }
+
+    private function getOriginalStatementsCount(Procedure $procedure): int {
+        $procedureId = $procedure->getId();
+        $counts = $this->procedureService->getOriginalStatementsCounts([$procedureId]);
+
+        return $counts[$procedureId] ?? 0;
+    }
+
+    private function getStatementsCount(Procedure $procedure): int {
+        $procedureId = $procedure->getId();
+        $counts = $this->procedureService->getStatementsCounts([$procedureId]);
+        return $counts[$procedureId] ?? 0;
     }
 }

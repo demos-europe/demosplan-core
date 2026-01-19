@@ -52,7 +52,7 @@ class AdminProcedureResource
 
     public int $originalStatementsCount;
 
-    public int $statementsCounts;
+    public int $statementsCount;
 
     public string $internalPhaseIdentifier;
 
