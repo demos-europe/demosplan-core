@@ -29,28 +29,23 @@ class MultiSelectFieldValueValidationStrategy implements CustomFieldValueValidat
 
     public function validate(CustomFieldInterface $field, CustomFieldValue $customFieldValue): void
     {
-        $this->isValueValid($field, $customFieldValue->getValue());
-    }
-
-    public function isValueValid($field, mixed $value): void
-    {
         // Null is always valid (no selection)
-        if (null === $value) {
+        if (null === $customFieldValue->getValue()) {
             return;
         }
 
         // MultiSelect must be an array, not a string
-        if (!is_array($value)) {
+        if (!is_array($customFieldValue->getValue())) {
             return;
         }
 
         // Required fields must have at least one selection
-        if ($field->getRequired() && [] === $value) {
+        if ($field->getRequired() && [] === $customFieldValue->getValue()) {
             throw new InvalidArgumentException('Required fields must have at least one selection');
         }
 
         // Validate each value in the array
-        foreach ($value as $singleOptionValueId) {
+        foreach ($customFieldValue->getValue() as $singleOptionValueId) {
             // Each element must be a string
             if (!is_string($singleOptionValueId)) {
                 throw new InvalidArgumentException('Each element must be a string');

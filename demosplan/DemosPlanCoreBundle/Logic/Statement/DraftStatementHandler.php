@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
@@ -28,8 +27,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldPropertyName;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Doctrine\ORM\EntityManagerInterface;
@@ -98,7 +95,6 @@ class DraftStatementHandler extends CoreHandler
         RouterInterface $router,
         TranslatorInterface $translator,
         UserService $userService,
-        private readonly CustomFieldValueCreator $customFieldValueCreator,
     ) {
         parent::__construct($messageBag);
         $this->contentService = $serviceContent;
@@ -415,6 +411,8 @@ class DraftStatementHandler extends CoreHandler
     {
         $statement = [];
 
+        $procedureId = $data['procedureId'];
+
         if (!array_key_exists('action', $data)) {
             return false;
         }
@@ -486,10 +484,12 @@ class DraftStatementHandler extends CoreHandler
             $statement['uFeedback'] = $data['uFeedback'];
         }
 
+        $statement = $this->draftStatementService->extractCustomFields($data, $statement, $procedureId);
+
         $statement = $this->draftStatementService->extractGeoData($data, $statement);
 
         if (!array_key_exists('r_elementID', $data) || '' != $data['r_elementID']) {
-            $statement['elementId'] = $this->draftStatementService->determineStatementCategory($data['procedureId'], $data);
+            $statement['elementId'] = $this->draftStatementService->determineStatementCategory($procedureId, $data);
         }
 
         return $this->draftStatementService->updateDraftStatement($statement);
@@ -563,21 +563,8 @@ class DraftStatementHandler extends CoreHandler
         if (array_key_exists('r_isNegativeReport', $data) && 1 == $data['r_isNegativeReport']) {
             $statement['negativ'] = true;
         }
-        if ($this->currentUser->hasPermission('feature_statements_custom_fields')) {
-            if (array_key_exists(CustomFieldPropertyName::twigRequestName->value, $data)) {
-                // make validation here
-                $customFieldValues = json_decode($data[CustomFieldPropertyName::twigRequestName->value], true);
-                $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
-                    new CustomFieldValuesList(),
-                    $customFieldValues,
-                    $procedureId,
-                    'PROCEDURE',
-                    'STATEMENT'
-                );
 
-                $statement[CustomFieldPropertyName::ColumnName->value] = $customFieldList;
-            }
-        }
+        $statement = $this->draftStatementService->extractCustomFields($data, $statement, $procedureId);
 
         $statement['elementId'] = $this->draftStatementService->determineStatementCategory($procedureId, $data);
 
