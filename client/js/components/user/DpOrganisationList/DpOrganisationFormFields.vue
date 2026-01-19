@@ -231,13 +231,15 @@
       </div>
 
       <addon-wrapper
-        hook-name="addon.additional.field"
+        hook-name="interface.fields.to.transmit"
         :addon-props="{
           additionalFieldOptions,
           class: 'ml-4',
           isValueRemovable: true,
           relationshipId: organisationId,
-          relationshipKey: 'orga'
+          relationshipKey: 'orga',
+          userOrgaId: organisationId,
+          userMeinBerlinOrgId: ''
         }"
         class="w-1/2"
         @resource-list:loaded="setAdditionalFieldOptions"

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals'
-import DpNewStatement from '../../../client/js/components/assessmenttable/DpNewStatement.vue'
+import DpNewStatement from '../../../client/js/components/assessmenttable/DpNewStatement'
 import { shallowMount } from '@vue/test-utils'
 import Vuex from 'vuex'
 

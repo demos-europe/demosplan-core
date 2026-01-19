@@ -34,7 +34,7 @@ import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import SessionTimer from '@DpJs/components/shared/SessionTimer'
 
-function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
+function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}, modifyApp = () => {}) {
   bootstrap()
 
   return initStore(storeModules, apiStoreModules, presetStoreModules).then(store => {
@@ -109,6 +109,8 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
         console.log(`${components[comp]} is undefined}`, components)
       }
     })
+
+    modifyApp(app)
 
     app.mount('#app')
 
