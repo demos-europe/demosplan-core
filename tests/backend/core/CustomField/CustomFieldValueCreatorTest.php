@@ -115,7 +115,8 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         $this->commonCustomFieldValueAssertions($customField, $result);
     }
 
-    private function commonCustomFieldValueAssertions(CustomFieldConfiguration | Proxy $customField, CustomFieldValuesList $result) {
+    private function commonCustomFieldValueAssertions(CustomFieldConfiguration|Proxy $customField, CustomFieldValuesList $result)
+    {
         // Assert
         static::assertInstanceOf(CustomFieldValuesList::class, $result);
         static::assertCount(1, $result->getCustomFieldsValues());
@@ -123,7 +124,6 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         $storedValue = $result->findById($customField->getId());
         static::assertNotNull($storedValue);
     }
-
 
     /**
      * Test adding multiple selections to a multi select value.
