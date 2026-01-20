@@ -597,7 +597,7 @@ export default {
     },
 
     handleFullTextAction (statementId) {
-      const attributes = this.statementsObject?.[statementId]?.attributes
+      const attributes = this.statementsObject[statementId].attributes
 
       if (!attributes) {
         return
@@ -605,7 +605,7 @@ export default {
 
       if (!attributes.isFulltextDisplayed) {
         this.getStatementsFullText(statementId)
-        
+
         return
       }
 
@@ -1031,7 +1031,7 @@ export default {
     },
 
     toggleFullTextLabel (statementId) {
-      const { attributes } = this.statementsObject?.[statementId]
+      const { attributes } = this.statementsObject[statementId]
 
       if (!attributes) {
         return ''
