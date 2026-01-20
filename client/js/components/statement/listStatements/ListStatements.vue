@@ -557,7 +557,7 @@ export default {
     },
 
     displayedText (statementId) {
-      const { attributes } = this.statementsObject?.[statementId]
+      const { attributes } = this.statementsObject[statementId]
 
       if (!attributes) {
         return ''
