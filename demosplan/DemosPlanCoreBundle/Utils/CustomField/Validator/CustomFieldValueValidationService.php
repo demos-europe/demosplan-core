@@ -21,7 +21,6 @@ use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
  * Orchestrates validation of custom field values by delegating to field-type-specific strategies.
  * This ensures values meet field requirements before storage.
  */
-
 class CustomFieldValueValidationService
 {
     /**
