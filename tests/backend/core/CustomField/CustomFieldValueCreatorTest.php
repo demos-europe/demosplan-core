@@ -15,7 +15,6 @@ namespace Tests\Core\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
-use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -114,7 +113,8 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         $this->commonCustomFieldValueAssertions($customField, $selectedOptionId, $result);
     }
 
-    private function commonCustomFieldValueAssertions( $customField, $selectedOptionId, $result) {
+    private function commonCustomFieldValueAssertions($customField, $selectedOptionId, $result)
+    {
         // Assert
         static::assertInstanceOf(CustomFieldValuesList::class, $result);
         static::assertCount(1, $result->getCustomFieldsValues());
@@ -122,7 +122,6 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         $storedValue = $result->findById($customField->getId());
         static::assertNotNull($storedValue);
     }
-
 
     /**
      * Test adding multiple selections to a multi select value.
