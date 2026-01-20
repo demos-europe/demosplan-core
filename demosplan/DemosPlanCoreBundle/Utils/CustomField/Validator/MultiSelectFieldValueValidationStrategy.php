@@ -44,7 +44,7 @@ class MultiSelectFieldValueValidationStrategy implements CustomFieldValueValidat
 
         // MultiSelect must be an array, not a string
         if (!is_array($customFieldValue->getValue())) {
-            return;
+            throw new InvalidArgumentException('Value must be an array');
         }
 
         // Validate each value in the array

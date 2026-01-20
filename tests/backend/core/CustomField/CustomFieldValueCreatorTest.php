@@ -340,6 +340,18 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
                 ],
                 'expectedErrorMessage' => 'Each element must be a valid option ID',
             ],
+            'notArrayAsValue' => [
+                'testData' => [
+                    'fieldType'    => 'multiSelect',
+                    'fieldName'    => 'Categories',
+                    'fieldOptions' => ['CatA', 'CatB'],
+                    'isRequired'   => false,
+                    'value'        => 'My own value',
+                ],
+                'expectedErrorMessage' => 'Value must be an array',
+            ],
         ];
+
+
     }
 }
