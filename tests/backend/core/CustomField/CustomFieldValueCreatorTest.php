@@ -272,6 +272,8 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
 
     public static function multiSelectValidationErrorDataProvider(): array
     {
+        $expectedErrorMessageString = 'Each element must be a string';
+
         return [
             'emptyArrayWhenRequired' => [
                 'testData' => [
@@ -292,7 +294,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
                     'isRequired'   => false,
                     'value'        => [123, '1234'], // 123 is not a string
                 ],
-                'expectedErrorMessage' => 'Each element must be a string',
+                'expectedErrorMessage' => $expectedErrorMessageString,
             ],
 
             'arrayWithBooleanElement' => [
@@ -303,7 +305,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
                     'isRequired'   => false,
                     'value'        => [true, '5678'], // true is not a string
                 ],
-                'expectedErrorMessage' => 'Each element must be a string',
+                'expectedErrorMessage' => $expectedErrorMessageString,
             ],
 
             'arrayWithNullElement' => [
@@ -314,7 +316,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
                     'isRequired'   => false,
                     'value'        => [null, 'valid-string'], // null is not a string
                 ],
-                'expectedErrorMessage' => 'Each element must be a string',
+                'expectedErrorMessage' => $expectedErrorMessageString,
             ],
 
             'invalidOptionIdInArray' => [
