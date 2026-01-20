@@ -15,17 +15,21 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 
 /**
  * Orchestrates validation of custom field values by delegating to field-type-specific strategies.
  * This ensures values meet field requirements before storage.
  */
+
 class CustomFieldValueValidationService
 {
     /**
      * @param iterable<CustomFieldValueValidationStrategyInterface> $strategies
      */
-    public function __construct(private readonly iterable $strategies)
+    public function __construct(
+        #[TaggedIterator('custom_field_value_validation_strategy')]
+        private readonly iterable $strategies)
     {
     }
 
