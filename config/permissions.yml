@@ -1619,6 +1619,16 @@ feature_procedure_export_include_statement_released:
     expose: false
     label: 'Procedure export with released statement group'
     loginRequired: true
+feature_procedure_export_include_segments:
+    description: |-
+        The procedure export generates a ZIP archive. If this permission is enabled
+        a document "Abschnitte_Gruppiert.docx" containing all statement segments
+        grouped by statement will be included.
+        The document will be placed in the "Abschnitte" directory in each procedure directory.
+        Attachments for statements will be placed in the "Abschnitte/Anhang" directory.
+    expose: false
+    label: 'Procedure export with segments'
+    loginRequired: true
 feature_procedure_external_desc_crop:
     description: 'Crop external procedure description'
     label: 'Crop external procedure description'
@@ -2715,6 +2725,10 @@ field_procedure_phase_filter:
     parent: field_procedure
 field_procedure_pictogram:
     label: Verfahrenspiktogramm
+    loginRequired: true
+    parent: field_procedure
+field_procedure_pictogram_view:
+    label: Verfahrenspiktogramm anzeigen
     loginRequired: false
     parent: field_procedure
 feature_procedure_pictogram_resolution_restriction:
@@ -2746,6 +2760,11 @@ field_segment_assignee_filter:
 field_segments_custom_fields:
     description: 'Allow to add and edit custom fields to segments'
     label: 'Custom fields for segments'
+    expose: true
+    loginRequired: true
+field_statements_custom_fields:
+    description: 'Allow to add and edit custom fields to statements'
+    label: 'Custom fields for statements'
     expose: true
     loginRequired: true
 field_send_final_email:

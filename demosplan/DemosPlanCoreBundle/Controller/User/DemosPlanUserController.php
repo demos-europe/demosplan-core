@@ -263,7 +263,7 @@ class DemosPlanUserController extends BaseController
 
         $this->getLogger()->info('Welcomepage display page');
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/gateway_newUser.html.twig',
             ['templateVars' => $templateVars, 'title' => $title]
         );
@@ -302,7 +302,7 @@ class DemosPlanUserController extends BaseController
         $templateVars = [];
         $templateVars['reportEntries'] = $userService->getInvitableInstitutionShowlistChanges();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/toeb_showlist_changes.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -369,7 +369,7 @@ class DemosPlanUserController extends BaseController
             $templateVars['emailNotificationReleasedStatement'] = $settings[0]->getContentBool();
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/portal_user.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -508,7 +508,7 @@ class DemosPlanUserController extends BaseController
     {
         $title = 'user.register';
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/citizen_register_form.html.twig',
             ['title' => $title, 'useIdp' => false]
         );
@@ -692,7 +692,7 @@ class DemosPlanUserController extends BaseController
 
         $templateVars['statements'] = $statementService->getSubmittedOrAuthoredStatements($userId);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/list_users_statements.html.twig',
             [
                 'templateVars' => $templateVars,

@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Scheduler;
 use demosplan\DemosPlanCoreBundle\Message\AddonMaintenanceMessage;
 use demosplan\DemosPlanCoreBundle\Message\CheckMailBouncesMessage;
 use demosplan\DemosPlanCoreBundle\Message\FetchStatementGeoDataMessage;
+use demosplan\DemosPlanCoreBundle\Message\ProcessImportJobsMessage;
 use demosplan\DemosPlanCoreBundle\Message\PurgeDeletedProceduresMessage;
 use demosplan\DemosPlanCoreBundle\Message\SendEmailsMessage;
 use demosplan\DemosPlanCoreBundle\Message\SwitchElementStatesMessage;
@@ -25,7 +26,7 @@ use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
 
-#[AsSchedule]
+#[AsSchedule('maintenance')]
 class MainScheduler implements ScheduleProviderInterface
 {
     private const MAINTENANCE_OFFSET = '5 seconds';
@@ -44,6 +45,7 @@ class MainScheduler implements ScheduleProviderInterface
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new AddonMaintenanceMessage()))
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new SwitchElementStatesMessage()))
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new SwitchProcedurePhasesMessage()))
+            ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new ProcessImportJobsMessage()))
             ->lock($this->lockFactory->createLock('demosplan_main_scheduler_lock'))
         ;
     }

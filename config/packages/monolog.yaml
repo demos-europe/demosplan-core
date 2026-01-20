@@ -1,46 +1,24 @@
 monolog:
     use_microseconds: false
     channels:
-        - 'dplan'
-        - 'dplan_maintenance'
-        - 'dplan_404'
-    handlers:
-        main:
-            type: fingers_crossed
-            action_level: error
-            handler: nested
-            excluded_http_codes: [ 404, 405 ]
-            buffer_size: 50 # How many messages should be saved? Prevent memory leaks
-        nested:
-            type: stream
-            path: "%kernel.logs_dir%/%demosplan_main_logfile%"
-            channels: ["!console"] # log all channels in http request
-        file:
-            type: "%logging_strategy%"
-            max_files: "%logging_max_files%"
-            level: "%symfony_loglevel%"
-        console:
-            type: console
-            process_psr_3_messages: false
-            channels: ['!event', '!doctrine', '!console']
-        dplan.main:
-            type: "%logging_strategy%"
-            max_files: "%logging_max_files%"
-            path: "%kernel.logs_dir%/%demosplan_main_logfile%"
-            level: "%symfony_loglevel%"
-            channels: ["dplan"]
-        dplan.maintenance:
-            type: "%logging_strategy%"
-            max_files: "%logging_max_files%"
-            path: "%kernel.logs_dir%/dplanmaintenance.log"
-            level: "%symfony_loglevel%"
-            channels: ["dplan_maintenance"]
-        dplan.404:
-            type: "%logging_strategy%"
-            max_files: "%logging_max_files%"
-            path: "%kernel.logs_dir%/404.log"
-            level: "%symfony_loglevel%"
-            channels: ["dplan_404"]
+        - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
+
+when@dev:
+    monolog:
+        handlers:
+            main:
+                type: stream
+                path: "%kernel.logs_dir%/%demosplan_main_logfile%"
+                level: "%symfony_loglevel%"
+                channels: ["!event", "!deprecation"]
+            deprecation:
+                type: stream
+                channels: [deprecation]
+                path: "%kernel.logs_dir%/deprecation.log"
+            console:
+                type: console
+                process_psr_3_messages: false
+                channels: ["!event", "!doctrine", "!console"]
 
 when@test:
     monolog:
@@ -56,47 +34,17 @@ when@test:
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
 
-# Updates from recipe update to be considered
-#when@dev:
-#    monolog:
-#        handlers:
-#            main:
-#                type: stream
-#                path: "%kernel.logs_dir%/%kernel.environment%.log"
-#                level: debug
-#                channels: ["!event"]
-#            # uncomment to get logging in your browser
-#            # you may have to allow bigger header sizes in your Web server configuration
-#            #firephp:
-#            #    type: firephp
-#            #    level: info
-#            #chromephp:
-#            #    type: chromephp
-#            #    level: info
-#            console:
-#                type: console
-#                process_psr_3_messages: false
-#                channels: ["!event", "!doctrine", "!console"]
-
-#when@prod:
-#    monolog:
-#        handlers:
-#            main:
-#                type: fingers_crossed
-#                action_level: error
-#                handler: nested
-#                excluded_http_codes: [404, 405]
-#                buffer_size: 50 # How many messages should be saved? Prevent memory leaks
-#            nested:
-#                type: stream
-#                path: php://stderr
-#                level: debug
-#                formatter: monolog.formatter.json
-#            console:
-#                type: console
-#                process_psr_3_messages: false
-#                channels: ["!event", "!doctrine"]
-#            deprecation:
-#                type: stream
-#                channels: [deprecation]
-#                path: php://stderr
+when@prod:
+    monolog:
+        handlers:
+            main:
+                type: "%logging_strategy%"
+                path: "%logging_path%"
+                max_files: "%logging_max_files%"
+                level: "%symfony_loglevel%"
+                formatter: "%logging_formatter%"
+                channels: ["!event", "!deprecation"]
+            console:
+                type: console
+                process_psr_3_messages: false
+                channels: ["!event", "!doctrine"]
