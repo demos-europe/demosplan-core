@@ -41,11 +41,11 @@ $at-slidebar-animation:     cubic-bezier(0, 0, .3, 1);
         box-shadow: $dp-box-shadow-xl;
         overflow: auto;
 
-        @include media-query('desk-down') {
-            max-width: 25%;
+        @include media-query('desk') {
+            max-width: 35%;
         }
 
-        @include media-query('lap-down') {
+        @include media-query('lap') {
             max-width: 50%;
         }
 
