@@ -1804,7 +1804,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         return $this->customFields;
     }
 
-    public function setCustomFields($customFields): void
+    public function setCustomFields(?CustomFieldValuesList $customFields): void
     {
         $this->customFields = $customFields;
     }

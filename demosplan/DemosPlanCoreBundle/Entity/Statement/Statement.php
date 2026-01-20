@@ -4198,7 +4198,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->customFields;
     }
 
-    public function setCustomFields($customFields): void
+    public function setCustomFields(?CustomFieldValuesList $customFields): void
     {
         $this->customFields = $customFields;
     }
