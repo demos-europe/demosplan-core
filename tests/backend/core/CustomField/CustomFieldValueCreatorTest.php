@@ -290,7 +290,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
                     'fieldName'    => 'Items',
                     'fieldOptions' => ['Item1', 'Item2'],
                     'isRequired'   => false,
-                    'value'        => [123, 'valid-string'], // 123 is not a string
+                    'value'        => [123, '1234'], // 123 is not a string
                 ],
                 'expectedErrorMessage' => 'Each element must be a string',
             ],
@@ -301,7 +301,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
                     'fieldName'    => 'Flags',
                     'fieldOptions' => ['Flag1', 'Flag2'],
                     'isRequired'   => false,
-                    'value'        => [true, 'valid-string'], // true is not a string
+                    'value'        => [true, '5678'], // true is not a string
                 ],
                 'expectedErrorMessage' => 'Each element must be a string',
             ],
