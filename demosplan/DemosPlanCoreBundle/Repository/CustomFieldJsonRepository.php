@@ -19,7 +19,6 @@ use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
 use EDT\Querying\Pagination\PagePagination;
-use EDT\Querying\Utilities\Reindexer;
 use Pagerfanta\Pagerfanta;
 
 /**
