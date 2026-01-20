@@ -351,7 +351,5 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
                 'expectedErrorMessage' => 'Value must be an array',
             ],
         ];
-
-
     }
 }
