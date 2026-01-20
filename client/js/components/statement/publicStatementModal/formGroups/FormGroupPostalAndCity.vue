@@ -12,6 +12,7 @@
     <div :class="prefixClass('layout')">
       <dp-input
         id="r_postalCode"
+        :aria-label="Translator.trans('postalcode.complete')"
         :class="prefixClass('layout__item')"
         :disabled="disabled"
         :label="{
@@ -19,7 +20,6 @@
         }"
         :model-value="statement.r_postalCode"
         :required="required && statement.r_useName === '1'"
-        aria-label="Postleitzahl"
         autocomplete="postal-code"
         data-cy="postalCode"
         data-dp-validate-if="#r_getEvaluation_snailmail, #r_useName_1"

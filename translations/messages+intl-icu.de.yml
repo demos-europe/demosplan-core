@@ -2634,6 +2634,7 @@ planstatus: "Planstand"
 platformtools: "Plattformtools"
 position: "Position"
 postalcode: "PLZ"
+postalcode.complete: "Postleitzahl"
 postalcode.and.city: 'PLZ und Ort'
 potential.area: "Potenzialflächen"
 potential.areas: "Potenzialflächen"
