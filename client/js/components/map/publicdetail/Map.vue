@@ -32,7 +32,7 @@
     <dp-slidebar data-cy="layerFeatureInfoSidebar">
         <div
           v-if="layersFeatureInfoResults?.length > 1"
-          class="flex items-baseline justify-between gap-4 mr-3 mb-4 max-w-full"
+          class="flex items-baseline justify-between gap-2 mr-3 mb-4 max-w-full"
         >
           <dp-button
             v-if="currentLayerFeatureInfoPage > 1"
@@ -62,7 +62,7 @@
         <div
           v-if="currentLayerFeatureInfoResult"
           v-html="currentLayerFeatureInfoResult.content"
-          class="mb-4"
+          class="mb-4 mr-2"
         />
     </dp-slidebar>
     <slot />
