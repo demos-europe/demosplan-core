@@ -341,17 +341,8 @@ class DemosPlanStatementController extends BaseController
             // use citizentemplates if neded
             $templateVars['isCitizen'] = $user->isCitizen();
 
-            // Ergänze die Daten zum Statement mit bestehenden User-Daten
-            $inData['userName'] = $user->getFullname();
-            if ('' !== $user->getEmail()) {
-                $inData['userEmail'] = $user->getEmail();
-            }
-            if ($this->permissions->hasPermission('feature_draft_statement_add_address_to_private_person')) {
-                $inData['userStreet'] = $user->getStreet();
-                $inData['userPostalCode'] = $user->getPostalcode();
-                $inData['userCity'] = $user->getCity();
-                $inData['houseNumber'] = $user->getHouseNumber();
-            }
+            $inData = $this->enrichStatementDataWithUserInfo($inData, $user);
+
             $templateVars['user'] = $user;
 
             // Angemeldete Bürger bekommen automatisch per email Rückmeldung
@@ -471,6 +462,23 @@ class DemosPlanStatementController extends BaseController
 
             return $this->handleError($e);
         }
+    }
+
+    private function enrichStatementDataWithUserInfo(array $inData, User $user): array {
+        $inData['userName'] = $user->getFullname();
+
+        if ('' !== $user->getEmail()) {
+            $inData['userEmail'] = $user->getEmail();
+        }
+
+        if ($this->permissions->hasPermission('feature_draft_statement_add_address_to_private_person')) {
+            $inData['userStreet'] = $user->getStreet();
+            $inData['userPostalCode'] = $user->getPostalcode();
+            $inData['userCity'] = $user->getCity();
+            $inData['houseNumber'] = $user->getHouseNumber();
+        }
+
+        return $inData;
     }
 
     /**
