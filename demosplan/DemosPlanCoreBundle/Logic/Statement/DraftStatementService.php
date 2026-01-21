@@ -52,6 +52,7 @@ use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldPropertyName;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
@@ -2078,8 +2079,8 @@ class DraftStatementService
             new CustomFieldValuesList(),
             $customFieldValues,
             $procedureId,
-            'PROCEDURE',
-            'STATEMENT'
+            CustomFieldSupportedEntity::procedure->value,
+            CustomFieldSupportedEntity::statement->value
         );
 
         $statement[CustomFieldPropertyName::columnName->value] = $customFieldList;

@@ -72,6 +72,7 @@ use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldProvider;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldPropertyName;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
@@ -424,9 +425,9 @@ class DemosPlanStatementController extends BaseController
 
             if ($this->currentUser->hasPermission('feature_statements_custom_fields')) {
                 $templateVars[CustomFieldPropertyName::twigRequestName->value] = $this->customFieldProvider->getCustomFieldsByCriteria(
-                    sourceEntity: 'PROCEDURE',
+                    sourceEntity: CustomFieldSupportedEntity::procedure->value,
                     sourceEntityId: $procedureId,
-                    targetEntity: 'STATEMENT',
+                    targetEntity: CustomFieldSupportedEntity::statement->value,
                 );
             }
 
