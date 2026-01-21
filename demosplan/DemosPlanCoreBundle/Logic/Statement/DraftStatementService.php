@@ -2082,7 +2082,7 @@ class DraftStatementService
             'STATEMENT'
         );
 
-        $statement[CustomFieldPropertyName::ColumnName->value] = $customFieldList;
+        $statement[CustomFieldPropertyName::columnName->value] = $customFieldList;
 
         return $statement;
     }
