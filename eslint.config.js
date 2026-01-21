@@ -32,6 +32,7 @@ module.exports = [
       '**/addons/**/*',
       '**/client/js/legacy/**/*.js',
       '**/client/js/generated/*.js',
+      '**/client/js/routing.js',
       '**/local_modules/**/*',
       '**/documentation/**/*',
       '**/node_modules/**/*',

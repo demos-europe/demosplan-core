@@ -30,7 +30,7 @@ class HttpErrorController extends BaseController
         $content = '';
 
         try {
-            $content = $this->renderTemplate(
+            $content = $this->render(
                 '@DemosPlanCore/DemosPlanCore/404.html.twig',
                 [
                     'projects'          => [],
@@ -62,7 +62,7 @@ class HttpErrorController extends BaseController
         $content = 'Ein Fehler ist aufgetreten';
 
         try {
-            $content = $this->renderTemplate(
+            $content = $this->render(
                 '@DemosPlanCore/DemosPlanCore/error.html.twig',
                 [
                     'title' => $translator->trans('500.title', [], 'page-title'),

@@ -41,7 +41,7 @@ class DemosPlanDepartmentController extends BaseController
         try {
             $session = $request->getSession();
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanUser/verify_orga_switch_or_update.html.twig',
                 [
                     'templateVars' => [
@@ -100,7 +100,7 @@ class DemosPlanDepartmentController extends BaseController
         $templateVars['departmentList'] = $userHandler->getSortedLegacyDepartmentsWithoutDefaultDepartment($orga);
         $templateVars['organisation'] = $orga;
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/list_departments.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -158,7 +158,7 @@ class DemosPlanDepartmentController extends BaseController
     #[Route(name: 'DemosPlan_department_edit', path: '/department/edit/{departmentId}')]
     public function editDepartment()
     {
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/edit_department.html.twig',
             [
                 'templateVars' => [],

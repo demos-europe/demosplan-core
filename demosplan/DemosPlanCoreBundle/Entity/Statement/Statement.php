@@ -1043,11 +1043,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     private $anonymous = false;
 
     /**
-     * @var CustomFieldValuesList
-     *
      * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
      */
-    private $customFields;
+    private ?CustomFieldValuesList $customFields = null;
 
     public function __construct()
     {
@@ -4200,7 +4198,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->customFields;
     }
 
-    public function setCustomFields($customFields): void
+    public function setCustomFields(?CustomFieldValuesList $customFields): void
     {
         $this->customFields = $customFields;
     }

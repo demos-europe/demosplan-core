@@ -28,7 +28,7 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
     public function __construct(
         private readonly PermissionsInterface $permissions,
         private readonly TokenStorageInterface $tokenStorage,
-        private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider
+        private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider,
     ) {
     }
 
@@ -40,7 +40,6 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
         // replaced by the SecurityUser. One example is the collection of data
         // for the symfony toolbar
         if ($user instanceof SecurityUser) {
-
             return $this->userFromSecurityUserProvider->fromSecurityUser($user);
         }
 
@@ -51,24 +50,18 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
         return $user;
     }
 
-    public function setUser(UserInterface $user, CustomerInterface $customer = null): void
+    public function setUser(UserInterface $user, ?CustomerInterface $customer = null): void
     {
         $token = $this->getToken();
         $token->setUser($user);
         $this->tokenStorage->setToken($token);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getPermissions(): PermissionsInterface
     {
         return $this->permissions;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function hasPermission(string $permission): bool
     {
         return $this->permissions->hasPermission($permission);

@@ -8,16 +8,16 @@
     } %}
 
     {# Check which field permissions the user has #}
-    {% set activePermissions = [] %}
+    {% set fieldTypeHeadings = [] %}
     {% for permission, headingKey in fieldTypePermissions %}
         {% if hasPermission(permission) %}
-            {% set activePermissions = activePermissions|merge([headingKey]) %}
+            {% set fieldTypeHeadings = fieldTypeHeadings|merge([headingKey]) %}
         {% endif %}
     {% endfor %}
 
     {# Use specific heading if exactly one field type, generic if multiple #}
-    {% set headingKey = activePermissions|length == 1
-        ? activePermissions[0]
+    {% set headingKey = fieldTypeHeadings|length == 1
+        ? fieldTypeHeadings[0]
         : 'fields.configurable' %}
 
     {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {

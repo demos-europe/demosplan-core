@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -66,6 +67,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         Environment $twig,
         private readonly FileService $fileService,
         private readonly FilesystemOperator $defaultStorage,
+        private readonly GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         private readonly MapService $mapService,
         private readonly PermissionsInterface $permissions,
@@ -236,6 +238,24 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 }
             }
             $statements = $this->createExternIds($statements);
+
+            // Add translated votePla text to statements if permission is granted
+            if ($this->permissions->hasPermission('field_statement_vote_pla')) {
+                $statementAdviceValues = $this->globalConfig->getFormOptions()['statement_fragment_advice_values'] ?? [];
+                foreach ($statements as $key => $statement) {
+                    if (isset($statement['votePla']) && '' !== $statement['votePla']) {
+                        try {
+                            $translationKey = $statementAdviceValues[$statement['votePla']] ?? null;
+                            if (null !== $translationKey) {
+                                $statements[$key]['voteText'] = $this->translator->trans($translationKey);
+                            }
+                        } catch (Exception $e) {
+                            $this->logger->warning('statement with invalid \'votePla\' value given to PDF export', [$e]);
+                        }
+                    }
+                }
+            }
+
             $changedOutputResult['entries']['statements'] = $statements;
             $changedOutputResult['entries']['total'] = $outputResult->getTotal();
 
