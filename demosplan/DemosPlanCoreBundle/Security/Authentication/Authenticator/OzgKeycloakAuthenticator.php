@@ -20,7 +20,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\Parser;
 use Psr\Log\LoggerInterface;
+use Stevenmaguire\OAuth2\Client\Provider\KeycloakResourceOwner;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -62,13 +65,22 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         try {
             $this->entityManager->getConnection()->beginTransaction();
             $this->logger->info('Start of doctrine transaction.');
-            $this->logger->info('raw token', [$client->fetchUserFromToken($accessToken)->toArray()]);
+
+            // Decode the JWT access token to get ALL claims including resource_access
+            // Parse without verification since Keycloak signed it with its own keys
+            $parser = new Parser(new JoseEncoder());
+            $token = $parser->parse($accessToken->getToken());
+            $decodedJwtPayload = $token->claims()->all();
+            $this->logger->info('raw token', [$decodedJwtPayload]);
 
             $tokenValues = $accessToken->getValues();
             $this->keycloakLogoutManager->storeTokenAndExpirationInSession($request->getSession(), $tokenValues);
 
             $customerSubdomain = $this->customerService->getCurrentCustomer()->getSubdomain();
-            $this->ozgKeycloakUserData->fill($client->fetchUserFromToken($accessToken), $customerSubdomain);
+
+            // Create ResourceOwner with complete JWT payload (includes resource_access)
+            $resourceOwner = new KeycloakResourceOwner($decodedJwtPayload);
+            $this->ozgKeycloakUserData->fill($resourceOwner, $customerSubdomain);
             $this->logger->info('Found user data: '.$this->ozgKeycloakUserData);
             $user = $this->ozgKeycloakUserDataMapper->mapUserData($this->ozgKeycloakUserData);
 
