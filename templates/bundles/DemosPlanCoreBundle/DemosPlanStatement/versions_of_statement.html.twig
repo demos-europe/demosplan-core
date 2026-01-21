@@ -1,6 +1,12 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 {% block demosplanbundlecontent %}
 
+    {# Gibt alle templateVars als JSON aus (nur zu Debugzwecken!) #}
+    <pre>{{ dump(templateVars) }}</pre>
+
+    <pre>procedureLayer: {{ templateVars.procedureLayer|default('nicht gesetzt') }}</pre>
+
+
 {% set draftStatementVersions =  templateVars.draftStatementVersions %}
 {% set lastIndex = draftStatementVersions|length - 1 %}
 
@@ -15,7 +21,6 @@
             },
             content_heading: "statements.versions"|trans ~ ": " ~ getProcedureName(proceduresettings),
             content_subheading: '',
-            hideMetaMenu: true
         }
         %}
     {% endblock %}
@@ -46,3 +51,8 @@
     </div>
 
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('core-listDraft.js') }}
+{% endblock javascripts %}
