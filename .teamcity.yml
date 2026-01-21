@@ -10,5 +10,3 @@ jobs:
       - git@github.com:demos-europe/demosplan-project-diplanbau.git:
           path: projects/diplanbau
           enabled: true
-      - main:
-          enabled: false
