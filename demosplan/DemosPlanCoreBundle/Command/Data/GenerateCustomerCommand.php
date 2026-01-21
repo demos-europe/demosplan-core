@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\EntryAlreadyExistsException;
+use demosplan\DemosPlanCoreBundle\Logic\Installation\InstallationService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
@@ -46,6 +47,7 @@ class GenerateCustomerCommand extends CoreCommand
     private const OPTION_NAME = 'name';
     private const OPTION_SUBDOMAIN = 'subdomain';
     private const MAP_PARAMETERS = 'map-parameters'; // use value 'default' to automatically insert default values
+    private const OPTION_QUEUE_PERMISSION = 'queue-permission';
     private const CHOICE_DEFAULT = 'use default';
     private const CHOICE_CUSTOMIZE = 'customize';
 
@@ -67,6 +69,7 @@ class GenerateCustomerCommand extends CoreCommand
     public function __construct(
         private readonly CustomerService $customerService,
         private readonly EntityManagerInterface $entityManager,
+        private readonly InstallationService $installationService,
         ParameterBagInterface $parameterBag,
         private readonly RoleRepository $roleRepository,
         private readonly UserService $userService,
@@ -102,6 +105,12 @@ class GenerateCustomerCommand extends CoreCommand
             'The Map parameters of the customer to be created.
              If omitted or value !== "default" it will be asked interactively.'
         );
+        $this->addOption(
+            self::OPTION_QUEUE_PERMISSION,
+            null,
+            InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED,
+            'Queue permission(s) to be applied when organizations are created. Format: "permission:orgaType:roleCode" (e.g., "feature_admin_new_procedure:PLANNING_AGENCY:RMOPSA"). Can be used multiple times.'
+        );
     }
 
     /**
@@ -130,6 +139,10 @@ class GenerateCustomerCommand extends CoreCommand
             $customer->setMapAttribution($mapParams[2]);
 
             $this->registerDefaultUsers($customer);
+
+            // Queue permissions if --queue-permission flags are provided
+            $queuedPermissions = $this->processQueuePermissionOptions($input, $output, $customer);
+
             $this->entityManager->flush();
 
             $output->writeln(
@@ -324,5 +337,132 @@ class GenerateCustomerCommand extends CoreCommand
         Assert::string($value, 'the value should be a string');
 
         return $value;
+    }
+
+    /**
+     * Process --queue-permission options and queue pending permissions.
+     *
+     * Parses permission strings in format "permission:orgaType:roleCode" and queues them
+     * to be applied when matching organizations are created.
+     *
+     * @param InputInterface    $input    Command input
+     * @param OutputInterface   $output   Command output
+     * @param CustomerInterface $customer The customer to queue permissions for
+     *
+     * @return int Number of permissions successfully queued
+     */
+    private function processQueuePermissionOptions(
+        InputInterface $input,
+        OutputInterface $output,
+        CustomerInterface $customer,
+    ): int {
+        $queuePermissions = $input->getOption(self::OPTION_QUEUE_PERMISSION);
+
+        if (empty($queuePermissions)) {
+            $output->writeln(
+                'No permissions queued (use --queue-permission to queue permissions for future organizations)',
+                OutputInterface::VERBOSITY_VERBOSE
+            );
+
+            return 0;
+        }
+
+        $queuedCount = 0;
+        $failedCount = 0;
+
+        foreach ($queuePermissions as $permissionString) {
+            $parsed = $this->parsePermissionString($permissionString);
+
+            if (null === $parsed) {
+                $output->writeln(
+                    sprintf(
+                        '<error>Invalid permission format: "%s". Expected format: "permission:orgaType:roleCode"</error>',
+                        $permissionString
+                    ),
+                    OutputInterface::VERBOSITY_NORMAL
+                );
+                ++$failedCount;
+                continue;
+            }
+
+            try {
+                $this->installationService->queuePendingPermission(
+                    $customer,
+                    $parsed['permission'],
+                    $parsed['roleCode'],
+                    $parsed['orgaType']
+                );
+
+                $output->writeln(
+                    sprintf(
+                        '<info>Queued permission: %s for %s (%s)</info>',
+                        $parsed['permission'],
+                        $parsed['orgaType'],
+                        $parsed['roleCode']
+                    ),
+                    OutputInterface::VERBOSITY_VERBOSE
+                );
+
+                ++$queuedCount;
+            } catch (Exception $e) {
+                $output->writeln(
+                    sprintf(
+                        '<error>Failed to queue permission "%s": %s</error>',
+                        $permissionString,
+                        $e->getMessage()
+                    ),
+                    OutputInterface::VERBOSITY_NORMAL
+                );
+                ++$failedCount;
+            }
+        }
+
+        if ($queuedCount > 0) {
+            $output->writeln(
+                sprintf(
+                    '<info>Successfully queued %d permission(s) to be applied when organizations are created.</info>',
+                    $queuedCount
+                ),
+                OutputInterface::VERBOSITY_NORMAL
+            );
+        }
+
+        if ($failedCount > 0) {
+            $output->writeln(
+                sprintf('<error>Failed to queue %d permission(s)</error>', $failedCount),
+                OutputInterface::VERBOSITY_NORMAL
+            );
+        }
+
+        return $queuedCount;
+    }
+
+    /**
+     * Parse a permission string in format "permission:orgaType:roleCode".
+     *
+     * @param string $permissionString The permission string to parse
+     *
+     * @return array{permission: string, orgaType: string, roleCode: string}|null Parsed components or null if invalid
+     */
+    private function parsePermissionString(string $permissionString): ?array
+    {
+        $parts = explode(':', $permissionString);
+
+        if (3 !== count($parts)) {
+            return null;
+        }
+
+        [$permission, $orgaType, $roleCode] = $parts;
+
+        // Validate all parts are non-empty
+        if (empty(trim($permission)) || empty(trim($orgaType)) || empty(trim($roleCode))) {
+            return null;
+        }
+
+        return [
+            'permission' => trim($permission),
+            'orgaType'   => trim($orgaType),
+            'roleCode'   => trim($roleCode),
+        ];
     }
 }
