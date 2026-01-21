@@ -511,14 +511,14 @@ class DemosPlanOrganisationAPIController extends APIController
                 $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaType::MUNICIPALITY, $customersWithPendingPlanner, $currentCustomer);
                 $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaType::PLANNING_AGENCY, $customersWithPendingPlanningAgency, $currentCustomer);
 
-                $item = $this->resourceService->makeItemOfResource($updatedOrga, OrgaResourceType::getName());
-
                 try {
                     $newOrgaCreatedEvent = new OrgaAdminEditedEvent($updatedOrga, $canCreateProcedures);
                     $eventDispatcher->dispatch($newOrgaCreatedEvent);
                 } catch (Exception $e) {
                     $this->logger->warning('Could not successfully perform orga created event', [$e]);
                 }
+
+                $item = $this->resourceService->makeItemOfResource($updatedOrga, OrgaResourceType::getName());
 
                 return $this->renderResource($item);
             }
