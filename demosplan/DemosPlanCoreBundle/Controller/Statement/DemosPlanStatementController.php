@@ -464,7 +464,8 @@ class DemosPlanStatementController extends BaseController
         }
     }
 
-    private function enrichStatementDataWithUserInfo(array $inData, User $user): array {
+    private function enrichStatementDataWithUserInfo(array $inData, User $user): array
+    {
         $inData['userName'] = $user->getFullname();
 
         if ('' !== $user->getEmail()) {
