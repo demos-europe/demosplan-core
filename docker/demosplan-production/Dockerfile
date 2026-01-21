@@ -57,10 +57,10 @@ RUN mkdir -p /opt/uploads && \
 # asset build only needs the parameters.yml without content
     echo "parameters:" > /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
 
+USER www-data
 WORKDIR /srv/www
 # Install composer and yarn before copying the project files to make use of the docker cache
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
-USER www-data
 # do not use --no-scripts, as we do not need all the aws stuff
 RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
@@ -69,18 +69,14 @@ RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=loc
         composer install -o --prefer-dist --no-progress; \
     else \
         composer install -o --prefer-dist --no-dev --no-progress; \
-    fi
-
-COPY . /srv/www
-
-# Now do the yarn workspace focus after files are copied
-RUN --mount=type=cache,target=/var/www,uid=33,gid=33 \
-    yarn workspaces list && \
-    yarn workspaces focus demosplan-core "$PROJECT_NAME" && \
+    fi && \
+    yarn install --immutable && \
     yarn cache clean && \
     rm -rf /srv/www/.cache/*
 
 USER root
+COPY . /srv/www
+
 # Remove app_dev.php in production mode
 RUN if [ "$BUILD_MODE" = "prod" ]; then \
         rm -f /srv/www/projects/$PROJECT_NAME/web/app_dev.php; \
@@ -118,15 +114,13 @@ RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
         ./fe build $PROJECT_NAME; \
     else \
         ./fe build $PROJECT_NAME --prod; \
-    fi
-
-USER root
-
-RUN rm -rf /srv/www/node_modules && \
+    fi && \
+    rm -rf /srv/www/node_modules && \
     rm -rf /srv/www/addons/cache/*/node_modules && \
     rm -rf /srv/www/addonZips && \
     rm -rf /srv/www/.cache
 
+USER root
 RUN mv /tmp/doctrine.yaml /srv/www/config/packages/doctrine.yaml
 COPY projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/parameters.yml
 
