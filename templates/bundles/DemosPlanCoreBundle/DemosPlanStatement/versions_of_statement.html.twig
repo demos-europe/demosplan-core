@@ -1,12 +1,6 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 {% block demosplanbundlecontent %}
 
-    {# Gibt alle templateVars als JSON aus (nur zu Debugzwecken!) #}
-    <pre>{{ dump(templateVars) }}</pre>
-
-    <pre>procedureLayer: {{ templateVars.procedureLayer|default('nicht gesetzt') }}</pre>
-
-
 {% set draftStatementVersions =  templateVars.draftStatementVersions %}
 {% set lastIndex = draftStatementVersions|length - 1 %}
 
