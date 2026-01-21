@@ -5,6 +5,10 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+### Features
+- Enable GetFeatureInfo requests for any visible WMS layers in the map 
+
 ## v4.27.0 (2026-01-16)
 
 ### Added
