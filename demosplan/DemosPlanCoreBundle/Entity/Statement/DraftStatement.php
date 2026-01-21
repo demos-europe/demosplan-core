@@ -484,7 +484,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     /**
      * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
      */
-    private ?CustomFieldValuesList $customFields;
+    private ?CustomFieldValuesList $customFields = null;
 
     public function __construct()
     {
