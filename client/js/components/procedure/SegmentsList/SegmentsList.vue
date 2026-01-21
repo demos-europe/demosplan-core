@@ -157,7 +157,7 @@
           </template>
           <template v-slot:statementStatus="rowData">
             <status-badge
-              class="mt-0.5"
+              class="mt-0.5 max-w-fit !block o-hellip--nowrap"
               :status="statementsObject[rowData.relationships.parentStatement.data.id].attributes.status"
             />
           </template>
@@ -438,7 +438,7 @@ export default {
       },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
-        { field: 'statementStatus', label: Translator.trans('statement.status') },
+        { field: 'statementStatus', label: Translator.trans('statement.status'), colWidth: '120px' },
         { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '150px' },
         { field: 'submitter', label: Translator.trans('submitter') },
         { field: 'address', label: Translator.trans('address') },
