@@ -44,20 +44,6 @@ class WebpackBundleExtension extends ExtensionBase
     ];
 
     /**
-     * These bundles should not have defer attribute as they are dependencies
-     * that must be loaded synchronously for inline scripts.
-     */
-    private const NON_DEFER_BUNDLES = [
-        'bs.js',
-        'common.js',
-        'core.js',
-        'jquery-3.5.1.min.js',
-        'leaflet.js',
-        'ol.js',
-        'runtime.js',
-    ];
-
-    /**
      * The webpack manifest.
      *
      * This is the combination of `dplan.manifest.json` and `styles.manifest.json`.
