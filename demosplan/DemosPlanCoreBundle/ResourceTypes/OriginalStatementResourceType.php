@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\IsOriginalStatementAvailableEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\OriginalStatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
@@ -31,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\OriginalStatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use Elastica\Index;
@@ -44,6 +46,7 @@ use Elastica\Index;
  * @property-read StatementResourceType $headStatement
  * @property-read StatementResourceType $movedStatement
  * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only.
+ * @property-read End $customFields
  */
 final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface, ReadableEsResourceTypeInterface
 {
@@ -167,6 +170,11 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
             ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
             ->setReadableByPath()
             ->setFilterable();
+
+        if ($this->currentUser->hasPermission('field_statements_custom_fields')) {
+            $originalStatementConfig->customFields
+                ->setReadableByCallable(static fn (Statement $originalStatement): ?array => $originalStatement->getCustomFields()?->toJson());
+        }
 
         return $originalStatementConfig;
     }
