@@ -1886,6 +1886,7 @@ export default {
           if (this.layersFeatureInfoResults.length > 0) {
             this.$root.$emit('show-slidebar')
           } else {
+            this.$root.$emit('hide-slidebar')
             dplan.notify.notify('info', Translator.trans('map.getfeatureinfo.none'))
           }
         })
