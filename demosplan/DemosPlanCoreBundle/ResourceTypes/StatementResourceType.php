@@ -48,11 +48,9 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedurePhaseVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
-use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use Elastica\Index;
 use Webmozart\Assert\Assert;
 
@@ -559,7 +557,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             );
         }
 
-        //problematic
+        // problematic
         $configBuilder->procedurePhase
             ->updatable([], function (Statement $statement, array $procedurePhase): array {
                 // check that phaseKey exists so that it is not possible to set a phase that does not exist
