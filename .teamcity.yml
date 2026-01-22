@@ -132,3 +132,10 @@ jobs:
                     echo "##teamcity[setParameter name='env.DEPLOY_TARGET' value='diplanfest-environment']"                                                                                             
                     ;;                                                                                                                                                                                  
             esac
+    repositories:
+      - git@github.com:demos-europe/demosplan-project-diplanbau.git:
+          enabled: true
+      - git@github.com:demos-europe/demosplan-project-diplanrog.git:
+          enabled: true
+      - git@github.com:demos-europe/demosplan-project-diplanfest.git:
+          enabled: true
