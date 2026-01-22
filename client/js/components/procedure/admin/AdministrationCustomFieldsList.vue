@@ -604,6 +604,10 @@ export default {
           [sourceEntity]: [
             this.isStatementField ? 'statementCustomFields' : 'segmentCustomFields',
           ].join(),
+          AdminProcedure: [
+            'statementsCount',
+            'statementCustomFields',
+          ].join(),
           CustomField: [
             'name',
             'description',
@@ -614,6 +618,9 @@ export default {
         },
         include: [this.isStatementField ? 'statementCustomFields' : 'segmentCustomFields'].join(),
       }
+
+
+      console.log(payload)
 
       this.getCustomFields(payload).then(() => {
         this.reduceCustomFields()
@@ -629,6 +636,9 @@ export default {
           }) :
         this.getAdminProcedureWithFields(payload)
           .then(response => {
+            console.log('Full response:', response)
+            const statementsCount = response?.data?.AdminProcedure?.[this.procedureId]?.attributes?.statementsCount
+            console.log('statementsCount:', statementsCount)
             return response
           })
     },
