@@ -44,6 +44,7 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedurePhaseVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -366,6 +367,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
             if ($this->currentUser->hasPermission('field_statements_custom_fields')) {
                 $configBuilder->customFields
+                    ->setReadableByCallable(static fn (Statement $statement): ?array => $statement->getCustomFields()?->toJson())
                     ->updatable([],
                         function (Statement $statement, array $customFields): array {
                             $customFieldList = $statement->getCustomFields() ?? new CustomFieldValuesList();
@@ -373,8 +375,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                                 $customFieldList,
                                 $customFields,
                                 $statement->getProcedure()->getId(),
-                                'PROCEDURE',
-                                'STATEMENT'
+                                CustomFieldSupportedEntity::procedure->value,
+                                CustomFieldSupportedEntity::statement->value,
                             );
                             $statement->setCustomFields($customFieldList);
 
