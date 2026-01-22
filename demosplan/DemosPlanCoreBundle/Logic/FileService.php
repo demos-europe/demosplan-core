@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Exception\FileWriteException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
@@ -457,7 +458,7 @@ class FileService implements FileServiceInterface
             // Write content to temporary file
             $bytesWritten = file_put_contents($tempFilePath, $fileContent);
             if (false === $bytesWritten) {
-                throw new RuntimeException('Failed to write file content to temporary file: '.$tempFilePath);
+                throw new FileWriteException('Failed to write file content to temporary file: '.$tempFilePath);
             }
 
             return $this->saveTemporaryLocalFile($tempFilePath, $fileName, $userId, $procedureId);

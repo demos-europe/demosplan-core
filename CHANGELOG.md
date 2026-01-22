@@ -12,6 +12,7 @@
   - Automatically handles temporary file creation and cleanup using `DemosPlanPath`
   - Supports virus checking and procedure/user association
   - Useful for saving already-decoded base64 content from external sources
+- Add `FileWriteException` for dedicated file write error handling
 
 ### Changed
 - Update `FileService::saveTemporaryLocalFile()` documentation to clarify it uses configured storage backend (S3, local, or other adapters based on FILES_SOURCE environment variable)

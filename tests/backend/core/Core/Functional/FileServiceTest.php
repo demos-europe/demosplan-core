@@ -27,6 +27,8 @@ use TypeError;
 
 class FileServiceTest extends FunctionalTestCase
 {
+    private const MIME_TYPE_PDF = 'application/pdf';
+
     /**
      * @var FileService
      */
@@ -306,7 +308,7 @@ class FileServiceTest extends FunctionalTestCase
         $id = '61fb0d7f316753bd676459b6a7f6a95b';
         $file->setIdent($id);
         $file->setHash($id);
-        $file->setMimetype('application/pdf');
+        $file->setMimetype(self::MIME_TYPE_PDF);
         $file->setName('begruendung.pdf');
         $file->setFilename('begruendung.pdf');
         $file->setSize(1234);
@@ -318,7 +320,7 @@ class FileServiceTest extends FunctionalTestCase
 
         static::assertEquals($result->getId(), $fileInfo->getHash());
         static::assertSame($id, $result->getHash());
-        static::assertSame('application/pdf', $result->getMimetype());
+        static::assertSame(self::MIME_TYPE_PDF, $result->getMimetype());
         static::assertSame('begruendung.pdf', $result->getName());
         static::assertSame('begruendung.pdf', $result->getFilename());
         static::assertSame(1234, $result->getSize());
@@ -546,7 +548,7 @@ class FileServiceTest extends FunctionalTestCase
         $savedFile = $this->sut->get($fileId);
         static::assertSame($fileName, $savedFile->getFileName());
         static::assertSame(strlen($fileContent), $savedFile->getSize());
-        static::assertSame('application/pdf', $savedFile->getMimetype());
+        static::assertSame(self::MIME_TYPE_PDF, $savedFile->getMimetype());
 
         // Verify content matches exactly
         $retrievedContent = $this->sut->getContent($savedFile);
