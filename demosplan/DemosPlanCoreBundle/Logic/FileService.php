@@ -41,7 +41,6 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToCopyFile;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
