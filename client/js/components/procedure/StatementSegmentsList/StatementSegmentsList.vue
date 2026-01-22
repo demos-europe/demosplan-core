@@ -776,7 +776,7 @@ export default {
       this.currentAction = action || defaultAction
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, excludeStatementText}) {
       const parameters = {
         procedureId: this.procedure.id,
         statementId: this.statementId
@@ -797,6 +797,7 @@ export default {
       isObscured && (parameters.isObscured = isObscured)
       isInstitutionDataCensored && (parameters.isInstitutionDataCensored = isInstitutionDataCensored)
       isCitizenDataCensored && (parameters.isCitizenDataCensored = isCitizenDataCensored)
+      excludeStatementText && (parameters.excludeStatementText = excludeStatementText)
 
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = Routing.generate(route, parameters)
