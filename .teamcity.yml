@@ -1,13 +1,37 @@
 jobs:
   Job1:
-    name: Job 1
+    name: Checkout Core
     steps: []
     files-publication:
       - path: .
         share-with-jobs: true
         publish-artifact: false
   Job2:
-    name: Job 2
+    name: Checkout Bau
+    dependencies:
+      - Job1:
+          files:
+            - .
+    repositories:
+      - git@github.com:demos-europe/demosplan-project-diplanbau.git:
+          path: projects/diplanbau
+          enabled: true
+      - main:
+          enabled: false
+  Job2clone:
+    name: Checkout PFV
+    dependencies:
+      - Job1:
+          files:
+            - .
+    repositories:
+      - git@github.com:demos-europe/demosplan-project-diplanbau.git:
+          path: projects/diplanbau
+          enabled: true
+      - main:
+          enabled: false
+  Job2cloneClone:
+    name: Checkout Rog
     dependencies:
       - Job1:
           files:
