@@ -63,7 +63,6 @@
         v-if="currentLayerFeatureInfoResult"
         class="mb-4 mr-2"
         v-html="currentLayerFeatureInfoResult.content"
-        class="mb-4 mr-2"
       />
     </dp-slidebar>
     <slot />
