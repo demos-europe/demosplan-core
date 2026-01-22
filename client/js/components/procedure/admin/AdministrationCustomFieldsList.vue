@@ -1,7 +1,7 @@
 <template>
   <div>
     <dp-inline-notification
-      v-if="statementsCount && statementsCount > 0"
+      v-if="isStatementField && statementsCount > 0"
       class="mb-4"
       dismissible
       :dismissible-key="helpTextDismissibleKey"
@@ -185,11 +185,18 @@
       </template>
 
       <template v-slot:isRequired="rowData">
-        <div
-          v-if="isStatementField"
-          class="mt-1"
-        >
-          {{ rowData.isRequired ? Translator.trans('yes') : Translator.trans('no') }}
+        <div v-if="isStatementField">
+          <dp-checkbox
+            v-if="rowData.edit"
+            v-model="newRowData.isRequired"
+            :label ="{
+              text: Translator.trans('field.required'),
+              hide:true
+            }"
+          />
+          <span v-else>
+            {{ rowData.isRequired ? Translator.trans('yes') : Translator.trans('no') }}
+          </span>
         </div>
       </template>
 
@@ -510,6 +517,7 @@ export default {
     abortFieldEdit (rowData) {
       rowData.description = this.initialRowData.description
       rowData.name = this.initialRowData.name
+      rowData.isRequired = this.initialRowData.isRequired
       rowData.options = this.initialRowData.options
 
       this.newRowData = {}
@@ -589,8 +597,9 @@ export default {
       const isNameUnchanged = this.initialRowData.name === newRowData.name
       const areOptionsUnchanged = JSON.stringify(this.initialRowData.options) === JSON.stringify(newRowData.options)
       const isDescriptionUnchanged = this.initialRowData.description === newRowData.description
+      const isRequiredUnchanged = this.initialRowData.isRequired === newRowData.isRequired
 
-      this.isSaveDisabled[newRowData.id] = isNameUnchanged && areOptionsUnchanged && isDescriptionUnchanged
+      this.isSaveDisabled[newRowData.id] = isNameUnchanged && areOptionsUnchanged && isDescriptionUnchanged && isRequiredUnchanged
     },
 
     editCustomField (rowData) {
@@ -618,7 +627,7 @@ export default {
             this.isStatementField ? 'statementCustomFields' : 'segmentCustomFields',
           ].join(),
           AdminProcedure: [
-            'statementsCount',
+            'statementsCount', // needed to disable multiSelect field edits when there are existing statements
             'statementCustomFields',
           ].join(),
           CustomField: [
@@ -631,9 +640,6 @@ export default {
         },
         include: [this.isStatementField ? 'statementCustomFields' : 'segmentCustomFields'].join(),
       }
-
-
-      console.log(payload)
 
       this.getCustomFields(payload).then(() => {
         this.reduceCustomFields()
@@ -729,10 +735,11 @@ export default {
     },
 
     resetEditedUnsavedField (customField) {
-      const { description = '', name = '', options = [] } = this.initialRowData
+      const { description = '', isRequired= false,  name = '', options = [] } = this.initialRowData
 
       customField.description = description
       customField.edit = false
+      customField.isrequired = isRequired
       customField.name = name
       customField.open = false
       customField.options = options
@@ -771,7 +778,7 @@ export default {
 
         if (isConfirmed) {
           const storeField = this.customFields[this.newRowData.id]
-          const { description = '', name, options } = this.newRowData
+          const { description = '', isRequired, name, options } = this.newRowData
 
           const updatedField = {
             ...storeField,
@@ -779,6 +786,7 @@ export default {
               Object.entries({
                 ...storeField.attributes,
                 description,
+                isRequired,
                 name,
                 options,
               }).filter(([key]) => key !== 'fieldType'),
@@ -858,21 +866,23 @@ export default {
     },
 
     setInitialRowData (rowData) {
-      const { description = '', name, options } = rowData
+      const { description = '', isRequired, name, options } = rowData
 
       this.initialRowData = {
         description,
+        ...(this.isStatementField && { isRequired }),
         name,
         options: JSON.parse(JSON.stringify(options)),
       }
     },
 
     setNewRowData (rowData) {
-      const { id, description = '', name, options } = rowData
+      const { id, description = '', isRequired, name, options } = rowData
 
       this.newRowData = {
         id,
         description,
+        ...(this.isStatementField && { isRequired }),
         name,
         options,
       }
