@@ -61,6 +61,7 @@
 
       <div
         v-if="currentLayerFeatureInfoResult"
+        class="mb-4 mr-2"
         v-html="currentLayerFeatureInfoResult.content"
         class="mb-4 mr-2"
       />
@@ -353,7 +354,7 @@ export default {
   },
 
   watch: {
-    layersFeatureInfoResults() {
+    layersFeatureInfoResults () {
       this.currentLayerFeatureInfoPage = 1
     },
 
@@ -712,8 +713,8 @@ export default {
         projection: this.mapprojection,
         params: {
           LAYERS: layers,
-          VERSION: layerVersion
-        }
+          VERSION: layerVersion,
+        },
       })
 
       return tempSource.getFeatureInfoUrl(
@@ -722,8 +723,8 @@ export default {
         this.mapprojection,
         {
           INFO_FORMAT: 'text/html',
-          QUERY_LAYERS: layers
-        }
+          QUERY_LAYERS: layers,
+        },
       )
     },
 
@@ -1791,7 +1792,7 @@ export default {
     /**
      * Checks if a single GetFeatureInfo response contains tables and if they are empty
      */
-    isEmptyFeatureInfoResponse(content) {
+    isEmptyFeatureInfoResponse (content) {
       if (!content || content.trim().length === 0) {
         return true
       }
@@ -1811,7 +1812,7 @@ export default {
 
         for (const cell of cells) {
           if (cell.textContent.trim().length > 0) {
-            return false // table has data - keep
+            return false // Table has data - keep
           }
         }
       }
@@ -1848,13 +1849,13 @@ export default {
             layerName: layer.attributes.name,
             layerId: layer.id,
             content: content,
-            success: true
+            success: true,
           }))
           .catch(error => {
             console.error(`GetFeatureInfo failed for ${layer.attributes.name}:`, error)
             return {
               success: false,
-              error: error.message
+              error: error.message,
             }
           })
       })
@@ -2001,7 +2002,7 @@ export default {
       return validResults.map(result => {
         const cleanContent = DomPurify.sanitize(result.content, {
           ADD_ATTR: ['target'],
-          FORBID_TAGS: ['style', 'script', 'a']
+          FORBID_TAGS: ['style', 'script', 'a'],
         })
         const parser = new DOMParser()
         const doc = parser.parseFromString(cleanContent, 'text/html')
@@ -2011,7 +2012,7 @@ export default {
         return {
           layerName: result.layerName,
           layerId: result.layerId,
-          content: doc.body.innerHTML
+          content: doc.body.innerHTML,
         }
       })
     },
