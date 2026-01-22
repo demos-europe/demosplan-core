@@ -1,3 +1,4 @@
+{% import '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/statement_macros.tex.twig' as statement_macros %}
 {# Hochformat und Querformat nicht anonym #}
 {% block content %}
     % {{ "considerationtable"|trans }}: 1. Zeile setzt die Spalten
@@ -72,7 +73,7 @@
         \end{Parallel}
     \begin{Parallel}{\columnsep}{\columnsep}
     \ParallelLText{{ '{' }}{{ statement.text|default("notspecified"|trans)|latex(listwidth=templateVars.listwidth)|raw }}{{ '}' }}
-    \ParallelRText{{ '{' }}{{ statement.recommendation|default("notspecified"|trans)|latex|raw }}{{ '}' }}
+    \ParallelRText{{ '{' }}{{ statement_macros.render_vote_text(statement) }}{{ statement.recommendation|default("notspecified"|trans)|latex|raw }}{{ '}' }}
     \end{Parallel}
     {% if statement.mapFile is defined and statement.mapFile != "" %}
     {% if statement.mapFile != "---" %}

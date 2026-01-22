@@ -158,7 +158,7 @@ class EntrypointController extends BaseController
         // therefore it is ok to pass the first entry of the array via reset($array)
         $loginSupportEntities = $customerLoginSupportContactResourceType->getEntities([], []);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/login_idp_error.html.twig',
             [
                 'templateVars' => ['customerLoginSupport' => reset($loginSupportEntities)],
@@ -232,7 +232,7 @@ class EntrypointController extends BaseController
         $templateVars['publicUser'] = $user->isPublicUser();
         $templateVars['publicAgency'] = $user->isPublicAgency();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/public_index.html.twig',
             [
                 'templateVars' => $templateVars,

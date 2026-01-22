@@ -41,7 +41,7 @@ class MaintenanceController extends BaseController
             return $this->redirectToRoute('core_home');
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanCore/servicemode.html.twig',
             [
                 'templateVars' => [

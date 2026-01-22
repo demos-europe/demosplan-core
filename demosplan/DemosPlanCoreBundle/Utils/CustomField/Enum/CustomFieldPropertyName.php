@@ -14,6 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum;
 
 enum CustomFieldPropertyName: string
 {
-    case ColumnName = 'custom_fields';
+    case columnName = 'custom_fields';
     case twigRequestName = 'customFields';
 }

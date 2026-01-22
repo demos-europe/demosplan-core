@@ -482,11 +482,9 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     private $anonymous = false;
 
     /**
-     * @var CustomFieldValuesList
-     *
      * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
      */
-    private $customFields;
+    private ?CustomFieldValuesList $customFields = null;
 
     public function __construct()
     {
@@ -1806,7 +1804,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         return $this->customFields;
     }
 
-    public function setCustomFields($customFields): void
+    public function setCustomFields(?CustomFieldValuesList $customFields): void
     {
         $this->customFields = $customFields;
     }

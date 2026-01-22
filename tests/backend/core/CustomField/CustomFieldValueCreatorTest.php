@@ -15,16 +15,17 @@ namespace Tests\Core\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Base\FunctionalTestCase;
+use Zenstruck\Foundry\Persistence\Proxy;
 
 /**
  * Tests the updateOrAddCustomFieldValues method which stores custom field values.
  * This tests VALUE validation and storage, not field configuration.
- *
- * Pattern: Similar to CustomFieldCreatorTest but for storing VALUES instead of creating DEFINITIONS.
  */
 class CustomFieldValueCreatorTest extends FunctionalTestCase
 {
@@ -47,7 +48,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         // Arrange
         $customField = CustomFieldConfigurationFactory::new()
             ->withRelatedProcedure($this->procedure->_real())
-            ->withRelatedTargetEntity('SEGMENT')
+            ->withRelatedTargetEntity(CustomFieldSupportedEntity::segment->value)
             ->asRadioButton('Priority', options: ['High', 'Medium', 'Low'])
             ->create();
 
@@ -65,17 +66,15 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
             new CustomFieldValuesList(), // Empty current list
             $newCustomFieldValuesData,
             $this->procedure->getId(),
-            'PROCEDURE',
-            'SEGMENT'
+            CustomFieldSupportedEntity::procedure->value,
+            CustomFieldSupportedEntity::segment->value
         );
 
         // Assert
-        static::assertInstanceOf(CustomFieldValuesList::class, $result);
-        static::assertCount(1, $result->getCustomFieldsValues());
-
         $storedValue = $result->findById($customField->getId());
-        static::assertNotNull($storedValue);
+        static::assertIsString($storedValue->getValue());
         static::assertEquals($selectedOptionId, $storedValue->getValue());
+        $this->commonCustomFieldValueAssertions($customField, $result);
     }
 
     /**
@@ -86,7 +85,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         // Arrange
         $customField = CustomFieldConfigurationFactory::new()
             ->withRelatedProcedure($this->procedure->_real())
-            ->withRelatedTargetEntity('STATEMENT')
+            ->withRelatedTargetEntity(CustomFieldSupportedEntity::statement->value)
             ->asMultiSelect('Tags', options: ['Environment', 'Traffic', 'Housing'], isRequired: false)
             ->create();
 
@@ -104,19 +103,27 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
             new CustomFieldValuesList(), // Empty current list
             $newCustomFieldValuesData,
             $this->procedure->getId(),
-            'PROCEDURE',
-            'STATEMENT'
+            CustomFieldSupportedEntity::procedure->value,
+            CustomFieldSupportedEntity::statement->value
         );
 
+        // Assert
+
+        $storedValue = $result->findById($customField->getId());
+        static::assertIsArray($storedValue->getValue());
+        static::assertCount(1, $storedValue->getValue());
+        static::assertContains($selectedOptionId, $storedValue->getValue());
+        $this->commonCustomFieldValueAssertions($customField, $result);
+    }
+
+    private function commonCustomFieldValueAssertions(CustomFieldConfiguration|Proxy $customField, CustomFieldValuesList $result)
+    {
         // Assert
         static::assertInstanceOf(CustomFieldValuesList::class, $result);
         static::assertCount(1, $result->getCustomFieldsValues());
 
         $storedValue = $result->findById($customField->getId());
         static::assertNotNull($storedValue);
-        static::assertIsArray($storedValue->getValue());
-        static::assertCount(1, $storedValue->getValue());
-        static::assertContains($selectedOptionId, $storedValue->getValue());
     }
 
     /**
@@ -127,7 +134,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         // Arrange
         $customField = CustomFieldConfigurationFactory::new()
             ->withRelatedProcedure($this->procedure->_real())
-            ->withRelatedTargetEntity('STATEMENT')
+            ->withRelatedTargetEntity(CustomFieldSupportedEntity::statement->value)
             ->asMultiSelect('Favourite pets', options: ['Cat', 'Dog', 'Hamster', 'Parrot'], isRequired: false)
             ->create();
 
@@ -146,8 +153,8 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
             new CustomFieldValuesList(), // Empty current list
             $newCustomFieldValuesData,
             $this->procedure->getId(),
-            'PROCEDURE',
-            'STATEMENT'
+            CustomFieldSupportedEntity::procedure->value,
+            CustomFieldSupportedEntity::statement->value
         );
 
         // Assert
@@ -162,35 +169,28 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         static::assertContains($selectedOption2Id, $storedValue->getValue());
     }
 
-    #[DataProvider('singleSelectValidationErrorDataProvider')]
-    public function testUpdateOrAddCustomFieldValuesSingleSelectValidationErrors(
+    /**
+     * Helper method to test validation errors for custom field values.
+     */
+    private function assertValidationError(
         array $testData,
         string $expectedErrorMessage,
+        string $targetEntity,
+        callable $fieldCreator,
     ): void {
-        // Arrange
-        $sourceEntity = 'PROCEDURE';
-        $targetEntity = 'SEGMENT';
-
         $factory = CustomFieldConfigurationFactory::new()
             ->withRelatedProcedure($this->procedure->_real())
             ->withRelatedTargetEntity($targetEntity);
 
-        $customField = $factory->asRadioButton(
-            $testData['fieldName'],
-            options: $testData['fieldOptions']
-        )->create();
-
-        // Use actual field ID in test data if placeholder is present
-        $value = $testData['value'];
+        $customField = $fieldCreator($factory, $testData);
 
         $newCustomFieldValuesData = [
             [
                 'id'    => $customField->getId(),
-                'value' => $value,
+                'value' => $testData['value'],
             ],
         ];
 
-        // Assert & Act
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($expectedErrorMessage);
 
@@ -198,8 +198,24 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
             new CustomFieldValuesList(),
             $newCustomFieldValuesData,
             $this->procedure->getId(),
-            $sourceEntity,
+            CustomFieldSupportedEntity::procedure->value,
             $targetEntity
+        );
+    }
+
+    #[DataProvider('singleSelectValidationErrorDataProvider')]
+    public function testUpdateOrAddCustomFieldValuesSingleSelectValidationErrors(
+        array $testData,
+        string $expectedErrorMessage,
+    ): void {
+        $this->assertValidationError(
+            $testData,
+            $expectedErrorMessage,
+            CustomFieldSupportedEntity::segment->value,
+            fn ($factory, $data) => $factory->asRadioButton(
+                $data['fieldName'],
+                options: $data['fieldOptions']
+            )->create()
         );
     }
 
@@ -243,44 +259,22 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         array $testData,
         string $expectedErrorMessage,
     ): void {
-        // Arrange
-        $targetEntity = 'STATEMENT';
-
-        $factory = CustomFieldConfigurationFactory::new()
-            ->withRelatedProcedure($this->procedure->_real())
-            ->withRelatedTargetEntity($targetEntity);
-
-        $customField = $factory->asMultiSelect(
-            $testData['fieldName'],
-            options: $testData['fieldOptions'],
-            isRequired: $testData['isRequired']
-        )->create();
-
-        // Use actual field ID in test data if placeholder is present
-        $value = $testData['value'];
-
-        $newCustomFieldValuesData = [
-            [
-                'id'    => $customField->getId(),
-                'value' => $value,
-            ],
-        ];
-
-        // Assert & Act
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage($expectedErrorMessage);
-
-        $this->sut->updateOrAddCustomFieldValues(
-            new CustomFieldValuesList(),
-            $newCustomFieldValuesData,
-            $this->procedure->getId(),
-            'PROCEDURE',
-            $targetEntity
+        $this->assertValidationError(
+            $testData,
+            $expectedErrorMessage,
+            CustomFieldSupportedEntity::statement->value,
+            fn ($factory, $data) => $factory->asMultiSelect(
+                $data['fieldName'],
+                options: $data['fieldOptions'],
+                isRequired: $data['isRequired']
+            )->create()
         );
     }
 
     public static function multiSelectValidationErrorDataProvider(): array
     {
+        $expectedErrorMessageString = 'Each element must be a string';
+
         return [
             'emptyArrayWhenRequired' => [
                 'testData' => [
@@ -299,9 +293,9 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
                     'fieldName'    => 'Items',
                     'fieldOptions' => ['Item1', 'Item2'],
                     'isRequired'   => false,
-                    'value'        => [123, 'valid-string'], // 123 is not a string
+                    'value'        => [123, '1234'], // 123 is not a string
                 ],
-                'expectedErrorMessage' => 'Each element must be a string',
+                'expectedErrorMessage' => $expectedErrorMessageString,
             ],
 
             'arrayWithBooleanElement' => [
@@ -310,9 +304,9 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
                     'fieldName'    => 'Flags',
                     'fieldOptions' => ['Flag1', 'Flag2'],
                     'isRequired'   => false,
-                    'value'        => [true, 'valid-string'], // true is not a string
+                    'value'        => [true, '5678'], // true is not a string
                 ],
-                'expectedErrorMessage' => 'Each element must be a string',
+                'expectedErrorMessage' => $expectedErrorMessageString,
             ],
 
             'arrayWithNullElement' => [
@@ -323,7 +317,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
                     'isRequired'   => false,
                     'value'        => [null, 'valid-string'], // null is not a string
                 ],
-                'expectedErrorMessage' => 'Each element must be a string',
+                'expectedErrorMessage' => $expectedErrorMessageString,
             ],
 
             'invalidOptionIdInArray' => [
@@ -346,6 +340,16 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
                     'value'        => ['PLACEHOLDER_VALID_ID', 'invalid-uuid-xyz'], // Need to handle valid ID
                 ],
                 'expectedErrorMessage' => 'Each element must be a valid option ID',
+            ],
+            'notArrayAsValue' => [
+                'testData' => [
+                    'fieldType'    => 'multiSelect',
+                    'fieldName'    => 'Categories',
+                    'fieldOptions' => ['CatA', 'CatB'],
+                    'isRequired'   => false,
+                    'value'        => 'My own value',
+                ],
+                'expectedErrorMessage' => 'Value must be an array',
             ],
         ];
     }

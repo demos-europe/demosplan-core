@@ -14,11 +14,13 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
  * Strategy for validating custom field values before storage.
  * Each field type should have its own dedicated implementation.
  */
+#[AutoconfigureTag('custom_field_value_validation_strategy')]
 interface CustomFieldValueValidationStrategyInterface
 {
     /**

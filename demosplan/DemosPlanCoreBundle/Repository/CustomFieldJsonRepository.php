@@ -19,7 +19,6 @@ use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
 use EDT\Querying\Pagination\PagePagination;
-use EDT\Querying\Utilities\Reindexer;
 use Pagerfanta\Pagerfanta;
 
 /**
@@ -30,7 +29,6 @@ class CustomFieldJsonRepository implements RepositoryInterface
     public function __construct(
         protected readonly EntityManagerInterface $entityManager,
         protected readonly ConditionFactoryInterface $conditionFactory,
-        private readonly Reindexer $reindexer,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
     ) {
     }
@@ -54,7 +52,7 @@ class CustomFieldJsonRepository implements RepositoryInterface
         throw new InvalidArgumentException();
     }
 
-    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, ?int $limit = null): array
+    public function getEntities(array $conditions, array $sortMethods): array
     {
         $customFieldConfigurations = $this->customFieldConfigurationRepository->getEntities($conditions, $sortMethods);
 

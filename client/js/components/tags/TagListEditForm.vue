@@ -4,6 +4,7 @@
       v-if="isInEditState === nodeElement.id"
       :id="`edit-${type}-${nodeElement.id}`"
       v-model="unsavedItem.title"
+      aria-labelledby="categoryOrTagLabel"
       class="flex-1"
     />
     <div

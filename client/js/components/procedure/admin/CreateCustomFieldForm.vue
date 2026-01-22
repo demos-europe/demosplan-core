@@ -96,6 +96,11 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
+    disableTypeSelection: {
+      type: Boolean,
+      default: false,
+    },
+
     handleSuccess: {
       type: Boolean,
       default: false,
@@ -109,11 +114,6 @@ export default {
     preselectedType: {
       type: String,
       default: '',
-    },
-
-    disableTypeSelection: {
-      type: Boolean,
-      default: false,
     },
   },
 
@@ -134,11 +134,11 @@ export default {
       typeOptions: [
         {
           value: 'multiSelect',
-          label: 'Mehrfachauswahl',
+          label: Translator.trans('custom.field.type.multiSelect'),
         },
         {
           value: 'singleSelect',
-          label: 'Einzelauswahl',
+          label: Translator.trans('custom.field.type.singleSelect'),
         },
       ],
     }

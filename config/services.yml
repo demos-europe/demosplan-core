@@ -36,21 +36,6 @@ services:
             -   name: custom_field_type_validator
     # End CustomField validation services
 
-    # Start CustomFieldValue validation services
-    demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator\CustomFieldValueValidationService:
-        arguments:
-            $strategies: !tagged custom_field_value_validation_strategy
-
-    demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator\MultiSelectFieldValueValidationStrategy:
-        tags:
-            - name: custom_field_value_validation_strategy
-
-    demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator\SingleSelectFieldValueValidationStrategy:
-        tags:
-            -   name: custom_field_value_validation_strategy
-
-    # End CustomFieldValue validation services
-
     # Start CustomField Factories
     demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\CustomFieldFactoryRegistry:
         arguments:
@@ -953,6 +938,10 @@ services:
         lazy: true
         calls:
             - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments' ]]
+
+    demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport:
+        arguments:
+            $segmentPersister: '@fos_elastica.object_persister.statementSegments'
 
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\TagService:
