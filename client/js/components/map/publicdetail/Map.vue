@@ -30,40 +30,40 @@
     />
 
     <dp-slidebar data-cy="layerFeatureInfoSidebar">
-        <div
-          v-if="layersFeatureInfoResults?.length > 1"
-          class="flex items-baseline justify-between gap-2 mr-3 mb-4 max-w-full"
-        >
-          <dp-button
-            v-if="currentLayerFeatureInfoPage > 1"
-            :aria-label="Translator.trans('map.next.feature.info')"
-            color="primary"
-            variant="outline"
-            icon="chevron-left"
-            hide-text
-            @click="showPreviousLayerFeatureInfo"
-          />
-
-          <h3 class="flex-1 text-center font-bold truncate">
-            {{ currentLayerFeatureInfoResult.layerName }}
-          </h3>
-
-          <dp-button
-            v-if="currentLayerFeatureInfoPage < layersFeatureInfoResults.length"
-            :aria-label="Translator.trans('map.previous.feature.info')"
-            color="primary"
-            variant="outline"
-            icon="chevron-right"
-            hide-text
-            @click="showNextLayerFeatureInfo"
-          />
-        </div>
-
-        <div
-          v-if="currentLayerFeatureInfoResult"
-          v-html="currentLayerFeatureInfoResult.content"
-          class="mb-4 mr-2"
+      <div
+        v-if="layersFeatureInfoResults?.length > 1"
+        class="flex items-baseline justify-between gap-2 mr-3 mb-4 max-w-full"
+      >
+        <dp-button
+          v-if="currentLayerFeatureInfoPage > 1"
+          :aria-label="Translator.trans('map.next.feature.info')"
+          color="primary"
+          variant="outline"
+          icon="chevron-left"
+          hide-text
+          @click="showPreviousLayerFeatureInfo"
         />
+
+        <h3 class="flex-1 text-center font-bold truncate">
+          {{ currentLayerFeatureInfoResult.layerName }}
+        </h3>
+
+        <dp-button
+          v-if="currentLayerFeatureInfoPage < layersFeatureInfoResults.length"
+          :aria-label="Translator.trans('map.previous.feature.info')"
+          color="primary"
+          variant="outline"
+          icon="chevron-right"
+          hide-text
+          @click="showNextLayerFeatureInfo"
+        />
+      </div>
+
+      <div
+        v-if="currentLayerFeatureInfoResult"
+        v-html="currentLayerFeatureInfoResult.content"
+        class="mb-4 mr-2"
+      />
     </dp-slidebar>
     <slot />
   </div>
