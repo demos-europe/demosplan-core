@@ -18,15 +18,3 @@ jobs:
           enabled: true
       - main:
           enabled: false
-  Job3:
-    name: Job 3
-    dependencies:
-      - Job1:
-          files:
-            - .
-  Job4:
-    name: Job 4
-    dependencies:
-      - Job1:
-          files:
-            - .
