@@ -3,13 +3,15 @@ jobs:
     name: Job 1
     steps: []
     files-publication:
-      - path: /*
+      - path: .
         share-with-jobs: true
         publish-artifact: false
   Job2:
     name: Job 2
     dependencies:
-      - Job1
+      - Job1:
+          files:
+            - .
     repositories:
       - git@github.com:demos-europe/demosplan-project-diplanbau.git:
           path: projects/diplanbau
