@@ -18,10 +18,13 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator\CustomFieldValueValidationService;
 
 class CustomFieldValueCreator
 {
-    public function __construct(private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
+    public function __construct(
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
+        private readonly CustomFieldValueValidationService $validationService)
     {
     }
 
@@ -57,7 +60,7 @@ class CustomFieldValueCreator
                 $sourceEntityId,
                 $targetEntityClass,
                 $newCustomFieldValue->getId());
-            $this->validateCustomFieldValue($customField, $newCustomFieldValue->getValue());
+            $this->validationService->validate($customField, $newCustomFieldValue);
 
             // Find in our new copy, not in the original
             $existingCustomFieldValue = $updatedCustomFieldValuesList->findById($newCustomFieldValue->getId());
@@ -140,12 +143,5 @@ class CustomFieldValueCreator
         }
 
         return $customFieldConfiguration->getConfiguration();
-    }
-
-    private function validateCustomFieldValue(CustomFieldInterface $customField, mixed $value): void
-    {
-        if (!$customField->isValueValid($value)) {
-            throw new InvalidArgumentException(sprintf('Value "%s" is not valid for custom field with ID "%s".', $value, $customField->getId()));
-        }
     }
 }

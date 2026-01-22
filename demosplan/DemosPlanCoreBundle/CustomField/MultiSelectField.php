@@ -83,17 +83,6 @@ class MultiSelectField extends AbstractCustomField
         return $this->isRequired;
     }
 
-    public function isValueValid(?string $value): bool
-    {
-        if (null === $value) {
-            return true;
-        }
-
-        return collect($this->options)->contains(function ($option) use ($value) {
-            return $option->getId() === $value;
-        });
-    }
-
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption
     {
         foreach ($this->options as $option) {
