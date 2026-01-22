@@ -1841,7 +1841,7 @@ export default {
           return Promise.resolve(null)
         }
 
-        // Each request catches its own errors (prevents Promise.all from failing completely)
+        // Each request catches its own errors
         return externalApi(layerFeatureInfoUrl)
           .then(response => response.text())
           .then(content => ({
@@ -1872,7 +1872,7 @@ export default {
 
           const failedResults = allResults.filter(result => !result.success)
 
-          // All requests failed (server errors)
+          // All requests failed
           if (allResults.length > 0 && failedResults.length === allResults.length) {
             dplan.notify.notify('error', Translator.trans('error.map.getfeatureinfo.request.failed'))
 
@@ -1963,14 +1963,12 @@ export default {
             )
           }
 
-          // Create safe link
           const link = document.createElement('a')
           link.href = url
           link.textContent = 'Link'
           link.target = '_blank'
           link.rel = 'noopener noreferrer'
           fragment.appendChild(link)
-
           lastIndex = index + url.length
         })
 
