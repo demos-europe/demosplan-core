@@ -35,12 +35,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Faker\Provider\Uuid;
-use RuntimeException;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToCopyFile;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -442,7 +442,7 @@ class FileService implements FileServiceInterface
         string $fileContent,
         string $filenamePrefix = '',
         ?string $userId = null,
-        ?string $procedureId = null
+        ?string $procedureId = null,
     ): File {
         if ('' === $fileContent) {
             throw new InvalidArgumentException('File content cannot be empty');
