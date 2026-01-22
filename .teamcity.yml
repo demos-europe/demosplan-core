@@ -37,8 +37,8 @@ jobs:
           files:
             - .
     repositories:
-      - git@github.com:demos-europe/demosplan-project-diplanbau.git:
-          path: projects/diplanbau
+      - git@github.com:demos-europe/demosplan-project-diplanrog.git:
+          path: projects/diplanrog
           enabled: true
       - main:
           enabled: false
