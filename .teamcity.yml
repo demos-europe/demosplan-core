@@ -154,7 +154,34 @@ jobs:
   Job1_3:
     name: Build
     dependencies:
-      - Job2cloneClone
-      - Job2clone
-      - Job2
-    steps: []
+      - Job2cloneClone:
+          files:
+            - .
+      - Job2clone:
+          files:
+            - .
+      - Job2:
+          files:
+            - .
+    steps:
+      - type: script
+        script-content: >-
+          hostname
+
+          pwd
+
+          whoami
+
+          which rsync
+
+          echo "./docker/build.sh demosdeutschland/demosplan-%env.PROJECT%
+          %env.BRANCH% %env.PROJECT%"
+
+          echo "GITHUB_TOKEN=%env.GITHUB_TOKEN%" > .env.local
+
+          ./docker/build.sh demosdeutschland/demosplan-%env.PROJECT%
+          %env.BRANCH% %env.PROJECT%
+
+          ./docker/build.sh -d demosdeutschland/demosplan-%env.PROJECT%
+          %env.BRANCH% %env.PROJECT%
+        name: Build
