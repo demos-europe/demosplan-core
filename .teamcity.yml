@@ -20,6 +20,10 @@ jobs:
           enabled: true
       - main:
           enabled: false
+    files-publication:
+      - path: .
+        share-with-jobs: true
+        publish-artifact: false
   Job2clone:
     name: Checkout PFV
     dependencies:
@@ -32,6 +36,10 @@ jobs:
           enabled: true
       - main:
           enabled: false
+    files-publication:
+      - path: .
+        share-with-jobs: true
+        publish-artifact: false
   Job2cloneClone:
     name: Checkout Rog
     dependencies:
@@ -44,6 +52,10 @@ jobs:
           enabled: true
       - main:
           enabled: false
+    files-publication:
+      - path: .
+        share-with-jobs: true
+        publish-artifact: false
   Job1_2:
     name: Determine trigger
     steps:
@@ -139,3 +151,10 @@ jobs:
           enabled: true
       - git@github.com:demos-europe/demosplan-project-diplanfest.git:
           enabled: true
+  Job1_3:
+    name: Build
+    dependencies:
+      - Job2cloneClone
+      - Job2clone
+      - Job2
+    steps: []
