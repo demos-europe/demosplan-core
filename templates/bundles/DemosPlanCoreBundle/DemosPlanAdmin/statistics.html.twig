@@ -57,12 +57,12 @@
 
         {% set procedurePhasesPublicAgencies = [] %}
         {% for internalPhase in templateVars.internalPhases %}
-            {% set procedurePhasesPublicAgencies = procedurePhasesPublicAgencies|merge([{ key: internalPhase.name, value: internalPhase.num|default(0) }]) %}
+            {% set procedurePhasesPublicAgencies = procedurePhasesPublicAgencies|merge([{ key: internalPhase.name|default('Unknown'), value: internalPhase.num|default(0) }]) %}
         {% endfor %}
 
         {% set procedurePhasesPublic = [] %}
         {% for externalPhase in templateVars.externalPhases %}
-            {% set procedurePhasesPublic = procedurePhasesPublic|merge([{ key: externalPhase.name, value: externalPhase.num|default(0) }]) %}
+            {% set procedurePhasesPublic = procedurePhasesPublic|merge([{ key: externalPhase.name|default('Unknown'), value: externalPhase.num|default(0) }]) %}
         {% endfor %}
 
         {# Find the best fitting colorScheme for a given number of phases (which are different across projects).
