@@ -429,7 +429,7 @@ class FileService implements FileServiceInterface
      *
      * @param string      $fileName       Original filename
      * @param string      $fileContent    Binary file content
-     * @param string      $filenamePrefix Optional prefix for the temporary filename (e.g., 'xbeteiligung')
+     * @param string      $filenamePrefix Optional prefix for the temporary filename
      * @param string|null $userId         Optional user ID
      * @param string|null $procedureId    Optional procedure ID
      *
@@ -448,9 +448,16 @@ class FileService implements FileServiceInterface
             throw new InvalidArgumentException('File content cannot be empty');
         }
 
+        if ('' === $fileName) {
+            throw new InvalidArgumentException('Filename cannot be empty');
+        }
+
+        // Sanitize filename to remove invalid characters
+        $sanitizedFileName = $this->sanitizeFileName($fileName);
+
         // Build temporary filename with optional prefix
-        // Example: xbeteiligung_file_67a1b2c3d4e5.12345678_ErgaenzendeUnterlage.pdf
-        $tempFileName = ('' !== $filenamePrefix ? $filenamePrefix.'_' : '').uniqid('file_', true).'_'.$fileName;
+        // Example: prefix_file_67a1b2c3d4e5.12345678_Document.pdf
+        $tempFileName = ('' !== $filenamePrefix ? $filenamePrefix.'_' : '').uniqid('file_', true).'_'.$sanitizedFileName;
         $tempFilePath = DemosPlanPath::getTemporaryPath($tempFileName);
 
         try {
@@ -460,7 +467,7 @@ class FileService implements FileServiceInterface
                 throw new FileWriteException('Failed to write file content to temporary file: '.$tempFilePath);
             }
 
-            return $this->saveTemporaryLocalFile($tempFilePath, $fileName, $userId, $procedureId);
+            return $this->saveTemporaryLocalFile($tempFilePath, $sanitizedFileName, $userId, $procedureId);
         } finally {
             // Clean up the temporary file
             if (file_exists($tempFilePath)) {

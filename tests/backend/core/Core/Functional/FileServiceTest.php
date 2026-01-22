@@ -525,6 +525,25 @@ class FileServiceTest extends FunctionalTestCase
         $this->sut->saveBinaryFileContent('test.txt', '');
     }
 
+    public function testSaveFileContentEmptyFilename(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Filename cannot be empty');
+
+        $this->sut->saveBinaryFileContent('', 'some content');
+    }
+
+    public function testSaveBinaryFileContentSanitizesFilename(): void
+    {
+        $fileName = 'test%file with spaces.txt';
+        $fileContent = 'Test content';
+
+        $file = $this->sut->saveBinaryFileContent($fileName, $fileContent);
+
+        // Verify that filename was sanitized (% removed, spaces replaced with _)
+        static::assertSame('testfile_with_spaces.txt', $file->getFileName());
+    }
+
     public function testSaveFileContentFromXBeteiligungBase64(): void
     {
         // Base64 string from XBeteiligung XML message (PDF file)
