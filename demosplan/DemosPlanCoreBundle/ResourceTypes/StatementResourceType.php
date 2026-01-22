@@ -18,7 +18,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -167,7 +166,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             // ES queries beside Doctrine.
             $conditions[] = $this->conditionFactory->propertyIsNotNull($pathStartResourceType->original->id);
         }
-
 
         return $conditions;
     }
@@ -573,7 +571,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         if ($this->currentUser->hasPermission('field_statements_custom_fields')) {
             $configBuilder->customFields
                 ->setReadableByCallable(static fn (Statement $statement): ?array => $statement->getCustomFields()?->toJson());
-
         }
 
         return $configBuilder;
