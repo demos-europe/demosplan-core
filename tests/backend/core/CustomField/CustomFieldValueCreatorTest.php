@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomField
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Base\FunctionalTestCase;
@@ -47,7 +48,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         // Arrange
         $customField = CustomFieldConfigurationFactory::new()
             ->withRelatedProcedure($this->procedure->_real())
-            ->withRelatedTargetEntity('SEGMENT')
+            ->withRelatedTargetEntity(CustomFieldSupportedEntity::segment->value)
             ->asRadioButton('Priority', options: ['High', 'Medium', 'Low'])
             ->create();
 
@@ -65,8 +66,8 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
             new CustomFieldValuesList(), // Empty current list
             $newCustomFieldValuesData,
             $this->procedure->getId(),
-            'PROCEDURE',
-            'SEGMENT'
+            CustomFieldSupportedEntity::procedure->value,
+            CustomFieldSupportedEntity::segment->value
         );
 
         // Assert
@@ -84,7 +85,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         // Arrange
         $customField = CustomFieldConfigurationFactory::new()
             ->withRelatedProcedure($this->procedure->_real())
-            ->withRelatedTargetEntity('STATEMENT')
+            ->withRelatedTargetEntity(CustomFieldSupportedEntity::statement->value)
             ->asMultiSelect('Tags', options: ['Environment', 'Traffic', 'Housing'], isRequired: false)
             ->create();
 
@@ -102,8 +103,8 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
             new CustomFieldValuesList(), // Empty current list
             $newCustomFieldValuesData,
             $this->procedure->getId(),
-            'PROCEDURE',
-            'STATEMENT'
+            CustomFieldSupportedEntity::procedure->value,
+            CustomFieldSupportedEntity::statement->value
         );
 
         // Assert
@@ -133,7 +134,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         // Arrange
         $customField = CustomFieldConfigurationFactory::new()
             ->withRelatedProcedure($this->procedure->_real())
-            ->withRelatedTargetEntity('STATEMENT')
+            ->withRelatedTargetEntity(CustomFieldSupportedEntity::statement->value)
             ->asMultiSelect('Favourite pets', options: ['Cat', 'Dog', 'Hamster', 'Parrot'], isRequired: false)
             ->create();
 
@@ -152,8 +153,8 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
             new CustomFieldValuesList(), // Empty current list
             $newCustomFieldValuesData,
             $this->procedure->getId(),
-            'PROCEDURE',
-            'STATEMENT'
+            CustomFieldSupportedEntity::procedure->value,
+            CustomFieldSupportedEntity::statement->value
         );
 
         // Assert
@@ -197,7 +198,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
             new CustomFieldValuesList(),
             $newCustomFieldValuesData,
             $this->procedure->getId(),
-            'PROCEDURE',
+            CustomFieldSupportedEntity::procedure->value,
             $targetEntity
         );
     }
@@ -210,7 +211,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         $this->assertValidationError(
             $testData,
             $expectedErrorMessage,
-            'SEGMENT',
+            CustomFieldSupportedEntity::segment->value,
             fn ($factory, $data) => $factory->asRadioButton(
                 $data['fieldName'],
                 options: $data['fieldOptions']
@@ -261,7 +262,7 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         $this->assertValidationError(
             $testData,
             $expectedErrorMessage,
-            'STATEMENT',
+            CustomFieldSupportedEntity::statement->value,
             fn ($factory, $data) => $factory->asMultiSelect(
                 $data['fieldName'],
                 options: $data['fieldOptions'],

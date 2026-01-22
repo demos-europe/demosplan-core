@@ -52,6 +52,8 @@
     "lint:scss": "stylelint {demosplan/DemosPlanCoreBundle/Resources/client/scss,projects}/**/*.scss"
   },
   "dependencies": {
+    "@carbon/icons-vue": "10.99.1",
+    "@carbon/vue": "^3.0.27",
     "@cesium/engine": "^20.0.1",
     "@demos-europe/demosplan-ui": "0.7.0",
     "@demos-europe/dp-consent": "^1.3",
@@ -67,6 +69,7 @@
     "@vue/compat": "3.5.25",
     "@vue/compiler-sfc": "3.5.25",
     "a11y-datepicker": " ^0.9.0",
+    "carbon-components": "10.58.15",
     "cesium": "^1.126.0",
     "core-js": "^3.47.0",
     "d3": "^7.9.0",
@@ -180,8 +183,5 @@
     "prosemirror-state": "1.4.3",
     "prosemirror-transform": "1.10.4"
   },
-  "workspaces": [
-    "projects/*"
-  ],
   "packageManager": "yarn@4.2.2"
 }
