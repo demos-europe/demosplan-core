@@ -35,6 +35,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Faker\Provider\Uuid;
+use RuntimeException;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToCopyFile;
@@ -358,7 +359,8 @@ class FileService implements FileServiceInterface
     /**
      * Saves a temporary local file to the storage and returns the corresponding File entity.
      * File needs to be accessible for the file system of the current process.
-     * No s3 or other remote storage is used.
+     * Uses the configured default storage backend (maybe S3, local filesystem, or other adapters
+     * depending on the FILES_SOURCE environment variable configuration).
      *
      * @throws VirusFoundException|Throwable
      */
@@ -417,6 +419,54 @@ class FileService implements FileServiceInterface
         $filePath = $symfonyFile->getPathname();
 
         return $this->handleLocalFileStorage($symfonyFile, $virencheck, $dplanFile, $filePath);
+    }
+
+    /**
+     * Save file from binary content (e.g., already decoded base64 content).
+     *
+     * This method is useful when you have file content as a string (binary data)
+     * and need to save it. It creates a temporary file internally and cleans it up.
+     *
+     * @param string      $fileName       Original filename
+     * @param string      $fileContent    Binary file content
+     * @param string      $filenamePrefix Optional prefix for the temporary filename (e.g., 'xbeteiligung')
+     * @param string|null $userId         Optional user ID
+     * @param string|null $procedureId    Optional procedure ID
+     *
+     * @return File The saved file entity
+     *
+     * @throws Throwable
+     */
+    public function saveBinaryFileContent(
+        string $fileName,
+        string $fileContent,
+        string $filenamePrefix = '',
+        ?string $userId = null,
+        ?string $procedureId = null
+    ): File {
+        if ('' === $fileContent) {
+            throw new InvalidArgumentException('File content cannot be empty');
+        }
+
+        // Build temporary filename with optional prefix
+        // Example: xbeteiligung_file_67a1b2c3d4e5.12345678_ErgaenzendeUnterlage.pdf
+        $tempFileName = ('' !== $filenamePrefix ? $filenamePrefix.'_' : '').uniqid('file_', true).'_'.$fileName;
+        $tempFilePath = DemosPlanPath::getTemporaryPath($tempFileName);
+
+        try {
+            // Write content to temporary file
+            $bytesWritten = file_put_contents($tempFilePath, $fileContent);
+            if (false === $bytesWritten) {
+                throw new RuntimeException('Failed to write file content to temporary file: '.$tempFilePath);
+            }
+
+            return $this->saveTemporaryLocalFile($tempFilePath, $fileName, $userId, $procedureId);
+        } finally {
+            // Clean up the temporary file
+            if (file_exists($tempFilePath)) {
+                unlink($tempFilePath);
+            }
+        }
     }
 
     /**

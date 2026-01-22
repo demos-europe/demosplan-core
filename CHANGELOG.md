@@ -5,6 +5,17 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+### Added
+- Add `FileService::saveBinaryFileContent()` method to save binary file content directly without manual temporary file handling
+  - Accepts filename, binary content, and optional filename prefix
+  - Automatically handles temporary file creation and cleanup using `DemosPlanPath`
+  - Supports virus checking and procedure/user association
+  - Useful for saving already-decoded base64 content from external sources
+
+### Changed
+- Update `FileService::saveTemporaryLocalFile()` documentation to clarify it uses configured storage backend (S3, local, or other adapters based on FILES_SOURCE environment variable)
+
 ## v4.27.0 (2026-01-16)
 
 ### Added
