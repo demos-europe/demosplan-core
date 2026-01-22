@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -47,9 +48,11 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedurePhaseVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
+use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use Elastica\Index;
 use Webmozart\Assert\Assert;
 
@@ -183,6 +186,10 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
     {
         if (!$this->hasAssessmentPermission()) {
             return false;
+        }
+
+        if ($this->currentUser->hasPermission('field_statements_custom_fields')) {
+            return true;
         }
 
         // has admin list assign permission
@@ -358,6 +365,25 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->user
                 ->setRelationshipType($this->resourceTypeStore->getUserResourceType())
                 ->setReadableByPath();
+
+            if ($this->currentUser->hasPermission('field_statements_custom_fields')) {
+                $configBuilder->customFields
+                    ->updatable([],
+                        function (Statement $statement, array $customFields): array {
+                            $customFieldList = $statement->getCustomFields() ?? new CustomFieldValuesList();
+                            $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+                                $customFieldList,
+                                $customFields,
+                                $statement->getProcedure()->getId(),
+                                'PROCEDURE',
+                                'STATEMENT'
+                            );
+                            $statement->setCustomFields($customFieldList);
+
+                            return [];
+                        }
+                    );
+            }
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {
@@ -533,8 +559,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             );
         }
 
+        //problematic
         $configBuilder->procedurePhase
-            ->updatable($statementConditions, function (Statement $statement, array $procedurePhase): array {
+            ->updatable([], function (Statement $statement, array $procedurePhase): array {
                 // check that phaseKey exists so that it is not possible to set a phase that does not exist
                 try {
                     $this->statementProcedurePhaseResolver->getProcedurePhaseVO($procedurePhase[ProcedurePhaseVO::PROCEDURE_PHASE_KEY], $statement->isSubmittedByCitizen());
@@ -566,11 +593,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->votes
                 ->setRelationshipType($this->getTypes()->getStatementVoteResourceType())
                 ->readable(true);
-        }
-
-        if ($this->currentUser->hasPermission('field_statements_custom_fields')) {
-            $configBuilder->customFields
-                ->setReadableByCallable(static fn (Statement $statement): ?array => $statement->getCustomFields()?->toJson());
         }
 
         return $configBuilder;
