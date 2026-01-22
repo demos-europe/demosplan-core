@@ -1,6 +1,16 @@
 <template>
   <div>
     <dp-inline-notification
+      v-if="statementsCount && statementsCount > 0"
+      class="mb-4"
+      dismissible
+      :dismissible-key="helpTextDismissibleKey"
+      type="warning"
+      :message="Translator.trans('custom.fields.edit.info.multiSelect')"
+    />
+
+    <dp-inline-notification
+      v-else
       class="mb-4"
       data-cy="places:editInfo"
       dismissible
