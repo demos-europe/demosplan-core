@@ -78,9 +78,9 @@
             15: [ 'c-chart__color-11-1', 'c-chart__color-11-2', 'c-chart__color-11-3', 'c-chart__color-11-4', 'c-chart__color-11-5', 'c-chart__color-11-6', 'c-chart__color-11-7', 'c-chart__color-11-8', 'c-chart__color-11-9', 'c-chart__color-11-10', 'c-chart__color-11-11', 'c-chart__color-11-10', 'c-chart__color-11-9', 'c-chart__color-11-8', 'c-chart__color-11-7' ]
         } %}
         {% set phases = procedurePhasesPublicAgencies|length %}
-        {% set chartColorSchemeIndexPublicAgencies = [3, 6, 8, 15]|reduce((acc, val) => (val - phases)|abs <= (acc - phases)|abs ? val : acc, 1) %}
+        {% set chartColorSchemeIndexPublicAgencies = [3, 6, 8, 15]|reduce((acc, val) => (val - phases)|abs <= (acc - phases)|abs ? val : acc, 3) %}
         {% set phases = procedurePhasesPublic|length %}
-        {% set chartColorSchemeIndexPublic = [3, 6, 8, 15]|reduce((acc, val) => (val - phases)|abs <= (acc - phases)|abs ? val : acc, 1) %}
+        {% set chartColorSchemeIndexPublic = [3, 6, 8, 15]|reduce((acc, val) => (val - phases)|abs <= (acc - phases)|abs ? val : acc, 3) %}
 
         {% if hasPermission('feature_procedure_report_public_phase') %}
             <div class="layout shadow-sm u-pv flow-root u-m u-mt-2">
