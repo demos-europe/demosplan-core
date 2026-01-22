@@ -461,18 +461,14 @@ class FileService implements FileServiceInterface
         $tempFilePath = DemosPlanPath::getTemporaryPath($tempFileName);
 
         try {
-            // Write content to temporary file
-            $bytesWritten = file_put_contents($tempFilePath, $fileContent);
-            if (false === $bytesWritten) {
-                throw new FileWriteException('Failed to write file content to temporary file: '.$tempFilePath);
-            }
+            // Write content to temporary file using Symfony Filesystem
+            $fs = new Filesystem();
+            $fs->dumpFile($tempFilePath, $fileContent);
 
             return $this->saveTemporaryLocalFile($tempFilePath, $sanitizedFileName, $userId, $procedureId);
         } finally {
             // Clean up the temporary file
-            if (file_exists($tempFilePath)) {
-                unlink($tempFilePath);
-            }
+            $this->deleteLocalFile($tempFilePath);
         }
     }
 
