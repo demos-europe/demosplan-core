@@ -189,6 +189,7 @@
             v-if="!rowData.edit"
             class="btn--blank o-link--default mr-1"
             data-cy="customFields:editField"
+            :disabled="statementsCount > 0"
             :aria-label="Translator.trans('item.edit')"
             :title="Translator.trans('edit')"
             @click="editCustomField(rowData)"
@@ -203,6 +204,7 @@
             v-if="!rowData.edit"
             class="btn--blank o-link--default mr-1"
             data-cy="customFields:deleteField"
+            :disabled="statementsCount > 0"
             :aria-label="Translator.trans('item.edit')"
             :title="Translator.trans('edit')"
             @click="handleDeleteCustomField(rowData)"
@@ -362,6 +364,7 @@ export default {
         },
       ],
       newRowData: {},
+      statementsCount: 0,
       translationKeys: {
         info: 'custom.fields.edit.info.entities',
         delete: 'warning.custom_field.delete.message',
@@ -638,6 +641,7 @@ export default {
           .then(response => {
             console.log('Full response:', response)
             const statementsCount = response?.data?.AdminProcedure?.[this.procedureId]?.attributes?.statementsCount
+            this.statementsCount = statementsCount || 0
             console.log('statementsCount:', statementsCount)
             return response
           })
