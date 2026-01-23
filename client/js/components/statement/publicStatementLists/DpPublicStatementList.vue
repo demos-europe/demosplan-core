@@ -25,7 +25,7 @@
         :show-author="showAuthor"
         :show-checkbox="showCheckbox"
         @open-map-modal="openMapModal"
-        @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
+        @open-statement-modal-from-list="(id) => handleOpenStatementModal(id)"
       />
       <dp-map-modal
         ref="mapModal"
@@ -60,7 +60,7 @@
             :show-checkbox="showCheckbox"
             :statement-custom-fields="getCustomFieldsForStatement(statement.id)"
             @open-map-modal="openMapModal"
-            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
+            @open-statement-modal-from-list="(id) => handleOpenStatementModal(id)"
           />
           <dp-map-modal
             ref="mapModal"
@@ -89,7 +89,7 @@
             :show-author="showAuthor"
             :show-checkbox="showCheckbox"
             @open-map-modal="openMapModal"
-            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
+            @open-statement-modal-from-list="(id) => handleOpenStatementModal(id)"
           />
         </div>
       </dp-tab>
@@ -379,6 +379,12 @@ export default {
           }
         })
         .filter(field => field !== null && field.selected.length > 0)
+    },
+
+    handleOpenStatementModal (statementId) {
+      const customFields = this.getCustomFieldsForStatement(statementId)
+
+      this.$parent.$emit('open-statement-modal-from-list', statementId, customFields)
     },
 
     openMapModal (polygon) {

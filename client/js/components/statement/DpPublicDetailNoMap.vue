@@ -125,8 +125,13 @@ export default {
       this.toggleTabs(currentHash)
     }
 
-    this.$on('open-statement-modal-from-list', (id) => {
-      this.$refs.statementModal.getDraftStatement(id, true)
+    // Make sure, that custom fields are just displayed and not editable in the draft dialog
+    this.$on('open-statement-modal-from-list', (id, customFields) => {
+      if (customFields && customFields.length > 0) {
+        this.$refs.statementModal.setCustomFieldsReadOnly(customFields)
+      }
+
+      this.$refs.statementModal.getDraftStatement(id, true, true) // true = openModal, true = fromDraftList
     })
   },
 }

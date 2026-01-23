@@ -160,25 +160,47 @@
         </div>
 
         <div
-          v-for="(selectableCustomField) in selectableCustomFields"
+          v-if="openedFromDraftList && statementCustomFields.length > 0"
           class="mb-2">
-          <dp-label
-            :text="selectableCustomField.name"
-            :for="selectableCustomField.id"
-            class="mb-2"
-          />
+          <div
+            v-for="customField in statementCustomFields"
+            :key="customField.id"
+            class="mb-2">
+            <dp-label
+              :text="customField.name"
+              class="mb-2"
+            />
+            <div :class="prefixClass('o-form__group')">
+              <span :class="prefixClass('badge badge--default')">
+                {{ customField.selected.map(option => option.label).join(', ') }}
+              </span>
+            </div>
+          </div>
+        </div>
 
-          <dp-multiselect
-            :id="selectableCustomField.name"
-            v-model="selectableCustomField.selected"
-            :data-dp-validate-error-fieldname="selectableCustomField.name"
-            :options="selectableCustomField.options"
-            :required="selectableCustomField.isRequired"
-            label="label"
-            multiple
-            track-by="id"
-            @input="handleCustomFieldChange"
-          />
+        <div v-if="!openedFromDraftList">
+          <div
+            v-for="(selectableCustomField) in selectableCustomFields"
+            :key="selectableCustomField.id"
+            class="mb-2">
+            <dp-label
+              :text="selectableCustomField.name"
+              :for="selectableCustomField.id"
+              class="mb-2"
+            />
+
+            <dp-multiselect
+              :id="selectableCustomField.name"
+              v-model="selectableCustomField.selected"
+              :data-dp-validate-error-fieldname="selectableCustomField.name"
+              :options="selectableCustomField.options"
+              :required="selectableCustomField.isRequired"
+              label="label"
+              multiple
+              track-by="id"
+              @input="handleCustomFieldChange"
+            />
+          </div>
         </div>
 
         <div :class="prefixClass('c-statement__text')">
@@ -1099,6 +1121,7 @@ export default {
       continueWriting: false,
       statementCustomFields: [],
       draftStatementId: '',
+      openedFromDraftList: false,
       editDraftDataInPublicDetail: true,
       formFields: [...this.statementFormFields, ...this.personalDataFormFields, ...this.feedbackFormFields],
       hasPlanningDocuments: this.initHasPlanningDocuments,
@@ -1303,11 +1326,59 @@ export default {
           options: Array.isArray(field.attributes.options) ? field.attributes.options : [],
           selected: []
         }))
+
+        this.restoreCustomFieldSelections()
       } catch (error) {
         console.log(error)
 
         this.selectableCustomFields = []
       }
+    },
+
+    setCustomFieldsReadOnly (customFields) {
+      this.statementCustomFields = customFields
+    },
+
+    restoreCustomFieldSelections () {
+      this.selectableCustomFields.forEach(field => {
+        field.selected = []
+      })
+
+      if (!this.formData.customFields) {
+        return
+      }
+
+      this.formData.customFields.forEach(storedField => {
+        const fieldIndex = this.selectableCustomFields.findIndex(
+          field => field.id === storedField.id
+        )
+
+        if (fieldIndex === -1) {
+          console.warn(`Custom field ${storedField.id} not found in available fields`)
+          return
+        }
+
+        const field = this.selectableCustomFields[fieldIndex]
+
+        if (!storedField.value) {
+          return
+        }
+
+        const selectedOptions = storedField.value
+          .map(optionId => {
+            const option = field.options.find(opt => opt.id === optionId)
+
+            if (!option) {
+              console.warn(`Option ${optionId} not found in custom field ${field.name}`)
+              return null
+            }
+
+            return option
+          })
+          .filter(opt => opt !== null)
+
+        this.selectableCustomFields[fieldIndex].selected = selectedOptions
+      })
     },
 
     handleCustomFieldChange () {
@@ -1332,17 +1403,26 @@ export default {
       return this.formFields.map(el => el.name).includes(fieldKey)
     },
 
-    getDraftStatement (draftStatementId, openModal = false) {
+    getDraftStatement (draftStatementId, openModal = false, fromDraftList = false) {
       this.writeDraftStatementIdToSession(draftStatementId)
+
+      this.openedFromDraftList = fromDraftList
 
       // If the draft already exists. load it from session storage
       const dId = draftStatementId !== '' ? draftStatementId : 'new'
       const existingDataString = localStorage.getItem(`publicStatement:${this.userId}:${this.procedureId}:${dId}`)
       const draftExists = (draftStatementId !== '' && existingDataString !== null)
+
       if (draftExists) {
         const existingData = JSON.parse(existingDataString)
 
         this.setStatementData(existingData)
+
+        if (!fromDraftList) {
+          this.$nextTick(() => {
+            this.restoreCustomFieldSelections()
+          })
+        }
       }
 
       // Else: get the data via api
@@ -1361,6 +1441,12 @@ export default {
              * If it is a draft, we set the data from local storage (see above).
              */
             this.setStatementData(draft)
+
+            if (!fromDraftList) {
+              this.$nextTick(() => {
+                this.restoreCustomFieldSelections()
+              })
+            }
             this.removeStatementProp('immediate_submit')
             sessionStorage.removeItem(this.fileStorageName)
 
@@ -1754,6 +1840,8 @@ export default {
     },
 
     toggleModal (resetOnClose = true, data = null) {
+      const isClosing = this.$refs.statementModal && this.$refs.statementModal.isOpen
+
       // Check if browser is in fullscreen mode
       if (isActiveFullScreen()) {
         toggleFullscreen()
@@ -1761,6 +1849,12 @@ export default {
       this.editDraftDataInPublicDetail = resetOnClose
       this.step = 0
       this.showHeader = true
+
+      if (isClosing) {
+        this.openedFromDraftList = false
+        this.statementCustomFields = []
+      }
+
       this.$refs.statementModal.toggle()
       if (data) {
         this.updateStatement(data)
@@ -1876,6 +1970,10 @@ export default {
       const sessionStorageBegunStatementParsed = JSON.parse(sessionStorageBegunStatement)
       if (sessionStorageBegunStatement && sessionStorageBegunStatement !== this.initFormDataJSON && sessionStorageBegunStatementParsed.r_ident === '') {
         this.setStatementData(sessionStorageBegunStatementParsed)
+
+        this.$nextTick(() => {
+          this.restoreCustomFieldSelections()
+        })
       } else {
         this.setStatementData({ r_county: this.counties.find(el => el.selected) ? this.counties.find(el => el.selected).value : '' })
       }
