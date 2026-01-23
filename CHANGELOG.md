@@ -17,6 +17,7 @@
 - Add `FileWriteException` for dedicated file write error handling
 
 ### Changed
+- bump demosplan-addon version from v0.64 to v0.65
 - Update `FileService::saveTemporaryLocalFile()` documentation to clarify it uses configured storage backend (S3, local, or other adapters based on FILES_SOURCE environment variable)
 
 ## v4.27.0 (2026-01-16)
