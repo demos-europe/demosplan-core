@@ -186,6 +186,7 @@ RUN rm -rf /srv/www/var/cache/* && \
     # ensure tmp directory exists and is writable for Symfony XML schema validation \
     mkdir -p /srv/www/tmp && \
     chown -R www-data:www-data /srv/www/tmp && \
+    chown -R www-data:www-data /srv/www/var && \
     # link the custom squid root ca to the system that is mounted as a secret \
     # use a dummy file during link creation to prevent the error if the secret is not mounted \
     touch /srv/www/var/certs/ca.crt && \

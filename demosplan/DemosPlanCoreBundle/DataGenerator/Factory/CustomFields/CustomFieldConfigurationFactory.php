@@ -88,4 +88,34 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
             'targetEntityClass' => $entityClass,
         ]);
     }
+
+    /**
+     * Create a MultiSelect custom field configuration.
+     *
+     * @param string $name        Field name
+     * @param string $description Field description
+     * @param array  $options     Array of option labels (e.g., ['Tag1', 'Tag2', 'Tag3'])
+     * @param bool   $isRequired  Whether at least one selection is required
+     */
+    public function asMultiSelect(
+        string $name = 'Categories',
+        string $description = 'Select applicable categories',
+        array $options = [
+            'Environment', 'Traffic', 'Housing', 'Economy', 'Culture', 'Health'],
+        bool $isRequired = false,
+    ): self {
+        $customFieldOptions = collect($options)
+            ->map(fn (string $label) => CustomFieldOptionFactory::fromLabel($label)->create())
+            ->toArray();
+
+        return $this->with([
+            'configuration' => MultiSelectFieldFactory::new([
+                'name'              => $name,
+                'description'       => $description,
+                'fieldType'         => 'multiSelect',
+                'required'          => $isRequired,
+                'options'           => $customFieldOptions,
+            ]),
+        ]);
+    }
 }

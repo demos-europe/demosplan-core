@@ -260,6 +260,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             $statement->setPublicStatement($draftStatement->getPublicDraftStatement());
             // In der Regel müssen Stellungnahmen nicht überprüft werden
             $statement->setPublicVerified(Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED);
+            $statement->setCustomFields($draftStatement->getCustomFields());
             // Hinweis für den Fachplaner, dass die SN überprüft werden muss
             if ($draftStatement->isPublicAllowed()) {
                 $statement->setPublicVerified(Statement::PUBLICATION_PENDING);

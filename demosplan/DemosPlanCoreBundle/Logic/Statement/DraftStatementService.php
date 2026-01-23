@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -49,6 +50,9 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldPropertyName;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
@@ -149,6 +153,7 @@ class DraftStatementService
         private readonly LoggerInterface $logger,
         private readonly ManagerRegistry $doctrine,
         private readonly ProfilerService $profilerService,
+        private readonly CustomFieldValueCreator $customFieldValueCreator,
     ) {
         $this->currentUser = $currentUser;
         $this->elementsService = $elementsService;
@@ -2055,6 +2060,30 @@ class DraftStatementService
                 $statement['statementAttributes']['county'] = $data['r_county'];
             }
         }
+
+        return $statement;
+    }
+
+    public function extractCustomFields(array $data, array $statement, string $procedureId): array
+    {
+        if (!$this->currentUser->hasPermission('feature_statements_custom_fields')) {
+            return $statement;
+        }
+
+        if (!array_key_exists(CustomFieldPropertyName::twigRequestName->value, $data)) {
+            return $statement;
+        }
+
+        $customFieldValues = json_decode($data[CustomFieldPropertyName::twigRequestName->value], true);
+        $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+            new CustomFieldValuesList(),
+            $customFieldValues,
+            $procedureId,
+            CustomFieldSupportedEntity::procedure->value,
+            CustomFieldSupportedEntity::statement->value
+        );
+
+        $statement[CustomFieldPropertyName::columnName->value] = $customFieldList;
 
         return $statement;
     }
