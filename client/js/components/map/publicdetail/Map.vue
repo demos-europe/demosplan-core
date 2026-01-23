@@ -709,19 +709,19 @@ export default {
 
       let baseUrl
 
-        try {
-          const parsedUrl = new URL(url)
-          const paramsToRemove = ['REQUEST', 'SERVICE', 'VERSION']
+      try {
+        const parsedUrl = new URL(url)
+        const paramsToRemove = ['REQUEST', 'SERVICE', 'VERSION']
 
-          paramsToRemove.forEach(param => {
-            parsedUrl.searchParams.delete(param)
-            parsedUrl.searchParams.delete(param.toLowerCase())
-          })
+        paramsToRemove.forEach(param => {
+          parsedUrl.searchParams.delete(param)
+          parsedUrl.searchParams.delete(param.toLowerCase())
+        })
 
-          baseUrl = parsedUrl.toString()
-        } catch {
-          baseUrl = url
-        }
+        baseUrl = parsedUrl.toString()
+      } catch {
+        baseUrl = url
+      }
 
 
       const tempSource = new TileWMS({
