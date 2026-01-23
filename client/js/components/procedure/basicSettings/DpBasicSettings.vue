@@ -234,7 +234,7 @@ export default {
 
     shouldShowInterfaceWarningModal () {
       const checkbox = document.getElementById('interfaceFieldsToTransmit-checkbox')
-      const isInterfaceCheckboxEnabled = !(checkbox?.disabled ?? true)
+      const isInterfaceCheckboxEnabled = !(checkbox?.checked ?? true)
 
       return this.isAddonLoaded &&
         !this.isAddonInterfaceActivated &&
