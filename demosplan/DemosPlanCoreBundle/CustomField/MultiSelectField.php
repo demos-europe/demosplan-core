@@ -100,13 +100,13 @@ class MultiSelectField extends AbstractCustomField
         foreach ($this->options as $option) {
             $isOptionInArray = in_array($option->getId(), $customFieldOptionValueId, true);
             if ($isOptionInArray) {
-                $optionNames = $optionNames . $option->getLabel() . ',';
+                $optionNames = $optionNames.$option->getLabel().',';
             }
         }
 
         $optionNames = rtrim($optionNames, ',');
-        return $optionNames;
 
+        return $optionNames;
 
         return $optionNames;
     }

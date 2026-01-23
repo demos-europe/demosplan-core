@@ -12,14 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventDispatcher;
 
-use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceUpdateFlushEvent;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
 
 class StatementEventSubscriber extends BaseEventSubscriber
 {

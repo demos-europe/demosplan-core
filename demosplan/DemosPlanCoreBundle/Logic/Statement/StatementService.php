@@ -585,7 +585,7 @@ class StatementService implements StatementServiceInterface
 
             /** @var StatementCreatedEvent $statementCreatedEvent */
             $statementCreatedEvent = $this->eventDispatcher->dispatch(
-                new StatementCreatedEvent($assessableStatement), //dispatched event
+                new StatementCreatedEvent($assessableStatement), // dispatched event
                 StatementCreatedEventInterface::class
             );
 

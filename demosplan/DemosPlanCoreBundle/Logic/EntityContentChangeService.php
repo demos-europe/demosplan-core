@@ -1092,7 +1092,7 @@ class EntityContentChangeService
             $preUpdateValues = $preUpdateCustomFieldValueList->toJson();
             $preUpdateValues = collect($preUpdateValues)->mapWithKeys(
                 fn (array $preUpdateValue) => [
-                    $this->getCustomFieldName($preUpdateValue['id']) => $this->getCustomFieldValueName($preUpdateValue['id'], $preUpdateValue['value']), //it is failing here
+                    $this->getCustomFieldName($preUpdateValue['id']) => $this->getCustomFieldValueName($preUpdateValue['id'], $preUpdateValue['value']), // it is failing here
                 ]
             );
         }
