@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TextSection;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 
 /**
  * Service for managing the order of content blocks in statements.
@@ -58,8 +59,8 @@ class OrderManagementService
      * Shifts other blocks as needed to maintain sequential order.
      *
      * @param Statement $statement The statement containing the block
-     * @param int $fromOrder The current order position
-     * @param int $toOrder The target order position
+     * @param int       $fromOrder The current order position
+     * @param int       $toOrder   The target order position
      */
     public function moveBlock(Statement $statement, int $fromOrder, int $toOrder): void
     {
@@ -79,9 +80,7 @@ class OrderManagementService
         }
 
         if (null === $blockToMove) {
-            throw new \InvalidArgumentException(
-                sprintf('No block found at order position %d', $fromOrder)
-            );
+            throw new InvalidArgumentException(sprintf('No block found at order position %d', $fromOrder));
         }
 
         // Temporarily set to high number to avoid conflicts
@@ -117,7 +116,7 @@ class OrderManagementService
      * Shifts subsequent blocks down to make room for the new segment.
      *
      * @param Segment $existing The existing segment after which to insert
-     * @param Segment $new The new segment to insert
+     * @param Segment $new      The new segment to insert
      */
     public function insertSegmentAfter(Segment $existing, Segment $new): void
     {
@@ -147,8 +146,8 @@ class OrderManagementService
      *
      * Shifts subsequent blocks down to make room for the new text section.
      *
-     * @param int $order1 The order position before the insertion point
-     * @param int $order2 The order position after the insertion point
+     * @param int         $order1  The order position before the insertion point
+     * @param int         $order2  The order position after the insertion point
      * @param TextSection $section The text section to insert
      */
     public function insertTextSectionBetween(int $order1, int $order2, TextSection $section): void
@@ -254,7 +253,7 @@ class OrderManagementService
                 $errors[] = sprintf('Gap in order sequence: expected %d, found %d', $expectedOrder, $actualOrder);
                 break;
             }
-            $expectedOrder++;
+            ++$expectedOrder;
         }
 
         return $errors;

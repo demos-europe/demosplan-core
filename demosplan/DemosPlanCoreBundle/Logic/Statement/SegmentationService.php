@@ -25,7 +25,7 @@ class SegmentationService
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly SegmentedHtmlParser $parser
+        private readonly SegmentedHtmlParser $parser,
     ) {
     }
 
@@ -83,7 +83,7 @@ class SegmentationService
         foreach ($statement->getSegmentsOfStatement() as $segment) {
             $allParts[] = [
                 'order' => $segment->getOrderInStatement(),
-                'html' => sprintf(
+                'html'  => sprintf(
                     '<div data-segment-order="%d">%s</div>',
                     $segment->getOrderInStatement(),
                     $segment->getText()
@@ -95,7 +95,7 @@ class SegmentationService
         foreach ($statement->getTextSections() as $textSection) {
             $allParts[] = [
                 'order' => $textSection->getOrderInStatement(),
-                'html' => sprintf(
+                'html'  => sprintf(
                     '<div data-section-order="%d">%s</div>',
                     $textSection->getOrderInStatement(),
                     $textSection->getText()
@@ -104,7 +104,7 @@ class SegmentationService
         }
 
         // Sort by order
-        usort($allParts, fn($a, $b) => $a['order'] <=> $b['order']);
+        usort($allParts, fn ($a, $b) => $a['order'] <=> $b['order']);
 
         // Combine HTML
         foreach ($allParts as $part) {
@@ -151,7 +151,7 @@ class SegmentationService
         $segment->setProcedure($statement->getProcedure());
 
         // Copy required fields from parent statement
-        $segment->setExternId($statement->getExternId() . '-' . $data['order']);
+        $segment->setExternId($statement->getExternId().'-'.$data['order']);
         $segment->setPhase($statement->getPhase());
         $segment->setPublicVerified($statement->getPublicVerified());
         $segment->setPublicStatement($statement->getPublicStatement());

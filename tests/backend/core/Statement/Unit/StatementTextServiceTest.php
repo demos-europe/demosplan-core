@@ -46,7 +46,7 @@ class StatementTextServiceTest extends FunctionalTestCase
         $expectedText = '<p>Original text</p>';
         $statement = StatementFactory::createOne([
             'segmentationStatus' => SegmentationStatus::UNSEGMENTED,
-            'text' => $expectedText,
+            'text'               => $expectedText,
         ]);
 
         // Act
@@ -61,7 +61,7 @@ class StatementTextServiceTest extends FunctionalTestCase
         // Arrange
         $statement = StatementFactory::createOne([
             'segmentationStatus' => SegmentationStatus::UNSEGMENTED,
-            'text' => '',
+            'text'               => '',
         ]);
 
         // Act
@@ -80,20 +80,20 @@ class StatementTextServiceTest extends FunctionalTestCase
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
-            'text' => '<p>First segment</p>',
+            'orderInStatement'         => 1,
+            'text'                     => '<p>First segment</p>',
         ]);
 
         TextSectionFactory::createOne([
-            'statement' => $statement,
+            'statement'        => $statement,
             'orderInStatement' => 2,
-            'text' => '<p>Text section</p>',
+            'text'             => '<p>Text section</p>',
         ]);
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 3,
-            'text' => '<p>Second segment</p>',
+            'orderInStatement'         => 3,
+            'text'                     => '<p>Second segment</p>',
         ]);
 
         // Act
@@ -115,8 +115,8 @@ class StatementTextServiceTest extends FunctionalTestCase
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
-            'text' => '<p>Original content</p>',
+            'orderInStatement'         => 1,
+            'text'                     => '<p>Original content</p>',
         ]);
 
         // First call - cache miss
@@ -158,8 +158,8 @@ class StatementTextServiceTest extends FunctionalTestCase
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
-            'text' => '<p>Cached text</p>',
+            'orderInStatement'         => 1,
+            'text'                     => '<p>Cached text</p>',
         ]);
 
         // Populate cache
@@ -181,8 +181,8 @@ class StatementTextServiceTest extends FunctionalTestCase
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
-            'text' => '<p>Original</p>',
+            'orderInStatement'         => 1,
+            'text'                     => '<p>Original</p>',
         ]);
 
         // Populate cache
@@ -213,20 +213,20 @@ class StatementTextServiceTest extends FunctionalTestCase
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement1,
-            'orderInStatement' => 1,
-            'text' => '<p>Text 1</p>',
+            'orderInStatement'         => 1,
+            'text'                     => '<p>Text 1</p>',
         ]);
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement2,
-            'orderInStatement' => 1,
-            'text' => '<p>Text 2</p>',
+            'orderInStatement'         => 1,
+            'text'                     => '<p>Text 2</p>',
         ]);
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement3,
-            'orderInStatement' => 1,
-            'text' => '<p>Text 3</p>',
+            'orderInStatement'         => 1,
+            'text'                     => '<p>Text 3</p>',
         ]);
 
         // Populate all caches
@@ -284,8 +284,8 @@ class StatementTextServiceTest extends FunctionalTestCase
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
-            'text' => '<p>Content</p>',
+            'orderInStatement'         => 1,
+            'text'                     => '<p>Content</p>',
         ]);
 
         // Populate cache
@@ -307,7 +307,7 @@ class StatementTextServiceTest extends FunctionalTestCase
 
         $statement2 = StatementFactory::createOne([
             'segmentationStatus' => SegmentationStatus::UNSEGMENTED,
-            'text' => '<p>Unsegmented</p>',
+            'text'               => '<p>Unsegmented</p>',
         ]);
 
         $statement3 = StatementFactory::createOne([
@@ -316,14 +316,14 @@ class StatementTextServiceTest extends FunctionalTestCase
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement1,
-            'orderInStatement' => 1,
-            'text' => '<p>Segmented 1</p>',
+            'orderInStatement'         => 1,
+            'text'                     => '<p>Segmented 1</p>',
         ]);
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement3,
-            'orderInStatement' => 1,
-            'text' => '<p>Segmented 3</p>',
+            'orderInStatement'         => 1,
+            'text'                     => '<p>Segmented 3</p>',
         ]);
 
         // Act
@@ -348,8 +348,8 @@ class StatementTextServiceTest extends FunctionalTestCase
 
         $segment = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
-            'text' => '<p>Original</p>',
+            'orderInStatement'         => 1,
+            'text'                     => '<p>Original</p>',
         ]);
 
         // First computation

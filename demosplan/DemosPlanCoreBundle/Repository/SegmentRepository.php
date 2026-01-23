@@ -22,6 +22,7 @@ class SegmentRepository extends CoreRepository
 {
     private const ORDER_IN_STATEMENT_IS_NOT_NULL = 'segment.orderInStatement IS NOT NULL';
     private const PARENT_STATEMENT_CONDITION = 'segment.parentStatementOfSegment = :statementId';
+
     /**
      * @return array<Segment>
      */
@@ -80,7 +81,7 @@ class SegmentRepository extends CoreRepository
     {
         $manager = $this->getEntityManager();
         $query = $manager->createQueryBuilder()
-            ->select('segment.orderInStatement')//wrong, probably orderInProcedure
+            ->select('segment.orderInStatement')// wrong, probably orderInProcedure
             ->from(Segment::class, 'segment')
             ->where('segment.orderInStatement IS NOT NULL')
             ->andWhere('segment.procedure = :procedureId')->setParameter('procedureId', $procedureId)

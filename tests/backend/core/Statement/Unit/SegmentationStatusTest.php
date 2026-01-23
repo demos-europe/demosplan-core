@@ -14,6 +14,7 @@ namespace Tests\Core\Statement\Unit;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentationStatus;
 use PHPUnit\Framework\TestCase;
+use ValueError;
 
 class SegmentationStatusTest extends TestCase
 {
@@ -42,7 +43,7 @@ class SegmentationStatusTest extends TestCase
 
     public function testFromInvalidStringThrowsException(): void
     {
-        $this->expectException(\ValueError::class);
+        $this->expectException(ValueError::class);
 
         SegmentationStatus::from('invalid');
     }

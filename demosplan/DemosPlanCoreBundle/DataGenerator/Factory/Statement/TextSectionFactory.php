@@ -45,10 +45,10 @@ final class TextSectionFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'statement' => StatementFactory::new(),
+            'statement'        => StatementFactory::new(),
             'orderInStatement' => 1,
-            'textRaw' => '<p>Default text section content</p>',
-            'text' => 'Default text section content',
+            'textRaw'          => '<p>Default text section content</p>',
+            'text'             => 'Default text section content',
         ];
     }
 }

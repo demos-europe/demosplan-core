@@ -42,7 +42,7 @@ class SegmentedHtmlParser
         libxml_use_internal_errors(true);
 
         // Wrap in a container to ensure proper parsing
-        $wrappedHtml = '<div>' . $html . '</div>';
+        $wrappedHtml = '<div>'.$html.'</div>';
         $dom->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         libxml_clear_errors();
 
@@ -58,9 +58,9 @@ class SegmentedHtmlParser
                 $text = trim(strip_tags($textRaw));
 
                 $results[] = [
-                    'order' => $order,
-                    'type' => 'segment',
-                    'text' => $text,
+                    'order'   => $order,
+                    'type'    => 'segment',
+                    'text'    => $text,
                     'textRaw' => $textRaw,
                 ];
             }
@@ -76,9 +76,9 @@ class SegmentedHtmlParser
                     $text = trim(strip_tags($textRaw));
 
                     $results[] = [
-                        'order' => $order,
-                        'type' => 'segment',
-                        'text' => $text,
+                        'order'   => $order,
+                        'type'    => 'segment',
+                        'text'    => $text,
                         'textRaw' => $textRaw,
                     ];
                 }
@@ -99,16 +99,16 @@ class SegmentedHtmlParser
                 $text = trim(strip_tags($textRaw));
 
                 $results[] = [
-                    'order' => $order,
-                    'type' => 'textSection',
-                    'text' => $text,
+                    'order'   => $order,
+                    'type'    => 'textSection',
+                    'text'    => $text,
                     'textRaw' => $textRaw,
                 ];
             }
         }
 
         // Sort by order
-        usort($results, fn($a, $b) => $a['order'] <=> $b['order']);
+        usort($results, fn ($a, $b) => $a['order'] <=> $b['order']);
 
         return $results;
     }

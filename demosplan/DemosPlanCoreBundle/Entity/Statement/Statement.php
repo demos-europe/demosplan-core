@@ -2352,21 +2352,21 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         foreach ($segments as $segment) {
             $allParts[] = [
                 'order' => $segment->getOrderInStatement(),
-                'text' => $segment->getText(),
-                'type' => 'segment',
+                'text'  => $segment->getText(),
+                'type'  => 'segment',
             ];
         }
 
         foreach ($textSections as $textSection) {
             $allParts[] = [
                 'order' => $textSection->getOrderInStatement(),
-                'text' => $textSection->getText(),
-                'type' => 'textSection',
+                'text'  => $textSection->getText(),
+                'type'  => 'textSection',
             ];
         }
 
         // Sort by order
-        usort($allParts, fn($a, $b) => $a['order'] <=> $b['order']);
+        usort($allParts, fn ($a, $b) => $a['order'] <=> $b['order']);
 
         // Extract text parts
         foreach ($allParts as $part) {
@@ -4136,7 +4136,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
             $blocks[] = $textSection;
         }
 
-        usort($blocks, fn($a, $b) => $a->getOrderInStatement() <=> $b->getOrderInStatement());
+        usort($blocks, fn ($a, $b) => $a->getOrderInStatement() <=> $b->getOrderInStatement());
 
         return $blocks;
     }

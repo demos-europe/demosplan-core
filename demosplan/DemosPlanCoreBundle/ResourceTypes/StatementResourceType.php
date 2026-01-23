@@ -379,27 +379,27 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
                             foreach ($statement->getSegmentsOfStatement() as $segment) {
                                 $allBlocks[] = [
-                                    'type' => 'Segment',
-                                    'order' => $segment->getOrderInProcedure(),
-                                    'id' => $segment->getId(),
-                                    'text' => $segment->getText(),
+                                    'type'    => 'Segment',
+                                    'order'   => $segment->getOrderInProcedure(),
+                                    'id'      => $segment->getId(),
+                                    'text'    => $segment->getText(),
                                     'textRaw' => $segment->getText(),
-                                    'tags' => [],
-                                    'place' => $segment->getPlace()?->getId(),
-                                    'status' => $segment->getStatus(),
+                                    'tags'    => [],
+                                    'place'   => $segment->getPlace()?->getId(),
+                                    'status'  => $segment->getStatus(),
                                 ];
                             }
 
                             foreach ($statement->getTextSections() as $textSection) {
                                 $allBlocks[] = [
-                                    'type' => 'TextSection',
-                                    'order' => $textSection->getOrderInStatement(),
-                                    'text' => $textSection->getText(),
+                                    'type'    => 'TextSection',
+                                    'order'   => $textSection->getOrderInStatement(),
+                                    'text'    => $textSection->getText(),
                                     'textRaw' => $textSection->getTextRaw(),
                                 ];
                             }
 
-                            usort($allBlocks, fn($a, $b) => $a['order'] <=> $b['order']);
+                            usort($allBlocks, fn ($a, $b) => $a['order'] <=> $b['order']);
 
                             foreach ($allBlocks as $block) {
                                 $blockData = ['type' => $block['type'], 'order' => $block['order']];
@@ -409,14 +409,14 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
                             return [
                                 'data' => [
-                                    'id' => \Faker\Provider\Uuid::uuid(),
-                                    'type' => 'slicing transaction',
+                                    'id'         => \Faker\Provider\Uuid::uuid(),
+                                    'type'       => 'slicing transaction',
                                     'attributes' => [
-                                        'statementId' => $statement->getId(),
-                                        'procedureId' => $statement->getProcedureId(),
+                                        'statementId'        => $statement->getId(),
+                                        'procedureId'        => $statement->getProcedureId(),
                                         'segmentationStatus' => 'SEGMENTED',
-                                        'contentBlocks' => $contentBlocks,
-                                        'textualReference' => $statement->getText(),
+                                        'contentBlocks'      => $contentBlocks,
+                                        'textualReference'   => $statement->getText(),
                                     ],
                                 ],
                             ];
@@ -425,13 +425,13 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                         // For unsegmented statements, return default structure
                         return [
                             'data' => [
-                                'id' => \Faker\Provider\Uuid::uuid(),
-                                'type' => 'slicing transaction',
+                                'id'         => \Faker\Provider\Uuid::uuid(),
+                                'type'       => 'slicing transaction',
                                 'attributes' => [
-                                    'statementId' => $statement->getId(),
-                                    'procedureId' => $statement->getProcedureId(),
+                                    'statementId'      => $statement->getId(),
+                                    'procedureId'      => $statement->getProcedureId(),
                                     'textualReference' => $statement->getText(),
-                                    'segments' => [],
+                                    'segments'         => [],
                                 ],
                             ],
                         ];

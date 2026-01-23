@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFacto
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TextSectionFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TextSection;
-use demosplan\DemosPlanCoreBundle\Exception\ConcurrentModificationException;
 use demosplan\DemosPlanCoreBundle\Exception\EditLockedException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\OrderManagementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\SegmentEditService;
@@ -66,16 +65,16 @@ class SegmentEditServiceTest extends FunctionalTestCase
 
         $seg1 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
-            'text' => '<p>First</p>',
-            'editLocked' => false,
+            'orderInStatement'         => 1,
+            'text'                     => '<p>First</p>',
+            'editLocked'               => false,
         ]);
 
         $seg2 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 2,
-            'text' => '<p>Second</p>',
-            'editLocked' => false,
+            'orderInStatement'         => 2,
+            'text'                     => '<p>Second</p>',
+            'editLocked'               => false,
         ]);
 
         // Act
@@ -128,9 +127,9 @@ class SegmentEditServiceTest extends FunctionalTestCase
 
         $segment = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
-            'text' => '<p>Original long text</p>',
-            'editLocked' => false,
+            'orderInStatement'         => 1,
+            'text'                     => '<p>Original long text</p>',
+            'editLocked'               => false,
         ]);
 
         // Act
@@ -176,8 +175,8 @@ class SegmentEditServiceTest extends FunctionalTestCase
 
         $segment = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
-            'editLocked' => false,
+            'orderInStatement'         => 1,
+            'editLocked'               => false,
         ]);
 
         self::assertCount(1, $statement->getSegmentsOfStatement());
@@ -209,9 +208,9 @@ class SegmentEditServiceTest extends FunctionalTestCase
         $statement = StatementFactory::createOne();
 
         $textSection = TextSectionFactory::createOne([
-            'statement' => $statement,
+            'statement'        => $statement,
             'orderInStatement' => 2,
-            'text' => '<p>Unstructured text</p>',
+            'text'             => '<p>Unstructured text</p>',
         ]);
 
         // Act
@@ -235,9 +234,9 @@ class SegmentEditServiceTest extends FunctionalTestCase
 
         $segment = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
-            'text' => '<p>Segment text</p>',
-            'editLocked' => false,
+            'orderInStatement'         => 1,
+            'text'                     => '<p>Segment text</p>',
+            'editLocked'               => false,
         ]);
 
         // Act
@@ -275,8 +274,8 @@ class SegmentEditServiceTest extends FunctionalTestCase
 
         $segment = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
-            'editLocked' => false,
+            'orderInStatement'         => 1,
+            'editLocked'               => false,
         ]);
 
         // Act
@@ -291,7 +290,7 @@ class SegmentEditServiceTest extends FunctionalTestCase
     {
         // Arrange
         $segment = SegmentFactory::createOne([
-            'editLocked' => true,
+            'editLocked'       => true,
             'orderInStatement' => 1,
         ]);
 

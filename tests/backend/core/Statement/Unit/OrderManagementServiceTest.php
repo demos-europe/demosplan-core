@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TextSectionFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\OrderManagementService;
+use InvalidArgumentException;
 use Tests\Base\FunctionalTestCase;
 
 class OrderManagementServiceTest extends FunctionalTestCase
@@ -38,17 +39,17 @@ class OrderManagementServiceTest extends FunctionalTestCase
 
         $seg1 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 5,
+            'orderInStatement'         => 5,
         ]);
 
         $seg2 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 10,
+            'orderInStatement'         => 10,
         ]);
 
         $seg3 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 15,
+            'orderInStatement'         => 15,
         ]);
 
         // Act
@@ -71,11 +72,11 @@ class OrderManagementServiceTest extends FunctionalTestCase
 
         $seg = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 10,
+            'orderInStatement'         => 10,
         ]);
 
         $textSection = TextSectionFactory::createOne([
-            'statement' => $statement,
+            'statement'        => $statement,
             'orderInStatement' => 5,
         ]);
 
@@ -98,17 +99,17 @@ class OrderManagementServiceTest extends FunctionalTestCase
 
         $seg1 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
+            'orderInStatement'         => 1,
         ]);
 
         $seg2 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 2,
+            'orderInStatement'         => 2,
         ]);
 
         $seg3 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 3,
+            'orderInStatement'         => 3,
         ]);
 
         // Act - Move seg1 from position 1 to position 3
@@ -131,17 +132,17 @@ class OrderManagementServiceTest extends FunctionalTestCase
 
         $seg1 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
+            'orderInStatement'         => 1,
         ]);
 
         $seg2 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 2,
+            'orderInStatement'         => 2,
         ]);
 
         $seg3 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 3,
+            'orderInStatement'         => 3,
         ]);
 
         // Act - Move seg3 from position 3 to position 1
@@ -164,7 +165,7 @@ class OrderManagementServiceTest extends FunctionalTestCase
 
         $seg = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 2,
+            'orderInStatement'         => 2,
         ]);
 
         // Act - Move to same position
@@ -182,11 +183,11 @@ class OrderManagementServiceTest extends FunctionalTestCase
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
+            'orderInStatement'         => 1,
         ]);
 
         // Assert
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('No block found at order position 99');
 
         // Act
@@ -200,12 +201,12 @@ class OrderManagementServiceTest extends FunctionalTestCase
 
         $seg1 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
+            'orderInStatement'         => 1,
         ]);
 
         $seg2 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 2,
+            'orderInStatement'         => 2,
         ]);
 
         $newSegment = SegmentFactory::createOne();
@@ -230,12 +231,12 @@ class OrderManagementServiceTest extends FunctionalTestCase
 
         $seg1 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
+            'orderInStatement'         => 1,
         ]);
 
         $seg2 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 5, // Gap between 1 and 5
+            'orderInStatement'         => 5, // Gap between 1 and 5
         ]);
 
         $textSection = TextSectionFactory::createOne(['statement' => $statement]);
@@ -260,12 +261,12 @@ class OrderManagementServiceTest extends FunctionalTestCase
 
         $seg1 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
+            'orderInStatement'         => 1,
         ]);
 
         $seg2 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 2, // No gap
+            'orderInStatement'         => 2, // No gap
         ]);
 
         $textSection = TextSectionFactory::createOne(['statement' => $statement]);
@@ -290,17 +291,17 @@ class OrderManagementServiceTest extends FunctionalTestCase
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 3,
+            'orderInStatement'         => 3,
         ]);
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 7,
+            'orderInStatement'         => 7,
         ]);
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 5,
+            'orderInStatement'         => 5,
         ]);
 
         // Act
@@ -329,17 +330,17 @@ class OrderManagementServiceTest extends FunctionalTestCase
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
+            'orderInStatement'         => 1,
         ]);
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 2,
+            'orderInStatement'         => 2,
         ]);
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 3,
+            'orderInStatement'         => 3,
         ]);
 
         // Act
@@ -356,12 +357,12 @@ class OrderManagementServiceTest extends FunctionalTestCase
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
+            'orderInStatement'         => 1,
         ]);
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1, // Duplicate!
+            'orderInStatement'         => 1, // Duplicate!
         ]);
 
         // Act
@@ -379,12 +380,12 @@ class OrderManagementServiceTest extends FunctionalTestCase
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 1,
+            'orderInStatement'         => 1,
         ]);
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInStatement' => 3, // Gap! Missing 2
+            'orderInStatement'         => 3, // Gap! Missing 2
         ]);
 
         // Act

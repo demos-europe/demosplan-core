@@ -19,6 +19,6 @@ enum SegmentationStatus: string
 
     public function isSegmented(): bool
     {
-        return $this === self::SEGMENTED;
+        return self::SEGMENTED === $this;
     }
 }

@@ -40,7 +40,7 @@ class TextSectionFactoryTest extends FunctionalTestCase
 
         // Act
         $textSection = TextSectionFactory::createOne([
-            'statement' => $statement,
+            'statement'        => $statement,
             'orderInStatement' => 1,
         ]);
 
@@ -56,7 +56,7 @@ class TextSectionFactoryTest extends FunctionalTestCase
 
         // Act
         $textSection = TextSectionFactory::createOne([
-            'statement' => $statement,
+            'statement'        => $statement,
             'orderInStatement' => 5,
         ]);
 
@@ -72,17 +72,17 @@ class TextSectionFactoryTest extends FunctionalTestCase
 
         // Act
         $preamble = TextSectionFactory::createOne([
-            'statement' => $statement,
+            'statement'        => $statement,
             'orderInStatement' => 1,
         ]);
 
         $interlude = TextSectionFactory::createOne([
-            'statement' => $statement,
+            'statement'        => $statement,
             'orderInStatement' => 2,
         ]);
 
         $conclusion = TextSectionFactory::createOne([
-            'statement' => $statement,
+            'statement'        => $statement,
             'orderInStatement' => 3,
         ]);
 

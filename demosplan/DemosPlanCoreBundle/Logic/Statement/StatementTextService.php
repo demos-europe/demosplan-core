@@ -157,7 +157,7 @@ class StatementTextService
      * Cache the computed text for a statement.
      *
      * @param Statement $statement The statement
-     * @param string $text The computed text to cache
+     * @param string    $text      The computed text to cache
      */
     private function cacheText(Statement $statement, string $text): void
     {
@@ -179,7 +179,7 @@ class StatementTextService
      */
     private function getCacheKey(Statement $statement): string
     {
-        return self::CACHE_KEY_PREFIX . $statement->getId();
+        return self::CACHE_KEY_PREFIX.$statement->getId();
     }
 
     /**

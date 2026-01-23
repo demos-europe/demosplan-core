@@ -44,37 +44,37 @@ class StatementGetTextTest extends FunctionalTestCase
 
         // Create preamble
         TextSectionFactory::createOne([
-            'statement' => $statement,
+            'statement'        => $statement,
             'orderInStatement' => 1,
-            'text' => 'This is the preamble.',
+            'text'             => 'This is the preamble.',
         ]);
 
         // Create first segment
         $segment1 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInProcedure' => 2,
-            'text' => 'First segment text.',
+            'orderInProcedure'         => 2,
+            'text'                     => 'First segment text.',
         ]);
 
         // Create interlude
         TextSectionFactory::createOne([
-            'statement' => $statement,
+            'statement'        => $statement,
             'orderInStatement' => 3,
-            'text' => 'This is an interlude between segments.',
+            'text'             => 'This is an interlude between segments.',
         ]);
 
         // Create second segment
         $segment2 = SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInProcedure' => 4,
-            'text' => 'Second segment text.',
+            'orderInProcedure'         => 4,
+            'text'                     => 'Second segment text.',
         ]);
 
         // Create conclusion
         TextSectionFactory::createOne([
-            'statement' => $statement,
+            'statement'        => $statement,
             'orderInStatement' => 5,
-            'text' => 'This is the conclusion.',
+            'text'             => 'This is the conclusion.',
         ]);
 
         // Act
@@ -109,8 +109,8 @@ class StatementGetTextTest extends FunctionalTestCase
 
         SegmentFactory::createOne([
             'parentStatementOfSegment' => $statement,
-            'orderInProcedure' => 1,
-            'text' => 'Only segment text.',
+            'orderInProcedure'         => 1,
+            'text'                     => 'Only segment text.',
         ]);
 
         // Act
@@ -128,9 +128,9 @@ class StatementGetTextTest extends FunctionalTestCase
         $statement->_save();
 
         TextSectionFactory::createOne([
-            'statement' => $statement,
+            'statement'        => $statement,
             'orderInStatement' => 1,
-            'text' => 'Only preamble text.',
+            'text'             => 'Only preamble text.',
         ]);
 
         // Act

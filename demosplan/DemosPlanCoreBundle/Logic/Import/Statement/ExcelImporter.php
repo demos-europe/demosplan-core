@@ -551,7 +551,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         $segment->setPlace($place);
         $segment->setCreated(new DateTime());
-        $segment->setOrderInStatement($counter); //todo sure?
+        $segment->setOrderInStatement($counter); // todo sure?
 
         // Handle Tags
         if ('' !== $segmentData['Schlagworte'] && null !== $segmentData['Schlagworte']) {

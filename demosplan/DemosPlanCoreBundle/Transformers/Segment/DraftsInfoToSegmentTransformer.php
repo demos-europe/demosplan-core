@@ -169,7 +169,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         }
 
         return [
-            'segments' => $segments,
+            'segments'     => $segments,
             'textSections' => $textSections,
         ];
     }

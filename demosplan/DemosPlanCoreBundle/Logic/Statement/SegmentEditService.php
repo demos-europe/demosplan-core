@@ -42,13 +42,13 @@ class SegmentEditService
      * This operation is always allowed, even after a segment enters assessment workflow.
      *
      * @param Segment $segment The segment to update
-     * @param string $newText The new HTML content
+     * @param string  $newText The new HTML content
      *
      * @return Segment The updated segment
      */
     public function updateSegmentText(
         Segment $segment,
-        string $newText
+        string $newText,
     ): Segment {
         $oldText = $segment->getText();
 
@@ -87,7 +87,7 @@ class SegmentEditService
 
         // Create merged segment with inherited base properties
         $merged = $this->createSegmentWithInheritedProperties($seg1);
-        $merged->setText($seg1->getText() . $seg2->getText());
+        $merged->setText($seg1->getText().$seg2->getText());
 
         // Inherit metadata from first segment
         $merged->setPlace($seg1->getPlace());
@@ -129,9 +129,9 @@ class SegmentEditService
      * Creates two new segments from the provided HTML parts.
      * The segment must not be locked (not in assessment workflow).
      *
-     * @param Segment $segment The segment to split
-     * @param string $firstPartHtml HTML content for the first part
-     * @param string $secondPartHtml HTML content for the second part
+     * @param Segment $segment        The segment to split
+     * @param string  $firstPartHtml  HTML content for the first part
+     * @param string  $secondPartHtml HTML content for the second part
      *
      * @return array{0: Segment, 1: Segment} Array with [first segment, second segment]
      *
@@ -140,7 +140,7 @@ class SegmentEditService
     public function splitSegment(
         Segment $segment,
         string $firstPartHtml,
-        string $secondPartHtml
+        string $secondPartHtml,
     ): array {
         if ($segment->isEditLocked()) {
             throw new EditLockedException('Cannot split segments in assessment');
@@ -285,8 +285,8 @@ class SegmentEditService
      * Updates the order of the segment and shifts other blocks as needed.
      * The segment must not be locked (not in assessment workflow).
      *
-     * @param Segment $segment The segment to move
-     * @param int $newOrder The new order position
+     * @param Segment $segment  The segment to move
+     * @param int     $newOrder The new order position
      *
      * @throws EditLockedException If the segment is locked
      */

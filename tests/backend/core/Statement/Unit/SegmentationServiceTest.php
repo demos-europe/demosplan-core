@@ -13,8 +13,6 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Unit;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\TextSection;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\SegmentationService;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentationStatus;
 use Tests\Base\FunctionalTestCase;

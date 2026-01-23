@@ -94,32 +94,32 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
 
         foreach ($statement->getSegmentsOfStatement() as $segment) {
             $allBlocks[] = [
-                'type' => 'segment',
+                'type'  => 'segment',
                 'order' => $segment->getOrderInStatement(),
-                'data' => [
-                    'id' => $segment->getId(),
-                    'text' => $segment->getText(),
+                'data'  => [
+                    'id'      => $segment->getId(),
+                    'text'    => $segment->getText(),
                     'textRaw' => $segment->getText(),
-                    'tags' => [], // Tags would need to be loaded if needed
-                    'place' => $segment->getPlace() ? $segment->getPlace()->getId() : null,
-                    'status' => $segment->getStatus(),
+                    'tags'    => [], // Tags would need to be loaded if needed
+                    'place'   => $segment->getPlace() ? $segment->getPlace()->getId() : null,
+                    'status'  => $segment->getStatus(),
                 ],
             ];
         }
 
         foreach ($statement->getTextSections() as $textSection) {
             $allBlocks[] = [
-                'type' => 'textSection',
+                'type'  => 'textSection',
                 'order' => $textSection->getOrderInStatement(),
-                'data' => [
-                    'text' => $textSection->getText(),
+                'data'  => [
+                    'text'    => $textSection->getText(),
                     'textRaw' => $textSection->getTextRaw(),
                 ],
             ];
         }
 
         // Sort by order
-        usort($allBlocks, fn($a, $b) => $a['order'] <=> $b['order']);
+        usort($allBlocks, fn ($a, $b) => $a['order'] <=> $b['order']);
 
         // Convert to content blocks format
         foreach ($allBlocks as $block) {
@@ -128,14 +128,14 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
 
         $draftsInfo = [
             'data' => [
-                'id' => Uuid::uuid(),
-                'type' => 'slicing transaction',
+                'id'         => Uuid::uuid(),
+                'type'       => 'slicing transaction',
                 'attributes' => [
-                    'statementId' => $statement->getId(),
-                    'procedureId' => $statement->getProcedureId(),
+                    'statementId'        => $statement->getId(),
+                    'procedureId'        => $statement->getProcedureId(),
                     'segmentationStatus' => 'SEGMENTED',
-                    'contentBlocks' => $contentBlocks,
-                    'textualReference' => $statement->getText(),
+                    'contentBlocks'      => $contentBlocks,
+                    'textualReference'   => $statement->getText(),
                 ],
             ],
         ];
