@@ -33,7 +33,6 @@ class StatementOnUpdateEventSubscriber extends BaseEventSubscriber
 
     public function saveChangeHistory(BeforeResourceUpdateFlushEvent $event): void
     {
-
         $targetResourceType = $event->getType();
         if (!$targetResourceType instanceof StatementResourceType) {
             return;
