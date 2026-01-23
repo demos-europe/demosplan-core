@@ -108,11 +108,22 @@ class ReportMessageConverterTest extends FunctionalTestCase
             $message
         );
 
+        // Test authorized users added
         $reportEntry->setMessage('{"oldAuthorizedUsers":"Sven Nordwind, ft-fpatbko-N Vorname ft-fpatbko-N Nachname, ft-fpsb-N Vorname ft-fpsb-N Nachname, Hannes Rudzik, Walter West, Horst Hohenfeld, Maya Hohenfeld, ft-fpa-N Nachname ft-fpa-N Vorname","newAuthorizedUsers":"Sven Nordwind, ft-fpatbko-N Vorname ft-fpatbko-N Nachname, ft-fpsb-N Vorname ft-fpsb-N Nachname, Hannes Rudzik, Selta Seewind, Walter West, Horst Hohenfeld, Maya Hohenfeld, Fachplaner Admin, ft-fpa-N Nachname ft-fpa-N Vorname"}');
         $message = $this->sut->convertMessage($reportEntry);
         self::assertEquals($this->translator->trans('text.protocol.procedure.authorized.user.changed', [
             '%oldAuthorizedUsers%' => 'Sven Nordwind, ft-fpatbko-N Vorname ft-fpatbko-N Nachname, ft-fpsb-N Vorname ft-fpsb-N Nachname, Hannes Rudzik, Walter West, Horst Hohenfeld, Maya Hohenfeld, ft-fpa-N Nachname ft-fpa-N Vorname',
             '%newAuthorizedUsers%' => 'Sven Nordwind, ft-fpatbko-N Vorname ft-fpatbko-N Nachname, ft-fpsb-N Vorname ft-fpsb-N Nachname, Hannes Rudzik, Selta Seewind, Walter West, Horst Hohenfeld, Maya Hohenfeld, Fachplaner Admin, ft-fpa-N Nachname ft-fpa-N Vorname',
+        ]),
+            $message
+        );
+
+        // Test authorized users removed (this scenario was previously not detected)
+        $reportEntry->setMessage('{"oldAuthorizedUsers":"User A, User B, User C","newAuthorizedUsers":"User A, User C"}');
+        $message = $this->sut->convertMessage($reportEntry);
+        self::assertEquals($this->translator->trans('text.protocol.procedure.authorized.user.changed', [
+            '%oldAuthorizedUsers%' => 'User A, User B, User C',
+            '%newAuthorizedUsers%' => 'User A, User C',
         ]),
             $message
         );
