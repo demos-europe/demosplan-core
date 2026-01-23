@@ -31,15 +31,15 @@
 
     <dp-slidebar data-cy="layerFeatureInfoSidebar">
       <div
-        v-if="layersFeatureInfoResults?.length > 1"
+        v-if="layersFeatureInfoResults?.length >= 1"
         class="flex items-baseline justify-between gap-2 mr-3 mb-4 max-w-full"
       >
         <dp-button
-          v-if="currentLayerFeatureInfoPage > 1"
           :aria-label="Translator.trans('map.next.feature.info')"
+          :class="{ invisible: currentLayerFeatureInfoPage === 1 }"
           color="primary"
-          variant="outline"
           icon="chevron-left"
+          variant="outline"
           hide-text
           @click="showPreviousLayerFeatureInfo"
         />
@@ -49,11 +49,11 @@
         </h3>
 
         <dp-button
-          v-if="currentLayerFeatureInfoPage < layersFeatureInfoResults.length"
           :aria-label="Translator.trans('map.previous.feature.info')"
+          :class="{ invisible: currentLayerFeatureInfoPage === layersFeatureInfoResults.length }"
           color="primary"
-          variant="outline"
           icon="chevron-right"
+          variant="outline"
           hide-text
           @click="showNextLayerFeatureInfo"
         />
