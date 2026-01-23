@@ -545,6 +545,97 @@ export default {
       return wrapper.innerHTML.trim()
     },
 
+    /**
+     * Extract content blocks from ProseMirror document
+     * This replaces the position-based extraction with order-based composition
+     *
+     * @returns {Array} Array of content blocks with type, order, and content
+     */
+    extractContentBlocks () {
+      const blocks = []
+      let order = 1
+
+      // Serialize document to HTML with segment spans preserved
+      const state = this.prosemirror.view.state
+      const { schema } = state
+      const serializer = DOMSerializer.fromSchema(schema)
+      const fragment = serializer.serializeFragment(state.tr.doc.content)
+
+      const wrapper = document.createElement('div')
+      wrapper.appendChild(fragment)
+
+      // ProseMirror serializes segments as <span data-segment-id="..."> inside block elements
+      // We need to walk through the content and extract segments and text sections
+
+      // Process each block-level element (p, div, h1, etc.)
+      Array.from(wrapper.children).forEach(blockNode => {
+        if (blockNode.nodeType !== Node.ELEMENT_NODE) return
+
+        // Walk through children of this block to find segments and text
+        let currentTextSection = ''
+
+        const processChild = (child) => {
+          // Check if this is a segment span
+          if (child.nodeType === Node.ELEMENT_NODE &&
+              child.tagName === 'SPAN' &&
+              child.hasAttribute('data-segment-id')) {
+
+            // Save any accumulated text before this segment
+            if (currentTextSection.trim()) {
+              blocks.push({
+                type: 'textSection',
+                id: uuid(),
+                order: order++,
+                textRaw: `<${blockNode.tagName.toLowerCase()}>${currentTextSection}</${blockNode.tagName.toLowerCase()}>`,
+                text: currentTextSection.trim(),
+              })
+              currentTextSection = ''
+            }
+
+            // Add the segment
+            const segmentId = child.getAttribute('data-segment-id')
+            const segment = this.segments.find(s => s.id === segmentId)
+
+            if (segment) {
+              blocks.push({
+                type: 'segment',
+                id: segmentId,
+                order: order++,
+                textRaw: child.innerHTML,
+                text: child.textContent,
+                tags: segment.tags || [],
+                place: segment.place || null,
+                status: segment.status || 'confirmed',
+              })
+            }
+          } else {
+            // Accumulate non-segment content
+            if (child.nodeType === Node.TEXT_NODE) {
+              currentTextSection += child.textContent
+            } else if (child.nodeType === Node.ELEMENT_NODE) {
+              currentTextSection += child.outerHTML
+            }
+          }
+        }
+
+        // Process all children of this block
+        Array.from(blockNode.childNodes).forEach(processChild)
+
+        // Save any remaining text after last segment
+        if (currentTextSection.trim()) {
+          blocks.push({
+            type: 'textSection',
+            id: uuid(),
+            order: order++,
+            textRaw: `<${blockNode.tagName.toLowerCase()}>${currentTextSection}</${blockNode.tagName.toLowerCase()}>`,
+            text: currentTextSection.trim(),
+          })
+        }
+      })
+
+      return blocks
+    },
+
     fetchAssignableUsers () {
       const url = Routing.generate('api_resource_list', { resourceType: 'AssignableUser' })
       return dpApi.get(url, { sort: 'lastname' })
@@ -704,6 +795,14 @@ export default {
       this.ignoreProsemirrorUpdates = true
       const { id, charStart, charEnd } = this.segmentById(segmentId)
       setRange(this.prosemirror.view)(charStart, charEnd, { segmentId: id, isConfirmed: true })
+
+      /*
+       * Always use new order-based format with contentBlocks
+       * This ensures TextSections are properly created even on first segmentation
+       */
+      const contentBlocks = this.extractContentBlocks()
+      this.setProperty({ prop: 'contentBlocks', val: contentBlocks })
+
       this.acceptSegmentProposal()
       this.ignoreProsemirrorUpdates = false
     },
@@ -765,6 +864,14 @@ export default {
       this.prosemirror.view.dispatch(tr)
       this.ignoreProsemirrorUpdates = false
       this.updateTextualReference()
+
+      /*
+       * Always use new order-based format with contentBlocks
+       * This ensures TextSections are properly created even on first segmentation
+       */
+      const contentBlocks = this.extractContentBlocks()
+      this.setProperty({ prop: 'contentBlocks', val: contentBlocks })
+
       this.deleteSegmentAction(segmentId)
       this.isSegmentDraftUpdated = true
       this.setCurrentTime()
@@ -824,19 +931,18 @@ export default {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
           try {
-            // Set data with html not only charStart and charEnd
-            const ranges = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
-            const segmentsWithText = this.segments
-              .filter(segment => !!ranges[segment.id])
-              .map(segment => {
-                return {
-                  ...segment,
-                  text: ranges[segment.id].text,
-                }
-              })
-            this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
-            const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
-            this.setProperty({ prop: 'statementText', val: currentStatementText })
+            /*
+             * Always use new order-based format (contentBlocks)
+             * This ensures TextSections are properly created even on first segmentation
+             */
+            // NEW: Extract content blocks with order
+            const contentBlocks = this.extractContentBlocks()
+            this.setProperty({ prop: 'contentBlocks', val: contentBlocks })
+
+            /*
+             * For order-based, we don't need full statement text
+             * Backend will compute it from blocks
+             */
             this.saveSegmentsFinal()
               .then(() => this.setProperty({ prop: 'isBusy', val: false }))
           } catch (err) {
@@ -865,6 +971,16 @@ export default {
 
       this.disableEditMode()
       this.updateTextualReference()
+
+      // Check if we're using new order-based format
+      const useOrderBased = this.$store.state.SplitStatement.initialData?.attributes?.segmentationStatus === 'SEGMENTED'
+
+      if (useOrderBased) {
+        // Extract and update contentBlocks for order-based format
+        const contentBlocks = this.extractContentBlocks()
+        this.setProperty({ prop: 'contentBlocks', val: contentBlocks })
+      }
+
       this.saveSegmentsDrafts(true)
       this.isSegmentDraftUpdated = true
       this.setCurrentTime()
@@ -907,7 +1023,7 @@ export default {
       /* Store the serialized HTML (with custom <segment-mark> annotations) in draftSegmentsList for future rehydration */
       this.setProperty({
         prop: 'initText',
-        val: textualReference
+        val: textualReference,
       })
     },
 

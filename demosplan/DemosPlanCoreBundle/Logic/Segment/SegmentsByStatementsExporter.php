@@ -148,7 +148,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
     private function convertImagesToReferencesInRecommendations(array $segments): array
     {
-        $sortedSegments = $this->sortSegmentsByOrderInProcedure($segments);
+        $sortedSegments = $this->sortSegmentsByOrderInStatement($segments);
 
         $convertedSegments = [];
         /** @var Segment $segment */
@@ -224,7 +224,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     protected function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders, bool $isObscure): void
     {
         $table = $this->addSegmentsTableHeader($section, $tableHeaders);
-        $sortedSegments = $this->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
+        $sortedSegments = $this->sortSegmentsByOrderInStatement($statement->getSegmentsOfStatement()->toArray());
 
         foreach ($sortedSegments as $segment) {
             $this->addSegmentTableBody($table, $segment, $statement->getExternId(), $isObscure);
@@ -356,5 +356,19 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         return $withDbId
             ? "$fileName-$dbId.docx"
             : "$fileName.docx";
+    }
+
+    /**
+     * Sort segments by their orderInStatement property.
+     *
+     * @param Segment[] $segments
+     *
+     * @return Segment[]
+     */
+    private function sortSegmentsByOrderInStatement(array $segments): array
+    {
+        usort($segments, static fn (Segment $a, Segment $b): int => $a->getOrderInStatement() <=> $b->getOrderInStatement());
+
+        return $segments;
     }
 }

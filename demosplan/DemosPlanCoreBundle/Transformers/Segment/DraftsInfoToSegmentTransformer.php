@@ -63,7 +63,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
      *
      * @param string $draftsInfo
      *
-     * @return array<Segment>
+     * @return array{segments: array<Segment>, textSections: array<\demosplan\DemosPlanCoreBundle\Entity\Statement\TextSection>}
      *
      * @throws FileNotFoundException
      * @throws InvalidSchemaException
@@ -80,24 +80,58 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             throw StatementNotFoundException::createFromId($statementId);
         }
 
-        return $this->getSegments($draftsInfoArray, $statement);
+        return $this->getSegmentsAndTextSections($draftsInfoArray, $statement);
     }
 
     /**
      * @param array<mixed> $draftsInfoArray
      *
-     * @return array<int, Segment>
+     * @return array{segments: array<int, Segment>, textSections: array<int, \demosplan\DemosPlanCoreBundle\Entity\Statement\TextSection>}
      *
      * @throws Exception
      */
-    private function getSegments(array $draftsInfoArray, Statement $statement): array
+    private function getSegmentsAndTextSections(array $draftsInfoArray, Statement $statement): array
     {
         $segments = [];
+        $textSections = [];
         $procedure = $statement->getProcedure();
-        $draftsList = $this->draftsInfoHandler->extractDraftsList($draftsInfoArray);
-        // The segments are received potentially unsorted. Hence sort them by their position
-        // in the text so their $externId is set in the correct order afterwards.
-        usort($draftsList, static fn (array $draft1, array $draft2) => $draft1['charEnd'] < $draft2['charEnd'] ? -1 : 1);
+
+        // Check if we're using the new order-based format (contentBlocks) or legacy position-based (segments)
+        $attributes = $draftsInfoArray['data']['attributes'] ?? [];
+        $isOrderBased = isset($attributes['contentBlocks']);
+
+        if ($isOrderBased) {
+            // NEW: Extract segments from contentBlocks (filter only type='segment')
+            $segmentBlocks = array_filter(
+                $attributes['contentBlocks'],
+                static fn (array $block): bool => ($block['type'] ?? '') === 'segment'
+            );
+            // Sort by order field
+            usort($segmentBlocks, static fn (array $draft1, array $draft2): int => ($draft1['order'] ?? 0) <=> ($draft2['order'] ?? 0));
+
+            // NEW: Extract text sections from contentBlocks (filter only type='textSection')
+            $textSectionBlocks = array_filter(
+                $attributes['contentBlocks'],
+                static fn (array $block): bool => ($block['type'] ?? '') === 'textSection'
+            );
+            // Sort by order field
+            usort($textSectionBlocks, static fn (array $block1, array $block2): int => ($block1['order'] ?? 0) <=> ($block2['order'] ?? 0));
+
+            $draftsList = $segmentBlocks;
+        } else {
+            // LEGACY: Extract segments from segments array
+            $draftsList = $this->draftsInfoHandler->extractDraftsList($draftsInfoArray);
+            /*
+             * Sort by charEnd position in the text ONLY if charEnd values are present
+             * If all segments have charEnd=0 (or missing), preserve array order from frontend
+             */
+            $hasCharEnd = !empty(array_filter($draftsList, static fn (array $draft): bool => ($draft['charEnd'] ?? 0) > 0));
+            if ($hasCharEnd) {
+                usort($draftsList, static fn (array $draft1, array $draft2): int => ($draft1['charEnd'] ?? 0) < ($draft2['charEnd'] ?? 0) ? -1 : 1);
+            }
+            $textSectionBlocks = []; // No text sections in legacy format
+        }
+
         $counter = 1;
         $internId = $this->segmentHandler->getNextSegmentOrderNumber($procedure->getId());
         foreach ($draftsList as $draft) {
@@ -107,10 +141,10 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             $segment->setText($draft['text']);
             $externId = $statement->getExternId().'-'.$counter;
             $segment->setExternId($externId);
-            $segment->setOrderInProcedure($internId);
+            $segment->setOrderInStatement($draft['order'] ?? $internId);
             $segment->setPhase('analysis');
             $segment->setProcedure($statement->getProcedure());
-            $tags = $this->getTags($draft['tags'], $procedure);
+            $tags = $this->getTags($draft['tags'] ?? [], $procedure);
             $segment->setTags($tags);
             $segment = $this->statementService->setPublicVerified(
                 $segment,
@@ -123,7 +157,21 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             ++$internId;
         }
 
-        return $segments;
+        // Create TextSection entities
+        foreach ($textSectionBlocks as $block) {
+            $textSection = new \demosplan\DemosPlanCoreBundle\Entity\Statement\TextSection();
+            $textSection->setStatement($statement);
+            $textSection->setOrderInStatement($block['order'] ?? 0);
+            $textSection->setTextRaw($block['text'] ?? '');
+            $textSection->setText($block['text'] ?? '');
+            $statement->addTextSection($textSection);
+            $textSections[] = $textSection;
+        }
+
+        return [
+            'segments'     => $segments,
+            'textSections' => $textSections,
+        ];
     }
 
     /**

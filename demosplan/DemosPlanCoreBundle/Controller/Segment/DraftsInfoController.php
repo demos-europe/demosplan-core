@@ -94,13 +94,24 @@ class DraftsInfoController extends BaseController
             );
         } catch (StatementNotFoundException $e) {
             $this->getMessageBag()->add('error', 'error.statement.not.found');
-            throw $e;
+
+            return $this->redirectToRoute('dplan_statement_segments_list', [
+                'procedureId' => $procedureId,
+                'statementId' => $statementId,
+            ]);
         } catch (StatementAlreadySegmentedException $e) {
             $this->messageBag->add('error', 'error.statement.already.segmented');
-            throw $e;
+
+            return $this->redirectToRoute('dplan_statement_segments_list', [
+                'procedureId' => $procedureId,
+                'statementId' => $statementId,
+            ]);
         } catch (LockedByAssignmentException $e) {
             $this->messageBag->add('error', 'error.statement.not.assigned');
-            throw $e;
+
+            return $this->redirectToRoute('dplan_segments_list', [
+                'procedureId' => $procedureId,
+            ]);
         }
     }
 }

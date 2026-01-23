@@ -919,6 +919,21 @@ services:
         calls:
             - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments' ]]
 
+    demosplan\DemosPlanCoreBundle\Logic\Statement\SegmentedHtmlParser: ~
+
+    demosplan\DemosPlanCoreBundle\Logic\Statement\SegmentEditService:
+        public: true
+
+    demosplan\DemosPlanCoreBundle\Logic\Statement\OrderManagementService:
+        public: true
+
+    demosplan\DemosPlanCoreBundle\Logic\Statement\StatementTextService:
+        public: true
+        arguments:
+            $cache: '@cache.app'
+
+    demosplan\DemosPlanCoreBundle\Logic\Statement\SegmentationService:
+        public: true
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\TagService:
         lazy: true

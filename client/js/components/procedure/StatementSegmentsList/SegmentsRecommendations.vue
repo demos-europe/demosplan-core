@@ -268,7 +268,7 @@ export default {
         'comments',
         'externId',
         'internId',
-        'orderInProcedure',
+        'orderInStatement',
         'polygon',
         'recommendation',
       ]
@@ -340,7 +340,7 @@ export default {
           number: page,
           size: this.pagination?.perPage || this.defaultPagination.perPage,
         },
-        sort: 'orderInProcedure',
+        sort: 'orderInStatement',
         filter: {
           parentStatementOfSegment: {
             condition: {

@@ -518,7 +518,7 @@ export default {
         'comments',
         'externId',
         'internId',
-        'orderInProcedure',
+        'orderInStatement',
         'polygon',
         'recommendation',
       ]
@@ -529,7 +529,7 @@ export default {
 
       const response = await this.listSegments({
         include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
-        sort: 'orderInProcedure',
+        sort: 'orderInStatement',
         fields: {
           Place: ['name', 'sortIndex'].join(),
           SegmentComment: ['creationDate', 'place', 'submitter', 'text'].join(),

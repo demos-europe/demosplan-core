@@ -45,7 +45,7 @@ use Elastica\Index;
  * @property-read End $text
  * @property-read End $externId
  * @property-read End $internId
- * @property-read End $orderInProcedure
+ * @property-read End $orderInStatement
  * @property-read StatementResourceType $parentStatement
  * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only.
  * @property-read AssignableUserResourceType $assignee
@@ -169,7 +169,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
             $this->createAttribute($this->text)->readable(true)->updatable(),
             $this->createAttribute($this->externId)->readable(true),
             $this->createAttribute($this->internId)->readable(true),
-            $this->createAttribute($this->orderInProcedure)->readable(true),
+            $this->createAttribute($this->orderInStatement)->readable(true),
             $this->createToOneRelationship($this->parentStatement)
                 ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
                 ->readable()->updatable()->aliasedPath($this->parentStatementOfSegment),

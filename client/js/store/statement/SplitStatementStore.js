@@ -21,6 +21,7 @@ const SplitStatementStore = {
     availablePlaces: [],
     availableTags: [],
     categorizedTags: [],
+    contentBlocks: [], // NEW: Order-based content blocks
     currentlyHighlightedSegmentId: null,
     editModeActive: false,
     // Segment currently being edited
@@ -231,10 +232,19 @@ const SplitStatementStore = {
             return []
           }
           const initialData = data.data.attributes.segmentDraftList.data
-          const segments = initialData.attributes.segments
+
+          // Check if we have contentBlocks (new format) or segments (legacy format)
+          const hasContentBlocks = hasOwnProp(initialData.attributes, 'contentBlocks')
+          const segments = hasContentBlocks ?
+            [] : // Don't populate segments for new format
+            (initialData.attributes.segments || [])
+          const contentBlocks = hasContentBlocks ?
+            (initialData.attributes.contentBlocks || []) :
+            []
 
           commit('setProperty', { prop: 'initialData', val: initialData })
           commit('setProperty', { prop: 'initialSegments', val: segments })
+          commit('setProperty', { prop: 'contentBlocks', val: contentBlocks })
 
           // This should not be neccessary once the BE always sends a place
           segments.forEach((segment, idx) => {
@@ -401,7 +411,25 @@ const SplitStatementStore = {
     saveSegmentsDrafts ({ state, dispatch }, triggerNotifications = false) {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
       dataToSend.attributes.textualReference = state.initText
-      dataToSend.attributes.segments = state.segments
+
+      /*
+       * Always use new order-based format with contentBlocks
+       * This ensures TextSections are properly created even on first segmentation
+       *
+       * IMPORTANT: The schema has a oneOf constraint - we must send EITHER segments OR contentBlocks, not both!
+       */
+      if (state.contentBlocks && state.contentBlocks.length > 0) {
+        // NEW: Send contentBlocks for order-based format
+        dataToSend.attributes.contentBlocks = state.contentBlocks
+        // Remove segments to satisfy oneOf constraint
+        delete dataToSend.attributes.segments
+      } else {
+        // FALLBACK: Send segments for position-based format (backward compatibility)
+        dataToSend.attributes.segments = state.segments
+        // Remove contentBlocks to satisfy oneOf constraint
+        delete dataToSend.attributes.contentBlocks
+      }
+
       const payload = {
         id: state.statementId,
         type: 'Statement',
@@ -428,8 +456,26 @@ const SplitStatementStore = {
 
     saveSegmentsFinal ({ dispatch, state, commit }) {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
-      dataToSend.attributes.segments = state.segmentsWithText
-      dataToSend.attributes.statementText = state.statementText
+
+      /*
+       * Always use new order-based format with contentBlocks
+       * This ensures TextSections are properly created even on first segmentation
+       *
+       * IMPORTANT: The schema has a oneOf constraint - we must send EITHER segments OR contentBlocks, not both!
+       */
+      if (state.contentBlocks && state.contentBlocks.length > 0) {
+        // NEW: Send contentBlocks instead of segmentsWithText
+        dataToSend.attributes.contentBlocks = state.contentBlocks
+        // Remove segments to satisfy oneOf constraint
+        delete dataToSend.attributes.segments
+        // StatementText is optional for order-based, backend computes it
+      } else {
+        // FALLBACK: Send segmentsWithText and statementText (backward compatibility)
+        dataToSend.attributes.segments = state.segmentsWithText
+        // Remove contentBlocks to satisfy oneOf constraint
+        delete dataToSend.attributes.contentBlocks
+        dataToSend.attributes.statementText = state.statementText
+      }
 
       return dpApi.post(Routing.generate('dplan_drafts_list_confirm', {
         statementId: state.statementId,

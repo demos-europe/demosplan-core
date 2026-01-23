@@ -46,9 +46,17 @@ export default {
       required: true,
     },
 
+    // Support both legacy segments and new contentBlocks
     segments: {
       type: Array,
-      required: true,
+      required: false,
+      default: () => [],
+    },
+
+    contentBlocks: {
+      type: Array,
+      required: false,
+      default: () => [],
     },
 
     rangeChangeCallback: {
@@ -103,6 +111,32 @@ export default {
   },
 
   methods: {
+    /**
+     * Build HTML from content blocks with <segment-mark> tags
+     * This allows ProseMirror to parse the HTML and calculate positions automatically
+     */
+    buildHtmlFromBlocks (blocks) {
+      if (!blocks || blocks.length === 0) {
+        return this.initStatementText ?? ''
+      }
+
+      // Sort blocks by order to ensure correct sequence
+      const sortedBlocks = [...blocks].sort((a, b) => (a.order || 0) - (b.order || 0))
+
+      return sortedBlocks.map(block => {
+        if (block.type === 'segment') {
+          // Wrap segment content with <segment-mark> tag
+          return `<segment-mark id="${block.id}" data-segment-id="${block.id}" data-order="${block.order || 0}">${block.textRaw || block.text || ''}</segment-mark>`
+        } else if (block.type === 'textSection') {
+          // textSection is plain HTML without wrapping
+          return block.textRaw || block.text || ''
+        } else {
+          // Unknown block type, treat as plain HTML
+          return block.textRaw || block.text || ''
+        }
+      }).join('')
+    },
+
     getExtendedMarks () {
       let extendedMarks = schema.spec.marks
 
@@ -119,7 +153,14 @@ export default {
         marks: this.getExtendedMarks(),
       })
       const wrapper = document.createElement('div')
-      wrapper.innerHTML = this.initStatementText ?? ''
+
+      // Use buildHtmlFromBlocks if contentBlocks provided, otherwise fall back to initStatementText
+      const html = this.contentBlocks.length > 0
+        ? this.buildHtmlFromBlocks(this.contentBlocks)
+        : this.initStatementText ?? ''
+
+      wrapper.innerHTML = html
+
       const rangePlugin = initRangePlugin(proseSchema, this.rangeChangeCallback, this.editToggleCallback)
       const parsedContent = DOMParser.fromSchema(rangePlugin.schema).parse(wrapper, { preserveWhitespace: true })
 

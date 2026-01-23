@@ -645,7 +645,7 @@ export default {
       const statementSegmentFields = [
         'assignee',
         'externId',
-        'orderInProcedure',
+        'orderInStatement',
         'parentStatement',
         'place',
         'tags',
@@ -669,7 +669,7 @@ export default {
           number: page,
           size: this.pagination.perPage,
         },
-        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
+        sort: 'parentStatement.submitDate,parentStatement.externId,orderInStatement',
         filter,
         fields: {
           File: [
