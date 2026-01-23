@@ -9687,29 +9687,29 @@
         },
         {
             "name": "php-amqplib/rabbitmq-bundle",
-            "version": "2.18.0",
+            "version": "2.19.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-amqplib/RabbitMqBundle.git",
-                "reference": "64fe6d4b8614f38e0178b5c5c56dfac7cf2c5c02"
+                "reference": "e2f5d3fd685cd53a5fba4601311106476b3f7233"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-amqplib/RabbitMqBundle/zipball/64fe6d4b8614f38e0178b5c5c56dfac7cf2c5c02",
-                "reference": "64fe6d4b8614f38e0178b5c5c56dfac7cf2c5c02",
+                "url": "https://api.github.com/repos/php-amqplib/RabbitMqBundle/zipball/e2f5d3fd685cd53a5fba4601311106476b3f7233",
+                "reference": "e2f5d3fd685cd53a5fba4601311106476b3f7233",
                 "shasum": ""
             },
             "require": {
                 "php": "^8.2",
                 "php-amqplib/php-amqplib": "^2.12.2 || ^3.0",
                 "psr/log": "^2.0 || ^3.0",
-                "symfony/config": "^6.0 || ^7.0",
-                "symfony/console": "^6.0 || ^7.0",
-                "symfony/dependency-injection": "^6.0 || ^7.0",
-                "symfony/event-dispatcher": "^6.0 || ^7.0",
-                "symfony/framework-bundle": "^6.0 || ^7.0",
-                "symfony/http-kernel": "^6.0 || ^7.0",
-                "symfony/yaml": "^6.0 || ^7.0"
+                "symfony/config": "^6.0 || ^7.0 || ^8.0",
+                "symfony/console": "^6.0 || ^7.0 || ^8.0",
+                "symfony/dependency-injection": "^6.0 || ^7.0 || ^8.0",
+                "symfony/event-dispatcher": "^6.0 || ^7.0 || ^8.0",
+                "symfony/framework-bundle": "^6.0 || ^7.0 || ^8.0",
+                "symfony/http-kernel": "^6.0 || ^7.0 || ^8.0",
+                "symfony/yaml": "^6.0 || ^7.0 || ^8.0"
             },
             "replace": {
                 "emag-tech-labs/rabbitmq-bundle": "self.version",
@@ -9719,7 +9719,7 @@
                 "phpstan/phpstan": "^1.2",
                 "phpstan/phpstan-phpunit": "^1.0",
                 "phpunit/phpunit": "^9.5",
-                "symfony/serializer": "^6.0 || ^7.0"
+                "symfony/serializer": "^6.0 || ^7.0 || ^8.0"
             },
             "suggest": {
                 "ext-pcntl": "*",
@@ -9760,9 +9760,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-amqplib/RabbitMqBundle/issues",
-                "source": "https://github.com/php-amqplib/RabbitMqBundle/tree/2.18.0"
+                "source": "https://github.com/php-amqplib/RabbitMqBundle/tree/2.19.0"
             },
-            "time": "2025-12-24T17:25:13+00:00"
+            "time": "2026-01-16T12:34:27+00:00"
         },
         {
             "name": "php-http/curl-client",
@@ -25078,7 +25078,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
