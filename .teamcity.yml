@@ -6,6 +6,8 @@ jobs:
       - path: .
         share-with-jobs: true
         publish-artifact: false
+    dependencies:
+      - Job1_2
   Job2:
     name: Checkout Bau
     dependencies:
@@ -18,6 +20,10 @@ jobs:
           enabled: true
       - main:
           enabled: false
+    files-publication:
+      - path: .
+        share-with-jobs: true
+        publish-artifact: false
   Job2clone:
     name: Checkout PFV
     dependencies:
@@ -30,6 +36,10 @@ jobs:
           enabled: true
       - main:
           enabled: false
+    files-publication:
+      - path: .
+        share-with-jobs: true
+        publish-artifact: false
   Job2cloneClone:
     name: Checkout Rog
     dependencies:
@@ -42,3 +52,136 @@ jobs:
           enabled: true
       - main:
           enabled: false
+    files-publication:
+      - path: .
+        share-with-jobs: true
+        publish-artifact: false
+  Job1_2:
+    name: Determine trigger
+    steps:
+      - type: script
+        script-content: >-
+          #!/bin/bash                                                                                                                                                                                 
+                                                                                                                                                                                                        
+            echo "=== Detecting which VCS triggered this build ==="                                                                                                                                     
+                                                                                                                                                                                                        
+            # TeamCity provides changed files information                                                                                                                                               
+            # Each line in the changed files list is prefixed with the VCS root info                                                                                                                    
+                                                                                                                                                                                                        
+            # Method 1: Check for specific repository names in change info                                                                                                                              
+            TRIGGERED_REPO=""                                                                                                                                                                           
+                                                                                                                                                                                                        
+            # Check build parameters for VCS URLs                                                                                                                                                       
+            if env | grep -q "demosplan-core.git"; then                                                                                                                                                 
+                if [ -n "$BUILD_VCS_NUMBER" ]; then                                                                                                                                                     
+                    TRIGGERED_REPO="core"                                                                                                                                                               
+                    echo "Changes detected in demosplan-core"                                                                                                                                           
+                fi                                                                                                                                                                                      
+            fi                                                                                                                                                                                          
+                                                                                                                                                                                                        
+            # Method 2: More robust - check the actual changed files                                                                                                                                    
+            if [ -f "$TEAMCITY_BUILD_CHANGEDFILES_FILE" ]; then                                                                                                                                         
+                echo "Analyzing changed files from: $TEAMCITY_BUILD_CHANGEDFILES_FILE"                                                                                                                  
+                                                                                                                                                                                                        
+                if grep -q "demosplan-core" "$TEAMCITY_BUILD_CHANGEDFILES_FILE"; then                                                                                                                   
+                    TRIGGERED_REPO="core"                                                                                                                                                               
+                    echo "Build triggered by: demosplan-core"                                                                                                                                           
+                elif grep -q "demosplan-project-diplanbau" "$TEAMCITY_BUILD_CHANGEDFILES_FILE"; then                                                                                                    
+                    TRIGGERED_REPO="diplanbau"                                                                                                                                                          
+                    echo "Build triggered by: demosplan-project-diplanbau"                                                                                                                              
+                elif grep -q "demosplan-project-diplanrog" "$TEAMCITY_BUILD_CHANGEDFILES_FILE"; then                                                                                                    
+                    TRIGGERED_REPO="diplanrog"                                                                                                                                                          
+                    echo "Build triggered by: demosplan-project-diplanrog"                                                                                                                              
+                elif grep -q "demosplan-project-diplanfest" "$TEAMCITY_BUILD_CHANGEDFILES_FILE"; then                                                                                                   
+                    TRIGGERED_REPO="diplanfest"                                                                                                                                                         
+                    echo "Build triggered by: demosplan-project-diplanfest"                                                                                                                             
+                fi                                                                                                                                                                                      
+            fi                                                                                                                                                                                          
+                                                                                                                                                                                                        
+            # Method 3: Check VCS branch parameters                                                                                                                                                     
+            # TeamCity sets teamcity.build.vcs.branch.<vcs-root-id> for each VCS root with changes                                                                                                      
+            echo ""                                                                                                                                                                                     
+            echo "VCS branch parameters:"                                                                                                                                                               
+            env | grep "teamcity\.build\.vcs\.branch\." | while read line; do                                                                                                                           
+                echo "  $line"                                                                                                                                                                          
+                # Extract repo name from the value or key                                                                                                                                               
+                if echo "$line" | grep -q "demosplan-core"; then                                                                                                                                        
+                    TRIGGERED_REPO="core"                                                                                                                                                               
+                elif echo "$line" | grep -q "diplanbau"; then                                                                                                                                           
+                    TRIGGERED_REPO="diplanbau"                                                                                                                                                          
+                elif echo "$line" | grep -q "diplanrog"; then                                                                                                                                           
+                    TRIGGERED_REPO="diplanrog"                                                                                                                                                          
+                elif echo "$line" | grep -q "diplanfest"; then                                                                                                                                          
+                    TRIGGERED_REPO="diplanfest"                                                                                                                                                         
+                fi                                                                                                                                                                                      
+            done                                                                                                                                                                                        
+                                                                                                                                                                                                        
+            # Set default if nothing detected                                                                                                                                                           
+            if [ -z "$TRIGGERED_REPO" ]; then                                                                                                                                                           
+                TRIGGERED_REPO="unknown"                                                                                                                                                                
+                echo "WARNING: Could not determine which repository triggered the build"                                                                                                                
+            fi                                                                                                                                                                                          
+                                                                                                                                                                                                        
+            # Set TeamCity parameters                                                                                                                                                                   
+            echo ""                                                                                                                                                                                     
+            echo "##teamcity[setParameter name='env.TRIGGERED_REPO' value='$TRIGGERED_REPO']"                                                                                                           
+            echo "##teamcity[setParameter name='system.triggered_repo' value='$TRIGGERED_REPO']"                                                                                                        
+                                                                                                                                                                                                        
+            echo "✓ Parameter set: TRIGGERED_REPO=$TRIGGERED_REPO"                                                                                                                                      
+                                                                                                                                                                                                        
+            # You can now use this to set other parameters                                                                                                                                              
+            case "$TRIGGERED_REPO" in                                                                                                                                                                   
+                core)                                                                                                                                                                                   
+                    echo "##teamcity[setParameter name='env.DEPLOY_TARGET' value='core-environment']"                                                                                                   
+                    ;;                                                                                                                                                                                  
+                diplanbau)                                                                                                                                                                              
+                    echo "##teamcity[setParameter name='env.DEPLOY_TARGET' value='diplanbau-environment']"                                                                                              
+                    ;;                                                                                                                                                                                  
+                diplanrog)                                                                                                                                                                              
+                    echo "##teamcity[setParameter name='env.DEPLOY_TARGET' value='diplanrog-environment']"                                                                                              
+                    ;;                                                                                                                                                                                  
+                diplanfest)                                                                                                                                                                             
+                    echo "##teamcity[setParameter name='env.DEPLOY_TARGET' value='diplanfest-environment']"                                                                                             
+                    ;;                                                                                                                                                                                  
+            esac
+    repositories:
+      - git@github.com:demos-europe/demosplan-project-diplanbau.git:
+          enabled: true
+      - git@github.com:demos-europe/demosplan-project-diplanrog.git:
+          enabled: true
+      - git@github.com:demos-europe/demosplan-project-diplanfest.git:
+          enabled: true
+  Job1_3:
+    name: Build
+    dependencies:
+      - Job2cloneClone:
+          files:
+            - .
+      - Job2clone:
+          files:
+            - .
+      - Job2:
+          files:
+            - .
+    steps:
+      - type: script
+        script-content: >-
+          hostname
+
+          pwd
+
+          whoami
+
+          which rsync
+
+          echo "./docker/build.sh demosdeutschland/demosplan-%env.PROJECT%
+          %env.BRANCH% %env.PROJECT%"
+
+          echo "GITHUB_TOKEN=%env.GITHUB_TOKEN%" > .env.local
+
+          ./docker/build.sh demosdeutschland/demosplan-%env.PROJECT%
+          %env.BRANCH% %env.PROJECT%
+
+          ./docker/build.sh -d demosdeutschland/demosplan-%env.PROJECT%
+          %env.BRANCH% %env.PROJECT%
+        name: Build

@@ -814,6 +814,7 @@ export default {
         })
         .finally(() => {
           this.isLoading = false
+          this.isSuccess = false
           this.resetNewFieldForm()
           this.fetchCustomFields()
         })
