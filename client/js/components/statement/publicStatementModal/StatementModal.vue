@@ -161,11 +161,13 @@
 
         <div
           v-if="openedFromDraftList && statementCustomFields.length > 0"
-          class="mb-2">
+          class="mb-2"
+        >
           <div
             v-for="customField in statementCustomFields"
             :key="customField.id"
-            class="mb-2">
+            class="mb-2"
+          >
             <dp-label
               :text="customField.name"
               class="mb-2"
@@ -182,7 +184,8 @@
           <div
             v-for="(selectableCustomField) in selectableCustomFields"
             :key="selectableCustomField.id"
-            class="mb-2">
+            class="mb-2"
+          >
             <dp-label
               :text="selectableCustomField.name"
               :for="selectableCustomField.id"
@@ -1291,7 +1294,7 @@ export default {
 
       try {
         const url = Routing.generate('api_resource_list', {
-          resourceType: 'CustomField'
+          resourceType: 'CustomField',
         })
 
         const params = {
@@ -1301,17 +1304,17 @@ export default {
               'description',
               'options',
               'fieldType',
-              'isRequired'
-            ].join()
+              'isRequired',
+            ].join(),
           },
           filter: {
             sourceEntityId: {
               condition: {
                 path: 'sourceEntityId',
                 value: this.procedureId,
-              }
-            }
-          }
+              },
+            },
+          },
         }
 
         const response = await dpApi.get(url, params)
@@ -1324,7 +1327,7 @@ export default {
           description: field.attributes.description,
           isRequired: field.attributes.isRequired || false,
           options: Array.isArray(field.attributes.options) ? field.attributes.options : [],
-          selected: []
+          selected: [],
         }))
 
         this.restoreCustomFieldSelections()
@@ -1350,7 +1353,7 @@ export default {
 
       this.formData.customFields.forEach(storedField => {
         const fieldIndex = this.selectableCustomFields.findIndex(
-          field => field.id === storedField.id
+          field => field.id === storedField.id,
         )
 
         if (fieldIndex === -1) {
@@ -1392,7 +1395,7 @@ export default {
           .filter(field => field.selected && field.selected.length > 0)
           .map(field => ({
             id: field.id,
-            value: field.selected.map(option => option.id)
+            value: field.selected.map(option => option.id),
           }))
 
         this.setStatementData({ customFields })
@@ -1491,7 +1494,7 @@ export default {
         if (input === 'r_text') {
           this.$refs.statementEditor.editor.focus('end')
         } else if (input === 'r_customFields') {
-          // scroll to first custom field
+          // Scroll to first custom field
           const firstCustomField = document.querySelector('[data-cy^="customField"]')
           if (firstCustomField) {
             firstCustomField.scrollIntoView({ behavior: 'smooth', block: 'center' })

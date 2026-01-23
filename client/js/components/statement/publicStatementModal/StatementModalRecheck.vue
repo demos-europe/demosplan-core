@@ -403,7 +403,7 @@ export default {
 
     customFieldsWithValues () {
       return this.selectableCustomFields.filter(
-        field => field.selected && field.selected.length > 0
+        field => field.selected && field.selected.length > 0,
       )
     },
   },

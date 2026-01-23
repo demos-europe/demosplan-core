@@ -105,7 +105,7 @@ import {
   DpTab,
   DpTabs,
   formatDate,
-  getFileInfo
+  getFileInfo,
 } from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
@@ -316,21 +316,21 @@ export default {
       }
 
       const url = Routing.generate('api_resource_list', {
-        resourceType: 'CustomField'
+        resourceType: 'CustomField',
       })
 
       const params = {
         fields: {
-          CustomField: ['name', 'description', 'options', 'fieldType'].join()
+          CustomField: ['name', 'description', 'options', 'fieldType'].join(),
         },
         filter: {
           sourceEntityId: {
             condition: {
               path: 'sourceEntityId',
-              value: this.procedureId
-            }
-          }
-        }
+              value: this.procedureId,
+            },
+          },
+        },
       }
 
       dpApi.get(url, params)
@@ -352,7 +352,7 @@ export default {
 
       // Create lookup map for definitions
       const definitionsMap = new Map(
-        this.customFieldDefinitions.map(def => [def.id, def.attributes])
+        this.customFieldDefinitions.map(def => [def.id, def.attributes]),
       )
 
       return Object.values(statementCustomFields)
@@ -375,7 +375,7 @@ export default {
           return {
             id: savedField.id,
             name: definition.name,
-            selected: selectedOptions
+            selected: selectedOptions,
           }
         })
         .filter(field => field !== null && field.selected.length > 0)

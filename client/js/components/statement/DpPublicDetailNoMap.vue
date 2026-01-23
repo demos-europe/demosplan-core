@@ -131,7 +131,7 @@ export default {
         this.$refs.statementModal.setCustomFieldsReadOnly(customFields)
       }
 
-      this.$refs.statementModal.getDraftStatement(id, true, true) // true = openModal, true = fromDraftList
+      this.$refs.statementModal.getDraftStatement(id, true, true)
     })
   },
 }

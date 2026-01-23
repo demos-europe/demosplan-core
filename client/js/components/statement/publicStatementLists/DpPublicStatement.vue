@@ -481,7 +481,7 @@ export default {
 
     customFieldsWithValues () {
       return this.statementCustomFields.filter(
-        field => field.selected && field.selected.length > 0
+        field => field.selected && field.selected.length > 0,
       )
     },
   },
