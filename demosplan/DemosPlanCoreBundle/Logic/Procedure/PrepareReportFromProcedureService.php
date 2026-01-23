@@ -233,8 +233,12 @@ class PrepareReportFromProcedureService
             // compare Users using custom function instead of just casting a User instance to a string
             $dstProcedureAuthorizedUsersArray = $destinationProcedure->getAuthorizedUsers()->toArray();
             $srcProcedureAuthorizedUsersArray = $sourceProcedure->getAuthorizedUsers()->toArray();
-            $changes = array_udiff($dstProcedureAuthorizedUsersArray, $srcProcedureAuthorizedUsersArray, fn (User $user1, User $user2) => strcmp((string) $user1->getId(), (string) $user2->getId()));
-            if ([] !== $changes) {
+            $userComparator = fn (User $user1, User $user2) => strcmp((string) $user1->getId(), (string) $user2->getId());
+            // Check for users added (in destination but not in source)
+            $usersAdded = array_udiff($dstProcedureAuthorizedUsersArray, $srcProcedureAuthorizedUsersArray, $userComparator);
+            // Check for users removed (in source but not in destination)
+            $usersRemoved = array_udiff($srcProcedureAuthorizedUsersArray, $dstProcedureAuthorizedUsersArray, $userComparator);
+            if ([] !== $usersAdded || [] !== $usersRemoved) {
                 $update['oldAuthorizedUsers'] = implode(', ', $sourceProcedure->getAuthorizedUserNames());
                 $update['newAuthorizedUsers'] = implode(', ', $destinationProcedure->getAuthorizedUserNames());
             }
