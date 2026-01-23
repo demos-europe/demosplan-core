@@ -5,6 +5,10 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+### Added
+- Add custom fields to statement modal in public detail and draft list, also display custom fields in new public participation dialog
+
 ## v4.27.0 (2026-01-16)
 
 ### Added

@@ -159,6 +159,53 @@
           />
         </div>
 
+        <div
+          v-if="openedFromDraftList && statementCustomFields.length > 0"
+          class="mb-2"
+        >
+          <div
+            v-for="customField in statementCustomFields"
+            :key="customField.id"
+            class="mb-2"
+          >
+            <dp-label
+              :text="customField.name"
+              class="mb-2"
+            />
+            <div :class="prefixClass('o-form__group')">
+              <span :class="prefixClass('badge badge--default')">
+                {{ customField.selected.map(option => option.label).join(', ') }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="!openedFromDraftList">
+          <div
+            v-for="(selectableCustomField) in selectableCustomFields"
+            :key="selectableCustomField.id"
+            class="mb-2"
+          >
+            <dp-label
+              :text="selectableCustomField.name"
+              :for="selectableCustomField.id"
+              class="mb-2"
+            />
+
+            <dp-multiselect
+              :id="selectableCustomField.name"
+              v-model="selectableCustomField.selected"
+              :data-dp-validate-error-fieldname="selectableCustomField.name"
+              :options="selectableCustomField.options"
+              :required="selectableCustomField.isRequired"
+              label="label"
+              multiple
+              track-by="id"
+              @input="handleCustomFieldChange"
+            />
+          </div>
+        </div>
+
         <div :class="prefixClass('c-statement__text')">
           <dp-label
             :text="Translator.trans('statement.detail.form.statement_text')"
@@ -685,6 +732,7 @@
           :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
           :statement-feedback-definitions="statementFeedbackDefinitions"
           :statement-form-hint-recheck="statementFormHintRecheck"
+          :selectable-custom-fields="selectableCustomFields"
           @edit-input="handleEditInput"
         />
 
@@ -836,6 +884,7 @@ import {
   DpLabel,
   DpLoading,
   DpModal,
+  DpMultiselect,
   DpMultistepNav,
   DpProgressBar,
   DpRadio,
@@ -884,6 +933,7 @@ export default {
     DpLabel,
     DpLoading,
     DpModal,
+    DpMultiselect,
     DpMultistepNav,
     DpProgressBar,
     DpRadio,
@@ -1072,7 +1122,9 @@ export default {
         },
       },
       continueWriting: false,
+      statementCustomFields: [],
       draftStatementId: '',
+      openedFromDraftList: false,
       editDraftDataInPublicDetail: true,
       formFields: [...this.statementFormFields, ...this.personalDataFormFields, ...this.feedbackFormFields],
       hasPlanningDocuments: this.initHasPlanningDocuments,
@@ -1228,26 +1280,152 @@ export default {
       const invalidFields = this.dpValidate.invalidFields[formId]
       const uniqueFieldDescriptions = Array.from(new Set(invalidFields.map(field => {
         const fieldId = field.getAttribute('id')
-        return `<li>${Translator.trans(fieldDescriptionsForErrors[fieldId])}</li>`
+
+        return `<li>${fieldDescriptionsForErrors[fieldId] ? Translator.trans(fieldDescriptionsForErrors[fieldId]) : field.dataset?.dpValidateErrorFieldname}</li>`
       })))
+
       return `<p>${Translator.trans('error.in.fields')}</p><ul class="list-disc u-ml-0_75">${uniqueFieldDescriptions.join('')}</ul>`
+    },
+
+    async fetchCustomFields () {
+      if (!hasPermission('feature_statements_custom_fields')) {
+        return
+      }
+
+      try {
+        const url = Routing.generate('api_resource_list', {
+          resourceType: 'CustomField',
+        })
+
+        const params = {
+          fields: {
+            CustomField: [
+              'name',
+              'description',
+              'options',
+              'fieldType',
+              'isRequired',
+            ].join(),
+          },
+          filter: {
+            sourceEntityId: {
+              condition: {
+                path: 'sourceEntityId',
+                value: this.procedureId,
+              },
+            },
+          },
+        }
+
+        const response = await dpApi.get(url, params)
+
+        const customFields = response.data.data || []
+
+        this.selectableCustomFields = customFields.map(field => ({
+          id: field.id,
+          name: field.attributes.name,
+          description: field.attributes.description,
+          isRequired: field.attributes.isRequired || false,
+          options: Array.isArray(field.attributes.options) ? field.attributes.options : [],
+          selected: [],
+        }))
+
+        this.restoreCustomFieldSelections()
+      } catch (error) {
+        console.log(error)
+
+        this.selectableCustomFields = []
+      }
+    },
+
+    setCustomFieldsReadOnly (customFields) {
+      this.statementCustomFields = customFields
+    },
+
+    restoreCustomFieldSelections () {
+      this.selectableCustomFields.forEach(field => {
+        field.selected = []
+      })
+
+      if (!this.formData.customFields) {
+        return
+      }
+
+      this.formData.customFields.forEach(storedField => {
+        const fieldIndex = this.selectableCustomFields.findIndex(
+          field => field.id === storedField.id,
+        )
+
+        if (fieldIndex === -1) {
+          console.warn(`Custom field ${storedField.id} not found in available fields`)
+          return
+        }
+
+        const field = this.selectableCustomFields[fieldIndex]
+
+        if (!storedField.value) {
+          return
+        }
+
+        const selectedOptions = storedField.value
+          .map(optionId => {
+            const option = field.options.find(opt => opt.id === optionId)
+
+            if (!option) {
+              console.warn(`Option ${optionId} not found in custom field ${field.name}`)
+              return null
+            }
+
+            return option
+          })
+          .filter(opt => opt !== null)
+
+        this.selectableCustomFields[fieldIndex].selected = selectedOptions
+      })
+    },
+
+    handleCustomFieldChange () {
+      this.$nextTick(() => {
+        if (!this.selectableCustomFields || this.selectableCustomFields.length === 0) {
+          this.setStatementData({ customFields: [] })
+          return
+        }
+
+        const customFields = this.selectableCustomFields
+          .filter(field => field.selected && field.selected.length > 0)
+          .map(field => ({
+            id: field.id,
+            value: field.selected.map(option => option.id),
+          }))
+
+        this.setStatementData({ customFields })
+      })
     },
 
     fieldIsActive (fieldKey) {
       return this.formFields.map(el => el.name).includes(fieldKey)
     },
 
-    getDraftStatement (draftStatementId, openModal = false) {
+    getDraftStatement (draftStatementId, openModal = false, fromDraftList = false) {
       this.writeDraftStatementIdToSession(draftStatementId)
+
+      this.openedFromDraftList = fromDraftList
 
       // If the draft already exists. load it from session storage
       const dId = draftStatementId !== '' ? draftStatementId : 'new'
       const existingDataString = localStorage.getItem(`publicStatement:${this.userId}:${this.procedureId}:${dId}`)
       const draftExists = (draftStatementId !== '' && existingDataString !== null)
+
       if (draftExists) {
         const existingData = JSON.parse(existingDataString)
 
         this.setStatementData(existingData)
+
+        if (!fromDraftList) {
+          this.$nextTick(() => {
+            this.restoreCustomFieldSelections()
+          })
+        }
       }
 
       // Else: get the data via api
@@ -1266,6 +1444,12 @@ export default {
              * If it is a draft, we set the data from local storage (see above).
              */
             this.setStatementData(draft)
+
+            if (!fromDraftList) {
+              this.$nextTick(() => {
+                this.restoreCustomFieldSelections()
+              })
+            }
             this.removeStatementProp('immediate_submit')
             sessionStorage.removeItem(this.fileStorageName)
 
@@ -1300,6 +1484,7 @@ export default {
       this.step = {
         r_text: 0,
         r_makePublic: 0,
+        r_customFields: 0,
         r_useName_0: 1,
         r_useName_1: 1,
         r_getFeedback: 1,
@@ -1308,6 +1493,12 @@ export default {
         // Focusing of the tiptap instance must be handled separately
         if (input === 'r_text') {
           this.$refs.statementEditor.editor.focus('end')
+        } else if (input === 'r_customFields') {
+          // Scroll to first custom field
+          const firstCustomField = document.querySelector('[data-cy^="customField"]')
+          if (firstCustomField) {
+            firstCustomField.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
         } else {
           document.getElementById(input).focus()
         }
@@ -1450,6 +1641,10 @@ export default {
        */
       if ((hasOwnProp(dataToSend, 'r_getFeedback') === false || dataToSend.r_getEvaluation !== 'email') && dataToSend.r_email === '') {
         delete dataToSend.r_email
+      }
+
+      if (dataToSend.customFields && Array.isArray(dataToSend.customFields)) {
+        dataToSend.customFields = JSON.stringify(dataToSend.customFields)
       }
 
       return dataToSend
@@ -1648,6 +1843,8 @@ export default {
     },
 
     toggleModal (resetOnClose = true, data = null) {
+      const isClosing = this.$refs.statementModal && this.$refs.statementModal.isOpen
+
       // Check if browser is in fullscreen mode
       if (isActiveFullScreen()) {
         toggleFullscreen()
@@ -1655,6 +1852,12 @@ export default {
       this.editDraftDataInPublicDetail = resetOnClose
       this.step = 0
       this.showHeader = true
+
+      if (isClosing) {
+        this.openedFromDraftList = false
+        this.statementCustomFields = []
+      }
+
       this.$refs.statementModal.toggle()
       if (data) {
         this.updateStatement(data)
@@ -1736,6 +1939,8 @@ export default {
   },
 
   mounted () {
+    this.fetchCustomFields()
+
     if (!this.allowAnonymousStatements && this.formData.r_useName !== '1') {
       this.setPrivacyPreference({ r_useName: '1' })
     }
@@ -1768,6 +1973,10 @@ export default {
       const sessionStorageBegunStatementParsed = JSON.parse(sessionStorageBegunStatement)
       if (sessionStorageBegunStatement && sessionStorageBegunStatement !== this.initFormDataJSON && sessionStorageBegunStatementParsed.r_ident === '') {
         this.setStatementData(sessionStorageBegunStatementParsed)
+
+        this.$nextTick(() => {
+          this.restoreCustomFieldSelections()
+        })
       } else {
         this.setStatementData({ r_county: this.counties.find(el => el.selected) ? this.counties.find(el => el.selected).value : '' })
       }

@@ -11,6 +11,7 @@ import { hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const statementStructure = {
   action: 'statementpublicnew',
+  customFields: [],
   delete_file: [],
   location_is_set: '',
   r_city: '',
