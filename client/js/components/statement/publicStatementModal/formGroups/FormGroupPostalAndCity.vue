@@ -12,6 +12,7 @@
     <div :class="prefixClass('layout')">
       <dp-input
         id="r_postalCode"
+        :aria-label="Translator.trans('postalcode.complete')"
         :class="prefixClass('layout__item')"
         :disabled="disabled"
         :label="{

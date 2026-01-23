@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use Webmozart\Assert\Assert;
 
 /**
  * Validates values for MultiSelectField.
@@ -29,6 +30,13 @@ class MultiSelectFieldValueValidationStrategy implements CustomFieldValueValidat
 
     public function validate(CustomFieldInterface $field, CustomFieldValue $customFieldValue): void
     {
+        Assert::isInstanceOf($field, MultiSelectField::class);
+
+        // Required fields must have at least one selection
+        if ($field->getRequired() && ([] === $customFieldValue->getValue() || null === $customFieldValue->getValue())) {
+            throw new InvalidArgumentException('Required fields must have at least one selection');
+        }
+
         // Null is always valid (no selection)
         if (null === $customFieldValue->getValue()) {
             return;
@@ -36,12 +44,7 @@ class MultiSelectFieldValueValidationStrategy implements CustomFieldValueValidat
 
         // MultiSelect must be an array, not a string
         if (!is_array($customFieldValue->getValue())) {
-            return;
-        }
-
-        // Required fields must have at least one selection
-        if ($field->getRequired() && [] === $customFieldValue->getValue()) {
-            throw new InvalidArgumentException('Required fields must have at least one selection');
+            throw new InvalidArgumentException('Value must be an array');
         }
 
         // Validate each value in the array

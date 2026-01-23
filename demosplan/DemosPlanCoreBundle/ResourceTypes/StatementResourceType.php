@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -42,6 +43,8 @@ use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigB
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedurePhaseVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -71,6 +74,7 @@ use Webmozart\Assert\Assert;
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
  * @property-read GenericStatementAttachmentResourceType $genericAttachments
  * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only.
+ * @property-read End $customFields
  */
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
 {
@@ -88,6 +92,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
         private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
         private readonly FileContainerRepository $fileContainerRepository,
+        private readonly CustomFieldValueCreator $customFieldValueCreator,
     ) {
         parent::__construct($htmlSanitizer, $statementService);
     }
@@ -180,6 +185,10 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
     {
         if (!$this->hasAssessmentPermission()) {
             return false;
+        }
+
+        if ($this->currentUser->hasPermission('field_statements_custom_fields')) {
+            return true;
         }
 
         // has admin list assign permission
@@ -355,6 +364,26 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->user
                 ->setRelationshipType($this->resourceTypeStore->getUserResourceType())
                 ->setReadableByPath();
+
+            if ($this->currentUser->hasPermission('field_statements_custom_fields')) {
+                $configBuilder->customFields
+                    ->setReadableByCallable(static fn (Statement $statement): ?array => $statement->getCustomFields()?->toJson())
+                    ->updatable([],
+                        function (Statement $statement, array $customFields): array {
+                            $customFieldList = $statement->getCustomFields() ?? new CustomFieldValuesList();
+                            $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+                                $customFieldList,
+                                $customFields,
+                                $statement->getProcedure()->getId(),
+                                CustomFieldSupportedEntity::procedure->value,
+                                CustomFieldSupportedEntity::statement->value,
+                            );
+                            $statement->setCustomFields($customFieldList);
+
+                            return [];
+                        }
+                    );
+            }
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {

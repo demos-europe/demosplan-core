@@ -697,7 +697,7 @@ export default {
           })
       } else if (this.sourcePage === 'StatementsList') {
         this.returnLink = Routing.generate('dplan_procedure_statement_list', {
-          procedureId: this.procedure.id
+          procedureId: this.procedure.id,
         })
       }
     },
