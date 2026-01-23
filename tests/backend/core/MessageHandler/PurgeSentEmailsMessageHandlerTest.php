@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\MessageHandler;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Message\PurgeSentEmailsMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\PurgeSentEmailsMessageHandler;
@@ -24,6 +25,7 @@ class PurgeSentEmailsMessageHandlerTest extends UnitTestCase
 {
     private ?MailService $mailService = null;
     private ?ParameterBagInterface $parameterBag = null;
+    private ?PermissionsInterface $permissions = null;
     private ?LoggerInterface $logger = null;
     private ?PurgeSentEmailsMessageHandler $sut = null;
 
@@ -33,11 +35,13 @@ class PurgeSentEmailsMessageHandlerTest extends UnitTestCase
 
         $this->mailService = $this->createMock(MailService::class);
         $this->parameterBag = $this->createMock(ParameterBagInterface::class);
+        $this->permissions = $this->createMock(PermissionsInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->sut = new PurgeSentEmailsMessageHandler(
             $this->mailService,
             $this->parameterBag,
+            $this->permissions,
             $this->logger
         );
     }
