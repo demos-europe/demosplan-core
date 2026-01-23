@@ -707,8 +707,25 @@ export default {
         return null
       }
 
+      let baseUrl
+
+        try {
+          const parsedUrl = new URL(url)
+          const paramsToRemove = ['REQUEST', 'SERVICE', 'VERSION']
+
+          paramsToRemove.forEach(param => {
+            parsedUrl.searchParams.delete(param)
+            parsedUrl.searchParams.delete(param.toLowerCase())
+          })
+
+          baseUrl = parsedUrl.toString()
+        } catch {
+          baseUrl = url
+        }
+
+
       const tempSource = new TileWMS({
-        url,
+        url: baseUrl,
         projection: this.mapprojection,
         params: {
           LAYERS: layers,
