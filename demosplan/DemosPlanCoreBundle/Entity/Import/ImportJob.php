@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Import;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -65,6 +66,16 @@ class ImportJob extends CoreEntity
      * @ORM\JoinColumn(name="user_id", referencedColumnName="_u_id", nullable=false, onDelete="CASCADE")
      */
     protected $user;
+
+    /**
+     * The organisation context when this job was created.
+     * Used to restore organisation context during background processing.
+     *
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
+     *
+     * @ORM\JoinColumn(name="organisation_id", referencedColumnName="_o_id", nullable=true, onDelete="SET NULL")
+     */
+    protected ?Orga $organisation = null;
 
     /**
      * @var string
@@ -145,6 +156,18 @@ class ImportJob extends CoreEntity
     public function setUser(User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getOrganisation(): ?Orga
+    {
+        return $this->organisation;
+    }
+
+    public function setOrganisation(?Orga $organisation): self
+    {
+        $this->organisation = $organisation;
 
         return $this;
     }

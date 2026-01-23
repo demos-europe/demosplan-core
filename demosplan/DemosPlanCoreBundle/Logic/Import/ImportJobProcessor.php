@@ -143,6 +143,13 @@ class ImportJobProcessor
         $customer = $job->getProcedure()->getCustomer();
         $this->globalConfig->setSubdomain($customer->getSubdomain());
         $this->currentUserService->setUser($user, $customer);
+
+        // Restore organisation context if one was stored with the job
+        $organisation = $job->getOrganisation();
+        if (null !== $organisation) {
+            $user->setCurrentOrganisation($organisation);
+        }
+
         $this->permissions->setProcedure($job->getProcedure());
         $this->permissions->initPermissions($user);
         $this->permissions->setProcedurePermissions();

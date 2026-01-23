@@ -34,11 +34,20 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const COMPANY_DEPARTMENT = 'Organisationseinheit';
     private const COMPANY_DEPARTMENT_EN = 'organisationUnit';
     private const IS_PRIVATE_PERSON = 'isPrivatePerson';
+    private const RESPONSIBILITIES = 'responsibilities';
 
     protected string $addressExtension = '';
     protected string $city = '';
     protected string $companyDepartment = '';
     protected bool $isPrivatePerson = false;
+
+    /**
+     * Array of responsibilities from Keycloak token.
+     * Each entry contains 'responsibility' (gwId) and optionally 'orgaName'.
+     *
+     * @var array<int, array{responsibility: string, orgaName?: string}>
+     */
+    protected array $responsibilities = [];
 
     public function __construct(
         private readonly LoggerInterface $logger,
@@ -94,8 +103,54 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         $this->isPrivatePerson = isset($userInformation[self::IS_PRIVATE_PERSON])
             && ('true' === $userInformation[self::IS_PRIVATE_PERSON] || true === $userInformation[self::IS_PRIVATE_PERSON]);
 
+        // Extract multiple responsibilities from token (multi-responsibility support)
+        $this->parseResponsibilities($userInformation);
+
         $this->lock();
         $this->checkMandatoryValuesExist();
+    }
+
+    /**
+     * Parse responsibilities from token.
+     * Supports both multi-responsibility format and single organisationId.
+     *
+     * @param array<string, mixed> $userInformation
+     */
+    private function parseResponsibilities(array $userInformation): void
+    {
+        // Check for responsibilities array format (multi-org)
+        if (array_key_exists(self::RESPONSIBILITIES, $userInformation)
+            && is_array($userInformation[self::RESPONSIBILITIES])
+            && [] !== $userInformation[self::RESPONSIBILITIES]
+        ) {
+            foreach ($userInformation[self::RESPONSIBILITIES] as $responsibilityData) {
+                if (is_array($responsibilityData) && isset($responsibilityData['responsibility'])) {
+                    $this->responsibilities[] = [
+                        'responsibility' => (string) $responsibilityData['responsibility'],
+                        'orgaName' => (string) ($responsibilityData['orgaName'] ?? $responsibilityData['responsibility']),
+                    ];
+                }
+            }
+
+            $this->logger->info('Parsed multiple responsibilities from token', [
+                'count' => count($this->responsibilities),
+                'responsibilities' => array_column($this->responsibilities, 'responsibility'),
+            ]);
+
+            return;
+        }
+
+        // Fallback: Use single organisationId as responsibility
+        if ('' !== $this->organisationId) {
+            $this->responsibilities[] = [
+                'responsibility' => $this->organisationId,
+                'orgaName' => '' !== $this->organisationName ? $this->organisationName : $this->organisationId,
+            ];
+
+            $this->logger->info('Using single organisationId as responsibility', [
+                'responsibility' => $this->organisationId,
+            ]);
+        }
     }
 
     /**
@@ -131,52 +186,98 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     }
 
     /**
-     * Override parent method to make roles and organization optional when isPrivatePerson is true.
+     * Get all responsibilities from the token.
      *
-     * For private persons authenticated via the isPrivatePerson token attribute:
-     * - Roles are assigned automatically (CITIZEN role), so customerRoleRelations may be empty
-     * - Organization attributes are optional, as they'll be assigned to the private organization
-     * - Only validates: userId, userName, emailAddress, and name (firstName/lastName)
+     * @return array<int, array{responsibility: string, orgaName: string}>
+     */
+    public function getResponsibilities(): array
+    {
+        return $this->responsibilities;
+    }
+
+    /**
+     * Check if user has multiple responsibilities.
+     */
+    public function hasMultipleResponsibilities(): bool
+    {
+        return count($this->responsibilities) > 1;
+    }
+
+    /**
+     * Get the primary (first) responsibility.
+     * Returns null if no responsibilities exist.
      *
-     * For organization users, standard validation including roles and organization is performed.
+     * @return array{responsibility: string, orgaName: string}|null
+     */
+    public function getPrimaryResponsibility(): ?array
+    {
+        return $this->responsibilities[0] ?? null;
+    }
+
+    /**
+     * Override parent method to support multi-responsibility tokens and private persons.
      */
     public function checkMandatoryValuesExist(): void
     {
+        $missingValues = $this->checkUserIdentityFields();
+
+        // Private persons: skip roles and organization validation
         if ($this->isPrivatePerson) {
-            // For private persons, validate only essential fields (skip roles and organization)
-            $missingMandatoryValues = [];
+            $this->throwIfMandatoryValuesMissing($missingValues);
 
-            if ('' === $this->userId) {
-                $missingMandatoryValues[] = 'userId';
-            }
-
-            if ('' === $this->userName) {
-                $missingMandatoryValues[] = 'userName';
-            }
-
-            if ('' === $this->emailAddress) {
-                $missingMandatoryValues[] = 'emailAddress';
-            }
-
-            if ('' === $this->firstName && '' === $this->lastName) {
-                $missingMandatoryValues[] = 'name';
-            }
-
-            $this->throwIfMandatoryValuesMissing($missingMandatoryValues);
-        } else {
-            // Organization users: use standard validation including role and organization checks
-            parent::checkMandatoryValuesExist();
+            return;
         }
+
+        // Multi-responsibility: organisationId optional if responsibilities present, but roles required
+        if ([] !== $this->responsibilities) {
+            if ([] === $this->customerRoleRelations) {
+                $missingValues[] = 'roles';
+            }
+            $this->throwIfMandatoryValuesMissing($missingValues);
+
+            return;
+        }
+
+        // Single-org: use standard validation
+        parent::checkMandatoryValuesExist();
+    }
+
+    /**
+     * Check common user identity fields (userId, userName, email, name).
+     *
+     * @return array<int, string> Missing field names
+     */
+    private function checkUserIdentityFields(): array
+    {
+        $missing = [];
+
+        if ('' === $this->userId) {
+            $missing[] = 'userId';
+        }
+        if ('' === $this->userName) {
+            $missing[] = 'userName';
+        }
+        if ('' === $this->emailAddress) {
+            $missing[] = 'emailAddress';
+        }
+        if ('' === $this->firstName && '' === $this->lastName) {
+            $missing[] = 'name';
+        }
+
+        return $missing;
     }
 
     public function __toString(): string
     {
         $parentString = parent::__toString();
 
+        $responsibilitiesString = implode(', ', array_column($this->responsibilities, 'responsibility'));
+
         return $parentString.
             ', addressExtension: '.$this->addressExtension.
             ', city: '.$this->city.
             ', company department: '.$this->companyDepartment.
-            ', isPrivatePerson: '.($this->isPrivatePerson ? 'true' : 'false');
+            ', isPrivatePerson: '.($this->isPrivatePerson ? 'true' : 'false').
+            ', responsibilities: ['.$responsibilitiesString.']';
     }
 }

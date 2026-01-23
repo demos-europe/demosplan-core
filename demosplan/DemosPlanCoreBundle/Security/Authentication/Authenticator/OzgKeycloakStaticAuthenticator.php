@@ -16,14 +16,10 @@ use DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
-use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakStaticUserDataProvider;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
-use Lcobucci\JWT\Encoding\JoseEncoder;
-use Lcobucci\JWT\Token\Parser;
 use Psr\Log\LoggerInterface;
 use Stevenmaguire\OAuth2\Client\Provider\KeycloakResourceOwner;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -32,75 +28,103 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
-use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
-class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
+/**
+ * Static authenticator for testing Keycloak login without a real Keycloak server.
+ *
+ * This authenticator allows testing of the Keycloak authentication flow,
+ * including multi-responsibility (multi-organisation) login scenarios.
+ *
+ * Usage:
+ *   Add ?keycloakTest=<user-key> to any route.
+ *
+ * Examples:
+ *   /verfahren/login?keycloakTest=multi-org-user     - User with 3 organisations
+ *   /verfahren/login?keycloakTest=dual-org-user      - User with 2 organisations
+ *   /verfahren/login?keycloakTest=single-org-user    - User with 1 organisation
+ *   /verfahren/login?keycloakTest=fachplaner-admin   - Planning agency admin
+ *   /verfahren/login?keycloakTest=toeb-koordinator   - Public agency coordinator
+ *   /verfahren/login?keycloakTest=private-person     - Citizen (private person)
+ *
+ * See OzgKeycloakStaticUserDataProvider for all available test users.
+ *
+ * IMPORTANT: This authenticator should only be enabled in development environments!
+ */
+class OzgKeycloakStaticAuthenticator extends AbstractAuthenticator
 {
     public function __construct(
-        private readonly ClientRegistry $clientRegistry,
         private readonly CustomerServiceInterface $customerService,
         private readonly EntityManagerInterface $entityManager,
         private readonly OzgKeycloakUserData $ozgKeycloakUserData,
         private readonly LoggerInterface $logger,
         private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
         private readonly RouterInterface $router,
-        private readonly OzgKeycloakLogoutManager $keycloakLogoutManager,
         private readonly CurrentOrganisationService $currentOrganisationService,
+        private readonly OzgKeycloakStaticUserDataProvider $userDataProvider,
     ) {
     }
 
     public function supports(Request $request): ?bool
     {
-        // continue ONLY if the current ROUTE matches the check ROUTE
-        return 'connect_keycloak_ozg_check' === $request->attributes->get('_route');
+        // Only support requests with keycloakTest query parameter
+        return $request->query->has('keycloakTest');
     }
 
     public function authenticate(Request $request): Passport
     {
-        $client = $this->clientRegistry->getClient('keycloak_ozg');
-        $accessToken = $this->fetchAccessToken($client);
-        $this->logger->info('login attempt', ['accessToken' => $accessToken]);
+        $testUserKey = $request->query->get('keycloakTest');
+        $userData = $this->userDataProvider->getUserData($testUserKey);
 
-        // Execute user creation immediately instead of deferring it
+        if (null === $userData) {
+            $availableKeys = implode(', ', $this->userDataProvider->getAvailableUserKeys());
+            $this->logger->error('Static Keycloak test user not found', [
+                'requestedKey' => $testUserKey,
+                'availableKeys' => $availableKeys,
+            ]);
+            throw new AuthenticationException(
+                sprintf('Test user "%s" not found. Available users: %s', $testUserKey, $availableKeys)
+            );
+        }
+
+        $this->logger->info('Static Keycloak login attempt', [
+            'testUserKey' => $testUserKey,
+            'userId' => $userData['sub'],
+            'email' => $userData['email'],
+            'responsibilityCount' => count($userData['responsibilities'] ?? []),
+        ]);
+
         try {
             $this->entityManager->getConnection()->beginTransaction();
-            $this->logger->info('Start of doctrine transaction.');
-
-            // Decode the JWT access token to get ALL claims including resource_access
-            // Parse without verification since Keycloak signed it with its own keys
-            $parser = new Parser(new JoseEncoder());
-            $token = $parser->parse($accessToken->getToken());
-            $decodedJwtPayload = $token->claims()->all();
-            $this->logger->info('raw token', [$decodedJwtPayload]);
-
-            $tokenValues = $accessToken->getValues();
-            $this->keycloakLogoutManager->storeTokenAndExpirationInSession($request->getSession(), $tokenValues);
+            $this->logger->info('Start of doctrine transaction (static Keycloak).');
 
             $customerSubdomain = $this->customerService->getCurrentCustomer()->getSubdomain();
 
-            // Create ResourceOwner with complete JWT payload (includes resource_access)
-            $resourceOwner = new KeycloakResourceOwner($decodedJwtPayload);
+            // Create a KeycloakResourceOwner from our static data
+            $resourceOwner = new KeycloakResourceOwner($userData);
             $this->ozgKeycloakUserData->fill($resourceOwner, $customerSubdomain);
-            $this->logger->info('Found user data: '.$this->ozgKeycloakUserData);
+
+            $this->logger->info('Static Keycloak user data: '.$this->ozgKeycloakUserData);
             $user = $this->ozgKeycloakUserDataMapper->mapUserData($this->ozgKeycloakUserData);
 
             $this->entityManager->getConnection()->commit();
-            $this->logger->info('doctrine transaction commit.');
+            $this->logger->info('Doctrine transaction commit (static Keycloak).');
+
             $request->getSession()->set('userId', $user->getId());
         } catch (Exception $e) {
             $this->entityManager->getConnection()->rollBack();
-            $this->logger->info('doctrine transaction rollback.');
+            $this->logger->info('Doctrine transaction rollback (static Keycloak).');
             $this->logger->error(
-                'login failed',
+                'Static Keycloak login failed',
                 [
-                    'requestValues' => $this->ozgKeycloakUserData ?? null,
-                    'exception'     => $e,
+                    'testUserKey' => $testUserKey,
+                    'exception' => $e,
                 ]
             );
-            throw new AuthenticationException('You shall not pass!');
+            throw new AuthenticationException('Static Keycloak authentication failed: '.$e->getMessage());
         }
 
         return new SelfValidatingPassport(
@@ -112,32 +136,28 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     {
         $user = $token->getUser();
 
-        // Handle multi-responsibility users
+        // Handle multi-responsibility users (same logic as OzgKeycloakAuthenticator)
         if ($user instanceof User) {
             $organisations = $user->getOrganisations();
 
             if ($organisations->count() > 1) {
-                // Check if user needs to select an organisation
                 if ($this->currentOrganisationService->requiresOrganisationSelection($user)) {
-                    $this->logger->info('Multi-responsibility user requires organisation selection', [
+                    $this->logger->info('Static Keycloak: Multi-responsibility user requires organisation selection', [
                         'userId' => $user->getId(),
                         'organisationCount' => $organisations->count(),
                     ]);
 
-                    // Redirect to organisation selection page
                     $targetUrl = $this->router->generate('DemosPlan_user_select_organisation');
 
                     return new RedirectResponse($targetUrl);
                 }
 
-                // Organisation already selected in session, initialize transient property
                 $this->currentOrganisationService->initializeCurrentOrganisation($user);
             } elseif (1 === $organisations->count()) {
-                // Single organisation - auto-select it
                 $singleOrga = $organisations->first();
                 if (false !== $singleOrga) {
                     $this->currentOrganisationService->setCurrentOrganisation($user, $singleOrga);
-                    $this->logger->info('Single organisation auto-selected', [
+                    $this->logger->info('Static Keycloak: Single organisation auto-selected', [
                         'userId' => $user->getId(),
                         'orgaId' => $singleOrga->getId(),
                     ]);
@@ -145,7 +165,6 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             }
         }
 
-        // Redirect to home page
         $targetUrl = $this->router->generate('core_home_loggedin');
 
         return new RedirectResponse($targetUrl);
@@ -153,21 +172,11 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        $this->logger->warning('Login via Keycloak failed', ['exception' => $exception]);
+        $this->logger->warning('Static Keycloak login failed', ['exception' => $exception]);
+
+        // Redirect to an error page with the message
         $targetUrl = $this->router->generate('core_login_idp_error');
 
         return new RedirectResponse($targetUrl);
-    }
-
-    /**
-     * Called when authentication is needed, but it's not sent.
-     * This redirects to the 'login'.
-     */
-    public function start(Request $request, ?AuthenticationException $authException = null): Response
-    {
-        return new RedirectResponse(
-            '/connect/keycloak_ozg', // might be the site, where users choose their oauth provider
-            Response::HTTP_TEMPORARY_REDIRECT
-        );
     }
 }

@@ -210,4 +210,205 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
         self::assertEquals('johndoe', $this->sut->getUserName());
         self::assertTrue($this->sut->isPrivatePerson());
     }
+
+    public function testMultipleResponsibilitiesAreParsedCorrectly(): void
+    {
+        $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
+        $resourceOwner->method('toArray')
+            ->willReturn([
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'Multi',
+                'family_name'        => 'Org',
+                'sub'                => 'multi-user-123',
+                'preferred_username' => 'multiorg',
+                'responsibilities'   => [
+                    ['responsibility' => 'org-gw-id-1', 'orgaName' => 'Organisation One'],
+                    ['responsibility' => 'org-gw-id-2', 'orgaName' => 'Organisation Two'],
+                    ['responsibility' => 'org-gw-id-3', 'orgaName' => 'Organisation Three'],
+                ],
+                'groups' => [
+                    '/Beteiligung-Organisation/Org Multi',
+                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                ],
+            ]);
+
+        $this->sut->fill($resourceOwner);
+
+        $responsibilities = $this->sut->getResponsibilities();
+
+        self::assertCount(3, $responsibilities);
+        self::assertTrue($this->sut->hasMultipleResponsibilities());
+
+        self::assertSame('org-gw-id-1', $responsibilities[0]['responsibility']);
+        self::assertSame('Organisation One', $responsibilities[0]['orgaName']);
+        self::assertSame('org-gw-id-2', $responsibilities[1]['responsibility']);
+        self::assertSame('Organisation Two', $responsibilities[1]['orgaName']);
+        self::assertSame('org-gw-id-3', $responsibilities[2]['responsibility']);
+        self::assertSame('Organisation Three', $responsibilities[2]['orgaName']);
+    }
+
+    public function testSingleResponsibilityIsNotMultiple(): void
+    {
+        $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
+        $resourceOwner->method('toArray')
+            ->willReturn([
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'Single',
+                'family_name'        => 'Org',
+                'sub'                => 'single-user-456',
+                'preferred_username' => 'singleorg',
+                'responsibilities'   => [
+                    ['responsibility' => 'org-gw-id-only', 'orgaName' => 'Only Organisation'],
+                ],
+                'groups' => [
+                    '/Beteiligung-Organisation/Single Org',
+                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                ],
+            ]);
+
+        $this->sut->fill($resourceOwner);
+
+        self::assertFalse($this->sut->hasMultipleResponsibilities());
+        self::assertCount(1, $this->sut->getResponsibilities());
+
+        $primary = $this->sut->getPrimaryResponsibility();
+        self::assertNotNull($primary);
+        self::assertSame('org-gw-id-only', $primary['responsibility']);
+    }
+
+    public function testLegacyOrganisationIdFallbackToResponsibilities(): void
+    {
+        $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
+        $resourceOwner->method('toArray')
+            ->willReturn([
+                'email'            => self::TEST_EMAIL,
+                'given_name'       => 'Legacy',
+                'family_name'      => 'User',
+                'sub'              => 'legacy-user-789',
+                'preferred_username' => 'legacyuser',
+                'organisationId'   => 'legacy-org-id',
+                'organisationName' => 'Legacy Organisation',
+                'groups'           => [
+                    '/Beteiligung-Organisation/Legacy Organisation',
+                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                ],
+            ]);
+
+        $this->sut->fill($resourceOwner);
+
+        // Should fall back to legacy organisationId as a single responsibility
+        $responsibilities = $this->sut->getResponsibilities();
+        self::assertCount(1, $responsibilities);
+        self::assertFalse($this->sut->hasMultipleResponsibilities());
+        self::assertSame('legacy-org-id', $responsibilities[0]['responsibility']);
+        self::assertSame('Legacy Organisation', $responsibilities[0]['orgaName']);
+    }
+
+    public function testEmptyResponsibilitiesArrayFallsBackToLegacy(): void
+    {
+        $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
+        $resourceOwner->method('toArray')
+            ->willReturn([
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'Empty',
+                'family_name'        => 'Resp',
+                'sub'                => 'empty-resp-user',
+                'preferred_username' => 'emptyresp',
+                'responsibilities'   => [], // Empty array
+                'organisationId'     => 'fallback-org-id',
+                'organisationName'   => 'Fallback Organisation',
+                'groups'             => [
+                    '/Beteiligung-Organisation/Fallback Organisation',
+                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                ],
+            ]);
+
+        $this->sut->fill($resourceOwner);
+
+        $responsibilities = $this->sut->getResponsibilities();
+        self::assertCount(1, $responsibilities);
+        self::assertSame('fallback-org-id', $responsibilities[0]['responsibility']);
+    }
+
+    public function testMultiResponsibilityValidationPassesWithRoles(): void
+    {
+        $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
+        $resourceOwner->method('toArray')
+            ->willReturn([
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'Valid',
+                'family_name'        => 'Multi',
+                'sub'                => 'valid-multi-user',
+                'preferred_username' => 'validmulti',
+                'responsibilities'   => [
+                    ['responsibility' => 'org-1', 'orgaName' => 'Org 1'],
+                    ['responsibility' => 'org-2', 'orgaName' => 'Org 2'],
+                ],
+                'groups' => [
+                    '/Beteiligung-Organisation/Valid Multi',
+                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                ],
+            ]);
+
+        $this->sut->fill($resourceOwner);
+
+        // Should not throw exception
+        $this->sut->checkMandatoryValuesExist();
+
+        self::assertTrue($this->sut->hasMultipleResponsibilities());
+    }
+
+    public function testResponsibilityWithoutOrgaNameUsesResponsibilityAsName(): void
+    {
+        $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
+        $resourceOwner->method('toArray')
+            ->willReturn([
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'NoName',
+                'family_name'        => 'Resp',
+                'sub'                => 'noname-user',
+                'preferred_username' => 'noname',
+                'responsibilities'   => [
+                    ['responsibility' => 'org-without-name'],
+                ],
+                'groups' => [
+                    '/Beteiligung-Organisation/NoName Resp',
+                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                ],
+            ]);
+
+        $this->sut->fill($resourceOwner);
+
+        $responsibilities = $this->sut->getResponsibilities();
+        self::assertCount(1, $responsibilities);
+        // orgaName should default to responsibility value
+        self::assertSame('org-without-name', $responsibilities[0]['orgaName']);
+    }
+
+    public function testToStringIncludesResponsibilities(): void
+    {
+        $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
+        $resourceOwner->method('toArray')
+            ->willReturn([
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'ToString',
+                'family_name'        => 'Test',
+                'sub'                => 'tostring-user',
+                'preferred_username' => 'tostringtest',
+                'responsibilities'   => [
+                    ['responsibility' => 'resp-1', 'orgaName' => 'Resp Org 1'],
+                    ['responsibility' => 'resp-2', 'orgaName' => 'Resp Org 2'],
+                ],
+                'groups' => [
+                    '/Beteiligung-Organisation/ToString Test',
+                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                ],
+            ]);
+
+        $this->sut->fill($resourceOwner);
+
+        $stringRepresentation = (string) $this->sut;
+        // The toString format shows responsibilities as a list, e.g. "responsibilities: [resp-1, resp-2]"
+        self::assertStringContainsString('responsibilities: [resp-1, resp-2]', $stringRepresentation);
+    }
 }

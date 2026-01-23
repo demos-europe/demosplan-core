@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Statement\RecommendationRequestEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -179,6 +180,7 @@ class SegmentController extends BaseController
     ): Response {
         $requestPost = $request->request->all();
         $procedure = $currentProcedureService->getProcedure();
+        $user = $currentUser->getUser();
 
         if (!$procedure instanceof Procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
@@ -193,9 +195,14 @@ class SegmentController extends BaseController
             $job = new ImportJob();
             try {
                 $job->setProcedure($procedure);
-                $job->setUser($currentUser->getUser());
+                $job->setUser($user);
                 $job->setFilePath($uploadHash);
                 $job->setFileName($fileName);
+                // Capture the current organisation context for background processing
+                $currentOrga = $user->getCurrentOrganisation();
+                if ($currentOrga instanceof Orga) {
+                    $job->setOrganisation($currentOrga);
+                }
 
                 $entityManager->persist($job);
                 $entityManager->flush();
