@@ -6,8 +6,20 @@
 
 ## UNRELEASED
 
-### Features
-- Enable GetFeatureInfo requests for any visible WMS layers in the map 
+### Added
+- Enable GetFeatureInfo requests for visible WMS layers in the map
+- Add `FileService::saveBinaryFileContent()` method to save binary file content directly without manual temporary file handling
+  - Accepts filename, binary content, and optional filename prefix
+  - Automatically handles temporary file creation and cleanup using Symfony Filesystem (`dumpFile()` and `deleteLocalFile()`)
+  - Supports virus checking and procedure/user association
+  - Useful for saving already-decoded base64 content from external sources
+  - Validates filename is not empty
+  - Sanitizes filename using existing `sanitizeFileName()` method
+- Add `FileWriteException` for dedicated file write error handling
+
+### Changed
+- bump demosplan-addon version from v0.64 to v0.65
+- Update `FileService::saveTemporaryLocalFile()` documentation to clarify it uses configured storage backend (S3, local, or other adapters based on FILES_SOURCE environment variable)
 
 ## v4.27.0 (2026-01-16)
 
