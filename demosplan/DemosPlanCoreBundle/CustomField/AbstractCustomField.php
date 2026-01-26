@@ -30,8 +30,6 @@ abstract class AbstractCustomField implements CustomFieldInterface
 
     protected string $description = '';
 
-    abstract public function isValueValid(string $value): bool;
-
     abstract protected function validateFieldSpecific(array $options): void;
 
     public function validate(?array $newOptions = null): void

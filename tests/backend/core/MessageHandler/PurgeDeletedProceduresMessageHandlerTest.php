@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\MessageHandler;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Message\PurgeDeletedProceduresMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\PurgeDeletedProceduresMessageHandler;
@@ -26,6 +27,7 @@ class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
     private const PURGE_DELETED_PROCEDURES = 'Purge deleted procedures... ';
     private ?ProcedureHandler $procedureHandler = null;
     private ?GlobalConfigInterface $globalConfig = null;
+    private ?PermissionsInterface $permissions = null;
     private ?PurgeDeletedProceduresMessageHandler $sut = null;
 
     protected function setUp(): void
@@ -33,6 +35,7 @@ class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
         parent::setUp();
         $this->procedureHandler = $this->createMock(ProcedureHandler::class);
         $this->globalConfig = $this->createMock(GlobalConfigInterface::class);
+        $this->permissions = $this->createMock(PermissionsInterface::class);
     }
 
     public function testInvokeLogsDisabledWhenFeatureDisabled(): void
@@ -46,7 +49,7 @@ class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
             ->method('purgeDeletedProcedures');
 
         $logger = $this->createLoggerMockWithCapture(2);
-        $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $logger);
+        $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $this->permissions, $logger);
 
         // Act
         ($this->sut)(new PurgeDeletedProceduresMessage());
@@ -68,7 +71,7 @@ class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
             ->willReturn(3);
 
         $logger = $this->createLoggerMockWithCapture(3);
-        $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $logger);
+        $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $this->permissions, $logger);
 
         // Act
         ($this->sut)(new PurgeDeletedProceduresMessage());
@@ -90,7 +93,7 @@ class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
             ->willReturn(0);
 
         $logger = $this->createLoggerMockWithCapture(2);
-        $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $logger);
+        $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $this->permissions, $logger);
 
         // Act
         ($this->sut)(new PurgeDeletedProceduresMessage());
@@ -113,7 +116,7 @@ class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
             ->willThrowException($exception);
 
         $logger = $this->createLoggerMockForError('Purge Procedures failed', $exception);
-        $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $logger);
+        $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $this->permissions, $logger);
 
         // Act
         ($this->sut)(new PurgeDeletedProceduresMessage());
