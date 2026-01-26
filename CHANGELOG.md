@@ -18,8 +18,12 @@
 - Add `FileWriteException` for dedicated file write error handling
 
 ### Changed
+- Submit basic settings form automatically through the warning modal if user clicks on 'activate' (cleans up redundant code needed for scrolling the interface section into focus)
 - bump demosplan-addon version from v0.64 to v0.65
 - Update `FileService::saveTemporaryLocalFile()` documentation to clarify it uses configured storage backend (S3, local, or other adapters based on FILES_SOURCE environment variable)
+
+### Fixed
+- Check correct interface-checkbox state: 'checked' instead of 'disabled' (check whether interface has been activated, not whether procedure has been transmitted)
 
 ## v4.27.0 (2026-01-16)
 
