@@ -1087,25 +1087,8 @@ class EntityContentChangeService
         }
 
         // Convert all custom field values of the segment into an array with can be compared by Collection::diff()
-        $preUpdateValues = collect([]);
-        if (!$emptyPre) {
-            $preUpdateValues = $preUpdateCustomFieldValueList->toJson();
-            $preUpdateValues = collect($preUpdateValues)->mapWithKeys(
-                fn (array $preUpdateValue) => [
-                    $this->getCustomFieldName($preUpdateValue['id']) => $this->getCustomFieldValueName($preUpdateValue['id'], $preUpdateValue['value']), // it is failing here
-                ]
-            );
-        }
-
-        $postUpdateValues = collect([]);
-        if (!$emptyPost) {
-            $postUpdateValues = $postUpdateCustomFieldValueList->toJson();
-            $postUpdateValues = collect($postUpdateValues)->mapWithKeys(
-                fn (array $postUpdateValues) => [
-                    $this->getCustomFieldName($postUpdateValues['id']) => $this->getCustomFieldValueName($postUpdateValues['id'], $postUpdateValues['value']),
-                ]
-            );
-        }
+        $preUpdateValues = $this->mapCustomFieldsToNames($emptyPre, $preUpdateCustomFieldValueList);
+        $postUpdateValues = $this->mapCustomFieldsToNames($emptyPost, $postUpdateCustomFieldValueList);
 
         $changes = [];
         // detect new and updated values HERE CHECK
@@ -1130,6 +1113,21 @@ class EntityContentChangeService
         }
 
         return $changes;
+    }
+
+    private function mapCustomFieldsToNames($emptyPre, $preUpdateCustomFieldValueList) {
+        $preUpdateValues = collect([]);
+        if (!$emptyPre) {
+            $preUpdateValues = $preUpdateCustomFieldValueList->toJson();
+            $preUpdateValues = collect($preUpdateValues)->mapWithKeys(
+                fn (array $preUpdateValue) => [
+                    $this->getCustomFieldName($preUpdateValue['id']) => $this->getCustomFieldValueName($preUpdateValue['id'], $preUpdateValue['value']), // it is failing here
+                ]
+            );
+        }
+
+
+        return $preUpdateValues;
     }
 
     public function getCustomFieldName(string $customFieldId): string
