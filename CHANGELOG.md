@@ -7,6 +7,7 @@
 ## UNRELEASED
 
 ### Added
+- Enable GetFeatureInfo requests for visible WMS layers in the map
 - Add `FileService::saveBinaryFileContent()` method to save binary file content directly without manual temporary file handling
   - Accepts filename, binary content, and optional filename prefix
   - Automatically handles temporary file creation and cleanup using Symfony Filesystem (`dumpFile()` and `deleteLocalFile()`)
