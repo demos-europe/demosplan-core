@@ -1115,7 +1115,8 @@ class EntityContentChangeService
         return $changes;
     }
 
-    private function mapCustomFieldsToNames($emptyPre, $preUpdateCustomFieldValueList) {
+    private function mapCustomFieldsToNames($emptyPre, $preUpdateCustomFieldValueList)
+    {
         $preUpdateValues = collect([]);
         if (!$emptyPre) {
             $preUpdateValues = $preUpdateCustomFieldValueList->toJson();
@@ -1125,7 +1126,6 @@ class EntityContentChangeService
                 ]
             );
         }
-
 
         return $preUpdateValues;
     }
