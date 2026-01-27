@@ -18,9 +18,10 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\StateProvider\ClaimStateProvider;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
-use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
+use Exception;
 use League\Fractal\TransformerAbstract;
+use LogicException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
@@ -51,7 +52,6 @@ class ExtendedDynamicTransformer extends DynamicTransformer
      */
     private ?NormalizerInterface $normalizer = null;
 
-
     public function __construct(
         string $typeName,
         string $entityClass,
@@ -68,12 +68,12 @@ class ExtendedDynamicTransformer extends DynamicTransformer
      * Must be called after construction, before transformation.
      * Typically called from StatementResourceType.getTransformer().
      *
-     * @param ClaimStateProvider $claimStateProvider Provider that converts User → ClaimResource
-     * @param NormalizerInterface $normalizer Symfony serializer for JSON:API normalization
+     * @param ClaimStateProvider  $claimStateProvider Provider that converts User → ClaimResource
+     * @param NormalizerInterface $normalizer         Symfony serializer for JSON:API normalization
      */
     public function setApiPlatformDependencies(
         ClaimStateProvider $claimStateProvider,
-        NormalizerInterface $normalizer
+        NormalizerInterface $normalizer,
     ): void {
         $this->claimStateProvider = $claimStateProvider;
         $this->normalizer = $normalizer;
@@ -93,12 +93,13 @@ class ExtendedDynamicTransformer extends DynamicTransformer
      * 3. Otherwise → use parent's EDT logic (backward compatibility)
      *
      * @param mixed $relationshipType The relationship type (EDT ResourceType or other)
+     *
      * @return TransformerAbstract The transformer to use for this relationship
-     * @throws \LogicException If API Platform dependencies not set when needed
+     *
+     * @throws LogicException If API Platform dependencies not set when needed
      */
     protected function createRelationshipTransformer($relationshipType): TransformerAbstract
     {
-
         if ($relationshipType instanceof ApiPlatformRelationshipConfig) {
             return $this->createApiPlatformTransformer();
         }
@@ -127,13 +128,9 @@ class ExtendedDynamicTransformer extends DynamicTransformer
 
         // Return anonymous transformer class
         return new class($stateProvider, $normalizer) extends TransformerAbstract {
-            /**
-             * @param ClaimStateProvider $stateProvider
-             * @param NormalizerInterface $normalizer
-             */
             public function __construct(
                 private readonly ClaimStateProvider $stateProvider,
-                private readonly NormalizerInterface $normalizer
+                private readonly NormalizerInterface $normalizer,
             ) {
             }
 
@@ -150,6 +147,7 @@ class ExtendedDynamicTransformer extends DynamicTransformer
              * 5. Return simple array for Fractal
              *
              * @param User $user The user entity (assignee)
+             *
              * @return array The transformed claim data
              */
             public function transform($user): array
@@ -157,8 +155,8 @@ class ExtendedDynamicTransformer extends DynamicTransformer
                 // Handle null case
                 if (null === $user) {
                     return [
-                        'id' => null,
-                        'name' => null,
+                        'id'       => null,
+                        'name'     => null,
                         'orgaName' => null,
                     ];
                 }
@@ -182,8 +180,8 @@ class ExtendedDynamicTransformer extends DynamicTransformer
                     // If state provider returns null, return empty data
                     if (null === $claimResource) {
                         return [
-                            'id' => $user->getId(),
-                            'name' => null,
+                            'id'       => $user->getId(),
+                            'name'     => null,
                             'orgaName' => null,
                         ];
                     }
@@ -196,7 +194,7 @@ class ExtendedDynamicTransformer extends DynamicTransformer
                         'jsonapi',
                         [
                             'resource_class' => ClaimResource::class,
-                            'operation' => $operation,
+                            'operation'      => $operation,
                         ]
                     );
 
@@ -224,8 +222,7 @@ class ExtendedDynamicTransformer extends DynamicTransformer
                     }
 
                     return $data;
-
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     // Log error but don't break the entire response
                     // Return minimal data so the API response is still valid
                     error_log(sprintf(
@@ -235,8 +232,8 @@ class ExtendedDynamicTransformer extends DynamicTransformer
                     ));
 
                     return [
-                        'id' => $user->getId(),
-                        'name' => $user->getName(),
+                        'id'       => $user->getId(),
+                        'name'     => $user->getName(),
                         'orgaName' => $user->getOrgaName(),
                     ];
                 }
