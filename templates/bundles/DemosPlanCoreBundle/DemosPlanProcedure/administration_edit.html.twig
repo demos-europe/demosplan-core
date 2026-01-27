@@ -871,7 +871,6 @@
                 {# wizard item: Verfahrensschritt / Zeitraum und Beteiligung Bürger #}
                 {% if hasPermission('area_public_participation') %}
                     <fieldset
-                        id="wizardPhaseExternal"
                         name="phaseExternalForm"
                         {% if proceduresettings.phaseExternalComplete is defined %}data-wizard-finished="true"{% endif %}
                         data-wizard-topic="{{ 'wizard.topic.phaseExternal'|trans }}"
@@ -1071,7 +1070,6 @@
 
                 {# wizard item: Name und Webadresse #}
                 <fieldset
-                    id="wizardNameUrl"
                     name="nameUrlForm"
                     {% if proceduresettings.nameUrlComplete is defined %}data-wizard-finished="true"{% endif %}
                     data-wizard-topic="{{ 'wizard.topic.nameUrl'|trans }}"
@@ -1203,7 +1201,6 @@
                 {% if hasPermission('feature_data_in_export') %}
                     {# wizard item: Daten im Export #}
                     <fieldset
-                        id="wizardSettings"
                         name="settingsForm"
                         {% if proceduresettings.exportSettingsComplete is defined %}data-wizard-finished="true"{% endif %}
                         data-wizard-topic="{{ 'wizard.topic.export.settings'|trans }}"
@@ -1426,7 +1423,7 @@
                 <div class="space-x-2 text-right mt-4">
                     <dp-button
                         :text="Translator.trans('activate.interface')"
-                        @click="activateInterface">
+                        @click="activateInterface($refs.configForm)">
                     </dp-button>
                     <dp-button
                         color="secondary"
