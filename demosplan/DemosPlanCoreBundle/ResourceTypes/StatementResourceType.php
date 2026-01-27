@@ -18,11 +18,14 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\ApiResources\Transformers\ApiPlatformRelationshipConfig;
+use demosplan\DemosPlanCoreBundle\ApiResources\Transformers\ExtendedDynamicTransformer;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -42,20 +45,23 @@ use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigB
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use demosplan\DemosPlanCoreBundle\StateProvider\ClaimStateProvider;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedurePhaseVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
 use Elastica\Index;
+use League\Fractal\TransformerAbstract;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Webmozart\Assert\Assert;
 
 /**
  * @template-implements ReadableEsResourceTypeInterface<StatementInterface>
  *
- * @property-read ClaimResourceType $assignee
  * @property-read End $documentParentId @deprecated Use {@link StatementResourceType::$document} instead
  * @property-read End $documentTitle @deprecated Use a relationship to {@link SingleDocumentVersion} instead
  * @property-read End $draftsListJson
@@ -88,6 +94,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
         private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
         private readonly FileContainerRepository $fileContainerRepository,
+        private readonly ClaimStateProvider $claimStateProvider,
+        private readonly NormalizerInterface $normalizer
+
     ) {
         parent::__construct($htmlSanitizer, $statementService);
     }
@@ -582,4 +591,23 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             'area_admin_consultations'
         );
     }
+
+    public function getTransformer(): TransformerAbstract
+    {
+        $transformer = new ExtendedDynamicTransformer(
+            $this->getTypeName(),
+            $this->getEntityClass(),
+            $this->getReadability(),
+            $this->getMessageFormatter(),
+            $this->getApiLogger()
+        );
+
+        $transformer->setApiPlatformDependencies(
+            $this->claimStateProvider,
+            $this->normalizer
+        );
+
+        return $transformer;
+    }
+
 }
