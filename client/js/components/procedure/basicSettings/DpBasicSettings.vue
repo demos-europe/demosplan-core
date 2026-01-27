@@ -319,6 +319,7 @@ export default {
 
         if (checkbox && !checkbox.disabled && !checkbox.checked) {
           checkbox.click()
+          dplan.notify.notify('confirm', Translator.trans('interface.activation.success'))
         }
 
       this.interfaceWarningModalRef?.toggle()
