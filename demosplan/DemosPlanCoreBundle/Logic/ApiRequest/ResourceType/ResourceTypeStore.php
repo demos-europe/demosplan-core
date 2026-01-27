@@ -157,7 +157,6 @@ class ResourceTypeStore
         return new ApiPlatformRelationshipConfig('Claim', User::class);
     }
 
-
     public function getClusterStatementResourceType(): ClusterStatementResourceType
     {
         return $this->clusterStatementResourceType;

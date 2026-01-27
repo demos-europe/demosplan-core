@@ -18,7 +18,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\ApiResources\Transformers\ApiPlatformRelationshipConfig;
 use demosplan\DemosPlanCoreBundle\ApiResources\Transformers\ExtendedDynamicTransformer;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
@@ -50,7 +49,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedurePhaseVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
@@ -95,8 +93,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
         private readonly FileContainerRepository $fileContainerRepository,
         private readonly ClaimStateProvider $claimStateProvider,
-        private readonly NormalizerInterface $normalizer
-
+        private readonly NormalizerInterface $normalizer,
     ) {
         parent::__construct($htmlSanitizer, $statementService);
     }
@@ -609,5 +606,4 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         return $transformer;
     }
-
 }

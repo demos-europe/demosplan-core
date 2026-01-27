@@ -2,26 +2,35 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\ApiResources\Transformers;
 
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use League\Fractal\TransformerAbstract;
+use LogicException;
 
 /**
-* Configuration object for API Platform relationships in EDT context.
-*
-* Used to pass API Platform relationship info to EDT builders without
-* needing an EDT ResourceType.
-*/
+ * Configuration object for API Platform relationships in EDT context.
+ *
+ * Used to pass API Platform relationship info to EDT builders without
+ * needing an EDT ResourceType.
+ */
 class ApiPlatformRelationshipConfig extends DplanResourceType
 {
     /**
-     * @param string $typeName JSON:API type name (e.g., 'Claim')
+     * @param string          $typeName    JSON:API type name (e.g., 'Claim')
      * @param class-string<T> $entityClass Entity class (e.g., User::class)
      */
     public function __construct(
         private readonly string $typeName,
-        private readonly string $entityClass
+        private readonly string $entityClass,
     ) {
     }
 
@@ -32,9 +41,7 @@ class ApiPlatformRelationshipConfig extends DplanResourceType
     {
         // This can't be static with dynamic values, but ExtendedDynamicTransformer
         // will use getTypeName() instance method instead
-        throw new \LogicException(
-            'Use getTypeName() instance method instead of static getName()'
-        );
+        throw new LogicException('Use getTypeName() instance method instead of static getName()');
     }
 
     /**
@@ -94,19 +101,13 @@ class ApiPlatformRelationshipConfig extends DplanResourceType
     }
 
     /**
-     * ⚠️ THIS METHOD SHOULD NEVER BE CALLED ⚠️
+     * ⚠️ THIS METHOD SHOULD NEVER BE CALLED ⚠️.
      *
      * ExtendedDynamicTransformer intercepts by checking getTypeName()
      * and returns API Platform transformer instead.
      */
     public function getTransformer(): TransformerAbstract
     {
-        throw new \LogicException(
-            'ApiPlatformRelationshipConfig.getTransformer() should never be called. '
-            . 'ExtendedDynamicTransformer should intercept based on type name. '
-            . 'Check: (1) StatementResourceType.getTransformer() returns ExtendedDynamicTransformer, '
-            . '(2) ExtendedDynamicTransformer.setApiPlatformDependencies() was called.'
-        );
+        throw new LogicException('ApiPlatformRelationshipConfig.getTransformer() should never be called. ExtendedDynamicTransformer should intercept based on type name. Check: (1) StatementResourceType.getTransformer() returns ExtendedDynamicTransformer, (2) ExtendedDynamicTransformer.setApiPlatformDependencies() was called.');
     }
 }
-
