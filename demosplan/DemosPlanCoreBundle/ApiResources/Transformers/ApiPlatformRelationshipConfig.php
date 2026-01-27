@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ApiResources\Transformers;
 
+use ApiPlatform\State\ProviderInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use League\Fractal\TransformerAbstract;
 use LogicException;
@@ -31,6 +32,8 @@ class ApiPlatformRelationshipConfig extends DplanResourceType
     public function __construct(
         private readonly string $typeName,
         private readonly string $entityClass,
+        private ProviderInterface $stateProvider,
+        private string $resourceClass
     ) {
     }
 
@@ -110,4 +113,15 @@ class ApiPlatformRelationshipConfig extends DplanResourceType
     {
         throw new LogicException('ApiPlatformRelationshipConfig.getTransformer() should never be called. ExtendedDynamicTransformer should intercept based on type name. Check: (1) StatementResourceType.getTransformer() returns ExtendedDynamicTransformer, (2) ExtendedDynamicTransformer.setApiPlatformDependencies() was called.');
     }
+
+    public function getStateProvider(): ProviderInterface
+    {
+        return $this->stateProvider;
+    }
+
+    public function getResourceClass(): string
+    {
+        return $this->resourceClass;
+    }
+
 }
