@@ -29,6 +29,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
+use Illuminate\Support\Collection as SupportCollection;
 use InvalidArgumentException;
 use Jfcherng\Diff\DiffHelper;
 use Psr\Log\LoggerInterface;
@@ -1115,19 +1116,19 @@ class EntityContentChangeService
         return $changes;
     }
 
-    private function mapCustomFieldsToNames($emptyPre, $preUpdateCustomFieldValueList)
+    private function mapCustomFieldsToNames(bool $isEmpty, ?CustomFieldValuesList $customFieldValueList): SupportCollection
     {
-        $preUpdateValues = collect([]);
-        if (!$emptyPre) {
-            $preUpdateValues = $preUpdateCustomFieldValueList->toJson();
-            $preUpdateValues = collect($preUpdateValues)->mapWithKeys(
-                fn (array $preUpdateValue) => [
-                    $this->getCustomFieldName($preUpdateValue['id']) => $this->getCustomFieldValueName($preUpdateValue['id'], $preUpdateValue['value']), // it is failing here
+        $customFieldSelectedValues = collect([]);
+        if (!$isEmpty) {
+            $customFieldSelectedValues = $customFieldValueList->toJson();
+            $customFieldSelectedValues = collect($customFieldSelectedValues)->mapWithKeys(
+                fn (array $updatedValue) => [
+                    $this->getCustomFieldName($updatedValue['id']) => $this->getCustomFieldValueName($updatedValue['id'], $updatedValue['value']),
                 ]
             );
         }
 
-        return $preUpdateValues;
+        return $customFieldSelectedValues;
     }
 
     public function getCustomFieldName(string $customFieldId): string
