@@ -33,7 +33,7 @@ class ApiPlatformRelationshipConfig extends DplanResourceType
         private readonly string $typeName,
         private readonly string $entityClass,
         private ProviderInterface $stateProvider,
-        private string $resourceClass
+        private string $resourceClass,
     ) {
     }
 
@@ -123,5 +123,4 @@ class ApiPlatformRelationshipConfig extends DplanResourceType
     {
         return $this->resourceClass;
     }
-
 }
