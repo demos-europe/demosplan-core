@@ -191,7 +191,7 @@ class EntityContentChangeService
     /**
      * @param CoreEntity[]|Collection $coreEntities
      */
-    protected function mapToIds($coreEntities): \Illuminate\Support\Collection
+    protected function mapToIds($coreEntities): SupportCollection
     {
         return collect($coreEntities)->map(fn (CoreEntity $item) => $item->getId());
     }
@@ -199,7 +199,7 @@ class EntityContentChangeService
     /**
      * @param CoreEntity[]|Collection $coreEntities
      */
-    protected function mapToContentChangeIdentifiers($coreEntities): \Illuminate\Support\Collection
+    protected function mapToContentChangeIdentifiers($coreEntities): SupportCollection
     {
         return collect($coreEntities)->map(fn (CoreEntity $item) => $item->getEntityContentChangeIdentifier())->sort();
     }
