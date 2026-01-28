@@ -1,13 +1,13 @@
 <template>
   <div>
     <dp-inline-notification
-      v-if="isStatementField && statementsCount > 0"
+      v-if="isStatementField && procedureReceivedStatements"
       class="mb-4"
       data-cy="customFields:editWarning"
       dismissible
       :dismissible-key="helpTextDismissibleKey"
       type="warning"
-      :message="Translator.trans('custom.fields.edit.info.multiSelect')"
+      :message="Translator.trans('custom.fields.edit.warning.multiSelect')"
     />
 
     <dp-inline-notification
@@ -207,7 +207,7 @@
             v-if="!rowData.edit"
             class="btn--blank o-link--default mr-1"
             data-cy="customFields:editField"
-            :disabled="statementsCount > 0"
+            :disabled="procedureReceivedStatements"
             :aria-label="Translator.trans('item.edit')"
             :title="Translator.trans('edit')"
             @click="editCustomField(rowData)"
@@ -222,7 +222,7 @@
             v-if="!rowData.edit"
             class="btn--blank o-link--default mr-1"
             data-cy="customFields:deleteField"
-            :disabled="statementsCount > 0"
+            :disabled="procedureReceivedStatements"
             :aria-label="Translator.trans('item.edit')"
             :title="Translator.trans('edit')"
             @click="handleDeleteCustomField(rowData)"
@@ -484,6 +484,10 @@ export default {
     isStatementField () {
       return this.hasPermission('field_statements_custom_fields')
     },
+
+    procedureReceivedStatements () {
+      return this.statementsCount > 0
+    },
   },
 
   watch: {
@@ -740,7 +744,7 @@ export default {
 
       customField.description = description
       customField.edit = false
-      customField.isrequired = isRequired
+      customField.isRequired = isRequired
       customField.name = name
       customField.open = false
       customField.options = options
@@ -768,6 +772,11 @@ export default {
     },
 
     async saveEditedFields () {
+      await this.fetchCustomFields()
+      if (this.procedureReceivedStatements) {
+        return dplan.notify.error(Translator.trans('custom.fields.edit.error.multiSelect'))
+      }
+
       const isDataValid = this.validateNamesAreUnique(this.newRowData.name, this.newRowData.options)
 
       if (!isDataValid) {
@@ -924,6 +933,14 @@ export default {
 
   mounted () {
     this.fetchCustomFields()
+    // Set up polling to refresh custom fields every 10 seconds to check if meanwhile new statements were created
+    this.polling = setInterval(() => {
+      this.fetchCustomFields()
+    },10000)
   },
+
+  beforeDestroy() {
+    clearInterval(this.polling)
+  }
 }
 </script>
