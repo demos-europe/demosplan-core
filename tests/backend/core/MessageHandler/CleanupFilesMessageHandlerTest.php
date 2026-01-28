@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\MessageHandler;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Message\CleanupFilesMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\CleanupFilesMessageHandler;
@@ -24,6 +25,7 @@ class CleanupFilesMessageHandlerTest extends UnitTestCase
 {
     private ?FileService $fileService = null;
     private ?GlobalConfigInterface $globalConfig = null;
+    private ?PermissionsInterface $permissions = null;
     private ?LoggerInterface $logger = null;
     private ?CleanupFilesMessageHandler $sut = null;
 
@@ -33,11 +35,13 @@ class CleanupFilesMessageHandlerTest extends UnitTestCase
 
         $this->fileService = $this->createMock(FileService::class);
         $this->globalConfig = $this->createMock(GlobalConfigInterface::class);
+        $this->permissions = $this->createMock(PermissionsInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->sut = new CleanupFilesMessageHandler(
             $this->fileService,
             $this->globalConfig,
+            $this->permissions,
             $this->logger
         );
     }
