@@ -43,20 +43,16 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
  */
 class ExtendedDynamicTransformer extends DynamicTransformer
 {
-
-
-
     public function __construct(
         string $typeName,
         string $entityClass,
         ResourceReadability $readability,
         MessageFormatter $messageFormatter,
         ?LoggerInterface $logger,
-        private readonly ?NormalizerInterface $normalizer
+        private readonly ?NormalizerInterface $normalizer,
     ) {
         parent::__construct($typeName, $entityClass, $readability, $messageFormatter, $logger);
     }
-
 
     /**
      * Override vendor's createRelationshipTransformer() to support API Platform resources.
@@ -84,7 +80,6 @@ class ExtendedDynamicTransformer extends DynamicTransformer
                 $relationshipType->getStateProvider(),   // ⭐ From config
                 $relationshipType->getResourceClass(),   // ⭐ From config
                 $relationshipType->getTypeName()         // ⭐ From config
-
             );
         }
 
@@ -107,9 +102,8 @@ class ExtendedDynamicTransformer extends DynamicTransformer
     private function createApiPlatformTransformer(
         ProviderInterface $stateProvider,  // ⭐ Accept as parameter (not property)
         string $resourceClass,
-        string $typeName
-    ): TransformerAbstract
-    {
+        string $typeName,
+    ): TransformerAbstract {
         // Capture dependencies for the closure
         $normalizer = $this->normalizer;
 
