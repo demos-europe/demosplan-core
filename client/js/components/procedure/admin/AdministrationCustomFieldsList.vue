@@ -632,7 +632,7 @@ export default {
             this.isStatementField ? 'statementCustomFields' : 'segmentCustomFields',
           ].join(),
           AdminProcedure: [
-            'statementsCount', // needed to disable multiSelect field edits when there are existing statements
+            'statementsCount', // Needed to disable multiSelect field edits when there are existing statements
             'statementCustomFields',
           ].join(),
           CustomField: [
@@ -740,7 +740,7 @@ export default {
     },
 
     resetEditedUnsavedField (customField) {
-      const { description = '', isRequired= false,  name = '', options = [] } = this.initialRowData
+      const { description = '', isRequired = false,  name = '', options = [] } = this.initialRowData
 
       customField.description = description
       customField.edit = false
