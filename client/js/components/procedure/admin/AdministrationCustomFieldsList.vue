@@ -661,10 +661,9 @@ export default {
           }) :
         this.getAdminProcedureWithFields(payload)
           .then(response => {
-            console.log('Full response:', response)
             const statementsCount = response?.data?.AdminProcedure?.[this.procedureId]?.attributes?.statementsCount
             this.statementsCount = statementsCount || 0
-            console.log('statementsCount:', statementsCount)
+
             return response
           })
     },
