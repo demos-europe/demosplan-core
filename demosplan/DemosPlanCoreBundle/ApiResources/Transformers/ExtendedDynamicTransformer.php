@@ -108,10 +108,13 @@ class ExtendedDynamicTransformer extends DynamicTransformer
         $normalizer = $this->normalizer;
 
         // Return anonymous transformer class
-        return new class($stateProvider, $normalizer) extends TransformerAbstract {
+        return new class($stateProvider, $normalizer, $resourceClass, $typeName) extends TransformerAbstract {
             public function __construct(
                 private readonly ProviderInterface $stateProvider,
                 private readonly NormalizerInterface $normalizer,
+                private readonly string $resourceClass,
+                private readonly string $typeName
+
             ) {
             }
 
@@ -127,18 +130,16 @@ class ExtendedDynamicTransformer extends DynamicTransformer
              * 4. Normalize using Symfony serializer (same as API Platform endpoints)
              * 5. Return simple array for Fractal
              *
-             * @param User $user The user entity (assignee)
-             *
-             * @return array The transformed claim data
+             * @param object|null $entity The entity to transform (User, StatementVote, Department, etc.)
+             * @return array The transformed API Platform resource data
              */
-            public function transform($user): array
+
+            public function transform($entity): array
             {
                 // Handle null case
-                if (null === $user) {
+                if (null === $entity) {
                     return [
                         'id'       => null,
-                        'name'     => null,
-                        'orgaName' => null,
                     ];
                 }
 
@@ -146,24 +147,22 @@ class ExtendedDynamicTransformer extends DynamicTransformer
                     // Step 1: Create API Platform operation metadata
                     // This tells API Platform what operation we're performing
                     $operation = new Get(
-                        class: ClaimResource::class,
-                        provider: ClaimStateProvider::class
+                        class: $this->resourceClass,
+                        provider: $this->stateProvider::class
                     );
 
                     // Step 2: Use API Platform state provider to get the resource
                     // This calls ClaimStateProvider->provide() which converts User → ClaimResource
                     $claimResource = $this->stateProvider->provide(
                         $operation,
-                        ['id' => $user->getId()],
+                        ['id' => $entity->getId()],
                         []
                     );
 
                     // If state provider returns null, return empty data
                     if (null === $claimResource) {
                         return [
-                            'id'       => $user->getId(),
-                            'name'     => null,
-                            'orgaName' => null,
+                            'id'       => $entity->getId(),
                         ];
                     }
 
@@ -174,7 +173,7 @@ class ExtendedDynamicTransformer extends DynamicTransformer
                         $claimResource,
                         'jsonapi',
                         [
-                            'resource_class' => ClaimResource::class,
+                            'resource_class' => $this->resourceClass,
                             'operation'      => $operation,
                         ]
                     );
@@ -185,21 +184,10 @@ class ExtendedDynamicTransformer extends DynamicTransformer
 
                     $data = [];
 
-                    // Extract ID
-                    if (isset($normalized['id'])) {
-                        $data['id'] = $normalized['id'];
-                    } elseif (isset($claimResource->id)) {
-                        $data['id'] = $claimResource->id;
-                    }
-
-                    // Extract attributes
-                    if (isset($normalized['attributes'])) {
-                        // Merge attributes into flat structure
-                        $data = array_merge($data, $normalized['attributes']);
-                    } else {
-                        // Fallback: extract directly from ClaimResource
-                        $data['name'] = $claimResource->name ?? null;
-                        $data['orgaName'] = $claimResource->orgaName ?? null;
+                    if (isset($normalized['data']) && isset($normalized['data']['attributes'])) {
+                        $data = $normalized['data']['attributes'];
+                        $data['id'] = $normalized['data']['attributes']['_id'];
+                        unset($data['_id']);
                     }
 
                     return $data;
@@ -208,14 +196,14 @@ class ExtendedDynamicTransformer extends DynamicTransformer
                     // Return minimal data so the API response is still valid
                     error_log(sprintf(
                         'Error transforming Claim resource for user %s: %s',
-                        $user->getId(),
+                        $entity->getId(),
                         $e->getMessage()
                     ));
 
                     return [
-                        'id'       => $user->getId(),
-                        'name'     => $user->getName(),
-                        'orgaName' => $user->getOrgaName(),
+                        'id'       => $entity->getId(),
+                        'name'     => $entity->getName(),
+                        'orgaName' => $entity->getOrgaName(),
                     ];
                 }
             }
