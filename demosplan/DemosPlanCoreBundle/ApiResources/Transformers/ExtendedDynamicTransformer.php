@@ -100,7 +100,7 @@ class ExtendedDynamicTransformer extends DynamicTransformer
      * @return TransformerAbstract Anonymous transformer that bridges to API Platform
      */
     private function createApiPlatformTransformer(
-        ProviderInterface $stateProvider,  // ⭐ Accept as parameter (not property)
+        ProviderInterface $stateProvider,
         string $resourceClass,
         string $typeName,
     ): TransformerAbstract {
@@ -118,14 +118,14 @@ class ExtendedDynamicTransformer extends DynamicTransformer
             }
 
             /**
-             * Transform User entity to Claim data using API Platform.
+             * Transform Entity to Resource data using API Platform.
              *
-             * This is called by Fractal when the assignee relationship is included.
+             * This is called by Fractal when the relationship for this paricular entity is included.
              *
              * Flow:
              * 1. Create API Platform operation metadata
-             * 2. Call ClaimStateProvider.provide() with user ID
-             * 3. Receive ClaimResource (API Platform DTO)
+             * 2. Call stateProvider.provide() with entity ID
+             * 3. Receive Resource (API Platform DTO)
              * 4. Normalize using Symfony serializer (same as API Platform endpoints)
              * 5. Return simple array for Fractal
              *
@@ -151,7 +151,7 @@ class ExtendedDynamicTransformer extends DynamicTransformer
                     );
 
                     // Step 2: Use API Platform state provider to get the resource
-                    // This calls ClaimStateProvider->provide() which converts User → ClaimResource
+                    // This calls stateProvider->provide() which converts the entity → Resource
                     $claimResource = $this->stateProvider->provide(
                         $operation,
                         ['id' => $entity->getId()],
@@ -166,7 +166,7 @@ class ExtendedDynamicTransformer extends DynamicTransformer
                     }
 
                     // Step 3: Normalize using API Platform's serializer
-                    // This uses the same serialization logic as /api/3.0/claim_resources/{id}
+                    // This uses the same serialization logic as /api/3.0/YOUR_RESOURCE/{id}
                     // The normalizer handles JSON:API format, serialization groups, etc.
                     $normalized = $this->normalizer->normalize(
                         $claimResource,
@@ -193,16 +193,14 @@ class ExtendedDynamicTransformer extends DynamicTransformer
                 } catch (Exception $e) {
                     // Log error but don't break the entire response
                     // Return minimal data so the API response is still valid
-                    error_log(sprintf(
-                        'Error transforming Claim resource for user %s: %s',
-                        $entity->getId(),
-                        $e->getMessage()
-                    ));
+                    /*$this->logger->error('Error transforming Entity to Resource', [
+                        'entityId '  => $entity->getId(),
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                    ]);*/
 
                     return [
-                        'id'       => $entity->getId(),
-                        'name'     => $entity->getName(),
-                        'orgaName' => $entity->getOrgaName(),
+                        'id'       => null,
                     ];
                 }
             }
@@ -212,7 +210,7 @@ class ExtendedDynamicTransformer extends DynamicTransformer
              */
             public function getType(): string
             {
-                return 'Claim';
+                return $this->typeName;
             }
         };
     }
