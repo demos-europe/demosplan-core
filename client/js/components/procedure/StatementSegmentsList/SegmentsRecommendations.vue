@@ -191,7 +191,7 @@ export default {
      */
     claimAndRedirect () {
       if (this.statement.hasRelationship('assignee')) {
-        if (this.statement.relationships.assignee.data.id !== this.currentUserId) {
+        if (this.statement.relationships.assignee.data.id !== this.currentUser.id) {
           if (globalThis.dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
             this.claimStatement()
               .then(err => {
