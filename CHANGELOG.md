@@ -5,6 +5,10 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+### Added
+- Add edit functionality for custom fields of type multiSelect with a condition that the procedure has no statements yet.
+
 ## v4.27.0 (2026-01-16)
 
 ### Added
