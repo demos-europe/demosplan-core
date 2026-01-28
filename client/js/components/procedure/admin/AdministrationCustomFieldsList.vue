@@ -21,6 +21,7 @@
     />
 
     <create-custom-field-form
+      v-if="!procedureReceivedStatements"
       :disable-type-selection="true"
       :handle-success="isSuccess"
       :is-loading="isLoading"
