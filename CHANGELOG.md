@@ -6,6 +6,7 @@
 
 ## UNRELEASED
 
+## v4.28.0 (2026-01-28)
 ### Added
 - Enable GetFeatureInfo requests for visible WMS layers in the map
 - Add `FileService::saveBinaryFileContent()` method to save binary file content directly without manual temporary file handling
