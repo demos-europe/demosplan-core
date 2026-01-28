@@ -772,11 +772,6 @@ export default {
     },
 
     async saveEditedFields () {
-      await this.fetchCustomFields()
-      if (this.procedureReceivedStatements) {
-        return dplan.notify.error(Translator.trans('custom.fields.edit.error.multiSelect'))
-      }
-
       const isDataValid = this.validateNamesAreUnique(this.newRowData.name, this.newRowData.options)
 
       if (!isDataValid) {
@@ -809,6 +804,10 @@ export default {
               this.customFieldItems[idx] = { ...this.newRowData }
               this.setEditMode(storeField, false)
               // Fetch custom fields to get a consistent state for the custom fields
+              this.fetchCustomFields()
+            })
+            .catch(() => {
+              // Check if statementsCount has changed in the meantime
               this.fetchCustomFields()
             })
         }
@@ -933,14 +932,6 @@ export default {
 
   mounted () {
     this.fetchCustomFields()
-    // Set up polling to refresh custom fields every 10 seconds to check if meanwhile new statements were created
-    this.polling = setInterval(() => {
-      this.fetchCustomFields()
-    },10000)
   },
-
-  beforeDestroy() {
-    clearInterval(this.polling)
-  }
 }
 </script>
