@@ -113,8 +113,7 @@ class ExtendedDynamicTransformer extends DynamicTransformer
                 private readonly ProviderInterface $stateProvider,
                 private readonly NormalizerInterface $normalizer,
                 private readonly string $resourceClass,
-                private readonly string $typeName
-
+                private readonly string $typeName,
             ) {
             }
 
@@ -131,9 +130,9 @@ class ExtendedDynamicTransformer extends DynamicTransformer
              * 5. Return simple array for Fractal
              *
              * @param object|null $entity The entity to transform (User, StatementVote, Department, etc.)
+             *
              * @return array The transformed API Platform resource data
              */
-
             public function transform($entity): array
             {
                 // Handle null case
