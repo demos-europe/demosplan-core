@@ -3,7 +3,7 @@
     <dp-inline-notification
       v-if="isStatementField && statementsCount > 0"
       class="mb-4"
-      data-cy="customFields:editInfo"
+      data-cy="customFields:editWarning"
       dismissible
       :dismissible-key="helpTextDismissibleKey"
       type="warning"
@@ -13,7 +13,7 @@
     <dp-inline-notification
       v-else
       class="mb-4"
-      data-cy="places:editInfo"
+      data-cy="customFields:editInfo"
       dismissible
       :dismissible-key="helpTextDismissibleKey"
       :message="helpText"
