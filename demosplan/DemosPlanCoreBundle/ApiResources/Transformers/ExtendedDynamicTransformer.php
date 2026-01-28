@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ApiResources\Transformers;
 
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\State\ProviderInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\ClaimResource;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\StateProvider\ClaimStateProvider;
@@ -42,15 +43,8 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
  */
 class ExtendedDynamicTransformer extends DynamicTransformer
 {
-    /**
-     * API Platform state provider for Claim resources.
-     */
-    private ?ClaimStateProvider $claimStateProvider = null;
 
-    /**
-     * Symfony/API Platform normalizer for serialization.
-     */
-    private ?NormalizerInterface $normalizer = null;
+
 
     public function __construct(
         string $typeName,
@@ -58,26 +52,11 @@ class ExtendedDynamicTransformer extends DynamicTransformer
         ResourceReadability $readability,
         MessageFormatter $messageFormatter,
         ?LoggerInterface $logger,
+        private readonly ?NormalizerInterface $normalizer
     ) {
         parent::__construct($typeName, $entityClass, $readability, $messageFormatter, $logger);
     }
 
-    /**
-     * Inject dependencies needed for API Platform bridge.
-     *
-     * Must be called after construction, before transformation.
-     * Typically called from StatementResourceType.getTransformer().
-     *
-     * @param ClaimStateProvider  $claimStateProvider Provider that converts User → ClaimResource
-     * @param NormalizerInterface $normalizer         Symfony serializer for JSON:API normalization
-     */
-    public function setApiPlatformDependencies(
-        ClaimStateProvider $claimStateProvider,
-        NormalizerInterface $normalizer,
-    ): void {
-        $this->claimStateProvider = $claimStateProvider;
-        $this->normalizer = $normalizer;
-    }
 
     /**
      * Override vendor's createRelationshipTransformer() to support API Platform resources.
@@ -101,7 +80,12 @@ class ExtendedDynamicTransformer extends DynamicTransformer
     protected function createRelationshipTransformer($relationshipType): TransformerAbstract
     {
         if ($relationshipType instanceof ApiPlatformRelationshipConfig) {
-            return $this->createApiPlatformTransformer();
+            return $this->createApiPlatformTransformer(
+                $relationshipType->getStateProvider(),   // ⭐ From config
+                $relationshipType->getResourceClass(),   // ⭐ From config
+                $relationshipType->getTypeName()         // ⭐ From config
+
+            );
         }
 
         return parent::createRelationshipTransformer($relationshipType);
@@ -120,16 +104,19 @@ class ExtendedDynamicTransformer extends DynamicTransformer
      *
      * @return TransformerAbstract Anonymous transformer that bridges to API Platform
      */
-    private function createApiPlatformTransformer(): TransformerAbstract
+    private function createApiPlatformTransformer(
+        ProviderInterface $stateProvider,  // ⭐ Accept as parameter (not property)
+        string $resourceClass,
+        string $typeName
+    ): TransformerAbstract
     {
         // Capture dependencies for the closure
-        $stateProvider = $this->claimStateProvider;
         $normalizer = $this->normalizer;
 
         // Return anonymous transformer class
         return new class($stateProvider, $normalizer) extends TransformerAbstract {
             public function __construct(
-                private readonly ClaimStateProvider $stateProvider,
+                private readonly ProviderInterface $stateProvider,
                 private readonly NormalizerInterface $normalizer,
             ) {
             }

@@ -596,11 +596,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $this->getEntityClass(),
             $this->getReadability(),
             $this->getMessageFormatter(),
-            $this->getApiLogger()
-        );
-
-        $transformer->setApiPlatformDependencies(
-            $this->claimStateProvider,
+            $this->getApiLogger(),
             $this->normalizer
         );
 
