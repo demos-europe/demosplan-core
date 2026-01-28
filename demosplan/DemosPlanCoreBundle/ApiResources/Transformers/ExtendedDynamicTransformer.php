@@ -60,11 +60,10 @@ class ExtendedDynamicTransformer extends DynamicTransformer
      * This is the key method that enables the EDT → API Platform bridge.
      *
      * Vendor location: EDT\JsonApi\OutputHandling\DynamicTransformer::createRelationshipTransformer()
-     * Vendor line: 232
      *
      * Flow:
      * 1. Check if relationship is already a TransformerAbstract → return directly
-     * 2. Check if relationship type is 'Claim' (duck typing) → use API Platform
+     * 2. Check if relationship type is ApiPlatformRelationshipConfig → use API Platform
      * 3. Otherwise → use parent's EDT logic (backward compatibility)
      *
      * @param mixed $relationshipType The relationship type (EDT ResourceType or other)
@@ -91,8 +90,8 @@ class ExtendedDynamicTransformer extends DynamicTransformer
      *
      * Returns an anonymous Fractal transformer that:
      * 1. Receives User entity
-     * 2. Calls ClaimStateProvider to get ClaimResource (API Platform)
-     * 3. Normalizes ClaimResource using Symfony serializer
+     * 2. Calls StateProvider to get Resource (API Platform)
+     * 3. Normalizes Resource using Symfony serializer
      * 4. Returns simple array (Fractal-compatible)
      *
      * This transformer is created inline to keep everything in one file.
@@ -152,14 +151,14 @@ class ExtendedDynamicTransformer extends DynamicTransformer
 
                     // Step 2: Use API Platform state provider to get the resource
                     // This calls stateProvider->provide() which converts the entity → Resource
-                    $claimResource = $this->stateProvider->provide(
+                    $resource = $this->stateProvider->provide(
                         $operation,
                         ['id' => $entity->getId()],
                         []
                     );
 
                     // If state provider returns null, return empty data
-                    if (null === $claimResource) {
+                    if (null === $resource) {
                         return [
                             'id'       => $entity->getId(),
                         ];
@@ -169,7 +168,7 @@ class ExtendedDynamicTransformer extends DynamicTransformer
                     // This uses the same serialization logic as /api/3.0/YOUR_RESOURCE/{id}
                     // The normalizer handles JSON:API format, serialization groups, etc.
                     $normalized = $this->normalizer->normalize(
-                        $claimResource,
+                        $resource,
                         'jsonapi',
                         [
                             'resource_class' => $this->resourceClass,
