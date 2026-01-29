@@ -194,7 +194,7 @@
             {% include '@DemosPlanCore/DemosPlanCore/js/dplan.settings.js.twig' with { omitPublicCSSClassPrefix: true } %}
         </script>
 
-        {{ webpackBundles(['jquery-3.5.1.min.js'], true) }}
+        {{ webpackBundles(['jquery.js'], true) }}
         {% block javascripts %}
             {{ webpackBundles(['runtime.js', 'common.js', 'bs.js', 'core.js', 'core-cookie.js']) }}
         {% endblock javascripts %}
