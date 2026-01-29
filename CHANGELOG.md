@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- introduce new parameters to control the parameter name used/passed within the route 
+  core_procedure_slug generated redirect - in addition to the existing params for the route names
 
 ## v4.28.0 (2026-01-28)
 ### Added
