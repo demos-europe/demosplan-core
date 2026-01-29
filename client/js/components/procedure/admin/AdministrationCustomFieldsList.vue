@@ -21,7 +21,7 @@
     />
 
     <create-custom-field-form
-      v-if="!procedureReceivedStatements"
+      v-if="!isStatementField || !procedureReceivedStatements"
       :disable-type-selection="true"
       :handle-success="isSuccess"
       :is-loading="isLoading"
@@ -208,7 +208,7 @@
             v-if="!rowData.edit"
             class="btn--blank o-link--default mr-1"
             data-cy="customFields:editField"
-            :disabled="procedureReceivedStatements"
+            :disabled="isStatementField && procedureReceivedStatements"
             :aria-label="Translator.trans('item.edit')"
             :title="Translator.trans('edit')"
             @click="editCustomField(rowData)"
@@ -223,7 +223,7 @@
             v-if="!rowData.edit"
             class="btn--blank o-link--default mr-1"
             data-cy="customFields:deleteField"
-            :disabled="procedureReceivedStatements"
+            :disabled="isStatementField && procedureReceivedStatements"
             :aria-label="Translator.trans('item.edit')"
             :title="Translator.trans('edit')"
             @click="handleDeleteCustomField(rowData)"
