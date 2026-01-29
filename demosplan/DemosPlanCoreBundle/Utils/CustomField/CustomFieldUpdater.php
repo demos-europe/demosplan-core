@@ -60,6 +60,10 @@ class CustomFieldUpdater
         if (isset($attributes['description'])) {
             $customField->setDescription($attributes['description']);
         }
+
+        if (isset($attributes['isRequired'])) {
+            $customField->setRequired($attributes['isRequired']);
+        }
     }
 
     private function updateOptionsIfPresent(CustomFieldInterface $customField, array $attributes, string $targetEntityClass): void
