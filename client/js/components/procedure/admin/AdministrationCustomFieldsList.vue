@@ -633,8 +633,10 @@ export default {
             this.isStatementField ? 'statementCustomFields' : 'segmentCustomFields',
           ].join(),
           AdminProcedure: [
-            'statementsCount', // Needed to disable multiSelect field edits when there are existing statements
-            'statementCustomFields',
+            // StatementsCount is needed to disable multiSelect field edits when there are existing statements
+            ...(this.isStatementField
+              ? ['statementCustomFields', 'statementsCount']
+              : ['segmentCustomFields', 'statementsCount']),
           ].join(),
           CustomField: [
             'name',
