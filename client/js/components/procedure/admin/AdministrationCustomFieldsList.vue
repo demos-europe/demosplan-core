@@ -191,7 +191,7 @@
           <dp-checkbox
             v-if="rowData.edit"
             v-model="newRowData.isRequired"
-            :label ="{
+            :label="{
               text: Translator.trans('field.required'),
               hide:true
             }"
