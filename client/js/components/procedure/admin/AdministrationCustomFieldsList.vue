@@ -632,12 +632,10 @@ export default {
           [sourceEntity]: [
             this.isStatementField ? 'statementCustomFields' : 'segmentCustomFields',
           ].join(),
-          AdminProcedure: [
-            ...(this.isStatementField
-              // StatementsCount is needed to disable multiSelect field edits when there are existing statements
-              ? ['statementCustomFields', 'statementsCount']
-              : ['segmentCustomFields']),
-          ].join(),
+          // StatementsCount is needed to disable multiSelect field editing when there are existing statements
+          ...(this.isStatementField && {
+            AdminProcedure: ['statementCustomFields', 'statementsCount'].join(),
+          }),
           CustomField: [
             'name',
             'description',
