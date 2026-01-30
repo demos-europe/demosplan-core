@@ -1359,6 +1359,7 @@ export default {
 
         if (fieldIndex === -1) {
           console.warn(`Custom field ${storedField.id} not found in available fields`)
+
           return
         }
 
@@ -1374,6 +1375,7 @@ export default {
 
             if (!option) {
               console.warn(`Option ${optionId} not found in custom field ${field.name}`)
+
               return null
             }
 
@@ -1451,6 +1453,7 @@ export default {
                 this.restoreCustomFieldSelections()
               })
             }
+
             this.removeStatementProp('immediate_submit')
             sessionStorage.removeItem(this.fileStorageName)
 

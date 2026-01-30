@@ -321,7 +321,12 @@ export default {
 
       const params = {
         fields: {
-          CustomField: ['name', 'description', 'options', 'fieldType'].join(),
+          CustomField: [
+            'name',
+            'description',
+            'options',
+            'fieldType',
+          ].join(),
         },
         filter: {
           sourceEntityId: {
@@ -361,6 +366,7 @@ export default {
 
           if (!definition) {
             console.warn(`Custom field definition not found for ID: ${savedField.id}`)
+
             return null
           }
 
@@ -368,6 +374,7 @@ export default {
           const selectedOptions = (savedField.selectedOptionIds || [])
             .map(optionId => {
               const option = definition.options.find(opt => opt.id === optionId)
+
               return option || null
             })
             .filter(opt => opt !== null)
