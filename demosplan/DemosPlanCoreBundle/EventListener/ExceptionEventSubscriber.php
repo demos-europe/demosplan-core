@@ -101,19 +101,19 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
             'errors' => [
                 [
                     'status' => Response::HTTP_BAD_REQUEST,
-                    'title' => $exception->getMessage(),
+                    'title'  => $exception->getMessage(),
                     'detail' => $exception::class,
-                    'meta' => [
-                        'file' => $exception->getFile(),
-                        'line' => $exception->getLine(),
-                        'trace' => explode("\n", $exception->getTraceAsString()),
+                    'meta'   => [
+                        'file'     => $exception->getFile(),
+                        'line'     => $exception->getLine(),
+                        'trace'    => explode("\n", $exception->getTraceAsString()),
                         'previous' => $exception->getPrevious()?->getMessage(),
                     ],
                 ],
             ],
-            'jsonapi' => ['version' => '1.0'],
+            'jsonapi'  => ['version' => '1.0'],
             'included' => [],
-            'links' => ['self' => ''],
+            'links'    => ['self' => ''],
         ];
 
         return new APIResponse($data, Response::HTTP_BAD_REQUEST);
