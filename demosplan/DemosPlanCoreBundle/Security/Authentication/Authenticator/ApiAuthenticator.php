@@ -125,7 +125,7 @@ class ApiAuthenticator extends JWTAuthenticator
         // Use findOneBy with deleted check to match JWT authentication behavior
         // This ensures deleted users cannot authenticate via session
         $user = $this->userRepository->findOneBy([
-            'id' => $userId,
+            'id'      => $userId,
             'deleted' => false,
         ]);
 
