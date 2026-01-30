@@ -320,6 +320,7 @@ export default {
         const doc = parser.parseFromString(cleanContent, 'text/html')
 
         processTextNodes(doc.body)
+        this.styleFeatureInfoTables(doc.body)
 
         return {
           layerName: result.layerName,
@@ -339,6 +340,29 @@ export default {
       if (this.currentLayerFeatureInfoPage > 1) {
         this.currentLayerFeatureInfoPage--
       }
+    },
+
+    styleFeatureInfoTables (container) {
+      const tables = container.querySelectorAll('table')
+
+      tables.forEach(table => {
+        const rows = Array.from(table.querySelectorAll('tr'))
+
+        rows.forEach((row, index) => {
+          if (index < rows.length - 1) {
+            row.style.borderBottom = '1px solid #b5b5b5'
+          } else {
+            row.style.borderBottom = 'none'
+          }
+
+          const cells = row.querySelectorAll('td, th')
+
+          cells.forEach(cell => {
+            cell.style.paddingTop = '5px'
+            cell.style.paddingBottom = '5px'
+          })
+        })
+      })
     },
   },
 }
