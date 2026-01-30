@@ -11,4 +11,6 @@ lexik_jwt_authentication:
     # set custom header for jwt to be able to use it together with basic header authorisation
     token_extractors:
         authorization_header:
+            enabled: true
             name: 'X-JWT-Authorization'
+            prefix: 'Bearer'

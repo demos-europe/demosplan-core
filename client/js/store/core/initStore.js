@@ -73,10 +73,11 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
         plugins: [
           initJsonApiPlugin({
             apiModules: apiStoreModules,
+            // Include credentials to send session cookies with requests
+            credentials: 'include',
             router,
             baseUrl,
             headers: {
-              'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
               'X-Demosplan-Procedure-Id': dplan.procedureId,
               'X-CSRF-Token': dplan.csrfToken,
             },

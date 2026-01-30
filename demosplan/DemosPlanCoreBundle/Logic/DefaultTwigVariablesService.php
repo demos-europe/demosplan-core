@@ -26,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
 use demosplan\DemosPlanCoreBundle\Services\BrandingLoader;
 use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
 use Illuminate\Support\Collection;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -42,7 +41,6 @@ class DefaultTwigVariablesService
         private readonly CurrentUserService $currentUser,
         private readonly CustomerService $customerService,
         private readonly GlobalConfigInterface $globalConfig,
-        private readonly JWTTokenManagerInterface $jwtTokenManager,
         private readonly OrgaLoader $orgaLoader,
         /**
          * @var PermissionsInterface|Permissions
@@ -157,7 +155,6 @@ class DefaultTwigVariablesService
             'map'                                                => $this->loadMapVariables(),
             'maxUploadSize'                                      => $this->globalConfig->getMaxUploadSize(),
             'orgaInfo'                                           => $orgaObject,
-            'jwtToken'                                           => $this->jwtTokenManager->create($user),
             'permissions'                                        => $this->permissions->getPermissions(),
             'piwik'                                              => $this->loadPiwikVariables(),
             'procedure'                                          => $this->currentProcedureService->getProcedure()?->getId(), // legacy twig code in twigs
