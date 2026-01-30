@@ -31,6 +31,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ExceptionEventSubscriberTest extends TestCase
 {
+    private const TEST_ERROR_MESSAGE = 'Test error';
+
     private LoggerInterface&MockObject $logger;
     private ExceptionService&MockObject $exceptionService;
 
@@ -175,7 +177,7 @@ class ExceptionEventSubscriberTest extends TestCase
                 })
             );
 
-        $exception = new Exception('Test error');
+        $exception = new Exception(self::TEST_ERROR_MESSAGE);
         $exceptionEvent = $this->createExceptionEvent($exception);
 
         $sut->handleException($exceptionEvent);
@@ -203,7 +205,7 @@ class ExceptionEventSubscriberTest extends TestCase
         $sut->trackController($controllerEvent);
 
         // Create exception
-        $exception = new Exception('Test error');
+        $exception = new Exception(self::TEST_ERROR_MESSAGE);
         $exceptionEvent = $this->createExceptionEvent($exception);
 
         // Execute
@@ -224,11 +226,11 @@ class ExceptionEventSubscriberTest extends TestCase
         $controllerEvent = $this->createControllerEvent($controller);
         $sut->trackController($controllerEvent);
 
-        $exception = new Exception('Test error');
+        $exception = new Exception(self::TEST_ERROR_MESSAGE);
         $exceptionEvent = $this->createExceptionEvent($exception);
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Test error');
+        $this->expectExceptionMessage(self::TEST_ERROR_MESSAGE);
 
         $sut->handleException($exceptionEvent);
     }
@@ -248,7 +250,7 @@ class ExceptionEventSubscriberTest extends TestCase
             ->method('handleError')
             ->willReturn($expectedResponse);
 
-        $exception = new Exception('Test error');
+        $exception = new Exception(self::TEST_ERROR_MESSAGE);
         $exceptionEvent = $this->createExceptionEvent($exception);
 
         $sut->handleException($exceptionEvent);
