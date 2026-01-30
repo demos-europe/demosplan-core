@@ -73,8 +73,6 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
         plugins: [
           initJsonApiPlugin({
             apiModules: apiStoreModules,
-            // Include credentials to send session cookies with requests
-            credentials: 'include',
             router,
             baseUrl,
             headers: {
