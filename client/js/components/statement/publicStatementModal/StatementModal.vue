@@ -182,22 +182,22 @@
 
         <div v-if="!openedFromDraftList">
           <div
-            v-for="(selectableCustomField) in selectableCustomFields"
-            :key="selectableCustomField.id"
+            v-for="customField in selectableCustomFields"
+            :key="customField.id"
             class="mb-2"
           >
             <dp-label
-              :text="selectableCustomField.name"
-              :for="selectableCustomField.id"
+              :text="customField.name"
+              :for="customField.id"
               class="mb-2"
             />
 
             <dp-multiselect
-              :id="selectableCustomField.name"
-              v-model="selectableCustomField.selected"
-              :data-dp-validate-error-fieldname="selectableCustomField.name"
-              :options="selectableCustomField.options"
-              :required="selectableCustomField.isRequired"
+              :id="customField.name"
+              v-model="customField.selected"
+              :data-dp-validate-error-fieldname="customField.name"
+              :options="customField.options"
+              :required="customField.isRequired"
               label="label"
               multiple
               track-by="id"
@@ -1140,6 +1140,7 @@ export default {
       })(),
       redirectPath: 'DemosPlan_procedure_public_detail',
       responseHtml: '',
+      selectableCustomFields: [],
       showHeader: true,
       step: 0,
       unsavedFiles: [],
