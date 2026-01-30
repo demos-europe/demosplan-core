@@ -1339,74 +1339,17 @@ export default {
       }
     },
 
-    setCustomFieldsReadOnly (customFields) {
-      this.statementCustomFields = customFields
-    },
-
-    restoreCustomFieldSelections () {
-      this.selectableCustomFields.forEach(field => {
-        field.selected = []
-      })
-
-      if (!this.formData.customFields) {
-        return
-      }
-
-      this.formData.customFields.forEach(storedField => {
-        const fieldIndex = this.selectableCustomFields.findIndex(
-          field => field.id === storedField.id,
-        )
-
-        if (fieldIndex === -1) {
-          console.warn(`Custom field ${storedField.id} not found in available fields`)
-
-          return
-        }
-
-        const field = this.selectableCustomFields[fieldIndex]
-
-        if (!storedField.value) {
-          return
-        }
-
-        const selectedOptions = storedField.value
-          .map(optionId => {
-            const option = field.options.find(opt => opt.id === optionId)
-
-            if (!option) {
-              console.warn(`Option ${optionId} not found in custom field ${field.name}`)
-
-              return null
-            }
-
-            return option
-          })
-          .filter(opt => opt !== null)
-
-        this.selectableCustomFields[fieldIndex].selected = selectedOptions
-      })
-    },
-
-    handleCustomFieldChange () {
-      this.$nextTick(() => {
-        if (!this.selectableCustomFields || this.selectableCustomFields.length === 0) {
-          this.setStatementData({ customFields: [] })
-          return
-        }
-
-        const customFields = this.selectableCustomFields
-          .filter(field => field.selected && field.selected.length > 0)
-          .map(field => ({
-            id: field.id,
-            value: field.selected.map(option => option.id),
-          }))
-
-        this.setStatementData({ customFields })
-      })
-    },
-
     fieldIsActive (fieldKey) {
       return this.formFields.map(el => el.name).includes(fieldKey)
+    },
+
+    focusMultistep (step) {
+      this.$nextTick(() => {
+        const currentMultistepButton = this.$el.querySelectorAll('.c-multistep__step')[step]
+        if (currentMultistepButton) {
+          currentMultistepButton.focus()
+        }
+      })
     },
 
     getDraftStatement (draftStatementId, openModal = false, fromDraftList = false) {
@@ -1479,6 +1422,36 @@ export default {
       }
     },
 
+    gotoTab (tab) {
+      if (document.getElementById(tab)) {
+        this.$emit('toggleTabs', '#' + tab)
+      }
+
+      if (this.currentPage === 'publicDetail') {
+        this.toggleModal(false)
+      } else {
+        window.location.href = Routing.generate('DemosPlan_procedure_public_detail', { procedure: this.procedureId }) + `#${tab}`
+      }
+    },
+
+    handleCustomFieldChange () {
+      this.$nextTick(() => {
+        if (!this.selectableCustomFields || this.selectableCustomFields.length === 0) {
+          this.setStatementData({ customFields: [] })
+          return
+        }
+
+        const customFields = this.selectableCustomFields
+          .filter(field => field.selected && field.selected.length > 0)
+          .map(field => ({
+            id: field.id,
+            value: field.selected.map(option => option.id),
+          }))
+
+        this.setStatementData({ customFields })
+      })
+    },
+
     /*
      * When clicking the little ✎ icon in the "recheck" step, users are sent to the
      * respective multistep step, and afterwards the element they want to edit is focused.
@@ -1509,57 +1482,6 @@ export default {
       })
     },
 
-    loadDraftListPage () {
-      if (window.location.href.includes(Routing.generate('DemosPlan_statement_list_draft', { procedure: this.procedureId })) || window.location.href.includes(Routing.generate('DemosPlan_statement_list_released_group', { procedure: this.procedureId }))) {
-        window.location.reload()
-      } else {
-        window.location.href = Routing.generate(this.redirectPath, { procedure: this.procedureId }) + '#' + this.draftStatementId
-      }
-    },
-
-    reset () {
-      if (window.dpconfirm(Translator.trans('check.statement.discard.changes'))) {
-        this.unsavedFiles.forEach(file => {
-          this.$refs.uploadFiles.handleRemove(file)
-        })
-        this.$refs.statementEditor.resetEditor()
-        this.setStatementData(JSON.parse(this.initFormDataJSON))
-        this.addToUnsavedDrafts = false
-        this.toggleModal(false)
-        this.step = 0
-        this.showHeader = true
-        this.$nextTick(() => {
-          if (this.draftStatementId !== '') {
-            window.location.href = Routing.generate(this.redirectPath, { procedure: this.procedureId, _fragment: this.draftStatementId })
-          }
-        })
-
-        this.resetSessionStorage()
-        sessionStorage.removeItem('redirectpath')
-      }
-    },
-
-    focusMultistep (step) {
-      this.$nextTick(() => {
-        const currentMultistepButton = this.$el.querySelectorAll('.c-multistep__step')[step]
-        if (currentMultistepButton) {
-          currentMultistepButton.focus()
-        }
-      })
-    },
-
-    gotoTab (tab) {
-      if (document.getElementById(tab)) {
-        this.$emit('toggleTabs', '#' + tab)
-      }
-
-      if (this.currentPage === 'publicDetail') {
-        this.toggleModal(false)
-      } else {
-        window.location.href = Routing.generate('DemosPlan_procedure_public_detail', { procedure: this.procedureId }) + `#${tab}`
-      }
-    },
-
     handleModalToggle (open) {
       if (open === false) {
         if (this.editDraftDataInPublicDetail === false && this.currentPage !== 'publicDetail') {
@@ -1575,6 +1497,14 @@ export default {
         if (this.updateDraftListRequired) {
           this.loadDraftListPage()
         }
+      }
+    },
+
+    loadDraftListPage () {
+      if (window.location.href.includes(Routing.generate('DemosPlan_statement_list_draft', { procedure: this.procedureId })) || window.location.href.includes(Routing.generate('DemosPlan_statement_list_released_group', { procedure: this.procedureId }))) {
+        window.location.reload()
+      } else {
+        window.location.href = Routing.generate(this.redirectPath, { procedure: this.procedureId }) + '#' + this.draftStatementId
       }
     },
 
@@ -1681,6 +1611,76 @@ export default {
         uploadedFiles: this.unsavedFiles
           .map(el => el.hash)
           .join(','),
+      })
+    },
+
+    reset () {
+      if (window.dpconfirm(Translator.trans('check.statement.discard.changes'))) {
+        this.unsavedFiles.forEach(file => {
+          this.$refs.uploadFiles.handleRemove(file)
+        })
+        this.$refs.statementEditor.resetEditor()
+        this.setStatementData(JSON.parse(this.initFormDataJSON))
+        this.addToUnsavedDrafts = false
+        this.toggleModal(false)
+        this.step = 0
+        this.showHeader = true
+        this.$nextTick(() => {
+          if (this.draftStatementId !== '') {
+            window.location.href = Routing.generate(this.redirectPath, { procedure: this.procedureId, _fragment: this.draftStatementId })
+          }
+        })
+
+        this.resetSessionStorage()
+        sessionStorage.removeItem('redirectpath')
+      }
+    },
+
+    resetSessionStorage () {
+      sessionStorage.removeItem(this.draftStatementIdStorageName)
+    },
+
+    restoreCustomFieldSelections () {
+      this.selectableCustomFields.forEach(field => {
+        field.selected = []
+      })
+
+      if (!this.formData.customFields) {
+        return
+      }
+
+      this.formData.customFields.forEach(storedField => {
+        const fieldIndex = this.selectableCustomFields.findIndex(
+          field => field.id === storedField.id,
+        )
+
+        if (fieldIndex === -1) {
+          console.warn(`Custom field ${storedField.id} not found in available fields`)
+
+          return
+        }
+
+        const field = this.selectableCustomFields[fieldIndex]
+
+        if (!storedField.value) {
+          return
+        }
+
+        const selectedOptions = storedField.value
+          .map(optionId => {
+            const option = field.options.find(opt => opt.id === optionId)
+
+            if (!option) {
+              console.warn(`Option ${optionId} not found in custom field ${field.name}`)
+
+              return null
+            }
+
+            return option
+          })
+          .filter(opt => opt !== null)
+
+        this.selectableCustomFields[fieldIndex].selected = selectedOptions
       })
     },
 
@@ -1798,6 +1798,10 @@ export default {
         })
     },
 
+    setCustomFieldsReadOnly (customFields) {
+      this.statementCustomFields = customFields
+    },
+
     setDraftData (data, priorityAreaKey, priorityAreaType) {
       const draft = {
         r_text: data.draftStatement.text,
@@ -1830,15 +1834,6 @@ export default {
     setPrivacyPreference (data) {
       this.setStatementData(data)
       this.removeNotificationsFromStore()
-    },
-
-    writeDraftStatementIdToSession (draftStatementId) {
-      this.draftStatementId = draftStatementId
-      sessionStorage.setItem(this.draftStatementIdStorageName, draftStatementId)
-    },
-
-    resetSessionStorage () {
-      sessionStorage.removeItem(this.draftStatementIdStorageName)
     },
 
     setStatementData (data) {
@@ -1904,6 +1899,19 @@ export default {
       sessionStorage.removeItem(this.fileStorageName)
     },
 
+    validatePersonalDataStep () {
+      if (this.dpValidate.submitterForm) {
+        this.step = 2
+        this.focusMultistep(2)
+      } else {
+        this.$nextTick(() => document.getElementById('submitterFormErrors').focus())
+      }
+    },
+
+    validateRecheckStep () {
+      return this.dpValidate.recheckForm
+    },
+
     validateStatementStep () {
       if (this.formData.r_location === 'point' && (this.formData.r_location_geometry === '' && this.formData.r_location_point === '' && this.formData.r_location_priority_area_key === '')) {
         this.setStatementData({ r_location: '' })
@@ -1928,17 +1936,9 @@ export default {
       return this.dpValidateAction('statementForm', postValidation, true)
     },
 
-    validatePersonalDataStep () {
-      if (this.dpValidate.submitterForm) {
-        this.step = 2
-        this.focusMultistep(2)
-      } else {
-        this.$nextTick(() => document.getElementById('submitterFormErrors').focus())
-      }
-    },
-
-    validateRecheckStep () {
-      return this.dpValidate.recheckForm
+    writeDraftStatementIdToSession (draftStatementId) {
+      this.draftStatementId = draftStatementId
+      sessionStorage.setItem(this.draftStatementIdStorageName, draftStatementId)
     },
   },
 
