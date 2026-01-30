@@ -141,61 +141,61 @@
 </span>
 
 {% if hasPermission('feature_statements_custom_fields') and statement.customFields is defined %}
-  {% set customFieldsDisplay = [] %}
+    {% set customFieldsDisplay = [] %}
 
-  {# Transform customFields data to display format #}
-  {% for customFieldValue in statement.customFields.getCustomFieldsValues() %}
-    {% set fieldDefinition = null %}
+    {# Transform customFields data to display format #}
+    {% for customFieldValue in statement.customFields.getCustomFieldsValues() %}
+        {% set fieldDefinition = null %}
 
-    {% for definition in templateVars.customFields|default([]) %}
-      {% if definition.getId() == customFieldValue.getId() %}
-        {% set fieldDefinition = definition %}
-      {% endif %}
+        {% for definition in templateVars.customFields|default([]) %}
+            {% if definition.getId() == customFieldValue.getId() %}
+                {% set fieldDefinition = definition %}
+            {% endif %}
+        {% endfor %}
+
+        {% if fieldDefinition %}
+            {% set selectedOptions = [] %}
+
+            {# Match option IDs with labels from definition #}
+            {% for selectedOptionId in customFieldValue.getValue() %}
+                {% for option in fieldDefinition.getOptions() %}
+                    {% if option.getId() == selectedOptionId %}
+                        {% set selectedOptions = selectedOptions|merge([{
+                            'id': option.getId(),
+                            'label': option.getLabel()
+                        }]) %}
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+
+            {% if selectedOptions|length > 0 %}
+                {% set customFieldsDisplay = customFieldsDisplay|merge([{
+                    'id': fieldDefinition.getId(),
+                    'name': fieldDefinition.getName(),
+                    'selected': selectedOptions
+                }]) %}
+            {% endif %}
+        {% endif %}
     {% endfor %}
 
-    {% if fieldDefinition %}
-      {% set selectedOptions = [] %}
-
-      {# Match option IDs with labels from definition #}
-      {% for selectedOptionId in customFieldValue.getValue() %}
-        {% for option in fieldDefinition.getOptions() %}
-          {% if option.getId() == selectedOptionId %}
-            {% set selectedOptions = selectedOptions|merge([{
-              'id': option.getId(),
-              'label': option.getLabel()
-            }]) %}
-          {% endif %}
-        {% endfor %}
-      {% endfor %}
-
-      {% if selectedOptions|length > 0 %}
-        {% set customFieldsDisplay = customFieldsDisplay|merge([{
-          'id': fieldDefinition.getId(),
-          'name': fieldDefinition.getName(),
-          'selected': selectedOptions
-        }]) %}
-      {% endif %}
+    {% if customFieldsDisplay|length > 0 %}
+        <div class="{{ 'layout__item u-1-of-1 u-pl-palm u-mt-0_5 u-mb'|prefixClass }}">
+            <dp-details
+                class="{{ 'u-1-of-1'|prefixClass }}"
+                :summary="'{{ 'more.data'|trans }}'"
+            >
+                {% for field in customFieldsDisplay %}
+                    <div class="{{ 'u-mb-0_75'|prefixClass }}">
+                        <strong>{{ field.name }}</strong>:
+                        <div class="{{ 'u-ml-0_5'|prefixClass }}">
+                            {% for option in field.selected %}
+                                <div>{{ option.label }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </dp-details>
+        </div>
     {% endif %}
-  {% endfor %}
-
-  {% if customFieldsDisplay|length > 0 %}
-    <div class="{{ 'layout__item u-1-of-1 u-pl-palm u-mt-0_5 u-mb'|prefixClass }}">
-      <dp-details
-        class="{{ 'u-1-of-1'|prefixClass }}"
-        :summary="'{{ 'more.data'|trans }}'"
-      >
-        {% for field in customFieldsDisplay %}
-          <div class="{{ 'u-mb-0_75'|prefixClass }}">
-            <strong>{{ field.name }}</strong>:
-            <div class="{{ 'u-ml-0_5'|prefixClass }}">
-              {% for option in field.selected %}
-                <div>{{ option.label }}</div>
-              {% endfor %}
-            </div>
-          </div>
-        {% endfor %}
-      </dp-details>
-    </div>
-  {% endif %}
 {% endif %}
 
