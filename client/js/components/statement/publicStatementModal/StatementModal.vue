@@ -1122,9 +1122,7 @@ export default {
         },
       },
       continueWriting: false,
-      statementCustomFields: [],
       draftStatementId: '',
-      openedFromDraftList: false,
       editDraftDataInPublicDetail: true,
       formFields: [...this.statementFormFields, ...this.personalDataFormFields, ...this.feedbackFormFields],
       hasPlanningDocuments: this.initHasPlanningDocuments,
@@ -1138,10 +1136,12 @@ export default {
         label += ' ' + Translator.trans(hasPermission('feature_statement_publish_name') ? 'explanation.statement.public.organame' : 'explanation.statement.public.noname')
         return label
       })(),
+      openedFromDraftList: false,
       redirectPath: 'DemosPlan_procedure_public_detail',
       responseHtml: '',
       selectableCustomFields: [],
       showHeader: true,
+      statementCustomFields: [],
       step: 0,
       unsavedFiles: [],
       updateDraftListRequired: false,
