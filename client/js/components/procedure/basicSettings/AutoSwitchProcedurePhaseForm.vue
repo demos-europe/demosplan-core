@@ -43,17 +43,14 @@
      --><div class="layout__item u-1-of-3 u-1-of-1-lap-down">
           <div class="layout">
             <div class="layout__item w-2/3 pr-2">
-              <dp-label
-                :for="switchDateId"
-                :text="Translator.trans('phase.autoswitch.datetime')"
-                class="mb-0.5"
-                required
-              />
               <dp-datepicker
                 :id="switchDateId"
                 v-model="switchDateOnly"
                 :data-cy="`autoSwitchProcedurePhaseForm:${switchDateId}`"
                 :disabled="!autoSwitchPhase"
+                :label="{
+                  text: Translator.trans('phase.autoswitch.datetime')
+                }"
                 hidden-input
                 :max-date="switchDateMax"
                 :min-date="minSwitchDate"
