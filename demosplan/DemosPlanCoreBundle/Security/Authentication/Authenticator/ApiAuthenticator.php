@@ -61,7 +61,7 @@ class ApiAuthenticator extends JWTAuthenticator
         return $this->hasValidSession($request) || parent::supports($request);
     }
 
-    public function authenticate(Request $request): Passport
+    public function doAuthenticate(Request $request): Passport
     {
         // First, try session-based authentication (for browser clients)
         if ($this->hasValidSession($request)) {
@@ -83,7 +83,7 @@ class ApiAuthenticator extends JWTAuthenticator
         $this->logger->debug('API request falling back to JWT authentication');
         $this->authenticatedViaSession = false;
 
-        return parent::authenticate($request);
+        return parent::doAuthenticate($request);
     }
 
     public function createToken(Passport $passport, string $firewallName): TokenInterface
