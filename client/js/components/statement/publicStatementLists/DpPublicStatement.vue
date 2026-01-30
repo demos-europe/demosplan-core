@@ -272,7 +272,7 @@
         :key="field.id"
         class="u-mb-0_75"
       >
-        <strong>{{ field.name }}:</strong>
+        <span :class="prefixClass('weight--bold')">{{ field.name }}:</span>
         <div class="u-ml-0_5">
           <div
             v-for="option in field.selected"
@@ -287,7 +287,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpDetails, DpFlyout, DpInlineNotification } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpDetails, DpFlyout, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
@@ -303,6 +303,8 @@ export default {
   },
 
   directives: { cleanhtml: CleanHtml },
+
+  mixins: [prefixClassMixin],
 
   props: {
     attachments: {

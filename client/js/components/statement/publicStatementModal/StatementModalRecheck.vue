@@ -283,7 +283,7 @@
         :key="field.id"
         :class="prefixClass('mb-1')"
       >
-        <strong>{{ field.name }}:</strong>
+        <span :class="prefixClass('weight--bold')">{{ field.name }}:</span>
         <ul :class="prefixClass('ml-2')">
           <li
             v-for="option in field.selected"
