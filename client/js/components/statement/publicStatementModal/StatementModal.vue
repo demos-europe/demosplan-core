@@ -1941,7 +1941,6 @@ export default {
   },
 
   mounted () {
-    this.fetchCustomFields()
     this.fetchCustomFields().then(() => {
       this.draftStatementId = sessionStorage.getItem(this.draftStatementIdStorageName) || ''
       this.redirectPath = sessionStorage.getItem('redirectpath') || this.initRedirectPath
