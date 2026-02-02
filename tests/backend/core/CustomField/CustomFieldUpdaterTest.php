@@ -273,7 +273,7 @@ class CustomFieldUpdaterTest extends UnitTestCase
         // Arrange
         $procedure = ProcedureFactory::createOne();
         $statementOriginal = StatementFactory::createOne(['procedure' => $procedure->_real()]);
-        $statement = StatementFactory::createOne(
+        StatementFactory::createOne(
             [
                 'procedure' => $procedure->_real(),
                 'original'  => $statementOriginal->_real(),
@@ -285,7 +285,7 @@ class CustomFieldUpdaterTest extends UnitTestCase
             ->asMultiSelect('Color1')->create();
 
         $entityId = $customField1->getId();
-        $attributes = ['name' => 'Updated Field Name'];
+        $attributes = ['description' => 'Updated Description Name'];
 
         // Assert & Act
         $expectedErrorMessage = 'CustomField cannot be updated: Procedure with statements';
@@ -293,6 +293,6 @@ class CustomFieldUpdaterTest extends UnitTestCase
         $this->expectExceptionMessage($expectedErrorMessage);
 
         // Act
-        $result = $this->sut->updateCustomField($entityId, $attributes);
+        $this->sut->updateCustomField($entityId, $attributes);
     }
 }
