@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
@@ -263,4 +264,37 @@ class CustomFieldUpdaterTest extends UnitTestCase
         self::assertNotContains($option1->getId(), $remainingOptionIds, 'Option1 should be deleted from configuration');
         self::assertNotContains($option3->getId(), $remainingOptionIds, 'Option3 should be deleted from configuration');
     }
+    /**
+     * Test validation fails when procedure HAS statements.
+     */
+    public function testValidationFailsWhenProcedureHasStatements(): void
+    {
+        // Arrange
+        $procedure = ProcedureFactory::createOne();
+        $statementOriginal = StatementFactory::createOne(['procedure' => $procedure->_real()]);
+        $statement = StatementFactory::createOne(
+            [
+                'procedure' => $procedure->_real(),
+                'original' => $statementOriginal->_real(),
+            ]);
+
+        $customField1 = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->asRadioButton('Color1')->create();
+
+        $entityId = $customField1->getId();
+        $attributes = ['name' => 'Updated Field Name'];
+
+
+        // Assert & Act
+        $expectedErrorMessage = 'CustomField cannot be updated: Procedure with statements';
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($expectedErrorMessage);
+
+        // Act
+        $result = $this->sut->updateCustomField($entityId, $attributes);
+
+    }
+
+
 }

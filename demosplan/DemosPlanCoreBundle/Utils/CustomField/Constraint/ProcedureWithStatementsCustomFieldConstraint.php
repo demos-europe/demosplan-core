@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraint;
 
 class ProcedureWithStatementsCustomFieldConstraint extends Constraint
 {
-    public string $message = 'custom_field.procedure_with_statements.cannot_update';
+    public string $message = 'CustomField cannot be updated: Procedure with statements';
 
     public function validatedBy(): string
     {
