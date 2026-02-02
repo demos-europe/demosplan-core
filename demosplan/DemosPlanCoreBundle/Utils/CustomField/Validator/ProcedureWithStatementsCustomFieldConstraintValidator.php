@@ -13,17 +13,17 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator;
 
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Constraint\ProcedureWithStatementsCustomFieldConstraint;
-use Doctrine\ORM\EntityManagerInterface;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
 class ProcedureWithStatementsCustomFieldConstraintValidator extends ConstraintValidator
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly ProcedureService $procedureService,
     ) {
     }
 
@@ -37,19 +37,20 @@ class ProcedureWithStatementsCustomFieldConstraintValidator extends ConstraintVa
             return;
         }
 
-        if ('PROCEDURE' !== $value->getSourceEntityClass()
-            && 'STATEMENT' !== $value->getTargetEntityClass()) {
+        if (CustomFieldSupportedEntity::procedure->value !== $value->getSourceEntityClass()
+            && CustomFieldSupportedEntity::statement->value !== $value->getTargetEntityClass()) {
             return;
         }
 
-        $procedure = $this->entityManager
-            ->getRepository(Procedure::class)
-            ->find($value->getSourceEntityId());
+        $procedureId = $value->getSourceEntityId();
+        $counts = $this->procedureService->getStatementsCounts([$procedureId]);
+
+        $statementCounts =  $counts[$procedureId] ?? 0;
 
         // Check if procedure has statements
-        if ($procedure->getStatements()->count() > 0) {
+        if ($statementCounts > 0) {
             $this->context->buildViolation($constraint->message)
-                ->setParameter('{procedureId}', $procedure->getId())
+                ->setParameter('{procedureId}', $procedureId)
                 ->addViolation();
         }
     }
