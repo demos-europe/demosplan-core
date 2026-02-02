@@ -189,6 +189,7 @@
             <dp-label
               :text="customField.name"
               :for="customField.id"
+              :required="customField.isRequired"
               class="mb-2"
             />
 
