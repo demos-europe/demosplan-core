@@ -15,7 +15,9 @@ namespace Tests\Core\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -201,5 +203,41 @@ class CustomFieldCreatorTest extends UnitTestCase
                 'expectedErrorMessage' => 'The target entity "SEGMENT" does not match the expected target entity "STATEMENT" for source entity "PROCEDURE".',
             ],
         ];
+    }
+
+    public function testValidationFailsWhenProcedureHasStatements(): void
+    {
+        // Arrange
+        $procedure = ProcedureFactory::createOne();
+        $statementOriginal = StatementFactory::createOne(['procedure' => $procedure->_real()]);
+        $statement = StatementFactory::createOne(
+            [
+                'procedure' => $procedure->_real(),
+                'original' => $statementOriginal->_real(),
+            ]);
+        $attributes = [
+            'fieldType'   => 'multiSelect',
+            'name'        => 'Priority Level',
+            'description' => 'Select priority level for this item',
+            'isRequired'  => false,
+            'options'     => [
+                ['label' => 'High'],
+                ['label' => 'Medium'],
+                ['label' => 'Low'],
+            ],
+            'sourceEntity'   => 'PROCEDURE',
+            'sourceEntityId' => $procedure->getId(),
+            'targetEntity'   => 'STATEMENT',
+        ];
+
+        // Assert & Act
+        $expectedErrorMessage = 'CustomField cannot be updated: Procedure with statements';
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($expectedErrorMessage);
+
+        // Act
+        $result = $this->sut->createCustomField($attributes);
+
+
     }
 }
