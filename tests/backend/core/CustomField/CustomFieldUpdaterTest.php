@@ -284,7 +284,6 @@ class CustomFieldUpdaterTest extends UnitTestCase
             ->withRelatedTargetEntity('STATEMENT')
             ->asMultiSelect('Color1')->create();
 
-
         $entityId = $customField1->getId();
         $attributes = ['name' => 'Updated Field Name'];
 
