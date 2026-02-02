@@ -33,16 +33,27 @@ class ProcedureWithStatementsCustomFieldConstraintValidator extends ConstraintVa
             throw new InvalidArgumentException('ProcedureWithStatementsCustomFieldConstraint was expected');
         }
 
-        if (!$value instanceof CustomFieldConfiguration) {
+        if (!$value instanceof CustomFieldConfiguration && !is_array($value)) {
+            throw new InvalidArgumentException('Invalid value');
+        }
+
+        if ($value instanceof CustomFieldConfiguration) {
+            $procedureId = $value->getSourceEntityId();
+            $sourceEntityClass = $value->getSourceEntityClass();
+            $targetEntityClass = $value->getTargetEntityClass();
+        }
+
+        if (is_array($value)) {
+            $procedureId = $value['sourceEntityId'];
+            $sourceEntityClass = $value['sourceEntity'];
+            $targetEntityClass = $value['targetEntity'];
+        }
+
+        if (CustomFieldSupportedEntity::procedure->value !== $sourceEntityClass
+            && CustomFieldSupportedEntity::statement->value !== $targetEntityClass) {
             return;
         }
 
-        if (CustomFieldSupportedEntity::procedure->value !== $value->getSourceEntityClass()
-            && CustomFieldSupportedEntity::statement->value !== $value->getTargetEntityClass()) {
-            return;
-        }
-
-        $procedureId = $value->getSourceEntityId();
         $counts = $this->procedureService->getStatementsCounts([$procedureId]);
 
         $statementCounts = $counts[$procedureId] ?? 0;
