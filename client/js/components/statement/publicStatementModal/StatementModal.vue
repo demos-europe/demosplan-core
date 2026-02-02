@@ -1330,8 +1330,6 @@ export default {
           options: Array.isArray(field.attributes.options) ? field.attributes.options : [],
           selected: [],
         }))
-
-        this.restoreCustomFieldSelections()
       } catch (error) {
         console.log(error)
 
@@ -1944,12 +1942,40 @@ export default {
 
   mounted () {
     this.fetchCustomFields()
+    this.fetchCustomFields().then(() => {
+      this.draftStatementId = sessionStorage.getItem(this.draftStatementIdStorageName) || ''
+      this.redirectPath = sessionStorage.getItem('redirectpath') || this.initRedirectPath
+
+      if (this.draftStatementId !== '') {
+        this.getDraftStatement(this.draftStatementId)
+      } else {
+        const sessionStorageBegunStatement = localStorage.getItem(`publicStatement:${this.userId}:${this.procedureId}:new`)
+        const sessionStorageBegunStatementParsed = JSON.parse(sessionStorageBegunStatement)
+
+        if (
+          sessionStorageBegunStatement &&
+          sessionStorageBegunStatement !== this.initFormDataJSON &&
+          sessionStorageBegunStatementParsed.r_ident === ''
+        ) {
+          this.setStatementData(sessionStorageBegunStatementParsed)
+
+          this.$nextTick(() => {
+            this.restoreCustomFieldSelections()
+          })
+        } else {
+          this.setStatementData({
+            r_county: this.counties.find(el => el.selected)
+              ? this.counties.find(el => el.selected).value
+              : ''
+          })
+        }
+      }
+    })
 
     if (!this.allowAnonymousStatements && this.formData.r_useName !== '1') {
       this.setPrivacyPreference({ r_useName: '1' })
     }
 
-    // Set data from map
     this.$root.$on('updateStatementFormMapData', (data = {}, toggle = true) => {
       this.setStatementData(data)
       if (toggle) {
@@ -1965,26 +1991,6 @@ export default {
     this.$root.$on('statementModal:goToTab', tabname => {
       this.gotoTab(tabname)
     })
-
-    // Set draft statement Id from href
-    this.draftStatementId = sessionStorage.getItem(this.draftStatementIdStorageName) || ''
-    this.redirectPath = sessionStorage.getItem('redirectpath') || this.initRedirectPath
-
-    if (this.draftStatementId !== '') {
-      this.getDraftStatement(this.draftStatementId)
-    } else {
-      const sessionStorageBegunStatement = localStorage.getItem(`publicStatement:${this.userId}:${this.procedureId}:new`)
-      const sessionStorageBegunStatementParsed = JSON.parse(sessionStorageBegunStatement)
-      if (sessionStorageBegunStatement && sessionStorageBegunStatement !== this.initFormDataJSON && sessionStorageBegunStatementParsed.r_ident === '') {
-        this.setStatementData(sessionStorageBegunStatementParsed)
-
-        this.$nextTick(() => {
-          this.restoreCustomFieldSelections()
-        })
-      } else {
-        this.setStatementData({ r_county: this.counties.find(el => el.selected) ? this.counties.find(el => el.selected).value : '' })
-      }
-    }
   },
 }
 </script>
