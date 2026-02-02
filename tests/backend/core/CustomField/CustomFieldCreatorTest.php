@@ -45,8 +45,8 @@ class CustomFieldCreatorTest extends UnitTestCase
         $this->procedure = ProcedureFactory::createOne();
         $this->attributes = [
             'fieldType'   => '',
-            'name'        => 'Priority Level',
-            'description' => 'Select priority level for this item',
+            'name'        => self::TEST_FIELD_NAME,
+            'description' => self::TEST_DESCRIPTION,
             'options'     => [
                 ['label' => 'High'],
                 ['label' => 'Medium'],
@@ -73,8 +73,8 @@ class CustomFieldCreatorTest extends UnitTestCase
         // Assert - Test the superficial layer behavior
         static::assertInstanceOf(CustomFieldInterface::class, $result);
         static::assertInstanceOf(RadioButtonField::class, $result);
-        static::assertEquals('Priority Level', $result->getName());
-        static::assertEquals('Select priority level for this item', $result->getDescription());
+        static::assertEquals(self::TEST_FIELD_NAME, $result->getName());
+        static::assertEquals(self::TEST_DESCRIPTION, $result->getDescription());
         static::assertEquals('singleSelect', $result->getFieldType());
 
         // Verify options are properly created with UUIDs
@@ -114,8 +114,8 @@ class CustomFieldCreatorTest extends UnitTestCase
         // Assert
         static::assertInstanceOf(CustomFieldInterface::class, $result);
         static::assertInstanceOf(MultiSelectField::class, $result);
-        static::assertEquals('Priority Level', $result->getName());
-        static::assertEquals('Select priority level for this item', $result->getDescription());
+        static::assertEquals(self::TEST_FIELD_NAME, $result->getName());
+        static::assertEquals(self::TEST_DESCRIPTION, $result->getDescription());
         static::assertEquals('multiSelect', $result->getFieldType());
 
         // Test MultiSelect specific behavior - has isRequired
