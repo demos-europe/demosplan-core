@@ -264,6 +264,7 @@ class CustomFieldUpdaterTest extends UnitTestCase
         self::assertNotContains($option1->getId(), $remainingOptionIds, 'Option1 should be deleted from configuration');
         self::assertNotContains($option3->getId(), $remainingOptionIds, 'Option3 should be deleted from configuration');
     }
+
     /**
      * Test validation fails when procedure HAS statements.
      */
@@ -275,7 +276,7 @@ class CustomFieldUpdaterTest extends UnitTestCase
         $statement = StatementFactory::createOne(
             [
                 'procedure' => $procedure->_real(),
-                'original' => $statementOriginal->_real(),
+                'original'  => $statementOriginal->_real(),
             ]);
 
         $customField1 = CustomFieldConfigurationFactory::new()
@@ -285,7 +286,6 @@ class CustomFieldUpdaterTest extends UnitTestCase
         $entityId = $customField1->getId();
         $attributes = ['name' => 'Updated Field Name'];
 
-
         // Assert & Act
         $expectedErrorMessage = 'CustomField cannot be updated: Procedure with statements';
         $this->expectException(InvalidArgumentException::class);
@@ -293,8 +293,5 @@ class CustomFieldUpdaterTest extends UnitTestCase
 
         // Act
         $result = $this->sut->updateCustomField($entityId, $attributes);
-
     }
-
-
 }
