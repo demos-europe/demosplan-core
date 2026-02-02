@@ -35,6 +35,7 @@ class CustomFieldCreatorTest extends UnitTestCase
     protected $sut;
 
     protected $procedure;
+    protected $attributes;
 
     protected function setUp(): void
     {
@@ -42,16 +43,8 @@ class CustomFieldCreatorTest extends UnitTestCase
 
         $this->sut = $this->getContainer()->get(CustomFieldCreator::class);
         $this->procedure = ProcedureFactory::createOne();
-    }
-
-    /**
-     * Test SingleSelect field creation with all attributes properly set.
-     */
-    public function testCreateSingleSelectFieldSuccessfully(): void
-    {
-        // Arrange
-        $attributes = [
-            'fieldType'   => 'singleSelect',
+        $this->attributes = [
+            'fieldType'   => '',
             'name'        => 'Priority Level',
             'description' => 'Select priority level for this item',
             'options'     => [
@@ -61,11 +54,21 @@ class CustomFieldCreatorTest extends UnitTestCase
             ],
             'sourceEntity'   => 'PROCEDURE',
             'sourceEntityId' => $this->procedure->getId(),
-            'targetEntity'   => 'SEGMENT',
+            'targetEntity'   => '',
         ];
+    }
+
+    /**
+     * Test SingleSelect field creation with all attributes properly set.
+     */
+    public function testCreateSingleSelectFieldSuccessfully(): void
+    {
+        // Arrange: $attributes already populated in contructor
+        $this->attributes['fieldType'] = 'singleSelect';
+        $this->attributes['targetEntity'] = 'SEGMENT';
 
         // Act
-        $result = $this->sut->createCustomField($attributes);
+        $result = $this->sut->createCustomField($this->attributes);
 
         // Assert - Test the superficial layer behavior
         static::assertInstanceOf(CustomFieldInterface::class, $result);
@@ -100,30 +103,19 @@ class CustomFieldCreatorTest extends UnitTestCase
      */
     public function testCreateMultiSelectFieldSuccessfully(): void
     {
-        // Arrange
-        $attributes = [
-            'fieldType'   => 'multiSelect',
-            'name'        => 'Categories',
-            'description' => 'Select applicable categories',
-            'isRequired'  => true,
-            'options'     => [
-                ['label' => 'Environment'],
-                ['label' => 'Traffic'],
-                ['label' => 'Housing'],
-            ],
-            'sourceEntity'   => 'PROCEDURE',
-            'sourceEntityId' => $this->procedure->getId(),
-            'targetEntity'   => 'STATEMENT',
-        ];
+        // Arrange: $attributes already populated in contructor
+        $this->attributes['fieldType'] = 'multiSelect';
+        $this->attributes['isRequired'] = true;
+        $this->attributes['targetEntity'] = 'STATEMENT';
 
         // Act
-        $result = $this->sut->createCustomField($attributes);
+        $result = $this->sut->createCustomField($this->attributes);
 
         // Assert
         static::assertInstanceOf(CustomFieldInterface::class, $result);
         static::assertInstanceOf(MultiSelectField::class, $result);
-        static::assertEquals('Categories', $result->getName());
-        static::assertEquals('Select applicable categories', $result->getDescription());
+        static::assertEquals('Priority Level', $result->getName());
+        static::assertEquals('Select priority level for this item', $result->getDescription());
         static::assertEquals('multiSelect', $result->getFieldType());
 
         // Test MultiSelect specific behavior - has isRequired
@@ -131,9 +123,9 @@ class CustomFieldCreatorTest extends UnitTestCase
 
         $options = $result->getOptions();
         static::assertCount(3, $options);
-        static::assertEquals('Environment', $options[0]->getLabel());
-        static::assertEquals('Traffic', $options[1]->getLabel());
-        static::assertEquals('Housing', $options[2]->getLabel());
+        static::assertEquals('High', $options[0]->getLabel());
+        static::assertEquals('Medium', $options[1]->getLabel());
+        static::assertEquals('Low', $options[2]->getLabel());
 
         $this->verifyAllOptionsHaveUUIDs($options);
 
@@ -207,27 +199,17 @@ class CustomFieldCreatorTest extends UnitTestCase
     public function testValidationFailsWhenProcedureHasStatements(): void
     {
         // Arrange
-        $procedure = ProcedureFactory::createOne();
-        $statementOriginal = StatementFactory::createOne(['procedure' => $procedure->_real()]);
-        $statement = StatementFactory::createOne(
+        $statementOriginal = StatementFactory::createOne(['procedure' => $this->procedure->_real()]);
+        StatementFactory::createOne(
             [
-                'procedure' => $procedure->_real(),
+                'procedure' => $this->procedure->_real(),
                 'original'  => $statementOriginal->_real(),
             ]);
-        $attributes = [
-            'fieldType'   => 'multiSelect',
-            'name'        => 'Priority Level',
-            'description' => 'Select priority level for this item',
-            'isRequired'  => false,
-            'options'     => [
-                ['label' => 'High'],
-                ['label' => 'Medium'],
-                ['label' => 'Low'],
-            ],
-            'sourceEntity'   => 'PROCEDURE',
-            'sourceEntityId' => $procedure->getId(),
-            'targetEntity'   => 'STATEMENT',
-        ];
+
+        // Arrange: $attributes already populated in contructor
+        $this->attributes['fieldType'] = 'multiSelect';
+        $this->attributes['isRequired'] = true;
+        $this->attributes['targetEntity'] = 'STATEMENT';
 
         // Assert & Act
         $expectedErrorMessage = 'CustomField cannot be updated: Procedure with statements';
@@ -235,6 +217,6 @@ class CustomFieldCreatorTest extends UnitTestCase
         $this->expectExceptionMessage($expectedErrorMessage);
 
         // Act
-        $result = $this->sut->createCustomField($attributes);
+        $result = $this->sut->createCustomField($this->attributes);
     }
 }
