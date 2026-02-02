@@ -45,7 +45,7 @@ class ProcedureWithStatementsCustomFieldConstraintValidator extends ConstraintVa
         $procedureId = $value->getSourceEntityId();
         $counts = $this->procedureService->getStatementsCounts([$procedureId]);
 
-        $statementCounts =  $counts[$procedureId] ?? 0;
+        $statementCounts = $counts[$procedureId] ?? 0;
 
         // Check if procedure has statements
         if ($statementCounts > 0) {
