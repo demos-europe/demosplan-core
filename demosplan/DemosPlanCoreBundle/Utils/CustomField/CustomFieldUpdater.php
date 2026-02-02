@@ -28,7 +28,6 @@ class CustomFieldUpdater
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly EntityCustomFieldUsageStrategyFactory $entityCustomFieldUsageStrategyFactory,
         private readonly ValidatorInterface $validator,
-
     ) {
     }
 
@@ -51,7 +50,6 @@ class CustomFieldUpdater
         if ($violations->count() > 0) {
             throw new InvalidArgumentException((string) $violations);
         }
-
 
         // Get the current CustomField object
         $customField = clone $customFieldConfiguration->getConfiguration();
