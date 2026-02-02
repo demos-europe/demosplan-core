@@ -281,7 +281,9 @@ class CustomFieldUpdaterTest extends UnitTestCase
 
         $customField1 = CustomFieldConfigurationFactory::new()
             ->withRelatedProcedure($procedure->_real())
-            ->asRadioButton('Color1')->create();
+            ->withRelatedTargetEntity('STATEMENT')
+            ->asMultiSelect('Color1')->create();
+
 
         $entityId = $customField1->getId();
         $attributes = ['name' => 'Updated Field Name'];

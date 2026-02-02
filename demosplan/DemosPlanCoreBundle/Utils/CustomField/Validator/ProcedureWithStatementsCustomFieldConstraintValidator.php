@@ -50,7 +50,7 @@ class ProcedureWithStatementsCustomFieldConstraintValidator extends ConstraintVa
         }
 
         if (CustomFieldSupportedEntity::procedure->value !== $sourceEntityClass
-            && CustomFieldSupportedEntity::statement->value !== $targetEntityClass) {
+            || CustomFieldSupportedEntity::statement->value !== $targetEntityClass) {
             return;
         }
 
