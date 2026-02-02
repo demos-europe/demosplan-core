@@ -217,6 +217,6 @@ class CustomFieldCreatorTest extends UnitTestCase
         $this->expectExceptionMessage($expectedErrorMessage);
 
         // Act
-        $result = $this->sut->createCustomField($this->attributes);
+        $this->sut->createCustomField($this->attributes);
     }
 }
