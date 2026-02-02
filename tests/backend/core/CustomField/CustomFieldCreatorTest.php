@@ -15,7 +15,6 @@ namespace Tests\Core\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
@@ -213,7 +212,7 @@ class CustomFieldCreatorTest extends UnitTestCase
         $statement = StatementFactory::createOne(
             [
                 'procedure' => $procedure->_real(),
-                'original' => $statementOriginal->_real(),
+                'original'  => $statementOriginal->_real(),
             ]);
         $attributes = [
             'fieldType'   => 'multiSelect',
@@ -237,7 +236,5 @@ class CustomFieldCreatorTest extends UnitTestCase
 
         // Act
         $result = $this->sut->createCustomField($attributes);
-
-
     }
 }
