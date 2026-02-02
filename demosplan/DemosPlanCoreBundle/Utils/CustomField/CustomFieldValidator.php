@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Constraint\ProcedureWithStatementsCustomFieldConstraint;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -33,7 +32,7 @@ abstract class CustomFieldValidator implements FieldTypeValidatorInterface
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-    private readonly ValidatorInterface $validator)
+        private readonly ValidatorInterface $validator)
     {
     }
 
