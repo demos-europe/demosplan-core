@@ -2402,8 +2402,13 @@ export default {
 
       const newState = element.classList.contains(this.prefixClass('is-active'))
       const layerid = (element.id === 'bplanSwitcher') ? this.bPlan.id : this.scope.id
+      const layerObj = this.layers().find(l => l.id === layerid)
 
-      this.updateLayerVisibility({ id: layerid, isVisible: newState })
+      if (layerObj) {
+        this.updateLayerVisibility({ id: layerid, isVisible: newState })
+      } else if (this.scope && this.scope.setVisible) {
+        this.scope.setVisible(newState)
+      }
     },
 
     /**
