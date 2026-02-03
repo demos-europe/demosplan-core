@@ -126,7 +126,7 @@ export default {
     }
 
     // Make sure, that custom fields are just displayed and not editable in the draft dialog
-    this.$on('open-statement-modal-from-list', (id, customFields) => {
+    this.$on('openStatementModalFromList', (id, customFields) => {
       if (customFields && customFields.length > 0) {
         this.$refs.statementModal.setCustomFieldsReadOnly(customFields)
       }

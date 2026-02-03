@@ -235,7 +235,7 @@ export default {
   },
 
   emits: [
-    'open-statement-modal-from-list',
+    'openStatementModalFromList',
   ],
 
   data () {
@@ -391,7 +391,7 @@ export default {
     handleOpenStatementModal (statementId) {
       const customFields = this.getCustomFieldsForStatement(statementId)
 
-      this.$parent.$emit('open-statement-modal-from-list', statementId, customFields)
+      this.$parent.$emit('openStatementModalFromList', statementId, customFields)
     },
 
     openMapModal (polygon) {

@@ -11,9 +11,9 @@
  * This is the entrypoint for new_public_participation_statement_confirm.html
  */
 
-import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import { DpDetails, DpModal } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
+import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 
 const components = {
   DpDetails,
