@@ -620,6 +620,9 @@ export default {
 
     /**
      * Fetch custom fields that are available either in the procedure or in the procedure template
+     * The payload structure differs depending on whether statement or segment custom fields are requested.
+     * The parameter `statementsCount` is only required when fetching statement custom fields,
+     * to disable multiSelect field creation and editing if there are existing statements to prevent data inconsistency.
      */
     fetchCustomFields () {
       const sourceEntity = this.isProcedureTemplate ?
@@ -632,7 +635,7 @@ export default {
           [sourceEntity]: [
             this.isStatementField ? 'statementCustomFields' : 'segmentCustomFields',
           ].join(),
-          // StatementsCount is needed to disable multiSelect field editing when there are existing statements
+          // StatementsCount is only needed to disable multiSelect field editing when there are existing statements
           ...(this.isStatementField && {
             AdminProcedure: ['statementCustomFields', 'statementsCount'].join(),
           }),
