@@ -2579,9 +2579,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:0.7.1":
-  version: 0.7.1
-  resolution: "@demos-europe/demosplan-ui@npm:0.7.1"
+"@demos-europe/demosplan-ui@npm:0.8.0":
+  version: 0.8.0
+  resolution: "@demos-europe/demosplan-ui@npm:0.8.0"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.6.0"
@@ -2635,7 +2635,7 @@ __metadata:
     vue-click-outside: "npm:^1.1.0"
     vue-multiselect: "npm:^3.1.0"
     vue-sliding-pagination: "npm:^v2.0.0-alpha-1"
-  checksum: 10c0/6fe1a8293c3ed9c4c7c5e4a61ed30afa16fb91aa22b639bf2637121a339eabf042b461716a8d18c55fba2626f9738c62db5e4696424b30286edf5f06b2b51b34
+  checksum: 10c0/4a33de1e72cbaa3ecd4224b8eee1e6d7c1f3b2c7011485bbc46784f1a5eb03cfe0adc7bd9b8718dc84946e35017b212c178d8e85df2a12cb255b4efaa8c45b35
   languageName: node
   linkType: hard
 
@@ -8000,7 +8000,7 @@ __metadata:
     "@carbon/icons-vue": "npm:10.99.1"
     "@carbon/vue": "npm:^3.0.27"
     "@cesium/engine": "npm:^20.0.1"
-    "@demos-europe/demosplan-ui": "npm:0.7.1"
+    "@demos-europe/demosplan-ui": "npm:0.8.0"
     "@demos-europe/dp-consent": "npm:^1.3"
     "@efrane/vuex-json-api": "npm:^0.1.3"
     "@eslint/js": "npm:^9.39.1"
