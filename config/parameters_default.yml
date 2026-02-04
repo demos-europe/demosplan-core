@@ -361,6 +361,8 @@ parameters:
 
     # should the azure Authentication be used?
     azure_sso_enabled: false
+    # and if, which customers?
+    azure_sso_customers: []
     # knpu_oauth2_client settings
     # oath client referenced by knpu_oauth2_client when oauth is used
     oauth_client: ''
