@@ -4033,7 +4033,7 @@ text.protocol.procedure.externaldesc.changed: "Öffentliche Verfahrensbeschreibu
 text.protocol.procedure.mapextent.changed: "Startkartenausschnitt geändert auf: {mapExtent}"
 text.protocol.procedure.name.changed: "Verfahrensname geändert von {oldName} in {newName}"
 text.protocol.procedure.public.name.changed: "Öffentlicher Verfahrensname geändert von {oldName} in {newName}"
-text.protocol.procedure.authorized.user.changed: "Autorisierte Benutzer*in wurden geändert. Autorisiert: {newAuthorizedUsers}."
+text.protocol.procedure.authorized.user.changed: "Autorisierte Nutzer*innen geändert von {oldAuthorizedUsers} in {newAuthorizedUsers}."
 text.protocol.procedure.coupled.sourceProcedure: "Dieses Verfahren wurde mit dem Verfahren \"{sourceProcedure}\" der Anhörungsbehörde \"{relatedInstitutionName}\" gekoppelt."
 text.protocol.procedure.coupled.targetProcedure: "Dieses Verfahren wurde mit dem Verfahren \"{targetProcedure}\" des Verfahrensträgers \"{relatedInstitutionName}\" gekoppelt."
 text.protocol.procedure.time.changed: "Zeitraum geändert von {oldStartDate} - {oldEndDate} in {newStartDate} - {newEndDate}"
