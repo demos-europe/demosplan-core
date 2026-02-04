@@ -88,7 +88,7 @@ class DemosPlanReportController extends BaseController
         $response = new StreamedResponse(
             static function () use ($procedureId, $reportMeta, $reportService, $permissions) {
                 $reportInfo = $reportService->getReportInfo($procedureId, $permissions);
-                $pdfReport = $reportService->generateProcedureReport($reportInfo, $reportMeta);
+                $pdfReport = $reportService->generateProcedureReport($procedureId, $reportInfo, $reportMeta);
                 $pdfReport->save('php://output');
             }
         );
