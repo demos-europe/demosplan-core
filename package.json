@@ -162,7 +162,7 @@
     "vue-eslint-parser": "^10.2.0",
     "vue-loader": "^17.4.2",
     "webpack": "^5.103.0",
-    "webpack-bundle-analyzer": "^5.0.1",
+    "webpack-bundle-analyzer": "^5.2.0",
     "webpack-manifest-plugin": "^5.0.0",
     "webpack-merge": "^6.0.1"
   },
