@@ -367,7 +367,7 @@ export default {
 
         rows.forEach((row, index) => {
           if (index < rows.length - 1) {
-            row.style.borderBottom = '1px solid #b5b5b5'
+            row.style.borderBottom = '1px solid #aeaeae'
           } else {
             row.style.borderBottom = 'none'
           }
