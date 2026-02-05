@@ -225,11 +225,18 @@
             <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
           </template>
           <template v-slot:tags="rowData">
+            <addon-wrapper
+              v-if="hasTagStyleAddon"
+              hook-name="tag.style"
+              :addon-props="{
+                tags: getTagsBySegment(rowData.id)
+              }"
+            />
             <span
+              v-else
               v-for="tag in getTagsBySegment(rowData.id)"
               :key="tag.id"
-              class="rounded-md"
-              style="color: #63667e; background: #EBE9E9; padding: 2px 4px; margin: 4px 2px; display: inline-block;"
+              class="rounded-md color--grey-dark bg-color--grey-light-2 px-1 py-0.5 mx-0.5 my-1 inline-block"
             >
               {{ tag.attributes.title }}
             </span>
@@ -336,8 +343,11 @@ import {
   tableSelectAllItems,
   VPopover,
 } from '@demos-europe/demosplan-ui'
+import * as demosplanUi from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CustomSearch from './CustomSearch'
+import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import FilterFlyout from './FilterFlyout'
 import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
 import ImageModal from '@DpJs/components/shared/ImageModal'
@@ -352,6 +362,7 @@ export default {
   name: 'SegmentsList',
 
   components: {
+    AddonWrapper,
     CustomSearch,
     DpBulkEditHeader,
     DpButton,
@@ -436,6 +447,8 @@ export default {
         limits: [10, 25, 50, 100],
         perPage: 10,
       },
+      demosplanUi,
+      hasTagStyleAddon: false,
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'statementStatus', label: Translator.trans('statement.status') },
@@ -1069,7 +1082,10 @@ export default {
     },
   },
 
-  mounted () {
+  async mounted () {
+    const addons = await loadAddonComponents('tag.style')
+    this.hasTagStyleAddon = addons.length > 0
+
     // Get queryHash from URL
     const hrefParts = globalThis.location.href.split('/')
     this.currentQueryHash = hrefParts[hrefParts.length - 1]
