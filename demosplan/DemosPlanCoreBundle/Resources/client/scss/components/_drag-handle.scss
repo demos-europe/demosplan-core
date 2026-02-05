@@ -1,0 +1,68 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2026-present DEMOS plan GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Drag/resize handle component
+
+.c-drag-handle {
+    bottom: 50%;
+    position: absolute;
+    cursor: grab;
+    pointer-events: all;
+    z-index: 1;
+    width: 20px;
+    height: 40px;
+    //transform: translateX(-14px);
+
+    // Direction-specific positioning
+    &--left {
+        padding-right: 14px;
+        transform: translateX(-14px);
+    }
+
+    &--right {
+        margin-top: -20px;
+        padding-left: 14px;
+        transform: translateX(14px);
+    }
+
+    // Inner container with background, shadow, and padding
+    &__inner {
+        position: relative;
+        height: 100%;
+        width: 100%;
+        background-color: $dp-color-white;
+        border-radius: 0 2px 2px 0;
+        box-shadow: 2px 3px 5px -2px #aaa;
+    }
+
+    // Grip indicator (vertical lines)
+    &__grip {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 4px;
+        height: 24px;
+
+        // Hex value is used because $dp-color-neutral-light-1 is too dark, $dp-color-neutral-light-2 too light.
+        border-left: 1px solid #cacaca;
+        border-right: 1px solid #cacaca;
+    }
+
+    @include media-query('palm') {
+        display: none;
+    }
+}
+
+
+
+
+
+
+
