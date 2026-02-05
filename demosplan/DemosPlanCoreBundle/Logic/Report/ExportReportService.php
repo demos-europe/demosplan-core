@@ -30,7 +30,7 @@ class ExportReportService extends CoreService
     /** @var array */
     private $styles;
 
-    public function __construct(private readonly GlobalConfigInterface $globalConfig, private readonly ReportMessageConverter $messageConverter, private readonly ReportRepository $reportRepository, private readonly TranslatorInterface $translator)
+    public function __construct(private readonly GlobalConfigInterface $globalConfig, private readonly ReportMessageConverter $messageConverter, private readonly ReportRepository $reportRepository, private readonly TranslatorInterface $translator, private readonly UrlGeneratorInterface $urlGenerator)
     {
         $this->initializeStyles();
     }
