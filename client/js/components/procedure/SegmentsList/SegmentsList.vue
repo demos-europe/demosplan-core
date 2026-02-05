@@ -140,6 +140,16 @@
           @select-all="handleSelectAll"
           @items-toggled="handleToggleItem"
         >
+          <template v-slot:header-tags>
+            <span class="inline-flex items-center">
+              {{ Translator.trans('segment.tags') }}
+              <addon-wrapper
+                v-if="hasTagStyleAddon"
+                hook-name="tag.extend.form"
+                :addon-props="{ demosplanUi, variant: 'icon-only' }"
+              />
+            </span>
+          </template>
           <template v-slot:externId="rowData">
             <v-popover trigger="hover focus">
               <div class="whitespace-nowrap">
