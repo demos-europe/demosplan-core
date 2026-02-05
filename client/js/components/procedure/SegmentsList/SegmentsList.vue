@@ -336,6 +336,7 @@
 </template>
 
 <script>
+import * as demosplanUi from '@demos-europe/demosplan-ui'
 import {
   CleanHtml,
   dpApi,
@@ -353,14 +354,13 @@ import {
   tableSelectAllItems,
   VPopover,
 } from '@demos-europe/demosplan-ui'
-import * as demosplanUi from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CustomSearch from './CustomSearch'
-import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import FilterFlyout from './FilterFlyout'
 import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
 import ImageModal from '@DpJs/components/shared/ImageModal'
+import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
