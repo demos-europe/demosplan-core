@@ -1,5 +1,13 @@
 <template>
   <dp-slidebar data-cy="layerFeatureInfoSidebar">
+    <template v-slot:dragHandle>
+      <dp-drag-handle
+        drag-target=".c-slidebar__container"
+        direction="left"
+        :magic-number="100"
+      />
+    </template>
+
     <div
       v-if="layersFeatureInfoResults?.length >= 1"
       class="flex items-baseline justify-between gap-2 mr-3 mb-4 max-w-full"
@@ -38,7 +46,7 @@
 </template>
 
 <script>
-import { DpButton, DpSlidebar, externalApi } from '@demos-europe/demosplan-ui'
+import { DpButton, DpDragHandle, DpSlidebar, externalApi, prefixClassMixin, } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
 import { TileWMS } from 'ol/source'
 
@@ -47,8 +55,11 @@ export default {
 
   components: {
     DpButton,
+    DpDragHandle,
     DpSlidebar,
   },
+
+  mixins: [prefixClassMixin],
 
   data () {
     return {
