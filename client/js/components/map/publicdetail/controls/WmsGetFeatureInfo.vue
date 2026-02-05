@@ -48,6 +48,7 @@
 <script>
 import { DpButton, DpDragHandle, DpSlidebar, externalApi, prefixClassMixin, } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
+import { mapGetters } from 'vuex'
 import { TileWMS } from 'ol/source'
 
 export default {
@@ -69,16 +70,21 @@ export default {
   },
 
   computed: {
+    ...mapGetters('Layers', [
+      'gisLayerList',
+      'isLayerVisible',
+    ]),
+
     currentLayerFeatureInfoResult () {
       if (!this.layersFeatureInfoResults?.length) return null
       return this.layersFeatureInfoResults[this.currentLayerFeatureInfoPage - 1]
     },
 
     visibleOverlayLayers () {
-      const allOverlayLayers = this.$store.getters['Layers/gisLayerList']('overlay')
+      const allOverlayLayers = this.gisLayerList('overlay')
 
       return allOverlayLayers.filter(layer => {
-        return this.$store.getters['Layers/isLayerVisible'](layer.id) &&
+        return this.isLayerVisible(layer.id) &&
           (layer.attributes.serviceType === 'wms')
       })
     },
