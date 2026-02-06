@@ -17,7 +17,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Constraint\ProcedureWithStatementsCustomFieldConstraint;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class CustomFieldValidator implements FieldTypeValidatorInterface
 {
@@ -28,7 +30,9 @@ abstract class CustomFieldValidator implements FieldTypeValidatorInterface
         'STATEMENT'          => Statement::class,
     ];
 
-    public function __construct(private readonly EntityManagerInterface $entityManager)
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly ValidatorInterface $validator)
     {
     }
 
@@ -55,6 +59,15 @@ abstract class CustomFieldValidator implements FieldTypeValidatorInterface
             $attributes['sourceEntity'],
             $attributes['sourceEntityId']
         );
+
+        $violations = $this->validator->validate(
+            $attributes,
+            [new ProcedureWithStatementsCustomFieldConstraint()]
+        );
+
+        if ($violations->count() > 0) {
+            throw new InvalidArgumentException((string) $violations);
+        }
     }
 
     private function validateFieldType(?string $fieldType): void

@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Added
+- Add edit functionality for custom fields of type multiSelect with a condition that the procedure has no statements yet.
+
 ## v4.28.0 (2026-01-28)
 ### Added
 - Enable GetFeatureInfo requests for visible WMS layers in the map
@@ -25,6 +28,7 @@
 
 ### Fixed
 - Check correct interface-checkbox state: 'checked' instead of 'disabled' (check whether interface has been activated, not whether procedure has been transmitted)
+
 
 ## v4.27.0 (2026-01-16)
 
