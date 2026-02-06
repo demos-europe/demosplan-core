@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "v4.14.2",
+  "version": "v4.14.3",
   "scripts": {
     "dev:blp": "cross-env ./fe build blp",
     "dev:bimschgsh": "cross-env ./fe build bimschgsh",

@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.14.3 (2026-02-06)
 ## v4.14.2 (2025-12-02)
 ## v4.14.0 (2025-09-15)
 - Add html paragraph import from odt files
