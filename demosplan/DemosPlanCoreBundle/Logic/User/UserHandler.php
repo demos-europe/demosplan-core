@@ -52,9 +52,9 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
@@ -90,8 +90,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      * Maps org type to the role that should be granted procedure creation permission on approval.
      */
     private const ORGA_TYPE_TO_PROCEDURE_CREATION_ROLE = [
-        OrgaTypeInterface::MUNICIPALITY            => RoleInterface::PLANNING_AGENCY_ADMIN,
-        OrgaTypeInterface::PLANNING_AGENCY         => RoleInterface::PRIVATE_PLANNING_AGENCY,
+        OrgaTypeInterface::MUNICIPALITY             => RoleInterface::PLANNING_AGENCY_ADMIN,
+        OrgaTypeInterface::PLANNING_AGENCY          => RoleInterface::PRIVATE_PLANNING_AGENCY,
         OrgaTypeInterface::HEARING_AUTHORITY_AGENCY => RoleInterface::HEARING_AUTHORITY_ADMIN,
     ];
 
