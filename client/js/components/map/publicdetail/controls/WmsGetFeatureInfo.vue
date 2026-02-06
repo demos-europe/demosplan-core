@@ -1,5 +1,12 @@
 <template>
   <dp-slidebar data-cy="layerFeatureInfoSidebar">
+    <template v-slot:dragHandle>
+      <dp-unfold-toolbar-control
+        drag-target=".c-slidebar__container"
+        direction="left"
+      />
+    </template>
+
     <div
       v-if="layersFeatureInfoResults?.length >= 1"
       class="flex items-baseline justify-between gap-2 mr-3 mb-4 max-w-full"
@@ -40,6 +47,7 @@
 <script>
 import { DpButton, DpSlidebar, externalApi } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
+import DpUnfoldToolbarControl from './DpUnfoldToolbarControl'
 import { mapGetters } from 'vuex'
 import { TileWMS } from 'ol/source'
 
@@ -49,6 +57,7 @@ export default {
   components: {
     DpButton,
     DpSlidebar,
+    DpUnfoldToolbarControl,
   },
 
   data () {
