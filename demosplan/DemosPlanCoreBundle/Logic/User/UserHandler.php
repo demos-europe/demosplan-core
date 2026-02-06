@@ -12,6 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -49,6 +52,7 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
@@ -82,6 +86,15 @@ use Twig\Error\SyntaxError;
 
 class UserHandler extends CoreHandler implements UserHandlerInterface
 {
+    /**
+     * Maps org type to the role that should be granted procedure creation permission on approval.
+     */
+    private const ORGA_TYPE_TO_PROCEDURE_CREATION_ROLE = [
+        OrgaTypeInterface::MUNICIPALITY            => RoleInterface::PLANNING_AGENCY_ADMIN,
+        OrgaTypeInterface::PLANNING_AGENCY         => RoleInterface::PRIVATE_PLANNING_AGENCY,
+        OrgaTypeInterface::HEARING_AUTHORITY_AGENCY => RoleInterface::HEARING_AUTHORITY_ADMIN,
+    ];
+
     /**
      * @var MailService
      */
@@ -132,6 +145,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     protected $orgaHandler;
 
     public function __construct(
+        private readonly AccessControlService $accessControlService,
         private readonly ContentService $contentService,
         CustomerService $customerService,
         DraftStatementService $draftStatementService,
@@ -2103,7 +2117,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      *
      * @throws Exception
      */
-    public function ensureMinimalRoles(Orga $orga, string $orgaTypeName, array $customers)
+    public function ensureMinimalRoles(Orga $orga, string $orgaTypeName, array $customers): void
     {
         $minimumRoles = [
             OrgaType::MUNICIPALITY             => Role::PLANNING_AGENCY_ADMIN,
@@ -2142,6 +2156,50 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                     ['orga' => $orga->getName(), 'orgaId' => $orga->getId(), 'customer' => $customer->getName()]
                 );
             }
+        }
+    }
+
+    /**
+     * Creates access_control records for an organization that was recently approved.
+     * Mirrors the pattern of manageMinimalRoles().
+     *
+     * @param Customer[] $customersPendingActivation customers that were pending before the update
+     */
+    public function manageAccessControlOnApproval(Orga $orga, string $orgaTypeName, array $customersPendingActivation, ?Customer $currentCustomer): void
+    {
+        $customersAccepted = $this->getCustomersWithRecentActivationChanges(
+            $orga,
+            $orgaTypeName,
+            OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
+            $customersPendingActivation,
+            $currentCustomer
+        );
+
+        $this->ensureAccessControlOnApproval($orga, $orgaTypeName, $customersAccepted);
+    }
+
+    /**
+     * For each recently accepted customer, creates an access_control record
+     * granting the procedure creation permission to the appropriate role.
+     *
+     * @param Customer[] $customers customers that changed from pending to accepted
+     */
+    private function ensureAccessControlOnApproval(Orga $orga, string $orgaTypeName, array $customers): void
+    {
+        if (!array_key_exists($orgaTypeName, self::ORGA_TYPE_TO_PROCEDURE_CREATION_ROLE)) {
+            return;
+        }
+
+        $roleCode = self::ORGA_TYPE_TO_PROCEDURE_CREATION_ROLE[$orgaTypeName];
+
+        foreach ($customers as $customer) {
+            $this->accessControlService->addPermissionToGivenRole($orga, $customer, $roleCode);
+            $this->logger->info('Ensured access_control record on approval', [
+                'orga'     => $orga->getName(),
+                'orgaType' => $orgaTypeName,
+                'role'     => $roleCode,
+                'customer' => $customer->getName(),
+            ]);
         }
     }
 

@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
@@ -404,9 +405,10 @@ class DemosPlanOrganisationAPIController extends APIController
             $orgaHandler->checkWritabilityOfAttributes($orgaDataArray['attributes']);
 
             $pendingStatus = OrgaStatusInCustomer::STATUS_PENDING;
-            $customersWithPendingInvitableInstitution = $preUpdateOrga->getCustomersByActivationStatus(OrgaType::PUBLIC_AGENCY, $pendingStatus);
-            $customersWithPendingPlanner = $preUpdateOrga->getCustomersByActivationStatus(OrgaType::MUNICIPALITY, $pendingStatus);
-            $customersWithPendingPlanningAgency = $preUpdateOrga->getCustomersByActivationStatus(OrgaType::PLANNING_AGENCY, $pendingStatus);
+            $customersWithPendingInvitableInstitution = $preUpdateOrga->getCustomersByActivationStatus(OrgaTypeInterface::PUBLIC_AGENCY, $pendingStatus);
+            $customersWithPendingPlanner = $preUpdateOrga->getCustomersByActivationStatus(OrgaTypeInterface::MUNICIPALITY, $pendingStatus);
+            $customersWithPendingPlanningAgency = $preUpdateOrga->getCustomersByActivationStatus(OrgaTypeInterface::PLANNING_AGENCY, $pendingStatus);
+            $customersWithPendingHearingAuthority = $preUpdateOrga->getCustomersByActivationStatus(OrgaTypeInterface::HEARING_AUTHORITY_AGENCY, $pendingStatus);
             if (is_array($orgaDataArray['attributes']) && array_key_exists('showlist', $orgaDataArray['attributes'])) {
                 // explicitly set that show list may be updated
                 $userHandler->setCanUpdateShowList(true);
@@ -445,13 +447,19 @@ class DemosPlanOrganisationAPIController extends APIController
                 $canManageAllOrgas = $permissions->hasPermission('area_manage_orgas_all');
                 $currentCustomer = $canManageAllOrgas ? null : $customerHandler->getCurrentCustomer();
 
-                $userHandler->manageMinimalRoles($updatedOrga, OrgaType::PUBLIC_AGENCY, $customersWithPendingInvitableInstitution, $currentCustomer);
-                $userHandler->manageMinimalRoles($updatedOrga, OrgaType::MUNICIPALITY, $customersWithPendingPlanner, $currentCustomer);
-                $userHandler->manageMinimalRoles($updatedOrga, OrgaType::PLANNING_AGENCY, $customersWithPendingPlanningAgency, $currentCustomer);
+                $userHandler->manageMinimalRoles($updatedOrga, OrgaTypeInterface::PUBLIC_AGENCY, $customersWithPendingInvitableInstitution, $currentCustomer);
+                $userHandler->manageMinimalRoles($updatedOrga, OrgaTypeInterface::MUNICIPALITY, $customersWithPendingPlanner, $currentCustomer);
+                $userHandler->manageMinimalRoles($updatedOrga, OrgaTypeInterface::PLANNING_AGENCY, $customersWithPendingPlanningAgency, $currentCustomer);
+                $userHandler->manageMinimalRoles($updatedOrga, OrgaTypeInterface::HEARING_AUTHORITY_AGENCY, $customersWithPendingHearingAuthority, $currentCustomer);
 
-                $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaType::PUBLIC_AGENCY, $customersWithPendingInvitableInstitution, $currentCustomer);
-                $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaType::MUNICIPALITY, $customersWithPendingPlanner, $currentCustomer);
-                $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaType::PLANNING_AGENCY, $customersWithPendingPlanningAgency, $currentCustomer);
+                $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaTypeInterface::PUBLIC_AGENCY, $customersWithPendingInvitableInstitution, $currentCustomer);
+                $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaTypeInterface::MUNICIPALITY, $customersWithPendingPlanner, $currentCustomer);
+                $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaTypeInterface::PLANNING_AGENCY, $customersWithPendingPlanningAgency, $currentCustomer);
+                $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaTypeInterface::HEARING_AUTHORITY_AGENCY, $customersWithPendingHearingAuthority, $currentCustomer);
+
+                $userHandler->manageAccessControlOnApproval($updatedOrga, OrgaTypeInterface::MUNICIPALITY, $customersWithPendingPlanner, $currentCustomer);
+                $userHandler->manageAccessControlOnApproval($updatedOrga, OrgaTypeInterface::PLANNING_AGENCY, $customersWithPendingPlanningAgency, $currentCustomer);
+                $userHandler->manageAccessControlOnApproval($updatedOrga, OrgaTypeInterface::HEARING_AUTHORITY_AGENCY, $customersWithPendingHearingAuthority, $currentCustomer);
 
                 $item = $this->resourceService->makeItemOfResource($updatedOrga, OrgaResourceType::getName());
 
