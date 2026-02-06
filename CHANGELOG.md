@@ -9,6 +9,7 @@
 ### Added
 - Add edit functionality for custom fields of type multiSelect with a condition that the procedure has no statements yet.
 
+## v4.29.0 (2026-02-06)
 ## v4.28.0 (2026-01-28)
 ### Added
 - Enable GetFeatureInfo requests for visible WMS layers in the map

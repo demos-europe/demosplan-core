@@ -423,7 +423,7 @@ export default {
   },
 
   emits: [
-    'showSlidebar',
+    'show-slidebar',
   ],
 
   data () {
@@ -1031,7 +1031,7 @@ export default {
 
     showVersionHistory (segmentId, externId) {
       this.$root.$emit('version:history', segmentId, 'segment', externId)
-      this.$root.$emit('showSlidebar')
+      this.$root.$emit('show-slidebar')
     },
 
     updateQueryHash () {
