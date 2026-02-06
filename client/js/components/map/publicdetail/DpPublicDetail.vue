@@ -8,7 +8,7 @@
 </license>
 
 <script>
-import { DpContextualHelp, DpDragHandle, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
 import CustomLayer from '@DpJs/components/map/publicdetail/controls/CustomLayer'
 import { defineAsyncComponent } from 'vue'
@@ -24,7 +24,6 @@ export default {
   components: {
     DpContextualHelp,
     'dp-custom-layer': CustomLayer,
-    DpDragHandle,
     DpLayerLegend,
     'dp-map': Map,
     'dp-map-tools': MapTools,
