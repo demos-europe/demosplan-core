@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "809a677632501ec5616a46faccafc57a",
+    "content-hash": "34d5220beb2b29409ac058f45f9d6265",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -683,72 +683,6 @@
                 "source": "https://github.com/cebe/php-openapi"
             },
             "time": "2025-05-07T08:44:12+00:00"
-        },
-        {
-            "name": "clue/stream-filter",
-            "version": "v1.7.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/clue/stream-filter.git",
-                "reference": "049509fef80032cb3f051595029ab75b49a3c2f7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/clue/stream-filter/zipball/049509fef80032cb3f051595029ab75b49a3c2f7",
-                "reference": "049509fef80032cb3f051595029ab75b49a3c2f7",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^9.6 || ^5.7 || ^4.8.36"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "src/functions_include.php"
-                ],
-                "psr-4": {
-                    "Clue\\StreamFilter\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Christian Lück",
-                    "email": "christian@clue.engineering"
-                }
-            ],
-            "description": "A simple and modern approach to stream filtering in PHP",
-            "homepage": "https://github.com/clue/stream-filter",
-            "keywords": [
-                "bucket brigade",
-                "callback",
-                "filter",
-                "php_user_filter",
-                "stream",
-                "stream_filter_append",
-                "stream_filter_register"
-            ],
-            "support": {
-                "issues": "https://github.com/clue/stream-filter/issues",
-                "source": "https://github.com/clue/stream-filter/tree/v1.7.0"
-            },
-            "funding": [
-                {
-                    "url": "https://clue.engineering/support",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/clue",
-                    "type": "github"
-                }
-            ],
-            "time": "2023-12-20T15:40:13+00:00"
         },
         {
             "name": "cocur/slugify",
@@ -10156,71 +10090,6 @@
             "time": "2026-01-16T12:34:27+00:00"
         },
         {
-            "name": "php-http/curl-client",
-            "version": "2.4.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-http/curl-client.git",
-                "reference": "f59d6992065f44be8b8fb484dd678a919c27dbf2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-http/curl-client/zipball/f59d6992065f44be8b8fb484dd678a919c27dbf2",
-                "reference": "f59d6992065f44be8b8fb484dd678a919c27dbf2",
-                "shasum": ""
-            },
-            "require": {
-                "ext-curl": "*",
-                "php": "^8.1",
-                "php-http/discovery": "^1.6",
-                "php-http/httplug": "^2.0",
-                "php-http/message": "^1.2",
-                "psr/http-client": "^1.0",
-                "psr/http-factory-implementation": "^1.0",
-                "symfony/options-resolver": "^3.4 || ^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0"
-            },
-            "provide": {
-                "php-http/async-client-implementation": "1.0",
-                "php-http/client-implementation": "1.0",
-                "psr/http-client-implementation": "1.0"
-            },
-            "require-dev": {
-                "guzzlehttp/psr7": "^2.0",
-                "laminas/laminas-diactoros": "^2.0 || ^3.0",
-                "php-http/client-integration-tests": "^4.0",
-                "php-http/message-factory": "^1.1",
-                "phpunit/phpunit": "^9.6.17 || ^10.0 || ^11.0 || ^12.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Http\\Client\\Curl\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Михаил Красильников",
-                    "email": "m.krasilnikov@yandex.ru"
-                }
-            ],
-            "description": "PSR-18 and HTTPlug Async client with cURL",
-            "homepage": "http://php-http.org",
-            "keywords": [
-                "curl",
-                "http",
-                "psr-18"
-            ],
-            "support": {
-                "issues": "https://github.com/php-http/curl-client/issues",
-                "source": "https://github.com/php-http/curl-client/tree/2.4.0"
-            },
-            "time": "2025-12-09T12:02:56+00:00"
-        },
-        {
             "name": "php-http/discovery",
             "version": "1.20.0",
             "source": {
@@ -10355,75 +10224,6 @@
                 "source": "https://github.com/php-http/httplug/tree/2.4.1"
             },
             "time": "2024-09-23T11:39:58+00:00"
-        },
-        {
-            "name": "php-http/message",
-            "version": "1.16.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-http/message.git",
-                "reference": "06dd5e8562f84e641bf929bfe699ee0f5ce8080a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-http/message/zipball/06dd5e8562f84e641bf929bfe699ee0f5ce8080a",
-                "reference": "06dd5e8562f84e641bf929bfe699ee0f5ce8080a",
-                "shasum": ""
-            },
-            "require": {
-                "clue/stream-filter": "^1.5",
-                "php": "^7.2 || ^8.0",
-                "psr/http-message": "^1.1 || ^2.0"
-            },
-            "provide": {
-                "php-http/message-factory-implementation": "1.0"
-            },
-            "require-dev": {
-                "ergebnis/composer-normalize": "^2.6",
-                "ext-zlib": "*",
-                "guzzlehttp/psr7": "^1.0 || ^2.0",
-                "laminas/laminas-diactoros": "^2.0 || ^3.0",
-                "php-http/message-factory": "^1.0.2",
-                "phpspec/phpspec": "^5.1 || ^6.3 || ^7.1",
-                "slim/slim": "^3.0"
-            },
-            "suggest": {
-                "ext-zlib": "Used with compressor/decompressor streams",
-                "guzzlehttp/psr7": "Used with Guzzle PSR-7 Factories",
-                "laminas/laminas-diactoros": "Used with Diactoros Factories",
-                "slim/slim": "Used with Slim Framework PSR-7 implementation"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "src/filters.php"
-                ],
-                "psr-4": {
-                    "Http\\Message\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Márk Sági-Kazár",
-                    "email": "mark.sagikazar@gmail.com"
-                }
-            ],
-            "description": "HTTP Message related tools",
-            "homepage": "http://php-http.org",
-            "keywords": [
-                "http",
-                "message",
-                "psr-7"
-            ],
-            "support": {
-                "issues": "https://github.com/php-http/message/issues",
-                "source": "https://github.com/php-http/message/tree/1.16.2"
-            },
-            "time": "2024-10-02T11:34:13+00:00"
         },
         {
             "name": "php-http/promise",
@@ -19963,86 +19763,76 @@
         },
         {
             "name": "willdurand/geocoder-bundle",
-            "version": "5.23.0",
+            "version": "6.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/geocoder-php/BazingaGeocoderBundle.git",
-                "reference": "e9d698bbef2c9ceee819a0020d1bf093c5a84d18"
+                "reference": "c463452d84ace7482ce676ae1269ffe6e53405a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/geocoder-php/BazingaGeocoderBundle/zipball/e9d698bbef2c9ceee819a0020d1bf093c5a84d18",
-                "reference": "e9d698bbef2c9ceee819a0020d1bf093c5a84d18",
+                "url": "https://api.github.com/repos/geocoder-php/BazingaGeocoderBundle/zipball/c463452d84ace7482ce676ae1269ffe6e53405a9",
+                "reference": "c463452d84ace7482ce676ae1269ffe6e53405a9",
                 "shasum": ""
             },
             "require": {
-                "geocoder-php/plugin": "^1.5",
-                "php": "^7.4 || ^8.0",
-                "php-http/curl-client": "^2.3",
-                "php-http/discovery": "^1.14",
-                "symfony/console": "^5.4 || ^6.4 || ^7.0",
-                "symfony/framework-bundle": "^5.4 || ^6.4 || ^7.0",
-                "symfony/options-resolver": "^5.4 || ^6.4 || ^7.0",
+                "geocoder-php/plugin": "^1.6",
+                "php": "^8.1",
+                "php-http/discovery": "^1.20",
+                "symfony/console": "^6.4 || ^7.0 || ^8.0",
+                "symfony/framework-bundle": "^6.4 || ^7.0 || ^8.0",
+                "symfony/options-resolver": "^6.4 || ^7.0 || ^8.0",
                 "willdurand/geocoder": "^4.6|^5.0"
             },
-            "conflict": {
-                "geocoder-php/nominatim-provider": "<5.0"
-            },
             "require-dev": {
-                "doctrine/annotations": "^1.11.1 || ^2.0",
-                "doctrine/doctrine-bundle": "^2.3",
-                "doctrine/orm": "^2.8 || ^3.0",
-                "fakerphp/faker": "^1.20",
-                "friendsofphp/php-cs-fixer": "^3.13",
-                "geocoder-php/algolia-places-provider": "^0.4",
-                "geocoder-php/arcgis-online-provider": "^4.4",
-                "geocoder-php/bing-maps-provider": "^4.3",
-                "geocoder-php/cache-provider": "^4.4.0",
-                "geocoder-php/chain-provider": "^4.5",
-                "geocoder-php/free-geoip-provider": "^4.5",
-                "geocoder-php/geo-plugin-provider": "^4.3",
-                "geocoder-php/geoip2-provider": "^4.3",
-                "geocoder-php/geoips-provider": "^4.0",
-                "geocoder-php/geonames-provider": "^4.4",
-                "geocoder-php/google-maps-places-provider": "^1.4",
-                "geocoder-php/google-maps-provider": "^4.7",
-                "geocoder-php/here-provider": "^0.7",
-                "geocoder-php/host-ip-provider": "^4.4",
-                "geocoder-php/ip-info-db-provider": "^4.3",
-                "geocoder-php/ip-info-provider": "^0.4",
-                "geocoder-php/ipstack-provider": "^0.4",
-                "geocoder-php/locationiq-provider": "^1.4",
-                "geocoder-php/mapbox-provider": "^1.4",
-                "geocoder-php/mapquest-provider": "^4.3",
-                "geocoder-php/mapzen-provider": "^4.0",
-                "geocoder-php/maxmind-binary-provider": "^4.3",
-                "geocoder-php/maxmind-provider": "^4.4",
-                "geocoder-php/nominatim-provider": "^5.6",
-                "geocoder-php/open-cage-provider": "^4.6",
-                "geocoder-php/openrouteservice-provider": "^1.3",
-                "geocoder-php/pickpoint-provider": "^4.3",
-                "geocoder-php/tomtom-provider": "^4.4",
-                "geocoder-php/yandex-provider": "^4.5",
-                "geoip/geoip": "~1.17",
-                "nyholm/nsa": "^1.3",
-                "nyholm/psr7": "^1.5",
-                "nyholm/symfony-bundle-test": "^2.0 || ^3.0",
-                "php-http/message": "^1.13",
-                "php-http/mock-client": "^1.6",
-                "phpstan/phpstan": "^1.9.2",
-                "psr/http-client": "^1.0",
-                "psr/simple-cache": "^1.0 || ^2.0",
-                "symfony/cache": "^5.4 || ^6.4 || ^7.0",
-                "symfony/config": "^5.4 || ^6.4 || ^7.0",
-                "symfony/phpunit-bridge": "^5.4 || ^6.4 || ^7.0",
-                "symfony/validator": "^5.4 || ^6.4 || ^7.0",
-                "symfony/var-exporter": "^5.4 || ^6.4 || ^7.0",
-                "symfony/yaml": "^5.4 || ^6.4 || ^7.0"
+                "doctrine/doctrine-bundle": "^2.18 || ^3.0",
+                "doctrine/orm": "^2.20 || ^3.0",
+                "fakerphp/faker": "^1.24.1",
+                "friendsofphp/php-cs-fixer": "^3.92.4",
+                "geocoder-php/algolia-places-provider": "^0.5",
+                "geocoder-php/arcgis-online-provider": "^4.5",
+                "geocoder-php/bing-maps-provider": "^4.4",
+                "geocoder-php/cache-provider": "^4.5.0",
+                "geocoder-php/chain-provider": "^4.6",
+                "geocoder-php/free-geoip-provider": "^4.6",
+                "geocoder-php/geo-plugin-provider": "^4.4",
+                "geocoder-php/geoip2-provider": "^4.4",
+                "geocoder-php/geonames-provider": "^4.5",
+                "geocoder-php/google-maps-places-provider": "^1.5",
+                "geocoder-php/google-maps-provider": "^4.8",
+                "geocoder-php/here-provider": "^0.8",
+                "geocoder-php/host-ip-provider": "^4.5",
+                "geocoder-php/ip-info-db-provider": "^4.4",
+                "geocoder-php/ip-info-provider": "^0.5",
+                "geocoder-php/ipstack-provider": "^0.5",
+                "geocoder-php/locationiq-provider": "^1.5",
+                "geocoder-php/mapbox-provider": "^1.5",
+                "geocoder-php/mapquest-provider": "^4.4",
+                "geocoder-php/maxmind-provider": "^4.5",
+                "geocoder-php/nominatim-provider": "^5.8",
+                "geocoder-php/open-cage-provider": "^4.7",
+                "geocoder-php/openrouteservice-provider": "^1.4",
+                "geocoder-php/pickpoint-provider": "^4.4",
+                "geocoder-php/tomtom-provider": "^4.5",
+                "geocoder-php/yandex-provider": "^4.6",
+                "nyholm/nsa": "^1.3.1",
+                "nyholm/psr7": "^1.8.2",
+                "nyholm/symfony-bundle-test": "^3.1",
+                "phpstan/phpstan": "^2.1.33",
+                "psr/http-client": "^1.0.3",
+                "psr/simple-cache": "^1.0 || ^2.0 || ^3.0",
+                "symfony/cache": "^6.4 || ^7.0 || ^8.0",
+                "symfony/config": "^6.4 || ^7.0 || ^8.0",
+                "symfony/http-client": "^6.4 || ^7.0 || ^8.0",
+                "symfony/phpunit-bridge": "^6.4 || ^7.0 || ^8.0",
+                "symfony/validator": "^6.4 || ^7.0 || ^8.0",
+                "symfony/var-exporter": "^6.4 || ^7.0 || ^8.0",
+                "symfony/yaml": "^6.4 || ^7.0 || ^8.0"
             },
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "5.0-dev"
+                    "dev-master": "6.0-dev"
                 }
             },
             "autoload": {
@@ -20067,9 +19857,9 @@
             ],
             "support": {
                 "issues": "https://github.com/geocoder-php/BazingaGeocoderBundle/issues",
-                "source": "https://github.com/geocoder-php/BazingaGeocoderBundle/tree/5.23.0"
+                "source": "https://github.com/geocoder-php/BazingaGeocoderBundle/tree/6.0.0"
             },
-            "time": "2025-05-13T06:25:38+00:00"
+            "time": "2026-01-05T07:15:35+00:00"
         },
         {
             "name": "willdurand/js-translation-bundle",
@@ -25521,7 +25311,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
@@ -25549,9 +25339,9 @@
         "ext-zip": "*",
         "ext-zlib": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.2.0"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }

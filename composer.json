@@ -144,7 +144,7 @@
     "symfony/yaml": "6.*.*",
     "thenetworg/oauth2-azure": "^2.2",
     "wgirhad/geophp": "^3.0",
-    "willdurand/geocoder-bundle": "^5.16",
+    "willdurand/geocoder-bundle": "^6.0",
     "willdurand/js-translation-bundle": "~7.0"
   },
   "require-dev": {
