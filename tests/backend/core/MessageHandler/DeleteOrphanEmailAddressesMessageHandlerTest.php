@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\MessageHandler;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\EmailAddressService;
 use demosplan\DemosPlanCoreBundle\Message\DeleteOrphanEmailAddressesMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\DeleteOrphanEmailAddressesMessageHandler;
@@ -22,6 +23,7 @@ use Tests\Base\UnitTestCase;
 class DeleteOrphanEmailAddressesMessageHandlerTest extends UnitTestCase
 {
     private ?EmailAddressService $emailAddressService = null;
+    private ?PermissionsInterface $permissions = null;
     private ?LoggerInterface $logger = null;
     private ?DeleteOrphanEmailAddressesMessageHandler $sut = null;
 
@@ -30,10 +32,12 @@ class DeleteOrphanEmailAddressesMessageHandlerTest extends UnitTestCase
         parent::setUp();
 
         $this->emailAddressService = $this->createMock(EmailAddressService::class);
+        $this->permissions = $this->createMock(PermissionsInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->sut = new DeleteOrphanEmailAddressesMessageHandler(
             $this->emailAddressService,
+            $this->permissions,
             $this->logger
         );
     }

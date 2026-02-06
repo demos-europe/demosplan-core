@@ -13,8 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent;
 use demosplan\DemosPlanCoreBundle\Message\DailyMaintenanceEventMessage;
+use demosplan\DemosPlanCoreBundle\Traits\InitializesAnonymousUserPermissionsTrait;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -23,14 +25,19 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[AsMessageHandler]
 final class DailyMaintenanceEventMessageHandler
 {
+    use InitializesAnonymousUserPermissionsTrait;
+
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly PermissionsInterface $permissions,
         private readonly LoggerInterface $logger,
     ) {
     }
 
     public function __invoke(DailyMaintenanceEventMessage $message): void
     {
+        $this->initializeAnonymousUserPermissions();
+
         try {
             $event = new DailyMaintenanceEvent();
             $this->eventDispatcher->dispatch($event, DailyMaintenanceEventInterface::class);
