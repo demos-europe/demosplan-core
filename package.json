@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "demosplan-core",
-  "version": "v4.27.0",
+  "version": "v4.29.0",
   "scripts": {
     "dev:blp": "cross-env ./fe build blp",
     "dev:bimschgsh": "cross-env ./fe build bimschgsh",
