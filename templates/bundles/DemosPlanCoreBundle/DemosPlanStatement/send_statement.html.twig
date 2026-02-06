@@ -22,7 +22,7 @@
             } %}
             {% set sendRoute = sendRouteMap[templateVars.statementType] ?? 'DemosPlan_statement_draft_send' %}
 
-            <form action="{{ path(sendRoute, {'procedure': procedure, 'statementID': templateVars.statementID}) }}" method="post" name="emailForm" data-dp-validate>
+            <form action="{{ path(sendRoute, {procedure: procedure, statementID: templateVars.statementID}) }}" method="post" name="emailForm" data-dp-validate>
                 <input type="hidden" name="statementID" value="{{ templateVars.statementID }}">
                 {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
