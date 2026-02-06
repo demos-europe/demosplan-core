@@ -1,5 +1,8 @@
 <template>
-  <dp-slidebar data-cy="layerFeatureInfoSidebar">
+  <dp-slidebar
+    ref="slidebar"
+    data-cy="layerFeatureInfoSidebar"
+  >
     <template v-slot:dragHandle>
       <dp-unfold-toolbar-control
         drag-target=".c-slidebar__container"
@@ -247,9 +250,9 @@ export default {
           this.layersFeatureInfoResults = sanitizedResults
 
           if (this.layersFeatureInfoResults.length > 0) {
-            this.$root.$emit('show-slidebar')
+            this.$refs.slidebar.showSlideBar()
           } else {
-            this.$root.$emit('hide-slidebar')
+            this.$refs.slidebar.hideSlideBar()
             dplan.notify.notify('info', Translator.trans('map.getfeatureinfo.none'))
           }
         })
