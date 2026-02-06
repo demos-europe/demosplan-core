@@ -1439,7 +1439,7 @@ class DraftStatementService
             $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
 
             // Base Filters to apply always
-            $boolQuery->addMust(new Terms('_id', $ids));
+            $boolQuery->addMust(new Terms('_id', \array_values($ids)));
 
             // generate Query
             $query = new Query();

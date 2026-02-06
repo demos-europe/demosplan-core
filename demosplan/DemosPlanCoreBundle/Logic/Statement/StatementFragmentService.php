@@ -1241,7 +1241,7 @@ class StatementFragmentService
                     if ('statementId' === $filterName) {
                         // special handling for the statement IDs to avoid errors regarding max clause count
                         // and query length problems for many statement
-                        $boolMustFilter[] = new Terms($filterName, $filterKeys);
+                        $boolMustFilter[] = new Terms($filterName, \array_values($filterKeys));
                     } else {
                         // for each filter with multiple options we need a distinct should
                         // query as filters should only be ORed within one field
