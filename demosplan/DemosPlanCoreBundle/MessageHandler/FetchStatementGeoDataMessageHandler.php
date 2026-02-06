@@ -11,8 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Message\FetchStatementGeoDataMessage;
+use demosplan\DemosPlanCoreBundle\Traits\InitializesAnonymousUserPermissionsTrait;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -20,15 +22,20 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final class FetchStatementGeoDataMessageHandler
 {
+    use InitializesAnonymousUserPermissionsTrait;
+
     public function __construct(
         private readonly StatementService $statementService,
         private readonly GlobalConfigInterface $globalConfig,
+        private readonly PermissionsInterface $permissions,
         private readonly LoggerInterface $logger,
     ) {
     }
 
     public function __invoke(FetchStatementGeoDataMessage $message): void
     {
+        $this->initializeAnonymousUserPermissions();
+
         try {
             if (true === $this->globalConfig->getUseFetchAdditionalGeodata()) {
                 $this->logger->info('Fetch Statement Geodata... ', [spl_object_id($message)]);

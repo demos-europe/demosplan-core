@@ -2239,6 +2239,11 @@ feature_statement_to_entire_document:
     label: 'Neue Stellungnahme zu gesamten Planungsdokument'
     loginRequired: false
     parent: feature_statement
+feature_statements_custom_fields:
+    description: 'Allow statement fields in public view'
+    expose: true
+    label: 'Allow statement fields in public view'
+    loginRequired: false
 feature_statements_draft_delete:
     expose: true
     label: 'Stell. Entwuerfe Loeschen'
@@ -2760,6 +2765,11 @@ field_segment_assignee_filter:
 field_segments_custom_fields:
     description: 'Allow to add and edit custom fields to segments'
     label: 'Custom fields for segments'
+    expose: true
+    loginRequired: true
+field_statements_custom_fields:
+    description: 'Allow to add and edit custom fields to statements'
+    label: 'Custom fields for statements'
     expose: true
     loginRequired: true
 field_send_final_email:

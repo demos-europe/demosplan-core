@@ -13,17 +13,22 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use ReflectionClass;
+use ReflectionProperty;
 
 /**
- * Provide the generalized hashing functionality for stored queries.
+ * Base class that validates custom field options
+ * and requires subclasses to implement value validation.
  */
 abstract class AbstractCustomField implements CustomFieldInterface
 {
+    protected string $id = '';
+
     protected string $name = '';
 
-    protected string $description = '';
+    protected string $fieldType = '';
 
-    abstract public function isValueValid(string $value): bool;
+    protected string $description = '';
 
     abstract protected function validateFieldSpecific(array $options): void;
 
@@ -61,5 +66,57 @@ abstract class AbstractCustomField implements CustomFieldInterface
                     throw new InvalidArgumentException("Invalid option ID: {$id}");
                 }
             });
+    }
+
+    public function getApiAttributes(): array
+    {
+        // static::class gets the name of the actual class being used, not the parent class
+        // For example: if MultiSelectField calls this method, static::class = "MultiSelectField"
+        // This lets us inspect the right class properties even though the method is in AbstractCustomField
+        $reflection = new ReflectionClass(static::class);
+        $properties = $reflection->getProperties(ReflectionProperty::IS_PROTECTED | ReflectionProperty::IS_PUBLIC);
+
+        $attributes = [];
+        foreach ($properties as $property) {
+            $name = $property->getName();
+            $attributes[] = $name;
+        }
+
+        return $attributes;
+    }
+
+    public function setId($id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
+    }
+
+    public function setFieldType(string $type): void
+    {
+        $this->fieldType = $type;
     }
 }

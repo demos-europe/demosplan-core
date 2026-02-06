@@ -206,7 +206,11 @@ class DemosPlanProcedureController extends BaseController
                 ? $this->globalConfig->getProjectShortUrlRedirectRouteLoggedin()
                 : $this->globalConfig->getProjectShortUrlRedirectRoute();
 
-            return $this->redirectToRoute($redirectRoute, ['procedure' => $procedure->getId()]);
+            $redirectParamName = $currentUser->getUser()->isLoggedIn()
+                ? $this->globalConfig->getProjectShortUrlRedirectParamLoggedin()
+                : $this->globalConfig->getProjectShortUrlRedirectParam();
+
+            return $this->redirectToRoute($redirectRoute, [$redirectParamName => $procedure->getId()]);
         } catch (NoResultException) {
             $this->getMessageBag()->add('error', 'warning.shorturl.no.procedure');
 
