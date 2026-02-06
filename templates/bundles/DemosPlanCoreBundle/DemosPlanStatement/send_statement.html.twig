@@ -15,10 +15,10 @@
 
             {# Map statement type to route (handles both GET and POST) #}
             {% set sendRouteMap = {
-                'draft': 'DemosPlan_statement_draft_send',
-                'released': 'DemosPlan_statement_released_send',
-                'released_group': 'DemosPlan_statement_released_group_send',
-                'final': 'DemosPlan_statement_final_send'
+                draft: 'DemosPlan_statement_draft_send',
+                released: 'DemosPlan_statement_released_send',
+                released_group: 'DemosPlan_statement_released_group_send',
+                final: 'DemosPlan_statement_final_send'
             } %}
             {% set sendRoute = sendRouteMap[templateVars.statementType] ?? 'DemosPlan_statement_draft_send' %}
 
