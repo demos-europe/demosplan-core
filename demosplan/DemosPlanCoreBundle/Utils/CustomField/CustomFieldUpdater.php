@@ -17,14 +17,17 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Constraint\ProcedureWithStatementsCustomFieldConstraint;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\EntityCustomFieldUsageStrategyFactory;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CustomFieldUpdater
 {
     public function __construct(
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly EntityCustomFieldUsageStrategyFactory $entityCustomFieldUsageStrategyFactory,
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -36,6 +39,16 @@ class CustomFieldUpdater
 
         if (!$customFieldConfiguration) {
             throw new InvalidArgumentException("CustomFieldConfiguration with ID '{$entityId}' not found");
+        }
+
+        // Validate before updating
+        $violations = $this->validator->validate(
+            $customFieldConfiguration,
+            [new ProcedureWithStatementsCustomFieldConstraint()]
+        );
+
+        if ($violations->count() > 0) {
+            throw new InvalidArgumentException((string) $violations);
         }
 
         // Get the current CustomField object
@@ -59,6 +72,10 @@ class CustomFieldUpdater
 
         if (isset($attributes['description'])) {
             $customField->setDescription($attributes['description']);
+        }
+
+        if (isset($attributes['isRequired'])) {
+            $customField->setRequired($attributes['isRequired']);
         }
     }
 

@@ -5,7 +5,13 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- introduce new parameters to control the parameter name used/passed within the route 
+  core_procedure_slug generated redirect - in addition to the existing params for the route names
 
+### Added
+- Add edit functionality for custom fields of type multiSelect with a condition that the procedure has no statements yet.
+
+## v4.29.0 (2026-02-06)
 ## v4.28.0 (2026-01-28)
 ### Added
 - Enable GetFeatureInfo requests for visible WMS layers in the map
@@ -25,6 +31,7 @@
 
 ### Fixed
 - Check correct interface-checkbox state: 'checked' instead of 'disabled' (check whether interface has been activated, not whether procedure has been transmitted)
+
 
 ## v4.27.0 (2026-01-16)
 
@@ -76,6 +83,7 @@
 ## v4.16.1 (2025-10-16)
 - Fix addon asset build during docker build
 
+## v4.16.3 (2026-02-05)
 ## v4.16.0 (2025-09-30)
 - Allow project specific CSS
 - allow sessions to be stored in redis
@@ -93,6 +101,7 @@
 - fix zip download for older uploads
 
 ## v4.15.0 (2025-09-15)
+## v4.14.3 (2026-02-06)
 ## v4.14.2 (2025-12-02)
 ## v4.14.0 (2025-09-15)
 - Add html paragraph import from odt files
