@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\MessageHandler;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Exception\NoDesignatedStateException;
 use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
@@ -24,6 +25,7 @@ use Tests\Base\UnitTestCase;
 class SwitchNewsStatesMessageHandlerTest extends UnitTestCase
 {
     private ?ProcedureNewsService $procedureNewsService = null;
+    private ?PermissionsInterface $permissions = null;
     private ?LoggerInterface $logger = null;
     private ?SwitchNewsStatesMessageHandler $sut = null;
 
@@ -32,10 +34,12 @@ class SwitchNewsStatesMessageHandlerTest extends UnitTestCase
         parent::setUp();
 
         $this->procedureNewsService = $this->createMock(ProcedureNewsService::class);
+        $this->permissions = $this->createMock(PermissionsInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->sut = new SwitchNewsStatesMessageHandler(
             $this->procedureNewsService,
+            $this->permissions,
             $this->logger
         );
     }

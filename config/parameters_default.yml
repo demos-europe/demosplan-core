@@ -9,6 +9,10 @@ parameters:
     logging_strategy: "rotating_file"
     # maximum number of log files to keep (aka days to keep)
     logging_max_files: 60
+    # logging path - use "php://stderr" for stream or file path for rotating_file
+    logging_path: "%kernel.logs_dir%/%demosplan_main_logfile%"
+    # logging formatter - use "monolog.formatter.json" for structured logs (recommended for stream)
+    logging_formatter: "monolog.formatter.line"
 
     # Projekttyp, mögliche Werte: portal, gateway
     # #refactor: this variable should be removed
@@ -279,6 +283,9 @@ parameters:
     pictogram_min_width: 500
     pictogram_min_height: 300
 
+    # TUS resumable upload cache TTL in seconds (how long incomplete uploads are remembered)
+    tus_cache_ttl: 604800  # 1 week
+
     # Karten
 
     # Maximale Boundingbox für das Projekt. Standard ist deutschlandweit
@@ -354,6 +361,8 @@ parameters:
 
     # should the azure Authentication be used?
     azure_sso_enabled: false
+    # and if, which customers?
+    azure_sso_customers: []
     # knpu_oauth2_client settings
     # oath client referenced by knpu_oauth2_client when oauth is used
     oauth_client: ''

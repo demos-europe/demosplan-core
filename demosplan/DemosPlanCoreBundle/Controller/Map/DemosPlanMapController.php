@@ -76,7 +76,7 @@ class DemosPlanMapController extends BaseController
 
         $procedure = $procedureService->getProcedure($procedureId);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanMap/map_admin.html.twig',
             ['procedure' => $procedureId, 'isMaster' => $procedure?->getMaster(), 'title' => 'drawing.admin.adjustments.gis']
         );
@@ -146,7 +146,7 @@ class DemosPlanMapController extends BaseController
 
             $templateVars['availableProjections'] = $this->globalConfig->getMapAvailableProjections();
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanMap/map_admin_gislayer_new.html.twig',
                 [
                     'templateVars' => $templateVars,
@@ -229,7 +229,7 @@ class DemosPlanMapController extends BaseController
 
             $templateVars['availableProjections'] = $this->globalConfig->getMapAvailableProjections();
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanMap/map_admin_gislayer_edit.html.twig',
                 [
                     'templateVars' => $templateVars,
@@ -303,7 +303,7 @@ class DemosPlanMapController extends BaseController
         ];
 
         // show empty formular if no data is given:
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanMap/map_admin_gislayer_category_edit.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -366,7 +366,7 @@ class DemosPlanMapController extends BaseController
             ],
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanMap/map_admin_gislayer_category_edit.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -491,7 +491,7 @@ class DemosPlanMapController extends BaseController
         $templateVars['procedure']['map'] = $mapOfProcedure;
         $templateVars['contextualHelp Breadcrumb'] = $breadcrumb->getContextualHelp($title);
 
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanMap/map_admin_gislayer_list.html.twig', [
+        return $this->render('@DemosPlanCore/DemosPlanMap/map_admin_gislayer_list.html.twig', [
             'templateVars' => $templateVars,
             'procedure'    => $procedureId,
             'title'        => $title,
@@ -552,7 +552,7 @@ class DemosPlanMapController extends BaseController
         // Füge die Infos zur Sachdatenabfrage hinzu
         $templateVars['featureInfoUrl'] = $getFeatureInfo;
 
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanMap/map_admin_gislayer_global_list.html.twig', [
+        return $this->render('@DemosPlanCore/DemosPlanMap/map_admin_gislayer_global_list.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'drawing.admin.gis.layers',
         ]);
@@ -630,7 +630,7 @@ class DemosPlanMapController extends BaseController
             // Template Variable aus Storage Ergebnis erstellen(Output)
             $templateVars['gislayer'] = $mapService->gislayerAdminGetGlobalLayer($gislayerID);
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanMap/map_admin_gislayer_global_edit.html.twig',
                 [
                     'templateVars' => $templateVars,

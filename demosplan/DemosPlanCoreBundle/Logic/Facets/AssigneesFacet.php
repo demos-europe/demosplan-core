@@ -118,4 +118,9 @@ class AssigneesFacet implements GroupedFacetInterface
     {
         return [];
     }
+
+    public function getGroupsSortMethods(): array
+    {
+        return [];
+    }
 }
