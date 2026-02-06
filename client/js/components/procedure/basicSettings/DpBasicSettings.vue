@@ -234,7 +234,12 @@ export default {
 
     shouldShowInterfaceWarningModal () {
       const checkbox = document.getElementById('interfaceFieldsToTransmit-checkbox')
-      const isInterfaceCheckboxEnabled = !(checkbox?.disabled ?? true)
+
+      if (!checkbox) {
+        return false
+      }
+
+      const isInterfaceCheckboxEnabled = !checkbox?.checked
 
       return this.isAddonLoaded &&
         !this.isAddonInterfaceActivated &&
@@ -314,28 +319,16 @@ export default {
     },
 
     // Needed for the addon-modal on submit
-    activateInterface () {
-      this.collapseSectionsIfExpanded(['wizardNameUrl', 'wizardSettings'])
-      this.expandSectionIfCollapsed('wizardPhaseExternal')
-      this.scrollToInterfaceFields()
-      this.$nextTick(() => {
+    activateInterface (formElement) {
         const checkbox = document.getElementById('interfaceFieldsToTransmit-checkbox')
+
         if (checkbox && !checkbox.disabled && !checkbox.checked) {
           checkbox.click()
           dplan.notify.notify('confirm', Translator.trans('interface.activation.success'))
         }
-      })
+
       this.interfaceWarningModalRef?.toggle()
-    },
-
-    collapseSectionsIfExpanded (sectionIds) {
-      sectionIds.forEach(sectionId => {
-        this.toggleInterfaceSection(sectionId, false)
-      })
-    },
-
-    expandSectionIfCollapsed (sectionId) {
-      this.toggleInterfaceSection(sectionId, true)
+      this.submit(formElement)
     },
 
     handleAutoSwitchPhaseUpdate (payload) {
@@ -345,32 +338,10 @@ export default {
       }
     },
 
-    scrollToInterfaceFields () {
-      this.$nextTick(() => {
-        const addonWrapper = document.getElementById('interfaceFieldsToTransmit')
-        addonWrapper?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      })
-    },
-
     submitWithoutInterfaceActivation (formElement) {
       this.interfaceWarningModalRef?.toggle()
       this.bypassAddonWarningModal = true
       this.submit(formElement)
-    },
-
-    toggleInterfaceSection (sectionId, shouldBeExpanded) {
-      const fieldset = document.getElementById(sectionId)
-      if (!fieldset) {
-        return
-      }
-
-      const wizardContent = fieldset.querySelector('.o-wizard__content')
-      const isCurrentlyExpanded = wizardContent?.classList.contains('is-active')
-
-      if (isCurrentlyExpanded !== shouldBeExpanded) {
-        const legend = fieldset.querySelector('legend')
-        legend?.click()
-      }
     },
   },
 }
