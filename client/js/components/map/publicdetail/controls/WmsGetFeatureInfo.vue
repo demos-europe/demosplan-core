@@ -39,12 +39,13 @@
       />
     </div>
 
-    <!-- eslint-disable-next-line vue/no-v-html -->
+    <!-- eslint-disable vue/no-v-html -->
     <div
       v-if="currentLayerFeatureInfoResult"
       class="mb-4 mr-2"
       v-html="currentLayerFeatureInfoResult.content"
     />
+    <!-- eslint-enable vue/no-v-html -->
   </dp-slidebar>
 </template>
 
@@ -238,7 +239,7 @@ export default {
           const validResults = allResults.filter(result =>
             result.success &&
             result.content &&
-            !this.isEmptyFeatureInfoResponse(result.content)
+            !this.isEmptyFeatureInfoResponse(result.content),
           )
 
           const failedResults = allResults.filter(result => !result.success)
@@ -296,9 +297,7 @@ export default {
 
           // Keep text before URL
           if (index > lastIndex) {
-            fragment.appendChild(
-              document.createTextNode(text.slice(lastIndex, index))
-            )
+            fragment.appendChild(document.createTextNode(text.slice(lastIndex, index)))
           }
 
           const link = document.createElement('a')
@@ -312,9 +311,7 @@ export default {
 
         // Keep remaining text
         if (lastIndex < text.length) {
-          fragment.appendChild(
-            document.createTextNode(text.slice(lastIndex))
-          )
+          fragment.appendChild(document.createTextNode(text.slice(lastIndex)))
         }
 
         node.parentNode.replaceChild(fragment, node)
