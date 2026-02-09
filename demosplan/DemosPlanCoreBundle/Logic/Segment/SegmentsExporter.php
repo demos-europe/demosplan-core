@@ -119,8 +119,7 @@ abstract class SegmentsExporter
         $translationParameter = ['date' => $currentDate->format('d.m.Y')];
         if ($this->currentUser->hasPermission('feature_adjust_export_file_name')) {
             $translationKey = $exportFilteredByTags ? 'segments.export.statement.export.filtered' : 'segments.export.statement.export';
-            $translationParameter =  ['procedureName'  => $procedure->getName()];
-
+            $translationParameter = ['procedureName'  => $procedure->getName()];
         }
         $header->addText(
             $this->translator->trans($translationKey, $translationParameter),

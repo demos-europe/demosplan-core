@@ -39,7 +39,6 @@ class FileNameGenerator
 
     public function getFilteredSynopseFileName(Procedure $procedure, string $suffix): string
     {
-        
     }
 
     public function getFileName(Statement $statement, string $templateName = '', bool $censored = false): string
