@@ -39,6 +39,7 @@
       />
     </div>
 
+    <!-- eslint-disable-next-line vue/no-v-html -->
     <div
       v-if="currentLayerFeatureInfoResult"
       class="mb-4 mr-2"
@@ -77,7 +78,10 @@ export default {
     ]),
 
     currentLayerFeatureInfoResult () {
-      if (!this.layersFeatureInfoResults?.length) return null
+      if (!this.layersFeatureInfoResults?.length) {
+        return null
+      }
+
       return this.layersFeatureInfoResults[this.currentLayerFeatureInfoPage - 1]
     },
 
@@ -218,6 +222,7 @@ export default {
           }))
           .catch(error => {
             console.error(`GetFeatureInfo failed for ${layer.attributes.name}:`, error)
+
             return {
               success: false,
               error: error.message,
