@@ -323,6 +323,9 @@ class PrepareReportFromProcedureService extends CoreService
 
             if (0 !== count($phaseChangeMessage)) {
                 $phaseChangeMessage['createdBySystem'] = $createdBySystem;
+                if ($createdBySystem) {
+                    $phaseChangeMessage['autoSwitchExecutedAt'] = (new DateTime())->getTimestamp();
+                }
 
                 return $this->procedureReportEntryFactory->createPhaseChangeEntry(
                     $sourceProcedure,
