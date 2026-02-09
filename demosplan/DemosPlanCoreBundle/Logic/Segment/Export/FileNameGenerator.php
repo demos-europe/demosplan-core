@@ -39,6 +39,7 @@ class FileNameGenerator
 
     public function getFilteredSynopseFileName(Procedure $procedure, string $suffix): string
     {
+        return 'Teilexport-Synopse-'.$this->slugify->slugify($procedure->getName()).'.'.$suffix;
     }
 
     public function getFileName(Statement $statement, string $templateName = '', bool $censored = false): string

@@ -159,7 +159,7 @@ class SegmentsExportController extends BaseController
             }
         );
 
-        $this->setResponseHeaders($response, $fileNameGenerator->getSynopseFileName($procedure, 'docx'));
+        $this->setResponseHeaders($response, $fileNameGenerator->getFilteredSynopseFileName($procedure, 'docx'));
 
         return $response;
     }
