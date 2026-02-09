@@ -453,6 +453,53 @@ class ReportMessageConverterTest extends FunctionalTestCase
             $message);
     }
 
+    public function testConvertProcedureChangePhasesMessageIncludesAutoSwitchTimestamp(): void
+    {
+        $timestamp = 1706788800; // 2024-02-01 12:00:00 UTC
+        $expectedDate = date('d.m.Y', $timestamp);
+        $expectedTime = date('H:i', $timestamp);
+
+        $messageData = [
+            'oldPhase'             => 'configuration',
+            'newPhase'             => 'participation',
+            'createdBySystem'      => true,
+            'autoSwitchExecutedAt' => $timestamp,
+        ];
+
+        $reportEntry = new ReportEntry();
+        $reportEntry->setGroup(ReportEntry::GROUP_PROCEDURE)
+            ->setCategory(ReportEntry::CATEGORY_CHANGE_PHASES)
+            ->setMessage(json_encode($messageData, JSON_THROW_ON_ERROR));
+
+        $message = $this->sut->convertMessage($reportEntry);
+
+        $expectedPrefix = $this->translator->trans('text.protocol.phase.autoswitch.executed', [
+            'date' => $expectedDate,
+            'time' => $expectedTime,
+        ]);
+        self::assertStringContainsString($expectedPrefix, $message);
+        // The auto-switch timestamp should appear at the start of the message
+        self::assertStringStartsWith($expectedPrefix, $message);
+    }
+
+    public function testConvertProcedureChangePhasesMessageOmitsAutoSwitchTimestampForManualChange(): void
+    {
+        $messageData = [
+            'oldPhase'        => 'configuration',
+            'newPhase'        => 'participation',
+            'createdBySystem' => false,
+        ];
+
+        $reportEntry = new ReportEntry();
+        $reportEntry->setGroup(ReportEntry::GROUP_PROCEDURE)
+            ->setCategory(ReportEntry::CATEGORY_CHANGE_PHASES)
+            ->setMessage(json_encode($messageData, JSON_THROW_ON_ERROR));
+
+        $message = $this->sut->convertMessage($reportEntry);
+
+        self::assertStringNotContainsString('Automatische Verfahrensschrittumstellung', $message);
+    }
+
     public function testConvertRegisterInvitationMessage()
     {
         $reportEntry = new ReportEntry();

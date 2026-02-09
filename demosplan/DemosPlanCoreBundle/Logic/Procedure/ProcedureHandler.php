@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -860,6 +861,8 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
     {
         $changedInternalProcedures = collect([]);
         $changedExternalProcedures = collect([]);
+        $reportEntries = [];
+        $systemUserName = $this->translator->trans('user.system.name');
 
         // internal:
         $internalWritePhaseKeys = $this->getDemosplanConfig()->getInternalPhaseKeys('write');
@@ -877,10 +880,27 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         foreach ($endedInternalProcedures as $endedInternalProcedure) {
             if (null !== $endedInternalProcedure->getEndDate()
                 && !$endedInternalProcedure->getMaster() && !$endedInternalProcedure->isDeleted()) {
+                // clone before modification so the phase change is detectable for report entry creation
+                $originalProcedure = $this->procedureService->cloneProcedure($endedInternalProcedure);
+
                 $endedInternalProcedure->setPhaseKey($internalPhaseKey);
                 $endedInternalProcedure->setPhaseName($internalPhaseName);
                 $endedInternalProcedure->setCustomer($endedInternalProcedure->getCustomer());
 
+                try {
+                    $reportEntries[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
+                        $originalProcedure,
+                        $endedInternalProcedure,
+                        $systemUserName,
+                        true
+                    );
+                } catch (Exception $e) {
+                    $this->getLogger()->warning('Failed to create report entry for internal phase auto-switch', ['exception' => $e]);
+                }
+
+                // updateProcedureObject internally also calls createPhaseChangeReportEntryIfChangesOccurred,
+                // but it won't produce a duplicate because the phase was already changed on the entity above,
+                // so the clone inside updateProcedureObject will have the same phase and hasPhaseChanged returns false.
                 $updatedProcedure = $this->procedureService->updateProcedureObject($endedInternalProcedure);
                 $changedInternalProcedures->push($updatedProcedure);
             }
@@ -902,13 +922,39 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         foreach ($endedExternalProcedures as $endedExternalProcedure) {
             if (null !== $endedExternalProcedure->getPublicParticipationEndDate()
                 && !$endedExternalProcedure->getMaster() && !$endedExternalProcedure->isDeleted()) {
+                // clone before modification so the phase change is detectable for report entry creation
+                $originalProcedure = $this->procedureService->cloneProcedure($endedExternalProcedure);
+
                 $endedExternalProcedure->setPublicParticipationPhase($externalPhaseKey);
                 $endedExternalProcedure->setPublicParticipationPhaseName($externalPhaseName);
                 $endedExternalProcedure->setCustomer($endedExternalProcedure->getCustomer());
 
+                try {
+                    $reportEntries[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
+                        $originalProcedure,
+                        $endedExternalProcedure,
+                        $systemUserName,
+                        true
+                    );
+                } catch (Exception $e) {
+                    $this->getLogger()->warning('Failed to create report entry for external phase auto-switch', ['exception' => $e]);
+                }
+
+                // updateProcedureObject internally also calls createPhaseChangeReportEntryIfChangesOccurred,
+                // but it won't produce a duplicate because the phase was already changed on the entity above,
+                // so the clone inside updateProcedureObject will have the same phase and hasPhaseChanged returns false.
                 $updatedProcedure = $this->procedureService->updateProcedureObject($endedExternalProcedure);
                 $changedExternalProcedures->push($updatedProcedure);
             }
+        }
+
+        // persist phase change report entries
+        $reportEntries = array_filter($reportEntries, static fn (?ReportEntry $e): bool => null !== $e);
+        foreach ($reportEntries as $reportEntry) {
+            $this->entityManager->persist($reportEntry);
+        }
+        if ([] !== $reportEntries) {
+            $this->entityManager->flush();
         }
 
         // Success notice
