@@ -39,7 +39,6 @@ $at-slidebar-animation:     cubic-bezier(0, 0, .3, 1);
         will-change: transform;
         pointer-events: all;
         box-shadow: $dp-box-shadow-xl;
-        overflow: auto;
 
         @include media-query('desk') {
             max-width: 35%;
@@ -51,6 +50,7 @@ $at-slidebar-animation:     cubic-bezier(0, 0, .3, 1);
 
         @include media-query('palm') {
             max-width: 90%;
+            overflow: auto;
         }
 
         .is-animatable & {
@@ -74,5 +74,42 @@ $at-slidebar-animation:     cubic-bezier(0, 0, .3, 1);
     &__toc-box {
         overflow-x: auto;
         max-height: 100%;
+    }
+
+    // Drag handle for resizing slidebar (reusing DpUnfoldToolbarControl component)
+    // Adjust styles from _map.scss for the slidebar case
+    .c-map__unfold-button {
+        bottom: 50%;
+        position: absolute;
+        left: 0;
+        z-index: 1;
+        height: 40px;
+        width: 30px;
+        transform: translateX(-30px);
+        cursor: grab;
+        pointer-events: all;
+
+        &-inner {
+            height: 100%;
+            width: 100%;
+            padding: 8px 4px 8px 8px;
+            background-color: $dp-color-white;
+            border-radius: 2px 0 0 2px;
+            box-shadow: -2px 3px 5px -2px $dp-color-neutral-light-1;
+        }
+
+        &-handle {
+            position: absolute;
+
+            height: 24px;
+            width: 4px;
+
+            border-left: 1px solid $dp-color-neutral-light-2;
+            border-right: 1px solid $dp-color-neutral-light-2;
+        }
+
+        @include media-query('palm') {
+            display: none;
+        }
     }
 }
