@@ -12,8 +12,8 @@
  */
 
 import { DpDetails, DpModal } from '@demos-europe/demosplan-ui'
-import { initialize } from '@DpJs/InitVue'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
+import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpDetails,
