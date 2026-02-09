@@ -39,6 +39,7 @@ use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\Transformers\Segment\StatementToDraftsInfoTransformer;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
@@ -88,6 +89,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
         private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
         private readonly FileContainerRepository $fileContainerRepository,
+        private readonly StatementToDraftsInfoTransformer $statementToDraftsInfoTransformer,
     ) {
         parent::__construct($htmlSanitizer, $statementService);
     }
@@ -366,10 +368,22 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     return [];
                 })
                 ->aliasedPath(Paths::statement()->draftsListJson)
-                ->readable(false, static function (Statement $statement): ?array {
+                ->readable(false, function (Statement $statement): ?array {
                     $draftsListJson = $statement->getDraftsListJson();
 
-                    return '' === $draftsListJson ? null : Json::decodeToArray($draftsListJson);
+                    // If no drafts list JSON exists yet, generate a default structure
+                    if ('' === $draftsListJson) {
+                        // For segmented statements, delegate to transformer
+                        if ($statement->isSegmented()) {
+                            $json = $this->statementToDraftsInfoTransformer->transform($statement->getId());
+
+                            return Json::decodeToArray($json);
+                        }
+
+                        return null;
+                    }
+
+                    return Json::decodeToArray($draftsListJson);
                 });
             $configBuilder->status->readable(true, fn (Statement $statement) => $this->statementService->getProcessingStatus($statement))->filterable();
         }
@@ -395,6 +409,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         // updatable with special permission and on manual statements only
         if ($this->currentUser->hasPermission('area_admin_statement_list')) {
             $configBuilder->fullText
+                ->readable(true, static fn (Statement $statement): string => $statement->getText())
                 ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->text);
             $configBuilder->initialOrganisationName
