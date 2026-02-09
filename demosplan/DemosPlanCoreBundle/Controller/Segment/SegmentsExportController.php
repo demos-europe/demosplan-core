@@ -132,7 +132,7 @@ class SegmentsExportController extends BaseController
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
         $tagsNoFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
 
-        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter,);
+        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
 
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
@@ -161,7 +161,7 @@ class SegmentsExportController extends BaseController
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
-        0== count($tagsFilter) && 0== count($tagsNoFilter) ?
+        0 == count($tagsFilter) && 0 == count($tagsNoFilter) ?
             $this->setResponseHeaders($response, $fileNameGenerator->getSynopseFileName($procedure, 'docx')) : $this->setResponseHeaders($response, $fileNameGenerator->getFilteredSynopseFileName($procedure, 'docx'));
 
         return $response;
