@@ -144,7 +144,9 @@ class OrgaServiceTest extends FunctionalTestCase
     {
         self::markSkippedForCIIntervention();
 
-        $orgas = $this->sut->getDataInputOrgaList();
+        /** @var \demosplan\DemosPlanCoreBundle\Entity\User\Customer $customer */
+        $customer = $this->fixtures->getReference('testCustomer');
+        $orgas = $this->sut->getDataInputOrgaList($customer);
         static::assertCount(2, $orgas);
         static::assertEquals($this->fixtures->getReference('dataInputOrga')->getId(), $orgas[0]->getId());
     }

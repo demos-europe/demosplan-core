@@ -114,15 +114,15 @@ class ServiceOutput
     }
 
     /**
-     * Get all Datainput orgs.
+     * Get all Datainput orgs for a specific customer.
      *
      * @return array Orga[]
      *
      * @throws Exception
      */
-    public function getDataInputOrgas()
+    public function getDataInputOrgas(Customer $customer)
     {
-        return $this->orgaService->getDataInputOrgaList();
+        return $this->orgaService->getDataInputOrgaList($customer);
     }
 
     /**

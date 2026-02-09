@@ -767,16 +767,16 @@ class OrgaService extends CoreService implements OrgaServiceInterface
     }
 
     /**
-     * Get List of Datainput Orgas.
+     * Get List of Datainput Orgas for a specific customer.
      *
      * @return array Orga[]
      *
      * @throws Exception
      */
-    public function getDataInputOrgaList()
+    public function getDataInputOrgaList(Customer $customer)
     {
         try {
-            return $this->orgaRepository->getDataInputOrgaList();
+            return $this->orgaRepository->getDataInputOrgaList($customer);
         } catch (Exception $e) {
             $this->logger->error('Fehler bei der Abfrage der InputOrgas: ', [$e]);
             throw $e;
@@ -990,9 +990,11 @@ class OrgaService extends CoreService implements OrgaServiceInterface
     {
         $labelMap = $this->getOrgaTypeLabelMap();
 
-        return array_map(
+        $res = array_map(
             fn (string $orgaTypeName) => $this->translator->trans($labelMap[$orgaTypeName]), $orgaTypeNames
         );
+
+        return $res;
     }
 
     public function transformOrgaTypeNameToLabel(string $orgaTypeName): string
