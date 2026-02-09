@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use Doctrine\ORM\Query\QueryException;
+use EDT\JsonApi\RequestHandling\UrlParameter;
 use Exception;
 use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -129,7 +130,9 @@ class SegmentsExportController extends BaseController
 
         // Apply tag filtering after JsonAPI filtering
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+        $tagsNoFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
+
+        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter,);
 
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
@@ -158,8 +161,8 @@ class SegmentsExportController extends BaseController
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
-
-        $this->setResponseHeaders($response, $fileNameGenerator->getFilteredSynopseFileName($procedure, 'docx'));
+        0== count($tagsFilter) && 0== count($tagsNoFilter) ?
+            $this->setResponseHeaders($response, $fileNameGenerator->getSynopseFileName($procedure, 'docx')) : $this->setResponseHeaders($response, $fileNameGenerator->getFilteredSynopseFileName($procedure, 'docx'));
 
         return $response;
     }
