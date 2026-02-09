@@ -17,6 +17,14 @@ export default function initGlobalEventListener () {
   if (responsiveMenuHelper) {
     responsiveMenuHelper.addEventListener('click', function (event) {
       event.preventDefault()
+
+      const featureInfoSlidebarVisible =
+        document.querySelector('.c-slidebar.is-visible')
+
+      if (featureInfoSlidebarVisible) {
+        return
+      }
+
       const body = document.querySelector('body')
       body.classList.toggle('menu-open')
       document.getElementById('responsive-menu-helper-checkbox').toggleAttribute('checked')

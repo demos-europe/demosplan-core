@@ -46,3 +46,8 @@
     </div>
 
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('core-listDraft.js') }}
+{% endblock javascripts %}

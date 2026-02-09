@@ -5,6 +5,34 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- introduce new parameters to control the parameter name used/passed within the route 
+  core_procedure_slug generated redirect - in addition to the existing params for the route names
+
+### Added
+- Add edit functionality for custom fields of type multiSelect with a condition that the procedure has no statements yet.
+
+## v4.29.0 (2026-02-06)
+## v4.28.0 (2026-01-28)
+### Added
+- Enable GetFeatureInfo requests for visible WMS layers in the map
+- Add `FileService::saveBinaryFileContent()` method to save binary file content directly without manual temporary file handling
+  - Accepts filename, binary content, and optional filename prefix
+  - Automatically handles temporary file creation and cleanup using Symfony Filesystem (`dumpFile()` and `deleteLocalFile()`)
+  - Supports virus checking and procedure/user association
+  - Useful for saving already-decoded base64 content from external sources
+  - Validates filename is not empty
+  - Sanitizes filename using existing `sanitizeFileName()` method
+- Add `FileWriteException` for dedicated file write error handling
+
+### Changed
+- Submit basic settings form automatically through the warning modal if user clicks on 'activate' (cleans up redundant code needed for scrolling the interface section into focus)
+- bump demosplan-addon version from v0.64 to v0.65
+- Update `FileService::saveTemporaryLocalFile()` documentation to clarify it uses configured storage backend (S3, local, or other adapters based on FILES_SOURCE environment variable)
+
+### Fixed
+- Check correct interface-checkbox state: 'checked' instead of 'disabled' (check whether interface has been activated, not whether procedure has been transmitted)
+
+
 ## v4.27.0 (2026-01-16)
 
 ### Added
@@ -55,6 +83,7 @@
 ## v4.16.1 (2025-10-16)
 - Fix addon asset build during docker build
 
+## v4.16.3 (2026-02-05)
 ## v4.16.0 (2025-09-30)
 - Allow project specific CSS
 - allow sessions to be stored in redis
@@ -72,6 +101,7 @@
 - fix zip download for older uploads
 
 ## v4.15.0 (2025-09-15)
+## v4.14.3 (2026-02-06)
 ## v4.14.2 (2025-12-02)
 ## v4.14.0 (2025-09-15)
 - Add html paragraph import from odt files

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\MessageHandler;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent;
 use demosplan\DemosPlanCoreBundle\Message\DailyMaintenanceEventMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\DailyMaintenanceEventMessageHandler;
@@ -24,6 +25,7 @@ use Tests\Base\UnitTestCase;
 class DailyMaintenanceEventMessageHandlerTest extends UnitTestCase
 {
     private ?EventDispatcherInterface $eventDispatcher = null;
+    private ?PermissionsInterface $permissions = null;
     private ?LoggerInterface $logger = null;
     private ?DailyMaintenanceEventMessageHandler $sut = null;
 
@@ -32,10 +34,12 @@ class DailyMaintenanceEventMessageHandlerTest extends UnitTestCase
         parent::setUp();
 
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->permissions = $this->createMock(PermissionsInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->sut = new DailyMaintenanceEventMessageHandler(
             $this->eventDispatcher,
+            $this->permissions,
             $this->logger
         );
     }

@@ -12,8 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Import\ImportJobProcessor;
 use demosplan\DemosPlanCoreBundle\Message\ProcessImportJobsMessage;
+use demosplan\DemosPlanCoreBundle\Traits\InitializesAnonymousUserPermissionsTrait;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -21,14 +23,19 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final class ProcessImportJobsMessageHandler
 {
+    use InitializesAnonymousUserPermissionsTrait;
+
     public function __construct(
         private readonly ImportJobProcessor $importJobProcessor,
+        private readonly PermissionsInterface $permissions,
         private readonly LoggerInterface $logger,
     ) {
     }
 
     public function __invoke(ProcessImportJobsMessage $message): void
     {
+        $this->initializeAnonymousUserPermissions();
+
         $jobsProcessed = 0;
         try {
             $jobsProcessed = $this->importJobProcessor->processPendingJobs();

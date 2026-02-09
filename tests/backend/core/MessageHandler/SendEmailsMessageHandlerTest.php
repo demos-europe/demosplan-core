@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\MessageHandler;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Message\SendEmailsMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\SendEmailsMessageHandler;
@@ -22,6 +23,7 @@ use Tests\Base\UnitTestCase;
 class SendEmailsMessageHandlerTest extends UnitTestCase
 {
     private ?MailService $mailService = null;
+    private ?PermissionsInterface $permissions = null;
     private ?LoggerInterface $logger = null;
     private ?SendEmailsMessageHandler $sut = null;
 
@@ -30,10 +32,12 @@ class SendEmailsMessageHandlerTest extends UnitTestCase
         parent::setUp();
 
         $this->mailService = $this->createMock(MailService::class);
+        $this->permissions = $this->createMock(PermissionsInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->sut = new SendEmailsMessageHandler(
             $this->mailService,
+            $this->permissions,
             $this->logger
         );
     }
