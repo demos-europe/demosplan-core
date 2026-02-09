@@ -116,8 +116,14 @@ abstract class SegmentsExporter
 
         $currentDate = new DateTime();
         $translationKey = $exportFilteredByTags ? 'segments.export.statement.export.date.filtered' : 'segments.export.statement.export.date';
+        $translationParameter = ['date' => $currentDate->format('d.m.Y')];
+        if ($this->currentUser->hasPermission('feature_adjust_export_file_name')) {
+            $translationKey = $exportFilteredByTags ? 'segments.export.statement.export.filtered' : 'segments.export.statement.export';
+            $translationParameter =  ['procedureName'  => $procedure->getName()];
+
+        }
         $header->addText(
-            $this->translator->trans($translationKey, ['date' => $currentDate->format('d.m.Y')]),
+            $this->translator->trans($translationKey, $translationParameter),
             $this->styles['currentDateFont'],
             $this->styles['currentDateParagraph']
         );

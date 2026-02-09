@@ -658,6 +658,10 @@ feature_admin_new_procedure:
     label: 'Create a new procedure'
     loginRequired: true
     parent: feature_admin
+feature_adjust_export_file_name:
+    expose: false
+    label: 'Change export file name'
+    loginRequired: true
 feature_allow_update_on_non_manual_statements:
     description: 'Allow to update non-manual statements'
     expose: false
