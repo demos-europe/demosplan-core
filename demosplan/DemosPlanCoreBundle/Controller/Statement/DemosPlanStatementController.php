@@ -864,11 +864,13 @@ class DemosPlanStatementController extends BaseController
             }
 
             $limiter = $anonymousStatementLimiter->create($request->getSession()->getId());
+            $isLoggedIn = $this->currentUser->getUser()->isLoggedIn();
 
             // avoid brute force attacks
             // if the limit bites during development or testing, you can increase the limit in the config via setting
             // framework.rate_limiter.anonymous_statement.limit in the parameters.yml to a higher value
-            if (true === $parameterBag->get('ratelimit_public_statement_enable') && false === $limiter->consume(1)->isAccepted()) {
+            if (!$isLoggedIn && true === $parameterBag->get('ratelimit_public_statement_enable')
+                && false === $limiter->consume(1)->isAccepted()) {
                 throw new TooManyRequestsHttpException();
             }
             $requestPost = $request->request->all();
@@ -894,7 +896,7 @@ class DemosPlanStatementController extends BaseController
 
             // Abgabe der Stellungnahme als angemeldeter Nutzer via Beteiligungsebene
             // ggf. trotzdem als Bürger
-            if (true === $this->currentUser->getUser()->isLoggedIn()
+            if ($isLoggedIn
                 && !$this->permissions->hasPermission('feature_statements_participation_area_always_citizen')
             ) {
                 $this->permissions->checkPermission('feature_new_statement');
