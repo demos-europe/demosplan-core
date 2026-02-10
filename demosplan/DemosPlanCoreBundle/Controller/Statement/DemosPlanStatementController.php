@@ -1482,7 +1482,7 @@ class DemosPlanStatementController extends BaseController
 
         /** @var DraftStatementListFilters $draftListFilterVO */
         $draftListFilterVO = null;
-        if (!($draftFilterList[$procedureId][$templateName] instanceof DraftStatementListFilters)) {
+        if (!$draftFilterList[$procedureId][$templateName] instanceof DraftStatementListFilters) {
             $draftListFilterVO = new DraftStatementListFilters();
         } else {
             $draftListFilterVO = $draftFilterList[$procedureId][$templateName];
