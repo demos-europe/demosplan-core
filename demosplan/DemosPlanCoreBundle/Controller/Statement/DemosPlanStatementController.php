@@ -920,7 +920,7 @@ class DemosPlanStatementController extends BaseController
 
             // Abgabe der Stellungnahme als angemeldeter Nutzer via Beteiligungsebene
             // ggf. trotzdem als Bürger
-            if (!$isLoggedIn
+            if ($isLoggedIn
                 && !$this->permissions->hasPermission('feature_statements_participation_area_always_citizen')
             ) {
                 $this->permissions->checkPermission('feature_new_statement');
