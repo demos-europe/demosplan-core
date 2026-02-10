@@ -112,7 +112,7 @@ abstract class SegmentsExporter
             $this->styles['documentTitleParagraph']
         );
 
-        $this->addPreambleIfFirstHeader($header, $headerType);
+        $this->addPreambleIfFirstHeader($header, $headerType, $exportFilteredByTags);
 
         $currentDate = new DateTime();
         $translationKey = $exportFilteredByTags ? 'segments.export.statement.export.date.filtered' : 'segments.export.statement.export.date';
@@ -128,9 +128,12 @@ abstract class SegmentsExporter
         );
     }
 
-    private function addPreambleIfFirstHeader(Header $header, ?string $headerType): void
+    protected function addPreambleIfFirstHeader(Header $header, ?string $headerType, bool $exportFilteredByTags = false): void
     {
-        if (Footer::FIRST === $headerType) {
+        if (Footer::FIRST === $headerType && $exportFilteredByTags==true) {
+            $filteredExportPreamble = $this->translator->trans('docx.export.filtered');
+            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($filteredExportPreamble), false, false);
+        } else {
             $preamble = $this->translator->trans('docx.export.preamble');
             Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
         }

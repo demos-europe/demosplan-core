@@ -161,7 +161,8 @@ class SegmentsExportController extends BaseController
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
-        0 == count($tagsFilter) && 0 == count($tagsNoFilter) ?
+        // generating file name based on it being filtered by tags or not
+        0== count($tagsFilter) && 0== count($tagsNoFilter) ?
             $this->setResponseHeaders($response, $fileNameGenerator->getSynopseFileName($procedure, 'docx')) : $this->setResponseHeaders($response, $fileNameGenerator->getFilteredSynopseFileName($procedure, 'docx'));
 
         return $response;
