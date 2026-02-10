@@ -103,7 +103,7 @@ abstract class SegmentsExporter
         }
     }
 
-    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null, bool $exportFilteredByTags = false): void
+    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null, array $exportFilteredByTags = []): void
     {
         $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
         $header->addText(
@@ -128,10 +128,11 @@ abstract class SegmentsExporter
         );
     }
 
-    protected function addPreambleIfFirstHeader(Header $header, ?string $headerType, bool $exportFilteredByTags = false): void
+    protected function addPreambleIfFirstHeader(Header $header, ?string $headerType, array $exportFilteredByTags = []): void
     {
-        if (Footer::FIRST === $headerType && true == $exportFilteredByTags) {
+        if (Footer::FIRST === $headerType && [] !== $exportFilteredByTags) {
             $filteredExportPreamble = $this->translator->trans('docx.export.filtered');
+            $filteredExportPreamble .= implode(separator: ', ', array: $exportFilteredByTags);
             Html::addHtml($header, $this->htmlHelper->getHtmlValidText($filteredExportPreamble), false, false);
         } else {
             $preamble = $this->translator->trans('docx.export.preamble');
@@ -337,7 +338,7 @@ abstract class SegmentsExporter
     /**
      * @throws Exception
      */
-    protected function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure, bool $exportFilteredByTags = false): WriterInterface
+    protected function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure, array $exportFilteredByTags = []): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTags);
@@ -383,7 +384,7 @@ abstract class SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscure,
-        bool $exportFilteredByTags = false,
+        array $exportFilteredByTags = [],
     ): WriterInterface {
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTags);

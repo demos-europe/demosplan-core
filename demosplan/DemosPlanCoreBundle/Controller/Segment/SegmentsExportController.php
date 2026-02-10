@@ -133,6 +133,7 @@ class SegmentsExportController extends BaseController
         $tagsNoFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
 
         $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+        $filteredTagNames = $this->statementExportTagFilter->getTagNames();
 
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
@@ -147,13 +148,14 @@ class SegmentsExportController extends BaseController
                 $exporter,
                 $censorCitizenData,
                 $censorInstitutionData,
-                $obscureParameter
+                $obscureParameter,
+                $filteredTagNames
             ) {
                 $exportedDoc = $exporter->exportAll(
                     $tableHeaders,
                     $procedure,
                     $obscureParameter,
-                    $this->statementExportTagFilter->hasAnySupportedFilterSet(),
+                    $filteredTagNames,
                     $censorCitizenData,
                     $censorInstitutionData,
                     ...$statementEntities
