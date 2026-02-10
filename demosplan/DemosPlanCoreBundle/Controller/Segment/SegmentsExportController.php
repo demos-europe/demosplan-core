@@ -162,7 +162,7 @@ class SegmentsExportController extends BaseController
             }
         );
         // generating file name based on it being filtered by tags or not
-        0== count($tagsFilter) && 0== count($tagsNoFilter) ?
+        0 == count($tagsFilter) && 0 == count($tagsNoFilter) ?
             $this->setResponseHeaders($response, $fileNameGenerator->getSynopseFileName($procedure, 'docx')) : $this->setResponseHeaders($response, $fileNameGenerator->getFilteredSynopseFileName($procedure, 'docx'));
 
         return $response;
