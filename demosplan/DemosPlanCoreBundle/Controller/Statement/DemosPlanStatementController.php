@@ -867,7 +867,7 @@ class DemosPlanStatementController extends BaseController
             // avoid brute force attacks
             // if the limit bites during development or testing, you can increase the limit in the config via setting
             // framework.rate_limiter.anonymous_statement.limit in the parameters.yml to a higher value
-            if (false === $limiter->consume(1)->isAccepted()) {
+            if (false === $this->currentUser->getUser()->isLoggedIn() && false === $limiter->consume(1)->isAccepted()) {
                 throw new TooManyRequestsHttpException();
             }
             $requestPost = $request->request->all();
