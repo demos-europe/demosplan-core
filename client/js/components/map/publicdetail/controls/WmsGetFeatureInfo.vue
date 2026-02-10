@@ -1,52 +1,54 @@
 <template>
-  <dp-slidebar
-    ref="slidebar"
-    data-cy="layerFeatureInfoSidebar"
-  >
-    <template v-slot:dragHandle>
-      <dp-unfold-toolbar-control
-        drag-target=".c-slidebar__container"
-        direction="left"
-      />
-    </template>
-
-    <div
-      v-if="layersFeatureInfoResults?.length >= 1"
-      class="flex items-baseline justify-between gap-2 mr-3 mb-4 max-w-full"
+  <Teleport to="body">
+    <dp-slidebar
+      ref="slidebar"
+      data-cy="layerFeatureInfoSidebar"
     >
-      <dp-button
-        :aria-label="Translator.trans('map.next.feature.info')"
-        :class="{ invisible: currentLayerFeatureInfoPage === 1 }"
-        color="primary"
-        icon="chevron-left"
-        variant="outline"
-        hide-text
-        @click="showPreviousLayerFeatureInfo"
+      <template v-slot:dragHandle>
+        <dp-unfold-toolbar-control
+          drag-target=".c-slidebar__container"
+          direction="left"
+        />
+      </template>
+
+      <div
+        v-if="layersFeatureInfoResults?.length >= 1"
+        class="flex items-baseline justify-between gap-2 mr-3 mb-4 max-w-full"
+      >
+        <dp-button
+          :aria-label="Translator.trans('map.next.feature.info')"
+          :class="{ invisible: currentLayerFeatureInfoPage === 1 }"
+          color="primary"
+          icon="chevron-left"
+          variant="outline"
+          hide-text
+          @click="showPreviousLayerFeatureInfo"
+        />
+
+        <h3 class="flex-1 text-center font-bold truncate">
+          {{ currentLayerFeatureInfoResult.layerName }}
+        </h3>
+
+        <dp-button
+          :aria-label="Translator.trans('map.previous.feature.info')"
+          :class="{ invisible: currentLayerFeatureInfoPage === layersFeatureInfoResults.length }"
+          color="primary"
+          icon="chevron-right"
+          variant="outline"
+          hide-text
+          @click="showNextLayerFeatureInfo"
+        />
+      </div>
+
+      <!-- eslint-disable vue/no-v-html -->
+      <div
+        v-if="currentLayerFeatureInfoResult"
+        class="mb-4 mr-2"
+        v-html="currentLayerFeatureInfoResult.content"
       />
-
-      <h3 class="flex-1 text-center font-bold truncate">
-        {{ currentLayerFeatureInfoResult.layerName }}
-      </h3>
-
-      <dp-button
-        :aria-label="Translator.trans('map.previous.feature.info')"
-        :class="{ invisible: currentLayerFeatureInfoPage === layersFeatureInfoResults.length }"
-        color="primary"
-        icon="chevron-right"
-        variant="outline"
-        hide-text
-        @click="showNextLayerFeatureInfo"
-      />
-    </div>
-
-    <!-- eslint-disable vue/no-v-html -->
-    <div
-      v-if="currentLayerFeatureInfoResult"
-      class="mb-4 mr-2"
-      v-html="currentLayerFeatureInfoResult.content"
-    />
-    <!-- eslint-enable vue/no-v-html -->
-  </dp-slidebar>
+      <!-- eslint-enable vue/no-v-html -->
+    </dp-slidebar>
+  </Teleport>
 </template>
 
 <script>
