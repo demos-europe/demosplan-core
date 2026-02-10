@@ -1,8 +1,19 @@
 <template>
   <div>
     <dp-inline-notification
+      v-if="isStatementField && procedureReceivedStatements"
       class="mb-4"
-      data-cy="places:editInfo"
+      data-cy="customFields:editWarning"
+      dismissible
+      :dismissible-key="helpTextDismissibleKey"
+      type="warning"
+      :message="Translator.trans('custom.fields.edit.warning.multiSelect')"
+    />
+
+    <dp-inline-notification
+      v-else
+      class="mb-4"
+      data-cy="customFields:editInfo"
       dismissible
       :dismissible-key="helpTextDismissibleKey"
       :message="helpText"
@@ -10,6 +21,7 @@
     />
 
     <create-custom-field-form
+      v-if="!isStatementField || !procedureReceivedStatements"
       :disable-type-selection="true"
       :handle-success="isSuccess"
       :is-loading="isLoading"
@@ -175,11 +187,18 @@
       </template>
 
       <template v-slot:isRequired="rowData">
-        <div
-          v-if="isStatementField"
-          class="mt-1"
-        >
-          {{ rowData.isRequired ? Translator.trans('yes') : Translator.trans('no') }}
+        <div v-if="isStatementField">
+          <dp-checkbox
+            v-if="rowData.edit"
+            v-model="newRowData.isRequired"
+            :label="{
+              text: Translator.trans('field.required'),
+              hide:true
+            }"
+          />
+          <span v-else>
+            {{ rowData.isRequired ? Translator.trans('yes') : Translator.trans('no') }}
+          </span>
         </div>
       </template>
 
@@ -189,6 +208,7 @@
             v-if="!rowData.edit"
             class="btn--blank o-link--default mr-1"
             data-cy="customFields:editField"
+            :disabled="isStatementField && procedureReceivedStatements"
             :aria-label="Translator.trans('item.edit')"
             :title="Translator.trans('edit')"
             @click="editCustomField(rowData)"
@@ -203,6 +223,7 @@
             v-if="!rowData.edit"
             class="btn--blank o-link--default mr-1"
             data-cy="customFields:deleteField"
+            :disabled="isStatementField && procedureReceivedStatements"
             :aria-label="Translator.trans('item.edit')"
             :title="Translator.trans('edit')"
             @click="handleDeleteCustomField(rowData)"
@@ -362,6 +383,7 @@ export default {
         },
       ],
       newRowData: {},
+      statementsCount: 0,
       translationKeys: {
         info: 'custom.fields.edit.info.entities',
         delete: 'warning.custom_field.delete.message',
@@ -463,6 +485,10 @@ export default {
     isStatementField () {
       return this.hasPermission('field_statements_custom_fields')
     },
+
+    procedureReceivedStatements () {
+      return this.statementsCount > 0
+    },
   },
 
   watch: {
@@ -497,6 +523,7 @@ export default {
     abortFieldEdit (rowData) {
       rowData.description = this.initialRowData.description
       rowData.name = this.initialRowData.name
+      rowData.isRequired = this.initialRowData.isRequired
       rowData.options = this.initialRowData.options
 
       this.newRowData = {}
@@ -576,8 +603,9 @@ export default {
       const isNameUnchanged = this.initialRowData.name === newRowData.name
       const areOptionsUnchanged = JSON.stringify(this.initialRowData.options) === JSON.stringify(newRowData.options)
       const isDescriptionUnchanged = this.initialRowData.description === newRowData.description
+      const isRequiredUnchanged = this.initialRowData.isRequired === newRowData.isRequired
 
-      this.isSaveDisabled[newRowData.id] = isNameUnchanged && areOptionsUnchanged && isDescriptionUnchanged
+      this.isSaveDisabled[newRowData.id] = isNameUnchanged && areOptionsUnchanged && isDescriptionUnchanged && isRequiredUnchanged
     },
 
     editCustomField (rowData) {
@@ -592,6 +620,9 @@ export default {
 
     /**
      * Fetch custom fields that are available either in the procedure or in the procedure template
+     * The payload structure differs depending on whether statement or segment custom fields are requested.
+     * The parameter `statementsCount` is only required when fetching statement custom fields,
+     * to disable multiSelect field creation and editing if there are existing statements to prevent data inconsistency.
      */
     fetchCustomFields () {
       const sourceEntity = this.isProcedureTemplate ?
@@ -604,6 +635,10 @@ export default {
           [sourceEntity]: [
             this.isStatementField ? 'statementCustomFields' : 'segmentCustomFields',
           ].join(),
+          // StatementsCount is only needed to disable multiSelect field editing when there are existing statements
+          ...(this.isStatementField && {
+            AdminProcedure: ['statementCustomFields', 'statementsCount'].join(),
+          }),
           CustomField: [
             'name',
             'description',
@@ -629,6 +664,9 @@ export default {
           }) :
         this.getAdminProcedureWithFields(payload)
           .then(response => {
+            const statementsCount = response?.data?.AdminProcedure?.[this.procedureId]?.attributes?.statementsCount
+            this.statementsCount = statementsCount || 0
+
             return response
           })
     },
@@ -705,10 +743,11 @@ export default {
     },
 
     resetEditedUnsavedField (customField) {
-      const { description = '', name = '', options = [] } = this.initialRowData
+      const { description = '', isRequired = false,  name = '', options = [] } = this.initialRowData
 
       customField.description = description
       customField.edit = false
+      customField.isRequired = isRequired
       customField.name = name
       customField.open = false
       customField.options = options
@@ -747,7 +786,7 @@ export default {
 
         if (isConfirmed) {
           const storeField = this.customFields[this.newRowData.id]
-          const { description = '', name, options } = this.newRowData
+          const { description = '', isRequired, name, options } = this.newRowData
 
           const updatedField = {
             ...storeField,
@@ -755,6 +794,7 @@ export default {
               Object.entries({
                 ...storeField.attributes,
                 description,
+                isRequired,
                 name,
                 options,
               }).filter(([key]) => key !== 'fieldType'),
@@ -766,6 +806,8 @@ export default {
               const idx = this.customFieldItems.findIndex(el => el.id === storeField.id)
               this.customFieldItems[idx] = { ...this.newRowData }
               this.setEditMode(storeField, false)
+            })
+            .finally(() => {
               // Fetch custom fields to get a consistent state for the custom fields
               this.fetchCustomFields()
             })
@@ -835,21 +877,23 @@ export default {
     },
 
     setInitialRowData (rowData) {
-      const { description = '', name, options } = rowData
+      const { description = '', isRequired, name, options } = rowData
 
       this.initialRowData = {
         description,
+        ...(this.isStatementField && { isRequired }),
         name,
         options: JSON.parse(JSON.stringify(options)),
       }
     },
 
     setNewRowData (rowData) {
-      const { id, description = '', name, options } = rowData
+      const { id, description = '', isRequired, name, options } = rowData
 
       this.newRowData = {
         id,
         description,
+        ...(this.isStatementField && { isRequired }),
         name,
         options,
       }

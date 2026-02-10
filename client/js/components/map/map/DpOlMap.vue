@@ -488,9 +488,9 @@ export default {
     this.baselayer = mapOptions.baseLayer
     this.baseLayerProjection = mapOptions.baseLayerProjection
 
-    if (this.mapOptions.scales) {
+    if (this.mapOptions.scales?.length > 0) {
       this.scales = this.mapOptions.scales
-    } else if (mapOptions.procedureScales.length > 0) {
+    } else if (mapOptions.procedureScales?.length > 0) {
       this.scales = mapOptions.procedureScales
     } else {
       this.scales = mapOptions.globalAvailableScales
@@ -565,7 +565,7 @@ export default {
   },
 }
 
-// DO NOT pass this as Prop if you are not exactly know what you are doing!
+// DO NOT pass this as prop unless you know exactly what you are doing!
 const _defaults = {
   hideDefaultLayer: false,
   procedureExtent: false,
