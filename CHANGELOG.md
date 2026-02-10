@@ -10,6 +10,10 @@
 
 ### Added
 - Add edit functionality for custom fields of type multiSelect with a condition that the procedure has no statements yet.
+- Add drag button to GetFeatureInfo slidebar (adjust and reuse DpUnfoldToolbarControl)
+
+### Changed
+- Extract GetFeatureInfo logic for visible WMS layers out of Map.vue and into WmsGetFeatureInfo component
 
 ## v4.29.0 (2026-02-06)
 ## v4.28.0 (2026-01-28)
