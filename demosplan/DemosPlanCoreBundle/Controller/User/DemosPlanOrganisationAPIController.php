@@ -353,6 +353,9 @@ class DemosPlanOrganisationAPIController extends APIController
                 }
             }
 
+            // Ensure access_control records are created for any org types that are already ACCEPTED
+            $userHandler->ensureAccessControl($newOrga, $customerHandler->getCurrentCustomer());
+
             try {
                 $newOrgaCreatedEvent = new NewOrgaCreatedEvent($newOrga, $canCreateProcedures);
                 $eventDispatcher->dispatch($newOrgaCreatedEvent);
@@ -457,9 +460,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaTypeInterface::PLANNING_AGENCY, $customersWithPendingPlanningAgency, $currentCustomer);
                 $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaTypeInterface::HEARING_AUTHORITY_AGENCY, $customersWithPendingHearingAuthority, $currentCustomer);
 
-                $userHandler->manageAccessControlOnApproval($updatedOrga, OrgaTypeInterface::MUNICIPALITY, $customersWithPendingPlanner, $currentCustomer);
-                $userHandler->manageAccessControlOnApproval($updatedOrga, OrgaTypeInterface::PLANNING_AGENCY, $customersWithPendingPlanningAgency, $currentCustomer);
-                $userHandler->manageAccessControlOnApproval($updatedOrga, OrgaTypeInterface::HEARING_AUTHORITY_AGENCY, $customersWithPendingHearingAuthority, $currentCustomer);
+                $userHandler->ensureAccessControl($updatedOrga, $currentCustomer);
 
                 $item = $this->resourceService->makeItemOfResource($updatedOrga, OrgaResourceType::getName());
 

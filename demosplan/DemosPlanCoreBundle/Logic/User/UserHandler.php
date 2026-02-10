@@ -2160,46 +2160,36 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     }
 
     /**
-     * Creates access_control records for an organization that was recently approved.
-     * Mirrors the pattern of manageMinimalRoles().
+     * Ensures access_control records exist for all ACCEPTED org types.
+     * Works for both create (direct ACCEPTED) and update (PENDING→ACCEPTED or direct ACCEPTED).
+     * Safe to call multiple times — duplicates are handled by the unique constraint in AccessControlService.
      *
-     * @param Customer[] $customersPendingActivation customers that were pending before the update
+     * @param Customer|null $customer if provided, only process this customer; if null, process all customers
      */
-    public function manageAccessControlOnApproval(Orga $orga, string $orgaTypeName, array $customersPendingActivation, ?Customer $currentCustomer): void
+    public function ensureAccessControl(Orga $orga, ?Customer $customer): void
     {
-        $customersAccepted = $this->getCustomersWithRecentActivationChanges(
-            $orga,
-            $orgaTypeName,
-            OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
-            $customersPendingActivation,
-            $currentCustomer
-        );
+        foreach (self::ORGA_TYPE_TO_PROCEDURE_CREATION_ROLE as $orgaType => $roleCode) {
+            $acceptedCustomers = $orga->getCustomersByActivationStatus(
+                $orgaType,
+                OrgaStatusInCustomerInterface::STATUS_ACCEPTED
+            );
 
-        $this->ensureAccessControlOnApproval($orga, $orgaTypeName, $customersAccepted);
-    }
+            if (null !== $customer) {
+                $acceptedCustomers = array_filter(
+                    $acceptedCustomers,
+                    static fn (Customer $c) => $c->getId() === $customer->getId()
+                );
+            }
 
-    /**
-     * For each recently accepted customer, creates an access_control record
-     * granting the procedure creation permission to the appropriate role.
-     *
-     * @param Customer[] $customers customers that changed from pending to accepted
-     */
-    private function ensureAccessControlOnApproval(Orga $orga, string $orgaTypeName, array $customers): void
-    {
-        if (!array_key_exists($orgaTypeName, self::ORGA_TYPE_TO_PROCEDURE_CREATION_ROLE)) {
-            return;
-        }
-
-        $roleCode = self::ORGA_TYPE_TO_PROCEDURE_CREATION_ROLE[$orgaTypeName];
-
-        foreach ($customers as $customer) {
-            $this->accessControlService->addPermissionToGivenRole($orga, $customer, $roleCode);
-            $this->logger->info('Ensured access_control record on approval', [
-                'orga'     => $orga->getName(),
-                'orgaType' => $orgaTypeName,
-                'role'     => $roleCode,
-                'customer' => $customer->getName(),
-            ]);
+            foreach ($acceptedCustomers as $acceptedCustomer) {
+                $this->accessControlService->addPermissionToGivenRole($orga, $acceptedCustomer, $roleCode);
+                $this->logger->info('Ensured access_control record', [
+                    'orga'     => $orga->getName(),
+                    'orgaType' => $orgaType,
+                    'role'     => $roleCode,
+                    'customer' => $acceptedCustomer->getName(),
+                ]);
+            }
         }
     }
 
