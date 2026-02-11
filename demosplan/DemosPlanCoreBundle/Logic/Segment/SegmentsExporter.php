@@ -130,7 +130,7 @@ abstract class SegmentsExporter
 
     protected function addPreambleIfFirstHeader(Header $header, ?string $headerType, array $exportFilteredByTags = []): void
     {
-        if (Footer::FIRST === $headerType && [] !== $exportFilteredByTags) {
+        if (Footer::FIRST === $headerType && [] !== $exportFilteredByTags && $this->currentUser->hasPermission('feature_adjust_export_file_name')) {
             $filteredExportPreamble = $this->translator->trans('docx.export.filtered');
             $filteredExportPreamble .= implode(separator: ', ', array: $exportFilteredByTags);
             Html::addHtml($header, $this->htmlHelper->getHtmlValidText($filteredExportPreamble), false, false);
