@@ -132,17 +132,8 @@ class DefaultTwigVariablesService
         $orgaObject = $this->orgaLoader->getOrgaObject($request);
         $customerObject = $this->customerService->getCurrentCustomer();
 
-        $basicAuth = '';
-        if (null !== $this->globalConfig->getHtaccessUser() && '' !== $this->globalConfig->getHtaccessUser()) {
-            $basicAuth = 'Basic '.base64_encode(
-                $this->globalConfig->getHtaccessUser().':'.$this->globalConfig->getHtaccessPass(
-                ) ?? ''
-            );
-        }
-
         $this->variables = [
             'branding'                                           => $brandingObject,
-            'basicAuth'                                          => $basicAuth,
             'customerInfo'                                       => $customerObject,
             'currentUser'                                        => $user,
             'exposedPermissions'                                 => $exposedPermissions,

@@ -253,7 +253,6 @@
         <dp-editor
           id="r_simpleLanguage"
           v-model="customer.overviewDescriptionInSimpleLanguage"
-          :basic-auth="dplan.settings.basicAuth"
           hidden-input="r_simpleLanguage"
           :routes="{
             getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })

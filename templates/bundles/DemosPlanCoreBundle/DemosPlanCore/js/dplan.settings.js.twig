@@ -9,7 +9,6 @@
 #}
 window.dplan = {
     settings                : {
-        basicAuth           : '{{ basicAuth|default('') }}',
         debug               : Boolean({{ app.debug|default(0) }}),
         maxUploadSize       : {{ maxUploadSize|default(0) }},
         useOpenGeoDb        : Boolean({{ useOpenGeoDb|default(0) }}),
