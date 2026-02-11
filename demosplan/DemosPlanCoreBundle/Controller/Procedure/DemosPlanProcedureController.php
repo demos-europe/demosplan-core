@@ -1373,7 +1373,7 @@ class DemosPlanProcedureController extends BaseController
             $agencies = $procedureServiceOutput->getPlanningOffices($customerService->getCurrentCustomer());
             $templateVars['agencies'] = $agencies;
 
-            $dataInputOrgas = $procedureServiceOutput->getDataInputOrgas();
+            $dataInputOrgas = $procedureServiceOutput->getDataInputOrgas($customerService->getCurrentCustomer());
             $templateVars['dataInputOrgas'] = $dataInputOrgas;
             // get current shortUrlPath
             $templateVars['shortUrlPath'] = $this->generateUrl(

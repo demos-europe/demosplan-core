@@ -96,11 +96,11 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
     }
 
     /**
-     * Get all Datainput Orgas.
+     * Get all Datainput Orgas for a specific customer.
      *
      * @return array Orga[]|null
      */
-    public function getDataInputOrgaList()
+    public function getDataInputOrgaList(Customer $customer)
     {
         try {
             $em = $this->getEntityManager();
@@ -111,7 +111,9 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
                 ->join('ou.roleInCustomers', 'userRoleInCustomer')
                 ->join('userRoleInCustomer.role', 'ur')
                 ->where('ur.code = :code')
-                ->setParameter('code', Role::PROCEDURE_DATA_INPUT);
+                ->andWhere('userRoleInCustomer.customer = :customer')
+                ->setParameter('code', Role::PROCEDURE_DATA_INPUT)
+                ->setParameter('customer', $customer);
             $query = $query->getQuery();
 
             return $query->getResult();
@@ -498,7 +500,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         Customer $customer,
         bool $deleted,
         string $orgaTypeName,
-        string $statusInCustomer
+        string $statusInCustomer,
     ): QueryBuilder {
         return $this->getEntityManager()->createQueryBuilder()
             ->from(Orga::class, 'orga')
@@ -698,7 +700,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         string $email,
         Customer $customer,
         Role $masterUserRole,
-        array $orgaTypeNames
+        array $orgaTypeNames,
     ): Orga {
         $em = $this->getEntityManager();
         $em->getConnection()->beginTransaction();
