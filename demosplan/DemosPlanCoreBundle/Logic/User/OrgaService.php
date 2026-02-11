@@ -990,11 +990,9 @@ class OrgaService extends CoreService implements OrgaServiceInterface
     {
         $labelMap = $this->getOrgaTypeLabelMap();
 
-        $res = array_map(
+        return array_map(
             fn (string $orgaTypeName) => $this->translator->trans($labelMap[$orgaTypeName]), $orgaTypeNames
         );
-
-        return $res;
     }
 
     public function transformOrgaTypeNameToLabel(string $orgaTypeName): string
