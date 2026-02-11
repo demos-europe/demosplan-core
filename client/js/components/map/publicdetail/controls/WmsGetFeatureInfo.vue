@@ -372,14 +372,22 @@ export default {
 
         rows.forEach((row, index) => {
           if (index < rows.length - 1) {
-            row.style.borderBottom = '1px solid #aeaeae' // $dp-color-neutral-light-1
-          } else {
-            row.style.borderBottom = 'none'
+            row.classList.add('border-b', 'border-neutral')
           }
 
           const cells = row.querySelectorAll('td, th')
 
           cells.forEach(cell => {
+            /**
+             * Remove some inline styles from WMS response, but keep fontWeight for custom headings - we can't identify these
+             * with certainty - and other styles that don't seem to be an issue
+             */
+            cell.style.backgroundColor = ''
+            cell.style.color = ''
+            cell.style.fontFamily = ''
+            cell.style.fontSize = ''
+            cell.style.fontStyle = ''
+            cell.style.textDecoration = ''
             cell.style.paddingTop = '5px'
             cell.style.paddingBottom = '5px'
           })
