@@ -11,12 +11,17 @@
 namespace Tests\Core\User\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 
@@ -140,15 +145,40 @@ class OrgaServiceTest extends FunctionalTestCase
         static::assertCount(1, $newUser->getDplanroles());
     }
 
-    public function testGetDataInputOrgas()
+    public function testGetDataInputOrgasFilteredByCustomer(): void
     {
-        self::markSkippedForCIIntervention();
+        // -- Arrange --
+        $roleHandler = self::getContainer()->get(RoleHandler::class);
+        $dataInputRole = $roleHandler->getRoleByCode(Role::PROCEDURE_DATA_INPUT);
 
-        /** @var \demosplan\DemosPlanCoreBundle\Entity\User\Customer $customer */
-        $customer = $this->fixtures->getReference('testCustomer');
-        $orgas = $this->sut->getDataInputOrgaList($customer);
-        static::assertCount(2, $orgas);
-        static::assertEquals($this->fixtures->getReference('dataInputOrga')->getId(), $orgas[0]->getId());
+        $customerA = CustomerFactory::createOne();
+        $customerB = CustomerFactory::createOne();
+
+        // Orga in Customer A — should be returned
+        $orgaA = OrgaFactory::createOne();
+        $userA = UserFactory::createOne();
+        $userA->setOrga($orgaA->_real());
+        $orgaA->addUser($userA->_real());
+        $userA->_real()->addDplanrole($dataInputRole, $customerA->_real());
+        $userA->_save();
+        $orgaA->_save();
+
+        // Orga in Customer B — should NOT be returned
+        $orgaB = OrgaFactory::createOne();
+        $userB = UserFactory::createOne();
+        $userB->setOrga($orgaB->_real());
+        $orgaB->addUser($userB->_real());
+        $userB->_real()->addDplanrole($dataInputRole, $customerB->_real());
+        $userB->_save();
+        $orgaB->_save();
+
+        // -- Act --
+        $orgas = $this->sut->getDataInputOrgaList($customerA->_real());
+
+        // -- Assert --
+        $orgaIds = array_map(fn (Orga $o) => $o->getId(), $orgas);
+        static::assertContains($orgaA->getId(), $orgaIds);
+        static::assertNotContains($orgaB->getId(), $orgaIds);
     }
 
     public function testGetOrgaByIds()
