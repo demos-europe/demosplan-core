@@ -372,9 +372,7 @@ export default {
 
         rows.forEach((row, index) => {
           if (index < rows.length - 1) {
-            row.style.borderBottom = '1px solid #aeaeae' // $dp-color-neutral-light-1
-          } else {
-            row.style.borderBottom = 'none'
+            row.classList.add('border-b', 'border-neutral')
           }
 
           const cells = row.querySelectorAll('td, th')
