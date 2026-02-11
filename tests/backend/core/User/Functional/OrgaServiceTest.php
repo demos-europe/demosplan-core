@@ -10,6 +10,7 @@
 
 namespace Tests\Core\User\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
@@ -18,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
@@ -149,7 +149,7 @@ class OrgaServiceTest extends FunctionalTestCase
     {
         // -- Arrange --
         $roleHandler = self::getContainer()->get(RoleHandler::class);
-        $dataInputRole = $roleHandler->getRoleByCode(Role::PROCEDURE_DATA_INPUT);
+        $dataInputRole = $roleHandler->getRoleByCode(RoleInterface::PROCEDURE_DATA_INPUT);
 
         $customerA = CustomerFactory::createOne();
         $customerB = CustomerFactory::createOne();
