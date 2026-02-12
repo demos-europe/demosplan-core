@@ -269,7 +269,8 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $procedureData['orgaId'] = $data['orgaId'];
         $procedureData['orgaName'] = $data['orgaName'];
 
-        // Phase Konfiguration der Öffentlichkeit
+        // Phase configuration: set both internal and external phase to the configured default
+        $procedureData['phase'] = $this->masterProcedurePhase;
         $procedureData['publicParticipationPhase'] = $this->masterProcedurePhase;
         $procedureData['copymaster'] = $data['r_copymaster'];
         $procedureData['procedureCoupleToken'] = $this->handleTokenField($data['procedureCoupleToken'] ?? null);
@@ -668,7 +669,6 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
             $path = $this->fileService->ensureLocalFile($pictogramFileInfo->getAbsolutePath());
             $imageInfo = getimagesize($path);
-
         } catch (Exception $e) {
             throw new InvalidArgumentException($e->getMessage());
         }
