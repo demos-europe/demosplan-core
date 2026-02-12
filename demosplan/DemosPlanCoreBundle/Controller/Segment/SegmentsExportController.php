@@ -130,7 +130,7 @@ class SegmentsExportController extends BaseController
 
         // Apply tag filtering after JsonAPI filtering
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagsNoFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
+        $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
 
         $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
         $filteredTagNames = $this->statementExportTagFilter->getTagNames();
@@ -164,7 +164,7 @@ class SegmentsExportController extends BaseController
             }
         );
         // generating file name based on it being filtered by tags or not
-        0 === count($tagsFilter) && 0 === count($tagsNoFilter) ?
+        0 === count($tagsFilter) && 0 === count($noTagsFilter) ?
             $this->setResponseHeaders($response, $fileNameGenerator->getSynopseFileName($procedure, 'docx')) : $this->setResponseHeaders($response, $fileNameGenerator->getFilteredSynopseFileName($procedure, 'docx'));
 
         return $response;
