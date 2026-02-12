@@ -21,6 +21,8 @@ COPY zzz-dplan-cli.ini /etc/php/8.3/cli/conf.d/zzz-dplan-cli.ini
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
+ARG COMMIT_SHA_CORE=""
+ARG COMMIT_SHA_PROJECT=""
 # ENV vars needs to be set to build the assets
 ENV PROJECT_PREFIX=$PROJECT_NAME \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
@@ -140,6 +142,13 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
 FROM debian:bookworm-20251229-slim AS fpm
 
 ARG PROJECT_NAME
+ARG COMMIT_SHA_CORE=""
+ARG COMMIT_SHA_PROJECT=""
+
+LABEL org.opencontainers.image.source="https://github.com/demos-europe/demosplan-core"
+LABEL de.demos.core.revision=$COMMIT_SHA_CORE
+LABEL de.demos.project.revision=$COMMIT_SHA_PROJECT
+
 ENV PROJECT_PREFIX=$PROJECT_NAME \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
     EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de \
@@ -204,6 +213,12 @@ FROM nginxinc/nginx-unprivileged:alpine3.22-slim AS nginx
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
+ARG COMMIT_SHA_CORE=""
+ARG COMMIT_SHA_PROJECT=""
+
+LABEL org.opencontainers.image.source="https://github.com/demos-europe/demosplan-core"
+LABEL de.demos.core.revision=$COMMIT_SHA_CORE
+LABEL de.demos.project.revision=$COMMIT_SHA_PROJECT
 ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung \
     BUILD_MODE=$BUILD_MODE
 
