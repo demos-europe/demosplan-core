@@ -14,8 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
-use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Console\Command\Command;
@@ -38,18 +36,18 @@ class InitializeWorkflowPlacesCommand extends CoreCommand
      * Default places that will be created (same as in LoadWorkflowPlaceData fixture).
      */
     private const DEFAULT_PLACES = [
-        ['name' => 'Erwiderung verfassen', 'sortIndex' => 0],
-        ['name' => 'Fachtechnische Prüfung', 'sortIndex' => 1],
-        ['name' => 'Juristische Prüfung', 'sortIndex' => 2],
-        ['name' => 'Lektorat', 'sortIndex' => 3],
-        ['name' => 'Abgeschlossen', 'sortIndex' => 4],
+        ['name' => 'Erwiderung verfassen', 'sortIndex' => 0, 'solved' => false],
+        ['name' => 'Fachtechnische Prüfung', 'sortIndex' => 1, 'solved' => false],
+        ['name' => 'Juristische Prüfung', 'sortIndex' => 2, 'solved' => false],
+        ['name' => 'Lektorat', 'sortIndex' => 3, 'solved' => false],
+        ['name' => 'Abgeschlossen', 'sortIndex' => 4, 'solved' => true],
     ];
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ValidatorInterface $validator,
         ParameterBagInterface $parameterBag,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -167,7 +165,6 @@ EOT
                 ->setParameter('procedureId', $procedureId);
         }
 
-
         return $qb->getQuery()->getResult();
     }
 
@@ -190,6 +187,7 @@ EOT
                 $placeData['name'],
                 $placeData['sortIndex']
             );
+            $place->setSolved($placeData['solved']);
 
             // Validate the place
             $violations = $this->validator->validate($place);
