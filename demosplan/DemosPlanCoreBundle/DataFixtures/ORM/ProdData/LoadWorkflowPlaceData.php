@@ -29,7 +29,7 @@ class LoadWorkflowPlaceData extends ProdFixture implements DependentFixtureInter
     {
         /** @var Procedure $procedure */
         $procedure = $this->getReference('procedureMaster');
-        
+
         $reply = new Place($procedure, 'Erwiderung verfassen', 0);
         $manager->persist($reply);
         $this->setReference(self::PLACE_REPLY, $reply);
@@ -47,6 +47,7 @@ class LoadWorkflowPlaceData extends ProdFixture implements DependentFixtureInter
         $this->setReference(self::PLACE_EDITORIAL, $editorial);
 
         $completed = new Place($procedure, 'Abgeschlossen', 4);
+        $completed->setSolved(true);
         $manager->persist($completed);
         $this->setReference(self::PLACE_COMPLETED, $completed);
 
