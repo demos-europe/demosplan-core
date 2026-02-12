@@ -78,7 +78,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         array $tableHeaders,
         Procedure $procedure,
         bool $obscure,
-        bool $exportFilteredByTags = false,
+        array $exportFilteredByTags = [],
         bool $censorCitizenData = false,
         bool $censorInstitutionData = false,
         Statement ...$statements,
@@ -195,7 +195,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscureParameter,
-        bool $exportFilteredByTags = false,
+        array $exportFilteredByTags = [],
     ): PhpWord {
         $censored = $this->needsToBeCensored(
             $statement,
