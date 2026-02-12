@@ -159,6 +159,54 @@
           />
         </div>
 
+        <div
+          v-if="openedFromDraftList && statementCustomFields.length > 0"
+          class="mb-2"
+        >
+          <div
+            v-for="customField in statementCustomFields"
+            :key="customField.id"
+            class="mb-2"
+          >
+            <dp-label
+              :text="customField.name"
+              class="mb-2"
+            />
+            <div :class="prefixClass('o-form__group')">
+              <span :class="prefixClass('badge badge--default')">
+                {{ customField.selected.map(option => option.label).join(', ') }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="!openedFromDraftList">
+          <div
+            v-for="customField in selectableCustomFields"
+            :key="customField.id"
+            class="mb-2"
+          >
+            <dp-label
+              :text="customField.name"
+              :for="customField.id"
+              :required="customField.isRequired"
+              class="mb-2"
+            />
+
+            <dp-multiselect
+              :id="customField.name"
+              v-model="customField.selected"
+              :data-dp-validate-error-fieldname="customField.name"
+              :options="customField.options"
+              :required="customField.isRequired"
+              label="label"
+              multiple
+              track-by="id"
+              @input="handleCustomFieldChange"
+            />
+          </div>
+        </div>
+
         <div :class="prefixClass('c-statement__text')">
           <dp-label
             :text="Translator.trans('statement.detail.form.statement_text')"
@@ -684,6 +732,7 @@
           :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
           :statement-feedback-definitions="statementFeedbackDefinitions"
           :statement-form-hint-recheck="statementFormHintRecheck"
+          :selectable-custom-fields="selectableCustomFields"
           @edit-input="handleEditInput"
         />
 
@@ -835,6 +884,7 @@ import {
   DpLabel,
   DpLoading,
   DpModal,
+  DpMultiselect,
   DpMultistepNav,
   DpProgressBar,
   DpRadio,
@@ -883,6 +933,7 @@ export default {
     DpLabel,
     DpLoading,
     DpModal,
+    DpMultiselect,
     DpMultistepNav,
     DpProgressBar,
     DpRadio,
@@ -1085,9 +1136,12 @@ export default {
         label += ' ' + Translator.trans(hasPermission('feature_statement_publish_name') ? 'explanation.statement.public.organame' : 'explanation.statement.public.noname')
         return label
       })(),
+      openedFromDraftList: false,
       redirectPath: 'DemosPlan_procedure_public_detail',
       responseHtml: '',
+      selectableCustomFields: [],
       showHeader: true,
+      statementCustomFields: [],
       step: 0,
       unsavedFiles: [],
       updateDraftListRequired: false,
@@ -1227,26 +1281,95 @@ export default {
       const invalidFields = this.dpValidate.invalidFields[formId]
       const uniqueFieldDescriptions = Array.from(new Set(invalidFields.map(field => {
         const fieldId = field.getAttribute('id')
-        return `<li>${Translator.trans(fieldDescriptionsForErrors[fieldId])}</li>`
+
+        return `<li>${fieldDescriptionsForErrors[fieldId] ? Translator.trans(fieldDescriptionsForErrors[fieldId]) : field.dataset?.dpValidateErrorFieldname}</li>`
       })))
+
       return `<p>${Translator.trans('error.in.fields')}</p><ul class="list-disc u-ml-0_75">${uniqueFieldDescriptions.join('')}</ul>`
+    },
+
+    async fetchCustomFields () {
+      if (!hasPermission('feature_statements_custom_fields')) {
+        return
+      }
+
+      try {
+        const url = Routing.generate('api_resource_list', {
+          resourceType: 'CustomField',
+        })
+
+        const params = {
+          fields: {
+            CustomField: [
+              'name',
+              'description',
+              'options',
+              'fieldType',
+              'isRequired',
+            ].join(),
+          },
+          filter: {
+            sourceEntityId: {
+              condition: {
+                path: 'sourceEntityId',
+                value: this.procedureId,
+              },
+            },
+          },
+        }
+
+        const response = await dpApi.get(url, params)
+
+        const customFields = response.data.data || []
+
+        this.selectableCustomFields = customFields.map(field => ({
+          id: field.id,
+          name: field.attributes.name,
+          description: field.attributes.description,
+          isRequired: field.attributes.isRequired || false,
+          options: Array.isArray(field.attributes.options) ? field.attributes.options : [],
+          selected: [],
+        }))
+      } catch (error) {
+        console.log(error)
+
+        this.selectableCustomFields = []
+      }
     },
 
     fieldIsActive (fieldKey) {
       return this.formFields.map(el => el.name).includes(fieldKey)
     },
 
-    getDraftStatement (draftStatementId, openModal = false) {
+    focusMultistep (step) {
+      this.$nextTick(() => {
+        const currentMultistepButton = this.$el.querySelectorAll('.c-multistep__step')[step]
+        if (currentMultistepButton) {
+          currentMultistepButton.focus()
+        }
+      })
+    },
+
+    getDraftStatement (draftStatementId, openModal = false, fromDraftList = false) {
       this.writeDraftStatementIdToSession(draftStatementId)
+
+      this.openedFromDraftList = fromDraftList
 
       // If the draft already exists. load it from session storage
       const dId = draftStatementId !== '' ? draftStatementId : 'new'
       const existingDataString = localStorage.getItem(`publicStatement:${this.userId}:${this.procedureId}:${dId}`)
       const draftExists = (draftStatementId !== '' && existingDataString !== null)
+
       if (draftExists) {
         const existingData = JSON.parse(existingDataString)
 
         this.setStatementData(existingData)
+
+        if (!fromDraftList) {
+          this.$nextTick(() => {
+            this.restoreCustomFieldSelections()
+          })
+        }
       }
 
       // Else: get the data via api
@@ -1265,6 +1388,13 @@ export default {
              * If it is a draft, we set the data from local storage (see above).
              */
             this.setStatementData(draft)
+
+            if (!fromDraftList) {
+              this.$nextTick(() => {
+                this.restoreCustomFieldSelections()
+              })
+            }
+
             this.removeStatementProp('immediate_submit')
             sessionStorage.removeItem(this.fileStorageName)
 
@@ -1290,68 +1420,6 @@ export default {
       }
     },
 
-    /*
-     * When clicking the little ✎ icon in the "recheck" step, users are sent to the
-     * respective multistep step, and afterwards the element they want to edit is focused.
-     * The function expects a string with the id of the input to be focused as its argument.
-     */
-    handleEditInput (input) {
-      this.step = {
-        r_text: 0,
-        r_makePublic: 0,
-        r_useName_0: 1,
-        r_useName_1: 1,
-        r_getFeedback: 1,
-      }[input] || 0
-      this.$nextTick(() => {
-        // Focusing of the tiptap instance must be handled separately
-        if (input === 'r_text') {
-          this.$refs.statementEditor.editor.focus('end')
-        } else {
-          document.getElementById(input).focus()
-        }
-      })
-    },
-
-    loadDraftListPage () {
-      if (window.location.href.includes(Routing.generate('DemosPlan_statement_list_draft', { procedure: this.procedureId })) || window.location.href.includes(Routing.generate('DemosPlan_statement_list_released_group', { procedure: this.procedureId }))) {
-        window.location.reload()
-      } else {
-        window.location.href = Routing.generate(this.redirectPath, { procedure: this.procedureId }) + '#' + this.draftStatementId
-      }
-    },
-
-    reset () {
-      if (window.dpconfirm(Translator.trans('check.statement.discard.changes'))) {
-        this.unsavedFiles.forEach(file => {
-          this.$refs.uploadFiles.handleRemove(file)
-        })
-        this.$refs.statementEditor.resetEditor()
-        this.setStatementData(JSON.parse(this.initFormDataJSON))
-        this.addToUnsavedDrafts = false
-        this.toggleModal(false)
-        this.step = 0
-        this.showHeader = true
-        this.$nextTick(() => {
-          if (this.draftStatementId !== '') {
-            window.location.href = Routing.generate(this.redirectPath, { procedure: this.procedureId, _fragment: this.draftStatementId })
-          }
-        })
-
-        this.resetSessionStorage()
-        sessionStorage.removeItem('redirectpath')
-      }
-    },
-
-    focusMultistep (step) {
-      this.$nextTick(() => {
-        const currentMultistepButton = this.$el.querySelectorAll('.c-multistep__step')[step]
-        if (currentMultistepButton) {
-          currentMultistepButton.focus()
-        }
-      })
-    },
-
     gotoTab (tab) {
       if (document.getElementById(tab)) {
         this.$emit('toggleTabs', '#' + tab)
@@ -1362,6 +1430,54 @@ export default {
       } else {
         window.location.href = Routing.generate('DemosPlan_procedure_public_detail', { procedure: this.procedureId }) + `#${tab}`
       }
+    },
+
+    handleCustomFieldChange () {
+      this.$nextTick(() => {
+        if (!this.selectableCustomFields || this.selectableCustomFields.length === 0) {
+          this.setStatementData({ customFields: [] })
+          return
+        }
+
+        const customFields = this.selectableCustomFields
+          .filter(field => field.selected && field.selected.length > 0)
+          .map(field => ({
+            id: field.id,
+            value: field.selected.map(option => option.id),
+          }))
+
+        this.setStatementData({ customFields })
+      })
+    },
+
+    /*
+     * When clicking the little ✎ icon in the "recheck" step, users are sent to the
+     * respective multistep step, and afterwards the element they want to edit is focused.
+     * The function expects a string with the id of the input to be focused as its argument.
+     */
+    handleEditInput (input) {
+      this.step = {
+        r_text: 0,
+        r_makePublic: 0,
+        r_customFields: 0,
+        r_useName_0: 1,
+        r_useName_1: 1,
+        r_getFeedback: 1,
+      }[input] || 0
+      this.$nextTick(() => {
+        // Focusing of the tiptap instance must be handled separately
+        if (input === 'r_text') {
+          this.$refs.statementEditor.editor.focus('end')
+        } else if (input === 'r_customFields') {
+          // Scroll to first custom field
+          const firstCustomField = document.querySelector('[data-cy^="customField"]')
+          if (firstCustomField) {
+            firstCustomField.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
+        } else {
+          document.getElementById(input).focus()
+        }
+      })
     },
 
     handleModalToggle (open) {
@@ -1379,6 +1495,14 @@ export default {
         if (this.updateDraftListRequired) {
           this.loadDraftListPage()
         }
+      }
+    },
+
+    loadDraftListPage () {
+      if (window.location.href.includes(Routing.generate('DemosPlan_statement_list_draft', { procedure: this.procedureId })) || window.location.href.includes(Routing.generate('DemosPlan_statement_list_released_group', { procedure: this.procedureId }))) {
+        window.location.reload()
+      } else {
+        window.location.href = Routing.generate(this.redirectPath, { procedure: this.procedureId }) + '#' + this.draftStatementId
       }
     },
 
@@ -1451,6 +1575,10 @@ export default {
         delete dataToSend.r_email
       }
 
+      if (dataToSend.customFields && Array.isArray(dataToSend.customFields)) {
+        dataToSend.customFields = JSON.stringify(dataToSend.customFields)
+      }
+
       return dataToSend
     },
 
@@ -1481,6 +1609,76 @@ export default {
         uploadedFiles: this.unsavedFiles
           .map(el => el.hash)
           .join(','),
+      })
+    },
+
+    reset () {
+      if (window.dpconfirm(Translator.trans('check.statement.discard.changes'))) {
+        this.unsavedFiles.forEach(file => {
+          this.$refs.uploadFiles.handleRemove(file)
+        })
+        this.$refs.statementEditor.resetEditor()
+        this.setStatementData(JSON.parse(this.initFormDataJSON))
+        this.addToUnsavedDrafts = false
+        this.toggleModal(false)
+        this.step = 0
+        this.showHeader = true
+        this.$nextTick(() => {
+          if (this.draftStatementId !== '') {
+            window.location.href = Routing.generate(this.redirectPath, { procedure: this.procedureId, _fragment: this.draftStatementId })
+          }
+        })
+
+        this.resetSessionStorage()
+        sessionStorage.removeItem('redirectpath')
+      }
+    },
+
+    resetSessionStorage () {
+      sessionStorage.removeItem(this.draftStatementIdStorageName)
+    },
+
+    restoreCustomFieldSelections () {
+      this.selectableCustomFields.forEach(field => {
+        field.selected = []
+      })
+
+      if (!this.formData.customFields) {
+        return
+      }
+
+      this.formData.customFields.forEach(storedField => {
+        const fieldIndex = this.selectableCustomFields.findIndex(
+          field => field.id === storedField.id,
+        )
+
+        if (fieldIndex === -1) {
+          console.warn(`Custom field ${storedField.id} not found in available fields`)
+
+          return
+        }
+
+        const field = this.selectableCustomFields[fieldIndex]
+
+        if (!storedField.value) {
+          return
+        }
+
+        const selectedOptions = storedField.value
+          .map(optionId => {
+            const option = field.options.find(opt => opt.id === optionId)
+
+            if (!option) {
+              console.warn(`Option ${optionId} not found in custom field ${field.name}`)
+
+              return null
+            }
+
+            return option
+          })
+          .filter(opt => opt !== null)
+
+        this.selectableCustomFields[fieldIndex].selected = selectedOptions
       })
     },
 
@@ -1598,6 +1796,10 @@ export default {
         })
     },
 
+    setCustomFieldsReadOnly (customFields) {
+      this.statementCustomFields = customFields
+    },
+
     setDraftData (data, priorityAreaKey, priorityAreaType) {
       const draft = {
         r_text: data.draftStatement.text,
@@ -1632,21 +1834,14 @@ export default {
       this.removeNotificationsFromStore()
     },
 
-    writeDraftStatementIdToSession (draftStatementId) {
-      this.draftStatementId = draftStatementId
-      sessionStorage.setItem(this.draftStatementIdStorageName, draftStatementId)
-    },
-
-    resetSessionStorage () {
-      sessionStorage.removeItem(this.draftStatementIdStorageName)
-    },
-
     setStatementData (data) {
       this.addToUnsavedDrafts = true
       this.updateStatement({ r_ident: this.draftStatementId, ...data })
     },
 
     toggleModal (resetOnClose = true, data = null) {
+      const isClosing = this.$refs.statementModal && this.$refs.statementModal.isOpen
+
       // Check if browser is in fullscreen mode
       if (isActiveFullScreen()) {
         toggleFullscreen()
@@ -1654,6 +1849,12 @@ export default {
       this.editDraftDataInPublicDetail = resetOnClose
       this.step = 0
       this.showHeader = true
+
+      if (isClosing) {
+        this.openedFromDraftList = false
+        this.statementCustomFields = []
+      }
+
       this.$refs.statementModal.toggle()
       if (data) {
         this.updateStatement(data)
@@ -1696,6 +1897,19 @@ export default {
       sessionStorage.removeItem(this.fileStorageName)
     },
 
+    validatePersonalDataStep () {
+      if (this.dpValidate.submitterForm) {
+        this.step = 2
+        this.focusMultistep(2)
+      } else {
+        this.$nextTick(() => document.getElementById('submitterFormErrors').focus())
+      }
+    },
+
+    validateRecheckStep () {
+      return this.dpValidate.recheckForm
+    },
+
     validateStatementStep () {
       if (this.formData.r_location === 'point' && (this.formData.r_location_geometry === '' && this.formData.r_location_point === '' && this.formData.r_location_priority_area_key === '')) {
         this.setStatementData({ r_location: '' })
@@ -1720,26 +1934,47 @@ export default {
       return this.dpValidateAction('statementForm', postValidation, true)
     },
 
-    validatePersonalDataStep () {
-      if (this.dpValidate.submitterForm) {
-        this.step = 2
-        this.focusMultistep(2)
-      } else {
-        this.$nextTick(() => document.getElementById('submitterFormErrors').focus())
-      }
-    },
-
-    validateRecheckStep () {
-      return this.dpValidate.recheckForm
+    writeDraftStatementIdToSession (draftStatementId) {
+      this.draftStatementId = draftStatementId
+      sessionStorage.setItem(this.draftStatementIdStorageName, draftStatementId)
     },
   },
 
   mounted () {
+    this.fetchCustomFields().then(() => {
+      this.draftStatementId = sessionStorage.getItem(this.draftStatementIdStorageName) || ''
+      this.redirectPath = sessionStorage.getItem('redirectpath') || this.initRedirectPath
+
+      if (this.draftStatementId !== '') {
+        this.getDraftStatement(this.draftStatementId)
+      } else {
+        const sessionStorageBegunStatement = localStorage.getItem(`publicStatement:${this.userId}:${this.procedureId}:new`)
+        const sessionStorageBegunStatementParsed = JSON.parse(sessionStorageBegunStatement)
+
+        if (
+          sessionStorageBegunStatement &&
+          sessionStorageBegunStatement !== this.initFormDataJSON &&
+          sessionStorageBegunStatementParsed.r_ident === ''
+        ) {
+          this.setStatementData(sessionStorageBegunStatementParsed)
+
+          this.$nextTick(() => {
+            this.restoreCustomFieldSelections()
+          })
+        } else {
+          this.setStatementData({
+            r_county: this.counties.find(el => el.selected) ?
+              this.counties.find(el => el.selected).value :
+              '',
+          })
+        }
+      }
+    })
+
     if (!this.allowAnonymousStatements && this.formData.r_useName !== '1') {
       this.setPrivacyPreference({ r_useName: '1' })
     }
 
-    // Set data from map
     this.$root.$on('updateStatementFormMapData', (data = {}, toggle = true) => {
       this.setStatementData(data)
       if (toggle) {
@@ -1755,22 +1990,6 @@ export default {
     this.$root.$on('statementModal:goToTab', tabname => {
       this.gotoTab(tabname)
     })
-
-    // Set draft statement Id from href
-    this.draftStatementId = sessionStorage.getItem(this.draftStatementIdStorageName) || ''
-    this.redirectPath = sessionStorage.getItem('redirectpath') || this.initRedirectPath
-
-    if (this.draftStatementId !== '') {
-      this.getDraftStatement(this.draftStatementId)
-    } else {
-      const sessionStorageBegunStatement = localStorage.getItem(`publicStatement:${this.userId}:${this.procedureId}:new`)
-      const sessionStorageBegunStatementParsed = JSON.parse(sessionStorageBegunStatement)
-      if (sessionStorageBegunStatement && sessionStorageBegunStatement !== this.initFormDataJSON && sessionStorageBegunStatementParsed.r_ident === '') {
-        this.setStatementData(sessionStorageBegunStatementParsed)
-      } else {
-        this.setStatementData({ r_county: this.counties.find(el => el.selected) ? this.counties.find(el => el.selected).value : '' })
-      }
-    }
   },
 }
 </script>
