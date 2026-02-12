@@ -56,17 +56,18 @@ final class DraftStatementResourceType extends DplanResourceType
         if (!$procedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
+
         return [$this->conditionFactory->true()];
     }
 
     public function isGetAllowed(): bool
     {
-        return true; //@todo still needs to be adjusted
+        return true; // @todo still needs to be adjusted
     }
 
     public function isListAllowed(): bool
     {
-        return true; //@todo still needs to be adjusted
+        return true; // @todo still needs to be adjusted
     }
 
     public function isUpdateAllowed(): bool
