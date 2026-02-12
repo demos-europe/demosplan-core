@@ -29,10 +29,12 @@ parameters:
 
     # #refactor: used only once, perhaps there are better ways to achieve this
     # project_short_url_redirect_route, project_short_url_redirect_route_loggedin and procedure_entrypoint_route
-    # Bei Änderungen der Route muss in PlatformController->shortUrlAction() ggf. der Paramter angepasst werden
     project_short_url_redirect_route: "DemosPlan_procedure_public_detail"
     # Wohin soll ein angemeldeter Nutzer nach dem Benutzen einer ShortUrl umgeleitet werden?
     project_short_url_redirect_route_loggedin: "DemosPlan_procedure_public_detail"
+    # Parameter name for procedure ID in short URL redirect (default: "procedure")
+    project_short_url_redirect_param: "procedure"
+    project_short_url_redirect_param_loggedin: "procedure"
 
     # Set procedure entrypoint
     procedure_entrypoint_route: "DemosPlan_procedure_dashboard"
@@ -256,6 +258,14 @@ parameters:
     # percentage of requests to trace performance. 0 = none, 1.0 = 100%
     sentry_traces_sample_rate: 0
     sentry_profiles_sample_rate: 0
+
+    # OpenTelemetry OTLP endpoint for logs and traces
+    # Set to empty string to disable, or e.g. "http://otel-collector:4318" to enable
+    otel_exporter_endpoint: ""
+    otel_service_name: "demosplan"
+    otel_loglevel: "info"
+    # Tenant ID for multi-tenancy identification in traces/logs
+    otel_tenant_id: ""
 
     fileservice_filepath: "../../files"
 
