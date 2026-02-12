@@ -6915,17 +6915,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.30001759":
+"caniuse-lite@npm:^1.0.30001759, caniuse-lite@npm:^1.0.30001769":
   version: 1.0.30001769
   resolution: "caniuse-lite@npm:1.0.30001769"
   checksum: 10c0/161b8c30ab967371807d45d361f0d5bc06e38ef2dbf811493d70cd97c21e1522f5b91fd944c419a00047ee09c931ca64627f125a9ffa7a17a9fdff8dad9765b0
-  languageName: node
-  linkType: hard
-
-"caniuse-lite@npm:^1.0.30001762":
-  version: 1.0.30001762
-  resolution: "caniuse-lite@npm:1.0.30001762"
-  checksum: 10c0/93707eac5b0240af3f2ce6e2d7ab504a6fefcf9c2f9cd8fb9d488e496a333c61e557dab0472c1b00c17bc386a5dbb792aa4c778cda2d768e17f986617d7aec53
   languageName: node
   linkType: hard
 
@@ -8277,7 +8270,7 @@ __metadata:
     assets-webpack-plugin: "npm:^7.1.1"
     babel-jest: "npm:^29.7.0"
     babel-loader: "npm:^10.0.0"
-    caniuse-lite: "npm:^1.0.30001762"
+    caniuse-lite: "npm:^1.0.30001769"
     carbon-components: "npm:10.58.15"
     cesium: "npm:^1.126.0"
     chalk: "npm:4.1.2"
