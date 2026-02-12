@@ -163,7 +163,7 @@
     "vue-loader": "^17.4.2",
     "webpack": "^5.104.1",
     "webpack-bundle-analyzer": "^5.0.1",
-    "webpack-manifest-plugin": "^5.0.0",
+    "webpack-manifest-plugin": "^6.0.1",
     "webpack-merge": "^6.0.1"
   },
   "engines": {
