@@ -103,7 +103,7 @@
 
                     <div class="c-actionmenu__menu" role="menu">
                         {% for tab, option in templateVars.assessmentExportOptions|filter(option => not option == false) %}
-                            <button class="c-actionmenu__menuitem" data-actionmenu-menuitem role="menuitem" tabindex="-1" @click.prevent="$root.$emit('exportModal:toggle', '{{ tab }}')">
+                            <button class="c-actionmenu__menuitem" data-actionmenu-menuitem role="menuitem" tabindex="-1" @click.prevent="toggleExportModal('{{ tab }}')">
                                 {{ option.buttonLabel|trans }}
                             </button>
                         {% endfor %}
