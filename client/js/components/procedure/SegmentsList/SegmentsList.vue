@@ -239,6 +239,7 @@
               v-if="hasTagStyleAddon"
               hook-name="tag.style"
               :addon-props="{
+                demosplanUi,
                 tags: getTagsBySegment(rowData.id)
               }"
             />
