@@ -93,7 +93,7 @@ final class DraftStatementResourceType extends DplanResourceType
                             $customFields,
                             $draftStatement->getProcedure()->getId(),
                             CustomFieldSupportedEntity::procedure->value,
-                            CustomFieldSupportedEntity::draftStatement->value,
+                            CustomFieldSupportedEntity::statement->value,
                         );
                         $draftStatement->setCustomFields($customFieldList);
 
