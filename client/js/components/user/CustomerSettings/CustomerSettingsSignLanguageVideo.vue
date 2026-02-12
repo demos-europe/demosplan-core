@@ -52,7 +52,6 @@
       <dp-upload-files
         id="videoSrc"
         :allowed-file-types="['video/*']"
-        :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
         :max-file-size="400 * 1024 * 1024/* 400 MiB */"
         :max-number-of-files="1"

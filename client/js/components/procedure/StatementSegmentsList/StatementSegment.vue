@@ -130,7 +130,6 @@
       </div>
       <div v-else>
         <dp-editor
-          :basic-auth="dplan.settings.basicAuth"
           class="u-mb-0_5"
           editor-id="recommendationText"
           :routes="{
