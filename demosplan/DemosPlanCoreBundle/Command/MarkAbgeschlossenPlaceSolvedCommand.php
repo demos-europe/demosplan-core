@@ -123,52 +123,50 @@ EOT
             return Command::SUCCESS;
         }
 
-        // Update matching procedures
-        if ([] !== $matchingRows) {
-            $io->info(sprintf('Found %d procedure(s) with "Abgeschlossen" place to mark as solved', count($matchingRows)));
-
-            $updated = 0;
-            foreach ($matchingRows as $row) {
-                $io->text(sprintf(
-                    '  [%s] %s',
-                    $row['procedure_id'],
-                    $row['_p_name']
-                ));
-
-                if (!$isDryRun) {
-                    $conn->executeStatement(
-                        'UPDATE workflow_place SET solved = 1 WHERE id = ?',
-                        [$row['place_id']]
-                    );
-                }
-
-                ++$updated;
-            }
-
-            $io->success(sprintf(
-                '%s %d place(s)',
-                $isDryRun ? 'Would update' : 'Updated',
-                $updated
-            ));
-        }
-
-        // Report skipped procedures
-        if ([] !== $skippedRows) {
-            $io->warning(sprintf(
-                '%d procedure(s) have no "Abgeschlossen" place — review manually:',
-                count($skippedRows)
-            ));
-
-            foreach ($skippedRows as $row) {
-                $io->text(sprintf(
-                    '  [%s] %s — places: %s',
-                    $row['_p_id'],
-                    $row['_p_name'],
-                    $row['place_names']
-                ));
-            }
-        }
+        $this->updateMatchingProcedures($matchingRows, $isDryRun, $conn, $io);
+        $this->reportSkippedProcedures($skippedRows, $io);
 
         return Command::SUCCESS;
+    }
+
+    private function updateMatchingProcedures(array $matchingRows, bool $isDryRun, $conn, SymfonyStyle $io): void
+    {
+        if ([] === $matchingRows) {
+            return;
+        }
+
+        $io->info(sprintf('Found %d procedure(s) with "Abgeschlossen" place to mark as solved', count($matchingRows)));
+
+        $updated = 0;
+        foreach ($matchingRows as $row) {
+            $io->text(sprintf('  [%s] %s', $row['procedure_id'], $row['_p_name']));
+
+            if (!$isDryRun) {
+                $conn->executeStatement(
+                    'UPDATE workflow_place SET solved = 1 WHERE id = ?',
+                    [$row['place_id']]
+                );
+            }
+
+            ++$updated;
+        }
+
+        $io->success(sprintf('%s %d place(s)', $isDryRun ? 'Would update' : 'Updated', $updated));
+    }
+
+    private function reportSkippedProcedures(array $skippedRows, SymfonyStyle $io): void
+    {
+        if ([] === $skippedRows) {
+            return;
+        }
+
+        $io->warning(sprintf(
+            '%d procedure(s) have no "Abgeschlossen" place — review manually:',
+            count($skippedRows)
+        ));
+
+        foreach ($skippedRows as $row) {
+            $io->text(sprintf('  [%s] %s — places: %s', $row['_p_id'], $row['_p_name'], $row['place_names']));
+        }
     }
 }
