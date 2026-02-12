@@ -157,7 +157,7 @@
     "stylelint": "^16.26.1",
     "stylelint-config-standard-scss": "^16.0.0",
     "tailwindcss": "^4.1.17",
-    "terser-webpack-plugin": "^5.3.10",
+    "terser-webpack-plugin": "^5.3.16",
     "typescript-eslint": "^8.46.3",
     "vue-eslint-parser": "^10.2.0",
     "vue-loader": "^17.4.2",
