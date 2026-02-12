@@ -17,5 +17,6 @@ enum CustomFieldSupportedEntity: string
     case procedure = 'PROCEDURE';
     case procedureTemplate = 'PROCEDURE_TEMPLATE';
     case statement = 'STATEMENT';
+    case draftStatement = 'DRAFT_STATEMENT';
     case segment = 'SEGMENT';
 }
