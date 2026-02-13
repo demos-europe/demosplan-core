@@ -827,7 +827,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     /**
      * Helper: create a resource owner for re-login tests with a stable user identity.
      *
-     * @param array<string, mixed> $tokenOverrides  Fields to set/override on the token
+     * @param array<string, mixed> $tokenOverrides Fields to set/override on the token
      */
     private function createReloginResourceOwner(array $tokenOverrides): ResourceOwnerInterface
     {
@@ -929,10 +929,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         // First login: AMT-X × WATER = AMT-X.WATER
         $ro1 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-resp-change-001',
-            'email'            => 'resp.change@example.com',
+            'sub'                => 'test-relogin-resp-change-001',
+            'email'              => 'resp.change@example.com',
             'preferred_username' => 'resp.change',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'AMT-X', 'name' => 'Amt X'],
             ],
             'responsibilities' => [
@@ -946,10 +946,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 
         // Second login: same affiliation, different responsibilities
         $ro2 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-resp-change-001',
-            'email'            => 'resp.change@example.com',
+            'sub'                => 'test-relogin-resp-change-001',
+            'email'              => 'resp.change@example.com',
             'preferred_username' => 'resp.change',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'AMT-X', 'name' => 'Amt X'],
             ],
             'responsibilities' => [
@@ -970,10 +970,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         // First login: OLD-A × OLD-R = OLD-A.OLD-R
         $ro1 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-both-change-001',
-            'email'            => 'both.change@example.com',
+            'sub'                => 'test-relogin-both-change-001',
+            'email'              => 'both.change@example.com',
             'preferred_username' => 'both.change',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'OLD-A', 'name' => 'Old Amt'],
             ],
             'responsibilities' => [
@@ -986,10 +986,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 
         // Second login: completely different IDs → 2×2 = 4 orgs
         $ro2 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-both-change-001',
-            'email'            => 'both.change@example.com',
+            'sub'                => 'test-relogin-both-change-001',
+            'email'              => 'both.change@example.com',
             'preferred_username' => 'both.change',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'NEW-A1', 'name' => 'New Amt 1'],
                 ['id' => 'NEW-A2', 'name' => 'New Amt 2'],
             ],
@@ -1017,10 +1017,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         // First login
         $ro1 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-aff-name-001',
-            'email'            => 'aff.name@example.com',
+            'sub'                => 'test-relogin-aff-name-001',
+            'email'              => 'aff.name@example.com',
             'preferred_username' => 'aff.name',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'STABLE-A', 'name' => 'Original Amt A'],
                 ['id' => 'STABLE-B', 'name' => 'Original Amt B'],
             ],
@@ -1032,10 +1032,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 
         // Second login: same IDs, different names in token
         $ro2 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-aff-name-001',
-            'email'            => 'aff.name@example.com',
+            'sub'                => 'test-relogin-aff-name-001',
+            'email'              => 'aff.name@example.com',
             'preferred_username' => 'aff.name',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'STABLE-A', 'name' => 'Renamed Amt A'],
                 ['id' => 'STABLE-B', 'name' => 'Renamed Amt B'],
             ],
@@ -1061,10 +1061,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         // First login: A × R1,R2
         $ro1 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-resp-name-001',
-            'email'            => 'resp.name@example.com',
+            'sub'                => 'test-relogin-resp-name-001',
+            'email'              => 'resp.name@example.com',
             'preferred_username' => 'resp.name',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'FIX-AMT', 'name' => 'Fixed Amt'],
             ],
             'responsibilities' => [
@@ -1082,10 +1082,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 
         // Second login: same IDs, different responsibility names
         $ro2 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-resp-name-001',
-            'email'            => 'resp.name@example.com',
+            'sub'                => 'test-relogin-resp-name-001',
+            'email'              => 'resp.name@example.com',
             'preferred_username' => 'resp.name',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'FIX-AMT', 'name' => 'Fixed Amt'],
             ],
             'responsibilities' => [
@@ -1115,10 +1115,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         // First login: 1 affiliation
         $ro1 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-gain-aff-001',
-            'email'            => 'gain.aff@example.com',
+            'sub'                => 'test-relogin-gain-aff-001',
+            'email'              => 'gain.aff@example.com',
             'preferred_username' => 'gain.aff',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'KEEP-ORG', 'name' => 'Kept Organisation'],
             ],
             'responsibilities' => [],
@@ -1129,10 +1129,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 
         // Second login: 2 affiliations (one new)
         $ro2 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-gain-aff-001',
-            'email'            => 'gain.aff@example.com',
+            'sub'                => 'test-relogin-gain-aff-001',
+            'email'              => 'gain.aff@example.com',
             'preferred_username' => 'gain.aff',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'KEEP-ORG', 'name' => 'Kept Organisation'],
                 ['id' => 'NEW-ORG', 'name' => 'New Organisation'],
             ],
@@ -1152,10 +1152,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         // First login: 3 affiliations
         $ro1 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-lose-aff-001',
-            'email'            => 'lose.aff@example.com',
+            'sub'                => 'test-relogin-lose-aff-001',
+            'email'              => 'lose.aff@example.com',
             'preferred_username' => 'lose.aff',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'ORG-STAY-1', 'name' => 'Stay 1'],
                 ['id' => 'ORG-STAY-2', 'name' => 'Stay 2'],
                 ['id' => 'ORG-GONE', 'name' => 'Will Be Removed'],
@@ -1168,10 +1168,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 
         // Second login: only 2 affiliations — ORG-GONE removed
         $ro2 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-lose-aff-001',
-            'email'            => 'lose.aff@example.com',
+            'sub'                => 'test-relogin-lose-aff-001',
+            'email'              => 'lose.aff@example.com',
             'preferred_username' => 'lose.aff',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'ORG-STAY-1', 'name' => 'Stay 1'],
                 ['id' => 'ORG-STAY-2', 'name' => 'Stay 2'],
             ],
@@ -1193,10 +1193,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         // First login: 2×1 cartesian
         $ro1 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-cart-to-aff-001',
-            'email'            => 'cart.to.aff@example.com',
+            'sub'                => 'test-relogin-cart-to-aff-001',
+            'email'              => 'cart.to.aff@example.com',
             'preferred_username' => 'cart.to.aff',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'CT-AMT-A', 'name' => 'CT Amt A'],
                 ['id' => 'CT-AMT-B', 'name' => 'CT Amt B'],
             ],
@@ -1210,10 +1210,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 
         // Second login: same affiliations but NO responsibilities
         $ro2 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-cart-to-aff-001',
-            'email'            => 'cart.to.aff@example.com',
+            'sub'                => 'test-relogin-cart-to-aff-001',
+            'email'              => 'cart.to.aff@example.com',
             'preferred_username' => 'cart.to.aff',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'CT-AMT-A', 'name' => 'CT Amt A'],
                 ['id' => 'CT-AMT-B', 'name' => 'CT Amt B'],
             ],
@@ -1234,10 +1234,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         // First login: affiliations only
         $ro1 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-aff-to-cart-001',
-            'email'            => 'aff.to.cart@example.com',
+            'sub'                => 'test-relogin-aff-to-cart-001',
+            'email'              => 'aff.to.cart@example.com',
             'preferred_username' => 'aff.to.cart',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'AC-AMT', 'name' => 'AC Amt'],
             ],
             'responsibilities' => [],
@@ -1248,10 +1248,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 
         // Second login: same affiliation + new responsibility → cartesian
         $ro2 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-aff-to-cart-001',
-            'email'            => 'aff.to.cart@example.com',
+            'sub'                => 'test-relogin-aff-to-cart-001',
+            'email'              => 'aff.to.cart@example.com',
             'preferred_username' => 'aff.to.cart',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'AC-AMT', 'name' => 'AC Amt'],
             ],
             'responsibilities' => [
@@ -1274,10 +1274,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         // First login: 2 affiliations
         $ro1 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-multi-to-single-001',
-            'email'            => 'multi.to.single@example.com',
+            'sub'                => 'test-relogin-multi-to-single-001',
+            'email'              => 'multi.to.single@example.com',
             'preferred_username' => 'multi.to.single',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'MTS-ORG-A', 'name' => 'MTS Org A'],
                 ['id' => 'MTS-ORG-B', 'name' => 'MTS Org B'],
             ],
@@ -1289,13 +1289,13 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 
         // Second login: empty arrays → falls back to organisationId
         $ro2 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-multi-to-single-001',
-            'email'            => 'multi.to.single@example.com',
+            'sub'                => 'test-relogin-multi-to-single-001',
+            'email'              => 'multi.to.single@example.com',
             'preferred_username' => 'multi.to.single',
-            'organisationId'   => 'MTS-FALLBACK',
-            'organisationName' => 'MTS Fallback Org',
-            'organisation'     => [],
-            'responsibilities' => [],
+            'organisationId'     => 'MTS-FALLBACK',
+            'organisationName'   => 'MTS Fallback Org',
+            'organisation'       => [],
+            'responsibilities'   => [],
         ]);
         $user2 = $this->mapResourceOwnerToUser($ro2);
 
@@ -1312,13 +1312,13 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         // First login: organisationId fallback (empty arrays)
         $ro1 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-single-to-cart-001',
-            'email'            => 'single.to.cart@example.com',
+            'sub'                => 'test-relogin-single-to-cart-001',
+            'email'              => 'single.to.cart@example.com',
             'preferred_username' => 'single.to.cart',
-            'organisationId'   => 'STC-LEGACY',
-            'organisationName' => 'STC Legacy Org',
-            'organisation'     => [],
-            'responsibilities' => [],
+            'organisationId'     => 'STC-LEGACY',
+            'organisationName'   => 'STC Legacy Org',
+            'organisation'       => [],
+            'responsibilities'   => [],
         ]);
         $user1 = $this->mapResourceOwnerToUser($ro1);
         $userId = $user1->getId();
@@ -1327,12 +1327,12 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 
         // Second login: now has affiliations × responsibilities → cartesian
         $ro2 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-single-to-cart-001',
-            'email'            => 'single.to.cart@example.com',
+            'sub'                => 'test-relogin-single-to-cart-001',
+            'email'              => 'single.to.cart@example.com',
             'preferred_username' => 'single.to.cart',
-            'organisationId'   => 'STC-LEGACY',
-            'organisationName' => 'STC Legacy Org',
-            'organisation'     => [
+            'organisationId'     => 'STC-LEGACY',
+            'organisationName'   => 'STC Legacy Org',
+            'organisation'       => [
                 ['id' => 'STC-AMT', 'name' => 'STC Amt'],
             ],
             'responsibilities' => [
@@ -1356,10 +1356,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         // First login: ORG-KEEP + ORG-OLD
         $ro1 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-partial-001',
-            'email'            => 'partial@example.com',
+            'sub'                => 'test-relogin-partial-001',
+            'email'              => 'partial@example.com',
             'preferred_username' => 'partial.overlap',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'PO-KEEP', 'name' => 'Partial Keep'],
                 ['id' => 'PO-OLD', 'name' => 'Partial Old'],
             ],
@@ -1371,10 +1371,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 
         // Second login: ORG-KEEP stays, ORG-OLD → ORG-NEW
         $ro2 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-partial-001',
-            'email'            => 'partial@example.com',
+            'sub'                => 'test-relogin-partial-001',
+            'email'              => 'partial@example.com',
             'preferred_username' => 'partial.overlap',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'PO-KEEP', 'name' => 'Partial Keep'],
                 ['id' => 'PO-NEW', 'name' => 'Partial New'],
             ],
@@ -1395,10 +1395,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         // First login
         $ro1 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-cart-partial-001',
-            'email'            => 'cart.partial@example.com',
+            'sub'                => 'test-relogin-cart-partial-001',
+            'email'              => 'cart.partial@example.com',
             'preferred_username' => 'cart.partial',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'CP-AMT', 'name' => 'CP Amt'],
             ],
             'responsibilities' => [
@@ -1412,10 +1412,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 
         // Second login: swap one responsibility
         $ro2 = $this->createReloginResourceOwner([
-            'sub'              => 'test-relogin-cart-partial-001',
-            'email'            => 'cart.partial@example.com',
+            'sub'                => 'test-relogin-cart-partial-001',
+            'email'              => 'cart.partial@example.com',
             'preferred_username' => 'cart.partial',
-            'organisation'     => [
+            'organisation'       => [
                 ['id' => 'CP-AMT', 'name' => 'CP Amt'],
             ],
             'responsibilities' => [

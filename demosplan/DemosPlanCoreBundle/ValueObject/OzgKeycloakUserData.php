@@ -152,7 +152,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
 
         if ([] !== $this->affiliations) {
             $this->logger->info('Parsed affiliations from token', [
-                'count' => count($this->affiliations),
+                'count'        => count($this->affiliations),
                 'affiliations' => array_column($this->affiliations, 'id'),
             ]);
         }
@@ -181,7 +181,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
 
         if ([] !== $this->responsibilities) {
             $this->logger->info('Parsed responsibilities from token', [
-                'count' => count($this->responsibilities),
+                'count'            => count($this->responsibilities),
                 'responsibilities' => array_column($this->responsibilities, 'id'),
             ]);
         }

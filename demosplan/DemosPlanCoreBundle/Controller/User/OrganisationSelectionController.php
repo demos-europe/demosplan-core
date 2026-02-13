@@ -64,8 +64,8 @@ class OrganisationSelectionController extends BaseController
         return $this->render(
             '@DemosPlanCore/DemosPlanUser/select_organisation.html.twig',
             [
-                'title' => 'organisation.select',
-                'organisations' => $organisations,
+                'title'                 => 'organisation.select',
+                'organisations'         => $organisations,
                 'currentOrganisationId' => $user->getCurrentOrganisation()?->getId(),
             ]
         );
@@ -109,7 +109,7 @@ class OrganisationSelectionController extends BaseController
 
         if (!$selectedOrga instanceof Orga) {
             $this->getLogger()->warning('User tried to switch to organisation they do not belong to', [
-                'userId' => $user->getId(),
+                'userId'         => $user->getId(),
                 'organisationId' => $organisationId,
             ]);
             $this->getMessageBag()->add('error', 'error.organisation.selection.invalid');
@@ -120,8 +120,8 @@ class OrganisationSelectionController extends BaseController
         $this->currentOrganisationService->setCurrentOrganisation($user, $selectedOrga);
 
         $this->getLogger()->info('User switched organisation', [
-            'userId' => $user->getId(),
-            'organisationId' => $selectedOrga->getId(),
+            'userId'           => $user->getId(),
+            'organisationId'   => $selectedOrga->getId(),
             'organisationName' => $selectedOrga->getName(),
         ]);
 

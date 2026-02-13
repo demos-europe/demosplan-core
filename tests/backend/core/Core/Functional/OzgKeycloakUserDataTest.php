@@ -265,7 +265,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                     ['id' => 'org-2', 'name' => 'Organisation Two'],
                 ],
                 'responsibilities'   => [],
-                'groups' => [
+                'groups'             => [
                     '/Beteiligung-Organisation/Aff Only',
                     '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
                 ],
@@ -292,7 +292,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                     ['id' => 'only-org', 'name' => 'Only Organisation'],
                 ],
                 'responsibilities'   => [],
-                'groups' => [
+                'groups'             => [
                     '/Beteiligung-Organisation/Single Aff',
                     '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
                 ],
@@ -337,14 +337,14 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email'            => self::TEST_EMAIL,
-                'given_name'       => 'Legacy',
-                'family_name'      => 'User',
-                'sub'              => 'legacy-user-789',
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'Legacy',
+                'family_name'        => 'User',
+                'sub'                => 'legacy-user-789',
                 'preferred_username' => 'legacyuser',
-                'organisationId'   => 'legacy-org-id',
-                'organisationName' => 'Legacy Organisation',
-                'groups'           => [
+                'organisationId'     => 'legacy-org-id',
+                'organisationName'   => 'Legacy Organisation',
+                'groups'             => [
                     '/Beteiligung-Organisation/Legacy Organisation',
                     '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
                 ],
@@ -436,7 +436,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                     ['id' => 'org-without-name'],
                 ],
                 'responsibilities'   => [],
-                'groups' => [
+                'groups'             => [
                     '/Beteiligung-Organisation/NoName Aff',
                     '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
                 ],

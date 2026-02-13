@@ -294,5 +294,4 @@ class ImportJob extends CoreEntity
 
         return $this;
     }
-
 }

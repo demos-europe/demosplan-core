@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
+use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
@@ -104,7 +105,7 @@ class OrganisationSelectionControllerTest extends FunctionalTestCase
         // Use an orga that testUser doesn't belong to
         $foreignOrga = $this->fixtures->getReference(LoadUserData::TEST_ORGA_PB);
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $this->sut->setCurrentOrganisation($this->testUser, $foreignOrga);
     }

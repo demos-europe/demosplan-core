@@ -82,18 +82,16 @@ class OzgKeycloakStaticAuthenticator extends AbstractAuthenticator
         if (null === $userData) {
             $availableKeys = implode(', ', $this->userDataProvider->getAvailableUserKeys());
             $this->logger->error('Static Keycloak test user not found', [
-                'requestedKey' => $testUserKey,
+                'requestedKey'  => $testUserKey,
                 'availableKeys' => $availableKeys,
             ]);
-            throw new AuthenticationException(
-                sprintf('Test user "%s" not found. Available users: %s', $testUserKey, $availableKeys)
-            );
+            throw new AuthenticationException(sprintf('Test user "%s" not found. Available users: %s', $testUserKey, $availableKeys));
         }
 
         $this->logger->info('Static Keycloak login attempt', [
-            'testUserKey' => $testUserKey,
-            'userId' => $userData['sub'],
-            'email' => $userData['email'],
+            'testUserKey'         => $testUserKey,
+            'userId'              => $userData['sub'],
+            'email'               => $userData['email'],
             'responsibilityCount' => count($userData['responsibilities'] ?? []),
         ]);
 
@@ -121,7 +119,7 @@ class OzgKeycloakStaticAuthenticator extends AbstractAuthenticator
                 'Static Keycloak login failed',
                 [
                     'testUserKey' => $testUserKey,
-                    'exception' => $e,
+                    'exception'   => $e,
                 ]
             );
             throw new AuthenticationException('Static Keycloak authentication failed: '.$e->getMessage());
@@ -143,7 +141,7 @@ class OzgKeycloakStaticAuthenticator extends AbstractAuthenticator
             if ($organisations->count() > 1) {
                 if ($this->currentOrganisationService->requiresOrganisationSelection($user)) {
                     $this->logger->info('Static Keycloak: Multi-responsibility user requires organisation selection', [
-                        'userId' => $user->getId(),
+                        'userId'            => $user->getId(),
                         'organisationCount' => $organisations->count(),
                     ]);
 

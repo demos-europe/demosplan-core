@@ -241,9 +241,9 @@ class OzgKeycloakUserDataMapper
         $this->syncUserOrganisations($user, $organisations);
 
         $this->logger->info('Multi-organisation user mapped', [
-            'userId' => $user->getId(),
+            'userId'            => $user->getId(),
             'organisationCount' => count($organisations),
-            'organisations' => array_map(fn (Orga $o) => $o->getId(), $organisations),
+            'organisations'     => array_map(fn (Orga $o) => $o->getId(), $organisations),
         ]);
 
         return $user;
@@ -410,8 +410,8 @@ class OzgKeycloakUserDataMapper
      * Update an existing organisation with customer and orga types.
      *
      * @param array<int, Role> $requestedRoles
-     * @param string|null      $gwId     Override gwId (for multi-organisation), null = use token value + address
-     * @param string|null      $orgaName Override name (for multi-organisation), null = use token value
+     * @param string|null      $gwId           Override gwId (for multi-organisation), null = use token value + address
+     * @param string|null      $orgaName       Override name (for multi-organisation), null = use token value
      *
      * @throws CustomerNotFoundException
      */
@@ -444,8 +444,8 @@ class OzgKeycloakUserDataMapper
 
         $this->logger->info('Organisation updated', [
             'orgaId' => $existingOrga->getId(),
-            'gwId' => $gwId,
-            'name' => $orgaName,
+            'gwId'   => $gwId,
+            'name'   => $orgaName,
         ]);
 
         return $existingOrga;
@@ -485,8 +485,8 @@ class OzgKeycloakUserDataMapper
      * Create a new organisation.
      *
      * @param array<int, Role> $requestedRoles
-     * @param string|null      $gwId     Override gwId (for multi-organisation), defaults to token value
-     * @param string|null      $orgaName Override name (for multi-organisation), defaults to token value
+     * @param string|null      $gwId           Override gwId (for multi-organisation), defaults to token value
+     * @param string|null      $orgaName       Override name (for multi-organisation), defaults to token value
      *
      * @throws AuthenticationException
      * @throws Exception
@@ -508,8 +508,8 @@ class OzgKeycloakUserDataMapper
         $this->entityManager->persist($department);
 
         $orgaData = [
-            'customer' => $customer,
-            'name' => $orgaName,
+            'customer'             => $customer,
+            'name'                 => $orgaName,
             'registrationStatuses' => $registrationStatuses,
         ];
 
@@ -523,8 +523,8 @@ class OzgKeycloakUserDataMapper
 
         $this->logger->info('Organisation created', [
             'orgaId' => $orga->getId(),
-            'gwId' => $gwId,
-            'name' => $orgaName,
+            'gwId'   => $gwId,
+            'name'   => $orgaName,
         ]);
 
         return $orga;
@@ -542,20 +542,20 @@ class OzgKeycloakUserDataMapper
         $statuses = [];
         foreach ($this->getOrgaTypesToSetupRequestedRoles($requestedRoles) as $orgaType) {
             $statuses[] = [
-                'status' => OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
+                'status'    => OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
                 'subdomain' => $customer->getSubdomain(),
-                'customer' => $customer,
-                'type' => $orgaType,
+                'customer'  => $customer,
+                'type'      => $orgaType,
             ];
         }
 
         // Default OrgaType if no role matches
         if ([] === $statuses) {
             $statuses[] = [
-                'status' => OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
+                'status'    => OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
                 'subdomain' => $customer->getSubdomain(),
-                'customer' => $customer,
-                'type' => OrgaTypeInterface::DEFAULT,
+                'customer'  => $customer,
+                'type'      => OrgaTypeInterface::DEFAULT,
             ];
         }
 

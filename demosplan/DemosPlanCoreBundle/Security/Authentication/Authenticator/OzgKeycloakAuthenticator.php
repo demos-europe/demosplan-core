@@ -120,7 +120,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                 // Check if user needs to select an organisation
                 if ($this->currentOrganisationService->requiresOrganisationSelection($user)) {
                     $this->logger->info('Multi-organisation user requires organisation selection', [
-                        'userId' => $user->getId(),
+                        'userId'            => $user->getId(),
                         'organisationCount' => $organisations->count(),
                     ]);
 

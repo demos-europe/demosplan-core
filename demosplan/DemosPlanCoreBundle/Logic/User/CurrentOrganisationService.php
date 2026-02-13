@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -76,14 +77,12 @@ class CurrentOrganisationService
      * Set the current organisation for a user's session.
      * Also sets the transient property on the User entity.
      *
-     * @throws \InvalidArgumentException if the user does not belong to the organisation
+     * @throws InvalidArgumentException if the user does not belong to the organisation
      */
     public function setCurrentOrganisation(UserInterface $user, OrgaInterface $organisation): void
     {
         if (!$this->userBelongsToOrganisation($user, $organisation)) {
-            throw new \InvalidArgumentException(
-                sprintf('User %s does not belong to organisation %s', $user->getId(), $organisation->getId())
-            );
+            throw new InvalidArgumentException(sprintf('User %s does not belong to organisation %s', $user->getId(), $organisation->getId()));
         }
 
         // Store in session
