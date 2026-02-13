@@ -895,9 +895,9 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     /**
      * Helper: perform a login → relogin cycle and assert org sync.
      *
-     * @param array{orgs: array, resps: array, gwIds: array} $firstLogin  first login scenario
-     * @param array{orgs: array, resps: array, gwIds: array} $secondLogin second login scenario
-     * @param array<string, mixed>                            $extraOverrides
+     * @param array{orgs: array, resps: array, gwIds: array} $firstLogin     first login scenario
+     * @param array{orgs: array, resps: array, gwIds: array} $secondLogin    second login scenario
+     * @param array<string, mixed>                           $extraOverrides
      */
     private function assertReloginSyncsOrgs(
         string $identity,
@@ -1044,8 +1044,8 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         $user = $this->assertReloginSyncsOrgs(
             'multi-to-single',
-            ['orgs' => [['id' => 'MTS-ORG-A', 'name' => 'MTS Org A'], ['id' => 'MTS-ORG-B', 'name' => 'MTS Org B']], 'resps' => [], 'gwIds' => ['MTS-ORG-A', 'MTS-ORG-B']],
-            ['orgs' => [], 'resps' => [], 'gwIds' => ['MTS-FALLBACK']],
+            ['orgs'           => [['id' => 'MTS-ORG-A', 'name' => 'MTS Org A'], ['id' => 'MTS-ORG-B', 'name' => 'MTS Org B']], 'resps' => [], 'gwIds' => ['MTS-ORG-A', 'MTS-ORG-B']],
+            ['orgs'           => [], 'resps' => [], 'gwIds' => ['MTS-FALLBACK']],
             ['organisationId' => 'MTS-FALLBACK', 'organisationName' => 'MTS Fallback Org'],
         );
         self::assertCount(1, $user->getOrganisations());
@@ -1056,8 +1056,8 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         $this->assertReloginSyncsOrgs(
             'single-to-cart',
-            ['orgs' => [], 'resps' => [], 'gwIds' => ['STC-LEGACY']],
-            ['orgs' => [['id' => 'STC-AMT', 'name' => 'STC Amt']], 'resps' => [['id' => 'STC-R1', 'name' => 'STC Resp 1'], ['id' => 'STC-R2', 'name' => 'STC Resp 2']], 'gwIds' => ['STC-AMT.STC-R1', 'STC-AMT.STC-R2']],
+            ['orgs'           => [], 'resps' => [], 'gwIds' => ['STC-LEGACY']],
+            ['orgs'           => [['id' => 'STC-AMT', 'name' => 'STC Amt']], 'resps' => [['id' => 'STC-R1', 'name' => 'STC Resp 1'], ['id' => 'STC-R2', 'name' => 'STC Resp 2']], 'gwIds' => ['STC-AMT.STC-R1', 'STC-AMT.STC-R2']],
             ['organisationId' => 'STC-LEGACY', 'organisationName' => 'STC Legacy Org'],
         );
     }

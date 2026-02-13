@@ -27,8 +27,8 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
  *
  * Expects these properties on the using class (via constructor injection):
  *
- * @property \Psr\Log\LoggerInterface $logger
- * @property \Symfony\Component\Routing\RouterInterface $router
+ * @property \Psr\Log\LoggerInterface                                             $logger
+ * @property \Symfony\Component\Routing\RouterInterface                           $router
  * @property \demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService $currentOrganisationService
  */
 trait KeycloakAuthenticationSuccessTrait
