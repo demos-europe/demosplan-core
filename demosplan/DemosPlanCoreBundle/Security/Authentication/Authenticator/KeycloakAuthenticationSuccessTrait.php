@@ -24,9 +24,18 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
  *
  * Handles multi-organisation selection, single-org auto-select,
  * and redirect after successful/failed authentication.
+ *
+ * Expects these properties on the using class (via constructor injection):
+ *
+ * @property \Psr\Log\LoggerInterface $logger
+ * @property \Symfony\Component\Routing\RouterInterface $router
+ * @property \demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService $currentOrganisationService
  */
 trait KeycloakAuthenticationSuccessTrait
 {
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) — $request/$firewallName required by AuthenticatorInterface
+     */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         $user = $token->getUser();
@@ -62,6 +71,9 @@ trait KeycloakAuthenticationSuccessTrait
         return new RedirectResponse($this->router->generate('core_home_loggedin'));
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) — $request required by AuthenticatorInterface
+     */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         $this->logger->warning('Keycloak login failed', ['exception' => $exception]);
