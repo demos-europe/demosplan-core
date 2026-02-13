@@ -1925,6 +1925,11 @@ feature_segment_recommendation_edit:
     label: 'Allows to create, update and delete recommendations of segments.'
     loginRequired: true
     parent: area_statement_segmentation
+feature_segments_export_excel_metadata:
+    description: Adds an additional sheet to the excel export containing meta data
+    expose: true
+    label: 'Generate meta data sheet for excel export'
+    loginRequired: true
 feature_segments_import_excel:
     description: |-
         Allows the user to upload an excel file containing new segments and corresponding statement meta data. These are then validated and
