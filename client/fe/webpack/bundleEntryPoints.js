@@ -55,6 +55,21 @@ function bundleEntryPoints (config) {
     entries[bundle + '-' + name] = filename
   })
 
+  // Scan addon bundles (generic, not addon-specific)
+  const addonBundleGlob = path.resolve(__dirname, config.relativeRoot) + '/addons/vendor/demos-europe/demosplan-addon-*/client/js/bundles/**/*.js'
+  glob.sync(addonBundleGlob).forEach(filename => {
+    let parts = filename.split('/')
+    const bundle = parts[parts.length - 2]
+    const name = parts[parts.length - 1].replace('.js', '')
+    const entryKey = bundle + '-' + name
+
+    if (entries[entryKey]) {
+      log(chalk.yellow(`\tAddon bundle "${entryKey}" overrides core bundle\n`))
+    }
+
+    entries[entryKey] = filename
+  })
+
   return entries
 }
 

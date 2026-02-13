@@ -347,7 +347,7 @@ export default {
         serviceTypeOptions.push({ value: 'wmts', label: 'WMTS' })
       }
 
-      if (hasPermission('feature_diplan_karte')) {
+      if (hasPermission('feature_map_oaf')) {
         serviceTypeOptions.push({ value: 'OAF', label: 'OGC API – Features (OAF)' })
       }
       return serviceTypeOptions

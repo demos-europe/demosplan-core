@@ -10,8 +10,7 @@
 {% set projectMapSettings = map %}
 {% set hasBplan = false %}
 {% set hasTerritory = false %}
-{% set hasDiplanKarte = hasPermission('feature_diplan_karte') %}
-{% set isMapEnabled = (proceduresettings.isMapEnabled == true and hasPermission('area_map_participation_area')) or hasDiplanKarte %}
+{% set isMapEnabled = proceduresettings.isMapEnabled == true and hasPermission('area_map_participation_area') %}
 
 {# Das Javascript wird erst später gerendert, deshalb muss die Logik, ob ein BPlan & Geltungsbereich vorhanden ist, hier explizit nochmal hin #}
 {% if templateVars.overlays.gislayerlist is defined %}
@@ -390,26 +389,10 @@
                 @keydown="checkKeyEvent"
                 aria-labelledby="procedureDetailsMapTab">
 
-                    {% if hasPermission('feature_diplan_karte') or hasDiplanKarte %}
-                        {# diplan-karte #}
-                        <diplan-karte-wrapper
-                            login-path="{{ getLoginPath() }}"
-                            style-nonce="{{ csp_nonce('style') }}"
-                            :active-statement="activeStatement"
-                            :init-drawing="statement.r_location_geometry"
-                            :initial-extent="JSON.parse('{{ templateVars.mapOptions.procedureInitialExtent|json_encode|e('js', 'utf-8') }}')"
-                            :show-button="{{
-                                hasPermission('feature_new_statement') or
-                                (currentUser.loggedIn == false and getProcedurePermissionset('external') == 'write')
-                                ? 'true' : 'false' }}"
-                            :territory="JSON.parse('{{ procedureSettings.territory|json_encode|e('js', 'utf-8') }}')"
-                            copyright="{{ procedureSettings.copyright|default('') }}"
-                            @location-drawing="handleLocationDrawing"
-                        />
-                    {% else %}
-                        {# openlayers map #}
+                    {% block map_component %}
+                        {# Default: openlayers map #}
                         {% include '@DemosPlanCore/DemosPlanMap/map_public_participation_detail.html.twig' %}
-                    {% endif %}
+                    {% endblock map_component %}
                 </section>
             {% endif %}
 
@@ -547,11 +530,9 @@
 {% block javascripts %}
     {{ parent() }}
     {% if isMapEnabled %}
-        {% if hasPermission('feature_diplan_karte') or hasDiplanKarte %}
-            {{ webpackBundles(['ol.js', 'map-publicDetailDiplanKarte.js']) }}
-        {% else %}
+        {% block map_javascripts %}
             {{ webpackBundles(['ol.js', 'map-publicDetail.js']) }}
-        {% endif %}
+        {% endblock map_javascripts %}
     {% endif %}
 
     {% if not isMapEnabled %}

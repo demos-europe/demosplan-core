@@ -854,9 +854,9 @@ feature_department_edit:
     label: 'edit department'
     loginRequired: true
     parent: feature_department
-feature_diplan_karte:
-    description: 'Allows user to see the diplan map in the public area'
-    label: 'Display diplan map component'
+feature_map_oaf:
+    description: 'Enhance the map with OGC API for Features (OAF) layers'
+    label: 'Display oaf map layer'
     expose: true
     loginRequired: false
 feature_display_customer_names:
