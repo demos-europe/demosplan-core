@@ -2226,6 +2226,7 @@ logo.of.bundesland: "Logo-Bild des Bundeslandes"
 logo.delete: "Logo löschen"
 logo.upload.new: "Neues Logo hochladen"
 logout: "Abmelden"
+logout.idp: "Vom Identity Provider abmelden"
 # map.attribution.default supports both {linkImprint} and {currentYear} placeholders.
 map.attribution.default: "© basemap.de / BKG {currentYear}"
 map.attribution.exports: "© basemap.de BKG (www.basemap.de) / LVermGeo SH (www.LVermGeoSH.schleswig-holstein.de)"
