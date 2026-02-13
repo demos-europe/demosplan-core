@@ -2820,6 +2820,7 @@ class ProcedureService implements ProcedureServiceInterface
                 $sourcePlace->getSortIndex()
             );
             $newPlace->setDescription($sourcePlace->getDescription());
+            $newPlace->setSolved($sourcePlace->getSolved());
             $violations = $this->validator->validate($newPlace);
             if (0 !== $violations->count()) {
                 throw ViolationsException::fromConstraintViolationList($violations);
