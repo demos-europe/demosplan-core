@@ -22,6 +22,8 @@ use Tests\Base\FunctionalTestCase;
 class OzgKeycloakUserDataTest extends FunctionalTestCase
 {
     public const TEST_EMAIL = 'test@example.com';
+    private const GROUP_FP_ADMIN = self::GROUP_FP_ADMIN;
+    private const RESP_1_NAME = self::RESP_1_NAME;
     protected $sut;
 
     protected function setUp(): void
@@ -92,7 +94,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'preferred_username' => 'alicebrown',
                 'groups'             => [
                     '/Beteiligung-Organisation/Test Organisation',
-                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                    self::GROUP_FP_ADMIN,
                 ],
             ]);
 
@@ -225,7 +227,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 ],
                 'groups' => [
                     '/Beteiligung-Organisation/Org Multi',
-                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                    self::GROUP_FP_ADMIN,
                 ],
             ]);
 
@@ -267,7 +269,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'responsibilities'   => [],
                 'groups'             => [
                     '/Beteiligung-Organisation/Aff Only',
-                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                    self::GROUP_FP_ADMIN,
                 ],
             ]);
 
@@ -294,7 +296,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'responsibilities'   => [],
                 'groups'             => [
                     '/Beteiligung-Organisation/Single Aff',
-                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                    self::GROUP_FP_ADMIN,
                 ],
             ]);
 
@@ -318,11 +320,11 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                     ['id' => 'aff-1', 'name' => 'Aff 1'],
                 ],
                 'responsibilities'   => [
-                    ['id' => 'resp-1', 'name' => 'Resp 1'],
+                    ['id' => 'resp-1', 'name' => self::RESP_1_NAME],
                 ],
                 'groups' => [
                     '/Beteiligung-Organisation/1x1',
-                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                    self::GROUP_FP_ADMIN,
                 ],
             ]);
 
@@ -346,7 +348,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'organisationName'   => 'Legacy Organisation',
                 'groups'             => [
                     '/Beteiligung-Organisation/Legacy Organisation',
-                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                    self::GROUP_FP_ADMIN,
                 ],
             ]);
 
@@ -379,7 +381,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'organisationName'   => 'Fallback Organisation',
                 'groups'             => [
                     '/Beteiligung-Organisation/Fallback Organisation',
-                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                    self::GROUP_FP_ADMIN,
                 ],
             ]);
 
@@ -406,11 +408,11 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                     ['id' => 'org-2', 'name' => 'Org 2'],
                 ],
                 'responsibilities'   => [
-                    ['id' => 'resp-1', 'name' => 'Resp 1'],
+                    ['id' => 'resp-1', 'name' => self::RESP_1_NAME],
                 ],
                 'groups' => [
                     '/Beteiligung-Organisation/Valid Multi',
-                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                    self::GROUP_FP_ADMIN,
                 ],
             ]);
 
@@ -438,7 +440,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'responsibilities'   => [],
                 'groups'             => [
                     '/Beteiligung-Organisation/NoName Aff',
-                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                    self::GROUP_FP_ADMIN,
                 ],
             ]);
 
@@ -468,7 +470,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 ],
                 'groups' => [
                     '/Beteiligung-Organisation/NoName Resp',
-                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                    self::GROUP_FP_ADMIN,
                 ],
             ]);
 
@@ -494,12 +496,12 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                     ['id' => 'aff-2', 'name' => 'Aff Org 2'],
                 ],
                 'responsibilities'   => [
-                    ['id' => 'resp-1', 'name' => 'Resp 1'],
+                    ['id' => 'resp-1', 'name' => self::RESP_1_NAME],
                     ['id' => 'resp-2', 'name' => 'Resp 2'],
                 ],
                 'groups' => [
                     '/Beteiligung-Organisation/ToString Test',
-                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                    self::GROUP_FP_ADMIN,
                 ],
             ]);
 

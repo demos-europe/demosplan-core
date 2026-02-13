@@ -42,6 +42,11 @@ use Tests\Base\FunctionalTestCase;
 
 class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 {
+    private const MSG_SAME_USER = self::MSG_SAME_USER;
+    private const ORG_NAME_FROM_TOKEN = self::ORG_NAME_FROM_TOKEN;
+    private const ORG_NAME_AMT_A = self::ORG_NAME_AMT_A;
+    private const ORG_NAME_AMT_B = self::ORG_NAME_AMT_B;
+
     protected $sut;
 
     protected function setUp(): void
@@ -749,7 +754,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             'organisationId'     => '',
             'organisationName'   => '',
             'organisation'       => [
-                ['id' => 'ORGNAME-TEST', 'name' => 'Original Name From Token'],
+                ['id' => 'ORGNAME-TEST', 'name' => self::ORG_NAME_FROM_TOKEN],
             ],
             'responsibilities'   => [],
             'resource_access'    => [
@@ -760,7 +765,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         ]);
         $user = $this->mapResourceOwnerToUser($resourceOwner1);
         $orga = $user->getOrganisations()->first();
-        self::assertSame('Original Name From Token', $orga->getName());
+        self::assertSame(self::ORG_NAME_FROM_TOKEN, $orga->getName());
 
         // Simulate FPA user renaming the org via the UI
         $orga->setName('User-Modified Name');
@@ -775,7 +780,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             'organisationId'     => '',
             'organisationName'   => '',
             'organisation'       => [
-                ['id' => 'ORGNAME-TEST', 'name' => 'Original Name From Token'],
+                ['id' => 'ORGNAME-TEST', 'name' => self::ORG_NAME_FROM_TOKEN],
             ],
             'responsibilities'   => [],
             'resource_access'    => [
@@ -917,7 +922,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         ]);
         $user2 = $this->mapResourceOwnerToUser($ro2);
 
-        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame($userId, $user2->getId(), self::MSG_SAME_USER);
         self::assertSame(['AMT-C', 'AMT-D'], $this->getSortedGwIds($user2));
     }
 
@@ -959,7 +964,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         ]);
         $user2 = $this->mapResourceOwnerToUser($ro2);
 
-        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame($userId, $user2->getId(), self::MSG_SAME_USER);
         self::assertSame(['AMT-X.ENERGY', 'AMT-X.FOREST'], $this->getSortedGwIds($user2));
     }
 
@@ -1000,7 +1005,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         ]);
         $user2 = $this->mapResourceOwnerToUser($ro2);
 
-        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame($userId, $user2->getId(), self::MSG_SAME_USER);
         self::assertSame(
             ['NEW-A1.NEW-R1', 'NEW-A1.NEW-R2', 'NEW-A2.NEW-R1', 'NEW-A2.NEW-R2'],
             $this->getSortedGwIds($user2)
@@ -1021,14 +1026,14 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             'email'              => 'aff.name@example.com',
             'preferred_username' => 'aff.name',
             'organisation'       => [
-                ['id' => 'STABLE-A', 'name' => 'Original Amt A'],
-                ['id' => 'STABLE-B', 'name' => 'Original Amt B'],
+                ['id' => 'STABLE-A', 'name' => self::ORG_NAME_AMT_A],
+                ['id' => 'STABLE-B', 'name' => self::ORG_NAME_AMT_B],
             ],
             'responsibilities' => [],
         ]);
         $user1 = $this->mapResourceOwnerToUser($ro1);
         $userId = $user1->getId();
-        self::assertSame(['Original Amt A', 'Original Amt B'], $this->getSortedOrgNames($user1));
+        self::assertSame([self::ORG_NAME_AMT_A, self::ORG_NAME_AMT_B], $this->getSortedOrgNames($user1));
 
         // Second login: same IDs, different names in token
         $ro2 = $this->createReloginResourceOwner([
@@ -1043,11 +1048,11 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         ]);
         $user2 = $this->mapResourceOwnerToUser($ro2);
 
-        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame($userId, $user2->getId(), self::MSG_SAME_USER);
         self::assertSame(['STABLE-A', 'STABLE-B'], $this->getSortedGwIds($user2), 'Same orgs by gwId');
         // Names must be preserved (not overwritten by token)
         self::assertSame(
-            ['Original Amt A', 'Original Amt B'],
+            [self::ORG_NAME_AMT_A, self::ORG_NAME_AMT_B],
             $this->getSortedOrgNames($user2),
             'Org names must NOT be overwritten on re-login'
         );
@@ -1095,7 +1100,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         ]);
         $user2 = $this->mapResourceOwnerToUser($ro2);
 
-        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame($userId, $user2->getId(), self::MSG_SAME_USER);
         self::assertSame(['FIX-AMT.R1', 'FIX-AMT.R2'], $this->getSortedGwIds($user2));
         // Names must be preserved
         self::assertSame(
@@ -1140,7 +1145,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         ]);
         $user2 = $this->mapResourceOwnerToUser($ro2);
 
-        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame($userId, $user2->getId(), self::MSG_SAME_USER);
         self::assertSame(['KEEP-ORG', 'NEW-ORG'], $this->getSortedGwIds($user2));
     }
 
@@ -1179,7 +1184,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         ]);
         $user2 = $this->mapResourceOwnerToUser($ro2);
 
-        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame($userId, $user2->getId(), self::MSG_SAME_USER);
         self::assertSame(['ORG-STAY-1', 'ORG-STAY-2'], $this->getSortedGwIds($user2));
     }
 
@@ -1221,7 +1226,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         ]);
         $user2 = $this->mapResourceOwnerToUser($ro2);
 
-        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame($userId, $user2->getId(), self::MSG_SAME_USER);
         // gwIds are now just the affiliation IDs (no .resp suffix)
         self::assertSame(['CT-AMT-A', 'CT-AMT-B'], $this->getSortedGwIds($user2));
     }
@@ -1261,7 +1266,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         ]);
         $user2 = $this->mapResourceOwnerToUser($ro2);
 
-        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame($userId, $user2->getId(), self::MSG_SAME_USER);
         // Old org AC-AMT replaced by AC-AMT.AC-WATER and AC-AMT.AC-LITTER
         self::assertSame(['AC-AMT.AC-LITTER', 'AC-AMT.AC-WATER'], $this->getSortedGwIds($user2));
     }
@@ -1299,7 +1304,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         ]);
         $user2 = $this->mapResourceOwnerToUser($ro2);
 
-        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame($userId, $user2->getId(), self::MSG_SAME_USER);
         self::assertCount(1, $user2->getOrganisations());
         self::assertSame('MTS-FALLBACK', $user2->getOrganisations()->first()->getGwId());
     }
@@ -1342,7 +1347,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         ]);
         $user2 = $this->mapResourceOwnerToUser($ro2);
 
-        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame($userId, $user2->getId(), self::MSG_SAME_USER);
         self::assertSame(['STC-AMT.STC-R1', 'STC-AMT.STC-R2'], $this->getSortedGwIds($user2));
     }
 
@@ -1382,7 +1387,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         ]);
         $user2 = $this->mapResourceOwnerToUser($ro2);
 
-        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame($userId, $user2->getId(), self::MSG_SAME_USER);
         self::assertSame(['PO-KEEP', 'PO-NEW'], $this->getSortedGwIds($user2));
     }
 
@@ -1425,7 +1430,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         ]);
         $user2 = $this->mapResourceOwnerToUser($ro2);
 
-        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame($userId, $user2->getId(), self::MSG_SAME_USER);
         self::assertSame(['CP-AMT.CP-R-KEEP', 'CP-AMT.CP-R-NEW'], $this->getSortedGwIds($user2));
     }
 }
