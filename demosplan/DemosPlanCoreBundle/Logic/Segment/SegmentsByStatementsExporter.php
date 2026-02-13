@@ -139,7 +139,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
 
         // Add meta data info sheet if permission allows
-        if($this->currentUser->hasPermission('feature_segments_export_excel_metadata')) {
+        if ($this->currentUser->hasPermission('feature_segments_export_excel_metadata')) {
             $this->assessmentTableXlsExporter->addFilterInfoSheet($writer, $tagFilter);
         }
 
