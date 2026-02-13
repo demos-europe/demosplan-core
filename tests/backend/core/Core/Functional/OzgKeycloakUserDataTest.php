@@ -22,8 +22,8 @@ use Tests\Base\FunctionalTestCase;
 class OzgKeycloakUserDataTest extends FunctionalTestCase
 {
     public const TEST_EMAIL = 'test@example.com';
-    private const GROUP_FP_ADMIN = self::GROUP_FP_ADMIN;
-    private const RESP_1_NAME = self::RESP_1_NAME;
+    private const GROUP_FP_ADMIN = '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration';
+    private const RESP_1_NAME = 'Resp 1';
     protected $sut;
 
     protected function setUp(): void

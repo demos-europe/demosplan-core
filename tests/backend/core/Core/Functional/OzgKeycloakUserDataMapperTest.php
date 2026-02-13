@@ -42,10 +42,10 @@ use Tests\Base\FunctionalTestCase;
 
 class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 {
-    private const MSG_SAME_USER = self::MSG_SAME_USER;
-    private const ORG_NAME_FROM_TOKEN = self::ORG_NAME_FROM_TOKEN;
-    private const ORG_NAME_AMT_A = self::ORG_NAME_AMT_A;
-    private const ORG_NAME_AMT_B = self::ORG_NAME_AMT_B;
+    private const MSG_SAME_USER = 'Must be the same user';
+    private const ORG_NAME_FROM_TOKEN = 'Original Name From Token';
+    private const ORG_NAME_AMT_A = 'Original Amt A';
+    private const ORG_NAME_AMT_B = 'Original Amt B';
 
     protected $sut;
 
