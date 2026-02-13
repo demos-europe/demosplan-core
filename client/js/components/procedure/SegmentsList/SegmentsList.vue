@@ -1094,7 +1094,7 @@ export default {
   },
 
   async mounted () {
-    const addons = await loadAddonComponents('tag.style')
+    const addons = await loadAddonComponents('tag.style.segments.list')
     this.hasTagStyleAddon = addons.length > 0
 
     // Get queryHash from URL
