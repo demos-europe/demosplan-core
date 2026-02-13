@@ -112,14 +112,14 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
     {
         $user = $token->getUser();
 
-        // Handle multi-responsibility users
+        // Handle multi-organisation users (affiliations × responsibilities)
         if ($user instanceof User) {
             $organisations = $user->getOrganisations();
 
             if ($organisations->count() > 1) {
                 // Check if user needs to select an organisation
                 if ($this->currentOrganisationService->requiresOrganisationSelection($user)) {
-                    $this->logger->info('Multi-responsibility user requires organisation selection', [
+                    $this->logger->info('Multi-organisation user requires organisation selection', [
                         'userId' => $user->getId(),
                         'organisationCount' => $organisations->count(),
                     ]);

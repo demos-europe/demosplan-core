@@ -149,18 +149,18 @@ class CurrentOrganisationServiceTest extends FunctionalTestCase
         self::assertContains($this->testOrga, $orgs->toArray());
     }
 
-    public function testFindOrganisationByResponsibility(): void
+    public function testFindOrganisationByGwId(): void
     {
         // Use existing fixture - testOrgaFP has a gwId set
-        $found = $this->sut->findOrganisationByResponsibility($this->testOrga->getGwId());
+        $found = $this->sut->findOrganisationByGwId($this->testOrga->getGwId());
 
         self::assertNotNull($found);
         self::assertSame($this->testOrga->getGwId(), $found->getGwId());
     }
 
-    public function testFindOrganisationByResponsibilityReturnsNullForUnknown(): void
+    public function testFindOrganisationByGwIdReturnsNullForUnknown(): void
     {
-        $found = $this->sut->findOrganisationByResponsibility('nonexistent-gwid-' . uniqid());
+        $found = $this->sut->findOrganisationByGwId('nonexistent-gwid-' . uniqid());
 
         self::assertNull($found);
     }

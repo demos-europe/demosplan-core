@@ -163,38 +163,38 @@ class CurrentOrganisationService
     }
 
     /**
-     * Find an organisation by its responsibility identifier (gwId).
+     * Find an organisation by its gwId (gateway identifier).
      */
-    public function findOrganisationByResponsibility(string $responsibility): ?OrgaInterface
+    public function findOrganisationByGwId(string $gwId): ?OrgaInterface
     {
-        return $this->orgaRepository->findOneBy(['gwId' => $responsibility]);
+        return $this->orgaRepository->findOneBy(['gwId' => $gwId]);
     }
 
     /**
-     * Find an existing organisation by responsibility or create a new one.
-     * Uses the responsibility as the organisation name if no name is provided.
+     * Find an existing organisation by gwId or create a new one.
+     * Uses the gwId as the organisation name if no name is provided.
      *
      * WARNING: By default this method flushes immediately after creating a new organisation.
      * This is intentional for authentication flows where the org must exist before proceeding.
      * Set $flush to false if calling within an existing transaction to avoid breaking
      * transaction boundaries - the caller must then manage flushing.
      *
-     * @param string      $responsibility The responsibility identifier (stored as gwId)
-     * @param string|null $name           The organisation name (defaults to responsibility if null)
-     * @param bool        $flush          Whether to flush immediately (default: true for standalone use)
+     * @param string      $gwId  The gateway identifier (stored as gwId on the organisation)
+     * @param string|null $name  The organisation name (defaults to gwId if null)
+     * @param bool        $flush Whether to flush immediately (default: true for standalone use)
      */
-    public function findOrCreateOrganisation(string $responsibility, ?string $name = null, bool $flush = true): OrgaInterface
+    public function findOrCreateOrganisation(string $gwId, ?string $name = null, bool $flush = true): OrgaInterface
     {
-        $orga = $this->findOrganisationByResponsibility($responsibility);
+        $orga = $this->findOrganisationByGwId($gwId);
 
         if (null !== $orga) {
             return $orga;
         }
 
-        // Create new organisation with responsibility as gwId
+        // Create new organisation with gwId
         $orga = new Orga();
-        $orga->setGwId($responsibility);
-        $orga->setName($name ?? $responsibility);
+        $orga->setGwId($gwId);
+        $orga->setName($name ?? $gwId);
 
         $this->entityManager->persist($orga);
 

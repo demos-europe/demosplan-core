@@ -1082,6 +1082,16 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     }
 
     /**
+     * Remove an organisation from this user.
+     */
+    public function removeOrganisation(OrgaInterface $organisation): void
+    {
+        if ($this->orga instanceof Collection) {
+            $this->orga->removeElement($organisation);
+        }
+    }
+
+    /**
      * Department des Users.
      *
      * @return DepartmentInterface|null

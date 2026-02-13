@@ -515,4 +515,917 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         self::assertContains(RoleInterface::PUBLIC_AGENCY_COORDINATION, $userRoles); // I-K
         // UNKNOWN-ROLE should be ignored (not cause failure)
     }
+
+    /**
+     * Test cartesian product: 2 affiliations × 2 responsibilities = 4 organisations.
+     */
+    public function testCartesianProductCreates4Organisations(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        $resourceOwner = $this->createResourceAccessResourceOwner([
+            'email'              => 'cartesian@example.com',
+            'sub'                => 'test-cartesian-001',
+            'preferred_username' => 'cartesian.user',
+            'organisationId'     => '',
+            'organisationName'   => '',
+            'organisation'       => [
+                ['id' => 'AMT-A', 'name' => 'Amt A'],
+                ['id' => 'AMT-B', 'name' => 'Amt B'],
+            ],
+            'responsibilities'   => [
+                ['id' => 'WATER', 'name' => 'Wasserwirtschaft'],
+                ['id' => 'LITTER', 'name' => 'Abfallwirtschaft'],
+            ],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+        $user = $this->mapResourceOwnerToUser($resourceOwner);
+
+        $orgGwIds = [];
+        foreach ($user->getOrganisations() as $orga) {
+            $orgGwIds[] = $orga->getGwId();
+        }
+        sort($orgGwIds);
+
+        self::assertCount(4, $orgGwIds);
+        self::assertSame(['AMT-A.LITTER', 'AMT-A.WATER', 'AMT-B.LITTER', 'AMT-B.WATER'], $orgGwIds);
+    }
+
+    /**
+     * Test affiliations-only token creates orgs from affiliations without cartesian product.
+     */
+    public function testAffiliationsOnlyCreatesOrgsFromAffiliations(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        $resourceOwner = $this->createResourceAccessResourceOwner([
+            'email'              => 'aff.only@example.com',
+            'sub'                => 'test-aff-only-001',
+            'preferred_username' => 'aff.only',
+            'organisationId'     => '',
+            'organisationName'   => '',
+            'organisation'       => [
+                ['id' => 'DEPT-X', 'name' => 'Department X'],
+                ['id' => 'DEPT-Y', 'name' => 'Department Y'],
+            ],
+            'responsibilities'   => [],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+        $user = $this->mapResourceOwnerToUser($resourceOwner);
+
+        $orgGwIds = [];
+        foreach ($user->getOrganisations() as $orga) {
+            $orgGwIds[] = $orga->getGwId();
+        }
+        sort($orgGwIds);
+
+        self::assertCount(2, $orgGwIds);
+        self::assertSame(['DEPT-X', 'DEPT-Y'], $orgGwIds);
+    }
+
+    /**
+     * Test single affiliation creates one org and uses the single-entry flow.
+     */
+    public function testSingleAffiliationCreatesSingleOrg(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        $resourceOwner = $this->createResourceAccessResourceOwner([
+            'email'              => 'single.aff@example.com',
+            'sub'                => 'test-single-aff-001',
+            'preferred_username' => 'single.aff',
+            'organisationId'     => '',
+            'organisationName'   => '',
+            'organisation'       => [
+                ['id' => 'SINGLE-AFF', 'name' => 'Single Affiliation Org'],
+            ],
+            'responsibilities'   => [],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+        $user = $this->mapResourceOwnerToUser($resourceOwner);
+
+        self::assertCount(1, $user->getOrganisations());
+        self::assertSame('SINGLE-AFF', $user->getOrganisations()->first()->getGwId());
+        self::assertSame('Single Affiliation Org', $user->getOrganisations()->first()->getName());
+    }
+
+    /**
+     * Test stale orgs are removed when token changes from multi-org to fewer orgs.
+     */
+    public function testStaleOrgsRemovedWhenTokenChanges(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        // First login: 2 affiliations = 2 orgs
+        $resourceOwner1 = $this->createResourceAccessResourceOwner([
+            'email'              => 'sync.test@example.com',
+            'sub'                => 'test-sync-001',
+            'preferred_username' => 'sync.test',
+            'organisationId'     => '',
+            'organisationName'   => '',
+            'organisation'       => [
+                ['id' => 'SYNC-ORG-A', 'name' => 'Sync Org A'],
+                ['id' => 'SYNC-ORG-B', 'name' => 'Sync Org B'],
+            ],
+            'responsibilities'   => [],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+        $user = $this->mapResourceOwnerToUser($resourceOwner1);
+        self::assertCount(2, $user->getOrganisations());
+
+        // Second login: only 1 affiliation — SYNC-ORG-B should be removed
+        $resourceOwner2 = $this->createResourceAccessResourceOwner([
+            'email'              => 'sync.test@example.com',
+            'sub'                => 'test-sync-001',
+            'preferred_username' => 'sync.test',
+            'organisationId'     => '',
+            'organisationName'   => '',
+            'organisation'       => [
+                ['id' => 'SYNC-ORG-A', 'name' => 'Sync Org A'],
+            ],
+            'responsibilities'   => [],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($resourceOwner2);
+
+        self::assertCount(1, $user2->getOrganisations());
+        self::assertSame('SYNC-ORG-A', $user2->getOrganisations()->first()->getGwId());
+    }
+
+    /**
+     * Test stale orgs are removed when multi-org user switches to cartesian product.
+     */
+    public function testStaleOrgsRemovedWhenSwitchingToCartesianProduct(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        // First login: 3 affiliations (old format)
+        $resourceOwner1 = $this->createResourceAccessResourceOwner([
+            'email'              => 'switch.cp@example.com',
+            'sub'                => 'test-switch-cp-001',
+            'preferred_username' => 'switch.cp',
+            'organisationId'     => '',
+            'organisationName'   => '',
+            'organisation'       => [
+                ['id' => 'OLD-ORG-1', 'name' => 'Old Org 1'],
+                ['id' => 'OLD-ORG-2', 'name' => 'Old Org 2'],
+                ['id' => 'OLD-ORG-3', 'name' => 'Old Org 3'],
+            ],
+            'responsibilities'   => [],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+        $user = $this->mapResourceOwnerToUser($resourceOwner1);
+        self::assertCount(3, $user->getOrganisations());
+
+        // Second login: 2 affiliations × 1 responsibility (cartesian product)
+        // Old orgs should be completely replaced
+        $resourceOwner2 = $this->createResourceAccessResourceOwner([
+            'email'              => 'switch.cp@example.com',
+            'sub'                => 'test-switch-cp-001',
+            'preferred_username' => 'switch.cp',
+            'organisationId'     => '',
+            'organisationName'   => '',
+            'organisation'       => [
+                ['id' => 'NEW-AMT-A', 'name' => 'New Amt A'],
+                ['id' => 'NEW-AMT-B', 'name' => 'New Amt B'],
+            ],
+            'responsibilities'   => [
+                ['id' => 'WATER', 'name' => 'Wasserwirtschaft'],
+            ],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($resourceOwner2);
+
+        $orgGwIds = [];
+        foreach ($user2->getOrganisations() as $orga) {
+            $orgGwIds[] = $orga->getGwId();
+        }
+        sort($orgGwIds);
+
+        self::assertCount(2, $orgGwIds);
+        self::assertSame(['NEW-AMT-A.WATER', 'NEW-AMT-B.WATER'], $orgGwIds);
+    }
+
+    /**
+     * Test that org name from token is used on create but NOT overwritten on subsequent logins.
+     */
+    public function testOrgNameNotOverwrittenOnUpdate(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        // First login: creates org with name from token
+        $resourceOwner1 = $this->createResourceAccessResourceOwner([
+            'email'              => 'orgname.test@example.com',
+            'sub'                => 'test-orgname-001',
+            'preferred_username' => 'orgname.test',
+            'organisationId'     => '',
+            'organisationName'   => '',
+            'organisation'       => [
+                ['id' => 'ORGNAME-TEST', 'name' => 'Original Name From Token'],
+            ],
+            'responsibilities'   => [],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+        $user = $this->mapResourceOwnerToUser($resourceOwner1);
+        $orga = $user->getOrganisations()->first();
+        self::assertSame('Original Name From Token', $orga->getName());
+
+        // Simulate FPA user renaming the org via the UI
+        $orga->setName('User-Modified Name');
+        $this->getEntityManager()->persist($orga);
+        $this->getEntityManager()->flush();
+
+        // Second login: token still has the old name
+        $resourceOwner2 = $this->createResourceAccessResourceOwner([
+            'email'              => 'orgname.test@example.com',
+            'sub'                => 'test-orgname-001',
+            'preferred_username' => 'orgname.test',
+            'organisationId'     => '',
+            'organisationName'   => '',
+            'organisation'       => [
+                ['id' => 'ORGNAME-TEST', 'name' => 'Original Name From Token'],
+            ],
+            'responsibilities'   => [],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($resourceOwner2);
+        $orga2 = $user2->getOrganisations()->first();
+
+        // Name must still be the user-modified one, NOT overwritten by the token
+        self::assertSame('User-Modified Name', $orga2->getName());
+    }
+
+    /**
+     * Test organisationId fallback still works when no arrays are present.
+     */
+    public function testOrganisationIdFallbackWithEmptyArrays(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        $resourceOwner = $this->createResourceAccessResourceOwner([
+            'email'              => 'fallback.orgid@example.com',
+            'sub'                => 'test-fallback-orgid-001',
+            'preferred_username' => 'fallback.orgid',
+            'organisationId'     => 'LEGACY-ORG-ID',
+            'organisationName'   => 'Legacy Organisation',
+            'organisation'       => [],
+            'responsibilities'   => [],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+        $user = $this->mapResourceOwnerToUser($resourceOwner);
+
+        // Should use the organisationId fallback → single affiliation → single-entry flow
+        self::assertCount(1, $user->getOrganisations());
+        self::assertSame('LEGACY-ORG-ID', $user->getOrganisations()->first()->getGwId());
+        self::assertSame('Legacy Organisation', $user->getOrganisations()->first()->getName());
+    }
+
+    // ========================================================================
+    // Re-login scenarios: existing user logs in with modified token data
+    // ========================================================================
+
+    /**
+     * Helper: create a resource owner for re-login tests with a stable user identity.
+     *
+     * @param array<string, mixed> $tokenOverrides  Fields to set/override on the token
+     */
+    private function createReloginResourceOwner(array $tokenOverrides): ResourceOwnerInterface
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        $defaults = [
+            'email'              => 'relogin@example.com',
+            'sub'                => 'test-relogin-stable-001',
+            'preferred_username' => 'relogin.user',
+            'given_name'         => 'Re',
+            'family_name'        => 'Login',
+            'organisationId'     => '',
+            'organisationName'   => '',
+            'isPrivatePerson'    => false,
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ];
+
+        $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
+        $resourceOwner->method('toArray')->willReturn(array_merge($defaults, $tokenOverrides));
+
+        return $resourceOwner;
+    }
+
+    /**
+     * Helper: extract sorted gwIds from a user's organisations.
+     *
+     * @return array<int, string>
+     */
+    private function getSortedGwIds(User $user): array
+    {
+        $gwIds = [];
+        foreach ($user->getOrganisations() as $orga) {
+            $gwIds[] = $orga->getGwId();
+        }
+        sort($gwIds);
+
+        return $gwIds;
+    }
+
+    /**
+     * Helper: extract sorted org names from a user's organisations.
+     *
+     * @return array<int, string>
+     */
+    private function getSortedOrgNames(User $user): array
+    {
+        $names = [];
+        foreach ($user->getOrganisations() as $orga) {
+            $names[] = $orga->getName();
+        }
+        sort($names);
+
+        return $names;
+    }
+
+    // --- ID changes: user switches organisation/responsibility ---
+
+    /**
+     * User has 2 affiliations, then switches to 2 completely different affiliations.
+     * Old orgs must be removed, new orgs created.
+     */
+    public function testReloginAffiliationIdsChange(): void
+    {
+        // First login: AMT-A, AMT-B
+        $ro1 = $this->createReloginResourceOwner([
+            'organisation'     => [
+                ['id' => 'AMT-A', 'name' => 'Amt A'],
+                ['id' => 'AMT-B', 'name' => 'Amt B'],
+            ],
+            'responsibilities' => [],
+        ]);
+        $user1 = $this->mapResourceOwnerToUser($ro1);
+        $userId = $user1->getId();
+        self::assertSame(['AMT-A', 'AMT-B'], $this->getSortedGwIds($user1));
+
+        // Second login: AMT-C, AMT-D (completely different)
+        $ro2 = $this->createReloginResourceOwner([
+            'organisation'     => [
+                ['id' => 'AMT-C', 'name' => 'Amt C'],
+                ['id' => 'AMT-D', 'name' => 'Amt D'],
+            ],
+            'responsibilities' => [],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($ro2);
+
+        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame(['AMT-C', 'AMT-D'], $this->getSortedGwIds($user2));
+    }
+
+    /**
+     * User has cartesian product, then responsibility IDs change (affiliations stay).
+     * gwIds change because they include the responsibility ID → full org replacement.
+     */
+    public function testReloginResponsibilityIdsChange(): void
+    {
+        // First login: AMT-X × WATER = AMT-X.WATER
+        $ro1 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-resp-change-001',
+            'email'            => 'resp.change@example.com',
+            'preferred_username' => 'resp.change',
+            'organisation'     => [
+                ['id' => 'AMT-X', 'name' => 'Amt X'],
+            ],
+            'responsibilities' => [
+                ['id' => 'WATER', 'name' => 'Wasserwirtschaft'],
+                ['id' => 'LITTER', 'name' => 'Abfallwirtschaft'],
+            ],
+        ]);
+        $user1 = $this->mapResourceOwnerToUser($ro1);
+        $userId = $user1->getId();
+        self::assertSame(['AMT-X.LITTER', 'AMT-X.WATER'], $this->getSortedGwIds($user1));
+
+        // Second login: same affiliation, different responsibilities
+        $ro2 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-resp-change-001',
+            'email'            => 'resp.change@example.com',
+            'preferred_username' => 'resp.change',
+            'organisation'     => [
+                ['id' => 'AMT-X', 'name' => 'Amt X'],
+            ],
+            'responsibilities' => [
+                ['id' => 'ENERGY', 'name' => 'Energiewirtschaft'],
+                ['id' => 'FOREST', 'name' => 'Forstwirtschaft'],
+            ],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($ro2);
+
+        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame(['AMT-X.ENERGY', 'AMT-X.FOREST'], $this->getSortedGwIds($user2));
+    }
+
+    /**
+     * Both affiliation and responsibility IDs change simultaneously.
+     */
+    public function testReloginBothAffiliationAndResponsibilityIdsChange(): void
+    {
+        // First login: OLD-A × OLD-R = OLD-A.OLD-R
+        $ro1 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-both-change-001',
+            'email'            => 'both.change@example.com',
+            'preferred_username' => 'both.change',
+            'organisation'     => [
+                ['id' => 'OLD-A', 'name' => 'Old Amt'],
+            ],
+            'responsibilities' => [
+                ['id' => 'OLD-R', 'name' => 'Old Responsibility'],
+            ],
+        ]);
+        $user1 = $this->mapResourceOwnerToUser($ro1);
+        $userId = $user1->getId();
+        self::assertSame(['OLD-A.OLD-R'], $this->getSortedGwIds($user1));
+
+        // Second login: completely different IDs → 2×2 = 4 orgs
+        $ro2 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-both-change-001',
+            'email'            => 'both.change@example.com',
+            'preferred_username' => 'both.change',
+            'organisation'     => [
+                ['id' => 'NEW-A1', 'name' => 'New Amt 1'],
+                ['id' => 'NEW-A2', 'name' => 'New Amt 2'],
+            ],
+            'responsibilities' => [
+                ['id' => 'NEW-R1', 'name' => 'New Resp 1'],
+                ['id' => 'NEW-R2', 'name' => 'New Resp 2'],
+            ],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($ro2);
+
+        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame(
+            ['NEW-A1.NEW-R1', 'NEW-A1.NEW-R2', 'NEW-A2.NEW-R1', 'NEW-A2.NEW-R2'],
+            $this->getSortedGwIds($user2)
+        );
+    }
+
+    // --- Name changes: IDs stay the same, names differ ---
+
+    /**
+     * Affiliation names change in token but IDs stay the same.
+     * Orgs are found by gwId, names must NOT be overwritten (FPA can edit them).
+     */
+    public function testReloginAffiliationNamesChangeButIdsStay(): void
+    {
+        // First login
+        $ro1 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-aff-name-001',
+            'email'            => 'aff.name@example.com',
+            'preferred_username' => 'aff.name',
+            'organisation'     => [
+                ['id' => 'STABLE-A', 'name' => 'Original Amt A'],
+                ['id' => 'STABLE-B', 'name' => 'Original Amt B'],
+            ],
+            'responsibilities' => [],
+        ]);
+        $user1 = $this->mapResourceOwnerToUser($ro1);
+        $userId = $user1->getId();
+        self::assertSame(['Original Amt A', 'Original Amt B'], $this->getSortedOrgNames($user1));
+
+        // Second login: same IDs, different names in token
+        $ro2 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-aff-name-001',
+            'email'            => 'aff.name@example.com',
+            'preferred_username' => 'aff.name',
+            'organisation'     => [
+                ['id' => 'STABLE-A', 'name' => 'Renamed Amt A'],
+                ['id' => 'STABLE-B', 'name' => 'Renamed Amt B'],
+            ],
+            'responsibilities' => [],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($ro2);
+
+        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame(['STABLE-A', 'STABLE-B'], $this->getSortedGwIds($user2), 'Same orgs by gwId');
+        // Names must be preserved (not overwritten by token)
+        self::assertSame(
+            ['Original Amt A', 'Original Amt B'],
+            $this->getSortedOrgNames($user2),
+            'Org names must NOT be overwritten on re-login'
+        );
+    }
+
+    /**
+     * Responsibility names change in token but IDs stay the same.
+     * Cartesian gwIds are unchanged → orgs found → names preserved.
+     */
+    public function testReloginResponsibilityNamesChangeButIdsStay(): void
+    {
+        // First login: A × R1,R2
+        $ro1 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-resp-name-001',
+            'email'            => 'resp.name@example.com',
+            'preferred_username' => 'resp.name',
+            'organisation'     => [
+                ['id' => 'FIX-AMT', 'name' => 'Fixed Amt'],
+            ],
+            'responsibilities' => [
+                ['id' => 'R1', 'name' => 'Original Resp 1'],
+                ['id' => 'R2', 'name' => 'Original Resp 2'],
+            ],
+        ]);
+        $user1 = $this->mapResourceOwnerToUser($ro1);
+        $userId = $user1->getId();
+        self::assertSame(['FIX-AMT.R1', 'FIX-AMT.R2'], $this->getSortedGwIds($user1));
+        self::assertSame(
+            ['Fixed Amt - Original Resp 1', 'Fixed Amt - Original Resp 2'],
+            $this->getSortedOrgNames($user1)
+        );
+
+        // Second login: same IDs, different responsibility names
+        $ro2 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-resp-name-001',
+            'email'            => 'resp.name@example.com',
+            'preferred_username' => 'resp.name',
+            'organisation'     => [
+                ['id' => 'FIX-AMT', 'name' => 'Fixed Amt'],
+            ],
+            'responsibilities' => [
+                ['id' => 'R1', 'name' => 'Renamed Resp 1'],
+                ['id' => 'R2', 'name' => 'Renamed Resp 2'],
+            ],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($ro2);
+
+        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame(['FIX-AMT.R1', 'FIX-AMT.R2'], $this->getSortedGwIds($user2));
+        // Names must be preserved
+        self::assertSame(
+            ['Fixed Amt - Original Resp 1', 'Fixed Amt - Original Resp 2'],
+            $this->getSortedOrgNames($user2),
+            'Org names must NOT be overwritten on re-login'
+        );
+    }
+
+    // --- Org count changes: affiliations added or removed ---
+
+    /**
+     * User gains an additional affiliation on re-login.
+     * Existing org kept, new org created.
+     */
+    public function testReloginGainsAdditionalAffiliation(): void
+    {
+        // First login: 1 affiliation
+        $ro1 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-gain-aff-001',
+            'email'            => 'gain.aff@example.com',
+            'preferred_username' => 'gain.aff',
+            'organisation'     => [
+                ['id' => 'KEEP-ORG', 'name' => 'Kept Organisation'],
+            ],
+            'responsibilities' => [],
+        ]);
+        $user1 = $this->mapResourceOwnerToUser($ro1);
+        $userId = $user1->getId();
+        self::assertSame(['KEEP-ORG'], $this->getSortedGwIds($user1));
+
+        // Second login: 2 affiliations (one new)
+        $ro2 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-gain-aff-001',
+            'email'            => 'gain.aff@example.com',
+            'preferred_username' => 'gain.aff',
+            'organisation'     => [
+                ['id' => 'KEEP-ORG', 'name' => 'Kept Organisation'],
+                ['id' => 'NEW-ORG', 'name' => 'New Organisation'],
+            ],
+            'responsibilities' => [],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($ro2);
+
+        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame(['KEEP-ORG', 'NEW-ORG'], $this->getSortedGwIds($user2));
+    }
+
+    /**
+     * User loses an affiliation on re-login.
+     * Removed org must be unlinked.
+     */
+    public function testReloginLosesAffiliation(): void
+    {
+        // First login: 3 affiliations
+        $ro1 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-lose-aff-001',
+            'email'            => 'lose.aff@example.com',
+            'preferred_username' => 'lose.aff',
+            'organisation'     => [
+                ['id' => 'ORG-STAY-1', 'name' => 'Stay 1'],
+                ['id' => 'ORG-STAY-2', 'name' => 'Stay 2'],
+                ['id' => 'ORG-GONE', 'name' => 'Will Be Removed'],
+            ],
+            'responsibilities' => [],
+        ]);
+        $user1 = $this->mapResourceOwnerToUser($ro1);
+        $userId = $user1->getId();
+        self::assertCount(3, $user1->getOrganisations());
+
+        // Second login: only 2 affiliations — ORG-GONE removed
+        $ro2 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-lose-aff-001',
+            'email'            => 'lose.aff@example.com',
+            'preferred_username' => 'lose.aff',
+            'organisation'     => [
+                ['id' => 'ORG-STAY-1', 'name' => 'Stay 1'],
+                ['id' => 'ORG-STAY-2', 'name' => 'Stay 2'],
+            ],
+            'responsibilities' => [],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($ro2);
+
+        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame(['ORG-STAY-1', 'ORG-STAY-2'], $this->getSortedGwIds($user2));
+    }
+
+    // --- Mode switches: cartesian ↔ affiliations-only ↔ single-org ---
+
+    /**
+     * User switches from cartesian product (aff×resp) to affiliations-only (resp removed).
+     * gwIds change format: AMT.RESP → AMT (completely different), all old orgs replaced.
+     */
+    public function testReloginSwitchFromCartesianToAffiliationsOnly(): void
+    {
+        // First login: 2×1 cartesian
+        $ro1 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-cart-to-aff-001',
+            'email'            => 'cart.to.aff@example.com',
+            'preferred_username' => 'cart.to.aff',
+            'organisation'     => [
+                ['id' => 'CT-AMT-A', 'name' => 'CT Amt A'],
+                ['id' => 'CT-AMT-B', 'name' => 'CT Amt B'],
+            ],
+            'responsibilities' => [
+                ['id' => 'CT-RESP', 'name' => 'CT Responsibility'],
+            ],
+        ]);
+        $user1 = $this->mapResourceOwnerToUser($ro1);
+        $userId = $user1->getId();
+        self::assertSame(['CT-AMT-A.CT-RESP', 'CT-AMT-B.CT-RESP'], $this->getSortedGwIds($user1));
+
+        // Second login: same affiliations but NO responsibilities
+        $ro2 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-cart-to-aff-001',
+            'email'            => 'cart.to.aff@example.com',
+            'preferred_username' => 'cart.to.aff',
+            'organisation'     => [
+                ['id' => 'CT-AMT-A', 'name' => 'CT Amt A'],
+                ['id' => 'CT-AMT-B', 'name' => 'CT Amt B'],
+            ],
+            'responsibilities' => [],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($ro2);
+
+        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        // gwIds are now just the affiliation IDs (no .resp suffix)
+        self::assertSame(['CT-AMT-A', 'CT-AMT-B'], $this->getSortedGwIds($user2));
+    }
+
+    /**
+     * User switches from affiliations-only to cartesian product (resp added).
+     * gwIds change format: AMT → AMT.RESP, all old orgs replaced by new cartesian orgs.
+     */
+    public function testReloginSwitchFromAffiliationsOnlyToCartesian(): void
+    {
+        // First login: affiliations only
+        $ro1 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-aff-to-cart-001',
+            'email'            => 'aff.to.cart@example.com',
+            'preferred_username' => 'aff.to.cart',
+            'organisation'     => [
+                ['id' => 'AC-AMT', 'name' => 'AC Amt'],
+            ],
+            'responsibilities' => [],
+        ]);
+        $user1 = $this->mapResourceOwnerToUser($ro1);
+        $userId = $user1->getId();
+        self::assertSame(['AC-AMT'], $this->getSortedGwIds($user1));
+
+        // Second login: same affiliation + new responsibility → cartesian
+        $ro2 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-aff-to-cart-001',
+            'email'            => 'aff.to.cart@example.com',
+            'preferred_username' => 'aff.to.cart',
+            'organisation'     => [
+                ['id' => 'AC-AMT', 'name' => 'AC Amt'],
+            ],
+            'responsibilities' => [
+                ['id' => 'AC-WATER', 'name' => 'Wasser'],
+                ['id' => 'AC-LITTER', 'name' => 'Abfall'],
+            ],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($ro2);
+
+        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        // Old org AC-AMT replaced by AC-AMT.AC-WATER and AC-AMT.AC-LITTER
+        self::assertSame(['AC-AMT.AC-LITTER', 'AC-AMT.AC-WATER'], $this->getSortedGwIds($user2));
+    }
+
+    /**
+     * User switches from multi-org to single organisationId fallback.
+     * All multi-org links removed, replaced by single org from organisationId.
+     */
+    public function testReloginSwitchFromMultiOrgToSingleOrgFallback(): void
+    {
+        // First login: 2 affiliations
+        $ro1 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-multi-to-single-001',
+            'email'            => 'multi.to.single@example.com',
+            'preferred_username' => 'multi.to.single',
+            'organisation'     => [
+                ['id' => 'MTS-ORG-A', 'name' => 'MTS Org A'],
+                ['id' => 'MTS-ORG-B', 'name' => 'MTS Org B'],
+            ],
+            'responsibilities' => [],
+        ]);
+        $user1 = $this->mapResourceOwnerToUser($ro1);
+        $userId = $user1->getId();
+        self::assertSame(['MTS-ORG-A', 'MTS-ORG-B'], $this->getSortedGwIds($user1));
+
+        // Second login: empty arrays → falls back to organisationId
+        $ro2 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-multi-to-single-001',
+            'email'            => 'multi.to.single@example.com',
+            'preferred_username' => 'multi.to.single',
+            'organisationId'   => 'MTS-FALLBACK',
+            'organisationName' => 'MTS Fallback Org',
+            'organisation'     => [],
+            'responsibilities' => [],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($ro2);
+
+        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertCount(1, $user2->getOrganisations());
+        self::assertSame('MTS-FALLBACK', $user2->getOrganisations()->first()->getGwId());
+    }
+
+    /**
+     * User switches from single organisationId fallback to multi-org cartesian.
+     * Single org replaced by cartesian product orgs.
+     */
+    public function testReloginSwitchFromSingleOrgFallbackToCartesian(): void
+    {
+        // First login: organisationId fallback (empty arrays)
+        $ro1 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-single-to-cart-001',
+            'email'            => 'single.to.cart@example.com',
+            'preferred_username' => 'single.to.cart',
+            'organisationId'   => 'STC-LEGACY',
+            'organisationName' => 'STC Legacy Org',
+            'organisation'     => [],
+            'responsibilities' => [],
+        ]);
+        $user1 = $this->mapResourceOwnerToUser($ro1);
+        $userId = $user1->getId();
+        self::assertCount(1, $user1->getOrganisations());
+        self::assertSame('STC-LEGACY', $user1->getOrganisations()->first()->getGwId());
+
+        // Second login: now has affiliations × responsibilities → cartesian
+        $ro2 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-single-to-cart-001',
+            'email'            => 'single.to.cart@example.com',
+            'preferred_username' => 'single.to.cart',
+            'organisationId'   => 'STC-LEGACY',
+            'organisationName' => 'STC Legacy Org',
+            'organisation'     => [
+                ['id' => 'STC-AMT', 'name' => 'STC Amt'],
+            ],
+            'responsibilities' => [
+                ['id' => 'STC-R1', 'name' => 'STC Resp 1'],
+                ['id' => 'STC-R2', 'name' => 'STC Resp 2'],
+            ],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($ro2);
+
+        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame(['STC-AMT.STC-R1', 'STC-AMT.STC-R2'], $this->getSortedGwIds($user2));
+    }
+
+    // --- Partial overlap: some IDs stay, some change ---
+
+    /**
+     * User keeps one affiliation but swaps the other.
+     * Kept org stays linked, swapped org unlinked and new one created.
+     */
+    public function testReloginPartialAffiliationOverlap(): void
+    {
+        // First login: ORG-KEEP + ORG-OLD
+        $ro1 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-partial-001',
+            'email'            => 'partial@example.com',
+            'preferred_username' => 'partial.overlap',
+            'organisation'     => [
+                ['id' => 'PO-KEEP', 'name' => 'Partial Keep'],
+                ['id' => 'PO-OLD', 'name' => 'Partial Old'],
+            ],
+            'responsibilities' => [],
+        ]);
+        $user1 = $this->mapResourceOwnerToUser($ro1);
+        $userId = $user1->getId();
+        self::assertSame(['PO-KEEP', 'PO-OLD'], $this->getSortedGwIds($user1));
+
+        // Second login: ORG-KEEP stays, ORG-OLD → ORG-NEW
+        $ro2 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-partial-001',
+            'email'            => 'partial@example.com',
+            'preferred_username' => 'partial.overlap',
+            'organisation'     => [
+                ['id' => 'PO-KEEP', 'name' => 'Partial Keep'],
+                ['id' => 'PO-NEW', 'name' => 'Partial New'],
+            ],
+            'responsibilities' => [],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($ro2);
+
+        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame(['PO-KEEP', 'PO-NEW'], $this->getSortedGwIds($user2));
+    }
+
+    /**
+     * Cartesian product with partial overlap: one responsibility swapped.
+     * AMT × (R-KEEP, R-OLD) → AMT × (R-KEEP, R-NEW)
+     * AMT.R-KEEP stays, AMT.R-OLD removed, AMT.R-NEW created.
+     */
+    public function testReloginCartesianPartialResponsibilityOverlap(): void
+    {
+        // First login
+        $ro1 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-cart-partial-001',
+            'email'            => 'cart.partial@example.com',
+            'preferred_username' => 'cart.partial',
+            'organisation'     => [
+                ['id' => 'CP-AMT', 'name' => 'CP Amt'],
+            ],
+            'responsibilities' => [
+                ['id' => 'CP-R-KEEP', 'name' => 'Keep Resp'],
+                ['id' => 'CP-R-OLD', 'name' => 'Old Resp'],
+            ],
+        ]);
+        $user1 = $this->mapResourceOwnerToUser($ro1);
+        $userId = $user1->getId();
+        self::assertSame(['CP-AMT.CP-R-KEEP', 'CP-AMT.CP-R-OLD'], $this->getSortedGwIds($user1));
+
+        // Second login: swap one responsibility
+        $ro2 = $this->createReloginResourceOwner([
+            'sub'              => 'test-relogin-cart-partial-001',
+            'email'            => 'cart.partial@example.com',
+            'preferred_username' => 'cart.partial',
+            'organisation'     => [
+                ['id' => 'CP-AMT', 'name' => 'CP Amt'],
+            ],
+            'responsibilities' => [
+                ['id' => 'CP-R-KEEP', 'name' => 'Keep Resp'],
+                ['id' => 'CP-R-NEW', 'name' => 'New Resp'],
+            ],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($ro2);
+
+        self::assertSame($userId, $user2->getId(), 'Must be the same user');
+        self::assertSame(['CP-AMT.CP-R-KEEP', 'CP-AMT.CP-R-NEW'], $this->getSortedGwIds($user2));
+    }
 }

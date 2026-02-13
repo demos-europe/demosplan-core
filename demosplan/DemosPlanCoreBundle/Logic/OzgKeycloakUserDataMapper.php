@@ -76,7 +76,8 @@ class OzgKeycloakUserDataMapper
 
     /**
      * Maps incoming data to dplan:user.
-     * Supports both single organisation  and multi-responsibility tokens.
+     * Supports both single organisation and multi-organisation tokens.
+     * Multi-organisation is determined by the cartesian product of affiliations × responsibilities.
      *
      * @throws CustomerNotFoundException
      * @throws Exception
@@ -86,36 +87,127 @@ class OzgKeycloakUserDataMapper
         $this->ozgKeycloakUserData = $ozgKeycloakUserData;
         $requestedRoles = $this->mapUserRoleData();
 
-        // Check if this is a multi-responsibility token
-        if ($ozgKeycloakUserData instanceof OzgKeycloakUserData
-            && $ozgKeycloakUserData->hasMultipleResponsibilities()
-        ) {
-            return $this->mapMultiResponsibilityUser($requestedRoles);
+        // Check if this is a multi-organisation token (affiliations × responsibilities)
+        if ($ozgKeycloakUserData instanceof OzgKeycloakUserData) {
+            $entries = $this->buildOrganisationEntries(
+                $ozgKeycloakUserData->getAffiliations(),
+                $ozgKeycloakUserData->getResponsibilities()
+            );
+
+            if (count($entries) > 1) {
+                return $this->mapMultiOrganisationUser($entries, $requestedRoles);
+            }
+
+            if (1 === count($entries)) {
+                // Single org from token arrays — use it instead of organisationId
+                return $this->mapSingleEntryOrganisationUser($entries[0], $requestedRoles);
+            }
         }
 
-        // Single-organisation flow
+        // No entries from token arrays → existing single-org flow using organisationId
         $requestedOrganisation = $this->mapUserOrganisationData($requestedRoles);
         $existingUser = $this->tryToFindExistingUser();
 
         if ($existingUser instanceof User) {
-            // Update existing user with keycloak data
             return $this->updateExistingDplanUser($existingUser, $requestedOrganisation, $requestedRoles);
         }
 
-        // In case of no user was found, create a new User using keycloak data
         return $this->createNewUser($requestedOrganisation, $requestedRoles);
     }
 
     /**
-     * Handle multi-responsibility user mapping.
-     * Links user to all organisations from responsibilities.
+     * Compute the cartesian product of affiliations × responsibilities.
+     * Organisation (affiliations) is always >= 1, responsibilities is 0..n.
      *
-     * @param array<int, Role> $requestedRoles
+     * Fallback rules:
+     * 1. Both present → cartesian product (gwId = aff.id + '.' + resp.id)
+     * 2. Only affiliations (no responsibilities) → use affiliations alone
+     * 3. No affiliations → empty array (caller falls back to organisationId)
+     *
+     * @param array<int, array{id: string, name: string}> $affiliations
+     * @param array<int, array{id: string, name: string}> $responsibilities
+     *
+     * @return array<int, array{gwId: string, name: string}>
+     */
+    private function buildOrganisationEntries(array $affiliations, array $responsibilities): array
+    {
+        if ([] === $affiliations) {
+            return [];
+        }
+
+        // Affiliations + responsibilities → cartesian product
+        if ([] !== $responsibilities) {
+            $entries = [];
+            foreach ($affiliations as $aff) {
+                foreach ($responsibilities as $resp) {
+                    $entries[] = [
+                        'gwId' => $aff['id'].'.'.$resp['id'],
+                        'name' => $aff['name'].' - '.$resp['name'],
+                    ];
+                }
+            }
+
+            return $entries;
+        }
+
+        // Affiliations only (no responsibilities)
+        return array_map(static fn (array $a): array => ['gwId' => $a['id'], 'name' => $a['name']], $affiliations);
+    }
+
+    /**
+     * Handle a single organisation entry from token arrays.
+     * Routes through the normal org lookup/create flow using the entry's gwId and name.
+     *
+     * @param array{gwId: string, name: string} $entry
+     * @param array<int, Role>                  $requestedRoles
      *
      * @throws CustomerNotFoundException
      * @throws Exception
      */
-    private function mapMultiResponsibilityUser(array $requestedRoles): User
+    private function mapSingleEntryOrganisationUser(array $entry, array $requestedRoles): User
+    {
+        $existingUser = $this->tryToFindExistingUser();
+
+        // Handle private persons / citizens
+        if ($this->ozgKeycloakUserData->isPrivatePerson() || $this->isUserCitizen($requestedRoles)) {
+            $citizenOrga = $this->getCitizenOrga();
+            if ($existingUser instanceof User) {
+                return $this->updateExistingDplanUser($existingUser, $citizenOrga, $requestedRoles);
+            }
+
+            return $this->createNewUser($citizenOrga, $requestedRoles);
+        }
+
+        $orga = $this->orgaRepository->findOneBy(['gwId' => $entry['gwId']]);
+
+        if ($orga instanceof Orga) {
+            $orga = $this->updateOrganisation($orga, $requestedRoles, $entry['gwId'], $entry['name']);
+        } else {
+            $orga = $this->createNewOrganisation($requestedRoles, $entry['gwId'], $entry['name']);
+        }
+
+        if ($existingUser instanceof User) {
+            $user = $this->updateExistingDplanUser($existingUser, $orga, $requestedRoles);
+            // Sync: remove stale org links from previous multi-org tokens
+            $this->syncUserOrganisations($user, [$orga]);
+
+            return $user;
+        }
+
+        return $this->createNewUser($orga, $requestedRoles);
+    }
+
+    /**
+     * Handle multi-organisation user mapping.
+     * Links user to all organisations from the cartesian product of affiliations × responsibilities.
+     *
+     * @param array<int, array{gwId: string, name: string}> $entries
+     * @param array<int, Role>                              $requestedRoles
+     *
+     * @throws CustomerNotFoundException
+     * @throws Exception
+     */
+    private function mapMultiOrganisationUser(array $entries, array $requestedRoles): User
     {
         $existingUser = $this->tryToFindExistingUser();
 
@@ -129,15 +221,11 @@ class OzgKeycloakUserDataMapper
             return $this->createNewUser($citizenOrga, $requestedRoles);
         }
 
-        /** @var OzgKeycloakUserData $userData */
-        $userData = $this->ozgKeycloakUserData;
-        $responsibilities = $userData->getResponsibilities();
-
-        // Find or create all organisations from responsibilities
-        $organisations = $this->findOrCreateOrganisationsFromResponsibilities($responsibilities, $requestedRoles);
+        // Find or create all organisations from entries
+        $organisations = $this->findOrCreateOrganisationsFromToken($entries, $requestedRoles);
 
         if ([] === $organisations) {
-            throw new AuthenticationException('No valid organisations could be created from responsibilities');
+            throw new AuthenticationException('No valid organisations could be created from token');
         }
 
         // Use first organisation as primary (for backward compatibility)
@@ -149,10 +237,10 @@ class OzgKeycloakUserDataMapper
             $user = $this->createNewUser($primaryOrga, $requestedRoles);
         }
 
-        // Link user to all additional organisations
-        $this->linkUserToAdditionalOrganisations($user, $organisations);
+        // Sync user's org links: add new ones, remove stale ones
+        $this->syncUserOrganisations($user, $organisations);
 
-        $this->logger->info('Multi-responsibility user mapped', [
+        $this->logger->info('Multi-organisation user mapped', [
             'userId' => $user->getId(),
             'organisationCount' => count($organisations),
             'organisations' => array_map(fn (Orga $o) => $o->getId(), $organisations),
@@ -162,22 +250,22 @@ class OzgKeycloakUserDataMapper
     }
 
     /**
-     * Find or create organisations from responsibilities array.
+     * Find or create organisations from token entries (cartesian product results).
      *
-     * @param array<int, array{responsibility: string, orgaName: string}> $responsibilities
-     * @param array<int, Role> $requestedRoles
+     * @param array<int, array{gwId: string, name: string}> $entries
+     * @param array<int, Role>                              $requestedRoles
      *
      * @return array<int, Orga>
      *
      * @throws CustomerNotFoundException
      */
-    private function findOrCreateOrganisationsFromResponsibilities(array $responsibilities, array $requestedRoles): array
+    private function findOrCreateOrganisationsFromToken(array $entries, array $requestedRoles): array
     {
         $organisations = [];
 
-        foreach ($responsibilities as $responsibilityData) {
-            $gwId = $responsibilityData['responsibility'];
-            $orgaName = $responsibilityData['orgaName'];
+        foreach ($entries as $entry) {
+            $gwId = $entry['gwId'];
+            $orgaName = $entry['name'];
 
             // Skip citizen organisation identifier
             if (UserInterface::ANONYMOUS_USER_ORGA_ID === $gwId || UserInterface::ANONYMOUS_USER_ORGA_NAME === $orgaName) {
@@ -197,20 +285,33 @@ class OzgKeycloakUserDataMapper
     }
 
     /**
-     * Link user to additional organisations (beyond the primary one).
+     * Sync user's organisation links to match the given target set.
+     * Adds missing links and removes stale ones no longer present in the token.
      *
-     * @param array<int, Orga> $organisations
+     * @param array<int, Orga> $targetOrganisations
      */
-    private function linkUserToAdditionalOrganisations(User $user, array $organisations): void
+    private function syncUserOrganisations(User $user, array $targetOrganisations): void
     {
-        foreach ($organisations as $orga) {
-            if ($user->getOrganisations()->contains($orga)) {
-                continue;
-            }
+        $targetIds = array_map(static fn (Orga $o): string => $o->getId(), $targetOrganisations);
 
-            $user->addOrganisation($orga);
-            $orga->addUser($user);
-            $this->entityManager->persist($orga);
+        // Remove stale org links not in target set
+        // Use unlinkUser/removeOrganisation to avoid setOrga()/unsetOrgas() side effects
+        foreach ($user->getOrganisations()->toArray() as $currentOrga) {
+            if (!in_array($currentOrga->getId(), $targetIds, true)) {
+                $user->removeOrganisation($currentOrga);
+                $currentOrga->unlinkUser($user);
+                $this->entityManager->persist($currentOrga);
+            }
+        }
+
+        // Add missing org links
+        // Use linkUser/addOrganisation to avoid setOrga() overwriting the user's org collection
+        foreach ($targetOrganisations as $orga) {
+            if (!$user->getOrganisations()->contains($orga)) {
+                $user->addOrganisation($orga);
+                $orga->linkUser($user);
+                $this->entityManager->persist($orga);
+            }
         }
 
         $this->entityManager->persist($user);
@@ -309,15 +410,14 @@ class OzgKeycloakUserDataMapper
      * Update an existing organisation with customer and orga types.
      *
      * @param array<int, Role> $requestedRoles
-     * @param string|null      $gwId     Override gwId (for multi-responsibility), null = use token value + address
-     * @param string|null      $orgaName Override name (for multi-responsibility), null = use token value
+     * @param string|null      $gwId     Override gwId (for multi-organisation), null = use token value + address
+     * @param string|null      $orgaName Override name (for multi-organisation), null = use token value
      *
      * @throws CustomerNotFoundException
      */
     private function updateOrganisation(Orga $existingOrga, array $requestedRoles, ?string $gwId = null, ?string $orgaName = null): Orga
     {
         $customer = $this->customerService->getCurrentCustomer();
-        $isMultiResponsibility = null !== $gwId;
 
         $gwId ??= $this->ozgKeycloakUserData->getOrganisationId();
         $orgaName ??= $this->ozgKeycloakUserData->getOrganisationName();
@@ -329,10 +429,9 @@ class OzgKeycloakUserDataMapper
             $existingOrga->setGwId($gwId);
         }
 
-        // Prevent changing name to reserved citizen name
+        // Do not overwrite org name on update — FPA users can modify it via the UI.
+        // Name is only set on org creation. Address fields are still synced from the token.
         if (UserInterface::ANONYMOUS_USER_ORGA_NAME !== $orgaName) {
-            $existingOrga->setName($orgaName);
-
             $existingOrga->setStreet($this->ozgKeycloakUserData->getStreet());
             $existingOrga->setAddressExtension($this->ozgKeycloakUserData->getAddressExtension());
             $existingOrga->setHouseNumber($this->ozgKeycloakUserData->getHouseNumber());
@@ -386,8 +485,8 @@ class OzgKeycloakUserDataMapper
      * Create a new organisation.
      *
      * @param array<int, Role> $requestedRoles
-     * @param string|null      $gwId     Override gwId (for multi-responsibility), defaults to token value
-     * @param string|null      $orgaName Override name (for multi-responsibility), defaults to token value
+     * @param string|null      $gwId     Override gwId (for multi-organisation), defaults to token value
+     * @param string|null      $orgaName Override name (for multi-organisation), defaults to token value
      *
      * @throws AuthenticationException
      * @throws Exception

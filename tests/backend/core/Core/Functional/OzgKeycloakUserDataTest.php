@@ -47,12 +47,11 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'sub'                => '456',
                 'preferred_username' => 'johndoe',
                 'isPrivatePerson'    => true,
-                'groups'             => [], // No groups or org data needed for private persons
+                'groups'             => [],
             ]);
 
         $this->sut->fill($resourceOwner);
 
-        // Verify validation passes without organization attributes
         $this->sut->checkMandatoryValuesExist();
 
         self::assertTrue($this->sut->isPrivatePerson());
@@ -69,12 +68,11 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'sub'                => '789',
                 'preferred_username' => 'janesmith',
                 'isPrivatePerson'    => 'true',
-                'groups'             => [], // No groups or org data needed for private persons
+                'groups'             => [],
             ]);
 
         $this->sut->fill($resourceOwner);
 
-        // Verify validation passes without organization attributes
         $this->sut->checkMandatoryValuesExist();
 
         self::assertTrue($this->sut->isPrivatePerson());
@@ -162,12 +160,11 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'sub'                => '999',
                 'preferred_username' => 'testuser',
                 'isPrivatePerson'    => true,
-                'groups'             => [], // No groups or org data needed for private persons
+                'groups'             => [],
             ]);
 
         $this->sut->fill($resourceOwner);
 
-        // Verify validation passes without organization attributes
         $this->sut->checkMandatoryValuesExist();
 
         $stringRepresentation = (string) $this->sut;
@@ -176,16 +173,14 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
 
     public function testUserInformationIsCorrectlyFilledFromResourceOwnerWithIsPrivatePerson(): void
     {
-        // Test backward compatibility: private persons can still include organization data
-        // even though it's not required. This ensures existing tokens continue to work.
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
                 'email'                           => self::TEST_EMAIL,
                 'given_name'                      => 'John',
                 'family_name'                     => 'Doe',
-                'organisationId'                  => 'PrivatpersonId', // Optional for backward compatibility
-                'organisationName'                => 'Privatperson', // Optional for backward compatibility
+                'organisationId'                  => 'PrivatpersonId',
+                'organisationName'                => 'Privatperson',
                 'sub'                             => '456',
                 'preferred_username'              => 'johndoe',
                 'UnternehmensanschriftStrasse'    => 'Test Street',
@@ -193,12 +188,11 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'UnternehmensanschriftPLZ'        => '12345',
                 'UnternehmensanschriftOrt'        => 'Test City',
                 'isPrivatePerson'                 => true,
-                'groups'                          => [], // No groups needed for private persons
+                'groups'                          => [],
             ]);
 
         $this->sut->fill($resourceOwner);
 
-        // Verify validation passes with organization attributes (backward compatibility)
         $this->sut->checkMandatoryValuesExist();
 
         self::assertEquals(self::TEST_EMAIL, $this->sut->getEmailAddress());
@@ -211,7 +205,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
         self::assertTrue($this->sut->isPrivatePerson());
     }
 
-    public function testMultipleResponsibilitiesAreParsedCorrectly(): void
+    public function testCartesianProductOfAffiliationsAndResponsibilities(): void
     {
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
@@ -221,10 +215,13 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'family_name'        => 'Org',
                 'sub'                => 'multi-user-123',
                 'preferred_username' => 'multiorg',
+                'organisation'       => [
+                    ['id' => 'amt-a', 'name' => 'Amt A'],
+                    ['id' => 'amt-b', 'name' => 'Amt B'],
+                ],
                 'responsibilities'   => [
-                    ['responsibility' => 'org-gw-id-1', 'orgaName' => 'Organisation One'],
-                    ['responsibility' => 'org-gw-id-2', 'orgaName' => 'Organisation Two'],
-                    ['responsibility' => 'org-gw-id-3', 'orgaName' => 'Organisation Three'],
+                    ['id' => 'water', 'name' => 'Wasserwirtschaft'],
+                    ['id' => 'litter', 'name' => 'Abfallwirtschaft'],
                 ],
                 'groups' => [
                     '/Beteiligung-Organisation/Org Multi',
@@ -234,49 +231,108 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
 
         $this->sut->fill($resourceOwner);
 
+        $affiliations = $this->sut->getAffiliations();
         $responsibilities = $this->sut->getResponsibilities();
 
-        self::assertCount(3, $responsibilities);
-        self::assertTrue($this->sut->hasMultipleResponsibilities());
+        self::assertCount(2, $affiliations);
+        self::assertCount(2, $responsibilities);
+        self::assertTrue($this->sut->hasAffiliations());
+        self::assertTrue($this->sut->hasMultipleOrganisations());
 
-        self::assertSame('org-gw-id-1', $responsibilities[0]['responsibility']);
-        self::assertSame('Organisation One', $responsibilities[0]['orgaName']);
-        self::assertSame('org-gw-id-2', $responsibilities[1]['responsibility']);
-        self::assertSame('Organisation Two', $responsibilities[1]['orgaName']);
-        self::assertSame('org-gw-id-3', $responsibilities[2]['responsibility']);
-        self::assertSame('Organisation Three', $responsibilities[2]['orgaName']);
+        self::assertSame('amt-a', $affiliations[0]['id']);
+        self::assertSame('Amt A', $affiliations[0]['name']);
+        self::assertSame('amt-b', $affiliations[1]['id']);
+        self::assertSame('Amt B', $affiliations[1]['name']);
+
+        self::assertSame('water', $responsibilities[0]['id']);
+        self::assertSame('Wasserwirtschaft', $responsibilities[0]['name']);
+        self::assertSame('litter', $responsibilities[1]['id']);
+        self::assertSame('Abfallwirtschaft', $responsibilities[1]['name']);
     }
 
-    public function testSingleResponsibilityIsNotMultiple(): void
+    public function testAffiliationsOnlyWithoutResponsibilities(): void
     {
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
                 'email'              => self::TEST_EMAIL,
-                'given_name'         => 'Single',
-                'family_name'        => 'Org',
-                'sub'                => 'single-user-456',
-                'preferred_username' => 'singleorg',
-                'responsibilities'   => [
-                    ['responsibility' => 'org-gw-id-only', 'orgaName' => 'Only Organisation'],
+                'given_name'         => 'Aff',
+                'family_name'        => 'Only',
+                'sub'                => 'aff-only-user',
+                'preferred_username' => 'affonly',
+                'organisation'       => [
+                    ['id' => 'org-1', 'name' => 'Organisation One'],
+                    ['id' => 'org-2', 'name' => 'Organisation Two'],
                 ],
+                'responsibilities'   => [],
                 'groups' => [
-                    '/Beteiligung-Organisation/Single Org',
+                    '/Beteiligung-Organisation/Aff Only',
                     '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
                 ],
             ]);
 
         $this->sut->fill($resourceOwner);
 
-        self::assertFalse($this->sut->hasMultipleResponsibilities());
-        self::assertCount(1, $this->sut->getResponsibilities());
-
-        $primary = $this->sut->getPrimaryResponsibility();
-        self::assertNotNull($primary);
-        self::assertSame('org-gw-id-only', $primary['responsibility']);
+        self::assertCount(2, $this->sut->getAffiliations());
+        self::assertCount(0, $this->sut->getResponsibilities());
+        self::assertTrue($this->sut->hasMultipleOrganisations());
     }
 
-    public function testLegacyOrganisationIdFallbackToResponsibilities(): void
+    public function testSingleAffiliationIsNotMultipleOrganisations(): void
+    {
+        $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
+        $resourceOwner->method('toArray')
+            ->willReturn([
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'Single',
+                'family_name'        => 'Aff',
+                'sub'                => 'single-aff-user',
+                'preferred_username' => 'singleaff',
+                'organisation'       => [
+                    ['id' => 'only-org', 'name' => 'Only Organisation'],
+                ],
+                'responsibilities'   => [],
+                'groups' => [
+                    '/Beteiligung-Organisation/Single Aff',
+                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                ],
+            ]);
+
+        $this->sut->fill($resourceOwner);
+
+        self::assertFalse($this->sut->hasMultipleOrganisations());
+        self::assertCount(1, $this->sut->getAffiliations());
+    }
+
+    public function testSingleAffiliationTimesSingleResponsibilityIsNotMultiple(): void
+    {
+        $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
+        $resourceOwner->method('toArray')
+            ->willReturn([
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'One',
+                'family_name'        => 'ByOne',
+                'sub'                => '1x1-user',
+                'preferred_username' => 'onebyone',
+                'organisation'       => [
+                    ['id' => 'aff-1', 'name' => 'Aff 1'],
+                ],
+                'responsibilities'   => [
+                    ['id' => 'resp-1', 'name' => 'Resp 1'],
+                ],
+                'groups' => [
+                    '/Beteiligung-Organisation/1x1',
+                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                ],
+            ]);
+
+        $this->sut->fill($resourceOwner);
+
+        // 1 × 1 = 1, so not multiple
+        self::assertFalse($this->sut->hasMultipleOrganisations());
+    }
+
+    public function testLegacyOrganisationIdFallbackToAffiliations(): void
     {
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
@@ -296,25 +352,29 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
 
         $this->sut->fill($resourceOwner);
 
-        // Should fall back to legacy organisationId as a single responsibility
-        $responsibilities = $this->sut->getResponsibilities();
-        self::assertCount(1, $responsibilities);
-        self::assertFalse($this->sut->hasMultipleResponsibilities());
-        self::assertSame('legacy-org-id', $responsibilities[0]['responsibility']);
-        self::assertSame('Legacy Organisation', $responsibilities[0]['orgaName']);
+        // Should fall back to legacy organisationId as a single affiliation
+        $affiliations = $this->sut->getAffiliations();
+        self::assertCount(1, $affiliations);
+        self::assertFalse($this->sut->hasMultipleOrganisations());
+        self::assertSame('legacy-org-id', $affiliations[0]['id']);
+        self::assertSame('Legacy Organisation', $affiliations[0]['name']);
+
+        // Responsibilities should be empty (no responsibilities array in token)
+        self::assertCount(0, $this->sut->getResponsibilities());
     }
 
-    public function testEmptyResponsibilitiesArrayFallsBackToLegacy(): void
+    public function testEmptyArraysFallBackToOrganisationId(): void
     {
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
                 'email'              => self::TEST_EMAIL,
                 'given_name'         => 'Empty',
-                'family_name'        => 'Resp',
-                'sub'                => 'empty-resp-user',
-                'preferred_username' => 'emptyresp',
-                'responsibilities'   => [], // Empty array
+                'family_name'        => 'Arrays',
+                'sub'                => 'empty-arrays-user',
+                'preferred_username' => 'emptyarrays',
+                'organisation'       => [],
+                'responsibilities'   => [],
                 'organisationId'     => 'fallback-org-id',
                 'organisationName'   => 'Fallback Organisation',
                 'groups'             => [
@@ -325,12 +385,13 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
 
         $this->sut->fill($resourceOwner);
 
-        $responsibilities = $this->sut->getResponsibilities();
-        self::assertCount(1, $responsibilities);
-        self::assertSame('fallback-org-id', $responsibilities[0]['responsibility']);
+        $affiliations = $this->sut->getAffiliations();
+        self::assertCount(1, $affiliations);
+        self::assertSame('fallback-org-id', $affiliations[0]['id']);
+        self::assertSame('Fallback Organisation', $affiliations[0]['name']);
     }
 
-    public function testMultiResponsibilityValidationPassesWithRoles(): void
+    public function testMultiOrganisationValidationPassesWithRoles(): void
     {
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
@@ -340,9 +401,12 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'family_name'        => 'Multi',
                 'sub'                => 'valid-multi-user',
                 'preferred_username' => 'validmulti',
+                'organisation'       => [
+                    ['id' => 'org-1', 'name' => 'Org 1'],
+                    ['id' => 'org-2', 'name' => 'Org 2'],
+                ],
                 'responsibilities'   => [
-                    ['responsibility' => 'org-1', 'orgaName' => 'Org 1'],
-                    ['responsibility' => 'org-2', 'orgaName' => 'Org 2'],
+                    ['id' => 'resp-1', 'name' => 'Resp 1'],
                 ],
                 'groups' => [
                     '/Beteiligung-Organisation/Valid Multi',
@@ -355,10 +419,38 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
         // Should not throw exception
         $this->sut->checkMandatoryValuesExist();
 
-        self::assertTrue($this->sut->hasMultipleResponsibilities());
+        self::assertTrue($this->sut->hasMultipleOrganisations());
     }
 
-    public function testResponsibilityWithoutOrgaNameUsesResponsibilityAsName(): void
+    public function testAffiliationWithoutNameUsesIdAsName(): void
+    {
+        $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
+        $resourceOwner->method('toArray')
+            ->willReturn([
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'NoName',
+                'family_name'        => 'Aff',
+                'sub'                => 'noname-user',
+                'preferred_username' => 'noname',
+                'organisation'       => [
+                    ['id' => 'org-without-name'],
+                ],
+                'responsibilities'   => [],
+                'groups' => [
+                    '/Beteiligung-Organisation/NoName Aff',
+                    '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
+                ],
+            ]);
+
+        $this->sut->fill($resourceOwner);
+
+        $affiliations = $this->sut->getAffiliations();
+        self::assertCount(1, $affiliations);
+        // name should default to id value
+        self::assertSame('org-without-name', $affiliations[0]['name']);
+    }
+
+    public function testResponsibilityWithoutNameUsesIdAsName(): void
     {
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
@@ -366,10 +458,13 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'email'              => self::TEST_EMAIL,
                 'given_name'         => 'NoName',
                 'family_name'        => 'Resp',
-                'sub'                => 'noname-user',
-                'preferred_username' => 'noname',
+                'sub'                => 'noname-resp-user',
+                'preferred_username' => 'nonameResp',
+                'organisation'       => [
+                    ['id' => 'some-org', 'name' => 'Some Org'],
+                ],
                 'responsibilities'   => [
-                    ['responsibility' => 'org-without-name'],
+                    ['id' => 'resp-without-name'],
                 ],
                 'groups' => [
                     '/Beteiligung-Organisation/NoName Resp',
@@ -381,11 +476,10 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
 
         $responsibilities = $this->sut->getResponsibilities();
         self::assertCount(1, $responsibilities);
-        // orgaName should default to responsibility value
-        self::assertSame('org-without-name', $responsibilities[0]['orgaName']);
+        self::assertSame('resp-without-name', $responsibilities[0]['name']);
     }
 
-    public function testToStringIncludesResponsibilities(): void
+    public function testToStringIncludesAffiliationsAndResponsibilities(): void
     {
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
@@ -395,9 +489,13 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'family_name'        => 'Test',
                 'sub'                => 'tostring-user',
                 'preferred_username' => 'tostringtest',
+                'organisation'       => [
+                    ['id' => 'aff-1', 'name' => 'Aff Org 1'],
+                    ['id' => 'aff-2', 'name' => 'Aff Org 2'],
+                ],
                 'responsibilities'   => [
-                    ['responsibility' => 'resp-1', 'orgaName' => 'Resp Org 1'],
-                    ['responsibility' => 'resp-2', 'orgaName' => 'Resp Org 2'],
+                    ['id' => 'resp-1', 'name' => 'Resp 1'],
+                    ['id' => 'resp-2', 'name' => 'Resp 2'],
                 ],
                 'groups' => [
                     '/Beteiligung-Organisation/ToString Test',
@@ -408,7 +506,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
         $this->sut->fill($resourceOwner);
 
         $stringRepresentation = (string) $this->sut;
-        // The toString format shows responsibilities as a list, e.g. "responsibilities: [resp-1, resp-2]"
+        self::assertStringContainsString('affiliations: [aff-1, aff-2]', $stringRepresentation);
         self::assertStringContainsString('responsibilities: [resp-1, resp-2]', $stringRepresentation);
     }
 }
