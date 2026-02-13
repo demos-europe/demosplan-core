@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\MessageHandler;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\BounceChecker;
 use demosplan\DemosPlanCoreBundle\Message\CheckMailBouncesMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\CheckMailBouncesMessageHandler;
@@ -24,6 +25,7 @@ class CheckMailBouncesMessageHandlerTest extends UnitTestCase
 {
     private ?BounceChecker $bounceChecker = null;
     private ?GlobalConfigInterface $globalConfig = null;
+    private ?PermissionsInterface $permissions = null;
     private ?LoggerInterface $logger = null;
     private ?CheckMailBouncesMessageHandler $sut = null;
 
@@ -33,11 +35,13 @@ class CheckMailBouncesMessageHandlerTest extends UnitTestCase
 
         $this->bounceChecker = $this->createMock(BounceChecker::class);
         $this->globalConfig = $this->createMock(GlobalConfigInterface::class);
+        $this->permissions = $this->createMock(PermissionsInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->sut = new CheckMailBouncesMessageHandler(
             $this->bounceChecker,
             $this->globalConfig,
+            $this->permissions,
             $this->logger
         );
     }

@@ -86,6 +86,11 @@
     },
     {
         "license": "MIT",
+        "package": "dragonmantank/cron-expression",
+        "website": "https://github.com/dragonmantank/cron-expression"
+    },
+    {
+        "license": "MIT",
         "package": "efrane/console-additions",
         "website": "https://github.com/eFrane/ConsoleAdditions"
     },
@@ -278,6 +283,16 @@
         "license": "MIT",
         "package": "nesbot/carbon",
         "website": "https://github.com/CarbonPHP/carbon"
+    },
+    {
+        "license": "Apache-2.0",
+        "package": "open-telemetry/exporter-otlp",
+        "website": "https://github.com/opentelemetry-php/exporter-otlp"
+    },
+    {
+        "license": "Apache-2.0",
+        "package": "open-telemetry/sdk",
+        "website": "https://github.com/opentelemetry-php/sdk"
     },
     {
         "license": "Apache-2.0",
@@ -506,6 +521,11 @@
     },
     {
         "license": "MIT",
+        "package": "symfony/messenger",
+        "website": "https://github.com/symfony/messenger"
+    },
+    {
+        "license": "MIT",
         "package": "symfony/mime",
         "website": "https://github.com/symfony/mime"
     },
@@ -571,6 +591,11 @@
     },
     {
         "license": "MIT",
+        "package": "symfony/scheduler",
+        "website": "https://github.com/symfony/scheduler"
+    },
+    {
+        "license": "MIT",
         "package": "symfony/security-bundle",
         "website": "https://github.com/symfony/security-bundle"
     },
@@ -593,11 +618,6 @@
         "license": "MIT",
         "package": "symfony/string",
         "website": "https://github.com/symfony/string"
-    },
-    {
-        "license": "MIT",
-        "package": "symfony/templating",
-        "website": "https://github.com/symfony/templating"
     },
     {
         "license": "MIT",
@@ -673,11 +693,6 @@
         "license": "MIT",
         "package": "willdurand/js-translation-bundle",
         "website": "https://github.com/willdurand/BazingaJsTranslationBundle"
-    },
-    {
-        "license": "MIT",
-        "package": "wrep/daemonizable-command",
-        "website": "https://github.com/mac-cain13/daemonizable-command"
     },
     {
         "license": "MIT",

@@ -45,7 +45,6 @@
 
       <dp-upload-files
         allowed-file-types="xls"
-        :basic-auth="dplan.settings.basicAuth"
         data-cy="uploadExcelFile"
         :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="100 * 1024 * 1024/* 100 MiB */"

@@ -157,7 +157,7 @@
           </template>
           <template v-slot:statementStatus="rowData">
             <status-badge
-              class="mt-0.5"
+              class="mt-0.5 max-w-fit !block o-hellip--nowrap"
               :status="statementsObject[rowData.relationships.parentStatement.data.id].attributes.status"
             />
           </template>
@@ -423,7 +423,7 @@ export default {
   },
 
   emits: [
-    'showSlidebar',
+    'show-slidebar',
   ],
 
   data () {
@@ -1031,7 +1031,7 @@ export default {
 
     showVersionHistory (segmentId, externId) {
       this.$root.$emit('version:history', segmentId, 'segment', externId)
-      this.$root.$emit('showSlidebar')
+      this.$root.$emit('show-slidebar')
     },
 
     updateQueryHash () {

@@ -28,6 +28,10 @@
       @selected="zoomToSuggestion"
       @searched="selectFirstOption"
     />
+
+    <wms-get-feature-info
+      ref="wmsGetFeatureInfo"
+    />
     <slot />
   </div>
 </template>
@@ -61,12 +65,14 @@ import TileLayer from 'ol/layer/Tile'
 import { unByKey } from 'ol/Observable'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
+import WmsGetFeatureInfo from './controls/WmsGetFeatureInfo'
 
 export default {
   name: 'DpMap',
 
   components: {
     DpAutocomplete,
+    WmsGetFeatureInfo,
   },
 
   mixins: [prefixClassMixin],
@@ -1020,6 +1026,23 @@ export default {
           }
           this.handleButtonInteraction('criteria', '#criteriaButton', () => {
             this.mapSingleClickListener = this.map.on('singleclick', queryCriteria)
+          })
+        })
+      }
+
+      //  Add 'visible-layer GetFeatureInfo' button behavior
+      if (document.getElementById('layerFeatureInfoButton')) {
+        $('#layerFeatureInfoButton').on('pointerup keydown', (event) => {
+          // For keyboard events, execute only when enter was pressed
+          if (event.type === 'keydown' && event.keyCode !== 13) {
+            return
+          }
+          this.handleButtonInteraction('layerfeatureinfo', '#layerFeatureInfoButton', () => {
+            if (this.$refs.wmsGetFeatureInfo) {
+              this.mapSingleClickListener = this.map.on('singleclick', (evt) => {
+                this.$refs.wmsGetFeatureInfo.queryLayerFeatureInfo(evt, this.mapview, this.mapprojection)
+              })
+            }
           })
         })
       }
@@ -2072,8 +2095,13 @@ export default {
 
       const newState = element.classList.contains(this.prefixClass('is-active'))
       const layerid = (element.id === 'bplanSwitcher') ? this.bPlan.id : this.scope.id
+      const layerObj = this.layers().find(l => l.id === layerid)
 
-      this.updateLayerVisibility({ id: layerid, isVisible: newState })
+      if (layerObj) {
+        this.updateLayerVisibility({ id: layerid, isVisible: newState })
+      } else if (this.scope && this.scope.setVisible) {
+        this.scope.setVisible(newState)
+      }
     },
 
     /**
