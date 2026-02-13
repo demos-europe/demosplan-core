@@ -459,7 +459,7 @@ export default {
         perPage: 10,
       },
       demosplanUi,
-      hasTagStyleAddon: false,
+      hasStyledTopicalTags: false,
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'statementStatus', label: Translator.trans('statement.status') },
@@ -1095,7 +1095,7 @@ export default {
 
   async mounted () {
     const addons = await loadAddonComponents('tag.style.segments.list')
-    this.hasTagStyleAddon = addons.length > 0
+    this.hasStyledTopicalTags = addons.length > 0
 
     // Get queryHash from URL
     const hrefParts = globalThis.location.href.split('/')
