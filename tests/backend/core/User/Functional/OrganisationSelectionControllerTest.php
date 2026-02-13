@@ -13,14 +13,8 @@ declare(strict_types=1);
 namespace Tests\Core\User\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
 use InvalidArgumentException;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
-use Tests\Base\FunctionalTestCase;
 
 /**
  * Tests for the CurrentOrganisationService integration with controller behavior.
@@ -29,36 +23,8 @@ use Tests\Base\FunctionalTestCase;
  * between the test harness and the HTTP client. Core service behavior is tested
  * in CurrentOrganisationServiceTest.
  */
-class OrganisationSelectionControllerTest extends FunctionalTestCase
+class OrganisationSelectionControllerTest extends CurrentOrganisationTestCase
 {
-    protected ?CurrentOrganisationService $sut = null;
-    protected ?User $testUser = null;
-    protected ?Orga $testOrga = null;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->sut = self::getContainer()->get(CurrentOrganisationService::class);
-        $this->testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $this->testOrga = $this->fixtures->getReference(LoadUserData::TEST_ORGA_FP);
-
-        // Set up a mock session for service-level tests
-        $session = new Session(new MockArraySessionStorage());
-        $request = new Request();
-        $request->setSession($session);
-        self::getContainer()->get('request_stack')->push($request);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->sut = null;
-        $this->testUser = null;
-        $this->testOrga = null;
-
-        parent::tearDown();
-    }
-
     public function testRequiresOrganisationSelectionForMultiOrgUser(): void
     {
         // Clear any existing session selection

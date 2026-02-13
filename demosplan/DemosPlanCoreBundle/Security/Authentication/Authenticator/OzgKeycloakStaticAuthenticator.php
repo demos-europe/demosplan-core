@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakStaticUserDataProvider;
@@ -22,11 +21,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Stevenmaguire\OAuth2\Client\Provider\KeycloakResourceOwner;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
@@ -56,6 +52,8 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
  */
 class OzgKeycloakStaticAuthenticator extends AbstractAuthenticator
 {
+    use KeycloakAuthenticationSuccessTrait;
+
     public function __construct(
         private readonly CustomerServiceInterface $customerService,
         private readonly EntityManagerInterface $entityManager,
@@ -130,51 +128,4 @@ class OzgKeycloakStaticAuthenticator extends AbstractAuthenticator
         );
     }
 
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
-    {
-        $user = $token->getUser();
-
-        // Handle multi-responsibility users (same logic as OzgKeycloakAuthenticator)
-        if ($user instanceof User) {
-            $organisations = $user->getOrganisations();
-
-            if ($organisations->count() > 1) {
-                if ($this->currentOrganisationService->requiresOrganisationSelection($user)) {
-                    $this->logger->info('Static Keycloak: Multi-responsibility user requires organisation selection', [
-                        'userId'            => $user->getId(),
-                        'organisationCount' => $organisations->count(),
-                    ]);
-
-                    $targetUrl = $this->router->generate('DemosPlan_user_select_organisation');
-
-                    return new RedirectResponse($targetUrl);
-                }
-
-                $this->currentOrganisationService->initializeCurrentOrganisation($user);
-            } elseif (1 === $organisations->count()) {
-                $singleOrga = $organisations->first();
-                if (false !== $singleOrga) {
-                    $this->currentOrganisationService->setCurrentOrganisation($user, $singleOrga);
-                    $this->logger->info('Static Keycloak: Single organisation auto-selected', [
-                        'userId' => $user->getId(),
-                        'orgaId' => $singleOrga->getId(),
-                    ]);
-                }
-            }
-        }
-
-        $targetUrl = $this->router->generate('core_home_loggedin');
-
-        return new RedirectResponse($targetUrl);
-    }
-
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
-    {
-        $this->logger->warning('Static Keycloak login failed', ['exception' => $exception]);
-
-        // Redirect to an error page with the message
-        $targetUrl = $this->router->generate('core_login_idp_error');
-
-        return new RedirectResponse($targetUrl);
-    }
 }

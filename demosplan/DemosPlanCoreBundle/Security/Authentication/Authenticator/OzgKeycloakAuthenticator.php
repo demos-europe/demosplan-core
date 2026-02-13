@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
@@ -26,11 +25,9 @@ use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\Parser;
 use Psr\Log\LoggerInterface;
 use Stevenmaguire\OAuth2\Client\Provider\KeycloakResourceOwner;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
@@ -39,6 +36,8 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
 {
+    use KeycloakAuthenticationSuccessTrait;
+
     public function __construct(
         private readonly ClientRegistry $clientRegistry,
         private readonly CustomerServiceInterface $customerService,
@@ -106,57 +105,6 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         return new SelfValidatingPassport(
             new UserBadge($user->getUserIdentifier(), fn () => $user)
         );
-    }
-
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
-    {
-        $user = $token->getUser();
-
-        // Handle multi-organisation users (affiliations × responsibilities)
-        if ($user instanceof User) {
-            $organisations = $user->getOrganisations();
-
-            if ($organisations->count() > 1) {
-                // Check if user needs to select an organisation
-                if ($this->currentOrganisationService->requiresOrganisationSelection($user)) {
-                    $this->logger->info('Multi-organisation user requires organisation selection', [
-                        'userId'            => $user->getId(),
-                        'organisationCount' => $organisations->count(),
-                    ]);
-
-                    // Redirect to organisation selection page
-                    $targetUrl = $this->router->generate('DemosPlan_user_select_organisation');
-
-                    return new RedirectResponse($targetUrl);
-                }
-
-                // Organisation already selected in session, initialize transient property
-                $this->currentOrganisationService->initializeCurrentOrganisation($user);
-            } elseif (1 === $organisations->count()) {
-                // Single organisation - auto-select it
-                $singleOrga = $organisations->first();
-                if (false !== $singleOrga) {
-                    $this->currentOrganisationService->setCurrentOrganisation($user, $singleOrga);
-                    $this->logger->info('Single organisation auto-selected', [
-                        'userId' => $user->getId(),
-                        'orgaId' => $singleOrga->getId(),
-                    ]);
-                }
-            }
-        }
-
-        // Redirect to home page
-        $targetUrl = $this->router->generate('core_home_loggedin');
-
-        return new RedirectResponse($targetUrl);
-    }
-
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
-    {
-        $this->logger->warning('Login via Keycloak failed', ['exception' => $exception]);
-        $targetUrl = $this->router->generate('core_login_idp_error');
-
-        return new RedirectResponse($targetUrl);
     }
 
     /**
