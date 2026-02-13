@@ -127,5 +127,4 @@ class OzgKeycloakStaticAuthenticator extends AbstractAuthenticator
             new UserBadge($user->getUserIdentifier(), fn () => $user)
         );
     }
-
 }

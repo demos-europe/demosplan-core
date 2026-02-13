@@ -897,11 +897,11 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
      *
      * @param array<int, array{id: string, name: string}> $firstOrgs
      * @param array<int, array{id: string, name: string}> $firstResps
-     * @param array<int, string>                           $expectedGwIds1
+     * @param array<int, string>                          $expectedGwIds1
      * @param array<int, array{id: string, name: string}> $secondOrgs
      * @param array<int, array{id: string, name: string}> $secondResps
-     * @param array<int, string>                           $expectedGwIds2
-     * @param array<string, mixed>                         $extraOverrides
+     * @param array<int, string>                          $expectedGwIds2
+     * @param array<string, mixed>                        $extraOverrides
      */
     private function assertReloginSyncsOrgs(
         string $identity,

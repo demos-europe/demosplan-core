@@ -28,7 +28,7 @@ class OzgKeycloakStaticUserDataProvider
     /**
      * Build a test user payload with sensible defaults.
      *
-     * @param array<string> $roles          Keycloak role codes (FP-A, FP-SB, I-K, I-SB, M-A)
+     * @param array<string>        $roles     Keycloak role codes (FP-A, FP-SB, I-K, I-SB, M-A)
      * @param array<string, mixed> $overrides Fields to override/add (organisation, responsibilities, etc.)
      *
      * @return array<string, mixed>
