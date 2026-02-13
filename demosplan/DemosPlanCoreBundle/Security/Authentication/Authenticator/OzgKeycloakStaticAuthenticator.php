@@ -21,6 +21,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Stevenmaguire\OAuth2\Client\Provider\KeycloakResourceOwner;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -63,12 +64,17 @@ class OzgKeycloakStaticAuthenticator extends AbstractAuthenticator
         private readonly RouterInterface $router,
         private readonly CurrentOrganisationService $currentOrganisationService,
         private readonly OzgKeycloakStaticUserDataProvider $userDataProvider,
+        #[Autowire('%kernel.environment%')]
+        private readonly string $environment,
     ) {
     }
 
     public function supports(Request $request): ?bool
     {
-        // Only support requests with keycloakTest query parameter
+        if ('prod' === $this->environment) {
+            return false;
+        }
+
         return $request->query->has('keycloakTest');
     }
 

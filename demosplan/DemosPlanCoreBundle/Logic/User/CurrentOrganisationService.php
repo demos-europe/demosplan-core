@@ -60,6 +60,9 @@ class CurrentOrganisationService
             if (null !== $orga && $this->userBelongsToOrganisation($user, $orga)) {
                 return $orga;
             }
+
+            // Clear stale organisation ID from session if it is invalid for the current user
+            $session->remove(self::SESSION_KEY);
         }
 
         // Fallback to first organisation in collection
@@ -110,6 +113,10 @@ class CurrentOrganisationService
      */
     public function initializeCurrentOrganisation(User $user): void
     {
+        if (null !== $user->getCurrentOrganisation()) {
+            return;
+        }
+
         $session = $this->requestStack->getSession();
         $orgaId = $session->get(self::SESSION_KEY);
 

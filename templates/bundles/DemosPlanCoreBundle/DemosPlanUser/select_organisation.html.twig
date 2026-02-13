@@ -10,7 +10,7 @@
         {% block content %}
             <form action="{{ path('DemosPlan_user_switch_organisation') }}" method="post">
                 <input type="hidden" name="_token" value="{{ csrf_token('switch_organisation') }}">
-                <input type="hidden" name="referer" value="">
+                <input type="hidden" name="referer" value="{{ app.request.headers.get('referer') }}">
 
                 <div class="c-styled-form u-mb">
                     {% for organisation in organisations %}
