@@ -237,7 +237,7 @@
           <template v-slot:tags="rowData">
             <addon-wrapper
               v-if="hasTagStyleAddon"
-              hook-name="tag.style"
+              hook-name="tag.style.segments.list"
               :addon-props="{
                 demosplanUi,
                 tags: getTagsBySegment(rowData.id)
