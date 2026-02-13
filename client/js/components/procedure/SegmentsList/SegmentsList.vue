@@ -146,7 +146,7 @@
               <addon-wrapper
                 v-if="hasTagStyleAddon"
                 hook-name="tag.extend.form"
-                :addon-props="{ demosplanUi, variant: 'icon-only' }"
+                :addon-props="{ demosplanUi, isIconOnly: true}"
               />
             </span>
           </template>
