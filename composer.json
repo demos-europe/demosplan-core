@@ -196,6 +196,7 @@
     ],
     "bamarni-bin": {
       "bin-links": false,
+      "forward-command": false,
       "target-directory": "."
     },
     "config-dir": "config",
