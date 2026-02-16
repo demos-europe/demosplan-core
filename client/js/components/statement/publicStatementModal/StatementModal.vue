@@ -184,7 +184,7 @@
           <div
             v-for="customField in selectableCustomFields"
             :key="customField.id"
-            class="mb-2"
+            class="mb-3"
           >
             <dp-label
               :text="customField.name"
