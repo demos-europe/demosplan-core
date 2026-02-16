@@ -603,7 +603,7 @@
         <!-- Show radio buttons if anonymous statements are allowed -->
         <fieldset
           v-if="allowAnonymousStatements"
-          id="personalInfoFieldset"
+          id="personalInfoFieldsetAnonymous"
           :aria-hidden="step === 2"
           :class="prefixClass('mt-5')"
           aria-required="true"
@@ -672,7 +672,7 @@
         <!-- Show the form directly if anonymous statements are not allowed -->
         <fieldset
           v-else
-          id="personalInfoFieldset"
+          id="personalInfoFieldsetDirectly"
           :aria-hidden="step === 2"
           :class="prefixClass('mt-4')"
           aria-required="true"
@@ -921,6 +921,8 @@ const fieldDescriptionsForErrors = {
   r_getEvaluation: 'statement.feedback',
   r_phone: 'phone',
   personalInfoFieldset: 'submit.type',
+  personalInfoFieldsetAnonymous: 'submit.type',
+  personalInfoFieldsetDirectly: 'submit.type',
   submitterTypeFieldset: 'submitter',
   r_houseNumber: 'street.number.short',
   r_street: 'street',
