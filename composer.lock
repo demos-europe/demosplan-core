@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "84406403b418a51e7001b4145d21a607",
+    "content-hash": "4e82bf8c46cc46da9d650c2d0f961476",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -20615,26 +20615,26 @@
         },
         {
             "name": "escapestudios/symfony2-coding-standard",
-            "version": "3.16.0",
+            "version": "3.18.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/djoos/Symfony-coding-standard.git",
-                "reference": "5a8962f81ac04c8e5d67acf619823c1cb883a627"
+                "reference": "c18f77aacaa77b0c7087b8a725dbf1ca5e9b0561"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/5a8962f81ac04c8e5d67acf619823c1cb883a627",
-                "reference": "5a8962f81ac04c8e5d67acf619823c1cb883a627",
+                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/c18f77aacaa77b0c7087b8a725dbf1ca5e9b0561",
+                "reference": "c18f77aacaa77b0c7087b8a725dbf1ca5e9b0561",
                 "shasum": ""
             },
             "require": {
-                "squizlabs/php_codesniffer": "^3.3.1"
+                "squizlabs/php_codesniffer": "^4.0.0"
             },
             "conflict": {
-                "squizlabs/php_codesniffer": "<3 || >=4"
+                "squizlabs/php_codesniffer": "<4 || >=5"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.0 || ^6.0 || ^7.0 || ^8.0 || ^9.3.4"
+                "phpunit/phpunit": "^8.0 || ^9.3.4 || ^10.5.32 || ^11.3.3"
             },
             "type": "phpcodesniffer-standard",
             "extra": {
@@ -20669,7 +20669,7 @@
                 "issues": "https://github.com/djoos/Symfony-coding-standard/issues",
                 "source": "https://github.com/djoos/Symfony-coding-standard"
             },
-            "time": "2025-07-09T10:52:53+00:00"
+            "time": "2025-12-17T15:53:30+00:00"
         },
         {
             "name": "evenement/evenement",
@@ -24180,26 +24180,26 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.13.5",
+            "version": "4.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "0ca86845ce43291e8f5692c7356fccf3bcf02bf4"
+                "reference": "0525c73950de35ded110cffafb9892946d7771b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/0ca86845ce43291e8f5692c7356fccf3bcf02bf4",
-                "reference": "0ca86845ce43291e8f5692c7356fccf3bcf02bf4",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/0525c73950de35ded110cffafb9892946d7771b5",
+                "reference": "0525c73950de35ded110cffafb9892946d7771b5",
                 "shasum": ""
             },
             "require": {
                 "ext-simplexml": "*",
                 "ext-tokenizer": "*",
                 "ext-xmlwriter": "*",
-                "php": ">=5.4.0"
+                "php": ">=7.2.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0 || ^9.3.4"
+                "phpunit/phpunit": "^8.4.0 || ^9.3.4 || ^10.5.32 || 11.3.3 - 11.5.28 || ^11.5.31"
             },
             "bin": [
                 "bin/phpcbf",
@@ -24224,7 +24224,7 @@
                     "homepage": "https://github.com/PHPCSStandards/PHP_CodeSniffer/graphs/contributors"
                 }
             ],
-            "description": "PHP_CodeSniffer tokenizes PHP, JavaScript and CSS files and detects violations of a defined set of coding standards.",
+            "description": "PHP_CodeSniffer tokenizes PHP files and detects violations of a defined set of coding standards.",
             "homepage": "https://github.com/PHPCSStandards/PHP_CodeSniffer",
             "keywords": [
                 "phpcs",
@@ -24255,7 +24255,7 @@
                     "type": "thanks_dev"
                 }
             ],
-            "time": "2025-11-04T16:30:35+00:00"
+            "time": "2025-11-10T16:43:36+00:00"
         },
         {
             "name": "symfony/debug-bundle",
