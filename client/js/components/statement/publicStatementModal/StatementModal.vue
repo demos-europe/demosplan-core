@@ -181,6 +181,9 @@
         </div>
 
         <div v-if="!openedFromDraftList">
+          <h4 v-if="hasPermission('feature_statements_custom_fields') && selectableCustomFields.length > 0">
+            {{ Translator.trans('statement.data') }}
+          </h4>
           <div
             v-for="customField in selectableCustomFields"
             :key="customField.id"
