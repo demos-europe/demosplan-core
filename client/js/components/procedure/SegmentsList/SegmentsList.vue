@@ -157,7 +157,7 @@
           </template>
           <template v-slot:statementStatus="rowData">
             <status-badge
-              class="mt-0.5"
+              class="mt-0.5 max-w-fit !block o-hellip--nowrap"
               :status="statementsObject[rowData.relationships.parentStatement.data.id].attributes.status"
             />
           </template>
