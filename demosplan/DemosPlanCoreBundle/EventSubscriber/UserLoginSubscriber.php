@@ -16,7 +16,7 @@ use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
-use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\Authenticator\Token\JWTPostAuthenticationToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Event\AuthenticationSuccessEvent;
 
@@ -29,7 +29,7 @@ class UserLoginSubscriber extends BaseEventSubscriber
     public function onLogin(AuthenticationSuccessEvent $event): void
     {
         $token = $event->getAuthenticationToken();
-        if ($token instanceof TokenInterface && !$token instanceof JWTUserToken) {
+        if ($token instanceof TokenInterface && !$token instanceof JWTPostAuthenticationToken) {
             $user = $token->getUser();
             if ($user instanceof User && !$user instanceof FunctionalUser) {
                 $user->setLastLogin(new DateTime());
