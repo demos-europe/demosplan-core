@@ -12,7 +12,6 @@
     <div class="relative">
       <dp-search-field
         data-cy="customSearch:currentSearchTerm"
-        number-of-additional-icons="1"
         :placeholder="Translator.trans('searchterm')"
         @search="term => handleSearch(term)"
         @reset="$emit('reset')"
