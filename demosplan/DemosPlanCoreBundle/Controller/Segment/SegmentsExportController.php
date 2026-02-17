@@ -221,9 +221,11 @@ class SegmentsExportController extends BaseController
         );
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-        $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename(
-            $fileNameGenerator->getSynopseFileName($procedure, 'xlsx'))
-        );
+        // generating file name based on it being a filtered export or not
+        $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
+        $fileName = 0 === count($tagsFilter) && 0 === count($noTagsFilter) ? $fileNameGenerator->getSynopseFileName($procedure, 'xlsx') : $fileNameGenerator->getFilteredSynopseFileName($procedure, 'xlsx');
+        $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
+
 
         return $response;
     }

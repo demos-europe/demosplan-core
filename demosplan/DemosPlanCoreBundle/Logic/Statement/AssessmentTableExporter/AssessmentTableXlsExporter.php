@@ -165,7 +165,6 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
         // prepare Data for export:
         $formattedData = $this->prepareDataForExcelExport($statements, $anonymous, $attributesToExport);
-
         // add Worksheet with prepared data
         $filledExcelDocument =
             $this->simpleSpreadsheetService->addWorksheet($excelDocument, $formattedData, $columnTitles, $title);
@@ -204,8 +203,12 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
         $row = 1;
 
-        // Title with date
-        $infoSheet->setCellValue("A{$row}", $this->translator->trans('segments.export.statement.export.date.filtered', ['date' => $currentDate->format('d.m.Y')]));
+        // Title with date, title in meta data sheet changing if tag filter has been applied
+        if ($tagFilter->isTagIdFilterActive()) {
+            $infoSheet->setCellValue("A{$row}", $this->translator->trans('segments.export.statement.export.date.filtered', ['date' => $currentDate->format('d.m.Y')]));
+        } else {
+            $infoSheet->setCellValue("A{$row}", $this->translator->trans('segments.export.statement.export.date', ['date' => $currentDate->format('d.m.Y')]));
+        }
         $infoSheet->getStyle("A{$row}")->getFont()->setBold(true)->setSize(14);
         $row += 2;
 
