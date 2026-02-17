@@ -144,7 +144,7 @@
             <span class="inline-flex items-center">
               {{ Translator.trans('segment.tags') }}
               <addon-wrapper
-                v-if="hasTagStyleAddon"
+                v-if="hasStyledTopicalTags"
                 hook-name="tag.extend.form"
                 :addon-props="{ demosplanUi, isIconOnly: true}"
               />
@@ -236,7 +236,7 @@
           </template>
           <template v-slot:tags="rowData">
             <addon-wrapper
-              v-if="hasTagStyleAddon"
+              v-if="hasStyledTopicalTags"
               hook-name="tag.style.segments.list"
               :addon-props="{
                 demosplanUi,
