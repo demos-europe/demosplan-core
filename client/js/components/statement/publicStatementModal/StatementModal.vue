@@ -161,19 +161,22 @@
 
         <!-- Custom Fields: Editable mode -->
         <div v-if="hasPermission('feature_statements_custom_fields')">
-          <dp-custom-field
-            v-for="customField in selectableCustomFields"
-            ref="customFieldRefs"
-            :key="customField.id"
-            :definition-source-id="procedureId"
-            :field-data="{ id: customField.id, value: customField.value }"
-            mode="editable"
-            resource-type="Statement"
-            :resource-id="draftStatementId"
-            class="mb-2"
-            @update:value="(value) => handleCustomFieldValueUpdate(customField.id, value)"
-            @save:error="handleCustomFieldSaveError"
-          />
+          <fieldset class="mb-2 pb-0">
+            <legend class="mb-2 text-[1em] font-[500]">{{ Translator.trans('statement.data') }}</legend>
+            <dp-custom-field
+              v-for="customField in selectableCustomFields"
+              ref="customFieldRefs"
+              :key="customField.id"
+              :definition-source-id="procedureId"
+              :field-data="{ id: customField.id, value: customField.value }"
+              mode="editable"
+              resource-type="Statement"
+              :resource-id="draftStatementId"
+              class="mb-2"
+              @update:value="(value) => handleCustomFieldValueUpdate(customField.id, value)"
+              @save:error="handleCustomFieldSaveError"
+            />
+          </fieldset>
         </div>
 
         <div :class="prefixClass('c-statement__text')">
