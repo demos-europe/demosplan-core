@@ -67,9 +67,11 @@
       v-else
       :id="`custom-field-${field.id}`"
       class="u-mt-0_25"
+      :data-dp-validate-error-fieldname="field.attributes.name"
       :model-value="currentValue"
       :options="field.attributes.options || []"
       :placeholder="Translator.trans('choose')"
+      :required="field.attributes.isRequired"
       label="label"
       track-by="id"
       @update:model-value="handleUpdate"
