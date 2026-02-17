@@ -875,6 +875,8 @@ import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
 import { defineAsyncComponent } from 'vue'
 import StatementModalRecheck from './StatementModalRecheck'
+import DpCustomField from '@DpJs/components/customFields/DpCustomField.vue'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
 const fieldDescriptionsForErrors = {
@@ -903,6 +905,7 @@ export default {
 
   components: {
     DpCheckbox,
+    DpCustomField,
     DpInlineNotification,
     DpInput,
     DpLabel,
