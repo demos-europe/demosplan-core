@@ -226,7 +226,6 @@ class SegmentsExportController extends BaseController
         $fileName = 0 === count($tagsFilter) && 0 === count($noTagsFilter) ? $fileNameGenerator->getSynopseFileName($procedure, 'xlsx') : $fileNameGenerator->getFilteredSynopseFileName($procedure, 'xlsx');
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
 
-
         return $response;
     }
 
