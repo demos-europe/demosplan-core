@@ -2,7 +2,7 @@
   "name": "demos-europe/demosplan-core",
   "description": "demosplan is a web application for public participation in planning processes",
   "type": "project",
-  "version": "v4.3.5",
+  "version": "v4.3.7",
   "license": "EUPL-1.2",
   "minimum-stability": "stable",
   "require": {
