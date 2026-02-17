@@ -1,5 +1,5 @@
 # due to BSI SYS.1.6.A6 we need to use excplicit versions
-FROM demosdeutschland/demosplan-base:latest AS build
+FROM demosdeutschland/demosplan-base:php82 AS build
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
@@ -113,7 +113,7 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
     touch /var/log/php8.2-fpm.log && chown www-data:www-data /var/log/php8.2-fpm.log
 
-FROM demosdeutschland/demosplan-base:latest AS fpm
+FROM demosdeutschland/demosplan-base:php82 AS fpm
 
 ARG PROJECT_NAME
 ENV PROJECT_PREFIX=$PROJECT_NAME \
