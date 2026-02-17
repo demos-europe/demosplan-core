@@ -1,8 +1,5 @@
 <template>
-  <div
-    v-if="definition"
-    class="mb-2 last:mb-5"
-  >
+  <div v-if="definition">
     <dp-loading
       v-if="isLoading"
       :overlay="false"
