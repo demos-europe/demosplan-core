@@ -1,12 +1,12 @@
 <template>
-  <div class="dp-multiselect-custom-field">
+  <div class="mb-3">
     <!-- Readonly: With heading for accessibility -->
     <div
       v-if="mode === 'readonly'"
       class="flex items-start gap-1"
     >
       <div
-        class="weight--bold"
+        class="weight--bold mb-2"
         role="heading"
         aria-level="4"
       >
@@ -17,7 +17,7 @@
         :text="field.attributes.description"
         icon="info"
         size="medium"
-        class="u-mt-0_125"
+        class="mb-2"
       />
     </div>
 
@@ -30,20 +30,21 @@
         :text="field.attributes.name"
         :required="field.attributes.isRequired"
         :for="`custom-field-${field.id}`"
+        class="mb-2"
       />
       <dp-contextual-help
         v-if="field.attributes.description"
         :text="field.attributes.description"
         icon="info"
         size="medium"
-        class="u-mt-0_125"
+        class="mb-2"
       />
     </div>
 
     <!-- Read-only display -->
     <div
       v-if="mode === 'readonly'"
-      class="u-mt-0_125"
+      class="mb-2"
     >
       <slot
         name="readonly-display"
@@ -73,7 +74,6 @@
     <dp-multiselect
       v-else
       :id="`custom-field-${field.id}`"
-      class="u-mt-0_25"
       :data-dp-validate-error-fieldname="field.attributes.name"
       :value="currentValue"
       :options="(field.attributes?.options || []).filter(opt => opt != null)"
