@@ -159,25 +159,20 @@
           />
         </div>
 
-        <div
-          v-for="(selectableCustomField) in selectableCustomFields"
-          class="mb-2">
-          <dp-label
-            :text="selectableCustomField.name"
-            :for="selectableCustomField.id"
+        <!-- Custom Fields: Editable mode -->
+        <div v-if="hasPermission('feature_statements_custom_fields')">
+          <dp-custom-field
+            v-for="customField in selectableCustomFields"
+            ref="customFieldRefs"
+            :key="customField.id"
+            :definition-source-id="procedureId"
+            :field-data="{ id: customField.id, value: customField.value }"
+            mode="editable"
+            resource-type="Statement"
+            :resource-id="draftStatementId"
             class="mb-2"
-          />
-
-          <dp-multiselect
-            :id="selectableCustomField.name"
-            v-model="selectableCustomField.selected"
-            :data-dp-validate-error-fieldname="selectableCustomField.name"
-            :options="selectableCustomField.options"
-            :required="selectableCustomField.isRequired"
-            label="label"
-            multiple
-            track-by="id"
-            @input="handleCustomFieldChange"
+            @update:value="(value) => handleCustomFieldValueUpdate(customField.id, value)"
+            @save:error="handleCustomFieldSaveError"
           />
         </div>
 
@@ -1117,7 +1112,9 @@ export default {
       })(),
       redirectPath: 'DemosPlan_procedure_public_detail',
       responseHtml: '',
+      selectableCustomFields: [],
       showHeader: true,
+      statementCustomFields: [],
       step: 0,
       unsavedFiles: [],
       updateDraftListRequired: false,
@@ -1408,7 +1405,7 @@ export default {
         if (input === 'r_text') {
           this.$refs.statementEditor.editor.focus('end')
         } else if (input === 'r_customFields') {
-          // scroll to first custom field
+          // Scroll to first custom field
           const firstCustomField = document.querySelector('[data-cy^="customField"]')
           if (firstCustomField) {
             firstCustomField.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -1592,6 +1589,97 @@ export default {
           .map(el => el.hash)
           .join(','),
       })
+    },
+
+    reset () {
+      if (window.dpconfirm(Translator.trans('check.statement.discard.changes'))) {
+        this.unsavedFiles.forEach(file => {
+          this.$refs.uploadFiles.handleRemove(file)
+        })
+        this.$refs.statementEditor.resetEditor()
+        this.setStatementData(JSON.parse(this.initFormDataJSON))
+        this.addToUnsavedDrafts = false
+        this.toggleModal(false)
+        this.step = 0
+        this.showHeader = true
+        this.$nextTick(() => {
+          if (this.draftStatementId !== '') {
+            window.location.href = Routing.generate(this.redirectPath, { procedure: this.procedureId, _fragment: this.draftStatementId })
+          }
+        })
+
+        this.resetSessionStorage()
+        sessionStorage.removeItem('redirectpath')
+      }
+    },
+
+    resetSessionStorage () {
+      sessionStorage.removeItem(this.draftStatementIdStorageName)
+    },
+
+    restoreCustomFieldSelections () {
+      if (!this.formData.customFields) {
+        return
+      }
+
+      // Restore values from formData.customFields
+      // Match stored values with selectableCustomFields by ID
+      this.selectableCustomFields = this.selectableCustomFields.map(field => {
+        const storedField = this.formData.customFields.find(f => f.id === field.id)
+
+        if (storedField) {
+          // Restore stored value
+          return { ...field, value: storedField.value }
+        }
+
+        return field
+      })
+
+      // Also populate statementCustomFields for readonly display
+      // This is the separate list used when opening from draft list
+      this.statementCustomFields = this.formData.customFields || []
+    },
+
+    /**
+     * Save all custom fields in a single batch API call
+     * More efficient than individual saves per field
+     * Returns a Promise that resolves when batch save completes
+     */
+    saveCustomFields () {
+      if (!this.draftStatementId) {
+        return Promise.resolve()
+      }
+
+      const customFieldValues = this.selectableCustomFields
+        .filter(field => {
+          const hasValue = field.value != null &&
+            (Array.isArray(field.value) ? field.value.length > 0 : field.value !== '')
+          return hasValue
+        })
+        .map(field => ({
+          id: field.id,
+          value: field.value
+        }))
+
+      if (customFieldValues.length === 0) {
+        return Promise.resolve()
+      }
+
+      const { updateCustomFields } = useCustomFields()
+
+      // Single batch API call for all custom fields
+      return updateCustomFields(
+        'Statement',
+        this.draftStatementId,
+        customFieldValues
+      )
+    },
+
+    /**
+     * Handle custom field save errors
+     */
+    handleCustomFieldSaveError (payload) {
+      console.error('Custom field save error:', payload)
     },
 
     sendStatement (e, immediateSubmit = false, keepModalOpen = false) {
