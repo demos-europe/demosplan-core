@@ -287,6 +287,15 @@ export default {
       this.updateSortOrder({ id: element.id, newIndex })
     },
 
+    checkIfSolvedPlace (id) {
+      const currentEditIsSolved = !!this.newRowData.solved
+      const otherPlaceIsSolved = this.places.some(place => {
+        return place.solved === true && place.id !== id
+      })
+
+      this.noPlaceIsSolved = !currentEditIsSolved && !otherPlaceIsSolved
+    },
+
     editPlace (rowData) {
       const editingPlace = this.places.find(place => place.edit === true)
 
@@ -420,6 +429,8 @@ export default {
       if (!this.isUniquePlaceName(this.newRowData.name, rowData.id)) {
         return dplan.notify.error(Translator.trans('workflow.place.error.duplication'))
       }
+
+      this.checkIfSolvedPlace(rowData.id)
 
       if (this.noPlaceIsSolved) {
         const isConfirmed = await this.$refs.editConfirmNoSolve.open()
