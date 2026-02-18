@@ -194,10 +194,13 @@ export default {
         if (this.statement.relationships.assignee.data.id !== this.currentUser.id) {
           if (globalThis.dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
             this.claimStatement()
-              .then(err => {
-                if (typeof err === 'undefined') {
+              .then(() => {
+                setTimeout(() => {
                   this.goToSplitStatementView()
-                }
+                }, 1000)
+              })
+              .catch(() => {
+                // Claim failed - handled in claimStatement()
               })
           }
         } else {
@@ -205,10 +208,13 @@ export default {
         }
       } else {
         this.claimStatement()
-          .then(err => {
-            if (typeof err === 'undefined') {
+          .then(() => {
+            setTimeout(() => {
               this.goToSplitStatementView()
-            }
+            }, 1000)
+          })
+          .catch(() => {
+            // Claim failed - handled in claimStatement()
           })
       }
     },
@@ -255,7 +261,7 @@ export default {
         .catch((err) => {
           // Restore statement in store in case request failed
           this.restoreStatementAction(this.statementId)
-          return err
+          throw err
         })
     },
 
