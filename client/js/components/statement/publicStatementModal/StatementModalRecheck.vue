@@ -278,32 +278,33 @@
         </button>
       </span>
 
-      <div
+      <dp-custom-field
         v-for="field in customFieldsWithValues"
         :key="field.id"
+        :definition-source-id="procedureId"
+        :field-data="{ id: field.id, value: field.value || [] }"
+        mode="readonly"
         :class="prefixClass('mb-1')"
       >
-        <strong>{{ field.name }}:</strong>
-        <ul :class="prefixClass('ml-2')">
-          <li
-            v-for="option in field.selected"
-            :key="option.id"
-          >
-            {{ option.label }}
-          </li>
-        </ul>
-      </div>
+        <template #readonly-display="{ field: customField }">
+          <span>
+            {{ customField.value.selectedOptions.map(o => o.label).join(', ') }}
+          </span>
+        </template>
+      </dp-custom-field>
     </div>
   </fieldset>
 </template>
 
 <script>
 import { CleanHtml, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import DpCustomField from '@DpJs/components/customFields/DpCustomField.vue'
 
 export default {
   name: 'StatementModalRecheck',
 
   components: {
+    DpCustomField,
     DpInlineNotification,
   },
 
@@ -366,6 +367,12 @@ export default {
       required: false,
       default: () => [],
     },
+
+    procedureId: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
 
   emits: [
@@ -403,7 +410,7 @@ export default {
 
     customFieldsWithValues () {
       return this.selectableCustomFields.filter(
-        field => field.selected && field.selected.length > 0
+        field => field.value && field.value.length > 0,
       )
     },
   },
