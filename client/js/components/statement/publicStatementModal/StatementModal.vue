@@ -705,7 +705,7 @@
           :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
           :statement-feedback-definitions="statementFeedbackDefinitions"
           :statement-form-hint-recheck="statementFormHintRecheck"
-          :selectable-custom-fields="statementCustomFields"
+          :selectable-custom-fields="selectableCustomFields"
           :procedure-id="procedureId"
           @edit-input="handleEditInput"
         />
