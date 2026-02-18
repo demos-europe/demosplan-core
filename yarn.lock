@@ -3728,9 +3728,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@masterportal/masterportalapi@npm:2.54.0":
-  version: 2.54.0
-  resolution: "@masterportal/masterportalapi@npm:2.54.0"
+"@masterportal/masterportalapi@npm:2.57.0":
+  version: 2.57.0
+  resolution: "@masterportal/masterportalapi@npm:2.57.0"
   dependencies:
     core-js: "npm:^3.33.1"
     dayjs: "npm:^1.11.10"
@@ -3741,7 +3741,7 @@ __metadata:
     xml2js: "npm:^0.6.2"
   peerDependencies:
     "@cesium/engine": ^20.0.1
-  checksum: 10c0/126da034e727fefdccf17767f70378089676d3098628b6fe5818b812663c9e508b191aafcac20544e3c59b15c719181baa04fa366ed6b0c07cff2df01c120e7d
+  checksum: 10c0/7d38f7cccd0835e01736317e3da3dd2ec755befb1280228fdf7ff5e1c7333ebf831781ca199e677d06eb3bef2b00195a6c44f5b65bc7474ade6dc65f85097609
   languageName: node
   linkType: hard
 
@@ -8239,7 +8239,7 @@ __metadata:
     "@eslint/js": "npm:^9.39.1"
     "@fullhuman/postcss-purgecss": "npm:^7.0.2"
     "@jest/globals": "npm:^30.2.0"
-    "@masterportal/masterportalapi": "npm:2.54.0"
+    "@masterportal/masterportalapi": "npm:2.57.0"
     "@sentry/browser": "npm:^9.24.0"
     "@tailwindcss/postcss": "npm:^4.1.17"
     "@types/leaflet": "npm:^1.9.21"
