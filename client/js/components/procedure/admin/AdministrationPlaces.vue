@@ -170,6 +170,10 @@
                 aria-hidden="true"
               />
             </button>
+            <dp-confirm-dialog
+              ref="editConfirmNoSolve"
+              message="test test 123"
+            />
           </template>
         </div>
       </template>
@@ -184,6 +188,7 @@ import {
   DpButton,
   DpButtonRow,
   DpCheckbox,
+  DpConfirmDialog,
   DpContextualHelp,
   DpDataTable,
   DpIcon,
@@ -201,6 +206,7 @@ export default {
     DpButton,
     DpButtonRow,
     DpCheckbox,
+    DpConfirmDialog,
     DpContextualHelp,
     DpDataTable,
     DpIcon,
@@ -248,6 +254,7 @@ export default {
       addNewPlace: false,
       newPlace: {},
       newRowData: {},
+      noPlaceIsSolved: false,
       places: [],
     }
   },
@@ -409,9 +416,16 @@ export default {
       this.places[idx].solved = this.newRowData.solved
     },
 
-    updatePlace (rowData) {
+    async updatePlace (rowData) {
       if (!this.isUniquePlaceName(this.newRowData.name, rowData.id)) {
         return dplan.notify.error(Translator.trans('workflow.place.error.duplication'))
+      }
+
+      if (this.noPlaceIsSolved) {
+        const isConfirmed = await this.$refs.editConfirmNoSolve.open()
+        if (!isConfirmed) {
+          return
+        }
       }
 
       const payload = {
