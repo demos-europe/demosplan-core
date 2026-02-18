@@ -665,7 +665,7 @@ export default {
             assignee: {
               data: claimingStatement ?
                 { type: 'Claim', id: this.currentUser.id } :
-              null,
+                null,
             },
           },
         },
