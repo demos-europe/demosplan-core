@@ -768,16 +768,16 @@ class OrgaService implements OrgaServiceInterface
     }
 
     /**
-     * Get List of Datainput Orgas.
+     * Get List of Datainput Orgas for a specific customer.
      *
      * @return array Orga[]
      *
      * @throws Exception
      */
-    public function getDataInputOrgaList()
+    public function getDataInputOrgaList(Customer $customer)
     {
         try {
-            return $this->orgaRepository->getDataInputOrgaList();
+            return $this->orgaRepository->getDataInputOrgaList($customer);
         } catch (Exception $e) {
             $this->logger->error('Fehler bei der Abfrage der InputOrgas: ', [$e]);
             throw $e;
