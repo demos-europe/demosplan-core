@@ -5,6 +5,9 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+### Fixed
+- Fix redirect to split-view after claiming statement and correct unclaim behavior to prevent false assignee confirmation dialog
+
 ## v4.28.1 (2026-02-04)
 
 ## v4.30.0 (2026-02-12)
