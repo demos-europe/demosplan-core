@@ -278,21 +278,24 @@
         </button>
       </span>
 
-      <div
-        v-for="field in customFieldsWithValues"
-        :key="field.id"
-        :class="prefixClass('mb-1')"
-      >
-        <span :class="prefixClass('weight--bold')">{{ field.name }}:</span>
-        <ul :class="prefixClass('ml-2')">
-          <li
-            v-for="option in field.selected"
-            :key="option.id"
-          >
-            {{ option.label }}
-          </li>
-        </ul>
-      </div>
+      <dl>
+        <div
+          v-for="field in customFieldsWithValues"
+          :key="field.id"
+          :class="prefixClass('mb-1')"
+        >
+          <dt :class="prefixClass('weight--bold')">{{ field.name }}</dt>
+          <dd :class="prefixClass('ml-2')">
+            <span
+              v-for="option in field.selected"
+              :key="option.id"
+              :class="prefixClass('block')"
+            >
+              {{ option.label }}
+            </span>
+          </dd>
+        </div>
+      </dl>
     </div>
   </fieldset>
 </template>
