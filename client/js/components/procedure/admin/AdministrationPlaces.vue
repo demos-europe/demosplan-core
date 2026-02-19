@@ -171,8 +171,8 @@
               />
             </button>
             <dp-confirm-dialog
-              ref="editConfirmNoSolve"
-              message="test test 123"
+              ref="editConfirmNoSolved"
+              :message="Translator.trans('confirm.places.solved.missing')"
             />
           </template>
         </div>
@@ -433,7 +433,7 @@ export default {
       this.checkIfSolvedPlace(rowData.id)
 
       if (this.noPlaceIsSolved) {
-        const isConfirmed = await this.$refs.editConfirmNoSolve.open()
+        const isConfirmed = await this.$refs.editConfirmNoSolved.open()
         if (!isConfirmed) {
           return
         }
