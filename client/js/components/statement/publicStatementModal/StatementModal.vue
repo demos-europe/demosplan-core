@@ -172,10 +172,12 @@
               :class="prefixClass('mb-2')"
             >
               <dt :class="prefixClass('mb-2')">
-                {{ customField.name }}
+                <span :class="prefixClass('font-[500]')">
+                  {{ customField.name }}
+                </span>
               </dt>
-              <dd>
-                <span :class="prefixClass('badge badge--default')">
+              <dd :class="prefixClass('ml-1')">
+                <span :class="prefixClass('block')">
                   {{ customField.selected.map(option => option.label).join(', ') }}
                 </span>
               </dd>
