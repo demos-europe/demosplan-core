@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+### Added
+- Add custom fields to statement modal in public detail and draft list, also display custom fields in new public participation dialog
 
 ## v4.28.0 (2026-01-28)
 ### Added
@@ -17,7 +19,6 @@
   - Validates filename is not empty
   - Sanitizes filename using existing `sanitizeFileName()` method
 - Add `FileWriteException` for dedicated file write error handling
-- Add custom fields to statement modal in public detail and draft list, also display custom fields in new public participation dialog
 
 ### Changed
 - Submit basic settings form automatically through the warning modal if user clicks on 'activate' (cleans up redundant code needed for scrolling the interface section into focus)
