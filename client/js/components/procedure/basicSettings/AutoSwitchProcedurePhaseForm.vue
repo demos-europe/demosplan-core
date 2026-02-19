@@ -280,7 +280,7 @@ export default {
       this.$emit('phase-selected', {
         phase: this.selectedPhase,
         enabled: newVal,
-        isInternal: this.isInternal
+        isInternal: this.isInternal,
       })
     },
 
@@ -304,10 +304,10 @@ export default {
         this.$emit('phase-selected', {
           phase: newVal,
           enabled: this.autoSwitchPhase,
-          isInternal: this.isInternal
+          isInternal: this.isInternal,
         })
       },
-      immediate: true
+      immediate: true,
     },
 
     switchDate: {
