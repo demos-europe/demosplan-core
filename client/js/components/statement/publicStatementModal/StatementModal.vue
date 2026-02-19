@@ -201,7 +201,7 @@
             />
 
             <dp-multiselect
-              :id="customField.name"
+              :id="customField.id"
               v-model="customField.selected"
               :data-dp-validate-error-fieldname="customField.name"
               :options="customField.options"
