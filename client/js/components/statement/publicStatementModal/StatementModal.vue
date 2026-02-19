@@ -159,10 +159,12 @@
           />
         </div>
 
-        <div
+
+        <fieldset
           v-if="openedFromDraftList && statementCustomFields.length > 0"
-          class="mb-2"
+          class="mb-2 pb-0"
         >
+          <legend class="mb-2 text-[1em] font-[500]">{{ Translator.trans('statement.data') }}</legend>
           <div
             v-for="customField in statementCustomFields"
             :key="customField.id"
@@ -178,12 +180,13 @@
               </span>
             </div>
           </div>
-        </div>
+        </fieldset>
 
-        <div v-if="!openedFromDraftList">
-          <h4 v-if="hasPermission('feature_statements_custom_fields') && selectableCustomFields.length > 0">
-            {{ Translator.trans('statement.data') }}
-          </h4>
+        <fieldset
+          v-if="!openedFromDraftList"
+          class="mb-2 pb-0"
+        >
+          <legend class="mb-2 text-[1em] font-[500]">{{ Translator.trans('statement.data') }}</legend>
           <div
             v-for="customField in selectableCustomFields"
             :key="customField.id"
@@ -208,7 +211,7 @@
               @input="handleCustomFieldChange"
             />
           </div>
-        </div>
+        </fieldset>
 
         <div :class="prefixClass('c-statement__text')">
           <dp-label
