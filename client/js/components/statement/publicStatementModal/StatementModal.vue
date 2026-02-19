@@ -165,21 +165,22 @@
           class="mb-2 pb-0"
         >
           <legend class="mb-2 text-[1em] font-[500]">{{ Translator.trans('statement.data') }}</legend>
-          <div
-            v-for="customField in statementCustomFields"
-            :key="customField.id"
-            class="mb-2"
-          >
-            <dp-label
-              :text="customField.name"
-              class="mb-2"
-            />
-            <div :class="prefixClass('o-form__group')">
-              <span :class="prefixClass('badge badge--default')">
-                {{ customField.selected.map(option => option.label).join(', ') }}
-              </span>
+          <dl>
+            <div
+              v-for="customField in statementCustomFields"
+              :key="customField.id"
+              :class="prefixClass('mb-2')"
+            >
+              <dt :class="prefixClass('mb-2')">
+                {{ customField.name }}
+              </dt>
+              <dd>
+                <span :class="prefixClass('badge badge--default')">
+                  {{ customField.selected.map(option => option.label).join(', ') }}
+                </span>
+              </dd>
             </div>
-          </div>
+          </dl>
         </fieldset>
 
         <fieldset
