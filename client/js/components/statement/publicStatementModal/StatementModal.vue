@@ -162,7 +162,7 @@
 
         <fieldset
           v-if="openedFromDraftList && statementCustomFields.length > 0"
-          class="mb-2 pb-0"
+          :class="prefixClass('mb-2 pb-0')"
         >
           <legend class="mb-2 text-[1em] font-[500]">{{ Translator.trans('statement.data') }}</legend>
           <dl>
