@@ -172,6 +172,8 @@
             </button>
             <dp-confirm-dialog
               ref="editConfirmNoSolved"
+              :confirm-button-text="Translator.trans('save.anyway')"
+              :decline-button-text="Translator.trans('back.to.edit')"
               :message="Translator.trans('confirm.places.solved.missing')"
             />
           </template>
