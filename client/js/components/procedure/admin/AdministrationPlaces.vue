@@ -170,6 +170,12 @@
                 aria-hidden="true"
               />
             </button>
+            <dp-confirm-dialog
+              ref="editConfirmNoSolved"
+              :confirm-button-text="Translator.trans('save.anyway')"
+              :decline-button-text="Translator.trans('back.to.edit')"
+              :message="Translator.trans('confirm.places.solved.missing')"
+            />
           </template>
         </div>
       </template>
@@ -184,6 +190,7 @@ import {
   DpButton,
   DpButtonRow,
   DpCheckbox,
+  DpConfirmDialog,
   DpContextualHelp,
   DpDataTable,
   DpIcon,
@@ -201,6 +208,7 @@ export default {
     DpButton,
     DpButtonRow,
     DpCheckbox,
+    DpConfirmDialog,
     DpContextualHelp,
     DpDataTable,
     DpIcon,
@@ -248,6 +256,7 @@ export default {
       addNewPlace: false,
       newPlace: {},
       newRowData: {},
+      noPlaceIsSolved: false,
       places: [],
     }
   },
@@ -278,6 +287,15 @@ export default {
 
       this.places.splice(newIndex, 0, element)
       this.updateSortOrder({ id: element.id, newIndex })
+    },
+
+    checkIfSolvedPlace (id) {
+      const currentEditIsSolved = !!this.newRowData.solved
+      const otherPlaceIsSolved = this.places.some(place => {
+        return place.solved === true && place.id !== id
+      })
+
+      this.noPlaceIsSolved = !currentEditIsSolved && !otherPlaceIsSolved
     },
 
     editPlace (rowData) {
@@ -409,9 +427,18 @@ export default {
       this.places[idx].solved = this.newRowData.solved
     },
 
-    updatePlace (rowData) {
+    async updatePlace (rowData) {
       if (!this.isUniquePlaceName(this.newRowData.name, rowData.id)) {
         return dplan.notify.error(Translator.trans('workflow.place.error.duplication'))
+      }
+
+      this.checkIfSolvedPlace(rowData.id)
+
+      if (this.noPlaceIsSolved) {
+        const isConfirmed = await this.$refs.editConfirmNoSolved.open()
+        if (!isConfirmed) {
+          return
+        }
       }
 
       const payload = {
