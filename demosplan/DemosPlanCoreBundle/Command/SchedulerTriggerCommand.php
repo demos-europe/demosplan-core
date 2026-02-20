@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use DateTimeImmutable;
+use ReflectionClass;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -25,6 +27,7 @@ use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\Generator\MessageContext;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
+use Throwable;
 
 /**
  * Trigger scheduled maintenance tasks on demand.
@@ -113,7 +116,7 @@ class SchedulerTriggerCommand extends Command
                     $schedulerName,
                     $recurringMessage->getId(),
                     $recurringMessage->getTrigger(),
-                    new \DateTimeImmutable(),
+                    new DateTimeImmutable(),
                 );
 
                 foreach ($provider->getMessages($dummyContext) as $message) {
@@ -202,7 +205,7 @@ class SchedulerTriggerCommand extends Command
             } else {
                 $io->writeln('<fg=yellow>dispatched (async)</>');
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $io->writeln('<fg=red>failed</>');
             $io->error($e->getMessage());
 
@@ -227,7 +230,7 @@ class SchedulerTriggerCommand extends Command
 
     private function getSchedulerName(ScheduleProviderInterface $scheduler): string
     {
-        $reflection = new \ReflectionClass($scheduler);
+        $reflection = new ReflectionClass($scheduler);
         $attributes = $reflection->getAttributes(AsSchedule::class);
 
         if ([] !== $attributes) {

@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Message\AutoSwitchProcedurePhasesMessage;
 use demosplan\DemosPlanCoreBundle\Message\CleanupFilesMessage;
 use demosplan\DemosPlanCoreBundle\Message\SendEmailsMessage;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Messenger\Envelope;
@@ -139,7 +140,7 @@ class SchedulerTriggerCommandTest extends TestCase
         $this->messageBus
             ->expects(self::once())
             ->method('dispatch')
-            ->willThrowException(new \RuntimeException('Bus error'));
+            ->willThrowException(new RuntimeException('Bus error'));
 
         $exitCode = $this->commandTester->execute(['task' => 'auto-switch-procedure-phases']);
 
@@ -181,7 +182,7 @@ class SchedulerTriggerCommandTest extends TestCase
             ->willReturnCallback(function (object $message) use ($handledStamp, &$callCount) {
                 ++$callCount;
                 if (1 === $callCount) {
-                    throw new \RuntimeException('Task failed');
+                    throw new RuntimeException('Task failed');
                 }
 
                 return new Envelope($message, [$handledStamp]);
