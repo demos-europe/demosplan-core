@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
 use Exception;
-use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\Authenticator\Token\JWTPostAuthenticationToken;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\JsonApiTest;
 
@@ -64,7 +64,7 @@ class RatelimitRequestSubscriberTest extends JsonApiTest
         // use existing token if already initialized to be able to mock bad requests
         if ('' === $this->jwtToken) {
             $this->jwtToken = $this->tokenManager->create($user);
-            $jwtToken = new JWTUserToken($user->getDplanRolesArray(), $user, $this->jwtToken);
+            $jwtToken = new JWTPostAuthenticationToken($user, 'api', $user->getDplanRolesArray(), $this->jwtToken);
             $this->tokenStorage->setToken($jwtToken);
         }
 
