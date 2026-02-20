@@ -188,7 +188,7 @@
         </fieldset>
 
         <fieldset
-          v-if="!openedFromDraftList"
+          v-if="!openedFromDraftList && selectableCustomFields.length > 0"
           class="mb-2 pb-0"
         >
           <legend class="mb-2 text-[1em] font-[500]">
