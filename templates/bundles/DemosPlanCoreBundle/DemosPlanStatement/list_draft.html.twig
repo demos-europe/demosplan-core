@@ -157,7 +157,6 @@
 
             </fieldset>
 
-            {% block statementList %}
             {% set statementsCustomFieldsList = {} %}
 
             {% if hasPermission('feature_statements_custom_fields') %}
@@ -185,6 +184,7 @@
                 {% endfor %}
             {% endif %}
 
+            {% block statementList %}
             <dp-public-statement-list
                 class="layout__item"
                 :statements="JSON.parse('{{ templateVars.list.statementlist|default([])|json_encode|e('js', 'utf-8') }}')"
