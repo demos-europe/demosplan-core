@@ -156,7 +156,7 @@
     "source-map-loader": "^5.0.0",
     "stylelint": "^16.26.1",
     "stylelint-config-standard-scss": "^16.0.0",
-    "tailwindcss": "^4.1.17",
+    "tailwindcss": "^4.2.0",
     "terser-webpack-plugin": "^5.3.16",
     "typescript-eslint": "^8.46.3",
     "vue-eslint-parser": "^10.2.0",
