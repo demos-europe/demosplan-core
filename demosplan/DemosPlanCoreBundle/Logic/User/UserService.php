@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface;
@@ -53,6 +54,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use DOMDocument;
 use Exception;
+use Illuminate\Support\Collection as IlluminateCollection;
 use LSS\XML2Array;
 use Pagerfanta\Pagerfanta;
 use RuntimeException;
@@ -60,7 +62,6 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Illuminate\Support\Collection as IlluminateCollection;
 
 use function array_key_exists;
 
@@ -819,7 +820,7 @@ class UserService extends CoreService implements UserServiceInterface
     /**
      * @throws NoResultException
      */
-    public function getFirstUserInFhhnetByLogin(string $loginSuffix): User
+    public function getFirstUserInFhhnetByLogin(string $loginSuffix): UserInterface
     {
         $user = $this->userRepository->getFirstUserInFhhnetByLogin($loginSuffix);
         $user->setCurrentCustomer($this->customerService->getCurrentCustomer());
@@ -1007,7 +1008,7 @@ class UserService extends CoreService implements UserServiceInterface
     /**
      * Change the login and the email of a user.
      *
-     * @return user|bool - User in case of successfully set Email, otherwise false
+     * @return User|bool - User in case of successfully set Email, otherwise false
      *
      * @throws Exception
      */
