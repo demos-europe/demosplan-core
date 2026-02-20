@@ -26,7 +26,6 @@
         >{{ Translator.trans('example.file') }}</a>
         <dp-upload-files
           allowed-file-types="csv"
-          :basic-auth="dplan.settings.basicAuth"
           data-cy="uploadTagsCsv"
           :max-file-size="100 * 1024 * 1024/* 100 MiB */"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.csv', { browse: '{browse}', maxUploadSize: '10GB' }) }"

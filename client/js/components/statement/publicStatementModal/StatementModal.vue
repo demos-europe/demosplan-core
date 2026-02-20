@@ -433,7 +433,6 @@
                   ref="uploadFiles"
                   :disabled="formData.r_isNegativeReport !== '0'"
                   allowed-file-types="pdf-img-zip"
-                  :basic-auth="dplan.settings.basicAuth"
                   :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
                   :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
                   :max-number-of-files="20"

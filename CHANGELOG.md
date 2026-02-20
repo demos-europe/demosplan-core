@@ -8,6 +8,19 @@
 ### Added
 - Add custom fields to statement modal in public detail and draft list, also display custom fields in new public participation dialog
 
+## v4.28.1 (2026-02-04)
+
+## v4.30.0 (2026-02-12)
+### Added
+- Introduce new parameters to control the parameter name used/passed within the route
+  core_procedure_slug generated redirect - in addition to the existing params for the route names
+- Add edit functionality for custom fields of type multiSelect with a condition that the procedure has no statements yet.
+- Add drag button to GetFeatureInfo slidebar (adjust and reuse DpUnfoldToolbarControl)
+
+### Changed
+- Extract GetFeatureInfo logic for visible WMS layers out of Map.vue and into WmsGetFeatureInfo component
+
+## v4.29.0 (2026-02-06)
 ## v4.28.0 (2026-01-28)
 ### Added
 - Enable GetFeatureInfo requests for visible WMS layers in the map
@@ -27,6 +40,7 @@
 
 ### Fixed
 - Check correct interface-checkbox state: 'checked' instead of 'disabled' (check whether interface has been activated, not whether procedure has been transmitted)
+
 
 ## v4.27.0 (2026-01-16)
 
@@ -96,6 +110,7 @@
 - fix zip download for older uploads
 
 ## v4.15.0 (2025-09-15)
+## v4.14.3 (2026-02-06)
 ## v4.14.2 (2025-12-02)
 ## v4.14.0 (2025-09-15)
 - Add html paragraph import from odt files

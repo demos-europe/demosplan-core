@@ -253,7 +253,7 @@ class SegmentService extends CoreService implements SegmentServiceInterface
         string $entityType,
         UserInterface $changer,
         DateTime $creationDate,
-    ): EntityContentChange {
+    ): ?EntityContentChange {
         $preUpdateValue = $segment->getRecommendation();
         $postUpdateValue = $attach
             ? $preUpdateValue.$recommendationText
@@ -264,6 +264,10 @@ class SegmentService extends CoreService implements SegmentServiceInterface
             SegmentInterface::RECOMMENDATION_FIELD_NAME,
             Segment::class
         );
+        if (null === $contentChange) {
+            // no diff in content registered or only white space differences - do not create an entry here
+            return null;
+        }
 
         $change = $this->entityContentChangeService->createEntityContentChangeEntity(
             $segment,
@@ -295,17 +299,22 @@ class SegmentService extends CoreService implements SegmentServiceInterface
         UserInterface $user,
         DateTime $creationTime,
     ): array {
-        return array_map(
-            fn (Segment $segment): EntityContentChange => $this->createRecommendationContentChange(
+        $contentChanges = [];
+        foreach ($segments as $segment) {
+            $contentChange = $this->createRecommendationContentChange(
                 $segment,
                 $recommendationText,
                 $attach,
                 $entityType,
                 $user,
                 $creationTime
-            ),
-            $segments
-        );
+            );
+            if (null !== $contentChange) {
+                $contentChanges[] = $contentChange;
+            }
+        }
+
+        return $contentChanges;
     }
 
     /**
