@@ -592,6 +592,7 @@ confirm.segments.imported.from.xlsx: "{countStatements} Stellungnahmen mit {coun
 confirm.segments.import.queued: "Import für Datei \"{fileName}\" wurde in die Warteschlange gestellt (Job-ID: {jobId}). Die Verarbeitung erfolgt automatisch im Hintergrund."
 confirm.selected.boilerplates.deleted: "Die ausgewählten Textbausteine wurden gelöscht."
 confirm.selected.boilerplateGroups.deleted: "Die ausgewählten Gruppen wurden gelöscht."
+confirm.session.renewed: "Ihre Sitzung ist abgelaufen und wurde erneuert. Sie wurden automatisch neu angemeldet."
 confirm.single.statement.copied: "Die Stellungnahme wurde kopiert. Sie befinden sich in der Ansicht der Kopie!"
 confirm.sort.saved: "Die manuelle Reihenfolge wurde gespeichert."
 confirm.statement.anonymized: "Ihre personenbezogenen Daten wurden von der Stellungnahme {externId} entfernt."

@@ -391,6 +391,17 @@ parameters:
     # https://login.microsoftonline.com/<tenant>/oauth2/v2.0/logout
     oauth_azure_logout_route: ''
 
+    # Encryption key for storing OAuth tokens securely (AES-256-GCM via Sodium)
+    # Generate a secure key using: php -r "echo bin2hex(random_bytes(32));"
+    # Store the generated key in your .env.local as OAUTH_TOKEN_ENCRYPTION_KEY
+    oauth_token_encryption_key: '%env(OAUTH_TOKEN_ENCRYPTION_KEY)%'
+
+    # Interval in seconds between blocking OAuth token checks (fast-path threshold).
+    # Within this window the kernel.controller listener skips DB queries entirely.
+    # The interval is capped at the token's remaining lifetime, so it never skips past actual expiry.
+    # Default: 180 seconds (3 minutes). Must be less than the access token lifetime (300 s = 5 min).
+    oauth_token_fast_path_intervall_seconds: 180
+
     # Set users with permissions to alter Database
     database_install_user: ""
     database_install_password: ""
