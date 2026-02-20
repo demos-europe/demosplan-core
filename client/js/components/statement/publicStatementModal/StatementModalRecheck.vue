@@ -284,7 +284,9 @@
           :key="field.id"
           :class="prefixClass('mb-1')"
         >
-          <dt :class="prefixClass('weight--bold')">{{ field.name }}</dt>
+          <dt :class="prefixClass('weight--bold')">
+            {{ field.name }}
+          </dt>
           <dd :class="prefixClass('ml-2')">
             <span
               v-for="option in field.selected"

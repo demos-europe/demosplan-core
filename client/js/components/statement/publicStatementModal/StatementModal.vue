@@ -164,7 +164,9 @@
           v-if="openedFromDraftList && statementCustomFields.length > 0"
           :class="prefixClass('mb-2 pb-0')"
         >
-          <legend class="mb-2 text-[1em] font-[500]">{{ Translator.trans('statement.data') }}</legend>
+          <legend class="mb-2 text-[1em] font-[500]">
+            {{ Translator.trans('statement.data') }}
+          </legend>
           <dl>
             <div
               v-for="customField in statementCustomFields"
@@ -189,7 +191,9 @@
           v-if="!openedFromDraftList"
           class="mb-2 pb-0"
         >
-          <legend class="mb-2 text-[1em] font-[500]">{{ Translator.trans('statement.data') }}</legend>
+          <legend class="mb-2 text-[1em] font-[500]">
+            {{ Translator.trans('statement.data') }}
+          </legend>
           <div
             v-for="customField in selectableCustomFields"
             :key="customField.id"
