@@ -28,6 +28,7 @@ use EDT\PathBuilding\End;
  * @property-read End $order
  * @property-read End $index
  * @property-read End $fileInfo improve T22479
+ * @property-read End $deleted
  */
 final class SingleDocumentResourceType extends DplanResourceType
 {
@@ -62,11 +63,14 @@ final class SingleDocumentResourceType extends DplanResourceType
 
     protected function getAccessConditions(): array
     {
+        // SingleDocuments get soft-deleted only if a statement references it SingleDocumentRepository::delete
+        $accessConditions = [$this->conditionFactory->propertyHasValue(false, $this->deleted)];
         if ($this->currentUser->hasPermission('area_admin_single_document')) {
-            return [];
+            return $accessConditions;
         }
+        $accessConditions[] = $this->conditionFactory->propertyHasValue(true, $this->visible);
 
-        return [$this->conditionFactory->propertyHasValue(true, $this->visible)];
+        return $accessConditions;
     }
 
     protected function getProperties(): array

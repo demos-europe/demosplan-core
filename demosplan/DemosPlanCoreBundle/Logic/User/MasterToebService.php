@@ -94,8 +94,6 @@ class MasterToebService extends CoreService
      *
      * @param string $masterToebId
      *
-     * @return mixed
-     *
      * @throws Exception
      */
     public function getMasterToeb($masterToebId)
@@ -225,6 +223,7 @@ class MasterToebService extends CoreService
             $addedMasterToeb = $this->masterToebRepository
                 ->add($data);
             try {
+                $data['id'] = $addedMasterToeb->getId();
                 $this->addReportAddMasterToeb($data);
             } catch (Exception $e) {
                 $this->logger->warning('Add Report in addMasterToeb() failed Message: ', [$e]);
@@ -405,8 +404,6 @@ class MasterToebService extends CoreService
 
     /**
      * Get all organisations, which are not in the mastertoeblist.
-     *
-     * @return mixed
      */
     public function getOrganisations()
     {
