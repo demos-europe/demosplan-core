@@ -21,9 +21,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
-use League\OAuth2\Client\Token\AccessToken;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\Parser;
+use League\OAuth2\Client\Token\AccessToken;
 use Psr\Log\LoggerInterface;
 use Stevenmaguire\OAuth2\Client\Provider\KeycloakResourceOwner;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -124,7 +124,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             } catch (Exception $e) {
                 $this->logger->error('Failed to read pending request on re-authentication', [
                     'user_id' => $userId,
-                    'error' => $e->getMessage(),
+                    'error'   => $e->getMessage(),
                 ]);
             }
 
@@ -135,7 +135,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             } catch (Exception $e) {
                 $this->logger->error('Failed to store OAuth tokens after login', [
                     'user_id' => $userId,
-                    'error' => $e->getMessage(),
+                    'error'   => $e->getMessage(),
                 ]);
             }
         }

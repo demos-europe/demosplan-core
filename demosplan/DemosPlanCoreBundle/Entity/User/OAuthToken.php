@@ -24,10 +24,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     name="oauth_tokens",
  *     uniqueConstraints={@ORM\UniqueConstraint(name="unique_user_id", columns={"user_id"})},
  *     indexes={
+ *
  *         @ORM\Index(name="idx_access_expires", columns={"access_token_expires_at"}),
  *         @ORM\Index(name="idx_pending_timestamp", columns={"pending_request_timestamp"})
  *     }
  * )
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OAuthTokenRepository")
  */
 class OAuthToken
@@ -36,13 +38,16 @@ class OAuthToken
 
     /**
      * @ORM\Column(type="integer")
+     *
      * @ORM\Id
+     *
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private ?int $id = null;
 
     /**
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="user_id", referencedColumnName="_u_id", nullable=false, onDelete="CASCADE")
      */
     private User $user;

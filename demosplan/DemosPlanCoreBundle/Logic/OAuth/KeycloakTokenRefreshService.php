@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\OAuth;
 
+use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Psr\Log\LoggerInterface;
@@ -29,7 +30,7 @@ class KeycloakTokenRefreshService
         private readonly ClientRegistry $clientRegistry,
         private readonly OAuthTokenStorageService $tokenStorageService,
         private readonly TokenExpirationService $tokenExpirationService,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -62,7 +63,7 @@ class KeycloakTokenRefreshService
             $client = $this->clientRegistry->getClient('keycloak_ozg');
 
             $this->logger->debug('Calling KeyCloak to refresh access token', [
-                'user_id' => $userId,
+                'user_id'              => $userId,
                 'refresh_token_length' => strlen($tokenData->getRefreshToken()),
             ]);
 
@@ -71,11 +72,11 @@ class KeycloakTokenRefreshService
             $newAccessToken = $client->refreshAccessToken($tokenData->getRefreshToken());
 
             $this->logger->info('Token refresh successful', [
-                'user_id' => $userId,
-                'new_access_token_length' => strlen($newAccessToken->getToken()),
+                'user_id'                  => $userId,
+                'new_access_token_length'  => strlen($newAccessToken->getToken()),
                 'new_refresh_token_length' => strlen($newAccessToken->getRefreshToken() ?? ''),
-                'expires_at' => date('Y-m-d H:i:s', $newAccessToken->getExpires()),
-                'seconds_until_expiry' => $newAccessToken->getExpires() - time(),
+                'expires_at'               => date('Y-m-d H:i:s', $newAccessToken->getExpires()),
+                'seconds_until_expiry'     => $newAccessToken->getExpires() - time(),
             ]);
 
             // Store the new tokens (all tokens have been rotated by KeyCloak)
@@ -87,19 +88,19 @@ class KeycloakTokenRefreshService
         } catch (IdentityProviderException $e) {
             // OAuth2-specific errors (invalid token, expired refresh token, network issues, etc.)
             $this->logger->error('OAuth2 provider error during token refresh', [
-                'user_id' => $userId,
-                'error' => $e->getMessage(),
+                'user_id'       => $userId,
+                'error'         => $e->getMessage(),
                 'response_body' => $e->getResponseBody(),
-                'status_code' => $e->getCode(),
+                'status_code'   => $e->getCode(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // General errors (encryption, database, etc.)
             $this->logger->error('Token refresh failed', [
-                'user_id' => $userId,
-                'error' => $e->getMessage(),
+                'user_id'         => $userId,
+                'error'           => $e->getMessage(),
                 'exception_class' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                'file'            => $e->getFile(),
+                'line'            => $e->getLine(),
             ]);
         }
 

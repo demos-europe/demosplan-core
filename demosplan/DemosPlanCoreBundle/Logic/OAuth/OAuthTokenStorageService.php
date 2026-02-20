@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\PendingRequestData;
 use demosplan\DemosPlanCoreBundle\ValueObject\TokenData;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use InvalidArgumentException;
 use League\OAuth2\Client\Token\AccessToken;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -139,9 +140,9 @@ class OAuthTokenStorageService
             $this->entityManager->flush();
 
             $this->logger->info('OAuth tokens stored', [
-                'user_id' => $userId,
+                'user_id'           => $userId,
                 'has_refresh_token' => null !== $refreshTokenString,
-                'has_id_token' => isset($values['id_token']),
+                'has_id_token'      => isset($values['id_token']),
             ]);
 
             // Sync session threshold and expiration after every token store.
@@ -155,11 +156,11 @@ class OAuthTokenStorageService
             }
         } catch (Exception $e) {
             $this->logger->error('Failed to store OAuth tokens', [
-                'user_id' => $userId,
-                'error' => $e->getMessage(),
+                'user_id'         => $userId,
+                'error'           => $e->getMessage(),
                 'exception_class' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                'file'            => $e->getFile(),
+                'line'            => $e->getLine(),
             ]);
 
             throw new TokenStorageException('Failed to store OAuth tokens: '.$e->getMessage(), 0, $e);
@@ -225,8 +226,8 @@ class OAuthTokenStorageService
 
         if ($oauthToken->hasPendingRequest()) {
             $this->logger->info('OAuth token deletion skipped - pending request buffer preserved for re-authentication', [
-                'user_id' => $userId,
-                'pending_request_url' => $oauthToken->getPendingRequestUrl(),
+                'user_id'                   => $userId,
+                'pending_request_url'       => $oauthToken->getPendingRequestUrl(),
                 'pending_request_timestamp' => $oauthToken->getPendingRequestTimestamp()?->format('Y-m-d H:i:s'),
             ]);
 
@@ -249,7 +250,7 @@ class OAuthTokenStorageService
      * @param PendingRequestData $requestData Request data value object with clear (unencrypted) data
      *
      * @throws TokenEncryptionException if encryption of request body fails
-     * @throws \InvalidArgumentException if validation of request data fails
+     * @throws InvalidArgumentException if validation of request data fails
      */
     public function storePendingRequest(OAuthToken $oauthToken, PendingRequestData $requestData): void
     {
@@ -279,15 +280,15 @@ class OAuthTokenStorageService
             foreach ($violations as $violation) {
                 $errors[] = $violation->getPropertyPath().': '.$violation->getMessage();
             }
-            throw new \InvalidArgumentException('Validation failed: '.implode(', ', $errors));
+            throw new InvalidArgumentException('Validation failed: '.implode(', ', $errors));
         }
 
         $this->entityManager->flush();
 
         $this->logger->info('Pending request stored', [
-            'user_id' => $oauthToken->getUser()->getId(),
+            'user_id'     => $oauthToken->getUser()->getId(),
             'request_url' => $requestData->getRequestUrl(),
-            'method' => $requestData->getMethod(),
+            'method'      => $requestData->getMethod(),
         ]);
     }
 
@@ -316,14 +317,14 @@ class OAuthTokenStorageService
 
         $requestData = new PendingRequestData();
         $requestData->fill([
-            'pageUrl' => $oauthToken->getPendingPageUrl(),
-            'requestUrl' => $oauthToken->getPendingRequestUrl(),
-            'method' => $oauthToken->getPendingRequestMethod(),
-            'contentType' => $oauthToken->getPendingRequestContentType(),
-            'hasFiles' => $oauthToken->hasPendingRequestFiles(),
+            'pageUrl'       => $oauthToken->getPendingPageUrl(),
+            'requestUrl'    => $oauthToken->getPendingRequestUrl(),
+            'method'        => $oauthToken->getPendingRequestMethod(),
+            'contentType'   => $oauthToken->getPendingRequestContentType(),
+            'hasFiles'      => $oauthToken->hasPendingRequestFiles(),
             'filesMetadata' => $oauthToken->getPendingRequestFilesMetadata(),
-            'timestamp' => $oauthToken->getPendingRequestTimestamp(),
-            'body' => $clearBody,
+            'timestamp'     => $oauthToken->getPendingRequestTimestamp(),
+            'body'          => $clearBody,
         ]);
 
         return $requestData;
