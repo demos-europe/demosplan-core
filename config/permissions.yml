@@ -179,6 +179,11 @@ area_admin_invitable_institution:
 area_combined_participation_area:
     label: 'Nutze die Beteiligungsebene auch für Institutionen'
     loginRequired: false
+area_customer_procedure_phase_definitions:
+    description: 'Allows to view and manage procedure phase definitions for the current customer.'
+    label: 'Manage customer procedure phase definitions'
+    loginRequired: true
+    parent: area_customer_settings
 area_customer_send_mail_to_users:
     description: 'See parent for longer description.'
     label: 'Allows to send an E-Mail with free editable html body to all users of the customer.'
