@@ -21,6 +21,17 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper:
         public: true # unfortunately ci tests seem to need this
 
+    demosplan\DemosPlanCoreBundle\Logic\OAuth\KeycloakTokenRefreshService: ~
+
+    demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService: ~
+
+    demosplan\DemosPlanCoreBundle\Logic\OAuth\TokenEncryptionService:
+        public: true
+        arguments:
+            $encryptionKey: '%oauth_token_encryption_key%'
+
+    demosplan\DemosPlanCoreBundle\Logic\OAuth\TokenExpirationService: ~
+
     demosplan\DemosPlanCoreBundle\ValueObject\AzureUserData: ~
 
     # Start CustomField validation services
@@ -339,6 +350,8 @@ services:
         arguments:
             $debug: '%kernel.debug%'
 
+    demosplan\DemosPlanCoreBundle\EventListener\ExpirationTimestampRequestListener: ~
+
     demosplan\DemosPlanCoreBundle\EventListener\PopulateElasticaEventSubscriber:
         arguments:
             $indexManager: '@fos_elastica.index_manager'
@@ -352,6 +365,8 @@ services:
         lazy: true
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\County, lazy: true }
+
+    demosplan\DemosPlanCoreBundle\EventListener\TokenRefreshTerminateListener: ~
 
     demosplan\DemosPlanCoreBundle\EventSubscriber\LocaleSubscriber:
         arguments: ['%kernel.default_locale%']

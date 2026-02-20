@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -41,7 +41,7 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
         ]);
 
         // Create the service manually with our parameter bag
-        $this->sut = new OzgKeycloakLogoutManager(
+        $this->sut = new OzgKeycloakSessionManager(
             self::getContainer()->get(KernelInterface::class),
             self::getContainer()->get(LoggerInterface::class),
             self::getContainer()->get(CurrentUserService::class),
@@ -58,12 +58,12 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
 
     public function testInjectTokenExpirationIntoSession(): void
     {
-        $this->assertFalse($this->session->has(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP));
+        $this->assertFalse($this->session->has(OzgKeycloakSessionManager::EXPIRATION_TIMESTAMP));
 
         $this->sut->injectTokenExpirationIntoSession($this->session, $this->testUser);
 
-        $this->assertTrue($this->session->has(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP));
-        $expirationTimestamp = $this->session->get(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP);
+        $this->assertTrue($this->session->has(OzgKeycloakSessionManager::EXPIRATION_TIMESTAMP));
+        $expirationTimestamp = $this->session->get(OzgKeycloakSessionManager::EXPIRATION_TIMESTAMP);
 
         $this->assertIsInt($expirationTimestamp);
         $this->assertGreaterThan(time(), $expirationTimestamp);
@@ -72,17 +72,17 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
     public function testInjectTokenExpirationSkipsWhenAlreadyPresent(): void
     {
         $originalTimestamp = time() + 3600;
-        $this->session->set(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP, $originalTimestamp);
+        $this->session->set(OzgKeycloakSessionManager::EXPIRATION_TIMESTAMP, $originalTimestamp);
 
         $this->sut->injectTokenExpirationIntoSession($this->session, $this->testUser);
 
-        $this->assertEquals($originalTimestamp, $this->session->get(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP));
+        $this->assertEquals($originalTimestamp, $this->session->get(OzgKeycloakSessionManager::EXPIRATION_TIMESTAMP));
     }
 
     public function testHasValidTokenWithValidToken(): void
     {
         $futureTimestamp = time() + 3600; // 1 hour from now
-        $this->session->set(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP, $futureTimestamp);
+        $this->session->set(OzgKeycloakSessionManager::EXPIRATION_TIMESTAMP, $futureTimestamp);
 
         $result = $this->sut->hasValidToken($this->session);
 
@@ -92,7 +92,7 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
     public function testHasValidTokenWithExpiredToken(): void
     {
         $pastTimestamp = time() - 3600; // 1 hour ago
-        $this->session->set(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP, $pastTimestamp);
+        $this->session->set(OzgKeycloakSessionManager::EXPIRATION_TIMESTAMP, $pastTimestamp);
 
         $result = $this->sut->hasValidToken($this->session);
 
@@ -106,27 +106,11 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
         $this->assertFalse($result);
     }
 
-    public function testStoreTokenAndExpirationInSession(): void
+    public function testStoreIdTokenForLogout(): void
     {
-        $tokenValues = [
-            'id_token'     => 'test_token_value',
-            'access_token' => 'access_token_value',
-        ];
+        $this->sut->storeIdTokenForLogout($this->session, 'test_id_token_value');
 
-        $this->sut->storeTokenAndExpirationInSession($this->session, $tokenValues);
-
-        $this->assertTrue($this->session->has(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN));
-        $this->assertEquals('test_token_value', $this->session->get(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN));
-    }
-
-    public function testStoreTokenAndExpirationInSessionWithoutIdToken(): void
-    {
-        $tokenValues = [
-            'access_token' => 'access_token_value',
-        ];
-
-        $this->sut->storeTokenAndExpirationInSession($this->session, $tokenValues);
-
-        $this->assertFalse($this->session->has(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN));
+        $this->assertTrue($this->session->has(OzgKeycloakSessionManager::KEYCLOAK_TOKEN));
+        $this->assertEquals('test_id_token_value', $this->session->get(OzgKeycloakSessionManager::KEYCLOAK_TOKEN));
     }
 }

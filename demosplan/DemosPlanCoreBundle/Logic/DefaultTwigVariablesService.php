@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
@@ -177,7 +177,7 @@ class DefaultTwigVariablesService
             'urlScheme'                                          => $this->globalConfig->getUrlScheme() ?? $request->getScheme(),
             'useOpenGeoDb'                                       => $this->globalConfig->getUseOpenGeoDb(),
             'externalLinks'                                      => $this->getFilteredExternalLinks(),
-            OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP       => $request->getSession()->get(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP),
+            OzgKeycloakSessionManager::EXPIRATION_TIMESTAMP       => $request->getSession()->get(OzgKeycloakSessionManager::EXPIRATION_TIMESTAMP),
         ];
     }
 
