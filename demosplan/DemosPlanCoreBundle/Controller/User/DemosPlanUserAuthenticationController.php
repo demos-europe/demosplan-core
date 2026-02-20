@@ -257,7 +257,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             }
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/password_recover.html.twig',
             [
                 'title'        => 'user.password.recover',
@@ -354,8 +354,12 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         }
 
         $useAzureSso = $parameterBag->get('azure_sso_enabled');
+        $useAzureCustomers = $parameterBag->get('azure_sso_customers');
+        if ($useAzureSso && is_array($useAzureCustomers)) {
+            $useAzureSso = in_array($currentCustomer, $useAzureCustomers, true);
+        }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',
             [
                 'title'           => 'user.login',
@@ -398,7 +402,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
                 return $this->redirectToRoute('core_home');
             }
 
-            return $this->renderTemplate('@DemosPlanCore/DemosPlanUser/logout_success.html.twig');
+            return $this->render('@DemosPlanCore/DemosPlanUser/logout_success.html.twig');
         } catch (Exception $e) {
             return $this->handleError($e);
         }
@@ -420,7 +424,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             return $this->redirectToRoute('DemosPlan_user_login_alternative');
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/user_set_password.html.twig',
             [
                 'token' => $token,

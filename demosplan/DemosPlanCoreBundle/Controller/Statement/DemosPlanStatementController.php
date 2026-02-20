@@ -70,6 +70,9 @@ use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldProvider;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldPropertyName;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
@@ -106,7 +109,16 @@ class DemosPlanStatementController extends BaseController
 {
     private const STATEMENT_IMPORT_ENCOUNTERED_ERRORS = 'statement import failed';
 
-    public function __construct(private readonly CurrentProcedureService $currentProcedureService, private readonly CurrentUserService $currentUser, private readonly DraftStatementHandler $draftStatementHandler, private readonly DraftStatementService $draftStatementService, private readonly Environment $twig, private readonly MailService $mailService, private readonly PermissionsInterface $permissions, private readonly NameGenerator $nameGenerator)
+    public function __construct(
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly CurrentUserService $currentUser,
+        private readonly DraftStatementHandler $draftStatementHandler,
+        private readonly DraftStatementService $draftStatementService,
+        private readonly Environment $twig,
+        private readonly MailService $mailService,
+        private readonly PermissionsInterface $permissions,
+        private readonly NameGenerator $nameGenerator,
+        private readonly CustomFieldProvider $customFieldProvider)
     {
     }
 
@@ -231,7 +243,7 @@ class DemosPlanStatementController extends BaseController
         // Display as participationLayer
         $templateVars['procedureLayer'] = 'participation';
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_public.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -330,17 +342,8 @@ class DemosPlanStatementController extends BaseController
             // use citizentemplates if neded
             $templateVars['isCitizen'] = $user->isCitizen();
 
-            // Ergänze die Daten zum Statement mit bestehenden User-Daten
-            $inData['userName'] = $user->getFullname();
-            if ('' !== $user->getEmail()) {
-                $inData['userEmail'] = $user->getEmail();
-            }
-            if ($this->permissions->hasPermission('feature_draft_statement_add_address_to_private_person')) {
-                $inData['userStreet'] = $user->getStreet();
-                $inData['userPostalCode'] = $user->getPostalcode();
-                $inData['userCity'] = $user->getCity();
-                $inData['houseNumber'] = $user->getHouseNumber();
-            }
+            $inData = $this->enrichStatementDataWithUserInfo($inData, $user);
+
             $templateVars['user'] = $user;
 
             // Angemeldete Bürger bekommen automatisch per email Rückmeldung
@@ -420,6 +423,14 @@ class DemosPlanStatementController extends BaseController
                 }
             }
 
+            if ($this->currentUser->hasPermission('feature_statements_custom_fields')) {
+                $templateVars[CustomFieldPropertyName::twigRequestName->value] = $this->customFieldProvider->getCustomFieldsByCriteria(
+                    sourceEntity: CustomFieldSupportedEntity::procedure->value,
+                    sourceEntityId: $procedureId,
+                    targetEntity: CustomFieldSupportedEntity::statement->value,
+                );
+            }
+
             $templateVars['statementList'] = $statementsToSubmit;
             $templateVars['list']['statementlist'] = $statementsToSubmit;
             $templateVars['statementsToSubmitIds'] = $statementsToSubmitIds;
@@ -435,7 +446,7 @@ class DemosPlanStatementController extends BaseController
             ];
             $templateVars['procedure'] = $procedure;
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanStatement/new_public_participation_statement_confirm.html.twig',
                 [
                     'templateVars' => $templateVars,
@@ -452,6 +463,24 @@ class DemosPlanStatementController extends BaseController
 
             return $this->handleError($e);
         }
+    }
+
+    private function enrichStatementDataWithUserInfo(array $inData, User $user): array
+    {
+        $inData['userName'] = $user->getFullname();
+
+        if ('' !== $user->getEmail()) {
+            $inData['userEmail'] = $user->getEmail();
+        }
+
+        if ($this->permissions->hasPermission('feature_draft_statement_add_address_to_private_person')) {
+            $inData['userStreet'] = $user->getStreet();
+            $inData['userPostalCode'] = $user->getPostalcode();
+            $inData['userCity'] = $user->getCity();
+            $inData['houseNumber'] = $user->getHouseNumber();
+        }
+
+        return $inData;
     }
 
     /**
@@ -693,7 +722,7 @@ class DemosPlanStatementController extends BaseController
         $templateVars['procedureBehaviorDefinition'] = $currentProcedure->getProcedureBehaviorDefinition();
         $templateVars['statementFormDefinition'] = $currentProcedure->getStatementFormDefinition();
 
-        return $this->renderTemplate(
+        return $this->render(
             $template,
             [
                 'templateVars' => $templateVars,
@@ -771,7 +800,7 @@ class DemosPlanStatementController extends BaseController
 
         $templateVars['procedure'] = $procedureService->getProcedure($procedureId);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/new_public_participation_statement_vote.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -854,9 +883,12 @@ class DemosPlanStatementController extends BaseController
             }
 
             $limiter = $anonymousStatementLimiter->create($request->getSession()->getId());
+            $isLoggedIn = $this->currentUser->getUser()->isLoggedIn();
 
             // avoid brute force attacks
-            if (false === $limiter->consume(1)->isAccepted()) {
+            // if the limit bites during development or testing, you can increase the limit in the config via setting
+            // framework.rate_limiter.anonymous_statement.limit in the parameters.yml to a higher value
+            if (!$isLoggedIn && false === $limiter->consume(1)->isAccepted()) {
                 if (true === $parameterBag->get('ratelimit_public_statement_enable')) {
                     throw new TooManyRequestsHttpException();
                 }
@@ -885,8 +917,7 @@ class DemosPlanStatementController extends BaseController
 
             // Abgabe der Stellungnahme als angemeldeter Nutzer via Beteiligungsebene
             // ggf. trotzdem als Bürger
-            if ($this->currentUser->getUser()->isLoggedIn()
-                && !$this->permissions->hasPermission('feature_statements_participation_area_always_citizen')
+            if ($isLoggedIn && !$this->permissions->hasPermission('feature_statements_participation_area_always_citizen')
             ) {
                 $this->permissions->checkPermission('feature_new_statement');
 
@@ -959,7 +990,7 @@ class DemosPlanStatementController extends BaseController
                 $template = '@DemosPlanCore/DemosPlanProcedure/public_detail_form_confirmation.html.twig';
             }
 
-            $responseHtml = $this->renderTemplate(
+            $responseHtml = $this->render(
                 $template,
                 [
                     'templateVars' => [
@@ -1017,7 +1048,7 @@ class DemosPlanStatementController extends BaseController
             $templateVars['statement']['votesNum'] = $countVotes;
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_public_participation_published_entry.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -1336,7 +1367,7 @@ class DemosPlanStatementController extends BaseController
                 'procedureLayer' => 'participation',
             ];
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanStatement/send_statement.html.twig',
                 [
                     'templateVars' => $templateVars,
@@ -1478,7 +1509,7 @@ class DemosPlanStatementController extends BaseController
         $refererRoute = $routeInfos['_route'] ?? '';
         $templateVars['backToUrl'] = $refererRoute;
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/versions_of_statement.html.twig',
             [
                 'templateVars'    => $templateVars,
@@ -1651,7 +1682,7 @@ class DemosPlanStatementController extends BaseController
 
         /** @var DraftStatementListFilters $draftListFilterVO */
         $draftListFilterVO = null;
-        if (!($draftFilterList[$procedureId][$templateName] instanceof DraftStatementListFilters)) {
+        if (!$draftFilterList[$procedureId][$templateName] instanceof DraftStatementListFilters) {
             $draftListFilterVO = new DraftStatementListFilters();
         } else {
             $draftListFilterVO = $draftFilterList[$procedureId][$templateName];
@@ -2642,7 +2673,7 @@ class DemosPlanStatementController extends BaseController
      */
     protected function createErrorResponse(string $procedureId, array $errors): Response
     {
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_excel_import_errors.html.twig',
             [
                 'procedure'  => $procedureId,

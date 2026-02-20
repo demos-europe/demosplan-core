@@ -37,23 +37,20 @@
           }"
           :name="phaseSelectId"
           :options="phaseOptions"
-          class="layout__item u-1-of-3 u-1-of-1-lap-down"
+          class="layout__item u-1-of-3 u-1-of-1-lap-down mt-4"
         /><!--
 
-     --><div class="layout__item u-1-of-3 u-1-of-1-lap-down">
+     --><div class="layout__item u-1-of-3 u-1-of-1-lap-down mt-4">
           <div class="layout">
             <div class="layout__item w-2/3 pr-2">
-              <dp-label
-                :for="switchDateId"
-                :text="Translator.trans('phase.autoswitch.datetime')"
-                class="mb-0.5"
-                required
-              />
               <dp-datepicker
                 :id="switchDateId"
                 v-model="switchDateOnly"
                 :data-cy="`autoSwitchProcedurePhaseForm:${switchDateId}`"
                 :disabled="!autoSwitchPhase"
+                :label="{
+                  text: Translator.trans('phase.autoswitch.datetime')
+                }"
                 hidden-input
                 :max-date="switchDateMax"
                 :min-date="minSwitchDate"
@@ -88,28 +85,29 @@
         </div><!--
 
      --><div class="layout__item u-1-of-3">
-          <dp-label
-            :text="Translator.trans('period.new')"
-            class="mb-0.5"
-            for="procedurePhasePeriod"
-            required
-          />
-          <dp-date-range-picker
-            id="procedurePhasePeriod"
-            :data-cy="dataCyPhasePeriod"
-            :end-disabled="!autoSwitchPhase"
-            :end-id="endDateId"
-            :end-name="endDateId"
-            :end-value="endDate"
-            :min-date="minSwitchDate"
-            :start-id="startDateId"
-            :start-name="startDateId"
-            :start-value="startDate"
-            enforce-plausible-dates
-            required
-            start-disabled
-            @input:end-date="handleInputEndDate"
-          />
+          <fieldset>
+            <legend class="weight--bold block is-label">
+              {{ Translator.trans('period.new')}}
+            </legend>
+            <dp-date-range-picker
+              id="procedurePhasePeriod"
+              :data-cy="dataCyPhasePeriod"
+              :end-disabled="!autoSwitchPhase"
+              :end-id="endDateId"
+              :end-name="endDateId"
+              :end-label="Translator.trans('end')"
+              :end-value="endDate"
+              :min-date="minSwitchDate"
+              :start-id="startDateId"
+              :start-name="startDateId"
+              :start-value="startDate"
+              enforce-plausible-dates
+              required
+              :start-label="Translator.trans('start')"
+              start-disabled
+              @input:end-date="handleInputEndDate"
+            />
+          </fieldset>
         </div>
 
         <transition
@@ -277,6 +275,13 @@ export default {
         this.switchTime = '00:00'
         this.updateSwitchDate()
       }
+
+      // Needed for the addon-modal on form-submit
+      this.$emit('phase-selected', {
+        phase: this.selectedPhase,
+        enabled: newVal,
+        isInternal: this.isInternal,
+      })
     },
 
     selectedCurrentPhase: {
@@ -292,6 +297,17 @@ export default {
 
     switchDateOnly () {
       this.updateSwitchDate()
+    },
+
+    selectedPhase: {
+      handler (newVal) {
+        this.$emit('phase-selected', {
+          phase: newVal,
+          enabled: this.autoSwitchPhase,
+          isInternal: this.isInternal,
+        })
+      },
+      immediate: true,
     },
 
     switchDate: {

@@ -15,6 +15,7 @@
 .c-infolist {
 
     position: relative; //  contains absolute positioned elements
+    z-index: 0; //  ensures children render below fixed positioned components like DpSlidebar
 
     margin: 0;
 

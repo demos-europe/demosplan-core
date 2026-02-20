@@ -27,7 +27,7 @@ class DemosPlanElementsBulkEditController extends BaseController
     #[Route(name: 'dplan_elements_bulk_edit', methods: 'GET', path: '/verfahren/{procedureId}/planunterlagen/kategorien-bearbeiten', options: ['expose' => true])]
     public function showForm(string $procedureId): Response
     {
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanDocument/elements_admin_bulk_edit.html.twig',
             [
                 'title'       => 'elements.bulk.edit',

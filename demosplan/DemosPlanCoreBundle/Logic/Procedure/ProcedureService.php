@@ -2534,7 +2534,7 @@ class ProcedureService implements ProcedureServiceInterface
     /**
      * The purpose of the copy is to be able to create a diff for report entries.
      */
-    private function cloneProcedure(Procedure $procedure): Procedure
+    public function cloneProcedure(Procedure $procedure): Procedure
     {
         $procedureClone = clone $procedure;
 
@@ -2820,6 +2820,7 @@ class ProcedureService implements ProcedureServiceInterface
                 $sourcePlace->getSortIndex()
             );
             $newPlace->setDescription($sourcePlace->getDescription());
+            $newPlace->setSolved($sourcePlace->getSolved());
             $violations = $this->validator->validate($newPlace);
             if (0 !== $violations->count()) {
                 throw ViolationsException::fromConstraintViolationList($violations);

@@ -3,6 +3,7 @@
     class="inline-block whitespace-nowrap"
     :color="color"
     :text="Translator.trans(status)"
+    :title="Translator.trans(status)"
   />
 </template>
 

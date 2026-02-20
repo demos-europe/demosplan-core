@@ -83,6 +83,12 @@
       track-by="id"
       @changed-order="changeManualsort"
     >
+      <template v-slot:header-name="headerData">
+        <span :id="headerData.id">{{ headerData.label }}</span>
+      </template>
+      <template v-slot:header-description="headerData">
+        <span :id="headerData.id">{{ headerData.label }}</span>
+      </template>
       <template v-slot:header-solved="headerData">
         {{ headerData.label }}
         <dp-contextual-help
@@ -100,6 +106,7 @@
           id="editPlaceName"
           v-model="newRowData.name"
           data-cy="places:editPlaceName"
+          aria-labelledby="placeName"
           maxlength="250"
           required
         />
@@ -114,6 +121,7 @@
           id="editPlaceDescription"
           v-model="newRowData.description"
           data-cy="places:editPlaceDescription"
+          aria-labelledby="placeDescription"
           maxlength="250"
         />
       </template>
@@ -230,8 +238,8 @@ export default {
   data () {
     return {
       headerFields: [
-        { field: 'name', label: Translator.trans('name'), colClass: 'u-4-of-12' },
-        { field: 'description', label: Translator.trans('description'), colClass: 'u-5-of-12' },
+        { field: 'name', label: Translator.trans('name'), colClass: 'u-4-of-12', id: 'placeName' },
+        { field: 'description', label: Translator.trans('description'), colClass: 'u-5-of-12', id: 'placeDescription' },
         { field: 'solved', label: Translator.trans('completed'), colClass: 'u-2-of-12' },
       ],
       initialRowData: {},

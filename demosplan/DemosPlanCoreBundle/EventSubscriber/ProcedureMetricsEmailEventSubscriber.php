@@ -66,10 +66,14 @@ class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
         $procedure = $event->getProcedure();
 
         $from = $this->globalConfig->getEmailSystem();
-        $to = $this->globalConfig->getProcedureMetricsReceiver();
-        if ('' === $to) {
+
+        // Get comma separated mail recipients from config
+        $recipientsString = $this->globalConfig->getProcedureMetricsReceiver();
+        if ('' === $recipientsString) {
             return;
         }
+        // Explode comma separated string into array
+        $to = array_map('trim', explode(',', $recipientsString));
         try {
             $allProceduresOfOrgaInCustomer = $this->getAllProceduresOfOrgaInCustomer();
             $this->mailVars['mailsubject'] = $this->getSubject($allProceduresOfOrgaInCustomer);

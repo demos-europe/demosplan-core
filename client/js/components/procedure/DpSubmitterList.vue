@@ -58,9 +58,9 @@
           <div class="o-hellip__wrapper">
             <div
               v-tooltip="internId"
+              v-cleanhtml="internId"
               class="o-hellip--nowrap text-right"
               dir="rtl"
-              v-cleanhtml="internId"
             />
           </div>
         </template>
@@ -211,13 +211,13 @@ export default {
         fields: {
           Statement: statementFields.join(),
         },
-        ...(hasSimilarSubmitterFeature && { include: 'similarStatementSubmitters' })
+        ...(hasSimilarSubmitterFeature && { include: 'similarStatementSubmitters' }),
       }
 
       this.statementList(params)
         .finally(() => {
           this.isLoading = false
-      })
+        })
     },
 
     getSegmentsListItemUrl (rowData) {
@@ -225,7 +225,7 @@ export default {
     },
 
     getSimilarSubmittersUrl (rowData) {
-      const submittersHash = `#submitter`
+      const submittersHash = '#submitter'
 
       const url = Routing.generate('dplan_statement_segments_list', {
         statementId: rowData.id,
