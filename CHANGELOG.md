@@ -5,6 +5,9 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+### Changed
+- bump demosplan-addon version from v0.65 to v0.67
+
 ### Fixed
 - Fix redirect to split-view after claiming statement and correct unclaim behavior to prevent false assignee confirmation dialog
 
