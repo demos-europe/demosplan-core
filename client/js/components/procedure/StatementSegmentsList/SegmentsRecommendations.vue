@@ -199,8 +199,8 @@ export default {
                   this.goToSplitStatementView()
                 }, 1000)
               })
-              .catch(() => {
-                // Claim failed - handled in claimStatement()
+              .catch(err => {
+                console.log(err)
               })
           }
         } else {
@@ -213,8 +213,8 @@ export default {
               this.goToSplitStatementView()
             }, 1000)
           })
-          .catch(() => {
-            // Claim failed - handled in claimStatement()
+          .catch(err => {
+            console.log(err)
           })
       }
     },
