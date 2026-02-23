@@ -205,41 +205,36 @@ class OAuthTokenStorageService
     }
 
     /**
-     * Delete OAuth tokens only if no pending request is buffered.
+     * Delete OAuth tokens only if no pending data exists (full request buffer or URL-only entry).
      *
-     * When a request was buffered before logout (e.g. a POST that triggered token expiry),
-     * we must keep the token entity alive so the user can retrieve it after re-authentication.
-     * The maintenance command will clean up abandoned buffered tokens after the configured timeout.
+     * When any pending data is present before logout, the token entity must be kept alive
+     * so the user can be redirected back or review their request after re-authentication.
+     * The maintenance command will clean up abandoned entries after the configured timeout.
      *
      * @param string $userId The user ID (UUID)
-     *
-     * @return bool true if deleted, false if skipped due to pending request
      */
-    public function deleteTokensUnlessPendingRequest(string $userId): bool
+    public function deleteTokensUnlessPendingData(string $userId): void
     {
         $oauthToken = $this->oauthTokenRepository->findByUserId($userId);
 
         if (null === $oauthToken) {
-            return true;
+            return;
         }
 
-        if ($oauthToken->hasPendingRequest()) {
-            $this->logger->info('OAuth token deletion skipped - pending request buffer preserved for re-authentication', [
+        if ($oauthToken->hasPendingData()) {
+            $this->logger->info('OAuth token deletion skipped - pending data preserved for re-authentication', [
                 'user_id' => $userId,
                 'pending_request_url' => $oauthToken->getPendingRequestUrl(),
+                'pending_page_url' => $oauthToken->getPendingPageUrl(),
                 'pending_request_timestamp' => $oauthToken->getPendingRequestTimestamp()?->format('Y-m-d H:i:s'),
             ]);
 
-            return false;
+            return;
         }
 
         $this->oauthTokenRepository->deleteByUserId($userId);
 
-        $this->logger->info('OAuth tokens deleted', [
-            'user_id' => $userId,
-        ]);
-
-        return true;
+        $this->logger->info('OAuth tokens deleted', ['user_id' => $userId]);
     }
 
     /**
@@ -288,6 +283,34 @@ class OAuthTokenStorageService
             'user_id' => $oauthToken->getUser()->getId(),
             'request_url' => $requestData->getRequestUrl(),
             'method' => $requestData->getMethod(),
+        ]);
+    }
+
+    /**
+     * Store the page URL the user was on before token expiry, for redirect-back after re-authentication.
+     *
+     * Only sets pendingPageUrl — never touches pendingRequestUrl, method, body, or contentType.
+     * Safe to call when a full POST buffer already exists: the POST data is preserved and only
+     * the redirect-back destination is updated.
+     *
+     * Timestamp is set only when no pending data exists yet, so the maintenance command
+     * (clearOutdated) has an anchor for cleanup on URL-only entries.
+     * Always clears expired token fields (idempotent).
+     */
+    public function storePendingPageUrl(OAuthToken $oauthToken, string $pageUrl): void
+    {
+        $oauthToken->clearTokens();
+        $oauthToken->setPendingPageUrl($pageUrl);
+
+        if (!$oauthToken->hasPendingData()) {
+            $oauthToken->setPendingRequestTimestamp(new DateTime('now', new DateTimeZone('Europe/Berlin')));
+        }
+
+        $this->entityManager->flush();
+
+        $this->logger->info('Pending page URL stored for redirect-back after re-authentication', [
+            'user_id' => $oauthToken->getUser()->getId(),
+            'page_url' => $pageUrl,
         ]);
     }
 

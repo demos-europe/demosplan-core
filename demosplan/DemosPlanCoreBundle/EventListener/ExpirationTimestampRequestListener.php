@@ -14,9 +14,10 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use DateTime;
 use DateTimeZone;
+use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
-use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\KeycloakTokenRefreshService;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\TokenEncryptionService;
@@ -86,11 +87,30 @@ class ExpirationTimestampRequestListener
             return;
         }
 
+        if ($this->shallReturnDueToPermissions()) {
+            return;
+        }
+
         if ($this->hasValidTokens($event)) {
             return;
         }
 
         $this->handleExpiredTokens($event);
+    }
+
+    private function shallReturnDueToPermissions(): bool
+    {
+        // TODO: TECHNICAL DEBT - The hasLogoutWarningPermission() check is problematic and needs investigation.
+        // The permission 'feature_auto_logout_warning' is described as "Remind the user of the upcoming automatic log out"
+        // (a UI notification feature), but the actual code performs HARD LOGOUT with no warnings.
+        // Without this permission, KeyCloak is only used for initial login and subsequent requests
+        // validate against the PHP session only. It's unclear if this is intentional or unfinished.
+        // Currently keeping this check for backward compatibility - all diplan (KeyCloak) projects have it enabled.
+        if (!$this->ozgKeycloakSessionManager->hasLogoutWarningPermission()) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -107,16 +127,6 @@ class ExpirationTimestampRequestListener
     private function shallReturnEarlyAndCheap(ControllerEvent $event): bool
     {
         $session = $event->getRequest()->getSession();
-
-        // TODO: TECHNICAL DEBT - The hasLogoutWarningPermission() check is problematic and needs investigation.
-        // The permission 'feature_auto_logout_warning' is described as "Remind the user of the upcoming automatic log out"
-        // (a UI notification feature), but the actual code performs HARD LOGOUT with no warnings.
-        // Without this permission, KeyCloak is only used for initial login and subsequent requests
-        // validate against the PHP session only. It's unclear if this is intentional or unfinished.
-        // Currently keeping this check for backward compatibility - all diplan (KeyCloak) projects have it enabled.
-        if (!$this->ozgKeycloakSessionManager->hasLogoutWarningPermission()) {
-            return true;
-        }
 
         if (!$session->isStarted()
             || $this->ozgKeycloakSessionManager->shouldSkipInProductionWithoutKeycloak()
@@ -153,6 +163,13 @@ class ExpirationTimestampRequestListener
         $user = $this->userFromSecurityUserProvider->get();
 
         if (null === $user) {
+            return true;
+        }
+
+        // Only users authenticated via an identity provider (Keycloak) have OAuth tokens.
+        // Form-login users never have an OAuthToken row — skipping avoids a false-expiry
+        // redirect loop for those users.
+        if (!$user->isProvidedByIdentityProvider()) {
             return true;
         }
 
@@ -235,6 +252,29 @@ class ExpirationTimestampRequestListener
                     $this->logger->error('Failed to buffer request', ['error' => $e->getMessage()]);
                 }
             }
+
+            // Store page URL for redirect-back after re-authentication.
+            // For POST requests this is a cheap redundant write — bufferRequest already set it.
+            // For GET requests this is the only write.
+            try {
+                $this->oauthTokenStorageService->storePendingPageUrl($oauthToken, $request->getPathInfo());
+            } catch (Exception $e) {
+                $this->logger->error('Failed to store pending page URL for redirect-back', ['error' => $e->getMessage()]);
+            }
+        }
+        $callable = $event->getController();
+        $controller = null;
+        if (is_array($callable) && is_object($callable[0])) {
+            $controller = $callable[0];
+        }
+        if (is_object($callable)) {
+            $controller = $callable;
+        }
+        if ($controller instanceof APIController) {
+            $response = $controller->handleApiError(new AccessDeniedException('Token expired'));
+            $event->setController(fn () => $response);
+
+            return;
         }
 
         $this->redirectToLogout($event);

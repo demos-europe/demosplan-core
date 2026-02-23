@@ -327,11 +327,30 @@ class OAuthToken
     // ===== HELPER METHODS =====
 
     /**
-     * Check if there is a pending request buffered.
+     * Check if there is a full request buffer (POST/PUT/etc.) pending replay.
+     * Does NOT cover URL-only entries — use hasPendingData() for that.
      */
     public function hasPendingRequest(): bool
     {
         return null !== $this->pendingRequestUrl;
+    }
+
+    /**
+     * Check if a redirect-back page URL has been stored.
+     * Can be true even when hasPendingRequest() is false (URL-only entry from a GET).
+     */
+    public function hasPendingPageUrlSet(): bool
+    {
+        return null !== $this->pendingPageUrl;
+    }
+
+    /**
+     * Check if there is any pending data (full request buffer OR page URL).
+     * Use this for deletion guards, storeTokens checks, and clearOutdated queries.
+     */
+    public function hasPendingData(): bool
+    {
+        return $this->hasPendingRequest() || $this->hasPendingPageUrlSet();
     }
 
     /**

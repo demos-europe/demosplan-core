@@ -52,16 +52,14 @@ class OAuthTokenRepository extends CoreRepository
     }
 
     /**
-     * Delete OAuth token entries with outdated pending request buffers.
+     * Delete OAuth token entries with outdated pending data (full request buffer or URL-only entry).
      *
-     * Removes entire token entries where the buffered request is older than the specified age.
-     * If the pending request is stale, it means the user never re-authenticated via SSO,
-     * so the tokens are expired and the entry serves no purpose.
+     * Removes entire token entries where pendingRequestTimestamp is older than the specified age.
+     * This covers both full POST buffers and URL-only entries (set by storePendingPageUrl),
+     * since both write a timestamp as an anchor for this cleanup.
+     * Stale entries mean the user never re-authenticated after token expiry.
      *
-     * Use case: User's session expired, request was buffered, but user didn't re-authenticate
-     * within the threshold time. The buffered request and expired tokens should be removed.
-     *
-     * @param int $olderThanMinutes Delete entries with requests older than this many minutes (default: 60 = 1 hour)
+     * @param int $olderThanMinutes Delete entries with pending data older than this many minutes (default: 60 = 1 hour)
      *
      * @return int Number of deleted entries
      */

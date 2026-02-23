@@ -73,7 +73,7 @@ class LogoutSubscriber implements EventSubscriberInterface
             $userId = $event->getRequest()->getSession()->get('userId');
             if (null !== $userId) {
                 try {
-                    $this->oauthTokenStorageService->deleteTokensUnlessPendingRequest($userId);
+                    $this->oauthTokenStorageService->deleteTokensUnlessPendingData($userId);
                 } catch (Exception $e) {
                     $this->logger->warning('Failed to delete OAuth tokens on logout', ['error' => $e->getMessage()]);
                 }

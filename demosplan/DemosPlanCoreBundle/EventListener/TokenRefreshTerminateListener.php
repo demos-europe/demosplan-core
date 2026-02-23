@@ -118,6 +118,12 @@ class TokenRefreshTerminateListener
     private function refreshIfNeeded(): void
     {
         $user = $this->currentUser->getUser();
+
+        // Only Keycloak/IdP users have OAuth tokens — skip for form-login users.
+        if (!$user->isProvidedByIdentityProvider()) {
+            return;
+        }
+
         $oauthToken = $this->oauthTokenRepository->findByUserId($user->getId());
 
         if (!$this->tokenExpirationService->accessTokenNeedsRefresh($oauthToken)) {
