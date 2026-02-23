@@ -2534,7 +2534,7 @@ class ProcedureService implements ProcedureServiceInterface
     /**
      * The purpose of the copy is to be able to create a diff for report entries.
      */
-    private function cloneProcedure(Procedure $procedure): Procedure
+    public function cloneProcedure(Procedure $procedure): Procedure
     {
         $procedureClone = clone $procedure;
 
