@@ -1,4 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Application\Migrations;
 
@@ -24,6 +34,7 @@ class Version20260217134223 extends AbstractMigration
         // Check if table already exists
         if ($schema->hasTable('oauth_tokens')) {
             $this->write('Table oauth_tokens already exists, skipping creation');
+
             return;
         }
 
@@ -41,6 +52,7 @@ class Version20260217134223 extends AbstractMigration
         // Check if table exists before dropping
         if (!$schema->hasTable('oauth_tokens')) {
             $this->write('Table oauth_tokens does not exist, skipping rollback');
+
             return;
         }
 

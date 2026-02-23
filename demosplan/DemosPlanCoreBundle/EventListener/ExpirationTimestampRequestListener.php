@@ -142,8 +142,8 @@ class ExpirationTimestampRequestListener
 
         if ($thresholdNotReached) {
             $this->logger->debug('Token check skipped - threshold not reached', [
-                'current_time' => date('Y-m-d H:i:s', $currentTime),
-                'next_check' => date('Y-m-d H:i:s', $nextTokenCheck),
+                'current_time'        => date('Y-m-d H:i:s', $currentTime),
+                'next_check'          => date('Y-m-d H:i:s', $nextTokenCheck),
                 'seconds_until_check' => $nextTokenCheck - $currentTime,
             ]);
         }
@@ -174,7 +174,7 @@ class ExpirationTimestampRequestListener
         }
 
         $this->logger->debug('Token check threshold reached - performing validation', [
-            'user_id' => $user->getId(),
+            'user_id'      => $user->getId(),
             'current_time' => date('Y-m-d H:i:s', time()),
         ]);
 
@@ -313,21 +313,21 @@ class ExpirationTimestampRequestListener
 
             // Build request data value object
             $requestData->fill([
-                'pageUrl' => $request->getPathInfo(),
-                'requestUrl' => $request->getRequestUri(),
-                'method' => $request->getMethod(),
-                'contentType' => $request->headers->get('Content-Type'),
-                'hasFiles' => $request->files->count() > 0,
+                'pageUrl'       => $request->getPathInfo(),
+                'requestUrl'    => $request->getRequestUri(),
+                'method'        => $request->getMethod(),
+                'contentType'   => $request->headers->get('Content-Type'),
+                'hasFiles'      => $request->files->count() > 0,
                 'filesMetadata' => $this->getFilesMetadata($request),
-                'timestamp' => new DateTime('now', $timezone),
-                'body' => $this->getRequestBody($request),
+                'timestamp'     => new DateTime('now', $timezone),
+                'body'          => $this->getRequestBody($request),
             ]);
 
             $this->oauthTokenStorageService->storePendingRequest($oauthToken, $requestData);
 
             $this->logger->info('Request buffered for replay after re-authentication', [
                 'method' => $request->getMethod(),
-                'url' => $request->getRequestUri(),
+                'url'    => $request->getRequestUri(),
             ]);
         } catch (Exception $e) {
             $this->logger->error(
@@ -352,7 +352,7 @@ class ExpirationTimestampRequestListener
      */
     private function getFilesMetadata(Request $request): ?array
     {
-        if ($request->files->count() === 0) {
+        if (0 === $request->files->count()) {
             return null;
         }
 
@@ -368,7 +368,7 @@ class ExpirationTimestampRequestListener
                     ];
                 }
             } else {
-                /** @var UploadedFile $file */
+                /* @var UploadedFile $file */
                 $metadata[$key] = [
                     'name' => $file->getClientOriginalName(),
                     'size' => $file->getSize(),

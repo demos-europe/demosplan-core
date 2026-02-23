@@ -38,7 +38,7 @@ class TokenEncryptionService
 
     public function __construct(
         private readonly LoggerInterface $logger,
-        string $encryptionKey
+        string $encryptionKey,
     ) {
         // Validate AES-256-GCM is available on this system
         if (!sodium_crypto_aead_aes256gcm_is_available()) {
@@ -58,12 +58,7 @@ class TokenEncryptionService
         $key = hex2bin($encryptionKey);
 
         if (false === $key || SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES !== strlen($key)) {
-            throw new TokenEncryptionException(
-                sprintf(
-                    'OAuth token encryption key must be exactly %d bytes (64 hex characters)',
-                    SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES
-                )
-            );
+            throw new TokenEncryptionException(sprintf('OAuth token encryption key must be exactly %d bytes (64 hex characters)', SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES));
         }
 
         $this->encryptionKey = $key;
@@ -132,7 +127,7 @@ class TokenEncryptionService
             $nonce = substr($decoded, 0, self::NONCE_LENGTH);
             $ciphertext = substr($decoded, self::NONCE_LENGTH);
 
-            if (strlen($nonce) !== self::NONCE_LENGTH) {
+            if (self::NONCE_LENGTH !== strlen($nonce)) {
                 throw new TokenEncryptionException('Invalid nonce length in encrypted data');
             }
 
