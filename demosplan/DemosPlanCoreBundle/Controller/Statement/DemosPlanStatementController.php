@@ -891,6 +891,8 @@ class DemosPlanStatementController extends BaseController
             $isLoggedIn = $this->currentUser->getUser()->isLoggedIn();
 
             // avoid brute force attacks
+            // if the limit bites during development or testing, you can increase the limit in the config via setting
+            // framework.rate_limiter.anonymous_statement.limit in the parameters.yml to a higher value
             if (!$isLoggedIn && false === $limiter->consume(1)->isAccepted()) {
                 if (true === $parameterBag->get('ratelimit_public_statement_enable')) {
                     throw new TooManyRequestsHttpException();
