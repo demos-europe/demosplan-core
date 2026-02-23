@@ -68,11 +68,13 @@ class DemosPlanAssessmentExportController extends BaseController
         bool $original = false,
     ): ?Response {
         $exportFormat = $request->request->get('r_export_format');
-        // in case that only docx in elements view mode should be exportable override the view mode
-        if ('docx' === $exportFormat && $permissions->hasPermission('feature_export_docx_elements_view_mode_only')) {
-            $request->request->set('r_view_mode', AssessmentTableViewMode::ELEMENTS_VIEW);
-        }
         $exportParameters = $this->getExportParameters($request, $procedureId, $original);
+        // switch to elements view for the dedicated portraitWithPrioritization template if permission allows:
+        if ('docx' === $exportFormat && 'portraitWithPrioritization' === $exportParameters['template'] && $permissions->hasPermission('feature_export_docx_elements_view_mode_only')) {
+            $exportParameters['viewMode'] = AssessmentTableViewMode::ELEMENTS_VIEW;
+            //$request->request->set('r_view_mode', AssessmentTableViewMode::ELEMENTS_VIEW);
+        }
+        //$exportParameters = $this->getExportParameters($request, $procedureId, $original);
         try {
             $file = $assessmentExporter->export($exportFormat, $exportParameters);
 
