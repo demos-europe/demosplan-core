@@ -140,6 +140,16 @@
           @select-all="handleSelectAll"
           @items-toggled="handleToggleItem"
         >
+          <template v-slot:header-tags>
+            <span class="inline-flex items-center">
+              {{ Translator.trans('segment.tags') }}
+              <addon-wrapper
+                v-if="hasStyledTopicalTags"
+                hook-name="tag.extend.form"
+                :addon-props="{ demosplanUi, isIconOnly: true}"
+              />
+            </span>
+          </template>
           <template v-slot:externId="rowData">
             <v-popover trigger="hover focus">
               <div class="whitespace-nowrap">
@@ -225,11 +235,19 @@
             <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
           </template>
           <template v-slot:tags="rowData">
+            <addon-wrapper
+              v-if="hasStyledTopicalTags"
+              hook-name="tag.style.segments.list"
+              :addon-props="{
+                demosplanUi,
+                tags: getTagsBySegment(rowData.id)
+              }"
+            />
             <span
+              v-else
               v-for="tag in getTagsBySegment(rowData.id)"
               :key="tag.id"
-              class="rounded-md"
-              style="color: #63667e; background: #EBE9E9; padding: 2px 4px; margin: 4px 2px; display: inline-block;"
+              class="rounded-md color--grey-dark bg-color--grey-light-2 px-1 py-0.5 mx-0.5 my-1 inline-block"
             >
               {{ tag.attributes.title }}
             </span>
@@ -319,6 +337,7 @@
 </template>
 
 <script>
+import * as demosplanUi from '@demos-europe/demosplan-ui'
 import {
   CleanHtml,
   dpApi,
@@ -337,10 +356,12 @@ import {
   VPopover,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CustomSearch from './CustomSearch'
 import FilterFlyout from './FilterFlyout'
 import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
 import ImageModal from '@DpJs/components/shared/ImageModal'
+import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
@@ -352,6 +373,7 @@ export default {
   name: 'SegmentsList',
 
   components: {
+    AddonWrapper,
     CustomSearch,
     DpBulkEditHeader,
     DpButton,
@@ -436,6 +458,8 @@ export default {
         limits: [10, 25, 50, 100],
         perPage: 10,
       },
+      demosplanUi,
+      hasStyledTopicalTags: false,
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'statementStatus', label: Translator.trans('statement.status') },
@@ -1069,7 +1093,10 @@ export default {
     },
   },
 
-  mounted () {
+  async mounted () {
+    const addons = await loadAddonComponents('tag.style.segments.list')
+    this.hasStyledTopicalTags = addons.length > 0
+
     // Get queryHash from URL
     const hrefParts = globalThis.location.href.split('/')
     this.currentQueryHash = hrefParts[hrefParts.length - 1]

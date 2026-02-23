@@ -101,7 +101,6 @@ All rights reserved
           id="uploadEmailAttachments"
           ref="uploadEmailAttachments"
           allowed-file-types="all"
-          :basic-auth="dplan.settings.basicAuth"
           :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           :max-file-size="10 * 1024 * 1024 * 1024/* 2 GiB */"
           :max-number-of-files="20"

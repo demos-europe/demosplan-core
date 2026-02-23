@@ -184,8 +184,16 @@ class AccessControlService
             foreach ($roleCodes as $roleName) {
                 // Try to find an existing permission with the given parameters
                 $role = $this->roleHandler->getUserRolesByCodes([$roleName])[0];
-                $permissions = $this->getEnabledPermissionNames($role, $orga, $customer, $permissionToCheck);
+                $foundPermissions = $this->getEnabledPermissionNames($role, $orga, $customer, $permissionToCheck);
+
+                // If we found permissions for this role, return true immediately
+                if (!empty($foundPermissions)) {
+                    return true;
+                }
             }
+
+            // No permissions found for any of the provided roles
+            return false;
         } else {
             $permissions = $this->getEnabledPermissionNames(null, $orga, $customer, $permissionToCheck);
         }
