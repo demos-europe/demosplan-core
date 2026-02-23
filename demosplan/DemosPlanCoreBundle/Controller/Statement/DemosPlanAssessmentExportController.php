@@ -72,9 +72,9 @@ class DemosPlanAssessmentExportController extends BaseController
         // switch to elements view for the dedicated portraitWithPrioritization template if permission allows:
         if ('docx' === $exportFormat && 'portraitWithPrioritization' === $exportParameters['template'] && $permissions->hasPermission('feature_export_docx_elements_view_mode_only')) {
             $exportParameters['viewMode'] = AssessmentTableViewMode::ELEMENTS_VIEW;
-            //$request->request->set('r_view_mode', AssessmentTableViewMode::ELEMENTS_VIEW);
+            // $request->request->set('r_view_mode', AssessmentTableViewMode::ELEMENTS_VIEW);
         }
-        //$exportParameters = $this->getExportParameters($request, $procedureId, $original);
+        // $exportParameters = $this->getExportParameters($request, $procedureId, $original);
         try {
             $file = $assessmentExporter->export($exportFormat, $exportParameters);
 
