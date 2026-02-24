@@ -130,7 +130,6 @@
       </div>
       <div v-else>
         <dp-editor
-          :basic-auth="dplan.settings.basicAuth"
           class="u-mb-0_5"
           editor-id="recommendationText"
           :routes="{
@@ -367,7 +366,8 @@
             container: `#segment_${segment.id}`,
             content: Translator.trans('edit')
           }"
-          class="segment-list-toolbar__button btn btn--primary icon-only"
+          class="segment-list-toolbar__button btn--blank"
+          :class="{ 'is-active' : isEditing}"
           data-cy="segmentEdit"
           :aria-label="Translator.trans('edit')"
           @click="startEditing"

@@ -78,7 +78,7 @@
 
             {# Main content #}
             {# relative is needed here for the sticky sidemenu #}
-            <main id="mainContent" class="o-page__main layout bg-color--white relative">
+            <main id="mainContent" class="{% block main_classes %}o-page__main layout bg-color--white relative{% endblock main_classes %}">
 
                 {% block maincontent_section %}
                     <section id="jumpContent" class="o-page__content layout__item relative pb-4" role="main">
@@ -107,35 +107,37 @@
                         {% include '@DemosPlanCore/DemosPlanCore/includes/base_nojs_notifications.html.twig' %}
 
                         {# Name of procedure #}
-                        <div class="flow-root border--top">
-                            {% if proceduresettings.name|default != '' %}
-                                <span class="color--grey inline-block u-pt-0_5 u-mb-0_25">
-                                    {{ proceduresettings.name|default }}
-                                </span>
-                            {% else %}
-                                <span class="block u-pt-0_5"></span>
-                            {% endif %}
+                        {% block procedure_name %}
+                            <div class="flow-root border--top">
+                                {% if proceduresettings.name|default != '' %}
+                                    <span class="color--grey inline-block u-pt-0_5 u-mb-0_25">
+                                        {{ proceduresettings.name|default }}
+                                    </span>
+                                {% else %}
+                                    <span class="block u-pt-0_5"></span>
+                                {% endif %}
 
-                            {# Planners get a link to view their own procedure in participation area to verify that all settings are correct #}
-                            {% if
-                                procedure|default != '' and
-                                hasPermission('area_main_procedures') and
-                                hasPermission('area_public_participation') and
-                                hasPermission('area_preferences') and
-                                hasPermission('area_admin') and
-                                ownsProcedure(proceduresettings) and
-                                proceduresettings.master|default(false) is same as(false)
-                            %}
+                                {# Planners get a link to view their own procedure in participation area to verify that all settings are correct #}
+                                {% if
+                                    procedure|default != '' and
+                                    hasPermission('area_main_procedures') and
+                                    hasPermission('area_public_participation') and
+                                    hasPermission('area_preferences') and
+                                    hasPermission('area_admin') and
+                                    ownsProcedure(proceduresettings) and
+                                    proceduresettings.master|default(false) is same as(false)
+                                %}
 
-                                <a
-                                    class="btn btn--outline btn--primary float-right u-mt-0_25"
-                                    data-cy="procedurePublicView"
-                                    href="{{ path( 'DemosPlan_procedure_public_detail', {'procedure': procedure}) }}"
-                                    title="{{ 'procedure.public.view'|trans }}">
-                                    <i class="fa fa-eye u-mr-0_25" aria-hidden="true"></i>{{ 'procedure.public.view'|trans }}
-                                </a>
-                            {% endif %}
-                        </div>
+                                    <a
+                                        class="btn btn--outline btn--primary float-right u-mt-0_25"
+                                        data-cy="procedurePublicView"
+                                        href="{{ path( 'DemosPlan_procedure_public_detail', {'procedure': procedure}) }}"
+                                        title="{{ 'procedure.public.view'|trans }}">
+                                        <i class="fa fa-eye u-mr-0_25" aria-hidden="true"></i>{{ 'procedure.public.view'|trans }}
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endblock procedure_name %}
 
                         {% block component_part %}{% endblock component_part %}
 
@@ -194,7 +196,7 @@
             {% include '@DemosPlanCore/DemosPlanCore/js/dplan.settings.js.twig' with { omitPublicCSSClassPrefix: true } %}
         </script>
 
-        {{ webpackBundles(['jquery-3.5.1.min.js'], true) }}
+        {{ webpackBundles(['jquery.js'], true) }}
         {% block javascripts %}
             {{ webpackBundles(['runtime.js', 'common.js', 'bs.js', 'core.js', 'core-cookie.js']) }}
         {% endblock javascripts %}

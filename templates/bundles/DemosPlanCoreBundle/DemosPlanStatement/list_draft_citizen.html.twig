@@ -45,6 +45,7 @@
         class="layout__item"
         :statements="JSON.parse('{{ templateVars.list.statementlist|default([])|json_encode|e('js', 'utf-8') }}')"
         :counties="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
+        :statements-custom-fields-list="JSON.parse('{{ statementsCustomFieldsList|json_encode|e('js', 'utf-8') }}')"
         procedure-id="{{ templateVars.procedure|default('') }}"
         show-author
         show-checkbox

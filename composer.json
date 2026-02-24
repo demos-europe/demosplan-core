@@ -2,11 +2,11 @@
   "name": "demos-europe/demosplan-core",
   "description": "demosplan is a web application for public participation in planning processes",
   "type": "project",
-  "version": "v4.25.0",
+  "version": "v4.30.0",
   "license": "EUPL-1.2",
   "minimum-stability": "stable",
   "require": {
-    "php": "^8.1 || ^8.2",
+    "php": "^8.2 || ^8.3",
     "ext-ctype": "*",
     "ext-dom": "*",
     "ext-fileinfo": "*",
@@ -36,7 +36,7 @@
     "cocur/slugify": "^4.0",
     "composer/composer": "^2.8",
     "composer/package-versions-deprecated": "1.11.99.5",
-    "demos-europe/demosplan-addon": "^0.64",
+    "demos-europe/demosplan-addon": "^0.67",
     "doctrine/annotations": "^2.0",
     "doctrine/common": "^3.2",
     "doctrine/doctrine-bundle": "^2",
@@ -45,6 +45,7 @@
     "doctrine/orm": "^2.0",
     "doctrine/persistence": "^2.0",
     "dompdf/dompdf": "^3.0.0",
+    "dragonmantank/cron-expression": "^3.5",
     "efrane/console-additions": "^0.6.1",
     "efrane/tus-bundle": "^0.6",
     "egulias/email-validator": "^4.0",
@@ -79,6 +80,8 @@
     "myclabs/php-enum": "^1.7",
     "nelmio/security-bundle": "^3.1",
     "nesbot/carbon": "^2.0.0",
+    "open-telemetry/exporter-otlp": "^1.3",
+    "open-telemetry/sdk": "^1.10",
     "openlss/lib-array2xml": "^1",
     "php-amqplib/rabbitmq-bundle": "2.*",
     "phpdocumentor/reflection-docblock": "^5.2",
@@ -113,6 +116,7 @@
     "symfony/intl": "6.*.*",
     "symfony/lock": "6.*.*",
     "symfony/mailer": "6.*.*",
+    "symfony/messenger": "6.*.*",
     "symfony/mime": "6.*.*",
     "symfony/monolog-bundle": "^3",
     "symfony/options-resolver": "6.*.*",
@@ -125,12 +129,12 @@
     "symfony/property-info": "6.*.*",
     "symfony/proxy-manager-bridge": "6.*.*",
     "symfony/rate-limiter": "6.*.*",
+    "symfony/scheduler": "6.*.*",
     "symfony/security-bundle": "6.*.*",
     "symfony/security-csrf": "6.*.*",
     "symfony/serializer": "6.*.*",
     "symfony/stopwatch": "6.*.*",
     "symfony/string": "6.*.*",
-    "symfony/templating": "6.*.*",
     "symfony/translation": "6.*.*",
     "symfony/twig-bridge": "6.*.*",
     "symfony/twig-bundle": "6.*.*",
@@ -141,8 +145,7 @@
     "thenetworg/oauth2-azure": "^2.2",
     "wgirhad/geophp": "^3.0",
     "willdurand/geocoder-bundle": "^5.16",
-    "willdurand/js-translation-bundle": "~7.0",
-    "wrep/daemonizable-command": "^4.0"
+    "willdurand/js-translation-bundle": "~7.0"
   },
   "require-dev": {
     "cyclonedx/cyclonedx-php-composer": "^6.0",
@@ -154,18 +157,18 @@
     "php-parallel-lint/php-console-highlighter": "^1",
     "phpspec/prophecy": "^1.15",
     "phpspec/prophecy-phpunit": "^2.0",
-    "phpstan/phpstan": "^1.9",
-    "phpstan/phpstan-symfony": "^1.2",
+    "phpstan/phpstan": "^2.1",
+    "phpstan/phpstan-symfony": "^2",
     "phpunit/phpunit": "^10",
     "psalm/plugin-symfony": "^5",
-    "rector/rector": "^1.2.0",
-    "squizlabs/php_codesniffer": "^3.5",
+    "rector/rector": "^2",
+    "squizlabs/php_codesniffer": "^4.0",
     "symfony/debug-bundle": "6.*.*",
     "symfony/maker-bundle": "^1.30",
     "symfony/phpunit-bridge": "7.*.*",
     "symfony/var-dumper": "6.*.*",
     "symfony/web-profiler-bundle": "6.*.*",
-    "timeweb/phpstan-enum": "^3.1",
+    "timeweb/phpstan-enum": "^4",
     "vimeo/psalm": "^5",
     "weirdan/doctrine-psalm-plugin": "^2",
     "wsdltophp/packagegenerator": "^4.1",
@@ -193,6 +196,7 @@
     ],
     "bamarni-bin": {
       "bin-links": false,
+      "forward-command": false,
       "target-directory": "."
     },
     "config-dir": "config",
@@ -226,10 +230,11 @@
       "bamarni/composer-bin-plugin": true,
       "php-http/discovery": false,
       "endroid/installer": true,
-      "cyclonedx/cyclonedx-php-composer": true
+      "cyclonedx/cyclonedx-php-composer": true,
+      "tbachert/spi": false
     },
     "platform": {
-      "php": "8.1.12"
+      "php": "8.2.0"
     }
   },
   "conflict": {

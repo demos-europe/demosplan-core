@@ -165,7 +165,6 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
         // prepare Data for export:
         $formattedData = $this->prepareDataForExcelExport($statements, $anonymous, $attributesToExport);
-
         // add Worksheet with prepared data
         $filledExcelDocument =
             $this->simpleSpreadsheetService->addWorksheet($excelDocument, $formattedData, $columnTitles, $title);
@@ -204,8 +203,12 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
         $row = 1;
 
-        // Title with date
-        $infoSheet->setCellValue("A{$row}", $this->translator->trans('segments.export.statement.export.date.filtered', ['date' => $currentDate->format('d.m.Y')]));
+        // Title with date, title in meta data sheet changing if tag filter has been applied
+        if ($tagFilter->isTagIdFilterActive()) {
+            $infoSheet->setCellValue("A{$row}", $this->translator->trans('segments.export.statement.export.date.filtered', ['date' => $currentDate->format('d.m.Y')]));
+        } else {
+            $infoSheet->setCellValue("A{$row}", $this->translator->trans('segments.export.statement.export.date', ['date' => $currentDate->format('d.m.Y')]));
+        }
         $infoSheet->getStyle("A{$row}")->getFont()->setBold(true)->setSize(14);
         $row += 2;
 
@@ -312,13 +315,23 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
      */
     private function createColumnsDefinitionForTopicsAndTags(): array
     {
-        return [
+        $columnsDefinition = [
             $this->createColumnDefinition('externId', 'id'),
             $this->createColumnDefinition('uName', 'name'),
             $this->createColumnDefinition('topicNames', 'topic', 30),
             $this->createColumnDefinition('tagNames', 'tag', 40),
-            $this->createColumnDefinition('recommendation', 'recommendation', 200),
         ];
+
+        $this->addColumnDefinition(
+            $columnsDefinition,
+            'votePla',
+            'field_statement_vote_pla',
+            'fragment.vote.short'
+        );
+
+        $columnsDefinition[] = $this->createColumnDefinition('recommendation', 'recommendation', 200);
+
+        return $columnsDefinition;
     }
 
     /**

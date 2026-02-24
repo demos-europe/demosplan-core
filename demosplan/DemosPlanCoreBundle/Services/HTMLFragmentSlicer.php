@@ -85,6 +85,9 @@ class HTMLFragmentSlicer
     ) {
         $slicer = new self();
 
+        // Normalize plain text newlines to HTML breaks
+        $htmlFragment = str_replace(["\r\n", "\r", "\n"], '<br>', $htmlFragment);
+
         return $slicer
             ->setOriginalFragment($htmlFragment)
             ->setSliceIndex($sliceIndex)

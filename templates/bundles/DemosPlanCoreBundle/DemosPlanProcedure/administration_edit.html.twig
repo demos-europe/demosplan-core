@@ -115,13 +115,17 @@
         procedure-id="{{ proceduresettings.id|default }}">
 
         <template #default="{
+            activateInterface,
             authUsersOptions,
+            handleAutoSwitchPhaseUpdate,
             selectAllAuthUsers,
+            setInterfaceWarningModalRef,
             setSelectedInternalPhase,
             setSelectedPublicPhase,
             sortedAgenciesOptions,
             state,
             submit,
+            submitWithoutInterfaceActivation,
             unselectAllAuthUsers,
             updateAddonPayload
           }">
@@ -309,8 +313,8 @@
                                         :options="authUsersOptions"
                                         selection-controls
                                         track-by="id"
-                                        @selectAll="selectAllAuthUsers"
-                                        @deselectAll="unselectAllAuthUsers">
+                                        @select-all="selectAllAuthUsers"
+                                        @deselect-all="unselectAllAuthUsers">
                                         <template v-slot:option="{ props }">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </template>
@@ -390,7 +394,7 @@
                 {% if (
                     hasPermission('field_procedure_description') or
                     hasPermission('field_procedure_contact_person') or
-                    (hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation')) or
+                    (hasPermission('field_procedure_pictogram_view') and hasPermission('area_public_participation')) or
                     hasPermission('feature_procedure_categories_edit') or
                     hasPermission('field_procedure_linkbox')
                     ) %}
@@ -486,18 +490,18 @@
                                     </div>
                                 {% endif %}
 
-                                {% if hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation') %}
-                                    <div class="u-mb">
-                                        <label class="inline-block u-mb-0" for="r_pictogram">
-                                            {{ 'procedure.pictogram'|trans }}*
+                                {% if hasPermission('field_procedure_pictogram_view') and hasPermission('area_public_participation') %}
+                                    <div class="mb-4">
+                                        <label class="inline-block mb-0" for="r_pictogram">
+                                            {{ 'procedure.pictogram'|trans }}
                                         </label>
                                         {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
                                             <br><br>
                                             <img
-                                                class="layout__item u-1-of-6 u-pl-0 u-mb"
+                                                class="layout__item w-1/6 pl-0 mb-4"
                                                 src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"
                                                 alt="{{ proceduresettings.settings.pictogramAltText|default('procedure.pictogram'|trans) }}"><!--
-                                         --><label class="layout__item u-1-of-3 cursor-pointer weight--normal">
+                                         --><label class="layout__item w-1/3 cursor-pointer weight--normal">
                                             {{ 'procedure.pictogram.delete'|trans }}
                                             <input name="r_deletePictogram" type="checkbox" value="1">
                                         </label>
@@ -511,11 +515,12 @@
                                             {{  fileupload(
                                                 fieldName: "r_pictogram",
                                                 fieldLabel: '<p class="lbl__hint">'
-                                                ~ "text.procedure.edit.external.pictogram"|trans
+                                                ~ "explanation.procedure.pictogram.missing"|trans
+                                                ~ ' '
+                                                ~ "explanation.procedure.pictogram.dimensions"|trans
                                                 ~ '</p>',
                                                 type: "img",
                                                 label: "form.button.upload.file",
-                                                required: true,
                                                 multiInstance: true,
                                                 maxFileSize: 5242880
                                             )
@@ -530,8 +535,7 @@
                                             }"
                                             class="my-2"
                                             data-cy="procedure:pictogramCopyright"
-                                            name="r_pictogramCopyright"
-                                            required>
+                                            name="r_pictogramCopyright">
                                         </dp-input>
 
                                         <dp-input
@@ -543,8 +547,7 @@
                                             }"
                                             class="my-2"
                                             data-cy="procedure:pictogramAltText"
-                                            name="r_pictogramAltText"
-                                            required>
+                                            name="r_pictogramAltText">
                                         </dp-input>
                                     </div>
                                 {% endif %}
@@ -968,7 +971,8 @@
                                         init-selected-phase="{{ proceduresettings.publicParticipationPhaseObject.designatedPhase }}"
                                         init-switch-date="{{ proceduresettings.publicParticipationPhaseObject.designatedSwitchDate|default|isoDate }}"
                                         min-switch-date="{{ 'now'|date('d.m.Y') }}"
-                                        :selected-current-phase="state.selectedPublicPhase">
+                                        :selected-current-phase="state.selectedPublicPhase"
+                                        @phase-selected="handleAutoSwitchPhaseUpdate">
                                     </auto-switch-procedure-phase-form>
                                 {% endif %}
 
@@ -984,9 +988,9 @@
 
                                 {% if hasPermission('feature_feedback_on_statement_controllable') %}
                                     <label>
-                                        <input type="checkbox" name="r_publicParticipationFeedbackEnabled" v-model="publicParticipationFeedbackEnabled">
+                                        <input type="checkbox" name="r_publicParticipationFeedbackEnabled" v-model="state.publicParticipationFeedbackEnabled">
                                         <span>{{ "public.participation.feedback"|trans }}</span>
-                                        <span v-if="!publicParticipationFeedbackEnabled" class="block flash flash-warning mt-1 mx-3"><i class="fa u-mt-0_125 u-mr-0_25 float-left fa-exclamation-triangle" aria-hidden="true"></i>{{ "warning.disable.feedback.feature"|trans }}</span>
+                                        <span v-if="!state.publicParticipationFeedbackEnabled" class="block flash flash-warning mt-1 mx-3"><i class="fa u-mt-0_125 u-mr-0_25 float-left fa-exclamation-triangle" aria-hidden="true"></i>{{ "warning.disable.feedback.feature"|trans }}</span>
                                     </label>
                                 {% else %}
                                     {# allow publishing the possibility of Feedback by default #}
@@ -1006,11 +1010,39 @@
                                     {# Allow anonymous statements by default #}
                                     <dp-input
                                         id="allowAnonymousStatements"
-                                        :model-value="{{ proceduresettings.allowAnonymousStatements|default(true) ? '1' : '0' }}"
+                                        :value="{{ proceduresettings.allowAnonymousStatements|default(true) ? '1' : '0' }}"
                                         name="allowAnonymousStatements"
                                         type="hidden">
                                     </dp-input>
                                 {% endif %}
+
+                                <addon-wrapper
+                                    id="interfaceFieldsToTransmit"
+                                    hook-name="interface.fields.to.transmit"
+                                    :addon-props="{
+                                        isProcedureSettingsPage: true,
+                                        organisationId: '{{ orgaInfo.id }}',
+                                        relationshipId: '{{ proceduresettings.id }}',
+                                        relationshipKey: 'procedure',
+                                        userOrgaId: '{{ orgaInfo.id }}',
+                                        userMeinBerlinOrgId: '{{ currentUser.meinBerlinOrgId|default('') }}',
+                                        existingPictogram:
+                                            {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
+                                                {
+                                                    hash: '{{ proceduresettings.settings.pictogram|getFile('hash')|e('js') }}',
+                                                    name: '{{ proceduresettings.settings.pictogram|getFile('name')|e('js') }}'
+                                                }
+                                            {% else %}
+                                                null
+                                            {% endif %},
+                                        pictogramAltText: '{{ proceduresettings.pictogramAltText|default|e('js') }}',
+                                        pictogramCopyright: '{{ proceduresettings.pictogramCopyright|default|e('js') }}'
+                                    }"
+                                    class="mb-4"
+                                    @blur="updateAddonPayload"
+                                    @change="updateAddonPayload"
+                                    @selected="updateAddonPayload">
+                                </addon-wrapper>
                             </div>
 
                             <label class="o-wizard__mark u-mb-0">
@@ -1108,17 +1140,6 @@
                                         name="r_externalName">
                                 </div>
                             {% endif %}
-
-                            <addon-wrapper
-                                class="mb-4"
-                                hook-name="addon.additional.field"
-                                :addon-props="{
-                                    relationshipId: '{{ proceduresettings.id }}',
-                                    relationshipKey: 'procedure',
-                                    isInput: true
-                                }"
-                                @blur="updateAddonPayload">
-                            </addon-wrapper>
 
                             {% if hasPermission('feature_short_url') %}
                                 <div>
@@ -1389,6 +1410,28 @@
                     {{ "abort"|trans }}
                 </a>
             </div>
+
+            {# Addon warning modal on submit #}
+            <dp-modal
+                :ref="setInterfaceWarningModalRef"
+                content-classes="w-2/3 xl:w-1/3"
+                :aria-label="Translator.trans('warning')">
+                <p
+                    v-html="Translator.trans('procedure.transmission.via.interface.not.automatic')"
+                    class="font-normal break-words mb-3">
+                </p>
+                <div class="space-x-2 text-right mt-4">
+                    <dp-button
+                        :text="Translator.trans('activate.interface')"
+                        @click="activateInterface($refs.configForm)">
+                    </dp-button>
+                    <dp-button
+                        color="secondary"
+                        :text="Translator.trans('submit.without.interface.activation')"
+                        @click="submitWithoutInterfaceActivation($refs.configForm)">
+                    </dp-button>
+                </div>
+            </dp-modal>
 
         </form>
         </template>

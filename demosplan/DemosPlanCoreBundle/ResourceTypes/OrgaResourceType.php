@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\OrgaResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -227,7 +228,36 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
             $properties[] = $this->createAttribute($this->canCreateProcedures)->readable(true, function (Orga $orga): bool {
                 $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
 
-                return $this->accessControlPermissionService->permissionExist(AccessControlService::CREATE_PROCEDURES_PERMISSION, $orga, $currentCustomer);
+                // Get accepted organization types for current customer
+                $acceptedOrgaTypes = $orga->getStatusInCustomers()
+                    ->filter(static fn (OrgaStatusInCustomer $orgaStatus): bool => OrgaStatusInCustomer::STATUS_ACCEPTED === $orgaStatus->getStatus())
+                    ->filter(static fn (OrgaStatusInCustomer $orgaStatus): bool => $orgaStatus->getCustomer() === $currentCustomer)
+                    ->map(static fn (OrgaStatusInCustomer $orgaStatus): OrgaType => $orgaStatus->getOrgaType());
+
+                // Get role codes for these organization types
+                $relevantRoleCodes = [];
+                foreach ($acceptedOrgaTypes as $orgaType) {
+                    $orgaTypeName = $orgaType->getName();
+                    if (isset(OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeName])) {
+                        $relevantRoleCodes = array_merge(
+                            $relevantRoleCodes,
+                            OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeName]
+                        );
+                    }
+                }
+
+                // If no relevant roles found, permission cannot exist
+                if (empty($relevantRoleCodes)) {
+                    return false;
+                }
+
+                // Check if permission exists for any of the relevant roles
+                return $this->accessControlPermissionService->permissionExist(
+                    AccessControlService::CREATE_PROCEDURES_PERMISSION,
+                    $orga,
+                    $currentCustomer,
+                    $relevantRoleCodes
+                );
             });
         }
 

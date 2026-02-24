@@ -349,10 +349,10 @@ class BoilerplateServiceTest extends FunctionalTestCase
         // Delete the category and check if the boilerplate is also deleted
         $this->sut->deleteBoilerplate($boilerplate->getId());
 
-        $deletedCategory = $this->getEntries(BoilerplateCategory::class, ['id' => $category->getId()]);
+        $remainingCategories = $this->getEntries(BoilerplateCategory::class, ['id' => $category->getId()]);
         $deletedBoilerplate = $this->getEntries(Boilerplate::class, ['ident' => $boilerplate->getId()]);
 
-        static::assertCount(0, $deletedCategory);
+        static::assertCount(1, $remainingCategories, 'Category should not be deleted when boilerplate is deleted');
         static::assertCount(0, $deletedBoilerplate);
     }
 }
