@@ -18,7 +18,7 @@ framework:
         handler_id: app.session_handler
         cookie_secure: '%https_only%'
         # could not be strict, as otherwise keycloak login does not work with an "invalid state" error
-        cookie_samesite: none
+        cookie_samesite: '%cookie_samesite%'
         gc_maxlifetime: '%env(int:SESSION_LIFETIME)%'
 
     fragments:       ~
