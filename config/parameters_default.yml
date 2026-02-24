@@ -182,6 +182,9 @@ parameters:
     addon_repository_token: '%env(ADDON_REPOSITORY_TOKEN)%'
     addon_repository_url: 'https://addons.demos-plan.de'
 
+    # Bearer token for the external procedure creation API
+    dplan_api_procedure_create_token: '%env(default::DPLAN_API_PROCEDURE_CREATE_TOKEN)%'
+
     # MySQL Default Settings
     database_driver: "pdo_mysql"
     database_host: "localhost"
