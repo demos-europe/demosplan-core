@@ -8,6 +8,7 @@
     <template v-slot:default>
       <dp-flyout
         align="left"
+        button-classes="pr-1 pl-0.5 py-0.5"
         class="pt-0.5"
         data-cy="customSearch:searchCustomLimitFields"
         :padded="false"
