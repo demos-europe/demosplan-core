@@ -199,8 +199,8 @@ export default {
                   this.goToSplitStatementView()
                 }, 1000)
               })
-              .catch(err => {
-                console.log(err)
+              .catch(() => {
+                dplan.notify.notify('error', Translator.trans('error.statement.assignment.assigned'))
               })
           }
         } else {
@@ -213,8 +213,8 @@ export default {
               this.goToSplitStatementView()
             }, 1000)
           })
-          .catch(err => {
-            console.log(err)
+          .catch(() => {
+            dplan.notify.notify('error', Translator.trans('error.statement.assignment.assigned'))
           })
       }
     },
