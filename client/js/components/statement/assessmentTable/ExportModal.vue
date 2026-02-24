@@ -829,6 +829,12 @@ export default {
       this.exportChoice.docx.sortType = 'default'
     },
 
+    handleDocxSortTypeByParagraphChange () {
+      this.exportChoice.docx.sortType = this.exportChoice.docx.exportType === 'statementsAndFragments' ?
+        'byParagraphFragmentsOnly' :
+        'byParagraph'
+    },
+
     handleDocxTemplateChange (template) {
       this.exportChoice.docx.template = template
 
@@ -836,12 +842,6 @@ export default {
         this.exportChoice.docx.numberStatements = false
         this.exportChoice.docx.anonymous = false
       }
-    },
-
-    handleDocxSortTypeByParagraphChange () {
-      this.exportChoice.docx.sortType = this.exportChoice.docx.exportType === 'statementsAndFragments' ?
-        'byParagraphFragmentsOnly' :
-        'byParagraph'
     },
 
     handleOdtExportTypeChange (value) {
