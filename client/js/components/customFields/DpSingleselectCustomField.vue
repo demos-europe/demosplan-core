@@ -1,71 +1,53 @@
 <template>
-  <div class="mb-3">
-    <!-- Readonly: With heading for accessibility -->
-    <div
-      v-if="mode === 'readonly'"
-      class="flex items-start gap-1"
-    >
-      <div
-        class="weight--bold mb-2"
-        role="heading"
-        aria-level="4"
-      >
-        {{ field.attributes.name }}<span v-if="field.attributes.isRequired"> *</span>
-      </div>
+  <dl
+    v-if="mode === 'readonly'"
+  >
+    <dt :class="prefixClass('flex items-start gap-1 font-[500] mb-2')">
+      {{ field.attributes.name }}<span v-if="field.attributes.isRequired"> *</span>
       <dp-contextual-help
         v-if="field.attributes.description"
         :text="field.attributes.description"
         icon="info"
         size="medium"
-        class="mb-2"
       />
-    </div>
-
-    <!-- Editable: With label for form field -->
-    <div
-      v-else
-      class="flex items-start gap-1"
-    >
-      <dp-label
-        :text="field.attributes.name"
-        :required="field.attributes.isRequired"
-        :for="`custom-field-${field.id}`"
-        class="mb-2"
-      />
-      <dp-contextual-help
-        v-if="field.attributes.description"
-        :text="field.attributes.description"
-        icon="info"
-        size="medium"
-        class="mb-2"
-      />
-    </div>
-
-    <!-- Read-only display -->
-    <div
-      v-if="mode === 'readonly'"
-      class="mb-2"
-    >
+    </dt>
+    <dd :class="prefixClass('ml-1')">
       <slot
         name="readonly-display"
         :field="field"
       >
-        <!-- Default: Inline span (Backward Compatible) -->
         <span v-if="currentValue">
           {{ currentValue.label }}
         </span>
         <span
           v-else
-          class="font-size-small color--grey"
+          :class="prefixClass('font-size-small color--grey')"
         >
           {{ Translator.trans('customfield.no.value') }}
         </span>
       </slot>
+    </dd>
+  </dl>
+  <div
+    v-else
+    :class="prefixClass('mb-3')"
+  >
+    <div :class="prefixClass('flex items-start gap-1')">
+      <dp-label
+        :text="field.attributes.name"
+        :required="field.attributes.isRequired"
+        :for="`custom-field-${field.id}`"
+        :class="prefixClass('mb-2')"
+      />
+      <dp-contextual-help
+        v-if="field.attributes.description"
+        :text="field.attributes.description"
+        icon="info"
+        size="medium"
+        :class="prefixClass('mb-2')"
+      />
     </div>
-
-    <!-- Editable mode -->
     <dp-select
-      v-else
       :id="`custom-field-${field.id}`"
       :data-dp-validate-error-fieldname="field.attributes.name"
       :model-value="currentValue"
@@ -80,7 +62,7 @@
 </template>
 
 <script>
-import { DpContextualHelp, DpLabel, DpSelect } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, DpLabel, DpSelect, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpSingleselectCustomField',
@@ -90,6 +72,8 @@ export default {
     DpLabel,
     DpSelect,
   },
+
+  mixins: [prefixClassMixin],
 
   emits: ['update:value'],
 
