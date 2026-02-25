@@ -188,6 +188,9 @@ export default {
      * - if statement has assignee and assignee is not currentUser, ask if statement should be claimed and if so, continue
      * - if statement is claimed by currentUser, continue
      * - if statement has no assignee, assign it to currentUser and continue
+     *
+     * setTimeout is used to slightly delay the redirect so the success notification is visible
+     * and the claimed status is correctly reflected when navigating back in the browser
      */
     claimAndRedirect () {
       if (this.statement.hasRelationship('assignee')) {
