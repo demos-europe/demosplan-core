@@ -161,21 +161,41 @@
 
         <!-- Custom Fields: Editable mode -->
         <div v-if="hasPermission('feature_statements_custom_fields')">
-          <fieldset class="mb-2 pb-0">
-            <legend class="mb-2 text-[1em] font-[500]">{{ Translator.trans('statement.data') }}</legend>
-            <dp-custom-field
-              v-for="customField in selectableCustomFields"
-              ref="customFieldRefs"
-              :key="customField.id"
-              :definition-source-id="procedureId"
-              :field-data="{ id: customField.id, value: customField.value }"
-              mode="editable"
-              resource-type="Statement"
+          <fieldset :class="prefixClass('mb-2 pb-0')">
+            <legend :class="prefixClass('mb-2 text-[1em] font-[500]')">
+              {{ Translator.trans('statement.data') }}
+            </legend>
+
+            <!-- Existing draft WITHOUT localStorage: DpCustomFieldsList self-fetches server values -->
+            <dp-custom-fields-list
+              v-if="draftStatementId && !draftHasLocalStorageData"
+              resource-type="DraftStatement"
               :resource-id="draftStatementId"
-              class="mb-2"
-              @update:value="(value) => handleCustomFieldValueUpdate(customField.id, value)"
+              :definition-source-id="procedureId"
+              mode="editable"
+              :show-empty="true"
+              :class="prefixClass('mb-2')"
+              @update:value="handleCustomFieldValueUpdateFromList"
+              @loaded="handleCustomFieldsListLoaded"
               @save:error="handleCustomFieldSaveError"
             />
+
+            <!-- New statement OR draft with localStorage: existing loop -->
+            <template v-else>
+              <dp-custom-field
+                v-for="customField in selectableCustomFields"
+                ref="customFieldRefs"
+                :key="customField.id"
+                :definition-source-id="procedureId"
+                :field-data="{ id: customField.id, value: customField.value }"
+                mode="editable"
+                resource-type="DraftStatement"
+                :resource-id="draftStatementId"
+                :class="prefixClass('mb-2')"
+                @update:value="(value) => handleCustomFieldValueUpdate(customField.id, value)"
+                @save:error="handleCustomFieldSaveError"
+              />
+            </template>
           </fieldset>
         </div>
 
@@ -873,8 +893,9 @@ import {
 import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
 import { defineAsyncComponent } from 'vue'
+import DpCustomField from '@DpJs/components/customFields/DpCustomField'
+import DpCustomFieldsList from '@DpJs/components/customFields/DpCustomFieldsList'
 import StatementModalRecheck from './StatementModalRecheck'
-import DpCustomField from '@DpJs/components/customFields/DpCustomField.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
@@ -907,6 +928,7 @@ export default {
   components: {
     DpCheckbox,
     DpCustomField,
+    DpCustomFieldsList,
     DpInlineNotification,
     DpInput,
     DpLabel,
@@ -1115,6 +1137,7 @@ export default {
         label += ' ' + Translator.trans(hasPermission('feature_statement_publish_name') ? 'explanation.statement.public.organame' : 'explanation.statement.public.noname')
         return label
       })(),
+      draftHasLocalStorageData: false,
       openedFromDraftList: false,
       redirectPath: 'DemosPlan_procedure_public_detail',
       responseHtml: '',
@@ -1219,7 +1242,7 @@ export default {
           label: Translator.trans('recheck'),
           icon: 'fa-check',
           title: Translator.trans('statement.modal.step.recheck'),
-        }
+        },
       ]
     },
   },
@@ -1238,25 +1261,24 @@ export default {
     ...mapMutations('Notify', ['remove']),
 
     ...mapMutations('PublicStatement', [
-        'addUnsavedDraft',
-        'clearDraftState',
-        'removeStatementProp',
-        'removeUnsavedDraft',
-        'resetInitForm',
-        'resetStatement',
-        'resetStatementIdentifier',
-        'update',
-        'updateHighlighted',
-        'updateDeleteFile',
-        'updateStatement',
-      ]
-    ),
+      'addUnsavedDraft',
+      'clearDraftState',
+      'removeStatementProp',
+      'removeUnsavedDraft',
+      'resetInitForm',
+      'resetStatement',
+      'resetStatementIdentifier',
+      'update',
+      'updateHighlighted',
+      'updateDeleteFile',
+      'updateStatement',
+    ]),
 
     resetCustomFieldState () {
       // Reset selectableCustomFields to initial empty state
       this.selectableCustomFields = this.selectableCustomFields.map(field => ({
         ...field,
-        value: field.fieldType === 'multiSelect' ? [] : null
+        value: field.fieldType === 'multiSelect' ? [] : null,
       }))
 
       // Clear readonly display custom fields
@@ -1367,6 +1389,11 @@ export default {
       const dId = draftStatementId === '' ? 'new' : draftStatementId
       const existingDataString = localStorage.getItem(`publicStatement:${this.userId}:${this.procedureId}:${dId}`)
       const draftExists = (draftStatementId !== '' && existingDataString !== null)
+      /*
+       * When opening from the draft list, the server is the source of truth for custom fields.
+       * Only use localStorage values for custom fields when editing a new (not yet submitted) statement.
+       */
+      this.draftHasLocalStorageData = draftExists && !fromDraftList
 
       if (draftExists) {
         const existingData = JSON.parse(existingDataString)
@@ -1486,12 +1513,14 @@ export default {
       // 1. Update selectableCustomFields[].value (backend format)
       const fieldIndex = this.selectableCustomFields.findIndex(f => f.id === fieldId)
       if (fieldIndex !== -1) {
-        // Store raw value directly (IDs, not objects)
-        // DpCustomField handles the ID-to-object transformation internally
+        /*
+         * Store raw value directly (IDs, not objects)
+         * DpCustomField handles the ID-to-object transformation internally
+         */
         this.selectableCustomFields = this.selectableCustomFields.map((field, idx) =>
-          idx === fieldIndex
-            ? { ...field, value: newValue }
-            : field
+          idx === fieldIndex ?
+            { ...field, value: newValue } :
+            field,
         )
       }
 
@@ -1644,9 +1673,6 @@ export default {
         dataToSend.customFields = JSON.stringify(dataToSend.customFields)
       }
 
-      console.log('=== DEBUG: After prepareDataToSend ===')
-      console.log('dataToSend.customFields:', dataToSend.customFields)
-
       return dataToSend
     },
 
@@ -1711,8 +1737,10 @@ export default {
         return
       }
 
-      // Restore values from formData.customFields
-      // Match stored values with selectableCustomFields by ID
+      /*
+       * Restore values from formData.customFields
+       * Match stored values with selectableCustomFields by ID
+       */
       this.selectableCustomFields = this.selectableCustomFields.map(field => {
         const storedField = this.formData.customFields.find(f => f.id === field.id)
 
@@ -1724,8 +1752,10 @@ export default {
         return field
       })
 
-      // Also populate statementCustomFields for readonly display
-      // This is the separate list used when opening from draft list
+      /*
+       * Also populate statementCustomFields for readonly display
+       * This is the separate list used when opening from draft list
+       */
       this.statementCustomFields = this.formData.customFields || []
     },
 
@@ -1739,15 +1769,17 @@ export default {
         return Promise.resolve()
       }
 
-      const customFieldValues = this.selectableCustomFields
-        .filter(field => {
-          const hasValue = field.value != null &&
-            (Array.isArray(field.value) ? field.value.length > 0 : field.value !== '')
-          return hasValue
-        })
+      /*
+       * Use formData.customFields as source of truth:
+       * - In DpCustomFieldsList mode: reset to server values by handleCustomFieldsListLoaded, then updated by user changes
+       * - In DpCustomField loop mode: restored from localStorage, then updated by user changes
+       * Empty arrays are included intentionally to allow clearing multiselect fields on the server.
+       */
+      const customFieldValues = (this.formData.customFields || [])
+        .filter(field => field.id && field.value !== null && field.value !== undefined)
         .map(field => ({
           id: field.id,
-          value: field.value
+          value: field.value,
         }))
 
       if (customFieldValues.length === 0) {
@@ -1758,9 +1790,9 @@ export default {
 
       // Single batch API call for all custom fields
       return updateCustomFields(
-        'Statement',
+        'DraftStatement',
         this.draftStatementId,
-        customFieldValues
+        customFieldValues,
       )
     },
 
@@ -1769,6 +1801,22 @@ export default {
      */
     handleCustomFieldSaveError (payload) {
       console.error('Custom field save error:', payload)
+    },
+
+    handleCustomFieldValueUpdateFromList ({ fieldId, value }) {
+      this.handleCustomFieldValueUpdate(fieldId, value)
+    },
+
+    handleCustomFieldsListLoaded (serverValues) {
+      this.selectableCustomFields = this.selectableCustomFields.map(def => {
+        const serverField = serverValues.find(v => v.id === def.id)
+        return serverField ? { ...def, value: serverField.value } : def
+      })
+      /*
+       * Synchronize formData.customFields with server state so saveCustomFields
+       * sends correct values and stale localStorage data is discarded.
+       */
+      this.setStatementData({ customFields: serverValues.map(v => ({ id: v.id, value: v.value })) })
     },
 
     sendStatement (e, immediateSubmit = false, keepModalOpen = false) {
@@ -1805,10 +1853,6 @@ export default {
      * Handles the actual form POST after custom fields are saved (for existing drafts)
      */
     sendStatementForm (immediateSubmit, keepModalOpen) {
-      console.log('=== DEBUG: Before prepareDataToSend ===')
-      console.log('formData.customFields:', this.formData.customFields)
-      console.log('selectableCustomFields:', this.selectableCustomFields)
-
       const dataToSend = this.prepareDataToSend(this.formData)
 
       // For existing drafts: Remove custom fields from payload (already saved via API)
