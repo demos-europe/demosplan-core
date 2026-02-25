@@ -19,7 +19,6 @@
         v-for="(statement, idx) in transformedStatements"
         v-bind="statement"
         :key="statement.id"
-        :statement-custom-fields="getCustomFieldsForStatement(statement.id)"
         :menu-items-generator="menuItemCallback"
         :procedure-id="procedureId"
         :show-author="showAuthor"
@@ -54,7 +53,6 @@
             v-for="(statement, idx) in publicStatements"
             v-bind="statement"
             :key="statement.id"
-            :statement-custom-fields="getCustomFieldsForStatement(statement.id)"
             :menu-items-generator="menuItemCallback"
             :procedure-id="procedureId"
             :show-author="showAuthor"
@@ -83,7 +81,6 @@
             v-for="(statement, idx) in privateStatements"
             v-bind="statement"
             :key="statement.id"
-            :statement-custom-fields="getCustomFieldsForStatement(statement.id)"
             :menu-items-generator="menuItemCallback"
             :procedure-id="procedureId"
             :show-author="showAuthor"
@@ -222,12 +219,6 @@ export default {
       required: true,
     },
 
-    statementsCustomFieldsList: {
-      type: Object,
-      required: false,
-      default: () => ({}),
-    },
-
     target: {
       type: String,
       required: true,
@@ -310,21 +301,10 @@ export default {
 
   methods: {
     /**
-     * Get custom fields for a statement (raw backend format from Twig)
-     * Returns: [{ id: string, value: any }]
-     * No matching needed - DpCustomField component handles that
-     */
-    getCustomFieldsForStatement (statementIdent) {
-      return this.statementsCustomFieldsList[statementIdent] || []
-    },
-
-    /**
      * Handle opening statement modal from list
-     * Passes custom fields for the statement to the modal
      */
     handleOpenStatementModal (statementId) {
-      const customFields = this.getCustomFieldsForStatement(statementId)
-      this.$parent.$emit('openStatementModalFromList', statementId, customFields)
+      this.$emit('openStatementModalFromList', statementId)
     },
 
     openMapModal (polygon) {

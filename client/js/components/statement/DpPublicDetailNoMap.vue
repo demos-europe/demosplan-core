@@ -106,6 +106,18 @@ export default {
       this.activeTab = tabId
     },
 
+    openStatementModalFromList (id, customFields) {
+      // Only set custom fields from list if there are NO unsaved changes
+      // If there are unsaved changes, localStorage will restore them
+      const hasUnsavedChanges = this.$refs.statementModal.unsavedDrafts.includes(id)
+
+      if (!hasUnsavedChanges && customFields && customFields.length > 0) {
+        this.$refs.statementModal.setCustomFieldsForEditing(customFields)
+      }
+
+      this.$refs.statementModal.getDraftStatement(id, true, true)
+    },
+
     updateStatementAndOpenModal (updateStatementPayload) {
       this.toggleStatementModal(updateStatementPayload)
       this.updateHighlighted({ key: 'documents', val: false })
@@ -125,9 +137,6 @@ export default {
       this.toggleTabs(currentHash)
     }
 
-    this.$on('open-statement-modal-from-list', (id) => {
-      this.$refs.statementModal.getDraftStatement(id, true)
-    })
   },
 }
 </script>

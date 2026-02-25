@@ -421,16 +421,11 @@ export default {
       type: String,
       required: true,
     },
-
-    statementCustomFields: {
-      type: Array,
-      required: false,
-      default: () => [],
-    },
   },
 
   emits: [
     'openMapModal',
+    'open-statement-modal-from-list',
   ],
 
   data () {
@@ -469,12 +464,6 @@ export default {
 
     unsavedChangesItem () {
       return (this.unsavedDrafts.findIndex(el => el === this.id) > -1) ? this.menuItems.find(el => el.name === 'edit') : false
-    },
-
-    customFieldsWithValues () {
-      return this.statementCustomFields.filter(
-        field => field.selected && field.selected.length > 0
-      )
     },
   },
 
