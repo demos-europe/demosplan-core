@@ -262,33 +262,22 @@
         class="c-styled-html"
       />
     </div>
-    <dp-details
-      v-if="customFieldsWithValues.length > 0"
-      class="u-1-of-1 u-mt"
-      :summary="Translator.trans('more.data')"
-    >
-      <div
-        v-for="field in customFieldsWithValues"
-        :key="field.id"
-        class="u-mb-0_75"
-      >
-        <strong>{{ field.name }}:</strong>
-        <div class="u-ml-0_5">
-          <div
-            v-for="option in field.selected"
-            :key="option.id"
-          >
-            {{ option.label }}
-          </div>
-        </div>
-      </div>
-    </dp-details>
+    <dp-custom-fields-list
+      resource-type="DraftStatement"
+      :resource-id="id"
+      :definition-source-id="procedureId"
+      mode="readonly"
+      :show-empty="false"
+      expandable
+      :class="prefixClass('w-full mt-4')"
+    />
   </dp-table-card>
 </template>
 
 <script>
-import { CleanHtml, DpDetails, DpFlyout, DpInlineNotification } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpDetails, DpFlyout, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
+import DpCustomFieldsList from '@DpJs/components/customFields/DpCustomFieldsList'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
 
@@ -296,6 +285,7 @@ export default {
   name: 'DpPublicStatement',
 
   components: {
+    DpCustomFieldsList,
     DpDetails,
     DpFlyout,
     DpInlineNotification,
@@ -303,6 +293,8 @@ export default {
   },
 
   directives: { cleanhtml: CleanHtml },
+
+  mixins: [prefixClassMixin],
 
   props: {
     attachments: {
