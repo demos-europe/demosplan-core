@@ -56,6 +56,7 @@ class Config {
           /c-notify.+/,
           /c-sliding-pagination.*/,
           /current_ancestor/,
+          /data-cy/,
           /data-enhance-url-field/,
           /data-v-.+/,
           /editor__content/,
