@@ -1,5 +1,5 @@
 <template>
-  <div v-if="definition">
+  <div v-if="resolvedDefinition">
     <dp-loading
       v-if="isLoading"
       :overlay="false"
@@ -18,7 +18,7 @@
       <div :class="prefixClass('flex items-start gap-1')">
         <div :class="prefixClass('dp-custom-field__content flex-1')">
           <component
-            :is="getComponentForType(definition.attributes.fieldType)"
+            :is="getComponentForType(resolvedDefinition.attributes.fieldType)"
             :field="mergedField"
             mode="readonly"
           >
@@ -57,7 +57,7 @@
       <div :class="prefixClass('flex items-start gap-1')">
         <div :class="prefixClass('dp-custom-field__content flex-1')">
           <component
-            :is="getComponentForType(definition.attributes.fieldType)"
+            :is="getComponentForType(resolvedDefinition.attributes.fieldType)"
             :field="editingField"
             mode="editable"
             @update:value="handleEditingValueUpdate"
@@ -95,7 +95,7 @@
 
     <!-- Direct Mode: Always editable or readonly -->
     <component
-      :is="getComponentForType(definition.attributes.fieldType)"
+      :is="getComponentForType(resolvedDefinition.attributes.fieldType)"
       v-else-if="mergedField"
       :field="mergedField"
       :mode="mode"
@@ -142,9 +142,22 @@ export default {
   ],
 
   props: {
+    definition: {
+      type: Object,
+      required: false,
+      default: null,
+    },
+
     definitionSourceId: {
       type: String,
-      required: true,
+      required: false,
+      default: null,
+    },
+
+    enableToggle: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     fieldData: {
@@ -163,19 +176,13 @@ export default {
       validator: (value) => ['readonly', 'editable'].includes(value),
     },
 
-    enableToggle: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
-
-    resourceType: {
+    resourceId: {
       type: String,
       required: false,
       default: null,
     },
 
-    resourceId: {
+    resourceType: {
       type: String,
       required: false,
       default: null,
@@ -188,7 +195,7 @@ export default {
         multiSelect: 'dp-multiselect-custom-field',
         singleSelect: 'dp-singleselect-custom-field',
       },
-      definition: null,
+      resolvedDefinition: null,
       editingValue: null,
       error: null,
       isEditing: false,
@@ -204,12 +211,12 @@ export default {
      * Uses editingValue instead of prop value
      */
     editingField () {
-      if (!this.definition) return null
+      if (!this.resolvedDefinition) return null
 
       const transformedValue = this.transformValueForRenderer(this.editingValue)
 
       return {
-        ...this.definition,
+        ...this.resolvedDefinition,
         value: transformedValue,
       }
     },
@@ -220,20 +227,29 @@ export default {
      * Transforms raw backend value to format expected by renderers
      */
     mergedField () {
-      if (!this.definition) {
+      if (!this.resolvedDefinition) {
         return null
       }
 
       const transformedValue = this.transformValueForRenderer(this.fieldData.value)
 
       return {
-        ...this.definition,
+        ...this.resolvedDefinition,
         value: transformedValue,
       }
     },
   },
 
   watch: {
+    definition: {
+      handler (newVal) {
+        if (newVal) {
+          this.resolvedDefinition = newVal
+        }
+      },
+      immediate: true,
+    },
+
     definitionSourceId: {
       handler () {
         this.fetchDefinition()
@@ -248,6 +264,12 @@ export default {
     },
   },
 
+  created () {
+    if (!this.definition && !this.definitionSourceId) {
+      console.warn('DpCustomField: either "definition" or "definitionSourceId" must be provided.')
+    }
+  },
+
   methods: {
     cancelEdit () {
       this.isEditing = false
@@ -260,6 +282,15 @@ export default {
      * Composable caching ensures only ONE API call for all instances!
      */
     fetchDefinition () {
+      if (this.definition) {
+        this.resolvedDefinition = this.definition
+        return
+      }
+
+      if (!this.definitionSourceId) {
+        return
+      }
+
       const { fetchCustomFields } = useCustomFields()
 
       this.isLoading = true
@@ -267,10 +298,9 @@ export default {
 
       fetchCustomFields(this.definitionSourceId)
         .then(definitions => {
-          // Find THIS field's definition
-          this.definition = definitions.find(d => d.id === this.fieldData.id)
+          this.resolvedDefinition = definitions.find(d => d.id === this.fieldData.id)
 
-          if (!this.definition) {
+          if (!this.resolvedDefinition) {
             console.warn(`Custom field definition not found for ID: ${this.fieldData.id}`)
           }
 
@@ -395,7 +425,7 @@ export default {
      * Renderer format: { id, value, ...type-specific properties }
      */
     transformValueForRenderer (rawValue) {
-      const fieldType = this.definition?.attributes?.fieldType
+      const fieldType = this.resolvedDefinition?.attributes?.fieldType
 
       // Base structure (generic for all types)
       const transformed = {
@@ -410,7 +440,7 @@ export default {
           optionIds = Array.isArray(rawValue) ? rawValue : [rawValue]
         }
 
-        const allOptions = this.definition?.attributes?.options || []
+        const allOptions = this.resolvedDefinition?.attributes?.options || []
         const selectedOptions = optionIds
           .map(optionId => allOptions.find(opt => opt?.id === optionId))
           .filter(opt => opt != null)
