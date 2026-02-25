@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+## v4.31.0 (2026-02-25)
 ### Changed
 - bump demosplan-addon version from v0.65 to v0.67
 
