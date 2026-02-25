@@ -16,7 +16,7 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EventListener\SetHttpTestPermissionsListener;
-use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\Authenticator\Token\JWTPostAuthenticationToken;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -58,7 +58,7 @@ abstract class AbstractApiTest extends FunctionalTestCase
     protected function initializeUser(User $user): string
     {
         $token = $this->tokenManager->create($user);
-        $userToken = new JWTUserToken($user->getDplanRolesArray(), $user, $token);
+        $userToken = new JWTPostAuthenticationToken($user, 'api', $user->getDplanRolesArray(), $token);
         $this->tokenStorage->setToken($userToken);
 
         return $token;

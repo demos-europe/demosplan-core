@@ -74,7 +74,7 @@
     "league/flysystem-memory": "^3.28",
     "league/fractal": "^0.20",
     "league/html-to-markdown": "^5.0",
-    "lexik/jwt-authentication-bundle": "^2.8",
+    "lexik/jwt-authentication-bundle": "^3.2",
     "maennchen/zipstream-php": "3.1.1",
     "masterminds/html5": "^2.2",
     "myclabs/php-enum": "^1.7",
