@@ -13,10 +13,10 @@
     <!-- Toggle Mode: Readonly with Edit Button -->
     <div
       v-else-if="enableToggle && !isEditing"
-      class="dp-custom-field__readonly"
+      :class="prefixClass('dp-custom-field__readonly')"
     >
-      <div class="flex items-start gap-1">
-        <div class="dp-custom-field__content flex-1">
+      <div :class="prefixClass('flex items-start gap-1')">
+        <div :class="prefixClass('dp-custom-field__content flex-1')">
           <component
             :is="getComponentForType(definition.attributes.fieldType)"
             :field="mergedField"
@@ -33,7 +33,7 @@
             </template>
           </component>
         </div>
-        <div class="dp-custom-field__trigger">
+        <div :class="prefixClass('dp-custom-field__trigger')">
           <button
             type="button"
             :title="Translator.trans('edit')"
@@ -52,10 +52,10 @@
     <!-- Toggle Mode: Editing with Save/Cancel -->
     <div
       v-else-if="enableToggle && isEditing"
-      class="dp-custom-field__editing"
+      :class="prefixClass('dp-custom-field__editing')"
     >
-      <div class="flex items-start gap-1">
-        <div class="dp-custom-field__content flex-1">
+      <div :class="prefixClass('flex items-start gap-1')">
+        <div :class="prefixClass('dp-custom-field__content flex-1')">
           <component
             :is="getComponentForType(definition.attributes.fieldType)"
             :field="editingField"
@@ -63,12 +63,13 @@
             @update:value="handleEditingValueUpdate"
           />
         </div>
-        <div class="dp-custom-field__trigger">
+        <div :class="prefixClass('dp-custom-field__trigger')">
           <button
             type="button"
             :title="Translator.trans('save')"
             :disabled="isSaving"
-            class="btn--blank o-link--default u-mr-0_25"
+            class="btn--blank o-link--default"
+            :class="prefixClass('mr-1')"
             @click="saveEdit"
           >
             <i
@@ -114,6 +115,7 @@
 </template>
 
 <script>
+import { DpInlineNotification, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import DpMultiselectCustomField from './DpMultiselectCustomField'
 import DpSingleselectCustomField from './DpSingleselectCustomField'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
@@ -122,9 +124,13 @@ export default {
   name: 'DpCustomField',
 
   components: {
+    DpInlineNotification,
+    DpLoading,
     DpMultiselectCustomField,
     DpSingleselectCustomField,
   },
+
+  mixins: [prefixClassMixin],
 
   emits: [
     'edit:cancel',
