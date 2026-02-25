@@ -521,6 +521,10 @@ export default {
       return this.segments.length > 0
     },
 
+    isSingleSegmentSelected () {
+      return this.segments.length === 1
+    },
+
     tags () {
       return Object.values(this.tagsItems).sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, 'de', { sensitivity: 'base' }))
     },
