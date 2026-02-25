@@ -1,5 +1,5 @@
 # due to BSI SYS.1.6.A6 we need to use excplicit versions
-FROM debian:bookworm-20251229-slim AS build
+FROM debian:bookworm-20260202-slim AS build
 
 # Install all dependencies needed for both build and fpm stages
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -137,7 +137,7 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     touch /var/log/php8.3-fpm.log && chown www-data:www-data /var/log/php8.3-fpm.log
 
 # Runtime stage - starts fresh WITHOUT build tools (Node.js, npm, composer)
-FROM debian:bookworm-20251229-slim AS fpm
+FROM debian:bookworm-20260202-slim AS fpm
 
 ARG PROJECT_NAME
 ENV PROJECT_PREFIX=$PROJECT_NAME \
@@ -200,7 +200,7 @@ RUN rm -rf /srv/www/var/cache/* && \
 USER www-data
 CMD ["/usr/sbin/php-fpm8.3", "-F"]
 
-FROM nginxinc/nginx-unprivileged:alpine3.22-slim AS nginx
+FROM nginxinc/nginx-unprivileged:alpine3.23-slim AS nginx
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
