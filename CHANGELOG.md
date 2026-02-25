@@ -5,12 +5,15 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+## v4.31.0 (2026-02-25)
 ### Changed
 - bump demosplan-addon version from v0.65 to v0.67
 
 ### Added
 - Add custom fields to statement modal in public detail and draft list, also display custom fields in new public participation dialog
 
+## v4.30.2 (2026-02-24)
 ## v4.28.1 (2026-02-04)
 
 ## v4.30.0 (2026-02-12)
