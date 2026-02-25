@@ -85,7 +85,9 @@
           :key="index"
           :summary="explanation.title"
         >
+          <!-- eslint-disable vue/no-v-html -->
           <span v-html="explanation.description" />
+          <!-- eslint-enable vue/no-v-html -->
         </dp-details>
       </div>
 
