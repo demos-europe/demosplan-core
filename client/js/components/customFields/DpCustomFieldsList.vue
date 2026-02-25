@@ -283,12 +283,12 @@ export default {
 
     handleValueUpdate (fieldId, newValue) {
       const valueIndex = this.values.findIndex(v => v.id === fieldId)
-      if (valueIndex !== -1) {
+      if (valueIndex === -1) {
+        this.values = [...this.values, { id: fieldId, value: newValue }]
+      } else {
         this.values = this.values.map((v, i) =>
           i === valueIndex ? { ...v, value: newValue } : v,
         )
-      } else {
-        this.values = [...this.values, { id: fieldId, value: newValue }]
       }
       this.$emit('update:value', { fieldId, value: newValue })
     },
