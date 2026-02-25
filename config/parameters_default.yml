@@ -87,6 +87,8 @@ parameters:
     url_path_prefix: ""
     # only allow TLS connections
     https_only: true
+    # SameSite attribute for session cookie; none required for cross-site requests (e.g. keycloak)
+    cookie_samesite: lax
 
     # htaccess login data may be given e.g. to be added to callback urls from PI
     htaccess_user: ""
