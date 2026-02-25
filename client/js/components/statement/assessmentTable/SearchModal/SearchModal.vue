@@ -37,7 +37,7 @@
         required
         :aria-label="Translator.trans('search.assessment.table')"
         @enter="submit"
-        @input="emptySearchErrorVisible = false"
+        @update:model-value="emptySearchErrorVisible = false"
       />
     </label>
 
