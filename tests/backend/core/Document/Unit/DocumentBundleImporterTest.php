@@ -27,6 +27,7 @@ use League\Flysystem\FilesystemOperator;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Tests\Base\FunctionalTestCase;
@@ -62,6 +63,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
             self::getContainer()->get(ParagraphRepository::class),
             self::getContainer()->get(ParagraphService::class),
             self::getContainer()->get(PdfCreatorInterface::class),
+            self::getContainer()->get(RequestStack::class),
             self::getContainer()->get(RouterInterface::class),
             self::getContainer()->get(RpcClient::class),
             self::getContainer()->get(EventDispatcherInterface::class),
