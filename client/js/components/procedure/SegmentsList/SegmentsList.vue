@@ -836,7 +836,8 @@ export default {
       if (filterType === 'tags') {
         return null
       }
-      return `${filterType}_group`
+      // Replace '.' in workflow.places because it is forbidden in group names
+      return `${filterType.replaceAll('.', '-')}_group`
     },
 
     handleBulkEdit () {
