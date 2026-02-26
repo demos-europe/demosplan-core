@@ -262,11 +262,32 @@
         class="c-styled-html"
       />
     </div>
+    <dp-details
+      v-if="customFieldsWithValues.length > 0"
+      :class="prefixClass('w-full mt-4')"
+      :summary="Translator.trans('more.data')"
+    >
+      <div
+        v-for="field in customFieldsWithValues"
+        :key="field.id"
+        :class="prefixClass('mb-3')"
+      >
+        <span :class="prefixClass('weight--bold')">{{ field.name }}:</span>
+        <div :class="prefixClass('ml-2')">
+          <div
+            v-for="option in field.selected"
+            :key="option.id"
+          >
+            {{ option.label }}
+          </div>
+        </div>
+      </div>
+    </dp-details>
   </dp-table-card>
 </template>
 
 <script>
-import { CleanHtml, DpFlyout, DpInlineNotification } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpDetails, DpFlyout, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
@@ -275,12 +296,15 @@ export default {
   name: 'DpPublicStatement',
 
   components: {
+    DpDetails,
     DpFlyout,
     DpInlineNotification,
     DpTableCard,
   },
 
   directives: { cleanhtml: CleanHtml },
+
+  mixins: [prefixClassMixin],
 
   props: {
     attachments: {
@@ -407,6 +431,12 @@ export default {
       type: String,
       required: true,
     },
+
+    statementCustomFields: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
   },
 
   emits: [
@@ -449,6 +479,12 @@ export default {
 
     unsavedChangesItem () {
       return (this.unsavedDrafts.findIndex(el => el === this.id) > -1) ? this.menuItems.find(el => el.name === 'edit') : false
+    },
+
+    customFieldsWithValues () {
+      return this.statementCustomFields.filter(
+        field => field.selected && field.selected.length > 0,
+      )
     },
   },
 
