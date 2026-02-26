@@ -49,7 +49,7 @@ All rights reserved
           text: Translator.trans('email.recipient')
         }"
         read-only
-        :value="email2InputValue"
+        :model-value="email2InputValue"
       />
       <dp-input
         v-if="ccEmail2"
@@ -60,7 +60,7 @@ All rights reserved
           text: Translator.trans('recipients.additional')
         }"
         read-only
-        :value="ccEmail2"
+        :model-value="ccEmail2"
       />
       <dp-input
         id="emailCC"
