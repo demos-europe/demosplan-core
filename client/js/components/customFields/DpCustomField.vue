@@ -169,6 +169,12 @@ export default {
       },
     },
 
+    isActiveEdit: {
+      type: Boolean,
+      required: false,
+      default: null,
+    },
+
     mode: {
       type: String,
       required: false,
@@ -261,6 +267,14 @@ export default {
       handler () {
         this.fetchDefinition()
       },
+    },
+
+    isActiveEdit (newVal) {
+      if (newVal === false && this.isEditing) {
+        this.isEditing = false
+        this.editingValue = null
+        // Kein emit – der Parent hat die Schließung initiiert
+      }
     },
   },
 

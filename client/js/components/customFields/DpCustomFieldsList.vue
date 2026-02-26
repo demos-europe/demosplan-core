@@ -20,11 +20,15 @@
             :definition="definitions.find(d => d.id === field.id)"
             :enable-toggle="enableToggle"
             :field-data="{ id: field.id, value: field.value }"
+            :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
             :mode="mode"
             :resource-id="resourceId"
             :resource-type="resourceType"
-            @save:success="handleSaveSuccess"
+            @edit:cancel="() => handleEditEnd(field.id)"
+            @edit:save="() => handleEditEnd(field.id)"
+            @edit:start="() => handleEditStart(field.id)"
             @save:error="handleSaveError"
+            @save:success="handleSaveSuccess"
             @update:value="newValue => handleValueUpdate(field.id, newValue)"
           >
             <!-- Forward readonly-display slot if parent provided it -->
@@ -65,11 +69,15 @@
             :definition="definitions.find(d => d.id === field.id)"
             :enable-toggle="enableToggle"
             :field-data="{ id: field.id, value: field.value }"
+            :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
             :mode="mode"
             :resource-id="resourceId"
             :resource-type="resourceType"
-            @save:success="handleSaveSuccess"
+            @edit:cancel="() => handleEditEnd(field.id)"
+            @edit:save="() => handleEditEnd(field.id)"
+            @edit:start="() => handleEditStart(field.id)"
             @save:error="handleSaveError"
+            @save:success="handleSaveSuccess"
             @update:value="newValue => handleValueUpdate(field.id, newValue)"
           >
             <!-- Forward readonly-display slot if parent provided it -->
@@ -155,6 +163,7 @@ export default {
 
   data () {
     return {
+      activeEditFieldId: null,
       definitions: [],
       values: [],
       isLoading: false,
@@ -252,6 +261,16 @@ export default {
         .finally(() => {
           this.isLoading = false
         })
+    },
+
+    handleEditEnd (fieldId) {
+      if (this.activeEditFieldId === fieldId) {
+        this.activeEditFieldId = null
+      }
+    },
+
+    handleEditStart (fieldId) {
+      this.activeEditFieldId = fieldId
     },
 
     handleSaveError (payload) {
