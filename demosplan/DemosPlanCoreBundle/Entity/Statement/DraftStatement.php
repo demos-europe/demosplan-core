@@ -149,7 +149,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     /**
      * @var string
      *
-     * @ORM\Column(name="_ds_polygon", type="text", length=65535, nullable=false)
+     * @ORM\Column(name="_ds_polygon", type="text", length=16777215, nullable=false)
      */
     protected $polygon = '';
 
