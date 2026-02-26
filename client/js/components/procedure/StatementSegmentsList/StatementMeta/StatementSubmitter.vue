@@ -25,7 +25,6 @@ All rights reserved
       {{ submitterRole }}
     </div>
 
-    <!--  In the following section, v-model is replaced with :model-value && @update/model-value to enable custom display of input values -->
     <div class="grid grid-cols-1 gap-x-4 md:grid-cols-2">
       <dp-input
         v-if="hasPermission('field_statement_meta_orga_department_name') && !localStatement.attributes.isSubmittedByCitizen"
