@@ -345,6 +345,13 @@ export default {
               operator: 'IS NULL',
             },
           }
+
+          if (this.memberOf) {
+            filter[id].condition = {
+              ...filter[id].condition,
+              memberOf: this.memberOf,
+            }
+          }
         } else {
           filter[id] = {
             condition: {
@@ -450,6 +457,7 @@ export default {
      * Emit event with currently selected filters as query object.
      */
     apply () {
+      console.log(this.filter)
       this.$emit('filterApply', this.filter)
       this.appliedQuery = JSON.parse(JSON.stringify(this.currentQuery))
       this.$refs.flyout.close()
