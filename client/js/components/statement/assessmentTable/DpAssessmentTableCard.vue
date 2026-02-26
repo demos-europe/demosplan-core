@@ -521,8 +521,10 @@
           >
             <dp-custom-fields-list
               resource-type="Statement"
+              title-class="font-[600] mb-2"
               :definition-source-id="procedureId"
               :enable-toggle="true"
+              :list-title="Translator.trans('statement.data')"
               :resource-id="statement.id"
               :show-empty="false"
               @save:error="handleCustomFieldSaveError"
