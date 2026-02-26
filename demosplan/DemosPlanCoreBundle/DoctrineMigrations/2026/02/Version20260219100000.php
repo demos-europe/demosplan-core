@@ -47,7 +47,7 @@ class Version20260219100000 extends AbstractMigration
                 KEY idx_ppd_customer (customer_id),
                 CONSTRAINT fk_ppd_customer FOREIGN KEY (customer_id)
                     REFERENCES customer (_c_id) ON DELETE CASCADE
-            ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB'
+            ) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
         );
     }
 
