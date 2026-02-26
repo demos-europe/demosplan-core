@@ -26,6 +26,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(
  *     name="procedure_phase_definition",
  *     uniqueConstraints={
+ *
  *         @ORM\UniqueConstraint(name="uniq_name_customer_audience", columns={"name", "customer_id", "audience"})
  *     }
  * )
