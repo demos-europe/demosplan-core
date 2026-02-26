@@ -263,6 +263,7 @@
       />
     </div>
     <dp-custom-fields-list
+      v-if="hasPermission('feature_statements_custom_fields')"
       resource-type="DraftStatement"
       :resource-id="id"
       :definition-source-id="procedureId"

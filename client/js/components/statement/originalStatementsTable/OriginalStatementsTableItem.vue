@@ -109,6 +109,7 @@
         </div>
 
         <dp-custom-fields-list
+          v-if="hasPermission('field_statements_custom_fields')"
           resource-type="OriginalStatement"
           :resource-id="statementId"
           :definition-source-id="procedureId"

@@ -168,7 +168,7 @@
 
             <!-- Existing draft WITHOUT localStorage: DpCustomFieldsList self-fetches server values -->
             <dp-custom-fields-list
-              v-if="draftStatementId && !draftHasLocalStorageData"
+              v-if="(draftStatementId && !draftHasLocalStorageData) && hasPermission('feature_statements_custom_fields')"
               resource-type="DraftStatement"
               :resource-id="draftStatementId"
               :definition-source-id="procedureId"

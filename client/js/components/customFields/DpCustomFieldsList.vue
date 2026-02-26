@@ -195,11 +195,7 @@ export default {
     },
 
     hasFieldsToRender () {
-      return !this.isLoading && !this.error && this.hasRequiredPermission && this.fieldsToRender.length > 0
-    },
-
-    hasRequiredPermission () {
-      return hasPermission(this.requiredPermission)
+      return !this.isLoading && !this.error && this.fieldsToRender.length > 0
     },
 
     layoutClasses () {
@@ -209,13 +205,6 @@ export default {
         grid: this.prefixClass('grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4'),
       }
       return baseClasses[this.layout] || baseClasses.vertical
-    },
-
-    requiredPermission () {
-      if (this.resourceType === 'DraftStatement') {
-        return 'feature_statements_custom_fields'
-      }
-      return 'field_statements_custom_fields'
     },
   },
 
@@ -233,12 +222,6 @@ export default {
 
   methods: {
     fetchCustomFieldsData () {
-      // Check permission
-      if (!this.hasRequiredPermission) {
-        console.warn('Missing permission for custom fields')
-        return
-      }
-
       this.isLoading = true
       this.error = null
 
