@@ -159,45 +159,42 @@
           />
         </div>
 
-        <!-- Custom Fields: Editable mode -->
-        <div v-if="hasPermission('feature_statements_custom_fields')">
-          <fieldset :class="prefixClass('mb-2 pb-0')">
-            <legend :class="prefixClass('mb-2 text-[1em] font-[500]')">
-              {{ Translator.trans('statement.data') }}
-            </legend>
+        <!-- Existing draft WITHOUT localStorage: DpCustomFieldsList self-fetches, manages fieldset internally -->
+        <dp-custom-fields-list
+          v-if="(draftStatementId && !draftHasLocalStorageData) && hasPermission('feature_statements_custom_fields')"
+          mode="editable"
+          resource-type="DraftStatement"
+          :class="prefixClass('mb-2')"
+          :definition-source-id="procedureId"
+          :resource-id="draftStatementId"
+          :show-empty="true"
+          @loaded="handleCustomFieldsListLoaded"
+          @save:error="handleCustomFieldSaveError"
+          @update:value="handleCustomFieldValueUpdateFromList"
+        />
 
-            <!-- Existing draft WITHOUT localStorage: DpCustomFieldsList self-fetches server values -->
-            <dp-custom-fields-list
-              v-if="(draftStatementId && !draftHasLocalStorageData) && hasPermission('feature_statements_custom_fields')"
-              resource-type="DraftStatement"
-              :resource-id="draftStatementId"
-              :definition-source-id="procedureId"
-              mode="editable"
-              :show-empty="true"
-              :class="prefixClass('mb-2')"
-              @update:value="handleCustomFieldValueUpdateFromList"
-              @loaded="handleCustomFieldsListLoaded"
-              @save:error="handleCustomFieldSaveError"
-            />
-
-            <!-- New statement OR draft with localStorage: existing loop -->
-            <template v-else>
-              <dp-custom-field
-                v-for="customField in selectableCustomFields"
-                ref="customFieldRefs"
-                :key="customField.id"
-                :definition-source-id="procedureId"
-                :field-data="{ id: customField.id, value: customField.value }"
-                mode="editable"
-                resource-type="DraftStatement"
-                :resource-id="draftStatementId"
-                :class="prefixClass('mb-2')"
-                @update:value="(value) => handleCustomFieldValueUpdate(customField.id, value)"
-                @save:error="handleCustomFieldSaveError"
-              />
-            </template>
-          </fieldset>
-        </div>
+        <!-- New statement OR draft with localStorage: individual fields with own fieldset -->
+        <fieldset
+          v-else-if="hasPermission('feature_statements_custom_fields')"
+          :class="prefixClass('mb-2 pb-0')"
+        >
+          <legend :class="prefixClass('mb-2 text-[1em] font-[500]')">
+            {{ Translator.trans('statement.data') }}
+          </legend>
+          <dp-custom-field
+            v-for="customField in selectableCustomFields"
+            ref="customFieldRefs"
+            :key="customField.id"
+            mode="editable"
+            resource-type="DraftStatement"
+            :class="prefixClass('mb-2')"
+            :definition-source-id="procedureId"
+            :field-data="{ id: customField.id, value: customField.value }"
+            :resource-id="draftStatementId"
+            @save:error="handleCustomFieldSaveError"
+            @update:value="(value) => handleCustomFieldValueUpdate(customField.id, value)"
+          />
+        </fieldset>
 
         <div :class="prefixClass('c-statement__text')">
           <dp-label
