@@ -3,7 +3,7 @@
     <!-- Expandable version with dp-details -->
     <dp-details
       v-if="expandable"
-      :summary="effectiveTitle"
+      :summary="listTitle"
     >
       <slot
         :enable-toggle="enableToggle"
@@ -46,14 +46,67 @@
       </slot>
     </dp-details>
 
-    <!-- Non-expandable version -->
-    <div v-else>
-      <h3
-        v-if="listTitle"
-        :class="prefixClass('font-bold mb-2')"
+    <!-- Editable (non-expandable): fieldset with legend for accessibility -->
+    <fieldset
+      v-else-if="mode === 'editable'"
+      :class="prefixClass('pb-0')"
+    >
+      <legend
+        v-if="!noTitle"
+        :class="prefixClass('mb-2 text-[1em] font-[500]')"
       >
         {{ listTitle }}
-      </h3>
+      </legend>
+      <slot
+        :enable-toggle="enableToggle"
+        :fields="fieldsToRender"
+        :mode="mode"
+        :source-id="definitionSourceId"
+        :target-id="resourceId"
+        :target-type="resourceType"
+      >
+        <div :class="layoutClasses">
+          <dp-custom-field
+            v-for="field in fieldsToRender"
+            :key="field.id"
+            :definition="definitions.find(d => d.id === field.id)"
+            :enable-toggle="enableToggle"
+            :field-data="{ id: field.id, value: field.value }"
+            :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
+            :mode="mode"
+            :resource-id="resourceId"
+            :resource-type="resourceType"
+            @edit:cancel="() => handleEditEnd(field.id)"
+            @edit:save="() => handleEditEnd(field.id)"
+            @edit:start="() => handleEditStart(field.id)"
+            @save:error="handleSaveError"
+            @save:success="handleSaveSuccess"
+            @update:value="newValue => handleValueUpdate(field.id, newValue)"
+          >
+            <!-- Forward readonly-display slot if parent provided it -->
+            <template
+              v-if="$slots['readonly-display']"
+              v-slot:readonly-display="slotProps"
+            >
+              <slot
+                name="readonly-display"
+                v-bind="slotProps"
+              />
+            </template>
+          </dp-custom-field>
+        </div>
+      </slot>
+    </fieldset>
+
+    <!-- Readonly non-expandable: optional title (tag configurable via titleTag prop) -->
+    <div v-else>
+      <component
+        :is="effectiveTitleTag"
+        v-if="!noTitle"
+        :class="effectiveTitleClass"
+      >
+        {{ listTitle }}
+      </component>
       <slot
         :enable-toggle="enableToggle"
         :fields="fieldsToRender"
@@ -136,13 +189,18 @@ export default {
     listTitle: {
       type: String,
       required: false,
-      default: '',
+      default: () => Translator.trans('statement.data'),
     },
     mode: {
       type: String,
       required: false,
       default: 'readonly',
       validator: val => ['readonly', 'editable'].includes(val),
+    },
+    noTitle: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
     resourceId: {
       type: String,
@@ -156,6 +214,17 @@ export default {
       type: Boolean,
       required: false,
       default: false,
+    },
+    titleClass: {
+      type: [String, Array, Object],
+      required: false,
+      default: null,
+    },
+    titleTag: {
+      type: String,
+      required: false,
+      default: 'p',
+      validator: val => ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'dt'].includes(val),
     },
   },
 
@@ -172,8 +241,13 @@ export default {
   },
 
   computed: {
-    effectiveTitle () {
-      return this.listTitle || Translator.trans('more.data')
+    effectiveTitleClass () {
+      return this.titleClass !== null ? this.titleClass : this.prefixClass('font-[700] mb-2')
+    },
+
+    effectiveTitleTag () {
+      const allowed = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'dt']
+      return allowed.includes(this.titleTag) ? this.titleTag : 'p'
     },
 
     /*
