@@ -294,7 +294,7 @@
           <!-- Statement text -->
           <div class="u-pt-0_5 c-styled-html">
             <strong>{{ Translator.trans('statement.text.short') }}:</strong>
-            <p v-cleanhtml="displayedText(id)"></p>
+            <p v-cleanhtml="displayedText(id)" />
             <a
               v-if="statementsObject[id].attributes.textIsTruncated"
               class="cursor-pointer"
@@ -563,9 +563,9 @@ export default {
         return ''
       }
 
-      return attributes.isFulltextDisplayed
-        ? attributes.fullText
-        : attributes.text
+      return attributes.isFulltextDisplayed ?
+        attributes.fullText :
+        attributes.text
     },
 
     getAssignee (statement) {

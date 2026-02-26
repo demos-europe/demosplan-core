@@ -507,14 +507,14 @@ class DemosPlanOrganisationAPIController extends APIController
 
                 $userHandler->ensureAccessControl($updatedOrga, $currentCustomer);
 
-                $item = $this->resourceService->makeItemOfResource($updatedOrga, OrgaResourceType::getName());
-
                 try {
                     $newOrgaCreatedEvent = new OrgaAdminEditedEvent($updatedOrga, $canCreateProcedures);
                     $eventDispatcher->dispatch($newOrgaCreatedEvent);
                 } catch (Exception $e) {
                     $this->logger->warning('Could not successfully perform orga created event', [$e]);
                 }
+
+                $item = $this->resourceService->makeItemOfResource($updatedOrga, OrgaResourceType::getName());
 
                 return $this->renderResource($item);
             }

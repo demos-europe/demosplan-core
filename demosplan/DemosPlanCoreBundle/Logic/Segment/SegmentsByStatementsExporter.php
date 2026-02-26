@@ -138,10 +138,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
         $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
 
-        // Add info sheet if tag filter is active
-        if ($tagFilter->hasAnySupportedFilterSet()) {
-            $this->assessmentTableXlsExporter->addFilterInfoSheet($writer, $tagFilter);
-        }
+        $this->assessmentTableXlsExporter->addFilterInfoSheet($writer, $tagFilter);
 
         return $writer;
     }
