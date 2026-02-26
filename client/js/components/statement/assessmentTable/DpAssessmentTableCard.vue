@@ -515,33 +515,31 @@
 
           <!--  custom fields  -->
           <dp-item-row
-            v-if="hasPermission('feature_statements_custom_fields') && statement.customFields && statement.customFields.length > 0"
+            v-if="hasPermission('feature_statements_custom_fields')"
             title="custom.fields"
-            class="u-pb-0"
+            class="pb-0"
           >
-            <dp-custom-field
-              v-for="customField in statement.customFields"
-              :key="customField.id"
+            <dp-custom-fields-list
+              resource-type="Statement"
               :definition-source-id="procedureId"
-              :field-data="{ id: customField.id, value: customField.value }"
               :enable-toggle="true"
-              :resource-type="'Statement'"
               :resource-id="statement.id"
-              @save:success="handleCustomFieldSaveSuccess"
+              :show-empty="false"
               @save:error="handleCustomFieldSaveError"
-              @update:value="newValue => handleCustomFieldValueUpdate(customField.id, newValue)">
-              <!-- Comma-separated display for multiselect fields -->
-              <template #readonly-display="{ field }">
-                <span v-if="field.value.selectedOptions?.length > 0">
+              @save:success="handleCustomFieldSaveSuccess"
+            >
+              <template v-slot:readonly-display="{ field }">
+                <span v-if="field.value?.selectedOptions?.length > 0">
                   {{ field.value.selectedOptions.map(o => o.label).join(', ') }}
                 </span>
                 <span
                   v-else
-                  class="font-size-small color--grey">
+                  class="text-sm text-muted"
+                >
                   -
                 </span>
               </template>
-            </dp-custom-field>
+            </dp-custom-fields-list>
           </dp-item-row>
 
           <!-- Statement / Recommendation Text -->
@@ -760,7 +758,7 @@ import { dpApi, DpContextualHelp, DpTooltip, formatDate, hasOwnProp } from '@dem
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
-import DpCustomField from '@DpJs/components/customFields/DpCustomField'
+import DpCustomFieldsList from '@DpJs/components/customFields/DpCustomFieldsList'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
 import DpItemRow from './ItemRow'
@@ -773,7 +771,7 @@ export default {
   components: {
     DpContextualHelp,
     DpClaim,
-    DpCustomField,
+    DpCustomFieldsList,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
     DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList'),
@@ -1320,43 +1318,13 @@ export default {
      * Handle successful custom field save (Option B - enableToggle)
      * @param {Object} data - { fieldId, value }
      */
-    handleCustomFieldSaveSuccess (data) {
-      console.log('Custom field saved successfully:', data)
-
-      // Update statement in Vuex store (proper mutation)
-      const updatedCustomFields = this.statement.customFields.map(field =>
-        field.id === data.fieldId
-          ? { ...field, value: data.value }
-          : field
-      )
-
-      this.updateStatement({
-        id: this.statement.id,
-        customFields: updatedCustomFields
-      })
-
-      // Notify success
+    handleCustomFieldSaveSuccess () {
       this.$root.$emit('entity:updated', this.statementId, 'statement')
       dplan.notify.confirm(Translator.trans('confirm.saved'))
     },
 
-    /**
-     * Handle custom field save error (Option B - enableToggle)
-     * @param {Object} data - { fieldId, value, error }
-     */
-    handleCustomFieldSaveError (data) {
-      console.error('Custom field save failed:', data)
+    handleCustomFieldSaveError () {
       dplan.notify.error(Translator.trans('error.changes.not.saved'))
-    },
-
-    /**
-     * Handle custom field value updates (Option B - enableToggle)
-     * @param {String} fieldId - Custom field ID
-     * @param {*} newValue - New value
-     */
-    handleCustomFieldValueUpdate (fieldId, newValue) {
-      console.log('Custom field value updated:', { fieldId, newValue })
-      // Local state update happens via save:success
     },
 
     showAllFragments (checked) {
