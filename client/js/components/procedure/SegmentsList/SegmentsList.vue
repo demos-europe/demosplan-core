@@ -42,6 +42,7 @@
             :initial-query-ids="queryIds"
             :items-object="filter.itemsObject"
             :operator="filter.comparisonOperator"
+            :member-of="groupName(filter.labelTranslationKey)"
             :path="filter.rootPath"
             :show-count="{
               groupedOptions: true,
@@ -830,6 +831,14 @@ export default {
       return null
     },
 
+
+    groupName (filterType) {
+      if (filterType === 'tags') {
+        return null
+      }
+      return `${filterType}_group`
+    },
+
     handleBulkEdit () {
       this.storeToggledSegments()
       // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
@@ -1121,6 +1130,8 @@ export default {
 
     this.fetchPlaces()
     this.fetchAssignableUsers()
+    console.log(this.filters)
+    console.log(this.initialFilter)
   },
 }
 </script>
