@@ -228,7 +228,7 @@ export default {
     },
   },
 
-  emits: ['save:success', 'save:error', 'update:value', 'loaded'],
+  emits: ['save:success', 'save:error', 'update:value', 'loaded', 'hasContent'],
 
   data () {
     return {
@@ -334,6 +334,9 @@ export default {
         })
         .finally(() => {
           this.isLoading = false
+          this.$nextTick(() => {
+            this.$emit('hasContent', this.hasFieldsToRender)
+          })
         })
     },
 
