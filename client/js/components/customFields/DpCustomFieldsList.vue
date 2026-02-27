@@ -6,10 +6,11 @@
     />
     <template v-else>
     <!-- Expandable version with dp-details -->
-    <dp-details
+    <div
       v-if="expandable"
-      :summary="listTitle"
+      :class="prefixClass('flex items-center gap-1')"
     >
+      <dp-details :summary="listTitle">
       <slot
         :enable-toggle="enableToggle"
         :fields="fieldsToRender"
@@ -50,6 +51,14 @@
         </div>
       </slot>
     </dp-details>
+      <dp-contextual-help
+        v-if="titleInfoText"
+        icon="info"
+        size="medium"
+        :class="prefixClass('self-start')"
+        :text="titleInfoText"
+      />
+    </div>
 
     <!-- Editable (non-expandable): fieldset with legend for accessibility -->
     <fieldset
@@ -62,6 +71,12 @@
       >
         {{ listTitle }}
       </legend>
+      <dp-contextual-help
+        v-if="titleInfoText"
+        :text="titleInfoText"
+        icon="info"
+        size="medium"
+      />
       <slot
         :enable-toggle="enableToggle"
         :fields="fieldsToRender"
@@ -105,13 +120,21 @@
 
     <!-- Readonly non-expandable: optional title (tag configurable via titleTag prop) -->
     <div v-else>
-      <component
-        :is="effectiveTitleTag"
-        v-if="!noTitle"
-        :class="effectiveTitleClass"
-      >
-        {{ listTitle }}
-      </component>
+      <div :class="[prefixClass('flex items-center gap-1'), effectiveTitleClass]">
+        <component
+          :is="effectiveTitleTag"
+          class="m-0"
+          v-if="!noTitle"
+        >
+          {{ listTitle }}
+        </component>
+        <dp-contextual-help
+          v-if="titleInfoText"
+          :text="titleInfoText"
+          icon="info"
+          size="medium"
+        />
+      </div>
       <slot
         :enable-toggle="enableToggle"
         :fields="fieldsToRender"
@@ -157,7 +180,7 @@
 </template>
 
 <script>
-import { dpApi, DpDetails, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpContextualHelp, DpDetails, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import DpCustomField from './DpCustomField'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
@@ -165,6 +188,7 @@ export default {
   name: 'DpCustomFieldsList',
 
   components: {
+    DpContextualHelp,
     DpCustomField,
     DpDetails,
     DpLoading,
@@ -226,6 +250,11 @@ export default {
       type: [String, Array, Object],
       required: false,
       default: null,
+    },
+    titleInfoText: {
+      type: String,
+      required: false,
+      default: '',
     },
     titleTag: {
       type: String,
