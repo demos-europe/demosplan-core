@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakClientFactory;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -23,11 +24,11 @@ class KeycloakController extends AbstractController
      * Link to this controller to start the "connect" process.
      */
     #[Route(path: '/connect/keycloak_ozg', name: 'connect_keycloak_ozg_start')]
-    public function connect(ClientRegistry $clientRegistry)
+    public function connect(OzgKeycloakClientFactory $ozgKeycloakClientFactory): RedirectResponse
     {
         // will redirect to keycloak!
-        return $clientRegistry
-            ->getClient('keycloak_ozg') // key used in config/packages/knpu_oauth2_client.yaml
+        return $ozgKeycloakClientFactory
+            ->createForCurrentCustomer()
             ->redirect(['openid'], []);
     }
 
@@ -37,7 +38,7 @@ class KeycloakController extends AbstractController
      * in config/packages/knpu_oauth2_client.yaml.
      */
     #[Route(path: '/connect/keycloak_ozg/check', name: 'connect_keycloak_ozg_check')]
-    public function connectCheck(ClientRegistry $clientRegistry)
+    public function connectCheck(OzgKeycloakClientFactory $ozgKeycloakClientFactory): void
     {
         // ** if you want to *authenticate* the user, then
         // leave this method blank and create a Guard authenticator

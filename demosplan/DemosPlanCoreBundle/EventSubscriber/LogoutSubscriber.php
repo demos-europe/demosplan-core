@@ -13,8 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
+use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -34,6 +36,8 @@ class LogoutSubscriber implements EventSubscriberInterface
         private readonly PermissionsInterface $permissions,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly OzgKeycloakLogoutManager $ozgKeycloakLogoutManager,
+        private readonly CustomerServiceInterface $customerService,
+        private readonly CustomerOAuthConfigRepository $configRepository,
     ) {
     }
 
@@ -71,7 +75,12 @@ class LogoutSubscriber implements EventSubscriberInterface
             if ($this->ozgKeycloakLogoutManager->isKeycloakConfigured()) {
                 $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN);
                 $event->getRequest()->getSession()->invalidate();
-                $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
+
+                $customer = $this->customerService->getCurrentCustomer();
+                $customerConfig = $this->configRepository->findByCustomer($customer);
+                $logoutRoute = $customerConfig?->getKeycloakLogoutRoute()
+                    ?? $this->parameterBag->get('oauth_keycloak_logout_route');
+
                 $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
 
                 // add additional parameters to keycloak logout url for redirect

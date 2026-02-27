@@ -25,7 +25,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const RESOURCE_ACCESS = 'resource_access';
     private const GROUPS = 'groups';
     private readonly string $keycloakGroupRoleString;
-    private readonly string $keycloakClientId;
+    private string $keycloakClientId;
     private const COMPANY_STREET_ADDRESS = 'UnternehmensanschriftStrasse';
     private const COMPANY_ADDRESS_EXTENSION = 'UnternehmensanschriftAdressergaenzung';
     private const COMPANY_HOUSE_NUMBER = 'UnternehmensanschriftHausnummer';
@@ -49,8 +49,15 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         $this->keycloakClientId = $parameterBag->get('oauth_keycloak_client_id');
     }
 
-    public function fill(ResourceOwnerInterface $resourceOwner, ?string $customerSubdomain = null): void
-    {
+    public function fill(
+        ResourceOwnerInterface $resourceOwner,
+        ?string $customerSubdomain = null,
+        ?string $keycloakClientId = null,
+    ): void {
+        if (null !== $keycloakClientId) {
+            $this->keycloakClientId = $keycloakClientId;
+        }
+
         $userInformation = $resourceOwner->toArray();
 
         // Try to extract roles from resource_access claim first (preferred method)

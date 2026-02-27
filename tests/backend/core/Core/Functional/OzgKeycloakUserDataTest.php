@@ -174,6 +174,36 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
         self::assertStringContainsString('isPrivatePerson: true', $stringRepresentation);
     }
 
+    public function testPerCustomerClientIdOverrideIsUsedForResourceAccessRoleMapping(): void
+    {
+        $perCustomerClientId = 'hh-keycloak-client';
+
+        $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
+        $resourceOwner->method('toArray')
+            ->willReturn([
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'Test',
+                'family_name'        => 'User',
+                'organisationId'     => 'org-123',
+                'organisationName'   => 'Test Organisation',
+                'sub'                => '101',
+                'preferred_username' => 'testuser',
+                // resource_access uses technical codes (e.g. 'FP-A'), not readable names
+                'resource_access'    => [
+                    $perCustomerClientId => [
+                        'roles' => ['FP-A'],
+                    ],
+                ],
+            ]);
+
+        // Per-customer clientId override must be used: the global clientId
+        // ('diplan-develop-beteiligung-test') is NOT present in resource_access,
+        // so only the override 'hh-keycloak-client' produces roles.
+        $this->sut->fill($resourceOwner, 'hh', $perCustomerClientId);
+
+        self::assertSame(self::TEST_EMAIL, $this->sut->getEmailAddress());
+    }
+
     public function testUserInformationIsCorrectlyFilledFromResourceOwnerWithIsPrivatePerson(): void
     {
         // Test backward compatibility: private persons can still include organization data

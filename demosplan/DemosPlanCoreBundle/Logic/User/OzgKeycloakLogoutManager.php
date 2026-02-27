@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
+use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -38,14 +39,23 @@ class OzgKeycloakLogoutManager
         private readonly CurrentUserService $currentUser,
         private readonly CustomerService $customerService,
         private readonly ParameterBagInterface $parameterBag,
+        private readonly CustomerOAuthConfigRepository $configRepository,
     ) {
     }
 
     /**
-     * Check if Keycloak logout is configured for this environment.
+     * Check if Keycloak logout is configured for the current customer.
+     * Per-customer config takes precedence over the global parameter.
      */
     public function isKeycloakConfigured(): bool
     {
+        $customer = $this->customerService->getCurrentCustomer();
+        $config = $this->configRepository->findByCustomer($customer);
+
+        if (null !== $config) {
+            return '' !== ($config->getKeycloakLogoutRoute() ?? '');
+        }
+
         return '' !== $this->parameterBag->get('oauth_keycloak_logout_route');
     }
 
