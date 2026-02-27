@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
+use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Authenticator\JWTAuthenticator;
@@ -46,7 +47,7 @@ class ApiAuthenticator extends JWTAuthenticator
     public function __construct(
         JWTTokenManagerInterface $jwtManager,
         EventDispatcherInterface $eventDispatcher,
-        TokenExtractorInterface $tokenExtractor,
+        private readonly TokenExtractorInterface $tokenExtractor,
         UserProviderInterface $userProvider,
         private readonly UserRepository $userRepository,
         private readonly LoggerInterface $logger,
@@ -57,13 +58,13 @@ class ApiAuthenticator extends JWTAuthenticator
 
     public function supports(Request $request): bool
     {
-        // Support requests with either a valid session or JWT token
-        return $this->hasValidSession($request) || parent::supports($request);
+        // Support requests with an authenticated session, a real JWT token, or a plain session (anonymous fallback)
+        return $this->hasValidSession($request) || $this->hasRealJwtToken($request) || $request->hasSession();
     }
 
     public function doAuthenticate(Request $request): Passport
     {
-        // First, try session-based authentication (for browser clients)
+        // First, try session-based authentication for browser clients with an active session
         if ($this->hasValidSession($request)) {
             $user = $this->getUserFromSession($request);
             if (null !== $user) {
@@ -79,11 +80,23 @@ class ApiAuthenticator extends JWTAuthenticator
             }
         }
 
-        // Fall back to JWT authentication (for external API clients)
-        $this->logger->debug('API request falling back to JWT authentication');
-        $this->authenticatedViaSession = false;
+        // Try JWT authentication for external API clients
+        // Guard against frontend sending a literal "Bearer null" placeholder
+        if ($this->hasRealJwtToken($request)) {
+            $this->logger->debug('API request falling back to JWT authentication');
+            $this->authenticatedViaSession = false;
 
-        return parent::doAuthenticate($request);
+            return parent::doAuthenticate($request);
+        }
+
+        // Fall back to anonymous access for session-bearing requests without credentials
+        $this->logger->debug('API request falling back to anonymous access');
+        $this->authenticatedViaSession = true;
+        $anonymousUser = new AnonymousUser();
+
+        return new SelfValidatingPassport(
+            new UserBadge($anonymousUser->getLogin(), fn () => $anonymousUser)
+        );
     }
 
     public function createToken(Passport $passport, string $firewallName): TokenInterface
@@ -103,6 +116,16 @@ class ApiAuthenticator extends JWTAuthenticator
     }
 
     /**
+     * Check if the request carries a real JWT token (not a "Bearer null" placeholder).
+     */
+    private function hasRealJwtToken(Request $request): bool
+    {
+        $token = $this->tokenExtractor->extract($request);
+
+        return false !== $token && 'null' !== $token;
+    }
+
+    /**
      * Check if the request has a valid session with an authenticated user.
      */
     private function hasValidSession(Request $request): bool
@@ -112,14 +135,14 @@ class ApiAuthenticator extends JWTAuthenticator
     }
 
     /**
-     * Get the authenticated user from the session.
+     * Get the authenticated or anonymous user from the session.
      */
     private function getUserFromSession(Request $request): ?User
     {
         $userId = $request->getSession()->get(self::SESSION_USER_ID_KEY);
 
         if (null === $userId) {
-            return null;
+            return new AnonymousUser();
         }
 
         // Use findOneBy with deleted check to match JWT authentication behavior

@@ -60,7 +60,7 @@ const generateMenuItems = ({ fields, id, number, procedureId, target, isPublishe
       name: 'edit',
       type: 'button',
       callback: (e, vue) => {
-        vue.$emit('open-statement-modal-from-list', id)
+        vue.$emit('openStatementModalFromList', id)
       },
 
       attrs: {
