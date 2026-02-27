@@ -34,7 +34,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const COMPANY_DEPARTMENT = 'Organisationseinheit';
     private const COMPANY_DEPARTMENT_EN = 'organisationUnit';
     private const IS_PRIVATE_PERSON = 'isPrivatePerson';
-    private const RESPONSIBILITIES = 'responsibilities';
+    private const RESPONSIBILITIES = 'fachbezug';
     private const ORGANISATION_AFFILIATIONS = 'organisation';
 
     protected string $addressExtension = '';
@@ -159,7 +159,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     }
 
     /**
-     * Parse responsibilities (functional areas) from the 'responsibilities' field in the token.
+     * Parse responsibilities (functional areas) from the 'fachbezug' field in the token.
      *
      * @param array<string, mixed> $userInformation
      */

@@ -48,7 +48,7 @@ class OzgKeycloakStaticUserDataProvider
             'family_name'        => $familyName,
             'email'              => $username,
             'organisation'       => [],
-            'responsibilities'   => [],
+            'fachbezug'          => [],
             'resource_access'    => [] !== $roles
                 ? [self::KEYCLOAK_CLIENT => ['roles' => $roles]]
                 : [],
@@ -85,7 +85,7 @@ class OzgKeycloakStaticUserDataProvider
                         ['id' => 'TEST.ORGA.ALPHA', 'name' => 'Test Organisation Alpha'],
                         ['id' => 'TEST.ORGA.BETA', 'name' => 'Test Organisation Beta'],
                     ],
-                    'responsibilities' => [
+                    'fachbezug' => [
                         ['id' => 'WATER', 'name' => 'Wasserwirtschaft'],
                         ['id' => 'LITTER', 'name' => 'Abfallwirtschaft'],
                     ],

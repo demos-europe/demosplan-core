@@ -96,7 +96,7 @@ class OzgKeycloakStaticAuthenticator extends AbstractAuthenticator
             'testUserKey'         => $testUserKey,
             'userId'              => $userData['sub'],
             'email'               => $userData['email'],
-            'responsibilityCount' => count($userData['responsibilities'] ?? []),
+            'responsibilityCount' => count($userData['fachbezug'] ?? []),
         ]);
 
         try {

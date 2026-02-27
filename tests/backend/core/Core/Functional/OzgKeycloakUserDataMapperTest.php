@@ -538,7 +538,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
                 ['id' => 'AMT-A', 'name' => 'Amt A'],
                 ['id' => 'AMT-B', 'name' => 'Amt B'],
             ],
-            'responsibilities'   => [
+            'fachbezug'   => [
                 ['id' => 'WATER', 'name' => 'Wasserwirtschaft'],
                 ['id' => 'LITTER', 'name' => 'Abfallwirtschaft'],
             ],
@@ -577,7 +577,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
                 ['id' => 'DEPT-X', 'name' => 'Department X'],
                 ['id' => 'DEPT-Y', 'name' => 'Department Y'],
             ],
-            'responsibilities'   => [],
+            'fachbezug'   => [],
             'resource_access'    => [
                 "diplan-develop-beteiligung-{$customerSubdomain}" => [
                     'roles' => ['FP-A'],
@@ -612,7 +612,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             'organisation'       => [
                 ['id' => 'SINGLE-AFF', 'name' => 'Single Affiliation Org'],
             ],
-            'responsibilities'   => [],
+            'fachbezug'   => [],
             'resource_access'    => [
                 "diplan-develop-beteiligung-{$customerSubdomain}" => [
                     'roles' => ['FP-A'],
@@ -644,7 +644,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
                 ['id' => 'SYNC-ORG-A', 'name' => 'Sync Org A'],
                 ['id' => 'SYNC-ORG-B', 'name' => 'Sync Org B'],
             ],
-            'responsibilities'   => [],
+            'fachbezug'   => [],
             'resource_access'    => [
                 "diplan-develop-beteiligung-{$customerSubdomain}" => [
                     'roles' => ['FP-A'],
@@ -664,7 +664,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             'organisation'       => [
                 ['id' => 'SYNC-ORG-A', 'name' => 'Sync Org A'],
             ],
-            'responsibilities'   => [],
+            'fachbezug'   => [],
             'resource_access'    => [
                 "diplan-develop-beteiligung-{$customerSubdomain}" => [
                     'roles' => ['FP-A'],
@@ -696,7 +696,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
                 ['id' => 'OLD-ORG-2', 'name' => 'Old Org 2'],
                 ['id' => 'OLD-ORG-3', 'name' => 'Old Org 3'],
             ],
-            'responsibilities'   => [],
+            'fachbezug'   => [],
             'resource_access'    => [
                 "diplan-develop-beteiligung-{$customerSubdomain}" => [
                     'roles' => ['FP-A'],
@@ -718,7 +718,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
                 ['id' => 'NEW-AMT-A', 'name' => 'New Amt A'],
                 ['id' => 'NEW-AMT-B', 'name' => 'New Amt B'],
             ],
-            'responsibilities'   => [
+            'fachbezug'   => [
                 ['id' => 'WATER', 'name' => 'Wasserwirtschaft'],
             ],
             'resource_access'    => [
@@ -756,7 +756,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             'organisation'       => [
                 ['id' => 'ORGNAME-TEST', 'name' => self::ORG_NAME_FROM_TOKEN],
             ],
-            'responsibilities'   => [],
+            'fachbezug'   => [],
             'resource_access'    => [
                 "diplan-develop-beteiligung-{$customerSubdomain}" => [
                     'roles' => ['FP-A'],
@@ -782,7 +782,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             'organisation'       => [
                 ['id' => 'ORGNAME-TEST', 'name' => self::ORG_NAME_FROM_TOKEN],
             ],
-            'responsibilities'   => [],
+            'fachbezug'   => [],
             'resource_access'    => [
                 "diplan-develop-beteiligung-{$customerSubdomain}" => [
                     'roles' => ['FP-A'],
@@ -810,7 +810,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             'organisationId'     => 'LEGACY-ORG-ID',
             'organisationName'   => 'Legacy Organisation',
             'organisation'       => [],
-            'responsibilities'   => [],
+            'fachbezug'   => [],
             'resource_access'    => [
                 "diplan-develop-beteiligung-{$customerSubdomain}" => [
                     'roles' => ['FP-A'],
@@ -913,7 +913,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 
         $ro1 = $this->createReloginResourceOwner(array_merge($baseToken, [
             'organisation'     => $firstLogin['orgs'],
-            'responsibilities' => $firstLogin['resps'],
+            'fachbezug' => $firstLogin['resps'],
         ]));
         $user1 = $this->mapResourceOwnerToUser($ro1);
         $userId = $user1->getId();
@@ -921,7 +921,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 
         $ro2 = $this->createReloginResourceOwner(array_merge($baseToken, [
             'organisation'     => $secondLogin['orgs'],
-            'responsibilities' => $secondLogin['resps'],
+            'fachbezug' => $secondLogin['resps'],
         ]));
         $user2 = $this->mapResourceOwnerToUser($ro2);
 
