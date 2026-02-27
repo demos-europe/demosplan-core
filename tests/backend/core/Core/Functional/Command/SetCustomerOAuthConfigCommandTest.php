@@ -32,6 +32,9 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
     private (MockObject&CustomerOAuthConfigRepository)|null $configRepositoryMock = null;
     private (MockObject&ParameterBagInterface)|null $parameterBagMock = null;
 
+    /** @var list<string> */
+    private array $tempFiles = [];
+
     private const SUBDOMAIN = 'testcustomer';
     private const CLIENT_ID = 'dplan-test';
     private const CLIENT_SECRET = 'super-secret';
@@ -125,6 +128,39 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
         self::assertStringContainsString('Skipped', $tester->getDisplay());
         self::assertStringContainsString('Missing or empty required field', $tester->getDisplay());
         self::assertStringContainsString('clientSecret', $tester->getDisplay());
+    }
+
+    public function testFromFileFailsForInvalidJson(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'oauth_test_');
+        file_put_contents($path, '{ invalid json');
+        $this->tempFiles[] = $path;
+
+        $tester = $this->executeCommand(['--config-file' => $path]);
+
+        self::assertSame(Command::FAILURE, $tester->getStatusCode());
+        self::assertStringContainsString('Invalid JSON', $tester->getDisplay());
+    }
+
+    public function testFromFileSkipsEntryWithInvalidAuthServerUrl(): void
+    {
+        $this->customerRepositoryMock->method('findOneBy')
+            ->willReturn($this->createCustomerStub());
+
+        $configFile = $this->createTempConfigFile([
+            self::SUBDOMAIN => [
+                'clientId'      => self::CLIENT_ID,
+                'clientSecret'  => self::CLIENT_SECRET,
+                'authServerUrl' => 'http://insecure.example.com', // not HTTPS
+                'realm'         => self::REALM,
+            ],
+        ]);
+
+        $tester = $this->executeCommand(['--config-file' => $configFile]);
+
+        self::assertSame(Command::SUCCESS, $tester->getStatusCode());
+        self::assertStringContainsString('Skipped', $tester->getDisplay());
+        self::assertStringContainsString('authServerUrl must be a valid HTTPS URL', $tester->getDisplay());
     }
 
     public function testFromFileUpdatesExistingConfig(): void
@@ -292,10 +328,22 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
         return $customer;
     }
 
+    protected function tearDown(): void
+    {
+        foreach ($this->tempFiles as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+
+        parent::tearDown();
+    }
+
     private function createTempConfigFile(array $config): string
     {
         $path = tempnam(sys_get_temp_dir(), 'oauth_test_');
         file_put_contents($path, json_encode($config, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
+        $this->tempFiles[] = $path;
 
         return $path;
     }

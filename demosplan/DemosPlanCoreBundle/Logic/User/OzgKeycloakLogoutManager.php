@@ -49,14 +49,26 @@ class OzgKeycloakLogoutManager
      */
     public function isKeycloakConfigured(): bool
     {
+        return '' !== ($this->getEffectiveLogoutRoute() ?? '');
+    }
+
+    /**
+     * Returns the effective logout route for the current customer.
+     * Per-customer config takes precedence; falls back to the global parameter.
+     */
+    public function getEffectiveLogoutRoute(): ?string
+    {
         $customer = $this->customerService->getCurrentCustomer();
         $config = $this->configRepository->findByCustomer($customer);
 
-        if (null !== $config) {
-            return '' !== ($config->getKeycloakLogoutRoute() ?? '');
+        $perCustomerRoute = $config?->getKeycloakLogoutRoute();
+        if (null !== $perCustomerRoute && '' !== $perCustomerRoute) {
+            return $perCustomerRoute;
         }
 
-        return '' !== $this->parameterBag->get('oauth_keycloak_logout_route');
+        $globalRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
+
+        return '' !== $globalRoute ? $globalRoute : null;
     }
 
     public function shouldSkipInProductionWithoutKeycloak()

@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
+use JsonException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -115,7 +116,14 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
             return Command::FAILURE;
         }
 
-        $configs = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        try {
+            $configs = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            $io->error(sprintf('Invalid JSON in config file: %s', $e->getMessage()));
+
+            return Command::FAILURE;
+        }
+
         if (!is_array($configs)) {
             $io->error('Config file must contain a JSON object mapping subdomains to OAuth configs.');
 
@@ -242,6 +250,13 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
             if (!isset($customerConfig[$key]) || '' === $customerConfig[$key]) {
                 throw new InvalidArgumentException(sprintf('Missing or empty required field "%s"', $key));
             }
+        }
+
+        if (!filter_var($customerConfig['authServerUrl'], FILTER_VALIDATE_URL)
+            || !str_starts_with($customerConfig['authServerUrl'], 'https://')) {
+            throw new InvalidArgumentException(
+                sprintf('authServerUrl must be a valid HTTPS URL, got "%s"', $customerConfig['authServerUrl'])
+            );
         }
 
         $customer = $this->customerRepository->findOneBy(['subdomain' => $subdomain]);
