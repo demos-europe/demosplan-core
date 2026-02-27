@@ -175,12 +175,14 @@
       </template>
     </dp-data-table>
     <dp-loading v-else />
-    <dp-confirm-dialog
-      ref="editConfirmNoSolved"
-      :confirm-button-text="Translator.trans('save.anyway')"
-      :decline-button-text="Translator.trans('back.to.edit')"
-      :message="Translator.trans('confirm.places.solved.missing')"
-    />
+    <div>
+      <dp-confirm-dialog
+        ref="editConfirmNoSolved"
+        :confirm-button-text="Translator.trans('save.anyway')"
+        :decline-button-text="Translator.trans('back.to.edit')"
+        :message="Translator.trans('confirm.places.solved.missing')"
+      />
+    </div>
   </div>
 </template>
 
