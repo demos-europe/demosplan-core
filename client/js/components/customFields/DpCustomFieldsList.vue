@@ -189,7 +189,7 @@ export default {
     listTitle: {
       type: String,
       required: false,
-      default: () => Translator.trans('statement.data'),
+      default: () => Translator.trans('more.data'),
     },
     mode: {
       type: String,
