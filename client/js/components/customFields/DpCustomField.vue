@@ -395,7 +395,6 @@ export default {
           this.saveError = error
           this.$emit('save:error', { fieldId: this.fieldData.id, value: currentValue, error })
           dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
-          throw error  // Re-throw so parent can handle
         })
     },
 
@@ -406,6 +405,19 @@ export default {
      */
     saveEdit () {
       if (this.resourceType && this.resourceId) {
+        const isRequired = this.resolvedDefinition?.attributes?.isRequired
+        const isEmpty = !this.editingValue ||
+          (Array.isArray(this.editingValue) && this.editingValue.length === 0)
+
+        if (isRequired && isEmpty) {
+          const fieldName = this.resolvedDefinition?.attributes?.name
+          dplan.notify.notify('error', fieldName ?
+            Translator.trans('error.mandatoryfield', { name: fieldName }) :
+            Translator.trans('error.mandatoryfields')
+          )
+          return
+        }
+
         this.saveCustomField()
           .then(() => {
             this.$emit('update:value', this.editingValue)
