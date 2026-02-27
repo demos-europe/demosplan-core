@@ -526,7 +526,7 @@
               :enable-toggle="true"
               :list-title="Translator.trans('statement.data')"
               :resource-id="statement.id"
-              :show-empty="false"
+              :show-empty="true"
               @hasContent="val => hasCustomFieldContent = val"
               @save:error="handleCustomFieldSaveError"
               @save:success="handleCustomFieldSaveSuccess"
