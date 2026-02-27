@@ -137,6 +137,7 @@ class StatementExportTagFilter
     {
         return $this->filteredTagsWithTitle;
     }
+
     /**
      * Checks if any tag filters were applied and matched segments during filtering.
      *

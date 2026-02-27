@@ -134,9 +134,8 @@ abstract class SegmentsExporter
             && ([] !== $exportFilteredByTags || [] !== $exportTagTitles)
             && $this->currentUser->hasPermission('feature_adjust_export_file_name')) {
             $filteredExportPreamble = $this->translator->trans('docx.export.filtered');
-            foreach ($exportTagTitles as $tagTopicContainer)
-            {
-                $appendToVariable = "<br>Schlagwort: ".$tagTopicContainer[0].' [Thema: '.$tagTopicContainer[1].']';
+            foreach ($exportTagTitles as $tagTopicContainer) {
+                $appendToVariable = '<br>Schlagwort: '.$tagTopicContainer[0].' [Thema: '.$tagTopicContainer[1].']';
                 $filteredExportPreamble .= $appendToVariable;
             }
             Html::addHtml($header, $this->htmlHelper->getHtmlValidText($filteredExportPreamble), false, false);
@@ -391,7 +390,7 @@ abstract class SegmentsExporter
         bool $censorInstitutionData,
         bool $obscure,
         array $exportFilteredByTags = [],
-        array $exportTagTitles = []
+        array $exportTagTitles = [],
     ): WriterInterface {
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTags, $exportTagTitles);
