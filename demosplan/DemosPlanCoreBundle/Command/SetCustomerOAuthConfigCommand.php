@@ -254,9 +254,7 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
 
         if (!filter_var($customerConfig['authServerUrl'], FILTER_VALIDATE_URL)
             || !str_starts_with($customerConfig['authServerUrl'], 'https://')) {
-            throw new InvalidArgumentException(
-                sprintf('authServerUrl must be a valid HTTPS URL, got "%s"', $customerConfig['authServerUrl'])
-            );
+            throw new InvalidArgumentException(sprintf('authServerUrl must be a valid HTTPS URL, got "%s"', $customerConfig['authServerUrl']));
         }
 
         $customer = $this->customerRepository->findOneBy(['subdomain' => $subdomain]);
