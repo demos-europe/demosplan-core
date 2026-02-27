@@ -12,9 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface;
+use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
-use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -22,6 +23,7 @@ use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\Parser;
+use League\OAuth2\Client\Token\AccessToken;
 use Psr\Log\LoggerInterface;
 use Stevenmaguire\OAuth2\Client\Provider\KeycloakResourceOwner;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -37,15 +39,18 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
 {
+    private ?AccessToken $pendingAccessToken = null;
+
     public function __construct(
         private readonly ClientRegistry $clientRegistry,
         private readonly CustomerServiceInterface $customerService,
         private readonly EntityManagerInterface $entityManager,
+        private readonly MessageBagInterface $messageBag,
+        private readonly OAuthTokenStorageService $oauthTokenStorageService,
         private readonly OzgKeycloakUserData $ozgKeycloakUserData,
         private readonly LoggerInterface $logger,
         private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
         private readonly RouterInterface $router,
-        private readonly OzgKeycloakLogoutManager $keycloakLogoutManager,
     ) {
     }
 
@@ -73,9 +78,6 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             $decodedJwtPayload = $token->claims()->all();
             $this->logger->info('raw token', [$decodedJwtPayload]);
 
-            $tokenValues = $accessToken->getValues();
-            $this->keycloakLogoutManager->storeTokenAndExpirationInSession($request->getSession(), $tokenValues);
-
             $customerSubdomain = $this->customerService->getCurrentCustomer()->getSubdomain();
 
             // Create ResourceOwner with complete JWT payload (includes resource_access)
@@ -87,6 +89,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             $this->entityManager->getConnection()->commit();
             $this->logger->info('doctrine transaction commit.');
             $request->getSession()->set('userId', $user->getId());
+            $this->pendingAccessToken = $accessToken;
         } catch (Exception $e) {
             $this->entityManager->getConnection()->rollBack();
             $this->logger->info('doctrine transaction rollback.');
@@ -107,13 +110,43 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        // change "app_homepage" to some route in your app
-        $targetUrl = $this->router->generate('core_home_loggedin');
+        $accessToken = $this->pendingAccessToken;
+        $this->pendingAccessToken = null;
 
-        return new RedirectResponse($targetUrl);
+        $userId = $request->getSession()->get('userId');
+        $pendingPageUrl = null;
 
-        // or, on success, let the request continue to be handled by the controller
-        // return null;
+        if (null !== $accessToken && null !== $userId) {
+            // Read pending request BEFORE storeTokens() clears it.
+            try {
+                $pendingRequest = $this->oauthTokenStorageService->getPendingRequest($userId);
+                $pendingPageUrl = $pendingRequest?->getPageUrl();
+            } catch (Exception $e) {
+                $this->logger->error('Failed to read pending request on re-authentication', [
+                    'user_id' => $userId,
+                    'error'   => $e->getMessage(),
+                ]);
+            }
+
+            // Store tokens. storeTokens() clears the pending request and syncs the session threshold.
+            // Login succeeds even if storage fails.
+            try {
+                $this->oauthTokenStorageService->storeTokens($userId, $accessToken);
+            } catch (Exception $e) {
+                $this->logger->error('Failed to store OAuth tokens after login', [
+                    'user_id' => $userId,
+                    'error'   => $e->getMessage(),
+                ]);
+            }
+        }
+
+        if (null !== $pendingPageUrl) {
+            $this->messageBag->add('confirm', 'confirm.session.renewed');
+
+            return new RedirectResponse($pendingPageUrl);
+        }
+
+        return new RedirectResponse($this->router->generate('core_home_loggedin'));
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response

@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Message\CheckMailBouncesMessage;
 use demosplan\DemosPlanCoreBundle\Message\FetchStatementGeoDataMessage;
 use demosplan\DemosPlanCoreBundle\Message\ProcessImportJobsMessage;
 use demosplan\DemosPlanCoreBundle\Message\PurgeDeletedProceduresMessage;
+use demosplan\DemosPlanCoreBundle\Message\PurgeExpiredOAuthTokensMessage;
 use demosplan\DemosPlanCoreBundle\Message\SendEmailsMessage;
 use demosplan\DemosPlanCoreBundle\Message\SwitchElementStatesMessage;
 use demosplan\DemosPlanCoreBundle\Message\SwitchProcedurePhasesMessage;
@@ -46,6 +47,7 @@ class MainScheduler implements ScheduleProviderInterface
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new SwitchElementStatesMessage()))
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new SwitchProcedurePhasesMessage()))
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new ProcessImportJobsMessage()))
+            ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new PurgeExpiredOAuthTokensMessage()))
             ->lock($this->lockFactory->createLock('demosplan_main_scheduler_lock'))
         ;
     }
