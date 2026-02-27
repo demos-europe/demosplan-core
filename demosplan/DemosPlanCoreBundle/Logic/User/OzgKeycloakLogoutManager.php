@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
+use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -38,15 +39,36 @@ class OzgKeycloakLogoutManager
         private readonly CurrentUserService $currentUser,
         private readonly CustomerService $customerService,
         private readonly ParameterBagInterface $parameterBag,
+        private readonly CustomerOAuthConfigRepository $configRepository,
     ) {
     }
 
     /**
-     * Check if Keycloak logout is configured for this environment.
+     * Check if Keycloak logout is configured for the current customer.
+     * Per-customer config takes precedence over the global parameter.
      */
     public function isKeycloakConfigured(): bool
     {
-        return '' !== $this->parameterBag->get('oauth_keycloak_logout_route');
+        return '' !== ($this->getEffectiveLogoutRoute() ?? '');
+    }
+
+    /**
+     * Returns the effective logout route for the current customer.
+     * Per-customer config takes precedence; falls back to the global parameter.
+     */
+    public function getEffectiveLogoutRoute(): ?string
+    {
+        $customer = $this->customerService->getCurrentCustomer();
+        $config = $this->configRepository->findByCustomer($customer);
+
+        $perCustomerRoute = $config?->getKeycloakLogoutRoute();
+        if (null !== $perCustomerRoute && '' !== $perCustomerRoute) {
+            return $perCustomerRoute;
+        }
+
+        $globalRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
+
+        return '' !== $globalRoute ? $globalRoute : null;
     }
 
     public function shouldSkipInProductionWithoutKeycloak()
