@@ -242,7 +242,7 @@ export default {
 
   computed: {
     effectiveTitleClass () {
-      return this.titleClass !== null ? this.titleClass : this.prefixClass('font-[700] mb-2')
+      return this.titleClass === null ? this.prefixClass('font-[700] mb-2') : this.titleClass
     },
 
     effectiveTitleTag () {
