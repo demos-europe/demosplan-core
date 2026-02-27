@@ -1,5 +1,5 @@
 <template>
-  <div v-if="resolvedDefinition">
+  <div v-if="isLoading || resolvedDefinition">
     <dp-loading
       v-if="isLoading"
       :overlay="false"

@@ -1,5 +1,10 @@
 <template>
-  <div v-if="hasFieldsToRender">
+  <div v-if="isLoading || hasFieldsToRender">
+    <dp-loading
+      v-if="isLoading"
+      :overlay="false"
+    />
+    <template v-else>
     <!-- Expandable version with dp-details -->
     <dp-details
       v-if="expandable"
@@ -147,11 +152,12 @@
         </div>
       </slot>
     </div>
+    </template>
   </div>
 </template>
 
 <script>
-import { dpApi, DpDetails, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpDetails, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import DpCustomField from './DpCustomField'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
@@ -161,6 +167,7 @@ export default {
   components: {
     DpCustomField,
     DpDetails,
+    DpLoading,
   },
 
   mixins: [prefixClassMixin],
