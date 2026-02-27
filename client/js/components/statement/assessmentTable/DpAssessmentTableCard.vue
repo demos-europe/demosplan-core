@@ -527,6 +527,7 @@
               :list-title="Translator.trans('statement.data')"
               :resource-id="statement.id"
               :show-empty="true"
+              :title-info-text="Translator.trans('custom.fields.submitter.info')"
               @hasContent="val => hasCustomFieldContent = val"
               @save:error="handleCustomFieldSaveError"
               @save:success="handleCustomFieldSaveSuccess"

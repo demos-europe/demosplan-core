@@ -116,6 +116,7 @@
           :list-title="Translator.trans('statement.data')"
           mode="readonly"
           :show-empty="false"
+          :title-info-text="Translator.trans('custom.fields.submitter.info')"
           expandable
           class="px-6 mb-4"
         >
