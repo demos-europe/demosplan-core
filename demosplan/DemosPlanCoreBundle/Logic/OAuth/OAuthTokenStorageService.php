@@ -300,10 +300,11 @@ class OAuthTokenStorageService
      */
     public function storePendingPageUrl(OAuthToken $oauthToken, string $pageUrl): void
     {
+        $needsTimestamp = null === $oauthToken->getPendingRequestTimestamp();
         $oauthToken->clearTokens();
         $oauthToken->setPendingPageUrl($pageUrl);
 
-        if (!$oauthToken->hasPendingData()) {
+        if ($needsTimestamp) {
             $oauthToken->setPendingRequestTimestamp(new DateTime('now', new DateTimeZone('Europe/Berlin')));
         }
 
