@@ -266,7 +266,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                     ['id' => 'org-1', 'name' => 'Organisation One'],
                     ['id' => 'org-2', 'name' => 'Organisation Two'],
                 ],
-                'fachbezug'   => [],
+                'fachbezug'          => [],
                 'groups'             => [
                     '/Beteiligung-Organisation/Aff Only',
                     self::GROUP_FP_ADMIN,
@@ -293,7 +293,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'organisation'       => [
                     ['id' => 'only-org', 'name' => 'Only Organisation'],
                 ],
-                'fachbezug'   => [],
+                'fachbezug'          => [],
                 'groups'             => [
                     '/Beteiligung-Organisation/Single Aff',
                     self::GROUP_FP_ADMIN,
@@ -376,7 +376,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'sub'                => 'empty-arrays-user',
                 'preferred_username' => 'emptyarrays',
                 'organisation'       => [],
-                'fachbezug'   => [],
+                'fachbezug'          => [],
                 'organisationId'     => 'fallback-org-id',
                 'organisationName'   => 'Fallback Organisation',
                 'groups'             => [
@@ -437,7 +437,7 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'organisation'       => [
                     ['id' => 'org-without-name'],
                 ],
-                'fachbezug'   => [],
+                'fachbezug'          => [],
                 'groups'             => [
                     '/Beteiligung-Organisation/NoName Aff',
                     self::GROUP_FP_ADMIN,
