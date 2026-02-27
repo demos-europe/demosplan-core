@@ -127,7 +127,10 @@ class ServiceImporter implements ServiceImporterInterface
     {
         // Release the database session row lock before the blocking RabbitMQ call (up to 600s).
         // Without this, concurrent requests from the same browser hit a lock wait timeout.
-        $this->requestStack->getSession()->save();
+        // In CLI/async contexts (e.g. message consumer) there is no HTTP session to save.
+        if (null !== $this->requestStack->getCurrentRequest()) {
+            $this->requestStack->getSession()->save();
+        }
 
         return $this->pdfCreator->createPdf($content, $pictures);
     }
@@ -147,7 +150,10 @@ class ServiceImporter implements ServiceImporterInterface
     {
         // Release the MySQL session row lock before the blocking RabbitMQ call (up to 300s).
         // Without this, concurrent requests from the same browser hit a lock wait timeout.
-        $this->requestStack->getSession()->save();
+        // In CLI/async contexts (e.g. message consumer) there is no HTTP session to save.
+        if (null !== $this->requestStack->getCurrentRequest()) {
+            $this->requestStack->getSession()->save();
+        }
 
         return $this->docxImporter->importDocx(
             $file,
