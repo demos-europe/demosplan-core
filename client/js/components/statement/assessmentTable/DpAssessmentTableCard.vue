@@ -515,7 +515,7 @@
 
           <!--  custom fields  -->
           <dp-item-row
-            v-if="hasPermission('feature_statements_custom_fields')"
+            v-if="hasPermission('feature_statements_custom_fields') && hasCustomFieldContent !== false"
             title="custom.fields"
             class="pb-0"
           >
@@ -527,6 +527,7 @@
               :list-title="Translator.trans('statement.data')"
               :resource-id="statement.id"
               :show-empty="false"
+              @hasContent="val => hasCustomFieldContent = val"
               @save:error="handleCustomFieldSaveError"
               @save:success="handleCustomFieldSaveSuccess"
             >
@@ -830,6 +831,7 @@ export default {
       updatingClaimState: false,
       fragmentsLoading: false,
       placeholderStatementId: null,
+      hasCustomFieldContent: null,
     }
   },
 
