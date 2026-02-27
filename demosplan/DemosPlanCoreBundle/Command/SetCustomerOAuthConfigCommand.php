@@ -204,11 +204,11 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
         $io->section('Summary');
         $io->definitionList(
             ['Subdomain' => $subdomain],
-            ['Client ID' => $customerConfig['clientId']],
-            ['Client Secret' => '********'],
+            ['Client ID'       => $customerConfig['clientId']],
+            ['Client Secret'   => '********'],
             ['Auth Server URL' => $customerConfig['authServerUrl']],
-            ['Realm' => $customerConfig['realm']],
-            ['Logout Route' => $customerConfig['logoutRoute'] ?? '(global default)'],
+            ['Realm'           => $customerConfig['realm']],
+            ['Logout Route'    => $customerConfig['logoutRoute'] ?? '(global default)'],
         );
 
         if (!$io->confirm('Save this configuration?')) {
