@@ -253,12 +253,12 @@ export default {
         { field: 'solved', label: Translator.trans('completed'), colClass: 'u-2-of-12' },
       ],
       initialRowData: {},
+      isAnyPlaceSolved: true,
       isInitiallyLoading: false,
       isLoading: false,
       addNewPlace: false,
       newPlace: {},
       newRowData: {},
-      noPlaceIsSolved: false,
       places: [],
     }
   },
@@ -297,7 +297,7 @@ export default {
         return place.solved === true && place.id !== id
       })
 
-      this.noPlaceIsSolved = !currentEditIsSolved && !otherPlaceIsSolved
+      this.isAnyPlaceSolved = currentEditIsSolved || otherPlaceIsSolved
     },
 
     editPlace (rowData) {
@@ -436,8 +436,9 @@ export default {
 
       this.checkIfSolvedPlace(rowData.id)
 
-      if (this.noPlaceIsSolved) {
+      if (!this.isAnyPlaceSolved) {
         const isConfirmed = await this.$refs.editConfirmNoSolved.open()
+
         if (!isConfirmed) {
           return
         }
