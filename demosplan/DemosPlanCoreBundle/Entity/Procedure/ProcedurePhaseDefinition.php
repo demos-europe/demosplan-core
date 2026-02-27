@@ -31,7 +31,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *     }
  * )
  *
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository")
  */
 class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
 {
