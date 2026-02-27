@@ -262,7 +262,7 @@
       :class="prefixClass('flow-root border--top u-pt-0_25')"
     >
       <span :class="prefixClass('flow-root')">
-        <em>{{ Translator.trans('more.data') }}: </em>
+        <em>{{ Translator.trans('statement.data') }}: </em>
         <button
           type="button"
           data-cy="statementModalRecheck:customFieldsEdit"
