@@ -113,6 +113,7 @@
           resource-type="OriginalStatement"
           :resource-id="statementId"
           :definition-source-id="procedureId"
+          :list-title="Translator.trans('statement.data')"
           mode="readonly"
           :show-empty="false"
           expandable

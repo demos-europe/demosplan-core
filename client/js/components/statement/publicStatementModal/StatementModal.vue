@@ -166,6 +166,7 @@
           resource-type="DraftStatement"
           :class="prefixClass('mb-2')"
           :definition-source-id="procedureId"
+          :list-title="Translator.trans('statement.data')"
           :resource-id="draftStatementId"
           :show-empty="true"
           @loaded="handleCustomFieldsListLoaded"
