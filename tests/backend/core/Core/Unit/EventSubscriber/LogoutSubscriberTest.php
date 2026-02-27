@@ -15,6 +15,7 @@ namespace Tests\Core\Core\Unit\EventSubscriber;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\LogoutSubscriber;
+use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -31,27 +32,27 @@ use Symfony\Component\Security\Http\Event\LogoutEvent;
 class LogoutSubscriberTest extends TestCase
 {
     private LogoutSubscriber $sut;
-    private MockObject $logger;
     private MockObject $parameterBag;
     private MockObject $permissions;
-    private MockObject $urlGenerator;
     private MockObject $ozgKeycloakLogoutManager;
 
     protected function setUp(): void
     {
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createMock(LoggerInterface::class);
+        $oauthTokenStorageService = $this->createMock(OAuthTokenStorageService::class);
         $this->parameterBag = $this->createMock(ParameterBagInterface::class);
         $this->permissions = $this->createMock(PermissionsInterface::class);
-        $this->urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $this->ozgKeycloakLogoutManager = $this->createMock(OzgKeycloakSessionManager::class);
 
         // Create a partial mock to override redirect methods
         $this->sut = $this->getMockBuilder(LogoutSubscriber::class)
             ->setConstructorArgs([
-                $this->logger,
+                $logger,
+                $oauthTokenStorageService,
                 $this->parameterBag,
                 $this->permissions,
-                $this->urlGenerator,
+                $urlGenerator,
                 $this->ozgKeycloakLogoutManager,
             ])
             ->onlyMethods(['redirect', 'redirectToRoute'])
