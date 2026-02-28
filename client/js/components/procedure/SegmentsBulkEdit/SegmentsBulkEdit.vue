@@ -142,6 +142,37 @@
                 :procedure-id="procedureId"
                 @insert="text => modalProps.handleInsertText(text)"
               />
+              <dp-modal
+                ref="recommendationModal"
+                content-classes="u-2-of-3"
+              >
+                <h3 class="u-mb">
+                  {{ Translator.trans('segment.recommendation.insert.similar') }}
+                </h3>
+                <dp-tabs
+                  v-if="recommendationTabAddonsLoaded && isSingleSegmentSelected && segmentDataLoaded"
+                  :active-id="activeId"
+                  @change="handleTabChange"
+                >
+                  <dp-tab
+                    v-for="addon in recommendationModalAddons"
+                    :id="addon.options.id"
+                    :key="addon.options.id"
+                    :is-active="activeId === addon.options.id"
+                    :label="Translator.trans(addon.options.title)"
+                  >
+                    <component
+                      :is="addon.component"
+                      class="u-mt"
+                      :data-cy="`addon:${addon.name}`"
+                      :demosplan-ui="demosplanUi"
+                      :procedure-id="procedureId"
+                      :segment-id="segments[0]"
+                      @recommendation:insert="closeRecommendationModalAfterInsert"
+                    />
+                  </dp-tab>
+                </dp-tabs>
+              </dp-modal>
             </template>
             <template v-slot:button>
               <button
@@ -154,6 +185,22 @@
               >
                 <i :class="prefixClass('fa fa-puzzle-piece')" />
               </button>
+              <span
+                v-if="hasRecommendationTabs"
+                v-tooltip="isSingleSegmentSelected
+                  ? Translator.trans('segment.recommendation.insert.similar')
+                  : Translator.trans('segment.recommendation.bulk.single.only')"
+              >
+                <button
+                  :class="[prefixClass('menubar__button'), !isSingleSegmentSelected ? 'opacity-50 pointer-events-none' : '']"
+                  :disabled="!isSingleSegmentSelected"
+                  data-cy="segmentEditor:similarRecommendation"
+                  type="button"
+                  @click.stop="toggleRecommendationModal"
+                >
+                  <i :class="prefixClass('fa fa-lightbulb-o')" />
+                </button>
+              </span>
             </template>
           </dp-editor>
         </action-stepper-action>
@@ -312,21 +359,26 @@
 </template>
 
 <script>
+import * as demosplanUi from '@demos-europe/demosplan-ui'
 import {
   CleanHtml,
   dpApi,
+  DpModal,
   DpMultiselect,
   DpRadio,
   dpRpc,
+  DpTab,
+  DpTabs,
   hasOwnProp,
   prefixClassMixin,
 } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent, shallowRef } from 'vue'
 import { mapActions, mapState } from 'vuex'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
-import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import lscache from 'lscache'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
 
@@ -338,16 +390,19 @@ export default {
     ActionStepperAction,
     ActionStepperResponse,
     DpBoilerPlateModal,
-    DpInlineNotification: defineAsyncComponent(async () => {
-      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
-      return DpInlineNotification
-    }),
-    DpMultiselect,
-    DpRadio,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     }),
+    DpInlineNotification: defineAsyncComponent(async () => {
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+      return DpInlineNotification
+    }),
+    DpModal,
+    DpMultiselect,
+    DpRadio,
+    DpTab,
+    DpTabs,
     SelectedTagsList,
   },
 
@@ -356,6 +411,12 @@ export default {
   },
 
   mixins: [prefixClassMixin],
+
+  provide () {
+    return {
+      recommendationProcedureIds: [this.procedureId],
+    }
+  },
 
   props: {
     procedureId: {
@@ -366,6 +427,7 @@ export default {
 
   data () {
     return {
+      activeId: '',
       actions: {
         addRecommendations: {
           text: '',
@@ -399,11 +461,15 @@ export default {
       },
       assignableUsers: [],
       busy: false,
+      demosplanUi: shallowRef(demosplanUi),
       isLoading: true,
-      returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedureId }),
-      step: 1,
+      segmentDataLoaded: false,
       places: [],
+      recommendationModalAddons: [],
+      recommendationTabAddonsLoaded: false,
+      returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedureId }),
       segments: [],
+      step: 1,
     }
   },
 
@@ -517,8 +583,16 @@ export default {
       return this.places.length > 0
     },
 
+    hasRecommendationTabs () {
+      return this.recommendationModalAddons.length > 0
+    },
+
     hasSegments () {
       return this.segments.length > 0
+    },
+
+    isSingleSegmentSelected () {
+      return this.segments.length === 1
     },
 
     tags () {
@@ -533,6 +607,10 @@ export default {
   methods: {
     ...mapActions('AdminProcedure', {
       getAdminProcedureWithFields: 'get',
+    }),
+
+    ...mapActions('StatementSegment', {
+      getSegment: 'get',
     }),
 
     ...mapActions('Tag', {
@@ -688,10 +766,24 @@ export default {
       return hasOwnProp(response, 0) && response[0]?.result === 'ok'
     },
 
+    closeRecommendationModalAfterInsert (recommendation) {
+      this.actions.addRecommendations.text = recommendation
+      this.toggleRecommendationModal()
+      dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
+    },
+
+    handleTabChange (id) {
+      this.activeId = id
+    },
+
     openBoilerPlate () {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
       }
+    },
+
+    toggleRecommendationModal () {
+      this.$refs.recommendationModal.toggle()
     },
 
     /**
@@ -756,6 +848,33 @@ export default {
       })
       .then(() => {
         this.isLoading = false
+      })
+
+    loadAddonComponents('segment.recommendationModal.tab')
+      .then(addons => {
+        if (!addons.length) {
+          return
+        }
+
+        this.activeId = (addons[0].options && addons[0].options.id) || ''
+        this.recommendationTabAddonsLoaded = true
+
+        this.recommendationModalAddons = addons.map(addon => {
+          const { name, options } = addon
+
+          return {
+            component: shallowRef(window[name].default),
+            name,
+            options,
+          }
+        })
+
+        if (this.segments.length === 1) {
+          this.getSegment({ id: this.segments[0], include: 'tags' })
+            .then(() => {
+              this.segmentDataLoaded = true
+            })
+        }
       })
   },
 }
