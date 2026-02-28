@@ -57,12 +57,12 @@
 
         {% set procedurePhasesPublicAgencies = [] %}
         {% for internalPhase in templateVars.internalPhases %}
-            {% set procedurePhasesPublicAgencies = procedurePhasesPublicAgencies|merge([{ key: internalPhase.name, value: internalPhase.num|default(0) }]) %}
+            {% set procedurePhasesPublicAgencies = procedurePhasesPublicAgencies|merge([{ key: internalPhase.name|default('Unknown'), value: internalPhase.num|default(0) }]) %}
         {% endfor %}
 
         {% set procedurePhasesPublic = [] %}
         {% for externalPhase in templateVars.externalPhases %}
-            {% set procedurePhasesPublic = procedurePhasesPublic|merge([{ key: externalPhase.name, value: externalPhase.num|default(0) }]) %}
+            {% set procedurePhasesPublic = procedurePhasesPublic|merge([{ key: externalPhase.name|default('Unknown'), value: externalPhase.num|default(0) }]) %}
         {% endfor %}
 
         {# Find the best fitting colorScheme for a given number of phases (which are different across projects).
@@ -78,9 +78,9 @@
             15: [ 'c-chart__color-11-1', 'c-chart__color-11-2', 'c-chart__color-11-3', 'c-chart__color-11-4', 'c-chart__color-11-5', 'c-chart__color-11-6', 'c-chart__color-11-7', 'c-chart__color-11-8', 'c-chart__color-11-9', 'c-chart__color-11-10', 'c-chart__color-11-11', 'c-chart__color-11-10', 'c-chart__color-11-9', 'c-chart__color-11-8', 'c-chart__color-11-7' ]
         } %}
         {% set phases = procedurePhasesPublicAgencies|length %}
-        {% set chartColorSchemeIndexPublicAgencies = [3, 6, 8, 15]|reduce((acc, val) => (val - phases)|abs <= (acc - phases)|abs ? val : acc, 1) %}
+        {% set chartColorSchemeIndexPublicAgencies = [3, 6, 8, 15]|reduce((acc, val) => (val - phases)|abs <= (acc - phases)|abs ? val : acc, 3) %}
         {% set phases = procedurePhasesPublic|length %}
-        {% set chartColorSchemeIndexPublic = [3, 6, 8, 15]|reduce((acc, val) => (val - phases)|abs <= (acc - phases)|abs ? val : acc, 1) %}
+        {% set chartColorSchemeIndexPublic = [3, 6, 8, 15]|reduce((acc, val) => (val - phases)|abs <= (acc - phases)|abs ? val : acc, 3) %}
 
         {% if hasPermission('feature_procedure_report_public_phase') %}
             <div class="layout shadow-sm u-pv flow-root u-m u-mt-2">
@@ -241,17 +241,17 @@
             </colgroup>
             <thead>
                 <tr>
-                    <th scope="col" rowspan="2">{{ 'agencies'|trans }}</th>
-                    <th scope="col" rowspan="2">{{ 'procedure'|trans }}</th>
-                    <th scope="col" colspan="2">{{ 'procedure.public.phase'|trans }}</th>
-                    <th scope="col" colspan="3">{{ 'statements'|trans }}</th>
+                    <th class="bg-neutral-light-4" scope="col" rowspan="2">{{ 'agencies'|trans }}</th>
+                    <th class="bg-neutral-light-4" scope="col" rowspan="2">{{ 'procedure'|trans }}</th>
+                    <th class="bg-neutral-light-4" scope="col" colspan="2">{{ 'procedure.public.phase'|trans }}</th>
+                    <th class="bg-neutral-light-4" scope="col" colspan="3">{{ 'statements'|trans }}</th>
                 </tr>
                 <tr>
-                    <th scope="col">{{ 'invitable_institutions'|trans }}</th>
-                    <th scope="col">{{ 'public'|trans }}</th>
-                    <th scope="col">{{ 'invitable_institutions'|trans }}</th>
-                    <th scope="col">{{ 'citizens.registered'|trans }}</th>
-                    <th scope="col">{{ 'guests'|trans }}</th>
+                    <th class="bg-neutral-light-3" scope="col">{{ 'invitable_institutions'|trans }}</th>
+                    <th class="bg-neutral-light-2" scope="col">{{ 'public'|trans }}</th>
+                    <th class="bg-neutral-light-3" scope="col">{{ 'invitable_institutions'|trans }}</th>
+                    <th class="bg-neutral-light-2" scope="col">{{ 'citizens.registered'|trans }}</th>
+                    <th class="bg-neutral-light-3" scope="col">{{ 'guests'|trans }}</th>
                 </tr>
             </thead>
             <tbody>
