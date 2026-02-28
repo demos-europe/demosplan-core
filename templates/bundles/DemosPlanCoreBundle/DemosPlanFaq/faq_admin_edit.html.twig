@@ -101,6 +101,15 @@
                     required: true,
                     isFieldset: true
                 }) }}
+            {% elseif hasPermission('feature_faq_send_all_configured_visibility_roles') %}
+                {#  Send all configured visibility roles, bypassing FE checkbox map filtering.
+                    Used in projects with custom role groups that don't have checkbox definitions. #}
+                {% for roleGroup in templateVars.roleGroupsFaqVisibility %}
+                    <input
+                        type="hidden"
+                        name="r_group_code[]"
+                        value="{{ roleGroup }}">
+                {% endfor %}
             {% else %}
                 {#  If there is only one role group to activate within the project,
                     users may control visibility by using the "status" toggle.

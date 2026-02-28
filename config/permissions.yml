@@ -916,6 +916,12 @@ feature_export_protocol:
     label: 'Exportieren des Verfahrensprotokolls'
     loginRequired: true
     parent: area_admin_protocol
+feature_faq_send_all_configured_visibility_roles:
+    description: 'When enabled, FAQ form sends all configured visibility roles instead of filtering by frontend checkbox definitions. Used in projects without role choose CheckBox.'
+    expose: true
+    label: 'Send all configured FAQ visibility roles'
+    loginRequired: true
+    parent: area_admin_faq
 feature_feedback_on_statement_controllable:
     description: 'Enables the user to control whether feedback on statements is enabled or not.'
     label: 'Control feedback on statements'
