@@ -20412,35 +20412,41 @@
         },
         {
             "name": "cyclonedx/cyclonedx-library",
-            "version": "v3.10.0",
+            "version": "v4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CycloneDX/cyclonedx-php-library.git",
-                "reference": "e6bb0fca8d89f1e34755900c361061a6f5253e49"
+                "reference": "c95a371894c4e32bea42bfa024f2ab5092cbb292"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CycloneDX/cyclonedx-php-library/zipball/e6bb0fca8d89f1e34755900c361061a6f5253e49",
-                "reference": "e6bb0fca8d89f1e34755900c361061a6f5253e49",
+                "url": "https://api.github.com/repos/CycloneDX/cyclonedx-php-library/zipball/c95a371894c4e32bea42bfa024f2ab5092cbb292",
+                "reference": "c95a371894c4e32bea42bfa024f2ab5092cbb292",
                 "shasum": ""
             },
             "require": {
-                "composer/spdx-licenses": "^1.5",
                 "ext-dom": "*",
                 "ext-json": "*",
                 "ext-libxml": "*",
                 "opis/json-schema": "^2.0",
-                "package-url/packageurl-php": "^1.0",
                 "php": "^8.1"
             },
+            "conflict": {
+                "composer/spdx-licenses": "<1.5"
+            },
             "require-dev": {
+                "composer/spdx-licenses": "^1.5",
                 "ext-simplexml": "*",
                 "roave/security-advisories": "dev-latest"
+            },
+            "suggest": {
+                "composer/spdx-licenses": "used in license factory",
+                "package-url/packageurl-php": "for parsing and crafting PackageURL strings"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.x-dev"
+                    "dev-master": "4.x-dev"
                 },
                 "composer-normalize": {
                     "indent-size": 4,
@@ -20497,25 +20503,26 @@
                     "type": "other"
                 }
             ],
-            "time": "2026-01-07T13:45:46+00:00"
+            "time": "2026-02-17T11:46:50+00:00"
         },
         {
             "name": "cyclonedx/cyclonedx-php-composer",
-            "version": "v6.1.0",
+            "version": "v6.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CycloneDX/cyclonedx-php-composer.git",
-                "reference": "d718efc4c201acd0da7d2c2e5690864b2a5c7116"
+                "reference": "934440a5ef7c3c3cdb58c3c3d389d412630ccbf6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CycloneDX/cyclonedx-php-composer/zipball/d718efc4c201acd0da7d2c2e5690864b2a5c7116",
-                "reference": "d718efc4c201acd0da7d2c2e5690864b2a5c7116",
+                "url": "https://api.github.com/repos/CycloneDX/cyclonedx-php-composer/zipball/934440a5ef7c3c3cdb58c3c3d389d412630ccbf6",
+                "reference": "934440a5ef7c3c3cdb58c3c3d389d412630ccbf6",
                 "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^2.3",
-                "cyclonedx/cyclonedx-library": "^3.9",
+                "composer/spdx-licenses": "^1.5.7",
+                "cyclonedx/cyclonedx-library": "^4.0",
                 "package-url/packageurl-php": "^1.0",
                 "php": "^8.1"
             },
@@ -20528,7 +20535,7 @@
             "extra": {
                 "class": "CycloneDX\\Composer\\Plugin",
                 "branch-alias": {
-                    "dev-master": "5.x-dev"
+                    "dev-master": "6.x-dev"
                 },
                 "composer-normalize": {
                     "indent-size": 4,
@@ -20574,7 +20581,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2026-01-07T13:45:28+00:00"
+            "time": "2026-02-17T13:23:10+00:00"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -25566,5 +25573,5 @@
     "platform-overrides": {
         "php": "8.2.0"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
