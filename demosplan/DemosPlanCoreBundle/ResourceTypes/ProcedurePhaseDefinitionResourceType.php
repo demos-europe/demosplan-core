@@ -14,8 +14,10 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedurePhaseDefinitionResourceConfigBuilder;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
+use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 
 /**
@@ -23,6 +25,11 @@ use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
  */
 final class ProcedurePhaseDefinitionResourceType extends DplanResourceType
 {
+    public function __construct(
+        private readonly ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository,
+    ) {
+    }
+
     public function getEntityClass(): string
     {
         return ProcedurePhaseDefinition::class;
@@ -99,8 +106,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType
 
         $configBuilder->orderInAudience
             ->setReadableByPath()
-            ->setSortable()
-            ->initializable();
+            ->setSortable();
 
         $configBuilder->customer
             ->setRelationshipType($this->resourceTypeStore->getCustomerResourceType())
@@ -108,8 +114,17 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType
             ->setFilterable();
 
         $configBuilder->addPostConstructorBehavior(
-            new FixedSetBehavior(function (ProcedurePhaseDefinition $entity): array {
-                $entity->setCustomer($this->currentCustomerService->getCurrentCustomer());
+            new FixedSetBehavior(function (ProcedurePhaseDefinition $entity, EntityDataInterface $entityData): array {
+                $customer = $this->currentCustomerService->getCurrentCustomer();
+                $entity->setCustomer($customer);
+
+                // Read audience from request data directly, as property behaviors (initializable)
+                // run after general post-constructor behaviors, so $entity->getAudience() is not set yet.
+                $audience = $entityData->getAttributes()['audience'];
+                $maxOrder = $this->procedurePhaseDefinitionRepository
+                    ->getMaxOrderForCustomerAndAudience($customer->getId(), $audience);
+                $entity->setOrderInAudience($maxOrder + 1);
+
                 $this->getEntityManager()->persist($entity);
                 $this->getEntityManager()->flush();
 

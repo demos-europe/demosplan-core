@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 
 /**
  * @template-extends CoreRepository<ProcedurePhaseDefinition>
@@ -24,4 +26,21 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
  */
 class ProcedurePhaseDefinitionRepository extends CoreRepository
 {
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function getMaxOrderForCustomerAndAudience(string $customerId, string $audience): int
+    {
+        $result = $this->getEntityManager()
+            ->createQuery(
+                'SELECT MAX(p.orderInAudience) FROM '.ProcedurePhaseDefinition::class.' p
+                 WHERE p.customer = :customerId AND p.audience = :audience'
+            )
+            ->setParameter('customerId', $customerId)
+            ->setParameter('audience', $audience)
+            ->getSingleScalarResult();
+
+        return $result ?? -1;
+    }
 }
