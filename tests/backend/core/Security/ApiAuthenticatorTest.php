@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security;
 
+use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator;
@@ -105,7 +106,7 @@ class ApiAuthenticatorTest extends UnitTestCase
         self::assertSame($user, $passport->getUser());
     }
 
-    public function testHasValidSessionReturnsFalseWhenUserIdNotInSession(): void
+    public function testSupportsReturnsTrueForSessionWithoutUserIdForAnonymousFallback(): void
     {
         $session = $this->createMock(SessionInterface::class);
         $session->method('has')->with('userId')->willReturn(false);
@@ -115,8 +116,43 @@ class ApiAuthenticatorTest extends UnitTestCase
 
         $this->tokenExtractor->method('extract')->willReturn(false);
 
-        // No session userId and no JWT = not supported
-        self::assertFalse($this->sut->supports($request));
+        // Session without userId and no JWT = supported via anonymous fallback
+        self::assertTrue($this->sut->supports($request));
+    }
+
+    public function testAuthenticateViaAnonymousWhenSessionHasNoUserId(): void
+    {
+        $session = $this->createMock(SessionInterface::class);
+        $session->method('has')->with('userId')->willReturn(false);
+        $session->method('get')->with('userId')->willReturn(null);
+
+        $request = new Request();
+        $request->setSession($session);
+
+        $this->tokenExtractor->method('extract')->willReturn(false);
+
+        $passport = $this->sut->authenticate($request);
+
+        self::assertInstanceOf(SelfValidatingPassport::class, $passport);
+        self::assertInstanceOf(AnonymousUser::class, $passport->getUser());
+    }
+
+    public function testBearerNullIsIgnoredAndFallsBackToAnonymous(): void
+    {
+        $session = $this->createMock(SessionInterface::class);
+        $session->method('has')->with('userId')->willReturn(false);
+        $session->method('get')->with('userId')->willReturn(null);
+
+        $request = new Request();
+        $request->setSession($session);
+
+        // Frontend sends "X-JWT-Authorization: Bearer null"
+        $this->tokenExtractor->method('extract')->willReturn('null');
+
+        $passport = $this->sut->authenticate($request);
+
+        self::assertInstanceOf(SelfValidatingPassport::class, $passport);
+        self::assertInstanceOf(AnonymousUser::class, $passport->getUser());
     }
 
     public function testSessionAuthDoesNotAuthenticateDeletedUser(): void
