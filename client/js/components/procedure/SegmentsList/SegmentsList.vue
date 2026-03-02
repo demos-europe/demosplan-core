@@ -28,20 +28,21 @@
           @search="term => updateSearchQuery(term)"
           @reset="handleResetSearch"
         />
-        <div class="ml-2 space-x-1 space-x-reverse">
+        <div class="ml-2 space-x-2">
           <filter-flyout
             v-for="(filter, idx) in Object.values(filters)"
             ref="filterFlyout"
             :key="`filter_${filter.labelTranslationKey}`"
             :additional-query-params="{ searchPhrase: searchTerm }"
             :category="{ id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }"
-            class="inline-block first:mr-1"
+            class="inline-block"
             :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
             align="left"
             :groups-object="filter.groupsObject"
             :initial-query-ids="queryIds"
             :items-object="filter.itemsObject"
             :operator="filter.comparisonOperator"
+            :member-of="groupName(filter.labelTranslationKey)"
             :path="filter.rootPath"
             :show-count="{
               groupedOptions: true,
@@ -830,6 +831,15 @@ export default {
       return null
     },
 
+
+    groupName (filterType) {
+      if (filterType === 'tags') {
+        return null
+      }
+      // Replace '.' in workflow.places because it is forbidden in group names
+      return `${filterType.replaceAll('.', '-')}_group`
+    },
+
     handleBulkEdit () {
       this.storeToggledSegments()
       // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
@@ -1121,6 +1131,8 @@ export default {
 
     this.fetchPlaces()
     this.fetchAssignableUsers()
+    console.log(this.filters)
+    console.log(this.initialFilter)
   },
 }
 </script>
