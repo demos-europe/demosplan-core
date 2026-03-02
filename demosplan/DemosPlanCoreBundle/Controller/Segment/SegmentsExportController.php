@@ -131,10 +131,9 @@ class SegmentsExportController extends BaseController
         // Apply tag filtering after JsonAPI filtering
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
         $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
-
         $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
         $filteredTagNames = $this->statementExportTagFilter->getTagNames();
-
+        $tagFilterTitleName = $this->statementExportTagFilter->getFilteredTagsWithTitles();
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
         // geschwärzt
@@ -149,13 +148,15 @@ class SegmentsExportController extends BaseController
                 $censorCitizenData,
                 $censorInstitutionData,
                 $obscureParameter,
-                $filteredTagNames
+                $filteredTagNames,
+                $tagFilterTitleName,
             ) {
                 $exportedDoc = $exporter->exportAll(
                     $tableHeaders,
                     $procedure,
                     $obscureParameter,
                     $filteredTagNames,
+                    $tagFilterTitleName,
                     $censorCitizenData,
                     $censorInstitutionData,
                     ...$statementEntities
@@ -201,7 +202,8 @@ class SegmentsExportController extends BaseController
 
         // Apply tag filtering after JsonAPI filtering
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+        $tagsTopicTitles = $this->requestStack->getCurrentRequest()->query->all('tagTopicTitles');
+        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter, $tagsTopicTitles);
 
         $response = new StreamedResponse(
             function () use ($statementEntities, $exporter) {

@@ -103,7 +103,7 @@ abstract class SegmentsExporter
         }
     }
 
-    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null, array $exportFilteredByTags = []): void
+    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null, array $exportFilteredByTags = [], array $exportTagTitles = []): void
     {
         $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
         $header->addText(
@@ -112,13 +112,13 @@ abstract class SegmentsExporter
             $this->styles['documentTitleParagraph']
         );
 
-        $this->addPreambleIfFirstHeader($header, $headerType, $exportFilteredByTags);
+        $this->addPreambleIfFirstHeader($header, $headerType, $exportFilteredByTags, $exportTagTitles);
 
         $currentDate = new DateTime();
-        $translationKey = $exportFilteredByTags ? 'segments.export.statement.export.date.filtered' : 'segments.export.statement.export.date';
+        $translationKey = $exportFilteredByTags && $exportTagTitles ? 'segments.export.statement.export.date.filtered' : 'segments.export.statement.export.date';
         $translationParameter = ['date' => $currentDate->format('d.m.Y')];
         if ($this->currentUser->hasPermission('feature_adjust_export_file_name')) {
-            $translationKey = $exportFilteredByTags ? 'segments.export.statement.export.filtered' : 'segments.export.statement.export';
+            $translationKey = $exportFilteredByTags && $exportTagTitles ? 'segments.export.statement.export.filtered' : 'segments.export.statement.export';
             $translationParameter = ['procedureName'  => $procedure->getName()];
         }
         $header->addText(
@@ -128,11 +128,16 @@ abstract class SegmentsExporter
         );
     }
 
-    protected function addPreambleIfFirstHeader(Header $header, ?string $headerType, array $exportFilteredByTags = []): void
+    protected function addPreambleIfFirstHeader(Header $header, ?string $headerType, array $exportFilteredByTags = [], array $exportTagTitles = []): void
     {
-        if (Footer::FIRST === $headerType && [] !== $exportFilteredByTags && $this->currentUser->hasPermission('feature_adjust_export_file_name')) {
+        if (Footer::FIRST === $headerType
+            && ([] !== $exportFilteredByTags || [] !== $exportTagTitles)
+            && $this->currentUser->hasPermission('feature_adjust_export_file_name')) {
             $filteredExportPreamble = $this->translator->trans('docx.export.filtered');
-            $filteredExportPreamble .= implode(separator: ', ', array: $exportFilteredByTags);
+            foreach ($exportTagTitles as $tagTopicContainer) {
+                $appendToVariable = 'Schlagwort: '.$tagTopicContainer[0].' [Thema: '.$tagTopicContainer[1].'], ';
+                $filteredExportPreamble .= $appendToVariable;
+            }
             Html::addHtml($header, $this->htmlHelper->getHtmlValidText($filteredExportPreamble), false, false);
         } else {
             $preamble = $this->translator->trans('docx.export.preamble');
@@ -338,11 +343,11 @@ abstract class SegmentsExporter
     /**
      * @throws Exception
      */
-    protected function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure, array $exportFilteredByTags = []): WriterInterface
+    protected function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure, array $exportFilteredByTags = [], array $exportTagTitles = []): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTags);
-        $this->addHeader($section, $procedure, null, $exportFilteredByTags);
+        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTags, $exportTagTitles);
+        $this->addHeader($section, $procedure, null, $exportFilteredByTags, $exportTagTitles);
 
         return $this->addNoStatementsMessage($phpWord, $section);
     }
@@ -385,10 +390,11 @@ abstract class SegmentsExporter
         bool $censorInstitutionData,
         bool $obscure,
         array $exportFilteredByTags = [],
+        array $exportTagTitles = [],
     ): WriterInterface {
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTags);
-        $this->addHeader($section, $procedure, null, $exportFilteredByTags);
+        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTags, $exportTagTitles);
+        $this->addHeader($section, $procedure, null, $exportFilteredByTags, $exportTagTitles);
 
         foreach ($statements as $index => $statement) {
             $censored = $this->needsToBeCensored(

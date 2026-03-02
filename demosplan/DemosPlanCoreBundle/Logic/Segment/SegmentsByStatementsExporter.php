@@ -79,6 +79,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         Procedure $procedure,
         bool $obscure,
         array $exportFilteredByTags = [],
+        array $exportTagTitles = [],
         bool $censorCitizenData = false,
         bool $censorInstitutionData = false,
         Statement ...$statements,
@@ -99,7 +100,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $censorCitizenData,
             $censorInstitutionData,
             $obscure,
-            $exportFilteredByTags
+            $exportFilteredByTags,
+            $exportTagTitles,
         );
     }
 

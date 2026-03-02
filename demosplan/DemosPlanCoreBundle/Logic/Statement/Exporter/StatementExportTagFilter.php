@@ -36,6 +36,7 @@ class StatementExportTagFilter
     private array $tagsFilter = [];
     private array $tagNamesFound = [];
     private array $topicNamesFound = [];
+    private array $filteredTagsWithTitle = [];
 
     /**
      * Filters statements and their segments based on tag criteria.
@@ -125,6 +126,16 @@ class StatementExportTagFilter
     public function getTagTopicTitles(): array
     {
         return $this->tagsFilter[self::TAG_TOPIC_TITLES_FILTER_KEY] ?? [];
+    }
+
+    public function getTagTopicNames(): array
+    {
+        return $this->topicNamesFound;
+    }
+
+    public function getFilteredTagsWithTitles(): array
+    {
+        return $this->filteredTagsWithTitle;
     }
 
     /**
@@ -230,6 +241,7 @@ class StatementExportTagFilter
         $matchByTag = $matchByTagId || $matchByTagTitle;
         if ($matchByTag) {
             $this->tagNamesFound[$tag->getId()] = $tag->getTitle();
+            $this->filteredTagsWithTitle[$tag->getId()] = [$tag->getTitle(), $tag->getTopic()->getTitle()];
         }
 
         return $matchByTag;
