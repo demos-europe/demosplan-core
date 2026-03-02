@@ -557,7 +557,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         sort($orgGwIds);
 
         self::assertCount(4, $orgGwIds);
-        self::assertSame(['AMT-A.LITTER', 'AMT-A.WATER', 'AMT-B.LITTER', 'AMT-B.WATER'], $orgGwIds);
+        self::assertSame(['AMT-A|LITTER', 'AMT-A|WATER', 'AMT-B|LITTER', 'AMT-B|WATER'], $orgGwIds);
     }
 
     /**
@@ -736,7 +736,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         sort($orgGwIds);
 
         self::assertCount(2, $orgGwIds);
-        self::assertSame(['NEW-AMT-A.WATER', 'NEW-AMT-B.WATER'], $orgGwIds);
+        self::assertSame(['NEW-AMT-A|WATER', 'NEW-AMT-B|WATER'], $orgGwIds);
     }
 
     /**
@@ -948,8 +948,8 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         $this->assertReloginSyncsOrgs(
             'resp-change',
-            ['orgs' => [['id' => 'AMT-X', 'name' => 'Amt X']], 'resps' => [['id' => 'WATER', 'name' => 'Wasserwirtschaft'], ['id' => 'LITTER', 'name' => 'Abfallwirtschaft']], 'gwIds' => ['AMT-X.LITTER', 'AMT-X.WATER']],
-            ['orgs' => [['id' => 'AMT-X', 'name' => 'Amt X']], 'resps' => [['id' => 'ENERGY', 'name' => 'Energiewirtschaft'], ['id' => 'FOREST', 'name' => 'Forstwirtschaft']], 'gwIds' => ['AMT-X.ENERGY', 'AMT-X.FOREST']],
+            ['orgs' => [['id' => 'AMT-X', 'name' => 'Amt X']], 'resps' => [['id' => 'WATER', 'name' => 'Wasserwirtschaft'], ['id' => 'LITTER', 'name' => 'Abfallwirtschaft']], 'gwIds' => ['AMT-X|LITTER', 'AMT-X|WATER']],
+            ['orgs' => [['id' => 'AMT-X', 'name' => 'Amt X']], 'resps' => [['id' => 'ENERGY', 'name' => 'Energiewirtschaft'], ['id' => 'FOREST', 'name' => 'Forstwirtschaft']], 'gwIds' => ['AMT-X|ENERGY', 'AMT-X|FOREST']],
         );
     }
 
@@ -958,8 +958,8 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         $this->assertReloginSyncsOrgs(
             'both-change',
-            ['orgs' => [['id' => 'OLD-A', 'name' => 'Old Amt']], 'resps' => [['id' => 'OLD-R', 'name' => 'Old Responsibility']], 'gwIds' => ['OLD-A.OLD-R']],
-            ['orgs' => [['id' => 'NEW-A1', 'name' => 'New Amt 1'], ['id' => 'NEW-A2', 'name' => 'New Amt 2']], 'resps' => [['id' => 'NEW-R1', 'name' => 'New Resp 1'], ['id' => 'NEW-R2', 'name' => 'New Resp 2']], 'gwIds' => ['NEW-A1.NEW-R1', 'NEW-A1.NEW-R2', 'NEW-A2.NEW-R1', 'NEW-A2.NEW-R2']],
+            ['orgs' => [['id' => 'OLD-A', 'name' => 'Old Amt']], 'resps' => [['id' => 'OLD-R', 'name' => 'Old Responsibility']], 'gwIds' => ['OLD-A|OLD-R']],
+            ['orgs' => [['id' => 'NEW-A1', 'name' => 'New Amt 1'], ['id' => 'NEW-A2', 'name' => 'New Amt 2']], 'resps' => [['id' => 'NEW-R1', 'name' => 'New Resp 1'], ['id' => 'NEW-R2', 'name' => 'New Resp 2']], 'gwIds' => ['NEW-A1|NEW-R1', 'NEW-A1|NEW-R2', 'NEW-A2|NEW-R1', 'NEW-A2|NEW-R2']],
         );
     }
 
@@ -985,8 +985,8 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         $user = $this->assertReloginSyncsOrgs(
             'resp-name',
-            ['orgs' => [['id' => 'FIX-AMT', 'name' => 'Fixed Amt']], 'resps' => [['id' => 'R1', 'name' => 'Original Resp 1'], ['id' => 'R2', 'name' => 'Original Resp 2']], 'gwIds' => ['FIX-AMT.R1', 'FIX-AMT.R2']],
-            ['orgs' => [['id' => 'FIX-AMT', 'name' => 'Fixed Amt']], 'resps' => [['id' => 'R1', 'name' => 'Renamed Resp 1'], ['id' => 'R2', 'name' => 'Renamed Resp 2']], 'gwIds' => ['FIX-AMT.R1', 'FIX-AMT.R2']],
+            ['orgs' => [['id' => 'FIX-AMT', 'name' => 'Fixed Amt']], 'resps' => [['id' => 'R1', 'name' => 'Original Resp 1'], ['id' => 'R2', 'name' => 'Original Resp 2']], 'gwIds' => ['FIX-AMT|R1', 'FIX-AMT|R2']],
+            ['orgs' => [['id' => 'FIX-AMT', 'name' => 'Fixed Amt']], 'resps' => [['id' => 'R1', 'name' => 'Renamed Resp 1'], ['id' => 'R2', 'name' => 'Renamed Resp 2']], 'gwIds' => ['FIX-AMT|R1', 'FIX-AMT|R2']],
         );
         self::assertSame(
             ['Fixed Amt - Original Resp 1', 'Fixed Amt - Original Resp 2'],
@@ -1024,7 +1024,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         $this->assertReloginSyncsOrgs(
             'cart-to-aff',
-            ['orgs' => [['id' => 'CT-AMT-A', 'name' => 'CT Amt A'], ['id' => 'CT-AMT-B', 'name' => 'CT Amt B']], 'resps' => [['id' => 'CT-RESP', 'name' => 'CT Responsibility']], 'gwIds' => ['CT-AMT-A.CT-RESP', 'CT-AMT-B.CT-RESP']],
+            ['orgs' => [['id' => 'CT-AMT-A', 'name' => 'CT Amt A'], ['id' => 'CT-AMT-B', 'name' => 'CT Amt B']], 'resps' => [['id' => 'CT-RESP', 'name' => 'CT Responsibility']], 'gwIds' => ['CT-AMT-A|CT-RESP', 'CT-AMT-B|CT-RESP']],
             ['orgs' => [['id' => 'CT-AMT-A', 'name' => 'CT Amt A'], ['id' => 'CT-AMT-B', 'name' => 'CT Amt B']], 'resps' => [], 'gwIds' => ['CT-AMT-A', 'CT-AMT-B']],
         );
     }
@@ -1035,7 +1035,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         $this->assertReloginSyncsOrgs(
             'aff-to-cart',
             ['orgs' => [['id' => 'AC-AMT', 'name' => 'AC Amt']], 'resps' => [], 'gwIds' => ['AC-AMT']],
-            ['orgs' => [['id' => 'AC-AMT', 'name' => 'AC Amt']], 'resps' => [['id' => 'AC-WATER', 'name' => 'Wasser'], ['id' => 'AC-LITTER', 'name' => 'Abfall']], 'gwIds' => ['AC-AMT.AC-LITTER', 'AC-AMT.AC-WATER']],
+            ['orgs' => [['id' => 'AC-AMT', 'name' => 'AC Amt']], 'resps' => [['id' => 'AC-WATER', 'name' => 'Wasser'], ['id' => 'AC-LITTER', 'name' => 'Abfall']], 'gwIds' => ['AC-AMT|AC-LITTER', 'AC-AMT|AC-WATER']],
         );
     }
 
@@ -1057,7 +1057,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         $this->assertReloginSyncsOrgs(
             'single-to-cart',
             ['orgs'           => [], 'resps' => [], 'gwIds' => ['STC-LEGACY']],
-            ['orgs'           => [['id' => 'STC-AMT', 'name' => 'STC Amt']], 'resps' => [['id' => 'STC-R1', 'name' => 'STC Resp 1'], ['id' => 'STC-R2', 'name' => 'STC Resp 2']], 'gwIds' => ['STC-AMT.STC-R1', 'STC-AMT.STC-R2']],
+            ['orgs'           => [['id' => 'STC-AMT', 'name' => 'STC Amt']], 'resps' => [['id' => 'STC-R1', 'name' => 'STC Resp 1'], ['id' => 'STC-R2', 'name' => 'STC Resp 2']], 'gwIds' => ['STC-AMT|STC-R1', 'STC-AMT|STC-R2']],
             ['organisationId' => 'STC-LEGACY', 'organisationName' => 'STC Legacy Org'],
         );
     }
@@ -1079,8 +1079,8 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     {
         $this->assertReloginSyncsOrgs(
             'cart-partial',
-            ['orgs' => [['id' => 'CP-AMT', 'name' => 'CP Amt']], 'resps' => [['id' => 'CP-R-KEEP', 'name' => 'Keep Resp'], ['id' => 'CP-R-OLD', 'name' => 'Old Resp']], 'gwIds' => ['CP-AMT.CP-R-KEEP', 'CP-AMT.CP-R-OLD']],
-            ['orgs' => [['id' => 'CP-AMT', 'name' => 'CP Amt']], 'resps' => [['id' => 'CP-R-KEEP', 'name' => 'Keep Resp'], ['id' => 'CP-R-NEW', 'name' => 'New Resp']], 'gwIds' => ['CP-AMT.CP-R-KEEP', 'CP-AMT.CP-R-NEW']],
+            ['orgs' => [['id' => 'CP-AMT', 'name' => 'CP Amt']], 'resps' => [['id' => 'CP-R-KEEP', 'name' => 'Keep Resp'], ['id' => 'CP-R-OLD', 'name' => 'Old Resp']], 'gwIds' => ['CP-AMT|CP-R-KEEP', 'CP-AMT|CP-R-OLD']],
+            ['orgs' => [['id' => 'CP-AMT', 'name' => 'CP Amt']], 'resps' => [['id' => 'CP-R-KEEP', 'name' => 'Keep Resp'], ['id' => 'CP-R-NEW', 'name' => 'New Resp']], 'gwIds' => ['CP-AMT|CP-R-KEEP', 'CP-AMT|CP-R-NEW']],
         );
     }
 }

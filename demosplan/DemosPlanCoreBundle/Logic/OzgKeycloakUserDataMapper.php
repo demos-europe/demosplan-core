@@ -120,7 +120,7 @@ class OzgKeycloakUserDataMapper
      * Organisation (affiliations) is always >= 1, responsibilities is 0..n.
      *
      * Fallback rules:
-     * 1. Both present → cartesian product (gwId = aff.id + '.' + resp.id)
+     * 1. Both present → cartesian product (gwId = aff.id + '|' + resp.id)
      * 2. Only affiliations (no responsibilities) → use affiliations alone
      * 3. No affiliations → empty array (caller falls back to organisationId)
      *
@@ -141,7 +141,7 @@ class OzgKeycloakUserDataMapper
             foreach ($affiliations as $aff) {
                 foreach ($responsibilities as $resp) {
                     $entries[] = [
-                        'gwId' => $aff['id'].'.'.$resp['id'],
+                        'gwId' => $aff['id'].'|'.$resp['id'],
                         'name' => $aff['name'].' - '.$resp['name'],
                     ];
                 }
