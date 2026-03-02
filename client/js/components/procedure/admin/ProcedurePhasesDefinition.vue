@@ -115,7 +115,7 @@ export default {
         })
         .catch(err => {
           console.error(err)
-          dplan.notify.error(Translator.trans('error.generic'))
+          dplan.notify.error(Translator.trans('error.api.generic'))
         })
         .finally(() => {
           this.isInitiallyLoading = false
