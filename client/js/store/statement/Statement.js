@@ -530,6 +530,10 @@ export default {
         fields.Tag = 'title'
       }
 
+      if (hasPermission('feature_statements_custom_fields')) {
+        statementFields.push('customFields')
+      }
+
       return dpApi({
         method: 'GET',
         // @improve T12984

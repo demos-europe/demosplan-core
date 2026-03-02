@@ -513,6 +513,39 @@
             />
           </dp-item-row>
 
+          <!--  custom fields  -->
+          <dp-item-row
+            v-if="hasPermission('feature_statements_custom_fields') && hasCustomFieldContent !== false"
+            title="custom.fields"
+            class="pb-0"
+          >
+            <dp-custom-fields-list
+              resource-type="Statement"
+              title-class="font-[600] mb-2"
+              :definition-source-id="procedureId"
+              :enable-toggle="true"
+              :list-title="Translator.trans('statement.data')"
+              :resource-id="statement.id"
+              :show-empty="true"
+              :title-info-text="Translator.trans('custom.fields.submitter.info')"
+              @hasContent="val => hasCustomFieldContent = val"
+              @save:error="handleCustomFieldSaveError"
+              @save:success="handleCustomFieldSaveSuccess"
+            >
+              <template v-slot:readonly-display="{ field }">
+                <span v-if="field.value?.selectedOptions?.length > 0">
+                  {{ field.value.selectedOptions.map(o => o.label).join(', ') }}
+                </span>
+                <span
+                  v-else
+                  class="text-sm text-muted"
+                >
+                  -
+                </span>
+              </template>
+            </dp-custom-fields-list>
+          </dp-item-row>
+
           <!-- Statement / Recommendation Text -->
           <dp-item-row
             title="statement.text"
@@ -729,6 +762,7 @@ import { dpApi, DpContextualHelp, DpTooltip, formatDate, hasOwnProp } from '@dem
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
+import DpCustomFieldsList from '@DpJs/components/customFields/DpCustomFieldsList'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
 import DpItemRow from './ItemRow'
@@ -741,6 +775,7 @@ export default {
   components: {
     DpContextualHelp,
     DpClaim,
+    DpCustomFieldsList,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
     DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList'),
@@ -797,6 +832,7 @@ export default {
       updatingClaimState: false,
       fragmentsLoading: false,
       placeholderStatementId: null,
+      hasCustomFieldContent: null,
     }
   },
 
@@ -1281,6 +1317,19 @@ export default {
         .then(updatedField => {
           this.$root.$emit('entityTextSaved:' + this.statementId, { entityId: this.statementId, field: updatedField }) // Used in EditableText.vue to update short and full texts
         })
+    },
+
+    /**
+     * Handle successful custom field save (Option B - enableToggle)
+     * @param {Object} data - { fieldId, value }
+     */
+    handleCustomFieldSaveSuccess () {
+      this.$root.$emit('entity:updated', this.statementId, 'statement')
+      dplan.notify.confirm(Translator.trans('confirm.saved'))
+    },
+
+    handleCustomFieldSaveError () {
+      dplan.notify.error(Translator.trans('error.changes.not.saved'))
     },
 
     showAllFragments (checked) {

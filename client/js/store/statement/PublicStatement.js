@@ -87,6 +87,10 @@ const PublicStatementStore = {
       }
     },
 
+    resetStatementIdentifier (state) {
+      state.statement.r_ident = ''
+    },
+
     initialiseStore (state, data) {
       if (state.draftStatements[state.statement.r_ident]) {
         state.initForm = JSON.stringify(state.draftStatements[state.statement.r_ident])
