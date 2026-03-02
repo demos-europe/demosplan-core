@@ -132,8 +132,7 @@ class SegmentsExportController extends BaseController
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
         $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
         $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
-        $filteredTagNames = $this->statementExportTagFilter->getTagNames();
-        $tagFilterTitleName = $this->statementExportTagFilter->getFilteredTagsWithTitles();
+        $exportFilteredByTagsWithTopics = $this->statementExportTagFilter->getFilteredTagsWithTitles();
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
         // geschwärzt
@@ -148,15 +147,13 @@ class SegmentsExportController extends BaseController
                 $censorCitizenData,
                 $censorInstitutionData,
                 $obscureParameter,
-                $filteredTagNames,
-                $tagFilterTitleName,
+                $exportFilteredByTagsWithTopics,
             ) {
                 $exportedDoc = $exporter->exportAll(
                     $tableHeaders,
                     $procedure,
                     $obscureParameter,
-                    $filteredTagNames,
-                    $tagFilterTitleName,
+                    $exportFilteredByTagsWithTopics,
                     $censorCitizenData,
                     $censorInstitutionData,
                     ...$statementEntities
@@ -311,7 +308,7 @@ class SegmentsExportController extends BaseController
                             $censorCitizenData,
                             $censorInstitutionData,
                             $obscureParameter,
-                            $this->statementExportTagFilter->hasAnySupportedFilterSet()
+                            $this->statementExportTagFilter->getFilteredTagsWithTitles()
                         );
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(
