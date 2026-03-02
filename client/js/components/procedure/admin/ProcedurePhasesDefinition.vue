@@ -76,6 +76,14 @@ export default {
         .filter(phase => phase.audience === 'internal')
         .map(phase => this.mapPhaseForDisplay(phase))
     },
+
+    permissionSetLabels () {
+      return {
+        hidden: Translator.trans('permissionset.hidden'),
+        read: Translator.trans('permissionset.read'),
+        write: Translator.trans('permissionset.write'),
+      }
+    },
   },
 
   methods: {
@@ -115,17 +123,12 @@ export default {
     },
 
     mapPhaseForDisplay (phase) {
-      const permissionSetLabels = {
-        hidden: Translator.trans('permissionset.hidden'),
-        read: Translator.trans('permissionset.read'),
-        write: Translator.trans('permissionset.write'),
-      }
       return {
         audience: phase.audience,
         id: phase.id,
         name: phase.name,
         orderInAudience: phase.orderInAudience,
-        permissionSetLabel: permissionSetLabels[phase.permissionSet] || phase.permissionSet,
+        permissionSetLabel: this.permissionSetLabels[phase.permissionSet] || phase.permissionSet,
       }
     },
   },
