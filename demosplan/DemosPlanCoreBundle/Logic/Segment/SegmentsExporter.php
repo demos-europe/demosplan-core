@@ -395,7 +395,7 @@ abstract class SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscure,
-        array $exportFilteredByTagsWithTopics = []
+        array $exportFilteredByTagsWithTopics = [],
     ): WriterInterface {
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTagsWithTopics);
