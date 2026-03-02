@@ -59,7 +59,7 @@
     "@demos-europe/dp-consent": "^1.3",
     "@efrane/vuex-json-api": "^0.1.3",
     "@masterportal/masterportalapi": "2.54.0",
-    "@sentry/browser": "^9.24.0",
+    "@sentry/browser": "^10.40.0",
     "@tailwindcss/postcss": "^4.1.17",
     "@types/leaflet": "^1.9.21",
     "@uppy/core": "^4.5.2",
