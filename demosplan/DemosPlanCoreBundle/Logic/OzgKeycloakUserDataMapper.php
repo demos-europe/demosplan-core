@@ -12,8 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -66,13 +70,14 @@ class OzgKeycloakUserDataMapper
         private readonly UserService $userService,
         private readonly ValidatorInterface $validator,
         private readonly DepartmentMapper $departmentMapper,
-        private readonly OzgKeycloakGroupBasedRoleMapper $groupBasedRoleMapper)
-    {
+        private readonly OzgKeycloakGroupBasedRoleMapper $groupBasedRoleMapper,
+    ) {
     }
 
     /**
      * Maps incoming data to dplan:user.
-     * Creates.
+     * Supports both single organisation and multi-organisation tokens.
+     * Multi-organisation is determined by the cartesian product of affiliations × responsibilities.
      *
      * @throws CustomerNotFoundException
      * @throws Exception
@@ -81,16 +86,235 @@ class OzgKeycloakUserDataMapper
     {
         $this->ozgKeycloakUserData = $ozgKeycloakUserData;
         $requestedRoles = $this->mapUserRoleData();
+
+        // Check if this is a multi-organisation token (affiliations × responsibilities)
+        if ($ozgKeycloakUserData instanceof OzgKeycloakUserData) {
+            $entries = $this->buildOrganisationEntries(
+                $ozgKeycloakUserData->getAffiliations(),
+                $ozgKeycloakUserData->getResponsibilities()
+            );
+
+            if (count($entries) > 1) {
+                return $this->mapMultiOrganisationUser($entries, $requestedRoles);
+            }
+
+            if (1 === count($entries)) {
+                // Single org from token arrays — use it instead of organisationId
+                return $this->mapSingleEntryOrganisationUser($entries[0], $requestedRoles);
+            }
+        }
+
+        // No entries from token arrays → existing single-org flow using organisationId
         $requestedOrganisation = $this->mapUserOrganisationData($requestedRoles);
         $existingUser = $this->tryToFindExistingUser();
 
         if ($existingUser instanceof User) {
-            // Update existing user with keycloak data
             return $this->updateExistingDplanUser($existingUser, $requestedOrganisation, $requestedRoles);
         }
 
-        // In case of no user was found, create a new User using keycloak data
         return $this->createNewUser($requestedOrganisation, $requestedRoles);
+    }
+
+    /**
+     * Compute the cartesian product of affiliations × responsibilities.
+     * Organisation (affiliations) is always >= 1, responsibilities is 0..n.
+     *
+     * Fallback rules:
+     * 1. Both present → cartesian product (gwId = aff.id + '|' + resp.id)
+     * 2. Only affiliations (no responsibilities) → use affiliations alone
+     * 3. No affiliations → empty array (caller falls back to organisationId)
+     *
+     * @param array<int, array{id: string, name: string}> $affiliations
+     * @param array<int, array{id: string, name: string}> $responsibilities
+     *
+     * @return array<int, array{gwId: string, name: string}>
+     */
+    private function buildOrganisationEntries(array $affiliations, array $responsibilities): array
+    {
+        if ([] === $affiliations) {
+            return [];
+        }
+
+        // Affiliations + responsibilities → cartesian product
+        if ([] !== $responsibilities) {
+            $entries = [];
+            foreach ($affiliations as $aff) {
+                foreach ($responsibilities as $resp) {
+                    $entries[] = [
+                        'gwId' => $aff['id'].'|'.$resp['id'],
+                        'name' => $aff['name'].' - '.$resp['name'],
+                    ];
+                }
+            }
+
+            return $entries;
+        }
+
+        // Affiliations only (no responsibilities)
+        return array_map(static fn (array $a): array => ['gwId' => $a['id'], 'name' => $a['name']], $affiliations);
+    }
+
+    /**
+     * Handle a single organisation entry from token arrays.
+     * Routes through the normal org lookup/create flow using the entry's gwId and name.
+     *
+     * @param array{gwId: string, name: string} $entry
+     * @param array<int, Role>                  $requestedRoles
+     *
+     * @throws CustomerNotFoundException
+     * @throws Exception
+     */
+    private function mapSingleEntryOrganisationUser(array $entry, array $requestedRoles): User
+    {
+        $existingUser = $this->tryToFindExistingUser();
+
+        // Handle private persons / citizens
+        if ($this->ozgKeycloakUserData->isPrivatePerson() || $this->isUserCitizen($requestedRoles)) {
+            $citizenOrga = $this->getCitizenOrga();
+            if ($existingUser instanceof User) {
+                return $this->updateExistingDplanUser($existingUser, $citizenOrga, $requestedRoles);
+            }
+
+            return $this->createNewUser($citizenOrga, $requestedRoles);
+        }
+
+        $orga = $this->orgaRepository->findOneBy(['gwId' => $entry['gwId']]);
+
+        if ($orga instanceof Orga) {
+            $orga = $this->updateOrganisation($orga, $requestedRoles, $entry['gwId'], $entry['name']);
+        } else {
+            $orga = $this->createNewOrganisation($requestedRoles, $entry['gwId'], $entry['name']);
+        }
+
+        if ($existingUser instanceof User) {
+            $user = $this->updateExistingDplanUser($existingUser, $orga, $requestedRoles);
+            // Sync: remove stale org links from previous multi-org tokens
+            $this->syncUserOrganisations($user, [$orga]);
+
+            return $user;
+        }
+
+        return $this->createNewUser($orga, $requestedRoles);
+    }
+
+    /**
+     * Handle multi-organisation user mapping.
+     * Links user to all organisations from the cartesian product of affiliations × responsibilities.
+     *
+     * @param array<int, array{gwId: string, name: string}> $entries
+     * @param array<int, Role>                              $requestedRoles
+     *
+     * @throws CustomerNotFoundException
+     * @throws Exception
+     */
+    private function mapMultiOrganisationUser(array $entries, array $requestedRoles): User
+    {
+        $existingUser = $this->tryToFindExistingUser();
+
+        // Handle private persons (citizens) - they don't get multi-org
+        if ($this->ozgKeycloakUserData->isPrivatePerson() || $this->isUserCitizen($requestedRoles)) {
+            $citizenOrga = $this->getCitizenOrga();
+            if ($existingUser instanceof User) {
+                return $this->updateExistingDplanUser($existingUser, $citizenOrga, $requestedRoles);
+            }
+
+            return $this->createNewUser($citizenOrga, $requestedRoles);
+        }
+
+        // Find or create all organisations from entries
+        $organisations = $this->findOrCreateOrganisationsFromToken($entries, $requestedRoles);
+
+        if ([] === $organisations) {
+            throw new AuthenticationException('No valid organisations could be created from token');
+        }
+
+        // Use first organisation as primary (for backward compatibility)
+        $primaryOrga = $organisations[0];
+
+        if ($existingUser instanceof User) {
+            $user = $this->updateExistingDplanUser($existingUser, $primaryOrga, $requestedRoles);
+        } else {
+            $user = $this->createNewUser($primaryOrga, $requestedRoles);
+        }
+
+        // Sync user's org links: add new ones, remove stale ones
+        $this->syncUserOrganisations($user, $organisations);
+
+        $this->logger->info('Multi-organisation user mapped', [
+            'userId'            => $user->getId(),
+            'organisationCount' => count($organisations),
+            'organisations'     => array_map(fn (Orga $o) => $o->getId(), $organisations),
+        ]);
+
+        return $user;
+    }
+
+    /**
+     * Find or create organisations from token entries (cartesian product results).
+     *
+     * @param array<int, array{gwId: string, name: string}> $entries
+     * @param array<int, Role>                              $requestedRoles
+     *
+     * @return array<int, Orga>
+     *
+     * @throws CustomerNotFoundException
+     */
+    private function findOrCreateOrganisationsFromToken(array $entries, array $requestedRoles): array
+    {
+        $organisations = [];
+
+        foreach ($entries as $entry) {
+            $gwId = $entry['gwId'];
+            $orgaName = $entry['name'];
+
+            // Skip citizen organisation identifier
+            if (UserInterface::ANONYMOUS_USER_ORGA_ID === $gwId || UserInterface::ANONYMOUS_USER_ORGA_NAME === $orgaName) {
+                continue;
+            }
+
+            $orga = $this->orgaRepository->findOneBy(['gwId' => $gwId]);
+
+            if ($orga instanceof Orga) {
+                $organisations[] = $this->updateOrganisation($orga, $requestedRoles, $gwId, $orgaName);
+            } else {
+                $organisations[] = $this->createNewOrganisation($requestedRoles, $gwId, $orgaName);
+            }
+        }
+
+        return $organisations;
+    }
+
+    /**
+     * Sync user's organisation links to match the given target set.
+     * Adds missing links and removes stale ones no longer present in the token.
+     *
+     * @param array<int, Orga> $targetOrganisations
+     */
+    private function syncUserOrganisations(User $user, array $targetOrganisations): void
+    {
+        $targetIds = array_map(static fn (Orga $o): string => $o->getId(), $targetOrganisations);
+
+        // Remove stale org links not in target set
+        // Use unlinkUser/removeOrganisation to avoid setOrga()/unsetOrgas() side effects
+        foreach ($user->getOrganisations()->toArray() as $currentOrga) {
+            if (!in_array($currentOrga->getId(), $targetIds, true)) {
+                $user->removeOrganisation($currentOrga);
+                $currentOrga->unlinkUser($user);
+                $this->entityManager->persist($currentOrga);
+            }
+        }
+
+        // Add missing org links
+        // Use linkUser/addOrganisation to avoid setOrga() overwriting the user's org collection
+        foreach ($targetOrganisations as $orga) {
+            if (!$user->getOrganisations()->contains($orga)) {
+                $user->addOrganisation($orga);
+                $orga->linkUser($user);
+                $this->entityManager->persist($orga);
+            }
+        }
+
+        $this->entityManager->persist($user);
     }
 
     /**
@@ -183,130 +407,159 @@ class OzgKeycloakUserDataMapper
     }
 
     /**
-     * @param array<int, Role> $requstedRoles
+     * Update an existing organisation with customer and orga types.
+     *
+     * @param array<int, Role> $requestedRoles
+     * @param string|null      $gwId           Override gwId (for multi-organisation), null = use token value + address
+     * @param string|null      $orgaName       Override name (for multi-organisation), null = use token value
      *
      * @throws CustomerNotFoundException
      */
-    private function updateOrganisation(Orga $existingOrga, array $requstedRoles): Orga
+    private function updateOrganisation(Orga $existingOrga, array $requestedRoles, ?string $gwId = null, ?string $orgaName = null): Orga
     {
-        $existingOrga->setDeleted(false);
-        // add Customer if not set already
         $customer = $this->customerService->getCurrentCustomer();
-        $existingOrga->addCustomer($customer);
-        $existingOrga->setGwId($this->ozgKeycloakUserData->getOrganisationId());
-        /*
-         * This check prevents the case that someone tries to change the orga name to
-         * @link User::ANONYMOUS_USER_ORGA_NAME. This name has to stay unique for the Citizen Orga.
-         */
-        if (User::ANONYMOUS_USER_ORGA_NAME !== $this->ozgKeycloakUserData->getOrganisationName()) {
-            $existingOrga->setName($this->ozgKeycloakUserData->getOrganisationName());
 
+        $gwId ??= $this->ozgKeycloakUserData->getOrganisationId();
+        $orgaName ??= $this->ozgKeycloakUserData->getOrganisationName();
+
+        $existingOrga->setDeleted(false);
+        $existingOrga->addCustomer($customer);
+
+        if ('' !== $gwId) {
+            $existingOrga->setGwId($gwId);
+        }
+
+        // Do not overwrite org name on update — FPA users can modify it via the UI.
+        // Name is only set on org creation. Address fields are still synced from the token.
+        if (UserInterface::ANONYMOUS_USER_ORGA_NAME !== $orgaName) {
             $existingOrga->setStreet($this->ozgKeycloakUserData->getStreet());
             $existingOrga->setAddressExtension($this->ozgKeycloakUserData->getAddressExtension());
             $existingOrga->setHouseNumber($this->ozgKeycloakUserData->getHouseNumber());
             $existingOrga->setPostalcode($this->ozgKeycloakUserData->getPostalCode());
             $existingOrga->setCity($this->ozgKeycloakUserData->getCity());
         }
-        // what OrgaTypes are needed to be set and accepted regarding the requested Roles?
-        $orgaTypesNeededToBeAccepted = $this->getOrgaTypesToSetupRequestedRoles($requstedRoles);
-        // are the desired OrgaTypes present and accepted for this organisation/customer
-        $currentOrgaStatuses = $existingOrga->getStatusInCustomers()->filter(
-            fn (OrgaStatusInCustomer $orgaStatusInCustomer): bool => $orgaStatusInCustomer->getCustomer() === $customer
-        );
-        foreach ($orgaTypesNeededToBeAccepted as $neededOrgaType) {
-            $typeExists = false;
-            /** @var OrgaStatusInCustomer $orgaStatusInCurrentCustomer */
-            foreach ($currentOrgaStatuses as $orgaStatusInCurrentCustomer) {
-                if ($orgaStatusInCurrentCustomer->getOrgaType()->getName() === $neededOrgaType) {
-                    $orgaStatusInCurrentCustomer->setStatus(OrgaStatusInCustomer::STATUS_ACCEPTED);
-                    $this->entityManager->persist($orgaStatusInCurrentCustomer);
-                    $typeExists = true;
-                }
-            }
-            if (!$typeExists) {
-                $orgaTypeToAdd = $this->orgaTypeRepository->findOneBy(['name' => $neededOrgaType]);
-                if (!$orgaTypeToAdd instanceof OrgaType) {
-                    throw new AuthenticationException('needed OrgaType could not be loaded and therefore cant be added');
-                }
-                $existingOrga->addCustomerAndOrgaType($customer, $orgaTypeToAdd, OrgaStatusInCustomer::STATUS_ACCEPTED);
-            }
-        }
-        $this->entityManager->persist($existingOrga);
-        // Removed flush() call - let the main transaction handle persistence
 
-        $this->logger->info(
-            'Organisation updated',
-            [
-                'OrgaName'           => $this->ozgKeycloakUserData->getOrganisationName(),
-                'gwId'               => $this->ozgKeycloakUserData->getOrganisationId(),
-                'customer'           => $customer->getName(),
-                'requestedOrgaTypes' => $orgaTypesNeededToBeAccepted,
-                'newOrgaId'          => $existingOrga->getId(),
-            ]
-        );
+        $this->ensureOrgaTypesForRoles($existingOrga, $customer, $requestedRoles);
+        $this->entityManager->persist($existingOrga);
+
+        $this->logger->info('Organisation updated', [
+            'orgaId' => $existingOrga->getId(),
+            'gwId'   => $gwId,
+            'name'   => $orgaName,
+        ]);
 
         return $existingOrga;
     }
 
     /**
+     * Ensure organisation has required orga types for the requested roles.
+     *
      * @param array<int, Role> $requestedRoles
+     */
+    private function ensureOrgaTypesForRoles(Orga $orga, CustomerInterface $customer, array $requestedRoles): void
+    {
+        $orgaTypesNeeded = $this->getOrgaTypesToSetupRequestedRoles($requestedRoles);
+        $currentOrgaStatuses = $orga->getStatusInCustomers()->filter(
+            fn (OrgaStatusInCustomer $status): bool => $status->getCustomer() === $customer
+        );
+
+        foreach ($orgaTypesNeeded as $neededOrgaType) {
+            $typeExists = false;
+            foreach ($currentOrgaStatuses as $orgaStatus) {
+                if ($orgaStatus->getOrgaType()->getName() === $neededOrgaType) {
+                    $orgaStatus->setStatus(OrgaStatusInCustomerInterface::STATUS_ACCEPTED);
+                    $this->entityManager->persist($orgaStatus);
+                    $typeExists = true;
+                }
+            }
+            if (!$typeExists) {
+                $orgaTypeToAdd = $this->orgaTypeRepository->findOneBy(['name' => $neededOrgaType]);
+                if ($orgaTypeToAdd instanceof OrgaType) {
+                    $orga->addCustomerAndOrgaType($customer, $orgaTypeToAdd);
+                }
+            }
+        }
+    }
+
+    /**
+     * Create a new organisation.
+     *
+     * @param array<int, Role> $requestedRoles
+     * @param string|null      $gwId           Override gwId (for multi-organisation), defaults to token value
+     * @param string|null      $orgaName       Override name (for multi-organisation), defaults to token value
      *
      * @throws AuthenticationException
      * @throws Exception
      */
-    private function createNewOrganisation(array $requestedRoles): Orga
+    private function createNewOrganisation(array $requestedRoles, ?string $gwId = null, ?string $orgaName = null): Orga
     {
         $customer = $this->customerService->getCurrentCustomer();
-        $registrationStatuses = [];
-        foreach ($this->getOrgaTypesToSetupRequestedRoles($requestedRoles) as $orgaType) {
-            $registrationStatuses[] = [
-                'status'            => OrgaStatusInCustomer::STATUS_ACCEPTED,
-                'subdomain'         => $customer->getSubdomain(),
-                'customer'          => $customer,
-                'type'              => $orgaType,
-            ];
-        }
-        // set default OrgaType if no role matches to at least register orga in customer.
-        // Otherwise, even support could not manage orga afterwards
-        if ([] === $registrationStatuses) {
-            $registrationStatuses[] = [
-                'status'    => OrgaStatusInCustomer::STATUS_ACCEPTED,
-                'subdomain' => $customer->getSubdomain(),
-                'customer'  => $customer,
-                'type'      => OrgaType::DEFAULT,
-            ];
-        }
+        $gwId ??= $this->ozgKeycloakUserData->getOrganisationId();
+        $orgaName ??= $this->ozgKeycloakUserData->getOrganisationName();
 
-        $department = new Department();
-        $department->setName(Department::DEFAULT_DEPARTMENT_NAME);
-        $this->entityManager->persist($department);
-        if (User::ANONYMOUS_USER_ORGA_NAME === $this->ozgKeycloakUserData->getOrganisationName()) {
+        if (UserInterface::ANONYMOUS_USER_ORGA_NAME === $orgaName) {
             throw new AuthenticationException('The Organisation name is reserved for citizen!');
         }
 
+        $registrationStatuses = $this->buildRegistrationStatuses($customer, $requestedRoles);
+
+        $department = new Department();
+        $department->setName(DepartmentInterface::DEFAULT_DEPARTMENT_NAME);
+        $this->entityManager->persist($department);
+
         $orgaData = [
-            'customer'                  => $this->customerService->getCurrentCustomer(),
-            'name'                      => $this->ozgKeycloakUserData->getOrganisationName(),
-            'registrationStatuses'      => $registrationStatuses,
+            'customer'             => $customer,
+            'name'                 => $orgaName,
+            'registrationStatuses' => $registrationStatuses,
         ];
-        if ('' !== $this->ozgKeycloakUserData->getOrganisationId()) {
-            // if we get this value set it
-            $orgaData['gwId'] = $this->ozgKeycloakUserData->getOrganisationId();
+
+        if ('' !== $gwId) {
+            $orgaData['gwId'] = $gwId;
         }
 
         $orga = $this->orgaService->addOrga($orgaData);
         $orga->setDepartments([$department]);
         $this->entityManager->persist($orga);
 
-        $this->logger->info(
-            'Organisation hinzugefügt',
-            [
-                'orgaData'    => $orgaData,
-                'newOrgaId'   => $orga->getId(),
-            ]
-        );
+        $this->logger->info('Organisation created', [
+            'orgaId' => $orga->getId(),
+            'gwId'   => $gwId,
+            'name'   => $orgaName,
+        ]);
 
         return $orga;
+    }
+
+    /**
+     * Build registration statuses for a new organisation.
+     *
+     * @param array<int, Role> $requestedRoles
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildRegistrationStatuses(CustomerInterface $customer, array $requestedRoles): array
+    {
+        $statuses = [];
+        foreach ($this->getOrgaTypesToSetupRequestedRoles($requestedRoles) as $orgaType) {
+            $statuses[] = [
+                'status'    => OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
+                'subdomain' => $customer->getSubdomain(),
+                'customer'  => $customer,
+                'type'      => $orgaType,
+            ];
+        }
+
+        // Default OrgaType if no role matches
+        if ([] === $statuses) {
+            $statuses[] = [
+                'status'    => OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
+                'subdomain' => $customer->getSubdomain(),
+                'customer'  => $customer,
+                'type'      => OrgaTypeInterface::DEFAULT,
+            ];
+        }
+
+        return $statuses;
     }
 
     /**
@@ -318,8 +571,8 @@ class OzgKeycloakUserDataMapper
     private function createNewUser(Orga $userOrga, array $requestedRoles): ?User
     {
         // if the user should be moved to the CITIZEN orga, the CITIZEN role is the only one allowed
-        if (User::ANONYMOUS_USER_ORGA_ID === $userOrga->getId()) {
-            $requestedRoles = [$this->roleRepository->findOneBy(['code' => Role::CITIZEN])];
+        if (UserInterface::ANONYMOUS_USER_ORGA_ID === $userOrga->getId()) {
+            $requestedRoles = [$this->roleRepository->findOneBy(['code' => RoleInterface::CITIZEN])];
         }
 
         $userData = [

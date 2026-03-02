@@ -142,6 +142,20 @@
                     {% endif %}
                 {% endif %}
 
+                {# Multi-responsibility organisation switcher #}
+                {% if currentUser.hasMultipleOrganisations %}
+                    <a
+                        class="c-flyout__item flow-root"
+                        data-cy="userBox:responsibilitySwitcher"
+                        href="{{ path('DemosPlan_user_select_organisation') }}"
+                        data-actionmenu-menuitem>
+                        <i class="fa fa-exchange float-left u-mt-0_125" aria-hidden="true"></i>
+                        <span class="block u-ml">
+                            {{- "organisation.switch"|trans -}}
+                        </span>
+                    </a>
+                {% endif %}
+
                 {# subscribe to notifications #}
                 {% if hasPermission('area_subscriptions') %}
                     <a

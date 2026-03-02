@@ -1,0 +1,45 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        content_heading: 'organisation.select.heading'|trans,
+        content_subheading: 'organisation.select.description'|trans,
+        full_width: true
+    }%}
+
+        {% block content %}
+            <form action="{{ path('DemosPlan_user_switch_organisation') }}" method="post">
+                <input type="hidden" name="_token" value="{{ csrf_token('switch_organisation') }}">
+                <input type="hidden" name="referer" value="{{ app.request.headers.get('referer') }}">
+
+                <div class="c-styled-form u-mb">
+                    {% for organisation in organisations %}
+                        <div class="o-form__group u-mb-0_5">
+                            <label class="o-form__label--radio">
+                                <input
+                                    type="radio"
+                                    name="organisation_id"
+                                    value="{{ organisation.id }}"
+                                    {% if currentOrganisationId == organisation.id %}checked{% endif %}
+                                    aria-label="{{ 'organisation.select.aria.label'|trans({'%name%': organisation.name}) }}"
+                                    class="o-form__control-radio"
+                                    required>
+                                <span class="o-form__label-text">
+                                    {{ organisation.name }}
+                                    {% if organisation.gwId %}
+                                        <span class="color--grey">({{ organisation.gwId }})</span>
+                                    {% endif %}
+                                </span>
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="btn btn--primary">
+                    {{ 'organisation.select.confirm'|trans }}
+                </button>
+            </form>
+        {% endblock content %}
+
+    {% endembed %}
+{% endblock %}
