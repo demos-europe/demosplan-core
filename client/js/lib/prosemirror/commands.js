@@ -20,8 +20,8 @@ import { v4 as uuidv4 } from 'uuid'
 const applySelectionChange = (view, editStateTrackerKey, rangeTrackerKey) => {
   const { state, dispatch } = view
 
-  const rangeId = editStateTrackerKey.getState(state).id
-  const range = rangeTrackerKey.getState(state)[rangeId]
+  const segmentId = editStateTrackerKey.getState(state).id
+  const range = rangeTrackerKey.getState(state)[segmentId]
 
   /**
    * We get the current rangeselection here so that we can use these new positions to apply them to the range
@@ -43,7 +43,7 @@ const applySelectionChange = (view, editStateTrackerKey, rangeTrackerKey) => {
    * This replaces the old range with a new range. It also removes any ranges which might now be covered by the new range.
    */
   tr = removeRange(state, range.from, range.to, tr)
-  tr = replaceRange(state, from, to, { rangeId, isActive: true, isConfirmed: true }, tr)
+  tr = replaceRange(state, from, to, { segmentId, isActive: true, isConfirmed: true }, tr)
   tr = disableRangeEdit(view, editStateTrackerKey, tr)
 
   dispatch(tr)
@@ -73,7 +73,7 @@ const replaceRange = (state, from, to, rangeAttrs, tr = false) => {
     throw new Error('Ranges can not be split in two parts.')
   }
 
-  return replaceMarkInRange(state, from, to, 'range', rangeAttrs, tr)
+  return replaceMarkInRange(state, from, to, 'segmentMark', rangeAttrs, tr)
 }
 
 /**
@@ -87,7 +87,7 @@ const replaceRange = (state, from, to, rangeAttrs, tr = false) => {
  *
  */
 const removeRange = (state, from, to, tr = false) => {
-  const rangeMarkType = state.config.schema.marks.range
+  const rangeMarkType = state.config.schema.marks.segmentMark
   let transaction = tr || state.tr
 
   transaction = transaction.removeMark(from, to, rangeMarkType)
@@ -126,13 +126,13 @@ const removeMarkByName = (state, markName, markAttr, tr = false) => {
 const setRangeEditingState = (view, rangeTrackerKey, editingDecorationsKey) => (id, editingState) => {
   const { dispatch, state } = view
   const range = rangeTrackerKey.getState(state)[id]
-  const { from, to, isConfirmed, rangeId } = range
+  const { from, to, isConfirmed, segmentId } = range
 
   if (!range) {
     throw new Error('Range not found')
   }
 
-  let tr = replaceRange(state, from, to, { rangeId, isConfirmed, isActive: editingState })
+  let tr = replaceRange(state, from, to, { segmentId, isConfirmed, isActive: editingState })
   tr = tr.setMeta(editingDecorationsKey, { editing: editingState, from, to, id })
 
   dispatch(tr)
@@ -254,7 +254,7 @@ const genEditingDecorations = (state, from, to, id, activePosition = null) => {
  * @param {Number} activationPosition
  *
  */
-const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, rangeId, positions = { active: null, fixed: null }) => {
+const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, segmentId) => {
   const { state, dispatch } = view
   let tr = state.tr
 
@@ -262,15 +262,17 @@ const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, rangeId, 
    * This block sets the cursor near the activated range handle. It then toggles the range editing mode by notifying
    * the editStateTracker-plugin via a meta message.
    */
-  tr = tr.setSelection(TextSelection.near(state.doc.resolve(positions.active)))
-  const range = rangeTrackerKey.getState(state)[rangeId]
-  tr = tr.setMeta(editStateTrackerKey, { id: rangeId, pos: positions.active, moving: true, positions })
+  const range = rangeTrackerKey.getState(state)[segmentId]
+  const positions = { active: range.to, fixed: range.from }
+
+  tr = tr.setSelection(TextSelection.near(state.doc.resolve(range.to)))
+  tr = tr.setMeta(editStateTrackerKey, { id: segmentId, pos: positions.active, moving: true, positions })
   dispatch(tr)
 
   /**
    * Set range attributes to active and moving so that optional styling can be applied via CSS.
    */
-  setRange(view)(range.from, range.to, { rangeId, isActive: true, isMoving: true, isConfirmed: range.isConfirmed })
+  setRange(view)(range.from, range.to, { segmentId, isActive: true, isMoving: true, isConfirmed: range.isConfirmed })
 
   /**
    * The view needs to receive focus after activating range edit.

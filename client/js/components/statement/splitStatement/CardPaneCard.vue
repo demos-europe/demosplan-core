@@ -177,7 +177,7 @@ export default {
 
   methods: {
     calculateCardPosition () {
-      const segmentEl = document.querySelector(`#editor [data-range="${this.segment.id}"]`)
+      const segmentEl = document.querySelector(`#editor [data-segment-id="${this.segment.id}"]`)
       if (segmentEl) {
         const mainOffset = document.querySelector('div.ProseMirror').getBoundingClientRect().top
         const segmentOffset = segmentEl.getBoundingClientRect().top
@@ -195,7 +195,7 @@ export default {
     })
 
     window.addEventListener('scroll', () => {
-      const segmentSpans = Array.from(document.querySelectorAll(`#editor [data-range="${this.segment.id}"]`))
+      const segmentSpans = Array.from(document.querySelectorAll(`#editor [data-segment-id="${this.segment.id}"]`))
       if (segmentSpans.length === 0) {
         return
       }

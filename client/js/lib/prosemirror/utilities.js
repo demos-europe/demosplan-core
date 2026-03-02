@@ -57,7 +57,7 @@ const getMarks = (nodes, markName, attrId) => {
 
         if (!storedMark) {
           storedMark = { marks: [] }
-          storedMark.rangeId = markAttr
+          storedMark.segmentId = markAttr
           storedMark.from = pos
           marks[markAttr] = storedMark
         }
@@ -73,8 +73,8 @@ const getMarks = (nodes, markName, attrId) => {
 
 /**
  * Checks if two range objects are equal ({ <id>: { from, to, isConfirmed, marks }, <id>: { from, to, isConfirmed, marks }}):
- * - Have ranges (rangeIds) been added or removed?
- * - Have range lengths (from, to) changed?
+ * - Have segments (segmentIds) been added or removed?
+ * - Have segment lengths (from, to) changed?
  * - Has the confirmation state (isConfirmed) changed?
  *
  * @param {Object} ranges ranges before update
@@ -83,13 +83,13 @@ const getMarks = (nodes, markName, attrId) => {
  *
  */
 const rangesEqual = (ranges, cmpRanges) => {
-  // Check if there are any rangeIds in ranges that are not in cmpRanges (= were ranges deleted?)
+  // Check if there are any segmentIds in ranges that are not in cmpRanges (= were ranges deleted?)
   const keysEqual = Object.keys(ranges).filter(key => cmpRanges[key]).length === Object.keys(ranges).length
   if (!keysEqual) {
     return false
   }
 
-  // Check if there are any rangeIds in cmpRanges that are not in ranges (= were ranges added?)
+  // Check if there are any segmentIds in cmpRanges that are not in ranges (= were ranges added?)
   const cmpKeysEqual = Object.keys(cmpRanges).filter(key => ranges[key]).length === Object.keys(cmpRanges).length
   if (!cmpKeysEqual) {
     return false
@@ -145,7 +145,7 @@ const serializeRange = (range, state, schema) => {
  *
  */
 const splitsExistingRange = (from, to, doc) => {
-  const existingMarks = getMarks(flattenNode(doc), 'range', 'rangeId')
+  const existingMarks = getMarks(flattenNode(doc), 'segmentMark', 'segmentId')
   const doesSplit = Object.values(existingMarks).filter((mark) => from > mark.from && to < mark.to)
   return doesSplit.length !== 0
 }
@@ -210,7 +210,7 @@ const createCreatorMenu = (view, anchor, head) => {
     e.preventDefault()
     const from = Math.min(anchor, head)
     const to = Math.max(anchor, head)
-    setRange(view)(from, to, { rangeId: `${from}_${to}` })
+    setRange(view)(from, to, { segmentId: `${from}_${to}` })
     const { state, dispatch } = view
     let { tr } = state
     view.focus()
