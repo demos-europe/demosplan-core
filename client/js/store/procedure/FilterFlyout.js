@@ -1,12 +1,12 @@
 function getPositionInStateFilterQuery (value) {
   return Object.values(FilterFlyoutStore.state.filterQuery).findIndex(el => {
-    if (value === 'unassigned') {
-      return el.condition.value === undefined
-    }
-
     // Skip group objects
     if (!el.condition) {
       return false
+    }
+
+    if (value === 'unassigned') {
+      return el.condition.value === undefined
     }
 
     return el.condition.value === value
