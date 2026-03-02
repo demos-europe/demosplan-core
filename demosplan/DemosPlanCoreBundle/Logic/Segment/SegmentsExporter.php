@@ -107,7 +107,7 @@ abstract class SegmentsExporter
         Section $section,
         Procedure $procedure,
         ?string $headerType = null,
-        array $exportFilteredByTagsWithTopics = []
+        array $exportFilteredByTagsWithTopics = [],
     ): void {
         $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
         $header->addText(
