@@ -103,8 +103,12 @@ abstract class SegmentsExporter
         }
     }
 
-    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null, array $exportTagTitles = []): void
-    {
+    protected function addHeader(
+        Section $section,
+        Procedure $procedure,
+        ?string $headerType = null,
+        array $exportFilteredByTagsWithTopics = []
+    ): void {
         $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
         $header->addText(
             $procedure->getName(),
@@ -112,13 +116,15 @@ abstract class SegmentsExporter
             $this->styles['documentTitleParagraph']
         );
 
-        $this->addPreambleIfFirstHeader($header, $headerType, $exportTagTitles);
+        $this->addPreambleIfFirstHeader($header, $headerType, $exportFilteredByTagsWithTopics);
 
         $currentDate = new DateTime();
-        $translationKey = [] !== $exportTagTitles ? 'segments.export.statement.export.date.filtered' : 'segments.export.statement.export.date';
+        $translationKey = [] !== $exportFilteredByTagsWithTopics ?
+            'segments.export.statement.export.date.filtered' : 'segments.export.statement.export.date';
         $translationParameter = ['date' => $currentDate->format('d.m.Y')];
         if ($this->currentUser->hasPermission('feature_adjust_export_file_name')) {
-            $translationKey = [] !== $exportTagTitles ? 'segments.export.statement.export.filtered' : 'segments.export.statement.export';
+            $translationKey = [] !== $exportFilteredByTagsWithTopics ?
+                'segments.export.statement.export.filtered' : 'segments.export.statement.export';
             $translationParameter = ['procedureName'  => $procedure->getName()];
         }
         $header->addText(
