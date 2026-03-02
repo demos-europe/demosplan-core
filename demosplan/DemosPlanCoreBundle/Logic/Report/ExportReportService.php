@@ -34,8 +34,7 @@ class ExportReportService extends CoreService
         private readonly ReportMessageConverter $messageConverter,
         private readonly ReportRepository $reportRepository,
         private readonly TranslatorInterface $translator,
-    )
-    {
+    ) {
         $this->initializeStyles();
     }
 
