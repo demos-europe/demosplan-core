@@ -3,7 +3,7 @@
  */
 
 import { initialize } from '@DpJs/InitVue'
-import ProcedurePhasesDefinition from '@DpJs/components/procedure/admin/ProcedurePhasesDefinition'
+import ProcedurePhasesDefinition from '@DpJs/components/procedurePhasesDefinition/ProcedurePhasesDefinition'
 
 const components = {
   ProcedurePhasesDefinition,
