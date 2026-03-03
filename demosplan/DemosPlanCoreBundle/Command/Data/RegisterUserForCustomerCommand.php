@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Command\Helpers\Helpers;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -54,6 +55,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        // register user in console when the user has multiple orgas @todo
         $userToRegister = $this->askUserLogin($input, $output);
         if (!$userToRegister instanceof User) {
             $output->writeln('No user for Login found', OutputInterface::VERBOSITY_NORMAL);
@@ -70,6 +72,14 @@ class RegisterUserForCustomerCommand extends CoreCommand
 
             // add OrgaType to customer
             $orga = $userToRegister->getOrga();
+
+            if (!$orga instanceof OrgaInterface) {
+                $output->writeln(sprintf('User "%s" does not have an organization assigned', $userToRegister->getLogin()), OutputInterface::VERBOSITY_NORMAL);
+
+                return Command::FAILURE;
+
+            }
+
             $orgaTypes = $this->getOrgaTypesByRoles($roles);
             foreach ($orgaTypes as $orgaType) {
                 $orga->addCustomerAndOrgaType($customer, $orgaType, OrgaStatusInCustomer::STATUS_ACCEPTED);
