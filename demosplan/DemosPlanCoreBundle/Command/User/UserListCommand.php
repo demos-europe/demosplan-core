@@ -54,7 +54,7 @@ class UserListCommand extends CoreCommand
 
                     return [
                         'name'  => $user->getFullname(),
-                        'orga'  => $user->getOrgaName(),//@todo it will break?
+                        'orga'  => $user->getOrgaName(), // @todo it will break?
                         'login' => $user->getLogin(),
                         'roles' => $roles,
                     ];

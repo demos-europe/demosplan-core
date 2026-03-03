@@ -432,7 +432,7 @@ class RemoveUserDataCommand extends CoreCommand
                 && 36 === strlen($userId)) {
                 $relatedUser = $this->userService->getSingleUser($userId);
 
-                //@todo what is this getOrgaName used for
+                // @todo what is this getOrgaName used for
 
                 $tag = $relatedUser->getFirstname().', '.$relatedUser->getLastname().', '.$relatedUser->getOrgaName();
                 $file->setTags($tag);
@@ -662,7 +662,7 @@ class RemoveUserDataCommand extends CoreCommand
                     'userName'         => $relatedUser->getName(),
                     'firstName'        => $relatedUser->getFirstname(),
                     'lastName'         => $relatedUser->getLastname(),
-                    'organisationName' => $relatedUser->getOrgaName(),//@todo can this return many orgas?
+                    'organisationName' => $relatedUser->getOrgaName(), // @todo can this return many orgas?
                     'departmentName'   => $relatedUser->getDepartmentNameLegal(),
                     'userMail'         => $relatedUser->getEmail(),
                     'userCity'         => $relatedUser->getCity(),
