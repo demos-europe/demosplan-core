@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedurePhaseDefinitionResourceConfigBuilder;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 
@@ -87,22 +88,22 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType
             ->setReadableByPath(DefaultField::YES)
             ->setSortable()
             ->setFilterable()
-            ->initializable();
+            ->addPathCreationBehavior();
 
         $configBuilder->audience
             ->setReadableByPath(DefaultField::YES)
             ->setFilterable()
-            ->initializable();
+            ->addPathCreationBehavior();
 
         $configBuilder->permissionSet
             ->setReadableByPath(DefaultField::YES)
             ->setFilterable()
-            ->initializable();
+            ->addPathCreationBehavior();
 
         $configBuilder->participationState
             ->setReadableByPath(DefaultField::YES)
             ->setFilterable()
-            ->initializable();
+            ->addPathCreationBehavior();
 
         $configBuilder->orderInAudience
             ->setReadableByPath(DefaultField::YES)
@@ -110,7 +111,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType
 
         $configBuilder->previewed
             ->setReadableByPath(DefaultField::YES)
-            ->initializable();
+            ->addPathCreationBehavior(OptionalField::YES);
 
         $configBuilder->customer
             ->setRelationshipType($this->resourceTypeStore->getCustomerResourceType())
