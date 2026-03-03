@@ -68,6 +68,7 @@ export default {
       return [
         { field: 'name', label: Translator.trans('phase.name') },
         { field: 'permissionSetLabel', label: Translator.trans('status') },
+        { field: 'participationStateLabel', label: Translator.trans('participation.state') },
       ]
     },
 
@@ -83,6 +84,14 @@ export default {
         read: Translator.trans('permissionset.read'),
         write: Translator.trans('permissionset.write'),
       }
+    },
+
+    participationStateOptions () {
+      return [
+        { label: Translator.trans('participation.state.none'), value: '' },
+        { label: Translator.trans('participation.state.finished'), value: 'finished' },
+        { label: Translator.trans('participation.state.token'), value: 'participateWithToken' },
+      ]
     },
   },
 
@@ -128,6 +137,7 @@ export default {
         id: phase.id,
         name: phase.name,
         orderInAudience: phase.orderInAudience,
+        participationStateLabel: this.participationStateOptions.find(option => option.value === (phase.participationState ?? ''))?.label || phase.participationState,
         permissionSetLabel: this.permissionSetLabels[phase.permissionSet] || phase.permissionSet,
       }
     },
