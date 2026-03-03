@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\MessageHandler;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\AddonMaintenanceEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Event\AddonMaintenanceEvent;
 use demosplan\DemosPlanCoreBundle\Message\AddonMaintenanceMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\AddonMaintenanceMessageHandler;
@@ -24,6 +25,7 @@ use Tests\Base\UnitTestCase;
 class AddonMaintenanceMessageHandlerTest extends UnitTestCase
 {
     private ?EventDispatcherInterface $eventDispatcher = null;
+    private ?PermissionsInterface $permissions = null;
     private ?LoggerInterface $logger = null;
     private ?AddonMaintenanceMessageHandler $sut = null;
 
@@ -32,10 +34,12 @@ class AddonMaintenanceMessageHandlerTest extends UnitTestCase
         parent::setUp();
 
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->permissions = $this->createMock(PermissionsInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->sut = new AddonMaintenanceMessageHandler(
             $this->eventDispatcher,
+            $this->permissions,
             $this->logger
         );
     }

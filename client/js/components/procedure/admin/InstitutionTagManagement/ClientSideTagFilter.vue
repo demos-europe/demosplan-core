@@ -26,9 +26,9 @@ All rights reserved
           </span>
         </template>
         <!-- 'More filters' flyout -->
-        <div>
+        <div class="min-w-12 my-1">
           <button
-            class="btn--blank o-link--default ml-auto"
+            class="btn--blank o-link--default ml-auto mb-1"
             data-cy="clientSideTagFilter:toggleFilterCategories"
             @click="toggleAllCategories"
             v-text="Translator.trans('toggle_all')"

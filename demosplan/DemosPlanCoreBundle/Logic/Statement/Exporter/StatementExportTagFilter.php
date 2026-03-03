@@ -177,6 +177,11 @@ class StatementExportTagFilter
         return $this->translator->trans('export.filter.topics.names', ['names' => implode(', ', $this->topicNamesFound)]);
     }
 
+    public function getTagNames(): array
+    {
+        return $this->tagNamesFound;
+    }
+
     private function applyTagFilter(array $statements, array $tagIds, array $tagTitles, array $tagTopicIds, array $tagTopicTitles): array
     {
         $statementsCollection = new ArrayCollection($statements);

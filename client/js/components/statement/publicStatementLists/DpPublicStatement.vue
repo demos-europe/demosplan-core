@@ -264,16 +264,16 @@
     </div>
     <dp-details
       v-if="customFieldsWithValues.length > 0"
-      class="u-1-of-1 u-mt"
+      :class="prefixClass('w-full mt-4')"
       :summary="Translator.trans('more.data')"
     >
       <div
         v-for="field in customFieldsWithValues"
         :key="field.id"
-        class="u-mb-0_75"
+        :class="prefixClass('mb-3')"
       >
-        <strong>{{ field.name }}:</strong>
-        <div class="u-ml-0_5">
+        <span :class="prefixClass('weight--bold')">{{ field.name }}:</span>
+        <div :class="prefixClass('ml-2')">
           <div
             v-for="option in field.selected"
             :key="option.id"
@@ -287,7 +287,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpDetails, DpFlyout, DpInlineNotification } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpDetails, DpFlyout, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
@@ -303,6 +303,8 @@ export default {
   },
 
   directives: { cleanhtml: CleanHtml },
+
+  mixins: [prefixClassMixin],
 
   props: {
     attachments: {
@@ -481,7 +483,7 @@ export default {
 
     customFieldsWithValues () {
       return this.statementCustomFields.filter(
-        field => field.selected && field.selected.length > 0
+        field => field.selected && field.selected.length > 0,
       )
     },
   },

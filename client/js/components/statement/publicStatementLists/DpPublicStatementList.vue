@@ -25,7 +25,7 @@
         :show-author="showAuthor"
         :show-checkbox="showCheckbox"
         @open-map-modal="openMapModal"
-        @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
+        @open-statement-modal-from-list="(id) => handleOpenStatementModal(id)"
       />
       <dp-map-modal
         ref="mapModal"
@@ -60,7 +60,7 @@
             :show-checkbox="showCheckbox"
             :statement-custom-fields="getCustomFieldsForStatement(statement.id)"
             @open-map-modal="openMapModal"
-            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
+            @open-statement-modal-from-list="(id) => handleOpenStatementModal(id)"
           />
           <dp-map-modal
             ref="mapModal"
@@ -89,7 +89,7 @@
             :show-author="showAuthor"
             :show-checkbox="showCheckbox"
             @open-map-modal="openMapModal"
-            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
+            @open-statement-modal-from-list="(id) => handleOpenStatementModal(id)"
           />
         </div>
       </dp-tab>
@@ -105,7 +105,7 @@ import {
   DpTab,
   DpTabs,
   formatDate,
-  getFileInfo
+  getFileInfo,
 } from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
@@ -235,7 +235,7 @@ export default {
   },
 
   emits: [
-    'open-statement-modal-from-list',
+    'openStatementModalFromList',
   ],
 
   data () {
@@ -316,21 +316,26 @@ export default {
       }
 
       const url = Routing.generate('api_resource_list', {
-        resourceType: 'CustomField'
+        resourceType: 'CustomField',
       })
 
       const params = {
         fields: {
-          CustomField: ['name', 'description', 'options', 'fieldType'].join()
+          CustomField: [
+            'name',
+            'description',
+            'options',
+            'fieldType',
+          ].join(),
         },
         filter: {
           sourceEntityId: {
             condition: {
               path: 'sourceEntityId',
-              value: this.procedureId
-            }
-          }
-        }
+              value: this.procedureId,
+            },
+          },
+        },
       }
 
       dpApi.get(url, params)
@@ -352,7 +357,7 @@ export default {
 
       // Create lookup map for definitions
       const definitionsMap = new Map(
-        this.customFieldDefinitions.map(def => [def.id, def.attributes])
+        this.customFieldDefinitions.map(def => [def.id, def.attributes]),
       )
 
       return Object.values(statementCustomFields)
@@ -361,6 +366,7 @@ export default {
 
           if (!definition) {
             console.warn(`Custom field definition not found for ID: ${savedField.id}`)
+
             return null
           }
 
@@ -368,6 +374,7 @@ export default {
           const selectedOptions = (savedField.selectedOptionIds || [])
             .map(optionId => {
               const option = definition.options.find(opt => opt.id === optionId)
+
               return option || null
             })
             .filter(opt => opt !== null)
@@ -375,10 +382,16 @@ export default {
           return {
             id: savedField.id,
             name: definition.name,
-            selected: selectedOptions
+            selected: selectedOptions,
           }
         })
         .filter(field => field !== null && field.selected.length > 0)
+    },
+
+    handleOpenStatementModal (statementId) {
+      const customFields = this.getCustomFieldsForStatement(statementId)
+
+      this.$parent.$emit('openStatementModalFromList', statementId, customFields)
     },
 
     openMapModal (polygon) {
