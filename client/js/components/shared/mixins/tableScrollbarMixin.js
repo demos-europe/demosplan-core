@@ -40,18 +40,20 @@ export default {
      * conditionally hide or show scrollbar.
      */
     updateScrollbarStyles () {
-      const tableWidth = window.getComputedStyle(this.dataTableElement).width
-      const tableContainerWidth = window.getComputedStyle(this.dataTableContainerElement).width
+      const scrollWidth = this.dataTableContainerElement.scrollWidth
+      const clientWidth = this.dataTableContainerElement.clientWidth
 
-      if (parseFloat(tableWidth) > parseFloat(tableContainerWidth)) {
+      if (scrollWidth > clientWidth) {
         this.scrollbarVisible = true
         this.scrollbarInnerStyle = {
           height: '1px',
-          minWidth: tableWidth,
-          width: tableWidth,
+          minWidth: scrollWidth + 'px',
+          width: scrollWidth + 'px',
         }
+        this.dataTableContainerElement.classList.add('has-scrollable-content')
       } else {
         this.scrollbarVisible = false
+        this.dataTableContainerElement.classList.remove('has-scrollable-content')
       }
     },
   },
@@ -86,7 +88,11 @@ export default {
 
         // Observe changes to dataTable to update scrollbar accordingly
         this.dataTableObserver = new ResizeObserver(this.updateScrollbarStyles.bind(this))
-        this.dataTableObserver.observe(this.dataTableElement)
+
+        if (this.dataTableElement) {
+          this.dataTableObserver.observe(this.dataTableElement)
+        }
+
         this.dataTableObserver.observe(this.dataTableContainerElement)
 
         // Set scrollbar width or conditionally hide it.
