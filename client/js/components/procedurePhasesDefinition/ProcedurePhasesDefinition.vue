@@ -26,6 +26,7 @@
         <dp-input
           id="phaseName"
           v-model="newPhase.name"
+          :class="{ 'border--error': isDuplicateName }"
           :label="{ text: Translator.trans('phase.name') }"
           required
         />
@@ -57,7 +58,7 @@
           :busy="isLoading"
           primary
           secondary
-          @primary-action="dpValidateAction('phaseForm', () => createPhase(), false)"
+          @primary-action="submitForm()"
           @secondary-action="resetForm()"
         />
       </div>
@@ -71,8 +72,7 @@
           :header-fields="headerFields"
           :items="internalPhases"
           track-by="id"
-        >
-        </dp-data-table>
+        />
       </dp-accordion>
 
       <dp-accordion
@@ -83,8 +83,7 @@
           :header-fields="headerFields"
           :items="externalPhases"
           track-by="id"
-        >
-        </dp-data-table>
+        />
       </dp-accordion>
 
       <dp-loading v-if="isInitiallyLoading" />
@@ -158,6 +157,16 @@ export default {
         .map(phase => this.mapPhaseForDisplay(phase))
     },
 
+    isDuplicateName () {
+      const trimmedName = this.newPhase.name.trim()
+
+      if (trimmedName.length === 0) {
+        return false
+      }
+
+      return this.phases.some(phase => phase.name.trim().toLowerCase() === trimmedName.toLowerCase())
+    },
+
     participationStateOptions () {
       return [
         { label: Translator.trans('participation.state.none'), value: '' },
@@ -172,6 +181,14 @@ export default {
         { label: Translator.trans('permissionset.read'), value: 'read' },
         { label: Translator.trans('permissionset.write'), value: 'write' },
       ]
+    },
+  },
+
+  watch: {
+    'newPhase.name' () {
+      if (this.isDuplicateName) {
+        dplan.notify.error(Translator.trans('error.name.unique'))
+      }
     },
   },
 
@@ -264,6 +281,16 @@ export default {
     resetForm () {
       this.isCreating = false
       this.newPhase = { name: '', audience: 'external', permissionSet: 'hidden', participationState: null }
+    },
+
+    submitForm () {
+      if (this.isDuplicateName) {
+        dplan.notify.error(Translator.trans('error.name.unique'))
+
+        return
+      }
+
+      this.dpValidateAction('phaseForm', () => this.createPhase(), false)
     },
   },
 
