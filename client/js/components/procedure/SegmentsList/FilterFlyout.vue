@@ -457,7 +457,6 @@ export default {
      * Emit event with currently selected filters as query object.
      */
     apply () {
-      console.log(this.filter)
       this.$emit('filterApply', this.filter)
       this.appliedQuery = JSON.parse(JSON.stringify(this.currentQuery))
       this.$refs.flyout.close()
@@ -534,9 +533,23 @@ export default {
      * @param {boolean} [isInitialWithQuery=false] - Indicates if it is an initial request with query.
      */
     requestFilterOptions (isInitialWithQuery = false) {
+      // For OR groups (memberOf is set), exclude this group's own filters so counts always show full availability
+      let filter = this.getFilterQuery
+      if (this.memberOf && !isInitialWithQuery) {
+        filter = Object.fromEntries(
+          Object.entries(this.getFilterQuery).filter(([key, val]) => {
+            if (key === this.memberOf) {
+              return false
+            }
+
+            return val.condition?.memberOf !== this.memberOf
+          }),
+        )
+      }
+
       this.$emit('filterOptions:request', {
         additionalQueryParams: this.additionalQueryParams,
-        filter: this.getFilterQuery,
+        filter,
         isInitialWithQuery,
         path: this.path,
         currentQuery: this.currentQuery,

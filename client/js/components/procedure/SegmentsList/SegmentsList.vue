@@ -886,7 +886,7 @@ export default {
      * @param params.searchPhrase {String}
      */
     sendFilterOptionsRequest (params) {
-      const { additionalQueryParams, category, filter, isInitialWithQuery, path } = params
+      const { additionalQueryParams, category, currentQuery, filter, isInitialWithQuery, path } = params
       const requestParams = {
         ...additionalQueryParams,
         filter: {
@@ -930,14 +930,14 @@ export default {
 
                   if (option) {
                     const { attributes, id } = option
-                    const { count, description, label, selected } = attributes
+                    const { count, description, label } = attributes
 
                     return {
                       count,
                       description,
                       id,
                       label,
-                      selected,
+                      selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
                     }
                   }
 
@@ -960,14 +960,14 @@ export default {
               // Ungrouped filter options
               if (resourceIsFilterOption && filterOptionBelongsToFilterType) {
                 const { id, attributes } = resource
-                const { count, description, label, selected } = attributes
+                const { count, description, label } = attributes
 
                 ungroupedOptions.push({
                   id,
                   count,
                   description,
                   label,
-                  selected,
+                  selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
                   ungrouped: true,
                 })
               }
@@ -980,7 +980,7 @@ export default {
                 count: result.data[0].attributes.missingResourcesSum,
                 label: Translator.trans('not.assigned'),
                 ungrouped: true,
-                selected: result.meta.unassigned_selected,
+                selected: currentQuery?.length ? currentQuery.includes('unassigned') : result.meta.unassigned_selected,
               })
             }
 
@@ -1131,8 +1131,6 @@ export default {
 
     this.fetchPlaces()
     this.fetchAssignableUsers()
-    console.log(this.filters)
-    console.log(this.initialFilter)
   },
 }
 </script>
