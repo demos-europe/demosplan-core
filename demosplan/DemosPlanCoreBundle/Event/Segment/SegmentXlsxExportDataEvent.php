@@ -26,7 +26,7 @@ class SegmentXlsxExportDataEvent extends DPlanEvent implements SegmentXlsxExport
 {
     public function __construct(
         private readonly SegmentInterface $segment,
-        private array $exportData
+        private array $exportData,
     ) {
     }
 
