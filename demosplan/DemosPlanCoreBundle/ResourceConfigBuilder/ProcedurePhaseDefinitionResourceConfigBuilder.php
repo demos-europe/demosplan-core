@@ -28,6 +28,7 @@ use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,ProcedurePhaseDefinition> $permissionSet
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,ProcedurePhaseDefinition> $participationState
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,ProcedurePhaseDefinition> $orderInAudience
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,ProcedurePhaseDefinition> $previewed
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,ProcedurePhaseDefinition,Customer> $customer
  */
 class ProcedurePhaseDefinitionResourceConfigBuilder extends MagicResourceConfigBuilder

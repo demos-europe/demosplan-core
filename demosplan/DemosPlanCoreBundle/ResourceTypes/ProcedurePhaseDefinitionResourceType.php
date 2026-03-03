@@ -108,6 +108,10 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType
             ->setReadableByPath(DefaultField::YES)
             ->setSortable();
 
+        $configBuilder->previewed
+            ->setReadableByPath(DefaultField::YES)
+            ->initializable();
+
         $configBuilder->customer
             ->setRelationshipType($this->resourceTypeStore->getCustomerResourceType())
             ->setReadableByPath()
