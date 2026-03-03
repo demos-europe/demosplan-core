@@ -77,7 +77,6 @@ class RegisterUserForCustomerCommand extends CoreCommand
                 $output->writeln(sprintf('User "%s" does not have an organization assigned', $userToRegister->getLogin()), OutputInterface::VERBOSITY_NORMAL);
 
                 return Command::FAILURE;
-
             }
 
             $orgaTypes = $this->getOrgaTypesByRoles($roles);
