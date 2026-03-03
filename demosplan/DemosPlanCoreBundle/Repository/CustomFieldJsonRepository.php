@@ -19,6 +19,7 @@ use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
 use EDT\Querying\Pagination\PagePagination;
+use EDT\Querying\Utilities\Reindexer;
 use Pagerfanta\Pagerfanta;
 
 /**
@@ -29,6 +30,7 @@ class CustomFieldJsonRepository implements RepositoryInterface
     public function __construct(
         protected readonly EntityManagerInterface $entityManager,
         protected readonly ConditionFactoryInterface $conditionFactory,
+        private readonly Reindexer $reindexer,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
     ) {
     }
