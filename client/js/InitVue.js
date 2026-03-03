@@ -12,6 +12,7 @@ import {
   DpContextualHelp,
   DpFlyout,
   DpObscure,
+  DpIcon,
   dpValidateMultiselectDirective,
   Tooltip,
 } from '@demos-europe/demosplan-ui'
@@ -94,6 +95,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.component('NotifyContainer', NotifyContainer)
     app.component('DpAccordion', DpAccordion)
     app.component('DpFlyout', DpFlyout)
+    app.component('DpIcon', DpIcon)
     app.component('HamburgerMenuButton', HamburgerMenuButton)
     app.component('RegisterFlyout', RegisterFlyout)
     app.component('DpContextualHelp', DpContextualHelp)
