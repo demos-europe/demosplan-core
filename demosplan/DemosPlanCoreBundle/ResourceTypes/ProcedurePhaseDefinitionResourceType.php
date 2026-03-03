@@ -90,22 +90,22 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType
             ->initializable();
 
         $configBuilder->audience
-            ->setReadableByPath()
+            ->setReadableByPath(DefaultField::YES)
             ->setFilterable()
             ->initializable();
 
         $configBuilder->permissionSet
-            ->setReadableByPath()
+            ->setReadableByPath(DefaultField::YES)
             ->setFilterable()
             ->initializable();
 
         $configBuilder->participationState
-            ->setReadableByPath()
+            ->setReadableByPath(DefaultField::YES)
             ->setFilterable()
             ->initializable();
 
         $configBuilder->orderInAudience
-            ->setReadableByPath()
+            ->setReadableByPath(DefaultField::YES)
             ->setSortable();
 
         $configBuilder->customer
