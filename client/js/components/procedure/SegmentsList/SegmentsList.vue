@@ -575,13 +575,15 @@ export default {
     queryIds () {
       let ids = []
       if (Array.isArray(this.appliedFilterQuery) === false && Object.values(this.appliedFilterQuery).length > 0) {
-        ids = Object.values(this.appliedFilterQuery).map(el => {
-          if (!el.condition.value) {
-            return 'unassigned'
-          }
+        ids = Object.values(this.appliedFilterQuery)
+          .filter(el => el.condition) // Remove group objects
+          .map(el => {
+            if (!el.condition.value) {
+              return 'unassigned'
+            }
 
-          return el.condition.value
-        })
+            return el.condition.value
+          })
       }
       return ids
     },
@@ -1120,6 +1122,10 @@ export default {
 
     if (Array.isArray(this.initialFilter) === false && Object.keys(this.initialFilter).length) {
       Object.values(this.initialFilter).forEach(filter => {
+        if (!filter.condition) {
+          return
+        }
+
         const query = {}
         query[filter.condition.value] = filter
         this.updateFilterQuery(query)
