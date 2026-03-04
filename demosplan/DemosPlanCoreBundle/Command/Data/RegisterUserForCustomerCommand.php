@@ -55,7 +55,6 @@ class RegisterUserForCustomerCommand extends CoreCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        // register user in console when the user has multiple orgas @todo
         $userToRegister = $this->askUserLogin($input, $output);
         if (!$userToRegister instanceof User) {
             $output->writeln('No user for Login found', OutputInterface::VERBOSITY_NORMAL);
@@ -70,11 +69,24 @@ class RegisterUserForCustomerCommand extends CoreCommand
             $userToRegister->setDplanroles($roles, $customer);
             $this->userRepository->updateObject($userToRegister);
 
-            // add OrgaType to customer
-            $orga = $userToRegister->getOrga();
+            // Get all organizations the user belongs to
+            $userOrganisations = $userToRegister->getOrganisations();
+
+            if ($userOrganisations->isEmpty()) {
+                $output->writeln(
+                    sprintf('User "%s" does not have any organization assigned', $userToRegister->getLogin()),
+                    OutputInterface::VERBOSITY_NORMAL
+                );
+
+                return Command::FAILURE;
+            }
+
+
+            // Ask user to select an organisation
+            $orga = $this->helpers->askOrganisation($input, $output, $userOrganisations);
 
             if (!$orga instanceof OrgaInterface) {
-                $output->writeln(sprintf('User "%s" does not have an organization assigned', $userToRegister->getLogin()), OutputInterface::VERBOSITY_NORMAL);
+                $output->writeln('Selected organisation not found', OutputInterface::VERBOSITY_NORMAL);
 
                 return Command::FAILURE;
             }
