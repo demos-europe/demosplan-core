@@ -1,0 +1,78 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace Application\Migrations;
+
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * refs DPLAN-16766: Add phase_definition_id and designated_phase_definition_id FK columns to
+ * procedure_phase. Columns are added as nullable; they are populated and made NOT NULL by the
+ * per-project seed migrations (Version202602191100xx) which run after this one.
+ */
+class Version20260304100000 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return 'refs DPLAN-16766: Add phase_definition_id FK columns to procedure_phase';
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function up(Schema $schema): void
+    {
+        $this->abortIfNotMysql();
+
+        $this->addSql(
+            'ALTER TABLE procedure_phase
+                ADD COLUMN phase_definition_id CHAR(36) DEFAULT NULL,
+                ADD COLUMN designated_phase_definition_id CHAR(36) DEFAULT NULL,
+                ADD CONSTRAINT fk_pp_phase_definition
+                    FOREIGN KEY (phase_definition_id)
+                    REFERENCES procedure_phase_definition (id) ON DELETE RESTRICT,
+                ADD CONSTRAINT fk_pp_designated_phase_definition
+                    FOREIGN KEY (designated_phase_definition_id)
+                    REFERENCES procedure_phase_definition (id) ON DELETE RESTRICT'
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function down(Schema $schema): void
+    {
+        $this->abortIfNotMysql();
+
+        $this->addSql(
+            'ALTER TABLE procedure_phase
+                DROP FOREIGN KEY fk_pp_phase_definition,
+                DROP FOREIGN KEY fk_pp_designated_phase_definition,
+                DROP COLUMN phase_definition_id,
+                DROP COLUMN designated_phase_definition_id'
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function abortIfNotMysql(): void
+    {
+        $this->abortIf(
+            !$this->connection->getDatabasePlatform() instanceof MySQLPlatform,
+            "Migration can only be executed safely on 'mysql'."
+        );
+    }
+}

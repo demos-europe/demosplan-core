@@ -44,6 +44,7 @@ use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProce
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -304,10 +305,15 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * Must have one of a set of predefined values which differs in projects, see respective configuration file.
      *
      * @var string
-     *
-     * @ORM\Column(name="_st_phase", type="string", length=50, nullable=false)
      */
     protected $phase;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
+     *
+     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=false, onDelete="RESTRICT")
+     */
+    protected ProcedurePhaseDefinition $phaseDefinition;
 
     /**
      * @var string
@@ -1623,6 +1629,16 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function getPhase(): string
     {
         return $this->phase;
+    }
+
+    public function getPhaseDefinition(): ProcedurePhaseDefinition
+    {
+        return $this->phaseDefinition;
+    }
+
+    public function setPhaseDefinition(ProcedurePhaseDefinition $phaseDefinition): void
+    {
+        $this->phaseDefinition = $phaseDefinition;
     }
 
     /**

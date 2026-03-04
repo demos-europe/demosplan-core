@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -80,10 +81,21 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
      */
     private $modificationDate;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true)
-     */
     protected ?string $designatedPhase = null;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
+     *
+     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=true, onDelete="RESTRICT")
+     */
+    protected ?ProcedurePhaseDefinition $phaseDefinition = null;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
+     *
+     * @ORM\JoinColumn(name="designated_phase_definition_id", referencedColumnName="id", nullable=true, onDelete="RESTRICT")
+     */
+    protected ?ProcedurePhaseDefinition $designatedPhaseDefinition = null;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -123,9 +135,6 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
      * @ORM\Column(type="string", length=25, nullable=false, options={"default":""})
      */
         protected string $step,
-        /**
-         * @ORM\Column(name="phase_key", type="string", nullable=false)
-         */
         protected string $key = 'configuration')
     {
         $this->permissionSet = ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
@@ -225,6 +234,26 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->designatedPhase = $designatedPhase;
     }
 
+    public function getPhaseDefinition(): ?ProcedurePhaseDefinition
+    {
+        return $this->phaseDefinition;
+    }
+
+    public function setPhaseDefinition(?ProcedurePhaseDefinition $phaseDefinition): void
+    {
+        $this->phaseDefinition = $phaseDefinition;
+    }
+
+    public function getDesignatedPhaseDefinition(): ?ProcedurePhaseDefinition
+    {
+        return $this->designatedPhaseDefinition;
+    }
+
+    public function setDesignatedPhaseDefinition(?ProcedurePhaseDefinition $designatedPhaseDefinition): void
+    {
+        $this->designatedPhaseDefinition = $designatedPhaseDefinition;
+    }
+
     public function getDesignatedSwitchDate(): ?DateTime
     {
         return $this->designatedSwitchDate;
@@ -287,6 +316,11 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->permissionSet = $sourcePhase->getPermissionSet();
         $this->startDate = $sourcePhase->getStartDate();
         $this->endDate = $sourcePhase->getEndDate();
+
+        if ($sourcePhase instanceof self) {
+            $this->phaseDefinition = $sourcePhase->getPhaseDefinition();
+            $this->designatedPhaseDefinition = $sourcePhase->getDesignatedPhaseDefinition();
+        }
     }
 
     public function getIteration(): int
