@@ -35,7 +35,7 @@ All rights reserved
         <dp-input
           id="phaseName"
           v-model="newPhase.name"
-          :class="{ '[&_input]:border-status-failed': isDuplicateName }"
+          :class="{ '[&_input]:border-status-failed': showErrorInputStyle }"
           :label="{ text: Translator.trans('phase.name') }"
           required
         />
@@ -135,6 +135,7 @@ export default {
       isLoading: false,
       newPhase: { name: '', audience: '', permissionSet: '', participationState: '' },
       phases: [],
+      showErrorInputStyle: false,
     }
   },
 
@@ -189,14 +190,6 @@ export default {
         { label: Translator.trans('permissionset.read'), value: 'read' },
         { label: Translator.trans('permissionset.write'), value: 'write' },
       ]
-    },
-  },
-
-  watch: {
-    'newPhase.name' () {
-      if (this.isDuplicateName) {
-        dplan.notify.error(Translator.trans('error.name.unique'))
-      }
     },
   },
 
@@ -295,11 +288,13 @@ export default {
 
     submitForm () {
       if (this.isDuplicateName) {
+        this.showErrorInputStyle = true
         dplan.notify.error(Translator.trans('error.name.unique'))
 
         return
       }
 
+      this.showErrorInputStyle = false
       this.dpValidateAction('phaseForm', () => this.createPhase(), false)
     },
   },
