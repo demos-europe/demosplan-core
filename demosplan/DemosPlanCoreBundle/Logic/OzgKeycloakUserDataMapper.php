@@ -88,15 +88,13 @@ class OzgKeycloakUserDataMapper
         $requestedRoles = $this->mapUserRoleData();
 
         // Check if this is a multi-organisation token (affiliations × responsibilities)
-        if ($ozgKeycloakUserData instanceof OzgKeycloakUserData) {
-            $entries = $this->buildOrganisationEntries(
-                $ozgKeycloakUserData->getAffiliations(),
-                $ozgKeycloakUserData->getResponsibilities()
-            );
+        $entries = $this->buildOrganisationEntries(
+            $ozgKeycloakUserData->getAffiliations(),
+            $ozgKeycloakUserData->getResponsibilities()
+        );
 
-            if (count($entries) >= 1) {
-                return $this->mapMultiOrganisationUser($entries, $requestedRoles);
-            }
+        if (count($entries) >= 1) {
+            return $this->mapMultiOrganisationUser($entries, $requestedRoles);
         }
 
         // No entries from token arrays → existing single-org flow using organisationId
