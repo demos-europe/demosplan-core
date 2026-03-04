@@ -71,6 +71,7 @@ class RegisterUserForCustomerCommandTest extends FunctionalTestCase
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_FP_ONLY);
         /** @var Customer $newCustomer */
         $newCustomer = $this->fixtures->getReference('testCustomerBrandenburg');
+        $orga = $user->getOrga();
         $commandTester = $this->getCommandTester();
 
         // use four inputs, as we want to test whether first input is marked as existing customer
@@ -80,6 +81,7 @@ class RegisterUserForCustomerCommandTest extends FunctionalTestCase
                 'invalid customer',
                 $newCustomer->getSubdomain(),
                 RoleInterface::PUBLIC_AGENCY_SUPPORT,
+                $orga->getId(),
             ]
         );
 
