@@ -1,3 +1,12 @@
+<license>
+(c) 2010-present DEMOS plan GmbH.
+
+This file is part of the package demosplan,
+for more information see the license file.
+
+All rights reserved
+</license>
+
 <template>
   <div>
     <h1>{{ Translator.trans('phases.currently.defined') }}</h1>
@@ -124,7 +133,7 @@ export default {
       isCreating: false,
       isInitiallyLoading: true,
       isLoading: false,
-      newPhase: { name: '', audience: 'external', permissionSet: 'hidden', participationState: null },
+      newPhase: { name: '', audience: '', permissionSet: '', participationState: '' },
       phases: [],
     }
   },
@@ -169,7 +178,6 @@ export default {
 
     participationStateOptions () {
       return [
-        { label: Translator.trans('participation.state.none'), value: '' },
         { label: Translator.trans('participation.state.finished'), value: 'finished' },
         { label: Translator.trans('participation.state.token'), value: 'participateWithToken' },
       ]
@@ -273,14 +281,16 @@ export default {
         id: phase.id,
         name: phase.name,
         orderInAudience: phase.orderInAudience,
-        participationStateLabel: this.participationStateOptions.find(option => option.value === (phase.participationState ?? ''))?.label || phase.participationState,
         permissionSetLabel: this.permissionSetOptions.find(option => option.value === phase.permissionSet)?.label || phase.permissionSet,
+        participationStateLabel: phase.participationState ?
+          this.participationStateOptions.find(option => option.value === phase.participationState)?.label || phase.participationState :
+          Translator.trans('participation.state.none'),
       }
     },
 
     resetForm () {
       this.isCreating = false
-      this.newPhase = { name: '', audience: 'external', permissionSet: 'hidden', participationState: null }
+      this.newPhase = { name: '', audience: '', permissionSet: '', participationState: '' }
     },
 
     submitForm () {
