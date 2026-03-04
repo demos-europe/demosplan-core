@@ -199,8 +199,7 @@ class SegmentsExportController extends BaseController
 
         // Apply tag filtering after JsonAPI filtering
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagsTopicTitles = $this->requestStack->getCurrentRequest()->query->all('tagTopicTitles');
-        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter, $tagsTopicTitles);
+        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
 
         $response = new StreamedResponse(
             function () use ($statementEntities, $exporter) {
