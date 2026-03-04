@@ -37,7 +37,7 @@ class RegisterUserForCustomerCommandTest extends FunctionalTestCase
                 $user->getLogin(),
                 $newCustomer->getSubdomain(),
                 RoleInterface::PLANNING_AGENCY_ADMIN.','.RoleInterface::PUBLIC_AGENCY_COORDINATION,
-                $orga->getId()
+                $orga->getId(),
             ]
         );
 
