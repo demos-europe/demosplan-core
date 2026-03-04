@@ -111,6 +111,4 @@ class Helpers
 
         return $availableOrganisations->first(fn (OrgaInterface $orga) => $answer === $orga->getId());
     }
-
-
 }

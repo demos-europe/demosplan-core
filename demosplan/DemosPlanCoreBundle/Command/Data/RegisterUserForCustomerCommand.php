@@ -81,7 +81,6 @@ class RegisterUserForCustomerCommand extends CoreCommand
                 return Command::FAILURE;
             }
 
-
             // Ask user to select an organisation
             $orga = $this->helpers->askOrganisation($input, $output, $userOrganisations);
 
