@@ -1,11 +1,17 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper;
 
 class OrganisationAffiliationMapper
 {
-
-
     /**
      * Compute the cartesian product of affiliations × responsibilities.
      * Organisation (affiliations) is always >= 1, responsibilities is 0..n.
@@ -44,5 +50,4 @@ class OrganisationAffiliationMapper
         // Affiliations only (no responsibilities)
         return array_map(static fn (array $a): array => ['gwId' => $a['id'], 'name' => $a['name']], $affiliations);
     }
-
 }
