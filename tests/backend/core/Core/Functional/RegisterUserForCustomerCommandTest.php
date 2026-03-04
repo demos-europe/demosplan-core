@@ -29,6 +29,7 @@ class RegisterUserForCustomerCommandTest extends FunctionalTestCase
         /** @var Customer $newCustomer */
         $newCustomer = $this->fixtures->getReference('testCustomerBrandenburg');
 
+        $orga = $user->getOrga();
         $commandTester = $this->getCommandTester();
 
         $commandTester->setInputs(
@@ -36,6 +37,7 @@ class RegisterUserForCustomerCommandTest extends FunctionalTestCase
                 $user->getLogin(),
                 $newCustomer->getSubdomain(),
                 RoleInterface::PLANNING_AGENCY_ADMIN.','.RoleInterface::PUBLIC_AGENCY_COORDINATION,
+                $orga->getId()
             ]
         );
 
