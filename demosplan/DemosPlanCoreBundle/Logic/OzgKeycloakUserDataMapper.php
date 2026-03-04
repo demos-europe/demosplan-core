@@ -97,7 +97,6 @@ class OzgKeycloakUserDataMapper
             if (count($entries) >= 1) {
                 return $this->mapMultiOrganisationUser($entries, $requestedRoles);
             }
-
         }
 
         // No entries from token arrays → existing single-org flow using organisationId
