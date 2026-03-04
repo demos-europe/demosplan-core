@@ -94,14 +94,10 @@ class OzgKeycloakUserDataMapper
                 $ozgKeycloakUserData->getResponsibilities()
             );
 
-            if (count($entries) > 1) {
+            if (count($entries) >= 1) {
                 return $this->mapMultiOrganisationUser($entries, $requestedRoles);
             }
 
-            if (1 === count($entries)) {
-                // Single org from token arrays — use it instead of organisationId
-                return $this->mapSingleEntryOrganisationUser($entries[0], $requestedRoles);
-            }
         }
 
         // No entries from token arrays → existing single-org flow using organisationId
@@ -152,44 +148,6 @@ class OzgKeycloakUserDataMapper
 
         // Affiliations only (no responsibilities)
         return array_map(static fn (array $a): array => ['gwId' => $a['id'], 'name' => $a['name']], $affiliations);
-    }
-
-    /**
-     * Handle a single organisation entry from token arrays.
-     * Routes through the normal org lookup/create flow using the entry's gwId and name.
-     *
-     * @param array{gwId: string, name: string} $entry
-     * @param array<int, Role>                  $requestedRoles
-     *
-     * @throws CustomerNotFoundException
-     * @throws Exception
-     */
-    private function mapSingleEntryOrganisationUser(array $entry, array $requestedRoles): User
-    {
-        $existingUser = $this->tryToFindExistingUser();
-
-        $citizenUser = $this->handleCitizenUserIfApplicable($existingUser, $requestedRoles);
-        if ($citizenUser instanceof User) {
-            return $citizenUser;
-        }
-
-        $orga = $this->orgaRepository->findOneBy(['gwId' => $entry['gwId']]);
-
-        if ($orga instanceof Orga) {
-            $orga = $this->updateOrganisation($orga, $requestedRoles, $entry['gwId'], $entry['name']);
-        } else {
-            $orga = $this->createNewOrganisation($requestedRoles, $entry['gwId'], $entry['name']);
-        }
-
-        if ($existingUser instanceof User) {
-            $user = $this->updateExistingDplanUser($existingUser, $orga, $requestedRoles);
-            // Sync: remove stale org links from previous multi-org tokens
-            $this->syncUserOrganisations($user, [$orga]);
-
-            return $user;
-        }
-
-        return $this->createNewUser($orga, $requestedRoles);
     }
 
     /**
