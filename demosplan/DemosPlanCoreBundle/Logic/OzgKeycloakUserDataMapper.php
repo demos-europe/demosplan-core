@@ -89,6 +89,7 @@ class OzgKeycloakUserDataMapper
 
         // Check if this is a multi-organisation token (affiliations × responsibilities)
         if ($ozgKeycloakUserData instanceof OzgKeycloakUserData) {
+
             $entries = $this->buildOrganisationEntries(
                 $ozgKeycloakUserData->getAffiliations(),
                 $ozgKeycloakUserData->getResponsibilities()
@@ -168,14 +169,9 @@ class OzgKeycloakUserDataMapper
     {
         $existingUser = $this->tryToFindExistingUser();
 
-        // Handle private persons / citizens
-        if ($this->ozgKeycloakUserData->isPrivatePerson() || $this->isUserCitizen($requestedRoles)) {
-            $citizenOrga = $this->getCitizenOrga();
-            if ($existingUser instanceof User) {
-                return $this->updateExistingDplanUser($existingUser, $citizenOrga, $requestedRoles);
-            }
-
-            return $this->createNewUser($citizenOrga, $requestedRoles);
+        $citizenUser = $this->handleCitizenUserIfApplicable($existingUser, $requestedRoles);
+        if ($citizenUser instanceof User) {
+            return $citizenUser;
         }
 
         $orga = $this->orgaRepository->findOneBy(['gwId' => $entry['gwId']]);
@@ -211,14 +207,9 @@ class OzgKeycloakUserDataMapper
     {
         $existingUser = $this->tryToFindExistingUser();
 
-        // Handle private persons (citizens) - they don't get multi-org
-        if ($this->ozgKeycloakUserData->isPrivatePerson() || $this->isUserCitizen($requestedRoles)) {
-            $citizenOrga = $this->getCitizenOrga();
-            if ($existingUser instanceof User) {
-                return $this->updateExistingDplanUser($existingUser, $citizenOrga, $requestedRoles);
-            }
-
-            return $this->createNewUser($citizenOrga, $requestedRoles);
+        $citizenUser = $this->handleCitizenUserIfApplicable($existingUser, $requestedRoles);
+        if ($citizenUser instanceof User) {
+            return $citizenUser;
         }
 
         // Find or create all organisations from entries
@@ -848,4 +839,31 @@ class OzgKeycloakUserDataMapper
     {
         return $this->userRepository->findOneBy(['email' => $this->ozgKeycloakUserData->getEmailAddress()]);
     }
+
+    /**
+     * Handle citizen users (private persons) who don't support multi-organisation.
+     * Returns the user if this is a citizen, null to continue normal flow.
+     *
+     * @param User|null        $existingUser   Pre-fetched user (avoids duplicate query)
+     * @param array<int, Role> $requestedRoles
+     * @return User|null Returns User if handled as citizen, null to continue
+     */
+    private function handleCitizenUserIfApplicable(?User $existingUser, array $requestedRoles): ?User
+    {
+        if (!$this->ozgKeycloakUserData->isPrivatePerson() && !$this->isUserCitizen($requestedRoles)) {
+            return null; // Not a citizen
+        }
+
+        $citizenOrga = $this->getCitizenOrga();
+
+        if ($existingUser instanceof User) {
+            return $this->updateExistingDplanUser($existingUser, $citizenOrga, $requestedRoles);
+        }
+
+        return $this->createNewUser($citizenOrga, $requestedRoles);
+    }
+
+
+
+
 }
