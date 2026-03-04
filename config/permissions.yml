@@ -184,6 +184,18 @@ area_customer_procedure_phase_definitions:
     label: 'Manage customer procedure phase definitions'
     loginRequired: true
     parent: area_customer_settings
+area_customer_procedure_phase_participation_token:
+    description: 'Allows to use "participate with token" as a participation state option in procedure phase definition.'
+    expose: 'true'
+    label: 'Enable participation state "participate with token" in procedure phase definition'
+    loginRequired: true
+    parent: area_customer_settings
+area_customer_procedure_phase_previewed:
+    description: 'Allows to set the "previewed" flag on procedure phase definitions.'
+    expose: 'true'
+    label: 'Enable "previewed" option in procedure phase definitions'
+    loginRequired: true
+    parent: area_customer_settings
 area_customer_send_mail_to_users:
     description: 'See parent for longer description.'
     label: 'Allows to send an E-Mail with free editable html body to all users of the customer.'
