@@ -12,16 +12,15 @@ namespace demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class OrganisationAffiliationMapper
 {
-
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-    ){}
+    ) {
+    }
+
     /**
      * Compute the cartesian product of affiliations × responsibilities.
      * Organisation (affiliations) is always >= 1, responsibilities is 0..n.

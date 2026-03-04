@@ -192,7 +192,6 @@ class OzgKeycloakUserDataMapper
         return $organisations;
     }
 
-
     /**
      * Creates a new organisation in case of incoming organisation could not match with existing organisations.
      * In case of incoming organisation can be found, it will be updated with incoming data.
