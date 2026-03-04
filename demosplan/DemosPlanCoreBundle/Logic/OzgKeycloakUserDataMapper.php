@@ -146,7 +146,7 @@ class OzgKeycloakUserDataMapper
         }
 
         // Sync user's org links: add new ones, remove stale ones
-        $this->syncUserOrganisations($user, $organisations);
+        $this->organisationAffiliationMapper->syncUserOrganisations($user, $organisations);
 
         $this->logger->info('Multi-organisation user mapped', [
             'userId'            => $user->getId(),
@@ -192,38 +192,6 @@ class OzgKeycloakUserDataMapper
         return $organisations;
     }
 
-    /**
-     * Sync user's organisation links to match the given target set.
-     * Adds missing links and removes stale ones no longer present in the token.
-     *
-     * @param array<int, Orga> $targetOrganisations
-     */
-    private function syncUserOrganisations(User $user, array $targetOrganisations): void
-    {
-        $targetIds = array_map(static fn (Orga $o): string => $o->getId(), $targetOrganisations);
-
-        // Remove stale org links not in target set
-        // Use unlinkUser/removeOrganisation to avoid setOrga()/unsetOrgas() side effects
-        foreach ($user->getOrganisations()->toArray() as $currentOrga) {
-            if (!in_array($currentOrga->getId(), $targetIds, true)) {
-                $user->removeOrganisation($currentOrga);
-                $currentOrga->unlinkUser($user);
-                $this->entityManager->persist($currentOrga);
-            }
-        }
-
-        // Add missing org links
-        // Use linkUser/addOrganisation to avoid setOrga() overwriting the user's org collection
-        foreach ($targetOrganisations as $orga) {
-            if (!$user->getOrganisations()->contains($orga)) {
-                $user->addOrganisation($orga);
-                $orga->linkUser($user);
-                $this->entityManager->persist($orga);
-            }
-        }
-
-        $this->entityManager->persist($user);
-    }
 
     /**
      * Creates a new organisation in case of incoming organisation could not match with existing organisations.
