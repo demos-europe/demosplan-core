@@ -89,7 +89,6 @@ class OzgKeycloakUserDataMapper
 
         // Check if this is a multi-organisation token (affiliations × responsibilities)
         if ($ozgKeycloakUserData instanceof OzgKeycloakUserData) {
-
             $entries = $this->buildOrganisationEntries(
                 $ozgKeycloakUserData->getAffiliations(),
                 $ozgKeycloakUserData->getResponsibilities()
@@ -846,6 +845,7 @@ class OzgKeycloakUserDataMapper
      *
      * @param User|null        $existingUser   Pre-fetched user (avoids duplicate query)
      * @param array<int, Role> $requestedRoles
+     *
      * @return User|null Returns User if handled as citizen, null to continue
      */
     private function handleCitizenUserIfApplicable(?User $existingUser, array $requestedRoles): ?User
@@ -862,8 +862,4 @@ class OzgKeycloakUserDataMapper
 
         return $this->createNewUser($citizenOrga, $requestedRoles);
     }
-
-
-
-
 }
