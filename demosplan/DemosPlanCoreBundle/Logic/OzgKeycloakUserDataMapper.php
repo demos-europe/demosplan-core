@@ -28,6 +28,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\DepartmentMapper;
+use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\OrganisationAffiliationMapper;
+use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\RoleMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -42,6 +44,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserDataInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Illuminate\Http\Request;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -71,6 +74,7 @@ class OzgKeycloakUserDataMapper
         private readonly ValidatorInterface $validator,
         private readonly DepartmentMapper $departmentMapper,
         private readonly OzgKeycloakGroupBasedRoleMapper $groupBasedRoleMapper,
+        private readonly OrganisationAffiliationMapper $organisationAffiliationMapper,
     ) {
     }
 
@@ -88,7 +92,7 @@ class OzgKeycloakUserDataMapper
         $requestedRoles = $this->mapUserRoleData();
 
         // Check if this is a multi-organisation token (affiliations × responsibilities)
-        $entries = $this->buildOrganisationEntries(
+        $entries = $this->organisationAffiliationMapper->buildOrganisationEntries(
             $ozgKeycloakUserData->getAffiliations(),
             $ozgKeycloakUserData->getResponsibilities()
         );
@@ -106,45 +110,6 @@ class OzgKeycloakUserDataMapper
         }
 
         return $this->createNewUser($requestedOrganisation, $requestedRoles);
-    }
-
-    /**
-     * Compute the cartesian product of affiliations × responsibilities.
-     * Organisation (affiliations) is always >= 1, responsibilities is 0..n.
-     *
-     * Fallback rules:
-     * 1. Both present → cartesian product (gwId = aff.id + '|' + resp.id)
-     * 2. Only affiliations (no responsibilities) → use affiliations alone
-     * 3. No affiliations → empty array (caller falls back to organisationId)
-     *
-     * @param array<int, array{id: string, name: string}> $affiliations
-     * @param array<int, array{id: string, name: string}> $responsibilities
-     *
-     * @return array<int, array{gwId: string, name: string}>
-     */
-    private function buildOrganisationEntries(array $affiliations, array $responsibilities): array
-    {
-        if ([] === $affiliations) {
-            return [];
-        }
-
-        // Affiliations + responsibilities → cartesian product
-        if ([] !== $responsibilities) {
-            $entries = [];
-            foreach ($affiliations as $aff) {
-                foreach ($responsibilities as $resp) {
-                    $entries[] = [
-                        'gwId' => $aff['id'].'|'.$resp['id'],
-                        'name' => $aff['name'].' - '.$resp['name'],
-                    ];
-                }
-            }
-
-            return $entries;
-        }
-
-        // Affiliations only (no responsibilities)
-        return array_map(static fn (array $a): array => ['gwId' => $a['id'], 'name' => $a['name']], $affiliations);
     }
 
     /**
