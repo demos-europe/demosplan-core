@@ -35,7 +35,7 @@ All rights reserved
         <dp-input
           id="phaseName"
           v-model="newPhase.name"
-          :class="{ 'border--error': isDuplicateName }"
+          :class="{ '[&_input]:border-status-failed': isDuplicateName }"
           :label="{ text: Translator.trans('phase.name') }"
           required
         />
