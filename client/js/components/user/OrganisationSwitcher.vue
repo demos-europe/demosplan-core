@@ -15,21 +15,27 @@
       :key="organisation.id"
       :checked="organisation.id === currentOrganisationId"
       :label="{ text: organisation.name, hint: organisation.gwId ? `(${organisation.gwId})` : '' }"
-      class="mb-1"
+      class="mb-2"
       name="organisation_id"
       :value="organisation.id"
-      required
+    />
+    <dp-button
+      class="mt-4"
+      color="primary"
+      :text="Translator.trans('organisation.select.confirm')"
+      type="submit"
     />
   </div>
 </template>
 
 <script>
-import { DpRadio } from '@demos-europe/demosplan-ui'
+import { DpButton, DpRadio } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'OrganisationSwitcher',
 
   components: {
+    DpButton,
     DpRadio,
   },
 
