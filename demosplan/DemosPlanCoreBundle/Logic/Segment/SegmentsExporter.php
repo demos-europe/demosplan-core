@@ -122,7 +122,7 @@ abstract class SegmentsExporter
         $translationKey = [] !== $exportFilteredByTagsWithTopics ?
             'segments.export.statement.export.date.filtered' : 'segments.export.statement.export.date';
         $translationParameter = ['date' => $currentDate->format('d.m.Y')];
-        if ($this->currentUser->hasPermission('feature_adjust_export_file_name')) {
+        if ($this->currentUser->hasPermission('feature_adjust_preamble_export_file')) {
             $translationKey = [] !== $exportFilteredByTagsWithTopics ?
                 'segments.export.statement.export.filtered' : 'segments.export.statement.export';
             $translationParameter = ['procedureName'  => $procedure->getName()];
@@ -138,7 +138,7 @@ abstract class SegmentsExporter
     {
         if (Footer::FIRST === $headerType
             && [] !== $exportTagTitles
-            && $this->currentUser->hasPermission('feature_adjust_export_file_name')) {
+            && $this->currentUser->hasPermission('feature_adjust_preamble_export_file')) {
             $filteredExportPreamble = $this->translator->trans('docx.export.filtered');
             foreach ($exportTagTitles as $tagTopicContainer) {
                 $appendToVariable = 'Schlagwort: '.$tagTopicContainer[0].' [Thema: '.$tagTopicContainer[1].'], ';
