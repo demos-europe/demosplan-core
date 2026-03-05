@@ -178,10 +178,16 @@ export default {
     },
 
     participationStateOptions () {
-      return [
-        { label: Translator.trans('participation.state.finished'), value: 'finished' },
-        { label: Translator.trans('participation.state.token'), value: 'participateWithToken' },
-      ]
+      if (hasPermission('area_customer_procedure_phase_participation_token')) {
+        return [
+          { label: Translator.trans('participation.state.finished'), value: 'finished' },
+          { label: Translator.trans('participation.state.token'), value: 'participateWithToken' },
+        ]
+      } else {
+        return [
+          { label: Translator.trans('participation.state.finished'), value: 'finished' }
+        ]
+      }
     },
 
     permissionSetOptions () {
@@ -212,17 +218,7 @@ export default {
           },
         },
       })
-        .then(({ data }) => {
-          const item = data.data
-          this.phases.push({
-            audience: item.attributes.audience,
-            id: item.id,
-            name: item.attributes.name,
-            orderInAudience: item.attributes.orderInAudience,
-            participationState: item.attributes.participationState,
-            permissionSet: item.attributes.permissionSet,
-          })
-
+        .then(() => {
           dplan.notify.confirm(Translator.trans('phase.created.success'))
 
           this.fetchPhases()
@@ -238,7 +234,9 @@ export default {
     },
 
     fetchPhases () {
-      this.isInitiallyLoading = true
+      if (this.phases.length === 0) {
+        this.isInitiallyLoading = true
+      }
 
       dpApi.get(Routing.generate('api_resource_list', {
         resourceType: 'ProcedurePhaseDefinition',
