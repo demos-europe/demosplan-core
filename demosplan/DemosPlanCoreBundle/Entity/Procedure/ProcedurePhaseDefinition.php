@@ -86,13 +86,6 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     protected int $orderInAudience = 0;
 
     /**
-     * Whether this phase should be shown on the public start page even if its permission set is hidden.
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
-     */
-    protected bool $previewed = false;
-
-    /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      *
      * @ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id", nullable=false, onDelete="CASCADE")
@@ -171,16 +164,6 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     public function setOrderInAudience(int $orderInAudience): void
     {
         $this->orderInAudience = $orderInAudience;
-    }
-
-    public function isPreviewed(): bool
-    {
-        return $this->previewed;
-    }
-
-    public function setPreviewed(bool $previewed): void
-    {
-        $this->previewed = $previewed;
     }
 
     public function getCustomer(): Customer
