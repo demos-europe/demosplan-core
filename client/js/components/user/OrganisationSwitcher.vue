@@ -31,7 +31,9 @@
 </template>
 
 <script>
-import { DpButton, DpRadio } from '@demos-europe/demosplan-ui'
+import {
+  DpButton,
+  DpRadio } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'OrganisationSwitcher',
@@ -42,13 +44,13 @@ export default {
   },
 
   props: {
-    organisations: {
-      type: Array,
+    currentOrganisationId: {
+      type: String,
       required: true,
     },
 
-    currentOrganisationId: {
-      type: String,
+    organisations: {
+      type: Array,
       required: true,
     },
   },
