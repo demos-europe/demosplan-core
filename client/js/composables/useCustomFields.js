@@ -1,3 +1,12 @@
+/**
+ * (c) 2010-present DEMOS plan GmbH.
+ *
+ * This file is part of the package demosplan,
+ * for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 import { ref } from 'vue'
 import { dpApi } from '@demos-europe/demosplan-ui'
 
