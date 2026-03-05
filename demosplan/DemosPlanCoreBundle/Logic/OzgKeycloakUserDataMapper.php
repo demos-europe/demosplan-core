@@ -142,9 +142,8 @@ class OzgKeycloakUserDataMapper
         $primaryOrga = $organisations[0];
 
         if (!$existingUser instanceof User) {
-            $primaryOrga = $organisations[0];
             $user = $this->createNewUser($primaryOrga, $requestedRoles);
-            $this->organisationAffiliationMapper->syncUserOrganisations($user, $organisations);
+            $this->organisationAffiliationMapper->syncUserOrganisations($user, [], $organisations);
             $this->logger->info('Multi-organisation user mapped', [
                 'userId'            => $user->getId(),
                 'organisationCount' => count($organisations),
@@ -156,18 +155,11 @@ class OzgKeycloakUserDataMapper
 
         // Save old orgas before they get wiped by setOrga
         $oldOrgas = $existingUser->getOrganisations()->toArray();
-        $targetOrgaIds = array_map(fn (Orga $o) => $o->getId(), $organisations);
 
         // Update user (this will call setOrga and wipe the collection to [$primaryOrga])
         $user = $this->updateExistingDplanUser($existingUser, $primaryOrga, $requestedRoles);
 
-        // Manually remove user from old orgas that are not in the target set
-        $this->organisationAffiliationMapper->unlinkUserFromOldOrgas($user, $oldOrgas, $targetOrgaIds);
-
-        // Add the remaining new orgas (primaryOrga is already set by setOrga)
-        $this->organisationAffiliationMapper->linkUserToNewOrgas($user, $organisations);
-
-        $this->entityManager->persist($user);
+        $this->organisationAffiliationMapper->syncUserOrganisations($user, $oldOrgas, $organisations);
 
         $this->logger->info('Multi-organisation user mapped', [
             'userId'            => $user->getId(),

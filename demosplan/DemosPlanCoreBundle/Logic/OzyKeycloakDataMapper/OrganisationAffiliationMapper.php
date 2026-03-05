@@ -66,29 +66,17 @@ class OrganisationAffiliationMapper
      *
      * @param array<int, Orga> $targetOrganisations
      */
-    public function syncUserOrganisations(User $user, array $targetOrganisations): void
+    public function syncUserOrganisations(User $user, array $oldOrgas, array $targetOrganisations): void
     {
-        $targetIds = array_map(static fn (Orga $o): string => $o->getId(), $targetOrganisations);
+        $targetOrgaIds = array_map(static fn (Orga $o): string => $o->getId(), $targetOrganisations);
 
         // Remove stale org links not in target set
         // Use unlinkUser/removeOrganisation to avoid setOrga()/unsetOrgas() side effects
-        foreach ($user->getOrganisations()->toArray() as $currentOrga) {
-            if (!in_array($currentOrga->getId(), $targetIds, true)) {
-                $user->removeOrganisation($currentOrga);
-                $currentOrga->unlinkUser($user);
-                $this->entityManager->persist($currentOrga);
-            }
-        }
+        $this->unlinkUserFromOldOrgas($user, $oldOrgas, $targetOrgaIds);
 
         // Add missing org links
         // Use linkUser/addOrganisation to avoid setOrga() overwriting the user's org collection
-        foreach ($targetOrganisations as $orga) {
-            if (!$user->getOrganisations()->contains($orga)) {
-                $user->addOrganisation($orga);
-                $orga->linkUser($user);
-                $this->entityManager->persist($orga);
-            }
-        }
+        $this->linkUserToNewOrgas($user, $targetOrganisations);
 
         $this->entityManager->persist($user);
     }
@@ -96,7 +84,7 @@ class OrganisationAffiliationMapper
     // Manually remove user from old orgas that are not in the target set
     // Remove stale org links not in target set
     // Use unlinkUser/removeOrganisation to avoid setOrga()/unsetOrgas() side effects
-    public function unlinkUserFromOldOrgas(User $user, array $oldOrgas, array $targetOrgaIds): void
+    private function unlinkUserFromOldOrgas(User $user, array $oldOrgas, array $targetOrgaIds): void
     {
         foreach ($oldOrgas as $oldOrga) {
             if (!in_array($oldOrga->getId(), $targetOrgaIds, true)) {
@@ -111,7 +99,7 @@ class OrganisationAffiliationMapper
     // Use linkUser/addOrganisation to avoid setOrga() overwriting the user's org collection
     // Add missing org links
     // Use linkUser/addOrganisation to avoid setOrga() overwriting the user's org collection
-    public function linkUserToNewOrgas(User $user, array $targetOrganisations)
+    private function linkUserToNewOrgas(User $user, array $targetOrganisations)
     {
         foreach ($targetOrganisations as $orga) {
             if (!$user->getOrganisations()->contains($orga)) {
