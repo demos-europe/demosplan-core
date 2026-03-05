@@ -14,7 +14,9 @@
       :id="`organisation-${organisation.id}`"
       :key="organisation.id"
       :checked="organisation.id === currentOrganisationId"
-      :label="{ text: organisation.name, hint: organisation.gwId ? `(${organisation.gwId})` : '' }"
+      :label="{
+        text: organisation.name
+      }"
       class="mb-2"
       name="organisation_id"
       :value="organisation.id"
