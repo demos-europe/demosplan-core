@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\DepartmentMapper;
 use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\OrganisationAffiliationMapper;
+use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\PrivateCitizenMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -73,6 +74,7 @@ class OzgKeycloakUserDataMapper
         private readonly DepartmentMapper $departmentMapper,
         private readonly OzgKeycloakGroupBasedRoleMapper $groupBasedRoleMapper,
         private readonly OrganisationAffiliationMapper $organisationAffiliationMapper,
+        private readonly PrivateCitizenMapper $privateCitizenMapper,
     ) {
     }
 
@@ -213,7 +215,7 @@ class OzgKeycloakUserDataMapper
         // Or the desired Orga ist the CITIZEN orga.
         // CITIZEN are special as they have to be put in their specific organisation
         $isPrivatePersonByAttribute = $this->ozgKeycloakUserData->isPrivatePerson();
-        $isPrivatePersonByRole = $this->isUserCitizen($requestedRoles);
+        $isPrivatePersonByRole = $this->privateCitizenMapper->isUserCitizen($requestedRoles);
         $isPrivatePersonByOrga = $existingOrga instanceof Orga && UserInterface::ANONYMOUS_USER_ORGA_ID === $existingOrga->getId();
 
         if ($isPrivatePersonByAttribute) {
@@ -229,7 +231,7 @@ class OzgKeycloakUserDataMapper
             // just return the CITIZEN organisation and do not update the orga in this case
             // - regardless of other requested roles or an desired update of the orgaName....
 
-            return $this->getCitizenOrga();
+            return $this->privateCitizenMapper->getCitizenOrga();
         }
 
         // in case an organisation could be found using the given organisation attributes
@@ -482,20 +484,6 @@ class OzgKeycloakUserDataMapper
     }
 
     /**
-     * @param array<int, Role> $desiredRoles
-     */
-    private function isUserCitizen(array $desiredRoles): bool
-    {
-        foreach ($desiredRoles as $role) {
-            if (Role::CITIZEN === $role->getCode()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * @param array<int, Role> $requestedRoles
      *
      * @return array<int, string>
@@ -555,11 +543,6 @@ class OzgKeycloakUserDataMapper
         }
 
         return [$citizenRole];
-    }
-
-    private function getCitizenOrga(): ?Orga
-    {
-        return $this->orgaRepository->findOneBy(['id' => User::ANONYMOUS_USER_ORGA_ID]);
     }
 
     private function tryLookupOrgaByGwId(): ?Orga
@@ -735,11 +718,11 @@ class OzgKeycloakUserDataMapper
      */
     private function handleCitizenUserIfApplicable(?User $existingUser, array $requestedRoles): ?User
     {
-        if (!$this->ozgKeycloakUserData->isPrivatePerson() && !$this->isUserCitizen($requestedRoles)) {
+        if (!$this->ozgKeycloakUserData->isPrivatePerson() && !$this->privateCitizenMapper->isUserCitizen($requestedRoles)) {
             return null; // Not a citizen
         }
 
-        $citizenOrga = $this->getCitizenOrga();
+        $citizenOrga = $this->privateCitizenMapper->getCitizenOrga();
 
         if ($existingUser instanceof User) {
             return $this->updateExistingDplanUser($existingUser, $citizenOrga, $requestedRoles);
