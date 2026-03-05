@@ -15,9 +15,9 @@
             :enable-toggle="enableToggle"
             :fields="fieldsToRender"
             :mode="mode"
-            :source-id="definitionSourceId"
-            :target-id="resourceId"
-            :target-type="resourceType"
+            :definition-source-id="definitionSourceId"
+            :resource-id="resourceId"
+            :resource-type="resourceType"
           >
             <div :class="layoutClasses">
               <dp-custom-field
@@ -81,9 +81,9 @@
           :enable-toggle="enableToggle"
           :fields="fieldsToRender"
           :mode="mode"
-          :source-id="definitionSourceId"
-          :target-id="resourceId"
-          :target-type="resourceType"
+          :definition-source-id="definitionSourceId"
+          :resource-id="resourceId"
+          :resource-type="resourceType"
         >
           <div :class="layoutClasses">
             <dp-custom-field
@@ -139,9 +139,9 @@
           :enable-toggle="enableToggle"
           :fields="fieldsToRender"
           :mode="mode"
-          :source-id="definitionSourceId"
-          :target-id="resourceId"
-          :target-type="resourceType"
+          :definition-source-id="definitionSourceId"
+          :resource-id="resourceId"
+          :resource-type="resourceType"
         >
           <div :class="layoutClasses">
             <dp-custom-field
