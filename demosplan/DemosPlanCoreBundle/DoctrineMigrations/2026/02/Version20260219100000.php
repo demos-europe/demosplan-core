@@ -49,6 +49,19 @@ class Version20260219100000 extends AbstractMigration
                     REFERENCES customer (_c_id) ON DELETE CASCADE
             ) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
         );
+
+        foreach (['internal', 'external'] as $audience) {
+            $this->addSql(
+                'INSERT INTO procedure_phase_definition
+                    (id, customer_id, name, audience, permission_set, participation_state, order_in_audience, creation_date, modification_date)
+                    VALUES (UUID(), NULL, :name, :audience, :permissionSet, NULL, 0, NOW(), NOW())',
+                [
+                    'name'          => 'Konfiguration',
+                    'audience'      => $audience,
+                    'permissionSet' => 'hidden',
+                ]
+            );
+        }
     }
 
     /**
