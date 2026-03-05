@@ -19,14 +19,14 @@ use Doctrine\Migrations\AbstractMigration;
 
 /**
  * refs DPLAN-16766: Add phase_definition_id and designated_phase_definition_id FK columns to
- * procedure_phase. Columns are added as nullable; they are populated and made NOT NULL by the
- * per-project seed migrations (Version202602191100xx) which run after this one.
+ * procedure_phase as nullable. Per-project migrations (Version20260304110001-110013) populate
+ * the columns and enforce NOT NULL afterward.
  */
-class Version20260304100000 extends AbstractMigration
+final class Version20260304100000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs DPLAN-16766: Add phase_definition_id FK columns to procedure_phase';
+        return 'refs DPLAN-16766: Add nullable phase_definition_id FK columns to procedure_phase';
     }
 
     /**

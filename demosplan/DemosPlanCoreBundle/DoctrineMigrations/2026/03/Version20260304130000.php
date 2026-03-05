@@ -18,15 +18,15 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * refs DPLAN-16766: Add phase_definition_id FK column to _statement.
- * Column is added as nullable; it is populated and made NOT NULL by the
- * per-project data migrations (Version20260304140001-140013) which run after this one.
+ * refs DPLAN-16766: Add phase_definition_id FK column to _statement as nullable.
+ * Per-project migrations (Version20260304140001-140013) populate the column and
+ * enforce NOT NULL afterward.
  */
 final class Version20260304130000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs DPLAN-16766: Add phase_definition_id FK column to _statement';
+        return 'refs DPLAN-16766: Add nullable phase_definition_id FK column to _statement';
     }
 
     /**
