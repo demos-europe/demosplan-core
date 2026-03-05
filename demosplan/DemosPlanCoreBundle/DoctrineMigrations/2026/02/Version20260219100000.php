@@ -34,7 +34,7 @@ class Version20260219100000 extends AbstractMigration
         $this->addSql(
             'CREATE TABLE procedure_phase_definition (
                 id                  CHAR(36)     NOT NULL,
-                customer_id         CHAR(36)     NOT NULL,
+                customer_id         CHAR(36)     DEFAULT NULL,
                 name                VARCHAR(255) NOT NULL,
                 audience            VARCHAR(25)  NOT NULL,
                 permission_set      VARCHAR(10)  NOT NULL,
@@ -49,6 +49,19 @@ class Version20260219100000 extends AbstractMigration
                     REFERENCES customer (_c_id) ON DELETE CASCADE
             ) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
         );
+
+        foreach (['internal', 'external'] as $audience) {
+            $this->addSql(
+                'INSERT INTO procedure_phase_definition
+                    (id, customer_id, name, audience, permission_set, participation_state, order_in_audience, creation_date, modification_date)
+                    VALUES (UUID(), NULL, :name, :audience, :permissionSet, NULL, 0, NOW(), NOW())',
+                [
+                    'name'          => 'Konfiguration',
+                    'audience'      => $audience,
+                    'permissionSet' => 'hidden',
+                ]
+            );
+        }
     }
 
     /**
