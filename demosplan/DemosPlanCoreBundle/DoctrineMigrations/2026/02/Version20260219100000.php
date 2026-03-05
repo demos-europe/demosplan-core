@@ -40,7 +40,6 @@ class Version20260219100000 extends AbstractMigration
                 permission_set      VARCHAR(10)  NOT NULL,
                 participation_state VARCHAR(50)  DEFAULT NULL,
                 order_in_audience   INT UNSIGNED NOT NULL DEFAULT 0,
-                previewed           TINYINT(1)   NOT NULL DEFAULT 0,
                 creation_date       DATETIME     NOT NULL,
                 modification_date   DATETIME     NOT NULL,
                 PRIMARY KEY (id),
