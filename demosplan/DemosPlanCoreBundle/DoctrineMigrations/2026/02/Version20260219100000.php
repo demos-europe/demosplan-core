@@ -34,7 +34,7 @@ class Version20260219100000 extends AbstractMigration
         $this->addSql(
             'CREATE TABLE procedure_phase_definition (
                 id                  CHAR(36)     NOT NULL,
-                customer_id         CHAR(36)     NOT NULL,
+                customer_id         CHAR(36)     DEFAULT NULL,
                 name                VARCHAR(255) NOT NULL,
                 audience            VARCHAR(25)  NOT NULL,
                 permission_set      VARCHAR(10)  NOT NULL,

@@ -88,9 +88,9 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      *
-     * @ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id", nullable=false, onDelete="CASCADE")
+     * @ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id", nullable=true, onDelete="CASCADE")
      */
-    protected Customer $customer;
+    protected ?Customer $customer = null;
 
     /**
      * @Gedmo\Timestampable(on="create")
@@ -166,12 +166,12 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
         $this->orderInAudience = $orderInAudience;
     }
 
-    public function getCustomer(): Customer
+    public function getCustomer(): ?Customer
     {
         return $this->customer;
     }
 
-    public function setCustomer(Customer $customer): void
+    public function setCustomer(?Customer $customer): void
     {
         $this->customer = $customer;
     }
