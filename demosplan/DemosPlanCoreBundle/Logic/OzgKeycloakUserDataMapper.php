@@ -154,30 +154,18 @@ class OzgKeycloakUserDataMapper
             return $user;
         }
 
-        // STEP 1: Save old orgas before they get wiped by setOrga
+        //Save old orgas before they get wiped by setOrga
         $oldOrgas = $existingUser->getOrganisations()->toArray();
         $targetOrgaIds = array_map(fn (Orga $o) => $o->getId(), $organisations);
 
-        // STEP 2: Update user (this will call setOrga and wipe the collection to [$primaryOrga])
+        //Update user (this will call setOrga and wipe the collection to [$primaryOrga])
         $user = $this->updateExistingDplanUser($existingUser, $primaryOrga, $requestedRoles);
 
-        // STEP 3: Manually remove user from old orgas that are not in the target set
-        foreach ($oldOrgas as $oldOrga) {
-            if (!in_array($oldOrga->getId(), $targetOrgaIds, true)) {
-                $oldOrga->unlinkUser($user);
-                $user->removeOrganisation($oldOrga);
-                $this->entityManager->persist($oldOrga);
-            }
-        }
+        // Manually remove user from old orgas that are not in the target set
+        $this->organisationAffiliationMapper->unlinkUserFromOldOrgas($user, $oldOrgas, $targetOrgaIds);
 
-        // STEP 4: Add the remaining new orgas (primaryOrga is already set by setOrga)
-        foreach ($organisations as $orga) {
-            if (!$user->getOrganisations()->contains($orga)) {
-                $user->addOrganisation($orga);
-                $orga->linkUser($user);
-                $this->entityManager->persist($orga);
-            }
-        }
+        //Add the remaining new orgas (primaryOrga is already set by setOrga)
+        $this->organisationAffiliationMapper->linkUserToNewOrgas($user, $organisations);
 
         $this->entityManager->persist($user);
 
