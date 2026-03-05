@@ -5,176 +5,176 @@
       :overlay="false"
     />
     <template v-else>
-    <!-- Expandable version with dp-details -->
-    <div
-      v-if="expandable"
-      :class="prefixClass('flex items-center gap-1')"
-    >
-      <dp-details :summary="listTitle">
-      <slot
-        :enable-toggle="enableToggle"
-        :fields="fieldsToRender"
-        :mode="mode"
-        :source-id="definitionSourceId"
-        :target-id="resourceId"
-        :target-type="resourceType"
+      <!-- Expandable version with dp-details -->
+      <div
+        v-if="expandable"
+        :class="prefixClass('flex items-center gap-1')"
       >
-        <div :class="layoutClasses">
-          <dp-custom-field
-            v-for="field in fieldsToRender"
-            :key="field.id"
-            :definition="definitions.find(d => d.id === field.id)"
+        <dp-details :summary="listTitle">
+          <slot
             :enable-toggle="enableToggle"
-            :field-data="{ id: field.id, value: field.value }"
-            :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
+            :fields="fieldsToRender"
             :mode="mode"
-            :resource-id="resourceId"
-            :resource-type="resourceType"
-            @edit:cancel="() => handleEditEnd(field.id)"
-            @edit:save="() => handleEditEnd(field.id)"
-            @edit:start="() => handleEditStart(field.id)"
-            @save:error="handleSaveError"
-            @save:success="handleSaveSuccess"
-            @update:value="newValue => handleValueUpdate(field.id, newValue)"
+            :source-id="definitionSourceId"
+            :target-id="resourceId"
+            :target-type="resourceType"
           >
-            <!-- Forward readonly-display slot if parent provided it -->
-            <template
-              v-if="$slots['readonly-display']"
-              v-slot:readonly-display="slotProps"
-            >
-              <slot
-                name="readonly-display"
-                v-bind="slotProps"
-              />
-            </template>
-          </dp-custom-field>
-        </div>
-      </slot>
-    </dp-details>
-      <dp-contextual-help
-        v-if="titleInfoText"
-        icon="info"
-        size="medium"
-        :class="prefixClass('self-start')"
-        :text="titleInfoText"
-      />
-    </div>
+            <div :class="layoutClasses">
+              <dp-custom-field
+                v-for="field in fieldsToRender"
+                :key="field.id"
+                :definition="definitions.find(d => d.id === field.id)"
+                :enable-toggle="enableToggle"
+                :field-data="{ id: field.id, value: field.value }"
+                :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
+                :mode="mode"
+                :resource-id="resourceId"
+                :resource-type="resourceType"
+                @edit:cancel="() => handleEditEnd(field.id)"
+                @edit:save="() => handleEditEnd(field.id)"
+                @edit:start="() => handleEditStart(field.id)"
+                @save:error="handleSaveError"
+                @save:success="handleSaveSuccess"
+                @update:value="newValue => handleValueUpdate(field.id, newValue)"
+              >
+                <!-- Forward readonly-display slot if parent provided it -->
+                <template
+                  v-if="$slots['readonly-display']"
+                  v-slot:readonly-display="slotProps"
+                >
+                  <slot
+                    name="readonly-display"
+                    v-bind="slotProps"
+                  />
+                </template>
+              </dp-custom-field>
+            </div>
+          </slot>
+        </dp-details>
+        <dp-contextual-help
+          v-if="titleInfoText"
+          icon="info"
+          size="medium"
+          :class="prefixClass('self-start')"
+          :text="titleInfoText"
+        />
+      </div>
 
-    <!-- Editable (non-expandable): fieldset with legend for accessibility -->
-    <fieldset
-      v-else-if="mode === 'editable'"
-      :class="prefixClass('pb-0')"
-    >
-      <legend
-        v-if="!noTitle"
-        :class="prefixClass('mb-2 text-[1em] font-[500]')"
+      <!-- Editable (non-expandable): fieldset with legend for accessibility -->
+      <fieldset
+        v-else-if="mode === 'editable'"
+        :class="prefixClass('pb-0')"
       >
-        {{ listTitle }}
-      </legend>
-      <dp-contextual-help
-        v-if="titleInfoText"
-        :text="titleInfoText"
-        icon="info"
-        size="medium"
-      />
-      <slot
-        :enable-toggle="enableToggle"
-        :fields="fieldsToRender"
-        :mode="mode"
-        :source-id="definitionSourceId"
-        :target-id="resourceId"
-        :target-type="resourceType"
-      >
-        <div :class="layoutClasses">
-          <dp-custom-field
-            v-for="field in fieldsToRender"
-            :key="field.id"
-            :definition="definitions.find(d => d.id === field.id)"
-            :enable-toggle="enableToggle"
-            :field-data="{ id: field.id, value: field.value }"
-            :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
-            :mode="mode"
-            :resource-id="resourceId"
-            :resource-type="resourceType"
-            @edit:cancel="() => handleEditEnd(field.id)"
-            @edit:save="() => handleEditEnd(field.id)"
-            @edit:start="() => handleEditStart(field.id)"
-            @save:error="handleSaveError"
-            @save:success="handleSaveSuccess"
-            @update:value="newValue => handleValueUpdate(field.id, newValue)"
-          >
-            <!-- Forward readonly-display slot if parent provided it -->
-            <template
-              v-if="$slots['readonly-display']"
-              v-slot:readonly-display="slotProps"
-            >
-              <slot
-                name="readonly-display"
-                v-bind="slotProps"
-              />
-            </template>
-          </dp-custom-field>
-        </div>
-      </slot>
-    </fieldset>
-
-    <!-- Readonly non-expandable: optional title (tag configurable via titleTag prop) -->
-    <div v-else>
-      <div :class="[prefixClass('flex items-center gap-1'), effectiveTitleClass]">
-        <component
-          :is="effectiveTitleTag"
-          class="m-0"
+        <legend
           v-if="!noTitle"
+          :class="prefixClass('mb-2 text-[1em] font-[500]')"
         >
           {{ listTitle }}
-        </component>
+        </legend>
         <dp-contextual-help
           v-if="titleInfoText"
           :text="titleInfoText"
           icon="info"
           size="medium"
         />
-      </div>
-      <slot
-        :enable-toggle="enableToggle"
-        :fields="fieldsToRender"
-        :mode="mode"
-        :source-id="definitionSourceId"
-        :target-id="resourceId"
-        :target-type="resourceType"
-      >
-        <div :class="layoutClasses">
-          <dp-custom-field
-            v-for="field in fieldsToRender"
-            :key="field.id"
-            :definition="definitions.find(d => d.id === field.id)"
-            :enable-toggle="enableToggle"
-            :field-data="{ id: field.id, value: field.value }"
-            :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
-            :mode="mode"
-            :resource-id="resourceId"
-            :resource-type="resourceType"
-            @edit:cancel="() => handleEditEnd(field.id)"
-            @edit:save="() => handleEditEnd(field.id)"
-            @edit:start="() => handleEditStart(field.id)"
-            @save:error="handleSaveError"
-            @save:success="handleSaveSuccess"
-            @update:value="newValue => handleValueUpdate(field.id, newValue)"
-          >
-            <!-- Forward readonly-display slot if parent provided it -->
-            <template
-              v-if="$slots['readonly-display']"
-              v-slot:readonly-display="slotProps"
+        <slot
+          :enable-toggle="enableToggle"
+          :fields="fieldsToRender"
+          :mode="mode"
+          :source-id="definitionSourceId"
+          :target-id="resourceId"
+          :target-type="resourceType"
+        >
+          <div :class="layoutClasses">
+            <dp-custom-field
+              v-for="field in fieldsToRender"
+              :key="field.id"
+              :definition="definitions.find(d => d.id === field.id)"
+              :enable-toggle="enableToggle"
+              :field-data="{ id: field.id, value: field.value }"
+              :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
+              :mode="mode"
+              :resource-id="resourceId"
+              :resource-type="resourceType"
+              @edit:cancel="() => handleEditEnd(field.id)"
+              @edit:save="() => handleEditEnd(field.id)"
+              @edit:start="() => handleEditStart(field.id)"
+              @save:error="handleSaveError"
+              @save:success="handleSaveSuccess"
+              @update:value="newValue => handleValueUpdate(field.id, newValue)"
             >
-              <slot
-                name="readonly-display"
-                v-bind="slotProps"
-              />
-            </template>
-          </dp-custom-field>
+              <!-- Forward readonly-display slot if parent provided it -->
+              <template
+                v-if="$slots['readonly-display']"
+                v-slot:readonly-display="slotProps"
+              >
+                <slot
+                  name="readonly-display"
+                  v-bind="slotProps"
+                />
+              </template>
+            </dp-custom-field>
+          </div>
+        </slot>
+      </fieldset>
+
+      <!-- Readonly non-expandable: optional title (tag configurable via titleTag prop) -->
+      <div v-else>
+        <div :class="[prefixClass('flex items-center gap-1'), effectiveTitleClass]">
+          <component
+            :is="effectiveTitleTag"
+            class="m-0"
+            v-if="!noTitle"
+          >
+            {{ listTitle }}
+          </component>
+          <dp-contextual-help
+            v-if="titleInfoText"
+            :text="titleInfoText"
+            icon="info"
+            size="medium"
+          />
         </div>
-      </slot>
-    </div>
+        <slot
+          :enable-toggle="enableToggle"
+          :fields="fieldsToRender"
+          :mode="mode"
+          :source-id="definitionSourceId"
+          :target-id="resourceId"
+          :target-type="resourceType"
+        >
+          <div :class="layoutClasses">
+            <dp-custom-field
+              v-for="field in fieldsToRender"
+              :key="field.id"
+              :definition="definitions.find(d => d.id === field.id)"
+              :enable-toggle="enableToggle"
+              :field-data="{ id: field.id, value: field.value }"
+              :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
+              :mode="mode"
+              :resource-id="resourceId"
+              :resource-type="resourceType"
+              @edit:cancel="() => handleEditEnd(field.id)"
+              @edit:save="() => handleEditEnd(field.id)"
+              @edit:start="() => handleEditStart(field.id)"
+              @save:error="handleSaveError"
+              @save:success="handleSaveSuccess"
+              @update:value="newValue => handleValueUpdate(field.id, newValue)"
+            >
+              <!-- Forward readonly-display slot if parent provided it -->
+              <template
+                v-if="$slots['readonly-display']"
+                v-slot:readonly-display="slotProps"
+              >
+                <slot
+                  name="readonly-display"
+                  v-bind="slotProps"
+                />
+              </template>
+            </dp-custom-field>
+          </div>
+        </slot>
+      </div>
     </template>
   </div>
 </template>
