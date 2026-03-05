@@ -93,7 +93,7 @@ class OrganisationAffiliationMapper
         $this->entityManager->persist($user);
     }
 
-    //Manually remove user from old orgas that are not in the target set
+    // Manually remove user from old orgas that are not in the target set
     // Remove stale org links not in target set
     // Use unlinkUser/removeOrganisation to avoid setOrga()/unsetOrgas() side effects
     public function unlinkUserFromOldOrgas(User $user, array $oldOrgas, array $targetOrgaIds): void
@@ -105,14 +105,14 @@ class OrganisationAffiliationMapper
                 $this->entityManager->persist($oldOrga);
             }
         }
-
     }
 
     // Add missing org links
     // Use linkUser/addOrganisation to avoid setOrga() overwriting the user's org collection
     // Add missing org links
     // Use linkUser/addOrganisation to avoid setOrga() overwriting the user's org collection
-    public function linkUserToNewOrgas(User $user, array $targetOrganisations) {
+    public function linkUserToNewOrgas(User $user, array $targetOrganisations)
+    {
         foreach ($targetOrganisations as $orga) {
             if (!$user->getOrganisations()->contains($orga)) {
                 $user->addOrganisation($orga);
