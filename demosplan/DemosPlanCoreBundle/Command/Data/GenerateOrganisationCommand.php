@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\Installation\InstallationService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -87,8 +88,9 @@ class GenerateOrganisationCommand extends DataProviderCommand
     public function __construct(
         ManagerRegistry $registry,
         private readonly CustomerHandler $customerHandler,
+        private readonly InstallationService $installationService,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
         $this->em = $registry->getManager();
@@ -114,16 +116,22 @@ class GenerateOrganisationCommand extends DataProviderCommand
 
         $amount = $this->getArgument('amount');
 
+        $createdOrgas = [];
+
         try {
             $progressBar = $this->createGeneratorProgressBar($amount);
             $progressBar->setMessage('Generating orgas...');
 
             for ($i = 0; $i < $amount; ++$i) {
-                $this->createOrga($withMastertoeb);
+                $orga = $this->createOrga($withMastertoeb);
+                $createdOrgas[] = $orga;
                 $progressBar->advance();
             }
             $this->em->flush();
             $progressBar->finish();
+
+            // Apply pending permissions to newly created organizations
+            $this->applyPendingPermissionsToOrgas($createdOrgas);
         } catch (Exception $e) {
             $this->error($e);
 
@@ -135,8 +143,10 @@ class GenerateOrganisationCommand extends DataProviderCommand
 
     /**
      * @param bool $withMastertoeb
+     *
+     * @return Orga The created organization
      */
-    private function createOrga($withMastertoeb = false)
+    private function createOrga($withMastertoeb = false): Orga
     {
         $department = new Department();
         $department->setName(Department::DEFAULT_DEPARTMENT_NAME);
@@ -183,5 +193,67 @@ class GenerateOrganisationCommand extends DataProviderCommand
         }
 
         $this->em->persist($orga);
+
+        return $orga;
+    }
+
+    /**
+     * Apply pending permissions to newly created organizations.
+     *
+     * @param array<int, Orga> $organizations The organizations to apply permissions to
+     */
+    private function applyPendingPermissionsToOrgas(array $organizations): void
+    {
+        if (empty($organizations)) {
+            return;
+        }
+
+        $customer = $this->customerHandler->getCurrentCustomer();
+        $totalApplied = 0;
+        $totalFailed = 0;
+
+        foreach ($organizations as $orga) {
+            $results = $this->installationService->applyPendingPermissions($orga, $customer);
+
+            $totalApplied += $results['stats']['appliedCount'];
+            $totalFailed += $results['stats']['failedCount'];
+
+            // Display detailed results for each organization if verbose
+            if ($results['stats']['appliedCount'] > 0) {
+                $permissionNames = array_column($results['applied'], 'permission');
+                $this->info(
+                    sprintf(
+                        'Applied %d permission(s) to organization "%s": %s',
+                        $results['stats']['appliedCount'],
+                        $orga->getName(),
+                        implode(', ', array_unique($permissionNames))
+                    )
+                );
+            }
+
+            if ($results['stats']['failedCount'] > 0) {
+                foreach ($results['failed'] as $failed) {
+                    $this->warn(
+                        sprintf(
+                            'Failed to apply permission "%s" to "%s": %s',
+                            $failed['permission'],
+                            $orga->getName(),
+                            $failed['reason']
+                        )
+                    );
+                }
+            }
+        }
+
+        // Summary message
+        if ($totalApplied > 0 || $totalFailed > 0) {
+            $this->info(
+                sprintf(
+                    'Permission application summary: %d applied, %d failed',
+                    $totalApplied,
+                    $totalFailed
+                )
+            );
+        }
     }
 }
