@@ -29,9 +29,6 @@
     "beberlei/doctrineextensions": {
         "version": "v1.3.0"
     },
-    "behat/transliterator": {
-        "version": "v1.3.0"
-    },
     "brick/math": {
         "version": "0.9.3"
     },
@@ -1149,9 +1146,6 @@
     },
     "willdurand/jsonp-callback-validator": {
         "version": "v1.1.0"
-    },
-    "wrep/daemonizable-command": {
-        "version": "3.1.0"
     },
     "zenstruck/foundry": {
         "version": "1.33",

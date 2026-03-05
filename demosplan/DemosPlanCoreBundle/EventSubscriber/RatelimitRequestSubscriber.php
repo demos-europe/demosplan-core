@@ -42,7 +42,7 @@ class RatelimitRequestSubscriber implements EventSubscriberInterface
             // avoid brute force attacks with captured JWT tokens
             // token is reset on every request
             if (false === $limiter->consume(1)->isAccepted()) {
-                if (true === $this->parameterBag->get('ratelimit_api_enable')) {
+                if (true === filter_var($this->parameterBag->get('ratelimit_api_enable'), FILTER_VALIDATE_BOOLEAN)) {
                     throw new TooManyRequestsHttpException();
                 }
                 $this->logger->warning('Rate limiting for api is disabled but would have been active now.');

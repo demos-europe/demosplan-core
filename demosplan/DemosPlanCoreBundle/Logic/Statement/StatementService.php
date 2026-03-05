@@ -130,6 +130,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Elastica\Aggregation\GlobalAggregation;
+use FOS\ElasticaBundle\Index\IndexManager;
 use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
@@ -252,6 +253,7 @@ class StatementService implements StatementServiceInterface
         private readonly FileService $fileService,
         private readonly GlobalConfigInterface $globalConfig,
         HashedQueryService $filterSetService,
+        private readonly IndexManager $indexManager,
         JsonApiPaginationParser $paginationParser,
         private readonly MessageBagInterface $messageBag,
         protected ParagraphService $paragraphService,
@@ -1698,6 +1700,9 @@ class StatementService implements StatementServiceInterface
             $statement->setVotes($existingVotes->toArray());
 
             $this->statementRepository->updateObject($statement);
+
+            // Refresh ES index to ensure the vote is immediately visible after redirect
+            $this->indexManager->getIndex('statements')->refresh();
 
             $this->messageBag->add('confirm', 'confirm.statement.marked.voted');
 
