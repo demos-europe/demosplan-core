@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
@@ -10,12 +18,9 @@ use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 
 class PrivateCitizenMapper
 {
-
     private function __construct(
-        private readonly OrgaRepository $orgaRepository
-    )
-    {
-
+        private readonly OrgaRepository $orgaRepository,
+    ) {
     }
 
     /**
@@ -36,6 +41,4 @@ class PrivateCitizenMapper
     {
         return $this->orgaRepository->findOneBy(['id' => User::ANONYMOUS_USER_ORGA_ID]);
     }
-
-
 }
