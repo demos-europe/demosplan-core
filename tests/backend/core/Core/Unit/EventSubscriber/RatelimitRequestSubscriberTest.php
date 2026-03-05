@@ -17,7 +17,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\RateLimiter\Storage\InMemoryStorage;
 
@@ -86,7 +85,7 @@ class RatelimitRequestSubscriberTest extends TestCase
         $subscriber = $this->createSubscriber(limit: 5);
         $event = $this->createRequestEvent(self::VALID_TOKEN);
 
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 5; ++$i) {
             $subscriber->onKernelRequest($event);
         }
 
