@@ -132,8 +132,8 @@ All rights reserved
         <div :class="[prefixClass('flex items-center gap-1'), effectiveTitleClass]">
           <component
             :is="effectiveTitleTag"
-            class="m-0"
             v-if="!noTitle"
+            class="m-0"
           >
             {{ listTitle }}
           </component>

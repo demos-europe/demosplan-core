@@ -287,12 +287,6 @@ export default {
     },
   },
 
-  created () {
-    if (!this.definition && !this.definitionSourceId) {
-      console.warn('DpCustomField: either "definition" or "definitionSourceId" must be provided.')
-    }
-  },
-
   methods: {
     cancelEdit () {
       this.isEditing = false
@@ -422,7 +416,7 @@ export default {
           const fieldName = this.resolvedDefinition?.attributes?.name
           dplan.notify.notify('error', fieldName ?
             Translator.trans('error.mandatoryfield', { name: fieldName }) :
-            Translator.trans('error.mandatoryfields')
+            Translator.trans('error.mandatoryfields'),
           )
           return
         }
@@ -490,6 +484,12 @@ export default {
 
       return transformed
     },
+  },
+
+  created () {
+    if (!this.definition && !this.definitionSourceId) {
+      console.warn('DpCustomField: either "definition" or "definitionSourceId" must be provided.')
+    }
   },
 }
 </script>

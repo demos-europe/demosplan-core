@@ -7,8 +7,8 @@
  * All rights reserved
  */
 
-import { ref } from 'vue'
 import { dpApi } from '@demos-europe/demosplan-ui'
+import { ref } from 'vue'
 
 /**
  * Module-level shared Map for custom field definitions
@@ -55,8 +55,8 @@ const pendingFetches = new Map()
  *   .catch(err => console.error(err))
  */
 export function useCustomFields () {
-    const isLoading = ref(false)
-    const error = ref(null)
+  const isLoading = ref(false)
+  const error = ref(null)
 
   /**
    * Fetch custom fields for a given procedure ID
@@ -72,8 +72,10 @@ export function useCustomFields () {
       return Promise.resolve(customFieldsDefinitions.get(definitionSourceId))
     }
 
-    // Return pending promise if fetch is already in progress
-    // This prevents race conditions when multiple components mount simultaneously
+    /*
+     * Return pending promise if fetch is already in progress
+     * This prevents race conditions when multiple components mount simultaneously
+     */
     if (pendingFetches.has(definitionSourceId)) {
       return pendingFetches.get(definitionSourceId)
     }
@@ -82,21 +84,21 @@ export function useCustomFields () {
     error.value = null
 
     const url = Routing.generate('api_resource_list', {
-      resourceType: 'CustomField'
+      resourceType: 'CustomField',
     })
 
     const params = {
       fields: {
-        CustomField: ['name', 'description', 'options', 'fieldType', 'isRequired'].join()
+        CustomField: ['name', 'description', 'options', 'fieldType', 'isRequired'].join(),
       },
       filter: {
         sourceEntityId: {
           condition: {
             path: 'sourceEntityId',
-            value: definitionSourceId
-          }
-        }
-      }
+            value: definitionSourceId,
+          },
+        },
+      },
     }
 
     // Create and cache the promise
@@ -183,7 +185,7 @@ export function useCustomFields () {
   const updateCustomFields = (resourceType, resourceId, customFieldValues) => {
     const url = Routing.generate('api_resource_update', {
       resourceType,
-      resourceId
+      resourceId,
     })
 
     const payload = {
@@ -191,9 +193,9 @@ export function useCustomFields () {
         type: resourceType,
         id: resourceId,
         attributes: {
-          customFields: customFieldValues
-        }
-      }
+          customFields: customFieldValues,
+        },
+      },
     }
     // Use dpApi() directly to pass headers (dpApi.patch() doesn't support headers parameter)
     return dpApi({
@@ -201,8 +203,8 @@ export function useCustomFields () {
       url,
       data: payload,
       headers: {
-        'X-CSRF-Token': dplan.csrfToken
-      }
+        'X-CSRF-Token': dplan.csrfToken,
+      },
     }).catch(error => {
       throw error
     })
@@ -214,6 +216,6 @@ export function useCustomFields () {
     clearCustomFieldsDefinitions,
     updateCustomFields,
     isLoading,
-    error
+    error,
   }
 }
