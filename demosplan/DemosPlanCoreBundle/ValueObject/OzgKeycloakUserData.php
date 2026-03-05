@@ -147,11 +147,10 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
 
             if (is_array($decoded) && isset($decoded['id'])) {
                 $this->affiliations[] = [
-                    'id' => (string) $decoded['id'],
+                    'id'   => (string) $decoded['id'],
                     'name' => (string) ($decoded['name'] ?? $decoded['id']),
                 ];
             }
-
         }
 
         if ([] !== $this->affiliations) {
@@ -180,7 +179,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
 
             if (is_array($decoded) && isset($decoded['id'])) {
                 $this->responsibilities[] = [
-                    'id' => (string) $decoded['id'],
+                    'id'   => (string) $decoded['id'],
                     'name' => (string) ($decoded['name'] ?? $decoded['id']),
                 ];
             }

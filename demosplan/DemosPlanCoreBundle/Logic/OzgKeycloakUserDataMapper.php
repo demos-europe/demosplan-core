@@ -156,7 +156,7 @@ class OzgKeycloakUserDataMapper
 
         // STEP 1: Save old orgas before they get wiped by setOrga
         $oldOrgas = $existingUser->getOrganisations()->toArray();
-        $targetOrgaIds = array_map(fn(Orga $o) => $o->getId(), $organisations);
+        $targetOrgaIds = array_map(fn (Orga $o) => $o->getId(), $organisations);
 
         // STEP 2: Update user (this will call setOrga and wipe the collection to [$primaryOrga])
         $user = $this->updateExistingDplanUser($existingUser, $primaryOrga, $requestedRoles);
