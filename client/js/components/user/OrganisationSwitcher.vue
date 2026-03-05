@@ -14,10 +14,10 @@
       :id="`organisation-${organisation.id}`"
       :key="organisation.id"
       :checked="organisation.id === currentOrganisationId"
+      class="mb-2"
       :label="{
         text: organisation.name
       }"
-      class="mb-2"
       name="organisation_id"
       :value="organisation.id"
     />
