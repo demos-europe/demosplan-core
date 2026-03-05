@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- add showPhases prop to AdministrationProceduresList and fix header alignment
 
 ### Fixed
 - Fix redirect to split-view after claiming statement and correct unclaim behavior to prevent false assignee confirmation dialog
