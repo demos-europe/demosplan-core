@@ -12,28 +12,10 @@
                 <input type="hidden" name="_token" value="{{ csrf_token('switch_organisation') }}">
                 <input type="hidden" name="referer" value="{{ app.request.headers.get('referer') }}">
 
-                <div class="c-styled-form u-mb">
-                    {% for organisation in organisations %}
-                        <div class="o-form__group u-mb-0_5">
-                            <label class="o-form__label--radio">
-                                <input
-                                    type="radio"
-                                    name="organisation_id"
-                                    value="{{ organisation.id }}"
-                                    {% if currentOrganisationId == organisation.id %}checked{% endif %}
-                                    aria-label="{{ 'organisation.select.aria.label'|trans({'%name%': organisation.name}) }}"
-                                    class="o-form__control-radio"
-                                    required>
-                                <span class="o-form__label-text">
-                                    {{ organisation.name }}
-                                    {% if organisation.gwId %}
-                                        <span class="color--grey">({{ organisation.gwId }})</span>
-                                    {% endif %}
-                                </span>
-                            </label>
-                        </div>
-                    {% endfor %}
-                </div>
+                <organisation-switcher
+                    :organisations="JSON.parse('{{ organisations|map(orga => { id: orga.id, name: orga.name, gwId: orga.gwId })|json_encode|e('js', 'utf-8') }}')"
+                    current-organisation-id="{{ currentOrganisationId }}">
+                </organisation-switcher>
 
                 <button type="submit" class="btn btn--primary">
                     {{ 'organisation.select.confirm'|trans }}
@@ -43,3 +25,8 @@
 
     {% endembed %}
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['user-selectOrganisation.js']) }}
+{% endblock javascripts %}
