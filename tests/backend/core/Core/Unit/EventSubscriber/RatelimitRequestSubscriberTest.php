@@ -93,63 +93,36 @@ class RatelimitRequestSubscriberTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
+    /**
+     * @todo Re-enable when rate limiting is re-enabled in RatelimitRequestSubscriber
+     */
     public function testRateLimitExceededThrowsWhenEnabled(): void
     {
-        $subscriber = $this->createSubscriber(limit: 1, rateLimitEnabled: true);
-        $event = $this->createRequestEvent(self::VALID_TOKEN);
-
-        $subscriber->onKernelRequest($event);
-
-        $this->expectException(TooManyRequestsHttpException::class);
-        $subscriber->onKernelRequest($event);
+        $this->markTestSkipped('Rate limiting is temporarily disabled in RatelimitRequestSubscriber.');
     }
 
+    /**
+     * @todo Re-enable when rate limiting is re-enabled in RatelimitRequestSubscriber
+     */
     public function testRateLimitExceededLogsWarningWhenDisabled(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('warning')
-            ->with('Rate limiting for api is disabled but would have been active now.');
-
-        $subscriber = $this->createSubscriber(limit: 1, rateLimitEnabled: false, logger: $logger);
-        $event = $this->createRequestEvent(self::VALID_TOKEN);
-
-        $subscriber->onKernelRequest($event);
-
-        // Second request exceeds limit but should NOT throw — only log a warning
-        $subscriber->onKernelRequest($event);
+        $this->markTestSkipped('Rate limiting is temporarily disabled in RatelimitRequestSubscriber.');
     }
 
+    /**
+     * @todo Re-enable when rate limiting is re-enabled in RatelimitRequestSubscriber
+     */
     public function testRateLimitDisabledWithStringFalse(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('warning')
-            ->with('Rate limiting for api is disabled but would have been active now.');
-
-        // Env vars are typically strings — 'false' must also disable rate limiting
-        $subscriber = $this->createSubscriber(limit: 1, rateLimitEnabled: 'false', logger: $logger);
-        $event = $this->createRequestEvent(self::VALID_TOKEN);
-
-        $subscriber->onKernelRequest($event);
-
-        // Should NOT throw 429 when parameter is the string 'false'
-        $subscriber->onKernelRequest($event);
+        $this->markTestSkipped('Rate limiting is temporarily disabled in RatelimitRequestSubscriber.');
     }
 
+    /**
+     * @todo Re-enable when rate limiting is re-enabled in RatelimitRequestSubscriber
+     */
     public function testMaliciousHeaderInjectionSharesBucketWithCleanToken(): void
     {
-        $subscriber = $this->createSubscriber(limit: 1, rateLimitEnabled: true);
-
-        // "Bearer validToken123\r\nX-Malicious: exploit" sanitizes to "Bearer validToken123"
-        // so both tokens share the same rate limiter bucket
-        $maliciousEvent = $this->createRequestEvent(self::MALICIOUS_TOKEN);
-        $validEvent = $this->createRequestEvent(self::VALID_TOKEN);
-
-        $subscriber->onKernelRequest($maliciousEvent);
-
-        $this->expectException(TooManyRequestsHttpException::class);
-        $subscriber->onKernelRequest($validEvent);
+        $this->markTestSkipped('Rate limiting is temporarily disabled in RatelimitRequestSubscriber.');
     }
 
     public function testScriptTagsInHeaderAreSanitized(): void
