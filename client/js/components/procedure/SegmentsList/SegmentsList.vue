@@ -882,6 +882,7 @@ export default {
      * @param params {Object}
      * @param params.additionalQueryParams {Object}
      * @param params.category {Object} id, label
+     * @param params.currentQuery {Array}
      * @param params.filter {Object}
      * @param params.isInitialWithQuery {Boolean}
      * @param params.path {String}

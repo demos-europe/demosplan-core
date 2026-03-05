@@ -535,6 +535,7 @@ export default {
     requestFilterOptions (isInitialWithQuery = false) {
       // For OR groups (memberOf is set), exclude this group's own filters so counts always show full availability
       let filter = this.getFilterQuery
+
       if (this.memberOf && !isInitialWithQuery) {
         filter = Object.fromEntries(
           Object.entries(this.getFilterQuery).filter(([key, val]) => {
