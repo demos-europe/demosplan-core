@@ -142,12 +142,16 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         }
 
         foreach ($userInformation[self::ORGANISATION_AFFILIATIONS] as $data) {
-            if (is_array($data) && isset($data['id'])) {
+            // Decode JSON string first
+            $decoded = is_string($data) ? json_decode($data, true) : $data;
+
+            if (is_array($decoded) && isset($decoded['id'])) {
                 $this->affiliations[] = [
-                    'id'   => (string) $data['id'],
-                    'name' => (string) ($data['name'] ?? $data['id']),
+                    'id' => (string) $decoded['id'],
+                    'name' => (string) ($decoded['name'] ?? $decoded['id']),
                 ];
             }
+
         }
 
         if ([] !== $this->affiliations) {
@@ -171,10 +175,13 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         }
 
         foreach ($userInformation[self::RESPONSIBILITIES] as $data) {
-            if (is_array($data) && isset($data['id'])) {
+            // Decode JSON string first
+            $decoded = is_string($data) ? json_decode($data, true) : $data;
+
+            if (is_array($decoded) && isset($decoded['id'])) {
                 $this->responsibilities[] = [
-                    'id'   => (string) $data['id'],
-                    'name' => (string) ($data['name'] ?? $data['id']),
+                    'id' => (string) $decoded['id'],
+                    'name' => (string) ($decoded['name'] ?? $decoded['id']),
                 ];
             }
         }

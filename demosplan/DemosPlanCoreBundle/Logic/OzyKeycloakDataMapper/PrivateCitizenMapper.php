@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 
 class PrivateCitizenMapper
 {
-    private function __construct(
+    public function __construct(
         private readonly OrgaRepository $orgaRepository,
     ) {
     }

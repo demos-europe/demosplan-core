@@ -141,14 +141,45 @@ class OzgKeycloakUserDataMapper
         // Use first organisation as primary (for backward compatibility)
         $primaryOrga = $organisations[0];
 
-        if ($existingUser instanceof User) {
-            $user = $this->updateExistingDplanUser($existingUser, $primaryOrga, $requestedRoles);
-        } else {
+        if (!$existingUser instanceof User) {
+            $primaryOrga = $organisations[0];
             $user = $this->createNewUser($primaryOrga, $requestedRoles);
+            $this->organisationAffiliationMapper->syncUserOrganisations($user, $organisations);
+            $this->logger->info('Multi-organisation user mapped', [
+                'userId'            => $user->getId(),
+                'organisationCount' => count($organisations),
+                'organisations'     => array_map(fn (Orga $o) => $o->getId(), $organisations),
+            ]);
+
+            return $user;
         }
 
-        // Sync user's org links: add new ones, remove stale ones
-        $this->organisationAffiliationMapper->syncUserOrganisations($user, $organisations);
+        // STEP 1: Save old orgas before they get wiped by setOrga
+        $oldOrgas = $existingUser->getOrganisations()->toArray();
+        $targetOrgaIds = array_map(fn(Orga $o) => $o->getId(), $organisations);
+
+        // STEP 2: Update user (this will call setOrga and wipe the collection to [$primaryOrga])
+        $user = $this->updateExistingDplanUser($existingUser, $primaryOrga, $requestedRoles);
+
+        // STEP 3: Manually remove user from old orgas that are not in the target set
+        foreach ($oldOrgas as $oldOrga) {
+            if (!in_array($oldOrga->getId(), $targetOrgaIds, true)) {
+                $oldOrga->unlinkUser($user);
+                $user->removeOrganisation($oldOrga);
+                $this->entityManager->persist($oldOrga);
+            }
+        }
+
+        // STEP 4: Add the remaining new orgas (primaryOrga is already set by setOrga)
+        foreach ($organisations as $orga) {
+            if (!$user->getOrganisations()->contains($orga)) {
+                $user->addOrganisation($orga);
+                $orga->linkUser($user);
+                $this->entityManager->persist($orga);
+            }
+        }
+
+        $this->entityManager->persist($user);
 
         $this->logger->info('Multi-organisation user mapped', [
             'userId'            => $user->getId(),
