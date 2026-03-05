@@ -135,7 +135,7 @@ export default {
       isLoading: false,
       newPhase: { name: '', audience: '', permissionSet: '', participationState: '' },
       phases: [],
-      showErrorInputStyle: false,
+      hasAttemptedSubmit: false,
     }
   },
 
@@ -190,6 +190,10 @@ export default {
         { label: Translator.trans('permissionset.read'), value: 'read' },
         { label: Translator.trans('permissionset.write'), value: 'write' },
       ]
+    },
+
+    showErrorInputStyle () {
+      return this.hasAttemptedSubmit && this.isDuplicateName
     },
   },
 
@@ -283,18 +287,20 @@ export default {
 
     resetForm () {
       this.isCreating = false
+      this.hasAttemptedSubmit = false
       this.newPhase = { name: '', audience: '', permissionSet: '', participationState: '' }
     },
 
     submitForm () {
+      this.hasAttemptedSubmit = true
+
       if (this.isDuplicateName) {
-        this.showErrorInputStyle = true
         dplan.notify.error(Translator.trans('error.name.unique'))
 
         return
       }
 
-      this.showErrorInputStyle = false
+      this.hasAttemptedSubmit = false
       this.dpValidateAction('phaseForm', () => this.createPhase(), false)
     },
   },
