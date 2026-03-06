@@ -20,12 +20,9 @@ All rights reserved
     />
 
     <!-- Toggle Mode: Readonly with Edit Button -->
-    <div
-      v-else-if="enableToggle && !isEditing"
-      :class="prefixClass('dp-custom-field__readonly')"
-    >
+    <div v-else-if="enableToggle && !isEditing">
       <div :class="prefixClass('flex items-start gap-1')">
-        <div :class="prefixClass('dp-custom-field__content flex-1')">
+        <div :class="prefixClass('flex-1')">
           <component
             :is="getComponentForType(resolvedDefinition.attributes.fieldType)"
             :field="mergedField"
@@ -42,26 +39,21 @@ All rights reserved
             </template>
           </component>
         </div>
-        <div :class="prefixClass('dp-custom-field__trigger')">
-          <dp-button
-            hide-text
-            icon="edit"
-            variant="subtle"
-            :aria-label="Translator.trans('edit')"
-            :text="Translator.trans('edit')"
-            @click="startEditing"
-          />
-        </div>
+        <dp-button
+          hide-text
+          icon="edit"
+          variant="subtle"
+          :aria-label="Translator.trans('edit')"
+          :text="Translator.trans('edit')"
+          @click="startEditing"
+        />
       </div>
     </div>
 
     <!-- Toggle Mode: Editing with Save/Cancel -->
-    <div
-      v-else-if="enableToggle && isEditing"
-      :class="prefixClass('dp-custom-field__editing')"
-    >
+    <div v-else-if="enableToggle && isEditing">
       <div :class="prefixClass('flex items-start gap-1')">
-        <div :class="prefixClass('dp-custom-field__content flex-1')">
+        <div :class="prefixClass('flex-1')">
           <component
             :is="getComponentForType(resolvedDefinition.attributes.fieldType)"
             :field="editingField"
@@ -69,7 +61,7 @@ All rights reserved
             @update:value="handleEditingValueUpdate"
           />
         </div>
-        <div :class="prefixClass('dp-custom-field__trigger')">
+        <div>
           <dp-button
             hide-text
             icon="check"
