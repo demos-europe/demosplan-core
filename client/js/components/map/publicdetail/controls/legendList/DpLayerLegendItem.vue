@@ -9,21 +9,20 @@
 
 <template>
   <li
-    v-if="!isBroken"
-    v-show="isVisible"
-    class="h-auto"
-    :class="prefixClass('c-map__group-item c-map__layer')"
+    v-show="isVisible && hasLoaded"
+    :class="prefixClass('c-map__group-item c-map__layer border border-gray-300 overflow-clip cursor-default hover:bg-transparent mb-1')"
+    :title="`${Translator.trans('legend')} ${layerName}`"
   >
     <img
       :src="legend.url"
       alt=""
-      @error="deleteImage"
+      @load="markAsLoaded"
     >
   </li>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 import { prefixClass } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -37,27 +36,37 @@ export default {
     },
   },
 
-  data () {
-    return {
-      isBroken: false,
-    }
-  },
-
   computed: {
-    ...mapGetters('Layers', ['isLayerVisible']),
+    ...mapState('Layers', [
+      'apiData',
+      'loadedLegends',
+      'layerStates',
+    ]),
+
+    hasLoaded () {
+      return this.loadedLegends.includes(this.legend.url)
+    },
 
     isVisible () {
-      return this.isLayerVisible(this.legend.layerId)
+      const layerId = this.legend.layerId.replaceAll('-', '')
+      return this.layerStates[layerId]?.isVisible || false
+    },
+
+    layerName () {
+      const layer = this.apiData?.included?.find(el => el.id === this.legend.layerId)
+      return layer?.attributes?.name || ''
     },
   },
 
   methods: {
-    prefixClass (classList) {
-      return prefixClass(classList)
+    ...mapMutations('Layers', ['markLegendAsLoaded']),
+
+    markAsLoaded () {
+      this.markLegendAsLoaded(this.legend.url)
     },
 
-    deleteImage () {
-      this.isBroken = true
+    prefixClass (classList) {
+      return prefixClass(classList)
     },
   },
 }
