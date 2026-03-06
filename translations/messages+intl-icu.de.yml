@@ -2162,6 +2162,7 @@ layers: "Layer"
 legend: "Legende"
 legend.download: "Legende herunterladen"
 legend.not_available: "Legende nicht verfügbar"
+legend.overlay_layers: "Fachebenen"
 like: "Unterstützung"
 liked.by: "Unterstützt von"
 liked.by.persons: |
