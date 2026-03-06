@@ -80,6 +80,9 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
      */
     private $modificationDate;
 
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
     protected ?string $designatedPhase = null;
 
     /**
@@ -134,6 +137,9 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
      * @ORM\Column(type="string", length=25, nullable=false, options={"default":""})
      */
         protected string $step,
+        /**
+         * @ORM\Column(name="phase_key", type="string", nullable=false)
+         */
         protected string $key = 'configuration')
     {
         $this->permissionSet = ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;

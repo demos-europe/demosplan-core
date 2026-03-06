@@ -305,6 +305,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * Must have one of a set of predefined values which differs in projects, see respective configuration file.
      *
      * @var string
+     *
+     * @ORM\Column(name="_st_phase", type="string", length=50, nullable=false)
      */
     protected $phase;
 
