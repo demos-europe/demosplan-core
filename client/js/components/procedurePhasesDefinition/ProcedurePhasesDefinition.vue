@@ -23,7 +23,7 @@ All rights reserved
       </div>
 
       <div
-        v-if="isCreating"
+        v-else
         class="border rounded-sm space-stack-m space-inset-m relative"
         data-dp-validate="phaseForm"
       >
@@ -68,7 +68,7 @@ All rights reserved
               :label="{ text: Translator.trans('participation.state.not.finished') }"
               name="phaseParticipationState"
               value=""
-              @change="() => { newPhase.participationState = null }"
+              @change="setParticipationState(null)"
             />
 
             <dp-radio
@@ -77,7 +77,7 @@ All rights reserved
               :label="{ text: Translator.trans('participation.state.finished') }"
               name="phaseParticipationState"
               value="finished"
-              @change="() => { newPhase.participationState = 'finished' }"
+              @change="setParticipationState('finished')"
             />
           </div>
         </fieldset>
@@ -93,7 +93,7 @@ All rights reserved
 
       <dp-accordion
         v-if="!isInitiallyLoading"
-        :is-open="true"
+        is-open
         :title="Translator.trans('audience.internal')"
       >
         <dp-data-table
@@ -151,12 +151,17 @@ export default {
 
   data () {
     return {
+      hasAttemptedSubmit: false,
+      headerFields: [
+        { field: 'name', label: Translator.trans('phase.name') },
+        { field: 'permissionSetLabel', label: Translator.trans('permissionset.label') },
+        { field: 'participationStateLabel', label: Translator.trans('participation.state.finished') },
+      ],
       isCreating: false,
       isInitiallyLoading: true,
       isLoading: false,
       newPhase: { name: '', audience: '', permissionSet: '', participationState: null },
       phases: [],
-      hasAttemptedSubmit: false,
     }
   },
 
@@ -172,14 +177,6 @@ export default {
       return this.phases
         .filter(phase => phase.audience === 'external')
         .map(phase => this.mapPhaseForDisplay(phase))
-    },
-
-    headerFields () {
-      return [
-        { field: 'name', label: Translator.trans('phase.name') },
-        { field: 'permissionSetLabel', label: Translator.trans('permissionset.label') },
-        { field: 'participationStateLabel', label: Translator.trans('participation.state.finished') },
-      ]
     },
 
     internalPhases () {
@@ -221,7 +218,7 @@ export default {
           attributes: {
             audience: this.newPhase.audience,
             name: this.newPhase.name.trim(),
-            participationState: this.newPhase.participationState || null,
+            participationState: this.newPhase.participationState,
             permissionSet: this.newPhase.permissionSet,
           },
         },
@@ -242,9 +239,7 @@ export default {
     },
 
     fetchPhases () {
-      if (this.phases.length === 0) {
-        this.isInitiallyLoading = true
-      }
+      this.isInitiallyLoading = true
 
       dpApi.get(Routing.generate('api_resource_list', {
         resourceType: 'ProcedurePhaseDefinition',
@@ -255,7 +250,7 @@ export default {
             'permissionSet',
             'participationState',
             'orderInAudience',
-          ].join(),
+          ].join(','),
         },
         sort: 'orderInAudience',
       }))
@@ -280,7 +275,6 @@ export default {
 
     mapPhaseForDisplay (phase) {
       return {
-        audience: phase.audience,
         id: phase.id,
         name: phase.name,
         orderInAudience: phase.orderInAudience,
@@ -293,6 +287,10 @@ export default {
       this.isCreating = false
       this.hasAttemptedSubmit = false
       this.newPhase = { name: '', audience: '', permissionSet: '', participationState: null }
+    },
+
+    setParticipationState (value) {
+      this.newPhase.participationState = value
     },
 
     submitForm () {
