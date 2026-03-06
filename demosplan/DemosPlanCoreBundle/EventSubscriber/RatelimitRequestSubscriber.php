@@ -31,6 +31,11 @@ class RatelimitRequestSubscriber implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event): void
     {
+        // disable rate limiting for now, as it currently raises problems we
+        // need to investigate further. We will re-enable it as soon as we
+        // have a solution for the problems.
+        return;
+
         if ($event->getRequest()->headers->has('X-JWT-Authorization')) {
             // Sanitize header values to prevent header injection
             $authHeader = $this->headerSanitizer->sanitizeAuthHeader(
@@ -42,7 +47,7 @@ class RatelimitRequestSubscriber implements EventSubscriberInterface
             // avoid brute force attacks with captured JWT tokens
             // token is reset on every request
             if (false === $limiter->consume(1)->isAccepted()) {
-                if (true === $this->parameterBag->get('ratelimit_api_enable')) {
+                if (true === filter_var($this->parameterBag->get('ratelimit_api_enable'), FILTER_VALIDATE_BOOLEAN)) {
                     throw new TooManyRequestsHttpException();
                 }
                 $this->logger->warning('Rate limiting for api is disabled but would have been active now.');
