@@ -12,10 +12,12 @@
  */
 
 import { DpDetails, DpModal } from '@demos-europe/demosplan-ui'
+import DpCustomFieldsList from '@DpJs/components/customFields/DpCustomFieldsList'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
+  DpCustomFieldsList,
   DpDetails,
   DpMapModal,
   DpModal,

@@ -262,33 +262,24 @@
         class="c-styled-html"
       />
     </div>
-    <dp-details
-      v-if="customFieldsWithValues.length > 0"
+    <dp-custom-fields-list
+      v-if="hasPermission('feature_statements_custom_fields')"
+      resource-type="DraftStatement"
+      :resource-id="id"
+      :definition-source-id="procedureId"
+      :list-title="Translator.trans('statement.data')"
+      mode="readonly"
+      :show-empty="false"
+      expandable
       :class="prefixClass('w-full mt-4')"
-      :summary="Translator.trans('more.data')"
-    >
-      <div
-        v-for="field in customFieldsWithValues"
-        :key="field.id"
-        :class="prefixClass('mb-3')"
-      >
-        <span :class="prefixClass('weight--bold')">{{ field.name }}:</span>
-        <div :class="prefixClass('ml-2')">
-          <div
-            v-for="option in field.selected"
-            :key="option.id"
-          >
-            {{ option.label }}
-          </div>
-        </div>
-      </div>
-    </dp-details>
+    />
   </dp-table-card>
 </template>
 
 <script>
 import { CleanHtml, DpDetails, DpFlyout, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
+import DpCustomFieldsList from '@DpJs/components/customFields/DpCustomFieldsList'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
 
@@ -296,6 +287,7 @@ export default {
   name: 'DpPublicStatement',
 
   components: {
+    DpCustomFieldsList,
     DpDetails,
     DpFlyout,
     DpInlineNotification,
@@ -431,16 +423,11 @@ export default {
       type: String,
       required: true,
     },
-
-    statementCustomFields: {
-      type: Array,
-      required: false,
-      default: () => [],
-    },
   },
 
   emits: [
     'openMapModal',
+    'open-statement-modal-from-list',
   ],
 
   data () {
@@ -479,12 +466,6 @@ export default {
 
     unsavedChangesItem () {
       return (this.unsavedDrafts.findIndex(el => el === this.id) > -1) ? this.menuItems.find(el => el.name === 'edit') : false
-    },
-
-    customFieldsWithValues () {
-      return this.statementCustomFields.filter(
-        field => field.selected && field.selected.length > 0,
-      )
     },
   },
 
