@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakGroupBasedRoleMapper;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
+use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserLookupService;
 use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\DepartmentMapper;
 use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\OrganisationAffiliationMapper;
 use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\PrivateCitizenMapper;
@@ -66,6 +67,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             $this->getContainer()->get(RoleRepository::class)
         );
 
+        $userLookupService = new OzgKeycloakUserLookupService(
+            $this->getContainer()->get(UserRepository::class)
+        );
+
         $this->sut = new OzgKeycloakUserDataMapper(
             $this->getContainer()->get(CustomerService::class),
             $this->getContainer()->get(DepartmentRepository::class),
@@ -82,7 +87,9 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             $departmentMapper,
             $groupBasedRoleMapper,
             $this->getContainer()->get(OrganisationAffiliationMapper::class),
-            $this->getContainer()->get(PrivateCitizenMapper::class)
+            $this->getContainer()->get(PrivateCitizenMapper::class),
+            $this->getContainer()->get(OzgKeycloakUserLookupService::class),
+            $userLookupService
         );
     }
 

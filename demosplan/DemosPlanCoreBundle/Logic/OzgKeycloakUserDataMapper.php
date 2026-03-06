@@ -75,6 +75,7 @@ class OzgKeycloakUserDataMapper
         private readonly OzgKeycloakGroupBasedRoleMapper $groupBasedRoleMapper,
         private readonly OrganisationAffiliationMapper $organisationAffiliationMapper,
         private readonly PrivateCitizenMapper $privateCitizenMapper,
+        private readonly OzgKeycloakUserLookupService $userLookupService,
     ) {
     }
 
@@ -716,32 +717,17 @@ class OzgKeycloakUserDataMapper
     private function tryToFindExistingUser(): ?User
     {
         // 1) have they logged in with Keycloak before? Easy!
-        $existingUser = $this->fetchExistingUserViaGatewayId();
+        $existingUser = $this->userLookupService->fetchExistingUserViaGatewayId($this->ozgKeycloakUserData);
         if (!$existingUser instanceof User) {
             // 2) do we have a matching user by login
-            $existingUser = $this->fetchExistingUserViaLoginAttribute();
+            $existingUser = $this->userLookupService->fetchExistingUserViaLoginAttribute($this->ozgKeycloakUserData);
         }
         if (!$existingUser instanceof User) {
             // 3) do we have a matching user by email?
-            $existingUser = $this->fetchExistingUserViaEmail();
+            $existingUser = $this->userLookupService->fetchExistingUserViaEmail($this->ozgKeycloakUserData);
         }
 
         return $existingUser;
-    }
-
-    private function fetchExistingUserViaGatewayId(): ?User
-    {
-        return $this->userRepository->findOneBy(['gwId' => $this->ozgKeycloakUserData->getUserId()]);
-    }
-
-    private function fetchExistingUserViaLoginAttribute(): ?User
-    {
-        return $this->userRepository->findOneBy(['login' => $this->ozgKeycloakUserData->getUserName()]);
-    }
-
-    private function fetchExistingUserViaEmail(): ?User
-    {
-        return $this->userRepository->findOneBy(['email' => $this->ozgKeycloakUserData->getEmailAddress()]);
     }
 
     /**
