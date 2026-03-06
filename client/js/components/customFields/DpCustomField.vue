@@ -43,17 +43,14 @@ All rights reserved
           </component>
         </div>
         <div :class="prefixClass('dp-custom-field__trigger')">
-          <button
-            type="button"
-            :title="Translator.trans('edit')"
-            class="btn--blank o-link--default"
+          <dp-button
+            hide-text
+            icon="edit"
+            variant="subtle"
+            :aria-label="Translator.trans('edit')"
+            :text="Translator.trans('edit')"
             @click="startEditing"
-          >
-            <i
-              aria-hidden="true"
-              class="fa fa-pencil"
-            />
-          </button>
+          />
         </div>
       </div>
     </div>
@@ -73,31 +70,25 @@ All rights reserved
           />
         </div>
         <div :class="prefixClass('dp-custom-field__trigger')">
-          <button
-            type="button"
-            :title="Translator.trans('save')"
-            :disabled="isSaving"
-            class="btn--blank o-link--default"
+          <dp-button
+            hide-text
+            icon="check"
+            variant="subtle"
+            :aria-label="Translator.trans('save')"
             :class="prefixClass('mr-1')"
-            @click="saveEdit"
-          >
-            <i
-              aria-hidden="true"
-              class="fa fa-check"
-            />
-          </button>
-          <button
-            type="button"
-            :title="Translator.trans('abort')"
             :disabled="isSaving"
-            class="btn--blank o-link--default"
+            :text="Translator.trans('save')"
+            @click="saveEdit"
+          />
+          <dp-button
+            hide-text
+            icon="x"
+            variant="subtle"
+            :aria-label="Translator.trans('abort')"
+            :disabled="isSaving"
+            :text="Translator.trans('abort')"
             @click="cancelEdit"
-          >
-            <i
-              aria-hidden="true"
-              class="fa fa-times"
-            />
-          </button>
+          />
         </div>
       </div>
     </div>
@@ -124,7 +115,7 @@ All rights reserved
 </template>
 
 <script>
-import { DpInlineNotification, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpButton, DpInlineNotification, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import DpMultiselectCustomField from './DpMultiselectCustomField'
 import DpSingleselectCustomField from './DpSingleselectCustomField'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
@@ -133,6 +124,7 @@ export default {
   name: 'DpCustomField',
 
   components: {
+    DpButton,
     DpInlineNotification,
     DpLoading,
     DpMultiselectCustomField,
