@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakGroupBasedRoleMapper;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
 use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\DepartmentMapper;
 use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\OrganisationAffiliationMapper;
+use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\PrivateCitizenMapper;
 use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\RoleMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
@@ -81,6 +82,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             $departmentMapper,
             $groupBasedRoleMapper,
             $this->getContainer()->get(OrganisationAffiliationMapper::class),
+            $this->getContainer()->get(PrivateCitizenMapper::class)
         );
     }
 
