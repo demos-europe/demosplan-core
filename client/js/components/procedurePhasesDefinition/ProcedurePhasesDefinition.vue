@@ -51,17 +51,34 @@ All rights reserved
         <dp-select
           id="phasePermissionSet"
           v-model="newPhase.permissionSet"
-          :label="{ text: Translator.trans('status') }"
+          :label="{ text: Translator.trans('permissionset.label') }"
           :options="permissionSetOptions"
           required
         />
 
-        <dp-select
-          id="phaseParticipationState"
-          v-model="newPhase.participationState"
-          :label="{ text: Translator.trans('participation.state') }"
-          :options="participationStateOptions"
-        />
+        <fieldset>
+          <legend class="sr-only">{{ Translator.trans('participation.state.radio.label') }}</legend>
+
+          <div class="flex gap-4">
+            <dp-radio
+              id="phaseParticipationStateNotFinished"
+              :checked="newPhase.participationState !== 'finished'"
+              :label="{ text: Translator.trans('participation.state.not.finished') }"
+              name="phaseParticipationState"
+              value=""
+              @change="() => { newPhase.participationState = null }"
+            />
+
+            <dp-radio
+              id="phaseParticipationStateFinished"
+              :checked="newPhase.participationState === 'finished'"
+              :label="{ text: Translator.trans('participation.state.finished') }"
+              name="phaseParticipationState"
+              value="finished"
+              @change="() => { newPhase.participationState = 'finished' }"
+            />
+          </div>
+        </fieldset>
 
         <dp-button-row
           :busy="isLoading"
@@ -109,6 +126,7 @@ import {
   DpDataTable,
   DpInput,
   DpLoading,
+  DpRadio,
   DpSelect,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
@@ -123,6 +141,7 @@ export default {
     DpDataTable,
     DpInput,
     DpLoading,
+    DpRadio,
     DpSelect,
   },
 
@@ -133,7 +152,7 @@ export default {
       isCreating: false,
       isInitiallyLoading: true,
       isLoading: false,
-      newPhase: { name: '', audience: '', permissionSet: '', participationState: '' },
+      newPhase: { name: '', audience: '', permissionSet: '', participationState: null },
       phases: [],
       hasAttemptedSubmit: false,
     }
@@ -156,8 +175,8 @@ export default {
     headerFields () {
       return [
         { field: 'name', label: Translator.trans('phase.name') },
-        { field: 'permissionSetLabel', label: Translator.trans('status') },
-        { field: 'participationStateLabel', label: Translator.trans('participation.state') },
+        { field: 'permissionSetLabel', label: Translator.trans('permissionset.label') },
+        { field: 'participationStateLabel', label: Translator.trans('participation.state.finished') },
       ]
     },
 
@@ -175,19 +194,6 @@ export default {
       }
 
       return this.phases.some(phase => phase.name.trim().toLowerCase() === trimmedName.toLowerCase())
-    },
-
-    participationStateOptions () {
-      if (hasPermission('area_customer_procedure_phase_participation_token')) {
-        return [
-          { label: Translator.trans('participation.state.finished'), value: 'finished' },
-          { label: Translator.trans('participation.state.token'), value: 'participateWithToken' },
-        ]
-      } else {
-        return [
-          { label: Translator.trans('participation.state.finished'), value: 'finished' }
-        ]
-      }
     },
 
     permissionSetOptions () {
@@ -277,16 +283,16 @@ export default {
         name: phase.name,
         orderInAudience: phase.orderInAudience,
         permissionSetLabel: this.permissionSetOptions.find(option => option.value === phase.permissionSet)?.label || phase.permissionSet,
-        participationStateLabel: phase.participationState ?
-          this.participationStateOptions.find(option => option.value === phase.participationState)?.label || phase.participationState :
-          Translator.trans('participation.state.none'),
+        participationStateLabel: phase.participationState === 'finished' ?
+          Translator.trans('yes'):
+          Translator.trans('no'),
       }
     },
 
     resetForm () {
       this.isCreating = false
       this.hasAttemptedSubmit = false
-      this.newPhase = { name: '', audience: '', permissionSet: '', participationState: '' }
+      this.newPhase = { name: '', audience: '', permissionSet: '', participationState: null }
     },
 
     submitForm () {
