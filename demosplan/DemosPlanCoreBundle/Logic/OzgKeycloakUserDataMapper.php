@@ -197,9 +197,33 @@ class OzgKeycloakUserDataMapper
 
             if ($orga instanceof Orga) {
                 $organisations[] = $this->updateOrganisation($orga, $requestedRoles, $gwId, $orgaName);
-            } else {
-                $organisations[] = $this->createNewOrganisation($requestedRoles, $gwId, $orgaName);
+                continue;
             }
+
+
+            // Handle gwId that may contain pipe character (e.g., "141|UNMELT")
+            // If gwId contains |, search for organization by the first part and update it with new gwId and name
+            if (str_contains($gwId, '|')) {
+                $gwIdParts = explode('|', $gwId);
+                $baseGwId = $gwIdParts[0];
+
+                $orgaByBaseId = $this->orgaRepository->findOneBy(['gwId' => $baseGwId]);
+
+                if ($orgaByBaseId instanceof Orga) {
+                    // Found organization with base gwId, update it with the new full gwId and name
+                    $organisations[] = $this->updateOrganisation($orgaByBaseId, $requestedRoles, $gwId, $orgaName);
+                    $this->entityManager->flush();
+                    continue;
+                }
+
+                // No organization found with base gwId, create new organization
+                $organisations[] = $this->createNewOrganisation($requestedRoles, $gwId, $orgaName);
+                continue;
+            }
+
+            // No pipe character, create new organization as before
+            $organisations[] = $this->createNewOrganisation($requestedRoles, $gwId, $orgaName);
+
         }
 
         return $organisations;
@@ -316,6 +340,11 @@ class OzgKeycloakUserDataMapper
         if ('' !== $gwId) {
             $existingOrga->setGwId($gwId);
         }
+
+        if ('' !== $orgaName) {
+            $existingOrga->setName($orgaName);
+        }
+
 
         // Do not overwrite org name on update — FPA users can modify it via the UI.
         // Name is only set on org creation. Address fields are still synced from the token.
