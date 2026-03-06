@@ -268,7 +268,7 @@ export default {
       if (newVal === false && this.isEditing) {
         this.isEditing = false
         this.editingValue = null
-        // Kein emit – der Parent hat die Schließung initiiert
+        // No emit – the Parent initialized closing
       }
     },
   },
@@ -287,6 +287,7 @@ export default {
     fetchDefinition () {
       if (this.definition) {
         this.resolvedDefinition = this.definition
+
         return
       }
 
