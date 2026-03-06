@@ -67,10 +67,6 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             $this->getContainer()->get(RoleRepository::class)
         );
 
-        $userLookupService = new OzgKeycloakUserLookupService(
-            $this->getContainer()->get(UserRepository::class)
-        );
-
         $this->sut = new OzgKeycloakUserDataMapper(
             $this->getContainer()->get(CustomerService::class),
             $this->getContainer()->get(DepartmentRepository::class),
@@ -88,7 +84,6 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             $this->getContainer()->get(OrganisationAffiliationMapper::class),
             $this->getContainer()->get(PrivateCitizenMapper::class),
             $this->getContainer()->get(OzgKeycloakUserLookupService::class),
-            $userLookupService
         );
     }
 
