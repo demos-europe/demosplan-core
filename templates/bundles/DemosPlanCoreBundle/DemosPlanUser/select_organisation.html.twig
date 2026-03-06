@@ -1,0 +1,29 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        content_heading: 'organisation.select.heading'|trans,
+        content_subheading: 'organisation.select.description'|trans,
+        full_width: true
+    }%}
+
+        {% block content %}
+            <form action="{{ path('DemosPlan_user_switch_organisation') }}" method="post">
+                <input type="hidden" name="_token" value="{{ csrf_token('switch_organisation') }}">
+                <input type="hidden" name="referer" value="{{ app.request.headers.get('referer') }}">
+
+                <organisation-switcher
+                    :organisations="JSON.parse('{{ organisations|map(orga => { id: orga.id, name: orga.name })|json_encode|e('js', 'utf-8') }}')"
+                    current-organisation-id="{{ currentOrganisationId }}">
+                </organisation-switcher>
+
+            </form>
+        {% endblock content %}
+
+    {% endembed %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['user-selectOrganisation.js']) }}
+{% endblock javascripts %}
