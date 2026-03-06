@@ -11,20 +11,20 @@
   <div>
     <dp-radio
       v-for="organisation in organisations"
-      :key="organisation.id"
       :id="`organisation-${organisation.id}`"
+      :key="organisation.id"
       :checked="organisation.id === currentOrganisationId"
-      class="mb-2"
       :label="{
         text: organisation.name
       }"
-      name="organisation_id"
       :value="organisation.id"
+      class="mb-2"
+      name="organisation_id"
     />
     <dp-button
+      :text="Translator.trans('organisation.select.confirm')"
       class="mt-4"
       color="primary"
-      :text="Translator.trans('organisation.select.confirm')"
       type="submit"
     />
   </div>
