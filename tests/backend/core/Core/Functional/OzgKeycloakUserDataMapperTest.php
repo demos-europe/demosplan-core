@@ -31,7 +31,6 @@ use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
-use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
