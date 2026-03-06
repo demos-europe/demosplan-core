@@ -15,14 +15,15 @@ namespace Tests\Core\Core\Unit\EventSubscriber;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\LogoutSubscriber;
-use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
+use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -31,27 +32,27 @@ use Symfony\Component\Security\Http\Event\LogoutEvent;
 class LogoutSubscriberTest extends TestCase
 {
     private LogoutSubscriber $sut;
-    private MockObject $logger;
     private MockObject $parameterBag;
     private MockObject $permissions;
-    private MockObject $urlGenerator;
     private MockObject $ozgKeycloakLogoutManager;
 
     protected function setUp(): void
     {
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createMock(LoggerInterface::class);
+        $oauthTokenStorageService = $this->createMock(OAuthTokenStorageService::class);
         $this->parameterBag = $this->createMock(ParameterBagInterface::class);
         $this->permissions = $this->createMock(PermissionsInterface::class);
-        $this->urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $this->ozgKeycloakLogoutManager = $this->createMock(OzgKeycloakLogoutManager::class);
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $this->ozgKeycloakLogoutManager = $this->createMock(OzgKeycloakSessionManager::class);
 
         // Create a partial mock to override redirect methods
         $this->sut = $this->getMockBuilder(LogoutSubscriber::class)
             ->setConstructorArgs([
-                $this->logger,
+                $logger,
+                $oauthTokenStorageService,
                 $this->parameterBag,
                 $this->permissions,
-                $this->urlGenerator,
+                $urlGenerator,
                 $this->ozgKeycloakLogoutManager,
             ])
             ->onlyMethods(['redirect', 'redirectToRoute'])
@@ -82,7 +83,7 @@ class LogoutSubscriberTest extends TestCase
                 };
             });
 
-        // Mock OzgKeycloakLogoutManager to not be configured for Azure test
+        // Mock OzgKeycloakSessionManager to not be configured for Azure test
         $this->ozgKeycloakLogoutManager->method('isKeycloakConfigured')->willReturn(false);
 
         $mockRedirectResponse = $this->createMockRedirectResponse();
@@ -122,7 +123,7 @@ class LogoutSubscriberTest extends TestCase
                 };
             });
 
-        // Mock OzgKeycloakLogoutManager to not be configured
+        // Mock OzgKeycloakSessionManager to not be configured
         $this->ozgKeycloakLogoutManager->method('isKeycloakConfigured')->willReturn(false);
 
         // Identity provider logout should not be triggered for regular users
@@ -163,7 +164,7 @@ class LogoutSubscriberTest extends TestCase
                 };
             });
 
-        // Mock OzgKeycloakLogoutManager to not be configured
+        // Mock OzgKeycloakSessionManager to not be configured
         $this->ozgKeycloakLogoutManager->method('isKeycloakConfigured')->willReturn(false);
 
         // Identity provider logout should not be triggered when no user
@@ -220,7 +221,7 @@ class LogoutSubscriberTest extends TestCase
                 };
             });
 
-        // Mock OzgKeycloakLogoutManager
+        // Mock OzgKeycloakSessionManager
         $this->ozgKeycloakLogoutManager->method('isKeycloakConfigured')->willReturn(true);
         $this->ozgKeycloakLogoutManager->method('getLogoutUrl')
             ->with($originalKeycloakRoute, $keycloakToken)
@@ -257,7 +258,7 @@ class LogoutSubscriberTest extends TestCase
                 };
             });
 
-        // Mock OzgKeycloakLogoutManager to not be configured
+        // Mock OzgKeycloakSessionManager to not be configured
         $this->ozgKeycloakLogoutManager->method('isKeycloakConfigured')->willReturn(false);
 
         $this->permissions->method('hasPermission')
