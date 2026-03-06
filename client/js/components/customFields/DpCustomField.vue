@@ -176,13 +176,13 @@ export default {
     },
 
     resourceId: {
-      type: String,
+      type: [String, null],
       required: false,
       default: null,
     },
 
     resourceType: {
-      type: String,
+      type: [String, null],
       required: false,
       default: null,
     },
