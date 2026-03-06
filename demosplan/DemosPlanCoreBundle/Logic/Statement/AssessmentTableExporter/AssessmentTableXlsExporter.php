@@ -502,7 +502,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         bool $anonymous,
         array $keysOfAttributesToExport,
     ): array {
-        $attributeKeysWhichCauseNewLine = collect(['priorityAreaKeys', 'tagNames']);
+        $attributeKeysWhichCauseNewLine = collect(['priorityAreaKeys']);
         $formattedStatements = collect([]);
 
         // has permission to READ obscure text? else obscure text
