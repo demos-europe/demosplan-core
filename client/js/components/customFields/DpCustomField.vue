@@ -14,7 +14,7 @@ All rights reserved
       :overlay="false"
     />
     <dp-inline-notification
-      v-if="error"
+      v-else-if="error"
       :message="Translator.trans('error.loading.custom.field')"
       type="error"
     />
