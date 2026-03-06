@@ -40,8 +40,6 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
     private const CLIENT_SECRET = 'super-secret';
     private const AUTH_SERVER_URL = 'https://keycloak.example.com/auth';
     private const REALM = 'dplan';
-    private const LOGOUT_ROUTE = 'https://keycloak.example.com/auth/realms/dplan/protocol/openid-connect/logout';
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -215,8 +213,8 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
 
         $tester = $this->executeCommand([], [
             self::SUBDOMAIN,      // subdomain
-            self::CLIENT_ID,      // clientId
             self::CLIENT_SECRET,  // clientSecret
+            self::CLIENT_ID,      // clientId
             self::AUTH_SERVER_URL, // authServerUrl
             self::REALM,          // realm
             '',                   // logoutRoute (skip)
@@ -239,8 +237,8 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
 
         $tester = $this->executeCommand([], [
             self::SUBDOMAIN,
-            self::CLIENT_ID,
             self::CLIENT_SECRET,
+            self::CLIENT_ID,
             self::AUTH_SERVER_URL,
             self::REALM,
             '',
@@ -283,8 +281,8 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
 
         $tester = $this->executeCommand([], [
             self::SUBDOMAIN,
-            self::CLIENT_ID,  // new client ID
             '',               // empty secret → keep existing
+            self::CLIENT_ID,  // new client ID
             '',               // keep default authServerUrl
             '',               // keep default realm
             '',               // skip logoutRoute
@@ -306,11 +304,7 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
 
         $tester = $this->executeCommand([], [
             self::SUBDOMAIN,
-            self::CLIENT_ID,
             '',               // empty secret on new config
-            self::AUTH_SERVER_URL,
-            self::REALM,
-            '',
         ]);
 
         self::assertSame(Command::FAILURE, $tester->getStatusCode());

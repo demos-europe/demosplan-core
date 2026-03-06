@@ -171,42 +171,19 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
 
         $existingConfig = $this->configRepository->findByCustomer($customer);
 
-        $clientId = $io->ask(
-            'Client ID',
-            $existingConfig?->getKeycloakClientId()
-        );
-        $clientSecret = $io->askHidden(
-            'Client Secret (input hidden)'
-                .($existingConfig ? ' [leave empty to keep current]' : '')
-        );
-        $authServerUrl = $io->ask(
-            'Auth Server URL (e.g. https://keycloak.example.com/auth)',
-            $existingConfig?->getKeycloakAuthServerUrl()
-        );
-        $realm = $io->ask(
-            'Realm',
-            $existingConfig?->getKeycloakRealm()
-        );
-        $logoutRoute = $io->ask(
-            'Logout Route (optional, press Enter to skip)',
-            $existingConfig?->getKeycloakLogoutRoute()
-        );
+        $clientSecret = $this->resolveClientSecret($io, $existingConfig);
+        if (null === $clientSecret) {
+            $io->error('Client secret is required for new configurations.');
 
-        if ('' === $clientSecret || null === $clientSecret) {
-            if (null === $existingConfig) {
-                $io->error('Client secret is required for new configurations.');
-
-                return Command::FAILURE;
-            }
-            $clientSecret = $existingConfig->getKeycloakClientSecret();
+            return Command::FAILURE;
         }
 
         $customerConfig = [
-            'clientId'      => $clientId,
+            'clientId'      => $io->ask('Client ID', $existingConfig?->getKeycloakClientId()),
             'clientSecret'  => $clientSecret,
-            'authServerUrl' => $authServerUrl,
-            'realm'         => $realm,
-            'logoutRoute'   => $logoutRoute,
+            'authServerUrl' => $io->ask('Auth Server URL (e.g. https://keycloak.example.com/auth)', $existingConfig?->getKeycloakAuthServerUrl()),
+            'realm'         => $io->ask('Realm', $existingConfig?->getKeycloakRealm()),
+            'logoutRoute'   => $io->ask('Logout Route (optional, press Enter to skip)', $existingConfig?->getKeycloakLogoutRoute()),
         ];
 
         $io->section('Summary');
@@ -236,6 +213,20 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
         }
 
         return Command::SUCCESS;
+    }
+
+    private function resolveClientSecret(SymfonyStyle $io, ?CustomerOAuthConfig $existingConfig): ?string
+    {
+        $clientSecret = $io->askHidden(
+            'Client Secret (input hidden)'
+                .($existingConfig ? ' [leave empty to keep current]' : '')
+        );
+
+        if ('' === $clientSecret || null === $clientSecret) {
+            return $existingConfig?->getKeycloakClientSecret();
+        }
+
+        return $clientSecret;
     }
 
     /**

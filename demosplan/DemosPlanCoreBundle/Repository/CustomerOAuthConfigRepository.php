@@ -19,10 +19,8 @@ class CustomerOAuthConfigRepository extends CoreRepository
 {
     public function findByCustomer(CustomerInterface $customer): ?CustomerOAuthConfig
     {
-        /** @var CustomerOAuthConfig|null $result */
-        $result = $this->findOneBy(['customer' => $customer]);
-
-        return $result;
+        /** @var CustomerOAuthConfig|null */
+        return $this->findOneBy(['customer' => $customer]);
     }
 
     public function findByCustomerSubdomain(string $subdomain): ?CustomerOAuthConfig
