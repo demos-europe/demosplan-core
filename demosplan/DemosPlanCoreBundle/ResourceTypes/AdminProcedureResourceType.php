@@ -131,13 +131,11 @@ final class AdminProcedureResourceType extends DplanResourceType
                 }),
                 $this->createAttribute($this->externalStartDate)->readable()->aliasedPath($this->publicParticipationPhase->startDate),
                 $this->createAttribute($this->internalPhaseDefinitionName)
-                    ->readable(false, static fn (Procedure $procedure): string
-                    => $procedure->getPhaseObject()->getPhaseDefinition()->getName()
-                ),
+                    ->readable(false, static fn (Procedure $procedure): string => $procedure->getPhaseObject()->getPhaseDefinition()->getName()
+                    ),
                 $this->createAttribute($this->externalPhaseDefinitionName)
-                    ->readable(false, static fn (Procedure $procedure): string
-                    => $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName()
-                ),
+                    ->readable(false, static fn (Procedure $procedure): string => $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName()
+                    ),
             ];
 
             if ($this->currentUser->hasAllPermissions('area_admin_custom_fields', 'field_segments_custom_fields')) {
