@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFacto
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedurePhaseDefinitionFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
+use Error;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
@@ -97,7 +98,7 @@ class StatementFactory extends PersistentProxyObjectFactory
         return $this->afterInstantiate(function (Statement $statement): void {
             try {
                 $statement->getPhaseDefinition();
-            } catch (\Error) {
+            } catch (Error) {
                 $statement->setPhaseDefinition(
                     ProcedurePhaseDefinitionFactory::createOne([
                         'audience'        => 'internal',

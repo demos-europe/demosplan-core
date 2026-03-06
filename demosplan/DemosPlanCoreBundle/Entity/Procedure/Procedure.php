@@ -903,7 +903,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * Set pClosed.
      *
-     * @deprecated Will be removed once the phase key system is fully replaced by ProcedurePhaseDefinition.
+     * @deprecated will be removed once the phase key system is fully replaced by ProcedurePhaseDefinition
      *
      * @param bool $closed
      *
@@ -919,7 +919,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * Get pClosed.
      *
-     * @deprecated Will be removed once the phase key system is fully replaced by ProcedurePhaseDefinition.
+     * @deprecated will be removed once the phase key system is fully replaced by ProcedurePhaseDefinition
      *
      * @return bool
      */
