@@ -181,6 +181,9 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * @var bool
      *
+     * @deprecated Will be removed once the phase key system is fully replaced by ProcedurePhaseDefinition.
+     *             The closed state is now derived from the permissionSet of the associated ProcedurePhaseDefinition.
+     *
      * @ORM\Column(name="_p_closed", type="boolean", nullable=false, options={"default":false})
      */
     protected $closed = false;
@@ -900,6 +903,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * Set pClosed.
      *
+     * @deprecated Will be removed once the phase key system is fully replaced by ProcedurePhaseDefinition.
+     *
      * @param bool $closed
      *
      * @return Procedure
@@ -913,6 +918,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * Get pClosed.
+     *
+     * @deprecated Will be removed once the phase key system is fully replaced by ProcedurePhaseDefinition.
      *
      * @return bool
      */

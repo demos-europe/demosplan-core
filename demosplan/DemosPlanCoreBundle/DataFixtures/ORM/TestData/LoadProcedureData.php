@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
@@ -103,6 +104,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setMasterTemplate(true)
             ->addExportFieldsConfiguration(new ExportFieldsConfiguration($procedureMaster));
 
+        $this->setDefaultPhaseDefinitions($procedureMaster);
         $manager->persist($procedureMaster);
         $manager->flush();
 
@@ -164,6 +166,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $tomorrow = $now->addDays(7);
         $procedure2->setEndDate($tomorrow->toDateTime());
 
+        $this->setDefaultPhaseDefinitions($procedure2);
         $manager->persist($procedure2);
 
         $procedureSettings = new ProcedureSettings();
@@ -187,6 +190,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setMaster(false)
             ->addSlug(new Slug('procedure2Slug'));
 
+        $this->setDefaultPhaseDefinitions($procedure2);
         $manager->persist($procedure2);
 
         $this->setReference(self::TEST_PROCEDURE_2, $procedure2);
@@ -211,6 +215,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $manager->persist($procedureSettings);
 
         $this->setReference('archivedProcedure', $archivedProcedure);
+        $this->setDefaultPhaseDefinitions($archivedProcedure);
         $manager->persist($archivedProcedure);
 
         $semiArchivedProcedure = new Procedure();
@@ -233,6 +238,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $manager->persist($procedureSettings);
 
         $this->setReference('semiArchivedProcedure', $semiArchivedProcedure);
+        $this->setDefaultPhaseDefinitions($semiArchivedProcedure);
         $manager->persist($semiArchivedProcedure);
 
         $procedureSettings = new ProcedureSettings();
@@ -259,6 +265,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 
         $manager->persist($procedure3);
 
+        $this->setDefaultPhaseDefinitions($procedure3);
         $this->setReference('testProcedure3', $procedure3);
 
         $procedureSettings = new ProcedureSettings();
@@ -284,6 +291,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 
         $manager->persist($procedure4);
 
+        $this->setDefaultPhaseDefinitions($procedure4);
         $this->setReference('testProcedure4', $procedure4);
 
         $procedureSettings = new ProcedureSettings();
@@ -399,6 +407,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->addSlug(new Slug('procedureMaster2Slug'));
         $procedureMaster2->setProcedureType($this->getReference(LoadProcedureTypeData::BPLAN));
 
+        $this->setDefaultPhaseDefinitions($procedureMaster2);
         $manager->persist($procedureMaster2);
         $this->setReference('masterBlaupause2', $procedureMaster2);
 
@@ -463,6 +472,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $procedure->setProcedureBehaviorDefinition($this->getReference(LoadProcedureBehaviorDefinitionData::PROCEDURE_TESTPROCEDURE));
         $procedure->setProcedureUiDefinition($this->getReference(LoadProcedureUiDefinitionData::PROCEDURE_TESTPROCEDURE));
         $procedure->setStatementFormDefinition($this->getReference(LoadStatementFormDefinitionData::PROCEDURE_TESTPROCEDURE));
+        $this->setDefaultPhaseDefinitions($procedure);
         $this->manager->persist($procedure);
         $customer->setDefaultProcedureBlueprint($procedure);
 
@@ -650,6 +660,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $statement->addPriorityArea($locationArray['priorityArea']);
         $statement->setMeta((new StatementMeta())->setStatement($statement)->setAuthorName('Max Mustermann'));
         $statement->setPublicVerified(Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED);
+        $statement->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PHASE_DEFINITION));
         $this->setReference(self::TESTPROCEDURE_STATEMENT, $statement);
         $this->manager->persist($statement);
     }
@@ -823,6 +834,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->addExportFieldsConfiguration(new ExportFieldsConfiguration($masterProcedureWithBoilerplates))
             ->addSlug(new Slug('procedureMasterProcedureBoilerplateSlug'));
         $masterProcedureWithBoilerplates->setProcedureType($this->getReference(LoadProcedureTypeData::BPLAN));
+        $this->setDefaultPhaseDefinitions($masterProcedureWithBoilerplates);
         $this->manager->persist($masterProcedureWithBoilerplates);
         $this->setReference('testmasterProcedureWithBoilerplates', $masterProcedureWithBoilerplates);
 
@@ -879,6 +891,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->addExportFieldsConfiguration(new ExportFieldsConfiguration($procedureToDelete))
             ->addSlug(new Slug('procedureToDeleteSlug'));
         $procedureToDelete->setProcedureType($this->getReference(LoadProcedureTypeData::BPLAN));
+        $this->setDefaultPhaseDefinitions($procedureToDelete);
         $this->manager->persist($procedureToDelete);
 
         $this->setReference('procedureToDelete', $procedureToDelete);
@@ -894,11 +907,23 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
     {
         return [
             LoadProcedureBehaviorDefinitionData::class,
+            LoadProcedurePhaseDefinitionData::class,
             LoadProcedureTypeData::class,
             LoadProcedureUiDefinitionData::class,
             LoadStatementFormDefinitionData::class,
             LoadUserData::class,
         ];
+    }
+
+    private function setDefaultPhaseDefinitions(Procedure $procedure): void
+    {
+        /** @var ProcedurePhaseDefinition $internalDef */
+        $internalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PHASE_DEFINITION);
+        /** @var ProcedurePhaseDefinition $externalDef */
+        $externalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_PHASE_DEFINITION);
+
+        $procedure->getPhaseObject()->setPhaseDefinition($internalDef);
+        $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($externalDef);
     }
 
     private function createProcedureInPublicConsultationPhase(): void
@@ -924,6 +949,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $procedure->setSettings($procedureSettings);
         $this->manager->persist($procedureSettings);
 
+        $this->setDefaultPhaseDefinitions($procedure);
         $this->manager->persist($procedure);
         $this->setReference(self::TESTPROCEDURE_IN_PUBLIC_PARTICIPATION_PHASE, $procedure);
     }

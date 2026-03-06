@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\SlugFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
@@ -108,5 +109,27 @@ class ProcedureFactory extends PersistentProxyObjectFactory
     public function withoutPublicParticipation(): self
     {
         return $this->with(['publicParticipation' => false]);
+    }
+
+    protected function initialize(): static
+    {
+        return $this->afterInstantiate(function (Procedure $procedure): void {
+            /** @var ProcedurePhaseDefinition $internalDef */
+            $internalDef = ProcedurePhaseDefinitionFactory::createOne([
+                'audience'        => 'internal',
+                'permissionSet'   => 'write',
+                'orderInAudience' => 1,
+            ])->_real();
+
+            /** @var ProcedurePhaseDefinition $externalDef */
+            $externalDef = ProcedurePhaseDefinitionFactory::createOne([
+                'audience'        => 'external',
+                'permissionSet'   => 'write',
+                'orderInAudience' => 1,
+            ])->_real();
+
+            $procedure->getPhaseObject()->setPhaseDefinition($internalDef);
+            $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($externalDef);
+        });
     }
 }

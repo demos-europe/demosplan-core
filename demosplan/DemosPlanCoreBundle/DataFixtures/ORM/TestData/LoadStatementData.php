@@ -52,6 +52,9 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
     {
         $this->manager = $manager;
 
+        /** @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition $phaseDefinition */
+        $phaseDefinition = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PHASE_DEFINITION);
+
         /** @var Procedure $testProcedure */
         $testProcedure = $this->getReference(LoadProcedureData::TESTPROCEDURE);
         /** @var User $testUser */
@@ -87,6 +90,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statementOrig->setTitle('Statement Original');
         $statementOrig->setUser($testUser);
 
+        $statementOrig->setPhaseDefinition($phaseDefinition);
         $manager->persist($statementOrig);
         $this->setReference(self::TEST_STATEMENT_ORIGINAL, $statementOrig);
 
@@ -112,6 +116,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement->setTitle('Statement');
         $statement->setUser($testUser);
         $statement->setPiSegmentsProposalResourceUrl(self::PI_SEGMENTS_PROPOSAL_RESOURCE_URL_TEST);
+        $statement->setPhaseDefinition($phaseDefinition);
         $this->setReference(self::TEST_STATEMENT, $statement);
         $manager->persist($statement);
 
@@ -137,6 +142,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement1->setText('Ich bin der Text für das Statement1');
         $statement1->setTitle('Statement1');
         $statement1->setUser($testUser);
+        $statement1->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatement1', $statement1);
         $manager->persist($statement1);
 
@@ -307,6 +313,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
             )
         );
 
+        $statement5->setPhaseDefinition($phaseDefinition);
         $this->setReference('testFixtureStatement', $statement5);
         $manager->persist($statement5);
 
@@ -354,6 +361,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
 
         $statement2->setMeta($statementMeta);
 
+        $statement2->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatement2', $statement2);
         $manager->persist($statement2);
 
@@ -388,6 +396,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
 
         $statement5->setMeta($statementMeta2);
 
+        $statement5->setPhaseDefinition($phaseDefinition);
         $this->setReference('childTestStatement2', $statement5);
         $manager->persist($statement5);
 
@@ -408,6 +417,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement3->setText('Ich bin der Text für das Statement einer anderen Orga');
         $statement3->setUser($this->getReference('testUserPlanningOffice'));
 
+        $statement3->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatementOtherOrga', $statement3);
         $manager->persist($statement3);
 
@@ -426,6 +436,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement4->setText('Ich bin der Text für das Statement einer anderen Orga');
         $statement4->setUser($this->getReference('testUserPlanningOffice'));
 
+        $statement4->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatementNotOriginal', $statement4);
         $manager->persist($statement4);
 
@@ -447,6 +458,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement6->setText('Ich bin der Text für das Statement 6 ');
         $statement6->setUser($this->getReference('testUserPlanningOffice'));
 
+        $statement6->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatementAssigned6', $statement6);
         $manager->persist($statement6);
 
@@ -467,6 +479,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement7->setText('Ich bin der Text für das Statement 7 ');
         $statement7->setUser($this->getReference('testUserPlanningOffice'));
 
+        $statement7->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatementAssigned7', $statement7);
         $manager->persist($statement7);
 
@@ -482,6 +495,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $clusterStatement01->setPublicVerified(Statement::PUBLICATION_PENDING);
         $clusterStatement01->setText('Ich bin der Text für das cluster-original #1');
 
+        $clusterStatement01->setPhaseDefinition($phaseDefinition);
         $this->setReference('clusterStatement 1', $clusterStatement01);
         $manager->persist($clusterStatement01);
 
@@ -499,6 +513,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $clusterStatement1->setPublicVerified(Statement::PUBLICATION_PENDING);
         $clusterStatement1->setText('Ich bin der Text für das cluster #1');
 
+        $clusterStatement1->setPhaseDefinition($phaseDefinition);
         $this->setReference('clusterStatement1', $clusterStatement1);
         $manager->persist($clusterStatement1);
 
@@ -512,6 +527,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement10->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statement10->setText('Ich bin der Text für das Statement 10 ');
 
+        $statement10->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatementAssigned10', $statement10);
         $manager->persist($statement10);
 
@@ -525,6 +541,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement11->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statement11->setText('Ich bin der Text für das Statement 11 ');
 
+        $statement11->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatementAssigned11', $statement11);
         $manager->persist($statement11);
 
@@ -539,6 +556,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $clusterStatement2->setPublicVerified(Statement::PUBLICATION_PENDING);
         $clusterStatement2->setText('Ich bin der Text für das cluster #2');
 
+        $clusterStatement2->setPhaseDefinition($phaseDefinition);
         $this->setReference('clusterStatement2', $clusterStatement2);
         $manager->persist($clusterStatement2);
 
@@ -559,6 +577,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement12->setText('Ich bin der Text für das Statement 12 ');
         $statement12->setUser($this->getReference('testUserPlanningOffice'));
 
+        $statement12->setPhaseDefinition($phaseDefinition);
         $manager->persist($statement12);
         $this->setReference('testStatementAssigned12', $statement12);
 
@@ -580,6 +599,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement13->setText('Ich bin der Text für das Statement 13');
         $statement13->setUser($this->getReference('testUserPlanningOffice'));
 
+        $statement13->setPhaseDefinition($phaseDefinition);
         $this->setReference('testManualStatement', $statement13);
         $manager->persist($statement13);
 
@@ -598,6 +618,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement14->setText('Ich bin der Text für das Statement 14');
         $statement14->setUser($this->getReference('testUserPlanningOffice'));
 
+        $statement14->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatementParent', $statement14);
         $manager->persist($statement14);
 
@@ -617,6 +638,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement15->setText('Ich bin der Text für das Statement 14');
         $statement15->setUser($this->getReference('testUserPlanningOffice'));
 
+        $statement15->setPhaseDefinition($phaseDefinition);
         $this->setReference('testCopiedStatement1', $statement15);
         $manager->persist($statement15);
 
@@ -637,6 +659,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement16->setText('Ich bin der Text für das Statement 14');
         $statement16->setUser($this->getReference('testUserPlanningOffice'));
 
+        $statement16->setPhaseDefinition($phaseDefinition);
         $this->setReference('testCopiedStatement2', $statement16);
         $manager->persist($statement16);
 
@@ -654,6 +677,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $originalStatement17->setText('Ich bin der Text für das Statement 17');
         $originalStatement17->setUser($this->getReference('testUserPlanningOffice'));
 
+        $originalStatement17->setPhaseDefinition($phaseDefinition);
         $this->setReference('testOriginalStatementWithElementOnly', $originalStatement17);
         $manager->persist($originalStatement17);
 
@@ -672,6 +696,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement17->setText('Ich bin der Text für das Statement 17');
         $statement17->setUser($this->getReference('testUserPlanningOffice'));
 
+        $statement17->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatementWithElementOnly', $statement17);
         $manager->persist($statement17);
 
@@ -689,6 +714,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $originalStatement18->setText('Ich bin der Text für das Statement 18');
         $originalStatement18->setUser($this->getReference('testUserPlanningOffice'));
 
+        $originalStatement18->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatementWithDocumentOnly', $originalStatement18);
         $manager->persist($originalStatement18);
 
@@ -707,6 +733,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement18->setText('Ich bin der Text für das Statement 18');
         $statement18->setUser($this->getReference('testUserPlanningOffice'));
 
+        $statement18->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatementWithDocumentOnly', $statement18);
         $manager->persist($statement18);
 
@@ -724,6 +751,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $originalStatement19->setText('Ich bin der Text für das Statement 19');
         $originalStatement19->setUser($this->getReference('testUserPlanningOffice'));
 
+        $originalStatement19->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatementWithParagraphOnly', $originalStatement19);
         $manager->persist($originalStatement19);
 
@@ -742,6 +770,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement19->setText('Ich bin der Text für das Statement 19');
         $statement19->setUser($this->getReference('testUserPlanningOffice'));
 
+        $statement19->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatementWithParagraphOnly', $statement19);
         $manager->persist($statement19);
 
@@ -759,6 +788,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement20->setText('Ich bin der Text für das Statement 20');
         $statement20->setUser($this->getReference('testUserPlanningOffice'));
 
+        $statement20->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatement20', $statement20);
         $manager->persist($statement20);
 
@@ -808,6 +838,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $originalStatement21->setSubmit(new DateTime());
         $originalStatement21->setText('Ich bin der Text für das Statement 21');
         $originalStatement21->setUser($this->getReference('testUserPlanningOffice'));
+        $originalStatement21->setPhaseDefinition($phaseDefinition);
         $manager->persist($originalStatement21);
         $this->setReference('originalStatement21WithInternId', $originalStatement21);
 
@@ -824,6 +855,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement21->setSubmit(new DateTime());
         $statement21->setText('Ich bin der Text für das Statement 21');
         $statement21->setUser($this->getReference('testUserPlanningOffice'));
+        $statement21->setPhaseDefinition($phaseDefinition);
         $manager->persist($statement21);
         $this->setReference('testStatementWithInternID', $statement21);
 
@@ -844,6 +876,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement22->setUser($this->getReference('testUserPlanningOffice'));
         $statement22->setMeta((new StatementMeta())->setStatement($statement22));
 
+        $statement22->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatementAssigned22', $statement22);
         $manager->persist($statement22);
 
@@ -878,6 +911,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statementWithFile->setFiles([$fileString]);
         $statementWithFile->setSubmitType('system');
 
+        $statementWithFile->setPhaseDefinition($phaseDefinition);
         $this->setReference('testStatementWithFile', $statementWithFile);
         $manager->persist($statementWithFile);
 
@@ -891,6 +925,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $clusterStatement3->setPublicVerified(Statement::PUBLICATION_PENDING);
         $clusterStatement3->setText('Ich bin der Text für das cluster #3');
 
+        $clusterStatement3->setPhaseDefinition($phaseDefinition);
         $this->setReference('clusterStatement3', $clusterStatement3);
         $manager->persist($clusterStatement3);
 
@@ -901,6 +936,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statementTestTagsBulkEdit1->setPhase('participation');
         $statementTestTagsBulkEdit1->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statementTestTagsBulkEdit1->setText('Lorem ipsum');
+        $statementTestTagsBulkEdit1->setPhaseDefinition($phaseDefinition);
         $this->setReference('statementTestTagsBulkEdit1', $statementTestTagsBulkEdit1);
         $manager->persist($statementTestTagsBulkEdit1);
 
@@ -922,6 +958,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statementOrigWithToken->setTitle('Statement Original');
         $statementOrigWithToken->setUser($testUser);
 
+        $statementOrigWithToken->setPhaseDefinition($phaseDefinition);
         $manager->persist($statementOrigWithToken);
         $this->setReference('testStatementOrigWithToken', $statementOrigWithToken);
 
@@ -947,6 +984,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statementWithToken->setTitle('Statement');
         $statementWithToken->setUser($testUser);
         $statementWithToken->setPiSegmentsProposalResourceUrl(self::PI_SEGMENTS_PROPOSAL_RESOURCE_URL_TEST);
+        $statementWithToken->setPhaseDefinition($phaseDefinition);
         $this->setReference(self::TEST_STATEMENT_WITH_TOKEN, $statementWithToken);
         $manager->persist($statementWithToken);
 
@@ -963,6 +1001,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
             LoadFileData::class,
             LoadLocationData::class,
             LoadProcedureData::class,
+            LoadProcedurePhaseDefinitionData::class,
             LoadTagData::class,
             LoadUserData::class,
             LoadProcedurePersonData::class,
@@ -979,6 +1018,9 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $testElement = $this->getReference('testelement9');
         /** @var ParagraphVersion $testParagraphVersion */
         $testParagraphVersion = $this->getReference('testparagraph4Version');
+
+        /** @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition $phaseDefinition */
+        $phaseDefinition = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PHASE_DEFINITION);
 
         // ClusterStatements:
         $clusterStatement22OfProcedureToDelete = new Statement();
@@ -997,6 +1039,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $clusterStatement22OfProcedureToDelete->setSubmitType('system');
         $clusterStatement22OfProcedureToDelete->setText('Ich bin der Text für das Statement 22 ');
         $clusterStatement22OfProcedureToDelete->setUser($this->getReference('testUserPlanningOffice'));
+        $clusterStatement22OfProcedureToDelete->setPhaseDefinition($phaseDefinition);
         $manager->persist($clusterStatement22OfProcedureToDelete);
         $this->setReference('clusterStatement22OfProcedureToDelete', $clusterStatement22OfProcedureToDelete);
 
@@ -1009,6 +1052,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $clusterStatement11OfProcedureToDelete->setProcedure($procedureToDelete);
         $clusterStatement11OfProcedureToDelete->setPublicVerified(Statement::PUBLICATION_PENDING);
         $clusterStatement11OfProcedureToDelete->setText('Ich bin der Text für das Statement 10 ');
+        $clusterStatement11OfProcedureToDelete->setPhaseDefinition($phaseDefinition);
         $this->setReference('clusterStatement11OfProcedureToDelete', $clusterStatement11OfProcedureToDelete);
         $manager->persist($clusterStatement11OfProcedureToDelete);
 
@@ -1022,6 +1066,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $clusterStatement1OfProcedureToDelete->setProcedure($procedureToDelete);
         $clusterStatement1OfProcedureToDelete->setPublicVerified(Statement::PUBLICATION_PENDING);
         $clusterStatement1OfProcedureToDelete->setText('Ich bin der Text für das cluster #1056');
+        $clusterStatement1OfProcedureToDelete->setPhaseDefinition($phaseDefinition);
         $manager->persist($clusterStatement1OfProcedureToDelete);
         $this->setReference('clusterStatement1OfProcedureToDelete', $clusterStatement1OfProcedureToDelete);
 
@@ -1037,6 +1082,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $emptyOriginalStatementOfProcedureToDelete->setProcedure($procedureToDelete);
         $emptyOriginalStatementOfProcedureToDelete->setPublicVerified(Statement::PUBLICATION_PENDING);
         $emptyOriginalStatementOfProcedureToDelete->setText('Ich bin der Text für das Statement 2444');
+        $emptyOriginalStatementOfProcedureToDelete->setPhaseDefinition($phaseDefinition);
         $this->setReference('emptyOriginalStatementOfProcedureToDelete', $emptyOriginalStatementOfProcedureToDelete);
         $manager->persist($emptyOriginalStatementOfProcedureToDelete);
 
@@ -1051,6 +1097,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $originalStatement2OfProcedureToDelete->setProcedure($procedureToDelete);
         $originalStatement2OfProcedureToDelete->setPublicVerified(Statement::PUBLICATION_PENDING);
         $originalStatement2OfProcedureToDelete->setText('Ich bin der Text für das Statement 2445');
+        $originalStatement2OfProcedureToDelete->setPhaseDefinition($phaseDefinition);
         $this->setReference('originalStatement2OfProcedureToDelete', $originalStatement2OfProcedureToDelete);
         $manager->persist($originalStatement2OfProcedureToDelete);
 
@@ -1066,6 +1113,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $normalStatement->setProcedure($procedureToDelete);
         $normalStatement->setPublicVerified(Statement::PUBLICATION_PENDING);
         $normalStatement->setText('Ich bin der Text für das Statement 25665');
+        $normalStatement->setPhaseDefinition($phaseDefinition);
         $this->setReference('normalStatement', $normalStatement);
         $manager->persist($normalStatement);
 
@@ -1081,6 +1129,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $normalStatement2->setText('Ich bin der Text für das Statement 3456');
 
         $normalStatement2->setMeta((new StatementMeta())->setStatement($normalStatement2));
+        $normalStatement2->setPhaseDefinition($phaseDefinition);
         $this->setReference('normalStatement2', $normalStatement2);
         $manager->persist($normalStatement2);
 
@@ -1096,6 +1145,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $copyOfnNormalStatement2->setProcedure($procedureToDelete);
         $copyOfnNormalStatement2->setPublicVerified(Statement::PUBLICATION_PENDING);
         $copyOfnNormalStatement2->setText('Ich bin der Text für das kopierte Statement 34562');
+        $copyOfnNormalStatement2->setPhaseDefinition($phaseDefinition);
         $this->setReference('copyOfnNormalStatement2', $copyOfnNormalStatement2);
         $manager->persist($copyOfnNormalStatement2);
 
@@ -1112,6 +1162,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $placeholderStatement->setProcedure($procedureToDelete);
         $placeholderStatement->setPublicVerified(Statement::PUBLICATION_PENDING);
         $placeholderStatement->setText('Ich bin der Text für das Statement 6666');
+        $placeholderStatement->setPhaseDefinition($phaseDefinition);
         $this->setReference('placeholderStatement', $placeholderStatement);
         $manager->persist($placeholderStatement);
 
@@ -1128,6 +1179,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $placeholderStatementInAnotherProcedure->setProcedure($this->getReference(LoadProcedureData::TESTPROCEDURE));
         $placeholderStatementInAnotherProcedure->setPublicVerified(Statement::PUBLICATION_PENDING);
         $placeholderStatementInAnotherProcedure->setText('Ich bin der Text für das Statement 555');
+        $placeholderStatementInAnotherProcedure->setPhaseDefinition($phaseDefinition);
         $this->setReference('placeholderStatementInAnotherProcedure', $placeholderStatementInAnotherProcedure);
         $manager->persist($placeholderStatementInAnotherProcedure);
 
@@ -1145,6 +1197,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $movedStatementInAnotherProcedure->setPublicVerified(Statement::PUBLICATION_PENDING);
         $movedStatementInAnotherProcedure->setText('Ich bin der Text für das Statement 7777');
         $movedStatementInAnotherProcedure->wasMoved();
+        $movedStatementInAnotherProcedure->setPhaseDefinition($phaseDefinition);
         $this->setReference('movedStatementInAnotherProcedure', $movedStatementInAnotherProcedure);
         $manager->persist($movedStatementInAnotherProcedure);
         $placeholderStatement->setMovedStatement($movedStatementInAnotherProcedure);
@@ -1163,6 +1216,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $movedStatementInThisProcedure->setProcedure($procedureToDelete);
         $movedStatementInThisProcedure->setPublicVerified(Statement::PUBLICATION_PENDING);
         $movedStatementInThisProcedure->setText('Ich bin der Text für das Statement 888');
+        $movedStatementInThisProcedure->setPhaseDefinition($phaseDefinition);
         $this->setReference('movedStatementInThisProcedure', $movedStatementInThisProcedure);
         $manager->persist($movedStatementInThisProcedure);
         $placeholderStatementInAnotherProcedure->setMovedStatement($movedStatementInThisProcedure);
@@ -1211,6 +1265,9 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement23WithPolygonAndMap->setUser($user);
         $statement23WithPolygonAndMap->setMeta((new StatementMeta())->setStatement($statement23WithPolygonAndMap));
 
+        $statement23WithPolygonAndMap->setPhaseDefinition(
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PHASE_DEFINITION)
+        );
         $this->setReference('statement23WithPolygonAndMap', $statement23WithPolygonAndMap);
 
         $this->manager->persist($statement23WithPolygonAndMap);
@@ -1230,6 +1287,9 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement->setOriginal($this->getReference('testStatementOrig'));
         $statement->setMeta((new StatementMeta())->setStatement($statement));
 
+        $statement->setPhaseDefinition(
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PHASE_DEFINITION)
+        );
         $this->setReference(self::MANUAL_STATEMENT_IN_PUBLIC_PARTICIPATION_PHASE, $statement);
         $this->manager->persist($statement);
     }

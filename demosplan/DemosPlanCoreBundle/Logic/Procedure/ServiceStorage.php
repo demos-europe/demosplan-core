@@ -38,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
@@ -102,6 +103,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         private readonly MasterTemplateService $masterTemplateService,
         private readonly MessageBagInterface $messageBag,
         private readonly NotificationReceiverRepository $notificationReceiverRepository,
+        private readonly ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository,
         private readonly OrgaService $orgaService,
         private readonly PermissionsInterface $permissions,
         ProcedureCategoryService $procedureCategoryService,
@@ -319,7 +321,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                     ),
                 ];
             }
-            if (!array_key_exists('r_phase', $data) || '' === trim((string) $data['r_phase'])) {
+            if (!array_key_exists('r_phaseDefinitionId', $data) || '' === trim((string) $data['r_phaseDefinitionId'])) {
                 $mandatoryErrors[] = [
                     'type'    => 'error',
                     'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -334,8 +336,14 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         $currentProcedure = $this->procedureHandler->getProcedureWithCertainty($data['r_ident']);
         $isBlueprint = $currentProcedure->getMaster();
-        $isNotInConfiguration = array_key_exists('r_phase', $data) && 'configuration' !== $data['r_phase'];
-        $isNotInPublicConfiguration = array_key_exists('r_publicParticipationPhase', $data) && 'configuration' !== $data['r_publicParticipationPhase'];
+        $internalDefinition = array_key_exists('r_phaseDefinitionId', $data)
+            ? $this->procedurePhaseDefinitionRepository->find($data['r_phaseDefinitionId'])
+            : null;
+        $externalDefinition = array_key_exists('r_publicParticipationPhaseDefinitionId', $data)
+            ? $this->procedurePhaseDefinitionRepository->find($data['r_publicParticipationPhaseDefinitionId'])
+            : null;
+        $isNotInConfiguration = null !== $internalDefinition && 0 !== $internalDefinition->getOrderInAudience();
+        $isNotInPublicConfiguration = null !== $externalDefinition && 0 !== $externalDefinition->getOrderInAudience();
         if ($this->permissions->hasPermission('feature_procedure_require_location') && !$isBlueprint && ($isNotInPublicConfiguration || $isNotInConfiguration) && ((array_key_exists('r_coordinate', $data) && '' == $data['r_coordinate']) || !array_key_exists('r_coordinate', $data))) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
@@ -401,13 +409,13 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'legalNotice');
         }
 
-        if (array_key_exists('r_phase', $data)) {
-            $procedure['phase'] = $data['r_phase'];
-            $procedure['closed'] = 'closed' === $data['r_phase'];
+        if (null !== $internalDefinition) {
+            $procedure['phaseDefinition'] = $internalDefinition;
 
-            // T9581 T9838: remove legal notice on change r_phase (toeb phase)
-            // check for change of toeb phase
-            if ($this->permissions->hasPermission('feature_procedure_legal_notice_write') && $currentProcedure->getPhase() != $procedure['phase']) {
+            // T9581 T9838: remove legal notice on phase change (toeb phase)
+            if ($this->permissions->hasPermission('feature_procedure_legal_notice_write')
+                && $currentProcedure->getPhaseObject()->getPhaseDefinition()->getId() !== $internalDefinition->getId()
+            ) {
                 $procedure['settings']['legalNotice'] = ''; // '' == default value
                 $this->messageBag->add('warning', 'procedure.legalnotice.cleared');
             }
@@ -457,15 +465,10 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 transformProcedureCategoryIdsToObjects($data['r_procedure_categories']);
         }
 
-        if (array_key_exists('r_publicParticipationPhase', $data)) {
-            $procedure['publicParticipationPhase'] = $data['r_publicParticipationPhase'];
-            // Das Backend benötigt die Info, ob Beteiligugnsphase aktiv ist für das Steuern der Rechte und Aktionen
-            $publicParticipationPhases = $this->globalConfig->getExternalPhasesAssoc('read||write');
-            if (array_key_exists($data['r_publicParticipationPhase'], $publicParticipationPhases)) {
-                $procedure['publicParticipation'] = true;
-            } else {
-                $procedure['publicParticipation'] = false;
-            }
+        if (null !== $externalDefinition) {
+            $procedure['publicParticipationPhaseDefinition'] = $externalDefinition;
+            // Das Backend benötigt die Info, ob Beteiligungsphase aktiv ist für das Steuern der Rechte und Aktionen
+            $procedure['publicParticipation'] = 'hidden' !== $externalDefinition->getPermissionSet();
         }
 
         if (array_key_exists('r_publicParticipationStartDate', $data) && '----' !== $data['r_publicParticipationStartDate']) {
