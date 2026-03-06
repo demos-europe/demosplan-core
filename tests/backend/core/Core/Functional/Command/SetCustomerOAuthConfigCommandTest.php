@@ -40,6 +40,7 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
     private const CLIENT_SECRET = 'super-secret';
     private const AUTH_SERVER_URL = 'https://keycloak.example.com/auth';
     private const REALM = 'dplan';
+
     protected function setUp(): void
     {
         parent::setUp();

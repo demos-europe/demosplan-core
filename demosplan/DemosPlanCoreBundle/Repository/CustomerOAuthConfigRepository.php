@@ -19,7 +19,7 @@ class CustomerOAuthConfigRepository extends CoreRepository
 {
     public function findByCustomer(CustomerInterface $customer): ?CustomerOAuthConfig
     {
-        /** @var CustomerOAuthConfig|null */
+        /* @var CustomerOAuthConfig|null */
         return $this->findOneBy(['customer' => $customer]);
     }
 
