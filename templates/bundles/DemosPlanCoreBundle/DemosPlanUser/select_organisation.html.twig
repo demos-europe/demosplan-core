@@ -13,7 +13,7 @@
                 <input type="hidden" name="referer" value="{{ app.request.headers.get('referer') }}">
 
                 <organisation-switcher
-                    :organisations="JSON.parse('{{ organisations|map(orga => { id: orga.id, name: orga.name, gwId: orga.gwId })|json_encode|e('js', 'utf-8') }}')"
+                    :organisations="JSON.parse('{{ organisations|map(orga => { id: orga.id, name: orga.name })|json_encode|e('js', 'utf-8') }}')"
                     current-organisation-id="{{ currentOrganisationId }}">
                 </organisation-switcher>
 

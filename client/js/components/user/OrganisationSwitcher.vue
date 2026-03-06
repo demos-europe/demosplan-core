@@ -11,8 +11,8 @@
   <div>
     <dp-radio
       v-for="organisation in organisations"
-      :id="`organisation-${organisation.id}`"
       :key="organisation.id"
+      :id="`organisation-${organisation.id}`"
       :checked="organisation.id === currentOrganisationId"
       class="mb-2"
       :label="{
@@ -33,7 +33,8 @@
 <script>
 import {
   DpButton,
-  DpRadio } from '@demos-europe/demosplan-ui'
+  DpRadio,
+} from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'OrganisationSwitcher',
