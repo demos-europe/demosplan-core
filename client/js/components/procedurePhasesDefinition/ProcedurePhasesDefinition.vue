@@ -57,7 +57,9 @@ All rights reserved
         />
 
         <fieldset>
-          <legend class="sr-only">{{ Translator.trans('participation.state.radio.label') }}</legend>
+          <legend class="sr-only">
+            {{ Translator.trans('participation.state.radio.label') }}
+          </legend>
 
           <div class="flex gap-4">
             <dp-radio
@@ -283,9 +285,7 @@ export default {
         name: phase.name,
         orderInAudience: phase.orderInAudience,
         permissionSetLabel: this.permissionSetOptions.find(option => option.value === phase.permissionSet)?.label || phase.permissionSet,
-        participationStateLabel: phase.participationState === 'finished' ?
-          Translator.trans('yes'):
-          Translator.trans('no'),
+        participationStateLabel: phase.participationState === 'finished' ? Translator.trans('yes') : Translator.trans('no'),
       }
     },
 
