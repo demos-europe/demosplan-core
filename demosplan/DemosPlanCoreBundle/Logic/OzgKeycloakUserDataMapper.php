@@ -200,7 +200,6 @@ class OzgKeycloakUserDataMapper
                 continue;
             }
 
-
             // Handle gwId that may contain pipe character (e.g., "141|UNMELT")
             // If gwId contains |, search for organization by the first part and update it with new gwId and name
             if (str_contains($gwId, '|')) {
@@ -223,7 +222,6 @@ class OzgKeycloakUserDataMapper
 
             // No pipe character, create new organization as before
             $organisations[] = $this->createNewOrganisation($requestedRoles, $gwId, $orgaName);
-
         }
 
         return $organisations;
@@ -344,7 +342,6 @@ class OzgKeycloakUserDataMapper
         if ('' !== $orgaName) {
             $existingOrga->setName($orgaName);
         }
-
 
         // Do not overwrite org name on update — FPA users can modify it via the UI.
         // Name is only set on org creation. Address fields are still synced from the token.
