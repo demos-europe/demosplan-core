@@ -196,20 +196,18 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
             ['Logout Route'    => $customerConfig['logoutRoute'] ?? '(global default)'],
         );
 
-        if (!$io->confirm('Save this configuration?')) {
+        if ($io->confirm('Save this configuration?')) {
+            try {
+                $this->upsertCustomerConfig($subdomain, $customerConfig);
+                $this->entityManager->flush();
+                $io->success(sprintf('OAuth config for customer "%s" saved.', $subdomain));
+            } catch (InvalidArgumentException $e) {
+                $io->error($e->getMessage());
+
+                return Command::FAILURE;
+            }
+        } else {
             $io->warning('Aborted.');
-
-            return Command::SUCCESS;
-        }
-
-        try {
-            $this->upsertCustomerConfig($subdomain, $customerConfig);
-            $this->entityManager->flush();
-            $io->success(sprintf('OAuth config for customer "%s" saved.', $subdomain));
-        } catch (InvalidArgumentException $e) {
-            $io->error($e->getMessage());
-
-            return Command::FAILURE;
         }
 
         return Command::SUCCESS;
