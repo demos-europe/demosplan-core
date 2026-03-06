@@ -32,8 +32,8 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
     private (MockObject&CustomerOAuthConfigRepository)|null $configRepositoryMock = null;
     private (MockObject&ParameterBagInterface)|null $parameterBagMock = null;
 
-    /** @var list<string> */
-    private array $tempFiles = [];
+    /** @var list<string>|null */
+    private ?array $tempFiles = [];
 
     private const SUBDOMAIN = 'testcustomer';
     private const CLIENT_ID = 'dplan-test';
@@ -159,8 +159,9 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
         $tester = $this->executeCommand(['--config-file' => $configFile]);
 
         self::assertSame(Command::SUCCESS, $tester->getStatusCode());
-        self::assertStringContainsString('Skipped', $tester->getDisplay());
-        self::assertStringContainsString('authServerUrl must be a valid HTTPS URL', $tester->getDisplay());
+        $display = preg_replace('/\s+/', ' ', $tester->getDisplay());
+        self::assertStringContainsString('Skipped', $display);
+        self::assertStringContainsString('authServerUrl must be a valid HTTPS URL', $display);
     }
 
     public function testFromFileUpdatesExistingConfig(): void
