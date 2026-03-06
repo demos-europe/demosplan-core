@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -83,6 +84,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
@@ -641,7 +643,7 @@ class DemosPlanProcedureController extends BaseController
                 'r_autoSwitch',
                 'r_autoSwitchPublic',
                 'r_coordinate',
-                'r_currentPublicParticipationPhase',
+                'r_currentPublicParticipationPhaseDefinitionId',
                 'r_customerMasterBlueprint',
                 'r_dataInputOrga',
                 'r_deletePictogram',
@@ -665,7 +667,7 @@ class DemosPlanProcedureController extends BaseController
                 'r_municipalCode',
                 'r_name',
                 'r_oldSlug',
-                'r_phase',
+                'r_phaseDefinitionId',
                 'r_pictogram',
                 'r_pictogramCopyright',
                 'r_pictogramAltText',
@@ -673,7 +675,7 @@ class DemosPlanProcedureController extends BaseController
                 'r_publicParticipation',
                 'r_publicParticipationContact',
                 'r_publicParticipationEndDate',
-                'r_publicParticipationPhase',
+                'r_publicParticipationPhaseDefinitionId',
                 'r_publicParticipationPublicationEnabled',
                 'r_publicParticipationFeedbackEnabled',
                 'allowAnonymousStatements',
@@ -1226,6 +1228,7 @@ class DemosPlanProcedureController extends BaseController
         MailService $mailService,
         ProcedureCategoryService $procedureCategoryService,
         ProcedureCoupleTokenFetcher $coupleTokenService,
+        ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository,
         Request $request,
         ServiceStorage $serviceStorage,
         StatementService $statementService,
@@ -1333,10 +1336,11 @@ class DemosPlanProcedureController extends BaseController
                     $this->getMessageBag()->add('confirm', 'confirm.saved');
 
                     // Prüfe, ob eine Email an die Verfahrensabonnenten geschicht werden soll
-                    $publicParticipationPhase = $procedureAsArray['publicParticipationPhase'];
-                    if (isset($inData['r_currentPublicParticipationPhase']) && $publicParticipationPhase !== $inData['r_currentPublicParticipationPhase']) {
-                        $externalPhasesAssoc = $this->globalConfig->getExternalPhasesAssoc();
-                        if (isset($externalPhasesAssoc[$publicParticipationPhase]) && 'write' === $externalPhasesAssoc[$publicParticipationPhase]['permissionset']) {
+                    if (isset($inData['r_currentPublicParticipationPhaseDefinitionId'], $inData['r_publicParticipationPhaseDefinitionId'])
+                        && $inData['r_publicParticipationPhaseDefinitionId'] !== $inData['r_currentPublicParticipationPhaseDefinitionId']
+                    ) {
+                        $newExternalDefinition = $procedurePhaseDefinitionRepository->find($inData['r_publicParticipationPhaseDefinitionId']);
+                        if (null !== $newExternalDefinition && 'write' === $newExternalDefinition->getPermissionSet()) {
                             // Schicke die Email an die Interessenten
                             $this->sendProcedureSubscriptionEmail($mailService, $translator, $procedureAsArray);
                         }
@@ -1390,6 +1394,18 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['internalPhases'] = $this->globalConfig->getInternalPhases();
             $templateVars['externalPhases'] = $this->globalConfig->getExternalPhases();
 
+            $phaseDefinitions = $procedurePhaseDefinitionRepository->findByCustomerOrderedByAudience(
+                $customerService->getCurrentCustomer()
+            );
+            $templateVars['internalPhaseDefinitions'] = array_values(array_filter(
+                $phaseDefinitions,
+                static fn (ProcedurePhaseDefinition $d) => 'internal' === $d->getAudience()
+            ));
+            $templateVars['externalPhaseDefinitions'] = array_values(array_filter(
+                $phaseDefinitions,
+                static fn (ProcedurePhaseDefinition $d) => 'external' === $d->getAudience()
+            ));
+
             // ProcedureCategories
             $templateVars['procedureCategories'] = $procedureCategoryService->getProcedureCategories();
 
@@ -1401,23 +1417,10 @@ class DemosPlanProcedureController extends BaseController
                 $template = '@DemosPlanCore/DemosPlanProcedure/administration_edit.html.twig';
                 $title = 'procedure.adjustments';
 
+                // @TODO: No project defines an 'evaluating' or 'analysis' phase key, so this always
+                // yields null and the autoswitch hint is always empty. Replace with a proper
+                // ProcedurePhaseDefinition-based lookup once phase definitions are fully in place.
                 $evaluatingPhase = null;
-                foreach ($templateVars['internalPhases'] as $internalPhase) {
-                    if ('evaluating' === $internalPhase['key']) {
-                        $evaluatingPhase = $internalPhase['name'];
-                        break;
-                    }
-                }
-
-                // Fallback to 'analysis' if 'evaluating' phase not found
-                if (null === $evaluatingPhase) {
-                    foreach ($templateVars['internalPhases'] as $internalPhase) {
-                        if ('analysis' === $internalPhase['key']) {
-                            $evaluatingPhase = $internalPhase['name'];
-                            break;
-                        }
-                    }
-                }
             }
 
             /** @var NotificationReceiverRepository $notificationReveicerRepository */
@@ -2160,66 +2163,65 @@ class DemosPlanProcedureController extends BaseController
                 );
 
                 return $this->redirectBack($request);
-            } else {
-                $helperServices = [
-                    'serviceMail'      => $mailService,
-                    'serviceDemosPlan' => $statementService,
-                ];
-                $this->procedureHandler->setHelperServices($helperServices);
+            }
+            $helperServices = [
+                'serviceMail'      => $mailService,
+                'serviceDemosPlan' => $statementService,
+            ];
+            $this->procedureHandler->setHelperServices($helperServices);
 
-                // verfasse und verschicke die Einladungs-E-Mail
-                try {
-                    $storageResult = $this->procedureHandler->sendInvitationEmails(
-                        $procedureAsArray,
-                        $this->prepareIncomingData($request, 'emailEdit')
-                    );
+            // verfasse und verschicke die Einladungs-E-Mail
+            try {
+                $storageResult = $this->procedureHandler->sendInvitationEmails(
+                    $procedureAsArray,
+                    $this->prepareIncomingData($request, 'emailEdit')
+                );
 
-                    // generiere eine Erfolgsmeldung für die eingeladenen TöB
-                    $this->getMessageBag()->add(
-                        'confirm',
-                        'confirm.invitation.sent',
-                        ['variable' => implode(', ', $storageResult->getOrgasInvited())]
-                    );
-                    // generiere eine Fehlermeldung für die nicht eingeladenen TöB
-                    if ([] !== $storageResult->getOrgasNotInvited()) {
-                        $this->getMessageBag()->add(
-                            'error',
-                            'error.email.invitation.send.no.email',
-                            ['variable' => implode(', ', $storageResult->getOrgasNotInvited())]
-                        );
-                    }
-
-                    return new RedirectResponse(
-                        $this->generateUrl(
-                            'DemosPlan_procedure_member_index',
-                            ['procedure' => $procedure]
-                        )
-                    );
-                } catch (NoRecipientsWithEmailException) {
-                    // generiere eine Fehlermeldung, wenn nur Empfänger ohne Email ausgesucht wurden.
+                // generiere eine Erfolgsmeldung für die eingeladenen TöB
+                $this->getMessageBag()->add(
+                    'confirm',
+                    'confirm.invitation.sent',
+                    ['variable' => implode(', ', $storageResult->getOrgasInvited())]
+                );
+                // generiere eine Fehlermeldung für die nicht eingeladenen TöB
+                if ([] !== $storageResult->getOrgasNotInvited()) {
                     $this->getMessageBag()->add(
                         'error',
-                        'error.email.invitation.no.recipients.with.mail',
-                        ['variable' => '']
+                        'error.email.invitation.send.no.email',
+                        ['variable' => implode(', ', $storageResult->getOrgasNotInvited())]
                     );
-
-                    return $this->redirectBack($request);
-                } catch (MissingDataException) {
-                    $this->getMessageBag()->add(
-                        'error',
-                        'error.missing.subject.or.text'
-                    );
-
-                    return $this->redirectBack($request);
-                } catch (Exception) {
-                    $this->getMessageBag()->add(
-                        'error',
-                        'error.email.invitation.send',
-                        ['variable' => '']
-                    );
-
-                    return $this->redirectBack($request);
                 }
+
+                return new RedirectResponse(
+                    $this->generateUrl(
+                        'DemosPlan_procedure_member_index',
+                        ['procedure' => $procedure]
+                    )
+                );
+            } catch (NoRecipientsWithEmailException) {
+                // generiere eine Fehlermeldung, wenn nur Empfänger ohne Email ausgesucht wurden.
+                $this->getMessageBag()->add(
+                    'error',
+                    'error.email.invitation.no.recipients.with.mail',
+                    ['variable' => '']
+                );
+
+                return $this->redirectBack($request);
+            } catch (MissingDataException) {
+                $this->getMessageBag()->add(
+                    'error',
+                    'error.missing.subject.or.text'
+                );
+
+                return $this->redirectBack($request);
+            } catch (Exception) {
+                $this->getMessageBag()->add(
+                    'error',
+                    'error.email.invitation.send',
+                    ['variable' => '']
+                );
+
+                return $this->redirectBack($request);
             }
         }
 

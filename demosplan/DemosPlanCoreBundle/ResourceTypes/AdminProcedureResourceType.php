@@ -48,6 +48,8 @@ use EDT\PathBuilding\End;
  * @property-read End                           $externalStartDate
  * @property-read End                           $externalPhaseIdentifier
  * @property-read End                           $externalPhaseTranslationKey
+ * @property-read End                           $internalPhaseDefinitionName
+ * @property-read End                           $externalPhaseDefinitionName
  * @property-read CustomFieldResourceType       $segmentCustomFields
  * @property-read CustomFieldResourceType       $statementCustomFields
  * @property-read CustomerResourceType          $customer
@@ -127,7 +129,14 @@ final class AdminProcedureResourceType extends DplanResourceType
 
                     return $externalPhases[$externalPhaseIdentifier]['name'] ?? $externalPhaseIdentifier;
                 }),
-                $this->createAttribute($this->externalStartDate)->readable()->aliasedPath($this->publicParticipationPhase->startDate)];
+                $this->createAttribute($this->externalStartDate)->readable()->aliasedPath($this->publicParticipationPhase->startDate),
+                $this->createAttribute($this->internalPhaseDefinitionName)
+                    ->readable(false, static fn (Procedure $procedure): string => $procedure->getPhaseObject()->getPhaseDefinition()->getName()
+                    ),
+                $this->createAttribute($this->externalPhaseDefinitionName)
+                    ->readable(false, static fn (Procedure $procedure): string => $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName()
+                    ),
+            ];
 
             if ($this->currentUser->hasAllPermissions('area_admin_custom_fields', 'field_segments_custom_fields')) {
                 $properties[] = $this->createToManyRelationship($this->segmentCustomFields)

@@ -562,6 +562,8 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      */
     public function generateObjectValues($procedure, array $data)
     {
+        // @deprecated The 'closed' flag is no longer set from the phase form handler.
+        // It will be removed once the phase key system is fully replaced by ProcedurePhaseDefinition.
         if (array_key_exists('closed', $data)) {
             $procedure->setClosed($data['closed']);
         }
@@ -646,6 +648,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         if (array_key_exists('phase', $data)) {
             $procedure->setPhase($data['phase']);
         }
+        if (array_key_exists('phaseDefinition', $data)) {
+            $procedure->getPhaseObject()->setPhaseDefinition($data['phaseDefinition']);
+        }
         if (array_key_exists('phase_iteration', $data)) {
             $procedure->getPhaseObject()->setIteration($data['phase_iteration']);
         }
@@ -684,6 +689,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
         if (array_key_exists('publicParticipationPhase', $data)) {
             $procedure->setPublicParticipationPhase($data['publicParticipationPhase']);
+        }
+        if (array_key_exists('publicParticipationPhaseDefinition', $data)) {
+            $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($data['publicParticipationPhaseDefinition']);
         }
         if (array_key_exists('publicParticipationPublicationEnabled', $data)) {
             $procedure->setPublicParticipationPublicationEnabled($data['publicParticipationPublicationEnabled']);

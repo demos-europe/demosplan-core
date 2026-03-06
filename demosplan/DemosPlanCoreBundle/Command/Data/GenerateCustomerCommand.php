@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -129,6 +130,7 @@ class GenerateCustomerCommand extends CoreCommand
             $customer->setMapAttribution($mapParams[2]);
 
             $this->registerDefaultUsers($customer);
+            $this->seedPhaseDefinitions($customer);
             $this->entityManager->flush();
 
             $output->writeln(
@@ -188,6 +190,19 @@ class GenerateCustomerCommand extends CoreCommand
         }
 
         return $subdomain;
+    }
+
+    private function seedPhaseDefinitions(Customer $customer): void
+    {
+        foreach (['internal', 'external'] as $audience) {
+            $definition = new ProcedurePhaseDefinition();
+            $definition->setCustomer($customer);
+            $definition->setName('Konfiguration');
+            $definition->setAudience($audience);
+            $definition->setPermissionSet('hidden');
+            $definition->setOrderInAudience(0);
+            $this->entityManager->persist($definition);
+        }
     }
 
     private function registerDefaultUsers(Customer $customer): void
