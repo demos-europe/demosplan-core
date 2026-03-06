@@ -210,7 +210,9 @@ export default {
      * Uses editingValue instead of prop value
      */
     editingField () {
-      if (!this.resolvedDefinition) return null
+      if (!this.resolvedDefinition) {
+        return null
+      }
 
       const transformedValue = this.transformValueForRenderer(this.editingValue)
 
