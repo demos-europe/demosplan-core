@@ -887,19 +887,19 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                     'phase'    => $internalPhaseKey,
                     'customer' => $endedInternalProcedure->getCustomer(),
                 ];
-                $updatedProcedure = $this->procedureService->updateProcedure($data, isSystem: true);
+                $this->procedureService->updateProcedure($data, isSystem: true);
 
                 try {
                     $reportEntries[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
                         $originalProcedure,
-                        $updatedProcedure,
+                        $endedInternalProcedure,
                         $systemUserName,
                         true
                     );
                 } catch (Exception $e) {
                     $this->getLogger()->warning('Failed to create report entry for internal phase auto-switch', ['exception' => $e]);
                 }
-                $changedInternalProcedures->push($updatedProcedure);
+                $changedInternalProcedures->push($endedInternalProcedure);
             }
         }
 
@@ -926,19 +926,19 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                     'publicParticipationPhase' => $externalPhaseKey,
                     'customer'                 => $endedExternalProcedure->getCustomer(),
                 ];
-                $updatedProcedure = $this->procedureService->updateProcedure($data, isSystem: true);
+                $this->procedureService->updateProcedure($data, isSystem: true);
 
                 try {
                     $reportEntries[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
                         $originalProcedure,
-                        $updatedProcedure,
+                        $endedExternalProcedure,
                         $systemUserName,
                         true
                     );
                 } catch (Exception $e) {
                     $this->getLogger()->warning('Failed to create report entry for external phase auto-switch', ['exception' => $e]);
                 }
-                $changedExternalProcedures->push($updatedProcedure);
+                $changedExternalProcedures->push($endedExternalProcedure);
             }
         }
 
@@ -955,7 +955,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         $this->getLogger()->info('Switched phases to evaluation of '.$changedInternalProcedures->count().' internal/toeb procedures.');
         $this->getLogger()->info('Switched phases to evaluation of '.$changedExternalProcedures->count().' external/public procedures.');
 
-        return $changedExternalProcedures->merge($changedInternalProcedures)->unique('id');
+        return $changedExternalProcedures->merge($changedInternalProcedures)->unique(static fn (Procedure $p) => $p->getId());
     }
 
     /**
