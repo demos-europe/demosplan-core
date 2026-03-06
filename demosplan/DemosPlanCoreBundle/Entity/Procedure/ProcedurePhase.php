@@ -88,9 +88,9 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
      *
-     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=true, onDelete="RESTRICT")
+     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=false, onDelete="RESTRICT")
      */
-    protected ?ProcedurePhaseDefinition $phaseDefinition = null;
+    protected ProcedurePhaseDefinition $phaseDefinition;
 
     /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
@@ -239,12 +239,12 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->designatedPhase = $designatedPhase;
     }
 
-    public function getPhaseDefinition(): ?ProcedurePhaseDefinition
+    public function getPhaseDefinition(): ProcedurePhaseDefinition
     {
         return $this->phaseDefinition;
     }
 
-    public function setPhaseDefinition(?ProcedurePhaseDefinition $phaseDefinition): void
+    public function setPhaseDefinition(ProcedurePhaseDefinition $phaseDefinition): void
     {
         $this->phaseDefinition = $phaseDefinition;
     }
