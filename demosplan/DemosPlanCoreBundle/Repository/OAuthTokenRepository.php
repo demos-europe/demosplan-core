@@ -52,6 +52,35 @@ class OAuthTokenRepository extends CoreRepository
     }
 
     /**
+     * Check whether the access token for a user has been refreshed by doing a guaranteed fresh DB lookup.
+     *
+     * This method bypasses Doctrine's identity map by calling EntityManager::refresh() before
+     * checking the token state. It is intended to be called after waiting on a symfony/lock —
+     * a concurrent process held the lock and may have already refreshed the tokens successfully.
+     * Without the identity-map bypass, Doctrine would return the in-memory entity that still
+     * reflects the pre-refresh state, making the concurrent-success check useless.
+     *
+     * Returns true if the access token exists and has not yet expired, meaning the concurrent
+     * refresh succeeded and the caller can skip its own KeyCloak call.
+     *
+     * @param string $userId The user ID (UUID)
+     */
+    public function haveTokensBeenRefreshed(string $userId): bool
+    {
+        $oauthToken = $this->findByUserId($userId);
+
+        if (null === $oauthToken) {
+            return false;
+        }
+
+        $this->getEntityManager()->refresh($oauthToken);
+
+        $expiresAt = $oauthToken->getAccessTokenExpiresAt();
+
+        return null !== $expiresAt && $expiresAt > new DateTime('now', new DateTimeZone(self::TIMEZONE));
+    }
+
+    /**
      * Delete OAuth token entries with outdated pending data (full request buffer or URL-only entry).
      *
      * Removes entire token entries where pendingRequestTimestamp is older than the specified age.
