@@ -99,7 +99,7 @@ class OrganisationAffiliationMapper
     // Use linkUser/addOrganisation to avoid setOrga() overwriting the user's org collection
     // Add missing org links
     // Use linkUser/addOrganisation to avoid setOrga() overwriting the user's org collection
-    private function linkUserToNewOrgas(User $user, array $targetOrganisations)
+    private function linkUserToNewOrgas(User $user, array $targetOrganisations): void
     {
         foreach ($targetOrganisations as $orga) {
             if (!$user->getOrganisations()->contains($orga)) {
