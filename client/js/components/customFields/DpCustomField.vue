@@ -197,39 +197,12 @@ export default {
   },
 
   computed: {
-    /**
-     * Field object for editing state (used in toggle mode)
-     * Uses editingValue instead of prop value
-     */
     editingField () {
-      if (!this.resolvedDefinition) {
-        return null
-      }
-
-      const transformedValue = this.transformValueForRenderer(this.editingValue)
-
-      return {
-        ...this.resolvedDefinition,
-        value: transformedValue,
-      }
+      return this.buildFieldObject(this.editingValue)
     },
 
-    /**
-     * Merged field: definition + value
-     * Returns complete field object for renderer
-     * Transforms raw backend value to format expected by renderers
-     */
     mergedField () {
-      if (!this.resolvedDefinition) {
-        return null
-      }
-
-      const transformedValue = this.transformValueForRenderer(this.fieldData.value)
-
-      return {
-        ...this.resolvedDefinition,
-        value: transformedValue,
-      }
+      return this.buildFieldObject(this.fieldData.value)
     },
   },
 
@@ -421,6 +394,17 @@ export default {
       this.isEditing = true
       this.editingValue = this.fieldData.value
       this.$emit('edit:start')
+    },
+
+    buildFieldObject (rawValue) {
+      if (!this.resolvedDefinition) {
+        return null
+      }
+
+      return {
+        ...this.resolvedDefinition,
+        value: this.transformValueForRenderer(rawValue),
+      }
     },
 
     /**
