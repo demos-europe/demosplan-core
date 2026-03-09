@@ -80,7 +80,6 @@ export function useCustomFields () {
     }
 
     isLoading.value = true
-    error.value = null
 
     const url = Routing.generate('api_resource_list', {
       resourceType: 'CustomField',
