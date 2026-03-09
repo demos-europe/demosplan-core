@@ -31,6 +31,8 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  */
 class OrganisationSelectionController extends BaseController
 {
+    private const SESSION_KEY_RETURN_URL = 'organisation_selection_return_url';
+
     public function __construct(
         private readonly CurrentOrganisationService $currentOrganisationService,
     ) {
@@ -41,7 +43,7 @@ class OrganisationSelectionController extends BaseController
      */
     #[DplanPermissions('area_demosplan')]
     #[Route(name: 'DemosPlan_user_select_organisation', path: '/organisation/select')]
-    public function selectOrganisation(): Response
+    public function selectOrganisation(Request $request): Response
     {
         $user = $this->getUser();
 
@@ -59,6 +61,15 @@ class OrganisationSelectionController extends BaseController
             }
 
             return $this->redirectToRoute('core_home_loggedin');
+        }
+
+        // Store validated return URL in session instead of round-tripping through form
+        $referer = $request->headers->get('referer');
+        if (null !== $referer && '' !== $referer) {
+            $path = parse_url($referer, PHP_URL_PATH);
+            if (is_string($path) && 1 === preg_match('#^/[^/]#', $path)) {
+                $request->getSession()->set(self::SESSION_KEY_RETURN_URL, $path);
+            }
         }
 
         return $this->render(
@@ -127,11 +138,13 @@ class OrganisationSelectionController extends BaseController
 
         $this->getMessageBag()->add('confirm', 'confirm.organisation.switched');
 
-        // Redirect to referer if available, otherwise to home
-        // Validates: single leading slash followed by non-slash to prevent protocol-relative URLs (//evil.com)
-        $referer = $request->request->get('referer');
-        if (null !== $referer && '' !== $referer && 1 === preg_match('#^/[^/]#', $referer)) {
-            return new RedirectResponse($referer);
+        // Retrieve and clear the return URL from the session
+        $session = $request->getSession();
+        $returnUrl = $session->get(self::SESSION_KEY_RETURN_URL);
+        $session->remove(self::SESSION_KEY_RETURN_URL);
+
+        if (is_string($returnUrl) && '' !== $returnUrl) {
+            return new RedirectResponse($returnUrl);
         }
 
         return $this->redirectToRoute('core_home_loggedin');
