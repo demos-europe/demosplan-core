@@ -569,7 +569,7 @@ class OzgKeycloakUserDataMapper
     private function getCitizenRoleForPrivatePerson(): array
     {
         $this->logger->info('Private person detected - automatically assigning CITIZEN role');
-        $citizenRole = $this->roleRepository->findOneBy(['code' => Role::CITIZEN]);
+        $citizenRole = $this->roleRepository->findOneBy(['code' => RoleInterface::CITIZEN]);
         if (null === $citizenRole) {
             throw new AuthenticationCredentialsNotFoundException('CITIZEN role not found in system');
         }
@@ -596,7 +596,7 @@ class OzgKeycloakUserDataMapper
     {
         // if the user should be moved to the CITIZEN orga, the CITIZEN role is the only one allowed
         if (User::ANONYMOUS_USER_ORGA_ID === $orga->getId()) {
-            $requestedRoles = [$this->roleRepository->findOneBy(['code' => Role::CITIZEN])];
+            $requestedRoles = [$this->roleRepository->findOneBy(['code' => RoleInterface::CITIZEN])];
         }
 
         if ($this->hasUserAttributeToUpdate($dplanUser->getDplanroles()->toArray(), $requestedRoles)) {
