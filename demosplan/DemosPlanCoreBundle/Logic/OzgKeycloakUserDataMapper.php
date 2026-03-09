@@ -199,7 +199,7 @@ class OzgKeycloakUserDataMapper
                 continue;
             }
 
-            // Handle gwId that may contain pipe character (e.g., "141|UNMELT")
+            // Handle gwId that may contain pipe character (e.g., "141|UMWELT")
             // If gwId contains |, search for organization by the first part and update it with new gwId and name
             if (str_contains($gwId, '|')) {
                 $gwIdParts = explode('|', $gwId);
