@@ -102,18 +102,18 @@ All rights reserved
 
 <script>
 import { DpButton, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import DpMultiselectCustomField from './DpMultiselectCustomField'
-import DpSingleselectCustomField from './DpSingleselectCustomField'
+import MultiselectCustomField from './MultiselectCustomField'
+import SingleselectCustomField from './SingleselectCustomField'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
-  name: 'DpCustomField',
+  name: 'CustomField',
 
   components: {
     DpButton,
     DpLoading,
-    DpMultiselectCustomField,
-    DpSingleselectCustomField,
+    MultiselectCustomField,
+    SingleselectCustomField,
   },
 
   mixins: [prefixClassMixin],
@@ -184,8 +184,8 @@ export default {
   data () {
     return {
       componentMap: {
-        multiSelect: 'dp-multiselect-custom-field',
-        singleSelect: 'dp-singleselect-custom-field',
+        multiSelect: 'multiselect-custom-field',
+        singleSelect: 'singleselect-custom-field',
       },
       resolvedDefinition: null,
       editingValue: null,
@@ -448,7 +448,7 @@ export default {
 
   created () {
     if (!this.definition && !this.definitionSourceId) {
-      console.warn('DpCustomField: either "definition" or "definitionSourceId" must be provided.')
+      console.warn('CustomField: either "definition" or "definitionSourceId" must be provided.')
     }
   },
 }

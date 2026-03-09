@@ -29,7 +29,7 @@ All rights reserved
             :resource-type="resourceType"
           >
             <div :class="layoutClasses">
-              <dp-custom-field
+              <custom-field
                 v-for="field in fieldsToRender"
                 :key="field.id"
                 :definition="definitions.find(d => d.id === field.id)"
@@ -56,7 +56,7 @@ All rights reserved
                     v-bind="slotProps"
                   />
                 </template>
-              </dp-custom-field>
+              </custom-field>
             </div>
           </slot>
         </dp-details>
@@ -95,7 +95,7 @@ All rights reserved
           :resource-type="resourceType"
         >
           <div :class="layoutClasses">
-            <dp-custom-field
+            <custom-field
               v-for="field in fieldsToRender"
               :key="field.id"
               :definition="definitions.find(d => d.id === field.id)"
@@ -122,7 +122,7 @@ All rights reserved
                   v-bind="slotProps"
                 />
               </template>
-            </dp-custom-field>
+            </custom-field>
           </div>
         </slot>
       </fieldset>
@@ -153,7 +153,7 @@ All rights reserved
           :resource-type="resourceType"
         >
           <div :class="layoutClasses">
-            <dp-custom-field
+            <custom-field
               v-for="field in fieldsToRender"
               :key="field.id"
               :definition="definitions.find(d => d.id === field.id)"
@@ -180,7 +180,7 @@ All rights reserved
                   v-bind="slotProps"
                 />
               </template>
-            </dp-custom-field>
+            </custom-field>
           </div>
         </slot>
       </div>
@@ -190,15 +190,15 @@ All rights reserved
 
 <script>
 import { dpApi, DpContextualHelp, DpDetails, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import DpCustomField from './DpCustomField'
+import CustomField from './CustomField'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
-  name: 'DpCustomFieldsList',
+  name: 'CustomFieldsList',
 
   components: {
+    CustomField,
     DpContextualHelp,
-    DpCustomField,
     DpDetails,
     DpLoading,
   },

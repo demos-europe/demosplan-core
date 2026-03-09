@@ -262,7 +262,7 @@
         class="c-styled-html"
       />
     </div>
-    <dp-custom-fields-list
+    <custom-fields-list
       v-if="hasPermission('feature_statements_custom_fields')"
       resource-type="DraftStatement"
       :resource-id="id"
@@ -279,7 +279,7 @@
 <script>
 import { CleanHtml, DpDetails, DpFlyout, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
-import DpCustomFieldsList from '@DpJs/components/customFields/DpCustomFieldsList'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
 
@@ -287,7 +287,7 @@ export default {
   name: 'DpPublicStatement',
 
   components: {
-    DpCustomFieldsList,
+    CustomFieldsList,
     DpDetails,
     DpFlyout,
     DpInlineNotification,

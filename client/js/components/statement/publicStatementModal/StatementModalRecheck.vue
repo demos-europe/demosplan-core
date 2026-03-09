@@ -278,7 +278,7 @@
         </button>
       </span>
 
-      <dp-custom-field
+      <custom-field
         v-for="field in customFieldsWithValues"
         :key="field.id"
         :definition-source-id="procedureId"
@@ -291,20 +291,20 @@
             {{ customField.value.selectedOptions.map(o => o.label).join(', ') }}
           </span>
         </template>
-      </dp-custom-field>
+      </custom-field>
     </div>
   </fieldset>
 </template>
 
 <script>
 import { CleanHtml, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import DpCustomField from '@DpJs/components/customFields/DpCustomField.vue'
+import CustomField from '@DpJs/components/customFields/CustomField.vue'
 
 export default {
   name: 'StatementModalRecheck',
 
   components: {
-    DpCustomField,
+    CustomField,
     DpInlineNotification,
   },
 

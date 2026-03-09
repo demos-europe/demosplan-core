@@ -519,7 +519,7 @@
             title="custom.fields"
             class="pb-0"
           >
-            <dp-custom-fields-list
+            <custom-fields-list
               resource-type="Statement"
               title-class="font-[600] mb-2"
               :definition-source-id="procedureId"
@@ -543,7 +543,7 @@
                   -
                 </span>
               </template>
-            </dp-custom-fields-list>
+            </custom-fields-list>
           </dp-item-row>
 
           <!-- Statement / Recommendation Text -->
@@ -762,7 +762,7 @@ import { dpApi, DpContextualHelp, DpTooltip, formatDate, hasOwnProp } from '@dem
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
-import DpCustomFieldsList from '@DpJs/components/customFields/DpCustomFieldsList'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
 import DpItemRow from './ItemRow'
@@ -775,7 +775,7 @@ export default {
   components: {
     DpContextualHelp,
     DpClaim,
-    DpCustomFieldsList,
+    CustomFieldsList,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
     DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList'),

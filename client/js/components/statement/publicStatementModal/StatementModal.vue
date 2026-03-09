@@ -159,8 +159,8 @@
           />
         </div>
 
-        <!-- Existing draft WITHOUT localStorage: DpCustomFieldsList self-fetches, manages fieldset internally -->
-        <dp-custom-fields-list
+        <!-- Existing draft WITHOUT localStorage: CustomFieldsList self-fetches, manages fieldset internally -->
+        <custom-fields-list
           v-if="(draftStatementId && !draftHasLocalStorageData) && hasPermission('feature_statements_custom_fields')"
           mode="editable"
           resource-type="DraftStatement"
@@ -182,7 +182,7 @@
           <legend :class="prefixClass('mb-2 text-[1em] font-[500]')">
             {{ Translator.trans('statement.data') }}
           </legend>
-          <dp-custom-field
+          <custom-field
             v-for="customField in selectableCustomFields"
             ref="customFieldRefs"
             :key="customField.id"
@@ -890,8 +890,8 @@ import {
 import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
 import { defineAsyncComponent } from 'vue'
-import DpCustomField from '@DpJs/components/customFields/DpCustomField'
-import DpCustomFieldsList from '@DpJs/components/customFields/DpCustomFieldsList'
+import CustomField from '@DpJs/components/customFields/CustomField'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import StatementModalRecheck from './StatementModalRecheck'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
@@ -923,9 +923,9 @@ export default {
   name: 'StatementModal',
 
   components: {
+    CustomField,
+    CustomFieldsList,
     DpCheckbox,
-    DpCustomField,
-    DpCustomFieldsList,
     DpInlineNotification,
     DpInput,
     DpLabel,
@@ -1488,7 +1488,7 @@ export default {
     /**
      * Get current value for a custom field
      * Reads from statementCustomFields[].value (Source of Truth)
-     * Returns raw backend value (IDs, text, etc.) for DpCustomField
+     * Returns raw backend value (IDs, text, etc.) for CustomField
      */
     getCustomFieldValue (fieldId) {
       const selectableField = this.selectableCustomFields?.find(f => f.id === fieldId)
@@ -1502,7 +1502,7 @@ export default {
     },
 
     /**
-     * Handle custom field value updates from DpCustomField component
+     * Handle custom field value updates from CustomField component
      * Updates BOTH formData.customFields AND selectableCustomFields[].value
      * Now stores raw backend values (IDs) instead of objects
      */
@@ -1512,7 +1512,7 @@ export default {
       if (fieldIndex !== -1) {
         /*
          * Store raw value directly (IDs, not objects)
-         * DpCustomField handles the ID-to-object transformation internally
+         * CustomField handles the ID-to-object transformation internally
          */
         this.selectableCustomFields = this.selectableCustomFields.map((field, idx) =>
           idx === fieldIndex ?
@@ -1768,8 +1768,8 @@ export default {
 
       /*
        * Use formData.customFields as source of truth:
-       * - In DpCustomFieldsList mode: reset to server values by handleCustomFieldsListLoaded, then updated by user changes
-       * - In DpCustomField loop mode: restored from localStorage, then updated by user changes
+       * - In CustomFieldsList mode: reset to server values by handleCustomFieldsListLoaded, then updated by user changes
+       * - In CustomField loop mode: restored from localStorage, then updated by user changes
        * Empty arrays are included intentionally to allow clearing multiselect fields on the server.
        */
       const customFieldValues = (this.formData.customFields || [])

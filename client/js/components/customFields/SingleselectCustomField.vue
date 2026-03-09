@@ -26,17 +26,9 @@ All rights reserved
         name="readonly-display"
         :field="field"
       >
-        <div
-          v-if="currentValue.length > 0"
-          :class="prefixClass('space-stack-xs')"
-        >
-          <div
-            v-for="option in currentValue"
-            :key="option.id"
-          >
-            {{ option.label }}
-          </div>
-        </div>
+        <span v-if="currentValue">
+          {{ currentValue.label }}
+        </span>
         <span
           v-else
           :class="prefixClass('font-size-small color--grey')"
@@ -65,31 +57,30 @@ All rights reserved
         :class="prefixClass('mb-2')"
       />
     </div>
-    <dp-multiselect
+    <dp-select
       :id="`custom-field-${field.id}`"
       :data-dp-validate-error-fieldname="field.attributes.name"
-      :value="currentValue"
-      :options="(field.attributes?.options || []).filter(opt => opt != null)"
+      :model-value="currentValue"
+      :options="field.attributes.options || []"
       :placeholder="Translator.trans('choose')"
       :required="field.attributes.isRequired"
       label="label"
       track-by="id"
-      multiple
-      @input="handleUpdate"
+      @update:model-value="handleUpdate"
     />
   </div>
 </template>
 
 <script>
-import { DpContextualHelp, DpLabel, DpMultiselect, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, DpLabel, DpSelect, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'DpMultiselectCustomField',
+  name: 'SingleselectCustomField',
 
   components: {
     DpContextualHelp,
     DpLabel,
-    DpMultiselect,
+    DpSelect,
   },
 
   mixins: [prefixClassMixin],
@@ -97,13 +88,11 @@ export default {
   emits: ['update:value'],
 
   props: {
-    // Complete field object: { id, attributes: {...}, value: {...} }
     field: {
       type: Object,
       required: true,
     },
 
-    // Display mode: 'readonly' or 'editable'
     mode: {
       type: String,
       required: false,
@@ -114,11 +103,12 @@ export default {
 
   computed: {
     /**
-     * Current selected options (full objects for dp-multiselect)
-     * Already matched in DpCustomField.transformValueForRenderer()
+     * Current selected option (full object for dp-select)
+     * Already matched in CustomField.transformValueForRenderer()
      */
     currentValue () {
-      return this.field.value?.selectedOptions || []
+      const selectedOptions = this.field.value?.selectedOptions || []
+      return selectedOptions[0] || null
     },
   },
 
@@ -126,12 +116,12 @@ export default {
     /**
      * Handle value updates
      * Emits unified structure: { id, value }
-     * value = Array of option IDs (backend format)
+     * value = single option ID or null (backend format)
      */
     handleUpdate (newValue) {
       this.$emit('update:value', {
         id: this.field.id,
-        value: newValue.map(opt => opt.id),
+        value: newValue ? newValue.id : null,
       })
     },
   },

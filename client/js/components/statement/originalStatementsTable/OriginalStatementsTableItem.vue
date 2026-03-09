@@ -108,7 +108,7 @@
           />
         </div>
 
-        <dp-custom-fields-list
+        <custom-fields-list
           v-if="hasPermission('field_statements_custom_fields')"
           resource-type="OriginalStatement"
           :resource-id="statementId"
@@ -123,7 +123,7 @@
           <template v-slot:readonly-display="{ field }">
             <span>{{ (field.value?.selectedOptions || []).map(opt => opt.label).join(', ') }}</span>
           </template>
-        </dp-custom-fields-list>
+        </custom-fields-list>
 
         <div
           v-if="statement.sourceAttachment || statement.files.length > 0 || statement.polygon !== ''"
@@ -228,14 +228,14 @@ import {
   hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations, mapState } from 'vuex'
-import DpCustomFieldsList from '@DpJs/components/customFields/DpCustomFieldsList'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import HeightLimit from '@DpJs/components/statement/HeightLimit'
 
 export default {
   name: 'OriginalStatementsTableItem',
 
   components: {
-    DpCustomFieldsList,
+    CustomFieldsList,
     DpFlyout,
     HeightLimit,
   },
