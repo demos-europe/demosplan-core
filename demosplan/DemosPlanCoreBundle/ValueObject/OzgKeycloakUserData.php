@@ -184,12 +184,12 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
 
         foreach ($userInformation[self::RESPONSIBILITIES] as $data) {
             // Decode JSON string first
-            $responsabilitiesData = is_string($data) ? json_decode($data, true) : $data;
+            $responsibilitiesData = is_string($data) ? json_decode($data, true) : $data;
 
-            if (is_array($responsabilitiesData) && isset($responsabilitiesData['id'])) {
+            if (is_array($responsibilitiesData) && isset($responsibilitiesData['id'])) {
                 $this->responsibilities[] = [
-                    'id'   => (string) $responsabilitiesData['id'],
-                    'name' => (string) ($responsabilitiesData['name'] ?? $responsabilitiesData['id']),
+                    'id'   => (string) $responsibilitiesData['id'],
+                    'name' => (string) ($responsibilitiesData['name'] ?? $responsibilitiesData['id']),
                 ];
             }
         }
