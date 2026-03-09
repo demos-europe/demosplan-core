@@ -18,6 +18,7 @@ const LayersStore = {
   state: {
     originalApiData: {},
     legends: [],
+    loadedLegends: [],
     currentSorting: 'mapOrder',
     activeLayerId: '',
     hoverLayerId: '',
@@ -176,6 +177,12 @@ const LayersStore = {
      */
     setLegend (state, data) {
       state.legends.push(data)
+    },
+
+    markLegendAsLoaded (state, legendUrl) {
+      if (!state.loadedLegends.includes(legendUrl)) {
+        state.loadedLegends.push(legendUrl)
+      }
     },
 
     /**
@@ -411,36 +418,51 @@ const LayersStore = {
     },
 
     /**
-     * Builds legend URLs for all overlay layers using GetLegendGraphic requests
+     * Generate legend URLs for a given layer and commit them to the store.
+     */
+    generateLayerLegends ({ commit }, layer) {
+      if (!layer.attributes.isEnabled) {
+        return
+      }
+
+      const layerParam = layer.attributes.layers
+      const delimiter = (layer.attributes.url.indexOf('?') === -1) ? '?' : '&'
+      const legendUrlBase = layer.attributes.url + delimiter
+
+      const layerParamSplit = layerParam.split(',').map(function (item) {
+        return item.trim()
+      })
+
+      for (const layerParamItem of layerParamSplit) {
+        const legendUrl = legendUrlBase + 'Layer=' + layerParamItem + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
+        const legend = {
+          layerId: layer.id,
+          treeOrder: layer.attributes.treeOrder,
+          mapOrder: layer.attributes.mapOrder,
+          defaultVisibility: layer.attributes.hasDefaultVisibility,
+          url: legendUrl,
+        }
+
+        commit('setLegend', legend)
+      }
+    },
+
+    /**
+     * Builds legend URLs for all layers (overlay and base) using GetLegendGraphic requests.
      *
      * @returns {void}
      */
-    buildLegends ({ commit, getters }) {
-      const layers = getters.gisLayerList('overlay')
+    buildLegends ({ dispatch, getters }) {
+      const overlayLayers = getters.gisLayerList('overlay')
 
-      for (const layer of layers) {
-        const layerParam = layer.attributes.layers
-        const delimiter = (layer.attributes.url.indexOf('?') === -1) ? '?' : '&'
-        const legendUrlBase = layer.attributes.url + delimiter
-        // Get layer layers
-        const layerParamSplit = layerParam.split(',').map(function (item) {
-          return item.trim()
-        })
+      for (const layer of overlayLayers) {
+        dispatch('generateLayerLegends', layer)
+      }
 
-        // Add each layer to GetLegendGraphic request
-        layerParamSplit.forEach(item => {
-          if (layer.attributes.isEnabled) {
-            const legendUrl = legendUrlBase + 'Layer=' + item + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
-            const legend = {
-              layerId: layer.id,
-              treeOrder: layer.attributes.treeOrder,
-              mapOrder: layer.attributes.mapOrder,
-              defaultVisibility: layer.attributes.hasDefaultVisibility,
-              url: legendUrl,
-            }
-            commit('setLegend', legend)
-          }
-        })
+      const baseLayers = getters.gisLayerList('base')
+
+      for (const layer of baseLayers) {
+        dispatch('generateLayerLegends', layer)
       }
     },
 
@@ -904,11 +926,68 @@ const LayersStore = {
       const includes = state.apiData.included
 
       const elementList = legends.filter(current => {
-        return (includes.find(el => el.id === current.layerId) !== 'undefined')
+        return includes.some(el => el.id === current.layerId)
       })
       /* Sort elements by treeOrder before returning the list */
       elementList.sort((a, b) => (a.treeOrder).toString().padEnd(21, '0') - (b.treeOrder).toString().padEnd(21, '0'))
       return elementList
+    },
+
+    /**
+     * Helper to group legend images by layer type with optional filtering.
+     */
+    groupLegendsByLayerType: (state, getters) => (shouldIncludeLegend) => {
+      if (typeof state.apiData.included === 'undefined') {
+        return { base: [], overlay: [] }
+      }
+
+      const legends = state.legends
+      const includes = state.apiData.included
+      const grouped = { base: [], overlay: [] }
+
+      legends.forEach(legend => {
+        if (!shouldIncludeLegend(legend)) {
+          return
+        }
+
+        const layer = includes.find(el => el.id === legend.layerId)
+        if (layer?.attributes) {
+          const layerId = layer.id.replaceAll('-', '')
+          const isVisible = getters.isLayerVisible(layerId)
+
+          if (isVisible) {
+            const layerType = layer.attributes.layerType
+            if (layerType === 'base' || layerType === 'overlay') {
+              grouped[layerType].push(legend)
+            }
+          }
+        }
+      })
+
+      const sortByTreeOrder = (a, b) => {
+        return a.treeOrder.toString().padEnd(21, '0') - b.treeOrder.toString().padEnd(21, '0')
+      }
+
+      grouped.base.sort(sortByTreeOrder)
+      grouped.overlay.sort(sortByTreeOrder)
+
+      return grouped
+    },
+
+    /**
+     * All visible legend images grouped by layer type (for rendering).
+     */
+    allVisibleLegendImagesGroupedByLayerType: (state, getters) => {
+      return getters.groupLegendsByLayerType(() => true)
+    },
+
+    /**
+     * Successfully loaded legend images grouped by layer type (for section headings).
+     */
+    legendImagesGroupedByLayerType: (state, getters) => {
+      return getters.groupLegendsByLayerType((legend) => {
+        return state.loadedLegends.includes(legend.url)
+      })
     },
 
     /**
