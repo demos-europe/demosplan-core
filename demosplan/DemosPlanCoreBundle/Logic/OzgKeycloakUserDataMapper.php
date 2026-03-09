@@ -182,6 +182,9 @@ class OzgKeycloakUserDataMapper
     private function findOrCreateOrganisationsFromToken(array $entries, array $requestedRoles): array
     {
         $organisations = [];
+        // Track base gwIds already claimed by a pipe-gwId entry so later entries
+        // with the same base create a new org instead of updating the same one.
+        $claimedBaseGwIds = [];
 
         foreach ($entries as $entry) {
             $gwId = $entry['gwId'];
@@ -205,13 +208,16 @@ class OzgKeycloakUserDataMapper
                 $gwIdParts = explode('|', $gwId);
                 $baseGwId = $gwIdParts[0];
 
-                $orgaByBaseId = $this->orgaRepository->findOneBy(['gwId' => $baseGwId]);
+                // Only look up by base gwId if no earlier entry already claimed it
+                if (!in_array($baseGwId, $claimedBaseGwIds, true)) {
+                    $orgaByBaseId = $this->orgaRepository->findOneBy(['gwId' => $baseGwId]);
 
-                if ($orgaByBaseId instanceof Orga) {
-                    // Found organization with base gwId, update it with the new full gwId and name
-                    $organisations[] = $this->updateOrganisation($orgaByBaseId, $requestedRoles, $gwId, $orgaName);
-                    $this->entityManager->flush();
-                    continue;
+                    if ($orgaByBaseId instanceof Orga) {
+                        $claimedBaseGwIds[] = $baseGwId;
+                        // Found organization with base gwId, update it with the new full gwId and name
+                        $organisations[] = $this->updateOrganisation($orgaByBaseId, $requestedRoles, $gwId, $orgaName);
+                        continue;
+                    }
                 }
 
                 // No organization found with base gwId, create new organization
