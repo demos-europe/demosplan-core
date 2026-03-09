@@ -67,7 +67,8 @@ class OrganisationSelectionController extends BaseController
         $referer = $request->headers->get('referer');
         if (null !== $referer && '' !== $referer) {
             $path = parse_url($referer, PHP_URL_PATH);
-            if (is_string($path) && 1 === preg_match('#^/[^/]#', $path)) {
+            $selectPath = $this->generateUrl('DemosPlan_user_select_organisation');
+            if (is_string($path) && 1 === preg_match('#^/[^/]#', $path) && $path !== $selectPath) {
                 $request->getSession()->set(self::SESSION_KEY_RETURN_URL, $path);
             }
         }
