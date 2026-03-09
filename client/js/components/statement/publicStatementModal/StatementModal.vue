@@ -159,7 +159,6 @@
           />
         </div>
 
-
         <fieldset
           v-if="openedFromDraftList && statementCustomFields.length > 0"
           :class="prefixClass('mb-2 pb-0')"
@@ -465,6 +464,17 @@
               />
             </div>
           </fieldset>
+
+          <div :class="prefixClass('mb-3')">
+            <component
+              :is="formDefinition.component"
+              v-for="formDefinition in statementFeedbackDefinitions"
+              :key="formDefinition.key"
+              :draft-statement-id="draftStatementId"
+              :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
+              :required="formDefinition.required"
+            />
+          </div>
         </template>
         <div
           v-if="loggedIn"
