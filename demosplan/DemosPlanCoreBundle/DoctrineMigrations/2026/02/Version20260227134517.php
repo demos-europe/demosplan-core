@@ -42,7 +42,7 @@ class Version20260227134517 extends AbstractMigration
             PRIMARY KEY (id),
             UNIQUE KEY unique_customer (customer_id),
             CONSTRAINT fk_customer_oauth_config_customer FOREIGN KEY (customer_id) REFERENCES customer (_c_id) ON DELETE CASCADE
-        ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        ) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
     }
 
     /**
