@@ -32,12 +32,11 @@ const pendingFetches = new Map()
  * but all instances share the same cache Map.
  *
  * @returns {Object} {
+ *   clearCustomFieldsDefinitions,
  *   fetchCustomFields,
  *   getCustomFieldsDefinitions,
- *   clearCustomFieldsDefinitions,
- *   updateCustomFields,
  *   isLoading,
- *   error
+ *   updateCustomFields,
  * }
  *
  * @example Fetch definitions
@@ -56,6 +55,23 @@ const pendingFetches = new Map()
  */
 export function useCustomFields () {
   const isLoading = ref(false)
+
+  /**
+   * Clear custom field definitions for a specific procedure or all procedures
+   * Useful for forcing a refresh after updates
+   * Also clears any pending fetches
+   *
+   * @param {string|null} definitionSourceId - Procedure ID to clear, or null to clear all
+   */
+  const clearCustomFieldsDefinitions = (definitionSourceId = null) => {
+    if (definitionSourceId) {
+      customFieldsDefinitions.delete(definitionSourceId)
+      pendingFetches.delete(definitionSourceId)
+    } else {
+      customFieldsDefinitions.clear()
+      pendingFetches.clear()
+    }
+  }
 
   /**
    * Fetch custom fields for a given procedure ID
@@ -142,23 +158,6 @@ export function useCustomFields () {
   }
 
   /**
-   * Clear custom field definitions for a specific procedure or all procedures
-   * Useful for forcing a refresh after updates
-   * Also clears any pending fetches
-   *
-   * @param {string|null} definitionSourceId - Procedure ID to clear, or null to clear all
-   */
-  const clearCustomFieldsDefinitions = (definitionSourceId = null) => {
-    if (definitionSourceId) {
-      customFieldsDefinitions.delete(definitionSourceId)
-      pendingFetches.delete(definitionSourceId)
-    } else {
-      customFieldsDefinitions.clear()
-      pendingFetches.clear()
-    }
-  }
-
-  /**
    * Update custom field values via JSON:API
    * Supports both single and batch updates (multiple fields in one call)
    * Returns a Promise (use .then() for handling)
@@ -208,10 +207,10 @@ export function useCustomFields () {
   }
 
   return {
+    clearCustomFieldsDefinitions,
     fetchCustomFields,
     getCustomFieldsDefinitions,
-    clearCustomFieldsDefinitions,
-    updateCustomFields,
     isLoading,
+    updateCustomFields,
   }
 }
