@@ -25,7 +25,8 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const RESOURCE_ACCESS = 'resource_access';
     private const GROUPS = 'groups';
     private readonly string $keycloakGroupRoleString;
-    private readonly string $keycloakClientId;
+    private readonly string $defaultKeycloakClientId;
+    private string $keycloakClientId;
     private const COMPANY_STREET_ADDRESS = 'UnternehmensanschriftStrasse';
     private const COMPANY_ADDRESS_EXTENSION = 'UnternehmensanschriftAdressergaenzung';
     private const COMPANY_HOUSE_NUMBER = 'UnternehmensanschriftHausnummer';
@@ -46,11 +47,19 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         private readonly RoleMapper $roleMapper,
     ) {
         $this->keycloakGroupRoleString = $parameterBag->get('keycloak_group_role_string');
-        $this->keycloakClientId = $parameterBag->get('oauth_keycloak_client_id');
+        $this->defaultKeycloakClientId = $parameterBag->get('oauth_keycloak_client_id');
+        $this->keycloakClientId = $this->defaultKeycloakClientId;
     }
 
-    public function fill(ResourceOwnerInterface $resourceOwner, ?string $customerSubdomain = null): void
-    {
+    public function fill(
+        ResourceOwnerInterface $resourceOwner,
+        ?string $customerSubdomain = null,
+        ?string $keycloakClientId = null,
+    ): void {
+        // Always reset to global default, then override if a per-customer ID is provided.
+        // This prevents stale state from a previous request in long-running processes.
+        $this->keycloakClientId = $keycloakClientId ?? $this->defaultKeycloakClientId;
+
         $userInformation = $resourceOwner->toArray();
 
         // Try to extract roles from resource_access claim first (preferred method)
