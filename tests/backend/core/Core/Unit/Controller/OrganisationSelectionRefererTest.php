@@ -16,6 +16,8 @@ use demosplan\DemosPlanCoreBundle\Controller\User\OrganisationSelectionControlle
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
+use demosplan\DemosPlanCoreBundle\Logic\ViewRenderer;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -28,8 +30,6 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use demosplan\DemosPlanCoreBundle\Logic\ViewRenderer;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
