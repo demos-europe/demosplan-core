@@ -338,10 +338,6 @@ class OzgKeycloakUserDataMapper
             $existingOrga->setGwId($gwId);
         }
 
-        if ('' !== $orgaName) {
-            $existingOrga->setName($orgaName);
-        }
-
         // Do not overwrite org name on update — FPA users can modify it via the UI.
         // Name is only set on org creation. Address fields are still synced from the token.
         if (UserInterface::ANONYMOUS_USER_ORGA_NAME !== $orgaName) {
