@@ -16,8 +16,15 @@
 ### Added
 - Add custom fields to statement modal in public detail and draft list, also display custom fields in new public participation dialog
 
+## v4.30.3 (2026-03-03)
 ## v4.30.2 (2026-02-24)
 ## v4.28.1 (2026-02-04)
+
+## v4.6.3 (2026-02-18)
+- Allow to configure procedures to accept or not anonymous statements
+- Export Original Statements as docx in the Statement List
+- Allow filtering of institution tags in DpAddOrganizationList
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
 
 ## v4.30.0 (2026-02-12)
 ### Added

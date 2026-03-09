@@ -2693,6 +2693,12 @@ class StatementService implements StatementServiceInterface
     {
         $statementObject = $this->getStatement($statement['id']);
 
+
+        if(!$statementObject instanceof Statement) {
+            $this->logger->error('Statement with id '.$statement['id'].' not found.');
+
+            return '';
+        }
         return $this->getProcedurePhaseName(
             $statement['phase'],
             $statementObject->isSubmittedByCitizen()
