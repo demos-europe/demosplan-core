@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
-use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\RoleMapper;
+use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakDataMapper\RoleMapper;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use Psr\Log\NullLogger;

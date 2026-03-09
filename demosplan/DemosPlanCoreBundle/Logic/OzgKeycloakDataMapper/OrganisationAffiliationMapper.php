@@ -8,7 +8,7 @@
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper;
+namespace demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakDataMapper;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;

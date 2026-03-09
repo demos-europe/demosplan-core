@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
-use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\RoleMapper;
+use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakDataMapper\RoleMapper;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use Psr\Log\LoggerInterface;
 use Stringable;
