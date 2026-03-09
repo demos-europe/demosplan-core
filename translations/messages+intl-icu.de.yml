@@ -849,6 +849,7 @@ custom.fields.edit.info: "Hier können Sie die konfigurierbaren Felder für dies
 custom.fields.edit.info.entities: "Hier können Sie die konfigurierbaren Felder anpassen, die an {entities} verfügbar sind."
 custom.fields.submitter.info: "Weitere Angaben der einreichenden Person oder Institution"
 custom.fields.edit.warning.multiSelect: "Nachdem die erste Stellungnahme eingegangen ist, dürfen an den konfigurierbaren Feldern keine Änderungen mehr vorgenommen werden."
+custom.fields.error.loading: "Ein oder mehrere konfigurierbare Felder konnten nicht geladen werden."
 custom.field.edit.message.warning: "Ihre Änderung wird automatisch überall übernommen, wo dieses Feld verwendet wird."
 custom.field.delete.message.warning: "Das Feld wird automatisch überall gelöscht, wo es verwendet wird."
 custom.field.type.multiSelect: "Mehrfachauswahl"

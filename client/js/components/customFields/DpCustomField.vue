@@ -13,12 +13,6 @@ All rights reserved
       v-if="isLoading"
       :overlay="false"
     />
-    <dp-inline-notification
-      v-else-if="error"
-      :message="Translator.trans('error.loading.custom.field')"
-      type="error"
-    />
-
     <!-- Toggle Mode: Readonly with Edit Button -->
     <div v-else-if="enableToggle && !isEditing">
       <div :class="prefixClass('flex items-start gap-1')">
@@ -107,7 +101,7 @@ All rights reserved
 </template>
 
 <script>
-import { DpButton, DpInlineNotification, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpButton, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import DpMultiselectCustomField from './DpMultiselectCustomField'
 import DpSingleselectCustomField from './DpSingleselectCustomField'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
@@ -117,7 +111,6 @@ export default {
 
   components: {
     DpButton,
-    DpInlineNotification,
     DpLoading,
     DpMultiselectCustomField,
     DpSingleselectCustomField,
@@ -196,7 +189,6 @@ export default {
       },
       resolvedDefinition: null,
       editingValue: null,
-      error: null,
       isEditing: false,
       isLoading: false,
       isSaving: false,
@@ -298,7 +290,6 @@ export default {
       const { fetchCustomFields } = useCustomFields()
 
       this.isLoading = true
-      this.error = null
 
       fetchCustomFields(this.definitionSourceId)
         .then(definitions => {
@@ -310,9 +301,7 @@ export default {
 
           this.isLoading = false
         })
-        .catch(err => {
-          console.error('Failed to fetch custom field definition:', err)
-          this.error = err
+        .catch(() => {
           this.isLoading = false
         })
     },

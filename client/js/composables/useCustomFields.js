@@ -56,7 +56,6 @@ const pendingFetches = new Map()
  */
 export function useCustomFields () {
   const isLoading = ref(false)
-  const error = ref(null)
 
   /**
    * Fetch custom fields for a given procedure ID
@@ -117,13 +116,12 @@ export function useCustomFields () {
         return customFields
       })
       .catch(err => {
-        error.value = err
         isLoading.value = false
 
         // Remove from pending fetches on error to allow retry
         pendingFetches.delete(definitionSourceId)
 
-        console.error('Failed to fetch custom fields:', err)
+        dplan.notify.notify('error', Translator.trans('custom.fields.error.loading'))
         throw err
       })
 
@@ -216,6 +214,5 @@ export function useCustomFields () {
     clearCustomFieldsDefinitions,
     updateCustomFields,
     isLoading,
-    error,
   }
 }
