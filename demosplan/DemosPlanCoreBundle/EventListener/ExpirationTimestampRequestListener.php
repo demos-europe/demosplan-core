@@ -87,18 +87,25 @@ class ExpirationTimestampRequestListener
             return;
         }
 
-        if ($this->shallReturnDueToPermissions()) {
+        if ($this->shallReturnDueToUserConfig()) {
             return;
         }
 
-        if ($this->hasValidTokens($event)) {
+        // User and IdP checks are guaranteed by shallReturnDueToUserConfig — safe to load token here.
+        // The provider caches its result, so this get() costs no additional DB query.
+        $user = $this->userFromSecurityUserProvider->get();
+        $oauthToken = $this->oauthTokenRepository->findByUserId($user->getId());
+
+        // null token means no stored credentials — treat as expired and force re-authentication.
+        // hasValidTokens is only called when a token exists and takes a non-nullable OAuthToken.
+        if (null !== $oauthToken && $this->hasValidTokens($event, $oauthToken)) {
             return;
         }
 
-        $this->handleExpiredTokens($event);
+        $this->handleExpiredTokens($event, $oauthToken);
     }
 
-    private function shallReturnDueToPermissions(): bool
+    private function shallReturnDueToUserConfig(): bool
     {
         // TODO: TECHNICAL DEBT - The hasLogoutWarningPermission() check is problematic and needs investigation.
         // The permission 'feature_auto_logout_warning' is described as "Remind the user of the upcoming automatic log out"
@@ -110,18 +117,22 @@ class ExpirationTimestampRequestListener
             return true;
         }
 
-        return false;
+        // Load the application User entity (one DB query, result cached on the provider).
+        // Null means the security user has no matching User in the database (e.g. edge cases).
+        // Non-IdP users (form-login) are also skipped — token management only applies to KeyCloak users.
+        $user = $this->userFromSecurityUserProvider->get();
+
+        return null === $user || !$user->isProvidedByIdentityProvider();
     }
 
     /**
      * Cheap early-return checks that run on every single request with zero DB queries.
      *
      * Checks (in order of cost, cheapest first):
-     * - Permission gate (feature flag for OAuth token management)
+     * - Session not started
      * - KeyCloak not configured in production
      * - Not a main request (sub-requests skip)
-     * - Session not started
-     * - User is not an authenticated SecurityUser (filters out InMemoryUser, anonymous, etc.)
+     * - User is a non-human (FunctionalUser — AnonymousUser, AiApiUser, etc.)
      * - Session threshold not yet reached (tokens were recently validated)
      */
     private function shallReturnEarlyAndCheap(ControllerEvent $event): bool
@@ -157,36 +168,22 @@ class ExpirationTimestampRequestListener
      * Returns true if access token is valid or was successfully refreshed.
      * Returns false if both tokens are expired or refresh failed.
      */
-    private function hasValidTokens(ControllerEvent $event): bool
+    private function hasValidTokens(ControllerEvent $event, OAuthToken $oauthToken): bool
     {
         $session = $event->getRequest()->getSession();
-        $user = $this->userFromSecurityUserProvider->get();
-
-        if (null === $user) {
-            return true;
-        }
-
-        // Only users authenticated via an identity provider (Keycloak) have OAuth tokens.
-        // Form-login users never have an OAuthToken row — skipping avoids a false-expiry
-        // redirect loop for those users.
-        if (!$user->isProvidedByIdentityProvider()) {
-            return true;
-        }
 
         $this->logger->debug('Token check threshold reached - performing validation', [
-            'user_id'      => $user->getId(),
+            'user_id'      => $oauthToken->getUser()->getId(),
             'current_time' => date('Y-m-d H:i:s', time()),
         ]);
 
-        $oauthToken = $this->oauthTokenRepository->findByUserId($user->getId());
-
         if (!$this->tokenExpirationService->isAccessTokenExpired($oauthToken)) {
-            $this->ozgKeycloakSessionManager->syncSession($session, $user->getId(), $oauthToken?->getAccessTokenExpiresAt());
+            $this->ozgKeycloakSessionManager->syncSession($session, $oauthToken->getUser()->getId(), $oauthToken->getAccessTokenExpiresAt());
 
             return true;
         }
 
-        return $this->tryRefreshToken($user->getId(), $oauthToken);
+        return $this->tryRefreshToken($oauthToken);
     }
 
     /**
@@ -194,8 +191,10 @@ class ExpirationTimestampRequestListener
      *
      * Returns true if refresh was successful, false if refresh token is also expired or refresh failed.
      */
-    private function tryRefreshToken(string $userId, ?OAuthToken $oauthToken): bool
+    private function tryRefreshToken(OAuthToken $oauthToken): bool
     {
+        $userId = $oauthToken->getUser()->getId();
+
         $this->logger->info('Access token expired - checking refresh token', ['user_id' => $userId]);
 
         if ($this->tokenExpirationService->isRefreshTokenExpired($oauthToken)) {
@@ -220,17 +219,13 @@ class ExpirationTimestampRequestListener
     /**
      * Store id_token in session, buffer the current request, and redirect to logout.
      *
-     * The user entity is resolved from the cached UserFromSecurityUserProvider (no extra DB query).
-     * The OAuthToken is fetched for the id_token and request buffering.
+     * Accepts a nullable OAuthToken — when null (no stored credentials found), buffering
+     * and id_token storage are skipped but the API vs redirect decision is still enforced.
      */
-    private function handleExpiredTokens(ControllerEvent $event): void
+    private function handleExpiredTokens(ControllerEvent $event, ?OAuthToken $oauthToken): void
     {
         $request = $event->getRequest();
         $session = $request->getSession();
-        $user = $this->userFromSecurityUserProvider->get();
-        $oauthToken = null !== $user
-            ? $this->oauthTokenRepository->findByUserId($user->getId())
-            : null;
 
         if (null !== $oauthToken) {
             try {
@@ -262,14 +257,8 @@ class ExpirationTimestampRequestListener
                 $this->logger->error('Failed to store pending page URL for redirect-back', ['error' => $e->getMessage()]);
             }
         }
-        $callable = $event->getController();
-        $controller = null;
-        if (is_array($callable) && is_object($callable[0])) {
-            $controller = $callable[0];
-        }
-        if (is_object($callable)) {
-            $controller = $callable;
-        }
+
+        $controller = $this->resolveController($event);
         if ($controller instanceof APIController) {
             $response = $controller->handleApiError(new AccessDeniedException('Token expired'));
             $event->setController(fn () => $response);
@@ -278,6 +267,16 @@ class ExpirationTimestampRequestListener
         }
 
         $this->redirectToLogout($event);
+    }
+
+    private function resolveController(ControllerEvent $event): ?object
+    {
+        $callable = $event->getController();
+        $target = is_array($callable) ?
+            $callable[0] ?? null
+            : $callable;
+
+        return is_object($target) ? $target : null;
     }
 
     /**
