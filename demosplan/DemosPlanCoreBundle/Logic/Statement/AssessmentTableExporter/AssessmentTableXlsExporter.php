@@ -318,7 +318,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $columnsDefinition = [
             $this->createColumnDefinition('externId', 'id'),
             $this->createColumnDefinition('uName', 'name'),
-           // $this->createColumnDefinition('topicNames', 'topic', 30),
+            // $this->createColumnDefinition('topicNames', 'topic', 30),
             $this->createColumnDefinition('tagNames', 'tag', 40),
         ];
 
@@ -371,7 +371,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $this->addColumnDefinition($columnsDefinition, 'countyNames', 'field_statement_county', 'county');
 
         $this->addColumnDefinition($columnsDefinition, 'tagNames', 'field_statement_tags_and_topics_export', 'tag');
-        //$this->addColumnDefinition($columnsDefinition, 'topicNames', 'field_statement_tags_and_topics_export', 'tag.category');
+        // $this->addColumnDefinition($columnsDefinition, 'topicNames', 'field_statement_tags_and_topics_export', 'tag.category');
 
         if ($isStatement) {
             $columnsDefinition[] = $this->createColumnDefinition('elementTitle', 'document.category');
@@ -511,15 +511,13 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         // collect Statements in unified data format
         foreach ($statements as $statement) {
             $pushed = false;
-            if (isset($statement['tags'], $statement['tagNames']))
-            {
+            if (isset($statement['tags'], $statement['tagNames'])) {
                 $tagToTopic = [];
-                foreach ($statement['tags'] as $tag)
-                {
+                foreach ($statement['tags'] as $tag) {
                     $tagToTopic[$tag['title']] = $tag['topicTitle'] ?? '';
                 }
                 $statement['tagNames'] = array_map(
-                    static fn($tagName) => $tagToTopic[$tagName] !== ''
+                    static fn ($tagName) => '' !== $tagToTopic[$tagName]
                         ? $tagName.' [Thema:'.$tagToTopic[$tagName].']'
                         : $tagName,
                     $statement['tagNames']
