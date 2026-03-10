@@ -17,8 +17,6 @@ All rights reserved
       <dp-contextual-help
         v-if="field.attributes.description"
         :text="field.attributes.description"
-        icon="info"
-        size="medium"
       />
     </dt>
     <dd :class="prefixClass('ml-1')">
@@ -42,21 +40,13 @@ All rights reserved
     v-else
     :class="prefixClass('mb-3')"
   >
-    <div :class="prefixClass('flex items-start gap-1')">
-      <dp-label
-        :text="field.attributes.name"
-        :required="field.attributes.isRequired"
-        :for="`custom-field-${field.id}`"
-        :class="prefixClass('mb-2')"
-      />
-      <dp-contextual-help
-        v-if="field.attributes.description"
-        :text="field.attributes.description"
-        icon="info"
-        size="medium"
-        :class="prefixClass('mb-2')"
-      />
-    </div>
+    <dp-label
+      :class="prefixClass('mb-2')"
+      :for="`custom-field-${field.id}`"
+      :required="field.attributes.isRequired"
+      :text="field.attributes.name"
+      :tooltip="field.attributes.description || ''"
+    />
     <dp-select
       :id="`custom-field-${field.id}`"
       :data-dp-validate-error-fieldname="field.attributes.name"
