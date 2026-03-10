@@ -31,7 +31,7 @@ class Version20260123163000 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE import_job ADD organisation_id CHAR(36) DEFAULT NULL');
+        $this->addSql('ALTER TABLE import_job ADD organisation_id CHAR(36) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL');
         $this->addSql('ALTER TABLE import_job ADD CONSTRAINT FK_BD9DCADC9E6B1585 FOREIGN KEY (organisation_id) REFERENCES _orga (_o_id) ON DELETE SET NULL');
         $this->addSql('CREATE INDEX IDX_BD9DCADC9E6B1585 ON import_job (organisation_id)');
     }
