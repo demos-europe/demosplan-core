@@ -38,13 +38,15 @@ class OAuthToken implements EntityInterface
     private const TIMEZONE = 'Europe/Berlin';
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
      * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
+     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
-    private ?int $id = null;
+    private ?string $id = null;
 
     /**
      * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
@@ -151,7 +153,7 @@ class OAuthToken implements EntityInterface
 
     // ===== GETTERS & SETTERS =====
 
-    public function getId(): ?int
+    public function getId(): ?string
     {
         return $this->id;
     }
