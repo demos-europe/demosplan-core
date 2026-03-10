@@ -32,6 +32,9 @@ class MainScheduler implements ScheduleProviderInterface
 {
     private const MAINTENANCE_OFFSET = '5 seconds';
 
+    // OAuth token cleanup purges entries older than 60 minutes — no need to run more frequently.
+    private const OAUTH_CLEANUP_OFFSET = '1 hour';
+
     public function __construct(private readonly LockFactory $lockFactory)
     {
     }
@@ -47,7 +50,7 @@ class MainScheduler implements ScheduleProviderInterface
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new SwitchElementStatesMessage()))
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new SwitchProcedurePhasesMessage()))
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new ProcessImportJobsMessage()))
-            ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new PurgeExpiredOAuthTokensMessage()))
+            ->add(RecurringMessage::every(self::OAUTH_CLEANUP_OFFSET, new PurgeExpiredOAuthTokensMessage()))
             ->lock($this->lockFactory->createLock('demosplan_main_scheduler_lock'))
         ;
     }
