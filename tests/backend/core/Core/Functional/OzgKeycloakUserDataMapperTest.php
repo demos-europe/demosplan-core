@@ -1088,7 +1088,6 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         );
     }
 
-
     /**
      * Test automigration: org with base gwId gets BOTH gwId and name updated
      * when user first logs in with piped format (gwId|Fachbezug).
