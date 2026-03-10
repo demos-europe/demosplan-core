@@ -435,9 +435,9 @@ export default {
       busy: false,
       hasRecommendationTabs: false,
       isLoading: true,
-      segmentDataLoaded: false,
       places: [],
       returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedureId }),
+      segmentDataLoaded: false,
       segments: [],
       step: 1,
     }

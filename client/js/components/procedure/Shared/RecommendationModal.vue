@@ -75,12 +75,12 @@ export default {
       type: String,
       required: true,
     },
-    segmentId: {
-      type: String,
-      required: true,
-    },
     segmentDataLoaded: {
       type: Boolean,
+      required: true,
+    },
+    segmentId: {
+      type: String,
       required: true,
     },
   },
@@ -97,13 +97,13 @@ export default {
     }
   },
   methods: {
-    handleTabChange (id) {
-      this.activeId = id
-    },
-
     closeRecommendationModalAfterInsert (recommendation) {
       this.$emit('recommendation:insert', recommendation)
       this.toggle()
+    },
+
+    handleTabChange (id) {
+      this.activeId = id
     },
 
     toggle () {
