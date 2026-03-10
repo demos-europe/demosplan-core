@@ -296,30 +296,29 @@ export default {
     },
 
     /*
-     * Create field-data objects by matching definitions with values.
-     * The matching with the definition is important to also show empty custom fields in edit or toggle mode.
+     * Match definitions with values and filter based on showEmpty prop.
+     * Definitions without a matching value are included with value: null
+     * to also show empty custom fields in edit or toggle mode.
      */
-    fieldDataObjects () {
-      return this.definitions.map(def => {
+    fieldsToRender () {
+      const allFields = this.definitions.map(def => {
         const valueObj = this.values.find(v => v.id === def.id)
         return {
           id: def.id,
           value: valueObj?.value ?? null,
         }
       })
-    },
 
-    fieldsToRender () {
       if (this.showEmpty) {
-        return this.fieldDataObjects
-      } else {
-        return this.fieldDataObjects.filter(field =>
-          field.value !== null &&
-          field.value !== undefined &&
-          field.value !== '' &&
-          !(Array.isArray(field.value) && field.value.length === 0),
-        )
+        return allFields
       }
+
+      return allFields.filter(field =>
+        field.value !== null &&
+        field.value !== undefined &&
+        field.value !== '' &&
+        !(Array.isArray(field.value) && field.value.length === 0),
+      )
     },
 
     hasFieldsToRender () {
