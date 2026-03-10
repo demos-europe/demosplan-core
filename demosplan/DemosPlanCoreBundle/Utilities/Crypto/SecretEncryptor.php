@@ -20,15 +20,18 @@ use SodiumException;
  * crypto_secretbox (XSalsa20-Poly1305).
  *
  * The 32-byte key is expected as a base64-encoded environment variable.
+ * When no key is configured, encrypt/decrypt will throw on use.
  */
 class SecretEncryptor
 {
-    private readonly string $key;
+    private readonly ?string $key;
 
     public function __construct(string $oauthSecretEncryptionKey)
     {
         if ('' === $oauthSecretEncryptionKey) {
-            throw new CryptoException('OAUTH_SECRET_ENCRYPTION_KEY must not be empty. Generate one with: php -r "echo base64_encode(sodium_crypto_secretbox_keygen());"');
+            $this->key = null;
+
+            return;
         }
 
         $decoded = base64_decode($oauthSecretEncryptionKey, true);
@@ -42,12 +45,13 @@ class SecretEncryptor
     /**
      * Encrypts a plaintext string and returns a base64-encoded nonce+ciphertext.
      *
+     * @throws CryptoException if no encryption key is configured
      * @throws SodiumException
      */
     public function encrypt(string $plaintext): string
     {
         $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-        $ciphertext = sodium_crypto_secretbox($plaintext, $nonce, $this->key);
+        $ciphertext = sodium_crypto_secretbox($plaintext, $nonce, $this->getKey());
 
         return base64_encode($nonce.$ciphertext);
     }
@@ -59,6 +63,8 @@ class SecretEncryptor
      */
     public function decrypt(string $encoded): string
     {
+        $key = $this->getKey();
+
         $decoded = base64_decode($encoded, true);
         if (false === $decoded) {
             throw new CryptoException('Failed to base64-decode encrypted value.');
@@ -73,7 +79,7 @@ class SecretEncryptor
         $ciphertext = substr($decoded, $nonceLength);
 
         try {
-            $plaintext = sodium_crypto_secretbox_open($ciphertext, $nonce, $this->key);
+            $plaintext = sodium_crypto_secretbox_open($ciphertext, $nonce, $key);
         } catch (SodiumException $e) {
             throw new CryptoException('Decryption failed: '.$e->getMessage(), 0, $e);
         }
@@ -83,5 +89,14 @@ class SecretEncryptor
         }
 
         return $plaintext;
+    }
+
+    private function getKey(): string
+    {
+        if (null === $this->key) {
+            throw new CryptoException('OAUTH_SECRET_ENCRYPTION_KEY is not configured. Generate one with: php -r "echo base64_encode(sodium_crypto_secretbox_keygen());"');
+        }
+
+        return $this->key;
     }
 }

@@ -57,12 +57,22 @@ class SecretEncryptorTest extends TestCase
         $otherEncryptor->decrypt($encrypted);
     }
 
-    public function testConstructorRejectsEmptyKey(): void
+    public function testEncryptThrowsWithoutKey(): void
     {
-        $this->expectException(CryptoException::class);
-        $this->expectExceptionMessage('must not be empty');
         $encryptor = new SecretEncryptor('');
-        self::assertNotNull($encryptor);
+
+        $this->expectException(CryptoException::class);
+        $this->expectExceptionMessage('not configured');
+        $encryptor->encrypt('secret');
+    }
+
+    public function testDecryptThrowsWithoutKey(): void
+    {
+        $encryptor = new SecretEncryptor('');
+
+        $this->expectException(CryptoException::class);
+        $this->expectExceptionMessage('not configured');
+        $encryptor->decrypt('anything');
     }
 
     public function testConstructorRejectsInvalidBase64(): void
