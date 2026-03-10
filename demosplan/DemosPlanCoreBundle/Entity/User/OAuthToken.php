@@ -16,6 +16,7 @@ use DateTime;
 use DateTimeZone;
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -136,20 +137,17 @@ class OAuthToken implements EntityInterface
 
     /**
      * @ORM\Column(name="created_at", type="datetime", nullable=false)
+     *
+     * @Gedmo\Timestampable(on="create")
      */
-    private DateTime $createdAt;
+    private ?DateTime $createdAt = null;
 
     /**
      * @ORM\Column(name="updated_at", type="datetime", nullable=false)
+     *
+     * @Gedmo\Timestampable(on="update")
      */
-    private DateTime $updatedAt;
-
-    public function __construct()
-    {
-        $timezone = new DateTimeZone(self::TIMEZONE);
-        $this->createdAt = new DateTime('now', $timezone);
-        $this->updatedAt = new DateTime('now', $timezone);
-    }
+    private ?DateTime $updatedAt = null;
 
     // ===== GETTERS & SETTERS =====
 
@@ -176,7 +174,6 @@ class OAuthToken implements EntityInterface
     public function setAccessToken(?string $accessToken): void
     {
         $this->accessToken = $accessToken;
-        $this->updateTimestamp();
     }
 
     public function getRefreshToken(): ?string
@@ -187,7 +184,6 @@ class OAuthToken implements EntityInterface
     public function setRefreshToken(?string $refreshToken): void
     {
         $this->refreshToken = $refreshToken;
-        $this->updateTimestamp();
     }
 
     public function getIdToken(): ?string
@@ -198,7 +194,6 @@ class OAuthToken implements EntityInterface
     public function setIdToken(?string $idToken): void
     {
         $this->idToken = $idToken;
-        $this->updateTimestamp();
     }
 
     public function getAccessTokenExpiresAt(): ?DateTime
@@ -209,7 +204,6 @@ class OAuthToken implements EntityInterface
     public function setAccessTokenExpiresAt(?DateTime $accessTokenExpiresAt): void
     {
         $this->accessTokenExpiresAt = $accessTokenExpiresAt;
-        $this->updateTimestamp();
     }
 
     public function getRefreshTokenExpiresAt(): ?DateTime
@@ -220,7 +214,6 @@ class OAuthToken implements EntityInterface
     public function setRefreshTokenExpiresAt(?DateTime $refreshTokenExpiresAt): void
     {
         $this->refreshTokenExpiresAt = $refreshTokenExpiresAt;
-        $this->updateTimestamp();
     }
 
     public function getPendingPageUrl(): ?string
@@ -231,7 +224,6 @@ class OAuthToken implements EntityInterface
     public function setPendingPageUrl(?string $pendingPageUrl): void
     {
         $this->pendingPageUrl = $pendingPageUrl;
-        $this->updateTimestamp();
     }
 
     public function getPendingRequestUrl(): ?string
@@ -242,7 +234,6 @@ class OAuthToken implements EntityInterface
     public function setPendingRequestUrl(?string $pendingRequestUrl): void
     {
         $this->pendingRequestUrl = $pendingRequestUrl;
-        $this->updateTimestamp();
     }
 
     public function getPendingRequestMethod(): ?string
@@ -253,7 +244,6 @@ class OAuthToken implements EntityInterface
     public function setPendingRequestMethod(?string $pendingRequestMethod): void
     {
         $this->pendingRequestMethod = $pendingRequestMethod;
-        $this->updateTimestamp();
     }
 
     public function getPendingRequestBody(): ?string
@@ -264,7 +254,6 @@ class OAuthToken implements EntityInterface
     public function setPendingRequestBody(?string $pendingRequestBody): void
     {
         $this->pendingRequestBody = $pendingRequestBody;
-        $this->updateTimestamp();
     }
 
     public function getPendingRequestContentType(): ?string
@@ -275,7 +264,6 @@ class OAuthToken implements EntityInterface
     public function setPendingRequestContentType(?string $pendingRequestContentType): void
     {
         $this->pendingRequestContentType = $pendingRequestContentType;
-        $this->updateTimestamp();
     }
 
     public function hasPendingRequestFiles(): bool
@@ -286,7 +274,6 @@ class OAuthToken implements EntityInterface
     public function setPendingRequestHasFiles(bool $pendingRequestHasFiles): void
     {
         $this->pendingRequestHasFiles = $pendingRequestHasFiles;
-        $this->updateTimestamp();
     }
 
     public function getPendingRequestFilesMetadata(): ?array
@@ -297,7 +284,6 @@ class OAuthToken implements EntityInterface
     public function setPendingRequestFilesMetadata(?array $pendingRequestFilesMetadata): void
     {
         $this->pendingRequestFilesMetadata = $pendingRequestFilesMetadata;
-        $this->updateTimestamp();
     }
 
     public function getPendingRequestTimestamp(): ?DateTime
@@ -308,7 +294,6 @@ class OAuthToken implements EntityInterface
     public function setPendingRequestTimestamp(?DateTime $pendingRequestTimestamp): void
     {
         $this->pendingRequestTimestamp = $pendingRequestTimestamp;
-        $this->updateTimestamp();
     }
 
     public function getProvider(): string
@@ -319,15 +304,14 @@ class OAuthToken implements EntityInterface
     public function setProvider(string $provider): void
     {
         $this->provider = $provider;
-        $this->updateTimestamp();
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): ?DateTime
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): DateTime
+    public function getUpdatedAt(): ?DateTime
     {
         return $this->updatedAt;
     }
@@ -374,7 +358,6 @@ class OAuthToken implements EntityInterface
         $this->pendingRequestHasFiles = false;
         $this->pendingRequestFilesMetadata = null;
         $this->pendingRequestTimestamp = null;
-        $this->updateTimestamp();
     }
 
     /**
@@ -403,12 +386,6 @@ class OAuthToken implements EntityInterface
         $this->idToken = null;
         $this->accessTokenExpiresAt = null;
         $this->refreshTokenExpiresAt = null;
-        $this->updateTimestamp();
     }
 
-    private function updateTimestamp(): void
-    {
-        $timezone = new DateTimeZone(self::TIMEZONE);
-        $this->updatedAt = new DateTime('now', $timezone);
-    }
 }
