@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Doctrine\Type;
 
+use demosplan\DemosPlanCoreBundle\Exception\CryptoException;
 use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\StringType;
-use RuntimeException;
 
 /**
  * Doctrine DBAL type that transparently encrypts values before storing
@@ -54,7 +54,7 @@ class EncryptedStringType extends StringType
 
         try {
             return self::getEncryptor()->decrypt((string) $value);
-        } catch (RuntimeException) {
+        } catch (CryptoException) {
             // Legacy plaintext value not yet encrypted — return as-is.
             // It will be encrypted on next persist/flush.
             return (string) $value;
@@ -69,7 +69,7 @@ class EncryptedStringType extends StringType
     private static function getEncryptor(): SecretEncryptor
     {
         if (null === self::$encryptor) {
-            throw new RuntimeException('EncryptedStringType requires a SecretEncryptor. Ensure the EncryptedStringTypeInitializer listener is registered.');
+            throw new CryptoException('EncryptedStringType requires a SecretEncryptor. Ensure the EncryptedStringTypeInitializer listener is registered.');
         }
 
         return self::$encryptor;

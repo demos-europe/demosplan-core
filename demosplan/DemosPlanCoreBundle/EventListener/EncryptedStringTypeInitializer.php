@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use demosplan\DemosPlanCoreBundle\Doctrine\Type\EncryptedStringType;
 use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
-use Doctrine\DBAL\Event\ConnectionEventArgs;
 
 /**
  * Injects the SecretEncryptor into the EncryptedStringType DBAL type
@@ -29,7 +28,7 @@ class EncryptedStringTypeInitializer
     {
     }
 
-    public function postConnect(ConnectionEventArgs $args): void
+    public function postConnect(): void
     {
         EncryptedStringType::setEncryptor($this->encryptor);
     }

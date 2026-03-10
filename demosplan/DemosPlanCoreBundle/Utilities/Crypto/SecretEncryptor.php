@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utilities\Crypto;
 
-use RuntimeException;
+use demosplan\DemosPlanCoreBundle\Exception\CryptoException;
 use SodiumException;
 
 /**
@@ -28,12 +28,12 @@ class SecretEncryptor
     public function __construct(string $oauthSecretEncryptionKey)
     {
         if ('' === $oauthSecretEncryptionKey) {
-            throw new RuntimeException('OAUTH_SECRET_ENCRYPTION_KEY must not be empty. Generate one with: php -r "echo base64_encode(sodium_crypto_secretbox_keygen());"');
+            throw new CryptoException('OAUTH_SECRET_ENCRYPTION_KEY must not be empty. Generate one with: php -r "echo base64_encode(sodium_crypto_secretbox_keygen());"');
         }
 
         $decoded = base64_decode($oauthSecretEncryptionKey, true);
         if (false === $decoded || SODIUM_CRYPTO_SECRETBOX_KEYBYTES !== strlen($decoded)) {
-            throw new RuntimeException(sprintf('OAUTH_SECRET_ENCRYPTION_KEY must be a base64-encoded %d-byte key.', SODIUM_CRYPTO_SECRETBOX_KEYBYTES));
+            throw new CryptoException(sprintf('OAUTH_SECRET_ENCRYPTION_KEY must be a base64-encoded %d-byte key.', SODIUM_CRYPTO_SECRETBOX_KEYBYTES));
         }
 
         $this->key = $decoded;
@@ -55,18 +55,18 @@ class SecretEncryptor
     /**
      * Decrypts a base64-encoded nonce+ciphertext back to plaintext.
      *
-     * @throws RuntimeException if decryption fails (wrong key or tampered data)
+     * @throws CryptoException if decryption fails (wrong key or tampered data)
      */
     public function decrypt(string $encoded): string
     {
         $decoded = base64_decode($encoded, true);
         if (false === $decoded) {
-            throw new RuntimeException('Failed to base64-decode encrypted value.');
+            throw new CryptoException('Failed to base64-decode encrypted value.');
         }
 
         $nonceLength = SODIUM_CRYPTO_SECRETBOX_NONCEBYTES;
         if (strlen($decoded) < $nonceLength) {
-            throw new RuntimeException('Encrypted value is too short to contain a valid nonce.');
+            throw new CryptoException('Encrypted value is too short to contain a valid nonce.');
         }
 
         $nonce = substr($decoded, 0, $nonceLength);
@@ -75,11 +75,11 @@ class SecretEncryptor
         try {
             $plaintext = sodium_crypto_secretbox_open($ciphertext, $nonce, $this->key);
         } catch (SodiumException $e) {
-            throw new RuntimeException('Decryption failed: '.$e->getMessage(), 0, $e);
+            throw new CryptoException('Decryption failed: '.$e->getMessage(), 0, $e);
         }
 
         if (false === $plaintext) {
-            throw new RuntimeException('Decryption failed: wrong key or corrupted data.');
+            throw new CryptoException('Decryption failed: wrong key or corrupted data.');
         }
 
         return $plaintext;

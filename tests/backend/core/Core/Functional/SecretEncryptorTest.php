@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
+use demosplan\DemosPlanCoreBundle\Exception\CryptoException;
 use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 class SecretEncryptorTest extends TestCase
 {
@@ -53,29 +53,32 @@ class SecretEncryptorTest extends TestCase
         $otherKey = base64_encode(sodium_crypto_secretbox_keygen());
         $otherEncryptor = new SecretEncryptor($otherKey);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(CryptoException::class);
         $otherEncryptor->decrypt($encrypted);
     }
 
     public function testConstructorRejectsEmptyKey(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(CryptoException::class);
         $this->expectExceptionMessage('must not be empty');
-        new SecretEncryptor('');
+        $encryptor = new SecretEncryptor('');
+        self::assertNotNull($encryptor);
     }
 
     public function testConstructorRejectsInvalidBase64(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(CryptoException::class);
         $this->expectExceptionMessage('base64-encoded');
-        new SecretEncryptor('not-valid-base64!!!');
+        $encryptor = new SecretEncryptor('not-valid-base64!!!');
+        self::assertNotNull($encryptor);
     }
 
     public function testConstructorRejectsWrongKeyLength(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(CryptoException::class);
         $this->expectExceptionMessage('base64-encoded');
-        new SecretEncryptor(base64_encode('too-short'));
+        $encryptor = new SecretEncryptor(base64_encode('too-short'));
+        self::assertNotNull($encryptor);
     }
 
     public function testDecryptRejectsTamperedData(): void
@@ -84,7 +87,7 @@ class SecretEncryptorTest extends TestCase
         // Flip a character in the middle of the base64 string
         $tampered = substr($encrypted, 0, 10).'X'.substr($encrypted, 11);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(CryptoException::class);
         $this->sut->decrypt($tampered);
     }
 }
