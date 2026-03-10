@@ -137,6 +137,8 @@ class CustomerContactResourceType extends DplanResourceType
 
                     $this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent($this, $contact));
 
+                    // Without 'id' the server returns 204 No Content, which prevents the frontend
+                    // from updating the list without a page reload.
                     return new ModifiedEntity($contact, ['id']);
                 }
             );
