@@ -305,18 +305,10 @@ export default {
     },
 
     /**
-     * Save custom field value via JSON:API
-     * Can be called by parent (e.g., form submit) or internally (toggle mode save)
-     * Returns a Promise for async handling
-     *
-     * If resourceType/resourceId not provided, returns resolved promise (backward compatibility)
+     * Save custom field value via JSON:API (called internally by saveEdit)
+     * If resourceType/resourceId not provided, returns resolved promise
      *
      * @returns {Promise} Promise resolving on successful save
-     *
-     * @example Called by parent
-     * this.$refs.customFieldRef.saveCustomField()
-     *   .then(() => console.log('Saved'))
-     *   .catch(err => console.error(err))
      */
     saveCustomField () {
       if (!this.resourceType || !this.resourceId) {
