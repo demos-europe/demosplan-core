@@ -52,7 +52,7 @@ class CustomerOAuthConfig extends CoreEntity implements UuidEntityInterface
     private string $keycloakClientId;
 
     /**
-     * @ORM\Column(name="keycloak_client_secret", type="string", length=255, nullable=false)
+     * @ORM\Column(name="keycloak_client_secret", type="dplan.encrypted_string", length=512, nullable=false)
      */
     private string $keycloakClientSecret;
 
