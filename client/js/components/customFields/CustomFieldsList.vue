@@ -82,9 +82,9 @@ All rights reserved
         </legend>
         <dp-contextual-help
           v-if="titleInfoText"
-          :text="titleInfoText"
           icon="info"
           size="medium"
+          :text="titleInfoText"
         />
         <slot
           :enable-toggle="enableToggle"
@@ -139,9 +139,9 @@ All rights reserved
           </component>
           <dp-contextual-help
             v-if="titleInfoText"
-            :text="titleInfoText"
             icon="info"
             size="medium"
+            :text="titleInfoText"
           />
         </div>
         <slot
@@ -189,7 +189,7 @@ All rights reserved
 </template>
 
 <script>
-import { dpApi, DpContextualHelp, DpDetails, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, DpDetails, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import CustomField from './CustomField'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
@@ -353,24 +353,18 @@ export default {
       this.isLoading = true
       this.error = null
 
-      // 1. Fetch definitions (gets array of field definitions with IDs)
-      const { fetchCustomFields } = useCustomFields()
+      const { fetchCustomFields, fetchCustomFieldValues } = useCustomFields()
 
+      // 1. Fetch definitions (gets array of field definitions with IDs)
       fetchCustomFields(this.definitionSourceId)
         .then(defs => {
           this.definitions = defs
 
           // 2. Fetch values (gets array of { id, value } for this entity)
-          const baseUrl = Routing.generate('api_resource_get', {
-            resourceType: this.resourceType,
-            resourceId: this.resourceId,
-          })
-          const url = `${baseUrl}?fields[${this.resourceType}]=customFields`
-
-          return dpApi.get(url)
+          return fetchCustomFieldValues(this.resourceType, this.resourceId)
         })
-        .then(response => {
-          this.values = response.data.data.attributes.customFields || []
+        .then(values => {
+          this.values = values
           this.$emit('loaded', this.values)
         })
         .catch(err => {
@@ -401,8 +395,6 @@ export default {
 
     handleSaveSuccess (payload) {
       this.$emit('save:success', payload)
-      // Refetch data after save
-      this.fetchCustomFieldsData()
     },
 
     handleValueUpdate (fieldId, newValue) {

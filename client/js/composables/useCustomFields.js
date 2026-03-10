@@ -26,6 +26,29 @@ const customFieldsDefinitions = new Map()
 const pendingFetches = new Map()
 
 /**
+ * Module-level concurrency limiter for value fetches
+ * Prevents 429 Too Many Requests when many components mount simultaneously (e.g., table rows)
+ */
+const MAX_CONCURRENT_VALUE_FETCHES = 5
+let activeValueFetches = 0
+const valueRequestQueue = []
+
+function processValueQueue () {
+  if (valueRequestQueue.length === 0 || activeValueFetches >= MAX_CONCURRENT_VALUE_FETCHES) {
+    return
+  }
+  activeValueFetches++
+  const { fn, resolve, reject } = valueRequestQueue.shift()
+  fn()
+    .then(resolve)
+    .catch(reject)
+    .finally(() => {
+      activeValueFetches--
+      processValueQueue()
+    })
+}
+
+/**
  * Composable for managing custom field definitions and persistence
  * Provides methods to fetch field definitions and persist values via JSON:API
  * Each component instance gets its own loading/error state,
@@ -34,6 +57,7 @@ const pendingFetches = new Map()
  * @returns {Object} {
  *   clearCustomFieldsDefinitions,
  *   fetchCustomFields,
+ *   fetchCustomFieldValues,
  *   getCustomFieldsDefinitions,
  *   isLoading,
  *   updateCustomFields,
@@ -147,6 +171,35 @@ export function useCustomFields () {
   }
 
   /**
+   * Fetch custom field values for a specific resource
+   * Uses module-level concurrency limiter to prevent rate limiting
+   * when many components mount simultaneously (e.g., in table rows)
+   *
+   * @param {string} resourceType - Resource type (e.g., 'Statement')
+   * @param {string} resourceId - ID of the resource
+   * @returns {Promise<Array>} Promise resolving to array of { id, value } objects
+   */
+  const fetchCustomFieldValues = (resourceType, resourceId) => {
+    const url = Routing.generate('api_resource_get', { resourceType, resourceId })
+    const requestUrl = `${url}?fields[${resourceType}]=customFields`
+
+    const doFetch = () => dpApi.get(requestUrl)
+      .then(response => response.data.data.attributes.customFields || [])
+
+    if (activeValueFetches < MAX_CONCURRENT_VALUE_FETCHES) {
+      activeValueFetches++
+      return doFetch().finally(() => {
+        activeValueFetches--
+        processValueQueue()
+      })
+    }
+
+    return new Promise((resolve, reject) => {
+      valueRequestQueue.push({ fn: doFetch, resolve, reject })
+    })
+  }
+
+  /**
    * Get custom field definitions for a procedure (synchronous)
    * Returns immediately if definitions are already loaded
    *
@@ -162,8 +215,8 @@ export function useCustomFields () {
    * Supports both single and batch updates (multiple fields in one call)
    * Returns a Promise (use .then() for handling)
    *
-   * @param {String} resourceType - Resource type (e.g., 'Statement', 'StatementSegment')
-   * @param {String} resourceId - ID of the resource
+   * @param {string} resourceType - Resource type (e.g., 'Statement', 'StatementSegment')
+   * @param {string} resourceId - ID of the resource
    * @param {Array} customFieldValues - Array of { id, value } objects
    * @returns {Promise} Promise resolving on successful save
    *
@@ -201,14 +254,13 @@ export function useCustomFields () {
       headers: {
         'X-CSRF-Token': dplan.csrfToken,
       },
-    }).catch(error => {
-      throw error
     })
   }
 
   return {
     clearCustomFieldsDefinitions,
     fetchCustomFields,
+    fetchCustomFieldValues,
     getCustomFieldsDefinitions,
     isLoading,
     updateCustomFields,
