@@ -370,7 +370,9 @@ services:
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\County, lazy: true }
 
-    demosplan\DemosPlanCoreBundle\EventListener\TokenRefreshTerminateListener: ~
+    demosplan\DemosPlanCoreBundle\EventListener\TokenRefreshTerminateListener:
+        arguments:
+            $refreshBufferMinutes: '%oauth_token_refresh_buffer_minutes%'
 
     demosplan\DemosPlanCoreBundle\EventSubscriber\LocaleSubscriber:
         arguments: ['%kernel.default_locale%']

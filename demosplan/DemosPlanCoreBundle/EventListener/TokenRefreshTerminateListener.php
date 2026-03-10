@@ -32,7 +32,7 @@ use Symfony\Component\HttpKernel\Event\TerminateEvent;
  * - ExpirationTimestampRequestListener: Blocks requests, handles already-expired tokens
  * - TokenRefreshTerminateListener: Non-blocking, proactively refreshes tokens before expiry
  *
- * The 2-minute refresh buffer means tokens are refreshed before expiry is reached,
+ * The configurable refresh buffer (oauth_token_refresh_buffer_minutes) means tokens are refreshed before expiry is reached,
  * so the blocking listener rarely needs to handle token expiration at all.
  *
  * After a successful background refresh, the session threshold (oauth_next_token_check)
@@ -50,7 +50,7 @@ use Symfony\Component\HttpKernel\Event\TerminateEvent;
  * 1. Early-return checks (permission gate, KeyCloak config, main request)
  * 2. Resolve user entity (CurrentUserInterface; non-human users extend FunctionalUser)
  * 3. Load OAuthToken from database
- * 4. Return early if access token is still valid with > 2 minutes remaining
+ * 4. Return early if access token is still valid with > oauth_token_refresh_buffer_minutes remaining
  * 5. Return early if refresh token is expired (blocking listener will redirect to logout)
  * 6. Refresh tokens via KeyCloak in the background (all tokens are rotated on refresh)
  * 7. On success: sync session threshold to reflect the new token's lifetime
@@ -68,6 +68,7 @@ class TokenRefreshTerminateListener
         private readonly KeycloakTokenRefreshService $tokenRefreshService,
         private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
         private readonly LoggerInterface $logger,
+        private readonly int $refreshBufferMinutes,
     ) {
     }
 
@@ -109,7 +110,7 @@ class TokenRefreshTerminateListener
      * At this point the user is guaranteed to be a real authenticated User
      * (FunctionalUser was already filtered in shallReturnEarly).
      *
-     * Skips if token is still healthy (> 2 minutes remaining) or refresh token
+     * Skips if token is still healthy (> oauth_token_refresh_buffer_minutes remaining) or refresh token
      * has already expired (blocking listener will redirect to logout on next request).
      *
      * On success, syncs the session threshold so the blocking listener does not
@@ -126,7 +127,7 @@ class TokenRefreshTerminateListener
 
         $oauthToken = $this->oauthTokenRepository->findByUserId($user->getId());
 
-        if (!$this->tokenExpirationService->accessTokenNeedsRefresh($oauthToken)) {
+        if (!$this->tokenExpirationService->accessTokenNeedsRefresh($oauthToken, $this->refreshBufferMinutes)) {
             return;
         }
 

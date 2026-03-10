@@ -177,7 +177,7 @@ class OzgKeycloakSessionManager
      */
     public function syncSession(SessionInterface $session, string $userId, ?DateTime $tokenExpiresAt): void
     {
-        $checkInterval = $this->parameterBag->get('oauth_token_fast_path_intervall_seconds');
+        $checkInterval = $this->parameterBag->get('oauth_token_fast_path_interval_seconds');
 
         if (null !== $tokenExpiresAt) {
             $secondsUntilExpiry = $tokenExpiresAt->getTimestamp() - time();
