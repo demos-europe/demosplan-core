@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakClientFactory;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
@@ -29,7 +30,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
@@ -38,6 +38,8 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
 {
+    use KeycloakAuthenticationSuccessTrait;
+
     public function __construct(
         private readonly OzgKeycloakClientFactory $ozgKeycloakClientFactory,
         private readonly CustomerServiceInterface $customerService,
@@ -48,6 +50,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         private readonly ParameterBagInterface $parameterBag,
         private readonly RouterInterface $router,
         private readonly OzgKeycloakLogoutManager $keycloakLogoutManager,
+        private readonly CurrentOrganisationService $currentOrganisationService,
     ) {
     }
 
@@ -108,25 +111,6 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         return new SelfValidatingPassport(
             new UserBadge($user->getUserIdentifier(), fn () => $user)
         );
-    }
-
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
-    {
-        // change "app_homepage" to some route in your app
-        $targetUrl = $this->router->generate('core_home_loggedin');
-
-        return new RedirectResponse($targetUrl);
-
-        // or, on success, let the request continue to be handled by the controller
-        // return null;
-    }
-
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
-    {
-        $this->logger->warning('Login via Keycloak failed', ['exception' => $exception]);
-        $targetUrl = $this->router->generate('core_login_idp_error');
-
-        return new RedirectResponse($targetUrl);
     }
 
     /**
