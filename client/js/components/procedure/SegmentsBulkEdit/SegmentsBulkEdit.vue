@@ -142,37 +142,6 @@
                 :procedure-id="procedureId"
                 @insert="text => modalProps.handleInsertText(text)"
               />
-              <dp-modal
-                ref="recommendationModal"
-                content-classes="u-2-of-3"
-              >
-                <h3 class="u-mb">
-                  {{ Translator.trans('segment.recommendation.insert.similar') }}
-                </h3>
-                <dp-tabs
-                  v-if="recommendationTabAddonsLoaded && isSingleSegmentSelected && segmentDataLoaded"
-                  :active-id="activeId"
-                  @change="handleTabChange"
-                >
-                  <dp-tab
-                    v-for="addon in recommendationModalAddons"
-                    :id="addon.options.id"
-                    :key="addon.options.id"
-                    :is-active="activeId === addon.options.id"
-                    :label="Translator.trans(addon.options.title)"
-                  >
-                    <component
-                      :is="addon.component"
-                      class="u-mt"
-                      :data-cy="`addon:${addon.name}`"
-                      :demosplan-ui="demosplanUi"
-                      :procedure-id="procedureId"
-                      :segment-id="segments[0]"
-                      @recommendation:insert="closeRecommendationModalAfterInsert"
-                    />
-                  </dp-tab>
-                </dp-tabs>
-              </dp-modal>
             </template>
             <template v-slot:button>
               <button
@@ -204,6 +173,14 @@
             </template>
           </dp-editor>
         </action-stepper-action>
+        <recommendation-modal
+          ref="recommendationModal"
+          :segment-id="segments[0]"
+          :procedure-id="procedureId"
+          :segment-data-loaded="segmentDataLoaded"
+          @addons:loaded="hasRecommendationTabs = true"
+          @recommendation:insert="closeRecommendationModalAfterInsert"
+        />
         <!--Custom Fields-->
         <action-stepper-action
           v-for="customField in actions.customFields"
@@ -359,27 +336,23 @@
 </template>
 
 <script>
-import * as demosplanUi from '@demos-europe/demosplan-ui'
 import {
   CleanHtml,
   dpApi,
-  DpModal,
   DpMultiselect,
   DpRadio,
   dpRpc,
-  DpTab,
-  DpTabs,
   hasOwnProp,
   prefixClassMixin,
 } from '@demos-europe/demosplan-ui'
-import { defineAsyncComponent, shallowRef } from 'vue'
+import { defineAsyncComponent } from 'vue'
 import { mapActions, mapState } from 'vuex'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
-import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import lscache from 'lscache'
+import RecommendationModal from '../Shared/RecommendationModal'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
 
 export default {
@@ -398,11 +371,9 @@ export default {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
     }),
-    DpModal,
     DpMultiselect,
     DpRadio,
-    DpTab,
-    DpTabs,
+    RecommendationModal,
     SelectedTagsList,
   },
 
@@ -427,7 +398,6 @@ export default {
 
   data () {
     return {
-      activeId: '',
       actions: {
         addRecommendations: {
           text: '',
@@ -461,12 +431,10 @@ export default {
       },
       assignableUsers: [],
       busy: false,
-      demosplanUi: shallowRef(demosplanUi),
+      hasRecommendationTabs: false,
       isLoading: true,
       segmentDataLoaded: false,
       places: [],
-      recommendationModalAddons: [],
-      recommendationTabAddonsLoaded: false,
       returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedureId }),
       segments: [],
       step: 1,
@@ -581,10 +549,6 @@ export default {
 
     hasPlaces () {
       return this.places.length > 0
-    },
-
-    hasRecommendationTabs () {
-      return this.recommendationModalAddons.length > 0
     },
 
     hasSegments () {
@@ -768,12 +732,7 @@ export default {
 
     closeRecommendationModalAfterInsert (recommendation) {
       this.actions.addRecommendations.text = recommendation
-      this.toggleRecommendationModal()
       dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
-    },
-
-    handleTabChange (id) {
-      this.activeId = id
     },
 
     openBoilerPlate () {
@@ -849,33 +808,12 @@ export default {
       .then(() => {
         this.isLoading = false
       })
-
-    loadAddonComponents('segment.recommendationModal.tab')
-      .then(addons => {
-        if (!addons.length) {
-          return
-        }
-
-        this.activeId = (addons[0].options && addons[0].options.id) || ''
-        this.recommendationTabAddonsLoaded = true
-
-        this.recommendationModalAddons = addons.map(addon => {
-          const { name, options } = addon
-
-          return {
-            component: shallowRef(window[name].default),
-            name,
-            options,
-          }
+    if (this.segments.length === 1) {
+      this.getSegment({ id: this.segments[0], include: 'tags' })
+        .then(() => {
+          this.segmentDataLoaded = true
         })
-
-        if (this.segments.length === 1) {
-          this.getSegment({ id: this.segments[0], include: 'tags' })
-            .then(() => {
-              this.segmentDataLoaded = true
-            })
-        }
-      })
+    }
   },
 }
 </script>
