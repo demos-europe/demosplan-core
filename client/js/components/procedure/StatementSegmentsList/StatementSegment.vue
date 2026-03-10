@@ -154,56 +154,14 @@
               :preview-segment-id="segment.id"
               @insert="text => modalProps.handleInsertText(text)"
             />
-            <dp-modal
+            <recommendation-modal
               ref="recommendationModal"
-              class="recommendation-modal"
-              content-classes="u-2-of-3"
-            >
-              <div class="flex w-full">
-                <h3 class="u-mb">
-                  {{ Translator.trans('segment.recommendation.insert.similar') }}
-                </h3>
-                <dp-contextual-help
-                  v-if="activeId === 'oracleRec'"
-                  class="u-ml-0_25"
-                  icon="ai"
-                  size="large"
-                  :text="Translator.trans('segment.oracle.tooltip')"
-                />
-                <dp-badge
-                  v-if="activeId === 'oracleRec'"
-                  v-tooltip="Translator.trans('segment.oracle.beta.tooltip')"
-                  class="absolute right-4"
-                  size="smaller"
-                  :text="Translator.trans('segment.oracle.beta')"
-                />
-              </div>
-              <dp-tabs
-                v-if="recommendationTabAddonsLoaded"
-                :active-id="activeId"
-                @change="handleTabChange"
-              >
-                <dp-tab
-                  v-for="addon in recommendationModalAddons"
-                  :id="addon.options.id"
-                  :key="addon.options.id"
-                  :is-active="activeId === addon.options.id"
-                  :label="Translator.trans(addon.options.title)"
-                >
-                  <slot>
-                    <component
-                      :is="addon.component"
-                      class="u-mt"
-                      :data-cy="`addon:${addon.name}`"
-                      :demosplan-ui="demosplanUi"
-                      :procedure-id="addonProps.procedureId"
-                      :segment-id="addonProps.segmentId"
-                      @recommendation:insert="closeRecommendationModalAfterInsert"
-                    />
-                  </slot>
-                </dp-tab>
-              </dp-tabs>
-            </dp-modal>
+              :procedure-id="procedureId"
+              :segment-data-loaded="true"
+              :segment-id="segment.id"
+              @addons:loaded="hasRecommendationTabs = true"
+              @recommendation:insert="closeRecommendationModalAfterInsert"
+            />
           </template>
           <template v-slot:button>
             <button
@@ -445,32 +403,27 @@
 </template>
 
 <script>
-import * as demosplanUi from '@demos-europe/demosplan-ui'
 import {
   CleanHtml,
   dpApi,
-  DpBadge,
   DpButtonRow,
   DpCheckbox,
   DpContextualHelp,
   DpIcon,
   DpLabel,
-  DpModal,
   DpMultiselect,
-  DpTab,
-  DpTabs,
   prefixClassMixin,
   Tooltip,
   VPopover,
 } from '@demos-europe/demosplan-ui'
-import { defineAsyncComponent, shallowRef } from 'vue'
+import { defineAsyncComponent } from 'vue'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
-import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import RecommendationModal from '../Shared/RecommendationModal.vue'
 
 export default {
   name: 'StatementSegment',
@@ -479,23 +432,20 @@ export default {
 
   components: {
     AddonWrapper,
-    DpBadge,
     DpBoilerPlateModal,
     DpButtonRow,
     DpCheckbox,
     DpContextualHelp,
     DpClaim,
-    DpIcon,
-    DpLabel,
-    DpModal,
-    DpMultiselect,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     }),
-    DpTab,
-    DpTabs,
+    DpIcon,
+    DpLabel,
+    DpMultiselect,
     ImageModal,
+    RecommendationModal,
     TextContentRenderer,
     VPopover,
   },
@@ -544,22 +494,14 @@ export default {
 
   data () {
     return {
-      activeId: '',
-      addonProps: {
-        segmentId: this.segment.id,
-        procedureId: this.procedureId,
-      },
       claimLoading: false,
-      customFieldValues: {},
       currentUserName: this.currentUserFirstName + ' ' + this.currentUserLastName,
-      demosplanUi: shallowRef(demosplanUi),
+      customFieldValues: {},
+      hasRecommendationTabs: false,
       isCollapsed: !(this.segment.relationships?.assignee?.data && this.segment.relationships.assignee.data.id === this.currentUserId),
       isEditing: false,
       isFullscreen: false,
       isHover: false,
-      recommendationModalAddons: [],
-      recommendationTabAddonsLoaded: false,
-      refRecModal: 'recommendationModal',
       selectedAssignee: {},
       selectedPlace: { id: '', type: 'Place' },
       showWorkflowActions: false,
@@ -641,10 +583,6 @@ export default {
 
     isAssignedToMe () {
       return this.assignee.id === this.currentUserId
-    },
-
-    hasRecommendationTabs () {
-      return this.recommendationModalAddons.length > 0
     },
 
     places () {
@@ -795,10 +733,6 @@ export default {
       }
 
       return selectedOption
-    },
-
-    handleTabChange (id) {
-      this.activeId = id
     },
 
     hasPolygonFeatures () {
@@ -999,10 +933,6 @@ export default {
           this.setProperty({ prop: 'isLoading', val: false })
           this.isEditing = false
         })
-    },
-
-    setActiveTabId (id) {
-      this.activeId = id
     },
 
     /**
@@ -1219,25 +1149,6 @@ export default {
       this.setInitiallySelectedCustomFieldValues()
     }
 
-    loadAddonComponents('segment.recommendationModal.tab')
-      .then(addons => {
-        if (!addons.length) {
-          return
-        }
-
-        this.activeId = (addons[0].options && addons[0].options.id) || ''
-        this.recommendationTabAddonsLoaded = true
-
-        this.recommendationModalAddons = addons.map(addon => {
-          const { name, options } = addon
-
-          return {
-            component: shallowRef(window[name].default),
-            name,
-            options,
-          }
-        })
-      })
   },
 }
 </script>
