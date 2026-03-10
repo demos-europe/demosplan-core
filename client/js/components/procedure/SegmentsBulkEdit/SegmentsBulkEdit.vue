@@ -142,6 +142,14 @@
                 :procedure-id="procedureId"
                 @insert="text => modalProps.handleInsertText(text)"
               />
+              <recommendation-modal
+                ref="recommendationModal"
+                :segment-id="segments[0]"
+                :procedure-id="procedureId"
+                :segment-data-loaded="segmentDataLoaded"
+                @addons:loaded="hasRecommendationTabs = true"
+                @recommendation:insert="closeRecommendationModalAfterInsert"
+              />
             </template>
             <template v-slot:button>
               <button
@@ -173,14 +181,6 @@
             </template>
           </dp-editor>
         </action-stepper-action>
-        <recommendation-modal
-          ref="recommendationModal"
-          :segment-id="segments[0]"
-          :procedure-id="procedureId"
-          :segment-data-loaded="segmentDataLoaded"
-          @addons:loaded="hasRecommendationTabs = true"
-          @recommendation:insert="closeRecommendationModalAfterInsert"
-        />
         <!--Custom Fields-->
         <action-stepper-action
           v-for="customField in actions.customFields"
