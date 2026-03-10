@@ -69,10 +69,7 @@ class EncryptedStringType extends StringType
     private static function getEncryptor(): SecretEncryptor
     {
         if (null === self::$encryptor) {
-            throw new RuntimeException(
-                'EncryptedStringType requires a SecretEncryptor. '
-                .'Ensure the EncryptedStringTypeInitializer listener is registered.'
-            );
+            throw new RuntimeException('EncryptedStringType requires a SecretEncryptor. Ensure the EncryptedStringTypeInitializer listener is registered.');
         }
 
         return self::$encryptor;

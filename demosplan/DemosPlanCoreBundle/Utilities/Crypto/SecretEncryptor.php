@@ -28,18 +28,12 @@ class SecretEncryptor
     public function __construct(string $oauthSecretEncryptionKey)
     {
         if ('' === $oauthSecretEncryptionKey) {
-            throw new RuntimeException(
-                'OAUTH_SECRET_ENCRYPTION_KEY must not be empty. '
-                .'Generate one with: php -r "echo base64_encode(sodium_crypto_secretbox_keygen());"'
-            );
+            throw new RuntimeException('OAUTH_SECRET_ENCRYPTION_KEY must not be empty. Generate one with: php -r "echo base64_encode(sodium_crypto_secretbox_keygen());"');
         }
 
         $decoded = base64_decode($oauthSecretEncryptionKey, true);
         if (false === $decoded || SODIUM_CRYPTO_SECRETBOX_KEYBYTES !== strlen($decoded)) {
-            throw new RuntimeException(sprintf(
-                'OAUTH_SECRET_ENCRYPTION_KEY must be a base64-encoded %d-byte key.',
-                SODIUM_CRYPTO_SECRETBOX_KEYBYTES
-            ));
+            throw new RuntimeException(sprintf('OAUTH_SECRET_ENCRYPTION_KEY must be a base64-encoded %d-byte key.', SODIUM_CRYPTO_SECRETBOX_KEYBYTES));
         }
 
         $this->key = $decoded;
