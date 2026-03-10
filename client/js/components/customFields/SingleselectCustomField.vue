@@ -29,9 +29,9 @@ All rights reserved
         </span>
         <span
           v-else
-          :class="prefixClass('font-size-small color--grey')"
+          :class="prefixClass('text-sm text-muted')"
         >
-          {{ Translator.trans('customfield.no.value') }}
+          -
         </span>
       </slot>
     </dd>
