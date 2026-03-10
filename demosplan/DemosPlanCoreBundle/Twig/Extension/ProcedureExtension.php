@@ -98,15 +98,12 @@ class ProcedureExtension extends ExtensionBase
         );
 
         // return external/public phaseName
-        $phase = is_null($givenPhase) ? $procedure->getPublicParticipationPhase() : $givenPhase;
         if ($publicNameRequested && $this->permissions->hasPermission('area_public_participation')) {
-            return $this->globalConfig->getPhaseNameWithPriorityExternal($phase);
+            return $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName();
         }
 
-        $internalPhase = is_null($givenPhase) ? $procedure->getPhase() : $givenPhase;
-
         // return internal phaseName
-        return $this->globalConfig->getPhaseNameWithPriorityInternal($internalPhase);
+        return $procedure->getPhaseObject()->getPhaseDefinition()->getName();
     }
 
     /**

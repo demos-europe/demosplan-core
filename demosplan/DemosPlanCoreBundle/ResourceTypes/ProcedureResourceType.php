@@ -57,6 +57,8 @@ use EDT\PathBuilding\End;
  * @property-read End                                 $endDate
  * @property-read End                                 $internalEndDate
  * @property-read End                                 $internalPhaseTranslationKey
+ * @property-read End                                 $externalPhaseDefinitionName
+ * @property-read End                                 $internalPhaseDefinitionName
  * @property-read End                                 $daysLeft
  * @property-read End                                 $statementSubmitted
  * @property-read End                                 $owningOrganisationName
@@ -257,6 +259,10 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
             $properties[] = $this->createAttribute($this->internalPhaseTranslationKey)->readable(false, fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
                 ? $this->globalConfig->getInternalPhaseTranslationKey($procedure->getPhase())
                 : null);
+            $properties[] = $this->createAttribute($this->externalPhaseDefinitionName)
+                ->readable(false, fn (Procedure $procedure): string => $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName());
+            $properties[] = $this->createAttribute($this->internalPhaseDefinitionName)
+                ->readable(false, fn (Procedure $procedure): string => $procedure->getPhaseObject()->getPhaseDefinition()->getName());
             $properties[] = $this->createAttribute($this->owningOrganisationName)->readable()->aliasedPath($this->orga->name);
 
             // T18749
