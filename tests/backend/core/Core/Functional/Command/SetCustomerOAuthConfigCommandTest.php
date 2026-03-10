@@ -200,6 +200,93 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
         self::assertSame(self::REALM, $existingConfig->getKeycloakRealm());
     }
 
+    public function testFromJsonUpsertsConfigForValidJson(): void
+    {
+        $customer = $this->createCustomerStub();
+        $this->customerRepositoryMock->method('findOneBy')
+            ->with(['subdomain' => self::SUBDOMAIN])
+            ->willReturn($customer);
+        $this->configRepositoryMock->method('findByCustomer')
+            ->willReturn(null);
+
+        $this->entityManagerMock->expects(self::once())->method('persist');
+        $this->entityManagerMock->expects(self::once())->method('flush');
+
+        $json = json_encode([
+            self::SUBDOMAIN => [
+                'clientId'      => self::CLIENT_ID,
+                'clientSecret'  => self::CLIENT_SECRET,
+                'authServerUrl' => self::AUTH_SERVER_URL,
+                'realm'         => self::REALM,
+            ],
+        ], JSON_THROW_ON_ERROR);
+
+        $tester = $this->executeCommand(['--config-json' => $json]);
+
+        self::assertSame(Command::SUCCESS, $tester->getStatusCode());
+        self::assertStringContainsString('Upserted: 1', $tester->getDisplay());
+        self::assertStringContainsString('Skipped: 0', $tester->getDisplay());
+    }
+
+    public function testFromJsonFailsForInvalidJson(): void
+    {
+        $tester = $this->executeCommand(['--config-json' => '{ invalid json']);
+
+        self::assertSame(Command::FAILURE, $tester->getStatusCode());
+        self::assertStringContainsString('Invalid JSON', $tester->getDisplay());
+    }
+
+    public function testFromJsonSkipsUnknownSubdomain(): void
+    {
+        $this->customerRepositoryMock->method('findOneBy')
+            ->willReturn(null);
+
+        $json = json_encode([
+            'nonexistent' => [
+                'clientId'      => self::CLIENT_ID,
+                'clientSecret'  => self::CLIENT_SECRET,
+                'authServerUrl' => self::AUTH_SERVER_URL,
+                'realm'         => self::REALM,
+            ],
+        ], JSON_THROW_ON_ERROR);
+
+        $tester = $this->executeCommand(['--config-json' => $json]);
+
+        self::assertSame(Command::SUCCESS, $tester->getStatusCode());
+        self::assertStringContainsString('Upserted: 0', $tester->getDisplay());
+        self::assertStringContainsString('Skipped: 1', $tester->getDisplay());
+    }
+
+    public function testConfigFileTakesPrecedenceOverConfigJson(): void
+    {
+        $customer = $this->createCustomerStub();
+        $this->customerRepositoryMock->method('findOneBy')
+            ->willReturn($customer);
+        $this->configRepositoryMock->method('findByCustomer')
+            ->willReturn(null);
+
+        $this->entityManagerMock->expects(self::once())->method('persist');
+        $this->entityManagerMock->expects(self::once())->method('flush');
+
+        $configFile = $this->createTempConfigFile([
+            self::SUBDOMAIN => [
+                'clientId'      => self::CLIENT_ID,
+                'clientSecret'  => self::CLIENT_SECRET,
+                'authServerUrl' => self::AUTH_SERVER_URL,
+                'realm'         => self::REALM,
+            ],
+        ]);
+
+        // Both options provided — config-file should win
+        $tester = $this->executeCommand([
+            '--config-file' => $configFile,
+            '--config-json' => '{"ignored": {}}',
+        ]);
+
+        self::assertSame(Command::SUCCESS, $tester->getStatusCode());
+        self::assertStringContainsString('Upserted: 1', $tester->getDisplay());
+    }
+
     public function testInteractiveCreatesNewConfig(): void
     {
         $customer = $this->createCustomerStub();
