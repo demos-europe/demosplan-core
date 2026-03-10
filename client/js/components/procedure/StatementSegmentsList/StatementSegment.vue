@@ -16,7 +16,7 @@
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
   >
-    <div class="flex flex-col justify-start basis-1/5 u-pt-0_5 u-pl-0_5">
+    <div class="flex flex-col justify-start basis-1/5 pt-2 pl-2">
       <v-popover
         :container="$refs.statementSegment"
         trigger="hover focus"
@@ -28,9 +28,9 @@
         />
         <span>{{ segment.attributes.externId }}</span>
         <template v-slot:popover>
-          <div class="c-statement-meta-tooltip u-ph-0 u-pv-0">
+          <div class="c-statement-meta-tooltip px-0 py-0">
             <dl>
-              <div class="weight--bold u-pb-0_5 u-pr-0_5">
+              <div class="weight--bold pb-2 pr-2">
                 {{ Translator.trans('segment') }} {{ segment.attributes.externId }}
               </div>
               <div v-if="segment.attributes.externId">
@@ -93,7 +93,7 @@
     <div class="segment-list-col--s">
       <button
         v-if="!isFullscreen"
-        class="segment-list-toggle-button btn--blank u-mh-auto"
+        class="segment-list-toggle-button btn--blank mx-auto"
         :class="{'reverse': !isCollapsed}"
         :aria-label="Translator.trans('aria.expand')"
         @click="isCollapsed = !isCollapsed"
@@ -125,12 +125,12 @@
           v-if="visibleRecommendation !== ''"
           ref="recommendationContainer"
           v-cleanhtml="visibleRecommendation"
-          class="u-mb-0_5"
+          class="mb-2"
         />
       </div>
       <div v-else>
         <dp-editor
-          class="u-mb-0_5"
+          class="mb-2"
           editor-id="recommendationText"
           :routes="{
             getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash })
@@ -197,7 +197,7 @@
         />
         <div
           v-if="showWorkflowActions"
-          class="u-mv-0_5"
+          class="my-2"
         >
           <dp-label
             class="mb-0.5 mt-2"
@@ -209,7 +209,7 @@
             id="assignableUsersSegment"
             v-model="selectedAssignee"
             :options="assignableUsers"
-            class="u-1-of-1"
+            class="w-full"
             label="name"
             track-by="id"
           />
@@ -223,7 +223,7 @@
             id="segmentPlace"
             v-model="selectedPlace"
             :allow-empty="false"
-            class="u-1-of-1"
+            class="w-full"
             label="name"
             :options="places"
             :sub-slots="['option', 'singleLabel', 'tag']"
@@ -289,14 +289,14 @@
       <dp-button-row
         v-if="isAssignedToMe && (isEditing || showWorkflowActions)"
         align="left"
-        class="u-mt-0_75"
+        class="mt-3"
         primary
         secondary
         @primary-action="save"
         @secondary-action="abort"
       />
     </div>
-    <div class="segment-list-col--m text-right shrink-2 u-ph-0_5">
+    <div class="segment-list-col--m text-right shrink-2 px-2">
       <div
         class="segment-list-toolbar"
         :class=" isAssignedToMe ? '' : 'segment-list-toolbar--dark'"
@@ -373,7 +373,7 @@
           />
           <span
             v-if="commentCount > 0"
-            class="segment-list-toolbar__badge o-badge--darker block absolute u-ml u-n-mt"
+            class="segment-list-toolbar__badge o-badge--darker block absolute ml-4 -mt-4"
           >
             {{ commentCount }}
           </span>
