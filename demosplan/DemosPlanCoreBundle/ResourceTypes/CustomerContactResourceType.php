@@ -38,7 +38,7 @@ class CustomerContactResourceType extends DplanResourceType
 {
     public function __construct(
         protected readonly EmailAddressRepository $emailAddressRepository,
-        protected readonly SupportContactRepository $supportContactRepository
+        protected readonly SupportContactRepository $supportContactRepository,
     ) {
     }
 
