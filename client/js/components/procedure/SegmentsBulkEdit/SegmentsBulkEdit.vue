@@ -154,9 +154,9 @@
               >
                 <i :class="prefixClass('fa fa-puzzle-piece')" />
               </button>
-              <span
+              <dp-tooltip
                 v-if="hasRecommendationTabs"
-                v-tooltip="isSingleSegmentSelected
+                :text="isSingleSegmentSelected
                   ? Translator.trans('segment.recommendation.insert.similar')
                   : Translator.trans('segment.recommendation.bulk.single.only')"
               >
@@ -169,7 +169,7 @@
                 >
                   <i :class="prefixClass('fa fa-lightbulb-o')" />
                 </button>
-              </span>
+              </dp-tooltip>
             </template>
           </dp-editor>
         </action-stepper-action>
@@ -342,6 +342,7 @@ import {
   DpMultiselect,
   DpRadio,
   dpRpc,
+  DpTooltip,
   hasOwnProp,
   prefixClassMixin,
 } from '@demos-europe/demosplan-ui'
@@ -373,6 +374,7 @@ export default {
     }),
     DpMultiselect,
     DpRadio,
+    DpTooltip,
     RecommendationModal,
     SelectedTagsList,
   },
