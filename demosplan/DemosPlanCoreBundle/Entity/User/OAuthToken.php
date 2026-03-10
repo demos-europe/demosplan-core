@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
 use DateTimeZone;
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -32,7 +33,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OAuthTokenRepository")
  */
-class OAuthToken
+class OAuthToken implements EntityInterface
 {
     private const TIMEZONE = 'Europe/Berlin';
 
