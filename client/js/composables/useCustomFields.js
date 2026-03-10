@@ -181,9 +181,13 @@ export function useCustomFields () {
    */
   const fetchCustomFieldValues = (resourceType, resourceId) => {
     const url = Routing.generate('api_resource_get', { resourceType, resourceId })
-    const requestUrl = `${url}?fields[${resourceType}]=customFields`
+    const params = {
+      fields: {
+        [resourceType]: ['customFields'].join(),
+      },
+    }
 
-    const doFetch = () => dpApi.get(requestUrl)
+    const doFetch = () => dpApi.get(url, params)
       .then(response => response.data.data.attributes.customFields || [])
 
     if (activeValueFetches < MAX_CONCURRENT_VALUE_FETCHES) {
