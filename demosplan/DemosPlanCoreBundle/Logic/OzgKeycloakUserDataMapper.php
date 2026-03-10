@@ -335,7 +335,6 @@ class OzgKeycloakUserDataMapper
         $customer = $this->customerService->getCurrentCustomer();
 
         $gwId ??= $this->ozgKeycloakUserData->getOrganisationId();
-        $orgaName ??= $this->ozgKeycloakUserData->getOrganisationName();
 
         $existingOrga->setDeleted(false);
         $existingOrga->addCustomer($customer);
@@ -344,7 +343,7 @@ class OzgKeycloakUserDataMapper
             $existingOrga->setGwId($gwId);
         }
 
-        if ('' !== $orgaName) {
+        if ('' !== $orgaName && null !== $orgaName) {
             $existingOrga->setName($orgaName);
         }
 
