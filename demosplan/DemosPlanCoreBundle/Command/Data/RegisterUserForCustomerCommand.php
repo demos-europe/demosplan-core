@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Command\Helpers\Helpers;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -68,8 +69,27 @@ class RegisterUserForCustomerCommand extends CoreCommand
             $userToRegister->setDplanroles($roles, $customer);
             $this->userRepository->updateObject($userToRegister);
 
-            // add OrgaType to customer
-            $orga = $userToRegister->getOrga();
+            // Get all organizations the user belongs to
+            $userOrganisations = $userToRegister->getOrganisations();
+
+            if ($userOrganisations->isEmpty()) {
+                $output->writeln(
+                    sprintf('User "%s" does not have any organization assigned', $userToRegister->getLogin()),
+                    OutputInterface::VERBOSITY_NORMAL
+                );
+
+                return Command::FAILURE;
+            }
+
+            // Ask user to select an organisation
+            $orga = $this->helpers->askOrganisation($input, $output, $userOrganisations);
+
+            if (!$orga instanceof OrgaInterface) {
+                $output->writeln('Selected organisation not found', OutputInterface::VERBOSITY_NORMAL);
+
+                return Command::FAILURE;
+            }
+
             $orgaTypes = $this->getOrgaTypesByRoles($roles);
             foreach ($orgaTypes as $orgaType) {
                 $orga->addCustomerAndOrgaType($customer, $orgaType, OrgaStatusInCustomer::STATUS_ACCEPTED);
