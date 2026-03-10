@@ -160,7 +160,12 @@ export default {
       isCreating: false,
       isInitiallyLoading: true,
       isLoading: false,
-      newPhase: { name: '', audience: '', permissionSet: '', participationState: null },
+      newPhase: {
+        name: '',
+        audience: '',
+        permissionSet: '',
+        participationState: null
+      },
       phases: [],
     }
   },
