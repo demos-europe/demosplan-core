@@ -52,13 +52,13 @@ const Methods = {
   },
 
   phaseName () {
-    const { internalPhaseTranslationKey, externalPhaseTranslationKey } = this.procedure
-    if (!!internalPhaseTranslationKey && !!externalPhaseTranslationKey) {
-      return `${Translator.trans(internalPhaseTranslationKey)} / ${Translator.trans(externalPhaseTranslationKey)}`
-    } else if (externalPhaseTranslationKey) {
-      return Translator.trans(externalPhaseTranslationKey)
-    } else if (internalPhaseTranslationKey) {
-      return Translator.trans(internalPhaseTranslationKey)
+    const { internalPhaseDefinitionName, externalPhaseDefinitionName } = this.procedure
+    if (!!internalPhaseDefinitionName && !!externalPhaseDefinitionName) {
+      return `${internalPhaseDefinitionName} / ${externalPhaseDefinitionName}`
+    } else if (externalPhaseDefinitionName) {
+      return externalPhaseDefinitionName
+    } else if (internalPhaseDefinitionName) {
+      return internalPhaseDefinitionName
     }
   },
 }
