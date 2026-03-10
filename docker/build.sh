@@ -52,6 +52,10 @@ CONTEXT_DIR=.context
 BUILD_MODE="prod"
 PLATFORM="linux/amd64"
 
+# Resolve git commit SHAs for image labels
+COMMIT_SHA_CORE=$(git -C .. rev-parse HEAD 2>/dev/null || echo "")
+COMMIT_SHA_PROJECT=$(git -C "../projects/$PROJECT_NAME" rev-parse HEAD 2>/dev/null || echo "")
+
 # Check if dev environment is requested
 if [[ $DEV == "dev" ]]; then
   BUILD_MODE="dev"
@@ -73,6 +77,8 @@ function docker_build() {
         --platform $PLATFORM \
         --build-arg PROJECT_NAME=$PROJECT_NAME \
         --build-arg BUILD_MODE=$BUILD_MODE \
+        --build-arg COMMIT_SHA_CORE=$COMMIT_SHA_CORE \
+        --build-arg COMMIT_SHA_PROJECT=$COMMIT_SHA_PROJECT \
         -t $image:$VERSION \
         -f $FOLDER/Dockerfile \
         --target "$target" \
