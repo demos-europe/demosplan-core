@@ -10,15 +10,15 @@ All rights reserved
 <template>
   <dp-modal
     ref="recommendationModal"
-    content-classes="u-2-of-3"
+    content-classes="w-2/3"
   >
     <div class="flex w-full">
-      <h3 class="u-mb">
+      <h3 class="mb-4">
         {{ Translator.trans('segment.recommendation.insert.similar') }}
       </h3>
       <dp-contextual-help
         v-if="activeId === 'oracleRec'"
-        class="u-ml-0_25"
+        class="ml-1"
         icon="ai"
         size="large"
         :text="Translator.trans('segment.oracle.tooltip')"
@@ -44,7 +44,7 @@ All rights reserved
       >
         <component
           :is="addon.component"
-          class="u-mt"
+          class="mt-4"
           :data-cy="`addon:${addon.name}`"
           :demosplan-ui="demosplanUi"
           :procedure-id="procedureId"

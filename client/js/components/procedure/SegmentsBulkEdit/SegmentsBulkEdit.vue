@@ -218,9 +218,9 @@
 
         <div
           v-if="hasPermission('feature_statement_assignment') && assignSegmentCheckedAndSelected"
-          class="u-mt u-pb-0_5"
+          class="mt-4 pb-1"
         >
-          <label class="u-mb-0_25 weight--normal">
+          <label class="mb-1 weight--normal">
             {{ Translator.trans('segments.assign.other.confirmation') }}
           </label>
           <p>
@@ -230,7 +230,7 @@
 
         <div
           v-if="assignPlaceCheckedAndSelected"
-          class="u-pv"
+          class="py-4"
         >
           <p v-html="Translator.trans('segments.bulk.edit.place.assigned.description')" />
           <p v-cleanhtml="actions.assignPlace.selected.name" />
@@ -238,7 +238,7 @@
 
         <div
           v-if="addTagsCheckedAndSelected"
-          class="u-pv"
+          class="py-4"
         >
           <p v-html="Translator.trans('segments.bulk.edit.tags.add.description', { count: segments.length })" />
           <selected-tags-list :selected-tags="actions.addTags.selected" />
@@ -246,7 +246,7 @@
 
         <div
           v-if="deleteTagsCheckedAndSelected"
-          class="u-pv"
+          class="py-4"
         >
           <p v-html="Translator.trans('segments.bulk.edit.tags.delete.description', { count: segments.length })" />
           <selected-tags-list :selected-tags="actions.deleteTags.selected" />
@@ -254,7 +254,7 @@
 
         <div
           v-if="addRecommendationsChecked && actions.addRecommendations.text !== ''"
-          class="u-pv"
+          class="py-4"
         >
           <p v-html="addOrReplaceRecommendationMessage" />
           <p v-html="actions.addRecommendations.text" />
@@ -263,7 +263,7 @@
         <div
           v-for="customField in customFieldsCheckedAndSelected"
           :key="`customField:${customField.id}`"
-          class="u-pv"
+          class="py-4"
         >
           <p v-html="Translator.trans('segments.bulk.edit.customFields.description', { label: customField.label })" />
           <selected-tags-list :selected-tags="[{ title: customField.selected, id: customField.id }]" />
@@ -288,7 +288,7 @@
       >
         <p
           v-cleanhtml="actions.assignPlace.selected.name"
-          class="u-mt-0_5"
+          class="mt-2"
         />
       </action-stepper-response>
 
@@ -317,7 +317,7 @@
         :description-success="addRecommendationsSuccess"
       >
         <p
-          class="u-mt-0_5"
+          class="mt-2"
           v-html="actions.addRecommendations.text"
         />
       </action-stepper-response>
