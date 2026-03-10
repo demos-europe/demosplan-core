@@ -48,6 +48,8 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     private const ORG_NAME_FROM_TOKEN = 'Original Name From Token';
     private const ORG_NAME_AMT_A = 'Original Amt A';
     private const ORG_NAME_AMT_B = 'Original Amt B';
+    private const ORG_NAME_AMT_NORDWEST = 'Amt Nordwest';
+    private const GWID_PIPED_141_UMWELT = '141|UMWELT';
 
     protected $sut;
 
@@ -1124,7 +1126,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             'sub'                => 'test-automigration-001',
             'preferred_username' => 'automigration.user',
             'organisation'       => [
-                ['id' => '141', 'name' => 'Amt Nordwest'],
+                ['id' => '141', 'name' => self::ORG_NAME_AMT_NORDWEST],
             ],
             'fachbezug'          => [
                 ['id' => 'UMWELT', 'name' => 'Umweltverwaltung'],
@@ -1139,8 +1141,8 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         $orga2 = $user2->getOrganisations()->first();
 
         // Assert: BOTH gwId AND name should be updated during automigration
-        self::assertSame('141|UMWELT', $orga2->getGwId(), 'GwId should be updated to piped format');
-        self::assertSame('Amt Nordwest - Umweltverwaltung', $orga2->getName(), 'Name should be updated during automigration');
+        self::assertSame(self::GWID_PIPED_141_UMWELT, $orga2->getGwId(), 'GwId should be updated to piped format');
+        self::assertSame(self::ORG_NAME_AMT_NORDWEST . ' - Umweltverwaltung', $orga2->getName(), 'Name should be updated during automigration');
     }
 
     /**
@@ -1157,7 +1159,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             'sub'                => 'test-postmigration-001',
             'preferred_username' => 'postmigration.user',
             'organisation'       => [
-                ['id' => '141', 'name' => 'Amt Nordwest'],
+                ['id' => '141', 'name' => self::ORG_NAME_AMT_NORDWEST],
             ],
             'fachbezug'          => [
                 ['id' => 'UMWELT', 'name' => 'Umweltverwaltung'],
@@ -1171,8 +1173,8 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         $user1 = $this->mapResourceOwnerToUser($resourceOwner1);
         $orga1 = $user1->getOrganisations()->first();
 
-        self::assertSame('141|UMWELT', $orga1->getGwId());
-        self::assertSame('Amt Nordwest - Umweltverwaltung', $orga1->getName());
+        self::assertSame(self::GWID_PIPED_141_UMWELT, $orga1->getGwId());
+        self::assertSame(self::ORG_NAME_AMT_NORDWEST . ' - Umweltverwaltung', $orga1->getName());
 
         // Simulate FPA user manually renaming the org via UI
         $orga1->setName('User-Modified Organisation Name');
@@ -1200,7 +1202,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         $orga2 = $user2->getOrganisations()->first();
 
         // Assert: Name must NOT be overwritten on subsequent login (exact gwId match)
-        self::assertSame('141|UMWELT', $orga2->getGwId(), 'GwId should remain unchanged');
+        self::assertSame(self::GWID_PIPED_141_UMWELT, $orga2->getGwId(), 'GwId should remain unchanged');
         self::assertSame('User-Modified Organisation Name', $orga2->getName(),
             'Org name must NOT be overwritten after automigration - user modifications should be preserved');
     }
