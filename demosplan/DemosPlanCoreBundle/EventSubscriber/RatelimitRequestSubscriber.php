@@ -31,7 +31,6 @@ class RatelimitRequestSubscriber implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event): void
     {
-
         if ($event->getRequest()->headers->has('X-JWT-Authorization')) {
             // Sanitize header values to prevent header injection
             $authHeader = $this->headerSanitizer->sanitizeAuthHeader(
