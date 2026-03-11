@@ -165,7 +165,7 @@ export default {
         name: '',
         audience: '',
         permissionSet: '',
-        participationState: null
+        participationState: null,
       },
       phases: [],
     }
