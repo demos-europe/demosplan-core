@@ -458,7 +458,7 @@
 
                      --><div class="{{ 'layout__item width-map-canvas u-pl-0_5-lap-up u-pr-0_5-lap-up'|prefixClass }}">
                             {# top pager #}
-                            {% if templateVars.publicStatements.pager is defined %}
+                            {% if templateVars.publicStatements.pager is defined and templateVars.publicStatements.totalResults|default(0) >= 10 %}
                                 <form class="{{ 'u-mb-0_5'|prefixClass }}" action="{{ path('DemosPlan_procedure_public_detail', {'procedure':procedure}) }}#procedureDetailsStatementsPublic" method="get">
                                     {{ macros.pager( templateVars.publicStatements|default(), false, ' ', true, 'procedureDetailsStatementsPublic' ) }}
                                 </form>
@@ -468,7 +468,7 @@
                                 {% include '@DemosPlanCore/DemosPlanProcedure/includes/public_statement.html.twig' %}
                             {% endfor %}
                             {# bottom pager #}
-                            {% if templateVars.publicStatements.pager is defined %}
+                            {% if templateVars.publicStatements.pager is defined and templateVars.publicStatements.totalResults|default(0) >= 10 %}
                                 <form class="{{ 'u-mb-0_5'|prefixClass }}" action="{{ path('DemosPlan_procedure_public_detail', {'procedure':procedure}) }}#procedureDetailsStatementsPublic" method="get">
                                     {{ macros.pager( templateVars.publicStatements|default(), false, ' ', true, 'procedureDetailsStatementsPublic' ) }}
                                 </form>
