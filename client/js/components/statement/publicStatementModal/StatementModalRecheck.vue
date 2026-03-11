@@ -286,7 +286,7 @@
         mode="readonly"
         :class="prefixClass('mb-1')"
       >
-        <template #readonly-display="{ field: customField }">
+        <template v-slot:readonly-display="{ field: customField }">
           <span>
             {{ customField.value.selectedOptions.map(o => o.label).join(', ') }}
           </span>
@@ -298,7 +298,7 @@
 
 <script>
 import { CleanHtml, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import CustomField from '@DpJs/components/customFields/CustomField.vue'
+import CustomField from '@DpJs/components/customFields/CustomField'
 
 export default {
   name: 'StatementModalRecheck',

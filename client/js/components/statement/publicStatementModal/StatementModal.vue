@@ -888,10 +888,10 @@ import {
   toggleFullscreen,
 } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
-import dayjs from 'dayjs'
-import { defineAsyncComponent } from 'vue'
 import CustomField from '@DpJs/components/customFields/CustomField'
 import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
+import dayjs from 'dayjs'
+import { defineAsyncComponent } from 'vue'
 import StatementModalRecheck from './StatementModalRecheck'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 

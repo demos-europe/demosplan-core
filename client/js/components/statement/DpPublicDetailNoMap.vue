@@ -107,8 +107,10 @@ export default {
     },
 
     openStatementModalFromList (id, customFields) {
-      // Only set custom fields from list if there are NO unsaved changes
-      // If there are unsaved changes, localStorage will restore them
+      /*
+       * Only set custom fields from list if there are NO unsaved changes
+       * If there are unsaved changes, localStorage will restore them
+       */
       const hasUnsavedChanges = this.$refs.statementModal.unsavedDrafts.includes(id)
 
       if (!hasUnsavedChanges && customFields && customFields.length > 0) {
@@ -136,7 +138,6 @@ export default {
     } else if (['#procedureDetailsMap', '#procedureDetailsDocumentlist', '#procedureDetailsStatementsPublic'].includes(currentHash)) {
       this.toggleTabs(currentHash)
     }
-
   },
 }
 </script>

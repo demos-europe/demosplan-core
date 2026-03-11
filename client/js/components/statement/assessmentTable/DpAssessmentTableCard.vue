@@ -528,7 +528,7 @@
               :resource-id="statement.id"
               :show-empty="true"
               :title-info-text="Translator.trans('custom.fields.submitter.info')"
-              @hasContent="val => hasCustomFieldContent = val"
+              @has-content="val => hasCustomFieldContent = val"
               @save:error="handleCustomFieldSaveError"
               @save:success="handleCustomFieldSaveSuccess"
             >
@@ -761,8 +761,8 @@
 import { dpApi, DpContextualHelp, DpTooltip, formatDate, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
-import DpClaim from '../DpClaim'
 import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
+import DpClaim from '../DpClaim'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
 import DpItemRow from './ItemRow'
