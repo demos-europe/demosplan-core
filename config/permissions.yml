@@ -2233,6 +2233,11 @@ feature_statement_search_type_of_submission:
     expose: true
     label: 'Search for submission type in Assessment Table'
     loginRequired: true
+feature_statement_submitter_data_always_editable:
+    description: 'Allows editing submitter data fields (name, department, address, dates, phase, submit type) on all statements, not just manual ones. When disabled, these fields can only be edited on manual statements.'
+    expose: true
+    label: 'Allow editing submitter data on all statements'
+    loginRequired: true
 feature_statement_text_history_delete:
     description: 'Allow deletion of entity conent chances of the text field of statements.'
     expose: true

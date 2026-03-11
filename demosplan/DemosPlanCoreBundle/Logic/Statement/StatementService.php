@@ -130,11 +130,11 @@ use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Elastica\Aggregation\GlobalAggregation;
-use FOS\ElasticaBundle\Index\IndexManager;
 use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Exception;
+use FOS\ElasticaBundle\Index\IndexManager;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -1153,6 +1153,16 @@ class StatementService implements StatementServiceInterface
                 $this->logger->warning('Trying to update a locked by assignment statement.');
             }
 
+            // there are fields, which are only allowed to modify on a manual statement?
+            $hasManualStatementUpdateFields = $this->hasManualStatementUpdateFields($updatedStatement, $currentStatementObject);
+            $updateForbidden = ($hasManualStatementUpdateFields
+                && !$currentStatementObject->isManual())
+                && !$this->permissions->hasPermission('feature_statement_submitter_data_always_editable');
+            if ($updateForbidden) {
+                $this->messageBag->add('warning', 'warning.deny.update.manual.statement');
+                $this->logger->warning('Trying to update manualStatementUpdateFields on a normal statement.');
+            }
+
             // is a original statement?
             $lockedByOriginal = false;
             $isOriginal = $currentStatementObject->isOriginal();
@@ -1170,6 +1180,7 @@ class StatementService implements StatementServiceInterface
             if (!$lockedByAssignment
                 && !$lockedByAssignmentOfHeadStatement
                 && !$lockedByCluster
+                && !$updateForbidden
                 && !$lockedByOriginal
                 && !$currentStatementObject->isPlaceholder()) {
                 $preUpdatedStatement = clone $currentStatementObject;
@@ -1269,6 +1280,71 @@ class StatementService implements StatementServiceInterface
         }
 
         return $fileHashToFileContainerMapping;
+    }
+
+    /**
+     * Determines if one of the fields which only can be modified on a manual statement, should be updated.
+     *
+     * @param Statement|array $statement        - Statement as array or object
+     * @param Statement       $currentStatement - current unmodified statement object, to compare with incoming update data
+     *
+     * @return bool - true if one of the 'critical' fields should be updated, otherwise false
+     */
+    private function hasManualStatementUpdateFields($statement, Statement $currentStatement): bool
+    {
+        $currentAuthorName = $currentStatement->getAuthorName();
+        $currentSubmitterName = $currentStatement->getSubmitterName();
+        $currentSubmitterEmailAddress = $currentStatement->getSubmitterEmailAddress();
+        $currentDepartmentName = $currentStatement->getMeta()->getOrgaDepartmentName();
+        // orgaName is submitterType:
+        $currentSubmitterType = $currentStatement->getMeta()->getOrgaName();
+        $currentOrgaPostalCode = $currentStatement->getOrgaPostalCode();
+        $currentOrgaCity = $currentStatement->getOrgaCity();
+        $currentOrgaStreet = $currentStatement->getOrgaStreet();
+        $currentOrgaEmail = $currentStatement->getOrgaEmail();
+        $currentAuthoredDateString = $currentStatement->getAuthoredDateString();
+        $currentAuthoredDateTimeStamp = $currentStatement->getAuthoredDate();
+        $currentSubmittedDateString = $currentStatement->getSubmitDateString();
+        $currentSubmittedDateTimeStamp = $currentStatement->getSubmit();
+
+        if (\is_array($statement)) {
+            $statement = \collect($statement);
+            if (
+                ($statement->has('author_name') && $statement->get('author_name') != $currentAuthorName)
+                || ($statement->has('submit_name') && $statement->get('submit_name') != $currentSubmitterName)
+                || ($statement->has('submitterEmailAddress') && $statement->get('submitterEmailAddress') != $currentSubmitterEmailAddress)
+                || ($statement->has('departmentName') && $statement->get('departmentName') != $currentDepartmentName)
+                || ($statement->has('submitterType') && $statement->get('submitterType') != $currentSubmitterType)
+                || ($statement->has('orga_postalcode') && $statement->get('orga_postalcode') != $currentOrgaPostalCode)
+                || ($statement->has('orga_city') && $statement->get('orga_city') != $currentOrgaCity)
+                || ($statement->has('orga_street') && $statement->get('orga_street') != $currentOrgaStreet)
+                || ($statement->has('orga_email') && $statement->get('orga_email') != $currentOrgaEmail)
+                || ($statement->has('authoredDate') && $statement->get('authoredDate') != $currentAuthoredDateString)
+                || ($statement->has('submittedDate') && $statement->get('submittedDate') != $currentSubmittedDateString)
+            ) {
+                return true;
+            }
+        }
+
+        if ($statement instanceof Statement) {
+            if (
+                $statement->getAuthorName() != $currentAuthorName
+                || $statement->getSubmitterName() != $currentSubmitterName
+                || $statement->getMeta()->getOrgaDepartmentName() != $currentDepartmentName
+                || $statement->getMeta()->getOrgaName() != $currentSubmitterType
+                || $statement->getSubmitterEmailAddress() != $currentSubmitterEmailAddress
+                || $statement->getOrgaPostalCode() != $currentOrgaPostalCode
+                || $statement->getOrgaCity() != $currentOrgaCity
+                || $statement->getOrgaStreet() != $currentOrgaStreet
+                || $statement->getOrgaEmail() != $currentOrgaEmail
+                || $statement->getAuthoredDate() != $currentAuthoredDateTimeStamp
+                || $statement->getSubmit() != $currentSubmittedDateTimeStamp
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -2257,9 +2333,9 @@ class StatementService implements StatementServiceInterface
             static function ($value, string $key) {
                 if ('r_submitterEmailAddress' === $key) {
                     return str_starts_with($key, 'r_') && (\is_string($value) || (\is_array($value) && [] !== $value));
-                } else {
-                    return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && [] !== $value));
                 }
+
+                return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && [] !== $value));
             }
         )->mapWithKeys(
             static function ($stringOrArrayValue, string $key) {
