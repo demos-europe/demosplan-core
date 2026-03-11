@@ -359,7 +359,7 @@ export default {
     },
 
     updatePagination (state, value) {
-      state.pagination = Object.assign(state.pagination, value)
+      state.pagination = { ...state.pagination, ...value }
     },
 
     updatePersistStatementSelection (state, value) {
