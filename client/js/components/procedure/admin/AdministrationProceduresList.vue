@@ -115,12 +115,14 @@
         v-if="showStatementCount"
         v-slot:header-count
       >
-        {{ Translator.trans('quantity') }}
-        <dp-icon
-          v-tooltip="Translator.trans('procedures.statements.count')"
-          icon="info"
-          size="small"
-        />
+        <div class="text-center">
+          {{ Translator.trans('quantity') }}
+          <dp-icon
+            v-tooltip="Translator.trans('procedures.statements.count')"
+            icon="info"
+            size="small"
+          />
+        </div>
       </template>
 
       <template
@@ -210,6 +212,11 @@ export default {
       default: false,
     },
 
+    showPhases: {
+      type: Boolean,
+      default: true,
+    },
+
     showStatementCount: {
       type: Boolean,
       default: false,
@@ -251,12 +258,12 @@ export default {
         {
           colClass: 'w-10',
           field: 'internalPhase',
-          isVisible: this.showInternalPhases,
+          isVisible: this.showInternalPhases && this.showPhases,
         },
         {
           colClass: this.showInternalPhases ? 'w-10' : 'u-1-of-4',
           field: 'externalPhase',
-          isVisible: true,
+          isVisible: this.showPhases,
           label: !this.showInternalPhases && Translator.trans('procedure.public.phase'),
         },
       ]

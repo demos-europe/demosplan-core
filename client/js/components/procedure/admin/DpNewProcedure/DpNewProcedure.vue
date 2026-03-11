@@ -181,7 +181,10 @@
         reduced-height
       />
 
-      <fieldset class="pb-0">
+      <fieldset
+        v-if="showDateRange"
+        class="pb-0"
+      >
         <legend class="weight--bold">
           {{ Translator.trans('period') }}
           <dp-contextual-help :text="Translator.trans('explanation.date.format')" />
@@ -317,6 +320,11 @@ export default {
     procedureTypes: {
       type: Array,
       required: true,
+    },
+
+    showDateRange: {
+      type: Boolean,
+      default: true,
     },
 
     token: {
