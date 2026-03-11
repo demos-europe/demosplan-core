@@ -49,18 +49,20 @@ class StatisticsGenerator
      */
     public function generateStatistics(array $allowedRoles): Statistics
     {
-        $procedureList = $this->procedureService->getProcedureFullList($this->customerService->getCurrentCustomer());
+        $procedureListOld = $this->procedureService->getProcedureFullList($this->customerService->getCurrentCustomer());
+        $procedureList = $this->procedureService->getProcedureFullList($this->customerService->getCurrentCustomer(), '' ,false);
         $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
         $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
         $originalStatements = $this->statementRepository->getOriginalStatements();
-        $amountOfProcedures = count($procedureList['result']);
+        //$amountOfProcedures = count($procedureList['result']);
+        $amountOfProcedures = count($procedureList);
         $globalStatementStatistic = new StatementStatistic($originalStatements, $amountOfProcedures);
 
         $modifiedResults = [];
-        if ($procedureList['total'] > 0) {
-            foreach ($procedureList['result'] as $procedureData) {
-                $procedureData = $this->prepareProcedureData($procedureData, $globalStatementStatistic);
-                $modifiedResults[$procedureData['id']] = $procedureData;
+        if ($amountOfProcedures) {
+            foreach ($procedureList as $procedure) {
+                $procedureData = $this->prepareProcedureData($procedure, $globalStatementStatistic);
+                $modifiedResults[$procedure->getId()] = $procedureData;
                 $internalPhases = $this->cacheProcedurePhase($procedureData, $internalPhases, 'phase');
                 $externalPhases = $this->cacheProcedurePhase($procedureData, $externalPhases, 'publicParticipationPhase');
             }
@@ -80,12 +82,12 @@ class StatisticsGenerator
     }
 
     private function prepareProcedureData(
-        array $procedureData,
+        $procedure,
         StatementStatistic $globalStatementStatistic,
     ): array {
-        $procedureData['phaseName'] = $this->globalConfig->getPhaseNameWithPriorityInternal($procedureData['phase']);
-        $procedureData['publicParticipationPhaseName'] = $this->globalConfig->getPhaseNameWithPriorityExternal($procedureData['publicParticipationPhase']);
-        $procedureData['statementStatistic'] = $globalStatementStatistic->getStatisticDataForProcedure($procedureData['id']);
+        $procedureData['phaseName'] = $this->globalConfig->getPhaseNameWithPriorityInternal($procedure->getPhase());
+        $procedureData['publicParticipationPhaseName'] = $this->globalConfig->getPhaseNameWithPriorityExternal($procedure->getPublicParticipationPhase());
+        $procedureData['statementStatistic'] = $globalStatementStatistic->getStatisticDataForProcedure($procedure->getId());
 
         return $procedureData;
     }
