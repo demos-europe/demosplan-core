@@ -93,8 +93,8 @@ All rights reserved
 
       <dp-accordion
         v-if="!isInitiallyLoading"
-        is-open
         :title="Translator.trans('audience.internal')"
+        is-open
       >
         <dp-data-table
           :header-fields="headerFields"
@@ -106,6 +106,7 @@ All rights reserved
       <dp-accordion
         v-if="!isInitiallyLoading"
         :title="Translator.trans('audience.external')"
+        is-open
       >
         <dp-data-table
           :header-fields="headerFields"
