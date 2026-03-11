@@ -39,6 +39,7 @@
             :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
             align="left"
             :groups-object="filter.groupsObject"
+            :hint="filter.labelTranslationKey!=='tags'"
             :initial-query-ids="queryIds"
             :items-object="filter.itemsObject"
             :operator="filter.comparisonOperator"

@@ -95,6 +95,12 @@
         :style="flyoutHeightStyle"
         class="w-full border--bottom overflow-y-scroll u-p-0_5"
       >
+        <dp-inline-notification
+          v-if="hint"
+          class="mb-2"
+          :message="Translator.trans('filter.hint.or.logic')"
+          type="info"
+        />
         <ul
           v-if="ungroupedOptions?.length > 0"
           class="o-list line-height--1_6"
@@ -187,6 +193,7 @@ import {
   dataTableSearch,
   DpButton,
   DpFlyout,
+  DpInlineNotification,
   DpLoading,
   DpResettableInput,
   hasOwnProp,
@@ -200,6 +207,7 @@ export default {
   components: {
     DpButton,
     DpFlyout,
+    DpInlineNotification,
     DpLoading,
     DpResettableInput,
     FilterFlyoutCheckbox,
@@ -225,6 +233,12 @@ export default {
       validator: prop => {
         return hasOwnProp(prop, 'label') && hasOwnProp(prop, 'id')
       },
+    },
+
+    hint: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     // Contains ids of applied filters from this and the neighboring filterFlyouts
