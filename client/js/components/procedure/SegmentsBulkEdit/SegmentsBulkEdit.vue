@@ -220,9 +220,9 @@
           v-if="hasPermission('feature_statement_assignment') && assignSegmentCheckedAndSelected"
           class="mt-4 pb-1"
         >
-          <label class="mb-1 weight--normal">
+          <p class="mb-1 weight--normal">
             {{ Translator.trans('segments.assign.other.confirmation') }}
-          </label>
+          </p>
           <p>
             {{ actions.assignSegment.selected.name }}
           </p>
