@@ -264,20 +264,6 @@
           <template v-slot:flyout="rowData">
             <dp-flyout data-cy="segmentsList:flyoutEditMenu">
               <a
-                class="block leading-[2] whitespace-nowrap"
-                :href="Routing.generate('dplan_statement_segments_list', {
-                  action: 'editText',
-                  procedureId: procedureId,
-                  segment: rowData.id,
-                  statementId: rowData.relationships.parentStatement.data.id
-                })"
-                data-cy="segmentsList:edit"
-                rel="noopener"
-                @click="storeNavigationContextInLocalStorage"
-              >
-                {{ Translator.trans('edit') }}
-              </a>
-              <a
                 v-if="hasPermission('feature_segment_recommendation_edit')"
                 class="block leading-[2] whitespace-nowrap"
                 :href="Routing.generate('dplan_statement_segments_list', {
@@ -290,6 +276,20 @@
                 @click="storeNavigationContextInLocalStorage"
               >
                 {{ Translator.trans('segments.recommendations.create') }}
+              </a>
+              <a
+                class="block leading-[2] whitespace-nowrap"
+                :href="Routing.generate('dplan_statement_segments_list', {
+                  action: 'editText',
+                  procedureId: procedureId,
+                  segment: rowData.id,
+                  statementId: rowData.relationships.parentStatement.data.id
+                })"
+                data-cy="segmentsList:edit"
+                rel="noopener"
+                @click="storeNavigationContextInLocalStorage"
+              >
+                {{ Translator.trans('details') }}
               </a>
               <!-- Version history view -->
               <button
