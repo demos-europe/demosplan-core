@@ -16,7 +16,7 @@
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
   >
-    <div class="flex flex-col justify-start basis-1/5 u-pt-0_5 u-pl-0_5">
+    <div class="flex flex-col justify-start basis-1/5 pt-2 pl-2">
       <v-popover
         :container="$refs.statementSegment"
         trigger="hover focus"
@@ -28,9 +28,9 @@
         />
         <span>{{ segment.attributes.externId }}</span>
         <template v-slot:popover>
-          <div class="c-statement-meta-tooltip u-ph-0 u-pv-0">
+          <div class="c-statement-meta-tooltip px-0 py-0">
             <dl>
-              <div class="weight--bold u-pb-0_5 u-pr-0_5">
+              <div class="weight--bold pb-2 pr-2">
                 {{ Translator.trans('segment') }} {{ segment.attributes.externId }}
               </div>
               <div v-if="segment.attributes.externId">
@@ -93,7 +93,7 @@
     <div class="segment-list-col--s">
       <button
         v-if="!isFullscreen"
-        class="segment-list-toggle-button btn--blank u-mh-auto"
+        class="segment-list-toggle-button btn--blank mx-auto"
         :class="{'reverse': !isCollapsed}"
         :aria-label="Translator.trans('aria.expand')"
         @click="isCollapsed = !isCollapsed"
@@ -125,12 +125,12 @@
           v-if="visibleRecommendation !== ''"
           ref="recommendationContainer"
           v-cleanhtml="visibleRecommendation"
-          class="u-mb-0_5"
+          class="mb-2"
         />
       </div>
       <div v-else>
         <dp-editor
-          class="u-mb-0_5"
+          class="mb-2"
           editor-id="recommendationText"
           :routes="{
             getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash })
@@ -154,56 +154,14 @@
               :preview-segment-id="segment.id"
               @insert="text => modalProps.handleInsertText(text)"
             />
-            <dp-modal
+            <recommendation-modal
               ref="recommendationModal"
-              class="recommendation-modal"
-              content-classes="u-2-of-3"
-            >
-              <div class="flex w-full">
-                <h3 class="u-mb">
-                  {{ Translator.trans('segment.recommendation.insert.similar') }}
-                </h3>
-                <dp-contextual-help
-                  v-if="activeId === 'oracleRec'"
-                  class="u-ml-0_25"
-                  icon="ai"
-                  size="large"
-                  :text="Translator.trans('segment.oracle.tooltip')"
-                />
-                <dp-badge
-                  v-if="activeId === 'oracleRec'"
-                  v-tooltip="Translator.trans('segment.oracle.beta.tooltip')"
-                  class="absolute right-4"
-                  size="smaller"
-                  :text="Translator.trans('segment.oracle.beta')"
-                />
-              </div>
-              <dp-tabs
-                v-if="recommendationTabAddonsLoaded"
-                :active-id="activeId"
-                @change="handleTabChange"
-              >
-                <dp-tab
-                  v-for="addon in recommendationModalAddons"
-                  :id="addon.options.id"
-                  :key="addon.options.id"
-                  :is-active="activeId === addon.options.id"
-                  :label="Translator.trans(addon.options.title)"
-                >
-                  <slot>
-                    <component
-                      :is="addon.component"
-                      class="u-mt"
-                      :data-cy="`addon:${addon.name}`"
-                      :demosplan-ui="demosplanUi"
-                      :procedure-id="addonProps.procedureId"
-                      :segment-id="addonProps.segmentId"
-                      @recommendation:insert="closeRecommendationModalAfterInsert"
-                    />
-                  </slot>
-                </dp-tab>
-              </dp-tabs>
-            </dp-modal>
+              :procedure-id="procedureId"
+              :segment-data-loaded="true"
+              :segment-id="segment.id"
+              @addons:loaded="hasRecommendationTabs = true"
+              @recommendation:insert="closeRecommendationModalAfterInsert"
+            />
           </template>
           <template v-slot:button>
             <button
@@ -239,7 +197,7 @@
         />
         <div
           v-if="showWorkflowActions"
-          class="u-mv-0_5"
+          class="my-2"
         >
           <dp-label
             class="mb-0.5 mt-2"
@@ -251,7 +209,7 @@
             id="assignableUsersSegment"
             v-model="selectedAssignee"
             :options="assignableUsers"
-            class="u-1-of-1"
+            class="w-full"
             label="name"
             track-by="id"
           />
@@ -265,7 +223,7 @@
             id="segmentPlace"
             v-model="selectedPlace"
             :allow-empty="false"
-            class="u-1-of-1"
+            class="w-full"
             label="name"
             :options="places"
             :sub-slots="['option', 'singleLabel', 'tag']"
@@ -331,14 +289,14 @@
       <dp-button-row
         v-if="isAssignedToMe && (isEditing || showWorkflowActions)"
         align="left"
-        class="u-mt-0_75"
+        class="mt-3"
         primary
         secondary
         @primary-action="save"
         @secondary-action="abort"
       />
     </div>
-    <div class="segment-list-col--m text-right shrink-2 u-ph-0_5">
+    <div class="segment-list-col--m text-right shrink-2 px-2">
       <div
         class="segment-list-toolbar"
         :class=" isAssignedToMe ? '' : 'segment-list-toolbar--dark'"
@@ -415,7 +373,7 @@
           />
           <span
             v-if="commentCount > 0"
-            class="segment-list-toolbar__badge o-badge--darker block absolute u-ml u-n-mt"
+            class="segment-list-toolbar__badge o-badge--darker block absolute ml-4 -mt-4"
           >
             {{ commentCount }}
           </span>
@@ -445,31 +403,25 @@
 </template>
 
 <script>
-import * as demosplanUi from '@demos-europe/demosplan-ui'
 import {
   CleanHtml,
   dpApi,
-  DpBadge,
   DpButtonRow,
   DpCheckbox,
   DpContextualHelp,
   DpIcon,
   DpLabel,
-  DpModal,
   DpMultiselect,
-  DpTab,
-  DpTabs,
   prefixClassMixin,
   Tooltip,
   VPopover,
 } from '@demos-europe/demosplan-ui'
-import { defineAsyncComponent, shallowRef } from 'vue'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
-import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
+import RecommendationModal from '../Shared/RecommendationModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 
 export default {
@@ -478,24 +430,20 @@ export default {
   inject: ['procedureId'],
 
   components: {
-    AddonWrapper,
-    DpBadge,
     DpBoilerPlateModal,
     DpButtonRow,
     DpCheckbox,
     DpContextualHelp,
     DpClaim,
-    DpIcon,
-    DpLabel,
-    DpModal,
-    DpMultiselect,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     }),
-    DpTab,
-    DpTabs,
+    DpIcon,
+    DpLabel,
+    DpMultiselect,
     ImageModal,
+    RecommendationModal,
     TextContentRenderer,
     VPopover,
   },
@@ -544,22 +492,14 @@ export default {
 
   data () {
     return {
-      activeId: '',
-      addonProps: {
-        segmentId: this.segment.id,
-        procedureId: this.procedureId,
-      },
       claimLoading: false,
-      customFieldValues: {},
       currentUserName: this.currentUserFirstName + ' ' + this.currentUserLastName,
-      demosplanUi: shallowRef(demosplanUi),
+      customFieldValues: {},
+      hasRecommendationTabs: false,
       isCollapsed: !(this.segment.relationships?.assignee?.data && this.segment.relationships.assignee.data.id === this.currentUserId),
       isEditing: false,
       isFullscreen: false,
       isHover: false,
-      recommendationModalAddons: [],
-      recommendationTabAddonsLoaded: false,
-      refRecModal: 'recommendationModal',
       selectedAssignee: {},
       selectedPlace: { id: '', type: 'Place' },
       showWorkflowActions: false,
@@ -641,10 +581,6 @@ export default {
 
     isAssignedToMe () {
       return this.assignee.id === this.currentUserId
-    },
-
-    hasRecommendationTabs () {
-      return this.recommendationModalAddons.length > 0
     },
 
     places () {
@@ -795,10 +731,6 @@ export default {
       }
 
       return selectedOption
-    },
-
-    handleTabChange (id) {
-      this.activeId = id
     },
 
     hasPolygonFeatures () {
@@ -999,10 +931,6 @@ export default {
           this.setProperty({ prop: 'isLoading', val: false })
           this.isEditing = false
         })
-    },
-
-    setActiveTabId (id) {
-      this.activeId = id
     },
 
     /**
@@ -1218,26 +1146,6 @@ export default {
     if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
       this.setInitiallySelectedCustomFieldValues()
     }
-
-    loadAddonComponents('segment.recommendationModal.tab')
-      .then(addons => {
-        if (!addons.length) {
-          return
-        }
-
-        this.activeId = (addons[0].options && addons[0].options.id) || ''
-        this.recommendationTabAddonsLoaded = true
-
-        this.recommendationModalAddons = addons.map(addon => {
-          const { name, options } = addon
-
-          return {
-            component: shallowRef(window[name].default),
-            name,
-            options,
-          }
-        })
-      })
   },
 }
 </script>
