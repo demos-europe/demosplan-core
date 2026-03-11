@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Fixed
+- Fix redirect to split-view after claiming statement and correct unclaim behavior to prevent false assignee confirmation dialog
+
 ## v4.31.0 (2026-02-25)
 ### Changed
 - bump demosplan-addon version from v0.65 to v0.67
@@ -16,6 +19,12 @@
 ## v4.30.3 (2026-03-03)
 ## v4.30.2 (2026-02-24)
 ## v4.28.1 (2026-02-04)
+
+## v4.6.3 (2026-02-18)
+- Allow to configure procedures to accept or not anonymous statements
+- Export Original Statements as docx in the Statement List
+- Allow filtering of institution tags in DpAddOrganizationList
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
 
 ## v4.30.0 (2026-02-12)
 ### Added
@@ -157,6 +166,7 @@
 
 ## v4.4.0 (2025-06-13)
 
+## v4.3.7 (2026-02-17)
 ## v4.3.5 (2025-11-24)
 ## 4.3.4 (2025-11-14)
 - implement option to import additional submitters via statement ID in statement imports via xlsx
