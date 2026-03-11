@@ -559,6 +559,7 @@ confirm.mapsection.saved: "Ihre Einstellungen beim Kartenausschnitt wurden gespe
 confirm.merge.orgas: "Soll die neu angemeldete Organisation mit der Organisation aus der Master-TöB-Liste zusammengeführt werden? Dieser Vorgang kann nicht rückgängig gemacht werden!"
 confirm.merge.success: "Die Organisationen wurden zusammengeführt."
 confirm.notification.saved: "Ihr Abonnement wurde gespeichert."
+confirm.organisation.switched: "Die Organisation wurde gewechselt."
 confirm.orga.created: "Die Organisation {orgaName} wurde erstellt."
 confirm.orga.updated: "Die Daten der Organisation {orgaName} wurden aktualisiert."
 confirm.orga.deleted: |
@@ -1305,6 +1306,8 @@ error.organisation.not.existent: "Ausgewählte Organisation wurde nicht gefunden
 error.organisation.not.selected: "Es wurden keine zwei Organisationen ausgewählt"
 error.organisation.not.switched: "Die Organisation konnte nicht gewechselt werden"
 error.organisation.of.user.not.found: "Es konnte keine Organisation zum/-r Nutzer*in gefunden werden."
+error.organisation.selection.invalid: "Sie gehören nicht zu der ausgewählten Organisation."
+error.organisation.selection.missing: "Bitte wählen Sie eine Organisation aus."
 error.institution.not.invited: "Eine oder mehrere Institutionen sind nicht zu diesem Verfahren eingeladen."
 error.paragraph.no_circular_references: "Ein Kapitel darf keinem seiner eigenen Unterkapitel als Unterkapitel zugewiesen werden."
 error.paragraph.no_self_references: "Ein Kapitel darf sich nicht selbst als Unterkapitel zugewiesen werden."
@@ -1973,6 +1976,7 @@ gislayer.defined: 'Kartenebenen sind definiert'
 gislayer.define: 'Kartenebenen definieren'
 gislayer.visibilitygroup.toggle: 'Sichtbarkeit der Gruppe umschalten'
 gislayer.removed.from.visibility.group: 'Wenn Sie Ihre Änderungen speichern, werden die folgenden Kartenebenen aus ihrer Sichtbarkeitsgruppe entfernt: {layers}.'
+gislayer.scope.hint: "Ist die Option \"Geltungsbereich\" aktiviert, wird diese Kartenebene als Geltungsbereich in der Beteiligungsebene verwendet. Ein manuell eingezeichneter Geltungsbereich wird in diesem Fall nicht angezeigt. Um den manuellen Geltungsbereich zu verwenden, stellen Sie sicher, dass diese Option in allen Kartenebenen deaktiviert ist."
 globalnews.administrate: "Portal-Mitteilungen verwalten"
 globalnews: "Portal-Mitteilungen"
 go.back.to.personal.data: "Zurück zu Kontaktdaten"
@@ -2324,6 +2328,7 @@ maps: "Karten"
 maps.dashboard: "maps.dashboard"
 mapsection.define: "Kartenausschnitt definieren"
 mapsection: "Startkartenausschnitt / Kartenbegrenzung"
+map.territory.hint: " Um den hier eingezeichneten Geltungsbereich in der Beteiligungsebene anzuzeigen, stellen Sie bitte sicher, dass für keine der in diesem Verfahren hinterlegten Kartenebenen die Option \"Geltungsbereich\" ausgewählt ist. Ansonsten wird die jeweilige Kartenebene als Geltungsbereich angezeigt, und der hier eingezeichnete Geltungsbereich wird nicht angezeigt."
 maptools: "Kartenwerkzeuge"
 maptools.explanation: "Kartenwerkzeug durch Klick aktivieren oder deaktivieren. Die Messung durch Klick in die Karte starten. Die Messung durch Doppelklick beenden. Die Messungen bleiben sichtbar bis sie mit \"Messungen entfernen\" aus der Karte entfernt werden."
 markall: "Alle markieren"
@@ -2470,6 +2475,10 @@ organisation.publication.disagreed: "{organisation} hat der Veröffentlichung ni
 organisation.select: "Organisation {name} auswählen"
 organisation.select.first: "Bitte wählen Sie zuerst eine Organisation aus."
 organisation.switch: "Organisation wechseln"
+organisation.select.confirm: "Organisation auswählen"
+organisation.select.description: "Sie sind mehreren Organisationen zugeordnet. Bitte wählen Sie die Organisation aus, mit der Sie arbeiten möchten."
+organisation.select.heading: "Organisation auswählen"
+organisation.select.aria.label: "Organisation {name} auswählen"
 organisation: "Organisation"
 organisation.name: "Name der Organisation"
 organisation.name.guest: "Name der Organisation (nicht registriert)"

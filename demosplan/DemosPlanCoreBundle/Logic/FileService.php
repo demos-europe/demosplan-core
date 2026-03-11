@@ -1180,7 +1180,10 @@ class FileService implements FileServiceInterface
             // Without this, concurrent requests from the same browser will hit a
             // "Lock wait timeout exceeded" error if the scan takes longer than
             // innodb_lock_wait_timeout (default 50s).
-            $this->requestStack->getSession()->save();
+            // In CLI/async contexts (e.g. message consumer) there is no HTTP session to save.
+            if (null !== $this->requestStack->getCurrentRequest()) {
+                $this->requestStack->getSession()->save();
+            }
             $this->virusCheck($symfonyFile);
         }
 
