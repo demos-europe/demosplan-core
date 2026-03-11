@@ -416,14 +416,13 @@ import {
   Tooltip,
   VPopover,
 } from '@demos-europe/demosplan-ui'
-import { defineAsyncComponent } from 'vue'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
+import RecommendationModal from '../Shared/RecommendationModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
-import RecommendationModal from '../Shared/RecommendationModal.vue'
 
 export default {
   name: 'StatementSegment',
@@ -431,7 +430,6 @@ export default {
   inject: ['procedureId'],
 
   components: {
-    AddonWrapper,
     DpBoilerPlateModal,
     DpButtonRow,
     DpCheckbox,
@@ -1148,7 +1146,6 @@ export default {
     if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
       this.setInitiallySelectedCustomFieldValues()
     }
-
   },
 }
 </script>
