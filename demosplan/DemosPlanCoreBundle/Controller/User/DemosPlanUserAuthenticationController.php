@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHasher;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -301,6 +302,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         CacheInterface $cache,
         CurrentUserInterface $currentUser,
         CustomerService $customerService,
+        CustomerOAuthConfigRepository $customerOAuthConfigRepository,
         ParameterBagInterface $parameterBag,
         Request $request,
     ) {
@@ -346,18 +348,21 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             });
         }
 
+        $currentCustomerEntity = $customerService->getCurrentCustomer();
         $useIdp = false;
         // this check needs to be reworked once we know better how to save oauth parameters by customer
         if ('' !== $parameterBag->get('oauth_client')
-            && 'bb' === $customerService->getCurrentCustomer()->getSubdomain()) {
+            && 'bb' === $currentCustomerEntity->getSubdomain()) {
             $useIdp = true;
         }
 
+        $hasDynamicOAuthConfig = null !== $customerOAuthConfigRepository->findByCustomer($currentCustomerEntity);
         $useAzureSso = $parameterBag->get('azure_sso_enabled');
         $useAzureCustomers = $parameterBag->get('azure_sso_customers');
         if ($useAzureSso && is_array($useAzureCustomers)) {
             $useAzureSso = in_array($currentCustomer, $useAzureCustomers, true);
         }
+        $useAzureSso = $useAzureSso || $hasDynamicOAuthConfig;
 
         return $this->render(
             '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',
