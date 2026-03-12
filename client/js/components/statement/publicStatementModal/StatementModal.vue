@@ -162,13 +162,13 @@
         <!-- Existing draft WITHOUT localStorage: CustomFieldsList self-fetches, manages fieldset internally -->
         <custom-fields-list
           v-if="(draftStatementId && !draftHasLocalStorageData) && hasPermission('feature_statements_custom_fields')"
-          mode="editable"
-          resource-type="DraftStatement"
           :class="prefixClass('mb-2')"
           :definition-source-id="procedureId"
           :list-title="Translator.trans('statement.data')"
           :resource-id="draftStatementId"
           :show-empty="true"
+          mode="editable"
+          resource-type="DraftStatement"
           @loaded="handleCustomFieldsListLoaded"
           @save:error="handleCustomFieldSaveError"
           @update:value="handleCustomFieldValueUpdateFromList"
@@ -184,14 +184,14 @@
           </legend>
           <custom-field
             v-for="customField in selectableCustomFields"
-            ref="customFieldRefs"
             :key="customField.id"
-            mode="editable"
-            resource-type="DraftStatement"
+            ref="customFieldRefs"
             :class="prefixClass('mb-2')"
             :definition-source-id="procedureId"
             :field-data="{ id: customField.id, value: customField.value }"
             :resource-id="draftStatementId"
+            mode="editable"
+            resource-type="DraftStatement"
             @save:error="handleCustomFieldSaveError"
             @update:value="(value) => handleCustomFieldValueUpdate(customField.id, value)"
           />

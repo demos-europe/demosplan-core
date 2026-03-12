@@ -21,8 +21,8 @@ All rights reserved
     </dt>
     <dd :class="prefixClass('ml-1')">
       <slot
-        name="readonly-display"
         :field="field"
+        name="readonly-display"
       >
         <span v-if="currentValue">
           {{ currentValue.label }}

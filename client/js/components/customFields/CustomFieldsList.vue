@@ -21,10 +21,10 @@ All rights reserved
       >
         <dp-details :summary="listTitle">
           <slot
+            :definition-source-id="definitionSourceId"
             :enable-toggle="enableToggle"
             :fields="fieldsToRender"
             :mode="mode"
-            :definition-source-id="definitionSourceId"
             :resource-id="resourceId"
             :resource-type="resourceType"
           >
@@ -52,8 +52,8 @@ All rights reserved
                   v-slot:readonly-display="slotProps"
                 >
                   <slot
-                    name="readonly-display"
                     v-bind="slotProps"
+                    name="readonly-display"
                   />
                 </template>
               </custom-field>
@@ -62,10 +62,10 @@ All rights reserved
         </dp-details>
         <dp-contextual-help
           v-if="titleInfoText"
-          icon="info"
-          size="medium"
           :class="prefixClass('self-start')"
           :text="titleInfoText"
+          icon="info"
+          size="medium"
         />
       </div>
 
@@ -82,15 +82,15 @@ All rights reserved
         </legend>
         <dp-contextual-help
           v-if="titleInfoText"
+          :text="titleInfoText"
           icon="info"
           size="medium"
-          :text="titleInfoText"
         />
         <slot
+          :definition-source-id="definitionSourceId"
           :enable-toggle="enableToggle"
           :fields="fieldsToRender"
           :mode="mode"
-          :definition-source-id="definitionSourceId"
           :resource-id="resourceId"
           :resource-type="resourceType"
         >
@@ -118,8 +118,8 @@ All rights reserved
                 v-slot:readonly-display="slotProps"
               >
                 <slot
-                  name="readonly-display"
                   v-bind="slotProps"
+                  name="readonly-display"
                 />
               </template>
             </custom-field>
@@ -139,16 +139,16 @@ All rights reserved
           </component>
           <dp-contextual-help
             v-if="titleInfoText"
+            :text="titleInfoText"
             icon="info"
             size="medium"
-            :text="titleInfoText"
           />
         </div>
         <slot
+          :definition-source-id="definitionSourceId"
           :enable-toggle="enableToggle"
           :fields="fieldsToRender"
           :mode="mode"
-          :definition-source-id="definitionSourceId"
           :resource-id="resourceId"
           :resource-type="resourceType"
         >
@@ -176,8 +176,8 @@ All rights reserved
                 v-slot:readonly-display="slotProps"
               >
                 <slot
-                  name="readonly-display"
                   v-bind="slotProps"
+                  name="readonly-display"
                 />
               </template>
             </custom-field>

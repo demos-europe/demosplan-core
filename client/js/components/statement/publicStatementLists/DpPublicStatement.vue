@@ -264,14 +264,14 @@
     </div>
     <custom-fields-list
       v-if="hasPermission('feature_statements_custom_fields')"
-      resource-type="DraftStatement"
-      :resource-id="id"
+      :class="prefixClass('w-full mt-4')"
       :definition-source-id="procedureId"
       :list-title="Translator.trans('statement.data')"
-      mode="readonly"
+      :resource-id="id"
       :show-empty="false"
+      mode="readonly"
+      resource-type="DraftStatement"
       expandable
-      :class="prefixClass('w-full mt-4')"
     />
   </dp-table-card>
 </template>

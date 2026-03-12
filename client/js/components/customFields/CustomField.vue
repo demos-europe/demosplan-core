@@ -27,18 +27,18 @@ All rights reserved
               v-slot:readonly-display="slotProps"
             >
               <slot
-                name="readonly-display"
                 v-bind="slotProps"
+                name="readonly-display"
               />
             </template>
           </component>
         </div>
         <dp-button
-          hide-text
-          icon="edit"
-          variant="subtle"
           :aria-label="Translator.trans('edit')"
           :text="Translator.trans('edit')"
+          icon="edit"
+          variant="subtle"
+          hide-text
           @click="startEditing"
         />
       </div>
@@ -57,22 +57,22 @@ All rights reserved
         </div>
         <div>
           <dp-button
-            hide-text
-            icon="check"
-            variant="subtle"
             :aria-label="Translator.trans('save')"
             :class="prefixClass('mr-1')"
             :disabled="isSaving"
             :text="Translator.trans('save')"
+            icon="check"
+            variant="subtle"
+            hide-text
             @click="saveEdit"
           />
           <dp-button
-            hide-text
-            icon="x"
-            variant="subtle"
             :aria-label="Translator.trans('abort')"
             :disabled="isSaving"
             :text="Translator.trans('abort')"
+            icon="x"
+            variant="subtle"
+            hide-text
             @click="cancelEdit"
           />
         </div>
@@ -92,8 +92,8 @@ All rights reserved
         v-slot:readonly-display="slotProps"
       >
         <slot
-          name="readonly-display"
           v-bind="slotProps"
+          name="readonly-display"
         />
       </template>
     </component>

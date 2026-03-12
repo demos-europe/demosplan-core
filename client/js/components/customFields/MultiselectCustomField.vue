@@ -21,8 +21,8 @@ All rights reserved
     </dt>
     <dd :class="prefixClass('ml-1')">
       <slot
-        name="readonly-display"
         :field="field"
+        name="readonly-display"
       >
         <div
           v-if="currentValue.length > 0"
@@ -58,10 +58,10 @@ All rights reserved
     <dp-multiselect
       :id="`custom-field-${field.id}`"
       :data-dp-validate-error-fieldname="field.attributes.name"
-      :value="currentValue"
       :options="(field.attributes?.options || []).filter(opt => opt != null)"
       :placeholder="Translator.trans('choose')"
       :required="field.attributes.isRequired"
+      :value="currentValue"
       label="label"
       track-by="id"
       multiple

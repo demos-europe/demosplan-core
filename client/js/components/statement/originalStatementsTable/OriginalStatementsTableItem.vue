@@ -110,15 +110,15 @@
 
         <custom-fields-list
           v-if="hasPermission('field_statements_custom_fields')"
-          resource-type="OriginalStatement"
-          :resource-id="statementId"
           :definition-source-id="procedureId"
           :list-title="Translator.trans('statement.data')"
-          mode="readonly"
+          :resource-id="statementId"
           :show-empty="false"
           :title-info-text="Translator.trans('custom.fields.submitter.info')"
-          expandable
           class="px-6 mb-4"
+          mode="readonly"
+          resource-type="OriginalStatement"
+          expandable
         >
           <template v-slot:readonly-display="{ field }">
             <span>{{ (field.value?.selectedOptions || []).map(opt => opt.label).join(', ') }}</span>

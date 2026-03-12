@@ -516,18 +516,18 @@
           <!--  custom fields  -->
           <dp-item-row
             v-if="hasPermission('feature_statements_custom_fields') && hasCustomFieldContent !== false"
-            title="custom.fields"
             class="pb-0"
+            title="custom.fields"
           >
             <custom-fields-list
-              resource-type="Statement"
-              title-class="font-[600] mb-2"
               :definition-source-id="procedureId"
               :enable-toggle="true"
               :list-title="Translator.trans('statement.data')"
               :resource-id="statement.id"
               :show-empty="true"
               :title-info-text="Translator.trans('custom.fields.submitter.info')"
+              resource-type="Statement"
+              title-class="font-[600] mb-2"
               @has-content="val => hasCustomFieldContent = val"
               @save:error="handleCustomFieldSaveError"
               @save:success="handleCustomFieldSaveSuccess"
