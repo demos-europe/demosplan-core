@@ -352,7 +352,7 @@ class FileService implements FileServiceInterface
      */
     public function getNotFoundImagePath()
     {
-        return DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Resources/public/img/placeholder.png');
+        return DemosPlanPath::getProjectPath('web/img/placeholder.png');
     }
 
     /**
