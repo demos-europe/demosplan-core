@@ -76,7 +76,7 @@ class ProcedureExtension extends ExtensionBase
      *
      * @param string $type auto|public
      */
-    public function getPhase(array|Procedure $procedure, string $type = 'auto', ?string $givenPhase = null): string
+    public function getPhase(array|Procedure $procedure, string $type = 'auto'): string
     {
         try {
             $procedure = $this->getProcedureObject($procedure);
@@ -95,18 +95,10 @@ class ProcedureExtension extends ExtensionBase
 
         // return external/public phaseName
         if ($publicNameRequested && $this->permissions->hasPermission('area_public_participation')) {
-            if (null !== $givenPhase) {
-                return $this->globalConfig->getPhaseNameWithPriorityExternal($givenPhase);
-            }
-
             return $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName();
         }
 
         // return internal phaseName
-        if (null !== $givenPhase) {
-            return $this->globalConfig->getPhaseNameWithPriorityInternal($givenPhase);
-        }
-
         return $procedure->getPhaseObject()->getPhaseDefinition()->getName();
     }
 
