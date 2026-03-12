@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakClientFactory;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHasher;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -303,6 +304,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         CurrentUserInterface $currentUser,
         CustomerService $customerService,
         CustomerOAuthConfigRepository $customerOAuthConfigRepository,
+        OzgKeycloakClientFactory $ozgKeycloakClientFactory,
         ParameterBagInterface $parameterBag,
         Request $request,
     ) {
@@ -363,7 +365,13 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             $useAzureSso = in_array($currentCustomer, $useAzureCustomers, true);
         }
         $useSso = $useAzureSso || $hasDynamicOAuthConfig;
-        $ssoRoute = $hasDynamicOAuthConfig ? 'connect_keycloak_ozg_start' : 'connect_azure_start';
+        if ($hasDynamicOAuthConfig && $ozgKeycloakClientFactory->isCurrentCustomerAzure()) {
+            $ssoRoute = 'connect_azure_start';
+        } elseif ($hasDynamicOAuthConfig) {
+            $ssoRoute = 'connect_keycloak_ozg_start';
+        } else {
+            $ssoRoute = 'connect_azure_start';
+        }
 
         return $this->render(
             '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',
