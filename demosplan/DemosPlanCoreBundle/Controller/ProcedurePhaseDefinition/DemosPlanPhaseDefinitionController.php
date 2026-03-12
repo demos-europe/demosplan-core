@@ -24,7 +24,7 @@ class DemosPlanPhaseDefinitionController extends BaseController
     public function procedurePhaseDefinitions(): Response
     {
         return $this->render(
-            '@DemosPlanCore/DemosPlanProcedure/procedure_phases_definition.html.twig',
+            '@DemosPlanCore/DemosPlanProcedurePhasesDefinition/procedure_phases_definition.html.twig',
             ['title' => 'phases.definition']
         );
     }
