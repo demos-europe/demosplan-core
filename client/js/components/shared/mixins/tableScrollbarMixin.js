@@ -17,43 +17,32 @@
  * <div
  *   ref="scrollBar"
  *   class="sticky bottom-0 left-0 right-0 -mt-3 overflow-x-scroll overflow-y-hidden">
- *   <div :style="scrollbarInnerStyle" />
+ *   <div />
  * </div>
  *
  * Important thing to note is that both elements should have exactly the refs shown in the example.
  * Also, within the using component, `isLoading` should be present within data.
  */
 export default {
-  data () {
-    return {
-      scrollbarInnerStyle: {
-        height: '1px',
-        width: '0px',
-      },
-      scrollbarVisible: false,
-    }
-  },
-
   methods: {
     /**
      * Adjust the width of the inner element of the footer scrollbar to the width of the Table,
      * conditionally hide or show scrollbar.
      */
     updateScrollbarStyles () {
-      const tableWidth = window.getComputedStyle(this.dataTableElement).width
-      const tableContainerWidth = window.getComputedStyle(this.dataTableContainerElement).width
+      const scrollWidth = this.dataTableContainerElement.scrollWidth
+      const clientWidth = this.dataTableContainerElement.clientWidth
 
-      if (parseFloat(tableWidth) > parseFloat(tableContainerWidth)) {
-        this.scrollbarVisible = true
-        this.scrollbarInnerStyle = {
-          height: '1px',
-          minWidth: tableWidth,
-          width: tableWidth,
-        }
+      if (scrollWidth > clientWidth) {
+        this.scrollbar.classList.remove('hidden')
+        this.scrollbar.firstElementChild.style.width = scrollWidth + 'px'
+        this.scrollbar.firstElementChild.style.height = '1px'
+        this.dataTableContainerElement.classList.add('has-scrollable-content')
       } else {
-        this.scrollbarVisible = false
+        this.scrollbar.classList.add('hidden')
+        this.dataTableContainerElement.classList.remove('has-scrollable-content')
       }
-    },
+    }
   },
 
   created () {
@@ -70,7 +59,6 @@ export default {
         this.scrollbar = this.$refs?.scrollBar
         this.dataTableContainerElement = this.$refs?.dataTable?.$el
         this.dataTableElement = this.$refs?.dataTable?.$refs?.tableEl
-
         if (!this.dataTableContainerElement) {
           return
         }
@@ -86,12 +74,16 @@ export default {
 
         // Observe changes to dataTable to update scrollbar accordingly
         this.dataTableObserver = new ResizeObserver(this.updateScrollbarStyles.bind(this))
-        this.dataTableObserver.observe(this.dataTableElement)
+
+        if (this.dataTableElement) {
+          this.dataTableObserver.observe(this.dataTableElement)
+        }
+
         this.dataTableObserver.observe(this.dataTableContainerElement)
 
         // Set scrollbar width or conditionally hide it.
         this.updateScrollbarStyles()
       })
     })
-  },
+  }
 }
