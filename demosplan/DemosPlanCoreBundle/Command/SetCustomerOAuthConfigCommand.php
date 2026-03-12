@@ -13,8 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\CustomerOAuthConfig;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use JsonException;
@@ -39,6 +41,7 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
         private readonly EntityManagerInterface $entityManager,
         private readonly CustomerRepository $customerRepository,
         private readonly CustomerOAuthConfigRepository $configRepository,
+        private readonly OrgaRepository $orgaRepository,
         ParameterBagInterface $parameterBag,
         ?string $name = null,
     ) {
@@ -91,7 +94,8 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
               }
 
             Required fields: <comment>clientId</comment>, <comment>clientSecret</comment>, <comment>authServerUrl</comment>, <comment>realm</comment>
-            Optional fields: <comment>logoutRoute</comment> (falls back to global oauth_keycloak_logout_route parameter)
+            Optional fields: <comment>logoutRoute</comment> (falls back to global oauth_keycloak_logout_route parameter),
+                             <comment>defaultOrganisationId</comment> (organisation ID for auto-provisioning new Azure users)
 
             <info>Interactive mode:</info>
 
@@ -205,22 +209,26 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
             return Command::FAILURE;
         }
 
+        $existingDefaultOrgId = $existingConfig?->getDefaultOrganisation()?->getId();
+
         $customerConfig = [
-            'clientId'      => $io->ask('Client ID', $existingConfig?->getKeycloakClientId()),
-            'clientSecret'  => $clientSecret,
-            'authServerUrl' => $io->ask('Auth Server URL (e.g. https://keycloak.example.com/auth)', $existingConfig?->getKeycloakAuthServerUrl()),
-            'realm'         => $io->ask('Realm', $existingConfig?->getKeycloakRealm()),
-            'logoutRoute'   => $io->ask('Logout Route (optional, press Enter to skip)', $existingConfig?->getKeycloakLogoutRoute()),
+            'clientId'               => $io->ask('Client ID', $existingConfig?->getKeycloakClientId()),
+            'clientSecret'           => $clientSecret,
+            'authServerUrl'          => $io->ask('Auth Server URL (e.g. https://keycloak.example.com/auth)', $existingConfig?->getKeycloakAuthServerUrl()),
+            'realm'                  => $io->ask('Realm', $existingConfig?->getKeycloakRealm()),
+            'logoutRoute'            => $io->ask('Logout Route (optional, press Enter to skip)', $existingConfig?->getKeycloakLogoutRoute()),
+            'defaultOrganisationId'  => $io->ask('Default Organisation ID for auto-provisioning (optional)', $existingDefaultOrgId),
         ];
 
         $io->section('Summary');
         $io->definitionList(
             ['Subdomain' => $subdomain],
-            ['Client ID'       => $customerConfig['clientId']],
-            ['Client Secret'   => '********'],
-            ['Auth Server URL' => $customerConfig['authServerUrl']],
-            ['Realm'           => $customerConfig['realm']],
-            ['Logout Route'    => $customerConfig['logoutRoute'] ?? '(global default)'],
+            ['Client ID'              => $customerConfig['clientId']],
+            ['Client Secret'          => '********'],
+            ['Auth Server URL'        => $customerConfig['authServerUrl']],
+            ['Realm'                  => $customerConfig['realm']],
+            ['Logout Route'           => $customerConfig['logoutRoute'] ?? '(global default)'],
+            ['Default Organisation'   => $customerConfig['defaultOrganisationId'] ?? '(none)'],
         );
 
         if ($io->confirm('Save this configuration?')) {
@@ -290,5 +298,16 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
         $config->setKeycloakAuthServerUrl($customerConfig['authServerUrl']);
         $config->setKeycloakRealm($customerConfig['realm']);
         $config->setKeycloakLogoutRoute($customerConfig['logoutRoute'] ?? null);
+
+        $defaultOrgId = $customerConfig['defaultOrganisationId'] ?? null;
+        if (is_string($defaultOrgId) && '' !== $defaultOrgId) {
+            $orga = $this->orgaRepository->get($defaultOrgId);
+            if (!$orga instanceof Orga) {
+                throw new InvalidArgumentException(sprintf('No organisation found with ID "%s"', $defaultOrgId));
+            }
+            $config->setDefaultOrganisation($orga);
+        } elseif (null === $defaultOrgId || '' === $defaultOrgId) {
+            $config->setDefaultOrganisation(null);
+        }
     }
 }
