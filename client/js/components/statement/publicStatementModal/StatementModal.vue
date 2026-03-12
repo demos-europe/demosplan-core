@@ -170,7 +170,6 @@
           mode="editable"
           resource-type="DraftStatement"
           @loaded="handleCustomFieldsListLoaded"
-          @save:error="handleCustomFieldSaveError"
           @update:value="handleCustomFieldValueUpdateFromList"
         />
 
@@ -192,7 +191,6 @@
             :resource-id="draftStatementId"
             mode="editable"
             resource-type="DraftStatement"
-            @save:error="handleCustomFieldSaveError"
             @update:value="(value) => handleCustomFieldValueUpdate(customField.id, value)"
           />
         </fieldset>
@@ -1791,13 +1789,6 @@ export default {
         this.draftStatementId,
         customFieldValues,
       )
-    },
-
-    /**
-     * Handle custom field save errors
-     */
-    handleCustomFieldSaveError (payload) {
-      console.error('Custom field save error:', payload)
     },
 
     handleCustomFieldValueUpdateFromList ({ fieldId, value }) {
