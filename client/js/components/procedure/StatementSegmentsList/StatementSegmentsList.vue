@@ -60,7 +60,7 @@
               data-cy="editText"
               @click="currentAction = 'editText'"
             >
-              {{ Translator.trans('edit') }}
+              {{ Translator.trans('details') }}
             </button>
           </div>
         </div>
