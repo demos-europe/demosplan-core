@@ -529,8 +529,6 @@
               resource-type="Statement"
               title-class="font-[600] mb-2"
               @has-content="val => hasCustomFieldContent = val"
-              @save:error="handleCustomFieldSaveError"
-              @save:success="handleCustomFieldSaveSuccess"
             >
               <template v-slot:readonly-display="{ field }">
                 <span v-if="field.value?.selectedOptions?.length > 0">
@@ -1317,19 +1315,6 @@ export default {
         .then(updatedField => {
           this.$root.$emit('entityTextSaved:' + this.statementId, { entityId: this.statementId, field: updatedField }) // Used in EditableText.vue to update short and full texts
         })
-    },
-
-    /**
-     * Handle successful custom field save (Option B - enableToggle)
-     * @param {Object} data - { fieldId, value }
-     */
-    handleCustomFieldSaveSuccess () {
-      this.$root.$emit('entity:updated', this.statementId, 'statement')
-      dplan.notify.confirm(Translator.trans('confirm.saved'))
-    },
-
-    handleCustomFieldSaveError () {
-      dplan.notify.error(Translator.trans('error.changes.not.saved'))
     },
 
     showAllFragments (checked) {
