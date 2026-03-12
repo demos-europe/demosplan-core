@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\CustomerOAuthConfig;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Console\Command\Command;
@@ -30,6 +31,7 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
     private (MockObject&EntityManagerInterface)|null $entityManagerMock = null;
     private (MockObject&CustomerRepository)|null $customerRepositoryMock = null;
     private (MockObject&CustomerOAuthConfigRepository)|null $configRepositoryMock = null;
+    private (MockObject&OrgaRepository)|null $orgaRepositoryMock = null;
     private (MockObject&ParameterBagInterface)|null $parameterBagMock = null;
 
     /** @var list<string>|null */
@@ -47,6 +49,7 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
         $this->entityManagerMock = $this->createMock(EntityManagerInterface::class);
         $this->customerRepositoryMock = $this->createMock(CustomerRepository::class);
         $this->configRepositoryMock = $this->createMock(CustomerOAuthConfigRepository::class);
+        $this->orgaRepositoryMock = $this->createMock(OrgaRepository::class);
         $this->parameterBagMock = $this->createMock(ParameterBagInterface::class);
     }
 
@@ -219,6 +222,7 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
             self::AUTH_SERVER_URL, // authServerUrl
             self::REALM,          // realm
             '',                   // logoutRoute (skip)
+            '',                   // defaultOrganisationId (skip)
             'yes',                // confirm
         ]);
 
@@ -243,6 +247,7 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
             self::AUTH_SERVER_URL,
             self::REALM,
             '',
+            '',   // defaultOrganisationId (skip)
             'no', // deny
         ]);
 
@@ -287,6 +292,7 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
             '',               // keep default authServerUrl
             '',               // keep default realm
             '',               // skip logoutRoute
+            '',               // skip defaultOrganisationId
             'yes',
         ]);
 
@@ -357,6 +363,7 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
                 $this->entityManagerMock,
                 $this->customerRepositoryMock,
                 $this->configRepositoryMock,
+                $this->orgaRepositoryMock,
                 $this->parameterBagMock,
             )
         );

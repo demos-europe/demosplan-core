@@ -362,14 +362,16 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         if ($useAzureSso && is_array($useAzureCustomers)) {
             $useAzureSso = in_array($currentCustomer, $useAzureCustomers, true);
         }
-        $useAzureSso = $useAzureSso || $hasDynamicOAuthConfig;
+        $useSso = $useAzureSso || $hasDynamicOAuthConfig;
+        $ssoRoute = $hasDynamicOAuthConfig ? 'connect_keycloak_ozg_start' : 'connect_azure_start';
 
         return $this->render(
             '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',
             [
                 'title'           => 'user.login',
                 'useIdp'          => $useIdp,
-                'useAzureSso'     => $useAzureSso,
+                'useSso'          => $useSso,
+                'ssoRoute'        => $ssoRoute,
                 'customers'       => $customers,
                 'currentCustomer' => $currentCustomer,
                 'loginList'       => [
