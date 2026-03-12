@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -47,6 +48,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         private readonly EntityManagerInterface $entityManager,
         private readonly MessageBagInterface $messageBag,
         private readonly OAuthTokenStorageService $oauthTokenStorageService,
+        private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
         private readonly OzgKeycloakUserData $ozgKeycloakUserData,
         private readonly LoggerInterface $logger,
         private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
@@ -137,6 +139,18 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                     'user_id' => $userId,
                     'error'   => $e->getMessage(),
                 ]);
+            }
+
+            // In login-only mode, token refresh never runs so:
+            // - id_token never rotates → store it once here for KeyCloak logout
+            // - EXPIRATION_TIMESTAMP is never updated by syncSession() → set it here to the PHP session lifetime
+            if ($this->ozgKeycloakSessionManager->isKeycloakLoginOnly()) {
+                $rawIdToken = $accessToken->getValues()['id_token'] ?? null;
+                if (null !== $rawIdToken) {
+                    $this->ozgKeycloakSessionManager->storeIdTokenForLogout($request->getSession(), $rawIdToken);
+                }
+
+                $this->ozgKeycloakSessionManager->injectTokenExpirationIntoSession($request->getSession(), $userId);
             }
         }
 

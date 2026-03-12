@@ -19,7 +19,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Manages the intersection of KeyCloak OAuth2 state and PHP session state.
@@ -68,15 +67,15 @@ class OzgKeycloakSessionManager
             && !$this->isKeycloakConfigured();
     }
 
-    public function hasLogoutWarningPermission(): bool
+    public function isKeycloakLoginOnly(): bool
     {
-        return $this->currentUser->hasPermission('feature_auto_logout_warning');
+        return $this->currentUser->hasPermission('feature_keycloak_used_for_login_only');
     }
 
     /**
      * Stores expiration timestamp into the user session.
      */
-    public function injectTokenExpirationIntoSession(SessionInterface $session, UserInterface $user): void
+    public function injectTokenExpirationIntoSession(SessionInterface $session, string $userId): void
     {
         // Skip if expiration is already present in session
         if ($session->has(self::EXPIRATION_TIMESTAMP)) {
@@ -92,38 +91,15 @@ class OzgKeycloakSessionManager
             $session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp);
 
             $this->logger->debug('Expiration timestamp injected into session', [
-                'user'       => $user->getUserIdentifier(),
+                'user_id'    => $userId,
                 'expiration' => $expirationTimestamp,
             ]);
         } catch (Exception $e) {
             $this->logger->warning('Failed to inject expiration timestamp into session', [
-                'user'  => $user->getUserIdentifier(),
-                'error' => $e->getMessage(),
+                'user_id' => $userId,
+                'error'   => $e->getMessage(),
             ]);
         }
-    }
-
-    public function hasValidToken(SessionInterface $session): bool
-    {
-        $tokenExpires = $session->get(self::EXPIRATION_TIMESTAMP);
-
-        if (!$tokenExpires) {
-            $this->logger->debug('No token expiration found in session');
-
-            return false;
-        }
-
-        $currentTime = time();
-        $isValid = $currentTime <= $tokenExpires;
-
-        $this->logger->debug('Token validation result', [
-            'current_time'      => date('Y-m-d H:i:s', $currentTime),
-            'token_expires'     => date('Y-m-d H:i:s', $tokenExpires),
-            'seconds_remaining' => $tokenExpires - $currentTime,
-            'is_valid'          => $isValid,
-        ]);
-
-        return $isValid;
     }
 
     /**
@@ -163,24 +139,33 @@ class OzgKeycloakSessionManager
      * Sync PHP session state after successful token validation or refresh.
      *
      * Sets the fast-path threshold to skip token checks for the next interval (default 3 minutes),
-     * capped at the token's remaining lifetime so we never skip a check past actual expiry.
-     * Also updates the PHP session expiration timestamp for compatibility with non-KeyCloak projects.
+     * capped at the access token's remaining lifetime so we never skip a check past actual expiry.
+     *
+     * Also updates EXPIRATION_TIMESTAMP (used by the FE logout countdown) to the refresh token expiry
+     * when full KeyCloak token management is active. The refresh token TTL is the real user-facing
+     * session boundary — the access token is an implementation detail refreshed transparently.
+     * When feature_keycloak_used_for_login_only is enabled, EXPIRATION_TIMESTAMP is left untouched
+     * (already set to the PHP session lifetime by injectTokenExpirationIntoSession on login).
      *
      * Used after:
      * - Successful blocking token validation or refresh (ExpirationTimestampRequestListener)
-     * - Successful background token refresh (TokenRefreshTerminateListener)
-     * - Initial authentication or re-authentication (OzgKeycloakAuthenticator)
+     * - Successful background token refresh (OAuthTokenStorageService via storeTokens)
      *
-     * @param SessionInterface $session        The current user session
-     * @param string           $userId         User ID for logging
-     * @param DateTime|null    $tokenExpiresAt New access token expiration (null = no token available)
+     * @param SessionInterface $session               The current user session
+     * @param string           $userId                User ID for logging
+     * @param DateTime|null    $accessTokenExpiresAt  Access token expiration (used for fast-path threshold)
+     * @param DateTime|null    $refreshTokenExpiresAt Refresh token expiration (used for FE countdown)
      */
-    public function syncSession(SessionInterface $session, string $userId, ?DateTime $tokenExpiresAt): void
-    {
+    public function syncSession(
+        SessionInterface $session,
+        string $userId,
+        ?DateTime $accessTokenExpiresAt,
+        ?DateTime $refreshTokenExpiresAt = null
+    ): void {
         $checkInterval = $this->parameterBag->get('oauth_token_fast_path_interval_seconds');
 
-        if (null !== $tokenExpiresAt) {
-            $secondsUntilExpiry = $tokenExpiresAt->getTimestamp() - time();
+        if (null !== $accessTokenExpiresAt) {
+            $secondsUntilExpiry = $accessTokenExpiresAt->getTimestamp() - time();
             // min/max guards against negative values if token is already expired
             $checkInterval = min($checkInterval, max(0, $secondsUntilExpiry));
         }
@@ -194,14 +179,23 @@ class OzgKeycloakSessionManager
             'interval_seconds' => $checkInterval,
         ]);
 
-        if (null === $tokenExpiresAt) {
+        // In login-only mode the PHP session lifetime governs EXPIRATION_TIMESTAMP — leave it untouched.
+        if ($this->isKeycloakLoginOnly()) {
             return;
         }
 
-        $session->set(self::EXPIRATION_TIMESTAMP, $tokenExpiresAt->getTimestamp());
+        // Use refresh token expiry for the FE countdown — it reflects the real session boundary.
+        // Fall back to access token expiry if no refresh token is available.
+        $expirationTimestamp = $refreshTokenExpiresAt ?? $accessTokenExpiresAt;
+
+        if (null === $expirationTimestamp) {
+            return;
+        }
+
+        $session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp->getTimestamp());
 
         $this->logger->debug('PHP session synced with OAuth token expiration', [
-            'expires_at' => $tokenExpiresAt->format('Y-m-d H:i:s'),
+            'expires_at' => $expirationTimestamp->format('Y-m-d H:i:s'),
         ]);
     }
 }

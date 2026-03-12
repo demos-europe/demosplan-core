@@ -85,23 +85,23 @@ class TokenRefreshTerminateListener
      * Cheap early-return checks that run with zero DB queries.
      *
      * Checks (in order of cost, cheapest first):
-     * - Permission gate (feature flag for OAuth token management)
      * - KeyCloak not configured in production
      * - Not a main request (sub-requests skip)
      * - User is a non-human (AnonymousUser, AiApiUser, etc. — all extend FunctionalUser)
+     * - Login-only mode (feature_keycloak_used_for_login_only — no token refresh needed)
      */
     private function shallReturnEarly(TerminateEvent $event): bool
     {
-        if (!$this->ozgKeycloakSessionManager->hasLogoutWarningPermission()) {
-            return true;
-        }
-
         if ($this->ozgKeycloakSessionManager->shouldSkipInProductionWithoutKeycloak()
             || !$event->isMainRequest()) {
             return true;
         }
 
-        return $this->currentUser->getUser() instanceof FunctionalUser;
+        if ($this->currentUser->getUser() instanceof FunctionalUser) {
+            return true;
+        }
+
+        return $this->ozgKeycloakSessionManager->isKeycloakLoginOnly();
     }
 
     /**

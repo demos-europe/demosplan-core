@@ -122,6 +122,7 @@ class OAuthTokenStorageService
             }
 
             // Calculate refresh token expiration from refresh_expires_in
+            $refreshTokenExpiresAt = null;
             if (isset($values['refresh_expires_in'])) {
                 $refreshExpiresIn = (int) $values['refresh_expires_in'];
                 $refreshTokenExpiresAt = new DateTime('now', $timezone);
@@ -151,7 +152,7 @@ class OAuthTokenStorageService
             if (null !== $request) {
                 $session = $request->getSession();
                 if ($session->isStarted()) {
-                    $this->ozgKeycloakSessionManager->syncSession($session, $userId, $accessTokenExpiresAt);
+                    $this->ozgKeycloakSessionManager->syncSession($session, $userId, $accessTokenExpiresAt, $refreshTokenExpiresAt);
                 }
             }
         } catch (Exception $e) {

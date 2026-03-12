@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
@@ -68,15 +69,12 @@ class LogoutSubscriber implements EventSubscriberInterface
 
         // let oauth identity provider handle logout when defined and user was provided by identity provider
         $user = $event->getToken()?->getUser();
-        if ($user && method_exists($user, 'isProvidedByIdentityProvider') && $user->isProvidedByIdentityProvider()) {
+        if ($user instanceof UserInterface && $user->isProvidedByIdentityProvider()) {
             // Delete stored OAuth tokens on logout to prevent stale encrypted data in the database
-            $userId = $event->getRequest()->getSession()->get('userId');
-            if (null !== $userId) {
-                try {
-                    $this->oauthTokenStorageService->deleteTokensUnlessPendingData($userId);
-                } catch (Exception $e) {
-                    $this->logger->warning('Failed to delete OAuth tokens on logout', ['error' => $e->getMessage()]);
-                }
+            try {
+                $this->oauthTokenStorageService->deleteTokensUnlessPendingData($user->getId());
+            } catch (Exception $e) {
+                $this->logger->warning('Failed to delete OAuth tokens on logout', ['error' => $e->getMessage()]);
             }
 
             // Keycloak logout

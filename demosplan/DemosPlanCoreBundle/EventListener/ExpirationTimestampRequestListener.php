@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 use DateTime;
 use DateTimeZone;
 use DemosEurope\DemosplanAddon\Controller\APIController;
+use demosplan\DemosPlanCoreBundle\Controller\GenericRpcController;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -31,8 +32,10 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -107,22 +110,18 @@ class ExpirationTimestampRequestListener
 
     private function shallReturnDueToUserConfig(): bool
     {
-        // TODO: TECHNICAL DEBT - The hasLogoutWarningPermission() check is problematic and needs investigation.
-        // The permission 'feature_auto_logout_warning' is described as "Remind the user of the upcoming automatic log out"
-        // (a UI notification feature), but the actual code performs HARD LOGOUT with no warnings.
-        // Without this permission, KeyCloak is only used for initial login and subsequent requests
-        // validate against the PHP session only. It's unclear if this is intentional or unfinished.
-        // Currently keeping this check for backward compatibility - all diplan (KeyCloak) projects have it enabled.
-        if (!$this->ozgKeycloakSessionManager->hasLogoutWarningPermission()) {
-            return true;
-        }
-
         // Load the application User entity (one DB query, result cached on the provider).
         // Null means the security user has no matching User in the database (e.g. edge cases).
         // Non-IdP users (form-login) are also skipped — token management only applies to KeyCloak users.
         $user = $this->userFromSecurityUserProvider->get();
 
-        return null === $user || !$user->isProvidedByIdentityProvider();
+        if (null === $user || !$user->isProvidedByIdentityProvider()) {
+            return true;
+        }
+
+        // When KeyCloak is used for login only (feature_keycloak_used_for_login_only), the PHP session
+        // lifetime governs session expiry — no token refresh or expiry enforcement needed.
+        return $this->ozgKeycloakSessionManager->isKeycloakLoginOnly();
     }
 
     /**
@@ -139,10 +138,13 @@ class ExpirationTimestampRequestListener
     {
         $session = $event->getRequest()->getSession();
 
+        $securityUser = $this->security->getUser();
+
         if (!$session->isStarted()
             || $this->ozgKeycloakSessionManager->shouldSkipInProductionWithoutKeycloak()
             || !$event->isMainRequest()
-            || $this->security->getUser() instanceof FunctionalUser) {
+            || null === $securityUser
+            || $securityUser instanceof FunctionalUser) {
             return true;
         }
 
@@ -178,7 +180,7 @@ class ExpirationTimestampRequestListener
         ]);
 
         if (!$this->tokenExpirationService->isAccessTokenExpired($oauthToken)) {
-            $this->ozgKeycloakSessionManager->syncSession($session, $oauthToken->getUser()->getId(), $oauthToken->getAccessTokenExpiresAt());
+            $this->ozgKeycloakSessionManager->syncSession($session, $oauthToken->getUser()->getId(), $oauthToken->getAccessTokenExpiresAt(), $oauthToken->getRefreshTokenExpiresAt());
 
             return true;
         }
@@ -259,8 +261,16 @@ class ExpirationTimestampRequestListener
         }
 
         $controller = $this->resolveController($event);
+
         if ($controller instanceof APIController) {
             $response = $controller->handleApiError(new AccessDeniedException('Token expired'));
+            $event->setController(fn () => $response);
+
+            return;
+        }
+
+        if ($controller instanceof GenericRpcController) {
+            $response = new JsonResponse(['error' => 'Token expired'], Response::HTTP_UNAUTHORIZED);
             $event->setController(fn () => $response);
 
             return;
