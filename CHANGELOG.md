@@ -6,6 +6,11 @@
 
 ## UNRELEASED
 
+### Added
+- Add new custom fields components CustomField, CustomFieldsList, MultiselectCustomField, SingleselectCustomField and useCustomFields composable
+    - Add the new components to public statement dialogs where custom fields are already used
+    - Add custom fields to assessment table, original statement list and my releases list
+
 ### Fixed
 - Fix redirect to split-view after claiming statement and correct unclaim behavior to prevent false assignee confirmation dialog
 

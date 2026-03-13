@@ -513,6 +513,37 @@
             />
           </dp-item-row>
 
+          <!--  custom fields  -->
+          <dp-item-row
+            v-if="hasPermission('feature_statements_custom_fields') && hasCustomFieldContent !== false"
+            class="pb-0"
+            title="custom.fields"
+          >
+            <custom-fields-list
+              :definition-source-id="procedureId"
+              :enable-toggle="true"
+              :list-title="Translator.trans('statement.data')"
+              :resource-id="statement.id"
+              :show-empty="true"
+              :title-info-text="Translator.trans('custom.fields.submitter.info')"
+              resource-type="Statement"
+              title-class="font-[600] mb-2"
+              @has-content="val => hasCustomFieldContent = val"
+            >
+              <template v-slot:readonly-display="{ field }">
+                <span v-if="field.value?.selectedOptions?.length > 0">
+                  {{ field.value.selectedOptions.map(o => o.label).join(', ') }}
+                </span>
+                <span
+                  v-else
+                  class="text-sm text-muted"
+                >
+                  -
+                </span>
+              </template>
+            </custom-fields-list>
+          </dp-item-row>
+
           <!-- Statement / Recommendation Text -->
           <dp-item-row
             title="statement.text"
@@ -728,6 +759,7 @@
 import { dpApi, DpContextualHelp, DpTooltip, formatDate, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import DpClaim from '../DpClaim'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
@@ -741,6 +773,7 @@ export default {
   components: {
     DpContextualHelp,
     DpClaim,
+    CustomFieldsList,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
     DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList'),
@@ -797,6 +830,7 @@ export default {
       updatingClaimState: false,
       fragmentsLoading: false,
       placeholderStatementId: null,
+      hasCustomFieldContent: null,
     }
   },
 
