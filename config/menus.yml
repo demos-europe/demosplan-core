@@ -88,6 +88,12 @@ sidemenu:
                 link_attributes:
                     data-cy: 'procedureOrgas'
                 children: 'submenu_procedures'
+            phases_definition:
+                label: 'phases.definition'
+                path: 'DemosPlan_procedure_phases_definition'
+                permission: 'area_customer_procedure_phase_definitions'
+                link_attributes:
+                    data-cy: 'phasesDefinition'
             invitable_institution_unregistered_administer:
                 label: 'invitable_institution.unregistered.administer'
                 path: 'DemosPlan_get_address_book_entries'

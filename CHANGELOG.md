@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+## Added
+- Add customer admin interface for managing procedure phases - displaying and creating new phases
+
 ### Fixed
 - Fix redirect to split-view after claiming statement and correct unclaim behavior to prevent false assignee confirmation dialog
 
