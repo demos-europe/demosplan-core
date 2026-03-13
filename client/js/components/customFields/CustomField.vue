@@ -118,15 +118,6 @@ export default {
 
   mixins: [prefixClassMixin],
 
-  emits: [
-    'edit:cancel',
-    'edit:save',
-    'edit:start',
-    'save:error',
-    'save:success',
-    'update:value',
-  ],
-
   props: {
     definition: {
       type: Object,
@@ -180,6 +171,15 @@ export default {
       default: null,
     },
   },
+
+  emits: [
+    'edit:cancel',
+    'edit:save',
+    'edit:start',
+    'save:error',
+    'save:success',
+    'update:value',
+  ],
 
   data () {
     return {

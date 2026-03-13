@@ -273,7 +273,13 @@ export default {
     },
   },
 
-  emits: ['save:success', 'save:error', 'update:value', 'loaded', 'hasContent'],
+  emits: [
+    'hasContent',
+    'loaded',
+    'save:success',
+    'save:error',
+    'update:value',
+  ],
 
   data () {
     return {
