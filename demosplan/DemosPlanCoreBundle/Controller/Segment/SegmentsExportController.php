@@ -131,10 +131,8 @@ class SegmentsExportController extends BaseController
         // Apply tag filtering after JsonAPI filtering
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
         $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
-
         $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
-        $filteredTagNames = $this->statementExportTagFilter->getTagNames();
-
+        $exportFilteredByTagsWithTopics = $this->statementExportTagFilter->getFilteredTagsWithTitles();
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
         // geschwärzt
@@ -149,13 +147,13 @@ class SegmentsExportController extends BaseController
                 $censorCitizenData,
                 $censorInstitutionData,
                 $obscureParameter,
-                $filteredTagNames
+                $exportFilteredByTagsWithTopics,
             ) {
                 $exportedDoc = $exporter->exportAll(
                     $tableHeaders,
                     $procedure,
                     $obscureParameter,
-                    $filteredTagNames,
+                    $exportFilteredByTagsWithTopics,
                     $censorCitizenData,
                     $censorInstitutionData,
                     ...$statementEntities
@@ -309,7 +307,7 @@ class SegmentsExportController extends BaseController
                             $censorCitizenData,
                             $censorInstitutionData,
                             $obscureParameter,
-                            $this->statementExportTagFilter->hasAnySupportedFilterSet()
+                            $this->statementExportTagFilter->getFilteredTagsWithTitles()
                         );
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(
