@@ -188,7 +188,7 @@ export function useCustomFields () {
     }
 
     const doFetch = () => dpApi.get(url, params)
-      .then(response => response.data.data.attributes.customFields || [])
+      .then(response => response.data.data?.attributes?.customFields || [])
 
     if (activeValueFetches < MAX_CONCURRENT_VALUE_FETCHES) {
       activeValueFetches++
