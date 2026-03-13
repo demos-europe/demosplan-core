@@ -183,7 +183,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             if (!$files[$index]['originalAttachment'] instanceof File) {
                 // if not present yet, invoke the pdfCreator and create an original-stn-pdf to use instead
                 $parameters['statementId'] =
-                    $this->statementService->getStatement($statementId)?->getOriginal()->getId();
+                    $this->statementService->getStatement($statementId)?->getOriginalId() ?? $statementId;
                 $files[$index]['originalAttachment'] = $this->pdfExporter->__invoke(
                     $parameters
                 );
