@@ -25,7 +25,7 @@ All rights reserved
       {{ submitterRole }}
     </div>
 
-    <!--  In the following section, v-model is replaced with :value && @input to enable custom display of input values -->
+    <!--  In the following section, v-model is replaced with :model-value && @update:model-value to enable custom display of input values -->
     <div class="grid grid-cols-1 gap-x-4 md:grid-cols-2">
       <dp-input
         v-if="hasPermission('field_statement_meta_orga_department_name') && !localStatement.attributes.isSubmittedByCitizen"
@@ -37,7 +37,7 @@ All rights reserved
         :model-value="getDisplayValue(localStatement.attributes.initialOrganisationDepartmentName)"
         class="mb-2"
         data-cy="statementSubmitter:departmentName"
-        @input="value => localStatement.attributes.initialOrganisationDepartmentName = value"
+        @update:model-value="value => localStatement.attributes.initialOrganisationDepartmentName = value"
       />
 
       <!--  TO DO: add if not participationGuestOnly -->
@@ -51,7 +51,7 @@ All rights reserved
         :model-value="getDisplayValue(localStatement.attributes.initialOrganisationName)"
         class="mb-2"
         data-cy="statementSubmitter:orgaName"
-        @input="value => localStatement.attributes.initialOrganisationName = value"
+        @update:model-value="value => localStatement.attributes.initialOrganisationName = value"
       />
 
       <dp-contextual-help
@@ -69,7 +69,7 @@ All rights reserved
         :model-value="getSubmitterNameValue()"
         class="mb-2"
         data-cy="statementSubmitter:submitterName"
-        @input="value => localStatement.attributes[statementSubmitterField] = value"
+        @update:model-value="value => localStatement.attributes[statementSubmitterField] = value"
       />
 
       <dp-input
@@ -83,7 +83,7 @@ All rights reserved
         class="mb-2"
         data-cy="statementSubmitter:emailAddress"
         type="email"
-        @input="value => localStatement.attributes.submitterEmailAddress = value"
+        @update:model-value="value => localStatement.attributes.submitterEmailAddress = value"
       />
 
       <dp-input
@@ -117,7 +117,7 @@ All rights reserved
           :model-value="getDisplayValue(localStatement.attributes.initialOrganisationStreet)"
           class="o-form__group-item"
           data-cy="statementSubmitter:street"
-          @input="value => localStatement.attributes.initialOrganisationStreet = value"
+          @update:model-value="value => localStatement.attributes.initialOrganisationStreet = value"
         />
         <dp-input
           id="statementHouseNumber"
@@ -129,7 +129,7 @@ All rights reserved
           :model-value="getDisplayValue(localStatement.attributes.initialOrganisationHouseNumber)"
           class="o-form__group-item !w-1/5 shrink"
           data-cy="statementSubmitter:houseNumber"
-          @input="value => localStatement.attributes.initialOrganisationHouseNumber = value"
+          @update:model-value="value => localStatement.attributes.initialOrganisationHouseNumber = value"
         />
       </div>
       <div class="o-form__group mb-2">
@@ -143,7 +143,7 @@ All rights reserved
           class="o-form__group-item !w-1/4 shrink"
           data-cy="statementSubmitter:postalCode"
           pattern="^[0-9]{4,5}$"
-          @input="value => localStatement.attributes.initialOrganisationPostalCode = value"
+          @update:model-value="value => localStatement.attributes.initialOrganisationPostalCode = value"
         />
         <dp-input
           id="statementCity"
@@ -154,7 +154,7 @@ All rights reserved
           :model-value="getDisplayValue(localStatement.attributes.initialOrganisationCity)"
           class="o-form__group-item"
           data-cy="statementSubmitter:city"
-          @input="value => localStatement.attributes.initialOrganisationCity = value"
+          @update:model-value="value => localStatement.attributes.initialOrganisationCity = value"
         />
       </div>
     </div>
@@ -185,7 +185,6 @@ import {
   DpInput,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
-import { mapState } from 'vuex'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 
 export default {
@@ -234,10 +233,6 @@ export default {
   },
 
   computed: {
-    ...mapState('Statement', {
-      statements: 'items',
-    }),
-
     isStatementManual () {
       return this.localStatement.attributes.isManual
     },
@@ -317,27 +312,21 @@ export default {
     },
 
     save () {
-      // Get current statement from store (includes any relationship changes from SimilarStatementSubmitter)
-      const currentStatement = this.statements[this.statement.id]
-
-      const updatedStatement = {
-        ...currentStatement,
+      const attrs = this.localStatement.attributes
+      this.$emit('save', {
         attributes: {
-          ...currentStatement.attributes,
-          initialOrganisationDepartmentName: this.localStatement.attributes.initialOrganisationDepartmentName,
-          initialOrganisationName: this.localStatement.attributes.initialOrganisationName,
-          authorName: this.localStatement.attributes.authorName,
-          submitName: this.localStatement.attributes.submitName,
-          submitterEmailAddress: this.localStatement.attributes.submitterEmailAddress,
-          representationChecked: this.localStatement.attributes.representationChecked,
-          initialOrganisationStreet: this.localStatement.attributes.initialOrganisationStreet,
-          initialOrganisationHouseNumber: this.localStatement.attributes.initialOrganisationHouseNumber,
-          initialOrganisationPostalCode: this.localStatement.attributes.initialOrganisationPostalCode,
-          initialOrganisationCity: this.localStatement.attributes.initialOrganisationCity,
-        },
-      }
-
-      this.$emit('save', updatedStatement)
+          initialOrganisationDepartmentName: attrs.initialOrganisationDepartmentName,
+          initialOrganisationName: attrs.initialOrganisationName,
+          authorName: attrs.authorName,
+          submitName: attrs.submitName,
+          submitterEmailAddress: attrs.submitterEmailAddress,
+          representationChecked: attrs.representationChecked,
+          initialOrganisationStreet: attrs.initialOrganisationStreet,
+          initialOrganisationHouseNumber: attrs.initialOrganisationHouseNumber,
+          initialOrganisationPostalCode: attrs.initialOrganisationPostalCode,
+          initialOrganisationCity: attrs.initialOrganisationCity
+        }
+      })
     },
 
     setInitValues () {
