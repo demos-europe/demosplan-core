@@ -52,7 +52,7 @@
     {
         "license": "MIT",
         "package": "doctrine/common",
-        "website": "https://github.com/doctrine/common"
+        "website": ""
     },
     {
         "license": "MIT",
@@ -82,7 +82,7 @@
     {
         "license": "LGPL-2.1",
         "package": "dompdf/dompdf",
-        "website": "https://github.com/dompdf/dompdf"
+        "website": ""
     },
     {
         "license": "MIT",
@@ -92,7 +92,7 @@
     {
         "license": "MIT",
         "package": "efrane/console-additions",
-        "website": "https://github.com/eFrane/ConsoleAdditions"
+        "website": ""
     },
     {
         "license": "MIT",
