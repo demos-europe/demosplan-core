@@ -159,4 +159,113 @@
 
         background-color: $dp-color-white;
     }
+
+    /*
+     * Keep flyout and expand columns always visible at the right edge.
+     * Explicit BEM classes are set in DpTableRow/DpTableHeader in demosplan-ui so that
+     * regular data columns in resizable-only tables (e.g. InstitutionList) are never affected.
+     */
+
+    td.c-data-table__col--flyout,
+    th.c-data-table__col--flyout {
+        position: sticky;
+        right: 0;
+        z-index: $dp-z-above-zero;
+        background-color: $dp-color-white;
+        text-align: center;
+
+        // Cover the 1px gap on the right edge without affecting table layout
+        &::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -1px;
+            width: 2px;
+            height: 100%;
+            background-color: $dp-color-white;
+        }
+    }
+
+    // When expand follows flyout, offset flyout left by the expand column's width
+    td.c-data-table__col--flyout:has(+ td.c-data-table__col--expand),
+    th.c-data-table__col--flyout:has(+ th.c-data-table__col--expand) {
+        right: 30px;
+    }
+
+    td.c-data-table__col--expand,
+    th.c-data-table__col--expand {
+        position: sticky;
+        right: 0;
+        z-index: $dp-z-above-zero;
+        background-color: $dp-color-white;
+        text-align: center;
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -1px;
+            width: 2px;
+            height: 100%;
+            background-color: $dp-color-white;
+        }
+    }
+
+    /*
+     * When a flyout is open, create a low stacking context on subsequent rows so
+     * the dropdown (z-index: 2100) inside the current row's sticky cell (z-index: 10)
+     * paints above the following rows.
+     */
+    tbody tr:has(.is-expanded) ~ tr {
+        position: relative;
+        z-index: 0;
+    }
+
+    tbody tr:hover td.c-data-table__col--flyout,
+    tbody tr:hover td.c-data-table__col--expand,
+    tbody tr.is-hovered-content td.c-data-table__col--flyout,
+    tbody tr.is-hovered-content td.c-data-table__col--expand {
+        background-color: $dp-color-neutral-light-4;
+
+        &::after {
+            background-color: $dp-color-neutral-light-4;
+        }
+    }
+}
+
+/*
+ * Shadow on the left side of the sticky column, only when the table content is scrollable.
+ * A ::before pseudo-element with a gradient is used instead of box-shadow because outset
+ * shadows are clipped by the overflow-x: auto container.
+ * The shadow always goes on the LEFTMOST sticky column:
+ * flyout when present (it always precedes expand), otherwise expand alone.
+ */
+.has-scrollable-content .c-data-table {
+    // Flyout is always leftmost when present
+    td.c-data-table__col--flyout,
+    th.c-data-table__col--flyout {
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -12px;
+            width: 12px;
+            height: 100%;
+            background: linear-gradient(to right, transparent 0%, rgb(0 0 0 / 1%) 30%, rgb(0 0 0 / 5%) 55%, rgb(0 0 0 / 13%) 80%, rgb(0 0 0 / 24%) 100%);
+        }
+    }
+
+    // Expand only gets shadow when no flyout column precedes it
+    td.c-data-table__col--expand:not(td.c-data-table__col--flyout ~ *),
+    th.c-data-table__col--expand:not(th.c-data-table__col--flyout ~ *) {
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -12px;
+            width: 12px;
+            height: 100%;
+            background: linear-gradient(to right, transparent 0%, rgb(0 0 0 / 1%) 30%, rgb(0 0 0 / 5%) 55%, rgb(0 0 0 / 13%) 80%, rgb(0 0 0 / 24%) 100%);
+        }
+    }
 }

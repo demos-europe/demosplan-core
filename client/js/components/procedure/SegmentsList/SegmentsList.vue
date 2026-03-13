@@ -28,20 +28,22 @@
           @search="term => updateSearchQuery(term)"
           @reset="handleResetSearch"
         />
-        <div class="ml-2 space-x-1 space-x-reverse">
+        <div class="ml-2 space-x-2">
           <filter-flyout
             v-for="(filter, idx) in Object.values(filters)"
             ref="filterFlyout"
             :key="`filter_${filter.labelTranslationKey}`"
             :additional-query-params="{ searchPhrase: searchTerm }"
             :category="{ id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }"
-            class="inline-block first:mr-1"
+            class="inline-block"
             :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
             align="left"
             :groups-object="filter.groupsObject"
+            :hint="filter.labelTranslationKey!=='tags'"
             :initial-query-ids="queryIds"
             :items-object="filter.itemsObject"
             :operator="filter.comparisonOperator"
+            :member-of="groupName(filter.labelTranslationKey)"
             :path="filter.rootPath"
             :show-count="{
               groupedOptions: true,
@@ -140,6 +142,16 @@
           @select-all="handleSelectAll"
           @items-toggled="handleToggleItem"
         >
+          <template v-slot:header-tags>
+            <span class="inline-flex items-center">
+              {{ Translator.trans('segment.tags') }}
+              <addon-wrapper
+                v-if="hasStyledTopicalTags"
+                hook-name="tag.extend.form"
+                :addon-props="{ demosplanUi, isIconOnly: true}"
+              />
+            </span>
+          </template>
           <template v-slot:externId="rowData">
             <v-popover trigger="hover focus">
               <div class="whitespace-nowrap">
@@ -225,11 +237,19 @@
             <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
           </template>
           <template v-slot:tags="rowData">
+            <addon-wrapper
+              v-if="hasStyledTopicalTags"
+              hook-name="tag.style.segments.list"
+              :addon-props="{
+                demosplanUi,
+                tags: getTagsBySegment(rowData.id)
+              }"
+            />
             <span
+              v-else
               v-for="tag in getTagsBySegment(rowData.id)"
               :key="tag.id"
-              class="rounded-md"
-              style="color: #63667e; background: #EBE9E9; padding: 2px 4px; margin: 4px 2px; display: inline-block;"
+              class="rounded-md color--grey-dark bg-color--grey-light-2 px-1 py-0.5 mx-0.5 my-1 inline-block"
             >
               {{ tag.attributes.title }}
             </span>
@@ -246,20 +266,6 @@
           <template v-slot:flyout="rowData">
             <dp-flyout data-cy="segmentsList:flyoutEditMenu">
               <a
-                class="block leading-[2] whitespace-nowrap"
-                :href="Routing.generate('dplan_statement_segments_list', {
-                  action: 'editText',
-                  procedureId: procedureId,
-                  segment: rowData.id,
-                  statementId: rowData.relationships.parentStatement.data.id
-                })"
-                data-cy="segmentsList:edit"
-                rel="noopener"
-                @click="storeNavigationContextInLocalStorage"
-              >
-                {{ Translator.trans('edit') }}
-              </a>
-              <a
                 v-if="hasPermission('feature_segment_recommendation_edit')"
                 class="block leading-[2] whitespace-nowrap"
                 :href="Routing.generate('dplan_statement_segments_list', {
@@ -272,6 +278,20 @@
                 @click="storeNavigationContextInLocalStorage"
               >
                 {{ Translator.trans('segments.recommendations.create') }}
+              </a>
+              <a
+                class="block leading-[2] whitespace-nowrap"
+                :href="Routing.generate('dplan_statement_segments_list', {
+                  action: 'editText',
+                  procedureId: procedureId,
+                  segment: rowData.id,
+                  statementId: rowData.relationships.parentStatement.data.id
+                })"
+                data-cy="segmentsList:edit"
+                rel="noopener"
+                @click="storeNavigationContextInLocalStorage"
+              >
+                {{ Translator.trans('details') }}
               </a>
               <!-- Version history view -->
               <button
@@ -319,6 +339,7 @@
 </template>
 
 <script>
+import * as demosplanUi from '@demos-europe/demosplan-ui'
 import {
   CleanHtml,
   dpApi,
@@ -337,10 +358,12 @@ import {
   VPopover,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CustomSearch from './CustomSearch'
 import FilterFlyout from './FilterFlyout'
 import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
 import ImageModal from '@DpJs/components/shared/ImageModal'
+import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
@@ -352,6 +375,7 @@ export default {
   name: 'SegmentsList',
 
   components: {
+    AddonWrapper,
     CustomSearch,
     DpBulkEditHeader,
     DpButton,
@@ -436,6 +460,8 @@ export default {
         limits: [10, 25, 50, 100],
         perPage: 10,
       },
+      demosplanUi,
+      hasStyledTopicalTags: false,
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'statementStatus', label: Translator.trans('statement.status') },
@@ -550,13 +576,15 @@ export default {
     queryIds () {
       let ids = []
       if (Array.isArray(this.appliedFilterQuery) === false && Object.values(this.appliedFilterQuery).length > 0) {
-        ids = Object.values(this.appliedFilterQuery).map(el => {
-          if (!el.condition.value) {
-            return 'unassigned'
-          }
+        ids = Object.values(this.appliedFilterQuery)
+          .filter(el => el.condition) // Remove group objects
+          .map(el => {
+            if (!el.condition.value) {
+              return 'unassigned'
+            }
 
-          return el.condition.value
-        })
+            return el.condition.value
+          })
       }
       return ids
     },
@@ -806,6 +834,15 @@ export default {
       return null
     },
 
+
+    groupName (filterType) {
+      if (filterType === 'tags') {
+        return null
+      }
+      // Replace '.' in workflow.places because it is forbidden in group names
+      return `${filterType.replaceAll('.', '-')}_group`
+    },
+
     handleBulkEdit () {
       this.storeToggledSegments()
       // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
@@ -846,13 +883,14 @@ export default {
      * @param params {Object}
      * @param params.additionalQueryParams {Object}
      * @param params.category {Object} id, label
+     * @param params.currentQuery {Array}
      * @param params.filter {Object}
      * @param params.isInitialWithQuery {Boolean}
      * @param params.path {String}
      * @param params.searchPhrase {String}
      */
     sendFilterOptionsRequest (params) {
-      const { additionalQueryParams, category, filter, isInitialWithQuery, path } = params
+      const { additionalQueryParams, category, currentQuery, filter, isInitialWithQuery, path } = params
       const requestParams = {
         ...additionalQueryParams,
         filter: {
@@ -896,14 +934,14 @@ export default {
 
                   if (option) {
                     const { attributes, id } = option
-                    const { count, description, label, selected } = attributes
+                    const { count, description, label } = attributes
 
                     return {
                       count,
                       description,
                       id,
                       label,
-                      selected,
+                      selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
                     }
                   }
 
@@ -926,14 +964,14 @@ export default {
               // Ungrouped filter options
               if (resourceIsFilterOption && filterOptionBelongsToFilterType) {
                 const { id, attributes } = resource
-                const { count, description, label, selected } = attributes
+                const { count, description, label } = attributes
 
                 ungroupedOptions.push({
                   id,
                   count,
                   description,
                   label,
-                  selected,
+                  selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
                   ungrouped: true,
                 })
               }
@@ -946,7 +984,7 @@ export default {
                 count: result.data[0].attributes.missingResourcesSum,
                 label: Translator.trans('not.assigned'),
                 ungrouped: true,
-                selected: result.meta.unassigned_selected,
+                selected: currentQuery?.length ? currentQuery.includes('unassigned') : result.meta.unassigned_selected,
               })
             }
 
@@ -1069,7 +1107,10 @@ export default {
     },
   },
 
-  mounted () {
+  async mounted () {
+    const addons = await loadAddonComponents('tag.style.segments.list')
+    this.hasStyledTopicalTags = addons.length > 0
+
     // Get queryHash from URL
     const hrefParts = globalThis.location.href.split('/')
     this.currentQueryHash = hrefParts[hrefParts.length - 1]
@@ -1083,6 +1124,10 @@ export default {
 
     if (Array.isArray(this.initialFilter) === false && Object.keys(this.initialFilter).length) {
       Object.values(this.initialFilter).forEach(filter => {
+        if (!filter.condition) {
+          return
+        }
+
         const query = {}
         query[filter.condition.value] = filter
         this.updateFilterQuery(query)

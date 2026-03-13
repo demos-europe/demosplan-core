@@ -35,11 +35,11 @@ class InitializeWorkflowPlacesCommand extends CoreCommand
      * Default places that will be created (same as in LoadWorkflowPlaceData fixture).
      */
     private const DEFAULT_PLACES = [
-        ['name' => 'Erwiderung verfassen', 'sortIndex' => 0],
-        ['name' => 'Fachtechnische Prüfung', 'sortIndex' => 1],
-        ['name' => 'Juristische Prüfung', 'sortIndex' => 2],
-        ['name' => 'Lektorat', 'sortIndex' => 3],
-        ['name' => 'Abgeschlossen', 'sortIndex' => 4],
+        ['name' => 'Erwiderung verfassen', 'sortIndex' => 0, 'solved' => false],
+        ['name' => 'Fachtechnische Prüfung', 'sortIndex' => 1, 'solved' => false],
+        ['name' => 'Juristische Prüfung', 'sortIndex' => 2, 'solved' => false],
+        ['name' => 'Lektorat', 'sortIndex' => 3, 'solved' => false],
+        ['name' => 'Abgeschlossen', 'sortIndex' => 4, 'solved' => true],
     ];
 
     public function __construct(
@@ -186,6 +186,7 @@ EOT
                 $placeData['name'],
                 $placeData['sortIndex']
             );
+            $place->setSolved($placeData['solved']);
 
             // Validate the place
             $violations = $this->validator->validate($place);

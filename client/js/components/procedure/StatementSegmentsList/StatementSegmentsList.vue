@@ -60,7 +60,7 @@
               data-cy="editText"
               @click="currentAction = 'editText'"
             >
-              {{ Translator.trans('edit') }}
+              {{ Translator.trans('details') }}
             </button>
           </div>
         </div>
@@ -663,10 +663,9 @@ export default {
           relationships: {
             ...this.statements[this.statement.id].relationships,
             assignee: {
-              data: {
-                type: 'Claim',
-                id: claimingStatement ? this.currentUser.id : null,
-              },
+              data: claimingStatement ?
+                { type: 'Claim', id: this.currentUser.id } :
+                null,
             },
           },
         },

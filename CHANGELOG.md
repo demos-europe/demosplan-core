@@ -5,11 +5,36 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
-- introduce new parameters to control the parameter name used/passed within the route 
-  core_procedure_slug generated redirect - in addition to the existing params for the route names
+
+### Fixed
+- Fix redirect to split-view after claiming statement and correct unclaim behavior to prevent false assignee confirmation dialog
+
+## v4.31.0 (2026-02-25)
+### Changed
+- bump demosplan-addon version from v0.65 to v0.67
 
 ### Added
+- Add custom fields to statement modal in public detail and draft list, also display custom fields in new public participation dialog
+
+## v4.30.3 (2026-03-03)
+## v4.30.2 (2026-02-24)
+## v4.28.1 (2026-02-04)
+
+## v4.6.3 (2026-02-18)
+- Allow to configure procedures to accept or not anonymous statements
+- Export Original Statements as docx in the Statement List
+- Allow filtering of institution tags in DpAddOrganizationList
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
+
+## v4.30.0 (2026-02-12)
+### Added
+- Introduce new parameters to control the parameter name used/passed within the route
+  core_procedure_slug generated redirect - in addition to the existing params for the route names
 - Add edit functionality for custom fields of type multiSelect with a condition that the procedure has no statements yet.
+- Add drag button to GetFeatureInfo slidebar (adjust and reuse DpUnfoldToolbarControl)
+
+### Changed
+- Extract GetFeatureInfo logic for visible WMS layers out of Map.vue and into WmsGetFeatureInfo component
 
 ## v4.29.0 (2026-02-06)
 ## v4.28.0 (2026-01-28)
@@ -141,6 +166,7 @@
 
 ## v4.4.0 (2025-06-13)
 
+## v4.3.7 (2026-02-17)
 ## v4.3.5 (2025-11-24)
 ## 4.3.4 (2025-11-14)
 - implement option to import additional submitters via statement ID in statement imports via xlsx

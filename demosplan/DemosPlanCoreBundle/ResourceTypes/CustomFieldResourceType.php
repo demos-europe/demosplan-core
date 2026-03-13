@@ -38,7 +38,6 @@ use EDT\PathBuilding\End;
 use EDT\PathBuilding\PropertyAutoPathInterface;
 use EDT\PathBuilding\PropertyAutoPathTrait;
 use EDT\Querying\Contracts\PropertyPathInterface;
-use EDT\Querying\Utilities\Reindexer;
 use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\Contracts\ContentField;
 use EDT\Wrapping\CreationDataInterface;
@@ -77,7 +76,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         private readonly CustomFieldUpdater $customFieldUpdater,
         private readonly CustomFieldDeleter $customFieldDeleter,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
-        private readonly Reindexer $reindexer,
         private readonly CurrentUserInterface $currentUser)
     {
     }
@@ -160,7 +158,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         return new CustomFieldJsonRepository(
             $this->getEntityManager(),
             $this->conditionFactory,
-            $this->reindexer,
             $this->customFieldConfigurationRepository
         );
     }

@@ -9,8 +9,9 @@
         {% block content %}
             <idp-login-form
                 :is-idp="{{ useIdp|json_encode }}"
-                :is-azure-sso="{{ useAzureSso|json_encode }}"
+                :is-sso="{{ useSso|json_encode }}"
                 idp-login-path="{{ gatewayURL }}"
+                sso-route="{{ ssoRoute }}"
                 csrf-token="{{ csrf_token('authenticate') }}">
                 {# Using the |raw filter in this special case is needed, as html tags are returned. #}
                 {{ extensionPointMarkup('formExtraFields')|raw }}
