@@ -390,11 +390,11 @@ class PrepareReportFromProcedureService
 
         $oldInternPhase = $sourceProcedure->getPhaseObject();
         $newInternPhase = $destinationProcedure->getPhaseObject();
-        if ($oldInternPhase->getKey() !== $newInternPhase->getKey()
+        if ($oldInternPhase->getPhaseDefinition()->getId() !== $newInternPhase->getPhaseDefinition()->getId()
             || $oldInternPhase->getIteration() !== $newInternPhase->getIteration()
         ) {
-            $changes['oldPhase'] = $oldInternPhase->getKey();
-            $changes['newPhase'] = $newInternPhase->getKey();
+            $changes['oldPhase'] = $oldInternPhase->getPhaseDefinition()->getName();
+            $changes['newPhase'] = $newInternPhase->getPhaseDefinition()->getName();
             $changes['oldPhaseStart'] = $oldInternPhase->getStartDate()->getTimestamp();
             $changes['newPhaseStart'] = $newInternPhase->getStartDate()->getTimestamp();
             $changes['oldPhaseEnd'] = $oldInternPhase->getEndDate()->getTimestamp();
@@ -405,10 +405,10 @@ class PrepareReportFromProcedureService
 
         $oldExternPhase = $sourceProcedure->getPublicParticipationPhaseObject();
         $newExternPhase = $destinationProcedure->getPublicParticipationPhaseObject();
-        if ($oldExternPhase->getKey() !== $newExternPhase->getKey()
+        if ($oldExternPhase->getPhaseDefinition()->getId() !== $newExternPhase->getPhaseDefinition()->getId()
             || $oldExternPhase->getIteration() !== $newExternPhase->getIteration()) {
-            $changes['oldPublicPhase'] = $oldExternPhase->getKey();
-            $changes['newPublicPhase'] = $newExternPhase->getKey();
+            $changes['oldPublicPhase'] = $oldExternPhase->getPhaseDefinition()->getName();
+            $changes['newPublicPhase'] = $newExternPhase->getPhaseDefinition()->getName();
             $changes['oldPublicPhaseStart'] = $oldExternPhase->getStartDate()->getTimestamp();
             $changes['newPublicPhaseStart'] = $newExternPhase->getStartDate()->getTimestamp();
             $changes['oldPublicPhaseEnd'] = $oldExternPhase->getEndDate()->getTimestamp();
@@ -481,12 +481,12 @@ class PrepareReportFromProcedureService
         $oldPublicPhase = $sourceProcedure->getPublicParticipationPhaseObject();
         $newPublicPhase = $destinationProcedure->getPublicParticipationPhaseObject();
 
-        $internKeyHasChanged = 0 !== strcmp($oldPhase->getKey(), $newPhase->getKey());
-        $externKeyHasChanged = 0 !== strcmp($oldPublicPhase->getKey(), $newPublicPhase->getKey());
+        $internDefinitionHasChanged = $oldPhase->getPhaseDefinition()->getId() !== $newPhase->getPhaseDefinition()->getId();
+        $externDefinitionHasChanged = $oldPublicPhase->getPhaseDefinition()->getId() !== $newPublicPhase->getPhaseDefinition()->getId();
         $internIterationHasChanged = $oldPhase->getIteration() !== $newPhase->getIteration();
         $externIterationHasChanged = $oldPublicPhase->getIteration() !== $newPublicPhase->getIteration();
 
-        return $internKeyHasChanged || $externKeyHasChanged || $internIterationHasChanged || $externIterationHasChanged;
+        return $internDefinitionHasChanged || $externDefinitionHasChanged || $internIterationHasChanged || $externIterationHasChanged;
     }
 
     /**
