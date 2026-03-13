@@ -73,7 +73,7 @@ class EmailAddressRepository extends CoreRepository implements EmailAddressRepos
             .' LEFT JOIN procedure_agency_extra_email_address AS p ON p.email_address_id = e.id'
             .' WHERE p.procedure_id IS NULL';
 
-        if (0 === count($emailIds)) {
+        if (empty($emailIds)) {
             return $connection->executeStatement($baseSql);
         }
 
