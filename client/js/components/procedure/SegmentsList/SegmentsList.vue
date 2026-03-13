@@ -544,7 +544,8 @@ export default {
         }))
 
       return [
-        ...this.headerFields,
+        this.headerFieldsAvailable.find(el => el.field === 'externId'),
+        ...this.headerFields.filter(el => el.field !== 'externId'),
         ...selectedCustomFields,
       ]
     },
@@ -594,7 +595,9 @@ export default {
      * @return {[string, string][]}
      */
     selectableColumns () {
-      const staticColumns = this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+      const staticColumns = this.headerFieldsAvailable
+        .filter(el => el.field !== 'externId')
+        .map(headerField => ([headerField.field, headerField.label]))
 
       if (!hasPermission('field_segments_custom_fields')) {
         return staticColumns
