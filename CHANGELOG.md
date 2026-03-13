@@ -5,6 +5,10 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.3.8 (2026-03-13)
+- fix DS-505: prevent StatementMeta children from overwriting unrelated statement data on save
+- fix DPLAN-17389: make column with flyout trigger sticky
+
 ## v4.3.7 (2026-02-17)
 ## v4.3.5 (2025-11-24)
 ## 4.3.4 (2025-11-14)
