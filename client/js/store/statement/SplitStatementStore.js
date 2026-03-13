@@ -231,30 +231,7 @@ const SplitStatementStore = {
             return []
           }
           const initialData = data.data.attributes.segmentDraftList.data
-          let segments = initialData.attributes.segments
-            /*
-             * Filter out segments with less than 10 characters as those may lead the frontend to crash
-             * (because often that are closing or opening tags)
-             * and should probably not be needed in a real world scenario.
-             */
-            .filter(segment => segment && (segment.charEnd - segment.charStart) > 10)
-
-          // Check if we are getting overlapping segments from pipeline that would cause errors
-          if (doUpdate) {
-            for (let i = 0; i < segments.length; i++) {
-              for (let j = i + 1; j < segments.length; j++) {
-                // Check for overlap
-                if (
-                  (segments[i].charStart > segments[j].charStart && segments[i].charStart < segments[j].charEnd) ||
-                  (segments[j].charStart > segments[i].charStart && segments[j].charStart < segments[i].charEnd)
-                ) {
-                  // Overlapping segments found
-                  segments = []
-                  dplan.notify.notify('error', Translator.trans('error.split_statement.segments'))
-                }
-              }
-            }
-          }
+          const segments = initialData.attributes.segments
 
           commit('setProperty', { prop: 'initialData', val: initialData })
           commit('setProperty', { prop: 'initialSegments', val: segments })
@@ -432,6 +409,7 @@ const SplitStatementStore = {
 
     saveSegmentsDrafts ({ state, dispatch }, triggerNotifications = false) {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
+      dataToSend.attributes.textualReference = state.initText
       dataToSend.attributes.segments = state.segments
       const payload = {
         id: state.statementId,
