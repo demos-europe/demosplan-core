@@ -1363,6 +1363,12 @@ services:
         arguments:
             $resourceTypes: !tagged dplan.resourceType
 
+    demosplan\DemosPlanCoreBundle\Command\Db\CheckCollationCommand:
+        arguments:
+            $defaultTableOptions:
+                charset: '%database_table_charset%'
+                collate: '%database_collation%'
+
     demosplan\DemosPlanCoreBundle\Command\InitializeWorkflowPlacesCommand: ~
 
     Intervention\Image\Drivers\Gd\Driver: ~
