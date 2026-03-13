@@ -10,7 +10,12 @@ when@dev:
                 type: stream
                 path: "%kernel.logs_dir%/%demosplan_main_logfile%"
                 level: "%symfony_loglevel%"
-                channels: ["!event", "!deprecation"]
+                channels: ["!event", "!deprecation", "!messenger"]
+            messenger:
+                type: stream
+                path: "%kernel.logs_dir%/%demosplan_main_logfile%"
+                level: warning
+                channels: [messenger]
             deprecation:
                 type: stream
                 channels: [deprecation]
@@ -43,7 +48,14 @@ when@prod:
                 max_files: "%logging_max_files%"
                 level: "%symfony_loglevel%"
                 formatter: "%logging_formatter%"
-                channels: ["!event", "!deprecation"]
+                channels: ["!event", "!deprecation", "!messenger"]
+            messenger:
+                type: "%logging_strategy%"
+                path: "%logging_path%"
+                max_files: "%logging_max_files%"
+                level: warning
+                formatter: "%logging_formatter%"
+                channels: [messenger]
             console:
                 type: console
                 process_psr_3_messages: false

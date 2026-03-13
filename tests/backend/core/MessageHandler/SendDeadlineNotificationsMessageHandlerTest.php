@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\MessageHandler;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Message\SendDeadlineNotificationsMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\SendDeadlineNotificationsMessageHandler;
@@ -22,6 +23,7 @@ use Tests\Base\UnitTestCase;
 class SendDeadlineNotificationsMessageHandlerTest extends UnitTestCase
 {
     private ?ProcedureHandler $procedureHandler = null;
+    private ?PermissionsInterface $permissions = null;
     private ?LoggerInterface $logger = null;
     private ?SendDeadlineNotificationsMessageHandler $sut = null;
 
@@ -30,10 +32,12 @@ class SendDeadlineNotificationsMessageHandlerTest extends UnitTestCase
         parent::setUp();
 
         $this->procedureHandler = $this->createMock(ProcedureHandler::class);
+        $this->permissions = $this->createMock(PermissionsInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->sut = new SendDeadlineNotificationsMessageHandler(
             $this->procedureHandler,
+            $this->permissions,
             $this->logger
         );
     }

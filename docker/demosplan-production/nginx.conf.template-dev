@@ -66,6 +66,7 @@ server
     fastcgi_buffer_size 64k;
     fastcgi_busy_buffers_size 64k;
     fastcgi_read_timeout 600s;
+    fastcgi_send_timeout 600s;
     keepalive_timeout  600s;
 
     # Handle requests to static files directly by Nginx with caching

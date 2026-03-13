@@ -62,6 +62,7 @@
         :id="userId + ':organisationId'"
         ref="orgasDropdown"
         data-cy="organisation"
+        :data-dp-validate-error-fieldname="Translator.trans('orgaType.invitable_institution')"
         label="name"
         :loading="isLoading"
         :options="initialOrgaSuggestions"

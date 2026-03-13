@@ -34,6 +34,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use ZipArchive;
@@ -82,6 +83,7 @@ class ServiceImporter implements ServiceImporterInterface
         private readonly ParagraphRepository $paragraphRepository,
         ParagraphService $paragraphService,
         private readonly PdfCreatorInterface $pdfCreator,
+        private readonly RequestStack $requestStack,
         private readonly RouterInterface $router,
         RpcClient $client,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -123,6 +125,13 @@ class ServiceImporter implements ServiceImporterInterface
      */
     public function exportPdfWithRabbitMQ($content, $pictures = [])
     {
+        // Release the database session row lock before the blocking RabbitMQ call (up to 600s).
+        // Without this, concurrent requests from the same browser hit a lock wait timeout.
+        // In CLI/async contexts (e.g. message consumer) there is no HTTP session to save.
+        if (null !== $this->requestStack->getCurrentRequest()) {
+            $this->requestStack->getSession()->save();
+        }
+
         return $this->pdfCreator->createPdf($content, $pictures);
     }
 
@@ -139,6 +148,13 @@ class ServiceImporter implements ServiceImporterInterface
      */
     public function importDocxWithRabbitMQ(File $file, $elementId, $procedure, $category)
     {
+        // Release the MySQL session row lock before the blocking RabbitMQ call (up to 300s).
+        // Without this, concurrent requests from the same browser hit a lock wait timeout.
+        // In CLI/async contexts (e.g. message consumer) there is no HTTP session to save.
+        if (null !== $this->requestStack->getCurrentRequest()) {
+            $this->requestStack->getSession()->save();
+        }
+
         return $this->docxImporter->importDocx(
             $file,
             $elementId,

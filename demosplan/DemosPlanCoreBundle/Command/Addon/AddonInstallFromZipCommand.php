@@ -95,6 +95,8 @@ class AddonInstallFromZipCommand extends CoreCommand
         $this->addOption('develop', 'd', InputOption::VALUE_NONE, 'Install local addon repository');
         $this->addOption('name', '', InputOption::VALUE_OPTIONAL, 'Install specific addon by repository name');
         $this->addOption('tag', '', InputOption::VALUE_OPTIONAL, 'Install specific addon tag');
+        $this->addOption('skip-cache-clear', '', InputOption::VALUE_NONE, 'Skip cache clear after installation (for batch operations)');
+        $this->addOption('skip-frontend-build', '', InputOption::VALUE_NONE, 'Skip frontend build after installation (for batch operations)');
     }
 
     /**
@@ -188,17 +190,33 @@ class AddonInstallFromZipCommand extends CoreCommand
             // If composer update went well, add the addon to the registry
             $name = $this->installer->register($packageDefinition, $enable);
 
+            $skipCacheClear = $input->getOption('skip-cache-clear');
+            $skipFrontendBuild = $input->getOption('skip-frontend-build');
+            $hasFrontendAssets = file_exists($this->zipCachePath.'package.json');
+
+            // If skipping cache clear and frontend build, we're done with the installation part
+            if ($skipCacheClear && $skipFrontendBuild) {
+                $output->success("Addon {$name} successfully installed (cache clear and frontend build skipped).");
+
+                return Command::SUCCESS;
+            }
+
             $kernel = $this->getApplication()->getKernel();
             $environment = $kernel->getEnvironment();
             /** @var DemosPlanKernel $kernel */
             $activeProject = $kernel->getActiveProject();
 
-            $batch = Batch::create($this->getApplication(), $output)
-                ->addShell(['bin/console', 'cache:clear', '-e', $environment], null, ['ACTIVE_PROJECT' => $activeProject]);
+            $batch = Batch::create($this->getApplication(), $output);
+
+            if (!$skipCacheClear) {
+                $batch->addShell(['bin/console', 'cache:clear', '-e', $environment], null, ['ACTIVE_PROJECT' => $activeProject]);
+            }
+
             // if addon has a package.json, build the frontend assets
-            if (file_exists($this->zipCachePath.'package.json')) {
+            if ($hasFrontendAssets && !$skipFrontendBuild) {
                 $batch->addShell(['bin/console', 'dplan:addon:build-frontend', $name, '-e', $environment], null, ['ACTIVE_PROJECT' => $activeProject]);
             }
+
             $batchReturn = $batch->run();
             if ($batch->hasException()) {
                 $output->error($batch->getLastException()->getMessage());
