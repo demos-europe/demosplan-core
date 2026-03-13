@@ -250,7 +250,24 @@ export default {
       if (this.localStatement.attributes.authorName !== this.statement.attributes.authorName) {
         this.syncAuthorAndSubmitter()
       }
-      this.$emit('save', this.localStatement)
+      const attrs = this.localStatement.attributes
+      const changes = {
+        attributes: {
+          authoredDate: attrs.authoredDate,
+          submitDate: attrs.submitDate,
+          submitType: attrs.submitType,
+          internId: attrs.internId,
+          authorName: attrs.authorName,
+          submitName: attrs.submitName
+        }
+      }
+      if (hasPermission('field_statement_phase')) {
+        changes.attributes.procedurePhase = attrs.procedurePhase
+      }
+      if (hasPermission('field_statement_memo')) {
+        changes.attributes.memo = attrs.memo
+      }
+      this.$emit('save', changes)
     },
 
     setDate (val, field) {

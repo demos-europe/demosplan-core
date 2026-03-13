@@ -279,39 +279,25 @@ export default {
     },
 
     save () {
+      const changes = { attributes: {}, relationships: {} }
+
       if (this.selectedElementId) {
-        this.localStatement.relationships.elements = {
-          data: {
-            id: this.selectedElementId,
-            type: 'ElementsDetails'
-          }
+        changes.relationships.elements = {
+          data: [{ type: 'ElementsDetails', id: this.selectedElementId }]
         }
       }
 
       if (this.selectedParagraphId !== this.initiallySelectedParagraphId) {
-        if (this.selectedParagraphId === '') {
-          this.localStatement.attributes.paragraphParentId = null
-        } else {
-          this.localStatement.attributes.paragraphParentId = this.selectedParagraphId
-        }
+        changes.attributes.paragraphParentId = this.selectedParagraphId || null
       }
 
       if (this.selectedDocumentId !== this.initiallySelectedDocumentId) {
-        if (this.selectedDocumentId === '') {
-          this.localStatement.relationships.document = {
-            data: null
-          }
-        } else {
-          this.localStatement.relationships.document = {
-            data: {
-              id: this.selectedDocumentId,
-              type: 'SingleDocument'
-            }
-          }
+        changes.relationships.document = {
+          data: this.selectedDocumentId ? { type: 'SingleDocument', id: this.selectedDocumentId } : null
         }
       }
 
-      this.$emit('save', this.localStatement)
+      this.$emit('save', changes)
     },
 
     /*

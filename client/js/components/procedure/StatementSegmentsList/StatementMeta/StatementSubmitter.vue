@@ -283,7 +283,21 @@ export default {
     },
 
     save () {
-      this.$emit('save', this.localStatement)
+      const attrs = this.localStatement.attributes
+      this.$emit('save', {
+        attributes: {
+          initialOrganisationDepartmentName: attrs.initialOrganisationDepartmentName,
+          initialOrganisationName: attrs.initialOrganisationName,
+          authorName: attrs.authorName,
+          submitName: attrs.submitName,
+          submitterEmailAddress: attrs.submitterEmailAddress,
+          representationChecked: attrs.representationChecked,
+          initialOrganisationStreet: attrs.initialOrganisationStreet,
+          initialOrganisationHouseNumber: attrs.initialOrganisationHouseNumber,
+          initialOrganisationPostalCode: attrs.initialOrganisationPostalCode,
+          initialOrganisationCity: attrs.initialOrganisationCity
+        }
+      })
     },
 
     setInitValues () {
