@@ -771,17 +771,17 @@ export default {
   name: 'DpAssessmentTableCard',
 
   components: {
-    DpContextualHelp,
-    DpClaim,
     CustomFieldsList,
+    DpClaim,
+    DpContextualHelp,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
     DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList'),
     DpFragmentsSwitcher: () => import(/* webpackChunkName: "dp-fragments-switcher" */ './DpFragmentsSwitcher'),
     DpItemRow,
+    DpTooltip,
     EditableText,
     TableCardFlyoutMenu,
-    DpTooltip,
   },
 
   props: {
