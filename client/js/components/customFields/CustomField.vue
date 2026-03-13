@@ -294,7 +294,7 @@ export default {
      * Get the component name for a given field type
      */
     getComponentForType (fieldType) {
-      return this.componentMap[fieldType] || 'dp-singleselect-custom-field'
+      return this.componentMap[fieldType] || 'singleselect-custom-field'
     },
 
     /**
