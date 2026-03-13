@@ -198,7 +198,7 @@ class OzgKeycloakUserDataMapper
             $orga = $this->orgaRepository->findOneBy(['gwId' => $gwId]);
 
             if ($orga instanceof Orga) {
-                $organisations[] = $this->updateOrganisation($orga, $requestedRoles, $gwId, $orgaName);
+                $organisations[] = $this->updateOrganisation($orga, $requestedRoles, $gwId);
                 continue;
             }
 
@@ -335,13 +335,16 @@ class OzgKeycloakUserDataMapper
         $customer = $this->customerService->getCurrentCustomer();
 
         $gwId ??= $this->ozgKeycloakUserData->getOrganisationId();
-        $orgaName ??= $this->ozgKeycloakUserData->getOrganisationName();
 
         $existingOrga->setDeleted(false);
         $existingOrga->addCustomer($customer);
 
         if ('' !== $gwId) {
             $existingOrga->setGwId($gwId);
+        }
+
+        if ('' !== $orgaName && null !== $orgaName) {
+            $existingOrga->setName($orgaName);
         }
 
         // Do not overwrite org name on update — FPA users can modify it via the UI.

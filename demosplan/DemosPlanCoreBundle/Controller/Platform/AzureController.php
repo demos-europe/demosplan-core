@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakClientFactory;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -21,13 +22,19 @@ class AzureController extends AbstractController
 {
     /**
      * Link to this controller to start the Azure OAuth "connect" process.
+     * Uses per-customer dynamic config when available, otherwise falls back to static config.
      */
     #[Route(path: '/connect/azure', name: 'connect_azure_start', options: ['expose' => true])]
-    public function connect(ClientRegistry $clientRegistry): RedirectResponse
+    public function connect(OzgKeycloakClientFactory $ozgKeycloakClientFactory, ClientRegistry $clientRegistry): RedirectResponse
     {
-        // Will redirect to Azure AD OAuth endpoint
+        if ($ozgKeycloakClientFactory->isCurrentCustomerAzure()) {
+            return $ozgKeycloakClientFactory
+                ->createAzureClientForCurrentCustomer()
+                ->redirect(['openid', 'profile', 'email'], []);
+        }
+
         return $clientRegistry
-            ->getClient('azure') // Key used in config/packages/knpu_oauth2_client.yaml
+            ->getClient('azure')
             ->redirect(['openid', 'profile', 'email'], []);
     }
 

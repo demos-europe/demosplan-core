@@ -52,7 +52,6 @@ class Config {
           /^(?!(.*?:|)cursor-move).+-move$/,
           /^color-.+/,
           /^router-link(-exact|)-active$/,
-          /a1-.+/,
           /c-notify.+/,
           /c-sliding-pagination.*/,
           /current_ancestor/,
@@ -69,6 +68,7 @@ class Config {
           /uppy-.+/,
         ],
         greedy: [
+          /a1-.+/,
           /editor__content/,
           /swagger-ui/,
           /tiptap/,

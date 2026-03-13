@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\CustomerOAuthConfig;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Console\Command\Command;
@@ -30,6 +31,7 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
     private (MockObject&EntityManagerInterface)|null $entityManagerMock = null;
     private (MockObject&CustomerRepository)|null $customerRepositoryMock = null;
     private (MockObject&CustomerOAuthConfigRepository)|null $configRepositoryMock = null;
+    private (MockObject&OrgaRepository)|null $orgaRepositoryMock = null;
     private (MockObject&ParameterBagInterface)|null $parameterBagMock = null;
 
     /** @var list<string>|null */
@@ -47,6 +49,7 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
         $this->entityManagerMock = $this->createMock(EntityManagerInterface::class);
         $this->customerRepositoryMock = $this->createMock(CustomerRepository::class);
         $this->configRepositoryMock = $this->createMock(CustomerOAuthConfigRepository::class);
+        $this->orgaRepositoryMock = $this->createMock(OrgaRepository::class);
         $this->parameterBagMock = $this->createMock(ParameterBagInterface::class);
     }
 
@@ -200,6 +203,93 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
         self::assertSame(self::REALM, $existingConfig->getKeycloakRealm());
     }
 
+    public function testFromJsonUpsertsConfigForValidJson(): void
+    {
+        $customer = $this->createCustomerStub();
+        $this->customerRepositoryMock->method('findOneBy')
+            ->with(['subdomain' => self::SUBDOMAIN])
+            ->willReturn($customer);
+        $this->configRepositoryMock->method('findByCustomer')
+            ->willReturn(null);
+
+        $this->entityManagerMock->expects(self::once())->method('persist');
+        $this->entityManagerMock->expects(self::once())->method('flush');
+
+        $json = json_encode([
+            self::SUBDOMAIN => [
+                'clientId'      => self::CLIENT_ID,
+                'clientSecret'  => self::CLIENT_SECRET,
+                'authServerUrl' => self::AUTH_SERVER_URL,
+                'realm'         => self::REALM,
+            ],
+        ], JSON_THROW_ON_ERROR);
+
+        $tester = $this->executeCommand(['--config-json' => $json]);
+
+        self::assertSame(Command::SUCCESS, $tester->getStatusCode());
+        self::assertStringContainsString('Upserted: 1', $tester->getDisplay());
+        self::assertStringContainsString('Skipped: 0', $tester->getDisplay());
+    }
+
+    public function testFromJsonFailsForInvalidJson(): void
+    {
+        $tester = $this->executeCommand(['--config-json' => '{ invalid json']);
+
+        self::assertSame(Command::FAILURE, $tester->getStatusCode());
+        self::assertStringContainsString('Invalid JSON', $tester->getDisplay());
+    }
+
+    public function testFromJsonSkipsUnknownSubdomain(): void
+    {
+        $this->customerRepositoryMock->method('findOneBy')
+            ->willReturn(null);
+
+        $json = json_encode([
+            'nonexistent' => [
+                'clientId'      => self::CLIENT_ID,
+                'clientSecret'  => self::CLIENT_SECRET,
+                'authServerUrl' => self::AUTH_SERVER_URL,
+                'realm'         => self::REALM,
+            ],
+        ], JSON_THROW_ON_ERROR);
+
+        $tester = $this->executeCommand(['--config-json' => $json]);
+
+        self::assertSame(Command::SUCCESS, $tester->getStatusCode());
+        self::assertStringContainsString('Upserted: 0', $tester->getDisplay());
+        self::assertStringContainsString('Skipped: 1', $tester->getDisplay());
+    }
+
+    public function testConfigFileTakesPrecedenceOverConfigJson(): void
+    {
+        $customer = $this->createCustomerStub();
+        $this->customerRepositoryMock->method('findOneBy')
+            ->willReturn($customer);
+        $this->configRepositoryMock->method('findByCustomer')
+            ->willReturn(null);
+
+        $this->entityManagerMock->expects(self::once())->method('persist');
+        $this->entityManagerMock->expects(self::once())->method('flush');
+
+        $configFile = $this->createTempConfigFile([
+            self::SUBDOMAIN => [
+                'clientId'      => self::CLIENT_ID,
+                'clientSecret'  => self::CLIENT_SECRET,
+                'authServerUrl' => self::AUTH_SERVER_URL,
+                'realm'         => self::REALM,
+            ],
+        ]);
+
+        // Both options provided — config-file should win
+        $tester = $this->executeCommand([
+            '--config-file' => $configFile,
+            '--config-json' => '{"ignored": {}}',
+        ]);
+
+        self::assertSame(Command::SUCCESS, $tester->getStatusCode());
+        self::assertStringContainsString('Upserted: 1', $tester->getDisplay());
+    }
+
     public function testInteractiveCreatesNewConfig(): void
     {
         $customer = $this->createCustomerStub();
@@ -219,6 +309,7 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
             self::AUTH_SERVER_URL, // authServerUrl
             self::REALM,          // realm
             '',                   // logoutRoute (skip)
+            '',                   // defaultOrganisationId (skip)
             'yes',                // confirm
         ]);
 
@@ -243,6 +334,7 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
             self::AUTH_SERVER_URL,
             self::REALM,
             '',
+            '',   // defaultOrganisationId (skip)
             'no', // deny
         ]);
 
@@ -287,6 +379,7 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
             '',               // keep default authServerUrl
             '',               // keep default realm
             '',               // skip logoutRoute
+            '',               // skip defaultOrganisationId
             'yes',
         ]);
 
@@ -357,6 +450,7 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
                 $this->entityManagerMock,
                 $this->customerRepositoryMock,
                 $this->configRepositoryMock,
+                $this->orgaRepositoryMock,
                 $this->parameterBagMock,
             )
         );

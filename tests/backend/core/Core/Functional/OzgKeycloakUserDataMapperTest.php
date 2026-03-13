@@ -48,6 +48,8 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     private const ORG_NAME_FROM_TOKEN = 'Original Name From Token';
     private const ORG_NAME_AMT_A = 'Original Amt A';
     private const ORG_NAME_AMT_B = 'Original Amt B';
+    private const ORG_NAME_AMT_NORDWEST = 'Amt Nordwest';
+    private const GWID_PIPED_141_UMWELT = '141|UMWELT';
 
     protected $sut;
 
@@ -1086,5 +1088,122 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             ['orgs' => [['id' => 'CP-AMT', 'name' => 'CP Amt']], 'resps' => [['id' => 'CP-R-KEEP', 'name' => 'Keep Resp'], ['id' => 'CP-R-OLD', 'name' => 'Old Resp']], 'gwIds' => ['CP-AMT|CP-R-KEEP', 'CP-AMT|CP-R-OLD']],
             ['orgs' => [['id' => 'CP-AMT', 'name' => 'CP Amt']], 'resps' => [['id' => 'CP-R-KEEP', 'name' => 'Keep Resp'], ['id' => 'CP-R-NEW', 'name' => 'New Resp']], 'gwIds' => ['CP-AMT|CP-R-KEEP', 'CP-AMT|CP-R-NEW']],
         );
+    }
+
+    /**
+     * Test automigration: org with base gwId gets BOTH gwId and name updated
+     * when user first logs in with piped format (gwId|Fachbezug).
+     */
+    public function testAutomigrationUpdatesBothGwIdAndNameOnFirstPipedLogin(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        // Setup: Create org with OLD format (base gwId only)
+        $resourceOwner1 = $this->createResourceAccessResourceOwner([
+            'email'              => 'automigration@example.com',
+            'sub'                => 'test-automigration-001',
+            'preferred_username' => 'automigration.user',
+            'organisation'       => [
+                ['id' => '141', 'name' => 'Old Org Name'],
+            ],
+            'fachbezug'          => [],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+        $user1 = $this->mapResourceOwnerToUser($resourceOwner1);
+        $orga1 = $user1->getOrganisations()->first();
+
+        // Verify initial state
+        self::assertSame('141', $orga1->getGwId(), 'Initial gwId should be base ID only');
+        self::assertSame('Old Org Name', $orga1->getName(), 'Initial name from token');
+
+        // Act: User logs in with NEW format (gwId|Fachbezug)
+        $resourceOwner2 = $this->createResourceAccessResourceOwner([
+            'email'              => 'automigration@example.com',
+            'sub'                => 'test-automigration-001',
+            'preferred_username' => 'automigration.user',
+            'organisation'       => [
+                ['id' => '141', 'name' => self::ORG_NAME_AMT_NORDWEST],
+            ],
+            'fachbezug'          => [
+                ['id' => 'UMWELT', 'name' => 'Umweltverwaltung'],
+            ],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($resourceOwner2);
+        $orga2 = $user2->getOrganisations()->first();
+
+        // Assert: BOTH gwId AND name should be updated during automigration
+        self::assertSame(self::GWID_PIPED_141_UMWELT, $orga2->getGwId(), 'GwId should be updated to piped format');
+        self::assertSame(self::ORG_NAME_AMT_NORDWEST.' - Umweltverwaltung', $orga2->getName(), 'Name should be updated during automigration');
+    }
+
+    /**
+     * Test that after automigration, subsequent logins do NOT overwrite the org name,
+     * even if the token contains a different name.
+     */
+    public function testSubsequentLoginsDoNotUpdateNameAfterAutomigration(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        // Setup: Simulate completed automigration (org already has piped gwId)
+        $resourceOwner1 = $this->createResourceAccessResourceOwner([
+            'email'              => 'postmigration@example.com',
+            'sub'                => 'test-postmigration-001',
+            'preferred_username' => 'postmigration.user',
+            'organisation'       => [
+                ['id' => '141', 'name' => self::ORG_NAME_AMT_NORDWEST],
+            ],
+            'fachbezug'          => [
+                ['id' => 'UMWELT', 'name' => 'Umweltverwaltung'],
+            ],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+        $user1 = $this->mapResourceOwnerToUser($resourceOwner1);
+        $orga1 = $user1->getOrganisations()->first();
+
+        self::assertSame(self::GWID_PIPED_141_UMWELT, $orga1->getGwId());
+        self::assertSame(self::ORG_NAME_AMT_NORDWEST.' - Umweltverwaltung', $orga1->getName());
+
+        // Simulate FPA user manually renaming the org via UI
+        $orga1->setName('User-Modified Organisation Name');
+        $this->getEntityManager()->persist($orga1);
+        $this->getEntityManager()->flush();
+
+        // Act: User logs in again with SAME piped gwId but different name in token
+        $resourceOwner2 = $this->createResourceAccessResourceOwner([
+            'email'              => 'postmigration@example.com',
+            'sub'                => 'test-postmigration-001',
+            'preferred_username' => 'postmigration.user',
+            'organisation'       => [
+                ['id' => '141', 'name' => 'Different Token Name'],
+            ],
+            'fachbezug'          => [
+                ['id' => 'UMWELT', 'name' => 'Different Fachbezug Name'],
+            ],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+        $user2 = $this->mapResourceOwnerToUser($resourceOwner2);
+        $orga2 = $user2->getOrganisations()->first();
+
+        // Assert: Name must NOT be overwritten on subsequent login (exact gwId match)
+        self::assertSame(self::GWID_PIPED_141_UMWELT, $orga2->getGwId(), 'GwId should remain unchanged');
+        self::assertSame('User-Modified Organisation Name', $orga2->getName(),
+            'Org name must NOT be overwritten after automigration - user modifications should be preserved');
     }
 }
