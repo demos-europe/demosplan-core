@@ -5,6 +5,20 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.29.2 (2026-03-13)
+
+### Added
+- Per-customer SSO login configuration
+
+### Fixed
+- Additional submitters added to a statement were lost after page reload
+- Flyout menu ("...") in sections view not visible with wide columns
+- Error when finishing segment assignment ("Aufteilen abschließen") for certain tag configurations
+- Newly created procedures not appearing in procedure list
+- Boilerplate texts disappearing when individual boilerplates were removed from a category
+- Data input organization dropdown showing organizations from other customers
+- Organizations not receiving correct access rights after approval
+
 ## v4.3.8 (2026-03-13)
 - fix DS-505: prevent StatementMeta children from overwriting unrelated statement data on save
 - fix DPLAN-17389: make column with flyout trigger sticky
