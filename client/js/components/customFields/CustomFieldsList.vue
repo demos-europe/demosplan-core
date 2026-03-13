@@ -75,7 +75,7 @@ All rights reserved
         :class="prefixClass('pb-0')"
       >
         <legend
-          v-if="!noTitle"
+          v-if="showTitle"
           :class="prefixClass('mb-2 text-[1em] font-[500]')"
         >
           {{ listTitle }}
@@ -132,7 +132,7 @@ All rights reserved
         <div :class="[prefixClass('flex items-center gap-1'), effectiveTitleClass]">
           <component
             :is="effectiveTitleTag"
-            v-if="!noTitle"
+            v-if="showTitle"
             class="m-0"
           >
             {{ listTitle }}
@@ -243,10 +243,10 @@ export default {
       validator: val => ['readonly', 'editable'].includes(val),
     },
 
-    noTitle: {
+    showTitle: {
       type: Boolean,
       required: false,
-      default: false,
+      default: true,
     },
 
     resourceId: {
