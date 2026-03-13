@@ -175,13 +175,13 @@ class EntityContentChangeService
                     $incomingData,
                     $fieldsToTrack
                 );
-            } else {
-                return $this->calculateChangesOfStandardFieldsOfPreUpdateObjectAndPostUpdateArray(
-                    $relatedRepository->get($this->entityHelper->extractId($incomingData)),
-                    $incomingData,
-                    $fieldsToTrack
-                );
             }
+
+            return $this->calculateChangesOfStandardFieldsOfPreUpdateObjectAndPostUpdateArray(
+                $relatedRepository->get($this->entityHelper->extractId($incomingData)),
+                $incomingData,
+                $fieldsToTrack
+            );
         } catch (Exception $e) {
             $this->logger->warning('Could not calculate content changes', [$e, $e->getTraceAsString()]);
             throw $e;
