@@ -187,11 +187,11 @@ export default {
         multiSelect: 'multiselect-custom-field',
         singleSelect: 'singleselect-custom-field',
       },
-      resolvedDefinition: null,
       editingValue: null,
       isEditing: false,
       isLoading: false,
       isSaving: false,
+      resolvedDefinition: null,
       saveError: null,
     }
   },
@@ -239,6 +239,17 @@ export default {
   },
 
   methods: {
+    buildFieldObject (rawValue) {
+      if (!this.resolvedDefinition) {
+        return null
+      }
+
+      return {
+        ...this.resolvedDefinition,
+        value: this.transformValueForRenderer(rawValue),
+      }
+    },
+
     cancelEdit () {
       this.isEditing = false
       this.editingValue = null
@@ -386,17 +397,6 @@ export default {
       this.isEditing = true
       this.editingValue = this.fieldData.value
       this.$emit('edit:start')
-    },
-
-    buildFieldObject (rawValue) {
-      if (!this.resolvedDefinition) {
-        return null
-      }
-
-      return {
-        ...this.resolvedDefinition,
-        value: this.transformValueForRenderer(rawValue),
-      }
     },
 
     /**

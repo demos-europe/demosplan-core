@@ -210,61 +210,73 @@ export default {
       type: String,
       required: true,
     },
+
     enableToggle: {
       type: Boolean,
       required: false,
       default: false,
     },
+
     expandable: {
       type: Boolean,
       required: false,
       default: false,
     },
+
     layout: {
       type: String,
       required: false,
       default: 'vertical',
       validator: val => ['vertical', 'horizontal', 'grid'].includes(val),
     },
+
     listTitle: {
       type: String,
       required: false,
       default: () => Translator.trans('more.data'),
     },
+
     mode: {
       type: String,
       required: false,
       default: 'readonly',
       validator: val => ['readonly', 'editable'].includes(val),
     },
+
     noTitle: {
       type: Boolean,
       required: false,
       default: false,
     },
+
     resourceId: {
       type: String,
       required: true,
     },
+
     resourceType: {
       type: String,
       required: true,
     },
+
     showEmpty: {
       type: Boolean,
       required: false,
       default: false,
     },
+
     titleClass: {
       type: [String, Array, Object],
       required: false,
       default: null,
     },
+
     titleInfoText: {
       type: String,
       required: false,
       default: '',
     },
+
     titleTag: {
       type: String,
       required: false,
@@ -276,8 +288,8 @@ export default {
   emits: [
     'hasContent',
     'loaded',
-    'save:success',
     'save:error',
+    'save:success',
     'update:value',
   ],
 
@@ -285,9 +297,9 @@ export default {
     return {
       activeEditFieldId: null,
       definitions: [],
-      values: [],
-      isLoading: false,
       error: null,
+      isLoading: false,
+      values: [],
     }
   },
 
@@ -342,13 +354,15 @@ export default {
   },
 
   watch: {
-    resourceType () {
+    definitionSourceId () {
       this.fetchCustomFieldsData()
     },
+
     resourceId () {
       this.fetchCustomFieldsData()
     },
-    definitionSourceId () {
+
+    resourceType () {
       this.fetchCustomFieldsData()
     },
   },
