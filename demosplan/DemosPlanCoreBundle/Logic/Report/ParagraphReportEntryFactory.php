@@ -35,8 +35,8 @@ class ParagraphReportEntryFactory extends AbstractReportEntryFactory
             'keyOfInternalPhase'        => $paragraph->getProcedure()->getPhase(),
             'keyOfEternalPhase'         => $paragraph->getProcedure()->getPublicParticipationPhase(),
             // The translation of the time the report is created is the important one, not the key
-            'nameOfInternalPhase'       => $paragraph->getProcedure()->getPhaseName(),
-            'nameOfExternalPhase'       => $paragraph->getProcedure()->getPublicParticipationPhaseName(),
+            'nameOfInternalPhase'       => $paragraph->getProcedure()->getPhaseObject()->getPhaseDefinition()->getName(),
+            'nameOfExternalPhase'       => $paragraph->getProcedure()->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName(),
         ];
     }
 

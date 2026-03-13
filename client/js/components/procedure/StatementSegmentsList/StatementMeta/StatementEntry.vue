@@ -124,14 +124,15 @@ All rights reserved
       <dp-select
         v-if="availableProcedurePhases.length > 1"
         id="statementProcedurePhase"
-        v-model="localStatement.attributes.procedurePhase.key"
-        class="mb-3"
-        data-cy="statementEntry:procedurePhase"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('procedure.public.phase')
         }"
         :options="availableProcedurePhases"
+        :selected="localStatement.relationships.procedurePhase.data.id"
+        class="mb-3"
+        data-cy="statementEntry:procedurePhase"
+        @select="id => localStatement.relationships.procedurePhase.data.id = id"
       />
       <dl
         v-else
@@ -141,7 +142,7 @@ All rights reserved
           {{ Translator.trans('procedure.public.phase') }}
         </dt>
         <dd class="text-muted">
-          {{ localStatement.attributes.procedurePhase?.name || '-' }}
+          {{ currentPhaseName }}
         </dd>
       </dl>
     </template>
@@ -230,8 +231,13 @@ export default {
 
       return phases.map(phase => ({
         label: phase.name,
-        value: phase.key,
+        value: phase.id,
       }))
+    },
+
+    currentPhaseName () {
+      const id = this.localStatement.relationships?.procedurePhase?.data?.id
+      return this.$store.state.ProcedurePhaseDefinition?.items?.[id]?.attributes?.name || '-'
     },
 
     currentDate () {
@@ -286,10 +292,13 @@ export default {
           submitDate: this.localStatement.attributes.submitDate,
           submitType: this.localStatement.attributes.submitType,
           internId: this.localStatement.attributes.internId,
-          procedurePhase: this.localStatement.attributes.procedurePhase,
           memo: this.localStatement.attributes.memo,
           authorName: this.localStatement.attributes.authorName,
           submitName: this.localStatement.attributes.submitName,
+        },
+        relationships: {
+          ...currentStatement.relationships,
+          procedurePhase: this.localStatement.relationships.procedurePhase,
         },
       }
 

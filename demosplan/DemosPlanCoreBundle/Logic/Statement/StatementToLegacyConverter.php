@@ -165,7 +165,10 @@ class StatementToLegacyConverter
     {
         if ($statementArray['procedure'] instanceof Procedure) {
             try {
-                $statementArray['procedure'] = $this->entityHelper->toArray($statementArray['procedure']);
+                $procedure = $statementArray['procedure'];
+                $phaseDefinitionName = $procedure->getPhaseObject()->getPhaseDefinition()->getName();
+                $publicParticipationPhaseDefinitionName = $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName();
+                $statementArray['procedure'] = $this->entityHelper->toArray($procedure);
                 $statementArray['procedure']['settings'] = $this->entityHelper->toArray(
                     $statementArray['procedure']['settings']
                 );
@@ -180,6 +183,8 @@ class StatementToLegacyConverter
                     isset($statementArray['procedure']['planningOffices']) ?
                         $this->entityHelper->toArray($statementArray['procedure']['planningOffices']) :
                         [];
+                $statementArray['procedure']['phaseDefinitionName'] = $phaseDefinitionName;
+                $statementArray['procedure']['publicParticipationPhaseDefinitionName'] = $publicParticipationPhaseDefinitionName;
             } catch (Exception $e) {
                 $this->logger->warning(
                     'Could not convert  Statement Procedure to Legacy. Statement: '.DemosPlanTools::varExport(

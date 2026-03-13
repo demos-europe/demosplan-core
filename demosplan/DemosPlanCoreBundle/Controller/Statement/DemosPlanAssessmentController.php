@@ -30,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
@@ -338,6 +339,7 @@ class DemosPlanAssessmentController extends BaseController
         MunicipalityService $municipalityService,
         PermissionsInterface $permissions,
         PriorityAreaService $priorityAreaService,
+        ProcedurePhaseDefinitionService $phaseDefinitionService,
         ProcedureService $procedureService,
         StatementHandler $statementHandler,
         string $procedureId): JsonResponse
@@ -375,8 +377,14 @@ class DemosPlanAssessmentController extends BaseController
         }
 
         // Verfahrensschritte
-        $data['internalPhases'] = $this->globalConfig->getInternalPhases();
-        $data['externalPhases'] = $this->globalConfig->getExternalPhases();
+        $data['internalPhases'] = array_map(
+            static fn ($def) => ['id' => $def->getId(), 'name' => $def->getName(), 'permissionSet' => $def->getPermissionSet()],
+            $phaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer()
+        );
+        $data['externalPhases'] = array_map(
+            static fn ($def) => ['id' => $def->getId(), 'name' => $def->getName(), 'permissionSet' => $def->getPermissionSet()],
+            $phaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer()
+        );
 
         $resElements = $statementHandler->getElementBlock($procedureId);
         $data['elements'] = $resElements['elements'] ?? [];

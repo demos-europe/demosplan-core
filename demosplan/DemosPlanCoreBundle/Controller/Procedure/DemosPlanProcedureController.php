@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -60,6 +59,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureCategoryService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureServiceOutput;
@@ -1229,6 +1229,7 @@ class DemosPlanProcedureController extends BaseController
         ProcedureCategoryService $procedureCategoryService,
         ProcedureCoupleTokenFetcher $coupleTokenService,
         ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository,
+        ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         Request $request,
         ServiceStorage $serviceStorage,
         StatementService $statementService,
@@ -1394,17 +1395,10 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['internalPhases'] = $this->globalConfig->getInternalPhases();
             $templateVars['externalPhases'] = $this->globalConfig->getExternalPhases();
 
-            $phaseDefinitions = $procedurePhaseDefinitionRepository->findByCustomerOrderedByAudience(
-                $customerService->getCurrentCustomer()
-            );
-            $templateVars['internalPhaseDefinitions'] = array_values(array_filter(
-                $phaseDefinitions,
-                static fn (ProcedurePhaseDefinition $d) => 'internal' === $d->getAudience()
-            ));
-            $templateVars['externalPhaseDefinitions'] = array_values(array_filter(
-                $phaseDefinitions,
-                static fn (ProcedurePhaseDefinition $d) => 'external' === $d->getAudience()
-            ));
+            $templateVars['internalPhaseDefinitions'] =
+                $procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer();
+            $templateVars['externalPhaseDefinitions'] =
+                $procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer();
 
             // ProcedureCategories
             $templateVars['procedureCategories'] = $procedureCategoryService->getProcedureCategories();
