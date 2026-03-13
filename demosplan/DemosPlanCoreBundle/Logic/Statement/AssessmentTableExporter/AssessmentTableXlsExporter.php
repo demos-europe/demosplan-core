@@ -510,6 +510,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         // collect Statements in unified data format
         foreach ($statements as $statement) {
             $pushed = false;
+            // add tag topic title name behind tag names
             if (isset($statement['tags'], $statement['tagNames'])) {
                 $tagToTopic = [];
                 foreach ($statement['tags'] as $tag) {

@@ -212,7 +212,7 @@ class StatementExportTest extends FunctionalTestCase
     private function getComplexStatementAttributes(): array
     {
         return [
-            'externId', 'text', 'recommendation', 'tagNames', 'topicNames',
+            'externId', 'text', 'recommendation', 'tagNames',
             'elementTitle', 'documentTitle', 'paragraphTitle', 'status', 'priority',
             'oName', 'dName', 'meta.authorName', 'meta.submitName', 'meta.orgaEmail',
             'meta.orgaStreet', 'meta.houseNumber', 'meta.orgaPostalCode', 'meta.orgaCity',
@@ -227,8 +227,7 @@ class StatementExportTest extends FunctionalTestCase
             'externId'            => 'M1',
             'text'                => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore. statementjiahuu this was edited. Grüße aus Cypress!',
             'recommendation'      => 'Meine Empfehlung',
-            'tagNames'            => 'Tag Name',
-            'topicNames'          => 'Topic Name',
+            'tagNames'            => 'Tag Name [Thema:Topic Name]',
             'elementTitle'        => 'Gesamtstellungnahme',
             'documentTitle'       => '',
             'paragraphTitle'      => '',
@@ -305,21 +304,15 @@ class StatementExportTest extends FunctionalTestCase
         $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
             $statements,
             false,
-            ['id', 'text', 'tagNames', 'topicNames']
+            ['id', 'text', 'tagNames']
         );
 
         // Should create 2 rows (one for each tag)
-        self::assertCount(2, $result);
+        self::assertCount(1, $result);
 
         // First row
         self::assertEquals('123', $result[0]['id']);
-        self::assertEquals('Environment', $result[0]['tagNames']);
-        self::assertEquals('Environmental Protection', $result[0]['topicNames']);
-
-        // Second row
-        self::assertEquals('123', $result[1]['id']);
-        self::assertEquals('Traffic', $result[1]['tagNames']);
-        self::assertEquals('Transportation Planning', $result[1]['topicNames']);
+        self::assertEquals("Environment [Thema:Environmental Protection]\nTraffic [Thema:Transportation Planning]", $result[0]['tagNames']);
     }
 
     public function testPrepareDataForExcelExportAnonymousMode(): void
@@ -442,7 +435,7 @@ class StatementExportTest extends FunctionalTestCase
 
         // Check second statement row
         self::assertEquals('2', $result[2]['id']);
-        self::assertEquals('tag1', $result[2]['tagNames']);
+        self::assertEquals('tag1 [Thema:Topic A]', $result[2]['tagNames']);
 
         // Check third statement row
         self::assertEquals('3', $result[3]['id']);
