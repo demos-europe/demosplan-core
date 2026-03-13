@@ -25,6 +25,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\FormDefinitionConstraint;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -403,6 +404,13 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
      * @ORM\Column(name="_ds_phase", type="string", length=50, nullable=false)
      */
     protected $phase = '';
+
+    /**
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
+     *
+     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=false, onDelete="RESTRICT")
+     */
+    protected ProcedurePhaseDefinition $phaseDefinition;
 
     /**
      * @var DateTime
@@ -1531,6 +1539,16 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     public function getPhase()
     {
         return $this->phase;
+    }
+
+    public function getPhaseDefinition(): ProcedurePhaseDefinition
+    {
+        return $this->phaseDefinition;
+    }
+
+    public function setPhaseDefinition(ProcedurePhaseDefinition $phaseDefinition): void
+    {
+        $this->phaseDefinition = $phaseDefinition;
     }
 
     /**

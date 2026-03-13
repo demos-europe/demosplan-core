@@ -32,8 +32,8 @@
     <dp-new-statement
         procedure-id="{{ templateVars.table.procedure.ident }}"
         default-submit-type="{{ getFormOption('statement_submit_types.default')|first }}"
-        current-external-phase="{{ templateVars.table.procedure.publicParticipationPhase|default }}"
-        current-internal-phase="{{  templateVars.table.procedure.phase|default }}"
+        current-external-phase="{{ templateVars.table.procedure.publicParticipationPhaseObject.phaseDefinition.id|default }}"
+        current-internal-phase="{{ templateVars.table.procedure.phaseObject.phaseDefinition.id|default }}"
         :internal-phases="JSON.parse('{{ templateVars.internalPhases|default({})|json_encode|e('js', 'utf-8') }}')"
         :external-phases="JSON.parse('{{ templateVars.externalPhases|default({})|json_encode|e('js', 'utf-8') }}')"
         request-text="{{ app.request.get('r_text')|default }}"
@@ -300,10 +300,10 @@
                                 }"
                                 :options="phases"
                                 required
-                                :selected="values.phase.key"
+                                :selected="values.phase.id"
                                 @select="setPhaseValue">
                             </dp-select>
-                            <input type="hidden" :value="values.phase.key" name="r_phase"/>
+                            <input type="hidden" :value="values.phase.id" name="r_phaseDefinitionId"/>
                         </div>
                     </div>
 

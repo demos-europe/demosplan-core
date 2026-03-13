@@ -285,7 +285,7 @@ class StatementReportEntryFactory extends AbstractReportEntryFactory
             'title'             => $statement->getTitle(),
             'text'              => $statement->getText(),
             'priority'          => $statement->getPriority(),
-            'phase'             => $statement->getPhase(),
+            'phase'             => $statement->getPhaseDefinition()->getName(),
             'status'            => $statement->getStatus(),
             'file'              => $statement->getFile(),
             'mapFile'           => $statement->getMapFile(),
@@ -383,7 +383,7 @@ class StatementReportEntryFactory extends AbstractReportEntryFactory
             'recommendation'    => $newStatement->getRecommendation(),
             'priority'          => $newStatement->getPriority(),
             'procedure'         => ['id' => $newStatement->getProcedureId()],
-            'phase'             => $newStatement->getPhase(),
+            'phase'             => $newStatement->getPhaseDefinition()->getName(),
             'status'            => $newStatement->getStatus(),
             'memo'              => $newStatement->getMemo(),
             'toSendPerMail'     => $newStatement->getToSendPerMail(),
@@ -410,8 +410,8 @@ class StatementReportEntryFactory extends AbstractReportEntryFactory
             $statement['procedure'] = [
                 'id'                       => $statement['procedure']['id'],
                 'name'                     => $statement['procedure']['name'],
-                'phase'                    => $statement['procedure']['phase'],
-                'publicParticipationPhase' => $statement['procedure']['publicParticipationPhase'],
+                'phase'                    => $statement['procedure']['phaseDefinitionName'] ?? $statement['procedure']['phase'],
+                'publicParticipationPhase' => $statement['procedure']['publicParticipationPhaseDefinitionName'] ?? $statement['procedure']['publicParticipationPhase'],
             ];
         }
 

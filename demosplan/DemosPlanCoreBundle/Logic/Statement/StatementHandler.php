@@ -86,6 +86,7 @@ use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
@@ -234,6 +235,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         PermissionsInterface $permissions,
         PriorityAreaService $priorityAreaService,
         ProcedureHandler $procedureHandler,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         ProcedureService $procedureService,
         QueryFragment $esQueryFragment,
         ServiceImporter $serviceImporter,
@@ -573,7 +575,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         $fragmentToUpdate = $this->statementFragmentService->getStatementFragment($fragmentId);
 
-        if (!($fragmentToUpdate instanceof StatementFragment)) {
+        if (!$fragmentToUpdate instanceof StatementFragment) {
             throw new EntityNotFoundException('StatementFragment not found: '.$fragmentId);
         }
 
@@ -593,7 +595,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         $fragmentToUpdate = $this->statementFragmentService->getStatementFragment($statementFragmentId);
 
-        if (!($fragmentToUpdate instanceof StatementFragment)) {
+        if (!$fragmentToUpdate instanceof StatementFragment) {
             $this->getLogger()->error('Could not update StatementFragment, Fragment not found: '.$statementFragmentId);
 
             return false;
@@ -3008,8 +3010,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         // Verfahrensschritte
-        $templateVars['internalPhases'] = $this->getDemosplanConfig()->getInternalPhases();
-        $templateVars['externalPhases'] = $this->getDemosplanConfig()->getExternalPhases();
+        $templateVars['internalPhases'] = array_map(
+            static fn ($def) => ['id' => $def->getId(), 'name' => $def->getName(), 'permissionSet' => $def->getPermissionSet()],
+            $this->procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer()
+        );
+        $templateVars['externalPhases'] = array_map(
+            static fn ($def) => ['id' => $def->getId(), 'name' => $def->getName(), 'permissionSet' => $def->getPermissionSet()],
+            $this->procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer()
+        );
 
         // add vars for location fields
         $procedureService = $this->procedureService;
@@ -3046,7 +3054,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         if (array_key_exists('r_publicVerified', $data)) {
             $procedure = $this->procedureService->getProcedure($procedureId);
 
-            if (!($procedure instanceof Procedure)) {
+            if (!$procedure instanceof Procedure) {
                 throw ProcedurePublicationException::procedureNotFound($procedureId);
             }
 
@@ -3438,9 +3446,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
             if ($updatedStatement instanceof Statement) {
                 return true;
-            } else {
-                $this->getLogger()->error('Set assignee of Statement '.$statement->getId().' failed.');
             }
+            $this->getLogger()->error('Set assignee of Statement '.$statement->getId().' failed.');
         }
 
         return $statement->getExternId();

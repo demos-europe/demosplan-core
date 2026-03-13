@@ -64,7 +64,9 @@ class ProcedureToLegacyConverter
         if (null !== $procedureArray['settings']) {
             $procedureArray['settings'] = $this->entityHelper->toArray($procedureArray['settings']);
             $procedureArray['phaseObject'] = $this->entityHelper->toArray($procedure->getPhaseObject());
+            $procedureArray['phaseObject']['phaseDefinition'] = $this->entityHelper->toArray($procedure->getPhaseObject()->getPhaseDefinition());
             $procedureArray['publicParticipationPhaseObject'] = $this->entityHelper->toArray($procedure->getPublicParticipationPhaseObject());
+            $procedureArray['publicParticipationPhaseObject']['phaseDefinition'] = $this->entityHelper->toArray($procedure->getPublicParticipationPhaseObject()->getPhaseDefinition());
             $procedureArray['pictogram'] = $procedureArray['settings']['pictogram'];
             $procedureArray['pictogramCopyright'] = $procedureArray['settings']['pictogramCopyright'];
             $procedureArray['pictogramAltText'] = $procedureArray['settings']['pictogramAltText'];
@@ -166,7 +168,7 @@ class ProcedureToLegacyConverter
             'organisation'                          => $nonPlanningOfficeOrganisationIds,
             'organisationIds'                       => $nonPlanningOfficeOrganisationIds,
             'phase'                                 => $procedure->getPhase(),
-            'phaseName'                             => $procedure->getPhaseName(),
+            'phaseName'                             => $procedure->getPhaseObject()->getPhaseDefinition()->getName(),
             'phasePermissionset'                    => $procedure->getPhasePermissionset(),
             'planningOffices'                       => $planningOfficeOrganisations,
             'planningOfficesIds'                    => $planningOfficeIds,
@@ -179,7 +181,7 @@ class ProcedureToLegacyConverter
             'publicParticipationContact'            => $procedure->getPublicParticipationContact(),
             'publicParticipationEndDate'            => $procedure->getPublicParticipationEndDate(),
             'publicParticipationPhase'              => $procedure->getPublicParticipationPhase(),
-            'publicParticipationPhaseName'          => $procedure->getPublicParticipationPhaseName(),
+            'publicParticipationPhaseName'          => $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName(),
             'publicParticipationPhasePermissionset' => $procedure->getPublicParticipationPhasePermissionset(),
             'publicParticipationPublicationEnabled' => $procedure->getPublicParticipationPublicationEnabled(),
             'publicParticipationStartDate'          => $procedure->getPublicParticipationStartDate(),

@@ -86,6 +86,20 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     protected ?string $designatedPhase = null;
 
     /**
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
+     *
+     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=false, onDelete="RESTRICT")
+     */
+    protected ProcedurePhaseDefinition $phaseDefinition;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
+     *
+     * @ORM\JoinColumn(name="designated_phase_definition_id", referencedColumnName="id", nullable=true, onDelete="RESTRICT")
+     */
+    protected ?ProcedurePhaseDefinition $designatedPhaseDefinition = null;
+
+    /**
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected ?DateTime $designatedSwitchDate = null;
@@ -225,6 +239,26 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->designatedPhase = $designatedPhase;
     }
 
+    public function getPhaseDefinition(): ProcedurePhaseDefinition
+    {
+        return $this->phaseDefinition;
+    }
+
+    public function setPhaseDefinition(ProcedurePhaseDefinition $phaseDefinition): void
+    {
+        $this->phaseDefinition = $phaseDefinition;
+    }
+
+    public function getDesignatedPhaseDefinition(): ?ProcedurePhaseDefinition
+    {
+        return $this->designatedPhaseDefinition;
+    }
+
+    public function setDesignatedPhaseDefinition(?ProcedurePhaseDefinition $designatedPhaseDefinition): void
+    {
+        $this->designatedPhaseDefinition = $designatedPhaseDefinition;
+    }
+
     public function getDesignatedSwitchDate(): ?DateTime
     {
         return $this->designatedSwitchDate;
@@ -287,6 +321,11 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->permissionSet = $sourcePhase->getPermissionSet();
         $this->startDate = $sourcePhase->getStartDate();
         $this->endDate = $sourcePhase->getEndDate();
+
+        if ($sourcePhase instanceof self) {
+            $this->phaseDefinition = $sourcePhase->getPhaseDefinition();
+            $this->designatedPhaseDefinition = $sourcePhase->getDesignatedPhaseDefinition();
+        }
     }
 
     public function getIteration(): int

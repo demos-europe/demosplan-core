@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 
@@ -26,6 +27,23 @@ use Doctrine\ORM\NoResultException;
  */
 class ProcedurePhaseDefinitionRepository extends CoreRepository
 {
+    /**
+     * Returns all phase definitions for the given customer, ordered by audience and orderInAudience.
+     * Falls back to global definitions (customer IS NULL) if no customer-specific definitions exist.
+     *
+     * @return ProcedurePhaseDefinition[]
+     */
+    public function findByCustomerOrderedByAudience(Customer $customer): array
+    {
+        $results = $this->findBy(['customer' => $customer], ['audience' => 'ASC', 'orderInAudience' => 'ASC']);
+
+        if ([] === $results) {
+            $results = $this->findBy(['customer' => null], ['audience' => 'ASC', 'orderInAudience' => 'ASC']);
+        }
+
+        return $results;
+    }
+
     /**
      * @throws NonUniqueResultException
      * @throws NoResultException

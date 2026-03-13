@@ -47,7 +47,11 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasPermission('area_customer_procedure_phase_definitions');
+        return $this->currentUser->hasAnyPermissions(
+            'area_customer_procedure_phase_definitions',
+            'area_admin_assessmenttable',
+            'area_search_submitter_in_procedures'
+        );
     }
 
     public function isGetAllowed(): bool

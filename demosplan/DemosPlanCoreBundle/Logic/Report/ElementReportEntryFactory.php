@@ -37,8 +37,8 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
             'keyOfInternalPhase'    => $element->getProcedure()->getPhase(),
             'keyOfEternalPhase'     => $element->getProcedure()->getPublicParticipationPhase(),
             // The translation of the time the report is created is the important one, not the key
-            'nameOfInternalPhase'   => $element->getProcedure()->getPhaseName(),
-            'nameOfExternalPhase'   => $element->getProcedure()->getPublicParticipationPhaseName(),
+            'nameOfInternalPhase'   => $element->getProcedure()->getPhaseObject()->getPhaseDefinition()->getName(),
+            'nameOfExternalPhase'   => $element->getProcedure()->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName(),
         ];
     }
 

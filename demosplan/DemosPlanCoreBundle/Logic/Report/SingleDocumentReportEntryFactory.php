@@ -37,8 +37,8 @@ class SingleDocumentReportEntryFactory extends AbstractReportEntryFactory
             'keyOfInternalPhase'        => $singleDocument->getProcedure()->getPhase(),
             'keyOfEternalPhase'         => $singleDocument->getProcedure()->getPublicParticipationPhase(),
             // The translation of the time the report is created is the important one, not the key
-            'nameOfInternalPhase'       => $singleDocument->getProcedure()->getPhaseName(),
-            'nameOfExternalPhase'       => $singleDocument->getProcedure()->getPublicParticipationPhaseName(),
+            'nameOfInternalPhase'       => $singleDocument->getProcedure()->getPhaseObject()->getPhaseDefinition()->getName(),
+            'nameOfExternalPhase'       => $singleDocument->getProcedure()->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName(),
         ];
     }
 

@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -177,6 +176,7 @@ class AssessmentTableServiceStorage
         $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['orga_street']);
         $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['paragraph', 'reason_paragraph']);
         $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['phase']);
+        $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['phaseDefinitionId']);
         $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['phone']);
         $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['planningDocument', 'planning_document']);
         $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['priority'], ['empty' => 'string']);
@@ -663,7 +663,7 @@ class AssessmentTableServiceStorage
             $statementHandler = $this->statementHandler;
             foreach ($items as $item) {
                 $statement = $statementHandler->getStatement($item);
-                if (!($statement instanceof Statement)) {
+                if (!$statement instanceof Statement) {
                     // statement with ID of $item not found
                     ++$notfound;
                     continue;

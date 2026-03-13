@@ -391,6 +391,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // generiere Protokolleintrag, bereits hier, da bei Nicht-Mailversand auch ein Eintrag gemacht wird.
         $procedureAsArray = $this->serviceOutput->getProcedureWithPhaseNames($procedure['id']);
         $procedurePhase = $procedureAsArray['phase'];
+        $procedurePhaseDefinitionName = $this->getProcedure($procedure['id'])->getPhaseObject()->getPhaseDefinition()->getName();
 
         if (empty($recipientsWithEmail)) {
             throw new NoRecipientsWithEmailException('No recipient was selected');
@@ -447,7 +448,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $this->prepareReportFromProcedureService->addReportInvite(
                 $recipientsWithEmail,
                 $procedure['id'],
-                $procedurePhase,
+                $procedurePhaseDefinitionName,
                 $providedEmailTitle
             );
         } catch (Exception $e) {
@@ -500,7 +501,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 $recipientEmailAddresses,
                 $data['r_emailCc'],  // refs T11918: only email addresses which was explicit set in CC field by user
                 $procedure->getId(),
-                $procedure->getPhase(),
+                $procedure->getPhaseObject()->getPhaseDefinition()->getName(),
                 $vars['mailsubject']
             );
         } catch (Exception $e) {

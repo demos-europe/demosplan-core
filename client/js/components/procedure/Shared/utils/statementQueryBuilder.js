@@ -56,7 +56,6 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
     'paragraphVersion',
     'polygon',
     'priorityAreas',
-    'procedurePhase',
     'publicVerified',
     'publicVerifiedTranslation',
     'recommendation',
@@ -116,6 +115,9 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
     ParagraphVersion: [
       'title',
     ].join(),
+    ProcedurePhaseDefinition: [
+      'name',
+    ].join(),
     SingleDocument: [
       'title',
     ].join(),
@@ -164,6 +166,7 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
     'genericAttachments.file',
     'paragraph',
     'paragraphVersion.paragraph',
+    'procedurePhase',
     'sourceAttachment',
     'sourceAttachment.file',
   ]

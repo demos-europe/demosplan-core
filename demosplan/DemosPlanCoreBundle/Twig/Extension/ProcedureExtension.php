@@ -71,16 +71,12 @@ class ProcedureExtension extends ExtensionBase
     }
 
     /**
-     * Get the translated phase of a procedure.
-     * Default is the translation of the internal phase name.
+     * Get the phase name of a procedure.
+     * Default is the internal phase name.
      *
-     * @param Procedure|array $procedure
-     * @param string          $type       auto|public
-     * @param string|null     $givenPhase
-     *
-     * @return string
+     * @param string $type auto|public
      */
-    public function getPhase($procedure, $type = 'auto', $givenPhase = null)
+    public function getPhase(array|Procedure $procedure, string $type = 'auto'): string
     {
         try {
             $procedure = $this->getProcedureObject($procedure);
@@ -98,15 +94,12 @@ class ProcedureExtension extends ExtensionBase
         );
 
         // return external/public phaseName
-        $phase = is_null($givenPhase) ? $procedure->getPublicParticipationPhase() : $givenPhase;
         if ($publicNameRequested && $this->permissions->hasPermission('area_public_participation')) {
-            return $this->globalConfig->getPhaseNameWithPriorityExternal($phase);
+            return $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName();
         }
 
-        $internalPhase = is_null($givenPhase) ? $procedure->getPhase() : $givenPhase;
-
         // return internal phaseName
-        return $this->globalConfig->getPhaseNameWithPriorityInternal($internalPhase);
+        return $procedure->getPhaseObject()->getPhaseDefinition()->getName();
     }
 
     /**

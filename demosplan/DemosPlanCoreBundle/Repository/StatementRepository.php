@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
@@ -989,7 +990,11 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             $statement->getMeta()->setOrgaDepartmentName($data['departmentName']);
         }
 
-        if (array_key_exists('phase', $data)) {
+        if (array_key_exists('phaseDefinitionId', $data)) {
+            /** @var ProcedurePhaseDefinition $phaseDefinition */
+            $phaseDefinition = $em->getReference(ProcedurePhaseDefinition::class, $data['phaseDefinitionId']);
+            $statement->setPhaseDefinition($phaseDefinition);
+        } elseif (array_key_exists('phase', $data)) {
             $statement->setPhase($data['phase']);
         } else {
             // Set default phase if not provided to prevent NOT NULL constraint violation

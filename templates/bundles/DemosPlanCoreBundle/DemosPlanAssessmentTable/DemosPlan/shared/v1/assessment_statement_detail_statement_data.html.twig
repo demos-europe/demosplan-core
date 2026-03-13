@@ -649,32 +649,25 @@
                             selected: true
                         }]) %}
 
-                        {% set procedurePhaseControlOptions = { name: 'r_phase', options: procedurePhaseOptions } %}
+                        {% set procedurePhaseControlOptions = { name: 'r_phaseDefinitionId', options: procedurePhaseOptions } %}
 
                     {% else %}
-                        {# set all options for optgroups only for edit-mode #}
+                        {# set all options for edit-mode #}
                         {% if statement.isSubmittedByCitizen == false %}
-                            {% set phases = templateVars.internalPhases|default %}
+                            {% set phaseDefinitions = templateVars.internalPhaseDefinitions|default %}
                         {% else %}
-                            {% set phases = templateVars.externalPhases|default %}
+                            {% set phaseDefinitions = templateVars.externalPhaseDefinitions|default %}
                         {% endif %}
 
-                        {% for phase in phases %}
-                            {% if phase.name == statement.phase %}
-                                {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
-                                    label: phase.name,
-                                    value: phase.key,
-                                    selected: true
-                                }]) %}
-                            {% else %}
-                                {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
-                                    label: phase.name,
-                                    value: phase.key
-                                }]) %}
-                            {% endif %}
+                        {% for phaseDefinition in phaseDefinitions %}
+                            {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
+                                label: phaseDefinition.name,
+                                value: phaseDefinition.id,
+                                selected: phaseDefinition.name == statement.phase
+                            }]) %}
                         {% endfor %}
 
-                        {% set procedurePhaseControlOptions = { name: 'r_phase', options: procedurePhaseOptions } %}
+                        {% set procedurePhaseControlOptions = { name: 'r_phaseDefinitionId', options: procedurePhaseOptions } %}
                     {% endif %}
                     {{ uiComponent('form.row', {
                         elements: [

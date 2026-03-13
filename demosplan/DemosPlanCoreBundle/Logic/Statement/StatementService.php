@@ -56,7 +56,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NoTargetsException;
-use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownIdsException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -130,11 +129,11 @@ use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Elastica\Aggregation\GlobalAggregation;
-use FOS\ElasticaBundle\Index\IndexManager;
 use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Exception;
+use FOS\ElasticaBundle\Index\IndexManager;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -288,7 +287,6 @@ class StatementService implements StatementServiceInterface
         private readonly UserRepository $userRepository,
         UserService $userService,
         private readonly StatementDeleter $statementDeleter,
-        private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
         private readonly LoggerInterface $logger,
         private readonly ManagerRegistry $doctrine,
         private readonly ProfilerService $profilerService,
@@ -2257,9 +2255,9 @@ class StatementService implements StatementServiceInterface
             static function ($value, string $key) {
                 if ('r_submitterEmailAddress' === $key) {
                     return str_starts_with($key, 'r_') && (\is_string($value) || (\is_array($value) && [] !== $value));
-                } else {
-                    return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && [] !== $value));
                 }
+
+                return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && [] !== $value));
             }
         )->mapWithKeys(
             static function ($stringOrArrayValue, string $key) {
@@ -2680,46 +2678,23 @@ class StatementService implements StatementServiceInterface
     }
 
     /**
-     * Gets the internal or external phase of the given statement depending on
-     * the value set for the 'publicStatement' field.
+     * Gets the phase name of the given statement from its phase definition.
      *
      * @param array $statement The statement entity as array
      *
-     * @return string the internal or external phase of the given statement
-     *
-     * @deprecated use {@link getProcedurePhaseName} instead
+     * @return string the phase name of the given statement
      */
     public function getProcedurePhaseNameFromArray(array $statement): string
     {
         $statementObject = $this->getStatement($statement['id']);
 
-
-        if(!$statementObject instanceof Statement) {
+        if (!$statementObject instanceof Statement) {
             $this->logger->error('Statement with id '.$statement['id'].' not found.');
 
             return '';
         }
-        return $this->getProcedurePhaseName(
-            $statement['phase'],
-            $statementObject->isSubmittedByCitizen()
-        );
-    }
 
-    public function getProcedurePhaseName(string $phaseKey, bool $isSubmittedByCitizen): string
-    {
-        $phaseName = '';
-        try {
-            $phaseVO = $this->statementProcedurePhaseResolver->getProcedurePhaseVO($phaseKey, $isSubmittedByCitizen);
-            $phaseName = $phaseVO->getName();
-
-            if ('' === $phaseName) {
-                throw new UndefinedPhaseException($phaseKey);
-            }
-        } catch (UndefinedPhaseException $e) {
-            $this->logger->error($e->getMessage());
-        }
-
-        return $phaseName;
+        return $statementObject->getPhaseDefinition()->getName();
     }
 
     /**
@@ -3054,6 +3029,10 @@ class StatementService implements StatementServiceInterface
 
         if (\array_key_exists('r_phase', $data)) {
             $statement['phase'] = $data['r_phase'];
+        }
+
+        if (\array_key_exists('r_phaseDefinitionId', $data) && '' !== $data['r_phaseDefinitionId']) {
+            $statement['phaseDefinitionId'] = $data['r_phaseDefinitionId'];
         }
 
         if (\array_key_exists('r_created_date', $data)) {
