@@ -246,19 +246,13 @@ export default {
     },
 
     save () {
-      // If authorName has been changed, change submitName as well, see https://yaits.demos-deutschland.de/T20363#479858
-      if (this.localStatement.attributes.authorName !== this.statement.attributes.authorName) {
-        this.syncAuthorAndSubmitter()
-      }
       const attrs = this.localStatement.attributes
       const changes = {
         attributes: {
           authoredDate: attrs.authoredDate,
           submitDate: attrs.submitDate,
           submitType: attrs.submitType,
-          internId: attrs.internId,
-          authorName: attrs.authorName,
-          submitName: attrs.submitName
+          internId: attrs.internId
         }
       }
       if (hasPermission('field_statement_phase')) {
@@ -278,10 +272,6 @@ export default {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
       this.localStatement.attributes.authoredDate = this.getFormattedDate(this.localStatement.attributes.authoredDate)
       this.localStatement.attributes.submitDate = this.getFormattedDate(this.localStatement.attributes.submitDate)
-    },
-
-    syncAuthorAndSubmitter () {
-      this.localStatement.attributes.submitName = this.localStatement.attributes.authorName
     }
   },
 
