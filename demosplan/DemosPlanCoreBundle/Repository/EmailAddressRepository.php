@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
+use Doctrine\DBAL\ArrayParameterType;
 
 /**
  * @template-extends CoreRepository<EmailAddress>
@@ -68,26 +69,19 @@ class EmailAddressRepository extends CoreRepository implements EmailAddressRepos
     {
         $connection = $this->getEntityManager()->getConnection();
 
-        $emailIdsCount = count($emailIds);
-        if (0 === $emailIdsCount) {
-            return $connection->exec(
-                'DELETE e'
-                .' FROM email_address AS e'
-                .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
-                .' WHERE p.procedure_id   IS NULL'
-            );
-        } else {
-            $emailIdsString = array_fill(0, $emailIdsCount, '?');
-            $emailIdsString = implode(',', $emailIdsString);
+        $baseSql = 'DELETE e FROM email_address AS e'
+            .' LEFT JOIN procedure_agency_extra_email_address AS p ON p.email_address_id = e.id'
+            .' WHERE p.procedure_id IS NULL';
 
-            return $connection->executeStatement(
-                'DELETE e'
-                .' FROM email_address AS e'
-                .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
-                .' WHERE p.procedure_id   IS NULL'
-                .' AND e.id NOT IN ('.$emailIdsString.')', $emailIds
-            );
+        if (0 === count($emailIds)) {
+            return $connection->executeStatement($baseSql);
         }
+
+        return $connection->executeStatement(
+            $baseSql.' AND e.id NOT IN (:emailIds)',
+            ['emailIds' => $emailIds],
+            ['emailIds' => ArrayParameterType::STRING]
+        );
     }
 
     /**
