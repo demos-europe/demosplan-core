@@ -23,7 +23,7 @@ class KeycloakController extends AbstractController
     /**
      * Link to this controller to start the "connect" process.
      */
-    #[Route(path: '/connect/keycloak_ozg', name: 'connect_keycloak_ozg_start')]
+    #[Route(path: '/connect/keycloak_ozg', name: 'connect_keycloak_ozg_start', options: ['expose' => true])]
     public function connect(OzgKeycloakClientFactory $ozgKeycloakClientFactory): RedirectResponse
     {
         // will redirect to keycloak!
