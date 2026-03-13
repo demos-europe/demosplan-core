@@ -85,7 +85,7 @@ class DemosPlanAssessmentTableController extends BaseController
         private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         private readonly ProcedureService $procedureService,
         private readonly StatementHandler $statementHandler,
-        private readonly UserService $userService
+        private readonly UserService $userService,
     ) {
     }
 

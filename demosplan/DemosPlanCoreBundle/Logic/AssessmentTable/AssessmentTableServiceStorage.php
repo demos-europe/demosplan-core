@@ -663,7 +663,7 @@ class AssessmentTableServiceStorage
             $statementHandler = $this->statementHandler;
             foreach ($items as $item) {
                 $statement = $statementHandler->getStatement($item);
-                if (!($statement instanceof Statement)) {
+                if (!$statement instanceof Statement) {
                     // statement with ID of $item not found
                     ++$notfound;
                     continue;
