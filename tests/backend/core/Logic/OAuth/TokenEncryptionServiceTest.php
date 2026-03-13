@@ -128,7 +128,7 @@ class TokenEncryptionServiceTest extends FunctionalTestCase
     public function testDecryptWithInvalidNonceLengthThrowsException(): void
     {
         // Arrange
-        // Create data with invalid nonce length (only 5 bytes instead of 12)
+        // Create data with invalid nonce length (only 5 bytes instead of 24)
         $invalidData = base64_encode(random_bytes(5));
 
         // Assert

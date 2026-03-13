@@ -18,7 +18,7 @@ use Psr\Log\LoggerInterface;
 use SodiumException;
 
 /**
- * Handles encryption and decryption of OAuth tokens using Sodium (AES-256-GCM).
+ * Handles encryption and decryption of OAuth tokens using Sodium (XSalsa20-Poly1305).
  *
  * This service provides authenticated encryption for storing sensitive OAuth tokens
  * in the database, ensuring confidentiality and integrity of the stored data.
@@ -26,13 +26,13 @@ use SodiumException;
 class TokenEncryptionService
 {
     /**
-     * Length of nonce required by AES-256-GCM (12 bytes).
+     * Length of nonce required by secretbox (24 bytes).
      */
-    private const NONCE_LENGTH = SODIUM_CRYPTO_AEAD_AES256GCM_NPUBBYTES;
+    private const NONCE_LENGTH = SODIUM_CRYPTO_SECRETBOX_NONCEBYTES;
 
     /**
-     * The encryption key used for AES-256-GCM.
-     * Must be 32 bytes (256 bits) for AES-256.
+     * The encryption key used for XSalsa20-Poly1305.
+     * Must be 32 bytes (256 bits).
      */
     private readonly string $encryptionKey;
 
@@ -40,11 +40,6 @@ class TokenEncryptionService
         private readonly LoggerInterface $logger,
         string $encryptionKey,
     ) {
-        // Validate AES-256-GCM is available on this system
-        if (!sodium_crypto_aead_aes256gcm_is_available()) {
-            throw new TokenEncryptionException('AES-256-GCM is not available on this system. Hardware support required.');
-        }
-
         // Validate encryption key is provided
         if ('' === $encryptionKey) {
             throw new TokenEncryptionException('OAuth token encryption key not configured. Set OAUTH_TOKEN_ENCRYPTION_KEY in your .env');
@@ -57,15 +52,15 @@ class TokenEncryptionService
 
         $key = hex2bin($encryptionKey);
 
-        if (false === $key || SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES !== strlen($key)) {
-            throw new TokenEncryptionException(sprintf('OAuth token encryption key must be exactly %d bytes (64 hex characters)', SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES));
+        if (false === $key || SODIUM_CRYPTO_SECRETBOX_KEYBYTES !== strlen($key)) {
+            throw new TokenEncryptionException(sprintf('OAuth token encryption key must be exactly %d bytes (64 hex characters)', SODIUM_CRYPTO_SECRETBOX_KEYBYTES));
         }
 
         $this->encryptionKey = $key;
     }
 
     /**
-     * Encrypts plaintext using AES-256-GCM with authentication.
+     * Encrypts plaintext using XSalsa20-Poly1305 with authentication.
      *
      * @param string $plaintext The data to encrypt
      *
@@ -76,17 +71,12 @@ class TokenEncryptionService
     public function encrypt(string $plaintext): string
     {
         try {
-            // Generate a random nonce (number used once)
+            // Generate a random nonce (number used once) — 24 bytes for XSalsa20
             $nonce = random_bytes(self::NONCE_LENGTH);
 
-            // Encrypt with authenticated encryption (AEAD)
-            // No additional data (AD) is used in this implementation
-            $ciphertext = sodium_crypto_aead_aes256gcm_encrypt(
-                $plaintext,
-                '',  // No additional authenticated data
-                $nonce,
-                $this->encryptionKey
-            );
+            // Encrypt with authenticated encryption (XSalsa20-Poly1305)
+            // Poly1305 MAC provides tamper detection without additional data
+            $ciphertext = sodium_crypto_secretbox($plaintext, $nonce, $this->encryptionKey);
 
             // Prepend nonce to ciphertext and encode as base64 for storage
             $encrypted = base64_encode($nonce.$ciphertext);
@@ -131,13 +121,8 @@ class TokenEncryptionService
                 throw new TokenEncryptionException('Invalid nonce length in encrypted data');
             }
 
-            // Decrypt with authentication verification
-            $plaintext = sodium_crypto_aead_aes256gcm_decrypt(
-                $ciphertext,
-                '',  // No additional authenticated data was used
-                $nonce,
-                $this->encryptionKey
-            );
+            // Decrypt with authentication verification — false indicates tampered or corrupt data
+            $plaintext = sodium_crypto_secretbox_open($ciphertext, $nonce, $this->encryptionKey);
 
             if (false === $plaintext) {
                 throw new TokenEncryptionException('Decryption failed - data may be corrupted or tampered with');
