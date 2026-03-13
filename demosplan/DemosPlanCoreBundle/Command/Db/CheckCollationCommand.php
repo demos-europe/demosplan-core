@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command\Db;
 
 use Doctrine\DBAL\Connection;
+use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -92,7 +93,7 @@ class CheckCollationCommand extends Command
                 $this->fixTableCollations($io, $deviations, $dryRun);
             }
         } else {
-            $io->success('All tables use ' . $this->expectedCollation);
+            $io->success('All tables use '.$this->expectedCollation);
         }
 
         // 3. FK column charset mismatches
@@ -157,7 +158,7 @@ class CheckCollationCommand extends Command
             );
 
             if ($dryRun) {
-                $io->writeln($sql . ';');
+                $io->writeln($sql.';');
                 continue;
             }
 
@@ -165,7 +166,7 @@ class CheckCollationCommand extends Command
                 $this->connection->executeStatement($sql);
                 $io->writeln(sprintf('  <info>Fixed:</info> %s', $tableName));
                 ++$fixed;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $io->writeln(sprintf('  <error>Failed:</error> %s — %s', $tableName, $e->getMessage()));
                 ++$failed;
             }
@@ -209,8 +210,8 @@ class CheckCollationCommand extends Command
                AND TABLE_COLLATION != :expected
              ORDER BY TABLE_NAME',
             [
-                'db' => $dbName,
-                'type' => 'BASE TABLE',
+                'db'       => $dbName,
+                'type'     => 'BASE TABLE',
                 'expected' => $this->expectedCollation,
             ]
         );
@@ -219,7 +220,7 @@ class CheckCollationCommand extends Command
     private function findForeignKeyCharsetMismatches(string $dbName): array
     {
         return $this->connection->fetchAllAssociative(
-            "SELECT
+            'SELECT
                 kcu.TABLE_NAME AS child_table,
                 kcu.COLUMN_NAME AS child_column,
                 c1.CHARACTER_SET_NAME AS child_charset,
@@ -238,7 +239,7 @@ class CheckCollationCommand extends Command
             WHERE kcu.TABLE_SCHEMA = :db
                 AND kcu.REFERENCED_TABLE_NAME IS NOT NULL
                 AND c1.CHARACTER_SET_NAME != c2.CHARACTER_SET_NAME
-            ORDER BY kcu.TABLE_NAME, kcu.COLUMN_NAME",
+            ORDER BY kcu.TABLE_NAME, kcu.COLUMN_NAME',
             ['db' => $dbName]
         );
     }

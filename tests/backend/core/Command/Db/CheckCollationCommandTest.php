@@ -14,6 +14,7 @@ namespace Tests\Core\Command\Db;
 
 use demosplan\DemosPlanCoreBundle\Command\Db\CheckCollationCommand;
 use Doctrine\DBAL\Connection;
+use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
@@ -130,7 +131,7 @@ class CheckCollationCommandTest extends TestCase
         $this->mockQueries();
 
         $this->connectionMock->method('executeStatement')
-            ->willThrowException(new \Exception('Cannot convert table'));
+            ->willThrowException(new Exception('Cannot convert table'));
 
         $tester = $this->executeCommand(['--fix' => true]);
 
