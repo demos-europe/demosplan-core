@@ -432,7 +432,12 @@ export default {
 
     save () {
       this.saveStatementVote()
-      this.$emit('save', this.localStatement)
+      this.$emit('save', {
+        attributes: {
+          publicVerified: this.localStatement.attributes.publicVerified,
+          numberOfAnonymVotes: this.localStatement.attributes.numberOfAnonymVotes
+        }
+      })
     },
 
     saveStatementVote () {
