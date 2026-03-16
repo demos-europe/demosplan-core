@@ -562,7 +562,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
         return $formattedStatements->toArray();
     }
-    //this functions appends tag topic names to the tag
+
+    // this functions appends tag topic names to the tag
     private function appendTopicToTagNames(array $statement): array
     {
         if (!isset($statement['tags'], $statement['tagNames'])) {
@@ -575,9 +576,10 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         foreach ($statement['tagNames'] as $key => $tagName) {
             $topic = $tagTopicMap[$tagName] ?? '';
             if ('' !== $topic) {
-                $statement['tagNames'] [$key] = $tagName.' [Thema:'.$topic.']';
+                $statement['tagNames'][$key] = $tagName.' [Thema:'.$topic.']';
             }
         }
+
         return $statement;
     }
 }
