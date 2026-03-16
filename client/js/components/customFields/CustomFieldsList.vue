@@ -380,7 +380,7 @@ export default {
           this.definitions = defs
 
           // 2. Fetch values (gets array of { id, value } for this entity)
-          return fetchCustomFieldValues(this.resourceType, this.resourceId)
+          return fetchCustomFieldValues(this.resourceType, this.resourceId, this.definitionSourceId)
         })
         .then(values => {
           this.values = values

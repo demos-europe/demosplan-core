@@ -49,6 +49,81 @@ function processValueQueue () {
 }
 
 /**
+ * Shared Map for batch-fetched custom field values per procedure.
+ * Key: 'resourceType:definitionSourceId' (e.g. 'OriginalStatement:uuid-of-procedure')
+ * Value: Map<resourceId, Array> of custom field values indexed by resource ID
+ */
+const cachedBatchValues = new Map()
+
+/**
+ * Shared Map for pending batch fetch promises.
+ * Prevents duplicate batch requests when multiple components mount simultaneously.
+ * Key: 'resourceType:definitionSourceId'
+ * Value: Promise resolving to Map<resourceId, Array>
+ */
+const pendingBatchFetches = new Map()
+
+function fetchIndividualValues (resourceType, resourceId) {
+  const url = Routing.generate('api_resource_get', { resourceType, resourceId })
+  const params = {
+    fields: {
+      [resourceType]: ['customFields'].join(),
+    },
+  }
+
+  const doFetch = () => dpApi.get(url, params)
+    .then(response => response.data.data?.attributes?.customFields || [])
+
+  if (activeValueFetches < MAX_CONCURRENT_VALUE_FETCHES) {
+    activeValueFetches++
+    return doFetch().finally(() => {
+      activeValueFetches--
+      processValueQueue()
+    })
+  }
+
+  return new Promise((resolve, reject) => {
+    valueRequestQueue.push({ fn: doFetch, resolve, reject })
+  })
+}
+
+/*
+ * Fetches all custom field values for a procedure in a single request.
+ * Results are cached in cachedBatchValues under the given cacheKey.
+ */
+function fetchBatchValues (resourceType, definitionSourceId, cacheKey) {
+  const url = Routing.generate('api_resource_list', { resourceType })
+  const params = {
+    fields: {
+      [resourceType]: ['id', 'customFields'].join(),
+    },
+    filter: {
+      procedureId: {
+        condition: {
+          path: 'procedure.id',
+          value: definitionSourceId,
+        },
+      },
+    },
+  }
+
+  return dpApi.get(url, params)
+    .then(response => {
+      const items = response.data.data || []
+      const batchCache = new Map(
+        items.map(item => [item.id, item.attributes?.customFields || []]),
+      )
+      cachedBatchValues.set(cacheKey, batchCache)
+      pendingBatchFetches.delete(cacheKey)
+      return batchCache
+    })
+    .catch(err => {
+      pendingBatchFetches.delete(cacheKey)
+      throw err
+    })
+}
+
+/**
  * Composable for managing custom field definitions and persistence
  * Provides methods to fetch field definitions and persist values via JSON:API
  * Each component instance gets its own loading/error state,
@@ -89,11 +164,24 @@ export function useCustomFields () {
    */
   const clearCustomFieldsDefinitions = (definitionSourceId = null) => {
     if (definitionSourceId) {
+      const suffix = `:${definitionSourceId}`
       customFieldsDefinitions.delete(definitionSourceId)
       pendingFetches.delete(definitionSourceId)
+      for (const key of cachedBatchValues.keys()) {
+        if (key.endsWith(suffix)) {
+          cachedBatchValues.delete(key)
+        }
+      }
+      for (const key of pendingBatchFetches.keys()) {
+        if (key.endsWith(suffix)) {
+          pendingBatchFetches.delete(key)
+        }
+      }
     } else {
       customFieldsDefinitions.clear()
       pendingFetches.clear()
+      cachedBatchValues.clear()
+      pendingBatchFetches.clear()
     }
   }
 
@@ -171,36 +259,47 @@ export function useCustomFields () {
   }
 
   /**
-   * Fetch custom field values for a specific resource
-   * Uses module-level concurrency limiter to prevent rate limiting
-   * when many components mount simultaneously (e.g., in table rows)
+   * Fetch custom field values for a specific resource.
+   * When definitionSourceId is provided, all values for the procedure are fetched
+   * in a single batch request and cached. Concurrent calls for the same procedure
+   * share the same pending promise, preventing duplicate requests.
+   * Falls back to an individual request if the resource is not found in the batch.
    *
-   * @param {string} resourceType - Resource type (e.g., 'Statement')
+   * @param {string} resourceType - Resource type (e.g., 'Statement', 'OriginalStatement')
    * @param {string} resourceId - ID of the resource
+   * @param {string|null} definitionSourceId - Procedure ID used to batch-fetch all values
    * @returns {Promise<Array>} Promise resolving to array of { id, value } objects
    */
-  const fetchCustomFieldValues = (resourceType, resourceId) => {
-    const url = Routing.generate('api_resource_get', { resourceType, resourceId })
-    const params = {
-      fields: {
-        [resourceType]: ['customFields'].join(),
-      },
+  const fetchCustomFieldValues = (resourceType, resourceId, definitionSourceId = null) => {
+    if (definitionSourceId === null) {
+      return fetchIndividualValues(resourceType, resourceId)
     }
 
-    const doFetch = () => dpApi.get(url, params)
-      .then(response => response.data.data?.attributes?.customFields || [])
+    const cacheKey = `${resourceType}:${definitionSourceId}`
 
-    if (activeValueFetches < MAX_CONCURRENT_VALUE_FETCHES) {
-      activeValueFetches++
-      return doFetch().finally(() => {
-        activeValueFetches--
-        processValueQueue()
-      })
+    if (cachedBatchValues.has(cacheKey)) {
+      const batchCache = cachedBatchValues.get(cacheKey)
+      return batchCache.has(resourceId) ?
+        Promise.resolve(batchCache.get(resourceId)) :
+        fetchIndividualValues(resourceType, resourceId)
     }
 
-    return new Promise((resolve, reject) => {
-      valueRequestQueue.push({ fn: doFetch, resolve, reject })
-    })
+    if (pendingBatchFetches.has(cacheKey)) {
+      return pendingBatchFetches.get(cacheKey).then(batchCache =>
+        batchCache.has(resourceId) ?
+          batchCache.get(resourceId) :
+          fetchIndividualValues(resourceType, resourceId),
+      )
+    }
+
+    const batchPromise = fetchBatchValues(resourceType, definitionSourceId, cacheKey)
+    pendingBatchFetches.set(cacheKey, batchPromise)
+
+    return batchPromise.then(batchCache =>
+      batchCache.has(resourceId) ?
+        batchCache.get(resourceId) :
+        fetchIndividualValues(resourceType, resourceId),
+    )
   }
 
   /**
