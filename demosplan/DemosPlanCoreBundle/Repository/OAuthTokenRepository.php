@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
  */
 class OAuthTokenRepository extends CoreRepository
 {
-    private const TIMEZONE = 'Europe/Berlin';
 
     /**
      * Find an OAuth token by user ID.
@@ -77,7 +76,7 @@ class OAuthTokenRepository extends CoreRepository
 
         $expiresAt = $oauthToken->getAccessTokenExpiresAt();
 
-        return null !== $expiresAt && $expiresAt > new DateTime('now', new DateTimeZone(self::TIMEZONE));
+        return null !== $expiresAt && $expiresAt > new DateTime('now', new DateTimeZone(OAuthToken::TIMEZONE));
     }
 
     /**
@@ -94,7 +93,7 @@ class OAuthTokenRepository extends CoreRepository
      */
     public function clearOutdated(int $olderThanMinutes = 60): int
     {
-        $timezone = new DateTimeZone(self::TIMEZONE);
+        $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
         $threshold = new DateTime("-{$olderThanMinutes} minutes", $timezone);
 
         $qb = $this->createQueryBuilder('t');

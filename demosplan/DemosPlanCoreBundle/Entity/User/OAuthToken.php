@@ -36,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class OAuthToken implements EntityInterface
 {
-    private const TIMEZONE = 'Europe/Berlin';
+    public const TIMEZONE = 'Europe/Berlin';
 
     /**
      * @ORM\Column(type="string", length=36, options={"fixed":true})

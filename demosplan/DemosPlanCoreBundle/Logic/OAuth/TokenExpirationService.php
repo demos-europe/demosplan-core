@@ -25,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
  */
 class TokenExpirationService
 {
-    private const TIMEZONE = 'Europe/Berlin';
 
     /**
      * Check if the access token is currently expired.
@@ -44,7 +43,7 @@ class TokenExpirationService
             return true;
         }
 
-        $timezone = new DateTimeZone(self::TIMEZONE);
+        $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
         $now = new DateTime('now', $timezone);
 
         // Check actual expiration (no buffer)
@@ -73,7 +72,7 @@ class TokenExpirationService
             return true;
         }
 
-        $timezone = new DateTimeZone(self::TIMEZONE);
+        $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
         $now = new DateTime('now', $timezone);
 
         // Check actual expiration (no buffer)
@@ -110,7 +109,7 @@ class TokenExpirationService
             return true;
         }
 
-        $timezone = new DateTimeZone(self::TIMEZONE);
+        $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
         $now = new DateTime('now', $timezone);
         $threshold = (clone $token->getAccessTokenExpiresAt())->modify("-{$bufferMinutes} minutes");
 

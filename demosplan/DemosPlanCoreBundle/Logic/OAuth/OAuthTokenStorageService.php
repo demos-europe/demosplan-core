@@ -39,7 +39,6 @@ use Webmozart\Assert\Assert;
  */
 class OAuthTokenStorageService
 {
-    private const TIMEZONE = 'Europe/Berlin';
 
     public function __construct(
         private readonly OAuthTokenRepository $oauthTokenRepository,
@@ -112,7 +111,7 @@ class OAuthTokenStorageService
             }
 
             // Calculate and store expiration times
-            $timezone = new DateTimeZone(self::TIMEZONE);
+            $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
             $accessTokenExpiresAt = null;
 
             if (null !== $expiresTimestamp) {
@@ -306,7 +305,7 @@ class OAuthTokenStorageService
         $oauthToken->setPendingPageUrl($pageUrl);
 
         if ($needsTimestamp) {
-            $oauthToken->setPendingRequestTimestamp(new DateTime('now', new DateTimeZone('Europe/Berlin')));
+            $oauthToken->setPendingRequestTimestamp(new DateTime('now', new DateTimeZone(OAuthToken::TIMEZONE)));
         }
 
         $this->entityManager->flush();

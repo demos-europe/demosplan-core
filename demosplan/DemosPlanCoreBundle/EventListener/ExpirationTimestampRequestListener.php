@@ -68,8 +68,6 @@ use Symfony\Component\Routing\RouterInterface;
 #[AsEventListener(event: 'kernel.controller', priority: 5)]
 class ExpirationTimestampRequestListener
 {
-    private const TIMEZONE = 'Europe/Berlin';
-
     public function __construct(
         private readonly Security $security,
         private readonly UserFromSecurityUserProvider $userFromSecurityUserProvider,
@@ -317,7 +315,7 @@ class ExpirationTimestampRequestListener
     private function bufferRequest(Request $request, OAuthToken $oauthToken): void
     {
         try {
-            $timezone = new DateTimeZone(self::TIMEZONE);
+            $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
             $requestData = new PendingRequestData();
 
             // Build request data value object
