@@ -95,7 +95,7 @@ function fetchBatchValues (resourceType, definitionSourceId, cacheKey) {
   const url = Routing.generate('api_resource_list', { resourceType })
   const params = {
     fields: {
-      [resourceType]: ['id', 'customFields'].join(),
+      [resourceType]: ['customFields'].join(),
     },
     filter: {
       procedureId: {
