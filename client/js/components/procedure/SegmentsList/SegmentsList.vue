@@ -762,6 +762,7 @@ export default {
         .catch(() => {
           if (Object.keys(this.getFilterQuery).length > 0 || this.searchTerm !== '') {
             this.resetQuery()
+            dplan.notify.notify('warning', Translator.trans('filter.reset.failed'))
           } else {
             dplan.notify.notify('error', Translator.trans('error.generic'))
           }
