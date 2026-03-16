@@ -307,7 +307,7 @@ class StatementExportTest extends FunctionalTestCase
             ['id', 'text', 'tagNames']
         );
 
-        // Should create 2 rows (one for each tag)
+        // Should create 1 row with 2 tags
         self::assertCount(1, $result);
 
         // First row

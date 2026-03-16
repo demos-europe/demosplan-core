@@ -318,7 +318,6 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $columnsDefinition = [
             $this->createColumnDefinition('externId', 'id'),
             $this->createColumnDefinition('uName', 'name'),
-            // $this->createColumnDefinition('topicNames', 'topic', 30),
             $this->createColumnDefinition('tagNames', 'tag', 40),
         ];
 
