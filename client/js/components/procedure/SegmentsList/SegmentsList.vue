@@ -760,7 +760,11 @@ export default {
           })
         })
         .catch(() => {
-          dplan.notify.notify('error', Translator.trans('error.generic'))
+          if (Object.keys(this.getFilterQuery).length > 0 || this.searchTerm !== '') {
+            this.resetQuery()
+          } else {
+            dplan.notify.notify('error', Translator.trans('error.generic'))
+          }
         })
         .finally(() => {
           this.isLoading = false
