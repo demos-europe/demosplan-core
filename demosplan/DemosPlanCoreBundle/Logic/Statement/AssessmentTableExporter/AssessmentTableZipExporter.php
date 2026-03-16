@@ -89,6 +89,9 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
         if ('originalStatements' === $exportType) {
             return $this->exportOriginalStatementsAsPdfsInZip($parameters, $exportType);
         }
+        if ('originalStatementsWithAttachments' === $exportType) {
+            return $this->exportOriginalStatementsWithAttachmentsInZip($parameters, $exportType);
+        }
 
         throw new AssessmentTableZipExportException('error', 'Export type not set in parameters for zip export.');
     }
@@ -149,6 +152,51 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             'zipFileName'              => $this->translator->trans('evaluation.assessment.table.export'),
             'originalStatementsAsPdfs' => $pdfs,
             'exportType'               => $exportType,
+        ];
+    }
+
+    /**
+     * Export original statements with their attachments in ZIP format.
+     *
+     * This combines:
+     * - Original statement PDFs (from SOURCE_STATEMENT attachments or generated)
+     * - All attachments from the original statements
+     *
+     * @throws MessageBagException
+     * @throws Exception
+     */
+    private function exportOriginalStatementsWithAttachmentsInZip(array $parameters, string $exportType): array
+    {
+        // Get original statement IDs (same logic as exportOriginalStatementsAsPdfsInZip)
+        if ([] === $parameters['items']) {
+            $outputResult = $this->assessmentHandler->prepareOutputResult(
+                $parameters['procedureId'],
+                $parameters['original'],
+                $parameters
+            );
+            $statementIds = [];
+            foreach ($outputResult->getStatements() as $statement) {
+                $statementIds[] = $statement['id'];
+            }
+        } else {
+            $statementIds = $parameters['items'];
+        }
+
+        // Get attachments for original statements
+        // Note: getAttachmentsOfStatements() will:
+        // 1. Get regular attachments via getFileContainersForStatement()
+        // 2. Get or generate original statement PDF via getOriginalAttachment()
+        try {
+            $attachments = $this->getAttachmentsOfStatements($statementIds);
+        } catch (Exception $e) {
+            $this->logger->error(self::ATTACHMENTS_NOT_ADDABLE_LOG, [$e]);
+            throw new AssessmentTableZipExportException('error', self::ATTACHMENTS_NOT_ADDABLE);
+        }
+
+        return [
+            'zipFileName' => $this->translator->trans('evaluation.assessment.table.export'),
+            'attachments' => $attachments,
+            'exportType'  => $exportType,
         ];
     }
 
