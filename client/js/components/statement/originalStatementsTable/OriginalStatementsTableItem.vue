@@ -115,7 +115,7 @@
           :resource-id="statementId"
           :show-empty="false"
           :title-info-text="Translator.trans('custom.fields.submitter.info')"
-          class="px-6 mb-4"
+          class="px-4 mb-4"
           mode="readonly"
           resource-type="OriginalStatement"
           expandable
