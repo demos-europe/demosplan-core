@@ -511,18 +511,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         foreach ($statements as $statement) {
             $pushed = false;
             // add tag topic title name behind tag names
-            if (isset($statement['tags'], $statement['tagNames'])) {
-                $tagToTopic = [];
-                foreach ($statement['tags'] as $tag) {
-                    $tagToTopic[$tag['title']] = $tag['topicTitle'] ?? '';
-                }
-                $statement['tagNames'] = array_map(
-                    static fn ($tagName) => '' !== $tagToTopic[$tagName]
-                        ? $tagName.' [Thema:'.$tagToTopic[$tagName].']'
-                        : $tagName,
-                    $statement['tagNames']
-                );
-            }
+            $statement = $this->appendTopicToTagNames($statement);
             $formattedStatement = $this->statementFormatter->formatStatement($keysOfAttributesToExport, $statement);
 
             // loop again through the attributes
@@ -572,5 +561,23 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         }
 
         return $formattedStatements->toArray();
+    }
+    //this functions appends tag topic names to the tag
+    private function appendTopicToTagNames(array $statement): array
+    {
+        if (!isset($statement['tags'], $statement['tagNames'])) {
+            return $statement;
+        }
+        $tagTopicMap = [];
+        foreach ($statement['tags'] as $tag) {
+            $tagTopicMap[$tag['title']] = $tag['topicTitle'] ?? '';
+        }
+        foreach ($statement['tagNames'] as $key => $tagName) {
+            $topic = $tagTopicMap[$tagName] ?? '';
+            if ('' !== $topic) {
+                $statement['tagNames'] [$key] = $tagName.' [Thema:'.$topic.']';
+            }
+        }
+        return $statement;
     }
 }
