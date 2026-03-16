@@ -81,9 +81,6 @@ class TokenEncryptionService
             // Prepend nonce to ciphertext and encode as base64 for storage
             $encrypted = base64_encode($nonce.$ciphertext);
 
-            // Clear sensitive data from memory
-            sodium_memzero($plaintext);
-
             return $encrypted;
         } catch (Exception $e) {
             $this->logger->error('Failed to encrypt OAuth token', [
