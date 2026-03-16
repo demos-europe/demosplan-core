@@ -124,32 +124,32 @@
                 {% set procedurePhaseControlOptions = { name: 'r_phase', options: procedurePhaseOptions } %}
 
             {% elseif not readonly %}
-                    {% for internalPhase in templateVars.internalPhases|default %}
+                    {% for internalPhase in templateVars.internalPhaseDefinitions|default %}
                         {% if internalPhase.name == statement.phase %}
                             {% set internalOptions = internalOptions|merge([{
                                 label: internalPhase.name,
-                                value: internalPhase.key,
+                                value: internalPhase.id,
                                 selected: true
                             }]) %}
                         {% else %}
                             {% set internalOptions = internalOptions|merge([{
                                 label: internalPhase.name,
-                                value: internalPhase.key
+                                value: internalPhase.id
                             }]) %}
                         {% endif %}
                     {% endfor %}
 
-                    {% for externalPhase in templateVars.externalPhases|default %}
+                    {% for externalPhase in templateVars.externalPhaseDefinitions|default %}
                         {% if externalPhase.name == statement.phase %}
                             {% set externalOptions = externalOptions|merge([{
                                 label: externalPhase.name,
-                                value: externalPhase.key,
+                                value: externalPhase.id,
                                 selected: true
                             }]) %}
                         {% else %}
                             {% set externalOptions = externalOptions|merge([{
                                 label: externalPhase.name,
-                                value: externalPhase.key
+                                value: externalPhase.id
                             }]) %}
                         {% endif %}
                     {% endfor %}
@@ -168,7 +168,7 @@
                     },
                 ]) %}
 
-                {% set procedurePhaseControlOptions = { name: 'r_phase', optgroups: procedurePhaseOptGroups } %}
+                {% set procedurePhaseControlOptions = { name: 'r_phaseDefinitionId', optgroups: procedurePhaseOptGroups } %}
             {% endif %}
 
             {{ uiComponent('form.row', {

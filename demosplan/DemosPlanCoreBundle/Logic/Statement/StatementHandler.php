@@ -3660,7 +3660,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
             $headStatement->setMunicipalities($representativeStatement->getMunicipalities());
             $headStatement->setParagraph($representativeStatement->getParagraph());
-            $headStatement->setPhase($representativeStatement->getPhase());
+            $headStatement->setPhaseDefinition($representativeStatement->getPhaseDefinition());
             $headStatement->setPolygon($representativeStatement->getPolygon());
             $headStatement->setPriority($representativeStatement->getPriority());
             $headStatement->setPriorityAreas($representativeStatement->getPriorityAreas()->toArray());

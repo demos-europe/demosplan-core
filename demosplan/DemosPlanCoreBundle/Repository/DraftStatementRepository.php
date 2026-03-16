@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementFile;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion;
@@ -322,17 +323,17 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         }
 
         // Setze die Phase des Verfahrens ein
-        if (array_key_exists('phase', $data)) {
-            $entity->setPhase($data['phase']);
-        } else {
-            $procedure = $entity->getProcedure();
-            if (!is_null($procedure)) {
-                // public or internal statement?
-                if (DraftStatement::INTERNAL === $entity->getPublicDraftStatement()) {
-                    $entity->setPhase($procedure->getPhase());
-                } else {
-                    $entity->setPhase($procedure->getPublicParticipationPhase());
-                }
+        $procedure = $entity->getProcedure();
+        if (array_key_exists('phaseDefinitionId', $data)) {
+            /** @var ProcedurePhaseDefinition $phaseDefinition */
+            $phaseDefinition = $this->getEntityManager()->getReference(ProcedurePhaseDefinition::class, $data['phaseDefinitionId']);
+            $entity->setPhaseDefinition($phaseDefinition);
+        } elseif (!is_null($procedure)) {
+            // public or internal statement?
+            if (DraftStatement::INTERNAL === $entity->getPublicDraftStatement()) {
+                $entity->setPhaseDefinition($procedure->getPhaseObject()->getPhaseDefinition());
+            } else {
+                $entity->setPhaseDefinition($procedure->getPublicParticipationPhaseObject()->getPhaseDefinition());
             }
         }
         if (array_key_exists('represents', $data)) {

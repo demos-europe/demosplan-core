@@ -1549,6 +1549,8 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     public function setPhaseDefinition(ProcedurePhaseDefinition $phaseDefinition): void
     {
         $this->phaseDefinition = $phaseDefinition;
+        // @deprecated $phase will be removed once all consumers are migrated to phaseDefinition
+        $this->phase = $phaseDefinition->getName();
     }
 
     /**
