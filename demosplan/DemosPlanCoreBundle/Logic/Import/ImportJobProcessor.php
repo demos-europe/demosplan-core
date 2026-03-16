@@ -143,6 +143,13 @@ class ImportJobProcessor
         $customer = $job->getProcedure()->getCustomer();
         $this->globalConfig->setSubdomain($customer->getSubdomain());
         $this->currentUserService->setUser($user, $customer);
+
+        // Restore organisation context if one was stored with the job
+        $organisation = $job->getOrganisation();
+        if (null !== $organisation) {
+            $user->setCurrentOrganisation($organisation);
+        }
+
         $this->permissions->setProcedure($job->getProcedure());
         $this->permissions->initPermissions($user);
         $this->permissions->setProcedurePermissions();
@@ -156,15 +163,16 @@ class ImportJobProcessor
         $fileIdent = $job->getFilePath();
         try {
             $fileInfo = $this->fileService->getFileInfo($fileIdent);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $job->markAsFailed('Failed to retrieve file from storage: '.$e->getMessage());
             $this->entityManager->flush();
             $this->logger->error('Import job file retrieval failed', [
-                'jobId' => $job->getId(),
-                'fileIdent' => $fileIdent,
+                'jobId'       => $job->getId(),
+                'fileIdent'   => $fileIdent,
                 'procedureId' => $job->getProcedure()->getId(),
-                'error' => $e->getMessage(),
+                'error'       => $e->getMessage(),
             ]);
+
             return;
         }
 
@@ -172,14 +180,15 @@ class ImportJobProcessor
         $localPath = null;
         try {
             $localPath = $this->fileService->ensureLocalFile($fileInfo->getAbsolutePath(), $fileIdent);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $job->markAsFailed('Failed to download file locally: '.$e->getMessage());
             $this->entityManager->flush();
             $this->logger->error('Import job file download failed', [
-                'jobId' => $job->getId(),
+                'jobId'     => $job->getId(),
                 'fileIdent' => $fileIdent,
-                'error' => $e->getMessage(),
+                'error'     => $e->getMessage(),
             ]);
+
             return;
         }
 
