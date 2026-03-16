@@ -994,12 +994,9 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             /** @var ProcedurePhaseDefinition $phaseDefinition */
             $phaseDefinition = $em->getReference(ProcedurePhaseDefinition::class, $data['phaseDefinitionId']);
             $statement->setPhaseDefinition($phaseDefinition);
-        } elseif (array_key_exists('phase', $data)) {
-            $statement->setPhase($data['phase']);
         } else {
-            // Set default phase if not provided to prevent NOT NULL constraint violation
             $procedure = $statement->getProcedure();
-            $statement->setPhase($procedure->getPhase());
+            $statement->setPhaseDefinition($procedure->getPhaseObject()->getPhaseDefinition());
         }
 
         if (array_key_exists('replied', $data)) {
