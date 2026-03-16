@@ -75,7 +75,7 @@ All rights reserved
         :class="prefixClass('pb-0')"
       >
         <legend
-          v-if="!noTitle"
+          v-if="showTitle"
           :class="prefixClass('mb-2 text-[1em] font-[500]')"
         >
           {{ listTitle }}
@@ -132,7 +132,7 @@ All rights reserved
         <div :class="[prefixClass('flex items-center gap-1'), effectiveTitleClass]">
           <component
             :is="effectiveTitleTag"
-            v-if="!noTitle"
+            v-if="showTitle"
             class="m-0"
           >
             {{ listTitle }}
@@ -210,61 +210,73 @@ export default {
       type: String,
       required: true,
     },
+
     enableToggle: {
       type: Boolean,
       required: false,
       default: false,
     },
+
     expandable: {
       type: Boolean,
       required: false,
       default: false,
     },
+
     layout: {
       type: String,
       required: false,
       default: 'vertical',
       validator: val => ['vertical', 'horizontal', 'grid'].includes(val),
     },
+
     listTitle: {
       type: String,
       required: false,
       default: () => Translator.trans('more.data'),
     },
+
     mode: {
       type: String,
       required: false,
       default: 'readonly',
       validator: val => ['readonly', 'editable'].includes(val),
     },
-    noTitle: {
+
+    showTitle: {
       type: Boolean,
       required: false,
-      default: false,
+      default: true,
     },
+
     resourceId: {
       type: String,
       required: true,
     },
+
     resourceType: {
       type: String,
       required: true,
     },
+
     showEmpty: {
       type: Boolean,
       required: false,
       default: false,
     },
+
     titleClass: {
       type: [String, Array, Object],
       required: false,
       default: null,
     },
+
     titleInfoText: {
       type: String,
       required: false,
       default: '',
     },
+
     titleTag: {
       type: String,
       required: false,
@@ -273,15 +285,21 @@ export default {
     },
   },
 
-  emits: ['save:success', 'save:error', 'update:value', 'loaded', 'hasContent'],
+  emits: [
+    'hasContent',
+    'loaded',
+    'save:error',
+    'save:success',
+    'update:value',
+  ],
 
   data () {
     return {
       activeEditFieldId: null,
       definitions: [],
-      values: [],
-      isLoading: false,
       error: null,
+      isLoading: false,
+      values: [],
     }
   },
 
@@ -336,13 +354,15 @@ export default {
   },
 
   watch: {
-    resourceType () {
+    definitionSourceId () {
       this.fetchCustomFieldsData()
     },
+
     resourceId () {
       this.fetchCustomFieldsData()
     },
-    definitionSourceId () {
+
+    resourceType () {
       this.fetchCustomFieldsData()
     },
   },
@@ -360,7 +380,7 @@ export default {
           this.definitions = defs
 
           // 2. Fetch values (gets array of { id, value } for this entity)
-          return fetchCustomFieldValues(this.resourceType, this.resourceId)
+          return fetchCustomFieldValues(this.resourceType, this.resourceId, this.definitionSourceId)
         })
         .then(values => {
           this.values = values

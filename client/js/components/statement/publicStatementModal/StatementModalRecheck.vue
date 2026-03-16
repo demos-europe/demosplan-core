@@ -288,7 +288,7 @@
       >
         <template v-slot:readonly-display="{ field: customField }">
           <span>
-            {{ customField.value.selectedOptions.map(o => o.label).join(', ') }}
+            {{ customField.value?.selectedOptions?.map(o => o.label).join(', ') }}
           </span>
         </template>
       </custom-field>

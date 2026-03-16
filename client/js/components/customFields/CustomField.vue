@@ -118,15 +118,6 @@ export default {
 
   mixins: [prefixClassMixin],
 
-  emits: [
-    'edit:cancel',
-    'edit:save',
-    'edit:start',
-    'save:error',
-    'save:success',
-    'update:value',
-  ],
-
   props: {
     definition: {
       type: Object,
@@ -181,17 +172,26 @@ export default {
     },
   },
 
+  emits: [
+    'edit:cancel',
+    'edit:save',
+    'edit:start',
+    'save:error',
+    'save:success',
+    'update:value',
+  ],
+
   data () {
     return {
       componentMap: {
         multiSelect: 'multiselect-custom-field',
         singleSelect: 'singleselect-custom-field',
       },
-      resolvedDefinition: null,
       editingValue: null,
       isEditing: false,
       isLoading: false,
       isSaving: false,
+      resolvedDefinition: null,
       saveError: null,
     }
   },
@@ -239,6 +239,17 @@ export default {
   },
 
   methods: {
+    buildFieldObject (rawValue) {
+      if (!this.resolvedDefinition) {
+        return null
+      }
+
+      return {
+        ...this.resolvedDefinition,
+        value: this.transformValueForRenderer(rawValue),
+      }
+    },
+
     cancelEdit () {
       this.isEditing = false
       this.editingValue = null
@@ -283,7 +294,7 @@ export default {
      * Get the component name for a given field type
      */
     getComponentForType (fieldType) {
-      return this.componentMap[fieldType] || 'dp-singleselect-custom-field'
+      return this.componentMap[fieldType] || 'singleselect-custom-field'
     },
 
     /**
@@ -386,17 +397,6 @@ export default {
       this.isEditing = true
       this.editingValue = this.fieldData.value
       this.$emit('edit:start')
-    },
-
-    buildFieldObject (rawValue) {
-      if (!this.resolvedDefinition) {
-        return null
-      }
-
-      return {
-        ...this.resolvedDefinition,
-        value: this.transformValueForRenderer(rawValue),
-      }
     },
 
     /**

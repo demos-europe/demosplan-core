@@ -426,7 +426,7 @@ export default {
 
   emits: [
     'openMapModal',
-    'open-statement-modal-from-list',
+    'openStatementModalFromList',
   ],
 
   data () {

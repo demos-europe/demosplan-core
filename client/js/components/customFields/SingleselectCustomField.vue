@@ -75,8 +75,6 @@ export default {
 
   mixins: [prefixClassMixin],
 
-  emits: ['update:value'],
-
   props: {
     field: {
       type: Object,
@@ -90,6 +88,8 @@ export default {
       validator: (value) => ['readonly', 'editable'].includes(value),
     },
   },
+
+  emits: ['update:value'],
 
   computed: {
     /**
