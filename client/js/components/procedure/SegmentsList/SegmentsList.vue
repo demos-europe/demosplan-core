@@ -124,12 +124,14 @@
           ref="imageModal"
           data-cy="segment:imgModal"
         />
-        <dp-data-table
+        <div ref="scrollContainer" class="overflow-x-auto scrollbar-none max-h-[calc(100vh-200px)]" >
+          <dp-data-table
           ref="dataTable"
-          class="overflow-x-auto pb-3 min-h-12"
+          class="pb-3 min-h-12"
           :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
           data-cy="segmentsList"
           has-flyout
+          has-sticky-header
           :header-fields="availableHeaderFields"
           is-resizable
           is-selectable
@@ -316,6 +318,7 @@
             </dp-flyout>
           </template>
         </dp-data-table>
+        </div>
 
         <div
           v-show="scrollbarVisible && !isFullscreen"

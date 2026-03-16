@@ -70,7 +70,9 @@ export default {
 
       this.$nextTick(() => {
         this.scrollbar = this.$refs?.scrollBar
-        this.dataTableContainerElement = this.$refs?.dataTable?.$el
+        // Allows components to use a separate scroll wrapper (ref="scrollContainer") to enable sticky headers,
+        // while keeping the dataTable itself free of overflow that would block position: sticky.
+        this.dataTableContainerElement = this.$refs?.scrollContainer ?? this.$refs?.dataTable?.$el
         this.dataTableElement = this.$refs?.dataTable?.$refs?.tableEl
 
         if (!this.dataTableContainerElement) {
