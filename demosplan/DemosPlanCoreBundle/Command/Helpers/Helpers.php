@@ -12,10 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Helpers;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -86,5 +88,27 @@ class Helpers
         $answer = $this->helper->ask($input, $output, $questionCustomer);
 
         return $availableCustomers->first(fn (Customer $customer) => $answer === $customer->getSubdomain());
+    }
+
+    public function askOrganisation(InputInterface $input, OutputInterface $output, Collection $organisations): OrgaInterface
+    {
+        $availableOrganisations = collect($organisations);
+        $mappedOrgaInformation = $availableOrganisations->mapWithKeys(function (OrgaInterface $orga): array {
+            $id = $orga->getId();
+            $name = $orga->getName();
+
+            return [$id => $name];
+        })
+            ->sort()
+            ->toArray();
+
+        $questionOrga = new ChoiceQuestion(
+            'Please select an organisation: ',
+            $mappedOrgaInformation
+        );
+
+        $answer = $this->helper->ask($input, $output, $questionOrga);
+
+        return $availableOrganisations->first(fn (OrgaInterface $orga) => $answer === $orga->getId());
     }
 }
