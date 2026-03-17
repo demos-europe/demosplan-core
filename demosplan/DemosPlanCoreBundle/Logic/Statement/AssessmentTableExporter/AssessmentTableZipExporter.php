@@ -218,8 +218,8 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
     /**
      * Get statement IDs from parameters, either from direct items or by preparing output result.
      *
-     * @param array $parameters
      * @return array<int, string> Array of statement IDs
+     *
      * @throws MessageBagException
      */
     private function getStatementIdsFromParameters(array $parameters): array
