@@ -43,6 +43,7 @@ const apiStores = [
   'AssignableUser',
   'ElementsDetails',
   'Place',
+  'ProcedurePhaseDefinition',
   'SegmentComment',
   'Statement',
   'StatementSegment',
