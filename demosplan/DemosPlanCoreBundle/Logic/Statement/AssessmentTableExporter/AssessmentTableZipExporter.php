@@ -203,11 +203,24 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             // Example: "2024-001-STN_Originalstellungnahme"
             $folderName = $externId.pathinfo($pdfName, PATHINFO_FILENAME);
 
-            // Get attachments for this original statement
-            $statementAttachments = $this->statementService->getFileContainersForStatement($statementId);
+            // Get ALL attachments for this original statement
+            // This includes:
+            // 1. SOURCE_STATEMENT type (original attachments)
+            // 2. Other StatementAttachment types (additional attachments)
+            // 3. FileContainers (file field attachments)
             $attachments = [];
+
+            // Get StatementAttachments (SOURCE_STATEMENT + other types)
+            $statement = $this->statementService->getStatement($statementId);
+            $statementAttachments = $statement->getAttachments();
             foreach ($statementAttachments as $statementAttachment) {
                 $attachments[] = $statementAttachment->getFile();
+            }
+
+            // Also get FileContainers (file field attachments)
+            $fileContainers = $this->statementService->getFileContainersForStatement($statementId);
+            foreach ($fileContainers as $fileContainer) {
+                $attachments[] = $fileContainer->getFile();
             }
 
             $statementsWithAttachments[] = [
