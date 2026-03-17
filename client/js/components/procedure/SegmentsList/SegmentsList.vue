@@ -102,15 +102,21 @@
           @page-change="applyQuery"
           @size-change="handleSizeChange"
         />
-        <dp-column-selector
-          data-cy="segmentsList:selectableColumns"
-          has-select-all-option
-          :initial-selection="currentSelection"
-          local-storage-key="segmentList"
-          :selectable-columns="selectableColumns"
-          use-local-storage
-          @selection-changed="setCurrentSelection"
-        />
+        <div class="flex">
+          <dp-button
+          :text="Test"
+          color="secondary"
+          variant="subtle"/>
+          <dp-column-selector
+            data-cy="segmentsList:selectableColumns"
+            has-select-all-option
+            :initial-selection="currentSelection"
+            local-storage-key="segmentList"
+            :selectable-columns="selectableColumns"
+            use-local-storage
+            @selection-changed="setCurrentSelection"
+          />
+        </div>
       </div>
     </dp-sticky-element>
 
