@@ -162,14 +162,20 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
         $statementsWithAttachments = [];
 
         foreach ($statementIds as $statementId) {
+            // Fetch statement once and add null safety
+            $statement = $this->statementService->getStatement($statementId);
+            if (null === $statement) {
+                // Skip this statement if not found
+                continue;
+            }
+
             // Generate PDF for this original statement
             $parameters['items'] = $statementId;
             $parameters['statementId'] = $statementId;
             $pdf = $this->pdfExporter->__invoke($parameters);
 
-            // Get statement details
-            $statement = $this->statementService->getStatement($statementId);
-            $externId = $statement?->getExternId() ?? '';
+            // Get statement details from already-fetched statement
+            $externId = $statement->getExternId() ?? '';
 
             // Clean up PDF name (same logic as originalStatements export)
             $pdfName = str_replace('Originalstellungnahmen', 'Originalstellungnahme', $pdf['name']);
@@ -185,8 +191,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             // 3. FileContainers (file field attachments)
             $attachments = [];
 
-            // Get StatementAttachments (SOURCE_STATEMENT + other types)
-            $statement = $this->statementService->getStatement($statementId);
+            // Get StatementAttachments (SOURCE_STATEMENT + other types) - reuse $statement
             $statementAttachments = $statement->getAttachments();
             foreach ($statementAttachments as $statementAttachment) {
                 $attachments[] = $statementAttachment->getFile();
