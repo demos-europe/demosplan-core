@@ -73,6 +73,12 @@ export default {
         // Allows components to use a separate scroll wrapper (ref="scrollContainer") to enable sticky headers,
         // while keeping the dataTable itself free of overflow that would block position: sticky.
         this.dataTableContainerElement = this.$refs?.scrollContainer ?? this.$refs?.dataTable?.$el
+
+        if (this.$refs?.scrollContainer) {
+          const top = this.$refs.scrollContainer.getBoundingClientRect().top
+          console.log(top)
+          this.$refs.scrollContainer.style.maxHeight = `calc(100vh - ${top}px)`
+        }
         this.dataTableElement = this.$refs?.dataTable?.$refs?.tableEl
 
         if (!this.dataTableContainerElement) {
