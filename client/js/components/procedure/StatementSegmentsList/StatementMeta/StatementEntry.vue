@@ -129,10 +129,10 @@ All rights reserved
           text: Translator.trans('procedure.public.phase')
         }"
         :options="availableProcedurePhases"
-        :selected="localStatement.relationships.procedurePhase.data.id"
+        :selected="localStatement.relationships?.procedurePhase?.data?.id"
         class="mb-3"
         data-cy="statementEntry:procedurePhase"
-        @select="id => localStatement.relationships.procedurePhase.data.id = id"
+        @select="id => localStatement.relationships.procedurePhase.data = { id, type: 'ProcedurePhaseDefinition' }"
       />
       <dl
         v-else
@@ -230,11 +230,6 @@ export default {
       }))
     },
 
-    currentPhaseName () {
-      const id = this.localStatement.relationships?.procedurePhase?.data?.id
-      return this.$store.state.ProcedurePhaseDefinition?.items?.[id]?.attributes?.name || '-'
-    },
-
     currentDate () {
       let today = new Date()
       const dd = today.getDate().toString().padStart(2, '0')
@@ -243,6 +238,12 @@ export default {
 
       today = dd + '.' + mm + '.' + yyyy
       return today
+    },
+
+    currentPhaseName () {
+      const id = this.localStatement.relationships?.procedurePhase?.data?.id
+
+      return this.$store.state.ProcedurePhaseDefinition?.items?.[id]?.attributes?.name || '-'
     },
 
     isStatementManual () {
@@ -278,19 +279,19 @@ export default {
           submitDate: attrs.submitDate,
           submitType: attrs.submitType,
           internId: attrs.internId,
-          authorName: attrs.authorName,
-          submitName: attrs.submitName,
-        },
-        relationships: {
-          procedurePhase: this.localStatement.relationships.procedurePhase,
         },
       }
+
       if (hasPermission('field_statement_phase')) {
-        changes.attributes.procedurePhase = attrs.procedurePhase
+        changes.relationships = {
+          procedurePhase: this.localStatement.relationships.procedurePhase,
+        }
       }
+
       if (hasPermission('field_statement_memo')) {
         changes.attributes.memo = attrs.memo
       }
+
       this.$emit('save', changes)
     },
 
@@ -302,7 +303,15 @@ export default {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
       this.localStatement.attributes.authoredDate = this.getFormattedDate(this.localStatement.attributes.authoredDate)
       this.localStatement.attributes.submitDate = this.getFormattedDate(this.localStatement.attributes.submitDate)
-    }
+
+      if (!this.localStatement.relationships) {
+        this.localStatement.relationships = {}
+      }
+
+      if (!this.localStatement.relationships.procedurePhase) {
+        this.localStatement.relationships.procedurePhase = { data: null }
+      }
+    },
   },
 
   created () {

@@ -75,7 +75,7 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
 
   // Add permission-based fields
   if (hasPermission('field_statement_phase')) {
-    statementFields.push('availableProcedurePhases')
+    statementFields.push('availableProcedurePhases', 'procedurePhase')
   }
 
   if (hasPermission('area_statement_segmentation')) {
