@@ -58,6 +58,23 @@ class Segment extends Statement implements SegmentInterface
     private $orderInProcedure;
 
     /**
+     * Unified order position for interleaving segments and text sections within a statement.
+     * Kept in sync with orderInProcedure during the transition period.
+     *
+     * @var int|null
+     *
+     * @ORM\Column(name="order_in_statement", type="integer", nullable=true)
+     */
+    private $orderInStatement;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="_st_edit_locked", type="boolean", options={"default":false})
+     */
+    private $editLocked = false;
+
+    /**
      * The {@link PlaceInterface} this instance is coupled to.
      *
      * Already replaces {@link StatementInterface::$status} for {@link SegmentInterface} instances, meaning
@@ -114,6 +131,32 @@ class Segment extends Statement implements SegmentInterface
     public function setOrderInProcedure(int $orderInProcedure): void
     {
         $this->orderInProcedure = $orderInProcedure;
+        // Keep both fields in sync during transition
+        $this->orderInStatement = $orderInProcedure;
+    }
+
+    public function getOrderInStatement(): ?int
+    {
+        return $this->orderInStatement;
+    }
+
+    public function setOrderInStatement(int $orderInStatement): void
+    {
+        $this->orderInStatement = $orderInStatement;
+        // Keep both fields in sync during transition
+        $this->orderInProcedure = $orderInStatement;
+    }
+
+    public function isEditLocked(): bool
+    {
+        return $this->editLocked;
+    }
+
+    public function setEditLocked(bool $editLocked): self
+    {
+        $this->editLocked = $editLocked;
+
+        return $this;
     }
 
     public function setPlace(PlaceInterface $place): self

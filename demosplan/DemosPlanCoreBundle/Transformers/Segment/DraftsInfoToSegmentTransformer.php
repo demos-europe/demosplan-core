@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\TextSection;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\DraftsInfoHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
@@ -61,11 +62,15 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
     }
 
     /**
-     * Transforms DraftsInfo to Segment Entities.
+     * Transforms DraftsInfo to Segment and TextSection Entities.
+     *
+     * Supports two formats:
+     * - New order-based format with contentBlocks (segments + text sections)
+     * - Legacy position-based format with segments only
      *
      * @param string $draftsInfo
      *
-     * @return array<Segment>
+     * @return array{segments: array<Segment>, textSections: array<TextSection>}
      *
      * @throws FileNotFoundException
      * @throws InvalidSchemaException
@@ -82,24 +87,47 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             throw StatementNotFoundException::createFromId($statementId);
         }
 
-        return $this->getSegments($draftsInfoArray, $statement);
+        return $this->getSegmentsAndTextSections($draftsInfoArray, $statement);
     }
 
     /**
      * @param array<mixed> $draftsInfoArray
      *
-     * @return array<int, Segment>
+     * @return array{segments: array<int, Segment>, textSections: array<int, TextSection>}
      *
      * @throws Exception
      */
-    private function getSegments(array $draftsInfoArray, Statement $statement): array
+    private function getSegmentsAndTextSections(array $draftsInfoArray, Statement $statement): array
     {
         $segments = [];
+        $textSections = [];
         $procedure = $statement->getProcedure();
-        $draftsList = $this->draftsInfoHandler->extractDraftsList($draftsInfoArray);
-        // The segments are received potentially unsorted. Hence sort them by their position
-        // in the text so their $externId is set in the correct order afterwards.
-        usort($draftsList, static fn (array $draft1, array $draft2) => $draft1['charEnd'] < $draft2['charEnd'] ? -1 : 1);
+
+        // Detect format: new order-based (contentBlocks) vs legacy position-based (segments)
+        $attributes = $draftsInfoArray['data']['attributes'] ?? [];
+        $isOrderBased = isset($attributes['contentBlocks']);
+
+        if ($isOrderBased) {
+            $segmentBlocks = array_filter(
+                $attributes['contentBlocks'],
+                static fn (array $block): bool => 'segment' === ($block['type'] ?? '')
+            );
+            usort($segmentBlocks, static fn (array $a, array $b): int => ($a['order'] ?? 0) <=> ($b['order'] ?? 0));
+
+            $textSectionBlocks = array_filter(
+                $attributes['contentBlocks'],
+                static fn (array $block): bool => 'textSection' === ($block['type'] ?? '')
+            );
+            $draftsList = $segmentBlocks;
+        } else {
+            $draftsList = $this->draftsInfoHandler->extractDraftsList($draftsInfoArray);
+            // Sort by charEnd position if present
+            $hasCharEnd = !empty(array_filter($draftsList, static fn (array $d): bool => ($d['charEnd'] ?? 0) > 0));
+            if ($hasCharEnd) {
+                usort($draftsList, static fn (array $a, array $b): int => ($a['charEnd'] ?? 0) <=> ($b['charEnd'] ?? 0));
+            }
+            $textSectionBlocks = [];
+        }
 
         // Temporarily change ID generator to AssignedGenerator so Doctrine handles manually-assigned IDs properly
         $segmentMetadata = $this->entityManager->getClassMetadata(Segment::class);
@@ -115,7 +143,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             $segment->setText($draft['text']);
             $externId = $statement->getExternId().'-'.$counter;
             $segment->setExternId($externId);
-            $segment->setOrderInProcedure($internId);
+            $segment->setOrderInProcedure($isOrderBased ? ($draft['order'] ?? $internId) : $internId);
             $segment->setPhase('analysis');
             $segment->setProcedure($statement->getProcedure());
 
@@ -134,20 +162,34 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             ++$internId;
         }
 
-        // Restore the original ID generator (done with manually-assigned segment IDs)
+        // Restore the original ID generator
         $segmentMetadata->setIdGenerator($originalIdGenerator);
 
         // Set tags (junction table entries will be flushed by controller)
         array_map(
             function (Segment $segment, array $draft) use ($procedure): void {
-                $tags = $this->getTags($draft['tags'], $procedure);
+                $tags = $this->getTags($draft['tags'] ?? [], $procedure);
                 $segment->setTags($tags);
             },
             $segments,
             $draftsList
         );
 
-        return $segments;
+        // Create TextSection entities from contentBlocks
+        foreach ($textSectionBlocks as $block) {
+            $textSection = new TextSection();
+            $textSection->setStatement($statement);
+            $textSection->setOrderInStatement($block['order'] ?? 0);
+            $textSection->setTextRaw($block['text'] ?? '');
+            $textSection->setText($block['text'] ?? '');
+            $statement->addTextSection($textSection);
+            $textSections[] = $textSection;
+        }
+
+        return [
+            'segments'     => $segments,
+            'textSections' => $textSections,
+        ];
     }
 
     /**
@@ -176,7 +218,9 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             ? $this->placeService->findWithCertainty($placeId)
             : $this->placeService->findFirstOrderedBySortIndex($segment->getProcedure()->getId());
 
-        $segment->setPlace($place);
+        if (null !== $place) {
+            $segment->setPlace($place);
+        }
 
         return $segment;
     }
