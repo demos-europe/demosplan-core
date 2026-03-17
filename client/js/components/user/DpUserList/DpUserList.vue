@@ -36,6 +36,11 @@
       v-if="false === isLoading"
       class="layout"
     >
+      <div
+        v-if="isUserSelected"
+      >
+        {{ selectedItemsCount }}
+      </div>
       <div class="u-mt flex">
         <!-- 'Select all'-Checkbox -->
         <div class="layout__item u-3-of-7">
@@ -43,15 +48,15 @@
             id="select_all"
             type="checkbox"
             data-cy="allSelected"
-            :checked="allSelected"
-            @change="dpToggleAll(!allSelected, items)"
+            :checked="allOnPageSelected"
+            @change="toggleAll(!allOnPageSelected)"
           >
           <label
             v-if="hasPermission('feature_user_delete') || true"
             for="select_all"
             class="cursor-pointer btn-icns inline-block"
           >
-            {{ Translator.trans('select.all.on.page') }}
+            {{ Translator.trans('select.all') }}
           </label>
         </div>
         <!--Button row -->
@@ -60,11 +65,10 @@
             class="mb-1.5 mr-0.5"
             color="primary"
             data-cy="userList:manageUsers"
-            value="inviteSelected"
-            name="manageUsers"
-            type="submit"
+            type="button"
             :disabled="!isUserSelected"
             :text="Translator.trans('user.marked.invite')"
+            @click="inviteItems"
           />
           <dp-button
             v-if="hasPermission('feature_user_delete') || true"
@@ -74,7 +78,7 @@
             type="button"
             :disabled="!isUserSelected"
             :text="deleteSelectedUsersLabel"
-            @click="deleteItems(selectedItems)"
+            @click="deleteItems"
           />
         </div>
       </div>
@@ -90,11 +94,11 @@
           v-for="(item, idx, index) in items"
           :key="idx"
           class="o-list__item"
-          :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
+          :selected="currentPageSelections[item.id] || false"
           :user="item"
           :data-cy="`userList:userListBlk:${index}`"
           :project-name="projectName"
-          @item:selected="dpToggleOne"
+          @item:selected="toggleOne"
         />
       </ul>
 
@@ -115,8 +119,6 @@ import {
   DpContextualHelp,
   DpLoading,
   DpSearchField,
-  dpSelectAllMixin,
-  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
@@ -135,8 +137,6 @@ export default {
     }),
     DpUserListItem: defineAsyncComponent(() => import('./DpUserListItem')),
   },
-
-  mixins: [dpSelectAllMixin],
 
   provide () {
     return {
@@ -164,9 +164,11 @@ export default {
 
   data () {
     return {
-      searchValue: '',
+      allItemsCount: 0,
       isLoading: true,
-      itemSelections: {},
+      searchValue: '',
+      toggledItems: [],
+      trackDeselected: false,
     }
   },
 
@@ -177,16 +179,31 @@ export default {
       totalPages: 'totalPages',
     }),
 
+    allOnPageSelected () {
+      const itemIds = Object.keys(this.items)
+      return itemIds.length > 0 && itemIds.every(id => this.currentPageSelections[id])
+    },
+
+    currentPageSelections () {
+      return Object.keys(this.items).reduce((acc, id) => {
+        const isInToggled = this.toggledItems.includes(id)
+        acc[id] = this.trackDeselected ? !isInToggled : isInToggled
+        return acc
+      }, {})
+    },
+
     deleteSelectedUsersLabel () {
-      return Translator.trans('entities.marked.delete', { entities: Translator.trans('users'), sum: this.selectedItems.length })
+      return Translator.trans('entities.marked.delete', { entities: Translator.trans('users'), sum: this.selectedItemsCount })
     },
 
     isUserSelected () {
-      return this.selectedItems.length > 0
+      return this.selectedItemsCount > 0
     },
 
-    selectedItems () {
-      return Object.keys(this.items).filter(id => this.itemSelections[id])
+    selectedItemsCount () {
+      return this.trackDeselected ?
+        this.allItemsCount - this.toggledItems.length :
+        this.toggledItems.length
     },
 
     tooltipContent () {
@@ -216,30 +233,53 @@ export default {
       deleteAdministratableUser: 'delete',
     }),
 
-    async deleteItems (ids) {
-      if (!this.selectedItems.length) {
+    async inviteItems () {
+      const ids = await this.resolveSelectedIds()
+      const form = this.$el.closest('form')
+      const currentPageIds = new Set(Object.keys(this.items))
+
+      // Add hidden inputs only for users not on the current page (those already have checkboxes)
+      ids.filter(id => !currentPageIds.has(id)).forEach(id => {
+        const input = document.createElement('input')
+        input.type = 'hidden'
+        input.name = 'elementsToAdminister[]'
+        input.value = id
+        form.appendChild(input)
+      })
+
+      // Add the action that the original submit button would have sent
+      const actionInput = document.createElement('input')
+      actionInput.type = 'hidden'
+      actionInput.name = 'manageUsers'
+      actionInput.value = 'inviteSelected'
+      form.appendChild(actionInput)
+
+      form.submit()
+    },
+
+    async deleteItems () {
+      if (!this.selectedItemsCount) {
         return dplan.notify.notify('warning', Translator.trans('warning.select.entries'))
       }
 
       const isConfirmed = window.dpconfirm(
-        Translator.trans('check.user.delete', { count: this.selectedItems.length }),
+        Translator.trans('check.user.delete', { count: this.selectedItemsCount }),
       )
 
       if (!isConfirmed) return
 
+      const ids = await this.resolveSelectedIds()
+
       let successCount = 0
       let errorCount = 0
 
-      const deleteResults = await Promise.allSettled(
-        /* Ensures all deletions attempt to execute, even if one fails. Each deletion resolves to { status: 'fulfilled' | 'rejected', value | reason } */
+      await Promise.allSettled(
         ids.map(async id => {
           try {
             const response = await this.deleteAdministratableUser(id)
-            // Check if the HTTP response indicates an error
-            if (response && (response.status >= 400 || response.ok === false)) {
+            if (response && response.status >= 400) {
               errorCount++
             } else {
-              delete this.itemSelections[id]
               successCount++
             }
           } catch (error) {
@@ -249,7 +289,6 @@ export default {
         }),
       )
 
-      // Show appropriate messages
       if (successCount > 0) {
         dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
       }
@@ -257,19 +296,11 @@ export default {
         dplan.notify.notify('error', Translator.trans('error.delete.user'))
       }
 
-      // Reload items only if at least one deletion was successful
-      if (deleteResults.some(result => result.status === 'fulfilled')) {
-        this.loadItems()
-      }
+      this.resetSelection()
+      this.loadItems()
     },
 
-    getFilteredItems: debounce(function () {
-      this.getItemsByPage(1)
-    }, 500),
-
-    getItemsByPage (page) {
-      this.isLoading = true
-      page = page || this.currentPage
+    buildUserFilter () {
       const userFilter = {
         name: {
           group: {
@@ -297,30 +328,94 @@ export default {
         }
       })
 
+      return userFilter
+    },
+
+    async fetchAllUserIds () {
+      const allIds = []
+      const filter = this.buildUserFilter()
+      const include = ['roles', 'orga', 'department', 'orga.allowedRoles'].join()
+      let page = 1
+      let totalPages = 1
+
+      while (page <= totalPages) {
+        const response = await this.userList({
+          page: { number: page },
+          filter,
+          include,
+        })
+
+        const resourceData = response.data.AdministratableUser || response.data
+        allIds.push(...Object.keys(resourceData))
+        totalPages = response.meta.pagination.total_pages
+        page++
+      }
+
+      // Restore the current page view since userList replaces store items on each call
+      this.getItemsByPage(this.currentPage)
+
+      return allIds
+    },
+
+    getFilteredItems: debounce(function () {
+      this.getItemsByPage(1)
+    }, 500),
+
+    getItemsByPage (page) {
+      this.isLoading = true
+      page = page || this.currentPage
+
       this.userList({
         page: {
           number: page ?? 1,
         },
-        filter: userFilter,
+        filter: this.buildUserFilter(),
         include: ['roles', 'orga', 'department', 'orga.allowedRoles'].join(),
       })
-        .then(() => {
+        .then((response) => {
+          this.allItemsCount = response.meta.pagination.total
           this.isLoading = false
         })
     },
 
+    async resolveSelectedIds () {
+      if (!this.trackDeselected) {
+        return [...this.toggledItems]
+      }
+
+      const allIds = await this.fetchAllUserIds()
+      return allIds.filter(id => !this.toggledItems.includes(id))
+    },
+
     handleSearch (term) {
       this.searchValue = term
+      this.resetSelection()
       this.getFilteredItems()
     },
 
     handleReset () {
       this.searchValue = ''
+      this.resetSelection()
       this.getFilteredItems()
     },
 
-    hasOwnProp (obj, prop) {
-      return hasOwnProp(obj, prop)
+    resetSelection () {
+      this.trackDeselected = false
+      this.toggledItems = []
+    },
+
+    toggleAll (status) {
+      this.trackDeselected = status
+      this.toggledItems = []
+    },
+
+    toggleOne (id) {
+      const index = this.toggledItems.indexOf(id)
+      if (index === -1) {
+        this.toggledItems = [...this.toggledItems, id]
+      } else {
+        this.toggledItems = this.toggledItems.filter(item => item !== id)
+      }
     },
 
     loadItems () {

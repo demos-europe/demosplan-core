@@ -3330,6 +3330,7 @@ items.selected.multi.page: |
         =1 { Ein Element ausgewählt (u.U. nicht auf Seite 1). }
         other { # Elemente (u.U. auf mehreren Seiten) ausgewählt. }
     }
+select.all: "Alle auswählen"
 select.all.on.page: "Alle auf dieser Seite auswählen"
 selection.no: "Keine Auswahl"
 selection.tags.discard: "Textauswahl und Schlagworte verwerfen"
