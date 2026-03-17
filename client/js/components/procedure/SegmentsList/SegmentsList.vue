@@ -104,6 +104,7 @@
         />
         <dp-column-selector
           data-cy="segmentsList:selectableColumns"
+          has-select-all-option
           :initial-selection="currentSelection"
           local-storage-key="segmentList"
           :selectable-columns="selectableColumns"
@@ -124,7 +125,7 @@
           ref="imageModal"
           data-cy="segment:imgModal"
         />
-        <div ref="scrollContainer" class="overflow-x-auto scrollbar-none max-h-[calc(100vh-200px)]" >
+        <div ref="scrollContainer" class="overflow-x-auto scrollbar-none" >
           <dp-data-table
           ref="dataTable"
           class="pb-3 min-h-12"
@@ -466,15 +467,15 @@ export default {
       demosplanUi,
       hasStyledTopicalTags: false,
       headerFieldsAvailable: [
-        { field: 'externId', label: Translator.trans('id'), initialMinWidth: 120 },
-        { field: 'statementStatus', label: Translator.trans('statement.status'), initialMinWidth: 180 },
-        { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '150px', initialMinWidth: 120 },
-        { field: 'submitter', label: Translator.trans('submitter'), initialMinWidth: 180 },
-        { field: 'address', label: Translator.trans('address'), initialMinWidth: 180 },
-        { field: 'text', label: Translator.trans('text'), colWidth: '200px', initialMinWidth: 270 },
-        { field: 'recommendation', label: Translator.trans('segment.recommendation'), colWidth: '200px', initialMinWidth: 180 },
-        { field: 'tags', label: Translator.trans('segment.tags'), initialMinWidth: 270 },
-        { field: 'place', label: Translator.trans('workflow.place'), initialMinWidth: 180 },
+        { field: 'externId', label: Translator.trans('id'), colWidth: '120px', initialMinWidth: 120 },
+        { field: 'statementStatus', label: Translator.trans('statement.status'), colWidth: '180px', initialMinWidth: 180 },
+        { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '120px', initialMinWidth: 120 },
+        { field: 'submitter', label: Translator.trans('submitter'), colWidth: '180px', initialMinWidth: 180 },
+        { field: 'address', label: Translator.trans('address'), colWidth: '180px', initialMinWidth: 180 },
+        { field: 'text', label: Translator.trans('text'), colWidth: '270px', initialMinWidth: 270 },
+        { field: 'recommendation', label: Translator.trans('segment.recommendation'), colWidth: '180px', initialMinWidth: 180 },
+        { field: 'tags', label: Translator.trans('segment.tags'), colWidth: '270px', initialMinWidth: 270 },
+        { field: 'place', label: Translator.trans('workflow.place'), colWidth: '180px', initialMinWidth: 180 },
       ],
       isLoading: true,
       lsKey: {
