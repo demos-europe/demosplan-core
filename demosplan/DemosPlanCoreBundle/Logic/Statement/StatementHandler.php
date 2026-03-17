@@ -446,9 +446,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         return $this->statementFragmentService->getStatementFragmentsDepartmentArchive($esQuery, $this->getRequestValues(), $departmentId);
     }
 
-    public function addSourceStatementAttachments(array $statements)
+    public function addStatementAttachments(array $statements, bool $includeAdditionalAttachments = false)
     {
-        return $this->statementService->addSourceStatementAttachments($statements);
+        return $this->statementService->addStatementAttachments($statements, $includeAdditionalAttachments);
     }
 
     /**

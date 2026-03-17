@@ -1646,15 +1646,22 @@ class StatementService implements StatementServiceInterface
      *
      * @throws Exception
      */
-    public function addSourceStatementAttachments(array $statements): array
+    public function addStatementAttachments(array $statements, bool $includeAdditionalAttachments = false): array
     {
         $entities = $this->elasticsearchStatementsToObjects($statements);
 
-        return \array_map(static function (array $statement) use ($entities): array {
+        return \array_map(static function (array $statement) use ($entities, $includeAdditionalAttachments): array {
+            // Add SOURCE_STATEMENT attachment
             $statement['attachments'] = array_filter(
                 $entities[$statement['id']]->getAttachments()->getValues(),
                 static fn (StatementAttachment $attachment) => StatementAttachment::SOURCE_STATEMENT === $attachment->getType()
             );
+
+            // Add additional attachments
+            if ($includeAdditionalAttachments) {
+                $files = $entities[$statement['id']]->getFiles();
+                $statement['files'] = $files;
+            }
 
             return $statement;
         }, $statements);
