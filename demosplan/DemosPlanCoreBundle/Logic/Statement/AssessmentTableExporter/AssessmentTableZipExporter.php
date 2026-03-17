@@ -125,21 +125,9 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
      */
     private function exportOriginalStatementsAsPdfsInZip(array $parameters, string $exportType): array
     {
-        if ([] === $parameters['items']) {
-            $outputResult = $this->assessmentHandler->prepareOutputResult(
-                $parameters['procedureId'],
-                $parameters['original'],
-                $parameters
-            );
-            $statementIds = [];
-            foreach ($outputResult->getStatements() as $statement) {
-                $statementIds[] = $statement['id'];
-            }
-            $parameters['items'] = $statementIds;
-        }
+        $statementIds = $this->getStatementIdsFromParameters($parameters);
 
         $pdfs = [];
-        $statementIds = $parameters['items'];
         foreach ($statementIds as $statementId) {
             $parameters['items'] = $statementId;
             $parameters['statementId'] = $statementId;
@@ -169,20 +157,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
      */
     private function exportOriginalStatementsWithAttachmentsInZip(array $parameters, string $exportType): array
     {
-        // Get original statement IDs
-        if ([] === $parameters['items']) {
-            $outputResult = $this->assessmentHandler->prepareOutputResult(
-                $parameters['procedureId'],
-                $parameters['original'],
-                $parameters
-            );
-            $statementIds = [];
-            foreach ($outputResult->getStatements() as $statement) {
-                $statementIds[] = $statement['id'];
-            }
-        } else {
-            $statementIds = $parameters['items'];
-        }
+        $statementIds = $this->getStatementIdsFromParameters($parameters);
 
         $statementsWithAttachments = [];
 
@@ -238,6 +213,32 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             'statementsWithAttachments' => $statementsWithAttachments,
             'exportType'                => $exportType,
         ];
+    }
+
+    /**
+     * Get statement IDs from parameters, either from direct items or by preparing output result.
+     *
+     * @param array $parameters
+     * @return array<int, string> Array of statement IDs
+     * @throws MessageBagException
+     */
+    private function getStatementIdsFromParameters(array $parameters): array
+    {
+        if ([] === $parameters['items']) {
+            $outputResult = $this->assessmentHandler->prepareOutputResult(
+                $parameters['procedureId'],
+                $parameters['original'],
+                $parameters
+            );
+            $statementIds = [];
+            foreach ($outputResult->getStatements() as $statement) {
+                $statementIds[] = $statement['id'];
+            }
+
+            return $statementIds;
+        }
+
+        return $parameters['items'];
     }
 
     /**
