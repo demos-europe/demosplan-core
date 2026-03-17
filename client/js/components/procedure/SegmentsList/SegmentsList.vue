@@ -102,13 +102,14 @@
           @page-change="applyQuery"
           @size-change="handleSizeChange"
         />
-        <div class="flex">
+        <div class="flex gap-2">
           <dp-button
           :text="Translator.trans('column.layout.reset')"
           color="secondary"
           variant="subtle"
           @click="resetColumnLayout"/>
           <dp-column-selector
+            appearance="subtle"
             data-cy="segmentsList:selectableColumns"
             has-select-all-option
             :initial-selection="currentSelection"
