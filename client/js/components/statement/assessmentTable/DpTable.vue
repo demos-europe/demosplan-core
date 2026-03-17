@@ -526,10 +526,10 @@ export default {
     },
 
     handlePageChange (newPage) {
-      const tmpPager = Object.assign(this.pagination, {
-        current_page: newPage,
-        count: this.pagination.per_page
-      })
+      const tmpPager = {
+        ...this.pagination,
+        current_page: newPage
+      }
       this.updatePagination(tmpPager)
       this.changeUrl(tmpPager)
       this.setProperty({
@@ -540,7 +540,10 @@ export default {
     },
 
     handleSizeChange (newSize) {
-      const tmpPager = Object.assign(this.pagination, { count: newSize })
+      const tmpPager = {
+        ...this.pagination,
+        count: newSize
+      }
       this.updatePagination(tmpPager)
       this.changeUrl(tmpPager)
       this.setProperty({
