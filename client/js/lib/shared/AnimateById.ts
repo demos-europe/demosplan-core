@@ -14,8 +14,8 @@
 import { getAnimationEventName } from '@demos-europe/demosplan-ui'
 
 const Animate = (): void => {
-  if (window.location.hash) {
-    const element = document.getElementById(window.location.hash.slice(1))
+  if (globalThis.location.hash) {
+    const element = document.getElementById(globalThis.location.hash.slice(1))
     if (element) {
       element.classList.add('run-animate')
       const animationendEvent = getAnimationEventName()
