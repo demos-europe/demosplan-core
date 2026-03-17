@@ -162,7 +162,6 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
         $statementsWithAttachments = [];
 
         foreach ($statementIds as $statementId) {
-
             $statement = $this->statementService->getStatement($statementId);
 
             // Generate PDF for this original statement
