@@ -104,9 +104,10 @@
         />
         <div class="flex">
           <dp-button
-          :text="Test"
+          :text="Translator.trans('column.layout.reset')"
           color="secondary"
-          variant="subtle"/>
+          variant="subtle"
+          @click="resetColumnLayout"/>
           <dp-column-selector
             data-cy="segmentsList:selectableColumns"
             has-select-all-option
@@ -873,6 +874,12 @@ export default {
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
       this.pagination.perPage = newSize
       this.applyQuery(page)
+    },
+
+    resetColumnLayout () {
+      localStorage.removeItem('segmentList')
+      this.setCurrentSelection([])
+      this.$refs.columnSelector.initializeColumnSelection()
     },
 
     resetQuery () {
