@@ -1176,6 +1176,14 @@ class FileService implements FileServiceInterface
         $path = date('Y').'/'.date('m');
 
         if ($viruscheck && $this->globalConfig->isAvscanEnabled()) {
+            // Release the database session row lock before the blocking socket operation.
+            // Without this, concurrent requests from the same browser will hit a
+            // "Lock wait timeout exceeded" error if the scan takes longer than
+            // innodb_lock_wait_timeout (default 50s).
+            // In CLI/async contexts (e.g. message consumer) there is no HTTP session to save.
+            if (null !== $this->requestStack->getCurrentRequest()) {
+                $this->requestStack->getSession()->save();
+            }
             $this->virusCheck($symfonyFile);
         }
 
