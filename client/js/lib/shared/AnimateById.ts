@@ -13,21 +13,22 @@
  */
 import { getAnimationEventName } from '@demos-europe/demosplan-ui'
 
-const Animate = () => {
+const Animate = (): void => {
   if (window.location.hash) {
     const element = document.getElementById(window.location.hash.slice(1))
     if (element) {
       element.classList.add('run-animate')
       const animationendEvent = getAnimationEventName()
-      element.addEventListener(animationendEvent, function callback (event) {
-        event.currentTarget.classList.remove('run-animate')
-        event.currentTarget.removeEventListener(event.type, callback)
+      element.addEventListener(animationendEvent, function callback (event: Event) {
+        const target = event.currentTarget as HTMLElement
+        target.classList.remove('run-animate')
+        target.removeEventListener(event.type, callback)
       })
     }
   }
 }
 
-export default function AnimateById (delay = 300) {
+export default function AnimateById (delay: number = 300): void {
   setTimeout(function () {
     Animate()
   }, delay)
