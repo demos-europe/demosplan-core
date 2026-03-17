@@ -188,17 +188,16 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
      * Each original statement gets its own folder named after the PDF filename.
      * The folder contains the original statement PDF and all its attachments.
      *
-     * @param ZipStream $zipStream
-     * @param array     $file Expected structure:
-     *   - zipFileName: string
-     *   - statementsWithAttachments: array [
-     *       [
-     *         'folderName' => '2024-001-STN_Originalstellungnahme',
-     *         'pdf' => ['name' => '_Originalstellungnahme.pdf', 'content' => '...'],
-     *         'attachments' => File[]
-     *       ],
-     *       ...
-     *     ]
+     * @param array $file Expected structure:
+     *                    - zipFileName: string
+     *                    - statementsWithAttachments: array [
+     *                    [
+     *                    'folderName' => '2024-001-STN_Originalstellungnahme',
+     *                    'pdf' => ['name' => '_Originalstellungnahme.pdf', 'content' => '...'],
+     *                    'attachments' => File[]
+     *                    ],
+     *                    ...
+     *                    ]
      */
     private function addOriginalStatementsWithAttachmentsToZip(ZipStream $zipStream, array $file): void
     {
