@@ -95,7 +95,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
             $this->addOriginalStatementPdfsTopZip($zipStream, $file);
         }
         if ('originalStatementsWithAttachments' === $exportType) {
-            $this->addAttachmentsToZip($zipStream, $file);
+            $this->addOriginalStatementsWithAttachmentsToZip($zipStream, $file);
         }
         $this->addCountedErrorMessages();
         if ([] !== $this->errorMessages) {
@@ -182,6 +182,61 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         }
     }
 
+    /**
+     * Add original statements with their attachments to ZIP, organized in folders.
+     *
+     * Each original statement gets its own folder named after the PDF filename.
+     * The folder contains the original statement PDF and all its attachments.
+     *
+     * @param ZipStream $zipStream
+     * @param array     $file Expected structure:
+     *   - zipFileName: string
+     *   - statementsWithAttachments: array [
+     *       [
+     *         'folderName' => '2024-001-STN_Originalstellungnahme',
+     *         'pdf' => ['name' => '_Originalstellungnahme.pdf', 'content' => '...'],
+     *         'attachments' => File[]
+     *       ],
+     *       ...
+     *     ]
+     */
+    private function addOriginalStatementsWithAttachmentsToZip(ZipStream $zipStream, array $file): void
+    {
+        foreach ($file['statementsWithAttachments'] as $statementData) {
+            $folderName = $statementData['folderName'];
+            $baseZipPath = $file['zipFileName'].'/'.$folderName.'/';
+
+            try {
+                // Add original statement PDF to folder
+                $pdf = $statementData['pdf'];
+                $zipStream->addFile(
+                    $baseZipPath.$pdf['name'],
+                    $pdf['content']
+                );
+
+                // Add all attachments to the same folder
+                foreach ($statementData['attachments'] as $attachment) {
+                    if ($attachment instanceof File) {
+                        $this->zipExportService->addFileToZipStream(
+                            $attachment->getFilePathWithHash(),
+                            $baseZipPath.$attachment->getFilename(),
+                            $zipStream
+                        );
+                    }
+                }
+            } catch (FilesystemException $e) {
+                $this->handleError($e, self::FIILE_NOT_FOUND_OR_READABLE);
+                ++$this->errorCount['attachmentNotAddedCount'];
+            } catch (InvalidDataException $e) {
+                $this->handleError($e, self::FILE_HASH_INVALID);
+                ++$this->errorCount['attachmentNotAddedCount'];
+            } catch (Exception $e) {
+                $this->handleError($e, self::UNKOWN_ERROR);
+                ++$this->errorCount['attachmentUnkownErrorCount'];
+            }
+        }
+    }
+
     private function addErrorTextFile(ZipStream $zipStream): void
     {
         $zipStream->addFile(
@@ -254,11 +309,16 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
             }
         }
         if ($isOriginalStatementsWithAttachmentsExport) {
-            Assert::keyExists($file, 'attachments', $prefix.'attachments'.$logSuffix);
-            Assert::isArray($file['attachments'], 'Array expected under the key attachments'.$logSuffix);
-            foreach ($file['attachments'] as $attachment) {
-                Assert::keyExists($attachment, 'attachments', $prefix.'attachments in attachment array'.$logSuffix);
-                Assert::keyExists($attachment, 'originalAttachment', $prefix.'originalAttachment in attachment array'.$logSuffix);
+            Assert::keyExists($file, 'statementsWithAttachments', $prefix.'statementsWithAttachments'.$logSuffix);
+            Assert::isArray($file['statementsWithAttachments'], 'Array expected under the key statementsWithAttachments'.$logSuffix);
+            foreach ($file['statementsWithAttachments'] as $statementData) {
+                Assert::keyExists($statementData, 'folderName', $prefix.'folderName in statement data'.$logSuffix);
+                Assert::keyExists($statementData, 'pdf', $prefix.'pdf in statement data'.$logSuffix);
+                Assert::isArray($statementData['pdf'], 'Array expected for pdf in statement data'.$logSuffix);
+                Assert::keyExists($statementData['pdf'], 'name', $prefix.'name in pdf data'.$logSuffix);
+                Assert::keyExists($statementData['pdf'], 'content', $prefix.'content in pdf data'.$logSuffix);
+                Assert::keyExists($statementData, 'attachments', $prefix.'attachments in statement data'.$logSuffix);
+                Assert::isArray($statementData['attachments'], 'Array expected for attachments'.$logSuffix);
             }
         }
     }
