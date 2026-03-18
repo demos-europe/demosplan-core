@@ -198,7 +198,7 @@ export default {
         return false
       }
 
-      return this.phases.some(phase => phase.name.trim().toLowerCase() === trimmedName.toLowerCase())
+      return this.phases.some(phase => phase.audience === this.newPhase.audience && phase.name.trim().toLowerCase() === trimmedName.toLowerCase())
     },
 
     permissionSetOptions () {
