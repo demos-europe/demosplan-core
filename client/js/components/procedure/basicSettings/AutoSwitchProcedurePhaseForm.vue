@@ -440,12 +440,11 @@ export default {
     },
 
     setSelectedPhase () {
-      const evaluationPhase = 'evaluating'
-
       if (this.isParticipationPhaseSelected) {
-        this.selectedPhase = evaluationPhase
+        const evaluatingPhase = this.phaseOptions.find(phase => phase.participationState === 'finished')
+        this.selectedPhase = evaluatingPhase ? evaluatingPhase.value : this.phaseOptions[0]?.value ?? ''
       } else {
-        this.selectedPhase = this.phaseOptions[0].value
+        this.selectedPhase = this.phaseOptions[0]?.value ?? ''
       }
     },
   },

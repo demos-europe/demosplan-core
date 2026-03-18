@@ -106,8 +106,8 @@
         :init-auth-users="JSON.parse('{{ selectedAuthUsers|default([])|json_encode|e('js', 'utf-8') }}')"
         :init-data-input-orgas="JSON.parse('{{ selectedDataInputOrgas|default([])|json_encode|e('js', 'utf-8') }}')"
         :init-procedure-categories="JSON.parse('{{ selectedProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
-        init-procedure-phase-internal="{{ proceduresettings.phase }}"
-        init-procedure-phase-public="{{ proceduresettings.publicParticipationPhase }}"
+        init-procedure-phase-internal="{{ proceduresettings.phaseObject.phaseDefinition.id }}"
+        init-procedure-phase-public="{{ proceduresettings.publicParticipationPhaseObject.phaseDefinition.id }}"
         :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
         :init-public-participation-feedback-enabled="{{ proceduresettings.settings.publicParticipationFeedbackEnabled ? 'true' : 'false' }}"
         init-pictogram-alt-text="{{ proceduresettings.pictogramAltText|default }}"
@@ -830,6 +830,7 @@
                                     <auto-switch-procedure-phase-form
                                         :available-procedure-phases="JSON.parse('{{ templateVars.internalPhaseDefinitions|map(definition => {
                                             label: definition.name,
+                                            participationState: definition.participationState,
                                             permission: definition.permissionSet,
                                             value: definition.id
                                         })|json_encode|e('js', 'utf-8') }}')"
@@ -962,6 +963,7 @@
                                     <auto-switch-procedure-phase-form
                                         :available-procedure-phases="JSON.parse('{{ templateVars.externalPhaseDefinitions|map(definition => {
                                             label: definition.name,
+                                            participationState: definition.participationState,
                                             permission: definition.permissionSet,
                                             value: definition.id
                                         })|json_encode|e('js', 'utf-8') }}')"

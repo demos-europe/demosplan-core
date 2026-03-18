@@ -1430,6 +1430,9 @@ class ProcedureService implements ProcedureServiceInterface
         $procedureSettings->setDesignatedSwitchDate(null);
         $procedureSettings->setDesignatedEndDate(null);
         $procedureSettings->setDesignatedPhaseChangeUser(null);
+        $procedureSettings->getProcedure()
+            ->getPhaseObject()
+            ->setDesignatedPhaseDefinition(null);
     }
 
     private function resetDesignatedPublicPhaseSwitch(ProcedureSettings $procedureSettings): void
@@ -1438,6 +1441,9 @@ class ProcedureService implements ProcedureServiceInterface
         $procedureSettings->setDesignatedPublicSwitchDate(null);
         $procedureSettings->setDesignatedPublicEndDate(null);
         $procedureSettings->setDesignatedPublicPhaseChangeUser(null);
+        $procedureSettings->getProcedure()
+            ->getPublicParticipationPhaseObject()
+            ->setDesignatedPhaseDefinition(null);
     }
 
     private function getUserIdOrNull(?User $user): ?string

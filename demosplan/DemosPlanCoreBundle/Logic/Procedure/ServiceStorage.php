@@ -549,12 +549,16 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'designatedSwitchDate');
                 $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'designatedPhase');
                 $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'designatedEndDate');
+                if (array_key_exists('r_designatedPhase', $data) && null !== $data['r_designatedPhase']) {
+                    $procedure['settings']['designatedPhaseDefinition'] = $this->procedurePhaseDefinitionRepository->find($data['r_designatedPhase']);
+                }
             }
         } else {
             // no autoswitchdate set, remove all Fields
             $procedure['settings']['designatedSwitchDate'] = null;
             $procedure['settings']['designatedPhase'] = null;
             $procedure['settings']['designatedEndDate'] = null;
+            $procedure['settings']['designatedPhaseDefinition'] = null;
         }
 
         // check for autoswitch mandatory fields public phase
@@ -584,12 +588,16 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'designatedPublicSwitchDate');
                 $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'designatedPublicPhase');
                 $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'designatedPublicEndDate');
+                if (array_key_exists('r_designatedPublicPhase', $data) && null !== $data['r_designatedPublicPhase']) {
+                    $procedure['settings']['designatedPublicPhaseDefinition'] = $this->procedurePhaseDefinitionRepository->find($data['r_designatedPublicPhase']);
+                }
             }
         } else {
             // no autoswitchdate set, remove all Fields
             $procedure['settings']['designatedPublicSwitchDate'] = null;
             $procedure['settings']['designatedPublicPhase'] = null;
             $procedure['settings']['designatedPublicEndDate'] = null;
+            $procedure['settings']['designatedPublicPhaseDefinition'] = null;
         }
 
         if ($this->permissions->hasPermission('feature_statement_notify_counties')) {

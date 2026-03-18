@@ -1411,6 +1411,12 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedureSettings->setDesignatedPublicPhase($data['settings']['designatedPublicPhase']);
         }
 
+        if (array_key_exists('designatedPublicPhaseDefinition', $data['settings'])) {
+            $procedureSettings->getProcedure()
+                ->getPublicParticipationPhaseObject()
+                ->setDesignatedPhaseDefinition($data['settings']['designatedPublicPhaseDefinition']);
+        }
+
         if (array_key_exists('designatedPublicEndDate', $data['settings'])) {
             $convertedDate = $this->convertUserInputDate($data['settings']['designatedPublicEndDate']);
             $procedureSettings->setDesignatedPublicEndDate($convertedDate);
@@ -1435,6 +1441,12 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
         if (array_key_exists('designatedPhase', $data['settings'])) {
             $procedureSettings->setDesignatedPhase($data['settings']['designatedPhase']);
+        }
+
+        if (array_key_exists('designatedPhaseDefinition', $data['settings'])) {
+            $procedureSettings->getProcedure()
+                ->getPhaseObject()
+                ->setDesignatedPhaseDefinition($data['settings']['designatedPhaseDefinition']);
         }
 
         if (array_key_exists('designatedEndDate', $data['settings'])) {
