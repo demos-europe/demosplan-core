@@ -526,6 +526,7 @@
               :resource-id="statement.id"
               :show-empty="true"
               :title-info-text="Translator.trans('custom.fields.submitter.info')"
+              batch-filter-path="procedure.id"
               resource-type="Statement"
               title-class="font-[600] mb-2"
               @has-content="val => hasCustomFieldContent = val"

@@ -115,6 +115,7 @@
           :resource-id="statementId"
           :show-empty="false"
           :title-info-text="Translator.trans('custom.fields.submitter.info')"
+          batch-filter-path="procedure.id"
           class="px-4 mb-4"
           mode="readonly"
           resource-type="OriginalStatement"
