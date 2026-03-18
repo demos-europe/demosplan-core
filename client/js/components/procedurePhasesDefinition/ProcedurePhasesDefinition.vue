@@ -198,7 +198,10 @@ export default {
         return false
       }
 
-      return this.phases.some(phase => phase.name.trim().toLowerCase() === trimmedName.toLowerCase())
+      return this.phases.some(phase =>
+        phase.audience === this.newPhase.audience &&
+        phase.name.trim().toLowerCase() === trimmedName.toLowerCase()
+      )
     },
 
     permissionSetOptions () {
@@ -218,7 +221,9 @@ export default {
     createPhase () {
       this.isLoading = true
 
-      dpApi.post(Routing.generate('api_resource_create', { resourceType: 'ProcedurePhaseDefinition' }), {}, {
+      dpApi.post(Routing.generate('api_resource_create', {
+        resourceType: 'ProcedurePhaseDefinition',
+      }), {}, {
         data: {
           type: 'ProcedurePhaseDefinition',
           attributes: {
