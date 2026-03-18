@@ -14,17 +14,111 @@ namespace demosplan\DemosPlanCoreBundle\Logic\OAuth;
 
 use DateTime;
 use DateTimeZone;
+use DemosEurope\DemosplanAddon\Controller\APIController;
+use demosplan\DemosPlanCoreBundle\Controller\GenericRpcController;
 use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
+use Exception;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
- * Service for checking OAuth token expiration status.
+ * Service for OAuth token expiration checks and expired-token response handling.
  *
- * This service contains pure business logic for token expiration checks.
- * Methods accept OAuthToken entities directly for maximum performance -
+ * Expiration check methods accept OAuthToken entities directly for maximum performance —
  * callers can fetch the entity once and perform multiple checks.
+ * handleExpiredTokens() orchestrates the full response when tokens are expired:
+ * buffering the request, storing the id_token for logout, and redirecting or returning
+ * a 401 depending on the controller type.
  */
 class TokenExpirationService
 {
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        private readonly OAuthTokenStorageService $oauthTokenStorageService,
+        private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
+        private readonly RouterInterface $router,
+        private readonly TokenEncryptionService $tokenEncryptionService,
+    ) {
+    }
+
+    /**
+     * Store id_token in session, buffer the current request, and redirect to logout.
+     *
+     * Accepts a nullable OAuthToken — when null (no stored credentials found), buffering
+     * and id_token storage are skipped but the API vs redirect decision is still enforced.
+     */
+    public function handleExpiredTokens(ControllerEvent $event, ?OAuthToken $oauthToken): void
+    {
+        $request = $event->getRequest();
+        $session = $request->getSession();
+
+        if (null !== $oauthToken) {
+            try {
+                $encryptedIdToken = $oauthToken->getIdToken();
+                if (null !== $encryptedIdToken) {
+                    $this->ozgKeycloakSessionManager->storeIdTokenForLogout(
+                        $session,
+                        $this->tokenEncryptionService->decrypt($encryptedIdToken)
+                    );
+                }
+            } catch (Exception $e) {
+                $this->logger->error('Failed to store id_token for logout', ['error' => $e->getMessage()]);
+            }
+
+            $this->oauthTokenStorageService->bufferRequestIfNeeded($oauthToken);
+
+            // Store page URL for redirect-back after re-authentication.
+            // For POST requests this is a cheap redundant write — bufferRequestIfNeeded already set it.
+            // For GET requests this is the only write.
+            try {
+                $this->oauthTokenStorageService->storePendingPageUrl($oauthToken, $request->getPathInfo());
+            } catch (Exception $e) {
+                $this->logger->error('Failed to store pending page URL for redirect-back', ['error' => $e->getMessage()]);
+            }
+        }
+
+        $controller = $this->resolveController($event);
+
+        if ($controller instanceof APIController) {
+            $response = $controller->handleApiError(new AccessDeniedException('Token expired'));
+            $event->setController(fn () => $response);
+
+            return;
+        }
+
+        if ($controller instanceof GenericRpcController) {
+            $response = new JsonResponse(['error' => 'Token expired'], Response::HTTP_UNAUTHORIZED);
+            $event->setController(fn () => $response);
+
+            return;
+        }
+
+        $this->redirectToLogout($event);
+    }
+
+    private function resolveController(ControllerEvent $event): ?object
+    {
+        $callable = $event->getController();
+        $target = is_array($callable) ?
+            $callable[0] ?? null
+            : $callable;
+
+        return is_object($target) ? $target : null;
+    }
+
+    private function redirectToLogout(ControllerEvent $event): void
+    {
+        $this->logger->info('Token expired, redirecting to logout');
+
+        $redirectResponse = new RedirectResponse($this->router->generate('DemosPlan_user_logout'));
+        $event->setController(static fn () => $redirectResponse);
+    }
 
     /**
      * Check if the access token is currently expired.

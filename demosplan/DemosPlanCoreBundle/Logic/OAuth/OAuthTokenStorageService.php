@@ -27,6 +27,8 @@ use Exception;
 use InvalidArgumentException;
 use League\OAuth2\Client\Token\AccessToken;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Webmozart\Assert\Assert;
@@ -39,16 +41,15 @@ use Webmozart\Assert\Assert;
  */
 class OAuthTokenStorageService
 {
-
     public function __construct(
-        private readonly OAuthTokenRepository $oauthTokenRepository,
-        private readonly UserRepository $userRepository,
-        private readonly TokenEncryptionService $encryptionService,
         private readonly EntityManagerInterface $entityManager,
         private readonly LoggerInterface $logger,
-        private readonly ValidatorInterface $validator,
-        private readonly RequestStack $requestStack,
+        private readonly OAuthTokenRepository $oauthTokenRepository,
         private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
+        private readonly RequestStack $requestStack,
+        private readonly TokenEncryptionService $encryptionService,
+        private readonly UserRepository $userRepository,
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -314,6 +315,91 @@ class OAuthTokenStorageService
             'user_id'  => $oauthToken->getUser()->getId(),
             'page_url' => $pageUrl,
         ]);
+    }
+
+    /**
+     * Buffer the request if it is worth preserving (non-idempotent, not a logout request).
+     */
+    public function bufferRequestIfNeeded(OAuthToken $oauthToken): void
+    {
+        $request = $this->requestStack->getCurrentRequest();
+
+        if (null === $request || !$this->shouldBufferRequest($request)) {
+            return;
+        }
+
+        try {
+            $requestData = new PendingRequestData();
+            $requestData->fill([
+                'pageUrl'       => $request->getPathInfo(),
+                'requestUrl'    => $request->getRequestUri(),
+                'method'        => $request->getMethod(),
+                'contentType'   => $request->headers->get('Content-Type'),
+                'hasFiles'      => $request->files->count() > 0,
+                'filesMetadata' => $this->getFilesMetadata($request),
+                'timestamp'     => new DateTime('now', new DateTimeZone(OAuthToken::TIMEZONE)),
+                'body'          => $this->getRequestBody($request),
+            ]);
+
+            $this->storePendingRequest($oauthToken, $requestData);
+
+            $this->logger->info('Request buffered for replay after re-authentication', [
+                'method' => $request->getMethod(),
+                'url'    => $request->getRequestUri(),
+            ]);
+        } catch (Exception $e) {
+            $this->logger->error('Failed to buffer request', ['error' => $e->getMessage()]);
+        }
+    }
+
+    private function shouldBufferRequest(Request $request): bool
+    {
+        if (in_array($request->getMethod(), ['GET', 'HEAD', 'OPTIONS'], true)) {
+            return false;
+        }
+
+        if (str_contains($request->getPathInfo(), '/logout')) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function getRequestBody(Request $request): ?string
+    {
+        $content = $request->getContent();
+
+        return '' !== $content ? $content : null;
+    }
+
+    private function getFilesMetadata(Request $request): ?array
+    {
+        if (0 === $request->files->count()) {
+            return null;
+        }
+
+        $metadata = [];
+        foreach ($request->files->all() as $key => $file) {
+            if (is_array($file)) {
+                /** @var UploadedFile $subFile */
+                foreach ($file as $subKey => $subFile) {
+                    $metadata[$key][$subKey] = [
+                        'name' => $subFile->getClientOriginalName(),
+                        'size' => $subFile->getSize(),
+                        'type' => $subFile->getClientMimeType(),
+                    ];
+                }
+            } else {
+                /* @var UploadedFile $file */
+                $metadata[$key] = [
+                    'name' => $file->getClientOriginalName(),
+                    'size' => $file->getSize(),
+                    'type' => $file->getClientMimeType(),
+                ];
+            }
+        }
+
+        return $metadata;
     }
 
     /**

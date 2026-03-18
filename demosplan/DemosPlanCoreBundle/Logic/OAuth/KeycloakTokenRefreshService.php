@@ -12,11 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\OAuth;
 
+use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use demosplan\DemosPlanCoreBundle\Repository\OAuthTokenRepository;
 use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Lock\LockFactory;
 
 /**
@@ -41,11 +44,70 @@ class KeycloakTokenRefreshService
 {
     public function __construct(
         private readonly ClientRegistry $clientRegistry,
-        private readonly OAuthTokenStorageService $tokenStorageService,
-        private readonly OAuthTokenRepository $oauthTokenRepository,
         private readonly LockFactory $lockFactory,
         private readonly LoggerInterface $logger,
+        private readonly OAuthTokenRepository $oauthTokenRepository,
+        private readonly OAuthTokenStorageService $tokenStorageService,
+        private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
+        private readonly TokenExpirationService $tokenExpirationService,
     ) {
+    }
+
+    /**
+     * Checks whether the user has valid OAuth tokens, refreshing if needed. Costs at least one DB query.
+     *
+     * Returns true if access token is valid or was successfully refreshed.
+     * Returns false if both tokens are expired or refresh failed.
+     */
+    public function hasValidTokens(SessionInterface $session, OAuthToken $oauthToken): bool
+    {
+        $this->logger->debug('Token check threshold reached - performing validation', [
+            'user_id'      => $oauthToken->getUser()->getId(),
+            'current_time' => date('Y-m-d H:i:s', time()),
+        ]);
+
+        if (!$this->tokenExpirationService->isAccessTokenExpired($oauthToken)) {
+            $this->ozgKeycloakSessionManager->syncSession($session, $oauthToken->getUser()->getId(), $oauthToken->getAccessTokenExpiresAt(), $oauthToken->getRefreshTokenExpiresAt());
+
+            return true;
+        }
+
+        return $this->tryRefreshTokens($oauthToken);
+    }
+
+    /**
+     * Check whether a refresh is possible and attempt it.
+     *
+     * Returns true if the refresh token is still valid and the refresh succeeded.
+     * Returns false if the refresh token is expired or the refresh failed.
+     *
+     * NOTE: On success, the session threshold is updated implicitly via
+     * refreshTokensForUser() → OAuthTokenStorageService::storeTokens()
+     * → OzgKeycloakSessionManager::syncSession(). No explicit syncSession() call is needed.
+     */
+    public function tryRefreshTokens(OAuthToken $oauthToken): bool
+    {
+        $userId = $oauthToken->getUser()->getId();
+
+        $this->logger->info('Access token expired - checking refresh token', ['user_id' => $userId]);
+
+        if ($this->tokenExpirationService->isRefreshTokenExpired($oauthToken)) {
+            $this->logger->info('Refresh token also expired', ['user_id' => $userId]);
+
+            return false;
+        }
+
+        $refreshSuccess = $this->refreshTokensForUser($userId);
+
+        if (!$refreshSuccess) {
+            $this->logger->error('Token refresh failed', ['user_id' => $userId]);
+
+            return false;
+        }
+
+        $this->logger->info('Token refresh successful - continuing request', ['user_id' => $userId]);
+
+        return true;
     }
 
     /**
