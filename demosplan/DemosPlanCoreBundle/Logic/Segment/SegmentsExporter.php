@@ -116,7 +116,7 @@ abstract class SegmentsExporter
             $this->styles['documentTitleParagraph']
         );
 
-        //$this->addPreambleIfFirstHeader($header, $headerType, $exportFilteredByTagsWithTopics);
+        // $this->addPreambleIfFirstHeader($header, $headerType, $exportFilteredByTagsWithTopics);
 
         $currentDate = new DateTime();
         $translationKey = [] !== $exportFilteredByTagsWithTopics ?
@@ -153,8 +153,8 @@ abstract class SegmentsExporter
 
     /**
      * This function adds a metadata sheet as the first page in the docx export, including the name of the initiator of the export, tags and tag topics.
-     * If no tags were applied, a generic header is used instead
-    */
+     * If no tags were applied, a generic header is used instead.
+     */
     protected function addMetaDataSheet(PhpWord $phpWord, array $exportTagTitles = []): void
     {
         $section = $phpWord->addSection($this->styles['globalSection']);

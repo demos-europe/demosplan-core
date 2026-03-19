@@ -182,7 +182,7 @@ class SecurityValidationListener implements EventSubscriberInterface
 
         foreach ($queryParams as $key => $value) {
             // Parameter name too long
-            if (strlen((string) $key) > self::MAX_PARAMETER_NAME_LENGTH) {
+            if (strlen($key) > self::MAX_PARAMETER_NAME_LENGTH) {
                 return true;
             }
 

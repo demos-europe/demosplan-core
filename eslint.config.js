@@ -4,7 +4,6 @@ const pluginJest = require('eslint-plugin-jest')
 const pluginJquery = require('eslint-plugin-jquery')
 const js = require('@eslint/js')
 const pluginImportExtensions = require('eslint-plugin-import')
-const tseslint = require('typescript-eslint')
 
 module.exports = [
   {
@@ -96,7 +95,7 @@ module.exports = [
   },
   {
     name: 'app/jest-rules',
-    files: ['**/*.test.{js,ts}', '**/*.spec.{js,ts}', '**/tests/**/*.{js,ts}'],
+    files: ['**/*.test.js', '**/*.spec.js', '**/tests/**/*.js'],
     plugins: {
       jest: pluginJest,
     },
@@ -107,29 +106,6 @@ module.exports = [
     },
     rules: {
       ...pluginJest.configs.recommended.rules,
-    },
-  },
-  {
-    name: 'app/ts-rules',
-    files: ['**/*.ts', '**/*.vue'],
-    languageOptions: {
-      parser: require('vue-eslint-parser'),
-      parserOptions: {
-        parser: tseslint.parser,
-        extraFileExtensions: ['.vue'],
-      },
-    },
-    plugins: {
-      '@typescript-eslint': tseslint.plugin,
-    },
-    rules: {
-      '@typescript-eslint/no-unused-vars': ['error', {
-        args: 'none',
-        varsIgnorePattern: '^_',
-        argsIgnorePattern: '^_|^(state|commit|dispatch|getters|rootState|rootGetters)$',
-        caughtErrors: 'none',
-      }],
-      'no-unused-vars': 'off',
     },
   },
   {
@@ -183,7 +159,7 @@ module.exports = [
     rules: {
       // Do not allow file extensions when importing .js and .vue files, enforce extension on json files.
       'import/extensions': ['error', 'never', {
-        json: 'always', js: 'never', vue: 'never', ts: 'never',
+        json: 'always', js: 'never', vue: 'never',
       }],
 
       'capitalized-comments': ['error', 'always', {

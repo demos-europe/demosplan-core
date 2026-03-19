@@ -316,21 +316,27 @@ export default {
     },
 
     save () {
-      const attrs = this.localStatement.attributes
-      this.$emit('save', {
+      // Get current statement from store (includes any relationship changes from SimilarStatementSubmitter)
+      const currentStatement = this.statements[this.statement.id]
+
+      const updatedStatement = {
+        ...currentStatement,
         attributes: {
-          initialOrganisationDepartmentName: attrs.initialOrganisationDepartmentName,
-          initialOrganisationName: attrs.initialOrganisationName,
-          authorName: attrs.authorName,
-          submitName: attrs.submitName,
-          submitterEmailAddress: attrs.submitterEmailAddress,
-          representationChecked: attrs.representationChecked,
-          initialOrganisationStreet: attrs.initialOrganisationStreet,
-          initialOrganisationHouseNumber: attrs.initialOrganisationHouseNumber,
-          initialOrganisationPostalCode: attrs.initialOrganisationPostalCode,
-          initialOrganisationCity: attrs.initialOrganisationCity,
+          ...currentStatement.attributes,
+          initialOrganisationDepartmentName: this.localStatement.attributes.initialOrganisationDepartmentName,
+          initialOrganisationName: this.localStatement.attributes.initialOrganisationName,
+          authorName: this.localStatement.attributes.authorName,
+          submitName: this.localStatement.attributes.submitName,
+          submitterEmailAddress: this.localStatement.attributes.submitterEmailAddress,
+          representationChecked: this.localStatement.attributes.representationChecked,
+          initialOrganisationStreet: this.localStatement.attributes.initialOrganisationStreet,
+          initialOrganisationHouseNumber: this.localStatement.attributes.initialOrganisationHouseNumber,
+          initialOrganisationPostalCode: this.localStatement.attributes.initialOrganisationPostalCode,
+          initialOrganisationCity: this.localStatement.attributes.initialOrganisationCity,
         },
-      })
+      }
+
+      this.$emit('save', updatedStatement)
     },
 
     setInitValues () {

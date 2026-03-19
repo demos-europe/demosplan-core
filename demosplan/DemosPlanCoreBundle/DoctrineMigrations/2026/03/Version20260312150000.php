@@ -34,7 +34,7 @@ class Version20260312150000 extends AbstractMigration
         $columnExists = $this->connection->fetchOne("SHOW COLUMNS FROM customer_oauth_config LIKE 'default_organisation_id'");
         if (false === $columnExists) {
             $this->addSql('ALTER TABLE customer_oauth_config ADD default_organisation_id CHAR(36) DEFAULT NULL');
-            $this->addSql('ALTER TABLE customer_oauth_config ADD CONSTRAINT FK_customer_oauth_default_org FOREIGN KEY (default_organisation_id) REFERENCES _orga (_o_id) ON DELETE SET NULL');
+            $this->addSql('ALTER TABLE customer_oauth_config ADD CONSTRAINT FK_customer_oauth_default_org FOREIGN KEY (default_organisation_id) REFERENCES orga (_o_id) ON DELETE SET NULL');
         }
     }
 

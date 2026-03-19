@@ -25,7 +25,7 @@ for (const alias in aliases) {
 module.exports = {
   // Verbose: true, // enable to see result of each test case
   testEnvironment: 'jsdom',
-  testRegex: '/tests/.*(test|spec)\\.(js|ts)?$',
+  testRegex: '/tests/.*(test|spec)\\.js?$',
   rootDir: config.absoluteRoot,
   roots: [
     'tests/frontend/',
@@ -35,7 +35,6 @@ module.exports = {
   ],
   moduleFileExtensions: [
     'js',
-    'ts',
     'json',
     'vue',
   ],
@@ -47,7 +46,7 @@ module.exports = {
     '<rootDir>',
   ],
   transform: {
-    '^.+\\.(js|ts|mjs)$': '<rootDir>/node_modules/babel-jest',
+    '^.+\\.(js|mjs)$': '<rootDir>/node_modules/babel-jest',
     '.*\\.(vue)$': '<rootDir>/node_modules/@vue/vue3-jest',
   },
   transformIgnorePatterns: [
