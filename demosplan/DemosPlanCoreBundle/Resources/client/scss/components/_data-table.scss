@@ -17,7 +17,7 @@
 
 
 .c-data-table {
-    $data-table-padding-cell: $inuit-base-spacing-unit--tiny;
+    $data-table-padding-cell: $inuit-base-spacing-unit--small;
 
     // Styling needed for resizable datatable
     .resizing {
@@ -70,6 +70,7 @@
 
         th.c-data-table__resizable.is-resizing,
         td.is-resizing {
+            background-color: var(--dp-color-interactive-subtle-hover);
             box-shadow: inset -2px 0 0 var(--dp-color-interactive);
         }
 
