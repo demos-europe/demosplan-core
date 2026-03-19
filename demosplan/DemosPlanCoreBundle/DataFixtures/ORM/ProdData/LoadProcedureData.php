@@ -55,7 +55,6 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
 
     public function load(ObjectManager $manager): void
     {
-        $masterProcedurePhase = 'configuration';
         $anonymousUser = new AnonymousUser();
         $this->permissions->initPermissions($anonymousUser);
 
@@ -63,8 +62,8 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         $procedureMaster->setName('Master');
         $procedureMaster->setOrga($this->getReference('orga_demos'));
         $procedureMaster->setOrgaName('DEMOS plan GmbH');
-        $procedureMaster->setPhase($masterProcedurePhase);
-        $procedureMaster->setPublicParticipationPhase($masterProcedurePhase);
+        $procedureMaster->getPhaseObject()->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::INTERNAL_CONFIGURATION_PHASE_DEFINITION));
+        $procedureMaster->getPublicParticipationPhaseObject()->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::EXTERNAL_CONFIGURATION_PHASE_DEFINITION));
         $procedureMaster->setMaster(true);
         $procedureMaster->setMasterTemplate(true);
         $procedureMaster->setAgencyMainEmailAddress('ihre@emailadresse.de');
@@ -152,6 +151,7 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
     public function getDependencies()
     {
         return [
+            LoadProcedurePhaseDefinitionData::class,
             LoadUserData::class,
         ];
     }
