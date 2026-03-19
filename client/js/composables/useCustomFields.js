@@ -8,7 +8,6 @@
  */
 
 import { dpApi } from '@demos-europe/demosplan-ui'
-import { ref } from 'vue'
 
 /**
  * Module-level shared Map for custom field definitions
@@ -173,7 +172,6 @@ function fetchBatchValues (resourceType, definitionSourceId, cacheKey, filterPat
  *   fetchCustomFields,
  *   fetchCustomFieldValues,
  *   getCustomFieldsDefinitions,
- *   isLoading,
  *   updateCustomFields,
  * }
  *
@@ -192,8 +190,6 @@ function fetchBatchValues (resourceType, definitionSourceId, cacheKey, filterPat
  *   .catch(err => console.error(err))
  */
 export function useCustomFields () {
-  const isLoading = ref(false)
-
   /**
    * Clear custom field definitions for a specific procedure or all procedures
    * Useful for forcing a refresh after updates
@@ -254,8 +250,6 @@ export function useCustomFields () {
       return pendingFetches.get(definitionSourceId)
     }
 
-    isLoading.value = true
-
     const url = Routing.generate('api_resource_list', {
       resourceType: 'CustomField',
     })
@@ -274,32 +268,19 @@ export function useCustomFields () {
       },
     }
 
-    // Create and cache the promise
     const fetchPromise = dpApi.get(url, params)
       .then(response => {
         const customFields = response.data.data || []
-
-        // Cache the definitions in the shared Map
         customFieldsDefinitions.set(definitionSourceId, customFields)
-
-        isLoading.value = false
-
-        // Remove from pending fetches after successful completion
         pendingFetches.delete(definitionSourceId)
-
         return customFields
       })
       .catch(err => {
-        isLoading.value = false
-
-        // Remove from pending fetches on error to allow retry
         pendingFetches.delete(definitionSourceId)
-
         dplan.notify.notify('error', Translator.trans('custom.fields.error.loading'))
         throw err
       })
 
-    // Cache the pending promise
     pendingFetches.set(definitionSourceId, fetchPromise)
 
     return fetchPromise
@@ -432,7 +413,6 @@ export function useCustomFields () {
     fetchCustomFieldValues,
     getCustomFieldsDefinitions,
     hasCachedValues,
-    isLoading,
     updateCustomFields,
   }
 }
