@@ -2163,6 +2163,7 @@ layer: "Kartenebene"
 # @TODO refactor everything to use "gislayer..." when referring to "Kartenebenen"
 # and "layer..." when referring to the layer inside of a getCapabilities response
 layers: "Layer"
+layout.info: "Hinweis zu Darstellungen:<br>Darstellungen werden im Text referenziert und direkt unter der zugehörigen Stellungnahme oder Einwendung angezeigt. Der Verweis im Text enthält die jeweilige Stellungnahme-ID sowie den Typ: „Stel“ (Stellungnahme/Einwendung) oder „Erw“ (Erwiderung) und eine Nummerierung (z.B. M12_Darstellung_Erw_00). Mit einem Klick auf den Verweis können Sie direkt zur Darstellung springen."
 legend: "Legende"
 legend.download: "Legende herunterladen"
 legend.not_available: "Legende nicht verfügbar"
