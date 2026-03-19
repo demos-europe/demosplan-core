@@ -62,17 +62,17 @@ final class DraftStatementResourceType extends DplanResourceType
 
     public function isGetAllowed(): bool
     {
-        return true; // @todo still needs to be adjusted
+        return $this->currentUser->hasPermission('area_statements_draft');
     }
 
     public function isListAllowed(): bool
     {
-        return true; // @todo still needs to be adjusted
+        return $this->currentUser->hasPermission('area_statements_draft');
     }
 
     public function isUpdateAllowed(): bool
     {
-        return $this->currentUser->hasPermission('feature_statements_custom_fields');
+        return $this->currentUser->hasAllPermissions('area_statements_draft');
     }
 
     protected function getProperties(): ResourceConfigBuilderInterface
