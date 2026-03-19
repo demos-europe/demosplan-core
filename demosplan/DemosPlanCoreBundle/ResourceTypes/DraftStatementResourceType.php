@@ -26,7 +26,10 @@ use EDT\PathBuilding\End;
 
 /**
  * @template-extends DplanResourceType<DraftStatementInterface>
- *
+ * @property-read ProcedureResourceType $procedure
+ * @property-read UserResourceType $user
+ * @property-read OrgaResourceType $organisation
+ * @property-read End $deleted
  * @property-read End $customFields
  */
 final class DraftStatementResourceType extends DplanResourceType
