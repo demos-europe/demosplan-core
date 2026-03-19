@@ -18,8 +18,8 @@ use Doctrine\Persistence\ObjectManager;
  */
 class LoadProcedurePhaseDefinitionData extends TestFixture
 {
-    final public const TEST_INTERNAL_PHASE_DEFINITION = 'testInternalPhaseDefinition';
-    final public const TEST_EXTERNAL_PHASE_DEFINITION = 'testExternalPhaseDefinition';
+    final public const TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION = 'testInternalParticipationPhaseDefinition';
+    final public const TEST_EXTERNAL_PARTICIPATION_PHASE_DEFINITION = 'testExternalParticipationPhaseDefinition';
     final public const TEST_INTERNAL_CONFIGURATION_PHASE_DEFINITION = 'testInternalConfigurationPhaseDefinition';
     final public const TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION = 'testExternalConfigurationPhaseDefinition';
 
@@ -31,7 +31,7 @@ class LoadProcedurePhaseDefinitionData extends TestFixture
         $internalDefinition->setPermissionSet('write');
         $internalDefinition->setOrderInAudience(1);
         $manager->persist($internalDefinition);
-        $this->setReference(self::TEST_INTERNAL_PHASE_DEFINITION, $internalDefinition);
+        $this->setReference(self::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION, $internalDefinition);
 
         $externalDefinition = new ProcedurePhaseDefinition();
         $externalDefinition->setName('Öffentliche Auslegung');
@@ -39,7 +39,7 @@ class LoadProcedurePhaseDefinitionData extends TestFixture
         $externalDefinition->setPermissionSet('write');
         $externalDefinition->setOrderInAudience(1);
         $manager->persist($externalDefinition);
-        $this->setReference(self::TEST_EXTERNAL_PHASE_DEFINITION, $externalDefinition);
+        $this->setReference(self::TEST_EXTERNAL_PARTICIPATION_PHASE_DEFINITION, $externalDefinition);
 
         $internalConfigurationDefinition = new ProcedurePhaseDefinition();
         $internalConfigurationDefinition->setName('Konfiguration');

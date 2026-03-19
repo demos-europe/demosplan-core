@@ -660,7 +660,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $statement->addPriorityArea($locationArray['priorityArea']);
         $statement->setMeta((new StatementMeta())->setStatement($statement)->setAuthorName('Max Mustermann'));
         $statement->setPublicVerified(Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED);
-        $statement->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PHASE_DEFINITION));
+        $statement->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
         $this->setReference(self::TESTPROCEDURE_STATEMENT, $statement);
         $this->manager->persist($statement);
     }
@@ -742,7 +742,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $draftStatement->setOName($this->testOrgaFP->getName());
         $draftStatement->setElement($this->getReference('testSingleDocumentElement'));
         $draftStatement->setParagraph($this->getReference('testParagraphVersion'));
-        $draftStatement->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PHASE_DEFINITION));
+        $draftStatement->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
         $draftStatement->setFile('Chrysanthemum.jpg:fefcd2bc-51a6-46c0-96a1-fbe62c9dc64c:879394:image/pjpeg');
         $draftStatement->setMapFile('Map_6e0f8e31-d468-465d-9087-4f0a69ec637c.png:e1883475-60cb-49c4-b0b6-11e4b5536e75');
         $this->setReference(self::TESTPROCEDURE_DRAFTSTATEMENT, $draftStatement);
@@ -925,9 +925,9 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
     private function setDefaultPhaseDefinitions(Procedure $procedure): void
     {
         /** @var ProcedurePhaseDefinition $internalDef */
-        $internalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PHASE_DEFINITION);
+        $internalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION);
         /** @var ProcedurePhaseDefinition $externalDef */
-        $externalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_PHASE_DEFINITION);
+        $externalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_PARTICIPATION_PHASE_DEFINITION);
 
         $procedure->getPhaseObject()->setPhaseDefinition($internalDef);
         $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($externalDef);

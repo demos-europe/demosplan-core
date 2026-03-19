@@ -53,7 +53,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $this->manager = $manager;
 
         /** @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition $phaseDefinition */
-        $phaseDefinition = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PHASE_DEFINITION);
+        $phaseDefinition = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION);
 
         /** @var Procedure $testProcedure */
         $testProcedure = $this->getReference(LoadProcedureData::TESTPROCEDURE);
@@ -1020,7 +1020,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $testParagraphVersion = $this->getReference('testparagraph4Version');
 
         /** @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition $phaseDefinition */
-        $phaseDefinition = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PHASE_DEFINITION);
+        $phaseDefinition = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION);
 
         // ClusterStatements:
         $clusterStatement22OfProcedureToDelete = new Statement();
@@ -1266,7 +1266,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement23WithPolygonAndMap->setMeta((new StatementMeta())->setStatement($statement23WithPolygonAndMap));
 
         $statement23WithPolygonAndMap->setPhaseDefinition(
-            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PHASE_DEFINITION)
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION)
         );
         $this->setReference('statement23WithPolygonAndMap', $statement23WithPolygonAndMap);
 
@@ -1288,7 +1288,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement->setMeta((new StatementMeta())->setStatement($statement));
 
         $statement->setPhaseDefinition(
-            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PHASE_DEFINITION)
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION)
         );
         $this->setReference(self::MANUAL_STATEMENT_IN_PUBLIC_PARTICIPATION_PHASE, $statement);
         $this->manager->persist($statement);
