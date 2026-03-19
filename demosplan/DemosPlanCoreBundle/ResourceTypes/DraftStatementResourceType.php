@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\DraftStatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
@@ -26,6 +27,10 @@ use EDT\PathBuilding\End;
 /**
  * @template-extends DplanResourceType<DraftStatementInterface>
  *
+ * @property-read ProcedureResourceType $procedure
+ * @property-read UserResourceType $user
+ * @property-read OrgaResourceType $organisation
+ * @property-read End $deleted
  * @property-read End $customFields
  */
 final class DraftStatementResourceType extends DplanResourceType
@@ -47,7 +52,7 @@ final class DraftStatementResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return true;
+        return $this->currentUser->hasPermission('area_statements_draft');
     }
 
     protected function getAccessConditions(): array
@@ -57,22 +62,39 @@ final class DraftStatementResourceType extends DplanResourceType
             return [$this->conditionFactory->false()];
         }
 
-        return [$this->conditionFactory->true()];
+        $user = $this->currentUser->getUser();
+        if (!$user instanceof User) {
+            return [$this->conditionFactory->false()];
+        }
+
+        return [
+            // Current procedure only
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
+
+            // Not deleted
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
+
+            // Same organization
+            $this->conditionFactory->propertyHasValue($user->getOrganisationId(), $this->organisation->id),
+
+            // Own drafts only (works for all user types)
+            $this->conditionFactory->propertyHasValue($user->getId(), $this->user->id),
+        ];
     }
 
     public function isGetAllowed(): bool
     {
-        return true; // @todo still needs to be adjusted
+        return $this->isAvailable();
     }
 
     public function isListAllowed(): bool
     {
-        return true; // @todo still needs to be adjusted
+        return $this->isGetAllowed();
     }
 
     public function isUpdateAllowed(): bool
     {
-        return $this->currentUser->hasPermission('feature_statements_custom_fields');
+        return $this->isGetAllowed();
     }
 
     protected function getProperties(): ResourceConfigBuilderInterface
