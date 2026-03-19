@@ -10,16 +10,13 @@
 // babel.config.js
 const config = {
   presets: [
-    [
-      '@babel/preset-env',
-      {
-        modules: false,
-        debug: false,
-        corejs: '3.9',
-        useBuiltIns: 'usage',
-      },
-      '@babel/preset-flow',
-    ],
+    ['@babel/preset-env', {
+      modules: false,
+      debug: false,
+      corejs: '3.9',
+      useBuiltIns: 'usage',
+    }],
+    '@babel/preset-typescript',
   ],
   plugins: [
     '@babel/transform-runtime',
