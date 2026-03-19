@@ -13,6 +13,7 @@ All rights reserved
       v-if="expandable"
       :class="prefixClass('flex items-center gap-1')"
       @click="handleDetailsOpen"
+      @keydown.enter="handleDetailsOpen"
     >
       <dp-details :summary="listTitle">
         <dp-loading
