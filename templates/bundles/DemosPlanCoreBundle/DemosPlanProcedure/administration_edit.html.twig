@@ -106,6 +106,10 @@
         :init-auth-users="JSON.parse('{{ selectedAuthUsers|default([])|json_encode|e('js', 'utf-8') }}')"
         :init-data-input-orgas="JSON.parse('{{ selectedDataInputOrgas|default([])|json_encode|e('js', 'utf-8') }}')"
         :init-procedure-categories="JSON.parse('{{ selectedProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
+        :external-phase-options="JSON.parse('{{ templateVars.externalPhaseDefinitions|default([])|map(definition => {
+            value: definition.id,
+            permissionset: definition.permissionSet
+        })|json_encode|e('js', 'utf-8') }}')"
         init-procedure-phase-internal="{{ proceduresettings.phaseObject.phaseDefinition.id }}"
         init-procedure-phase-public="{{ proceduresettings.publicParticipationPhaseObject.phaseDefinition.id }}"
         :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
