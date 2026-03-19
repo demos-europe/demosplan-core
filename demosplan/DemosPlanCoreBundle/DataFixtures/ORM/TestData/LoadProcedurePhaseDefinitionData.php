@@ -22,6 +22,8 @@ class LoadProcedurePhaseDefinitionData extends TestFixture
     final public const TEST_EXTERNAL_PARTICIPATION_PHASE_DEFINITION = 'testExternalParticipationPhaseDefinition';
     final public const TEST_INTERNAL_CONFIGURATION_PHASE_DEFINITION = 'testInternalConfigurationPhaseDefinition';
     final public const TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION = 'testExternalConfigurationPhaseDefinition';
+    final public const TEST_INTERNAL_CLOSED_PHASE_DEFINITION = 'testInternalClosedPhaseDefinition';
+    final public const TEST_EXTERNAL_CLOSED_PHASE_DEFINITION = 'testExternalClosedPhaseDefinition';
 
     public function load(ObjectManager $manager): void
     {
@@ -56,6 +58,22 @@ class LoadProcedurePhaseDefinitionData extends TestFixture
         $externalConfigurationDefinition->setOrderInAudience(0);
         $manager->persist($externalConfigurationDefinition);
         $this->setReference(self::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION, $externalConfigurationDefinition);
+
+        $closedDefinition = new ProcedurePhaseDefinition();
+        $closedDefinition->setName('Abgeschlossen');
+        $closedDefinition->setAudience('internal');
+        $closedDefinition->setPermissionSet('read');
+        $closedDefinition->setOrderInAudience(2);
+        $manager->persist($closedDefinition);
+        $this->setReference(self::TEST_INTERNAL_CLOSED_PHASE_DEFINITION, $closedDefinition);
+
+        $externalClosedDefinition = new ProcedurePhaseDefinition();
+        $externalClosedDefinition->setName('Abgeschlossen');
+        $externalClosedDefinition->setAudience('external');
+        $externalClosedDefinition->setPermissionSet('read');
+        $externalClosedDefinition->setOrderInAudience(2);
+        $manager->persist($externalClosedDefinition);
+        $this->setReference(self::TEST_EXTERNAL_CLOSED_PHASE_DEFINITION, $externalClosedDefinition);
 
         $manager->flush();
     }
