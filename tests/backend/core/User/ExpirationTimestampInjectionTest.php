@@ -35,8 +35,8 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
         parent::setUp();
 
         $parameterBag = new ParameterBag([
-            'session_lifetime_seconds'              => 7200,
-            'oauth_keycloak_logout_route'           => '',
+            'session_lifetime_seconds'               => 7200,
+            'oauth_keycloak_logout_route'            => '',
             'oauth_token_fast_path_interval_seconds' => 180,
         ]);
 

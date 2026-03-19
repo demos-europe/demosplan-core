@@ -182,7 +182,7 @@ class OzgKeycloakSessionManager
         SessionInterface $session,
         string $userId,
         ?DateTime $accessTokenExpiresAt,
-        ?DateTime $refreshTokenExpiresAt = null
+        ?DateTime $refreshTokenExpiresAt = null,
     ): void {
         $checkInterval = $this->parameterBag->get('oauth_token_fast_path_interval_seconds');
 

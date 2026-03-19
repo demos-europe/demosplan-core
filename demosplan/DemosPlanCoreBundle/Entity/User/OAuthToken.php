@@ -387,5 +387,4 @@ class OAuthToken implements EntityInterface
         $this->accessTokenExpiresAt = null;
         $this->refreshTokenExpiresAt = null;
     }
-
 }

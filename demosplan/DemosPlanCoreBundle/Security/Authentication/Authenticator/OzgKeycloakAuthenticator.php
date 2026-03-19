@@ -176,7 +176,6 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         return $this->traitOnAuthenticationSuccess($request, $token, $firewallName);
     }
 
-
     /**
      * Called when authentication is needed, but it's not sent.
      * This redirects to the 'login'.
