@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
  */
 class OAuthTokenRepository extends CoreRepository
 {
-
     /**
      * Find an OAuth token by user ID.
      *
