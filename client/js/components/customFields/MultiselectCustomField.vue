@@ -121,7 +121,7 @@ export default {
     handleUpdate (newValue) {
       this.$emit('update:value', {
         id: this.field.id,
-        value: newValue.map(opt => opt.id),
+        value: newValue.length > 0 ? newValue.map(opt => opt.id) : null,
       })
     },
   },
