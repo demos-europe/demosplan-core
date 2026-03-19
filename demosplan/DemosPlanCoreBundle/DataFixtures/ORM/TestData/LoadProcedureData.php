@@ -742,7 +742,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $draftStatement->setOName($this->testOrgaFP->getName());
         $draftStatement->setElement($this->getReference('testSingleDocumentElement'));
         $draftStatement->setParagraph($this->getReference('testParagraphVersion'));
-        $draftStatement->setPhase($this->existingInternalPhasesWrite[0] ?? 'participation');
+        $draftStatement->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PHASE_DEFINITION));
         $draftStatement->setFile('Chrysanthemum.jpg:fefcd2bc-51a6-46c0-96a1-fbe62c9dc64c:879394:image/pjpeg');
         $draftStatement->setMapFile('Map_6e0f8e31-d468-465d-9087-4f0a69ec637c.png:e1883475-60cb-49c4-b0b6-11e4b5536e75');
         $this->setReference(self::TESTPROCEDURE_DRAFTSTATEMENT, $draftStatement);
@@ -816,6 +816,13 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setPlanningArea('I');
         $procedureSettings->setMapHint('This is a procedure specific map hint which might have been edited by a planer.');
         $this->manager->persist($procedureSettings);
+
+        /** @var ProcedurePhaseDefinition $internalConfigDef */
+        $internalConfigDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_CONFIGURATION_PHASE_DEFINITION);
+        /** @var ProcedurePhaseDefinition $externalConfigDef */
+        $externalConfigDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION);
+        $procedure->getPhaseObject()->setDesignatedPhaseDefinition($internalConfigDef);
+        $procedure->getPublicParticipationPhaseObject()->setDesignatedPhaseDefinition($externalConfigDef);
     }
 
     private function createBlueprintProcedure(): void

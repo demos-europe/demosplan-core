@@ -1947,8 +1947,8 @@ Email:',
         $procedureSettings = $procedure->getSettings();
         static::assertTrue($this->sut->isAutoSwitchOfPublicPhasePossible($procedure));
         static::assertTrue($this->sut->isAutoSwitchOfPhasePossible($procedure));
-        $designatedPhase = $procedureSettings->getDesignatedPhase();
-        $designatedPublicPhase = $procedureSettings->getDesignatedPublicPhase();
+        $designatedPhaseDefinition = $procedure->getPhaseObject()->getDesignatedPhaseDefinition();
+        $designatedPublicPhaseDefinition = $procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition();
 
         $this->sut->switchToDesignatedPhase($procedure);
         $this->sut->switchToDesignatedPublicPhase($procedure);
@@ -1959,8 +1959,8 @@ Email:',
         static::assertFalse($this->sut->isAutoSwitchOfPublicPhasePossible($procedure));
 
         $updatedProcedure = $this->sut->getProcedure($procedure->getId());
-        static::assertEquals($designatedPhase, $updatedProcedure->getPhase());
-        static::assertEquals($designatedPublicPhase, $updatedProcedure->getPublicParticipationPhase());
+        static::assertSame($designatedPhaseDefinition->getId(), $updatedProcedure->getPhaseObject()->getPhaseDefinition()->getId());
+        static::assertSame($designatedPublicPhaseDefinition->getId(), $updatedProcedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getId());
     }
 
     public function testGetProceduresToSwitchOnDay(): void

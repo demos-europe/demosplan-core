@@ -1983,7 +1983,8 @@ class ProcedureService implements ProcedureServiceInterface
 
         try {
             $procedure->setStartDate($procedureSettings->getDesignatedSwitchDate());
-            $procedure->setPhase($procedureSettings->getDesignatedPhase());
+            $designatedPhaseDefinition = $procedure->getPhaseObject()->getDesignatedPhaseDefinition();
+            $procedure->getPhaseObject()->setPhaseDefinition($designatedPhaseDefinition);
             $procedure->setEndDate($procedureSettings->getDesignatedEndDate());
 
             $this->resetDesignatedPhaseSwitch($procedureSettings);
@@ -2035,7 +2036,8 @@ class ProcedureService implements ProcedureServiceInterface
 
         try {
             $procedure->setPublicParticipationStartDate($procedureSettings->getDesignatedPublicSwitchDate());
-            $procedure->setPublicParticipationPhase($procedureSettings->getDesignatedPublicPhase());
+            $designatedPublicPhaseDefinition = $procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition();
+            $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($designatedPublicPhaseDefinition);
             $procedure->setPublicParticipationEndDate($procedureSettings->getDesignatedPublicEndDate());
 
             $this->resetDesignatedPublicPhaseSwitch($procedureSettings);

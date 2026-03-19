@@ -20,6 +20,8 @@ class LoadProcedurePhaseDefinitionData extends TestFixture
 {
     final public const TEST_INTERNAL_PHASE_DEFINITION = 'testInternalPhaseDefinition';
     final public const TEST_EXTERNAL_PHASE_DEFINITION = 'testExternalPhaseDefinition';
+    final public const TEST_INTERNAL_CONFIGURATION_PHASE_DEFINITION = 'testInternalConfigurationPhaseDefinition';
+    final public const TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION = 'testExternalConfigurationPhaseDefinition';
 
     public function load(ObjectManager $manager): void
     {
@@ -38,6 +40,22 @@ class LoadProcedurePhaseDefinitionData extends TestFixture
         $externalDefinition->setOrderInAudience(1);
         $manager->persist($externalDefinition);
         $this->setReference(self::TEST_EXTERNAL_PHASE_DEFINITION, $externalDefinition);
+
+        $internalConfigurationDefinition = new ProcedurePhaseDefinition();
+        $internalConfigurationDefinition->setName('Konfiguration');
+        $internalConfigurationDefinition->setAudience('internal');
+        $internalConfigurationDefinition->setPermissionSet('hidden');
+        $internalConfigurationDefinition->setOrderInAudience(0);
+        $manager->persist($internalConfigurationDefinition);
+        $this->setReference(self::TEST_INTERNAL_CONFIGURATION_PHASE_DEFINITION, $internalConfigurationDefinition);
+
+        $externalConfigurationDefinition = new ProcedurePhaseDefinition();
+        $externalConfigurationDefinition->setName('Konfiguration');
+        $externalConfigurationDefinition->setAudience('external');
+        $externalConfigurationDefinition->setPermissionSet('hidden');
+        $externalConfigurationDefinition->setOrderInAudience(0);
+        $manager->persist($externalConfigurationDefinition);
+        $this->setReference(self::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION, $externalConfigurationDefinition);
 
         $manager->flush();
     }
