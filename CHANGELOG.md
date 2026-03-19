@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Fixed
+- Fix redirect to split-view after claiming statement and correct unclaim behavior to prevent false assignee confirmation dialog
+
 ## v4.31.0 (2026-02-25)
 ### Changed
 - bump demosplan-addon version from v0.65 to v0.67
@@ -13,8 +16,8 @@
 ### Added
 - Add custom fields to statement modal in public detail and draft list, also display custom fields in new public participation dialog
 
+## v4.30.3 (2026-03-03)
 ## v4.30.2 (2026-02-24)
-## v4.28.1 (2026-02-04)
 
 ## v4.30.0 (2026-02-12)
 ### Added
@@ -26,7 +29,24 @@
 ### Changed
 - Extract GetFeatureInfo logic for visible WMS layers out of Map.vue and into WmsGetFeatureInfo component
 
+## v4.29.2 (2026-03-13)
+
+### Added
+- Per-customer SSO login configuration
+
+### Fixed
+- Additional submitters added to a statement were lost after page reload
+- Flyout menu ("...") in sections view not visible with wide columns
+- Error when finishing segment assignment ("Aufteilen abschließen") for certain tag configurations
+- Newly created procedures not appearing in procedure list
+- Boilerplate texts disappearing when individual boilerplates were removed from a category
+- Data input organization dropdown showing organizations from other customers
+- Organizations not receiving correct access rights after approval
+
 ## v4.29.0 (2026-02-06)
+
+## v4.28.1 (2026-02-04)
+
 ## v4.28.0 (2026-01-28)
 ### Added
 - Enable GetFeatureInfo requests for visible WMS layers in the map
@@ -46,7 +66,6 @@
 
 ### Fixed
 - Check correct interface-checkbox state: 'checked' instead of 'disabled' (check whether interface has been activated, not whether procedure has been transmitted)
-
 
 ## v4.27.0 (2026-01-16)
 
@@ -91,14 +110,18 @@
 
 ## v4.24.0 (2025-11-06)
 - Detect Company Department from OzgKeycloak token and assign it to user
+
 ## v4.23.0 (2025-10-22)
 ## v4.21.0 (2025-10-22)
+
 ## v4.18.1 (2025-10-16)
 ## v4.18.0 (2025-10-13)
+
+## v4.16.3 (2026-02-05)
+
 ## v4.16.1 (2025-10-16)
 - Fix addon asset build during docker build
 
-## v4.16.3 (2026-02-05)
 ## v4.16.0 (2025-09-30)
 - Allow project specific CSS
 - allow sessions to be stored in redis
@@ -112,10 +135,12 @@
 - Add possibility to delete custom fields and their options
 
 ## v4.15.3 (2025-12-02)
+
 ## v4.15.2 (2025-10-24)
 - fix zip download for older uploads
 
 ## v4.15.0 (2025-09-15)
+
 ## v4.14.3 (2026-02-06)
 ## v4.14.2 (2025-12-02)
 ## v4.14.0 (2025-09-15)
@@ -135,6 +160,7 @@
 - Display Keycloak logout countdown warning in the header and logout automatically
 
 ## v4.10.0 (2025-07-30)
+
 ## v4.9.1 (2025-08-07)
 - Fix time based procedure phase switch
 
@@ -144,11 +170,17 @@
 - Migrate to Tailwind CSS v4
 
 ## v4.7.0 (2025-07-18)
+
+## v4.6.3 (2026-02-18)
+- Allow to configure procedures to accept or not anonymous statements
+- Export Original Statements as docx in the Statement List
+- Allow filtering of institution tags in DpAddOrganizationList
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
+
 ## v4.6.0 (2025-07-18)
 - Allow to configure procedures to accept or not anonymous statements
 - Allow filtering of institution tags in AdminstrationMemberList / refactor twig
-- Add configurable feedback control for public participation statements 
-
+- Add configurable feedback control for public participation statements
 
 ## v4.5.0 (2025-06-25)
 - Export Original Statements as docx in the Statement List
@@ -156,7 +188,14 @@
 
 ## v4.4.0 (2025-06-13)
 
+## v4.3.8 (2026-03-13)
+- fix DS-505: prevent StatementMeta children from overwriting unrelated statement data on save
+- fix DPLAN-17389: make column with flyout trigger sticky
+
+## v4.3.7 (2026-02-17)
+
 ## v4.3.5 (2025-11-24)
+
 ## 4.3.4 (2025-11-14)
 - implement option to import additional submitters via statement ID in statement imports via xlsx
 - adjust example statement import xlsx files
@@ -177,20 +216,24 @@
 - Update to symfony 6.4
 
 ## v3.3.0 (2025-05-13)
-- restore deleted logger entry 
+- restore deleted logger entry
 
 ## v3.2.0 (2025-05-13)
 - Enable Custom Field feature on segments: Allow users to add/edit custom fields to their segments     based on the custom fields defined in the procedure
 - Add Custom Field feature: Allow users to add custom fields to their procedures
-
-## v2.27.1 (2025-04-09)
-- Fix zip import encoding and recursion
 
 ## v3.0.0 (2025-04-09)
 - create deletion report entry when procedure is deleted
 - Migrate to Vue 3
 - Implement VirusCheckSocket to directly check files for viruses via remote sockets
 - Enhance security by sanitizing HTTP headers to prevent injection attacks
+
+## v2.27.1 (2025-04-09)
+- Fix zip import encoding and recursion
+
+## v2.27.0 (2025-03-12)
+- Enable to send Statement final notice using RpcRequest and Vue.js
+- Add the possibility to export synopsis without personal data.
 
 ## v2.26.5 (2025-03-28)
 - new parameter proxy_no_proxy to allow to exclude local services from the proxy
@@ -203,15 +246,6 @@
 
 ## v2.26.2 (2025-03-14)
 - Create report entries on create, update, deletion of an element, paragraph , singleDocument, mapDrawing or mapDrawing-explanation
-
-## v2.27.0 (2025-03-12)
-- Enable to send Statement final notice using RpcRequest and Vue.js
-- Add the possibility to export synopsis without personal data.
-
-
-## v2.26.2 (2025-03-14)
-- Create report entries on create, update, deletion of an element, paragraph , singleDocument, mapDrawing or mapDrawing-explanation
-
 
 ## v2.26.0 (2025-02-25)
 

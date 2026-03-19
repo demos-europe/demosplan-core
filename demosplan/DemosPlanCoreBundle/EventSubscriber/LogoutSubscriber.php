@@ -78,10 +78,11 @@ class LogoutSubscriber implements EventSubscriberInterface
             }
 
             // Keycloak logout
-            if ($this->ozgKeycloakLogoutManager->isKeycloakConfigured()) {
+            $logoutRoute = $this->ozgKeycloakLogoutManager->getEffectiveLogoutRoute();
+            if (null !== $logoutRoute) {
                 $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakSessionManager::KEYCLOAK_TOKEN);
                 $event->getRequest()->getSession()->invalidate();
-                $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
+
                 $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
 
                 // add additional parameters to keycloak logout url for redirect

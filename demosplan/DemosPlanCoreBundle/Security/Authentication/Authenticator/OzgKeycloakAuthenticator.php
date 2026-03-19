@@ -16,17 +16,19 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakClientFactory;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\Parser;
 use League\OAuth2\Client\Token\AccessToken;
 use Psr\Log\LoggerInterface;
 use Stevenmaguire\OAuth2\Client\Provider\KeycloakResourceOwner;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,10 +42,14 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
 {
+    use KeycloakAuthenticationSuccessTrait {
+        onAuthenticationSuccess as traitOnAuthenticationSuccess;
+    }
+
     private ?AccessToken $pendingAccessToken = null;
 
     public function __construct(
-        private readonly ClientRegistry $clientRegistry,
+        private readonly OzgKeycloakClientFactory $ozgKeycloakClientFactory,
         private readonly CustomerServiceInterface $customerService,
         private readonly EntityManagerInterface $entityManager,
         private readonly MessageBagInterface $messageBag,
@@ -52,7 +58,9 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         private readonly OzgKeycloakUserData $ozgKeycloakUserData,
         private readonly LoggerInterface $logger,
         private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
+        private readonly ParameterBagInterface $parameterBag,
         private readonly RouterInterface $router,
+        private readonly CurrentOrganisationService $currentOrganisationService,
     ) {
     }
 
@@ -64,7 +72,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
     public function authenticate(Request $request): Passport
     {
-        $client = $this->clientRegistry->getClient('keycloak_ozg');
+        $client = $this->ozgKeycloakClientFactory->createForCurrentCustomer();
         $accessToken = $this->fetchAccessToken($client);
         $this->logger->info('login attempt', ['accessToken' => $accessToken]);
 
@@ -81,10 +89,13 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             $this->logger->info('raw token', [$decodedJwtPayload]);
 
             $customerSubdomain = $this->customerService->getCurrentCustomer()->getSubdomain();
+            $keycloakClientId = $this->ozgKeycloakClientFactory->getClientIdForCurrentCustomer(
+                $this->parameterBag->get('oauth_keycloak_client_id')
+            );
 
             // Create ResourceOwner with complete JWT payload (includes resource_access)
             $resourceOwner = new KeycloakResourceOwner($decodedJwtPayload);
-            $this->ozgKeycloakUserData->fill($resourceOwner, $customerSubdomain);
+            $this->ozgKeycloakUserData->fill($resourceOwner, $customerSubdomain, $keycloakClientId);
             $this->logger->info('Found user data: '.$this->ozgKeycloakUserData);
             $user = $this->ozgKeycloakUserDataMapper->mapUserData($this->ozgKeycloakUserData);
 
@@ -154,22 +165,17 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             }
         }
 
+        // Re-auth with pending page: skip multi-org selection, redirect to buffered page
         if (null !== $pendingPageUrl) {
             $this->messageBag->add('confirm', 'confirm.session.renewed');
 
             return new RedirectResponse($pendingPageUrl);
         }
 
-        return new RedirectResponse($this->router->generate('core_home_loggedin'));
+        // Fresh login: delegate to trait for multi-org selection + default redirect
+        return $this->traitOnAuthenticationSuccess($request, $token, $firewallName);
     }
 
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
-    {
-        $this->logger->warning('Login via Keycloak failed', ['exception' => $exception]);
-        $targetUrl = $this->router->generate('core_login_idp_error');
-
-        return new RedirectResponse($targetUrl);
-    }
 
     /**
      * Called when authentication is needed, but it's not sent.

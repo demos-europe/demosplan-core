@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
+use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -44,7 +45,8 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
             self::getContainer()->get(LoggerInterface::class),
             self::getContainer()->get(CurrentUserService::class),
             self::getContainer()->get(CustomerService::class),
-            $parameterBag
+            $parameterBag,
+            self::getContainer()->get(CustomerOAuthConfigRepository::class),
         );
 
         $this->session = new Session(new MockArraySessionStorage());
