@@ -84,12 +84,12 @@ final class DraftStatementResourceType extends DplanResourceType
 
     public function isGetAllowed(): bool
     {
-        return $this->currentUser->hasPermission('area_statements_draft');
+        return $this->isAvailable();
     }
 
     public function isListAllowed(): bool
     {
-        return $this->currentUser->hasPermission('area_statements_draft');
+        return $this->isAvailable();
     }
 
     public function isUpdateAllowed(): bool
