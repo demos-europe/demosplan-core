@@ -18,8 +18,8 @@ use DateTime;
  * Value object for pending request data (buffered during token expiration).
  *
  * @method string      getPageUrl()
- * @method string      getRequestUrl()
- * @method string      getMethod()
+ * @method string|null getRequestUrl()
+ * @method string|null getMethod()
  * @method string|null getBody()
  * @method string|null getContentType()
  * @method bool        getHasFiles()
@@ -34,14 +34,14 @@ class PendingRequestData extends ValueObject
     protected string $pageUrl;
 
     /**
-     * The actual request URL to replay.
+     * The actual request URL to replay. Null for URL-only entries (GET page visits).
      */
-    protected string $requestUrl;
+    protected ?string $requestUrl = null;
 
     /**
-     * HTTP method (GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS).
+     * HTTP method (GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS). Null for URL-only entries.
      */
-    protected string $method;
+    protected ?string $method = null;
 
     /**
      * Decrypted request body (null for GET/HEAD/OPTIONS/DELETE requests).

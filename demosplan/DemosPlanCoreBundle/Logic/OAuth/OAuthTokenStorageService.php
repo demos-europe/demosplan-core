@@ -133,8 +133,9 @@ class OAuthTokenStorageService
             // Clear any buffered request after successful token storage
             // If tokens were expired and a request was buffered (entity in "buffered request" state),
             // we now have fresh tokens (entity transitioning back to "active tokens" state).
-            // The buffered request should be cleared as it will be/was replayed after re-authentication.
-            if ($oauthToken->hasPendingRequest()) {
+            // The buffered request should be cleared as it will be/was reviewed after re-authentication.
+            // hasPendingData() covers both full POST buffers and URL-only GET entries.
+            if ($oauthToken->hasPendingData()) {
                 $oauthToken->clearPendingRequest();
             }
 
@@ -415,7 +416,7 @@ class OAuthTokenStorageService
     {
         $oauthToken = $this->oauthTokenRepository->findByUserId($userId);
 
-        if (null === $oauthToken || !$oauthToken->hasPendingRequest()) {
+        if (null === $oauthToken || !$oauthToken->hasPendingData()) {
             return null;
         }
 
