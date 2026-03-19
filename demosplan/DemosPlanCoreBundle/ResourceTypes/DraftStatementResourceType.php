@@ -78,7 +78,6 @@ final class DraftStatementResourceType extends DplanResourceType
         ];
     }
 
-
     public function isGetAllowed(): bool
     {
         return $this->currentUser->hasPermission('area_statements_draft');
