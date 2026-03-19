@@ -68,6 +68,11 @@
             padding-right: 2em;
         }
 
+        th.c-data-table__resizable.is-resizing,
+        td.is-resizing {
+            box-shadow: inset -2px 0 0 var(--dp-color-interactive);
+        }
+
         .c-data-table__resizable {
             position: relative;
             overflow: hidden;
