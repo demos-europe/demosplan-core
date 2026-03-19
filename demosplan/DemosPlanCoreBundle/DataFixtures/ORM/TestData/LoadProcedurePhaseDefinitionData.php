@@ -24,25 +24,10 @@ class LoadProcedurePhaseDefinitionData extends TestFixture
     final public const TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION = 'testExternalConfigurationPhaseDefinition';
     final public const TEST_INTERNAL_CLOSED_PHASE_DEFINITION = 'testInternalClosedPhaseDefinition';
     final public const TEST_EXTERNAL_CLOSED_PHASE_DEFINITION = 'testExternalClosedPhaseDefinition';
+    final public const TEST_EXTERNAL_EARLY_PARTICIPATION_PHASE_DEFINITION = 'testExternalEarlyParticipationPhaseDefinition';
 
     public function load(ObjectManager $manager): void
     {
-        $internalDefinition = new ProcedurePhaseDefinition();
-        $internalDefinition->setName('Beteiligung TöB');
-        $internalDefinition->setAudience('internal');
-        $internalDefinition->setPermissionSet('write');
-        $internalDefinition->setOrderInAudience(1);
-        $manager->persist($internalDefinition);
-        $this->setReference(self::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION, $internalDefinition);
-
-        $externalDefinition = new ProcedurePhaseDefinition();
-        $externalDefinition->setName('Öffentliche Auslegung');
-        $externalDefinition->setAudience('external');
-        $externalDefinition->setPermissionSet('write');
-        $externalDefinition->setOrderInAudience(1);
-        $manager->persist($externalDefinition);
-        $this->setReference(self::TEST_EXTERNAL_PARTICIPATION_PHASE_DEFINITION, $externalDefinition);
-
         $internalConfigurationDefinition = new ProcedurePhaseDefinition();
         $internalConfigurationDefinition->setName('Konfiguration');
         $internalConfigurationDefinition->setAudience('internal');
@@ -50,6 +35,22 @@ class LoadProcedurePhaseDefinitionData extends TestFixture
         $internalConfigurationDefinition->setOrderInAudience(0);
         $manager->persist($internalConfigurationDefinition);
         $this->setReference(self::TEST_INTERNAL_CONFIGURATION_PHASE_DEFINITION, $internalConfigurationDefinition);
+
+        $internalParticipationDefinition = new ProcedurePhaseDefinition();
+        $internalParticipationDefinition->setName('Beteiligung TöB');
+        $internalParticipationDefinition->setAudience('internal');
+        $internalParticipationDefinition->setPermissionSet('write');
+        $internalParticipationDefinition->setOrderInAudience(1);
+        $manager->persist($internalParticipationDefinition);
+        $this->setReference(self::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION, $internalParticipationDefinition);
+
+        $internalClosedDefinition = new ProcedurePhaseDefinition();
+        $internalClosedDefinition->setName('Abgeschlossen');
+        $internalClosedDefinition->setAudience('internal');
+        $internalClosedDefinition->setPermissionSet('read');
+        $internalClosedDefinition->setOrderInAudience(2);
+        $manager->persist($internalClosedDefinition);
+        $this->setReference(self::TEST_INTERNAL_CLOSED_PHASE_DEFINITION, $internalClosedDefinition);
 
         $externalConfigurationDefinition = new ProcedurePhaseDefinition();
         $externalConfigurationDefinition->setName('Konfiguration');
@@ -59,19 +60,27 @@ class LoadProcedurePhaseDefinitionData extends TestFixture
         $manager->persist($externalConfigurationDefinition);
         $this->setReference(self::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION, $externalConfigurationDefinition);
 
-        $closedDefinition = new ProcedurePhaseDefinition();
-        $closedDefinition->setName('Abgeschlossen');
-        $closedDefinition->setAudience('internal');
-        $closedDefinition->setPermissionSet('read');
-        $closedDefinition->setOrderInAudience(2);
-        $manager->persist($closedDefinition);
-        $this->setReference(self::TEST_INTERNAL_CLOSED_PHASE_DEFINITION, $closedDefinition);
+        $externalEarlyParticipationDefinition = new ProcedurePhaseDefinition();
+        $externalEarlyParticipationDefinition->setName('Frühzeitige Öffentlichkeitsbeteiligung');
+        $externalEarlyParticipationDefinition->setAudience('external');
+        $externalEarlyParticipationDefinition->setPermissionSet('write');
+        $externalEarlyParticipationDefinition->setOrderInAudience(1);
+        $manager->persist($externalEarlyParticipationDefinition);
+        $this->setReference(self::TEST_EXTERNAL_EARLY_PARTICIPATION_PHASE_DEFINITION, $externalEarlyParticipationDefinition);
+
+        $externalParticipationDefinition = new ProcedurePhaseDefinition();
+        $externalParticipationDefinition->setName('Öffentliche Auslegung');
+        $externalParticipationDefinition->setAudience('external');
+        $externalParticipationDefinition->setPermissionSet('write');
+        $externalParticipationDefinition->setOrderInAudience(2);
+        $manager->persist($externalParticipationDefinition);
+        $this->setReference(self::TEST_EXTERNAL_PARTICIPATION_PHASE_DEFINITION, $externalParticipationDefinition);
 
         $externalClosedDefinition = new ProcedurePhaseDefinition();
         $externalClosedDefinition->setName('Abgeschlossen');
         $externalClosedDefinition->setAudience('external');
         $externalClosedDefinition->setPermissionSet('read');
-        $externalClosedDefinition->setOrderInAudience(2);
+        $externalClosedDefinition->setOrderInAudience(3);
         $manager->persist($externalClosedDefinition);
         $this->setReference(self::TEST_EXTERNAL_CLOSED_PHASE_DEFINITION, $externalClosedDefinition);
 

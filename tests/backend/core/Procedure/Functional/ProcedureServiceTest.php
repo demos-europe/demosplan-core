@@ -15,6 +15,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedurePhaseDefinitionData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureTypeData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
@@ -1067,7 +1068,6 @@ class ProcedureServiceTest extends FunctionalTestCase
         $procedureToUpdate
             ->setName('Ein neues Testverfahren 1')
             ->setDesc('')
-            ->setPhase('participation')
             ->setClosed(false)
             ->setStartDate($currentDate)
             ->setEndDate($currentDate)
@@ -1080,12 +1080,13 @@ Email:'
             )
             ->setLocationName('Ammersbek')
             ->setLocationPostCode('k.A.')
-            ->setPublicParticipationPhase('earlyparticipation')
-            ->setPublicParticipationPhase(true)
+            ->setPublicParticipation(true)
             ->setPublicParticipationStartDate($currentDate)
             ->setPublicParticipationEndDate($currentDate)
             ->setMunicipalCode('01062')
             ->setSettings($settings);
+        $procedureToUpdate->getPhaseObject()->setPhaseDefinition($this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
+        $procedureToUpdate->getPublicParticipationPhaseObject()->setPhaseDefinition($this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_EARLY_PARTICIPATION_PHASE_DEFINITION));
 
         $procedure = $this->sut->updateProcedureObject($procedureToUpdate);
         static::assertIsString($procedure->getOrgaId());
