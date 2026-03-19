@@ -116,7 +116,7 @@ abstract class SegmentsExporter
             $this->styles['documentTitleParagraph']
         );
 
-        $this->addPreambleIfFirstHeader($header, $headerType, $exportFilteredByTagsWithTopics);
+        //$this->addPreambleIfFirstHeader($header, $headerType, $exportFilteredByTagsWithTopics);
 
         $currentDate = new DateTime();
         $translationKey = [] !== $exportFilteredByTagsWithTopics ?
@@ -148,6 +148,27 @@ abstract class SegmentsExporter
         } else {
             $preamble = $this->translator->trans('docx.export.preamble');
             Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
+        }
+    }
+
+    /**
+     * This function adds a metadata sheet as the first page in the docx export, including the name of the initiator of the export, tags and tag topics.
+     * If no tags were applied, a generic header is used instead
+    */
+    protected function addMetaDataSheet(PhpWord $phpWord, array $exportTagTitles = []): void
+    {
+        $section = $phpWord->addSection($this->styles['globalSection']);
+        if ([] !== $exportTagTitles
+            && $this->currentUser->hasPermission('feature_adjust_preamble_export_file')) {
+            $filteredExportTagData = $this->translator->trans('docx.export.filtered');
+            foreach ($exportTagTitles as $tagTopicContainer) {
+                $appendToVariable = $tagTopicContainer[0].' [Thema: '.$tagTopicContainer[1].'], ';
+                $filteredExportTagData .= $appendToVariable;
+            }
+            Html::addHtml($section, $this->htmlHelper->getHtmlValidText($filteredExportTagData), false, false);
+        } else {
+            $preamble = $this->translator->trans('docx.export.preamble');
+            Html::addHtml($section, $this->htmlHelper->getHtmlValidText($preamble), false, false);
         }
     }
 
@@ -397,6 +418,7 @@ abstract class SegmentsExporter
         bool $obscure,
         array $exportFilteredByTagsWithTopics = [],
     ): WriterInterface {
+        $this->addMetaDataSheet($phpWord, $exportFilteredByTagsWithTopics);
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTagsWithTopics);
         $this->addHeader($section, $procedure, null, $exportFilteredByTagsWithTopics);
