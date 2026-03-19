@@ -165,9 +165,10 @@ abstract class SegmentsExporter
             && $this->currentUser->hasPermission('feature_adjust_preamble_export_file')) {
             $exportUser = $this->translator->trans('export.user');
             $userName = $this->currentUser->getUser()->getFullName();
-            $filteredExportTagData = $exportUser.': '.$userName.$this->translator->trans('docx.export.filtered');
+            $exportDate = new DateTime();
+            $filteredExportTagData = $exportUser.': '.$userName.' am '.$exportDate->format('d.m.Y').'<br>'.$this->translator->trans('docx.export.filtered');
             foreach ($exportTagTitles as $tagTopicContainer) {
-                $appendToVariable = $tagTopicContainer[0].' [Thema: '.$tagTopicContainer[1].'] <br>';
+                $appendToVariable = '- '.$tagTopicContainer[0].' [Thema: '.$tagTopicContainer[1].'] <br>';
                 $filteredExportTagData .= $appendToVariable;
             }
             $filteredExportTagData .= '<br>'.$this->translator->trans('layout.info');
