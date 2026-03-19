@@ -182,6 +182,11 @@ class StatementExportTagFilter
         return $this->translator->trans('export.filter.topics.names', ['names' => implode(', ', $this->topicNamesFound)]);
     }
 
+    public function getTagNames(): array
+    {
+        return $this->tagNamesFound;
+    }
+
     /**
      * Pre-fetches segments, tags, and tag topics for given statements to avoid N+1 queries.
      *

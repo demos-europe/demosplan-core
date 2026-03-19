@@ -23,7 +23,7 @@ class InstitutionTagController extends BaseController
     #[Route(name: 'DemosPlan_get_institution_tag_management', path: '/institutions/tags', methods: ['GET'], options: ['expose' => true])]
     public function getInstitutionTagManagement(): Response
     {
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/institution_tag_management.html.twig',
             [
                 'title' => 'institution.tags.management',

@@ -366,7 +366,7 @@ fos_elastica:
                 phase: {type: keyword, index: true}
                 polygon: {type: text, index: false}
                 file: {type: keyword, index: false}
-                files: {type: text, index: false}
+                files: {type: text, index: true}
                 fileNames: {type: text, index: false}
                 mapFile: {type: keyword, index: false}
                 movedStatementId: {type: keyword, index: false}

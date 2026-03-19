@@ -12,12 +12,14 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\RecommendationRequestEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Event\Statement\RecommendationRequestEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
@@ -28,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FilterUiDataProvider;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
@@ -102,7 +105,7 @@ class SegmentController extends BaseController
             RecommendationRequestEventInterface::class
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_statement_segments_list.html.twig',
             [
                 'procedure'                  => [
@@ -177,6 +180,7 @@ class SegmentController extends BaseController
     ): Response {
         $requestPost = $request->request->all();
         $procedure = $currentProcedureService->getProcedure();
+        $user = $currentUser->getUser();
 
         if (!$procedure instanceof Procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
@@ -191,9 +195,14 @@ class SegmentController extends BaseController
             $job = new ImportJob();
             try {
                 $job->setProcedure($procedure);
-                $job->setUser($currentUser->getUser());
+                $job->setUser($user);
                 $job->setFilePath($uploadHash);
                 $job->setFileName($fileName);
+                // Capture the current organisation context for background processing
+                $currentOrga = $user->getCurrentOrganisation();
+                if ($currentOrga instanceof Orga) {
+                    $job->setOrganisation($currentOrga);
+                }
 
                 $entityManager->persist($job);
                 $entityManager->flush();
@@ -259,7 +268,7 @@ class SegmentController extends BaseController
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanSegment/import_jobs_list.html.twig',
             [
                 'procedure' => $procedure,
@@ -331,7 +340,7 @@ class SegmentController extends BaseController
         $filterNames = $filterUiDataProvider->getFilterNames();
         $filterNames = $filterUiDataProvider->addSelectedField($filterNames, $filter);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_segments_list.html.twig',
             [
                 'filterNames'      => $filterNames,
@@ -339,6 +348,28 @@ class SegmentController extends BaseController
                 'segmentListQuery' => $segmentListQuery,
                 'title'            => 'segments',
             ]
+        );
+    }
+
+    #[DplanPermissions('area_statement_segmentation')]
+    #[Route(name: 'dplan_segment_delete', path: '/verfahren/{procedureId}/abschnitt/{segmentId}/delete', options: ['expose' => true])]
+    public function deleteSegmentAction(
+        string $procedureId,
+        string $segmentId,
+        SegmentHandler $segmentHandler,
+        MessageBagInterface $messageBag,
+    ): Response {
+        $success = $segmentHandler->delete($segmentId);
+
+        if ($success) {
+            $messageBag->add('confirm', 'confirm.segment.deleted');
+        } else {
+            $messageBag->add('error', 'error.segment.delete.failed');
+        }
+
+        return $this->redirectToRoute(
+            'dplan_procedure_statement_list',
+            ['procedureId' => $procedureId]
         );
     }
 }

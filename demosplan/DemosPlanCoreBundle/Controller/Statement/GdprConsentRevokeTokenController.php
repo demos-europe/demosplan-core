@@ -66,14 +66,14 @@ class GdprConsentRevokeTokenController extends BaseController
     public function revokeGdprConsentGet(PermissionsInterface $permissions): Response
     {
         if ($permissions->hasPermission('area_gdpr_consent_revoke_page')) {
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanCore/gdpr_consent_revoke.html.twig',
                 ['title' => 'gdpr.consent.revoke']
             );
         }
 
         if ($permissions->hasPermission('area_gdpr_consent_revoke_page_disabled')) {
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanCore/gdpr_consent_revoke_disabled.html.twig',
                 ['title' => 'gdpr.consent.revoke.disabled']
             );

@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Exception\ImportJobNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ImportJobUserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -34,6 +34,7 @@ class ImportJobProcessor
         private readonly CurrentUserService $currentUserService,
         private readonly EntityManagerInterface $entityManager,
         private readonly FileService $fileService,
+        private readonly GlobalConfigInterface $globalConfig,
         private readonly ImportJobRepository $importJobRepository,
         private readonly LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
@@ -89,6 +90,11 @@ class ImportJobProcessor
 
     /**
      * Handle job processing failure by saving error status.
+     *
+     * After a Doctrine DBAL exception (e.g. UniqueConstraintViolationException),
+     * the EntityManager is closed and cannot be used for ORM operations.
+     * We first try ORM flush, then fall back to raw DBAL to prevent the job
+     * from staying in 'pending' state and causing an infinite retry loop.
      */
     private function handleJobProcessingFailure(ImportJob $job, Exception $exception): void
     {
@@ -97,25 +103,55 @@ class ImportJobProcessor
             $this->entityManager->rollback();
         }
 
-        // Start new transaction to save error status
-        $this->entityManager->beginTransaction();
+        $jobId = $job->getId();
+        $errorMessage = mb_substr($exception->getMessage(), 0, 65000);
 
-        try {
-            $job->markAsFailed($exception->getMessage());
-            $this->entityManager->flush();
-            $this->entityManager->commit();
-        } catch (Exception $flushException) {
-            if ($this->entityManager->getConnection()->isTransactionActive()) {
-                $this->entityManager->rollback();
+        // Try ORM flush first (works for non-DBAL exceptions where EM is still open)
+        if ($this->entityManager->isOpen()) {
+            $this->entityManager->beginTransaction();
+            try {
+                $job->markAsFailed($errorMessage);
+                $this->entityManager->flush();
+                $this->entityManager->commit();
+                $this->logJobFailure($jobId, $exception);
+
+                return;
+            } catch (Exception $flushException) {
+                if ($this->entityManager->getConnection()->isTransactionActive()) {
+                    $this->entityManager->rollback();
+                }
+                $this->logger->warning('ORM flush failed, falling back to raw DBAL', [
+                    'jobId'     => $jobId,
+                    'exception' => $flushException->getMessage(),
+                ]);
             }
-            $this->logger->error('Failed to save job failure status', [
-                'jobId'     => $job->getId(),
-                'exception' => $flushException->getMessage(),
+        }
+
+        // Fallback: use raw DBAL connection (still usable when EntityManager is closed)
+        try {
+            $this->entityManager->getConnection()->executeStatement(
+                'UPDATE import_job SET status = :status, error = :error, last_activity_at = :now WHERE id = :id',
+                [
+                    'status' => ImportJob::STATUS_FAILED,
+                    'error'  => $errorMessage,
+                    'now'    => (new \DateTime())->format('Y-m-d H:i:s'),
+                    'id'     => $jobId,
+                ]
+            );
+        } catch (Exception $dbalException) {
+            $this->logger->critical('Failed to save job failure status via DBAL fallback', [
+                'jobId'     => $jobId,
+                'exception' => $dbalException->getMessage(),
             ]);
         }
 
+        $this->logJobFailure($jobId, $exception);
+    }
+
+    private function logJobFailure(string $jobId, Exception $exception): void
+    {
         $this->logger->error('Import job failed with exception', [
-            'jobId'     => $job->getId(),
+            'jobId'     => $jobId,
             'exception' => $exception->getMessage(),
             'trace'     => $exception->getTraceAsString(),
         ]);
@@ -139,8 +175,16 @@ class ImportJobProcessor
             throw ImportJobUserNotFoundException::create($job->getId());
         }
 
-        $customer = $this->entityManager->getRepository(Customer::class)->findOneBy(['subdomain' => 'sh']);
+        $customer = $job->getProcedure()->getCustomer();
+        $this->globalConfig->setSubdomain($customer->getSubdomain());
         $this->currentUserService->setUser($user, $customer);
+
+        // Restore organisation context if one was stored with the job
+        $organisation = $job->getOrganisation();
+        if (null !== $organisation) {
+            $user->setCurrentOrganisation($organisation);
+        }
+
         $this->permissions->setProcedure($job->getProcedure());
         $this->permissions->initPermissions($user);
         $this->permissions->setProcedurePermissions();
@@ -154,15 +198,16 @@ class ImportJobProcessor
         $fileIdent = $job->getFilePath();
         try {
             $fileInfo = $this->fileService->getFileInfo($fileIdent);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $job->markAsFailed('Failed to retrieve file from storage: '.$e->getMessage());
             $this->entityManager->flush();
             $this->logger->error('Import job file retrieval failed', [
-                'jobId' => $job->getId(),
-                'fileIdent' => $fileIdent,
+                'jobId'       => $job->getId(),
+                'fileIdent'   => $fileIdent,
                 'procedureId' => $job->getProcedure()->getId(),
-                'error' => $e->getMessage(),
+                'error'       => $e->getMessage(),
             ]);
+
             return;
         }
 
@@ -170,14 +215,15 @@ class ImportJobProcessor
         $localPath = null;
         try {
             $localPath = $this->fileService->ensureLocalFile($fileInfo->getAbsolutePath(), $fileIdent);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $job->markAsFailed('Failed to download file locally: '.$e->getMessage());
             $this->entityManager->flush();
             $this->logger->error('Import job file download failed', [
-                'jobId' => $job->getId(),
+                'jobId'     => $job->getId(),
                 'fileIdent' => $fileIdent,
-                'error' => $e->getMessage(),
+                'error'     => $e->getMessage(),
             ]);
+
             return;
         }
 

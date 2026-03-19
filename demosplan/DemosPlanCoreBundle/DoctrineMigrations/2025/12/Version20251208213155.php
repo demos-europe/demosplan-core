@@ -31,14 +31,14 @@ class Version20251208213155 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('
+        $this->addSql("
             CREATE TABLE import_job (
                 id CHAR(36) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL PRIMARY KEY,
                 procedure_id CHAR(36) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
                 user_id CHAR(36) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
                 file_path VARCHAR(500) NOT NULL,
-                file_name VARCHAR(255) NOT NULL DEFAULT "",
-                status VARCHAR(50) NOT NULL DEFAULT "pending",
+                file_name VARCHAR(255) NOT NULL DEFAULT '',
+                status VARCHAR(50) NOT NULL DEFAULT 'pending',
                 last_activity_at DATETIME NULL,
                 result JSON NULL,
                 error TEXT NULL,
@@ -52,7 +52,7 @@ class Version20251208213155 extends AbstractMigration
                 CONSTRAINT fk_import_job_user
                     FOREIGN KEY (user_id) REFERENCES _user(_u_id) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ');
+        ");
     }
 
     /**

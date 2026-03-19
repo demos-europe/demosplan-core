@@ -28,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
 use demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
@@ -55,6 +56,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         private readonly TagService $tagService,
         private readonly TranslatorInterface $translator,
         private readonly UserService $userService,
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -98,30 +100,52 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         // The segments are received potentially unsorted. Hence sort them by their position
         // in the text so their $externId is set in the correct order afterwards.
         usort($draftsList, static fn (array $draft1, array $draft2) => $draft1['charEnd'] < $draft2['charEnd'] ? -1 : 1);
+
+        // Temporarily change ID generator to AssignedGenerator so Doctrine handles manually-assigned IDs properly
+        $segmentMetadata = $this->entityManager->getClassMetadata(Segment::class);
+        $originalIdGenerator = $segmentMetadata->idGenerator;
+        $segmentMetadata->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
+
         $counter = 1;
         $internId = $this->segmentHandler->getNextSegmentOrderNumber($procedure->getId());
         foreach ($draftsList as $draft) {
             $segment = new Segment();
-            $segment->setParentStatementOfSegment($statement);
             $segment->setId($draft['id']);
+            $segment->setParentStatementOfSegment($statement);
             $segment->setText($draft['text']);
             $externId = $statement->getExternId().'-'.$counter;
             $segment->setExternId($externId);
             $segment->setOrderInProcedure($internId);
             $segment->setPhase('analysis');
             $segment->setProcedure($statement->getProcedure());
-            $tags = $this->getTags($draft['tags'], $procedure);
-            $segment->setTags($tags);
+
+            /** @var Segment $segment */
             $segment = $this->statementService->setPublicVerified(
                 $segment,
                 Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED
             );
             $segment = $this->setAssigneeIfGiven($segment, $draft);
             $segment = $this->setPlace($segment, $draft);
+
+            $this->entityManager->persist($segment);
+
             $segments[] = $segment;
             ++$counter;
             ++$internId;
         }
+
+        // Restore the original ID generator (done with manually-assigned segment IDs)
+        $segmentMetadata->setIdGenerator($originalIdGenerator);
+
+        // Set tags (junction table entries will be flushed by controller)
+        array_map(
+            function (Segment $segment, array $draft) use ($procedure): void {
+                $tags = $this->getTags($draft['tags'], $procedure);
+                $segment->setTags($tags);
+            },
+            $segments,
+            $draftsList
+        );
 
         return $segments;
     }
@@ -148,7 +172,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
     private function setPlace(Segment $segment, array $draft): Segment
     {
         $placeId = $draft['place']['id'] ?? null;
-        $place = null !== $placeId
+        $place = null !== $placeId && '' !== $placeId
             ? $this->placeService->findWithCertainty($placeId)
             : $this->placeService->findFirstOrderedBySortIndex($segment->getProcedure()->getId());
 

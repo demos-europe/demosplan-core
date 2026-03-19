@@ -12,9 +12,11 @@
  */
 
 import {
+  DpButton,
   DpDateRangePicker,
   DpDatetimePicker,
   DpInput,
+  DpModal,
   DpTextArea,
   dpValidate,
 } from '@demos-europe/demosplan-ui'
@@ -71,6 +73,7 @@ const components = {
   AddonWrapper,
   AutoSwitchProcedurePhaseForm,
   DpBasicSettings,
+  DpButton,
   DpCheckbox,
   DpDateRangePicker,
   DpDatetimePicker,
@@ -78,6 +81,7 @@ const components = {
   DpEmailList,
   DpInlineNotification,
   DpInput,
+  DpModal,
   DpMultiselect,
   DpProcedureCoordinate,
   DpTextArea,

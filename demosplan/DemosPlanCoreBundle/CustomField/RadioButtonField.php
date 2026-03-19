@@ -27,7 +27,7 @@ class RadioButtonField extends AbstractCustomField
 
     protected string $description = '';
 
-    public function getFormat(): string
+    public function getFieldType(): string
     {
         return 'singleSelect';
     }
@@ -57,16 +57,6 @@ class RadioButtonField extends AbstractCustomField
         ];
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
     public function getOptions(): array
     {
         return $this->options;
@@ -75,50 +65,6 @@ class RadioButtonField extends AbstractCustomField
     public function setOptions(array $options): void
     {
         $this->options = $options;
-    }
-
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $description): void
-    {
-        $this->description = $description;
-    }
-
-    public function getCustomFieldsList(): ?array
-    {
-        return [];
-    }
-
-    public function setFieldType(string $type): void
-    {
-        $this->fieldType = $type;
-    }
-
-    public function getType(): string
-    {
-        return 'singleSelect';
-    }
-
-    public function isValueValid(?string $value): bool
-    {
-        if (null === $value) {
-            return true;
-        }
-
-        return collect($this->options)->contains(fn ($option) => $option->getId() === $value);
-    }
-
-    public function setId($id): void
-    {
-        $this->id = $id;
-    }
-
-    public function getId(): string
-    {
-        return $this->id;
     }
 
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption

@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\SegmentTransformerPass;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\StatementToDraftsInfoTransformer;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Query\QueryException;
 use Exception;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -147,8 +148,13 @@ class DraftsInfoApiController extends APIController
             // persist the segments
             $segmentHandler->addSegments($segments);
 
+            // populate the statement's segment collection with fresh segments before dispatching event
+            // this ensures getSegmentsOfStatement() returns the new segments in event subscribers
+            $statement = $statementHandler->getStatementWithCertainty($statementId);
+            $statement->setSegmentsOfStatement(new ArrayCollection($segments));
+
             // request additional statement processing (asynchronous)
-            $eventDispatcher->dispatch(new AfterSegmentationEvent($statementHandler->getStatementWithCertainty($statementId)), AfterSegmentationEventInterface::class);
+            $eventDispatcher->dispatch(new AfterSegmentationEvent($statement), AfterSegmentationEventInterface::class);
 
             $currentUser = $currentUserProvider->getUser();
 

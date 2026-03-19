@@ -45,7 +45,6 @@
 
       <dp-upload-files
         allowed-file-types="xls"
-        :basic-auth="dplan.settings.basicAuth"
         data-cy="uploadExcelFile"
         :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="100 * 1024 * 1024/* 100 MiB */"
@@ -72,7 +71,8 @@
       <h2>{{ Translator.trans('import.jobs.list') }}</h2>
       <segment-import-job-list
         :init-url="importJobsUrl"
-        :procedure-id="procedureId" />
+        :procedure-id="procedureId"
+      />
     </div>
   </div>
 </template>
@@ -89,7 +89,7 @@ export default {
   components: {
     DpRadio,
     DpUploadFiles,
-    SegmentImportJobList
+    SegmentImportJobList,
   },
 
   props: {
@@ -132,7 +132,7 @@ export default {
 
     importJobsUrl () {
       return Routing.generate('dplan_import_jobs_api', { procedureId: this.procedureId })
-    }
+    },
   },
 
   methods: {
