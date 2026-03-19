@@ -126,6 +126,10 @@
         vertical-align: top;
     }
 
+    td:not(.c-data-table__cell--narrow){
+        border-right: 1px solid $dp-color-neutral-light-2;
+    }
+
     th .c-data-table__drag-handle {
         visibility: visible;
         fill: $dp-color-neutral-light-1;
@@ -165,10 +169,17 @@
         /*Ensure sticky header renders above regular cells but below flyout/expand columns*/
         z-index: $dp-z-above-zero + 1;
         background-color: $dp-color-white;
-    }
 
-    /*
-     * Keep flyout and expand columns always visible at the right edge.
+            th {
+                box-shadow: inset 0 -1px 0 $dp-color-neutral-light-2;
+            }
+
+            th:not(.c-data-table__cell--narrow) {
+                box-shadow: inset -1px -1px 0 $dp-color-neutral-light-2;
+            }
+        }
+
+    /*     * Keep flyout and expand columns always visible at the right edge.
      * Explicit BEM classes are set in DpTableRow/DpTableHeader in demosplan-ui so that
      * regular data columns in resizable-only tables (e.g. InstitutionList) are never affected.
      */
