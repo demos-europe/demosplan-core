@@ -71,7 +71,8 @@
         th.c-data-table__resizable.is-resizing,
         td.is-resizing {
             background-color: var(--dp-color-interactive-subtle-hover);
-            box-shadow: inset -2px 0 0 var(--dp-color-interactive);
+            box-shadow: inset -2px 0 0 var(--dp-color-interactive),
+                        inset 0 -1px 0 $dp-color-neutral-light-2;
         }
 
         .c-data-table__resizable {
