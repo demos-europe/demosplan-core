@@ -227,10 +227,10 @@ class ServiceStorageTest extends FunctionalTestCase
             'r_enddate'                => '01.02.2056',
             'r_externalName'           => 'testAdded',
             'r_name'                   => 'testAdded',
-            'r_master'         => false,
-            'orgaId'           => $this->testUser->getOrganisationId(),
-            'orgaName'         => $this->testUser->getOrgaName(),
-            'r_procedure_type' => $this->procedureType->getId(),
+            'r_master'                 => false,
+            'orgaId'                   => $this->testUser->getOrganisationId(),
+            'orgaName'                 => $this->testUser->getOrgaName(),
+            'r_procedure_type'         => $this->procedureType->getId(),
         ];
     }
 
