@@ -180,7 +180,7 @@ class ProcedureExtension extends ExtensionBase
 
                 $customerName = $definition->getCustomer()?->getName() ?? '';
 
-                return $definition->getName().($customerName !== '' ? ' ('.$customerName.')' : '');
+                return $definition->getName().('' !== $customerName ? ' ('.$customerName.')' : '');
             },
             $key
         ) ?? $key;
