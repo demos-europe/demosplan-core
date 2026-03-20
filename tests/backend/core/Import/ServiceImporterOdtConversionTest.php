@@ -31,6 +31,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -564,6 +565,7 @@ class ServiceImporterOdtConversionTest extends TestCase
             $this->createMock(ParagraphRepository::class),
             $this->createMock(ParagraphService::class),
             $this->createMock(PdfCreatorInterface::class),
+            $this->createMock(RequestStack::class),
             $this->createMock(RouterInterface::class),
             $this->createMock(RpcClient::class),
             $this->createMock(EventDispatcherInterface::class)

@@ -61,7 +61,7 @@ class DemosPlanOrgaController extends BaseController
     {
         $session = $request->getSession();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/verify_orga_switch_or_update.html.twig',
             [
                 'templateVars' => [
@@ -117,7 +117,7 @@ class DemosPlanOrgaController extends BaseController
 
         $templateVars = $this->getEditOrgaTemplateVars($orgaTypeRepository, $orgaId);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/edit_orga.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -220,7 +220,7 @@ class DemosPlanOrgaController extends BaseController
 
         $templateVars = $this->getEditOrgaTemplateVars($orgaTypeRepository, $orgaId);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/edit_orga_branding.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -312,7 +312,7 @@ class DemosPlanOrgaController extends BaseController
         $templateVars['writableOrgaFields'] = array_keys($this->orgaHandler->getWritableAttributes());
         $templateVars['availableOrgaTypes'] = $this->getFormParameter('orga_types');
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/list_orgas.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -402,7 +402,7 @@ class DemosPlanOrgaController extends BaseController
         $templateVars = [];
         $templateVars['customerName'] = $customer->getName();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/orga_register_form.html.twig',
             [
                 'templateVars' => $templateVars,

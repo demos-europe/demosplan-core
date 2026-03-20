@@ -50,7 +50,7 @@ class ProcedureProposalController extends BaseController
     {
         $procedureProposals = $this->procedureProposalService->getProcedureProposals();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_list_procedure_proposal.html.twig',
             [
                 'title'     => 'procedure.proposal.list',
@@ -76,7 +76,7 @@ class ProcedureProposalController extends BaseController
             return $this->redirectToRoute('core_home');
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_edit_procedure_proposal.html.twig',
             [
                 'title'        => 'procedure.proposal.detail',
@@ -118,7 +118,7 @@ class ProcedureProposalController extends BaseController
             $this->getMessageBag()->add('error', 'procedure.proposal.create.error');
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/public_procedure_proposal.html.twig',
             [
                 'templateVars' => $templateVars,

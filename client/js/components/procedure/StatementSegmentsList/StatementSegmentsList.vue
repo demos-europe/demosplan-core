@@ -60,7 +60,7 @@
               data-cy="editText"
               @click="currentAction = 'editText'"
             >
-              {{ Translator.trans('edit') }}
+              {{ Translator.trans('details') }}
             </button>
           </div>
         </div>
@@ -642,18 +642,24 @@ export default {
       this.setContent({ prop: 'slidebar', val: { isOpen: false, showTab: '', segmentId: '' } })
     },
 
-    saveStatement (statement) {
-      this.synchronizeAssignee(statement)
-      this.synchronizeFullText(statement)
-      this.setStatement({ ...statement, id: statement.id })
+    saveStatement (changes) {
+      // If changes has an 'id', it's a full statement object (from StatementSegmentsEdit)
+      if (changes.id) {
+        this.saveStatementAction(changes.id)
+          .then(() => dplan.notify.notify('confirm', Translator.trans('confirm.saved')))
+          .catch(() => dplan.notify.error(Translator.trans('error.api.generic')))
+        return
+      }
 
-      this.saveStatementAction(statement.id)
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        })
-        .catch(() => {
-          dplan.notify.error(Translator.trans('error.api.generic'))
-        })
+      // Partial update path — create new objects to avoid mutating store/initial references in place
+      const current = this.statement
+      const mergedAttributes = { ...current.attributes, ...changes.attributes }
+      const mergedRelationships = { ...current.relationships, ...changes.relationships }
+
+      this.setStatement({ ...current, attributes: mergedAttributes, relationships: mergedRelationships, id: current.id })
+      this.saveStatementAction(current.id)
+        .then(() => dplan.notify.notify('confirm', Translator.trans('confirm.saved')))
+        .catch(() => dplan.notify.error(Translator.trans('error.api.generic')))
     },
 
     setDataToUpdate (claimingStatement = false) {
@@ -663,10 +669,9 @@ export default {
           relationships: {
             ...this.statements[this.statement.id].relationships,
             assignee: {
-              data: {
-                type: 'Claim',
-                id: claimingStatement ? this.currentUser.id : null,
-              },
+              data: claimingStatement ?
+                { type: 'Claim', id: this.currentUser.id } :
+                null,
             },
           },
         },
@@ -697,7 +702,7 @@ export default {
           })
       } else if (this.sourcePage === 'StatementsList') {
         this.returnLink = Routing.generate('dplan_procedure_statement_list', {
-          procedureId: this.procedure.id
+          procedureId: this.procedure.id,
         })
       }
     },
@@ -726,35 +731,6 @@ export default {
 
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = Routing.generate(route, parameters)
-      }
-    },
-
-    /**
-     * If `this.statement` has changed its assignee (which does not propagate to the
-     * localStatement in StatementMeta), it must be synced back before applying the
-     * StatementMeta data to `this.statement`.
-     * @param {object} statement - The local statement of StatementMeta.vue.
-     */
-    synchronizeAssignee (statement) {
-      const oldAssignee = JSON.stringify(statement.relationships.assignee.data)
-      const newAssignee = JSON.stringify(this.statement.relationships.assignee.data)
-
-      if (oldAssignee !== newAssignee) {
-        statement.relationships.assignee.data = this.statement.relationships.assignee.data
-      }
-    },
-
-    /**
-     * This prevents the user from unintentionally deleting an unsaved text by synchronizing the local
-     * statement in StatementMeta.vue (which also emits the local statement when saving only metadata)
-     * with the statements from store. The editor automatically updates the state of statements in the
-     * store when registering an input. This only occurs when a statement has not been segmented already.
-     *
-     * @param {object} statement - The local statement of StatementMeta.vue.
-     */
-    synchronizeFullText (statement) {
-      if (statement.attributes.fullText !== this.statement.attributes.fullText && dpconfirm(Translator.trans('statement.save.text'))) {
-        statement.attributes.fullText = this.statement.attributes.fullText
       }
     },
 

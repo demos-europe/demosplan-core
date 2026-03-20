@@ -277,6 +277,7 @@
           >
             <dp-input
               id="r_internId"
+              v-model="values.internId"
               data-cy="submitterForm:internId"
               :data-dp-validate-error="Translator.trans('validation.error.internId')"
               :label="{
@@ -286,7 +287,6 @@
               }"
               name="r_internId"
               :pattern="internIdsPattern"
-              model-value=""
             />
           </div>
 
@@ -376,7 +376,6 @@
           :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           name="r_attachment_original"
           allowed-file-types="all"
-          :basic-auth="dplan.settings.basicAuth"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
           :max-number-of-files="1"
           needs-hidden-input
@@ -394,7 +393,6 @@
         id="r_upload"
         name="r_upload"
         allowed-file-types="all"
-        :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
         :max-number-of-files="1000"
@@ -576,12 +574,13 @@ export default {
       isSaving: false,
       values: {
         authoredDate: '',
+        internId: '',
         memo: '',
         quickSave: '',
         submittedDate: '',
+        submitter: submitterProperties,
         tags: [],
         text: '',
-        submitter: submitterProperties,
       },
     }
   },

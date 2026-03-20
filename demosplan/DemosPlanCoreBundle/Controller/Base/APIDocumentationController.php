@@ -34,7 +34,7 @@ class APIDocumentationController extends BaseController
             return $this->redirectToRoute('core_home');
         }
 
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanCore/api_documentation.html.twig');
+        return $this->render('@DemosPlanCore/DemosPlanCore/api_documentation.html.twig');
     }
 
     /**

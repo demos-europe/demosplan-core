@@ -23,6 +23,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttributeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\FormDefinitionConstraint;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -158,7 +159,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     /**
      * @var string
      *
-     * @ORM\Column(name="_ds_polygon", type="text", length=65535, nullable=false)
+     * @ORM\Column(name="_ds_polygon", type="text", length=16777215, nullable=false)
      */
     protected $polygon = '';
 
@@ -479,6 +480,11 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
      * @ORM\Column(type="boolean", nullable = false, options={"default":false})
      */
     private $anonymous = false;
+
+    /**
+     * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
+     */
+    private ?CustomFieldValuesList $customFields = null;
 
     public function __construct()
     {
@@ -1791,5 +1797,15 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     public function setAnonymous(bool $anonymous): void
     {
         $this->anonymous = $anonymous;
+    }
+
+    public function getCustomFields(): ?CustomFieldValuesList
+    {
+        return $this->customFields;
+    }
+
+    public function setCustomFields(?CustomFieldValuesList $customFields): void
+    {
+        $this->customFields = $customFields;
     }
 }

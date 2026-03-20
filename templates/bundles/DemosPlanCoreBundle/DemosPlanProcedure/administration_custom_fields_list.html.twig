@@ -1,8 +1,27 @@
 {% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
 
 {% block component_part %}
+    {# Define mapping of field permissions to their specific headings #}
+    {% set fieldTypePermissions = {
+        'field_segments_custom_fields': 'segments.fields.configurable',
+        'field_statements_custom_fields': 'statements.fields.configurable'
+    } %}
+
+    {# Check which field permissions the user has #}
+    {% set fieldTypeHeadings = [] %}
+    {% for permission, headingKey in fieldTypePermissions %}
+        {% if hasPermission(permission) %}
+            {% set fieldTypeHeadings = fieldTypeHeadings|merge([headingKey]) %}
+        {% endif %}
+    {% endfor %}
+
+    {# Use specific heading if exactly one field type, generic if multiple #}
+    {% set headingKey = fieldTypeHeadings|length == 1
+        ? fieldTypeHeadings[0]
+        : 'fields.configurable' %}
+
     {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
-        heading: 'segments.fields.configurable'|trans
+        heading: headingKey|trans
     } %}
 
     <administration-custom-fields-list

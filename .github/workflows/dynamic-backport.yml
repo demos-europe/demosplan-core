@@ -1,0 +1,86 @@
+name: Dynamic Release Backport
+on:
+    schedule:
+        # Run once per night at 2:00 AM UTC
+        - cron: '0 2 * * *'
+    workflow_dispatch:
+        inputs:
+            release_branch:
+                description: 'Specific release branch to backport (leave empty for latest)'
+                required: false
+                type: string
+
+jobs:
+    find-release-branches:
+        runs-on: ubuntu-latest
+        outputs:
+            branches: ${{ steps.find.outputs.branches }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Find release branches
+              id: find
+              env:
+                  RELEASE_BRANCH: ${{ inputs.release_branch }}
+              run: |
+                  if [ -n "$RELEASE_BRANCH" ]; then
+                      # Use manually specified branch (validate it matches expected pattern)
+                      if [[ "$RELEASE_BRANCH" =~ ^release_[a-zA-Z0-9_-]+$ ]]; then
+                          echo "branches=[\"$RELEASE_BRANCH\"]" >> $GITHUB_OUTPUT
+                      else
+                          echo "::error::Invalid branch name format. Must match 'release_*' pattern."
+                          exit 1
+                      fi
+                  else
+                      # Find all release branches that are ahead of main
+                      BRANCHES=$(git branch -r --list 'origin/release_*' | sed 's|origin/||' | while read branch; do
+                          # Check if branch has commits not in main
+                          if [ $(git rev-list --count main..origin/$branch 2>/dev/null || echo 0) -gt 0 ]; then
+                              echo "$branch"
+                          fi
+                      done | jq -R -s -c 'split("\n") | map(select(length > 0))')
+                      echo "branches=$BRANCHES" >> $GITHUB_OUTPUT
+                  fi
+
+    create-backport-pr:
+        needs: find-release-branches
+        if: needs.find-release-branches.outputs.branches != '[]' && needs.find-release-branches.outputs.branches != ''
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                branch: ${{ fromJson(needs.find-release-branches.outputs.branches) }}
+            fail-fast: false
+        steps:
+            - name: Checkout main
+              uses: actions/checkout@v4
+              with:
+                  ref: main
+                  fetch-depth: 0
+
+            - name: Merge release branch
+              id: merge
+              run: |
+                  SOURCE_BRANCH="${{ matrix.branch }}"
+                  echo "source=$SOURCE_BRANCH" >> $GITHUB_OUTPUT
+
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+
+                  # Attempt merge - will succeed or create conflict markers
+                  git merge origin/$SOURCE_BRANCH --no-edit || echo "has_conflicts=true" >> $GITHUB_OUTPUT
+
+            - name: Create Pull Request
+              uses: peter-evans/create-pull-request@98357b18bf14b5342f975ff684046ec3b2a07725 # v8
+              with:
+                  branch: backport/${{ steps.merge.outputs.source }}
+                  base: main
+                  title: "Backport: ${{ steps.merge.outputs.source }} -> main"
+                  body: |
+                      Automated backport of `${{ steps.merge.outputs.source }}` to `main`.
+
+                      ${{ steps.merge.outputs.has_conflicts && '**This PR has merge conflicts that need manual resolution.**' || 'Clean merge - ready for review. **IMPORTANT: No not sqash the merge but use a merge commit**' }}
+                  labels: backport
+                  delete-branch: true
