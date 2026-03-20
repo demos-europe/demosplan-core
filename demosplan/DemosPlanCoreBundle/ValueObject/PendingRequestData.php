@@ -25,6 +25,7 @@ use DateTime;
  * @method bool        getHasFiles()
  * @method array|null  getFilesMetadata()
  * @method DateTime    getTimestamp()
+ * @method string|null getSelectedOrganisationId()
  */
 class PendingRequestData extends ValueObject
 {
@@ -69,6 +70,11 @@ class PendingRequestData extends ValueObject
     protected DateTime $timestamp;
 
     /**
+     * Organisation the user was operating in when their tokens expired.
+     */
+    protected ?string $selectedOrganisationId = null;
+
+    /**
      * Fill the value object with clear (unencrypted) request data.
      *
      * Note: This method expects all data to be in clear/unencrypted form.
@@ -86,6 +92,7 @@ class PendingRequestData extends ValueObject
         $this->hasFiles = $data['hasFiles'] ?? false;
         $this->filesMetadata = $data['filesMetadata'] ?? null;
         $this->body = $data['body'] ?? null;
+        $this->selectedOrganisationId = $data['selectedOrganisationId'] ?? null;
 
         $this->lock();
     }

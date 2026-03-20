@@ -33,6 +33,13 @@ class OrganisationSelectionController extends BaseController
 {
     private const SESSION_KEY_RETURN_URL = 'organisation_selection_return_url';
 
+    /**
+     * Session keys set by the authenticator when redirecting to org selection during re-auth.
+     * Public so the authenticator can write them without circular coupling.
+     */
+    public const SESSION_KEY_PENDING_PAGE_URL = 'organisation_selection_pending_page_url';
+    public const SESSION_KEY_PENDING_ORG_ID = 'organisation_selection_pending_org_id';
+
     public function __construct(
         private readonly CurrentOrganisationService $currentOrganisationService,
     ) {
@@ -63,9 +70,10 @@ class OrganisationSelectionController extends BaseController
             return $this->redirectToRoute('core_home_loggedin');
         }
 
-        // Store validated return URL in session instead of round-tripping through form
+        // Store validated return URL in session instead of round-tripping through form.
+        // Skip during re-auth flow — referer would be the Keycloak callback URL, not a useful destination.
         $referer = $request->headers->get('referer');
-        if (null !== $referer && '' !== $referer) {
+        if (null !== $referer && '' !== $referer && null === $request->getSession()->get(self::SESSION_KEY_PENDING_ORG_ID)) {
             $path = parse_url($referer, PHP_URL_PATH);
             $selectPath = $this->generateUrl('DemosPlan_user_select_organisation');
             if (is_string($path) && 1 === preg_match('#^/[^/]#', $path) && $path !== $selectPath) {
@@ -79,6 +87,7 @@ class OrganisationSelectionController extends BaseController
                 'title'                 => 'organisation.select',
                 'organisations'         => $organisations,
                 'currentOrganisationId' => $user->getCurrentOrganisation()?->getId(),
+                'pendingOrganisationId' => $request->getSession()->get(self::SESSION_KEY_PENDING_ORG_ID),
             ]
         );
     }
@@ -139,8 +148,20 @@ class OrganisationSelectionController extends BaseController
 
         $this->getMessageBag()->add('confirm', 'confirm.organisation.switched');
 
-        // Retrieve and clear the return URL from the session
         $session = $request->getSession();
+
+        // Re-auth flow: redirect to the pending page only when the same org was re-selected.
+        // Different org chosen → discard pending context, proceed normally.
+        $pendingOrgId = $session->get(self::SESSION_KEY_PENDING_ORG_ID);
+        $pendingPageUrl = $session->get(self::SESSION_KEY_PENDING_PAGE_URL);
+        $session->remove(self::SESSION_KEY_PENDING_ORG_ID);
+        $session->remove(self::SESSION_KEY_PENDING_PAGE_URL);
+
+        if (null !== $pendingOrgId && null !== $pendingPageUrl && $selectedOrga->getId() === $pendingOrgId) {
+            return new RedirectResponse($pendingPageUrl);
+        }
+
+        // Retrieve and clear the return URL from the session
         $returnUrl = $session->get(self::SESSION_KEY_RETURN_URL);
         $session->remove(self::SESSION_KEY_RETURN_URL);
 

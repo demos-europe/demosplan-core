@@ -14,6 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface;
+use demosplan\DemosPlanCoreBundle\Controller\User\OrganisationSelectionController;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
@@ -128,6 +130,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
         $userId = $request->getSession()->get('userId');
         $pendingPageUrl = null;
+        $pendingRequest = null;
 
         if (null !== $accessToken && null !== $userId) {
             // Read pending request BEFORE storeTokens() clears it.
@@ -165,8 +168,29 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             }
         }
 
-        // Re-auth with pending page: skip multi-org selection, redirect to buffered page
+        // Re-auth with pending page: restore org context, then redirect
         if (null !== $pendingPageUrl) {
+            $user = $token->getUser();
+            $pendingOrganisationId = $pendingRequest?->getSelectedOrganisationId();
+
+            if ($user instanceof User && $this->currentOrganisationService->hasMultipleOrganisations($user) && null !== $pendingOrganisationId) {
+                // Multi-org: route through selection page so user can confirm or change org context.
+                // Controller will redirect to pending page only when same org is chosen.
+                $request->getSession()->set(OrganisationSelectionController::SESSION_KEY_PENDING_PAGE_URL, $pendingPageUrl);
+                $request->getSession()->set(OrganisationSelectionController::SESSION_KEY_PENDING_ORG_ID, $pendingOrganisationId);
+                $this->messageBag->add('confirm', 'confirm.session.renewed');
+
+                return new RedirectResponse($this->router->generate('DemosPlan_user_select_organisation'));
+            }
+
+            // Single-org or missing org context: auto-select and redirect directly
+            if ($user instanceof User && 1 === $user->getOrganisations()->count()) {
+                $singleOrga = $user->getOrganisations()->first();
+                if (false !== $singleOrga) {
+                    $this->currentOrganisationService->setCurrentOrganisation($user, $singleOrga);
+                }
+            }
+
             $this->messageBag->add('confirm', 'confirm.session.renewed');
 
             return new RedirectResponse($pendingPageUrl);

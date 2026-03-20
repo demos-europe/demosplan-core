@@ -428,14 +428,15 @@ class OAuthTokenStorageService
 
         $requestData = new PendingRequestData();
         $requestData->fill([
-            'pageUrl'       => $oauthToken->getPendingPageUrl(),
-            'requestUrl'    => $oauthToken->getPendingRequestUrl(),
-            'method'        => $oauthToken->getPendingRequestMethod(),
-            'contentType'   => $oauthToken->getPendingRequestContentType(),
-            'hasFiles'      => $oauthToken->hasPendingRequestFiles(),
-            'filesMetadata' => $oauthToken->getPendingRequestFilesMetadata(),
-            'timestamp'     => $oauthToken->getPendingRequestTimestamp(),
-            'body'          => $clearBody,
+            'pageUrl'                => $oauthToken->getPendingPageUrl(),
+            'requestUrl'             => $oauthToken->getPendingRequestUrl(),
+            'method'                 => $oauthToken->getPendingRequestMethod(),
+            'contentType'            => $oauthToken->getPendingRequestContentType(),
+            'hasFiles'               => $oauthToken->hasPendingRequestFiles(),
+            'filesMetadata'          => $oauthToken->getPendingRequestFilesMetadata(),
+            'timestamp'              => $oauthToken->getPendingRequestTimestamp(),
+            'body'                   => $clearBody,
+            'selectedOrganisationId' => $oauthToken->getSelectedOrganisation()?->getId(),
         ]);
 
         return $requestData;

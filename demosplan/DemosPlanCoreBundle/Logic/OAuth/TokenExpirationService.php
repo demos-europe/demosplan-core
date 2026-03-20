@@ -17,8 +17,11 @@ use DateTimeZone;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Controller\GenericRpcController;
 use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -41,6 +44,7 @@ class TokenExpirationService
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly OAuthTokenStorageService $oauthTokenStorageService,
+        private readonly OrgaRepository $orgaRepository,
         private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
         private readonly RouterInterface $router,
         private readonly TokenEncryptionService $tokenEncryptionService,
@@ -73,13 +77,26 @@ class TokenExpirationService
 
             $this->oauthTokenStorageService->bufferRequestIfNeeded($oauthToken);
 
-            // Store page URL for redirect-back after re-authentication.
+            // Store page URL and selected org ID for redirect-back after re-authentication.
             // For POST requests this is a cheap redundant write — bufferRequestIfNeeded already set it.
             // For GET requests this is the only write.
-            try {
-                $this->oauthTokenStorageService->storePendingPageUrl($oauthToken, $request->getPathInfo());
-            } catch (Exception $e) {
-                $this->logger->error('Failed to store pending page URL for redirect-back', ['error' => $e->getMessage()]);
+            // Skip logout and connect routes: redirecting back to those would re-trigger logout or an auth loop.
+            $path = $request->getPathInfo();
+            $logoutPath = $this->router->generate('DemosPlan_user_logout');
+            $connectPath = $this->router->generate('connect_keycloak_ozg');
+            if (!str_contains($path, $logoutPath) && !str_contains($path, $connectPath)) {
+                try {
+                    $orgId = $session->get(CurrentOrganisationService::SESSION_KEY);
+                    if (null !== $orgId) {
+                        $orga = $this->orgaRepository->find($orgId);
+                        if ($orga instanceof Orga) {
+                            $oauthToken->setSelectedOrganisation($orga);
+                        }
+                    }
+                    $this->oauthTokenStorageService->storePendingPageUrl($oauthToken, $path);
+                } catch (Exception $e) {
+                    $this->logger->error('Failed to store pending page URL for redirect-back', ['error' => $e->getMessage()]);
+                }
             }
         }
 

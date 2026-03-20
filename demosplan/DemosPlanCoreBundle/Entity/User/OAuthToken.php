@@ -128,6 +128,16 @@ class OAuthToken implements EntityInterface
      */
     private ?DateTime $pendingRequestTimestamp = null;
 
+    /**
+     * Organisation the user was operating in when their tokens expired.
+     * Stored so it can be restored after re-authentication (org selection flow).
+     *
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
+     *
+     * @ORM\JoinColumn(name="selected_organisation_id", referencedColumnName="_o_id", nullable=true, onDelete="SET NULL")
+     */
+    private ?Orga $selectedOrganisation = null;
+
     // ===== PROVIDER & TIMESTAMPS =====
 
     /**
@@ -296,6 +306,16 @@ class OAuthToken implements EntityInterface
         $this->pendingRequestTimestamp = $pendingRequestTimestamp;
     }
 
+    public function getSelectedOrganisation(): ?Orga
+    {
+        return $this->selectedOrganisation;
+    }
+
+    public function setSelectedOrganisation(?Orga $selectedOrganisation): void
+    {
+        $this->selectedOrganisation = $selectedOrganisation;
+    }
+
     public function getProvider(): string
     {
         return $this->provider;
@@ -358,6 +378,7 @@ class OAuthToken implements EntityInterface
         $this->pendingRequestHasFiles = false;
         $this->pendingRequestFilesMetadata = null;
         $this->pendingRequestTimestamp = null;
+        $this->selectedOrganisation = null;
     }
 
     /**
