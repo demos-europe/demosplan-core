@@ -199,7 +199,6 @@ class ProcedureService implements ProcedureServiceInterface
         private readonly OrgaService $orgaService,
         private readonly ParagraphRepository $paragraphRepository,
         Permissions $permissions,
-        private readonly PhasePermissionsetLoader $phasePermissionsetLoader,
         private readonly PlaceRepository $placeRepository,
         private readonly Plis $plis,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
@@ -1165,12 +1164,10 @@ class ProcedureService implements ProcedureServiceInterface
     }
 
     /**
-     * Common post-update operations for procedures: phase loading, event dispatching, and ES reindexing.
+     * Common post-update operations for procedures: event dispatching and ES reindexing.
      */
     private function handleProcedurePostUpdateOperations(Procedure $sourceProcedure, Procedure $updatedProcedure): Procedure
     {
-        // Load phase permission sets and set phase name
-        $updatedProcedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($updatedProcedure);
         $updatedProcedure->setPublicParticipationPhaseName(
             $this->globalConfig->getPhaseNameWithPriorityExternal(
                 $updatedProcedure->getPublicParticipationPhase()

@@ -62,8 +62,20 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     protected string $audience = '';
 
     /**
-     * The permission set for this phase.
+     * Controls visibility and participation access for this phase.
      * Values: 'hidden' | 'read' | 'write'.
+     *
+     * For internal phases (audience = 'internal'), this governs invitable institutions ("Institutionen"):
+     * * `'hidden'`: institutions cannot see the procedure or its planning documents; participation is not allowed
+     * * `'read'`: invited institutions can see the procedure and its planning documents, but cannot participate
+     * * `'write'`: invited institutions can see the procedure and its planning documents and can participate
+     *
+     * For external phases (audience = 'external'), this governs guests and citizens:
+     * * `'hidden'`: guests and citizens cannot see the procedure or its planning documents; participation is not allowed
+     * * `'read'`: guests and citizens can see the procedure and its planning documents, but cannot participate
+     * * `'write'`: guests and citizens can see the procedure and its planning documents and can participate
+     *
+     * Note: planners always have 'write' access for procedures they own, regardless of this value.
      *
      * @ORM\Column(type="string", length=10, nullable=false)
      */

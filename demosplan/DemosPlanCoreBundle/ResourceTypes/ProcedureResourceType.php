@@ -18,7 +18,6 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInter
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\PhasePermissionsetLoader;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
@@ -71,7 +70,6 @@ use EDT\PathBuilding\End;
 final class ProcedureResourceType extends DplanResourceType implements ProcedureResourceTypeInterface
 {
     public function __construct(
-        private readonly PhasePermissionsetLoader $phasePermissionsetLoader,
         private readonly DraftStatementService $draftStatementService,
         private readonly ProcedureAccessEvaluator $accessEvaluator,
         private readonly ProcedureExtension $procedureExtension,
@@ -271,9 +269,9 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
             });
 
             $properties[] = $this->createAttribute($this->internalPhasePermissionset)
-                ->readable(false, $this->phasePermissionsetLoader->getInternalPhasePermissionset(...));
+                ->readable(false, fn (Procedure $procedure): string => $procedure->getPhaseObject()->getPhaseDefinition()->getPermissionSet());
             $properties[] = $this->createAttribute($this->externalPhasePermissionset)
-                ->readable(false, $this->phasePermissionsetLoader->getExternalPhasePermissionset(...));
+                ->readable(false, fn (Procedure $procedure): string => $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet());
         }
 
         return $properties;

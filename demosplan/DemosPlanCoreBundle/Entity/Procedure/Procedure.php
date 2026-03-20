@@ -794,13 +794,14 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     public function getPhasePermissionset(): string
     {
-        return $this->phase->getPermissionSet() ?? ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
+        return $this->phase->getPhaseDefinition()->getPermissionSet();
     }
 
+    /**
+     * @deprecated permissionSet is now read directly from the phase definition
+     */
     public function setPhasePermissionset(string $phasePermissionset): Procedure
     {
-        $this->phase->setPermissionSet($phasePermissionset);
-
         return $this;
     }
 
@@ -1120,14 +1121,14 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     public function getPublicParticipationPhasePermissionset(): string
     {
-        return $this->publicParticipationPhase->getPermissionSet() ??
-            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
+        return $this->publicParticipationPhase->getPhaseDefinition()->getPermissionSet();
     }
 
+    /**
+     * @deprecated permissionSet is now read directly from the phase definition
+     */
     public function setPublicParticipationPhasePermissionset(string $publicParticipationPhasePermissionset): Procedure
     {
-        $this->publicParticipationPhase->setPermissionSet($publicParticipationPhasePermissionset);
-
         return $this;
     }
 
