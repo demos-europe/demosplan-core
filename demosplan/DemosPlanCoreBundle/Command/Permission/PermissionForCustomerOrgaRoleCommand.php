@@ -119,7 +119,6 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
 
         foreach ($roles as $roleChoice) {
             foreach ($customers as $customerChoice) {
-
                 $updatedOrgas = $this->doExecuteAction($permissionChoice, $customerChoice, $roleChoice, $dryRun, $orgaId ? trim((string) $orgaId) : null);
 
                 $this->displayUpdatedOrgas($output, $updatedOrgas);
