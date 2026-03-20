@@ -107,10 +107,7 @@ class AzureUserDataMapper
                 'objectId' => $azureUserData->getObjectId(),
             ]);
 
-            throw new AuthenticationException(
-                'User not found and auto-provisioning is not configured. '
-                .'Please contact your administrator.'
-            );
+            throw new AuthenticationException('User not found and auto-provisioning is not configured. Please contact your administrator.');
         }
 
         /** @var Orga $organisation */

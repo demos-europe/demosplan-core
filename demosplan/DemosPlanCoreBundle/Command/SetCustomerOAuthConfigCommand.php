@@ -300,11 +300,7 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
         if (is_string($idpTypeValue) && '' !== $idpTypeValue) {
             $idpType = IdentityProviderType::tryFrom($idpTypeValue);
             if (null === $idpType) {
-                throw new InvalidArgumentException(sprintf(
-                    'Invalid identityProviderType "%s". Valid values: %s',
-                    $idpTypeValue,
-                    implode(', ', array_column(IdentityProviderType::cases(), 'value'))
-                ));
+                throw new InvalidArgumentException(sprintf('Invalid identityProviderType "%s". Valid values: %s', $idpTypeValue, implode(', ', array_column(IdentityProviderType::cases(), 'value'))));
             }
             $config->setIdentityProviderType($idpType);
         }
