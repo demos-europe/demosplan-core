@@ -140,6 +140,7 @@
           :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
           data-cy="segmentsList"
           has-flyout
+          has-large-padding
           has-sticky-header
           :header-fields="availableHeaderFields"
           is-resizable
