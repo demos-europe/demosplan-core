@@ -732,7 +732,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         // always use standard statementElement for now:
         $statementElement = $this->elementsService->getStatementElement($currentProcedure->getId());
         $newOriginalStatement->setElement($statementElement);
-        $newOriginalStatement->setPhase($newOriginalStatement->getProcedure()->getPhase());
+        $newOriginalStatement->setPhaseDefinition($newOriginalStatement->getProcedure()->getPhaseObject()->getPhaseDefinition());
 
         // not supported:
         // county, priorityArea, municipalities, tags, voters, headstatement, recommendation, housenumber,
