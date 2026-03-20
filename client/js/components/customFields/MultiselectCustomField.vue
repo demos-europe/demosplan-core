@@ -121,9 +121,25 @@ export default {
     handleUpdate (newValue) {
       this.$emit('update:value', {
         id: this.field.id,
-        value: newValue.map(opt => opt.id),
+        value: newValue.length > 0 ? newValue.map(opt => opt.id) : null,
       })
     },
+  },
+
+  mounted () {
+    /*
+     * The dpValidateMultiselectDirective sets data-dp-validate-is-valid=false on mount
+     * when options exist, regardless of initial value. Correct this for pre-populated
+     * required fields so validation passes without requiring a user interaction first.
+     */
+    if (this.field?.attributes?.isRequired && this.currentValue.length > 0) {
+      this.$nextTick(() => {
+        const el = this.$el.querySelector('[data-dp-validate-is-valid]')
+        if (el) {
+          el.dataset.dpValidateIsValid = 'true'
+        }
+      })
+    }
   },
 }
 </script>

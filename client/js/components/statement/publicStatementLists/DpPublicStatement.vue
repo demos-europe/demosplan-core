@@ -268,7 +268,7 @@
       :definition-source-id="procedureId"
       :list-title="Translator.trans('statement.data')"
       :resource-id="id"
-      :show-empty="false"
+      :show-empty="true"
       mode="readonly"
       resource-type="DraftStatement"
       expandable

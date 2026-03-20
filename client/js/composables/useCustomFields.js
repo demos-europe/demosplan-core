@@ -8,7 +8,6 @@
  */
 
 import { dpApi } from '@demos-europe/demosplan-ui'
-import { ref } from 'vue'
 
 /**
  * Module-level shared Map for custom field definitions
@@ -58,12 +57,37 @@ const cachedBatchValues = new Map()
 /**
  * Shared Map for pending batch fetch promises.
  * Prevents duplicate batch requests when multiple components mount simultaneously.
- * Key: 'resourceType:definitionSourceId'
+ * Key: 'resourceType:definitionSourceId:filterPath'
  * Value: Promise resolving to Map<resourceId, Array>
  */
 const pendingBatchFetches = new Map()
 
+/**
+ * Shared Map for cached individual value fetches.
+ * Key: 'resourceType:resourceId'
+ * Value: Array of custom field values
+ */
+const cachedIndividualValues = new Map()
+
+/**
+ * Shared Map for pending individual fetch promises.
+ * Prevents duplicate requests for the same resource.
+ * Key: 'resourceType:resourceId'
+ * Value: Promise resolving to Array
+ */
+const pendingIndividualFetches = new Map()
+
 function fetchIndividualValues (resourceType, resourceId) {
+  const cacheKey = `${resourceType}:${resourceId}`
+
+  if (cachedIndividualValues.has(cacheKey)) {
+    return Promise.resolve(cachedIndividualValues.get(cacheKey))
+  }
+
+  if (pendingIndividualFetches.has(cacheKey)) {
+    return pendingIndividualFetches.get(cacheKey)
+  }
+
   const url = Routing.generate('api_resource_get', { resourceType, resourceId })
   const params = {
     fields: {
@@ -74,24 +98,38 @@ function fetchIndividualValues (resourceType, resourceId) {
   const doFetch = () => dpApi.get(url, params)
     .then(response => response.data.data?.attributes?.customFields || [])
 
+  let executionPromise
+
   if (activeValueFetches < MAX_CONCURRENT_VALUE_FETCHES) {
     activeValueFetches++
-    return doFetch().finally(() => {
+    executionPromise = doFetch().finally(() => {
       activeValueFetches--
       processValueQueue()
     })
+  } else {
+    executionPromise = new Promise((resolve, reject) => {
+      valueRequestQueue.push({ fn: doFetch, resolve, reject })
+    })
   }
 
-  return new Promise((resolve, reject) => {
-    valueRequestQueue.push({ fn: doFetch, resolve, reject })
-  })
+  const cachedPromise = executionPromise
+    .then(values => {
+      cachedIndividualValues.set(cacheKey, values)
+      return values
+    })
+    .finally(() => {
+      pendingIndividualFetches.delete(cacheKey)
+    })
+
+  pendingIndividualFetches.set(cacheKey, cachedPromise)
+  return cachedPromise
 }
 
 /*
  * Fetches all custom field values for a procedure in a single request.
  * Results are cached in cachedBatchValues under the given cacheKey.
  */
-function fetchBatchValues (resourceType, definitionSourceId, cacheKey) {
+function fetchBatchValues (resourceType, definitionSourceId, cacheKey, filterPath) {
   const url = Routing.generate('api_resource_list', { resourceType })
   const params = {
     fields: {
@@ -100,7 +138,7 @@ function fetchBatchValues (resourceType, definitionSourceId, cacheKey) {
     filter: {
       procedureId: {
         condition: {
-          path: 'procedure.id',
+          path: filterPath,
           value: definitionSourceId,
         },
       },
@@ -134,7 +172,6 @@ function fetchBatchValues (resourceType, definitionSourceId, cacheKey) {
  *   fetchCustomFields,
  *   fetchCustomFieldValues,
  *   getCustomFieldsDefinitions,
- *   isLoading,
  *   updateCustomFields,
  * }
  *
@@ -153,8 +190,6 @@ function fetchBatchValues (resourceType, definitionSourceId, cacheKey) {
  *   .catch(err => console.error(err))
  */
 export function useCustomFields () {
-  const isLoading = ref(false)
-
   /**
    * Clear custom field definitions for a specific procedure or all procedures
    * Useful for forcing a refresh after updates
@@ -164,24 +199,32 @@ export function useCustomFields () {
    */
   const clearCustomFieldsDefinitions = (definitionSourceId = null) => {
     if (definitionSourceId) {
-      const suffix = `:${definitionSourceId}`
+      /*
+       * Batch cache keys use 'resourceType:definitionSourceId:filterPath', so we
+       * match on ':definitionSourceId:' to avoid false positives at the start or end.
+       */
+      const segment = `:${definitionSourceId}:`
       customFieldsDefinitions.delete(definitionSourceId)
       pendingFetches.delete(definitionSourceId)
       for (const key of cachedBatchValues.keys()) {
-        if (key.endsWith(suffix)) {
+        if (key.includes(segment)) {
           cachedBatchValues.delete(key)
         }
       }
       for (const key of pendingBatchFetches.keys()) {
-        if (key.endsWith(suffix)) {
+        if (key.includes(segment)) {
           pendingBatchFetches.delete(key)
         }
       }
+      cachedIndividualValues.clear()
+      pendingIndividualFetches.clear()
     } else {
       customFieldsDefinitions.clear()
       pendingFetches.clear()
       cachedBatchValues.clear()
       pendingBatchFetches.clear()
+      cachedIndividualValues.clear()
+      pendingIndividualFetches.clear()
     }
   }
 
@@ -207,8 +250,6 @@ export function useCustomFields () {
       return pendingFetches.get(definitionSourceId)
     }
 
-    isLoading.value = true
-
     const url = Routing.generate('api_resource_list', {
       resourceType: 'CustomField',
     })
@@ -227,32 +268,19 @@ export function useCustomFields () {
       },
     }
 
-    // Create and cache the promise
     const fetchPromise = dpApi.get(url, params)
       .then(response => {
         const customFields = response.data.data || []
-
-        // Cache the definitions in the shared Map
         customFieldsDefinitions.set(definitionSourceId, customFields)
-
-        isLoading.value = false
-
-        // Remove from pending fetches after successful completion
         pendingFetches.delete(definitionSourceId)
-
         return customFields
       })
       .catch(err => {
-        isLoading.value = false
-
-        // Remove from pending fetches on error to allow retry
         pendingFetches.delete(definitionSourceId)
-
         dplan.notify.notify('error', Translator.trans('custom.fields.error.loading'))
         throw err
       })
 
-    // Cache the pending promise
     pendingFetches.set(definitionSourceId, fetchPromise)
 
     return fetchPromise
@@ -260,22 +288,26 @@ export function useCustomFields () {
 
   /**
    * Fetch custom field values for a specific resource.
-   * When definitionSourceId is provided, all values for the procedure are fetched
+   * When batchFilterPath is provided, all values for the procedure are fetched
    * in a single batch request and cached. Concurrent calls for the same procedure
    * share the same pending promise, preventing duplicate requests.
    * Falls back to an individual request if the resource is not found in the batch.
+   * When batchFilterPath is null, an individual request is made for the single resource.
+   * Individual requests are also cached per resource ID.
    *
    * @param {string} resourceType - Resource type (e.g., 'Statement', 'OriginalStatement')
    * @param {string} resourceId - ID of the resource
-   * @param {string|null} definitionSourceId - Procedure ID used to batch-fetch all values
+   * @param {string|null} definitionSourceId - Procedure ID used as filter value in batch fetch
+   * @param {string|null} batchFilterPath - JSON:API filter path for batch fetch (e.g. 'procedure.id').
+   *   When null, individual fetch is used regardless of definitionSourceId.
    * @returns {Promise<Array>} Promise resolving to array of { id, value } objects
    */
-  const fetchCustomFieldValues = (resourceType, resourceId, definitionSourceId = null) => {
-    if (definitionSourceId === null) {
+  const fetchCustomFieldValues = (resourceType, resourceId, definitionSourceId = null, batchFilterPath = null) => {
+    if (batchFilterPath === null) {
       return fetchIndividualValues(resourceType, resourceId)
     }
 
-    const cacheKey = `${resourceType}:${definitionSourceId}`
+    const cacheKey = `${resourceType}:${definitionSourceId}:${batchFilterPath}`
 
     if (cachedBatchValues.has(cacheKey)) {
       const batchCache = cachedBatchValues.get(cacheKey)
@@ -292,7 +324,7 @@ export function useCustomFields () {
       )
     }
 
-    const batchPromise = fetchBatchValues(resourceType, definitionSourceId, cacheKey)
+    const batchPromise = fetchBatchValues(resourceType, definitionSourceId, cacheKey, batchFilterPath)
     pendingBatchFetches.set(cacheKey, batchPromise)
 
     return batchPromise.then(batchCache =>
@@ -311,6 +343,18 @@ export function useCustomFields () {
    */
   const getCustomFieldsDefinitions = (definitionSourceId) => {
     return customFieldsDefinitions.get(definitionSourceId)
+  }
+
+  /**
+   * Check synchronously whether individual values are already cached for a resource.
+   * Used to skip the loading state when data is available immediately.
+   *
+   * @param {string} resourceType - Resource type (e.g. 'DraftStatement')
+   * @param {string} resourceId - ID of the resource
+   * @returns {boolean} True if values are in cache
+   */
+  const hasCachedValues = (resourceType, resourceId) => {
+    return cachedIndividualValues.has(`${resourceType}:${resourceId}`)
   }
 
   /**
@@ -357,6 +401,9 @@ export function useCustomFields () {
       headers: {
         'X-CSRF-Token': dplan.csrfToken,
       },
+    }).then(response => {
+      cachedIndividualValues.delete(`${resourceType}:${resourceId}`)
+      return response
     })
   }
 
@@ -365,7 +412,7 @@ export function useCustomFields () {
     fetchCustomFields,
     fetchCustomFieldValues,
     getCustomFieldsDefinitions,
-    isLoading,
+    hasCachedValues,
     updateCustomFields,
   }
 }

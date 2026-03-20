@@ -147,7 +147,7 @@ export default {
     },
 
     isActiveEdit: {
-      type: Boolean,
+      type: [Boolean, null],
       required: false,
       default: null,
     },
@@ -192,7 +192,6 @@ export default {
       isLoading: false,
       isSaving: false,
       resolvedDefinition: null,
-      saveError: null,
     }
   },
 
@@ -331,7 +330,6 @@ export default {
         this.fieldData.value
 
       this.isSaving = true
-      this.saveError = null
 
       const { updateCustomFields } = useCustomFields()
 
@@ -347,7 +345,6 @@ export default {
         })
         .catch((error) => {
           this.isSaving = false
-          this.saveError = error
           this.$emit('save:error', { fieldId: this.fieldData.id, value: currentValue, error })
           dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
         })
@@ -381,7 +378,6 @@ export default {
             this.editingValue = null
           })
       } else {
-        // Traditional mode: just emit without API call
         this.$emit('update:value', this.editingValue)
         this.$emit('edit:save', this.editingValue)
         this.isEditing = false
