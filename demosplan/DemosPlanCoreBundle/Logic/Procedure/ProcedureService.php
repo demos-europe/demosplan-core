@@ -1714,9 +1714,7 @@ class ProcedureService implements ProcedureServiceInterface
     public function getProceduresForDataInputOrga(string $orgaId): array
     {
         try {
-            $allowedPhases = $this->globalConfig->getInternalPhaseKeys('read||write');
-
-            return $this->procedureRepository->getProceduresForDataInputOrga($orgaId, $allowedPhases);
+            return $this->procedureRepository->getProceduresForDataInputOrga($orgaId);
         } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf der getProceduresForDataInputOrga: ', [$e]);
             throw $e;

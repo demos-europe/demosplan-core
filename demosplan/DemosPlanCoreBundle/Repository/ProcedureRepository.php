@@ -172,13 +172,11 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     /**
      * Get a list of all not deleted and open Procedures by dataInputOrga.
      *
-     * @param array<int, string> $allowedPhases
-     *
      * @return array<int, Procedure>
      *
      * @throws Exception
      */
-    public function getProceduresForDataInputOrga(string $orgaId, array $allowedPhases): array
+    public function getProceduresForDataInputOrga(string $orgaId): array
     {
         try {
             $em = $this->getEntityManager();
@@ -195,7 +193,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $prefilteredProcedures = $query->getQuery()->getResult();
 
             return collect($prefilteredProcedures)->filter(
-                static fn (Procedure $procedure): bool => collect($allowedPhases)->contains($procedure->getPhase())
+                static fn (Procedure $procedure): bool => 'hidden' !== $procedure->getPhaseObject()->getPhaseDefinition()->getPermissionSet()
             )->toArray();
         } catch (Exception $e) {
             $this->getLogger()->warning('getProceduresForDataInputOrga failed: ', [$e]);
