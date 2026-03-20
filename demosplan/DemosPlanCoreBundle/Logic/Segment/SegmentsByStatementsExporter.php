@@ -14,9 +14,13 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\SegmentXlsxExportColumnsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\SegmentXlsxExportDataEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentXlsxExportColumnsEvent;
+use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentXlsxExportDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
@@ -39,6 +43,7 @@ use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use ReflectionException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentsByStatementsExporter extends SegmentsExporter
@@ -49,6 +54,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     public function __construct(
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
         CurrentUserInterface $currentUser,
+        private readonly EventDispatcherInterface $eventDispatcher,
         HtmlHelper $htmlHelper,
         protected ImageManager $imageManager,
         ImageLinkConverter $imageLinkConverter,
@@ -126,7 +132,13 @@ class SegmentsByStatementsExporter extends SegmentsExporter
                     $this->convertImagesToReferencesInRecommendations($segmentsOrStatements->toArray());
             }
             foreach ($segmentsOrStatements as $segmentOrStatement) {
-                $exportData[] = $this->statementArrayConverter->convertIntoExportableArray($segmentOrStatement);
+                $convertedData = $this->statementArrayConverter->convertIntoExportableArray($segmentOrStatement);
+                if ($segmentOrStatement instanceof Segment) {
+                    $dataEvent = new SegmentXlsxExportDataEvent($segmentOrStatement, $convertedData);
+                    $this->eventDispatcher->dispatch($dataEvent, SegmentXlsxExportDataEventInterface::class);
+                    $convertedData = $dataEvent->getExportData();
+                }
+                $exportData[] = $convertedData;
             }
         }
 
@@ -135,6 +147,9 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         }
 
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
+        $columnsEvent = new SegmentXlsxExportColumnsEvent($columnsDefinition);
+        $this->eventDispatcher->dispatch($columnsEvent, SegmentXlsxExportColumnsEventInterface::class);
+        $columnsDefinition = $columnsEvent->getColumnsDefinition();
 
         $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
 
