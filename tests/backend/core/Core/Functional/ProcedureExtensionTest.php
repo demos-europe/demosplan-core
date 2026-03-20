@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedurePhase
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
@@ -60,16 +61,22 @@ class ProcedureExtensionTest extends FunctionalTestCase
 
     public function testGetPhaseKey()
     {
+        /** @var Procedure $procedure */
         $procedure = $this->getProcedure();
+        $internalDefinition = ProcedurePhaseDefinitionFactory::createOne(['audience' => 'internal']);
+        $externalDefinition = ProcedurePhaseDefinitionFactory::createOne(['audience' => 'external']);
+        $procedure->getPhaseObject()->setPhaseDefinition($internalDefinition->_real());
+        $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($externalDefinition->_real());
+
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_INVITABLE_INSTITUTION_ONLY);
         $this->createSut($user);
         $phase = $this->sut->getPhaseKey($procedure);
-        static::assertEquals($procedure->getPhase(), $phase);
+        static::assertEquals($internalDefinition->getId(), $phase);
 
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_CITIZEN);
         $this->createSut($user);
         $phase = $this->sut->getPhaseKey($procedure, 'public');
-        static::assertEquals($procedure->getPublicParticipationPhase(), $phase);
+        static::assertEquals($externalDefinition->getId(), $phase);
     }
 
     /**
@@ -331,6 +338,7 @@ class ProcedureExtensionTest extends FunctionalTestCase
             self::getContainer()->get(GlobalConfigInterface::class),
             new NullLogger(),
             $permissions,
+            self::getContainer()->get(ProcedurePhaseDefinitionService::class),
             self::getContainer()->get(ProcedureService::class),
             self::getContainer()->get(TranslatorInterface::class)
         );

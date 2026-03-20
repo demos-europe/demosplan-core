@@ -43,6 +43,11 @@ readonly class ProcedurePhaseDefinitionService
         ));
     }
 
+    public function findById(string $id): ?ProcedurePhaseDefinition
+    {
+        return $this->procedurePhaseDefinitionRepository->find($id);
+    }
+
     /** @return ProcedurePhaseDefinition[] */
     private function findByCurrentCustomer(): array
     {

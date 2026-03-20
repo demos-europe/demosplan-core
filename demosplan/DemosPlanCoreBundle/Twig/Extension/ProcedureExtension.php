@@ -16,8 +16,10 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use Exception;
@@ -25,6 +27,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 /**
@@ -48,12 +51,20 @@ class ProcedureExtension extends ExtensionBase
         GlobalConfigInterface $globalConfig,
         private readonly LoggerInterface $logger,
         PermissionsInterface $permissions,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         private readonly ProcedureService $procedureService,
         private readonly TranslatorInterface $translator)
     {
         parent::__construct($container);
         $this->globalConfig = $globalConfig;
         $this->permissions = $permissions;
+    }
+
+    public function getFilters(): array
+    {
+        return [
+            new TwigFilter('replacePhaseUuid', $this->replacePhaseUuid(...)),
+        ];
     }
 
     public function getFunctions(): array
@@ -67,6 +78,7 @@ class ProcedureExtension extends ExtensionBase
             new TwigFunction('getProcedureDaysLeft', $this->getDaysLeft(...)),
             new TwigFunction('ownsProcedure', $this->ownsProcedure(...)),
             new TwigFunction('getProcedurePermissionset', $this->getProcedurePermissionset(...)),
+            new TwigFunction('isPreparationPhase', $this->isPreparationPhase(...)),
         ];
     }
 
@@ -119,10 +131,59 @@ class ProcedureExtension extends ExtensionBase
         $publicNameRequested = ('public' === $type || $this->isPublicUser());
 
         if ($publicNameRequested && $this->permissions->hasPermission('area_public_participation')) {
-            return $procedure->getPublicParticipationPhase();
+            return $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getId() ?? '';
         }
 
-        return $procedure->getPhase();
+        return $procedure->getPhaseObject()->getPhaseDefinition()->getId() ?? '';
+    }
+
+    /**
+     * Returns true if the given procedure's phase is a "preparation" phase:
+     * permissionSet = 'read' and participationState = null (visible but not open for participation yet).
+     *
+     * @param string $type auto|public
+     */
+    public function isPreparationPhase(array|Procedure $procedure, string $type = 'auto'): bool
+    {
+        try {
+            $procedure = $this->getProcedureObject($procedure);
+        } catch (Exception) {
+            return false;
+        }
+
+        $publicNameRequested = ('public' === $type || $this->isPublicUser());
+
+        if ($publicNameRequested && $this->permissions->hasPermission('area_public_participation')) {
+            $definition = $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition();
+        } else {
+            $definition = $procedure->getPhaseObject()->getPhaseDefinition();
+        }
+
+        return Procedure::PROCEDURE_PHASE_PERMISSIONSET_READ === $definition->getPermissionSet()
+            && null === $definition->getParticipationState();
+    }
+
+    /**
+     * Replaces a UUID segment in a contextual help key with the corresponding phase definition name and customer.
+     * E.g. "help.public.detail.phase.{uuid}" → "help.public.detail.phase.Beteiligung in Vorbereitung (Kunde XY)".
+     * If no phase definition is found for the UUID, the original key is returned unchanged.
+     */
+    public function replacePhaseUuid(string $key): string
+    {
+        return preg_replace_callback(
+            '/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i',
+            function (array $matches): string {
+                $definition = $this->procedurePhaseDefinitionService->findById($matches[0]);
+                if (null === $definition) {
+                    return $matches[0];
+                }
+
+                $customerName = $definition->getCustomer()?->getName() ?? '';
+
+                return $definition->getName().($customerName !== '' ? ' ('.$customerName.')' : '');
+            },
+            $key
+        ) ?? $key;
     }
 
     /**
@@ -318,41 +379,34 @@ class ProcedureExtension extends ExtensionBase
             return '';
         }
 
-        $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
-        $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
-
-        // Handle public users / externalPhases
-        $externalPhaseIdentifier = $procedure->getPublicParticipationPhase();
-        if ($this->isPublicUser() && array_key_exists($externalPhaseIdentifier, $externalPhases)) {
-            $externalPhase = $externalPhases[$externalPhaseIdentifier];
+        // Handle public users / external phase
+        if ($this->isPublicUser()) {
+            $externalPhaseDefinition = $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition();
 
             // Show a different 'daysleft' message if participationstate is finished.
-            if (array_key_exists(Procedure::PARTICIPATIONSTATE_KEY, $externalPhase)
-                && Procedure::PARTICIPATIONSTATE_FINISHED === $externalPhase[Procedure::PARTICIPATIONSTATE_KEY]) {
+            if (Procedure::PARTICIPATIONSTATE_FINISHED === $externalPhaseDefinition->getParticipationState()) {
                 return $this->translator->trans('days.left.participation.finished');
             }
 
             // Do not show 'daysleft' for not finished but readable procedures,
             // assuming they are in "preparation" phase.
-            if ($this->isUnfinishedReadableProcedure($externalPhase, 'external')) {
+            if ($this->isUnfinishedReadableProcedure($externalPhaseDefinition, 'external')) {
                 return '';
             }
         }
 
-        // Handle logged in users / internalPhases
-        $internalPhaseIdentifier = $procedure->getPhase();
-        if (!$this->isPublicUser() && array_key_exists($internalPhaseIdentifier, $internalPhases)) {
-            $internalPhase = $internalPhases[$internalPhaseIdentifier];
+        // Handle logged in users / internal phase
+        if (!$this->isPublicUser()) {
+            $internalPhaseDefinition = $procedure->getPhaseObject()->getPhaseDefinition();
 
             // Show a different 'daysleft' message if participationstate is finished.
-            if (array_key_exists(Procedure::PARTICIPATIONSTATE_KEY, $internalPhase)
-                && Procedure::PARTICIPATIONSTATE_FINISHED === $internalPhase[Procedure::PARTICIPATIONSTATE_KEY]) {
+            if (Procedure::PARTICIPATIONSTATE_FINISHED === $internalPhaseDefinition->getParticipationState()) {
                 return $this->translator->trans('days.left.participation.finished');
             }
 
             // Do not show 'daysleft' for not finished but readable procedures,
             // assuming they are in "preparation" phase.
-            if ($this->isUnfinishedReadableProcedure($internalPhase, 'internal')) {
+            if ($this->isUnfinishedReadableProcedure($internalPhaseDefinition, 'internal')) {
                 return '';
             }
         }
@@ -408,14 +462,11 @@ class ProcedureExtension extends ExtensionBase
     /**
      * Checks if procedure is not finished but readable.
      */
-    protected function isUnfinishedReadableProcedure(array $phase, string $scope): bool
+    protected function isUnfinishedReadableProcedure(ProcedurePhaseDefinition $phaseDefinition, string $scope): bool
     {
-        $noParticipationStateKeySet = !array_key_exists(Procedure::PARTICIPATIONSTATE_KEY, $phase);
-        $participationStateKeySet = array_key_exists(Procedure::PARTICIPATIONSTATE_KEY, $phase);
-        $participationStateNotFinished = $participationStateKeySet && Procedure::PARTICIPATIONSTATE_FINISHED !== $phase[Procedure::PARTICIPATIONSTATE_KEY];
         $isPermissionSetRead = Procedure::PROCEDURE_PHASE_PERMISSIONSET_READ === $this->permissions->getPermissionset($scope);
 
-        return (($participationStateKeySet && $participationStateNotFinished) || $noParticipationStateKeySet) && $isPermissionSetRead;
+        return Procedure::PARTICIPATIONSTATE_FINISHED !== $phaseDefinition->getParticipationState() && $isPermissionSetRead;
     }
 
     /**
