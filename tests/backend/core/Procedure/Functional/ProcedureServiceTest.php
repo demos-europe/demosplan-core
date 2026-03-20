@@ -36,6 +36,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
@@ -156,12 +157,12 @@ class ProcedureServiceTest extends FunctionalTestCase
         $procedureToExcludeInFixturesExist = false;
         $semiArchivedProcedureExist = false;
         foreach ($procedures as $procedure) {
-            if ('closed' === $procedure->getPhase() && 'closed' === $procedure->getPublicParticipationPhase()) {
+            if ($this->isClosedPhase($procedure->getPhaseObject()->getPhaseDefinition()) && $this->isClosedPhase($procedure->getPublicParticipationPhaseObject()->getPhaseDefinition())) {
                 $procedureToExcludeInFixturesExist = true;
             }
             if ($procedure->getName() === $semiArchivedProcedureName) {
                 $semiArchivedProcedureExist = true;
-                $fixtureIsValidForTest = ('closed' === $procedure->getPhase() && 'configuration' === $procedure->getPublicParticipationPhase());
+                $fixtureIsValidForTest = ($this->isClosedPhase($procedure->getPhaseObject()->getPhaseDefinition()) && 'hidden' === $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet());
                 $this->assertTrue($fixtureIsValidForTest, 'Fixture has been malformed.');
             }
         }
@@ -188,7 +189,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         $this->assertGreaterThan(0, count($procedures));
         $semiArchivedProcedureFound = false;
         foreach ($procedures as $procedure) {
-            $areBothArchived = ('closed' === $procedure->getPhase() && 'closed' === $procedure->getPublicParticipationPhase());
+            $areBothArchived = ($this->isClosedPhase($procedure->getPhaseObject()->getPhaseDefinition()) && $this->isClosedPhase($procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()));
             $this->assertFalse($areBothArchived, 'Procedure found, that should be excluded. Both phases are closed.');
 
             // Explicit check for a procedure with one closed. That one should be found
@@ -523,9 +524,9 @@ class ProcedureServiceTest extends FunctionalTestCase
             'master'                        => false,
             'orgaId'                        => $this->testProcedure->getOrgaId(),
             'orgaName'                      => $this->testProcedure->getOrga()->getName(),
-            'logo'                          => 'some:logodata:string',
-            'publicParticipationPhase'      => 'configuration',
-            'procedureType'                 => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'logo'                                      => 'some:logodata:string',
+            'publicParticipationPhaseDefinition'        => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+            'procedureType'                             => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
         ];
         $resultProcedure = $this->sut->addProcedureEntity(
             $procedure,
@@ -538,7 +539,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         static::assertFalse($resultProcedure->isMasterTemplate());
         static::assertEquals('testAdded', $resultProcedure->getName());
         static::assertEquals('some:logodata:string', $resultProcedure->getLogo());
-        static::assertEquals('configuration', $resultProcedure->getPublicParticipationPhase());
+        static::assertSame('hidden', $resultProcedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet());
         // nearly current timestamp?
         static::assertTrue(3000 > ($resultProcedure->getStartDateTimestamp() - $microTimestamp));
         static::assertEquals('', $resultProcedure->getSettings()->getLinks());
@@ -576,10 +577,10 @@ class ProcedureServiceTest extends FunctionalTestCase
             'master'                    => false,
             'orgaId'                    => $this->testProcedure->getOrgaId(),
             'orgaName'                  => $this->testProcedure->getOrga()->getName(),
-            'logo'                      => 'some:logodata:string',
-            'shortUrl'                  => 'myShortUrl',
-            'publicParticipationPhase'  => 'configuration',
-            'procedureType'             => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'logo'                               => 'some:logodata:string',
+            'shortUrl'                           => 'myShortUrl',
+            'publicParticipationPhaseDefinition' => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+            'procedureType'                      => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
         ];
 
         $resultProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
@@ -1009,9 +1010,9 @@ class ProcedureServiceTest extends FunctionalTestCase
             'externalName'              => 'testAdded',
             'name'                      => 'testAdded',
             'orgaId'                    => $this->testProcedure->getOrgaId(),
-            'orgaName'                  => $this->testProcedure->getOrga()->getName(),
-            'publicParticipationPhase'  => 'configuration',
-            'procedureType'             => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'orgaName'                           => $this->testProcedure->getOrga()->getName(),
+            'publicParticipationPhaseDefinition' => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+            'procedureType'                      => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
         ];
         $resultProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
         static::assertEquals('testAdded', $resultProcedure->getName());
@@ -1112,7 +1113,7 @@ Email:'
             'ident'                        => $this->testProcedure->getId(),
             'name'                         => 'Ein neues Testverfahren 1',
             'desc'                         => '',
-            'phase'                        => 'participation',
+            'phaseDefinition'              => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION),
             'closed'                       => false,
             'startDate'                    => '05.02.2015',
             'endDate'                      => '26.02.2015',
@@ -1123,7 +1124,7 @@ Tel.
 Email:',
             'locationName'                 => 'Ammersbek',
             'locationPostCode'             => 'k.A.',
-            'publicParticipationPhase'     => 'earlyparticipation',
+            'publicParticipationPhaseDefinition' => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_EARLY_PARTICIPATION_PHASE_DEFINITION),
             'publicParticipation'          => true,
             'publicParticipationStartDate' => '',
             'publicParticipationEndDate'   => '',
@@ -3139,9 +3140,9 @@ Email:',
             'desc'                     => 'new description',
             'copymaster'               => $copyMaster,
             'settings'                 => ['emailTitle' => 'new EmailTitle Of new procedure'],
-            'master'                   => false, // this method only creates procedures (no blueprints)
-            'publicParticipationPhase' => 'configuration',
-            'procedureType'            => $this->getReference(LoadProcedureTypeData::BPLAN),
+            'master'                             => false, // this method only creates procedures (no blueprints)
+            'publicParticipationPhaseDefinition' => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+            'procedureType'                      => $this->getReference(LoadProcedureTypeData::BPLAN),
         ];
         static::assertNotEquals($procedureData['settings']['emailTitle'], $copyMaster->getSettings()->getEmailTitle());
         static::assertNotEquals($procedureData['settings']['emailTitle'], $emailTitleOfMasterBlueprintBefore);
@@ -3443,9 +3444,9 @@ Email:',
             'master'                    => false,
             'orgaId'                    => $this->testProcedure->getOrgaId(),
             'orgaName'                  => $this->testProcedure->getOrga()->getName(),
-            'logo'                      => 'some:logodata:string',
-            'publicParticipationPhase'  => 'configuration',
-            'procedureType'             => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'logo'                               => 'some:logodata:string',
+            'publicParticipationPhaseDefinition' => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+            'procedureType'                      => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
         ];
     }
 
@@ -3636,11 +3637,16 @@ Email:',
                 'master'                   => false,
                 'orgaId'                   => $currentUser->getOrganisationId(),
                 'orgaName'                 => $currentUser->getOrgaName(),
-                'logo'                     => 'some:logodata:string',
-                'publicParticipationPhase' => 'configuration',
-                'procedureType'            => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+                'logo'                               => 'some:logodata:string',
+                'publicParticipationPhaseDefinition' => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+                'procedureType'                      => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
             ],
             $currentUser->getId()
         );
+    }
+
+    private function isClosedPhase(ProcedurePhaseDefinition $definition): bool
+    {
+        return 'read' === $definition->getPermissionSet() && null === $definition->getParticipationState();
     }
 }
