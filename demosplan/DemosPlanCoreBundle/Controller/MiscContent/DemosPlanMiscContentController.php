@@ -56,7 +56,7 @@ class DemosPlanMiscContentController extends BaseController
 
         $templateVars['accessibilityExplanation'] = $accessibilityExplanation;
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatic/accessibility_explanation.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -75,7 +75,7 @@ class DemosPlanMiscContentController extends BaseController
         $templateVars = [];
         $templateVars['customer'] = $customerService->getCurrentCustomer();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatic/sign_language.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -109,7 +109,7 @@ class DemosPlanMiscContentController extends BaseController
         $templateVars['orgaImprints'] = $orgaHandler->getImprintMunicipalities($customer);
 
         // Ausgabe
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatic/imprint.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -143,7 +143,7 @@ class DemosPlanMiscContentController extends BaseController
 
         $templateVars['orgaDataProtectionTexts'] = $orgaHandler->getDataProtectionMunicipalities($customer);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatic/data_protection.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -161,7 +161,7 @@ class DemosPlanMiscContentController extends BaseController
     #[Route(name: 'DemosPlan_misccontent_static_how_to_login', path: '/anmeldung')]
     public function howToLogin()
     {
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatic/how_to_login.html.twig',
             [
                 'title' => 'misc.howToLogin',
@@ -209,7 +209,7 @@ class DemosPlanMiscContentController extends BaseController
             }
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatic/contact.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -304,7 +304,7 @@ class DemosPlanMiscContentController extends BaseController
         ->toArray();
 
         // Ausgabe
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatic/components.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -326,7 +326,7 @@ class DemosPlanMiscContentController extends BaseController
         $customer = $customerService->getCurrentCustomer();
         $templateVars['customer'] = $customer;
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatic/terms_of_use.html.twig',
             [
                 'title'        => $translator->trans('terms.of.use'),
@@ -351,7 +351,7 @@ class DemosPlanMiscContentController extends BaseController
         $templateVars['xplanning'] = $customer->getXplanning();
 
         // Ausgabe
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatic/xplan.html.twig',
             ['templateVars' => $templateVars, 'title' => $title]
         );
@@ -369,7 +369,7 @@ class DemosPlanMiscContentController extends BaseController
         $templateVars = [];
 
         // Ausgabe
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatic/term-of-use.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -395,7 +395,7 @@ class DemosPlanMiscContentController extends BaseController
             ]
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatic/documents.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -431,7 +431,7 @@ class DemosPlanMiscContentController extends BaseController
             'platformList' => $faqHandler->convertIntoTwigFormat($platformCategories, $userProvider->getUser()),
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatic/information.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -450,7 +450,7 @@ class DemosPlanMiscContentController extends BaseController
         $templateVars = [];
         $templateVars['customer'] = $customerService->getCurrentCustomer();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatic/simple_language.html.twig',
             [
                 'templateVars' => $templateVars,

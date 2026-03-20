@@ -96,6 +96,14 @@ final class SegmentExcelImportResult
         }
     }
 
+    public function addError(
+        string $message,
+        int $currentLineNumber,
+        string $currentWorksheetTitle,
+    ): void {
+        $this->errors[] = ImportError::fromMessage($message, $currentLineNumber, $currentWorksheetTitle);
+    }
+
     public function hasErrors(): bool
     {
         return 0 < count($this->errors);

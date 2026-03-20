@@ -41,6 +41,7 @@ use demosplan\DemosPlanCoreBundle\Constraint\MatchingSubmitTypesConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\OriginalReferenceConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProcedureConstraint;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -1057,6 +1058,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * @ORM\Column(type="boolean", nullable = false, options={"default":false})
      */
     private $anonymous = false;
+
+    /**
+     * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
+     */
+    private ?CustomFieldValuesList $customFields = null;
 
     public function __construct()
     {
@@ -4332,5 +4338,15 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         $this->textSections->removeElement($textSection);
 
         return $this;
+    }
+
+    public function getCustomFields(): ?CustomFieldValuesList
+    {
+        return $this->customFields;
+    }
+
+    public function setCustomFields(?CustomFieldValuesList $customFields): void
+    {
+        $this->customFields = $customFields;
     }
 }

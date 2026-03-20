@@ -430,7 +430,7 @@ export default {
     institutionNotificationText () {
       if (this.currentListIsEmpty) {
         return Translator.trans('institution.add', {
-          href: Routing.generate('DemosPlan_procedure_member_index', { procedure: this.procedureId })
+          href: Routing.generate('DemosPlan_procedure_member_index', { procedure: this.procedureId }),
         })
       }
       return Translator.trans('institution.select')

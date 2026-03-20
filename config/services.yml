@@ -23,6 +23,32 @@ services:
 
     demosplan\DemosPlanCoreBundle\ValueObject\AzureUserData: ~
 
+    # Start CustomField validation services
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldTypeValidatorRegistry:
+        arguments:
+            $validators: !tagged custom_field_type_validator
+
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\SingleSelectFieldValidator:
+        tags:
+            -   name: custom_field_type_validator
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\MultiSelectFieldValidator:
+        tags:
+            -   name: custom_field_type_validator
+    # End CustomField validation services
+
+    # Start CustomField Factories
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\CustomFieldFactoryRegistry:
+        arguments:
+            $factories: !tagged custom_field.factory
+
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\SingleSelectFieldFactory:
+        tags:
+            -   name: custom_field.factory
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\MultiSelectFieldFactory:
+        tags:
+            -   name: custom_field.factory
+    # End CustomField Factories
+
     demosplan\DemosPlanCoreBundle\Controller\Document\DemosPlanDocumentDashboardAPIController:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
@@ -288,6 +314,10 @@ services:
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator:
         parent: lexik_jwt_authentication.security.jwt_authenticator
+        arguments:
+            $userProvider: '@demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\ApiUserProvider'
+            $userRepository: '@demosplan\DemosPlanCoreBundle\Repository\UserRepository'
+            $logger: '@logger'
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AiApiAuthenticator:
         parent: lexik_jwt_authentication.security.jwt_authenticator
@@ -309,9 +339,12 @@ services:
         tags:
             - { name: doctrine.event_listener, event: postUpdate, method: postUpdate }
 
+    demosplan\DemosPlanCoreBundle\EventListener\EncryptedStringTypeInitializer:
+        tags:
+            - { name: doctrine.event_listener, event: postConnect, method: postConnect }
+
     demosplan\DemosPlanCoreBundle\EventListener\ExceptionEventSubscriber:
         arguments:
-            $logger: '@monolog.logger.dplan_404'
             $debug: '%kernel.debug%'
 
     demosplan\DemosPlanCoreBundle\EventListener\PopulateElasticaEventSubscriber:
@@ -512,7 +545,6 @@ services:
     demosplan\DemosPlanCoreBundle\Permissions\Permissions:
         arguments:
             $corePermissions: '@demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection'
-            $logger: '@monolog.logger.dplan'
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
 
@@ -603,9 +635,7 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet\FacetFactory:
         lazy: true
 
-    demosplan\DemosPlanCoreBundle\Twig\Extension\LatexExtension:
-        tags:
-            - { name: monolog.logger, channel: dplan }
+    demosplan\DemosPlanCoreBundle\Twig\Extension\LatexExtension: ~
 
     demosplan\DemosPlanCoreBundle\Twig\Extension\MapExtension:
         arguments:
@@ -727,9 +757,11 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter:
+    demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor:
         arguments:
-            $logger: '@monolog.logger.dplan'
+            $oauthSecretEncryptionKey: '%env(OAUTH_SECRET_ENCRYPTION_KEY)%'
+
+    demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Map\GeoJsonToFeaturesConverter:
@@ -935,6 +967,10 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\Statement\SegmentationService:
         public: true
 
+    demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport:
+        arguments:
+            $segmentPersister: '@fos_elastica.object_persister.statementSegments'
+
     demosplan\DemosPlanCoreBundle\Logic\Statement\TagService:
         lazy: true
 
@@ -1063,7 +1099,6 @@ services:
     # ZIP Response Generator
     demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\ZipResponseGenerator:
         arguments:
-            $logger: '@monolog.logger.dplan'
             $supportedTypes: "%file.formats.zip%"
         tags:
             - { name: "dplan.file.response.generator" }

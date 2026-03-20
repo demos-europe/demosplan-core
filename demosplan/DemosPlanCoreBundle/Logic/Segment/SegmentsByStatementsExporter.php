@@ -78,7 +78,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         array $tableHeaders,
         Procedure $procedure,
         bool $obscure,
-        bool $exportFilteredByTags = false,
+        array $exportFilteredByTags = [],
         bool $censorCitizenData = false,
         bool $censorInstitutionData = false,
         Statement ...$statements,
@@ -138,10 +138,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
         $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
 
-        // Add info sheet if tag filter is active
-        if ($tagFilter->hasAnySupportedFilterSet()) {
-            $this->assessmentTableXlsExporter->addFilterInfoSheet($writer, $tagFilter);
-        }
+        $this->assessmentTableXlsExporter->addFilterInfoSheet($writer, $tagFilter);
 
         return $writer;
     }
@@ -195,7 +192,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscureParameter,
-        bool $exportFilteredByTags = false,
+        array $exportFilteredByTags = [],
     ): PhpWord {
         $censored = $this->needsToBeCensored(
             $statement,

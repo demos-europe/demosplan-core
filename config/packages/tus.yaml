@@ -3,8 +3,8 @@ tus:
         file:
             enabled: true
             dir: '%kernel.cache_dir%/%kernel.environment%'
-    # Cache TTL
-    cache_ttl: 300
+    # Cache TTL - how long incomplete uploads are remembered
+    cache_ttl: '%tus_cache_ttl%'
 
     # Directory for finished uploads
     upload_dir: '%demosplan.project_dir%/web/uploads'

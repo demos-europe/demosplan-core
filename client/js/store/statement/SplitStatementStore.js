@@ -319,7 +319,9 @@ const SplitStatementStore = {
         pendingPiTags = transformPiToJsonApi(pendingPiTags)
 
         const mergedTags = [...state.uncategorizedTags, ...pendingPiTags]
+          .sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' }))
         const availableTags = [...state.availableTags, ...pendingPiTags]
+
         commit('setProperty', { prop: 'uncategorizedTags', val: mergedTags })
         commit('setProperty', { prop: 'availableTags', val: availableTags })
       })
@@ -375,7 +377,11 @@ const SplitStatementStore = {
           const tags = response.data
           commit('setProperty', { prop: 'availableTags', val: tags.data })
 
+          const sortByTitle = (a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' })
+
           const tagTopics = tags.included.filter((el) => el.type === 'TagTopic')
+          tagTopics.sort(sortByTitle)
+
           commit('setProperty', { prop: 'tagTopics', val: tagTopics })
 
           const { uncategorizedTags, categorizedTags } = tags.data.reduce((acc, tag) => {
@@ -386,6 +392,9 @@ const SplitStatementStore = {
             }
             return acc
           }, { uncategorizedTags: [], categorizedTags: [] })
+
+          uncategorizedTags.sort(sortByTitle)
+          categorizedTags.sort(sortByTitle)
 
           commit('setProperty', { prop: 'uncategorizedTags', val: uncategorizedTags })
           commit('setProperty', { prop: 'categorizedTags', val: categorizedTags })

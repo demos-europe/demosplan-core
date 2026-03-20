@@ -1,0 +1,31 @@
+name: Enforce merge commit for release PRs
+
+on:
+    pull_request:
+        types: [opened, edited, synchronize, reopened]
+        branches:
+            - main
+
+permissions:
+    pull-requests: read
+
+jobs:
+    enforce-merge-commit:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check merge policy
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      const pr = context.payload.pull_request;
+                      const base = pr.base.ref;
+                      const head = pr.head.ref;
+
+                      // Only enforce for release* -> main
+                      if (base === 'main' && head.startsWith('release')) {
+                        core.setFailed(
+                          'PRs from release* to main MUST be merged using a merge commit. Squash merge is not allowed.'
+                        );
+                      }
+
+                      console.log('Merge policy OK');

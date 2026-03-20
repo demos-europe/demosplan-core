@@ -14,7 +14,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentCommentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -117,6 +116,7 @@ class Segment extends Statement implements SegmentInterface
      * @ORM\Column(name="_st_edit_locked", type="boolean", nullable=false, options={"default":false})
      */
     protected $editLocked = false;
+
 
     public function __construct()
     {

@@ -587,7 +587,7 @@ class News extends CoreEntity implements UuidEntityInterface, NewsInterface
         return $this->designatedSwitchDate;
     }
 
-    public function setDesignatedSwitchDate(DateTime $designatedSwitchDate = null): void
+    public function setDesignatedSwitchDate(?DateTime $designatedSwitchDate = null): void
     {
         $this->designatedSwitchDate = $designatedSwitchDate;
     }
