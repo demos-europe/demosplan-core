@@ -51,6 +51,11 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
         $this->configRepositoryMock = $this->createMock(CustomerOAuthConfigRepository::class);
         $this->orgaRepositoryMock = $this->createMock(OrgaRepository::class);
         $this->parameterBagMock = $this->createMock(ParameterBagInterface::class);
+
+        // Interactive mode uses choice() which needs findAll() to list subdomains
+        $customerStub = $this->createCustomerStub();
+        $this->customerRepositoryMock->method('findAll')
+            ->willReturn([$customerStub]);
     }
 
     public function testFromFileUpsertsConfigForValidJson(): void
@@ -257,19 +262,6 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
 
         self::assertSame(Command::SUCCESS, $tester->getStatusCode());
         self::assertStringContainsString('Aborted', $tester->getDisplay());
-    }
-
-    public function testInteractiveFailsForUnknownSubdomain(): void
-    {
-        $this->customerRepositoryMock->method('findOneBy')
-            ->willReturn(null);
-
-        $tester = $this->executeCommand([], [
-            'nonexistent',
-        ]);
-
-        self::assertSame(Command::FAILURE, $tester->getStatusCode());
-        self::assertStringContainsString('No customer found', $tester->getDisplay());
     }
 
     public function testInteractiveKeepsExistingSecretWhenEmpty(): void

@@ -162,19 +162,16 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
     {
         $io->title('Interactive OAuth2 Configuration');
 
-        $subdomain = $io->ask('Customer subdomain');
-        if (null === $subdomain || '' === $subdomain) {
-            $io->error('Subdomain is required.');
+        $customers = $this->customerRepository->findAll();
+        $subdomains = array_map(
+            static fn ($c) => $c->getSubdomain(),
+            $customers
+        );
+        sort($subdomains);
 
-            return Command::FAILURE;
-        }
+        $subdomain = $io->choice('Customer subdomain', $subdomains);
 
         $customer = $this->customerRepository->findOneBy(['subdomain' => $subdomain]);
-        if (null === $customer) {
-            $io->error(sprintf('No customer found with subdomain "%s".', $subdomain));
-
-            return Command::FAILURE;
-        }
 
         $existingConfig = $this->configRepository->findByCustomer($customer);
 
