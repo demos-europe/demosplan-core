@@ -199,7 +199,6 @@ class ProcedureExtensionTest extends FunctionalTestCase
         ];
     }
 
-
     protected function getProcedure(): Procedure
     {
         return $this->fixtures->getReference(LoadProcedureData::TESTPROCEDURE);
