@@ -133,24 +133,6 @@ abstract class SegmentsExporter
             $this->styles['currentDateParagraph']
         );
     }
-
-    protected function addPreambleIfFirstHeader(Header $header, ?string $headerType, array $exportTagTitles = []): void
-    {
-        if (Footer::FIRST === $headerType
-            && [] !== $exportTagTitles
-            && $this->currentUser->hasPermission('feature_adjust_preamble_export_file')) {
-            $filteredExportPreamble = $this->translator->trans('docx.export.filtered');
-            foreach ($exportTagTitles as $tagTopicContainer) {
-                $appendToVariable = 'Schlagwort: '.$tagTopicContainer[0].' [Thema: '.$tagTopicContainer[1].'], ';
-                $filteredExportPreamble .= $appendToVariable;
-            }
-            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($filteredExportPreamble), false, false);
-        } else {
-            $preamble = $this->translator->trans('docx.export.preamble');
-            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
-        }
-    }
-
     /**
      * This function adds a metadata sheet as the first page in the docx export, including the name of the initiator of the export, tags and tag topics.
      * If no tags were applied, a generic header is used instead.
