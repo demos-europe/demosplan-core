@@ -986,6 +986,36 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         return $this;
     }
 
+    /**
+     * Add a user to this organisation's users collection without calling setOrga().
+     * Use this for multi-organisation sync where the user's orga collection must not be overwritten.
+     */
+    public function linkUser(UserInterface $user): self
+    {
+        if ($this->users instanceof Collection) {
+            if (!$this->users->contains($user)) {
+                $this->users->add($user);
+            }
+        } else {
+            $this->users = new ArrayCollection([$user]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove a user from this organisation's users collection without calling unsetOrgas().
+     * Use this for multi-organisation sync where the user's orga collection must not be cleared.
+     */
+    public function unlinkUser(UserInterface $user): self
+    {
+        if ($this->users instanceof Collection) {
+            $this->users->removeElement($user);
+        }
+
+        return $this;
+    }
+
     public function getDepartments(): IlluminateCollection
     {
         $nonDeletedDepartments = $this->departments->filter(
