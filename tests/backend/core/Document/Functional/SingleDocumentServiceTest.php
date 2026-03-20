@@ -451,8 +451,6 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         static::assertArrayHasKey('relatedElementTitle', $messageArray);
         static::assertArrayHasKey('visible', $messageArray);
         static::assertArrayHasKey('statement_enabled', $messageArray);
-        static::assertArrayHasKey('keyOfInternalPhase', $messageArray);
-        static::assertArrayHasKey('keyOfEternalPhase', $messageArray);
         static::assertArrayHasKey('nameOfInternalPhase', $messageArray);
         static::assertArrayHasKey('nameOfExternalPhase', $messageArray);
         static::assertArrayHasKey('date', $messageArray);
@@ -474,8 +472,6 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         static::assertEquals($document->getElement()->getTitle(), $messageArray['relatedElementTitle']);
         static::assertEquals($document->getVisible(), $messageArray['visible']);
         static::assertEquals($document->isStatementEnabled(), $messageArray['statement_enabled']);
-        static::assertEquals($document->getProcedure()->getPhase(), $messageArray['keyOfInternalPhase']);
-        static::assertEquals($document->getProcedure()->getPublicParticipationPhase(), $messageArray['keyOfEternalPhase']);
         static::assertEquals($document->getProcedure()->getPhaseName(), $messageArray['nameOfInternalPhase']);
         static::assertEquals($document->getProcedure()->getPublicParticipationPhaseName(), $messageArray['nameOfExternalPhase']);
     }

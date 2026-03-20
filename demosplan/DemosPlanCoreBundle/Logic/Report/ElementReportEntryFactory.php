@@ -34,9 +34,6 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
             'parentTitle'           => $element->getParent()?->getTitle(), // eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
             'enabled'               => $element->getEnabled(),
             'organisations'         => $element->getOrganisationNames(true),
-            'keyOfInternalPhase'    => $element->getProcedure()->getPhase(),
-            'keyOfEternalPhase'     => $element->getProcedure()->getPublicParticipationPhase(),
-            // The translation of the time the report is created is the important one, not the key
             'nameOfInternalPhase'   => $element->getProcedure()->getPhaseObject()->getPhaseDefinition()->getName(),
             'nameOfExternalPhase'   => $element->getProcedure()->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName(),
         ];

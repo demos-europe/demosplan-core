@@ -32,9 +32,6 @@ class ParagraphReportEntryFactory extends AbstractReportEntryFactory
             'relatedElementCategory'    => $paragraph->getElement()->getCategory(), // eg map, file, statement, paragraph, ..
             'relatedElementTitle'       => $paragraph->getElement()->getTitle(), // eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
             'visible'                   => $paragraph->getVisible(),
-            'keyOfInternalPhase'        => $paragraph->getProcedure()->getPhase(),
-            'keyOfEternalPhase'         => $paragraph->getProcedure()->getPublicParticipationPhase(),
-            // The translation of the time the report is created is the important one, not the key
             'nameOfInternalPhase'       => $paragraph->getProcedure()->getPhaseObject()->getPhaseDefinition()->getName(),
             'nameOfExternalPhase'       => $paragraph->getProcedure()->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName(),
         ];
