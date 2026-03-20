@@ -160,27 +160,18 @@ abstract class SegmentsExporter
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST, $exportTagTitles);
         $this->addHeader($section, $procedure, null, $exportTagTitles);
+        $exportDate = (new DateTime())->format('d.m.Y');
+        $userName = $this->currentUser->getUser()->getFullName();
+        $pageInfoText = $this->translator->trans('export.user').': '.$userName.' am '.$exportDate.'<br>'.$this->translator->trans('docx.export.filtered');
 
         if ([] !== $exportTagTitles
             && $this->currentUser->hasPermission('feature_adjust_preamble_export_file')) {
-            $exportUser = $this->translator->trans('export.user');
-            $userName = $this->currentUser->getUser()->getFullName();
-            $exportDate = new DateTime();
-            $filteredExportTagData = $exportUser.': '.$userName.' am '.$exportDate->format('d.m.Y').'<br>'.$this->translator->trans('docx.export.filtered');
             foreach ($exportTagTitles as $tagTopicContainer) {
-                $appendToVariable = '- '.$tagTopicContainer[0].' [Thema: '.$tagTopicContainer[1].'] <br>';
-                $filteredExportTagData .= $appendToVariable;
+                $pageInfoText .= '- '.$tagTopicContainer[0].' [Thema: '.$tagTopicContainer[1].'] <br>';
             }
-            $filteredExportTagData .= '<br>'.$this->translator->trans('layout.info');
-            Html::addHtml($section, $this->htmlHelper->getHtmlValidText($filteredExportTagData), false, false);
-        } else {
-            $exportUser = $this->translator->trans('export.user');
-            $userName = $this->currentUser->getUser()->getFullName();
-            $exportDate = new DateTime();
-            $filteredExportTagData = $exportUser.': '.$userName.' am '.$exportDate->format('d.m.Y').'<br>'.$this->translator->trans('docx.export.filtered');
-            $filteredExportTagData .= '<br>'.$this->translator->trans('layout.info');
-            Html::addHtml($section, $this->htmlHelper->getHtmlValidText($filteredExportTagData), false, false);
         }
+        $pageInfoText .= '<br>'.$this->translator->trans('layout.info');
+        Html::addHtml($section, $this->htmlHelper->getHtmlValidText($pageInfoText), false, false);
     }
 
     private function getSimilarStatementSubmitters(Statement $statement): string
