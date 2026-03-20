@@ -57,7 +57,7 @@ class AzureUserData implements AzureUserDataInterface, Stringable
     {
         $userInformation = $resourceOwner->toArray();
 
-        $this->emailAddress = $userInformation['email'] ?? $userInformation['upn'] ?? $userInformation['unique_name'] ?? '';
+        $this->emailAddress = $userInformation['email'] ?? $userInformation['upn'] ?? $userInformation['unique_name'] ?? $userInformation['preferred_username'] ?? '';
         $this->objectId = $userInformation['oid'] ?? '';
         $this->subject = $userInformation['sub'] ?? '';
         $this->firstName = $userInformation['given_name'] ?? '';
