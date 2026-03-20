@@ -117,7 +117,6 @@ class Segment extends Statement implements SegmentInterface
      */
     protected $editLocked = false;
 
-
     public function __construct()
     {
         parent::__construct();

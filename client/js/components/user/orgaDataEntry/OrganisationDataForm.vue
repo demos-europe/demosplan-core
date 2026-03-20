@@ -37,7 +37,7 @@
         :label="{
           text: Translator.trans('name.legal')
         }"
-        :disabled="!isOrgaNameEditable"
+        :disabled="!isOrgaDataEditable"
         required
       />
 
@@ -341,11 +341,6 @@ export default {
       required: true,
     },
 
-    isOrgaNameEditable: {
-      type: Boolean,
-      required: true,
-    },
-
     hasNotificationSection: {
       type: Boolean,
       required: false,
@@ -419,7 +414,6 @@ export default {
   computed: {
     displayButtons () {
       return this.isOrgaDataEditable ||
-        this.isOrgaNameEditable ||
         this.hasPaperCopyPermission ||
         this.hasNotificationSection ||
         this.showDetailedInfo ||
