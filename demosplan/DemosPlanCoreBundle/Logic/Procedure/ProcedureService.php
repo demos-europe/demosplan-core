@@ -725,14 +725,10 @@ class ProcedureService implements ProcedureServiceInterface
             // set converted phase names for easier use in templates
             if ($procedure instanceof Procedure) {
                 $procedure->setPhaseName(
-                    $this->globalConfig->getPhaseNameWithPriorityInternal(
-                        $procedure->getPhase()
-                    )
+                    $procedure->getPhaseObject()->getPhaseDefinition()->getName()
                 );
                 $procedure->setPublicParticipationPhaseName(
-                    $this->globalConfig->getPhaseNameWithPriorityExternal(
-                        $procedure->getPublicParticipationPhase()
-                    )
+                    $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName()
                 );
             }
 
@@ -1170,9 +1166,7 @@ class ProcedureService implements ProcedureServiceInterface
     private function handleProcedurePostUpdateOperations(Procedure $sourceProcedure, Procedure $updatedProcedure): Procedure
     {
         $updatedProcedure->setPublicParticipationPhaseName(
-            $this->globalConfig->getPhaseNameWithPriorityExternal(
-                $updatedProcedure->getPublicParticipationPhase()
-            )
+            $updatedProcedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName()
         );
 
         // Dispatch event
