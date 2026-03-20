@@ -96,7 +96,6 @@
 
 <script>
 import {
-  dpApi,
   DpInlineNotification,
   dpSelectAllMixin,
   DpTab,
