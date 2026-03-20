@@ -1398,24 +1398,30 @@ Email:',
     {
         self::markSkippedForCIIntervention();
 
+        $phaseDefinition = $this->fixtures->getReference(
+            LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION
+        );
         $this->sut->addInstitutionMail(
             $this->testProcedure->getId(),
             $this->testProcedure->getOrgaId(),
-            'participation'
+            $phaseDefinition
         );
     }
 
     public function testGetInvitableInstitutionMail(): void
     {
+        $phaseDefinition = $this->fixtures->getReference(
+            LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION
+        );
         $this->sut->addInstitutionMail(
             $this->testProcedure->getId(),
             $this->testProcedure->getOrgaId(),
-            'participation'
+            $phaseDefinition
         );
 
         $invitableInstitutionMailList = $this->sut->getInstitutionMailList(
             $this->testProcedure->getId(),
-            'participation'
+            $phaseDefinition
         );
         $this->checkListResultStructure($invitableInstitutionMailList);
         static::assertArrayHasKey('result', $invitableInstitutionMailList);
@@ -1423,43 +1429,32 @@ Email:',
         static::assertArrayHasKey('createdDate', $entry);
         static::assertArrayHasKey('ident', $entry);
         static::assertArrayHasKey('procedure', $entry);
-        static::assertArrayHasKey('procedurePhase', $entry);
     }
 
     public function testGetInvitableInstitutionMailFail(): void
     {
+        $participationPhaseDefinition = $this->fixtures->getReference(
+            LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION
+        );
         $this->sut->addInstitutionMail(
             $this->testProcedure->getId(),
             $this->testProcedure->getOrgaId(),
-            'participation'
+            $participationPhaseDefinition
         );
 
-        $invitableInstitutionMailList = $this->sut->getInstitutionMailList('', 'participation');
+        // Unknown procedure ID returns no results
+        $invitableInstitutionMailList = $this->sut->getInstitutionMailList('', $participationPhaseDefinition);
         $this->checkListResultStructure($invitableInstitutionMailList);
         static::assertArrayHasKey('result', $invitableInstitutionMailList);
         static::assertCount(0, $invitableInstitutionMailList['result']);
 
-        $invitableInstitutionMailList = $this->sut->getInstitutionMailList(null, 'participation');
-        $this->checkListResultStructure($invitableInstitutionMailList);
-        static::assertArrayHasKey('result', $invitableInstitutionMailList);
-        static::assertCount(0, $invitableInstitutionMailList['result']);
-
-        $invitableInstitutionMailList = $this->sut->getInstitutionMailList([], 'participation');
-        $this->checkListResultStructure($invitableInstitutionMailList);
-        static::assertArrayHasKey('result', $invitableInstitutionMailList);
-        static::assertCount(0, $invitableInstitutionMailList['result']);
-
-        $invitableInstitutionMailList = $this->sut->getInstitutionMailList($this->testProcedure->getId(
-        ),
-            ''
+        // Different phase definition returns no results
+        $closedPhaseDefinition = $this->fixtures->getReference(
+            LoadProcedurePhaseDefinitionData::TEST_INTERNAL_CLOSED_PHASE_DEFINITION
         );
-        $this->checkListResultStructure($invitableInstitutionMailList);
-        static::assertArrayHasKey('result', $invitableInstitutionMailList);
-        static::assertCount(0, $invitableInstitutionMailList['result']);
-
-        $invitableInstitutionMailList = $this->sut->getInstitutionMailList($this->testProcedure->getId(
-        ),
-            null
+        $invitableInstitutionMailList = $this->sut->getInstitutionMailList(
+            $this->testProcedure->getId(),
+            $closedPhaseDefinition
         );
         $this->checkListResultStructure($invitableInstitutionMailList);
         static::assertArrayHasKey('result', $invitableInstitutionMailList);

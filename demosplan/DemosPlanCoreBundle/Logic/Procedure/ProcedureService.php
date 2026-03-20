@@ -30,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\InstitutionMail;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
@@ -1644,38 +1645,32 @@ class ProcedureService implements ProcedureServiceInterface
      *
      * @param string $procedureId Verfahrens-ID
      * @param string $orga        Organisation
-     * @param string $phase
      *
      * @throws Exception
      */
-    public function addInstitutionMail($procedureId, $orga, $phase): void
+    public function addInstitutionMail(string $procedureId, string $orga, ProcedurePhaseDefinition $phaseDefinition): void
     {
         $procedure = $this->getProcedure($procedureId);
         $data = [
-            'procedure' => $procedure,
-            'orga'      => $orga,
-            'phase'     => $phase,
+            'procedure'       => $procedure,
+            'orga'            => $orga,
+            'phaseDefinition' => $phaseDefinition,
         ];
 
         $this->institutionMailRepository->add($data);
     }
 
     /**
-     * Liefert Liste aller versendeten Einladungs-Emails der angegebenen Phase.
-     *
-     * @param string $procedureId Verfahrens-ID
-     * @param string $phase       Phase des Verfahrens
-     *
-     * @return array
+     * Returns a list of all invitation emails sent for the specified phase.
      *
      * @throws Exception
      */
-    public function getInstitutionMailList($procedureId, $phase = null)
+    public function getInstitutionMailList(string $procedureId, ProcedurePhaseDefinition $phaseDefinition): array
     {
         try {
             $data = [
-                'procedure'      => $procedureId,
-                'procedurePhase' => $phase,
+                'procedure'       => $procedureId,
+                'phaseDefinition' => $phaseDefinition,
             ];
 
             $institutionMailResult = $this->institutionMailRepository->findBy($data);

@@ -2236,10 +2236,7 @@ class DemosPlanProcedureController extends BaseController
 
         // an welche Töb wurde eine Email geschickt?
         $templateVars['orgaInvitationemailSent'] = [];
-        $invitationEmailSent = $serviceOutput->getInvitationEmailSentList(
-            $procedure,
-            $templateVars['procedure']['phase']
-        );
+        $invitationEmailSent = $serviceOutput->getInvitationEmailSentList($procedure);
         if (\is_array($invitationEmailSent['result']) && [] !== $invitationEmailSent['result']) {
             foreach ($invitationEmailSent['result'] as $invitedOrga) {
                 if (\array_key_exists('organisation', $invitedOrga)

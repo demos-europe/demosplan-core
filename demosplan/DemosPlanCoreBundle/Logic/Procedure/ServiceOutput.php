@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -321,16 +322,15 @@ class ServiceOutput
     }
 
     /**
-     * Speichere ab, dass die Institution eine Emaileinladung bekommen hat.
-     *
-     * @param string $ident
-     * @param string $phase
-     *
      * @throws Exception
      */
-    public function getInvitationEmailSentList($ident, $phase): array
+    public function getInvitationEmailSentList(string $procedureId): array
     {
-        return $this->service->getInstitutionMailList($ident, $phase);
+        $phaseDefinition = $this->service->getProcedure($procedureId)
+            ->getPhaseObject()
+            ->getPhaseDefinition();
+
+        return $this->service->getInstitutionMailList($procedureId, $phaseDefinition);
     }
 
     /**
@@ -417,8 +417,7 @@ class ServiceOutput
         // an welche Institutionen wurde eine Email geschickt?
         $templateVars['orgaInvitationemailSent'] = [];
         $invitationEmailSent = $this->getInvitationEmailSentList(
-            $templateVars['procedure']['ident'],
-            $templateVars['procedure']['phase']
+            $templateVars['procedure']['ident']
         );
         if (is_array($invitationEmailSent['result']) && [] !== $invitationEmailSent['result']) {
             foreach ($invitationEmailSent['result'] as $invitedOrga) {

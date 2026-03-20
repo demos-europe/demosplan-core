@@ -389,9 +389,8 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $recipientsWithNoEmail
         );
         // generiere Protokolleintrag, bereits hier, da bei Nicht-Mailversand auch ein Eintrag gemacht wird.
-        $procedureAsArray = $this->serviceOutput->getProcedureWithPhaseNames($procedure['id']);
-        $procedurePhase = $procedureAsArray['phase'];
-        $procedurePhaseDefinitionName = $this->getProcedure($procedure['id'])->getPhaseObject()->getPhaseDefinition()->getName();
+        $procedurePhaseDefinition = $this->getProcedure($procedure['id'])->getPhaseObject()->getPhaseDefinition();
+        $procedurePhaseDefinitionName = $procedurePhaseDefinition->getName();
 
         if (empty($recipientsWithEmail)) {
             throw new NoRecipientsWithEmailException('No recipient was selected');
@@ -423,7 +422,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 
             // speichere den Versand in der Datenbank
             try {
-                $this->procedureService->addInstitutionMail($procedure['id'], $recipientData['ident'], $procedurePhase);
+                $this->procedureService->addInstitutionMail($procedure['id'], $recipientData['ident'], $procedurePhaseDefinition);
             } catch (Exception $exception) {
                 $this->logger->warning('Add Institutionmail failed', [$exception]);
             }
