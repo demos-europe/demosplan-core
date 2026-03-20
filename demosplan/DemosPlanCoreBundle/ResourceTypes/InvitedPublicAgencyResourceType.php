@@ -190,7 +190,7 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
                 [
                     'orgaId'      => $orgaId,
                     'procedureId' => $procedure->getId(),
-                    'phase'       => $procedure->getPhase(),
+                    'phase'       => $procedure->getPhaseObject()->getPhaseDefinition()->getName(),
                     'exception'   => $e,
                 ]
             );
