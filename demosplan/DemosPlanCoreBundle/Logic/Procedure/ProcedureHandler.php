@@ -32,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\PublicAffairsAgentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Sort;
@@ -94,6 +95,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         private readonly PermissionsInterface $permissions,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
         private readonly ProcedureDeleter $procedureDeleter,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         private readonly ProcedureService $procedureService,
         PublicAffairsAgentHandler $publicAffairsAgentHandler,
         QueryProcedure $esQueryProcedure,
@@ -538,16 +540,8 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         if ($this->permissions->hasPermission('feature_notification_ending_phase')) {
             // How many days in advance should notification been sent?
             $daysToGo = $this->limitForNotification;
-            // Look only fpr participation phases for publicAgencies
-            $internalPhases = $this->getDemosplanConfig()->getInternalPhasesAssoc();
-            $phases = [];
-            foreach ($internalPhases as $phase) {
-                if ('write' === $phase['permissionset']) {
-                    $phases[] = $phase['key'];
-                }
-            }
             // Get all procedures with given phases and time limit
-            $resultProcedures = $this->getAllProceduresWithSoonEndingPhases($phases, $daysToGo);
+            $resultProcedures = $this->getAllProceduresWithSoonEndingPhases($daysToGo);
 
             // Get all involved public Agencies of these procedures
             foreach ($resultProcedures as $procedure) {
@@ -559,7 +553,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 // if there are recipients go further
                 if (0 < count($recipients)) {
                     // save same for the mailtemplate
-                    $procedure->setPhaseName($this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($procedure->getPhase()));
+                    $procedure->setPhaseName($procedure->getPhaseObject()->getPhaseDefinition()->getName());
                     $mailTemplateVars['procedure'] = $procedure;
                     $mailTemplateVars['daysToGo'] = $daysToGo;
 
@@ -611,14 +605,13 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
     }
 
     /**
-     * Get all procedures within given time and phases.
+     * Get all procedures within given time whose active phase has permissionSet 'write'.
      *
-     * @param string[] $phaseKeys
-     * @param bool     $internal  check for institution phases. false checks public phases
+     * @param bool $internal check for institution phases. false checks public phases
      *
      * @return Procedure[]|string[]
      */
-    public function getAllProceduresWithSoonEndingPhases(array $phaseKeys, int $exactlyDaysToGo, bool $idsOnly = false, $internal = true): array
+    public function getAllProceduresWithSoonEndingPhases(int $exactlyDaysToGo, bool $idsOnly = false, bool $internal = true): array
     {
         $procedures = [];
         try {
@@ -628,11 +621,13 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $this->getLogger()->error('Could not get procedureList with soon ending phases');
         }
 
-        // Choose all procedures with given phases
+        // Choose all procedures whose active phase allows participation (permissionSet = 'write')
         $proceduresWithSoonEndingPhase = [];
         foreach ($procedures as $procedure) {
-            $phase = $internal ? $procedure->getPhase() : $procedure->getPublicParticipationPhase();
-            if (in_array($phase, $phaseKeys, true)) {
+            $phaseDefinition = $internal
+                ? $procedure->getPhaseObject()->getPhaseDefinition()
+                : $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition();
+            if ('write' === $phaseDefinition->getPermissionSet()) {
                 $proceduresWithSoonEndingPhase[] = $idsOnly ? $procedure->getId() : $procedure;
             }
         }
@@ -865,8 +860,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         $systemUserName = $this->translator->trans('user.system.name');
 
         // internal:
-        $internalWritePhaseKeys = $this->getDemosplanConfig()->getInternalPhaseKeys('write');
-        $endedInternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($internalWritePhaseKeys);
+        $endedInternalProcedures = $this->procedureService->getProceduresWithEndedParticipation();
 
         $internalPhaseKey = 'evaluating';
         $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
@@ -882,11 +876,11 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 // clone before modification so the phase change is detectable for report entry creation
                 $originalProcedure = $this->procedureService->cloneProcedure($endedInternalProcedure);
 
-                $data = [
-                    'id'       => $endedInternalProcedure->getId(),
-                    'phase'    => $internalPhaseKey,
-                    'customer' => $endedInternalProcedure->getCustomer(),
-                ];
+                $data = ['id' => $endedInternalProcedure->getId(), 'phase' => $internalPhaseKey, 'customer' => $endedInternalProcedure->getCustomer()];
+                $internalEvaluatingDefinition = $this->procedurePhaseDefinitionService->findEvaluatingDefinition('internal', $endedInternalProcedure->getCustomer());
+                if (null !== $internalEvaluatingDefinition) {
+                    $data['phaseDefinition'] = $internalEvaluatingDefinition;
+                }
                 $this->procedureService->updateProcedure($data, isSystem: true);
 
                 try {
@@ -904,8 +898,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         }
 
         // external:
-        $externalWritePhaseKeys = $this->getDemosplanConfig()->getExternalPhaseKeys('write');
-        $endedExternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($externalWritePhaseKeys, false);
+        $endedExternalProcedures = $this->procedureService->getProceduresWithEndedParticipation(false);
 
         $externalPhaseKey = 'evaluating';
         $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
@@ -921,11 +914,11 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 // clone before modification so the phase change is detectable for report entry creation
                 $originalProcedure = $this->procedureService->cloneProcedure($endedExternalProcedure);
 
-                $data = [
-                    'id'                       => $endedExternalProcedure->getId(),
-                    'publicParticipationPhase' => $externalPhaseKey,
-                    'customer'                 => $endedExternalProcedure->getCustomer(),
-                ];
+                $data = ['id' => $endedExternalProcedure->getId(), 'publicParticipationPhase' => $externalPhaseKey, 'customer' => $endedExternalProcedure->getCustomer()];
+                $externalEvaluatingDefinition = $this->procedurePhaseDefinitionService->findEvaluatingDefinition('external', $endedExternalProcedure->getCustomer());
+                if (null !== $externalEvaluatingDefinition) {
+                    $data['publicParticipationPhaseDefinition'] = $externalEvaluatingDefinition;
+                }
                 $this->procedureService->updateProcedure($data, isSystem: true);
 
                 try {

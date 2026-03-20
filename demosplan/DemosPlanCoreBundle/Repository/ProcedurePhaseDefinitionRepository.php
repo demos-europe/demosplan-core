@@ -45,6 +45,24 @@ class ProcedurePhaseDefinitionRepository extends CoreRepository
     }
 
     /**
+     * Finds the evaluating phase definition (permissionSet=read, participationState=finished)
+     * for the given customer and audience. Falls back to global (customer=null) definitions.
+     */
+    public function findEvaluatingDefinition(string $audience, ?Customer $customer): ?ProcedurePhaseDefinition
+    {
+        $criteria = ['audience' => $audience, 'permissionSet' => 'read', 'participationState' => 'finished'];
+
+        if (null !== $customer) {
+            $result = $this->findOneBy(array_merge($criteria, ['customer' => $customer]));
+            if (null !== $result) {
+                return $result;
+            }
+        }
+
+        return $this->findOneBy(array_merge($criteria, ['customer' => null]));
+    }
+
+    /**
      * @throws NonUniqueResultException
      * @throws NoResultException
      */

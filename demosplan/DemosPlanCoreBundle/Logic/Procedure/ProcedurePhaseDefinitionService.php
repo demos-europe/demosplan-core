@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
@@ -46,6 +47,11 @@ readonly class ProcedurePhaseDefinitionService
     public function findById(string $id): ?ProcedurePhaseDefinition
     {
         return $this->procedurePhaseDefinitionRepository->find($id);
+    }
+
+    public function findEvaluatingDefinition(string $audience, ?Customer $customer): ?ProcedurePhaseDefinition
+    {
+        return $this->procedurePhaseDefinitionRepository->findEvaluatingDefinition($audience, $customer);
     }
 
     /** @return ProcedurePhaseDefinition[] */

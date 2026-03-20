@@ -514,9 +514,9 @@ class ProcedureService implements ProcedureServiceInterface
      *
      * @throws Exception
      */
-    public function getProceduresWithEndedParticipation(array $writePhaseKeys, bool $internal = true): array
+    public function getProceduresWithEndedParticipation(bool $internal = true): array
     {
-        return $this->procedureRepository->getProceduresWithEndedParticipation($writePhaseKeys, $internal);
+        return $this->procedureRepository->getProceduresWithEndedParticipation($internal);
     }
 
     /**

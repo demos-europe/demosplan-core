@@ -1240,22 +1240,21 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @throws Exception
      */
-    public function getProceduresWithEndedParticipation(array $phaseKeys, bool $internal = true): array
+    public function getProceduresWithEndedParticipation(bool $internal = true): array
     {
         try {
             $currentDate = new DateTime();
             $procedures = $this->getUndeletedProcedures();
-            $phaseKeys = collect($phaseKeys);
 
             if ($internal) {
                 $hits = collect($procedures)->filter(
                     static fn (Procedure $procedure): bool => $procedure->getEndDate() < $currentDate
-                        && $phaseKeys->contains($procedure->getPhase())
+                        && 'write' === $procedure->getPhaseObject()->getPhaseDefinition()->getPermissionSet()
                 );
             } else {
                 $hits = collect($procedures)->filter(
                     static fn (Procedure $procedure): bool => $procedure->getPublicParticipationEndDate() < $currentDate
-                        && $phaseKeys->contains($procedure->getPublicParticipationPhase())
+                        && 'write' === $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet()
                 );
             }
 

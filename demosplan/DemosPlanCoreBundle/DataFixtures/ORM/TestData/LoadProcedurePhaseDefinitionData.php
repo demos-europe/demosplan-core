@@ -25,6 +25,8 @@ class LoadProcedurePhaseDefinitionData extends TestFixture
     final public const TEST_INTERNAL_CLOSED_PHASE_DEFINITION = 'testInternalClosedPhaseDefinition';
     final public const TEST_EXTERNAL_CLOSED_PHASE_DEFINITION = 'testExternalClosedPhaseDefinition';
     final public const TEST_EXTERNAL_EARLY_PARTICIPATION_PHASE_DEFINITION = 'testExternalEarlyParticipationPhaseDefinition';
+    final public const TEST_INTERNAL_EVALUATING_PHASE_DEFINITION = 'testInternalEvaluatingPhaseDefinition';
+    final public const TEST_EXTERNAL_EVALUATING_PHASE_DEFINITION = 'testExternalEvaluatingPhaseDefinition';
 
     public function load(ObjectManager $manager): void
     {
@@ -44,11 +46,20 @@ class LoadProcedurePhaseDefinitionData extends TestFixture
         $manager->persist($internalParticipationDefinition);
         $this->setReference(self::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION, $internalParticipationDefinition);
 
+        $internalEvaluatingDefinition = new ProcedurePhaseDefinition();
+        $internalEvaluatingDefinition->setName('Auswertung');
+        $internalEvaluatingDefinition->setAudience('internal');
+        $internalEvaluatingDefinition->setPermissionSet('read');
+        $internalEvaluatingDefinition->setParticipationState('finished');
+        $internalEvaluatingDefinition->setOrderInAudience(2);
+        $manager->persist($internalEvaluatingDefinition);
+        $this->setReference(self::TEST_INTERNAL_EVALUATING_PHASE_DEFINITION, $internalEvaluatingDefinition);
+
         $internalClosedDefinition = new ProcedurePhaseDefinition();
         $internalClosedDefinition->setName('Abgeschlossen');
         $internalClosedDefinition->setAudience('internal');
         $internalClosedDefinition->setPermissionSet('read');
-        $internalClosedDefinition->setOrderInAudience(2);
+        $internalClosedDefinition->setOrderInAudience(3);
         $manager->persist($internalClosedDefinition);
         $this->setReference(self::TEST_INTERNAL_CLOSED_PHASE_DEFINITION, $internalClosedDefinition);
 
@@ -76,11 +87,20 @@ class LoadProcedurePhaseDefinitionData extends TestFixture
         $manager->persist($externalParticipationDefinition);
         $this->setReference(self::TEST_EXTERNAL_PARTICIPATION_PHASE_DEFINITION, $externalParticipationDefinition);
 
+        $externalEvaluatingDefinition = new ProcedurePhaseDefinition();
+        $externalEvaluatingDefinition->setName('Auswertung');
+        $externalEvaluatingDefinition->setAudience('external');
+        $externalEvaluatingDefinition->setPermissionSet('read');
+        $externalEvaluatingDefinition->setParticipationState('finished');
+        $externalEvaluatingDefinition->setOrderInAudience(3);
+        $manager->persist($externalEvaluatingDefinition);
+        $this->setReference(self::TEST_EXTERNAL_EVALUATING_PHASE_DEFINITION, $externalEvaluatingDefinition);
+
         $externalClosedDefinition = new ProcedurePhaseDefinition();
         $externalClosedDefinition->setName('Abgeschlossen');
         $externalClosedDefinition->setAudience('external');
         $externalClosedDefinition->setPermissionSet('read');
-        $externalClosedDefinition->setOrderInAudience(3);
+        $externalClosedDefinition->setOrderInAudience(4);
         $manager->persist($externalClosedDefinition);
         $this->setReference(self::TEST_EXTERNAL_CLOSED_PHASE_DEFINITION, $externalClosedDefinition);
 
