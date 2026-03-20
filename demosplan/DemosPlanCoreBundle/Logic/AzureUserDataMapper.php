@@ -101,7 +101,7 @@ class AzureUserDataMapper
         $customer = $this->customerService->getCurrentCustomer();
         $config = $this->configRepository->findByCustomer($customer);
 
-        if (null === $config || null === $config->getDefaultOrganisation()) {
+        if (null === $config || !$config->isAutoProvisionUsers() || null === $config->getDefaultOrganisation()) {
             $this->logger->warning('Azure OAuth auto-provisioning not available: no default organisation configured', [
                 'email'    => $azureUserData->getEmailAddress(),
                 'objectId' => $azureUserData->getObjectId(),

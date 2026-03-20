@@ -223,6 +223,8 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
             self::REALM,          // realm
             '',                   // logoutRoute (skip)
             '',                   // defaultOrganisationId (skip)
+            'keycloak',           // identityProviderType (choice)
+            '',                   // autoProvisionUsers (default)
             'yes',                // confirm
         ]);
 
@@ -247,8 +249,10 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
             self::AUTH_SERVER_URL,
             self::REALM,
             '',
-            '',   // defaultOrganisationId (skip)
-            'no', // deny
+            '',           // defaultOrganisationId (skip)
+            'keycloak',   // identityProviderType (choice)
+            '',           // autoProvisionUsers (default)
+            'no',         // deny
         ]);
 
         self::assertSame(Command::SUCCESS, $tester->getStatusCode());
@@ -293,6 +297,8 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
             '',               // keep default realm
             '',               // skip logoutRoute
             '',               // skip defaultOrganisationId
+            'keycloak',       // identityProviderType (choice)
+            '',               // autoProvisionUsers (default)
             'yes',
         ]);
 
@@ -316,6 +322,115 @@ class SetCustomerOAuthConfigCommandTest extends FunctionalTestCase
 
         self::assertSame(Command::FAILURE, $tester->getStatusCode());
         self::assertStringContainsString('Client secret is required', $tester->getDisplay());
+    }
+
+    public function testFromFileRejectsInvalidIdentityProviderType(): void
+    {
+        $this->customerRepositoryMock->method('findOneBy')
+            ->willReturn($this->createCustomerStub());
+        $this->configRepositoryMock->method('findByCustomer')
+            ->willReturn(null);
+
+        $configFile = $this->createTempConfigFile([
+            self::SUBDOMAIN => [
+                'clientId'             => self::CLIENT_ID,
+                'clientSecret'         => self::CLIENT_SECRET,
+                'authServerUrl'        => self::AUTH_SERVER_URL,
+                'realm'                => self::REALM,
+                'identityProviderType' => 'invalid_type',
+            ],
+        ]);
+
+        $tester = $this->executeCommand(['--config-file' => $configFile]);
+
+        self::assertSame(Command::SUCCESS, $tester->getStatusCode());
+        self::assertStringContainsString('Skipped', $tester->getDisplay());
+        self::assertStringContainsString('Invalid identityProviderType', $tester->getDisplay());
+    }
+
+    public function testFromFileAcceptsValidIdentityProviderTypes(): void
+    {
+        $customer = $this->createCustomerStub();
+        $this->customerRepositoryMock->method('findOneBy')
+            ->willReturn($customer);
+        $this->configRepositoryMock->method('findByCustomer')
+            ->willReturn(null);
+
+        $this->entityManagerMock->expects(self::once())->method('persist');
+        $this->entityManagerMock->expects(self::once())->method('flush');
+
+        $configFile = $this->createTempConfigFile([
+            self::SUBDOMAIN => [
+                'clientId'             => self::CLIENT_ID,
+                'clientSecret'         => self::CLIENT_SECRET,
+                'authServerUrl'        => self::AUTH_SERVER_URL,
+                'realm'                => self::REALM,
+                'identityProviderType' => 'azure_entra_id',
+            ],
+        ]);
+
+        $tester = $this->executeCommand(['--config-file' => $configFile]);
+
+        self::assertSame(Command::SUCCESS, $tester->getStatusCode());
+        self::assertStringContainsString('Upserted: 1', $tester->getDisplay());
+    }
+
+    public function testFromFileRejectsAutoProvisionWithKeycloakProvider(): void
+    {
+        $orga = $this->createMock(\demosplan\DemosPlanCoreBundle\Entity\User\Orga::class);
+        $orga->method('getId')->willReturn('test-org-id');
+
+        $this->customerRepositoryMock->method('findOneBy')
+            ->willReturn($this->createCustomerStub());
+        $this->configRepositoryMock->method('findByCustomer')
+            ->willReturn(null);
+        $this->orgaRepositoryMock->method('get')
+            ->with('test-org-id')
+            ->willReturn($orga);
+
+        $configFile = $this->createTempConfigFile([
+            self::SUBDOMAIN => [
+                'clientId'              => self::CLIENT_ID,
+                'clientSecret'          => self::CLIENT_SECRET,
+                'authServerUrl'         => self::AUTH_SERVER_URL,
+                'realm'                 => self::REALM,
+                'defaultOrganisationId' => 'test-org-id',
+                'identityProviderType'  => 'keycloak',
+                'autoProvisionUsers'    => true,
+            ],
+        ]);
+
+        $tester = $this->executeCommand(['--config-file' => $configFile]);
+
+        self::assertSame(Command::SUCCESS, $tester->getStatusCode());
+        $display = preg_replace('/\s+/', ' ', $tester->getDisplay());
+        self::assertStringContainsString('Skipped', $display);
+        self::assertStringContainsString('only supported for azure_entra_id', $display);
+    }
+
+    public function testFromFileRejectsAutoProvisionWithoutDefaultOrg(): void
+    {
+        $this->customerRepositoryMock->method('findOneBy')
+            ->willReturn($this->createCustomerStub());
+        $this->configRepositoryMock->method('findByCustomer')
+            ->willReturn(null);
+
+        $configFile = $this->createTempConfigFile([
+            self::SUBDOMAIN => [
+                'clientId'           => self::CLIENT_ID,
+                'clientSecret'       => self::CLIENT_SECRET,
+                'authServerUrl'      => self::AUTH_SERVER_URL,
+                'realm'              => self::REALM,
+                'autoProvisionUsers' => true,
+            ],
+        ]);
+
+        $tester = $this->executeCommand(['--config-file' => $configFile]);
+
+        self::assertSame(Command::SUCCESS, $tester->getStatusCode());
+        self::assertStringContainsString('Skipped', $tester->getDisplay());
+        $display = preg_replace('/\s+/', ' ', $tester->getDisplay());
+        self::assertStringContainsString('autoProvisionUsers requires a defaultOrganisationId', $display);
     }
 
     /**
