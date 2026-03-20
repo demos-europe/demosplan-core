@@ -37,6 +37,11 @@ class FileNameGenerator
         return 'Synopse-'.$this->slugify->slugify($procedure->getName()).'.'.$suffix;
     }
 
+    public function getFilteredSynopseFileName(Procedure $procedure, string $suffix): string
+    {
+        return 'Teilexport-Synopse-'.$this->slugify->slugify($procedure->getName()).'.'.$suffix;
+    }
+
     public function getFileName(Statement $statement, string $templateName = '', bool $censored = false): string
     {
         $defaultTemplateName = $censored ? self::DEFAULT_TEMPLATE_NAME_CENSORED : self::DEFAULT_TEMPLATE_NAME;

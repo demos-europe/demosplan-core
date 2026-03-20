@@ -59,7 +59,7 @@ abstract class OsiAuthenticator extends DplanAuthenticator implements Authentica
         return new SelfValidatingPassport(new UserBadge($user->getLogin()));
     }
 
-    public function start(Request $request, AuthenticationException $authException = null): Response
+    public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         return new RedirectResponse(
             '/', // might be the site, where users choose their oauth provider

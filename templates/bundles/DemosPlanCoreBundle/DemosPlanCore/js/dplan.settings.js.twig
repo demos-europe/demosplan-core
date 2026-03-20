@@ -9,7 +9,6 @@
 #}
 window.dplan = {
     settings                : {
-        basicAuth           : '{{ basicAuth|default('') }}',
         debug               : Boolean({{ app.debug|default(0) }}),
         maxUploadSize       : {{ maxUploadSize|default(0) }},
         useOpenGeoDb        : Boolean({{ useOpenGeoDb|default(0) }}),
@@ -34,7 +33,6 @@ window.dplan = {
     },
     sentryDsn               : "{{ sentry_dsn|default }}",
     csrfToken               : "{{ csrf_token('csrf')|json_encode }}",
-    jwtToken                : "{{ jwtToken|default }}",
     expirationTimestamp     : {{ expirationTimestamp|default(0) }},
 
     defaultProjectionLabel  : "{{ defaultProjectionLabel() }}",

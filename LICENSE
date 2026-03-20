@@ -372,7 +372,7 @@ client/js/legacy/rateit/demos.jquery.rateit.js
 
 ------------------------------------------------------------------------------------------
 
-client/js/legacy/jquery-3.5.1.min.js
+client/js/legacy/jquery.js
 
     jQuery v3.5.1
     Licensed under MIT license.

@@ -43,7 +43,7 @@ class DemosPlanReportController extends BaseController
     #[Route(name: 'dm_plan_report_table_view', path: '/report/view/{procedureId}')]
     public function viewReport($procedureId)
     {
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanReport/list.html.twig',
             [
                 'title'     => 'procedure.report',

@@ -44,6 +44,7 @@ use Elastica\Index;
  * @property-read StatementResourceType $headStatement
  * @property-read StatementResourceType $movedStatement
  * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only.
+ * @property-read End $customFields
  */
 final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface, ReadableEsResourceTypeInterface
 {
@@ -167,6 +168,11 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
             ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
             ->setReadableByPath()
             ->setFilterable();
+
+        if ($this->currentUser->hasPermission('field_statements_custom_fields')) {
+            $originalStatementConfig->customFields
+                ->setReadableByCallable(static fn (Statement $originalStatement): ?array => $originalStatement->getCustomFields()?->toJson());
+        }
 
         return $originalStatementConfig;
     }

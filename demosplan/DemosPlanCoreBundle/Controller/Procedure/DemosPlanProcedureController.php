@@ -206,7 +206,11 @@ class DemosPlanProcedureController extends BaseController
                 ? $this->globalConfig->getProjectShortUrlRedirectRouteLoggedin()
                 : $this->globalConfig->getProjectShortUrlRedirectRoute();
 
-            return $this->redirectToRoute($redirectRoute, ['procedure' => $procedure->getId()]);
+            $redirectParamName = $currentUser->getUser()->isLoggedIn()
+                ? $this->globalConfig->getProjectShortUrlRedirectParamLoggedin()
+                : $this->globalConfig->getProjectShortUrlRedirectParam();
+
+            return $this->redirectToRoute($redirectRoute, [$redirectParamName => $procedure->getId()]);
         } catch (NoResultException) {
             $this->getMessageBag()->add('error', 'warning.shorturl.no.procedure');
 
@@ -292,7 +296,7 @@ class DemosPlanProcedureController extends BaseController
             );
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_dashboard.html.twig',
             [
                 'procedure'    => $procedureId,
@@ -803,7 +807,7 @@ class DemosPlanProcedureController extends BaseController
         $templateVars = $this->procedureServiceOutput->fillTemplateVars($templateVars);
         $templateVars['masterTemplateId'] = $masterTemplateService->getMasterTemplateId();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_new.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -903,7 +907,7 @@ class DemosPlanProcedureController extends BaseController
         $templateVars = $this->procedureServiceOutput->fillTemplateVars($templateVars);
         $templateVars['masterTemplateId'] = $masterTemplateService->getMasterTemplateId();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_new_master.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -966,7 +970,7 @@ class DemosPlanProcedureController extends BaseController
 
         $template = '@DemosPlanCore/DemosPlanProcedure/administration_new_member_list_mastertoeblist.html.twig';
 
-        return $this->renderTemplate(
+        return $this->render(
             $template,
             [
                 'templateVars' => $templateVars,
@@ -1039,7 +1043,7 @@ class DemosPlanProcedureController extends BaseController
             'emailText'          => $emailText,
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_unregistered_publicagency_email.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -1084,7 +1088,7 @@ class DemosPlanProcedureController extends BaseController
             'addressBookEntries' => $addressBookEntriesOfOrganisation,
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_unregistered_publicagency_list.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -1133,7 +1137,7 @@ class DemosPlanProcedureController extends BaseController
             'orga_selected'  => $selectedOrganisations,
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_member_email.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -1372,7 +1376,7 @@ class DemosPlanProcedureController extends BaseController
             $agencies = $procedureServiceOutput->getPlanningOffices($customerService->getCurrentCustomer());
             $templateVars['agencies'] = $agencies;
 
-            $dataInputOrgas = $procedureServiceOutput->getDataInputOrgas();
+            $dataInputOrgas = $procedureServiceOutput->getDataInputOrgas($customerService->getCurrentCustomer());
             $templateVars['dataInputOrgas'] = $dataInputOrgas;
             // get current shortUrlPath
             $templateVars['shortUrlPath'] = $this->generateUrl(
@@ -1459,7 +1463,7 @@ class DemosPlanProcedureController extends BaseController
                 'evaluatingPhase' => $evaluatingPhase ?? '',
             ];
 
-            return $this->renderTemplate($template, $data);
+            return $this->render($template, $data);
         } catch (DuplicateSlugException $e) {
             $this->getMessageBag()->add('error', 'error.procedure.duplicated.shorturl', ['slug' => $e->getDuplicatedSlug()]);
 
@@ -1533,7 +1537,7 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['availableTopics'] = $procedureService->getTopics($procedureId);
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_import.html.twig',
             [
                 'currentUserId' => $currentUserId,
@@ -1958,7 +1962,7 @@ class DemosPlanProcedureController extends BaseController
         }
         $templateVars['fallbackStatementReplyUrl'] = $this->globalConfig->getFallbackStatementReplyUrl(); // move this into event?
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/public_detail.html.twig',
             [
                 'tabCount'     => $tabCount,
@@ -1985,7 +1989,7 @@ class DemosPlanProcedureController extends BaseController
             : $this->procedureService->getProceduresForDataInputOrga($organisationId);
         $title = 'procedure.admin.list';
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/list_data_input_orga_procedures.html.twig',
             ['templateVars' => $templateVars, 'title' => $title]
         );
@@ -2050,7 +2054,7 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['subscriptions'] = $subscriptions;
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/list_subscriptions.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -2250,7 +2254,7 @@ class DemosPlanProcedureController extends BaseController
             }
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_member_list.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -2321,7 +2325,7 @@ class DemosPlanProcedureController extends BaseController
             ]
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_new_member_list.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -2360,7 +2364,7 @@ class DemosPlanProcedureController extends BaseController
 
         $templateVars = $this->prepareBoilerplateTemplateVars($procedure, $procedureId);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_list_boilerplate.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -2448,7 +2452,7 @@ class DemosPlanProcedureController extends BaseController
     #[Route(name: 'DemosPlan_procedure_template_places_list', path: '/verfahren/blaupause/{procedureId}/schritte')]
     public function showProcedurePlaces(string $procedureId)
     {
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
+        return $this->render('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
             'procedureId' => $procedureId,
             'title'       => 'procedure.places',
         ]);
@@ -2465,7 +2469,7 @@ class DemosPlanProcedureController extends BaseController
         $templateVars['procedureTemplate'] = $this->currentProcedureService->getProcedure()?->getMaster() ?? false;
         $templateVars['procedureId'] = $procedureId;
 
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_custom_fields_list.html.twig',
+        return $this->render('@DemosPlanCore/DemosPlanProcedure/administration_custom_fields_list.html.twig',
             ['templateVars' => $templateVars]);
     }
 
@@ -2566,7 +2570,7 @@ class DemosPlanProcedureController extends BaseController
         }
         $boilerplateGroups = $procedureService->getBoilerplateGroups($procedure);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_edit_boilerplate.html.twig',
             [
                 'form'                         => $form->createView(),
@@ -2674,7 +2678,7 @@ class DemosPlanProcedureController extends BaseController
             ]);
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_edit_boilerplate_group.html.twig',
             [
                 'form'      => $form->createView(),
@@ -2694,6 +2698,11 @@ class DemosPlanProcedureController extends BaseController
         }
 
         if ($this->permissions->isMember() && $this->permissions->hasPermissionsetRead()) {
+            return;
+        }
+
+        // Support users and other users with API access permission can access all procedures
+        if ($this->permissions->hasPermission('feature_procedure_api_access')) {
             return;
         }
 

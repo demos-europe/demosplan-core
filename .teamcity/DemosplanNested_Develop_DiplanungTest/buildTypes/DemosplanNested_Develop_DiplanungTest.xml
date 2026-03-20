@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<build-type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="872de700-94c8-46b8-a433-6dc0411dc1c1" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2025.3/project-config.xsd">
+  <name>Pipeline Head</name>
+  <description />
+  <settings>
+    <options>
+      <option name="artifactRules" value="**" />
+    </options>
+    <parameters>
+      <param name="teamcity.optimization.keepOptimizationLog" value="true" />
+    </parameters>
+    <vcs-settings>
+      <vcs-entry-ref root-id="DemosplanNested_Develop_GitGithubComDemosEuropeDemosplanCoreGitMain" />
+      <vcs-entry-ref root-id="DemosplanNested_Develop_GitGithubComDemosEuropeDemosplanProjectDiplanbauGitMain" />
+      <vcs-entry-ref root-id="DemosplanNested_Develop_GitGithubComDemosEuropeDemosplanProjectDiplanrogGitMain" />
+      <vcs-entry-ref root-id="DemosplanNested_Develop_GitGithubComDemosEuropeDemosplanProjectDiplanfestGitMain" />
+    </vcs-settings>
+    <build-triggers>
+      <build-trigger id="TRIGGER_29" type="vcsTrigger">
+        <parameters>
+          <param name="branchFilter"><![CDATA[+:release
++:main]]></param>
+          <param name="enableQueueOptimization" value="true" />
+        </parameters>
+      </build-trigger>
+    </build-triggers>
+    <cleanup>
+      <options>
+        <option name="preventDependenciesArtifactsFromCleanup" value="true" />
+      </options>
+    </cleanup>
+  </settings>
+</build-type>
+

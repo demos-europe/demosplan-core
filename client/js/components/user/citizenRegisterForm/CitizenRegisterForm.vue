@@ -139,13 +139,13 @@ export default {
   props: {
     isIdp: {
       type: Boolean,
-      required: true,
+      required: false,
       default: false,
     },
 
     idpLoginPath: {
       type: String,
-      required: true,
+      required: false,
       default: '',
     },
 

@@ -50,7 +50,7 @@ class StatementListController extends BaseController
 
         $isSourceAndCoupledProcedure = $tokenFetcher->isSourceAndCoupledProcedure($procedure);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_statements.html.twig',
             [
                 'title'          => 'statements',
@@ -84,7 +84,7 @@ class StatementListController extends BaseController
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_original_statements.html.twig',
             [
                 'title'          => 'statements.original',
