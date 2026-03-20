@@ -133,6 +133,7 @@ abstract class SegmentsExporter
             $this->styles['currentDateParagraph']
         );
     }
+
     /**
      * This function adds a metadata sheet as the first page in the docx export, including the name of the initiator of the export, tags and tag topics if a filter was being used.
      */
