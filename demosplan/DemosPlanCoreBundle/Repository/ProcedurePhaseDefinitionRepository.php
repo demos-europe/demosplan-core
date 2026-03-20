@@ -63,6 +63,22 @@ class ProcedurePhaseDefinitionRepository extends CoreRepository
     }
 
     /**
+     * Finds the first phase definition (lowest orderInAudience) for the given audience and customer.
+     * Falls back to global (customer=null) definitions.
+     */
+    public function findInitialDefinition(string $audience, ?Customer $customer): ?ProcedurePhaseDefinition
+    {
+        if (null !== $customer) {
+            $result = $this->findOneBy(['audience' => $audience, 'customer' => $customer], ['orderInAudience' => 'ASC']);
+            if (null !== $result) {
+                return $result;
+            }
+        }
+
+        return $this->findOneBy(['audience' => $audience, 'customer' => null], ['orderInAudience' => 'ASC']);
+    }
+
+    /**
      * @throws NonUniqueResultException
      * @throws NoResultException
      */

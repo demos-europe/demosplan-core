@@ -265,7 +265,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure = $this->generateObjectValues($procedure, $data);
             // default values different from blueprint
             $procedure->setCreatedDate($currentDate);
-            $procedure->setPublicParticipationPhase($data['publicParticipationPhase']);
             $procedure->setInitialSlug();
             $procedure->setXtaPlanId($data['xtaPlanId'] ?? '');
             $procedure->setElements(new ArrayCollection());
@@ -276,6 +275,13 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->getPublicParticipationPhaseObject()->copyValuesFromPhase(
                 $procedureMaster->getPublicParticipationPhaseObject()
             );
+
+            if (array_key_exists('phaseDefinition', $data) && null !== $data['phaseDefinition']) {
+                $procedure->getPhaseObject()->setPhaseDefinition($data['phaseDefinition']);
+            }
+            if (array_key_exists('publicParticipationPhaseDefinition', $data) && null !== $data['publicParticipationPhaseDefinition']) {
+                $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($data['publicParticipationPhaseDefinition']);
+            }
 
             // improve T20997:
             // this kind of denylisting should be avoided by do not using "clone"

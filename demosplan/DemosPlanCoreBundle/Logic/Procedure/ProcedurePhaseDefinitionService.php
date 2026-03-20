@@ -49,6 +49,11 @@ readonly class ProcedurePhaseDefinitionService
         return $this->procedurePhaseDefinitionRepository->find($id);
     }
 
+    public function findInitialDefinition(string $audience, ?Customer $customer): ?ProcedurePhaseDefinition
+    {
+        return $this->procedurePhaseDefinitionRepository->findInitialDefinition($audience, $customer);
+    }
+
     public function findEvaluatingDefinition(string $audience, ?Customer $customer): ?ProcedurePhaseDefinition
     {
         return $this->procedurePhaseDefinitionRepository->findEvaluatingDefinition($audience, $customer);

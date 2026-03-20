@@ -270,9 +270,10 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $procedureData['orgaId'] = $data['orgaId'];
         $procedureData['orgaName'] = $data['orgaName'];
 
-        // Phase configuration: set both internal and external phase to the configured default
-        $procedureData['phase'] = $this->masterProcedurePhase;
-        $procedureData['publicParticipationPhase'] = $this->masterProcedurePhase;
+        // Phase configuration: set both internal and external phase to the initial phase definition
+        $currentCustomer = $this->customerService->getCurrentCustomer();
+        $procedureData['phaseDefinition'] = $this->procedurePhaseDefinitionRepository->findInitialDefinition('internal', $currentCustomer);
+        $procedureData['publicParticipationPhaseDefinition'] = $this->procedurePhaseDefinitionRepository->findInitialDefinition('external', $currentCustomer);
         $procedureData['copymaster'] = $data['r_copymaster'];
         $procedureData['procedureCoupleToken'] = $this->handleTokenField($data['procedureCoupleToken'] ?? null);
 
