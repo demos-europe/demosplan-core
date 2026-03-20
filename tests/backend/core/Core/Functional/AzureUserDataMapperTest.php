@@ -44,6 +44,7 @@ class AzureUserDataMapperTest extends FunctionalTestCase
     private const EMAIL = 'test.user@example.com';
     private const FIRST_NAME = 'Test';
     private const LAST_NAME = 'User';
+    private const AUTO_PROVISION_NOT_CONFIGURED = 'auto-provisioning is not configured';
 
     protected function setUp(): void
     {
@@ -123,7 +124,7 @@ class AzureUserDataMapperTest extends FunctionalTestCase
         $this->configRepositoryMock->method('findByCustomer')->willReturn(null);
 
         $this->expectException(AuthenticationException::class);
-        $this->expectExceptionMessage('auto-provisioning is not configured');
+        $this->expectExceptionMessage(self::AUTO_PROVISION_NOT_CONFIGURED);
 
         $this->sut->mapUserData($this->createAzureUserData());
     }
@@ -137,7 +138,7 @@ class AzureUserDataMapperTest extends FunctionalTestCase
         $this->configRepositoryMock->method('findByCustomer')->willReturn($config);
 
         $this->expectException(AuthenticationException::class);
-        $this->expectExceptionMessage('auto-provisioning is not configured');
+        $this->expectExceptionMessage(self::AUTO_PROVISION_NOT_CONFIGURED);
 
         $this->sut->mapUserData($this->createAzureUserData());
     }
@@ -159,7 +160,7 @@ class AzureUserDataMapperTest extends FunctionalTestCase
         $this->configRepositoryMock->method('findByCustomer')->willReturn($config);
 
         $this->expectException(AuthenticationException::class);
-        $this->expectExceptionMessage('auto-provisioning is not configured');
+        $this->expectExceptionMessage(self::AUTO_PROVISION_NOT_CONFIGURED);
 
         $this->sut->mapUserData($this->createAzureUserData());
     }

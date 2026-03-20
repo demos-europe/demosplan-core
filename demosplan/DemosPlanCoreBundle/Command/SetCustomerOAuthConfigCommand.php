@@ -252,17 +252,8 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
      */
     private function upsertCustomerConfig(string $subdomain, array $customerConfig): void
     {
-        $requiredKeys = ['clientId', 'clientSecret', 'authServerUrl', 'realm'];
-        foreach ($requiredKeys as $key) {
-            if (!isset($customerConfig[$key]) || '' === $customerConfig[$key]) {
-                throw new InvalidArgumentException(sprintf('Missing or empty required field "%s"', $key));
-            }
-        }
-
-        if (!filter_var($customerConfig['authServerUrl'], FILTER_VALIDATE_URL)
-            || !str_starts_with($customerConfig['authServerUrl'], 'https://')) {
-            throw new InvalidArgumentException(sprintf('authServerUrl must be a valid HTTPS URL, got "%s"', $customerConfig['authServerUrl']));
-        }
+        $this->validateRequiredFields($customerConfig);
+        $this->validateAuthServerUrl($customerConfig['authServerUrl']);
 
         $customer = $this->customerRepository->findOneBy(['subdomain' => $subdomain]);
         if (null === $customer) {
@@ -283,6 +274,42 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
         $config->setKeycloakLogoutRoute($customerConfig['logoutRoute'] ?? null);
 
         $defaultOrgId = $customerConfig['defaultOrganisationId'] ?? null;
+        $this->applyDefaultOrganisation($config, $defaultOrgId);
+        $this->applyIdentityProviderType($config, $customerConfig['identityProviderType'] ?? null);
+        $this->applyAutoProvisionUsers($config, $customerConfig['autoProvisionUsers'] ?? null, $defaultOrgId);
+    }
+
+    /**
+     * @param array<string, string> $customerConfig
+     *
+     * @throws InvalidArgumentException
+     */
+    private function validateRequiredFields(array $customerConfig): void
+    {
+        $requiredKeys = ['clientId', 'clientSecret', 'authServerUrl', 'realm'];
+        foreach ($requiredKeys as $key) {
+            if (!isset($customerConfig[$key]) || '' === $customerConfig[$key]) {
+                throw new InvalidArgumentException(sprintf('Missing or empty required field "%s"', $key));
+            }
+        }
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    private function validateAuthServerUrl(string $authServerUrl): void
+    {
+        if (!filter_var($authServerUrl, FILTER_VALIDATE_URL)
+            || !str_starts_with($authServerUrl, 'https://')) {
+            throw new InvalidArgumentException(sprintf('authServerUrl must be a valid HTTPS URL, got "%s"', $authServerUrl));
+        }
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    private function applyDefaultOrganisation(CustomerOAuthConfig $config, ?string $defaultOrgId): void
+    {
         if (is_string($defaultOrgId) && '' !== $defaultOrgId) {
             $orga = $this->orgaRepository->get($defaultOrgId);
             if (!$orga instanceof Orga) {
@@ -292,29 +319,43 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
         } elseif (null === $defaultOrgId || '' === $defaultOrgId) {
             $config->setDefaultOrganisation(null);
         }
+    }
 
-        $idpTypeValue = $customerConfig['identityProviderType'] ?? null;
-        if (is_string($idpTypeValue) && '' !== $idpTypeValue) {
-            $idpType = IdentityProviderType::tryFrom($idpTypeValue);
-            if (null === $idpType) {
-                throw new InvalidArgumentException(sprintf('Invalid identityProviderType "%s". Valid values: %s', $idpTypeValue, implode(', ', array_column(IdentityProviderType::cases(), 'value'))));
-            }
-            $config->setIdentityProviderType($idpType);
+    /**
+     * @throws InvalidArgumentException
+     */
+    private function applyIdentityProviderType(CustomerOAuthConfig $config, ?string $idpTypeValue): void
+    {
+        if (!is_string($idpTypeValue) || '' === $idpTypeValue) {
+            return;
         }
 
-        $autoProvisionValue = $customerConfig['autoProvisionUsers'] ?? null;
-        if (null !== $autoProvisionValue && '' !== $autoProvisionValue) {
-            $autoProvision = filter_var($autoProvisionValue, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-            if (null === $autoProvision) {
-                throw new InvalidArgumentException(sprintf('autoProvisionUsers must be "true" or "false", got "%s"', $autoProvisionValue));
-            }
-            if ($autoProvision && (null === $defaultOrgId || '' === $defaultOrgId)) {
-                throw new InvalidArgumentException('autoProvisionUsers requires a defaultOrganisationId to be set');
-            }
-            if ($autoProvision && IdentityProviderType::AZURE_ENTRA_ID !== $config->getIdentityProviderType()) {
-                throw new InvalidArgumentException('autoProvisionUsers is only supported for azure_entra_id identity provider type');
-            }
-            $config->setAutoProvisionUsers($autoProvision);
+        $idpType = IdentityProviderType::tryFrom($idpTypeValue);
+        if (null === $idpType) {
+            throw new InvalidArgumentException(sprintf('Invalid identityProviderType "%s". Valid values: %s', $idpTypeValue, implode(', ', array_column(IdentityProviderType::cases(), 'value'))));
         }
+        $config->setIdentityProviderType($idpType);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    private function applyAutoProvisionUsers(CustomerOAuthConfig $config, string|bool|null $autoProvisionValue, ?string $defaultOrgId): void
+    {
+        if (null === $autoProvisionValue || '' === $autoProvisionValue) {
+            return;
+        }
+
+        $autoProvision = filter_var($autoProvisionValue, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        if (null === $autoProvision) {
+            throw new InvalidArgumentException(sprintf('autoProvisionUsers must be "true" or "false", got "%s"', $autoProvisionValue));
+        }
+        if ($autoProvision && (null === $defaultOrgId || '' === $defaultOrgId)) {
+            throw new InvalidArgumentException('autoProvisionUsers requires a defaultOrganisationId to be set');
+        }
+        if ($autoProvision && IdentityProviderType::AZURE_ENTRA_ID !== $config->getIdentityProviderType()) {
+            throw new InvalidArgumentException('autoProvisionUsers is only supported for azure_entra_id identity provider type');
+        }
+        $config->setAutoProvisionUsers($autoProvision);
     }
 }
