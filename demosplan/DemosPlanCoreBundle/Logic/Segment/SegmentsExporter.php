@@ -174,8 +174,12 @@ abstract class SegmentsExporter
             $filteredExportTagData .= '<br>'.$this->translator->trans('layout.info');
             Html::addHtml($section, $this->htmlHelper->getHtmlValidText($filteredExportTagData), false, false);
         } else {
-            $preamble = $this->translator->trans('docx.export.preamble');
-            Html::addHtml($section, $this->htmlHelper->getHtmlValidText($preamble), false, false);
+            $exportUser = $this->translator->trans('export.user');
+            $userName = $this->currentUser->getUser()->getFullName();
+            $exportDate = new DateTime();
+            $filteredExportTagData = $exportUser.': '.$userName.' am '.$exportDate->format('d.m.Y').'<br>'.$this->translator->trans('docx.export.filtered');
+            $filteredExportTagData .= '<br>'.$this->translator->trans('layout.info');
+            Html::addHtml($section, $this->htmlHelper->getHtmlValidText($filteredExportTagData), false, false);
         }
     }
 
