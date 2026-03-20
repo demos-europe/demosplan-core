@@ -96,7 +96,7 @@
     "scheb/2fa-email": "^6.0",
     "scheb/2fa-totp": "^6.0",
     "sentry/sentry-symfony": "^5.0",
-    "stevenmaguire/oauth2-keycloak": "^5.0",
+    "stevenmaguire/oauth2-keycloak": "^6.1",
     "stof/doctrine-extensions-bundle": "^1.2",
     "symfony/asset": "6.*.*",
     "symfony/browser-kit": "6.*.*",
