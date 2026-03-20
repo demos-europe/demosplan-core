@@ -115,9 +115,6 @@ abstract class SegmentsExporter
             $this->styles['documentTitleFont'],
             $this->styles['documentTitleParagraph']
         );
-
-        // $this->addPreambleIfFirstHeader($header, $headerType, $exportFilteredByTagsWithTopics);
-
         $currentDate = new DateTime();
         $translationKey = [] !== $exportFilteredByTagsWithTopics ?
             'segments.export.statement.export.date.filtered' : 'segments.export.statement.export.date';
