@@ -3,7 +3,10 @@
         data-cy="statementDetail:statementFinalSend"
         title="{{ "statement.final.send"|trans }}">
         <div class="o-box--dark u-ph u-pv-0_5">
-            {% if templateVars.sendFinalEmail is defined and templateVars.sendFinalEmail == false %}
+            {# Check if feedback feature is disabled at procedure level - takes priority over all author preferences #}
+            {% if constant('demosplan\\DemosPlanCoreBundle\\Entity\\Statement\\Statement::EXTERNAL') == templateVars.table.statement.publicStatement and proceduresettings.publicParticipationFeedbackEnabled|default(false) == false %}
+                {{ "explanation.statement.final.feedback.feature.disabled"|trans }}
+            {% elseif templateVars.sendFinalEmail is defined and templateVars.sendFinalEmail == false %}
                 {{ "explanation.no.statement.final.sent"|trans }}
             {% elseif constant('demosplan\\DemosPlanCoreBundle\\Entity\\Statement\\Statement::EXTERNAL') == templateVars.table.statement.publicStatement and templateVars.table.statement.meta.authorFeedback|default() == false %}
                 {{ "explanation.no.statement.final.no.feedback.wanted"|trans }}

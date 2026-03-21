@@ -64,9 +64,9 @@ class DemosPlanPath
     public static function getTemporaryPath(string $path = ''): string
     {
         // store in a subdirectory to avoid conflicts with other applications
-        $tempDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR.'dplan';
+        $tempDir = sys_get_temp_dir().DIRECTORY_SEPARATOR.'dplan';
         if (!is_dir($tempDir) && !mkdir($tempDir, 0777, true) && !is_dir($tempDir)) {
-                throw new RuntimeException(sprintf('Directory "%s" was not created', $tempDir));
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $tempDir));
         }
 
         return $tempDir.DIRECTORY_SEPARATOR.$path;

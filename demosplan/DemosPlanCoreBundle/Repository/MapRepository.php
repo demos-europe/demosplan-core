@@ -476,11 +476,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     {
         try {
             $checkSum = 0;
-            if (array_key_exists('idents', $gisLayerIds)) {
-                $idents = $gisLayerIds['idents'];
-            } else {
-                $idents = $gisLayerIds;
-            }
+            $idents = array_key_exists('idents', $gisLayerIds) ? $gisLayerIds['idents'] : $gisLayerIds;
 
             $size = is_countable($idents) ? count($idents) : 0;
             for ($i = 0; $i < $size; ++$i) {

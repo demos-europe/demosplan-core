@@ -159,6 +159,12 @@
                 padding-right: 8px;
             }
         }
+
+        &:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            color: $actionbox-color-inactive;
+        }
     }
 
     // Tool icons

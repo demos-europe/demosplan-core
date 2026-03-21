@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\IsOriginalStatementAvailableEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\OriginalStatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
@@ -43,6 +44,7 @@ use Elastica\Index;
  * @property-read StatementResourceType $headStatement
  * @property-read StatementResourceType $movedStatement
  * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only.
+ * @property-read End $customFields
  */
 final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface, ReadableEsResourceTypeInterface
 {
@@ -77,7 +79,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 
@@ -166,6 +168,11 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
             ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
             ->setReadableByPath()
             ->setFilterable();
+
+        if ($this->currentUser->hasPermission('field_statements_custom_fields')) {
+            $originalStatementConfig->customFields
+                ->setReadableByCallable(static fn (Statement $originalStatement): ?array => $originalStatement->getCustomFields()?->toJson());
+        }
 
         return $originalStatementConfig;
     }

@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet\GroupedFacetInterface;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagTopicResourceType;
 use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\SortMethodInterface;
 
 /**
  * @template-implements GroupedFacetInterface<Tag,TagTopic>
@@ -25,10 +26,15 @@ use EDT\Querying\Contracts\FunctionInterface;
 class TagsFacet implements GroupedFacetInterface
 {
     /**
-     * @param FunctionInterface<bool> $rootItemsLoadCondition
+     * @param FunctionInterface<bool>        $rootItemsLoadCondition
+     * @param array<int,SortMethodInterface> $itemsSortMethods
+     * @param array<int,SortMethodInterface> $groupsSortMethods
      */
-    public function __construct(private readonly FunctionInterface $rootItemsLoadCondition)
-    {
+    public function __construct(
+        private readonly FunctionInterface $rootItemsLoadCondition,
+        private readonly array $itemsSortMethods = [],
+        private readonly array $groupsSortMethods = [],
+    ) {
     }
 
     public function getFacetNameTranslationKey(): string
@@ -116,6 +122,11 @@ class TagsFacet implements GroupedFacetInterface
 
     public function getItemsSortMethods(): array
     {
-        return [];
+        return $this->itemsSortMethods;
+    }
+
+    public function getGroupsSortMethods(): array
+    {
+        return $this->groupsSortMethods;
     }
 }

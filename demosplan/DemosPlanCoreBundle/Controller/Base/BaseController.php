@@ -74,7 +74,7 @@ abstract class BaseController extends AbstractController
      *
      * Hier wird insbesondere der User identifiziert über den Session-Hash oder als nicht eingelogged festgelegt.
      *
-     * @deprecated Use `@DplanPermissions($context)` instead
+     * @deprecated Use `#[DplanPermissions($context)]` instead
      *
      * @param array $context Permission to test
      *
@@ -140,7 +140,7 @@ abstract class BaseController extends AbstractController
      *
      * @return RedirectResponse|Response Response
      *
-     * @deprecated use DplanPermissions({"permission"}) Annotation on controllers instead
+     * @deprecated use DplanPermissions({"permission"}) Attribute on controllers instead
      *     try/catch can be omitted, this error handling has moved to ExceptionListener
      *     and CheckPermissionListener
      *
@@ -168,7 +168,7 @@ abstract class BaseController extends AbstractController
         }
 
         try {
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanCore/error.html.twig',
                 [
                     'title' => 'Ein Fehler ist aufgetreten',
@@ -187,7 +187,7 @@ abstract class BaseController extends AbstractController
             // to inject TranslatorInterface in all Controllers
             return new Response(
                 'Ein interner Fehler ist aufgetreten',
-                500
+                Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
     }
@@ -272,19 +272,12 @@ abstract class BaseController extends AbstractController
         return $this->globalConfig->getFormOptions()[$key] ?? null;
     }
 
-    /**
-     * Always process the Controller's own message bag.
-     *
-     * {@inheritdoc}
-     *
-     * @throws Exception
-     */
-    public function renderTemplate($view, array $parameters = [], ?Response $response = null): Response
+    protected function render(string $view, array $parameters = [], ?Response $response = null): Response
     {
         $this->viewRenderer->processRequestStatus();
         $parameters = $this->viewRenderer->processRequestParameters($view, $parameters, $response);
 
-        return $this->render($view, $parameters, $response);
+        return parent::render($view, $parameters, $response);
     }
 
     /**

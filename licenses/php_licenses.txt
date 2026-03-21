@@ -5,6 +5,7 @@ cebe/php-openapi: MIT
 cocur/slugify: MIT
 composer/composer: MIT
 composer/package-versions-deprecated: MIT
+cyclonedx/cyclonedx-php-composer: Apache-2.0
 demos-europe/demosplan-addon: MIT
 doctrine/annotations: MIT
 doctrine/common: MIT
@@ -14,6 +15,7 @@ doctrine/doctrine-migrations-bundle: MIT
 doctrine/orm: MIT
 doctrine/persistence: MIT
 dompdf/dompdf: LGPL-2.1
+dragonmantank/cron-expression: MIT
 efrane/console-additions: MIT
 efrane/tus-bundle: MIT
 egulias/email-validator: MIT
@@ -53,17 +55,20 @@ masterminds/html5: MIT
 myclabs/php-enum: MIT
 nelmio/security-bundle: MIT
 nesbot/carbon: MIT
+open-telemetry/exporter-otlp: Apache-2.0
+open-telemetry/sdk: Apache-2.0
 openlss/lib-array2xml: Apache-2.0
 php-amqplib/rabbitmq-bundle: MIT
 php-parallel-lint/php-console-highlighter: MIT
 phpdocumentor/reflection-docblock: MIT
 phpoffice/phpspreadsheet: MIT
-phpoffice/phpword: LGPL-3.0
+phpoffice/phpword: LGPL-3.0-only
 phpspec/prophecy: MIT
 phpspec/prophecy-phpunit: MIT
 phpstan/phpstan: MIT
 phpstan/phpstan-symfony: MIT
 phpunit/phpunit: BSD-3-Clause
+predis/predis: MIT
 proj4php/proj4php: LGPL-2.1
 psalm/plugin-symfony: MIT
 ramsey/uuid: MIT
@@ -97,6 +102,7 @@ symfony/intl: MIT
 symfony/lock: MIT
 symfony/mailer: MIT
 symfony/maker-bundle: MIT
+symfony/messenger: MIT
 symfony/mime: MIT
 symfony/monolog-bundle: MIT
 symfony/options-resolver: MIT
@@ -110,12 +116,12 @@ symfony/property-access: MIT
 symfony/property-info: MIT
 symfony/proxy-manager-bridge: MIT
 symfony/rate-limiter: MIT
+symfony/scheduler: MIT
 symfony/security-bundle: MIT
 symfony/security-csrf: MIT
 symfony/serializer: MIT
 symfony/stopwatch: MIT
 symfony/string: MIT
-symfony/templating: MIT
 symfony/translation: MIT
 symfony/twig-bridge: MIT
 symfony/twig-bundle: MIT
@@ -124,14 +130,14 @@ symfony/var-dumper: MIT
 symfony/var-exporter: MIT
 symfony/web-profiler-bundle: MIT
 symfony/yaml: MIT
+thenetworg/oauth2-azure: MIT
 timeweb/phpstan-enum: MIT
 vimeo/psalm: MIT
 weirdan/doctrine-psalm-plugin: MIT
 wgirhad/geophp: GPL-2.0-or-later
 willdurand/geocoder-bundle: MIT
 willdurand/js-translation-bundle: MIT
-wrep/daemonizable-command: MIT
 wsdltophp/packagegenerator: MIT
 zenstruck/foundry: MIT
 
-As of 03.06.2025 07:02
+As of 09.02.2026 07:23

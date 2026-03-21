@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\News;
 
 use Carbon\Carbon;
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureNewsServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -72,7 +73,7 @@ class ProcedureNewsService implements ProcedureNewsServiceInterface
         ];
 
         $roles = $this->determineRoles($roles, $user);
-        if (isset($roles) && 0 < count($roles)) {
+        if (isset($roles) && [] !== $roles) {
             $conditions[] = [] === $roles
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']);
@@ -271,7 +272,7 @@ class ProcedureNewsService implements ProcedureNewsServiceInterface
         return array_filter($newsList, static function (News $news) use ($today) {
             $date = $news->getDesignatedSwitchDate();
 
-            return null !== $date && $today->isSameDay($date);
+            return $date instanceof DateTime && $today->isSameDay($date);
         });
     }
 
@@ -296,15 +297,15 @@ class ProcedureNewsService implements ProcedureNewsServiceInterface
     private function determineRoles(?array $roles, ?User $user): ?array
     {
         // if no roles are given, take the user roles from session
-        if (is_array($roles) && 0 === count($roles)) {
+        if (is_array($roles) && [] === $roles) {
             $roles = [Role::GUEST];
-            if (null !== $user) {
+            if ($user instanceof User) {
                 $roles = $user->getRoles();
             }
         }
 
         // Citizens should see all public news
-        if (null === $user || $user->hasRole(Role::CITIZEN)) {
+        if (!$user instanceof User || $user->hasRole(Role::CITIZEN)) {
             $roles[] = Role::GUEST;
         }
 

@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\StatementAnonymizeRpcEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
@@ -25,7 +26,7 @@ class StatementReportEntryFactory extends AbstractReportEntryFactory
     public function createFinalMailEntry(
         Statement $statement,
         string $mailSubject,
-        array $emailAttachmentNames
+        array $emailAttachmentNames,
     ): ReportEntry {
         $procedureId = $statement->getPId();
         $statementId = $statement->getId();
@@ -98,7 +99,7 @@ class StatementReportEntryFactory extends AbstractReportEntryFactory
     public function createStatementCopiedEssentialsEntry(
         Statement $sourceStatement,
         Statement $copiedStatement,
-        string $identifier
+        string $identifier,
     ): ReportEntry {
         $sourceProcedure = $sourceStatement->getProcedure();
         $targetProcedure = $copiedStatement->getProcedure();
@@ -206,7 +207,7 @@ class StatementReportEntryFactory extends AbstractReportEntryFactory
     public function createViewedEntry(
         $statementId,
         $procedureId,
-        $accessMap
+        $accessMap,
     ): ReportEntry {
         $message = ['statementId' => $statementId];
         $user = '';
@@ -350,7 +351,7 @@ class StatementReportEntryFactory extends AbstractReportEntryFactory
             'submitName'         => null,
         ];
 
-        if (null !== $meta) {
+        if ($meta instanceof StatementMeta) {
             $metaArray = [
                 'orgaName'           => $meta->getOrgaName(),
                 'orgaDepartmentName' => $meta->getOrgaDepartmentName(),

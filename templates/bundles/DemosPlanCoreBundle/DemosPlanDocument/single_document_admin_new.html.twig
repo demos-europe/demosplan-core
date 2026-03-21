@@ -24,7 +24,7 @@
                     }"
                     name="r_title"
                     required
-                    value="{{ templateVars.request.r_title|default }}">
+                    model-value="{{ templateVars.request.r_title|default }}">
                 </dp-input>
             {% else %}
                 {# Instead of injecting the permission into DemosPlanDocumentBundle/Logic/SingleDocumentHandler.php:75

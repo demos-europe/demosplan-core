@@ -35,15 +35,9 @@
         v-for="segment in segments"
         :id="'segmentTextEdit_' + segment.id"
         :key="segment.id"
-        class="u-ph-0_25"
-        :class="{ 'bg-color--grey-light-2': hoveredSegment === segment.id }"
-        @mouseenter="hoveredSegment = segment.id"
-        @mouseleave="hoveredSegment = null"
+        class="px-1 hover:bg-interactive-secondary-subtle-hover"
       >
-        <div
-          class="inline-block"
-          style="width: 5%"
-        >
+        <div class="inline-block w-[5%]">
           <dp-claim
             class="c-at-item__row-icon inline-block"
             :assigned-id="assigneeBySegment(segment.id).id"
@@ -56,10 +50,7 @@
             @click="() => toggleClaimSegment(segment)"
           />
         </div><!--
-     --><div
-          class="inline-block break-words"
-          style="width: 95%"
-        >
+     --><div class="inline-block break-words w-[95%]">
           <dp-edit-field
             :ref="`editField_${segment.id}`"
             class="c-styled-html"
@@ -80,7 +71,7 @@
             </template>
             <template v-slot:edit>
               <dp-editor
-                class="u-mr u-pt-0_25"
+                class="mr-4 pt-1"
                 :toolbar-items="{ linkButton: true, obscure: hasPermission('feature_obscure_text') }"
                 :value="segment.attributes.text"
                 @transform-obscure-tag="transformObscureTag"
@@ -140,7 +131,7 @@
           :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
           type="warning"
         />
-        <p class="weight--bold">
+        <p class="font-semibold">
           {{ Translator.trans('statement.text.short') }}
         </p>
         <div v-cleanhtml="statement.attributes.fullText || ''" />
@@ -163,10 +154,10 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
+import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
-import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
-import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
 
 export default {
   name: 'StatementSegmentsEdit',
@@ -224,7 +215,6 @@ export default {
     return {
       claimLoading: null,
       editingSegmentIds: [],
-      hoveredSegment: null,
       isLoading: false,
       obscuredText: '',
       defaultPagination: {
@@ -250,29 +240,23 @@ export default {
     assigneeBySegment () {
       return segmentId => {
         const segment = this.segments[segmentId]
-        try {
-          const assignee = segment.rel('assignee')
-          const orga = assignee ? assignee.rel('orga') : ''
 
+        // Bypass segment.rel() to avoid library crash on null relationships
+        if (!segment.hasRelationship('assignee') || !segment.relationships?.assignee?.data) {
           return {
-            id: assignee.id,
-            name: assignee.attributes.firstname + ' ' + assignee.attributes.lastname,
-            orgaName: orga ? orga.attributes.name : '',
+            id: '',
+            name: '',
+            orgaName: '',
           }
-        } catch (err) {
-          if (segment.hasRelationship('assignee') && segment.relationships.assignee.data.id === this.currentUser.id) {
-            return {
-              id: this.currentUser.id,
-              name: this.currentUser.firstname + ' ' + this.currentUser.lastname,
-              orgaName: this.currentUser.orgaName,
-            }
-          } else {
-            return {
-              id: '',
-              name: '',
-              orgaName: '',
-            }
-          }
+        }
+
+        const assignee = segment.rel('assignee')
+        const orga = assignee.rel('orga')
+
+        return {
+          id: assignee.id || '',
+          name: (assignee.attributes?.firstname || '') + ' ' + (assignee.attributes?.lastname || ''),
+          orgaName: orga?.attributes?.name || '',
         }
       }
     },
@@ -383,6 +367,12 @@ export default {
     },
 
     saveSegment (segmentId) {
+      if (!this.segments[segmentId].attributes.text) {
+        this.$refs[`editField_${segmentId}`][0].loading = false
+
+        return dplan.notify.error(Translator.trans('error.segment.empty.text'))
+      }
+
       // Use the transformed text if available
       const textToSave = this.obscuredText || this.segments[segmentId].attributes.text
 
@@ -425,7 +415,8 @@ export default {
      */
     toggleClaimSegment (segment) {
       this.claimLoading = segment.id
-      const userIdToSet = segment.hasRelationship('assignee') && segment.relationships.assignee.data.id === this.currentUser.id ? null : this.currentUser.id
+      const assigneeData = segment.relationships?.assignee?.data
+      const userIdToSet = (segment.hasRelationship('assignee') && assigneeData?.id === this.currentUser.id) ? null : this.currentUser.id
       const isClaim = userIdToSet !== null
 
       if (isClaim) {
@@ -560,14 +551,14 @@ export default {
 
       this.isLoading = false
 
-      await this.$nextTick(() => {
-        this.scrollToSegment()
+      await this.$nextTick()
 
-        // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
-        if (shouldRemoveSegmentParam) {
-          this.segmentNavigation.removeSegmentParameter()
-        }
-      })
+      this.scrollToSegment()
+
+      // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
+      if (shouldRemoveSegmentParam) {
+        this.segmentNavigation.removeSegmentParameter()
+      }
     },
 
     handlePageChange (page) {
@@ -591,7 +582,7 @@ export default {
       statementId: this.statementId,
       storageKey: this.storageKeyPagination,
       currentPerPage: this.pagination?.perPage,
-      defaultPagination: this.defaultPagination
+      defaultPagination: this.defaultPagination,
     })
   },
 

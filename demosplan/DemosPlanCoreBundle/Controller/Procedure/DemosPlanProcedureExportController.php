@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -25,22 +25,21 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanProcedureExportController extends DemosPlanProcedureController
 {
     /**
-     * @DplanPermissions("area_public_participation")
-     *
      * @param string $procedure
      *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_public_participation')]
     #[Route(name: 'DemosPlan_title_page_export.tex.twig', path: '/verfahren/{procedure}/titlepage/export')]
-    public function titlePageExportAction(
+    public function titlePageExport(
         CurrentUserInterface $currentUser,
         PermissionsInterface $permissions,
         NameGenerator $nameGenerator,
@@ -65,7 +64,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
             throw new Exception('PDF-Export fehlgeschlagen');
         }
 
-        $response = new Response($pdfContent, 200);
+        $response = new Response($pdfContent, Response::HTTP_OK);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
         $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($pdfName));
@@ -76,23 +75,22 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
     /**
      * PDF-Export der Institutionen-Liste.
      *
-     * @DplanPermissions({"area_main_procedures","area_admin_invitable_institution"})
-     *
      * @param string $procedure
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions(['area_main_procedures', 'area_admin_invitable_institution'])]
     #[Route(name: 'DemosPlan_procedure_member_index_pdf', path: '/verfahren/{procedure}/einstellungen/benutzer/pdf', options: ['expose' => true])]
-    public function administrationMemberListPdfAction(
+    public function administrationMemberListPdf(
         CurrentProcedureService $currentProcedureService,
         ExportService $exportService,
         NameGenerator $nameGenerator,
         ProcedureServiceOutput $procedureServiceOutput,
         Request $request,
         $procedure,
-    ) {
+    ): Response {
         $requestPost = $request->request->all();
         $selectedOrgas = $request->request->all('orga_selected');
 
@@ -115,7 +113,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
         $procedureName = $currentProcedureService->getProcedureWithCertainty()->getName();
         $filename = "{$procedureName}_$institutionListPhrase.pdf";
 
-        $response = new Response($file, 200);
+        $response = new Response($file, Response::HTTP_OK);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
         $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
@@ -126,16 +124,15 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
     /**
      * Export Procedure.
      *
-     * @DplanPermissions("area_public_participation")
-     *
      * @param string $procedure
      *
      * @return StreamedResponse|RedirectResponse
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_public_participation')]
     #[Route(path: '/verfahren/{procedure}/export', name: 'DemosPlan_procedure_export')]
-    public function exportProcedureAction(
+    public function exportProcedure(
         CurrentUserService $currentUser,
         ExportService $exportService,
         PermissionsInterface $permissions,

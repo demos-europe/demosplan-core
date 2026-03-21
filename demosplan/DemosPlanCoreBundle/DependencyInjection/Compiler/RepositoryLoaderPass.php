@@ -33,7 +33,7 @@ class RepositoryLoaderPass implements CompilerPassInterface
         // Find all services tagged with 'doctrine.repository_service'
         $repositories = $container->findTaggedServiceIds('doctrine.repository_service');
 
-        foreach ($repositories as $id => $tags) {
+        foreach (array_keys($repositories) as $id) {
             // Skip if the service id does not match the pattern
             if (!preg_match('|^(.*)\\\\(.*)Repository$|', $id, $matches)) {
                 continue;

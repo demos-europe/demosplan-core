@@ -32,7 +32,7 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticatio
         private readonly ClientRegistry $clientRegistry,
         private readonly LoggerInterface $logger,
         private readonly RouterInterface $router,
-        private readonly KeycloakUserBadgeCreator $keycloakUserBadgeCreator
+        private readonly KeycloakUserBadgeCreator $keycloakUserBadgeCreator,
     ) {
     }
 

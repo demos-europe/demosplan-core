@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -59,9 +60,7 @@ final class ProcedureTemplateResourceType extends DplanResourceType
 
         if ($this->currentUser->hasAnyPermissions('area_admin_custom_fields')) {
             $properties[] = $this->createToManyRelationship($this->segmentCustomFields)
-                ->readable(true, function (Procedure $procedure): ?ArrayCollection {
-                    return $this->customFieldConfigurationRepository->getCustomFields('PROCEDURE_TEMPLATE', $procedure->getId(), 'SEGMENT');
-                });
+                ->readable(true, fn (Procedure $procedure): ?ArrayCollection => $this->customFieldConfigurationRepository->getCustomFields('PROCEDURE_TEMPLATE', $procedure->getId(), 'SEGMENT'));
         }
 
         return $properties;
@@ -70,7 +69,7 @@ final class ProcedureTemplateResourceType extends DplanResourceType
     protected function getAccessConditions(): array
     {
         $userOrga = $this->currentUser->getUser()->getOrga();
-        if (null === $userOrga) {
+        if (!$userOrga instanceof OrgaInterface) {
             // users without organisation get no access to any procedure templates
             return [$this->conditionFactory->false()];
         }

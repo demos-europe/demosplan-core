@@ -42,6 +42,7 @@
         :request-counties="JSON.parse('{{ app.request.get('r_counties')|default([])|json_encode|e('js', 'utf-8') }}')"
         :request-priority-areas="JSON.parse('{{ app.request.get('r_priorityAreas')|default([])|json_encode|e('js', 'utf-8') }}')"
         used-intern-ids-pattern="{{ usedInternIds|length > 0 ? '^(?!(?:' ~ usedInternIds|join('|') ~ ')$)[0-9a-zA-Z_ \\- ]{1,}$' : '^[0-9a-zA-Z_ \\- ]{1,}$' }}"
+        user-organisation="{{ templateVars.request.r_userOrganisation|default }}"
     >
         <template #default="{
             values,
@@ -144,13 +145,14 @@
                             {% if hasPermission('field_statement_user_organisation') and formDefinitions.citizenXorOrgaAndOrgaName.enabled == true %}
                                 <dp-input
                                     id="r_userOrganisation"
+                                    v-model="values.userOrganisation"
                                     class="layout__item u-1-of-2 u-mb-0_75"
                                     :label="{
                                         text: Translator.trans('organisation.name')
                                     }"
                                     name="r_userOrganisation"
                                     :required="institutionSelected"
-                                    value="{{ templateVars.request.r_userOrganisation|default }}">
+                                >
                                 </dp-input>
                             {% endif %}
 
@@ -270,8 +272,7 @@
                                         tooltip: `${Translator.trans('validation.error.internId')} ${Translator.trans('validation.error.alphaNumericDashUnderscore')}`
                                     }"
                                     name="r_internId"
-                                    :pattern="usedInternIdsPattern"
-                                    value="{{ app.request.get('r_internId') }}">
+                                    :pattern="usedInternIdsPattern">
                                 </dp-input>
                                 <p
                                     id="lastUsedDescription"
@@ -555,7 +556,8 @@
                             required
                             :toolbar-items="{
                                 mark: true,
-                                strikethrough: true
+                                strikethrough: true,
+                                obscure: hasPermission('feature_obscure_text')
                             }"
                             procedure-id="{{ templateVars.table.procedure.ident }}">
                         </dp-editor>

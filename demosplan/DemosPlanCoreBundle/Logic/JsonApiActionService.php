@@ -71,7 +71,7 @@ class JsonApiActionService
         array $sortMethods = [],
         ?APIPagination $pagination = null,
     ): ApiListResultInterface {
-        if (null === $pagination) {
+        if (!$pagination instanceof APIPagination) {
             $filteredEntities = $type->getEntities($conditions, $sortMethods);
 
             return new ApiListResult($filteredEntities, [], null);
@@ -128,7 +128,7 @@ class JsonApiActionService
         $searchParams = SearchParams::createOptional($query->all(JsonApiEsServiceInterface::SEARCH));
         $pagination = $this->getPagination($query);
 
-        if (null === $searchParams) {
+        if (!$searchParams instanceof SearchParams) {
             return $this->listObjects(
                 $type,
                 $filters,

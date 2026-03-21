@@ -10,20 +10,25 @@
 <template>
   <div>
     <slot
-      :state="state"
+      :activate-interface="activateInterface"
       :auth-users-options="authUsersOptions"
+      :handle-auto-switch-phase-update="handleAutoSwitchPhaseUpdate"
+      :select-all-auth-users="selectAllAuthUsers"
+      :set-interface-warning-modal-ref="setInterfaceWarningModalRef"
       :set-selected-internal-phase="setSelectedInternalPhase"
       :set-selected-public-phase="setSelectedPublicPhase"
-      :select-all-auth-users="selectAllAuthUsers"
+      :sorted-agencies-options="sortedAgenciesOptions"
+      :state="state"
+      :submit="submit"
+      :submit-without-interface-activation="submitWithoutInterfaceActivation"
       :unselect-all-auth-users="unselectAllAuthUsers"
       :update-addon-payload="updateAddonPayload"
-      :submit="submit"
     />
   </div>
 </template>
 
 <script>
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import {
   dpApi,
   dpValidateMixin,
@@ -36,6 +41,12 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
+    agenciesOptions: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+
     authorizedUsersOptions: {
       type: Array,
       required: false,
@@ -96,6 +107,12 @@ export default {
       default: '',
     },
 
+    initPublicParticipationFeedbackEnabled: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
+
     initSimilarRecommendationProcedures: {
       required: false,
       type: Array,
@@ -126,6 +143,7 @@ export default {
       pictogramCopyright: props.initPictogramCopyright,
       procedureDescription: props.procedureExternalDesc,
       procedureName: props.initProcedureName,
+      publicParticipationFeedbackEnabled: props.initPublicParticipationFeedbackEnabled,
       selectedAgencies: props.initAgencies,
       selectedAuthUsers: sortAlphabetically(structuredClone(props.initAuthUsers), 'name'),
       selectedDataInputOrgas: props.initDataInputOrgas,
@@ -135,9 +153,19 @@ export default {
       selectedSimilarRecommendationProcedures: props.initSimilarRecommendationProcedures,
     })
 
+    const interfaceWarningModalRef = ref(null)
+
     const authUsersOptions = computed(() =>
       sortAlphabetically([...props.authorizedUsersOptions], 'name'),
     )
+
+    const sortedAgenciesOptions = computed(() =>
+      sortAlphabetically([...props.agenciesOptions], 'name'),
+    )
+
+    const setInterfaceWarningModalRef = (el) => {
+      interfaceWarningModalRef.value = el
+    }
 
     const setSelectedInternalPhase = phase => {
       state.selectedInternalPhase = phase
@@ -153,17 +181,22 @@ export default {
     }
 
     return {
-      state,
       authUsersOptions,
+      interfaceWarningModalRef,
+      selectAllAuthUsers,
+      setInterfaceWarningModalRef,
       setSelectedInternalPhase,
       setSelectedPublicPhase,
-      selectAllAuthUsers,
+      sortedAgenciesOptions,
+      state,
       unselectAllAuthUsers,
     }
   },
 
   data () {
     return {
+      addonCheckAutoSwitchEnabled: false,
+      addonCheckAutoSwitchPhase: '',
       addonPayload: { /** The payload required for addon requests. When a value is entered in the addon field, it emits data that must include the following fields */
         attributes: null,
         id: '',
@@ -172,8 +205,48 @@ export default {
         url: '',
         value: '',
       },
+      bypassAddonWarningModal: false,
       isLoadingPlisData: false,
     }
+  },
+
+  computed: {
+    // Needed for the addon-modal on submit
+    isAddonInterfaceActivated () {
+      return this.addonPayload.attributes?.isInterfaceActivated ?? false
+    },
+
+    isAddonLoaded () {
+      return !!globalThis.dplan.loadedAddons['interface.fields.to.transmit']
+    },
+
+    isPublicParticipationPhaseActive () {
+      const currentPhaseIsPublic = this.publicParticipationPhases.includes(this.state.selectedPublicPhase)
+      const autoSwitchPhaseIsPublic = this.addonCheckAutoSwitchEnabled &&
+        this.publicParticipationPhases.includes(this.addonCheckAutoSwitchPhase)
+
+      return currentPhaseIsPublic || autoSwitchPhaseIsPublic
+    },
+
+    publicParticipationPhases () {
+      return ['earlyparticipation', 'participation', 'anotherparticipation']
+    },
+
+    shouldShowInterfaceWarningModal () {
+      const checkbox = document.getElementById('interfaceFieldsToTransmit-checkbox')
+
+      if (!checkbox) {
+        return false
+      }
+
+      const isInterfaceCheckboxEnabled = !checkbox?.checked
+
+      return this.isAddonLoaded &&
+        !this.isAddonInterfaceActivated &&
+        this.isPublicParticipationPhaseActive &&
+        !this.bypassAddonWarningModal &&
+        isInterfaceCheckboxEnabled
+    },
   },
 
   methods: {
@@ -212,16 +285,18 @@ export default {
 
       return addonRequest
         .catch(error => {
-          /** The 'is-invalid' class would be added to the addon field in case of an error */
-          const input = document.getElementById('addonAdditionalField')
-          input.classList.add('is-invalid')
-
           throw error
         })
     },
 
     submit (formElement) {
-      const addonExists = !!window.dplan.loadedAddons['addon.additional.field']
+      if (this.shouldShowInterfaceWarningModal) {
+        this.interfaceWarningModalRef?.toggle()
+
+        return
+      }
+
+      const addonExists = this.isAddonLoaded
       const addonHasValue = !!this.addonPayload.value || !!this.addonPayload.initValue
 
       this.dpValidateAction('configForm', () => {
@@ -241,6 +316,32 @@ export default {
 
     updateAddonPayload (payload) {
       this.addonPayload = payload
+    },
+
+    // Needed for the addon-modal on submit
+    activateInterface (formElement) {
+      const checkbox = document.getElementById('interfaceFieldsToTransmit-checkbox')
+
+      if (checkbox && !checkbox.disabled && !checkbox.checked) {
+        checkbox.click()
+        dplan.notify.notify('confirm', Translator.trans('interface.activation.success'))
+      }
+
+      this.interfaceWarningModalRef?.toggle()
+      this.submit(formElement)
+    },
+
+    handleAutoSwitchPhaseUpdate (payload) {
+      if (!payload.isInternal) {
+        this.addonCheckAutoSwitchPhase = payload.phase
+        this.addonCheckAutoSwitchEnabled = payload.enabled
+      }
+    },
+
+    submitWithoutInterfaceActivation (formElement) {
+      this.interfaceWarningModalRef?.toggle()
+      this.bypassAddonWarningModal = true
+      this.submit(formElement)
     },
   },
 }

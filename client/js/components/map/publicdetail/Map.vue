@@ -28,6 +28,10 @@
       @selected="zoomToSuggestion"
       @searched="selectFirstOption"
     />
+
+    <wms-get-feature-info
+      ref="wmsGetFeatureInfo"
+    />
     <slot />
   </div>
 </template>
@@ -61,12 +65,14 @@ import TileLayer from 'ol/layer/Tile'
 import { unByKey } from 'ol/Observable'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
+import WmsGetFeatureInfo from './controls/WmsGetFeatureInfo'
 
 export default {
   name: 'DpMap',
 
   components: {
     DpAutocomplete,
+    WmsGetFeatureInfo,
   },
 
   mixins: [prefixClassMixin],
@@ -315,6 +321,11 @@ export default {
           }
 
           if (isVisible !== layer.getVisible()) {
+            // Create source for layer if it doesn't have one and is being set to visible
+            if (isVisible && !layer.getSource()) {
+              this.setLayerSource(layer)
+            }
+
             if (this.overviewMapLayer === false || this.overviewMapLayer.length > 1) {
               const overviewLayer = this.overviewMapTileLayers.find(layer => id === layer.get('name'))
               // Only toggle baselayer
@@ -839,7 +850,11 @@ export default {
     },
 
     doAllTheOtherExcitingStuff () {
-      this.map.getView().fit(this.initialExtent, this.map.getSize()) // Zoom to Startkartenausschnitt from backend
+      // Ensure map has correct dimensions before fitting to initial extent
+      this.$nextTick(() => {
+        this.map.updateSize()
+        this.map.getView().fit(this.initialExtent, this.map.getSize()) // Zoom to Startkartenausschnitt from backend
+      })
 
       this.map.getLayerGroup().set('name', 'Root')
 
@@ -1015,6 +1030,23 @@ export default {
         })
       }
 
+      //  Add 'visible-layer GetFeatureInfo' button behavior
+      if (document.getElementById('layerFeatureInfoButton')) {
+        $('#layerFeatureInfoButton').on('pointerup keydown', (event) => {
+          // For keyboard events, execute only when enter was pressed
+          if (event.type === 'keydown' && event.keyCode !== 13) {
+            return
+          }
+          this.handleButtonInteraction('layerfeatureinfo', '#layerFeatureInfoButton', () => {
+            if (this.$refs.wmsGetFeatureInfo) {
+              this.mapSingleClickListener = this.map.on('singleclick', (evt) => {
+                this.$refs.wmsGetFeatureInfo.queryLayerFeatureInfo(evt, this.mapview, this.mapprojection)
+              })
+            }
+          })
+        })
+      }
+
       //  Add 'queryArea' behavior
       if (PROJECT && PROJECT === 'robobsh' && dplan.procedureStatementPriorityArea) {
         /*
@@ -1112,7 +1144,7 @@ export default {
           }
           this.handleButtonInteraction(drawTool.active, drawTool.button, () => {
             this.map.addInteraction(drawing)
-            $('#saveStatementButton').addClass(this.prefixClass('is-visible'))
+            $('#saveStatementButton').removeClass(this.prefixClass('hidden')).addClass(this.prefixClass('is-visible')).prop('disabled', true)
           })
         })
 
@@ -1144,6 +1176,7 @@ export default {
         $('#clearDrawingButton').addClass(this.prefixClass('c-actionbox__tool--dimmed'))
         $('#saveStatementButton')
           .removeClass(this.prefixClass('is-active'))
+          .prop('disabled', true)
           .html(window.dplan.statement.labels.saveStatementButton.states.visible.button)
           .prop(
             'title',
@@ -1259,6 +1292,7 @@ export default {
 
         saveStatementButton
           .addClass(this.prefixClass('is-active c-actionbox__toggle-shake'))
+          .prop('disabled', false)
           .html(window.dplan.statement.labels.saveStatementButton.states.active.button)
           .prop(
             'title',
@@ -1683,7 +1717,7 @@ export default {
       unByKey(this.mapSingleClickListener)
 
       //  Hide drawpoint stn button
-      $('#saveStatementButton').removeClass(this.prefixClass('is-visible'))
+      $('#saveStatementButton').removeClass(this.prefixClass('is-visible')).addClass(this.prefixClass('hidden'))
       $(this.prefixClass('.js__mapcontrol')).removeClass(this.prefixClass('is-active'))
 
       //  Unselect tools
@@ -1945,15 +1979,21 @@ export default {
     setView () {
       const resolutions = this.resolutions
 
-      this.mapview = new View({
+      const viewConfig = {
         center: [this.mapx, this.mapy],
         projection: this.mapprojection,
         resolutions,
-        extent: this.maxExtent,
         minResolution: resolutions[(resolutions.length - 1)],
         maxResolution: resolutions[0],
         constrainResolution: true,
-      })
+      }
+
+      // Only constrain view extent if user explicitly set a maxExtent
+      if (this.procedureMaxExtent.length > 0) {
+        viewConfig.extent = this.maxExtent
+      }
+
+      this.mapview = new View(viewConfig)
     },
 
     showPopup (templateId, content, coordinate) {
@@ -2055,8 +2095,13 @@ export default {
 
       const newState = element.classList.contains(this.prefixClass('is-active'))
       const layerid = (element.id === 'bplanSwitcher') ? this.bPlan.id : this.scope.id
+      const layerObj = this.layers().find(l => l.id === layerid)
 
-      this.updateLayerVisibility({ id: layerid, isVisible: newState })
+      if (layerObj) {
+        this.updateLayerVisibility({ id: layerid, isVisible: newState })
+      } else if (this.scope && this.scope.setVisible) {
+        this.scope.setVisible(newState)
+      }
     },
 
     /**

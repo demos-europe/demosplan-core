@@ -85,7 +85,10 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
      */
     protected function extractWorksheets(SplFileInfo $workbookFile, int $requiredWorksheets): array
     {
-        $workbook = IOFactory::load($workbookFile->getPathname());
+        // Optimize memory by reading data only (skip formulas, formatting, etc.)
+        $reader = IOFactory::createReaderForFile($workbookFile->getPathname());
+        $reader->setReadDataOnly(true);
+        $workbook = $reader->load($workbookFile->getPathname());
 
         $worksheets = $workbook->getAllSheets();
         Assert::greaterThanEq(count($worksheets), $requiredWorksheets, 'Expected at least %2$s worksheets, only found %s instead.');
@@ -94,15 +97,18 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
     }
 
     /**
+     * @param bool $flush Whether to flush the copied statement immediately (default: true for backward compatibility)
+     *
      * @throws CopyException
      * @throws ClusterStatementCopyNotImplementedException
      */
-    public function createCopy(Statement $generatedOriginalStatement): Statement
+    public function createCopy(Statement $generatedOriginalStatement, bool $flush = true): Statement
     {
         return $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles(
             $generatedOriginalStatement,
             false,
-            true
+            true,
+            $flush
         );
     }
 
@@ -126,7 +132,7 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
 
     public function hasErrors(): bool
     {
-        return 0 !== count($this->errors);
+        return [] !== $this->errors;
     }
 
     protected function getStatementTextConstraint(): Constraint
@@ -150,9 +156,8 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
     public function addImportViolations(
         ConstraintViolationListInterface $errors,
         int $currentLineNumber,
-        string $currentWorksheetTitle
-    ): void
-    {
+        string $currentWorksheetTitle,
+    ): void {
         // $currentLineNumber is the index of the statement/segment array derived from the xlsx. +2 is needed to
         // compensate for arrays starting at 0 (while xslx tables start at 1) and also the first line being the headings
         $currentLineNumber += 2;
@@ -169,5 +174,38 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
     public function getGeneratedTags(): array
     {
         return $this->generatedTags;
+    }
+
+    /**
+     * Get actual highest data column by finding last non-empty header cell.
+     * Memory optimization: Scans incrementally and stops after finding empty columns.
+     *
+     * @return string Column letter (e.g., 'J')
+     */
+    protected function getActualHighestDataColumn(Worksheet $worksheet): string
+    {
+        $highestDataColumn = 'A';
+        $columnIndex = 1;
+        $consecutiveEmptyColumns = 0;
+        $maxEmptyColumnsBeforeStop = 5; // Stop after 5 consecutive empty columns
+        $maxColumnIndex = 702; // ZZ column
+
+        // Scan column by column, stop after consecutive empty columns
+        while ($consecutiveEmptyColumns < $maxEmptyColumnsBeforeStop && $columnIndex <= $maxColumnIndex) {
+            $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($columnIndex);
+            $cell = $worksheet->getCell($columnLetter.'1');
+            $value = $cell->getValue();
+
+            if (null !== $value && '' !== trim((string) $value)) {
+                $highestDataColumn = $columnLetter;
+                $consecutiveEmptyColumns = 0;
+            } else {
+                ++$consecutiveEmptyColumns;
+            }
+
+            ++$columnIndex;
+        }
+
+        return $highestDataColumn;
     }
 }

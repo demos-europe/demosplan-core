@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\RpcController;
 use demosplan\DemosPlanCoreBundle\Event\StatementAnonymizeRpcEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
@@ -22,22 +22,21 @@ use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class StatementAnonymizeRpcController extends RpcController
 {
     /**
-     * @DplanPermissions("area_statement_anonymize")
-     *
      * @return RedirectResponse|Response
      */
+    #[DplanPermissions('area_statement_anonymize')]
     #[Route(path: '/rpc/1.0/statement/anonymize', name: 'dplan_rpc_statement_anonymize', options: ['expose' => true])]
-    public function statementAnonymizeRpcAction(
+    public function statementAnonymizeRpc(
         Request $request,
         StatementAnonymizeHandler $statementAnonymizeHandler,
         StatementHandler $statementHandler,
         CurrentUserInterface $currentUser,
-        EventDispatcherPostInterface $eventDispatcherPost
+        EventDispatcherPostInterface $eventDispatcherPost,
     ): Response {
         try {
             $requestData = $this->getIncomingRpcData($request, StatementAnonymizeHandler::FIELDS);

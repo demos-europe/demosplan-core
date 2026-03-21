@@ -27,13 +27,13 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInterface
 {
     public function __construct(
-        private readonly UserRepository $userRepository
+        private readonly UserRepository $userRepository,
     ) {
     }
 
-    public function refreshUser(UserInterface $user): ?UserInterface
+    public function refreshUser(UserInterface $user): UserInterface
     {
-        if (!$user instanceof SecurityUser) {
+        if (!$user instanceof SecurityUser && !$user instanceof User) {
             throw new UnsupportedUserException(sprintf('Invalid user class %s', $user::class));
         }
 
@@ -46,7 +46,8 @@ class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInt
 
     public function supportsClass(string $class): bool
     {
-        return SecurityUser::class === $class;
+        // Support both SecurityUser and User classes (including Doctrine proxies)
+        return is_a($class, SecurityUser::class, true) || is_a($class, User::class, true);
     }
 
     public function loadUserByUsername(string $username): User

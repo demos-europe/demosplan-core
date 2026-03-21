@@ -15,6 +15,11 @@ use Tests\Base\FunctionalTestCase;
 
 class HTMLSanitizerTest extends FunctionalTestCase
 {
+    /**
+     * @var HTMLSanitizer
+     */
+    protected $sut;
+
     protected function setUp(): void
     {
         parent::setUp();

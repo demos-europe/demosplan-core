@@ -23,6 +23,8 @@ use Exception;
 
 class ProcedureProposalService
 {
+    public $logger;
+
     public function __construct(
         private ContentService $contentService,
         private readonly CurrentUserInterface $currentUser,

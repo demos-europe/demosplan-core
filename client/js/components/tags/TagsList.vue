@@ -30,11 +30,12 @@
           <div class="ml-4 flex-1">
             {{ Translator.trans('topic.or.tag') }}
           </div>
+
+          <addon-wrapper hook-name="tag.extend.form" />
+
           <div class="ml-1 flex-0 w-9">
             {{ Translator.trans('boilerplates') }}
           </div>
-
-          <addon-wrapper hook-name="tag.extend.form" />
 
           <div class="ml-1 flex-0 w-8 text-right">
             {{ Translator.trans('actions') }}
@@ -131,28 +132,35 @@ export default {
     }),
 
     transformedCategories () {
-      return Object.values(this.TagTopic).map(category => {
-        const { attributes, id, relationships, type } = category
-        const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
+      // Sort topics naturally (handles numbers: "1, 2, 3, 11, 12" instead of "1, 11, 12, 2, 3")
+      return Object.values(this.TagTopic)
+        .sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' }))
+        .map(category => {
+          const { attributes, id, relationships, type } = category
+          const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
 
-        return {
-          id,
-          attributes,
-          children: Object.values(tags).map(tag => {
-            const { attributes, id, relationships, type } = tag
-            const boilerplate = relationships?.boilerplate?.get ? relationships.boilerplate.get() : null
+          // Sort tags naturally within each topic
+          const sortedTags = Object.values(tags)
+            .sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' }))
 
-            return {
-              attributes,
-              id,
-              relationships: { boilerplate },
-              type,
-            }
-          }),
-          relationships,
-          type,
-        }
-      })
+          return {
+            id,
+            attributes,
+            children: sortedTags.map(tag => {
+              const { attributes, id, relationships, type } = tag
+              const boilerplate = relationships?.boilerplate?.get ? relationships.boilerplate.get() : null
+
+              return {
+                attributes,
+                id,
+                relationships: { boilerplate },
+                type,
+              }
+            }),
+            relationships,
+            type,
+          }
+        })
     },
   },
 

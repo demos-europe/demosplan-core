@@ -46,11 +46,12 @@ class HTMLFragementSlicerTest extends UnitTestCase
     {
         $htmlFragment = '<p></p>
 <p>http://geodienste.hamburg.de/Test_HH_WMS_xplan_pre?REQUEST=GetFeatureInfo&amp;SERVICE=WMS&amp;VERSION=1.1.1&amp;FORMAT=image/png&amp;FEATURE_COUNT=100&amp;INFO_FORMAT=text/html&amp;SRS=EPSG%3A25832&amp;STYLES=&amp;LAYERS=bp_waldfl,bp_strverksfl,bp_baugebteilfl,bp_verksflbeszwb,bp_gruenfl,bp_verentsorgungsfl,bp_gewfl,bp_gembedarfsfl,bp_textlfestsfl,bp_laermschutzber,bp_unverbindlvormerk,bp_speziellebauweise,bp_grabungsschutzgeb,bp_erneuerbenergiefl,bp_besnutzzweckfl,bp_ausgleichsmassn,bp_nebenanlausschlfl,bp_schutzpflentwmassn,bp_bauschutzber,bp_wwssfl,bp_wrlfestsfl,bp_techbestfl,bp_luftverkfl,bp_ueberbaubgrundstsfl,bp_verentsorgung,bp_gemanlfl,bp_freifl,bp_foerderfl,bp_erhsberfl,bp_strbegrlin,bp_denkmschensfl,bp_ausgleichsfl,bp_ausgleich,bp_aufschuettsfl,bp_abstandsfl,bp_abgrabungsfl,bp_vorbhwsfl,bp_kennzsfl,bp_schutzgeb,bp_spispoanlfl,bp_wegerecht,bp_verentsorgungsleitlin,bp_nutzartgr,bp_immsschutz,bp_einfberlin,bp_berohneeinausflin,bp_schutzpflentwfl,bp_baulin,bp_baugr,bp_bahnverk,bp_nebenanlfl,bp_einfpt,bp_hoehenpt,bp_anpflanzbinderh,bp_denkmscheinzanlpt,bp_plan&amp;QUERY_LAYERS=bp_waldfl,bp_strverksfl,bp_baugebteilfl,bp_verksflbeszwb,bp_gruenfl,bp_verentsorgungsfl,bp_gewfl,bp_gembedarfsfl,bp_textlfestsfl,bp_laermschutzber,bp_unverbindlvormerk,bp_speziellebauweise,bp_grabungsschutzgeb,bp_erneuerbenergiefl,</p>';
+        $htmlFragmentNormalized = str_replace(["\r\n", "\r", "\n"], '<br>', $htmlFragment);
         $fragment = HTMLFragmentSlicer::slice($htmlFragment);
         static::assertEquals('[...]', $fragment->getShortenedFragment());
-        static::assertEquals($htmlFragment, $fragment->getOriginalFragment());
+        static::assertEquals($htmlFragmentNormalized, $fragment->getOriginalFragment());
         static::assertEquals(500, $fragment->getSliceIndex());
-        static::assertEquals($htmlFragment, $fragment->getRemainingFragment());
+        static::assertEquals($htmlFragmentNormalized, $fragment->getRemainingFragment());
     }
 
     public function testSlicedBoldString()
@@ -125,5 +126,23 @@ class HTMLFragementSlicerTest extends UnitTestCase
         static::assertEquals($htmlFragment, $fragment->getOriginalFragment());
         static::assertEquals(13, $fragment->getSliceIndex());
         static::assertEquals('datt', $fragment->getRemainingFragment());
+    }
+
+    public function testNewlineNormalization()
+    {
+        // Test that plain text newlines are converted to <br> tags
+        $textWithNewlines = "Von: John Doe\nTo: Jane Smith\nSubject: Important Meeting\n\nThis is a longer text that should be truncated properly at word boundaries, not at the first newline.";
+        $fragment = HTMLFragmentSlicer::slice($textWithNewlines, 100);
+
+        // Verify that newlines were converted to <br> in the original
+        $expectedNormalized = str_replace(["\r\n", "\r", "\n"], '<br>', $textWithNewlines);
+        static::assertEquals($expectedNormalized, $fragment->getOriginalFragment());
+
+        // Verify that the shortened text contains more than just the first line
+        $shortened = $fragment->getShortenedFragment();
+        static::assertStringContainsString('Von: John Doe<br>To: Jane Smith', $shortened);
+
+        // Verify it's actually shortened (not the full text)
+        static::assertLessThan(strlen($expectedNormalized), strlen($shortened));
     }
 }

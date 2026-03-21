@@ -13,19 +13,12 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Event\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class NewOrgaCreatedEvent extends DPlanEvent
 {
-    protected OrgaInterface $orga;
-
-    protected ?bool $canCreateProcedures;
-
-    public function __construct(Orga $newOrga, ?bool $canCreateProcedures)
+    public function __construct(protected OrgaInterface $orga, protected ?bool $canCreateProcedures)
     {
-        $this->orga = $newOrga;
-        $this->canCreateProcedures = $canCreateProcedures;
     }
 
     public function getOrganisation(): OrgaInterface

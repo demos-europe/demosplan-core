@@ -111,12 +111,12 @@ class HashedQueryService
         // check if exists else insert
         $hashedQuery = $this->findHashedQueryWithHash($hash ?? $rParamsHash);
 
-        if (null === $hashedQuery) {
+        if (!$hashedQuery instanceof HashedQuery) {
             $hashedQuery = $this->createFromQuery($assessmentTableQuery);
         }
 
         // rParams win against hash
-        if ($rParamsHash !== $hash && 0 !== count($formValues)) {
+        if ($rParamsHash !== $hash && [] !== $formValues) {
             $filterSet = $this->findOrCreateFromQuery($assessmentTableQuery);
         } else {
             $filterSet = $hashedQuery;

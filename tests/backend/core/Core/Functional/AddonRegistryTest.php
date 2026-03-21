@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Tests\Core\Core\Functional;
 
@@ -11,6 +20,10 @@ use Tests\Base\FunctionalTestCase;
 
 class AddonRegistryTest extends FunctionalTestCase
 {
+    /**
+     * @var AddonRegistry
+     */
+    protected $sut;
 
     protected function setUp(): void
     {
@@ -51,7 +64,6 @@ class AddonRegistryTest extends FunctionalTestCase
         $this->assertEquals($addonInfos['addon1'], $enabledAddons['addon1']);
     }
 
-
     public function testOffsetExists(): void
     {
         $addonInfos = $this->getAddonInfoFixture();
@@ -61,6 +73,7 @@ class AddonRegistryTest extends FunctionalTestCase
         $this->assertTrue($this->sut->offsetExists('addon1'));
         $this->assertTrue($this->sut->offsetExists('addon2'));
     }
+
     public function testOffsetGet(): void
     {
         $addonInfos = $this->getAddonInfoFixture();
@@ -69,6 +82,7 @@ class AddonRegistryTest extends FunctionalTestCase
 
         $this->assertEquals($addonInfos['addon1'], $this->sut->offsetGet('addon1'));
     }
+
     public function testOffsetSet(): void
     {
         $addonInfos = $this->getAddonInfoFixture();
@@ -78,6 +92,7 @@ class AddonRegistryTest extends FunctionalTestCase
 
         $this->sut->offsetSet('addon1', 'anything');
     }
+
     public function testOffsetUnset(): void
     {
         $addonInfos = $this->getAddonInfoFixture();
@@ -99,16 +114,14 @@ class AddonRegistryTest extends FunctionalTestCase
     private function getAddonInfoFixture(): array
     {
         return [
-            'addon1' =>
-                new AddonInfo(
-                    'addon1', ['enabled' => true],
-                    $this->createMock(PermissionInitializerInterface::class)
-                ),
-            'addon2' =>
-                new AddonInfo(
-                    'addon2', ['enabled' => false],
-                    $this->createMock(PermissionInitializerInterface::class)
-                ),
+            'addon1' => new AddonInfo(
+                'addon1', ['enabled' => true],
+                $this->createMock(PermissionInitializerInterface::class)
+            ),
+            'addon2' => new AddonInfo(
+                'addon2', ['enabled' => false],
+                $this->createMock(PermissionInitializerInterface::class)
+            ),
         ];
     }
 }

@@ -2,25 +2,62 @@
 
 cd "$(dirname "$0")" || exit
 
-if [ $# -lt 4 ]
-then
-  echo "Usage ./build.sh demosplan-production <IMAGE_NAME> <VERSION> <PROJECT_NAME> <?push> <?dev>"
-  echo "  <?push>: If 'push' is specified, images will be pushed to registry"
-  echo "  <?dev>: If 'dev' is specified, container will be built in dev mode, otherwise prod mode"
+function usage() {
+  echo "Usage: ./build.sh [-p] [-d] [-v] <IMAGE_NAME> <VERSION> <PROJECT_NAME>"
+  echo "  -p: If specified, images will be pushed to registry"
+  echo "  -d: If specified, container will be built in dev mode, otherwise prod mode"
+  echo "  -v: If specified, output logging for builds will be verbose"
+  return 0
+}
+
+# Parse arguments using getopts
+PUSH=""
+DEV=""
+VERBOSE=""
+while getopts "pdv" opt; do
+  case $opt in
+    p)
+      PUSH="push"
+      ;;
+    d)
+      DEV="dev"
+      ;;
+    v)
+      VERBOSE="--progress=plain"
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      usage
+      exit 2
+      ;;
+    *)
+      echo "Unexpected option: -$opt" >&2
+      usage
+      exit 2
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+if [[ $# -lt 3 ]]; then
+  usage
   exit 2
 fi
 
-FOLDER=$1
-IMAGE_NAME=$2
-VERSION=$3
-PROJECT_NAME=$4
+FOLDER=demosplan-production
+IMAGE_NAME=$1
+VERSION=$2
+PROJECT_NAME=$3
 CONTEXT_DIR=.context
 BUILD_MODE="prod"
 PLATFORM="linux/amd64"
 
+# Resolve git commit SHAs for image labels
+COMMIT_SHA_CORE=$(git -C .. rev-parse HEAD 2>/dev/null || echo "")
+COMMIT_SHA_PROJECT=$(git -C "../projects/$PROJECT_NAME" rev-parse HEAD 2>/dev/null || echo "")
+
 # Check if dev environment is requested
-if [[ $6 == "dev" ]]
-then
+if [[ $DEV == "dev" ]]; then
   BUILD_MODE="dev"
   VERSION="${VERSION}-dev"
 fi
@@ -36,9 +73,12 @@ function docker_build() {
     shift 2
 
     DOCKER_BUILDKIT=1 docker build \
+        $VERBOSE \
         --platform $PLATFORM \
         --build-arg PROJECT_NAME=$PROJECT_NAME \
         --build-arg BUILD_MODE=$BUILD_MODE \
+        --build-arg COMMIT_SHA_CORE=$COMMIT_SHA_CORE \
+        --build-arg COMMIT_SHA_PROJECT=$COMMIT_SHA_PROJECT \
         -t $image:$VERSION \
         -f $FOLDER/Dockerfile \
         --target "$target" \
@@ -64,7 +104,7 @@ docker_build "$IMAGE_NAME-nginx" nginx
 
 rm -rf $CONTEXT_DIR
 
-if [[ $5 == "push" ]]
+if [[ $PUSH == "push" ]]
 then
     docker push "$IMAGE_NAME:$VERSION"
     if [[ $PROJECT_NAME == *"diplan"* ]]

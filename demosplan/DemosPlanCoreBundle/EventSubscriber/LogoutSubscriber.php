@@ -20,6 +20,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
@@ -59,7 +60,7 @@ class LogoutSubscriber implements EventSubscriberInterface
         // get the current response, if it is already set by another listener
         $response = $event->getResponse();
 
-        if (null === $response) {
+        if (!$response instanceof Response) {
             $response = $this->redirectToRoute('core_home');
         }
 
@@ -67,15 +68,16 @@ class LogoutSubscriber implements EventSubscriberInterface
         $user = $event->getToken()?->getUser();
         if ($user && method_exists($user, 'isProvidedByIdentityProvider') && $user->isProvidedByIdentityProvider()) {
             // Keycloak logout
-            if ($this->ozgKeycloakLogoutManager->isKeycloakConfigured()) {
+            $logoutRoute = $this->ozgKeycloakLogoutManager->getEffectiveLogoutRoute();
+            if (null !== $logoutRoute) {
                 $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN);
                 $event->getRequest()->getSession()->invalidate();
-                $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
+
                 $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
 
                 // add additional parameters to keycloak logout url for redirect
-                    try {
-                        $logoutRoute = $this->ozgKeycloakLogoutManager->getLogoutUrl($logoutRoute, $keycloakToken);
+                try {
+                    $logoutRoute = $this->ozgKeycloakLogoutManager->getLogoutUrl($logoutRoute, $keycloakToken);
                     $this->logger->info('Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
                 } catch (Exception $e) {
                     $this->logger->error('Could not get current customer', [$e->getMessage()]);
@@ -99,6 +101,9 @@ class LogoutSubscriber implements EventSubscriberInterface
         foreach ($this->allowedCookieNames as $cookieName) {
             $response->headers->clearCookie($cookieName);
         }
+
+        // Clear browser prefetch and prerender caches on logout
+        $response->headers->set('Clear-Site-Data', '"prefetchCache", "prerenderCache"');
 
         $event->setResponse($response);
     }
