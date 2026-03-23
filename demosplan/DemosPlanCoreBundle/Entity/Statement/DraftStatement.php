@@ -23,6 +23,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttributeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\FormDefinitionConstraint;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -158,7 +159,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     /**
      * @var string
      *
-     * @ORM\Column(name="_ds_polygon", type="text", length=65535, nullable=false)
+     * @ORM\Column(name="_ds_polygon", type="text", length=16777215, nullable=false)
      */
     protected $polygon = '';
 
@@ -468,7 +469,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
      *
      * @ORM\Column(name="_ds_misc_data", type="array", nullable=true)
      */
-    protected $miscData;
+    protected $miscData = [];
 
     /**
      * True in case of the draft-statement was given anonymously.
@@ -480,6 +481,11 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
      */
     private $anonymous = false;
 
+    /**
+     * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
+     */
+    private ?CustomFieldValuesList $customFields = null;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
@@ -490,7 +496,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         $this->rejectedDate = DateTime::createFromFormat('d.m.Y', '2.1.1970');
         $this->statementAttributes = new ArrayCollection();
         $this->files = new ArrayCollection();
-        $this->miscData = [];
     }
 
     public function getId(): ?string
@@ -814,12 +819,10 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
 
     public function removeFile(DraftStatementFileInterface $draftStatementFile): self
     {
-        if ($this->files->removeElement($draftStatementFile)) {
-            // set the owning side to null (unless already changed)
-            if ($draftStatementFile->getDraftStatement() === $this) {
-                // set to null to activate orphan removal
-                $draftStatementFile->setDraftStatement(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->files->removeElement($draftStatementFile) && $draftStatementFile->getDraftStatement() === $this) {
+            // set to null to activate orphan removal
+            $draftStatementFile->setDraftStatement(null);
         }
 
         return $this;
@@ -1382,11 +1385,8 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
             if ($this->isDeleted()) {
                 return false;
             }
-            if ($this->getProcedure()->isDeleted()) {
-                return false;
-            }
 
-            return true;
+            return !$this->getProcedure()->isDeleted();
         } catch (Exception) {
             return false;
         }
@@ -1797,5 +1797,15 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     public function setAnonymous(bool $anonymous): void
     {
         $this->anonymous = $anonymous;
+    }
+
+    public function getCustomFields(): ?CustomFieldValuesList
+    {
+        return $this->customFields;
+    }
+
+    public function setCustomFields(?CustomFieldValuesList $customFields): void
+    {
+        $this->customFields = $customFields;
     }
 }

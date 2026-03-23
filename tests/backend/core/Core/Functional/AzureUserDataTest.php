@@ -243,4 +243,69 @@ class AzureUserDataTest extends FunctionalTestCase
         $this->assertEquals('example-subject-id-456', $this->azureUserData->getSubject());
         $this->assertEquals('example-object-id-123', $this->azureUserData->getObjectId());
     }
+
+    public function testHandlesEntraIdExternalGuestUserIdToken(): void
+    {
+        // Realistic id_token structure from an EntraID external guest user (EXT).
+        // The Azure OAuth library uses id_token claims (not access_token claims).
+        // The id_token only has 'preferred_username' — no 'email', 'upn', or 'unique_name'.
+        // Email must be resolved from the 'preferred_username' fallback.
+        $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
+        $resourceOwner->method('toArray')
+            ->willReturn([
+                'aud'                => 'aabbccdd-1234-5678-abcd-ef0123456789',
+                'iss'                => 'https://login.microsoftonline.com/11223344-aabb-ccdd-eeff-556677889900/v2.0',
+                'iat'                => 1700000000,
+                'nbf'                => 1700000000,
+                'exp'                => 1700003600,
+                'name'               => 'External User (EXT)',
+                'oid'                => 'oid-ext-guest-1234-5678-abcdef012345',
+                'preferred_username' => 'external.user@guest-tenant.onmicrosoft.com',
+                'sid'                => 'session-id-1234-5678-abcdef012345',
+                'sub'                => 'sub-id-ext-guest-abcdefghijklmnopqrstuvwxyz',
+                'tid'                => '11223344-aabb-ccdd-eeff-556677889900',
+                'uti'                => 'uti-placeholder-value',
+                'ver'                => '2.0',
+                // No 'email', 'upn', or 'unique_name' — only 'preferred_username'
+            ]);
+
+        $this->azureUserData->fill($resourceOwner);
+
+        $this->assertEquals(
+            'external.user@guest-tenant.onmicrosoft.com',
+            $this->azureUserData->getEmailAddress(),
+            'Email should be resolved from preferred_username when email/upn/unique_name are missing in id_token'
+        );
+        $this->assertEquals('oid-ext-guest-1234-5678-abcdef012345', $this->azureUserData->getObjectId());
+        $this->assertEquals('sub-id-ext-guest-abcdefghijklmnopqrstuvwxyz', $this->azureUserData->getSubject());
+        $this->assertEquals('External', $this->azureUserData->getFirstName());
+        $this->assertEquals('User (EXT)', $this->azureUserData->getLastName());
+    }
+
+    public function testThrowsExceptionForEntraIdExternalGuestUserIdTokenWithoutEmailFallbacks(): void
+    {
+        // Same id_token structure but with preferred_username also removed.
+        // This triggers the authentication failure when no email-capable claim is present.
+        $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
+        $resourceOwner->method('toArray')
+            ->willReturn([
+                'aud'  => 'aabbccdd-1234-5678-abcd-ef0123456789',
+                'iss'  => 'https://login.microsoftonline.com/11223344-aabb-ccdd-eeff-556677889900/v2.0',
+                'iat'  => 1700000000,
+                'nbf'  => 1700000000,
+                'exp'  => 1700003600,
+                'name' => 'External User (EXT)',
+                'oid'  => 'oid-ext-guest-1234-5678-abcdef012345',
+                'sid'  => 'session-id-1234-5678-abcdef012345',
+                'sub'  => 'sub-id-ext-guest-abcdefghijklmnopqrstuvwxyz',
+                'tid'  => '11223344-aabb-ccdd-eeff-556677889900',
+                'ver'  => '2.0',
+                // No email, upn, unique_name, or preferred_username
+            ]);
+
+        $this->expectException(AuthenticationCredentialsNotFoundException::class);
+        $this->expectExceptionMessage(self::MISSING_EMAIL_MESSAGE);
+
+        $this->azureUserData->fill($resourceOwner);
+    }
 }

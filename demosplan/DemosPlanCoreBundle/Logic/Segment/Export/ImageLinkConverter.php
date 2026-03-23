@@ -124,7 +124,7 @@ final class ImageLinkConverter
     private function processImageTag(array $matches, string $statementExternId, bool $asLinkedReference): string
     {
         $src = $matches[3];
-        $srcParts = explode('/', $src);
+        $srcParts = explode('/', (string) $src);
         $hash = $srcParts[array_key_last($srcParts)];
 
         $imageReference =

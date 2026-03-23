@@ -34,19 +34,20 @@
             :procedure-id="procedureId"
             :tabindex="isSourceAttachmentMarkedForDeletion ? -1 : 0"
           />
-          <button
-            class="o-link--default"
-            :class="isSourceAttachmentMarkedForDeletion ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+          <dp-button
+            v-if="editable"
+            class="o-link--default ml-1"
             data-cy="statementMetaAttachments:removeSourceAttachment"
-            :disabled="isSourceAttachmentMarkedForDeletion"
+            hide-text
+            icon="delete"
+            icon-size="medium"
             type="button"
+            variant="subtle"
+            :class="isSourceAttachmentMarkedForDeletion ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+            :disabled="isSourceAttachmentMarkedForDeletion"
+            :text="Translator.trans('delete')"
             @click="fileIdSourceAttachment === localAttachments.originalAttachment.hash ? removeSourceAttachment() : markSourceAttachmentForDeletion()"
-          >
-            <dp-icon
-              class="ml-2"
-              icon="delete"
-            />
-          </button>
+          />
         </div>
 
         <p
@@ -61,7 +62,6 @@
             id="uploadSourceStatementAttachment"
             ref="uploadSourceStatementAttachment"
             allowed-file-types="all"
-            :basic-auth="dplan.settings.basicAuth"
             :class="!editable ? 'pointer-events-none opacity-70' : 'mt-1 mb-3'"
             :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
             :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
@@ -110,19 +110,20 @@
               :class="{ 'line-through text-muted pointer-events-none': genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) }"
               :procedure-id="procedureId"
             />
-            <button
-              class="o-link--default mt-1"
-              :class="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+            <dp-button
+              v-if="editable"
+              class="o-link--default ml-1"
               data-cy="statementMetaAttachments:removeGenericAttachment"
-              :disabled="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id )"
+              hide-text
+              icon="delete"
+              icon-size="medium"
               type="button"
+              variant="subtle"
+              :class="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+              :disabled="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id )"
+              :text="Translator.trans('delete')"
               @click="fileIds.includes(attachment.hash) ? removeGenericAttachment(attachment.hash) : markGenericAttachmentForDeletion(attachment.id)"
-            >
-              <dp-icon
-                class="ml-2"
-                icon="delete"
-              />
-            </button>
+            />
           </li>
         </ul>
         <p
@@ -137,7 +138,6 @@
             id="uploadStatementAttachment"
             ref="uploadStatementAttachment"
             allowed-file-types="all"
-            :basic-auth="dplan.settings.basicAuth"
             :class="editable ? 'mt-1 mb-3' : 'pointer-events-none opacity-70'"
             :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
             :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
@@ -168,8 +168,8 @@
 <script>
 import {
   dpApi,
+  DpButton,
   DpButtonRow,
-  DpIcon,
   DpLabel,
   DpUpload,
 } from '@demos-europe/demosplan-ui'
@@ -181,8 +181,8 @@ export default {
   name: 'StatementMetaAttachments',
 
   components: {
+    DpButton,
     DpButtonRow,
-    DpIcon,
     DpLabel,
     DpUpload,
     StatementMetaAttachmentsLink,

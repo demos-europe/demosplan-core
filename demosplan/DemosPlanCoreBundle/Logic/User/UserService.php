@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface;
@@ -226,17 +227,18 @@ class UserService implements UserServiceInterface
 
     public function findDistinctUserByEmailOrLogin($loginOrEmail)
     {
-        $user = $this->userRepository->findOneBy(['login' => $loginOrEmail, 'deleted' => false]);
+        // Use case-insensitive login lookup (explicit UPPER() in query)
+        $user = $this->userRepository->getFirstUserByCaseInsensitiveLogin($loginOrEmail);
 
-        if ($user instanceof User) {
+        if ($user instanceof User && !$user->isDeleted()) {
             return $user;
         }
-        // User not found, try to find user by email address:
+        // User not found, try to find user by email address (case-insensitive):
         $this->logger->info('Could not find user by given login',
             [$loginOrEmail]);
 
         // important to return null in case of more than one user was found!
-        $foundUsers = $this->userRepository->findBy(['email' => $loginOrEmail, 'deleted' => false]);
+        $foundUsers = $this->userRepository->findNonDeletedUsersByEmailCaseInsensitive($loginOrEmail);
 
         if (1 === count($foundUsers) && $foundUsers[0] instanceof User) {
             $this->logger->info('User found by email');
@@ -549,7 +551,7 @@ class UserService implements UserServiceInterface
                     if (isset($data['ccEmail2']) && $data['ccEmail2'] != $emailCCBefore) {
                         $masterToebUpdate['ccEmail'] = $data['ccEmail2'];
                     }
-                    if (0 < count($masterToebUpdate) && !is_null($masterToebEntry)) {
+                    if ([] !== $masterToebUpdate && !is_null($masterToebEntry)) {
                         $this->serviceMasterToeb->updateMasterToeb($masterToebEntry->getIdent(), $masterToebUpdate);
                     }
                 } catch (Exception $e) {
@@ -586,7 +588,7 @@ class UserService implements UserServiceInterface
     public function handleBrandingByUpdate(Orga $orga, array $data): Branding
     {
         $orgaBranding = $orga->getBranding();
-        if (null === $orgaBranding) {
+        if (!$orgaBranding instanceof Branding) {
             return $this->brandingRepository->createFromData($data);
         }
 
@@ -965,7 +967,7 @@ class UserService implements UserServiceInterface
 
             // display only users of current Customer
             if ($customer instanceof Customer) {
-                $users = collect($users)->filter(static fn (User $user) => null !== $user->getOrga() && $user->getOrga()->getCustomers()->contains($customer))->all();
+                $users = collect($users)->filter(static fn (User $user) => $user->getOrga() instanceof OrgaInterface && $user->getOrga()->getCustomers()->contains($customer))->all();
             }
 
             // never show internal Citizen user
@@ -1460,7 +1462,7 @@ class UserService implements UserServiceInterface
     {
         return collect($this->getAllActiveUsers())
             ->filter(function (User $user) use ($testPassword) {
-                if (null === $this->getValidUser($user->getLogin() ?? '')) {
+                if (!$this->getValidUser($user->getLogin() ?? '') instanceof User) {
                     return false;
                 }
 

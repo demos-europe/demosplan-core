@@ -18,8 +18,10 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
@@ -41,6 +43,8 @@ use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigB
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedurePhaseVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -70,6 +74,7 @@ use Webmozart\Assert\Assert;
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
  * @property-read GenericStatementAttachmentResourceType $genericAttachments
  * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only.
+ * @property-read End $customFields
  */
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
 {
@@ -87,6 +92,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
         private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
         private readonly FileContainerRepository $fileContainerRepository,
+        private readonly CustomFieldValueCreator $customFieldValueCreator,
     ) {
         parent::__construct($htmlSanitizer, $statementService);
     }
@@ -128,7 +134,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
     public function buildAccessConditions(StatementResourceType $pathStartResourceType, bool $allowOriginals = false): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 
@@ -181,17 +187,17 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             return false;
         }
 
+        if ($this->currentUser->hasPermission('field_statements_custom_fields')) {
+            return true;
+        }
+
         // has admin list assign permission
         if ($this->currentUser->hasAllPermissions('feature_statement_assignment', 'area_admin_statement_list')) {
             return true;
         }
 
         // has admin consultation token list permission
-        if ($this->currentUser->hasPermission('area_admin_consultations')) {
-            return true;
-        }
-
-        return false;
+        return $this->currentUser->hasPermission('area_admin_consultations');
     }
 
     public function getQuery(): AbstractQuery
@@ -326,7 +332,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->elements
                 ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryDetailsResourceType())
                 ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?Elements $planningDocumentCategory): array {
-                    if (null === $planningDocumentCategory) {
+                    if (!$planningDocumentCategory instanceof Elements) {
                         // If the planningDocumentCategory is not sent in the request, we set the default planningDocumentCategory
                         $planningDocumentCategory = $this->elementsService->getPlanningDocumentCategoryByTitle($statement->getProcedureId(), $this->globalConfig->getElementsStatementCategoryTitle());
                     }
@@ -359,6 +365,25 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->setRelationshipType($this->resourceTypeStore->getUserResourceType())
                 ->setReadableByPath();
 
+            if ($this->currentUser->hasPermission('field_statements_custom_fields')) {
+                $configBuilder->customFields
+                    ->setReadableByCallable(static fn (Statement $statement): ?array => $statement->getCustomFields()?->toJson())
+                    ->updatable([],
+                        function (Statement $statement, array $customFields): array {
+                            $customFieldList = $statement->getCustomFields() ?? new CustomFieldValuesList();
+                            $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+                                $customFieldList,
+                                $customFields,
+                                $statement->getProcedure()->getId(),
+                                CustomFieldSupportedEntity::procedure->value,
+                                CustomFieldSupportedEntity::statement->value,
+                            );
+                            $statement->setCustomFields($customFieldList);
+
+                            return [];
+                        }
+                    );
+            }
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {
@@ -375,9 +400,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
                     return '' === $draftsListJson ? null : Json::decodeToArray($draftsListJson);
                 });
-            $configBuilder->status->readable(true, function (Statement $statement) {
-                return $this->statementService->getProcessingStatus($statement);
-            })->filterable();
+            $configBuilder->status->readable(true, fn (Statement $statement) => $this->statementService->getProcessingStatus($statement))->filterable();
         }
 
         if ($this->currentUser->hasPermission('field_statement_priority')) {
@@ -494,9 +517,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         if ($this->currentUser->hasPermission('field_statement_public_allowed')) {
             $configBuilder->publicVerified
-                ->readable(true, function (Statement $statement) {
-                    return $statement->getPublicVerified();
-                })
+                ->readable(true, fn (Statement $statement) => $statement->getPublicVerified())
                 ->updatable(
                     [$simpleStatementCondition],
                     static function (Statement $statement, string $publicVerified): array {
@@ -564,9 +585,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         if ($this->currentUser->hasPermission('field_statement_phase')) {
             $configBuilder->availableProcedurePhases
-                ->readable(false, function (Statement $statement): ?array {
-                    return $this->statementProcedurePhaseResolver->getAvailableProcedurePhases($statement->isSubmittedByCitizen());
-                });
+                ->readable(false, fn (Statement $statement): ?array => $this->statementProcedurePhaseResolver->getAvailableProcedurePhases($statement->isSubmittedByCitizen()));
         }
 
         if ($this->getTypes()->getStatementVoteResourceType()->isAvailable()) {

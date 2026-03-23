@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use InvalidArgumentException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,6 +42,7 @@ use Webmozart\Assert\Assert;
 use function in_array;
 use function is_string;
 
+#[AsCommand(name: 'dplan:data:generate-customer', description: 'Creates a new customer')]
 class GenerateCustomerCommand extends CoreCommand
 {
     private const OPTION_NAME = 'name';
@@ -48,9 +50,6 @@ class GenerateCustomerCommand extends CoreCommand
     private const MAP_PARAMETERS = 'map-parameters'; // use value 'default' to automatically insert default values
     private const CHOICE_DEFAULT = 'use default';
     private const CHOICE_CUSTOMIZE = 'customize';
-
-    protected static $defaultName = 'dplan:data:generate-customer';
-    protected static $defaultDescription = 'Creates a new customer';
 
     protected QuestionHelper $helper;
 

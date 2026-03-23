@@ -26,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
 use demosplan\DemosPlanCoreBundle\Services\BrandingLoader;
 use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
 use Illuminate\Support\Collection;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -42,7 +41,6 @@ class DefaultTwigVariablesService
         private readonly CurrentUserService $currentUser,
         private readonly CustomerService $customerService,
         private readonly GlobalConfigInterface $globalConfig,
-        private readonly JWTTokenManagerInterface $jwtTokenManager,
         private readonly OrgaLoader $orgaLoader,
         /**
          * @var PermissionsInterface|Permissions
@@ -132,17 +130,8 @@ class DefaultTwigVariablesService
         $orgaObject = $this->orgaLoader->getOrgaObject($request);
         $customerObject = $this->customerService->getCurrentCustomer();
 
-        $basicAuth = '';
-        if (null !== $this->globalConfig->getHtaccessUser() && '' !== $this->globalConfig->getHtaccessUser()) {
-            $basicAuth = 'Basic '.base64_encode(
-                $this->globalConfig->getHtaccessUser().':'.$this->globalConfig->getHtaccessPass(
-                ) ?? ''
-            );
-        }
-
         $this->variables = [
             'branding'                                           => $brandingObject,
-            'basicAuth'                                          => $basicAuth,
             'customerInfo'                                       => $customerObject,
             'currentUser'                                        => $user,
             'exposedPermissions'                                 => $exposedPermissions,
@@ -157,7 +146,6 @@ class DefaultTwigVariablesService
             'map'                                                => $this->loadMapVariables(),
             'maxUploadSize'                                      => $this->globalConfig->getMaxUploadSize(),
             'orgaInfo'                                           => $orgaObject,
-            'jwtToken'                                           => $this->jwtTokenManager->create($user),
             'permissions'                                        => $this->permissions->getPermissions(),
             'piwik'                                              => $this->loadPiwikVariables(),
             'procedure'                                          => $this->currentProcedureService->getProcedure()?->getId(), // legacy twig code in twigs
@@ -195,9 +183,7 @@ class DefaultTwigVariablesService
 
         // In case of current user has no permission to see restricted external links, execute filtering
         if (!$this->currentUser->hasPermission('feature_list_restricted_external_links')) {
-            $externalLinks = array_filter($this->globalConfig->getExternalLinks(), function ($link) {
-                return !isset($link['restricted']) || !$link['restricted'];
-            });
+            $externalLinks = array_filter($this->globalConfig->getExternalLinks(), fn ($link) => !isset($link['restricted']) || !$link['restricted']);
         }
 
         return array_map(fn (array $data) => $data['url'], $externalLinks);
@@ -206,7 +192,7 @@ class DefaultTwigVariablesService
     private function getLocale(Request $request): string
     {
         $languageKey = $request->getSession()->get('_locale');
-        if (\is_null($languageKey) || 0 === strlen((string) $languageKey)) {
+        if (\is_null($languageKey) || '' === (string) $languageKey) {
             $languageKey = $this->defaultLocale;
         }
 

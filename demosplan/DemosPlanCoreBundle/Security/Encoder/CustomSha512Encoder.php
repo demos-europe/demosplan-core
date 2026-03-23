@@ -17,7 +17,7 @@ namespace demosplan\DemosPlanCoreBundle\Security\Encoder;
  */
 class CustomSha512Encoder extends BaseEncoder
 {
-    public function hash(string $plainPassword, string $salt = null): string
+    public function hash(string $plainPassword, ?string $salt = null): string
     {
         return hash('sha512', $salt.$plainPassword);
     }

@@ -14,8 +14,9 @@ use DemosEurope\DemosplanAddon\Contracts\Events\AfterSegmentationEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\AfterSegmentationEvent;
 use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
@@ -28,13 +29,14 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\SegmentTransformerPass;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\StatementToDraftsInfoTransformer;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Query\QueryException;
 use Exception;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DraftsInfoApiController extends APIController
 {
@@ -45,11 +47,10 @@ class DraftsInfoApiController extends APIController
      * @throws MessageBagException
      * @throws StatementAlreadySegmentedException
      * @throws StatementNotFoundException
-     *
-     * @DplanPermissions("area_statement_segmentation")
      */
+    #[DplanPermissions('area_statement_segmentation')]
     #[Route(name: 'dplan_drafts_list_edit_ajax', methods: 'GET', path: '/_ajax/verfahren/{procedureId}/statements/{statementId}/drafts-list', options: ['expose' => true])]
-    public function editAction(
+    public function edit(
         StatementToDraftsInfoTransformer $transformer,
         string $procedureId,
         string $statementId,
@@ -79,11 +80,10 @@ class DraftsInfoApiController extends APIController
      * @throws MessageBagException
      * @throws StatementAlreadySegmentedException
      * @throws StatementNotFoundException
-     *
-     * @DplanPermissions("area_statement_segmentation")
      */
+    #[DplanPermissions('area_statement_segmentation')]
     #[Route(name: 'dplan_drafts_list_save', methods: 'PATCH', path: '/_ajax/verfahren/{procedureId}/drafts-list/save/{statementId}', options: ['expose' => true])]
-    public function saveAction(
+    public function save(
         DraftsInfoHandler $draftsInfoHandler,
         Request $request,
         string $procedureId,
@@ -115,11 +115,10 @@ class DraftsInfoApiController extends APIController
      * @throws StatementAlreadySegmentedException
      * @throws StatementNotFoundException
      * @throws Exception
-     *
-     * @DplanPermissions("area_statement_segmentation")
      */
+    #[DplanPermissions('area_statement_segmentation')]
     #[Route(name: 'dplan_drafts_list_confirm', methods: 'POST', path: '/verfahren/{procedureId}/drafts-list/confirm', options: ['expose' => true])]
-    public function confirmDraftsAction(
+    public function confirmDrafts(
         CurrentUserService $currentUserProvider,
         DraftsInfoHandler $draftsInfoHandler,
         EventDispatcherInterface $eventDispatcher,
@@ -149,8 +148,13 @@ class DraftsInfoApiController extends APIController
             // persist the segments
             $segmentHandler->addSegments($segments);
 
+            // populate the statement's segment collection with fresh segments before dispatching event
+            // this ensures getSegmentsOfStatement() returns the new segments in event subscribers
+            $statement = $statementHandler->getStatementWithCertainty($statementId);
+            $statement->setSegmentsOfStatement(new ArrayCollection($segments));
+
             // request additional statement processing (asynchronous)
-            $eventDispatcher->dispatch(new AfterSegmentationEvent($statementHandler->getStatementWithCertainty($statementId)), AfterSegmentationEventInterface::class);
+            $eventDispatcher->dispatch(new AfterSegmentationEvent($statement), AfterSegmentationEventInterface::class);
 
             $currentUser = $currentUserProvider->getUser();
 
@@ -193,7 +197,7 @@ class DraftsInfoApiController extends APIController
             $procedureId,
             $user
         );
-        $nextStatementId = null === $nextStatement ? '' : $nextStatement->getId();
+        $nextStatementId = $nextStatement instanceof Statement ? $nextStatement->getId() : '';
         $jsonResponse = new JsonResponse();
         $responseData['data'] = ['nextStatementId' => $nextStatementId];
         $jsonResponse->setData($responseData);

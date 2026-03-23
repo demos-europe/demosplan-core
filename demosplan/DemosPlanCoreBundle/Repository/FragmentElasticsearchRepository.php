@@ -60,7 +60,7 @@ class FragmentElasticsearchRepository extends CoreRepository
         SortMethodFactory $sortMethodFactory,
         ElementsService $elementsService,
         ParagraphService $paragraphService,
-        string $entityClass
+        string $entityClass,
     ) {
         $this->index = $fragmentSearchType;
         $this->globalConfig = $globalConfig;
@@ -108,7 +108,7 @@ class FragmentElasticsearchRepository extends CoreRepository
             foreach ($esQuery->getFiltersMustNot() as $filter) {
                 $boolMustNotFilter[] = $this->getTermsQuery($filter);
             }
-            if (0 < count($boolMustNotFilter)) {
+            if ([] !== $boolMustNotFilter) {
                 array_map($boolQuery->addMustNot(...), $boolMustNotFilter);
             }
 
@@ -145,7 +145,7 @@ class FragmentElasticsearchRepository extends CoreRepository
             $aggregations = $fragments->getAggregations();
 
             // transform Buckets info existing Filterstructure
-            if (0 < count($aggregations)) {
+            if ([] !== $aggregations) {
                 $this->generateLabelMaps($aggregations);
                 $this->prepareEsQueryDisplayFilters($esQuery, $aggregations, $this->labelMaps);
             }

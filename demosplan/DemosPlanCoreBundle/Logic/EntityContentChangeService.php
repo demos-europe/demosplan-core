@@ -256,12 +256,12 @@ class EntityContentChangeService
             }
 
             // ensure defined values (restored original logic):
-            $preUpdateValue = $preUpdateValue ?? '';
-            $postUpdateValue = $postUpdateValue ?? '';
-            $preUpdateIdentifier = $preUpdateIdentifier ?? $preUpdateValue;
-            $postUpdateIdentifier = $postUpdateIdentifier ?? $postUpdateValue;
-            $preUpdateIdentifiers = $preUpdateIdentifiers ?? $preUpdateValue;
-            $postUpdateIdentifiers = $postUpdateIdentifiers ?? $postUpdateValue;
+            $preUpdateValue ??= '';
+            $postUpdateValue ??= '';
+            $preUpdateIdentifier ??= $preUpdateValue;
+            $postUpdateIdentifier ??= $postUpdateValue;
+            $preUpdateIdentifiers ??= $preUpdateValue;
+            $postUpdateIdentifiers ??= $postUpdateValue;
 
             // use IDs to determine change, instead of using identifier because identifier may not be unique
             if ($preUpdateValue !== $postUpdateValue) {
@@ -394,7 +394,7 @@ class EntityContentChangeService
             $this->entityContentChangeRepository->persistAndDelete($entries, []);
         } catch (Exception $e) {
             $this->logger->warning('Unable on addEntityContentChangeEntry. ', [$e]);
-            throw new InvalidArgumentException('Unable on addEntityContentChangeEntry.');
+            throw new InvalidArgumentException('Unable on addEntityContentChangeEntry.', $e->getCode(), $e);
         }
     }
 
@@ -436,7 +436,7 @@ class EntityContentChangeService
                     $isCustomFieldChange
                 );
 
-                if (null !== $entry) {
+                if ($entry instanceof EntityContentChange) {
                     $entries[] = $entry;
                 }
             }
@@ -528,13 +528,7 @@ class EntityContentChangeService
             $prefix = $this->getMappingValue($fieldName, $entityType, 'translationPrefix') ?: '';
 
             // merge with prefix
-            if ('' !== $prefix && !str_contains($content, $prefix)) {
-                // add prefix, but only once
-                $completeContent = $prefix.$content;
-            } else {
-                // do not add prefix
-                $completeContent = $content;
-            }
+            $completeContent = '' !== $prefix && !str_contains($content, $prefix) ? $prefix.$content : $content;
 
             return [
                 'content' => $this->translator->trans($completeContent),
@@ -1085,8 +1079,8 @@ class EntityContentChangeService
         ?CustomFieldValuesList $preUpdateCustomFieldValueList,
         ?CustomFieldValuesList $postUpdateCustomFieldValueList,
     ): array {
-        $emptyPre = null === $preUpdateCustomFieldValueList || $preUpdateCustomFieldValueList->isEmpty();
-        $emptyPost = null === $postUpdateCustomFieldValueList || $postUpdateCustomFieldValueList->isEmpty();
+        $emptyPre = !$preUpdateCustomFieldValueList instanceof CustomFieldValuesList || $preUpdateCustomFieldValueList->isEmpty();
+        $emptyPost = !$postUpdateCustomFieldValueList instanceof CustomFieldValuesList || $postUpdateCustomFieldValueList->isEmpty();
 
         if ($emptyPre && $emptyPost) {
             return [];
@@ -1163,7 +1157,7 @@ class EntityContentChangeService
     ): array {
         $changes = [];
 
-        foreach ($fieldsToTrack as $propertyName => $fieldMetaInfo) {
+        foreach (array_keys($fieldsToTrack) as $propertyName) {
             if ('customFields' === $propertyName) {
                 $changes['customFields'] = $this->diffCustomFields(
                     $preUpdateArray['customFields'] ?? null,
@@ -1210,28 +1204,24 @@ class EntityContentChangeService
         $changes = [];
         $class = ClassUtils::getClass($preUpdateObject);
 
-        foreach ($fieldsToTrack as $propertyName => $fieldMetaInfo) {
+        foreach (array_keys($fieldsToTrack) as $propertyName) {
             if ('customFields' === $propertyName) {
                 $changes['customFields'] = $this->diffCustomFields(
                     $preUpdateObject->getCustomFields(),
                     $incomingDataArray['customFields'] ?? null
                 );
-            } else {
-                if (array_key_exists($propertyName, $incomingDataArray)) {
-                    $methodName = $this->getGetterMethodName($preUpdateObject, $propertyName);
-                    $postUpdateValue = $incomingDataArray[$propertyName];
-                    $preUpdateValue = $preUpdateObject->$methodName();
-
-                    $contentChangeString = $this->createContentChangeData(
-                        $preUpdateValue,
-                        $postUpdateValue,
-                        $propertyName,
-                        $class
-                    );
-
-                    if (null !== $contentChangeString) {
-                        $changes[$propertyName] = $contentChangeString;
-                    }
+            } elseif (array_key_exists($propertyName, $incomingDataArray)) {
+                $methodName = $this->getGetterMethodName($preUpdateObject, $propertyName);
+                $postUpdateValue = $incomingDataArray[$propertyName];
+                $preUpdateValue = $preUpdateObject->$methodName();
+                $contentChangeString = $this->createContentChangeData(
+                    $preUpdateValue,
+                    $postUpdateValue,
+                    $propertyName,
+                    $class
+                );
+                if (null !== $contentChangeString) {
+                    $changes[$propertyName] = $contentChangeString;
                 }
             }
         }

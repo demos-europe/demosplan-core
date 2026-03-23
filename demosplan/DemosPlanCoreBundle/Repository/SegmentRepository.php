@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
@@ -20,6 +21,9 @@ use Exception;
  */
 class SegmentRepository extends CoreRepository
 {
+    private const ORDER_IN_PROCEDURE_IS_NOT_NULL = 'segment.orderInProcedure IS NOT NULL';
+    private const PARENT_STATEMENT_CONDITION = 'segment.parentStatementOfSegment = :statementId';
+
     /**
      * @return array<Segment>
      */
@@ -122,6 +126,64 @@ class SegmentRepository extends CoreRepository
     }
 
     /**
+     * Get the position of a segment within its parent statement.
+     *
+     * @return array{segmentId: string, position: int, total: int}|null Returns null if segment not found
+     */
+    public function getSegmentPosition(string $segmentId, string $statementId): ?array
+    {
+        $em = $this->getEntityManager();
+
+        // First, get the target segment's orderInProcedure
+        $targetQuery = $em->createQueryBuilder()
+            ->select('segment.id', 'segment.orderInProcedure')
+            ->from(Segment::class, 'segment')
+            ->where('segment.id = :segmentId')
+            ->andWhere(self::PARENT_STATEMENT_CONDITION)
+            ->setParameter('segmentId', $segmentId)
+            ->setParameter('statementId', $statementId)
+            ->getQuery();
+
+        $targetResult = $targetQuery->getOneOrNullResult();
+
+        if (null === $targetResult) {
+            return null;
+        }
+
+        $targetOrder = $targetResult['orderInProcedure'];
+
+        // Count how many segments in this statement have orderInProcedure <= target
+        $positionQuery = $em->createQueryBuilder()
+            ->select('COUNT(segment.id)')
+            ->from(Segment::class, 'segment')
+            ->where(self::PARENT_STATEMENT_CONDITION)
+            ->andWhere(self::ORDER_IN_PROCEDURE_IS_NOT_NULL)
+            ->andWhere('segment.orderInProcedure <= :targetOrder')
+            ->setParameter('statementId', $statementId)
+            ->setParameter('targetOrder', $targetOrder)
+            ->getQuery();
+
+        $position = (int) $positionQuery->getSingleScalarResult();
+
+        // Get total count of segments in this statement
+        $totalQuery = $em->createQueryBuilder()
+            ->select('COUNT(segment.id)')
+            ->from(Segment::class, 'segment')
+            ->where(self::PARENT_STATEMENT_CONDITION)
+            ->andWhere(self::ORDER_IN_PROCEDURE_IS_NOT_NULL)
+            ->setParameter('statementId', $statementId)
+            ->getQuery();
+
+        $total = (int) $totalQuery->getSingleScalarResult();
+
+        return [
+            'segmentId' => $segmentId,
+            'position'  => $position,
+            'total'     => $total,
+        ];
+    }
+
+    /**
      * Change the recommendation in all segments with the given ID *if* they are in the given procedure.
      *
      * @param array<int, string> $segmentIds
@@ -163,5 +225,16 @@ class SegmentRepository extends CoreRepository
             }
             $this->getEntityManager()->refresh($segment);
         }
+    }
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function deleteSegmentObject(Segment $segment): void
+    {
+        $em = $this->getEntityManager();
+        $em->remove($segment);
+        $em->flush();
     }
 }

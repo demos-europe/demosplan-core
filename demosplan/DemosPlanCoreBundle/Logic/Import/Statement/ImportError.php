@@ -20,6 +20,24 @@ class ImportError
     {
     }
 
+    /**
+     * Create ImportError from a plain string message (used in two-pass validation).
+     */
+    public static function fromMessage(string $message, int $lineNumber, string $worksheetTitle): self
+    {
+        // Create minimal ConstraintViolation for compatibility
+        $violation = new ConstraintViolation(
+            $message,
+            null,
+            [],
+            null,
+            '',
+            null
+        );
+
+        return new self($violation, $lineNumber, $worksheetTitle);
+    }
+
     public function getLine(): int
     {
         return $this->getLineNumber();

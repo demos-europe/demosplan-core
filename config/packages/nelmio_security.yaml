@@ -48,3 +48,32 @@ nelmio_security:
         policies:
             - 'no-referrer'
             - 'strict-origin-when-cross-origin'
+
+    cross_origin_isolation:
+        enabled: true
+        paths:
+            '^/.*':
+                corp: same-origin
+                coep: credentialless
+                coop: same-origin-allow-popups
+
+    permissions_policy:
+        enabled: true
+        policies:
+            camera: []
+            microphone: []
+            geolocation: []
+            payment: []
+            usb: []
+            magnetometer: []
+            gyroscope: []
+            accelerometer: []
+
+when@dev:
+    # Development-specific CSP overrides for webpack source maps
+    nelmio_security:
+        csp:
+            enforce:
+                # Allow webpack:// scheme for source maps in development
+                connect-src:
+                    - 'webpack:'

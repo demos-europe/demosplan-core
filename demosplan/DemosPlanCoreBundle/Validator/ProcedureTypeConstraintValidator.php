@@ -12,6 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Validator;
 
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTypeConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -29,19 +32,19 @@ class ProcedureTypeConstraintValidator extends ConstraintValidator
         $isBlueprint = $procedure->getMaster();
 
         if (!$isBlueprint) {
-            if (null === $procedure->getProcedureUiDefinition()) {
+            if (!$procedure->getProcedureUiDefinition() instanceof ProcedureUiDefinition) {
                 $this->context->buildViolation(
                     $constraint->nonBlueprintProcedureUiDefinitionViolationMessage
                 )->addViolation();
             }
 
-            if (null === $procedure->getStatementFormDefinition()) {
+            if (!$procedure->getStatementFormDefinition() instanceof StatementFormDefinition) {
                 $this->context->buildViolation(
                     $constraint->nonBlueprintStatementFormDefinitionViolationMessage
                 )->addViolation();
             }
 
-            if (null === $procedure->getProcedureType()) {
+            if (!$procedure->getProcedureType() instanceof ProcedureType) {
                 $this->context->buildViolation(
                     $constraint->nonBlueprintProcedureTypeViolationMessage
                 )->addViolation();
@@ -49,19 +52,19 @@ class ProcedureTypeConstraintValidator extends ConstraintValidator
         }
 
         if ($isBlueprint) {
-            if (null !== $procedure->getProcedureUiDefinition()) {
+            if ($procedure->getProcedureUiDefinition() instanceof ProcedureUiDefinition) {
                 $this->context->buildViolation(
                     $constraint->blueprintProcedureUiDefinitionViolationMessage
                 )->addViolation();
             }
 
-            if (null !== $procedure->getStatementFormDefinition()) {
+            if ($procedure->getStatementFormDefinition() instanceof StatementFormDefinition) {
                 $this->context->buildViolation(
                     $constraint->blueprintStatementFormDefinitionViolationMessage
                 )->addViolation();
             }
 
-            if (null !== $procedure->getProcedureType()) {
+            if ($procedure->getProcedureType() instanceof ProcedureType) {
                 $this->context->buildViolation(
                     $constraint->blueprintProcedureTypeViolationMessage
                 )->addViolation();

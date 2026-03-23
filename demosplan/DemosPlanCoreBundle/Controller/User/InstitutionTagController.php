@@ -12,20 +12,18 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class InstitutionTagController extends BaseController
 {
-    /**
-     * @DplanPermissions("area_institution_tag_manage")
-     */
+    #[DplanPermissions('area_institution_tag_manage')]
     #[Route(name: 'DemosPlan_get_institution_tag_management', path: '/institutions/tags', methods: ['GET'], options: ['expose' => true])]
     public function getInstitutionTagManagement(): Response
     {
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/institution_tag_management.html.twig',
             [
                 'title' => 'institution.tags.management',

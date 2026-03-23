@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementSegmentResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -64,6 +65,8 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         private readonly QuerySegment $esQuery,
         JsonApiEsService $jsonApiEsService,
         private readonly PlaceResourceType $placeResourceType,
+        private readonly TagResourceType $tagResourceType,
+        private readonly TagTopicResourceType $tagTopicResourceType,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
     ) {
@@ -100,7 +103,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 
@@ -124,18 +127,26 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         // just in case a user has access to places in different procedures,
         // we add a limitation for the current one only
         $currentProcedure = $this->currentProcedureService->getProcedure();
-        $placeCondition = null === $currentProcedure
-            ? $this->conditionFactory->false()
-            : $this->conditionFactory->propertyHasValue(
+        $placeCondition = $currentProcedure instanceof Procedure
+            ? $this->conditionFactory->propertyHasValue(
                 $currentProcedure->getId(),
                 $this->placeResourceType->procedure->id
-            );
+            )
+            : $this->conditionFactory->false();
         $placeSortMethod = $this->sortMethodFactory->propertyAscending(
             $this->placeResourceType->sortIndex
         );
 
+        // Create sort methods for tags (items) and tag topics (groups)
+        $tagsSortMethod = $this->sortMethodFactory->propertyAscending(
+            $this->tagResourceType->title
+        );
+        $topicsSortMethod = $this->sortMethodFactory->propertyAscending(
+            $this->tagTopicResourceType->title
+        );
+
         return [
-            'tags'     => new TagsFacet($this->conditionFactory->false()),
+            'tags'     => new TagsFacet($this->conditionFactory->false(), [$tagsSortMethod], [$topicsSortMethod]),
             'assignee' => new AssigneesFacet($this->conditionFactory->false()),
             'place'    => new PlaceFacet($placeCondition, $placeSortMethod),
         ];

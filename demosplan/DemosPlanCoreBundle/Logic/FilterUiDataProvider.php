@@ -21,11 +21,10 @@ class FilterUiDataProvider
     /**
      * @var string
      */
-    private $relativeFilterNamesPath;
+    private $relativeFilterNamesPath = 'segmentsFilterNames.yaml';
 
     public function __construct()
     {
-        $this->relativeFilterNamesPath = 'segmentsFilterNames.yaml';
     }
 
     /**

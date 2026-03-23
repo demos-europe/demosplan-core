@@ -167,7 +167,9 @@ export default {
       segments: 'items',
     }),
 
-    ...mapState('SegmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', [
+      'slidebar',
+    ]),
 
     pointData () {
       return {
@@ -203,6 +205,30 @@ export default {
 
     segment () {
       return this.segments[this.segmentId] || null
+    },
+  },
+
+  watch: {
+    'slidebar.showTab': {
+      handler (newTab, oldTab) {
+        // Initialize map when it becomes visible
+        if (newTab === 'map' && oldTab !== 'map') {
+          this.$nextTick(() => {
+            this.initMap()
+          })
+        }
+      },
+    },
+
+    'slidebar.segmentId': {
+      handler (newId, oldId) {
+        // Reinitialize map when segment changes while map is visible
+        if (this.slidebar.showTab === 'map' && newId !== oldId && newId !== '') {
+          this.$nextTick(() => {
+            this.initMap()
+          })
+        }
+      },
     },
   },
 
@@ -328,14 +354,6 @@ export default {
       }
       this.setItem(storePayload)
     },
-  },
-
-  mounted () {
-    this.$root.$on('segmentMap:show', () => {
-      this.$nextTick(() => {
-        this.initMap()
-      })
-    })
   },
 }
 </script>

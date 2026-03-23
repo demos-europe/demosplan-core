@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
 use demosplan\DemosPlanCoreBundle\Command\Addon\AddonAutoinstallCommand;
 use demosplan\DemosPlanCoreBundle\Command\Addon\AddonInstallFromZipCommand;
 use demosplan\DemosPlanCoreBundle\Command\Addon\AddonUninstallCommand;
-use demosplan\DemosPlanCoreBundle\Command\CacheClearCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -26,11 +25,10 @@ use Tests\Base\FunctionalTestCase;
 
 class AddonAutoinstallCommandTest extends FunctionalTestCase
 {
-    private ?AddonInstallFromZipCommand $addonInstallCommand;
-    private ?AddonUninstallCommand $addonUninstallCommand;
-    private ?AddonRegistry $registry;
-    private ?CacheClearCommand $cacheClearCommand;
-    private ?ParameterBagInterface $parameterBag;
+    private ?AddonInstallFromZipCommand $addonInstallCommand = null;
+    private ?AddonUninstallCommand $addonUninstallCommand = null;
+    private ?AddonRegistry $registry = null;
+    private ?ParameterBagInterface $parameterBag = null;
 
     public function setUp(): void
     {
@@ -39,7 +37,6 @@ class AddonAutoinstallCommandTest extends FunctionalTestCase
         $this->addonInstallCommand = $this->createMock(AddonInstallFromZipCommand::class);
         $this->addonUninstallCommand = $this->createMock(AddonUninstallCommand::class);
         $this->registry = $this->createMock(AddonRegistry::class);
-        $this->cacheClearCommand = $this->createMock(CacheClearCommand::class);
         $this->parameterBag = $this->createMock(ParameterBagInterface::class);
     }
 
@@ -73,7 +70,6 @@ class AddonAutoinstallCommandTest extends FunctionalTestCase
         $this->parameterBag->method('get')->with('dplan_addons')->willReturn($addons);
         $this->registry->method('getEnabledAddons')->willReturn($enabledAddons);
 
-        $this->cacheClearCommand->expects($this->never())->method('run');
         $this->addonInstallCommand->expects($this->never())->method('run');
 
         $this->executeCommand();
@@ -134,7 +130,6 @@ class AddonAutoinstallCommandTest extends FunctionalTestCase
             $this->addonInstallCommand,
             $this->addonUninstallCommand,
             $this->registry,
-            $this->cacheClearCommand,
             $this->parameterBag
         ));
 

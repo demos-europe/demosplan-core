@@ -18,6 +18,11 @@ use Tests\Base\FunctionalTestCase;
 
 class DateHelperTest extends FunctionalTestCase
 {
+    /**
+     * @var DateHelper
+     */
+    protected $sut;
+
     protected function setUp(): void
     {
         parent::setUp();

@@ -13,6 +13,7 @@ namespace Tests\Core\Procedure\Functional;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapExtentValidator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureMapSettingResourceType;
 use ReflectionMethod;
@@ -38,19 +39,25 @@ class ProcedureMapSettingTest extends FunctionalTestCase
 
         $contentService = $this->getContainer()->get(ContentService::class);
         $this->coordinateJsonConverter = $this->getContainer()->get(CoordinateJsonConverter::class);
+        $mapExtentValidator = $this->getContainer()->get(MapExtentValidator::class);
 
         $this->masterTemplateService = $this->getContainer()->get(MasterTemplateService::class);
         $this->globalConfig = $this->getContainer()->get(GlobalConfigInterface::class);
 
-        $this->procedureMapSettingResourceType = new ProcedureMapSettingResourceType($contentService, $this->masterTemplateService, $this->coordinateJsonConverter);
+        $this->procedureMapSettingResourceType = new ProcedureMapSettingResourceType($contentService, $this->masterTemplateService, $this->coordinateJsonConverter, $mapExtentValidator);
         $this->procedureMapSettingResourceType->setGlobalConfig($this->globalConfig);
     }
 
     /**
-     * @dataProvider defaultMapExtentDataProvider()
+     * @dataProvider defaultMapExtentDataProvider
      */
-    public function testDefaultMapExtent($mapExtentMasterTemplateValue, $expectedDefaultMapExtent)
+    public function testDefaultMapExtent($mapExtentMasterTemplateValue, $expectedDefaultMapExtent): void
     {
+        // For empty or null values, compute expected result from global config
+        if (null === $expectedDefaultMapExtent) {
+            $expectedDefaultMapExtent = $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapPublicExtent(), true);
+        }
+
         $this->masterTemplateService->getMasterTemplate()->getSettings()->setMapExtent($mapExtentMasterTemplateValue);
 
         $getMapSettingMethod = new ReflectionMethod(ProcedureMapSettingResourceType::class, 'getMapSetting');
@@ -60,14 +67,12 @@ class ProcedureMapSettingTest extends FunctionalTestCase
         static::assertEquals($expectedDefaultMapExtent, $result);
     }
 
-    public function defaultMapExtentDataProvider(): array
+    public static function defaultMapExtentDataProvider(): array
     {
-        $this->setUp();
-
         return [
             [
                 'mapExtentMasterTemplateValue' => '555555.41,9999999.13,611330.65,6089742.54',
-                'expectedResult'               => [
+                'expectedDefaultMapExtent'     => [
                     'start' => [
                         'latitude'  => 555555.41,
                         'longitude' => 9999999.13,
@@ -78,22 +83,27 @@ class ProcedureMapSettingTest extends FunctionalTestCase
                     ],
                 ],
             ],
-            [
+            'empty string' => [
                 'mapExtentMasterTemplateValue' => '',
-                'expectedResult'               => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapPublicExtent(), true),
+                'expectedDefaultMapExtent'     => null, // Will be set in test when container is available
             ],
-            [
+            'null value' => [
                 'mapExtentMasterTemplateValue' => null,
-                'expectedResult'               => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapPublicExtent(), true),
+                'expectedDefaultMapExtent'     => null, // Will be set in test when container is available
             ],
         ];
     }
 
     /**
-     * @dataProvider defaultBoundingBoxDataProvider()
+     * @dataProvider defaultBoundingBoxDataProvider
      */
-    public function testDefaultBoundingBox($boundingBoxMasterTemplateValue, $expectedDefaultBoundingBox)
+    public function testDefaultBoundingBox($boundingBoxMasterTemplateValue, $expectedDefaultBoundingBox): void
     {
+        // For empty or null values, compute expected result from global config
+        if (null === $expectedDefaultBoundingBox) {
+            $expectedDefaultBoundingBox = $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapMaxBoundingbox(), true);
+        }
+
         $this->masterTemplateService->getMasterTemplate()->getSettings()->setBoundingBox($boundingBoxMasterTemplateValue);
 
         $getMapSettingMethod = new ReflectionMethod(ProcedureMapSettingResourceType::class, 'getMapSetting');
@@ -103,14 +113,12 @@ class ProcedureMapSettingTest extends FunctionalTestCase
         static::assertEquals($expectedDefaultBoundingBox, $result);
     }
 
-    public function defaultBoundingBoxDataProvider(): array
+    public static function defaultBoundingBoxDataProvider(): array
     {
-        $this->setUp();
-
         return [
             [
                 'boundingBoxMasterTemplateValue' => '555555.41,9999999.13,611330.65,6089742.54',
-                'expectedResult'                 => [
+                'expectedDefaultBoundingBox'     => [
                     'start' => [
                         'latitude'  => 555555.41,
                         'longitude' => 9999999.13,
@@ -121,13 +129,13 @@ class ProcedureMapSettingTest extends FunctionalTestCase
                     ],
                 ],
             ],
-            [
+            'empty string' => [
                 'boundingBoxMasterTemplateValue' => '',
-                'expectedResult'                 => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapMaxBoundingbox(), true),
+                'expectedDefaultBoundingBox'     => null, // Will be set in test when container is available
             ],
-            [
+            'null value' => [
                 'boundingBoxMasterTemplateValue' => null,
-                'expectedResult'                 => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapMaxBoundingbox(), true),
+                'expectedDefaultBoundingBox'     => null, // Will be set in test when container is available
             ],
         ];
     }

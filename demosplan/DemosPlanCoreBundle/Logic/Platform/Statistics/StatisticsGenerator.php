@@ -92,7 +92,7 @@ class StatisticsGenerator
 
     private function cacheProcedurePhase(array $procedureData, array $procedurePhases, string $phaseType): array
     {
-        if (0 < strlen($procedureData[$phaseType])) {
+        if (0 < strlen((string) $procedureData[$phaseType])) {
             isset($procedurePhases[$procedureData[$phaseType]]['num'])
                 ? $procedurePhases[$procedureData[$phaseType]]['num']++
                 : $procedurePhases[$procedureData[$phaseType]]['num'] = 1;

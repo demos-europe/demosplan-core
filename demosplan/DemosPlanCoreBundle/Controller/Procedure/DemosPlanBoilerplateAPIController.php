@@ -12,11 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\BoilerplateGroupResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\BoilerplateResourceType;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DemosPlanBoilerplateAPIController extends APIController
 {
@@ -24,12 +24,11 @@ class DemosPlanBoilerplateAPIController extends APIController
      * Returns all Boilerplates(means "Textbausteine"/"_predefined_texts", not "ProcedureBlueprints"!)
      * of a specific procedure, with the category as key in a JsonResponse.
      *
-     * @DplanPermissions("area_admin_boilerplates")
-     *
      * @param string $procedureId specify the Procedure, whose Boilerplates will be loaded
      */
+    #[DplanPermissions('area_admin_boilerplates')]
     #[Route(path: '/api/1.0/procedures/{procedureId}/relationships/boilerplates', methods: ['GET'], name: 'dplan_api_procedure_boilerplate_list', options: ['expose' => true])]
-    public function getProcedureListAction(ProcedureService $procedureService, string $procedureId): APIResponse
+    public function getProcedureList(ProcedureService $procedureService, string $procedureId): APIResponse
     {
         $boilerplates = $procedureService->getBoilerplateList($procedureId);
         $collection = $this->resourceService->makeCollectionOfResources($boilerplates, BoilerplateResourceType::getName());
@@ -43,7 +42,7 @@ class DemosPlanBoilerplateAPIController extends APIController
      * @param string $procedureId specify the Procedure, whose BoilerplateGroups will be loaded
      */
     #[Route(path: '/api/1.0/procedures/{procedureId}/relationships/boilerplate_groups', methods: ['GET'], name: 'dplan_api_procedure_boilerplate_group_list', options: ['expose' => true])]
-    public function getProcedureGroupListAction(ProcedureService $procedureService, string $procedureId): APIResponse
+    public function getProcedureGroupList(ProcedureService $procedureService, string $procedureId): APIResponse
     {
         $groups = $procedureService->getBoilerplateGroups($procedureId);
         $collection = $this->resourceService->makeCollectionOfResources(

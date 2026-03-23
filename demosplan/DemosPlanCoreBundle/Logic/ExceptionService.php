@@ -18,6 +18,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
@@ -41,51 +42,49 @@ class ExceptionService
         $logger = $this->logger;
         $request = $this->requestStack->getCurrentRequest();
 
-        if (null === $request) {
+        if (!$request instanceof Request) {
             $logger->warning('Exception occured without request');
             $logger->info($e);
 
             return $this->redirectToRoute('core_home');
         }
-
         // Fehlertemplate ausgeben
-        switch (true) {
-            case $e instanceof SessionUnavailableException:
-                $logger->info($e);
+        if ($e instanceof SessionUnavailableException) {
+            $logger->info($e);
 
-                return $this->redirectWithCurrentRouteState('sessionExpired');
-
-            case $e instanceof AccessDeniedGuestException:
-                $logger->info($e);
-
-                return $this->redirectWithCurrentRouteState('accessdenied');
-
-            case $e instanceof AccessDeniedException:
-                $logger->warning($e);
-                // do not set redirect LoggedIn Route Cookie as it may lead to
-                // infinite redirects
-                return $this->redirectWithCurrentRouteState('accessdenied', false);
-
-            case $e instanceof EntityNotFoundException:
-                $logger->error($e);
-                $procedureId = $request->attributes->get('procedureId');
-
-                return $this->redirectToRoute('dplan_assessmenttable_view_table', ['procedureId' => $procedureId]);
-            default:
-                $logger->error($e);
-                // Login fehlgeschlagen
-                if (1004 === $e->getCode()) {
-                    try {
-                        $this->messageBag->add('warning', 'warning.login.failed');
-                    } catch (MessageBagException) {
-                        $this->logger->warning('Could not add Message to message bag');
-                    }
-
-                    return $this->redirectToRoute('core_home');
-                }
-
-                return $this->redirectToRoute('core_500');
+            return $this->redirectWithCurrentRouteState('sessionExpired');
         }
+        if ($e instanceof AccessDeniedGuestException) {
+            $logger->info($e);
+
+            return $this->redirectWithCurrentRouteState('accessdenied');
+        }
+        if ($e instanceof AccessDeniedException) {
+            $logger->warning($e);
+
+            // do not set redirect LoggedIn Route Cookie as it may lead to
+            // infinite redirects
+            return $this->redirectWithCurrentRouteState('accessdenied', false);
+        }
+        if ($e instanceof EntityNotFoundException) {
+            $logger->error($e);
+            $procedureId = $request->attributes->get('procedureId');
+
+            return $this->redirectToRoute('dplan_assessmenttable_view_table', ['procedureId' => $procedureId]);
+        }
+        $logger->error($e);
+        // Login fehlgeschlagen
+        if (1004 === $e->getCode()) {
+            try {
+                $this->messageBag->add('warning', 'warning.login.failed');
+            } catch (MessageBagException) {
+                $this->logger->warning('Could not add Message to message bag');
+            }
+
+            return $this->redirectToRoute('core_home');
+        }
+
+        return $this->redirectToRoute('core_500');
     }
 
     /**

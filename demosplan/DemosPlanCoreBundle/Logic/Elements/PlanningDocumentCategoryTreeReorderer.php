@@ -177,7 +177,7 @@ class PlanningDocumentCategoryTreeReorderer
         $previousParent = $moveTarget->getParent();
 
         // if both parents are null (root layer) we don't need to update the hierarchy
-        $bothParentsNull = $newParent === $previousParent && null === $previousParent;
+        $bothParentsNull = $newParent === $previousParent && !$previousParent instanceof Elements;
         // if both parents have the same ID we don't need to update the hierarchy either
         $bothParentsSameId =
             null !== $newParent
@@ -196,7 +196,7 @@ class PlanningDocumentCategoryTreeReorderer
      */
     private function getNeighbors(?Elements $parent, string $procedureId): Collection
     {
-        $neighbors = null !== $parent
+        $neighbors = $parent instanceof Elements
             ? $parent->getChildren()
             : $this->elementsRepository->findBy([
                 'procedure' => $procedureId,
