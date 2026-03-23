@@ -397,13 +397,6 @@ class ServiceOutput
         // Template Variable aus Storage Ergebnis erstellen(Output)
         $templateVars = $this->procedureMemberListHandler($procedure, $filters);
 
-        // Zeige den Namen des aktuellen internen Verfahrensschritts an
-        if (isset($templateVars['procedure']['phase']) && 0 < strlen((string) $templateVars['procedure']['phase'])) {
-            $templateVars['procedure']['phaseName'] = $this->config->getPhaseNameWithPriorityInternal(
-                $templateVars['procedure']['phase']
-            );
-        }
-
         // an welche Institutionen wurde eine Email geschickt?
         $templateVars['orgaInvitationemailSent'] = [];
         $invitationEmailSent = $this->getInvitationEmailSentList(
