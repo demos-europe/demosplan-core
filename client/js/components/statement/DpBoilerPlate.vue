@@ -8,17 +8,17 @@
 </license>
 
 <template>
-  <div>
+  <div class="flex flex-col h-full">
     <!-- Select boilerplate -->
-    <div class="u-pb-0_25">
-      <label class="u-mb-0_5">
-        <dp-contextual-help
-          class="float-right u-mt-0_125"
-          :tooltip-options="tooltipOptions"
-        />
-        {{ title }}
-      </label>
+    <div class="pb-1 mb-2 flex-shrink-0">
+      <dp-label
+        class="mb-2"
+        for="boilerplateSelect"
+        :text="title"
+        :tooltip="tooltipOptions.content"
+      />
       <dp-multiselect
+        id="boilerplateSelect"
         v-model="selectedBoilerPlate"
         class="inline-block"
         :group-label="groupLabel"
@@ -38,29 +38,28 @@
       </dp-multiselect>
     </div>
     <!-- Preview of boilerplate text -->
-    <div>
-      <label
-        for="previewField"
-        class="u-mb-0_25 u-mt-0_5"
-      >
-        Vorschau:
-      </label>
-      <div
-        id="previewField"
-        v-cleanhtml="previewValue"
-        class="u-p-0_5 border rounded-lg min-h-11 c-styled-html"
-      />
+    <div class="flex flex-col flex-1 min-h-0">
+      <h4 class="mb-2 flex-shrink-0">
+        {{ Translator.trans('preview') }}
+      </h4>
+      <div class="border rounded-lg flex-1 min-h-11 overflow-auto">
+        <div
+          id="previewField"
+          v-cleanhtml="previewValue"
+          class="p-2 c-styled-html"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { CleanHtml, DpContextualHelp, DpMultiselect, Tooltip } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpLabel, DpMultiselect, Tooltip } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpBoilerPlate',
   components: {
-    DpContextualHelp,
+    DpLabel,
     DpMultiselect,
   },
 

@@ -365,7 +365,7 @@ export default {
 
   emits: [
     'exportModal:toggle',
-    'handle-sort-change',
+    'handle:sortChange',
   ],
 
   data () {

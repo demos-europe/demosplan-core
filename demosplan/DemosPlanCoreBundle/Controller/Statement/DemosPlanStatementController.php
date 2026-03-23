@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 use BadMethodCallException;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
@@ -35,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRequiredException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
+use demosplan\DemosPlanCoreBundle\Exception\MissingExcelDataException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
@@ -69,20 +70,25 @@ use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldProvider;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldPropertyName;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use RuntimeException;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
@@ -103,14 +109,21 @@ class DemosPlanStatementController extends BaseController
 {
     private const STATEMENT_IMPORT_ENCOUNTERED_ERRORS = 'statement import failed';
 
-    public function __construct(private readonly CurrentProcedureService $currentProcedureService, private readonly CurrentUserService $currentUser, private readonly DraftStatementHandler $draftStatementHandler, private readonly DraftStatementService $draftStatementService, private readonly Environment $twig, private readonly MailService $mailService, private readonly PermissionsInterface $permissions, private readonly NameGenerator $nameGenerator)
+    public function __construct(
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly CurrentUserService $currentUser,
+        private readonly DraftStatementHandler $draftStatementHandler,
+        private readonly DraftStatementService $draftStatementService,
+        private readonly Environment $twig,
+        private readonly MailService $mailService,
+        private readonly PermissionsInterface $permissions,
+        private readonly NameGenerator $nameGenerator,
+        private readonly CustomFieldProvider $customFieldProvider)
     {
     }
 
     /**
      * PDF-Export der Statements.
-     *
-     * @DplanPermissions("area_demosplan")
      *
      * @param string $procedure
      * @param string $type
@@ -119,18 +132,19 @@ class DemosPlanStatementController extends BaseController
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(name: 'DemosPlan_statement_list_released_group_export_pdf', path: '/verfahren/{procedure}/stellungnahmen/freigabenGruppe/pdf', defaults: ['title' => 'statements.final.group', 'type' => 'releasedGroup'])]
     #[Route(name: 'DemosPlan_statement_list_final_group_export_pdf', path: '/verfahren/{procedure}/stellungnahmen/endfassungenGruppe/pdf', defaults: ['title' => 'statements.final.group', 'type' => 'finalGroup'])]
     #[Route(name: 'DemosPlan_statement_list_final_citizen_export_pdf', path: '/verfahren/{procedure}/stellungnahmen/endfassungenCitizen/pdf', defaults: ['title' => 'statements.final.group', 'type' => 'finalCitizen'])]
     #[Route(name: 'DemosPlan_statement_single_export_pdf', path: '/verfahren/{procedure}/stellungnahmen/single/pdf', defaults: ['type' => 'single'], options: ['expose' => true])]
-    public function pdfAction(
+    public function pdf(
         CurrentProcedureService $currentProcedureService,
         Request $request,
         NameGenerator $nameGenerator,
         TranslatorInterface $translator,
         $procedure,
         $type,
-    ) {
+    ): Response {
         $itemsToExport = null;
         $draftStatementList = [];
         $filename = \sprintf('_%s.pdf', $translator->trans('statement'));
@@ -157,7 +171,7 @@ class DemosPlanStatementController extends BaseController
                 $procedureObject->getName();
             $filename = $procedureName.$filename;
         }
-        $response = new Response($file->getContent(), 200);
+        $response = new Response($file->getContent(), Response::HTTP_OK);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
         $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
@@ -165,15 +179,14 @@ class DemosPlanStatementController extends BaseController
         return $response;
     }
 
+    #[DplanPermissions('area_statements_public')]
     /**
-     * @DplanPermissions("area_statements_public")
-     *
      * @return RedirectResponse|Response|null
      *
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_list_public', path: '/verfahren/{procedure}/stellungnahmen/toeb', defaults: ['templateName' => 'list_public'])]
-    public function otherCompaniesListAction(
+    public function otherCompaniesList(
         Request $request,
         CurrentProcedureService $currentProcedureService,
         string $_route,
@@ -230,7 +243,7 @@ class DemosPlanStatementController extends BaseController
         // Display as participationLayer
         $templateVars['procedureLayer'] = 'participation';
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_public.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -243,15 +256,14 @@ class DemosPlanStatementController extends BaseController
     /**
      * Einreichen einer Stellungnahme aus der öffentlichen Beteiligung.
      *
-     * @DplanPermissions({"feature_new_statement", "area_statements_draft"})
-     *
      * @param string $_route
      *
      * @throws MessageBagException
      * @throws Throwable
      */
+    #[DplanPermissions(['feature_new_statement', 'area_statements_draft'])]
     #[Route(name: 'DemosPlan_statement_public_submit', path: '/verfahren/{procedure}/stellungnahmen/public/submit')]
-    public function submitPublicStatementAction(
+    public function submitPublicStatement(
         MapService $mapService,
         Request $request,
         CurrentProcedureService $currentProcedureService,
@@ -330,17 +342,8 @@ class DemosPlanStatementController extends BaseController
             // use citizentemplates if neded
             $templateVars['isCitizen'] = $user->isCitizen();
 
-            // Ergänze die Daten zum Statement mit bestehenden User-Daten
-            $inData['userName'] = $user->getFullname();
-            if ('' !== $user->getEmail()) {
-                $inData['userEmail'] = $user->getEmail();
-            }
-            if ($this->permissions->hasPermission('feature_draft_statement_add_address_to_private_person')) {
-                $inData['userStreet'] = $user->getStreet();
-                $inData['userPostalCode'] = $user->getPostalcode();
-                $inData['userCity'] = $user->getCity();
-                $inData['houseNumber'] = $user->getHouseNumber();
-            }
+            $inData = $this->enrichStatementDataWithUserInfo($inData, $user);
+
             $templateVars['user'] = $user;
 
             // Angemeldete Bürger bekommen automatisch per email Rückmeldung
@@ -420,6 +423,14 @@ class DemosPlanStatementController extends BaseController
                 }
             }
 
+            if ($this->currentUser->hasPermission('feature_statements_custom_fields')) {
+                $templateVars[CustomFieldPropertyName::twigRequestName->value] = $this->customFieldProvider->getCustomFieldsByCriteria(
+                    sourceEntity: CustomFieldSupportedEntity::procedure->value,
+                    sourceEntityId: $procedureId,
+                    targetEntity: CustomFieldSupportedEntity::statement->value,
+                );
+            }
+
             $templateVars['statementList'] = $statementsToSubmit;
             $templateVars['list']['statementlist'] = $statementsToSubmit;
             $templateVars['statementsToSubmitIds'] = $statementsToSubmitIds;
@@ -435,7 +446,7 @@ class DemosPlanStatementController extends BaseController
             ];
             $templateVars['procedure'] = $procedure;
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanStatement/new_public_participation_statement_confirm.html.twig',
                 [
                     'templateVars' => $templateVars,
@@ -454,10 +465,26 @@ class DemosPlanStatementController extends BaseController
         }
     }
 
+    private function enrichStatementDataWithUserInfo(array $inData, User $user): array
+    {
+        $inData['userName'] = $user->getFullname();
+
+        if ('' !== $user->getEmail()) {
+            $inData['userEmail'] = $user->getEmail();
+        }
+
+        if ($this->permissions->hasPermission('feature_draft_statement_add_address_to_private_person')) {
+            $inData['userStreet'] = $user->getStreet();
+            $inData['userPostalCode'] = $user->getPostalcode();
+            $inData['userCity'] = $user->getCity();
+            $inData['houseNumber'] = $user->getHouseNumber();
+        }
+
+        return $inData;
+    }
+
     /**
      * The GET parameter reset resets the filters in session.
-     *
-     * @DplanPermissions("area_statements")
      *
      * @param string      $_route
      * @param string|bool $submitted `true`, `false` or `"both"`
@@ -466,11 +493,12 @@ class DemosPlanStatementController extends BaseController
      *
      * @throws Throwable
      */
+    #[DplanPermissions('area_statements')]
     #[Route(name: 'DemosPlan_statement_list_final_group', path: '/verfahren/{procedure}/stellungnahmen/endfassungenGruppe', defaults: ['templateName' => 'list_final_group', 'released' => true, 'scope' => 'group', 'submitted' => true, 'title' => 'statements.final.group'], options: ['expose' => true])]
     #[Route(name: 'DemosPlan_statement_list_released', path: '/verfahren/{procedure}/stellungnahmen/freigaben', defaults: ['templateName' => 'list_released', 'released' => true, 'scope' => 'own', 'submitted' => 'both', 'title' => 'statements.released'], options: ['expose' => true])]
     #[Route(name: 'DemosPlan_statement_list_draft', path: '/verfahren/{procedure}/stellungnahmen/entwuerfe', defaults: ['templateName' => 'list_draft', 'released' => false, 'scope' => 'own', 'submitted' => false, 'title' => 'statements.drafts'], options: ['expose' => true])]
     #[Route(name: 'DemosPlan_statement_list_released_group', path: '/verfahren/{procedure}/stellungnahmen/freigabenGruppe', defaults: ['templateName' => 'list_released_group', 'released' => true, 'scope' => 'group', 'submitted' => false, 'title' => 'statements.released.group'], options: ['expose' => true])]
-    public function listAction(
+    public function list(
         BrandingService $brandingService,
         Breadcrumb $breadcrumb,
         CountyService $countyService,
@@ -532,7 +560,7 @@ class DemosPlanStatementController extends BaseController
             }
 
             $manualSortScope = 'orga:'.$this->currentUser->getUser()->getOrganisationId();
-        } elseif (true === $released) {
+        } elseif ($released) {
             if ('group' === $scope) {
                 $this->permissions->checkPermission('area_statements_released_group');
             } else {
@@ -699,7 +727,7 @@ class DemosPlanStatementController extends BaseController
         $templateVars['procedureBehaviorDefinition'] = $currentProcedure->getProcedureBehaviorDefinition();
         $templateVars['statementFormDefinition'] = $currentProcedure->getStatementFormDefinition();
 
-        return $this->renderTemplate(
+        return $this->render(
             $template,
             [
                 'templateVars' => $templateVars,
@@ -715,16 +743,15 @@ class DemosPlanStatementController extends BaseController
     /**
      * Stellungahme mitzeichnen.
      *
-     * @DplanPermissions("feature_statements_vote_may_vote")
-     *
      * @param string $procedure Procedure Id
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('feature_statements_vote_may_vote')]
     #[Route(name: 'DemosPlan_statement_public_vote', path: '/verfahren/{procedure}/stellungnahmen/public/{statementID}/vote')]
-    public function votePublicStatementAction(
+    public function votePublicStatement(
         BrandingService $brandingService,
         MapService $mapService,
         ProcedureService $procedureService,
@@ -778,7 +805,7 @@ class DemosPlanStatementController extends BaseController
 
         $templateVars['procedure'] = $procedureService->getProcedure($procedureId);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/new_public_participation_statement_vote.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -791,8 +818,6 @@ class DemosPlanStatementController extends BaseController
     /**
      * Stellungahme mitzeichnen.
      *
-     * @DplanPermissions("feature_statements_like_may_like")
-     *
      * @param string $procedure
      * @param string $statementId
      *
@@ -800,14 +825,15 @@ class DemosPlanStatementController extends BaseController
      *
      * @throws Exception
      */
+    #[DplanPermissions('feature_statements_like_may_like')]
     #[Route(name: 'DemosPlan_statement_public_like', path: '/verfahren/{procedure}/stellungnahmen/public/{statementId}/vote/anonymous')]
-    public function likePublicStatementAction(
+    public function likePublicStatement(
         EventDispatcherPostInterface $eventDispatcherPost,
         Request $request,
         StatementService $statementService,
         $procedure,
         $statementId,
-    ) {
+    ): RedirectResponse {
         $response = $this->redirectToRoute('DemosPlan_procedure_public_detail', ['procedure' => $procedure]);
 
         $event = new RequestValidationStrictEvent(
@@ -842,32 +868,36 @@ class DemosPlanStatementController extends BaseController
      * initially use area_demosplan, specific permissions are checked below
      *
      * @throws Throwable
-     *
-     * @DplanPermissions("area_demosplan")
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(name: 'DemosPlan_statement_public_participation_new_ajax', methods: 'POST', path: '/verfahren/{procedure}/stellungnahmen/public/neu/ajax', options: ['expose' => true])]
-    public function newPublicStatementAjaxAction(
+    public function newPublicStatementAjax(
         CurrentProcedureService $currentProcedureService,
+        EventDispatcherInterface $eventDispatcher,
         EventDispatcherPostInterface $eventDispatcherPost,
+        FileUploadService $fileUploadService,
+        ParameterBagInterface $parameterBag,
         RateLimiterFactory $anonymousStatementLimiter,
         Request $request,
         StatementHandler $statementHandler,
-        FileUploadService $fileUploadService,
-        EventDispatcherInterface $eventDispatcher,
         string $procedure,
-    ) {
+    ): JsonResponse {
         try {
             if (!$this->permissions->hasPermissionsetWrite()) {
                 throw new Exception('In der aktuellen Phase darf keine Stellungnahme abgegeben werden');
             }
 
             $limiter = $anonymousStatementLimiter->create($request->getSession()->getId());
+            $isLoggedIn = $this->currentUser->getUser()->isLoggedIn();
 
             // avoid brute force attacks
             // if the limit bites during development or testing, you can increase the limit in the config via setting
             // framework.rate_limiter.anonymous_statement.limit in the parameters.yml to a higher value
-            if (false === $limiter->consume(1)->isAccepted()) {
-                throw new TooManyRequestsHttpException();
+            if (!$isLoggedIn && false === $limiter->consume(1)->isAccepted()) {
+                if (true === $parameterBag->get('ratelimit_public_statement_enable')) {
+                    throw new TooManyRequestsHttpException();
+                }
+                $this->logger->warning('Rate limiting for public statement is disabled but would have been active now.', ['ip' => $request->getClientIp()]);
             }
             $requestPost = $request->request->all();
             $this->logger->debug('Received ajaxrequest to save statement', ['request' => $requestPost, 'procedure' => $procedure]);
@@ -887,13 +917,12 @@ class DemosPlanStatementController extends BaseController
             $immediateSubmit = false;
             if ($this->permissions->hasPermission('feature_draft_statement_citizen_immediate_submit')) {
                 $immediateSubmit = $request->query->has('immediate_submit')
-                    && true === (bool) $request->query->get('immediate_submit');
+                    && (bool) $request->query->get('immediate_submit');
             }
 
             // Abgabe der Stellungnahme als angemeldeter Nutzer via Beteiligungsebene
             // ggf. trotzdem als Bürger
-            if (true === $this->currentUser->getUser()->isLoggedIn()
-                && !$this->permissions->hasPermission('feature_statements_participation_area_always_citizen')
+            if ($isLoggedIn && !$this->permissions->hasPermission('feature_statements_participation_area_always_citizen')
             ) {
                 $this->permissions->checkPermission('feature_new_statement');
 
@@ -966,7 +995,7 @@ class DemosPlanStatementController extends BaseController
                 $template = '@DemosPlanCore/DemosPlanProcedure/public_detail_form_confirmation.html.twig';
             }
 
-            $responseHtml = $this->renderTemplate(
+            $responseHtml = $this->render(
                 $template,
                 [
                     'templateVars' => [
@@ -1002,14 +1031,13 @@ class DemosPlanStatementController extends BaseController
     /**
      * Detailansicht einer Stellungnahme in der Bürgeransicht.
      *
-     * @DplanPermissions("area_statements_public_published_public")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_statements_public_published_public')]
     #[Route(name: 'DemosPlan_statement_public_participation_published', path: '/verfahren/{procedure}/stellungnahme/{statementID}')]
-    public function publicStatementDetailAction(
+    public function publicStatementDetail(
         StatementService $statementService,
         string $statementID,
     ) {
@@ -1025,7 +1053,7 @@ class DemosPlanStatementController extends BaseController
             $templateVars['statement']['votesNum'] = $countVotes;
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_public_participation_published_entry.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -1037,20 +1065,19 @@ class DemosPlanStatementController extends BaseController
     /**
      * Edit Statement.
      *
-     * @DplanPermissions({"area_statements_draft","feature_statements_draft_edit"})
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions(['area_statements_draft', 'feature_statements_draft_edit'])]
     #[Route(name: 'DemosPlan_statement_edit', path: '/verfahren/{procedure}/stellungnahmen/{statementID}/edit', options: ['expose' => true])]
-    public function editStatementAction(
+    public function editStatement(
         FileUploadService $fileUploadService,
         MessageBagInterface $messageBag,
         Request $request,
         TranslatorInterface $translator,
         string $procedure,
-    ) {
+    ): RedirectResponse {
         $urlFragment = '';
 
         $inData = $this->prepareIncomingData($request, 'statementedit');
@@ -1116,7 +1143,7 @@ class DemosPlanStatementController extends BaseController
      * @throws Throwable
      */
     #[Route(name: 'DemosPlan_statement_send', path: '/verfahren/{procedure}/stellungnahmen/{statementID}/send', options: ['expose' => true])]
-    public function sendStatementAction(Breadcrumb $breadcrumb, Request $request, TranslatorInterface $translator, $procedure, $statementID)
+    public function sendStatementViaEmail(Breadcrumb $breadcrumb, Request $request, TranslatorInterface $translator, $procedure, $statementID)
     {
         $templateVars = [];
         try {
@@ -1226,7 +1253,7 @@ class DemosPlanStatementController extends BaseController
             $templateVars['statementID'] = $statementID;
             $templateVars['procedureLayer'] = 'participation';
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanStatement/send_statement.html.twig',
                 [
                     'templateVars' => $templateVars,
@@ -1240,9 +1267,8 @@ class DemosPlanStatementController extends BaseController
         }
     }
 
+    #[DplanPermissions('feature_statements_draft_versions')]
     /**
-     * @DplanPermissions("feature_statements_draft_versions")
-     *
      * @param string $procedure   ID of the Procedure
      * @param string $statementID ID of the DraftStatement
      *
@@ -1253,7 +1279,7 @@ class DemosPlanStatementController extends BaseController
      */
     #[Route(name: 'DemosPlan_statement_versions', path: '/verfahren/{procedure}/stellungnahmen/{statementID}/version', options: ['expose' => true])]
     #[Route(name: 'DemosPlan_statement_versiondetail', path: '/verfahren/{procedure}/stellungnahmen/{statementID}/version/{versionID}')]
-    public function versionsOfStatementAction(
+    public function versionsOfStatement(
         Request $request,
         RouterInterface $router,
         string $procedure,
@@ -1285,7 +1311,7 @@ class DemosPlanStatementController extends BaseController
         $refererRoute = $routeInfos['_route'] ?? '';
         $templateVars['backToUrl'] = $refererRoute;
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/versions_of_statement.html.twig',
             [
                 'templateVars'    => $templateVars,
@@ -1299,15 +1325,14 @@ class DemosPlanStatementController extends BaseController
     /**
      * Veröffentliche die Stellungnahme für andere TöB.
      *
-     * @DplanPermissions("feature_statements_released_group_submit")
-     *
      * @param string $procedure
      * @param string $statementID
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('feature_statements_released_group_submit')]
     #[Route(name: 'DemosPlan_statement_publish', path: '/verfahren/{procedure}/stellungnahme/{statementID}/publish', options: ['expose' => true])]
-    public function publishStatementAction(
+    public function publishStatement(
         DraftStatementHandler $draftStatementHandler,
         TranslatorInterface $translator,
         MessageBagInterface $messageBag,
@@ -1340,26 +1365,23 @@ class DemosPlanStatementController extends BaseController
         );
     }
 
+    #[DplanPermissions('feature_statements_released_group_submit')]
     /**
-     * @DplanPermissions("feature_statements_released_group_submit")
-     *
      * Ziehe die Veröffentlichung der Stellungnahme für andere TöB zurück.
      *
      * @param string $procedure
      * @param string $statementID
      *
-     * @return RedirectResponse
-     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_statement_unpublish', path: '/verfahren/{procedure}/stellungnahme/{statementID}/unpublish', options: ['expose' => true])]
-    public function unpublishStatementAction(
+    public function unpublishStatement(
         DraftStatementHandler $draftStatementHandler,
         TranslatorInterface $translator,
         MessageBagInterface $messageBag,
         $procedure,
         $statementID,
-    ) {
+    ): RedirectResponse {
         $userRole = $this->currentUser->getUser()->getDplanRolesString();
 
         if (Role::CITIZEN !== $userRole) {
@@ -1389,8 +1411,6 @@ class DemosPlanStatementController extends BaseController
     /**
      * Get draftStatement.
      *
-     * @DplanPermissions("area_statements")
-     *
      * @param string $procedureId      Needed for initializing
      * @param string $draftStatementId
      *
@@ -1398,8 +1418,9 @@ class DemosPlanStatementController extends BaseController
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_statements')]
     #[Route(name: 'DemosPlan_statement_get_ajax', path: '/rest/draftStatement/get/{procedureId}/{draftStatementId}', options: ['expose' => true])]
-    public function getDraftStatementAjaxAction(DocumentHandler $documentHandler, Request $request, StatementHandler $statementHandler, string $procedureId, $draftStatementId)
+    public function getDraftStatementAjax(DocumentHandler $documentHandler, StatementHandler $statementHandler, string $procedureId, $draftStatementId): JsonResponse
     {
         try {
             $draftStatement = $statementHandler->getDraftStatement($draftStatementId);
@@ -1419,13 +1440,9 @@ class DemosPlanStatementController extends BaseController
         }
     }
 
-    /**
-     * @DplanPermissions("area_statements")
-     *
-     * @return JsonResponse
-     */
+    #[DplanPermissions('area_statements')]
     #[Route(name: 'DemosPlan_statement_get_count_internal', path: '/rest/statement/count/{procedure}')]
-    public function getStatementCountInternalAction(Request $request, StatementHandler $statementHandler, string $procedure)
+    public function getStatementCountInternal(StatementHandler $statementHandler, string $procedure): JsonResponse
     {
         $userRole = $this->currentUser->getUser()->getDplanRolesString();
         $statementCounts = $statementHandler->getStatementCounts(
@@ -1446,7 +1463,7 @@ class DemosPlanStatementController extends BaseController
     {
         $session = $request->getSession();
 
-        if (null === $session) {
+        if (!$session instanceof SessionInterface) {
             throw new BadMethodCallException('Can not save draftListFilters, because the session is null');
         }
 
@@ -1467,7 +1484,7 @@ class DemosPlanStatementController extends BaseController
 
         /** @var DraftStatementListFilters $draftListFilterVO */
         $draftListFilterVO = null;
-        if (!($draftFilterList[$procedureId][$templateName] instanceof DraftStatementListFilters)) {
+        if (!$draftFilterList[$procedureId][$templateName] instanceof DraftStatementListFilters) {
             $draftListFilterVO = new DraftStatementListFilters();
         } else {
             $draftListFilterVO = $draftFilterList[$procedureId][$templateName];
@@ -1520,7 +1537,7 @@ class DemosPlanStatementController extends BaseController
     {
         $session = $request->getSession();
 
-        if (null === $session) {
+        if (!$session instanceof SessionInterface) {
             throw new BadMethodCallException('Can not get draftListFilters, because the session is null');
         }
 
@@ -1697,7 +1714,7 @@ class DemosPlanStatementController extends BaseController
 
         $filename = $procedure->getName().$file->getName();
 
-        $response = new Response($file->getContent(), 200);
+        $response = new Response($file->getContent(), Response::HTTP_OK);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($filename));
@@ -1752,7 +1769,7 @@ class DemosPlanStatementController extends BaseController
     protected function deleteStatement(TranslatorInterface $translator, $_route, $procedure, bool $released, string $draftStatementId): RedirectResponse
     {
         try {
-            if (true === $released) {
+            if ($released) {
                 $this->permissions->checkPermission(
                     'feature_statements_released_group_delete'
                 );
@@ -1806,7 +1823,7 @@ class DemosPlanStatementController extends BaseController
         $redirectRoute = 'DemosPlan_statement_list_draft';
 
         // Storage Formulardaten uebergeben
-        if (0 < count($statementIds)) {
+        if ([] !== $statementIds) {
             $storageResult = $this->draftStatementHandler->releaseHandler(
                 $statementIds,
                 $this->currentUser->getUser(),
@@ -2170,7 +2187,7 @@ class DemosPlanStatementController extends BaseController
         // trim whitespaces
         $to = \array_map('\trim', $emailAddresses);
         $to = \array_filter($to);
-        if (0 === count($to)) {
+        if ([] === $to) {
             $this->getMessageBag()->add(
                 'error',
                 $translator->trans('error.missing.emailAddress')
@@ -2178,7 +2195,7 @@ class DemosPlanStatementController extends BaseController
             throw new InvalidArgumentException('missing email address');
         }
         $to = \array_filter($to, fn ($emailTo) => filter_var($emailTo, FILTER_VALIDATE_EMAIL));
-        if (0 === count($to)) {
+        if ([] === $to) {
             $this->getMessageBag()->add(
                 'error',
                 $translator->trans('error.email.invalid')
@@ -2228,7 +2245,7 @@ class DemosPlanStatementController extends BaseController
         // wenn einzelne Stellungnahmen ausgewählt wurde, speicher sie in einem string
         $itemsToExport = $requestPost->all('item_check');
 
-        if (\is_array($itemsToExport) && 0 < count($itemsToExport)) {
+        if (\is_array($itemsToExport) && [] !== $itemsToExport) {
             $itemsToExport = \implode(',', $itemsToExport);
         } else {
             $exportIds = [];
@@ -2317,11 +2334,10 @@ class DemosPlanStatementController extends BaseController
      *
      * @throws ProcedureNotFoundException
      * @throws Exception
-     *
-     * @DplanPermissions({"feature_statements_import_excel"})
      */
+    #[DplanPermissions('feature_statements_import_excel')]
     #[Route(name: 'DemosPlan_statement_import', methods: ['POST'], path: '/verfahren/{procedureId}/stellungnahmen/import', options: ['expose' => true])]
-    public function importStatementsAction(
+    public function importStatements(
         FileService $fileService,
         ProcedureService $procedureService,
         XlsxStatementImporterFactory $importerFactory,
@@ -2332,7 +2348,7 @@ class DemosPlanStatementController extends BaseController
         $requestPost = $request->request->all();
         $procedure = $procedureService->getProcedure($procedureId);
 
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 
@@ -2380,14 +2396,14 @@ class DemosPlanStatementController extends BaseController
      * @throws ProcedureNotFoundException
      * @throws Exception
      */
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions(permissions: ['feature_statements_participation_import_excel'])]
+    #[DplanPermissions('feature_statements_participation_import_excel')]
     #[Route(
         path: '/verfahren/{procedureId}/stellungnahmen/beteilugengsimport',
         name: 'DemosPlan_statement_participation_import',
         options: ['expose' => true],
         methods: [Request::METHOD_POST])
     ]
-    public function importParticipationStatementsAction(
+    public function importParticipationStatements(
         FileService $fileService,
         ProcedureService $procedureService,
         XlsxStatementImporterFactory $importerFactory,
@@ -2398,7 +2414,7 @@ class DemosPlanStatementController extends BaseController
         $requestPost = $request->request->all();
         $procedure = $procedureService->getProcedure($procedureId);
 
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 
@@ -2495,10 +2511,17 @@ class DemosPlanStatementController extends BaseController
                 );
             }
             throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
-        } catch (DuplicateInternIdException $e) {
+        } catch (DuplicateInternIdException) {
             $this->getMessageBag()->add(
                 'error',
                 'statements.import.error.document.duplicate.internid'
+            );
+            throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
+        } catch (MissingExcelDataException) {
+            $this->getMessageBag()->add(
+                'error',
+                'statements.import.error.missing.data',
+                ['doc' => $fileInfo->getFileName()]
             );
             throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
         } catch (Exception $e) {
@@ -2517,7 +2540,7 @@ class DemosPlanStatementController extends BaseController
      */
     protected function createErrorResponse(string $procedureId, array $errors): Response
     {
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_excel_import_errors.html.twig',
             [
                 'procedure'  => $procedureId,

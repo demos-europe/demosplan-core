@@ -36,7 +36,7 @@ class ElasticsearchFilterArrayTransformer
     public function generateFilterArrayFromEsBucket($bucket, $labelMap = [], $labelKey = 'key', $valueKey = 'key', $countKey = 'doc_count')
     {
         $filter = [];
-        if ((!is_array($bucket) || 0 === \count($bucket)) && 0 === \count($labelMap)) {
+        if ((!is_array($bucket) || [] === $bucket) && 0 === \count($labelMap)) {
             return $filter;
         }
 
@@ -82,6 +82,7 @@ class ElasticsearchFilterArrayTransformer
                     $this->logger->warning('Could not compare arrays',
                         ['a' => $a, 'b' => $b]
                     );
+
                     // what should be returned in that case?
                     return 0;
                 }

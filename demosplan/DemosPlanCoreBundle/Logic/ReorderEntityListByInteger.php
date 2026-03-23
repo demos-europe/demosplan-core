@@ -29,7 +29,7 @@ class ReorderEntityListByInteger
     public function __construct(
         private int $newIndex,
         string $entityId,
-        private readonly Collection $allAffectedEntities
+        private readonly Collection $allAffectedEntities,
     ) {
         $this->oldIndex = $this->getMovedEntity($entityId)->getSortIndex();
     }
@@ -63,7 +63,7 @@ class ReorderEntityListByInteger
     private function getMovedEntity(string $entityId): SortableInterface
     {
         return $this->allAffectedEntities->filter(
-            static fn(SortableInterface $entity) => $entity->getId() === $entityId
+            static fn (SortableInterface $entity) => $entity->getId() === $entityId
         )->first();
     }
 
@@ -73,7 +73,7 @@ class ReorderEntityListByInteger
     private function getEntitiesBetweenIndices(int $newIndex, int $oldIndex, Collection $entities): Collection
     {
         $lowIndex = $newIndex < $oldIndex ? $newIndex : $oldIndex;
-        $highIndex = $newIndex < $oldIndex ? $oldIndex : $newIndex;
+        $highIndex = max($oldIndex, $newIndex);
 
         return $entities->filter(
             static function (SortableInterface $entity) use ($lowIndex, $highIndex): bool {
@@ -134,8 +134,8 @@ class ReorderEntityListByInteger
         // resort them in order to get the lowest currently used index.
 
         $lowestIndex = collect($entities)
-            ->map(static fn(SortableInterface $entity): int => $entity->getSortIndex())
-            ->sort(static fn(int $indexA, int $indexB): int => $indexA - $indexB)
+            ->map(static fn (SortableInterface $entity): int => $entity->getSortIndex())
+            ->sort(static fn (int $indexA, int $indexB): int => $indexA - $indexB)
             ->first();
 
         $entitiesCount = $entities->count();

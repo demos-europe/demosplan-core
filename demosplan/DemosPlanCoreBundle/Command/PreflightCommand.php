@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -25,11 +26,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @see readme.md#Updating-a-project
  */
+#[AsCommand(name: 'dplan:preflight', description: 'Manages Git branches, updating code and composer+npm updates')]
 class PreflightCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:preflight';
-    protected static $defaultDescription = 'Manages Git branches, updating code and composer+npm updates';
-
     public function configure(): void
     {
         $this->addOption(
@@ -58,6 +57,7 @@ class PreflightCommand extends CoreCommand
         $io = new SymfonyStyle($input, $output);
 
         $io->title('Update: Preflight');
+
         /*
          * - git checkout -- .
          * - git

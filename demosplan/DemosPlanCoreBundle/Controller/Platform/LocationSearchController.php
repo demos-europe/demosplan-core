@@ -11,24 +11,23 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class LocationSearchController extends BaseController
 {
     /**
      * Suggest locations.
-     *
-     * @DplanPermissions("area_demosplan")
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/suggest/location/json', name: 'core_suggest_location_json', options: ['expose' => true])]
-    public function searchLocationJsonAction(Request $request, LocationService $locationService, CurrentUserInterface $currentUser): Response
+    public function searchLocationJson(Request $request, LocationService $locationService, CurrentUserInterface $currentUser): Response
     {
         try {
             $query = $request->query->all();

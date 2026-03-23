@@ -111,7 +111,7 @@
     />
 
     <dp-move-statement-modal
-      v-if="hasPermission('feature_statement_move_to_procedure')"
+      v-if="hasPermission('feature_statement_move_to_procedure') && moveStatementModal.show"
       :accessible-procedures="accessibleProcedures"
       :inaccessible-procedures="inaccessibleProcedures"
       :procedure-id="procedureId"
@@ -431,10 +431,6 @@ export default {
     },
   },
 
-  emits: [
-    'assessmentTable:loaded',
-  ],
-
   data () {
     return {
       filterHash: this.initFilterHash,
@@ -456,6 +452,7 @@ export default {
       'assignEntityModal',
       'consolidateModal',
       'copyStatementModal',
+      'moveStatementModal',
       'isLoading',
     ]),
 
@@ -819,8 +816,6 @@ export default {
              * to ensure dom manipulation of Stickier is executed last.
              */
             this.stickyHeader = new Stickier(this.$refs.filter.$refs.header, this.$refs.root, 0)
-
-            this.$root.$emit('assessmentTable:loaded')
           })
       })
 

@@ -47,10 +47,12 @@
 <template>
   <dp-flyout
     ref="flyout"
-    align="left"
+    :align="flyoutAlign"
+    :appearance="appearance"
     :data-cy="category.label"
-    variant="dark"
+    :flyout-position="flyoutPosition"
     :padded="false"
+    :variant="variant"
     @close="handleClose"
     @open="handleOpen"
   >
@@ -90,9 +92,15 @@
 
     <div v-else>
       <div
-        :style="maxHeight"
+        :style="flyoutHeightStyle"
         class="w-full border--bottom overflow-y-scroll u-p-0_5"
       >
+        <dp-inline-notification
+          v-if="hint"
+          class="mb-2"
+          :message="Translator.trans('filter.hint.or.logic')"
+          type="info"
+        />
         <ul
           v-if="ungroupedOptions?.length > 0"
           class="o-list line-height--1_6"
@@ -131,7 +139,7 @@
         </span>
       </div>
       <div
-        v-if="itemsSelected.length > 0"
+        v-if="itemsSelected.length"
         class="flow-root"
       >
         <h3
@@ -185,6 +193,7 @@ import {
   dataTableSearch,
   DpButton,
   DpFlyout,
+  DpInlineNotification,
   DpLoading,
   DpResettableInput,
   hasOwnProp,
@@ -198,6 +207,7 @@ export default {
   components: {
     DpButton,
     DpFlyout,
+    DpInlineNotification,
     DpLoading,
     DpResettableInput,
     FilterFlyoutCheckbox,
@@ -210,12 +220,25 @@ export default {
       default: () => ({}),
     },
 
+    appearance: {
+      required: false,
+      type: String,
+      default: 'interactive',
+      validator: (prop) => ['interactive', 'basic'].includes(prop),
+    },
+
     category: {
       type: Object,
       required: true,
       validator: prop => {
         return hasOwnProp(prop, 'label') && hasOwnProp(prop, 'id')
       },
+    },
+
+    hint: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     // Contains ids of applied filters from this and the neighboring filterFlyouts
@@ -238,6 +261,20 @@ export default {
       type: String,
       required: false,
       default: '',
+    },
+
+    flyoutAlign: {
+      required: false,
+      type: String,
+      default: 'right',
+      validator: (prop) => ['left', 'right', 'top'].includes(prop),
+    },
+
+    flyoutPosition: {
+      required: false,
+      type: String,
+      default: 'absolute',
+      validator: (prop) => ['relative', 'absolute'].includes(prop),
     },
 
     operator: {
@@ -264,11 +301,19 @@ export default {
         return Object.keys(prop).length === 2 && hasOwnProp(prop, 'groupedOptions') && hasOwnProp(prop, 'ungroupedOptions')
       },
     },
+
+    variant: {
+      required: false,
+      type: String,
+      default: 'light',
+      validator: (prop) => ['light', 'dark'].includes(prop),
+    },
   },
 
   emits: [
     'filterApply',
     'filterOptions:request',
+    'update:expanded',
   ],
 
   data () {
@@ -314,6 +359,13 @@ export default {
               operator: 'IS NULL',
             },
           }
+
+          if (this.memberOf) {
+            filter[id].condition = {
+              ...filter[id].condition,
+              memberOf: this.memberOf,
+            }
+          }
         } else {
           filter[id] = {
             condition: {
@@ -343,20 +395,15 @@ export default {
       return this.getIsLoadingByCategoryId(this.category.id) ?? false
     },
 
-    /*
-     * The maxHeight for the scrollable options is calculated to better match devices.
-     */
-    maxHeight () {
-      const offsetTop = this.$el?.getBoundingClientRect().top + document.documentElement.scrollTop
-      const searchFieldHeight = 58
-      const buttonRowHeight = 58
-      /*
-       * The "26" equals the height of one option, whereas the
-       * 42 equals the height of the "Active Filters" row.
-       */
-      const selectedItemsHeight = (this.itemsSelected.length + 1) * 26 + 42
-      const subtractedHeight = selectedItemsHeight + offsetTop + searchFieldHeight + buttonRowHeight
-      return `max-height: calc(100vh - ${subtractedHeight}px);min-height: 100px;`
+    flyoutHeightStyle () {
+      const scrollOffset = this.getParentScrollTop()
+      const elementTop = this.$el?.getBoundingClientRect().top ?? 0
+      const elementOffset = elementTop + scrollOffset
+
+      const maxHeight = this.getMaxHeight(elementOffset)
+      const minHeight = this.getMinHeight()
+
+      return `max-height: ${maxHeight};min-height: ${minHeight}px;`
     },
 
     isExpanded () {
@@ -437,6 +484,40 @@ export default {
       this.$refs.flyout.close()
     },
 
+    /**
+     * The maxHeight for the scrollable options is calculated to better match devices.
+     */
+    getMaxHeight (elementOffset) {
+      const ACTIVE_FILTERS_ROW_HEIGHT = 42
+      const BUTTON_ROW_HEIGHT = 58
+      const OPTION_HEIGHT = 26
+      const SEARCH_FIELD_HEIGHT = 58
+
+      // Dynamic heights
+      const selectedItemsHeight = (this.itemsSelected.length + 1) * OPTION_HEIGHT + ACTIVE_FILTERS_ROW_HEIGHT
+      const totalUsedHeight = selectedItemsHeight + elementOffset + SEARCH_FIELD_HEIGHT + BUTTON_ROW_HEIGHT
+
+      return `calc(100vh - ${totalUsedHeight}px)`
+    },
+
+    getMinHeight () {
+      const MIN_HEIGHT_SMALL = 100
+      const MIN_HEIGHT_LARGE = 300
+      const hasManyOptions = this.groupedOptions.length > 10 || this.ungroupedOptions.length > 10
+
+      return hasManyOptions ? MIN_HEIGHT_LARGE : MIN_HEIGHT_SMALL
+    },
+
+    getParentScrollTop () {
+      const modal = this.$el?.closest('.o-modal__body')
+
+      if (modal) {
+        return modal.scrollTop ?? 0
+      }
+
+      return document.documentElement.scrollTop || 0
+    },
+
     isChecked (id) {
       return this.currentQuery.includes(id)
     },
@@ -451,11 +532,13 @@ export default {
       this.resetSearch()
       this.restoreAppliedFilterQuery()
       this.currentQuery = JSON.parse(JSON.stringify(this.appliedQuery))
+      this.$emit('update:expanded', this.isExpanded)
     },
 
     handleOpen () {
       this.setIsExpanded({ categoryId: this.category.id, isExpanded: true })
       this.requestFilterOptions()
+      this.$emit('update:expanded', this.isExpanded)
     },
 
     /**
@@ -464,11 +547,27 @@ export default {
      * @param {boolean} [isInitialWithQuery=false] - Indicates if it is an initial request with query.
      */
     requestFilterOptions (isInitialWithQuery = false) {
+      // For OR groups (memberOf is set), exclude this group's own filters so counts always show full availability
+      let filter = this.getFilterQuery
+
+      if (this.memberOf && !isInitialWithQuery) {
+        filter = Object.fromEntries(
+          Object.entries(this.getFilterQuery).filter(([key, val]) => {
+            if (key === this.memberOf) {
+              return false
+            }
+
+            return val.condition?.memberOf !== this.memberOf
+          }),
+        )
+      }
+
       this.$emit('filterOptions:request', {
         additionalQueryParams: this.additionalQueryParams,
-        filter: this.getFilterQuery,
+        filter,
         isInitialWithQuery,
         path: this.path,
+        currentQuery: this.currentQuery,
       })
     },
 

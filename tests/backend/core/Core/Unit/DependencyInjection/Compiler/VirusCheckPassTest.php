@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace Tests\Core\Core\Unit\DependencyInjection\Compiler;
 
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\VirusCheckPass;
@@ -73,7 +74,7 @@ class VirusCheckPassTest extends UnitTestCase
             ->with('avscan_implementation')
             ->willReturn($implementation);
 
-        $serviceId = 'demosplan\\DemosPlanCoreBundle\\Tools\\' . $implementation;
+        $serviceId = 'demosplan\\DemosPlanCoreBundle\\Tools\\'.$implementation;
 
         $this->containerBuilderMock->method('hasDefinition')
             ->with($serviceId)
@@ -93,7 +94,7 @@ class VirusCheckPassTest extends UnitTestCase
     }
 
     /**
-     * Provides valid implementation names and their expected class names
+     * Provides valid implementation names and their expected class names.
      */
     public function validImplementationProvider(): array
     {
@@ -106,7 +107,7 @@ class VirusCheckPassTest extends UnitTestCase
 
     /**
      * Tests that when the requested implementation doesn't exist,
-     * it defaults to VirusCheckHttp
+     * it defaults to VirusCheckHttp.
      */
     public function testProcessWithInvalidImplementation(): void
     {

@@ -46,7 +46,7 @@ class GdprConsentRevokeTokenRepository extends CoreRepository
      */
     public function updateAsUsed(GdprConsentRevokeToken $gdprConsentRevokeToken)
     {
-        assert(null !== $gdprConsentRevokeToken->getEmailAddress());
+        assert($gdprConsentRevokeToken->getEmailAddress() instanceof EmailAddress);
         $em = $this->getEntityManager();
         $gdprConsentRevokeToken->setEmailAddress(null);
         $gdprConsentRevokeToken->setStatements(new ArrayCollection());

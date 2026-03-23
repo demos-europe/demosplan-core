@@ -602,7 +602,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $this->segmentPlaces = new ArrayCollection();
         $this->phase = new ProcedurePhase('configuration', '');
         $this->publicParticipationPhase = new ProcedurePhase('configuration', '');
-        $this->customFieldConfiguration = null;
     }
 
     /**
@@ -703,7 +702,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     public function getOrgaId()
     {
         $return = null;
-        if (isset($this->orga)) {
+        if (null !== $this->orga) {
             $this->orgaId = $this->orga->getId();
             $return = $this->orga->getId();
         }
@@ -1962,7 +1961,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
             return '';
         }
         $customer = $orga->getMainCustomer();
-        if (null === $customer) {
+        if (!$customer instanceof CustomerInterface) {
             return '';
         }
 

@@ -120,6 +120,7 @@
         <statement-meta-attachments
           :initial-attachments="attachments"
           :editable="editable"
+          :is-source-and-coupled-procedure="isSourceAndCoupledProcedure"
           :procedure-id="procedure.id"
           :statement-id="statement.id"
           @change="(value) => emitInput('attachments', value)"
@@ -200,6 +201,12 @@ export default {
     editable: {
       required: false,
       type: Boolean,
+      default: false,
+    },
+
+    isSourceAndCoupledProcedure: {
+      type: Boolean,
+      required: false,
       default: false,
     },
 
@@ -370,6 +377,14 @@ export default {
       }
     },
 
+    scrollToItemFromHash () {
+      const hash = globalThis.location.hash.slice(1)
+
+      if (hash) {
+        this.setActiveItem(hash)
+      }
+    },
+
     setActiveItem (id) {
       this.activeItem = id
       this.scrollToItem(id)
@@ -391,6 +406,7 @@ export default {
 
   mounted () {
     window.addEventListener('scroll', this.handleScroll)
+    this.scrollToItemFromHash()
   },
 
   beforeUnmount () {

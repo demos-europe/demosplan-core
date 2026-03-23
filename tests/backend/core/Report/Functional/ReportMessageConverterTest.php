@@ -49,7 +49,6 @@ class ReportMessageConverterTest extends FunctionalTestCase
 
     public function testConvertProcedureUpdateMessage()
     {
-        self::markSkippedForCIIntervention();
 
         $reportEntry = new ReportEntry();
         $reportEntry->setGroup(ReportEntry::GROUP_PROCEDURE)
@@ -109,11 +108,22 @@ class ReportMessageConverterTest extends FunctionalTestCase
             $message
         );
 
+        // Test authorized users added
         $reportEntry->setMessage('{"oldAuthorizedUsers":"Sven Nordwind, ft-fpatbko-N Vorname ft-fpatbko-N Nachname, ft-fpsb-N Vorname ft-fpsb-N Nachname, Hannes Rudzik, Walter West, Horst Hohenfeld, Maya Hohenfeld, ft-fpa-N Nachname ft-fpa-N Vorname","newAuthorizedUsers":"Sven Nordwind, ft-fpatbko-N Vorname ft-fpatbko-N Nachname, ft-fpsb-N Vorname ft-fpsb-N Nachname, Hannes Rudzik, Selta Seewind, Walter West, Horst Hohenfeld, Maya Hohenfeld, Fachplaner Admin, ft-fpa-N Nachname ft-fpa-N Vorname"}');
         $message = $this->sut->convertMessage($reportEntry);
         self::assertEquals($this->translator->trans('text.protocol.procedure.authorized.user.changed', [
             '%oldAuthorizedUsers%' => 'Sven Nordwind, ft-fpatbko-N Vorname ft-fpatbko-N Nachname, ft-fpsb-N Vorname ft-fpsb-N Nachname, Hannes Rudzik, Walter West, Horst Hohenfeld, Maya Hohenfeld, ft-fpa-N Nachname ft-fpa-N Vorname',
             '%newAuthorizedUsers%' => 'Sven Nordwind, ft-fpatbko-N Vorname ft-fpatbko-N Nachname, ft-fpsb-N Vorname ft-fpsb-N Nachname, Hannes Rudzik, Selta Seewind, Walter West, Horst Hohenfeld, Maya Hohenfeld, Fachplaner Admin, ft-fpa-N Nachname ft-fpa-N Vorname',
+        ]),
+            $message
+        );
+
+        // Test authorized users removed (this scenario was previously not detected)
+        $reportEntry->setMessage('{"oldAuthorizedUsers":"User A, User B, User C","newAuthorizedUsers":"User A, User C"}');
+        $message = $this->sut->convertMessage($reportEntry);
+        self::assertEquals($this->translator->trans('text.protocol.procedure.authorized.user.changed', [
+            '%oldAuthorizedUsers%' => 'User A, User B, User C',
+            '%newAuthorizedUsers%' => 'User A, User C',
         ]),
             $message
         );
@@ -143,7 +153,9 @@ class ReportMessageConverterTest extends FunctionalTestCase
         );
         $reportEntry->setMessage('{"oldStartDate":1537263153,"newStartDate":1537228800,"oldEndDate":1537263153,"newEndDate":1537228800,"oldPublicStartDate":1537263153,"newPublicStartDate":1537228800,"oldPublicEndDate":1537263153,"newPublicEndDate":1537228800}');
         $message = $this->sut->convertMessage($reportEntry);
-        self::assertEquals('TöB-Beteiligung: Zeitraum geändert von 18.09.2018 - 18.09.2018 in 18.09.2018 - 18.09.2018<br />Öffentlichkeitsbeteiligung: Zeitraum geändert von 18.09.2018 - 18.09.2018 in 18.09.2018 - 18.09.2018',
+        $agencyParticipation = $this->translator->trans('invitable_institution.participation');
+        $publicParticipation = $this->translator->trans('public.participation');
+        self::assertEquals($agencyParticipation.': Zeitraum geändert von 18.09.2018 - 18.09.2018 in 18.09.2018 - 18.09.2018<br />'.$publicParticipation.': Zeitraum geändert von 18.09.2018 - 18.09.2018 in 18.09.2018 - 18.09.2018',
             $message
         );
     }
@@ -451,6 +463,53 @@ class ReportMessageConverterTest extends FunctionalTestCase
             '%newExternId%'         => 'M10002',
         ]),
             $message);
+    }
+
+    public function testConvertProcedureChangePhasesMessageIncludesAutoSwitchTimestamp(): void
+    {
+        $timestamp = 1706788800; // 2024-02-01 12:00:00 UTC
+        $expectedDate = date('d.m.Y', $timestamp);
+        $expectedTime = date('H:i', $timestamp);
+
+        $messageData = [
+            'oldPhase'             => 'configuration',
+            'newPhase'             => 'participation',
+            'createdBySystem'      => true,
+            'autoSwitchExecutedAt' => $timestamp,
+        ];
+
+        $reportEntry = new ReportEntry();
+        $reportEntry->setGroup(ReportEntry::GROUP_PROCEDURE)
+            ->setCategory(ReportEntry::CATEGORY_CHANGE_PHASES)
+            ->setMessage(json_encode($messageData, JSON_THROW_ON_ERROR));
+
+        $message = $this->sut->convertMessage($reportEntry);
+
+        $expectedPrefix = $this->translator->trans('text.protocol.phase.autoswitch.executed', [
+            'date' => $expectedDate,
+            'time' => $expectedTime,
+        ]);
+        self::assertStringContainsString($expectedPrefix, $message);
+        // The auto-switch timestamp should appear at the start of the message
+        self::assertStringStartsWith($expectedPrefix, $message);
+    }
+
+    public function testConvertProcedureChangePhasesMessageOmitsAutoSwitchTimestampForManualChange(): void
+    {
+        $messageData = [
+            'oldPhase'        => 'configuration',
+            'newPhase'        => 'participation',
+            'createdBySystem' => false,
+        ];
+
+        $reportEntry = new ReportEntry();
+        $reportEntry->setGroup(ReportEntry::GROUP_PROCEDURE)
+            ->setCategory(ReportEntry::CATEGORY_CHANGE_PHASES)
+            ->setMessage(json_encode($messageData, JSON_THROW_ON_ERROR));
+
+        $message = $this->sut->convertMessage($reportEntry);
+
+        self::assertStringNotContainsString('Automatische Verfahrensschrittumstellung', $message);
     }
 
     public function testConvertRegisterInvitationMessage()

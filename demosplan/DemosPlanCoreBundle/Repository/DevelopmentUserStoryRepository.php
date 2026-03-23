@@ -63,12 +63,10 @@ class DevelopmentUserStoryRepository extends CoreRepository implements ArrayInte
             if (0 === strcmp($relatedRelease->getPhase(), 'voting_online')) {
                 $list = $this->findBy(['release' => $releaseId]);
                 shuffle($list);
+            } elseif (0 === strcmp($relatedRelease->getPhase(), 'configuration')) {
+                $list = $this->findBy(['release' => $releaseId], ['createDate' => 'ASC']);
             } else {
-                if (0 === strcmp($relatedRelease->getPhase(), 'configuration')) {
-                    $list = $this->findBy(['release' => $releaseId], ['createDate' => 'ASC']);
-                } else {
-                    $list = $this->getListOrderByTotalVotes($releaseId);
-                }
+                $list = $this->getListOrderByTotalVotes($releaseId);
             }
 
             return ['release' => $relatedRelease, 'userStories' => $list];

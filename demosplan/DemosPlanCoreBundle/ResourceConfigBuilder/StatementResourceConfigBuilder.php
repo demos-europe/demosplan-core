@@ -34,6 +34,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $filteredFragmentsCount @deprecated Neither attribute nor relationship. Belongs into API meta response.
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $formerExternId @deprecated Use relationship to a PlaceholderStatement resource type instead
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $fragmentsCount @deprecated Create a {@link StatementFragment} relationship instead
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $segmentsCount
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isCitizen
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isCluster @deprecated Cluster statements should get a separate resource type instead, which allows this attribute to be removed
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $likesNum @deprecated Use relationship to {@link StatementLike} instead
@@ -103,6 +104,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * An Statement has only one source attachment, that is why the property is named singular even though it is a to-many relationship
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,StatementInterface,StatementAttachmentInterface> $sourceAttachment
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Statement> $parentStatementOfSegment
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $customFields
  */
 class StatementResourceConfigBuilder extends BaseStatementResourceConfigBuilder
 {

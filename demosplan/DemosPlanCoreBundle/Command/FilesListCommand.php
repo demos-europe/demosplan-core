@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,12 +20,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:files:list', description: 'List files known to flysystem. Supports "local" and "s3" storage')]
 class FilesListCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:files:list';
-
-    protected static $defaultDescription = 'List files known to flysystem. Supports "local" and "s3" storage';
-
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly FilesystemOperator $s3Storage,

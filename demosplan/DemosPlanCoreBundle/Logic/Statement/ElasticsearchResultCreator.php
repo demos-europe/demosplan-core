@@ -162,7 +162,7 @@ class ElasticsearchResultCreator
             $userFragmentFilters = $this->statementService->mapRequestFiltersToESFragmentFilters($userFilters);
             $fragmentEsResult = (new ElasticsearchResult())->lock();
 
-            if ((null !== $search && '' !== $search) || 0 < count($userFragmentFilters)) {
+            if ((null !== $search && '' !== $search) || [] !== $userFragmentFilters) {
                 $userFragmentFilters['procedureId'] = $procedureId;
                 $fragmentEsResult = $this->statementFragmentService->getElasticsearchStatementFragmentResult(
                     $userFragmentFilters,
@@ -184,15 +184,16 @@ class ElasticsearchResultCreator
                 } else {
                     $statementMustIds[] = 'not_existent';
                 }
-                $statementMustIds = \array_unique($statementMustIds);
+                // Re-index array after array_unique to prevent associative array JSON encoding
+                $statementMustIds = \array_values(\array_unique($statementMustIds));
                 $shouldQuery = new BoolQuery();
-                foreach ($statementMustIds as $statementMustId) {
-                    $shouldQuery->addShould(
-                        $this->elasticSearchService->getElasticaTermsInstance(
-                            'id',
-                            $statementMustId
-                        ));
-                }
+                // Use a single terms query with all IDs to avoid exceeding maxClauseCount
+                $shouldQuery->addShould(
+                    $this->elasticSearchService->getElasticaTermsInstance(
+                        'id',
+                        $statementMustIds
+                    )
+                );
                 // add search query as a should request as we already found statements
                 // that have the searchstring at their fragment
                 if ($searchQuery instanceof AbstractQuery) {
@@ -203,10 +204,8 @@ class ElasticsearchResultCreator
                     1
                 );
                 $boolMustFilter[] = $shouldQuery;
-            } else {
-                if ($searchQuery instanceof Query) {
-                    $boolMustFilter[] = $searchQuery;
-                }
+            } elseif ($searchQuery instanceof Query) {
+                $boolMustFilter[] = $searchQuery;
             }
 
             foreach ($userFilters as $filterName => $filterValues) {
@@ -214,7 +213,8 @@ class ElasticsearchResultCreator
                     continue;
                 }
 
-                $filterValues = \is_array($filterValues) ? \array_unique($filterValues) : $filterValues;
+                // Re-index array after array_unique to prevent associative array JSON encoding
+                $filterValues = \is_array($filterValues) ? \array_values(\array_unique($filterValues)) : $filterValues;
 
                 if (\is_array($filterValues) && 1 < count($filterValues)) {
                     // for each filter with multiple options we need a distinct should
@@ -222,6 +222,9 @@ class ElasticsearchResultCreator
                     $shouldQuery = new BoolQuery();
                     $shouldFilter = [];
                     $shouldNotFilter = [];
+                    $normalValues = [];
+
+                    // Collect all normal filter values to use in a single terms query
                     foreach ($filterValues as $filterValue) {
                         if ($filterValue === $this->elasticSearchService::KEINE_ZUORDNUNG
                             || null === $filterValue
@@ -231,17 +234,23 @@ class ElasticsearchResultCreator
                                 $filterName
                             );
                         } else {
-                            $filterName = $this->isRawFilteredTerm($filterName) ? $filterName.'.raw' : $filterName;
                             $value = $filterValue === $this->elasticSearchService::EMPTY_FIELD ? '' : $filterValue;
-                            $shouldFilter[] = $this->elasticSearchService->getElasticaTermsInstance(
-                                $filterName,
-                                $value
-                            );
+                            $normalValues[] = $value;
                         }
                     }
+
+                    // Create a single terms query with all normal values to avoid maxClauseCount
+                    if (count($normalValues) > 0) {
+                        $adjustedFilterName = $this->isRawFilteredTerm($filterName) ? $filterName.'.raw' : $filterName;
+                        $shouldFilter[] = $this->elasticSearchService->getElasticaTermsInstance(
+                            $adjustedFilterName,
+                            $normalValues
+                        );
+                    }
+
                     array_map($shouldQuery->addShould(...), $shouldFilter);
                     // user wants to see not existent query as well as some filter
-                    if (0 < count($shouldNotFilter)) {
+                    if ([] !== $shouldNotFilter) {
                         $shouldNotBool = new BoolQuery();
                         array_map($shouldNotBool->addMustNot(...), $boolMustNotFilter);
                         $shouldQuery->addShould($shouldNotBool);
@@ -1292,10 +1301,10 @@ class ElasticsearchResultCreator
             }
             $useEsResult2 = isset($fragmentAggregations['departmentId']);
             $useAggregationResult2 = isset($esResultAggregations['fragments_reviewerName']);
-            if (true === $useEsResult2 || true === $useAggregationResult2) {
-                $countKey2 = true === $useEsResult2 ? 'count' : 'doc_count';
-                $valueKey2 = true === $useEsResult2 ? 'value' : 'key';
-                $listToUse2 = true === $useEsResult2 ?
+            if ($useEsResult2 || $useAggregationResult2) {
+                $countKey2 = $useEsResult2 ? 'count' : 'doc_count';
+                $valueKey2 = $useEsResult2 ? 'value' : 'key';
+                $listToUse2 = $useEsResult2 ?
                     $fragmentAggregations['departmentId'] : $esResultAggregations['fragments_reviewerName']['buckets'];
                 if ($useEsResult2) {
                     foreach ($listToUse2 as $agg) {
@@ -1361,7 +1370,7 @@ class ElasticsearchResultCreator
                 }
             }
             // do not create search query if only fragment fields are chosen
-            if (0 < count($usedSearchfields)) {
+            if ([] !== $usedSearchfields) {
                 $searchQuery = $this->elasticSearchService->createSearchQuery(
                     $search,
                     $usedSearchfields
@@ -1615,7 +1624,7 @@ class ElasticsearchResultCreator
      */
     private function getParagraphMap($bucket, $idKey = 'key'): array
     {
-        if (!\is_array($bucket) || 0 === count($bucket)) {
+        if (!\is_array($bucket) || [] === $bucket) {
             return [];
         }
         $ids = [];

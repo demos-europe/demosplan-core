@@ -286,10 +286,10 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         $violations2 = $this->handleOriginalFileReferences();
 
         $violations = new ConstraintViolationList();
-        if (null !== $violations1) {
+        if ($violations1 instanceof ConstraintViolationListInterface) {
             $violations->addAll($violations1);
         }
-        if (null !== $violations2) {
+        if ($violations2 instanceof ConstraintViolationListInterface) {
             $violations->addAll($violations2);
         }
 

@@ -73,7 +73,7 @@ class PrePersistUniqueInternIdConstraintValidator extends ConstraintValidator
                     && $statement->getProcedureId() === $excludeStatement->getProcedureId()
             );
 
-            return 0 !== count((array) $occupyingStatements);
+            return [] !== (array) $occupyingStatements;
         }
 
         return false;

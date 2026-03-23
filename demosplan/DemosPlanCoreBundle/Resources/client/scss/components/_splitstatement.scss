@@ -107,7 +107,7 @@
         z-index: $dp-z-above-zero;
         width: $sidebar-width;
         margin-left: calc(100% - #{$sidebar-width});
-        padding: 0 20px;
+        padding: 0 20px 0 3px;
     }
 
     .scroll-button {
@@ -306,7 +306,8 @@
 
         .multiselect__option {
             display: flex;
-            word-break: break-word;
+            overflow-wrap: anywhere;
+            word-break: normal;
             align-items: flex-start;
             hyphens: auto;
 

@@ -41,6 +41,7 @@ use demosplan\DemosPlanCoreBundle\Constraint\MatchingSubmitTypesConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\OriginalReferenceConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProcedureConstraint;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -849,7 +850,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *                        is not possible atm, because primary keys are named differently across entities
      *                        Files have to be get via Repository
      */
-    protected $files;
+    protected $files = [];
 
     /**
      * @var User
@@ -895,7 +896,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var bool
      *
-     * @ORM\Column(type="boolean", nullable = false, options={"default":false})
+     * @ORM\Column(name="`manual`", type="boolean", nullable = false, options={"default":false})
      */
     protected $manual = false;
 
@@ -999,7 +1000,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @ORM\Column(type="smallint", options={"default": "0"})
      */
-    private $segmentationPiRetries;
+    private $segmentationPiRetries = 0;
 
     /**
      * @var string|null
@@ -1041,6 +1042,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     private $anonymous = false;
 
+    /**
+     * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
+     */
+    private ?CustomFieldValuesList $customFields = null;
+
     public function __construct()
     {
         $this->deletedDate = DateTime::createFromFormat('d.m.Y', '2.1.1970');
@@ -1056,14 +1062,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         $this->priorityAreas = new ArrayCollection();
         $this->municipalities = new ArrayCollection();
         $this->fragments = new ArrayCollection();
-        $this->files = [];
         $this->cluster = new ArrayCollection();
         $this->children = new ArrayCollection();
         $this->segmentsOfStatement = new ArrayCollection();
         $this->anonymizations = new ArrayCollection();
         $this->attachments = new ArrayCollection();
         $this->similarStatementSubmitters = new ArrayCollection();
-        $this->segmentationPiRetries = 0;
         $this->statementsCreatedFromOriginal = new ArrayCollection();
     }
 
@@ -2089,11 +2093,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
             if ($this->isDeleted()) {
                 return false;
             }
-            if ($this->getProcedure()->isDeleted()) {
-                return false;
-            }
 
-            return true;
+            return !$this->getProcedure()->isDeleted();
         } catch (Exception) {
             return false;
         }
@@ -3371,7 +3372,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     public function getAuthoredDateString()
     {
-        if (null === $this->getMeta()) {
+        if (!$this->getMeta() instanceof StatementMeta) {
             return '';
         }
 
@@ -3573,7 +3574,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     public function setOrgaEmail(string $emailAddress): self
     {
-        if (null === $this->getMeta()) {
+        if (!$this->getMeta() instanceof StatementMeta) {
             throw new InvalidArgumentException('Can\'t set email address, statement has no meta.');
         }
 
@@ -4190,5 +4191,15 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function getStatementsCreatedFromOriginal(): ArrayCollection|Collection
     {
         return $this->statementsCreatedFromOriginal;
+    }
+
+    public function getCustomFields(): ?CustomFieldValuesList
+    {
+        return $this->customFields;
+    }
+
+    public function setCustomFields(?CustomFieldValuesList $customFields): void
+    {
+        $this->customFields = $customFields;
     }
 }

@@ -173,7 +173,6 @@
     </div>
 
 
-
     <div
       v-if="statementFeedbackDefinitions.length > 0 && publicParticipationFeedbackEnabled"
       :class="prefixClass('flow-root border--top u-pt-0_25')"
@@ -258,6 +257,48 @@
         :class="prefixClass('sm:h-9 overflow-auto c-styled-html')"
       />
     </div>
+    <div
+      v-if="customFieldsWithValues.length > 0"
+      :class="prefixClass('flow-root border--top u-pt-0_25')"
+    >
+      <span :class="prefixClass('flow-root')">
+        <em>{{ Translator.trans('more.data') }}: </em>
+        <button
+          type="button"
+          data-cy="statementModalRecheck:customFieldsEdit"
+          :aria-label="Translator.trans('statement.form.input.change')"
+          :class="prefixClass('o-link--default btn-icns float-right')"
+          :title="Translator.trans('statement.form.input.change')"
+          @click="$emit('editInput', 'r_customFields')"
+        >
+          <i
+            :class="prefixClass('fa fa-pencil')"
+            aria-hidden="true"
+          />
+        </button>
+      </span>
+
+      <dl>
+        <div
+          v-for="field in customFieldsWithValues"
+          :key="field.id"
+          :class="prefixClass('mb-1')"
+        >
+          <dt :class="prefixClass('weight--bold')">
+            {{ field.name }}
+          </dt>
+          <dd :class="prefixClass('ml-2')">
+            <span
+              v-for="option in field.selected"
+              :key="option.id"
+              :class="prefixClass('block')"
+            >
+              {{ option.label }}
+            </span>
+          </dd>
+        </div>
+      </dl>
+    </div>
   </fieldset>
 </template>
 
@@ -305,7 +346,7 @@ export default {
     publicParticipationFeedbackEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     statement: {
@@ -323,6 +364,12 @@ export default {
       type: String,
       required: false,
       default: '',
+    },
+
+    selectableCustomFields: {
+      type: Array,
+      required: false,
+      default: () => [],
     },
   },
 
@@ -357,6 +404,12 @@ export default {
 
     showStreet () {
       return this.statement.r_street && this.statement.r_street !== ''
+    },
+
+    customFieldsWithValues () {
+      return this.selectableCustomFields.filter(
+        field => field.selected && field.selected.length > 0,
+      )
     },
   },
 

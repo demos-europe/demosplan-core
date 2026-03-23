@@ -56,7 +56,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
         private readonly RoleHandler $roleHandler,
         private readonly RoleRepository $roleRepository,
         ContentService $contentService,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
         parent::__construct($messageBag);
         $this->contentService = $contentService;
@@ -226,7 +226,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
             );
         }
 
-        if (true === $mandatoryErrors) {
+        if ($mandatoryErrors) {
             return null;
         }
         if (255 < strlen((string) $data['r_title'])) {
@@ -363,7 +363,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
         try {
             $categoryTitle = $faqCategory->getTitle();
 
-            if (0 !== count($this->faqService->getEnabledAndDisabledFaqList($faqCategory))) {
+            if ([] !== $this->faqService->getEnabledAndDisabledFaqList($faqCategory)) {
                 $this->getMessageBag()->add(
                     'warning',
                     'category.delete.deny.because.of.related.content',
@@ -400,7 +400,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
     public function deleteFaqById(string $faqId): void
     {
         $faq = $this->getFaq($faqId);
-        if (null === $faq) {
+        if (!$faq instanceof Faq) {
             throw FaqNotFoundException::createFromId($faqId);
         }
         $this->deleteFaq($faq);

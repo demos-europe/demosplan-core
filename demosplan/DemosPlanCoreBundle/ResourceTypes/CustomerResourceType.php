@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\BrandingInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
@@ -163,7 +164,7 @@ final class CustomerResourceType extends DplanResourceType
                 ->setRelationshipType($this->resourceTypeStore->getBrandingResourceType())
                 ->readable(false, function (Customer $customer): Branding {
                     $branding = $customer->getBranding();
-                    if (null === $branding) {
+                    if (!$branding instanceof BrandingInterface) {
                         $branding = $this->brandingRepository->createFromData([]);
                         $this->brandingRepository->persistEntities([$branding]);
                         $customer->setBranding($branding);

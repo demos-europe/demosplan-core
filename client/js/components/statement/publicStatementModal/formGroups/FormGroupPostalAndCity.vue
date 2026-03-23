@@ -12,6 +12,7 @@
     <div :class="prefixClass('layout')">
       <dp-input
         id="r_postalCode"
+        :aria-label="Translator.trans('postalcode.complete')"
         :class="prefixClass('layout__item')"
         :disabled="disabled"
         :label="{
@@ -25,7 +26,7 @@
         name="r_postalCode"
         pattern="^[0-9]{4,5}$"
         width="u-4-of-12"
-        @input="val => setStatementData({r_postalCode: val})"
+        @update:model-value="val => setStatementData({r_postalCode: val})"
       /><!--
    --><dp-input
         id="r_city"
@@ -40,7 +41,7 @@
         data-cy="city"
         name="r_city"
         width="u-8-of-12"
-        @input="val => setStatementData({r_city: val})"
+        @update:model-value="val => setStatementData({r_city: val})"
     />
     </div>
   </div>

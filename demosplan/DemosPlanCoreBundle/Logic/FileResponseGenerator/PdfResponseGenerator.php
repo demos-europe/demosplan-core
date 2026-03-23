@@ -33,7 +33,7 @@ class PdfResponseGenerator extends FileResponseGeneratorAbstract
         if (!isset($file['content'])) {
             throw new DemosException('error.generic', 'Doc File Response could not be generated because of missing "content" field');
         }
-        $response = new Response($file['content'], 200);
+        $response = new Response($file['content'], Response::HTTP_OK);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf; charset=utf-8');
 

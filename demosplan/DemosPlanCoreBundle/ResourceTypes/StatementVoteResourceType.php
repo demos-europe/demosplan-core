@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -50,7 +51,7 @@ final class StatementVoteResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasPermission('field_statement_votes') && null !== $this->currentProcedureService->getProcedure();
+        return $this->currentUser->hasPermission('field_statement_votes') && $this->currentProcedureService->getProcedure() instanceof Procedure;
     }
 
     protected function getProperties(): ResourceConfigBuilderInterface
@@ -163,7 +164,7 @@ final class StatementVoteResourceType extends DplanResourceType
     protected function getAccessConditions(): array
     {
         $currentProcedure = $this->currentProcedureService->getProcedure();
-        if (null === $currentProcedure) {
+        if (!$currentProcedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 

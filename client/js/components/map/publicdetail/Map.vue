@@ -11,6 +11,7 @@
   <div aria-hidden="true">
     <dp-autocomplete
       v-if="hasPermission('feature_map_search_location')"
+      id="map_autosuggest"
       :class="prefixClass('c-map__autocomplete')"
       :options="autocompleteOptions"
       :model-value="selectedValue"
@@ -26,6 +27,10 @@
       @search-changed="(response) => sortResults(response.data.data || [])"
       @selected="zoomToSuggestion"
       @searched="selectFirstOption"
+    />
+
+    <wms-get-feature-info
+      ref="wmsGetFeatureInfo"
     />
     <slot />
   </div>
@@ -60,12 +65,14 @@ import TileLayer from 'ol/layer/Tile'
 import { unByKey } from 'ol/Observable'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
+import WmsGetFeatureInfo from './controls/WmsGetFeatureInfo'
 
 export default {
   name: 'DpMap',
 
   components: {
     DpAutocomplete,
+    WmsGetFeatureInfo,
   },
 
   mixins: [prefixClassMixin],
@@ -314,6 +321,11 @@ export default {
           }
 
           if (isVisible !== layer.getVisible()) {
+            // Create source for layer if it doesn't have one and is being set to visible
+            if (isVisible && !layer.getSource()) {
+              this.setLayerSource(layer)
+            }
+
             if (this.overviewMapLayer === false || this.overviewMapLayer.length > 1) {
               const overviewLayer = this.overviewMapTileLayers.find(layer => id === layer.get('name'))
               // Only toggle baselayer
@@ -363,7 +375,7 @@ export default {
     handlePriorityAreaQuery (remappedUrl, coordinate, getFeatureinfoSource) {
       dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), {
         params: remappedUrl,
-        infotype: 'vorranggebietId'
+        infotype: 'vorranggebietId',
       }).then(response => {
         const parsedData = JSON.parse(response.data)
         if (parsedData.code === 100 && parsedData.success && parsedData.body !== null) {
@@ -374,7 +386,7 @@ export default {
             r_location_priority_area_type: parsedData.body.type,
             r_location_point: '',
             r_location_geometry: '',
-            location_is_set: 'priority_area'
+            location_is_set: 'priority_area',
           }
           window.statementActionState = 'locationPriorityAreaAdded'
         }
@@ -388,7 +400,7 @@ export default {
 
           const priorityAreaContent = {
             title: title,
-            text: `${parsedData.body.key}`
+            text: `${parsedData.body.key}`,
           }
           this.resetPopup()
           this.showPopup('contentPopup', priorityAreaContent, coordinate)
@@ -411,11 +423,11 @@ export default {
       if (this.vorrangGebiete.getVisible() === true) {
         /* URL for FeatureInfo */
         const vorrangurl = this.vorrangGebiete.getSource().getFeatureInfoUrl(
-          coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' }
+          coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' },
         )
         /* URL to check if we are in the correct procedure */
         const planungsraumUrl = this.getFeatureinfoSourcePlanungsraum.getSource().getFeatureInfoUrl(
-          coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' }
+          coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' },
         )
         const remappedUrl = vorrangurl.split('?')[1] // Get only the parameter part of the generated URL.
         const remappedPrUrl = planungsraumUrl.split('?')[1] // Get only the parameter part of the generated URL.
@@ -425,7 +437,7 @@ export default {
             // Because of Browser-Ajax-Security, we have to pipe the getfeatureInfo-Request through our server
             dpApi.get(Routing.generate('DemosPlan_map_get_planning_area', { procedure: this.procedureId }), {
               params: remappedPrUrl,
-              url: this.getFeatureInfoUrlPlanningArea
+              url: this.getFeatureInfoUrlPlanningArea,
             })
               .then(responsePr => {
                 /*
@@ -444,7 +456,7 @@ export default {
 
                   this.showPopup('contentPopup', {
                     title: Translator.trans('procedure.not.in.scope'),
-                    text: popUpContent
+                    text: popUpContent,
                   }, coordinate)
                 } else {
                   // Query priority area after successful planning area validation
@@ -838,7 +850,11 @@ export default {
     },
 
     doAllTheOtherExcitingStuff () {
-      this.map.getView().fit(this.initialExtent, this.map.getSize()) // Zoom to Startkartenausschnitt from backend
+      // Ensure map has correct dimensions before fitting to initial extent
+      this.$nextTick(() => {
+        this.map.updateSize()
+        this.map.getView().fit(this.initialExtent, this.map.getSize()) // Zoom to Startkartenausschnitt from backend
+      })
 
       this.map.getLayerGroup().set('name', 'Root')
 
@@ -1014,6 +1030,23 @@ export default {
         })
       }
 
+      //  Add 'visible-layer GetFeatureInfo' button behavior
+      if (document.getElementById('layerFeatureInfoButton')) {
+        $('#layerFeatureInfoButton').on('pointerup keydown', (event) => {
+          // For keyboard events, execute only when enter was pressed
+          if (event.type === 'keydown' && event.keyCode !== 13) {
+            return
+          }
+          this.handleButtonInteraction('layerfeatureinfo', '#layerFeatureInfoButton', () => {
+            if (this.$refs.wmsGetFeatureInfo) {
+              this.mapSingleClickListener = this.map.on('singleclick', (evt) => {
+                this.$refs.wmsGetFeatureInfo.queryLayerFeatureInfo(evt, this.mapview, this.mapprojection)
+              })
+            }
+          })
+        })
+      }
+
       //  Add 'queryArea' behavior
       if (PROJECT && PROJECT === 'robobsh' && dplan.procedureStatementPriorityArea) {
         /*
@@ -1111,7 +1144,7 @@ export default {
           }
           this.handleButtonInteraction(drawTool.active, drawTool.button, () => {
             this.map.addInteraction(drawing)
-            $('#saveStatementButton').addClass(this.prefixClass('is-visible'))
+            $('#saveStatementButton').removeClass(this.prefixClass('hidden')).addClass(this.prefixClass('is-visible')).prop('disabled', true)
           })
         })
 
@@ -1143,6 +1176,7 @@ export default {
         $('#clearDrawingButton').addClass(this.prefixClass('c-actionbox__tool--dimmed'))
         $('#saveStatementButton')
           .removeClass(this.prefixClass('is-active'))
+          .prop('disabled', true)
           .html(window.dplan.statement.labels.saveStatementButton.states.visible.button)
           .prop(
             'title',
@@ -1258,6 +1292,7 @@ export default {
 
         saveStatementButton
           .addClass(this.prefixClass('is-active c-actionbox__toggle-shake'))
+          .prop('disabled', false)
           .html(window.dplan.statement.labels.saveStatementButton.states.active.button)
           .prop(
             'title',
@@ -1682,7 +1717,7 @@ export default {
       unByKey(this.mapSingleClickListener)
 
       //  Hide drawpoint stn button
-      $('#saveStatementButton').removeClass(this.prefixClass('is-visible'))
+      $('#saveStatementButton').removeClass(this.prefixClass('is-visible')).addClass(this.prefixClass('hidden'))
       $(this.prefixClass('.js__mapcontrol')).removeClass(this.prefixClass('is-active'))
 
       //  Unselect tools
@@ -1944,15 +1979,21 @@ export default {
     setView () {
       const resolutions = this.resolutions
 
-      this.mapview = new View({
+      const viewConfig = {
         center: [this.mapx, this.mapy],
         projection: this.mapprojection,
         resolutions,
-        extent: this.maxExtent,
         minResolution: resolutions[(resolutions.length - 1)],
         maxResolution: resolutions[0],
         constrainResolution: true,
-      })
+      }
+
+      // Only constrain view extent if user explicitly set a maxExtent
+      if (this.procedureMaxExtent.length > 0) {
+        viewConfig.extent = this.maxExtent
+      }
+
+      this.mapview = new View(viewConfig)
     },
 
     showPopup (templateId, content, coordinate) {
@@ -2054,8 +2095,13 @@ export default {
 
       const newState = element.classList.contains(this.prefixClass('is-active'))
       const layerid = (element.id === 'bplanSwitcher') ? this.bPlan.id : this.scope.id
+      const layerObj = this.layers().find(l => l.id === layerid)
 
-      this.updateLayerVisibility({ id: layerid, isVisible: newState })
+      if (layerObj) {
+        this.updateLayerVisibility({ id: layerid, isVisible: newState })
+      } else if (this.scope && this.scope.setVisible) {
+        this.scope.setVisible(newState)
+      }
     },
 
     /**

@@ -21,8 +21,6 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementMetaF
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementEmailSender;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -164,33 +162,16 @@ class StatementEmailSenderTest extends FunctionalTestCase
 
     private function setupInitialData(string $userEmail = 'myemail@test.de', string $publicStatement = Statement::INTERNAL, string $feedback = ''): void
     {
-        // Initialize procedure - this was missing!
+        $orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
         $this->procedure = ProcedureFactory::createOne();
 
-        // Create Orga with explicit participation email
-        $orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
+        $user = UserFactory::createOne(['email' => $userEmail, 'password' => 'xxx']);
+        $user->setOrga($orga->_real());
 
-        // Ensure participationEmail is properly set using foundry v2 pattern
-        $orga->_withoutAutoRefresh(function ($o) {
-            $o->setParticipationEmail('hello@partipation-email.de');
-        });
+        $orga->addUser($user->_real());
+
+        $user->_save();
         $orga->_save();
-
-        // Create User with Orga using foundry v2 callable approach for complex relationships
-        // Documentation: https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#complex-relationships
-        $user = UserFactory::new(function () use ($orga, $userEmail) {
-            return [
-                'email'    => $userEmail,
-                'password' => 'xxx',
-                'orga'     => $orga->_real(),
-            ];
-        })->create();
-
-        // Ensure bidirectional relationship is set
-        $orga->_real()->addUser($user->_real());
-
-        // Force persist to database
-        $this->getEntityManager()->flush();
 
         $this->statement = StatementFactory::createOne(['procedure' => $this->procedure, 'user' => $user, 'publicStatement' => $publicStatement, 'feedback' => $feedback]);
 

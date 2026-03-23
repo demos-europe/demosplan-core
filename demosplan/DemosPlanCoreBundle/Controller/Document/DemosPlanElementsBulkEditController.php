@@ -12,23 +12,22 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DemosPlanElementsBulkEditController extends BaseController
 {
     /**
-     * @DplanPermissions("feature_admin_element_edit")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('feature_admin_element_edit')]
     #[Route(name: 'dplan_elements_bulk_edit', methods: 'GET', path: '/verfahren/{procedureId}/planunterlagen/kategorien-bearbeiten', options: ['expose' => true])]
-    public function showFormAction(string $procedureId): Response
+    public function showForm(string $procedureId): Response
     {
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanDocument/elements_admin_bulk_edit.html.twig',
             [
                 'title'       => 'elements.bulk.edit',

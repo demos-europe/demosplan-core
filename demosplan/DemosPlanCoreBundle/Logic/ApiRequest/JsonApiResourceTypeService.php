@@ -61,7 +61,7 @@ class JsonApiResourceTypeService implements JsonApiResourceTypeServiceInterface
 
     public function formatDate(?DateTime $date): ?string
     {
-        if (null === $date) {
+        if (!$date instanceof DateTime) {
             return null;
         }
 

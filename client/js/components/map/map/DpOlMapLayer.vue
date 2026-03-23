@@ -108,6 +108,14 @@ export default {
       },
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
     },
+
+    url () {
+      this.updateLayer()
+    },
+
+    layers () {
+      this.updateLayer()
+    },
   },
 
   methods: {
@@ -136,6 +144,13 @@ export default {
 
       //  Insert layer at pos 0, making it the background layer
       this.map.getLayers().insertAt(this.order, this.layer)
+    },
+
+    updateLayer () {
+      if (this.layer && this.map) {
+        this.map.removeLayer(this.layer)
+      }
+      this.addLayer()
     },
   },
 

@@ -110,7 +110,7 @@ class StatementFilterHandler extends CoreHandler
         foreach ($options as $key => $phase) {
             $transKey = 'filter.phase.'.$phase['value'];
             $filterTrans = $translator->trans($transKey);
-            if ($filterTrans != $transKey) {
+            if ($filterTrans !== $transKey) {
                 $options[$key]['label'] = $filterTrans;
                 continue;
             }
@@ -735,7 +735,7 @@ class StatementFilterHandler extends CoreHandler
                         }
                     }
                     $translatedEsFilter = $this->getTranslatedFilterOptions($requestedFilterKey, [$esFilterValue], $filterType);
-                    if (is_array($translatedEsFilter) && 0 < count($translatedEsFilter)) {
+                    if (is_array($translatedEsFilter) && [] !== $translatedEsFilter) {
                         $esFilterValue = $translatedEsFilter[0];
                     }
                     $esFilterValue['filterId'] = hash('sha256', 'filter_'.$requestedFilterKey.$filterType);

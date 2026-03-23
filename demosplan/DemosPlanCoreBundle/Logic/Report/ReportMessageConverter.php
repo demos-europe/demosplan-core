@@ -423,7 +423,7 @@ class ReportMessageConverter
         }
 
         // Fallback for really old report entries
-        if (0 === count($returnMessage)) {
+        if ([] === $returnMessage) {
             $returnMessage[] = $this->translator->trans('text.protocol.procedure.changed.generic');
         }
 
@@ -458,7 +458,7 @@ class ReportMessageConverter
 
         // hole den Phasennamen
         $returnMessage[] = $this->globalConfig->getPhaseNameWithPriorityInternal($entryData->getPhase());
-        if (0 !== count($invitedOrgas)) {
+        if ([] !== $invitedOrgas) {
             $returnMessage[] = $this->translator->trans('email.invitation.sent');
 
             foreach ($invitedOrgas as $orga) {
@@ -515,6 +515,13 @@ class ReportMessageConverter
         $translator = $this->translator;
         $message = $this->alterPhaseEntry($message);
         $createdBySystem = $message['createdBySystem'] ?? false;
+
+        if ($createdBySystem && isset($message['autoSwitchExecutedAt'])) {
+            $returnMessage[] = $translator->trans('text.protocol.phase.autoswitch.executed', [
+                'date' => $this->dateExtension->dateFilter($message['autoSwitchExecutedAt']),
+                'time' => $this->dateExtension->dateFilter($message['autoSwitchExecutedAt'], 'H:i'),
+            ]);
+        }
 
         // phase changed
         if (array_key_exists('oldPhase', $message) && array_key_exists('newPhase', $message)) {
@@ -632,7 +639,7 @@ class ReportMessageConverter
             }
         }
 
-        if (0 === count($documents)) {
+        if ([] === $documents) {
             $documents[] = $translator->trans('none');
         }
 
@@ -687,7 +694,7 @@ class ReportMessageConverter
             $publishedDocuments[] = $translator->trans('pdf.public.drawing');
         }
 
-        if (0 < count($publishedDocuments)) {
+        if ([] !== $publishedDocuments) {
             $message['publishedDocuments'] = $publishedDocuments;
         }
 
@@ -760,13 +767,13 @@ class ReportMessageConverter
                 if (array_key_exists('hasParagraphs', $element)) {
                     $category['existingParagraphs'][] = $this->translator->trans('file.as.paragraphs');
                 }
-                if (0 < count($category['existingParagraphs'])) {
+                if ([] !== $category['existingParagraphs']) {
                     $categories[] = $category;
                 }
             }
         }
 
-        if (0 < count($categories)) {
+        if ([] !== $categories) {
             $message['categories'] = $categories;
         }
 

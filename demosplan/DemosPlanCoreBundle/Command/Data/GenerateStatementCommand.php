@@ -16,14 +16,14 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidUserDataException;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:data:generate:statement', description: 'Generate a (number of) statement(s) by a user')]
 class GenerateStatementCommand extends DataProviderCommand
 {
-    public static $defaultName = 'dplan:data:generate:statement';
-    protected static $defaultDescription = 'Generate a (number of) statement(s) by a user';
     /**
      * @var LoggerInterface
      */
@@ -110,7 +110,7 @@ class GenerateStatementCommand extends DataProviderCommand
             $organisation = StatementFactory::RANDOM_ORGANISATION;
         }
 
-        $data = compact('user', 'organisation', 'procedure', 'maxChars');
+        $data = ['user' => $user, 'organisation' => $organisation, 'procedure' => $procedure, 'maxChars' => $maxChars];
 
         $amount = $this->getArgument('amount');
 

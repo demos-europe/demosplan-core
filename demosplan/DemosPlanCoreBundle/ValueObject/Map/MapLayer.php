@@ -47,7 +47,7 @@ class MapLayer extends ValueObject
         CoordinatesViewport $viewport,
         Image $image,
         string $title,
-        string $url = ''
+        string $url = '',
     ) {
         $this->viewport = $viewport;
         $this->image = $image;
@@ -91,12 +91,12 @@ class MapLayer extends ValueObject
 
     public function getHeightInPixels(): int
     {
-        return $this->image->getHeight();
+        return $this->image->height();
     }
 
     public function getWidthInPixels(): int
     {
-        return $this->image->getWidth();
+        return $this->image->width();
     }
 
     public function getHeightInCoordinates(): float

@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -27,20 +28,18 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * Initialize default workflow places for procedures that don't have any places.
  */
+#[AsCommand(name: 'dplan:workflow:init-places', description: 'Add default workflow places to procedures that have none')]
 class InitializeWorkflowPlacesCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:workflow:init-places';
-    protected static $defaultDescription = 'Add default workflow places to procedures that have none';
-
     /**
      * Default places that will be created (same as in LoadWorkflowPlaceData fixture).
      */
     private const DEFAULT_PLACES = [
-        ['name' => 'Erwiderung verfassen', 'sortIndex' => 0],
-        ['name' => 'Fachtechnische Prüfung', 'sortIndex' => 1],
-        ['name' => 'Juristische Prüfung', 'sortIndex' => 2],
-        ['name' => 'Lektorat', 'sortIndex' => 3],
-        ['name' => 'Abgeschlossen', 'sortIndex' => 4],
+        ['name' => 'Erwiderung verfassen', 'sortIndex' => 0, 'solved' => false],
+        ['name' => 'Fachtechnische Prüfung', 'sortIndex' => 1, 'solved' => false],
+        ['name' => 'Juristische Prüfung', 'sortIndex' => 2, 'solved' => false],
+        ['name' => 'Lektorat', 'sortIndex' => 3, 'solved' => false],
+        ['name' => 'Abgeschlossen', 'sortIndex' => 4, 'solved' => true],
     ];
 
     public function __construct(
@@ -104,7 +103,7 @@ EOT
             // Find procedures without workflow places
             $proceduresWithoutPlaces = $this->findProceduresWithoutPlaces($procedureId);
 
-            if (empty($proceduresWithoutPlaces)) {
+            if ([] === $proceduresWithoutPlaces) {
                 if ($procedureId) {
                     $io->success("Procedure {$procedureId} already has workflow places or doesn't exist.");
                 } else {
@@ -187,6 +186,7 @@ EOT
                 $placeData['name'],
                 $placeData['sortIndex']
             );
+            $place->setSolved($placeData['solved']);
 
             // Validate the place
             $violations = $this->validator->validate($place);

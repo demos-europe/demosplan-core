@@ -48,3 +48,12 @@ nelmio_security:
         policies:
             - 'no-referrer'
             - 'strict-origin-when-cross-origin'
+
+when@dev:
+    # Development-specific CSP overrides for webpack source maps
+    nelmio_security:
+        csp:
+            enforce:
+                # Allow webpack:// scheme for source maps in development
+                connect-src:
+                    - 'webpack:'

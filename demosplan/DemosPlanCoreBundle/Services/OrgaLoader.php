@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services;
 
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
@@ -53,7 +54,7 @@ class OrgaLoader
     {
         if (null !== $procedureId) {
             $procedure = $this->procedureService->getProcedure($procedureId);
-            if (null !== $procedure) {
+            if ($procedure instanceof Procedure) {
                 return $procedure->getOrga();
             }
         }

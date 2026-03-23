@@ -63,13 +63,6 @@ function getXplanboxBounds (procedureName) {
 export default function CreateProcedure () {
   const statusBox = document.getElementById('js__statusBox')
   const saveBtn = document.getElementById('saveBtn')
-
-  /*
-   * @improve T15008
-   * disable save-button - user can only save if we have a valid  plis-id seleced
-   */
-  saveBtn.setAttribute('disabled', true)
-
   const planningCauseSelect = document.getElementById('js__plisPlanungsanlass')
 
   //  Get plis data from BE

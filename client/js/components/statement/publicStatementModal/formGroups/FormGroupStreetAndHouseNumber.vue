@@ -23,7 +23,7 @@
         data-cy="streetName"
         name="r_street"
         width="u-8-of-12"
-        @input="val => setStatementData({r_street: val})"
+        @update:model-value="val => setStatementData({r_street: val})"
       /><!--
    --><dp-input
         id="r_houseNumber"
@@ -38,7 +38,7 @@
         data-cy="houseNumber"
         name="r_houseNumber"
         width="u-4-of-12"
-        @input="val => setStatementData({r_houseNumber: val})"
+        @update:model-value="val => setStatementData({r_houseNumber: val})"
     />
     </div>
   </div>

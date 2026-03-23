@@ -12,20 +12,22 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(name: 'dplan:user:permission:grant', description: 'Grant a specific permission to a user')]
 class UserPermissionGrantCommand extends UserPermissionBaseCommand
 {
     protected function configure(): void
     {
         $this
-            ->setName('dplan:user:permission:grant')
-            ->setDescription('Grant a specific permission to a user')
             ->setHelp('This command allows you to grant a specific permission to a user beyond their role-based permissions.');
 
         $this->addCommonArguments();
@@ -44,13 +46,13 @@ class UserPermissionGrantCommand extends UserPermissionBaseCommand
         try {
             // Validate and fetch user
             $user = $this->validateAndGetUser($userId, $io);
-            if (null === $user) {
+            if (!$user instanceof UserInterface) {
                 return Command::FAILURE;
             }
 
             // Validate and fetch role
             $role = $this->validateAndGetRole($user, $roleCode, $io);
-            if (null === $role) {
+            if (!$role instanceof RoleInterface) {
                 return Command::FAILURE;
             }
 

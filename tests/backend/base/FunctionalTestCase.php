@@ -64,14 +64,16 @@ use Symfony\Component\Yaml\Yaml;
 use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\Test\Factories;
 
+/**
+ * Base class for functional tests.
+ *
+ * @property object $sut System under test (defined by child test classes with specific types)
+ */
 class FunctionalTestCase extends WebTestCase
 {
     use Factories;
     use MonoKernelTrait;
     // use resetDatabase is currently actually done by liip. In case of removing liip, its necessary to enable this or using DAMA
-
-    /** @var object System under Test */
-    protected $sut;
 
     /** @var AbstractDatabaseTool */
     protected $databaseTool;
@@ -446,10 +448,7 @@ class FunctionalTestCase extends WebTestCase
         return preg_match($format1, $dateString) || preg_match($format2, $dateString);
     }
 
-    /**
-     * @return array
-     */
-    protected function getProcedurePhases()
+    protected function getProcedurePhases(): array
     {
         return Yaml::parseFile(DemosPlanPath::getConfigPath('procedure/procedurephases.yml'));
     }

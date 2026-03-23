@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceCreateFlushEvent;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -105,7 +106,7 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 

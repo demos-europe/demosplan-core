@@ -231,13 +231,15 @@
       </div>
 
       <addon-wrapper
-        hook-name="addon.additional.field"
+        hook-name="interface.fields.to.transmit"
         :addon-props="{
           additionalFieldOptions,
           class: 'ml-4',
           isValueRemovable: true,
           relationshipId: organisationId,
-          relationshipKey: 'orga'
+          relationshipKey: 'orga',
+          userOrgaId: organisationId,
+          userMeinBerlinOrgId: ''
         }"
         class="w-1/2"
         @resource-list:loaded="setAdditionalFieldOptions"
@@ -288,7 +290,7 @@
         </template>
 
         <!-- Readonly: Currently assigned or requested permissions -->
-        <template v-if="canEdit('registrationStatuses') === false && hasPermission('area_organisations_applications_manage') === false">
+        <template v-if="!canEdit('registrationStatuses') && !hasPermission('area_organisations_applications_manage')">
           <div
             v-for="(registrationStatus, idx) in registrationStatuses"
             :key="idx"
@@ -312,7 +314,7 @@
           v-if="availableRegistrationTypes.length > 0 && (canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage'))"
         >
           <button
-            v-if="showAddStatusForm === false"
+            v-if="!showAddStatusForm"
             class="btn btn--primary u-mt-0_25 u-mb-0_5"
             data-cy="orgaFormField:showAddStatusForm"
             type="button"
@@ -382,7 +384,7 @@
         </template>
 
         <dp-checkbox
-          v-if="hasPermission('feature_manage_procedure_creation_permission')"
+          v-if="hasPermission('feature_manage_procedure_creation_permission') && isPlanningOfficeOrMunicipalityAcceptedOrPending"
           :id="`${organisation.id}:procedureCreatePermission`"
           v-model="localOrganisation.attributes.canCreateProcedures"
           class="mt-2"
@@ -963,12 +965,19 @@ export default {
       required: false,
       default: '',
     },
+
+    triggerReset: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
 
   emits: [
     'addon:update',
     'addonOptions:loaded',
     'organisation:update',
+    'reset:complete',
   ],
 
   data () {
@@ -1023,6 +1032,10 @@ export default {
       }
     },
 
+    isPlanningOfficeOrMunicipalityAcceptedOrPending () {
+      return this.registrationStatuses.some(registration => (registration.status === 'accepted' || registration.status === 'pending') && (registration.type === 'OPAUTH' || registration.type === 'OLAUTH'))
+    },
+
     /**
      * Custom slug for the url that will show the start page with the procedures of the organisation
      * By default, this is the organisation id
@@ -1059,6 +1072,22 @@ export default {
     },
   },
 
+  watch: {
+    organisation: {
+      handler () {
+        this.setInitialOrganisation()
+      },
+      deep: true,
+    },
+
+    triggerReset (shouldReset) {
+      if (shouldReset) {
+        this.setInitialOrganisation()
+        this.$emit('reset:complete')
+      }
+    },
+  },
+
   methods: {
     canEdit (field) {
       return hasPermission('feature_orga_edit_all_fields') && this.writableFields.includes(field)
@@ -1076,7 +1105,7 @@ export default {
     },
 
     hasChanged (field) {
-      if (typeof this.initialOrganisation.attributes !== 'undefined') {
+      if (this.initialOrganisation.attributes !== 'undefined') {
         return hasOwnProp(this.initialOrganisation.attributes, field) ?
           this.localOrganisation.attributes[field] !== this.initialOrganisation.attributes[field] :
           false
@@ -1102,7 +1131,8 @@ export default {
 
     registrationTypeLabel (type) {
       const orgaType = this.availableOrgaTypes.find(el => el.value === type)
-      return Translator.trans(orgaType.label)
+
+      return orgaType ? Translator.trans(orgaType.label) : type
     },
 
     saveNewRegistrationStatus () {
@@ -1116,6 +1146,14 @@ export default {
       this.resetRegistrationStatus()
     },
 
+    setInitialOrganisation () {
+      this.localOrganisation = JSON.parse(JSON.stringify(this.organisation))
+
+      if (this.organisation && typeof this.organisation.hasRelationship === 'function' && this.organisation.hasRelationship('branding')) {
+        this.localOrganisation.attributes.cssvars = this.organisation.rel('branding').attributes.cssvars
+      }
+    },
+
     setAdditionalFieldOptions (options) {
       this.$emit('addonOptions:loaded', options)
     },
@@ -1126,16 +1164,10 @@ export default {
   },
 
   created () {
-    this.localOrganisation = JSON.parse(JSON.stringify(this.organisation))
-    if (this.organisation && typeof this.organisation.hasRelationship === 'function' && this.organisation.hasRelationship('branding')) {
-      this.localOrganisation.attributes.cssvars = this.organisation.rel('branding').attributes.cssvars
-    }
+    this.setInitialOrganisation()
   },
 
   mounted () {
-    this.$root.$on('organisation:reset', () => {
-      this.localOrganisation = JSON.parse(JSON.stringify(this.organisation))
-    })
     if (this.registrationStatuses.length === 0) {
       this.showAddStatusForm = true
     }

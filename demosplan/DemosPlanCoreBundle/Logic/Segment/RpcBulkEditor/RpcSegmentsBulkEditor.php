@@ -237,7 +237,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     {
         $assignee = $this->extractAssignee($rpcRequest);
         $currentProcedureId = $this->currentProcedure->getProcedureWithCertainty()->getId();
-        if (null !== $assignee && !$this->procedureService->isUserAuthorized($currentProcedureId, $assignee)) {
+        if ($assignee instanceof User && !$this->procedureService->isUserAuthorized($currentProcedureId, $assignee)) {
             throw new UserNotAssignableException();
         }
     }
