@@ -56,6 +56,19 @@ export default {
         this.dataTableContainerElement.classList.remove('has-scrollable-content')
       }
     },
+
+    /**
+     * Calculate and set the max height of the scroll container so it fits within the viewport.
+     * Only applies when a ref="scrollContainer" is present.
+     */
+    updateScrollContainerHeight () {
+      if (!this.$refs?.scrollContainer) {
+        return
+      }
+
+      const top = this.$refs.scrollContainer.getBoundingClientRect().top
+      this.$refs.scrollContainer.style.maxHeight = `calc(100vh - ${top}px - 18px)`
+    },
   },
 
   created () {
@@ -63,6 +76,18 @@ export default {
      * Updating the scrollbar needs to wait for the dataTable items to load,
      * as the table is only then present in its final width.
      */
+    /**
+     * When fullscreen mode is toggled, recalculate or clear the scroll container height.
+     * Only has effect in components that also use fullscreenModeMixin (isFullscreen exists).
+     */
+    this.$watch('isFullscreen', (isFullscreen) => {
+      if (!this.$refs?.scrollContainer) {
+        return
+      }
+
+      this.$nextTick(() => this.updateScrollContainerHeight())
+    })
+
     this.$watch('isLoading', (isLoading) => {
       if (isLoading) {
         return
@@ -74,10 +99,7 @@ export default {
         // while keeping the dataTable itself free of overflow that would block position: sticky.
         this.dataTableContainerElement = this.$refs?.scrollContainer ?? this.$refs?.dataTable?.$el
 
-        if (this.$refs?.scrollContainer) {
-          const top = this.$refs.scrollContainer.getBoundingClientRect().top
-          this.$refs.scrollContainer.style.maxHeight = `calc(100vh - ${top}px - 18px)`
-        }
+        this.updateScrollContainerHeight()
         this.dataTableElement = this.$refs?.dataTable?.$refs?.tableEl
 
         if (!this.dataTableContainerElement) {
