@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-        -   uses: styfle/cancel-workflow-action@0.13.1
+        -   uses: styfle/cancel-workflow-action@d07a454dad7609a92316b57b23c9ccfd4f59af66
             with:
                 workflow_id: "reviewdog"
                 access_token: ${{ secrets.GITHUB_TOKEN }}
@@ -40,19 +40,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - run: yarn install --immutable
+      - run: YARN_ENABLE_SCRIPTS=false yarn install --immutable
 
-      - uses: reviewdog/action-setup@v1.5
+      - uses: reviewdog/action-setup@d8a7baabd7f3e8544ee4dbde3ee41d0011c3a93f
 
       - name: Setup PHP with composer v2
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f
         with:
           php-version: '8.2'
           extensions: gd soap sockets zip
           tools: composer:v2
 
       - name: Cache php modules
-        uses: actions/cache@v5.0.4
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7
         with:
           path: |
             ~/.composer/cache
@@ -62,7 +62,7 @@ jobs:
             ${{ runner.os }}-build-php-
 
       - name: Miscellaneous runtime caches
-        uses: actions/cache@v5.0.4
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7
         with:
           path: |
             config/.runtime/cache
