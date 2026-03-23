@@ -217,11 +217,6 @@ export default {
       required: true,
     },
 
-    initEmailAddresses: {
-      type: Array,
-      default: () => [],
-    },
-
     customerMasterBlueprintName: {
       type: String,
       required: false,
@@ -232,6 +227,11 @@ export default {
       type: String,
       required: false,
       default: '',
+    },
+
+    initEmailAddresses: {
+      type: Array,
+      default: () => [],
     },
 
     masterBlueprintId: {
