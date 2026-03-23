@@ -1461,11 +1461,11 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['synchronizedStatementCount'] = $entitySyncLinkRepository->getSynchronizedStatementCount($procedureId);
 
             $data = [
-                'templateVars'    => $templateVars,
-                'procedure'       => $procedureId,
-                'title'           => $title,
-                'form'            => $form->createView(),
-                'evaluatingPhaseName' => $evaluatingPhaseName ?? null,
+                'templateVars'                           => $templateVars,
+                'procedure'                              => $procedureId,
+                'title'                                  => $title,
+                'form'                                   => $form->createView(),
+                'evaluatingPhaseName'                    => $evaluatingPhaseName ?? null,
                 'evaluatingPublicParticipationPhaseName' => $evaluatingPublicParticipationPhaseName ?? null,
             ];
 
