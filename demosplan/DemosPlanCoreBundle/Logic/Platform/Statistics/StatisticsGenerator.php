@@ -100,7 +100,7 @@ class StatisticsGenerator
     private function cacheProcedurePhase(array $procedurePhases, string $phaseName): array
     {
         if (isset($procedurePhases[$phaseName])) {
-            $procedurePhases[$phaseName]['num']++;
+            ++$procedurePhases[$phaseName]['num'];
         }
 
         return $procedurePhases;
