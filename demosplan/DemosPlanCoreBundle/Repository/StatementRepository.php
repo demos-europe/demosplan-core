@@ -2143,10 +2143,10 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         $em = $this->getEntityManager();
 
         // Step 1: Count total non-original statements in this procedure
-        $totalDql = 'SELECT COUNT(s.id) FROM ' . Statement::class . ' s
+        $totalDql = 'SELECT COUNT(s.id) FROM '.Statement::class.' s
             WHERE s.procedure = :procedureId
               AND s.original IS NOT NULL
-              AND s INSTANCE OF ' . Statement::class;
+              AND s INSTANCE OF '.Statement::class;
 
         $total = (int) $em->createQuery($totalDql)
             ->setParameter('procedureId', $procedureId)
@@ -2158,7 +2158,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         $segmentStatsDql = 'SELECT IDENTITY(seg.parentStatementOfSegment) AS stmtId,
                 COUNT(seg.id) AS segmentCount,
                 SUM(CASE WHEN p.solved = true THEN 1 ELSE 0 END) AS solvedCount
-            FROM ' . Segment::class . ' seg
+            FROM '.Segment::class.' seg
             JOIN seg.place p
             JOIN seg.parentStatementOfSegment stmt
             WHERE stmt.procedure = :procedureId
