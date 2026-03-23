@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Platform\Statistics;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
@@ -35,8 +35,8 @@ class StatisticsGenerator
 
     public function __construct(
         private readonly CustomerService $customerService,
-        private readonly GlobalConfigInterface $globalConfig,
         private readonly OrgaService $orgaService,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         private readonly ProcedureService $procedureService,
         private readonly StatementRepository $statementRepository,
         private readonly UserService $userService,
@@ -50,19 +50,28 @@ class StatisticsGenerator
     public function generateStatistics(array $allowedRoles): Statistics
     {
         $procedureList = $this->procedureService->getProcedureFullList($this->customerService->getCurrentCustomer());
-        $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
-        $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
         $originalStatements = $this->statementRepository->getOriginalStatements();
         $amountOfProcedures = count($procedureList['result']);
         $globalStatementStatistic = new StatementStatistic($originalStatements, $amountOfProcedures);
+
+        $internalPhases = [];
+        foreach ($this->procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer() as $internalPhaseDefinition) {
+            $internalPhaseName = $internalPhaseDefinition->getName();
+            $internalPhases[$internalPhaseName] = ['name' => $internalPhaseName, 'num' => 0];
+        }
+        $externalPhases = [];
+        foreach ($this->procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer() as $externalPhaseDefinition) {
+            $externalPhaseName = $externalPhaseDefinition->getName();
+            $externalPhases[$externalPhaseName] = ['name' => $externalPhaseName, 'num' => 0];
+        }
 
         $modifiedResults = [];
         if ($procedureList['total'] > 0) {
             foreach ($procedureList['result'] as $procedureData) {
                 $procedureData = $this->prepareProcedureData($procedureData, $globalStatementStatistic);
                 $modifiedResults[$procedureData['id']] = $procedureData;
-                $internalPhases = $this->cacheProcedurePhase($procedureData, $internalPhases, 'phase');
-                $externalPhases = $this->cacheProcedurePhase($procedureData, $externalPhases, 'publicParticipationPhase');
+                $internalPhases = $this->cacheProcedurePhase($internalPhases, $procedureData['phaseName']);
+                $externalPhases = $this->cacheProcedurePhase($externalPhases, $procedureData['publicParticipationPhaseName']);
             }
             $procedureList['result'] = $modifiedResults;
         }
@@ -88,12 +97,10 @@ class StatisticsGenerator
         return $procedureData;
     }
 
-    private function cacheProcedurePhase(array $procedureData, array $procedurePhases, string $phaseType): array
+    private function cacheProcedurePhase(array $procedurePhases, string $phaseName): array
     {
-        if (0 < strlen((string) $procedureData[$phaseType])) {
-            isset($procedurePhases[$procedureData[$phaseType]]['num'])
-                ? $procedurePhases[$procedureData[$phaseType]]['num']++
-                : $procedurePhases[$procedureData[$phaseType]]['num'] = 1;
+        if (isset($procedurePhases[$phaseName])) {
+            $procedurePhases[$phaseName]['num']++;
         }
 
         return $procedurePhases;
