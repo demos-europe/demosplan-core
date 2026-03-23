@@ -752,7 +752,7 @@
                                     {% endfor %}
 
                                     <participation-phases
-                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: evaluatingPhase|trans|default('') }) }}"
+                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: evaluatingPhaseName|default('') }) }}"
                                         data-cy="internalPhase"
                                         field-name="r_phaseDefinitionId"
                                         help-text="{{ 'text.procedure.edit.internal.change_phase'|trans }}"
@@ -907,7 +907,7 @@
                                     {% endfor %}
 
                                     <participation-phases
-                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.external.evaluating'|trans }) }}"
+                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: evaluatingPublicParticipationPhaseName|default('') }) }}"
                                         data-cy="publicPhase"
                                         field-name="r_publicParticipationPhaseDefinitionId"
                                         help-text="{{ 'text.procedure.edit.external.change_phase'|trans }}"

@@ -47,19 +47,21 @@ class ProcedurePhaseDefinitionRepository extends CoreRepository
     /**
      * Finds the evaluating phase definition (permissionSet=read, participationState=finished)
      * for the given customer and audience. Falls back to global (customer=null) definitions.
+     * When multiple matches exist, returns the one with the lowest orderInAudience.
      */
     public function findEvaluatingDefinition(string $audience, ?Customer $customer): ?ProcedurePhaseDefinition
     {
         $criteria = ['audience' => $audience, 'permissionSet' => 'read', 'participationState' => 'finished'];
+        $orderBy = ['orderInAudience' => 'ASC'];
 
         if (null !== $customer) {
-            $result = $this->findOneBy(array_merge($criteria, ['customer' => $customer]));
+            $result = $this->findOneBy(array_merge($criteria, ['customer' => $customer]), $orderBy);
             if (null !== $result) {
                 return $result;
             }
         }
 
-        return $this->findOneBy(array_merge($criteria, ['customer' => null]));
+        return $this->findOneBy(array_merge($criteria, ['customer' => null]), $orderBy);
     }
 
     /**

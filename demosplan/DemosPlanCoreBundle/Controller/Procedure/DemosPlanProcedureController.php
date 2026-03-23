@@ -45,6 +45,7 @@ use demosplan\DemosPlanCoreBundle\Form\BoilerplateType;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureFormType;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureTemplateFormType;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider;
 use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
@@ -165,6 +166,8 @@ class DemosPlanProcedureController extends BaseController
         private readonly ProcedureTypeResourceType $procedureTypeResourceType,
         private readonly SortMethodFactory $sortMethodFactory,
         private readonly CurrentProcedureService $currentProcedureService,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
+        private readonly CurrentContextProvider $currentContextProvider,
     ) {
         $this->procedureServiceOutput = $procedureServiceOutput;
         $this->procedureService = $procedureService;
@@ -1411,10 +1414,15 @@ class DemosPlanProcedureController extends BaseController
                 $template = '@DemosPlanCore/DemosPlanProcedure/administration_edit.html.twig';
                 $title = 'procedure.adjustments';
 
-                // @TODO: No project defines an 'evaluating' or 'analysis' phase key, so this always
-                // yields null and the autoswitch hint is always empty. Replace with a proper
-                // ProcedurePhaseDefinition-based lookup once phase definitions are fully in place.
-                $evaluatingPhase = null;
+                $evaluatingPhaseName = $this->procedurePhaseDefinitionService->findEvaluatingDefinition(
+                    'internal',
+                    $customerService->getCurrentCustomer()
+                )?->getName();
+
+                $evaluatingPublicParticipationPhaseName = $this->procedurePhaseDefinitionService->findEvaluatingDefinition(
+                    'external',
+                    $customerService->getCurrentCustomer()
+                )?->getName();
             }
 
             /** @var NotificationReceiverRepository $notificationReveicerRepository */
@@ -1457,7 +1465,8 @@ class DemosPlanProcedureController extends BaseController
                 'procedure'       => $procedureId,
                 'title'           => $title,
                 'form'            => $form->createView(),
-                'evaluatingPhase' => $evaluatingPhase ?? '',
+                'evaluatingPhaseName' => $evaluatingPhaseName ?? null,
+                'evaluatingPublicParticipationPhaseName' => $evaluatingPublicParticipationPhaseName ?? null,
             ];
 
             return $this->render($template, $data);
