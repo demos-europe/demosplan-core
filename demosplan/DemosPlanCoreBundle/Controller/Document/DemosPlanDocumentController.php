@@ -1323,6 +1323,16 @@ class DemosPlanDocumentController extends BaseController
         unset($procedure);
 
         $elementService = $this->elementsService;
+
+        $element = $elementService->getElementObject($elementId);
+        if (!$element instanceof Elements) {
+            $this->getMessageBag()->add('error', 'category.not.found');
+
+            return $this->redirectToRoute('DemosPlan_procedure_public_detail', [
+                'procedure' => $procedureId,
+            ]);
+        }
+
         $documentList = [];
 
         try {
