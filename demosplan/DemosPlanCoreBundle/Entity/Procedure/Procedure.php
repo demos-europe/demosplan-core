@@ -2206,6 +2206,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * @deprecated not used anymore
+     *
      * @todo remove this method when demosplan-addon is adjusted
      */
     public function isInPublicParticipationPhase(): bool
