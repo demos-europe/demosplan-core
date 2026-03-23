@@ -157,7 +157,6 @@ class ServiceOutput
         if ($this->permissions->hasPermission('feature_procedures_count_released_drafts')) {
             $proclistCount = count($sResult);
             for ($proclistcounter = 0; $proclistcounter < $proclistCount; ++$proclistcounter) {
-                $sResult[$proclistcounter] = $this->addPhaseNames($sResult[$proclistcounter]);
                 $statementResult = $this->draftStatementService->getDraftStatementList(
                     $sResult[$proclistcounter]['ident'],
                     'group',
@@ -208,11 +207,6 @@ class ServiceOutput
         $procedureList = $sResult['result'] ?? [];
         $filters = $sResult['filterSet']['filters'] ?? [];
         $activeFilters = $sResult['filterSet']['activeFilters'] ?? [];
-
-        foreach ($procedureList as $key => $procedure) {
-            // Füge den Phasennamen aus der Config hinzu
-            $procedureList[$key] = $this->addPhaseNames($procedure);
-        }
 
         $result = [];
         if (0 !== (is_countable($procedureList) ? count($procedureList) : 0)) {
@@ -339,10 +333,7 @@ class ServiceOutput
      */
     public function getProcedureWithPhaseNames($procedureId): array
     {
-        $sResult = $this->service->getSingleProcedure($procedureId);
-
-        // Füge den Phasennamen aus der Config hinzu
-        return $this->addPhaseNames($sResult);
+        return $this->service->getSingleProcedure($procedureId);
     }
 
     /**
@@ -513,29 +504,6 @@ class ServiceOutput
             );
 
         return $templateVars;
-    }
-
-    /**
-     * Füge den sprechenden Namen der Phase aus den Parametern hinzu.
-     *
-     * @param array $procedure
-     */
-    protected function addPhaseNames($procedure)
-    {
-        // Institutions-Beteiligung
-        $procedure['phaseName'] = '';
-        $internalPhases = $this->config->getInternalPhasesAssoc();
-        if (isset($procedure['phase']) && isset($internalPhases[$procedure['phase']])) {
-            $procedure['phaseName'] = $internalPhases[$procedure['phase']]['name'];
-        }
-        // Öffentlichkeitsbeteiligung
-        $procedure['publicParticipationPhaseName'] = '';
-        $externalPhases = $this->config->getExternalPhasesAssoc();
-        if (isset($procedure['publicParticipationPhase']) && isset($externalPhases[$procedure['publicParticipationPhase']])) {
-            $procedure['publicParticipationPhaseName'] = $externalPhases[$procedure['publicParticipationPhase']]['name'];
-        }
-
-        return $procedure;
     }
 
     /**
