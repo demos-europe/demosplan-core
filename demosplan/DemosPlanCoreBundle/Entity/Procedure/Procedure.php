@@ -2204,9 +2204,14 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this;
     }
 
+    /**
+     * @deprecated not used anymore
+     * @todo remove this method when demosplan-addon is adjusted
+     */
     public function isInPublicParticipationPhase(): bool
     {
-        return ProcedureInterface::PROCEDURE_PARTICIPATION_PHASE === $this->getPublicParticipationPhase();
+        return ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE ===
+            $this->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet();
     }
 
     public function addTagTopic(TagTopicInterface $tagTopic): void
