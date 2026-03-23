@@ -1089,11 +1089,10 @@ class DemosPlanDocumentController extends BaseController
                     }
 
                     return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
-                } else {
-                    $storageResult = $elementHandler->administrationElementEditHandler($procedure, $inData);
-                    if (array_key_exists('ident', $storageResult) && !array_key_exists('mandatoryfieldwarning', $storageResult)) {
-                        $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.saved');
-                    }
+                }
+                $storageResult = $elementHandler->administrationElementEditHandler($procedure, $inData);
+                if (array_key_exists('ident', $storageResult) && !array_key_exists('mandatoryfieldwarning', $storageResult)) {
+                    $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.saved');
                 }
             }
         }
