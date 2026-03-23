@@ -30,6 +30,7 @@ use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionMethod;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use ZipArchive;
@@ -58,6 +59,7 @@ class ServiceImporterSecurityTest extends TestCase
         $paragraphRepository = $this->createMock(ParagraphRepository::class);
         $paragraphService = $this->createMock(ParagraphService::class);
         $pdfCreator = $this->createMock(PdfCreatorInterface::class);
+        $requestStack = $this->createMock(RequestStack::class);
         $router = $this->createMock(RouterInterface::class);
         $rpcClient = $this->createMock(RpcClient::class);
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
@@ -73,6 +75,7 @@ class ServiceImporterSecurityTest extends TestCase
             $paragraphRepository,
             $paragraphService,
             $pdfCreator,
+            $requestStack,
             $router,
             $rpcClient,
             $eventDispatcher

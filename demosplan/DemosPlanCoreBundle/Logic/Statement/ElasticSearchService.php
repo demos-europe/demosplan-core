@@ -371,8 +371,10 @@ class ElasticSearchService
      */
     public function getElasticaTermsInstance($field, $terms)
     {
-        // terms needs to be an array
-        $terms = \is_array($terms) ? $terms : [$terms];
+        // terms needs to be a sequentially-indexed array to ensure proper JSON array encoding;
+        // array_values() prevents non-sequential keys (from array_unique, etc.) causing
+        // Elasticsearch "[terms_lookup] unknown field [0]" errors
+        $terms = \is_array($terms) ? \array_values($terms) : [$terms];
 
         return new Terms($field, $terms);
     }

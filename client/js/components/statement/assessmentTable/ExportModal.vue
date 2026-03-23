@@ -175,7 +175,7 @@
           role="tabpanel"
         >
           <fieldset
-            v-if="options.docx.anonymize || options.docx.obscure"
+            v-if="(options.docx.anonymize || options.docx.obscure) && !isDocxPortraitWithPrioritization"
             class="u-mb-0_5 pb-2"
           >
             <legend
@@ -227,7 +227,7 @@
               }"
               name="docxTemplate"
               :value="identifier"
-              @change="exportChoice.docx.template = identifier"
+              @change="handleDocxTemplateChange(identifier)"
             />
           </fieldset>
 
@@ -697,8 +697,12 @@ export default {
 
   computed: {
     explanationZip () {
-      if (this.options.zip.exportType === 'originalStatements') {
+      if (this.exportChoice.zip.exportType === 'originalStatements') {
         return Translator.trans('explanation.export.original_statements.zip', { hasSelectedElements: this.hasSelectedElements })
+      }
+
+      if (this.exportChoice.zip.exportType === 'originalStatementsWithAttachments') {
+        return Translator.trans('explanation.export.original_statements_with_attachments.zip', { hasSelectedElements: this.hasSelectedElements })
       }
 
       return Translator.trans('explanation.export.statements.zip', { hasSelectedElements: this.hasSelectedElements })
@@ -741,6 +745,10 @@ export default {
 
     isDefaultViewMode () {
       return this.viewMode === 'view_mode_default'
+    },
+
+    isDocxPortraitWithPrioritization () {
+      return this.exportChoice.docx.template === 'portraitWithPrioritization'
     },
 
     isDocxSortTypeByParagraphChecked () {
@@ -829,6 +837,15 @@ export default {
       this.exportChoice.docx.sortType = this.exportChoice.docx.exportType === 'statementsAndFragments' ?
         'byParagraphFragmentsOnly' :
         'byParagraph'
+    },
+
+    handleDocxTemplateChange (template) {
+      this.exportChoice.docx.template = template
+
+      if (template === 'portraitWithPrioritization') {
+        this.exportChoice.docx.numberStatements = false
+        this.exportChoice.docx.anonymous = false
+      }
     },
 
     handleOdtExportTypeChange (value) {

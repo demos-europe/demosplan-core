@@ -210,7 +210,7 @@ class InitializeWorkflowPlacesCommandTest extends FunctionalTestCase
         // Assert
         self::assertSame(Command::SUCCESS, $exitCode);
 
-        $output = $commandTester->getDisplay();
+        $output = preg_replace('/\s+/', ' ', $commandTester->getDisplay());
         self::assertStringContainsString("doesn't exist", $output);
     }
 

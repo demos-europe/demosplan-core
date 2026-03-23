@@ -58,7 +58,6 @@ Examples:
         id="{{ element_id }}"
         :allow-multiple-uploads="{{ maxfiles > 1 ? 'true' : 'false' }}"
         :allowed-file-types="JSON.parse('{{ type|default( "pdf" )|json_encode|e('js', 'utf-8') }}')"
-        :basic-auth="dplan.settings.basicAuth"
         :chunk-size="{{ chunksize|default('Infinity') }}"
         :get-file-by-hash="(hash) => {
             return Routing.generate('core_file', { hash: hash })

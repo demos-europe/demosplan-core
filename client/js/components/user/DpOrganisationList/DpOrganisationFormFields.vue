@@ -290,7 +290,7 @@
         </template>
 
         <!-- Readonly: Currently assigned or requested permissions -->
-        <template v-if="canEdit('registrationStatuses') === false && hasPermission('area_organisations_applications_manage') === false">
+        <template v-if="!canEdit('registrationStatuses') && !hasPermission('area_organisations_applications_manage')">
           <div
             v-for="(registrationStatus, idx) in registrationStatuses"
             :key="idx"
@@ -314,7 +314,7 @@
           v-if="availableRegistrationTypes.length > 0 && (canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage'))"
         >
           <button
-            v-if="showAddStatusForm === false"
+            v-if="!showAddStatusForm"
             class="btn btn--primary u-mt-0_25 u-mb-0_5"
             data-cy="orgaFormField:showAddStatusForm"
             type="button"
@@ -384,7 +384,7 @@
         </template>
 
         <dp-checkbox
-          v-if="hasPermission('feature_manage_procedure_creation_permission')"
+          v-if="hasPermission('feature_manage_procedure_creation_permission') && isPlanningOfficeOrMunicipalityAcceptedOrPending"
           :id="`${organisation.id}:procedureCreatePermission`"
           v-model="localOrganisation.attributes.canCreateProcedures"
           class="mt-2"
@@ -1030,6 +1030,10 @@ export default {
       } else {
         return ''
       }
+    },
+
+    isPlanningOfficeOrMunicipalityAcceptedOrPending () {
+      return this.registrationStatuses.some(registration => (registration.status === 'accepted' || registration.status === 'pending') && (registration.type === 'OPAUTH' || registration.type === 'OLAUTH'))
     },
 
     /**

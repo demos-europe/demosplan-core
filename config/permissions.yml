@@ -308,6 +308,16 @@ area_manage_orgadata:
     label: 'edit data for its own organisation'
     loginRequired: true
     parent: area_manage
+feature_orga_name_edit:
+    description: 'allows the user to edit the organisation name (requires area_manage_orgadata)'
+    label: 'edit organisation name'
+    loginRequired: true
+    parent: area_manage
+feature_orga_data_edit:
+    description: 'allows the user to edit organisation address, phone, postal code, city (requires area_manage_orgadata)'
+    label: 'edit organisation address data'
+    loginRequired: true
+    parent: area_manage
 area_manage_orgas:
     description: |-
         It enables administrative rights to edit any organisation
@@ -658,6 +668,10 @@ feature_admin_new_procedure:
     label: 'Create a new procedure'
     loginRequired: true
     parent: feature_admin
+feature_adjust_export_file_name:
+    expose: false
+    label: 'alters the preamble header of an exported doc to include the procedure name instead of the export-date'
+    loginRequired: true
 feature_allow_update_on_non_manual_statements:
     description: 'Allow to update non-manual statements'
     expose: false
