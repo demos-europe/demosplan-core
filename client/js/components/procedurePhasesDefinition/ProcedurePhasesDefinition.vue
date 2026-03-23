@@ -200,7 +200,7 @@ export default {
 
       return this.phases.some(phase =>
         phase.audience === this.newPhase.audience &&
-        phase.name.trim().toLowerCase() === trimmedName.toLowerCase()
+        phase.name.trim().toLowerCase() === trimmedName.toLowerCase(),
       )
     },
 

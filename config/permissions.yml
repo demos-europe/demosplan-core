@@ -319,6 +319,16 @@ area_manage_orgadata:
     label: 'edit data for its own organisation'
     loginRequired: true
     parent: area_manage
+feature_orga_name_edit:
+    description: 'allows the user to edit the organisation name (requires area_manage_orgadata)'
+    label: 'edit organisation name'
+    loginRequired: true
+    parent: area_manage
+feature_orga_data_edit:
+    description: 'allows the user to edit organisation address, phone, postal code, city (requires area_manage_orgadata)'
+    label: 'edit organisation address data'
+    loginRequired: true
+    parent: area_manage
 area_manage_orgas:
     description: |-
         It enables administrative rights to edit any organisation

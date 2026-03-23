@@ -55,7 +55,7 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         // Instantiate the filter service
         /** @var TranslatorInterface $translator */
         $translator = $this->getContainer()->get(TranslatorInterface::class);
-        $this->sut = new StatementExportTagFilter($translator);
+        $this->sut = new StatementExportTagFilter($translator, $this->getEntityManager());
 
         // Create test procedure and statements used by most tests
         $testProcedure = ProcedureFactory::createOne();
