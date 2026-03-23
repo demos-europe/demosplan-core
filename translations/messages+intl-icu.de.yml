@@ -1489,6 +1489,11 @@ explanation.export.original_statements.zip: |
         true { Exportiert ausgewählte Originalstellungnahmen als einzelne PDF-Dateien in einem ZIP-Archiv. }
         other { Exportiert alle Originalstellungnahmen als einzelne PDF-Dateien in einem ZIP-Archiv. }
     }
+explanation.export.original_statements_with_attachments.zip: |
+    { hasSelectedElements, select,
+        true { Exportiert ausgewählte Originalstellungnahmen mit allen Anhängen in eigenen Ordnern als ZIP-Archiv. }
+        other { Exportiert alle Originalstellungnahmen mit allen Anhängen in eigenen Ordnern als ZIP-Archiv. }
+    }
 explanation.export.statements: |
     {hasSelectedElements, select,
         true {Exportiert ausgewählte Stellungnahmen mit allen Daten als XLSX.}
