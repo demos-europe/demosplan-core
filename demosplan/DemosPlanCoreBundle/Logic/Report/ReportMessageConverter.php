@@ -492,6 +492,13 @@ class ReportMessageConverter
         $message = $this->alterPhaseEntry($message);
         $createdBySystem = $message['createdBySystem'] ?? false;
 
+        if ($createdBySystem && isset($message['autoSwitchExecutedAt'])) {
+            $returnMessage[] = $translator->trans('text.protocol.phase.autoswitch.executed', [
+                'date' => $this->dateExtension->dateFilter($message['autoSwitchExecutedAt']),
+                'time' => $this->dateExtension->dateFilter($message['autoSwitchExecutedAt'], 'H:i'),
+            ]);
+        }
+
         // phase changed
         if (array_key_exists('oldPhase', $message) && array_key_exists('newPhase', $message)) {
             $phaseChangeMessageData = [
@@ -551,8 +558,8 @@ class ReportMessageConverter
                 }
             } else {
                 $returnMessage[] = $translator->trans('text.protocol.publicphase', [
-                    'oldPublicPhase'     => $message['oldPublicPhase'],
-                    'newPublicPhase'     => $message['newPublicPhase'],
+                    'oldPublicPhase'          => $message['oldPublicPhase'],
+                    'newPublicPhase'          => $message['newPublicPhase'],
                     'oldPublicPhaseIteration' => $message['oldPublicPhaseIteration'] ?? 0,
                     'newPublicPhaseIteration' => $message['newPublicPhaseIteration'] ?? 0,
                 ]);
