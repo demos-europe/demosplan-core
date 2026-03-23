@@ -83,8 +83,6 @@ class StatisticsGenerator
         array $procedureData,
         StatementStatistic $globalStatementStatistic,
     ): array {
-        $procedureData['phaseName'] = $this->globalConfig->getPhaseNameWithPriorityInternal($procedureData['phase']);
-        $procedureData['publicParticipationPhaseName'] = $this->globalConfig->getPhaseNameWithPriorityExternal($procedureData['publicParticipationPhase']);
         $procedureData['statementStatistic'] = $globalStatementStatistic->getStatisticDataForProcedure($procedureData['id']);
 
         return $procedureData;
