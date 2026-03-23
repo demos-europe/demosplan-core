@@ -3348,19 +3348,7 @@ class StatementService implements StatementServiceInterface
 
     public function getStatisticsOfProcedure(ProcedureInterface $procedure)
     {
-        /** @var StatementInterface $statementsOfProcedure */
-        $statementsOfProcedure = $procedure->getStatements();
-        $statistics = [
-            self::STATEMENT_STATUS_NEW         => 0,
-            self::STATEMENT_STATUS_PROCESSING  => 0,
-            self::STATEMENT_STATUS_COMPLETED   => 0,
-        ];
-        foreach ($statementsOfProcedure as $statement) {
-            /** @var StatementInterface $statement */
-            if (!$statement->isOriginal()) {
-                ++$statistics[$this->getProcessingStatus($statement)];
-            }
-        }
+        $statistics = $this->statementRepository->getSegmentationStatistics($procedure->getId());
 
         return new PercentageDistribution(
             $statistics[self::STATEMENT_STATUS_NEW] +
