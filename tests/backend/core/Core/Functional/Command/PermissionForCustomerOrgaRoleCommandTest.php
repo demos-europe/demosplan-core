@@ -117,7 +117,7 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
     {
         $commandTester->execute([
             'customerIds'        => $this->testCustomer->object()->getId(),
-            'roleIds'            => $this->testRole->getId(),
+            '--roles'            => $this->testRole->getId(),
             'permission'         => 'CREATE_PROCEDURES_PERMISSION',
             self::DRY_RUN_OPTION => $dryRun,
         ]);
@@ -132,7 +132,7 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
     {
         $commandTester->execute([
             'customerIds'        => $this->testCustomer->object()->getId(),
-            'roleIds'            => $this->testRole->getId(),
+            '--roles'            => $this->testRole->getId(),
             'permission'         => 'CREATE_PROCEDURES_PERMISSION',
             'orgaId'             => $orgaId,
             self::DRY_RUN_OPTION => $dryRun,
@@ -148,7 +148,7 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
     {
         $commandTester->execute([
             'customerIds'        => sprintf('%s,%s', $this->testCustomer->object()->getId(), $this->testCustomer->object()->getId()),
-            'roleIds'            => sprintf('%s,%s', $this->testRole->getId(), $this->testRole->getId()),
+            '--roles'            => sprintf('%s,%s', $this->testRole->getId(), $this->testRole->getId()),
             'permission'         => 'CREATE_PROCEDURES_PERMISSION',
             self::DRY_RUN_OPTION => $dryRun,
         ]);
@@ -209,7 +209,7 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
 
         $commandTester->execute([
             'customerIds'        => $this->testCustomer->object()->getId(),
-            'roleIds'            => $this->testRole->getId(),
+            '--roles'            => $this->testRole->getId(),
             'permission'         => 'CREATE_PROCEDURES_PERMISSION',
             'orgaId'             => 'invalid-org-id',
             self::DRY_RUN_OPTION => true,
