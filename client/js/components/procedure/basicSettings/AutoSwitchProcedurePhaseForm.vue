@@ -87,7 +87,7 @@
      --><div class="layout__item u-1-of-3">
           <fieldset>
             <legend class="weight--bold block is-label">
-              {{ Translator.trans('period.new')}}
+              {{ Translator.trans('period.new') }}
             </legend>
             <dp-date-range-picker
               id="procedurePhasePeriod"
@@ -116,7 +116,7 @@
         >
           <dp-inline-notification
             v-if="showAutoSwitchToAnalysisHint"
-            :message="Translator.trans('period.autoswitch.hint', { phase: Translator.trans(isInternal ? 'procedure.phases.internal.analysis' : 'procedure.phases.external.evaluating')})"
+            :message="Translator.trans('period.autoswitch.hint', { phase: evaluatingPhaseName })"
             class="mt-3 mb-0"
             type="warning"
           />
@@ -125,7 +125,7 @@
 
       <dp-inline-notification
         v-else-if="hasPermission('feature_auto_switch_to_procedure_end_phase') && isParticipationPhaseSelected"
-        :message="Translator.trans('period.autoswitch.hint', { phase: Translator.trans(isInternal ? 'procedure.phases.internal.analysis' : 'procedure.phases.external.evaluating')})"
+        :message="Translator.trans('period.autoswitch.hint', { phase: evaluatingPhaseName })"
         class="mt-3 mb-0"
         type="warning"
       />
@@ -212,6 +212,10 @@ export default {
     },
   },
 
+  emits: [
+    'phaseSelected',
+  ],
+
   data () {
     return {
       autoSwitchPhase: false,
@@ -227,6 +231,12 @@ export default {
   computed: {
     checkboxId () {
       return this.isInternal ? 'r_autoSwitch' : 'r_autoSwitchPublic'
+    },
+
+    evaluatingPhaseName () {
+      const finishedPhase = Object.values(this.availableProcedurePhases)
+        .find(phase => phase.participationState === 'finished')
+      return finishedPhase?.label ?? ''
     },
 
     /**
@@ -277,7 +287,7 @@ export default {
       }
 
       // Needed for the addon-modal on form-submit
-      this.$emit('phase-selected', {
+      this.$emit('phaseSelected', {
         phase: this.selectedPhase,
         enabled: newVal,
         isInternal: this.isInternal,
@@ -301,7 +311,7 @@ export default {
 
     selectedPhase: {
       handler (newVal) {
-        this.$emit('phase-selected', {
+        this.$emit('phaseSelected', {
           phase: newVal,
           enabled: this.autoSwitchPhase,
           isInternal: this.isInternal,

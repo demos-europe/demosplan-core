@@ -121,12 +121,6 @@ export default {
       },
     },
 
-    participationPhases: {
-      type: Array,
-      required: false,
-      default: () => [],
-    },
-
     permissionMessage: {
       type: String,
       required: false,
@@ -166,7 +160,7 @@ export default {
     },
 
     isInParticipation () {
-      return this.participationPhases.includes(this.selectedPhase)
+      return this.phaseOptions.find(option => option.value === this.selectedPhase)?.permissionset === 'write'
     },
   },
 }
