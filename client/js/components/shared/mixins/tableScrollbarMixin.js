@@ -76,7 +76,7 @@ export default {
 
         if (this.$refs?.scrollContainer) {
           const top = this.$refs.scrollContainer.getBoundingClientRect().top
-          this.$refs.scrollContainer.style.maxHeight = `calc(100vh - ${top}px)`
+          this.$refs.scrollContainer.style.maxHeight = `calc(100vh - ${top}px - 18px)`
         }
         this.dataTableElement = this.$refs?.dataTable?.$refs?.tableEl
 

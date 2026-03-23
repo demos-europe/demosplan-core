@@ -133,13 +133,17 @@
           ref="imageModal"
           data-cy="segment:imgModal"
         />
-        <div ref="scrollContainer" class="overflow-x-auto scrollbar-none" >
+        <div
+          ref="scrollContainer"
+          class="overflow-x-auto scrollbar-none"
+        >
           <dp-data-table
           ref="dataTable"
-          class="pb-3 min-h-12"
+          class="min-h-12"
           :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
           data-cy="segmentsList"
           has-flyout
+          has-borders
           has-large-padding
           has-sticky-header
           :header-fields="availableHeaderFields"
@@ -329,15 +333,12 @@
           </template>
         </dp-data-table>
         </div>
-
         <div
           v-show="scrollbarVisible && !isFullscreen"
           ref="scrollBar"
-          class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden"
+          class="sticky bottom-3 left-0 right-0 h-4 overflow-x-scroll overflow-y-hidden z-[11] bg-white"
         >
-          <div
-            :style="scrollbarInnerStyle"
-          />
+          <div :style="scrollbarInnerStyle" />
         </div>
       </template>
 
