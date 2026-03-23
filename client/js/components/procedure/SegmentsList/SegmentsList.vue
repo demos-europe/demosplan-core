@@ -336,7 +336,7 @@
         <div
           v-show="scrollbarVisible && !isFullscreen"
           ref="scrollBar"
-          class="sticky bottom-3 left-0 right-0 h-4 overflow-x-scroll overflow-y-hidden z-[11] bg-white"
+          class="sticky bottom-3 left-0 right-0 h-4 overflow-x-scroll overflow-y-hidden z-[11] scrollbar-interactive"
         >
           <div :style="scrollbarInnerStyle" />
         </div>
