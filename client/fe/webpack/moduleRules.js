@@ -19,6 +19,7 @@ const sass = require('sass-embedded')
  */
 let transpiledModules = [
   // Core modules first
+  resolveDir('client'),
   resolveDir('demosplan'),
   resolveDir('projects'),
 ]
@@ -170,6 +171,7 @@ const moduleRules =
       test: /\.vue$/,
       loader: 'vue-loader',
       options: {
+        enableTsInTemplate: false,
         compilerOptions: {
           compatConfig: {
             MODE: 2,
@@ -178,7 +180,7 @@ const moduleRules =
       },
     },
     {
-      test: /\.js$/,
+      test: /\.(js|ts)$/,
       include: transpiledModules,
       exclude: [
         resolveDir('demosplan/DemosPlanCoreBundle/Resources/client/js/legacy'),

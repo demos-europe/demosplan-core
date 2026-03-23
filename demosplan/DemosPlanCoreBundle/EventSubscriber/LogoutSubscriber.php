@@ -68,10 +68,11 @@ class LogoutSubscriber implements EventSubscriberInterface
         $user = $event->getToken()?->getUser();
         if ($user && method_exists($user, 'isProvidedByIdentityProvider') && $user->isProvidedByIdentityProvider()) {
             // Keycloak logout
-            if ($this->ozgKeycloakLogoutManager->isKeycloakConfigured()) {
+            $logoutRoute = $this->ozgKeycloakLogoutManager->getEffectiveLogoutRoute();
+            if (null !== $logoutRoute) {
                 $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN);
                 $event->getRequest()->getSession()->invalidate();
-                $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
+
                 $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
 
                 // add additional parameters to keycloak logout url for redirect
@@ -100,6 +101,9 @@ class LogoutSubscriber implements EventSubscriberInterface
         foreach ($this->allowedCookieNames as $cookieName) {
             $response->headers->clearCookie($cookieName);
         }
+
+        // Clear browser prefetch and prerender caches on logout
+        $response->headers->set('Clear-Site-Data', '"prefetchCache", "prerenderCache"');
 
         $event->setResponse($response);
     }

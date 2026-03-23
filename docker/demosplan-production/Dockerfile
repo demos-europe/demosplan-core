@@ -1,5 +1,5 @@
 # due to BSI SYS.1.6.A6 we need to use excplicit versions
-FROM debian:bookworm-20251229-slim AS build
+FROM debian:bookworm-20260202-slim AS build
 
 # Install all dependencies needed for both build and fpm stages
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -21,6 +21,8 @@ COPY zzz-dplan-cli.ini /etc/php/8.3/cli/conf.d/zzz-dplan-cli.ini
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
+ARG COMMIT_SHA_CORE=""
+ARG COMMIT_SHA_PROJECT=""
 # ENV vars needs to be set to build the assets
 ENV PROJECT_PREFIX=$PROJECT_NAME \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
@@ -37,7 +39,7 @@ COPY php-fpm_www.conf /etc/php/8.3/fpm/pool.d/zzz-www.conf
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,sharing=locked \
     npm install --ignore-scripts -g n && \
-# Install specific node version first
+# Install specific node version first \
     n 24.11.1 && \
     npm install --ignore-scripts -g corepack && \
     corepack enable && yarn set version 4.2.2
@@ -54,13 +56,13 @@ RUN mkdir -p /opt/uploads && \
     chown -R www-data:www-data /opt/config && \
     chown -R www-data:www-data /srv/www && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/app/config && \
-# asset build only needs the parameters.yml without content
+# asset build only needs the parameters.yml without content \
     echo "parameters:" > /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
 
+USER www-data
 WORKDIR /srv/www
 # Install composer and yarn before copying the project files to make use of the docker cache
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
-USER www-data
 # do not use --no-scripts, as we do not need all the aws stuff
 RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
@@ -69,18 +71,14 @@ RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=loc
         composer install -o --prefer-dist --no-progress; \
     else \
         composer install -o --prefer-dist --no-dev --no-progress; \
-    fi
-
-COPY . /srv/www
-
-# Now do the yarn workspace focus after files are copied
-RUN --mount=type=cache,target=/var/www,uid=33,gid=33 \
-    yarn workspaces list && \
-    yarn workspaces focus demosplan-core "$PROJECT_NAME" && \
+    fi && \
+    yarn install --immutable && \
     yarn cache clean && \
     rm -rf /srv/www/.cache/*
 
 USER root
+COPY . /srv/www
+
 # Remove app_dev.php in production mode
 RUN if [ "$BUILD_MODE" = "prod" ]; then \
         rm -f /srv/www/projects/$PROJECT_NAME/web/app_dev.php; \
@@ -100,7 +98,7 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
     chown -R www-data /srv/www/var/log && \
     chown -R www-data /srv/www/var/certs && \
     chown -R www-data /srv/www/client/css/generated && \
-# define doctrine in memory database for the asset build
+# define doctrine in memory database for the asset build \
     mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
 COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
 COPY parameters_build.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
@@ -118,15 +116,13 @@ RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
         ./fe build $PROJECT_NAME; \
     else \
         ./fe build $PROJECT_NAME --prod; \
-    fi
-
-USER root
-
-RUN rm -rf /srv/www/node_modules && \
+    fi && \
+    rm -rf /srv/www/node_modules && \
     rm -rf /srv/www/addons/cache/*/node_modules && \
     rm -rf /srv/www/addonZips && \
     rm -rf /srv/www/.cache
 
+USER root
 RUN mv /tmp/doctrine.yaml /srv/www/config/packages/doctrine.yaml
 COPY projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/parameters.yml
 
@@ -143,9 +139,16 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     touch /var/log/php8.3-fpm.log && chown www-data:www-data /var/log/php8.3-fpm.log
 
 # Runtime stage - starts fresh WITHOUT build tools (Node.js, npm, composer)
-FROM debian:bookworm-20251229-slim AS fpm
+FROM debian:bookworm-20260202-slim AS fpm
 
 ARG PROJECT_NAME
+ARG COMMIT_SHA_CORE=""
+ARG COMMIT_SHA_PROJECT=""
+
+LABEL org.opencontainers.image.source="https://github.com/demos-europe/demosplan-core"
+LABEL de.demos.core.revision=$COMMIT_SHA_CORE
+LABEL de.demos.project.revision=$COMMIT_SHA_PROJECT
+
 ENV PROJECT_PREFIX=$PROJECT_NAME \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
     EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de \
@@ -197,19 +200,25 @@ RUN rm -rf /srv/www/var/cache/* && \
     # use a dummy file during link creation to prevent the error if the secret is not mounted \
     touch /srv/www/var/certs/ca.crt && \
     ln -s /srv/www/var/certs/ca.crt /usr/local/share/ca-certificates/ca.crt && \
-    # avoid conflict with the default www.conf
+    # avoid conflict with the default www.conf \
     rm -f /etc/php/8.3/fpm/pool.d/www.conf && \
-    # create php-fpm log file
+    # create php-fpm log file \
     touch /var/log/php8.3-fpm.log && chown www-data:www-data /var/log/php8.3-fpm.log
 
 # run as rootless container
 USER www-data
 CMD ["/usr/sbin/php-fpm8.3", "-F"]
 
-FROM nginxinc/nginx-unprivileged:alpine3.22-slim AS nginx
+FROM nginxinc/nginx-unprivileged:alpine3.23-slim AS nginx
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
+ARG COMMIT_SHA_CORE=""
+ARG COMMIT_SHA_PROJECT=""
+
+LABEL org.opencontainers.image.source="https://github.com/demos-europe/demosplan-core"
+LABEL de.demos.core.revision=$COMMIT_SHA_CORE
+LABEL de.demos.project.revision=$COMMIT_SHA_PROJECT
 ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung \
     BUILD_MODE=$BUILD_MODE
 

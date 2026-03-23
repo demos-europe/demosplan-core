@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper;
+namespace demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakDataMapper;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;

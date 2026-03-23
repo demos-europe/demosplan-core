@@ -102,6 +102,7 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldPropertyName;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\CountyNotificationData;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
@@ -445,9 +446,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         return $this->statementFragmentService->getStatementFragmentsDepartmentArchive($esQuery, $this->getRequestValues(), $departmentId);
     }
 
-    public function addSourceStatementAttachments(array $statements)
+    public function addStatementAttachments(array $statements, bool $includeAdditionalAttachments = false)
     {
-        return $this->statementService->addSourceStatementAttachments($statements);
+        return $this->statementService->addStatementAttachments($statements, $includeAdditionalAttachments);
     }
 
     /**
@@ -572,7 +573,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         $fragmentToUpdate = $this->statementFragmentService->getStatementFragment($fragmentId);
 
-        if (!($fragmentToUpdate instanceof StatementFragment)) {
+        if (!$fragmentToUpdate instanceof StatementFragment) {
             throw new EntityNotFoundException('StatementFragment not found: '.$fragmentId);
         }
 
@@ -592,7 +593,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         $fragmentToUpdate = $this->statementFragmentService->getStatementFragment($statementFragmentId);
 
-        if (!($fragmentToUpdate instanceof StatementFragment)) {
+        if (!$fragmentToUpdate instanceof StatementFragment) {
             $this->getLogger()->error('Could not update StatementFragment, Fragment not found: '.$statementFragmentId);
 
             return false;
@@ -965,6 +966,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $statement['statementAttributes']['county'] = $data['r_county'];
         } elseif (array_key_exists('r_county', $data)) {
             $statement['statementAttributes']['county'] = '';
+        }
+
+        if (array_key_exists(CustomFieldPropertyName::twigRequestName->value, $data)) {
+            $statement[CustomFieldPropertyName::twigRequestName->value] = $data[CustomFieldPropertyName::twigRequestName->value];
         }
 
         // Alle Stellungnahmen sind externe SN
@@ -1985,6 +1990,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 'r_document_title',
                 'r_phone',
                 'r_submitter_role',
+                CustomFieldPropertyName::twigRequestName->value,
             ],
         ];
     }
@@ -3040,7 +3046,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         if (array_key_exists('r_publicVerified', $data)) {
             $procedure = $this->procedureService->getProcedure($procedureId);
 
-            if (!($procedure instanceof Procedure)) {
+            if (!$procedure instanceof Procedure) {
                 throw ProcedurePublicationException::procedureNotFound($procedureId);
             }
 
@@ -3432,9 +3438,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
             if ($updatedStatement instanceof Statement) {
                 return true;
-            } else {
-                $this->getLogger()->error('Set assignee of Statement '.$statement->getId().' failed.');
             }
+            $this->getLogger()->error('Set assignee of Statement '.$statement->getId().' failed.');
         }
 
         return $statement->getExternId();

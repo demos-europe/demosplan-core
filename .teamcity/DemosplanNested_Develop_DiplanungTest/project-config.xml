@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" parent-id="DemosplanNested_Develop" uuid="488b247c-e2c6-4b2d-95bb-8ea21f258ecd" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2025.3/project-config.xsd">
+  <name>Diplanung Test</name>
+  <parameters>
+    <param name="teamcity.pipelines.externalMainVcsRootId" value="DemosplanNested_Develop_GitGithubComDemosEuropeDemosplanCoreGitMain" />
+    <param name="teamcity.projectCredentials.storageType" value="credentialsJSON" />
+  </parameters>
+  <project-extensions>
+    <extension id="PROJECT_EXT_27" type="versionedSettings">
+      <parameters>
+        <param name="buildSettings" value="PREFER_VCS" />
+        <param name="credentialsStorageType" value="credentialsJSON" />
+        <param name="enabled" value="true" />
+        <param name="format" value="pipelines-yaml" />
+        <param name="ignoreChangesInDependenciesAndVcsSettings" value="false" />
+        <param name="rootId" value="DemosplanNested_Develop_GitGithubComDemosEuropeDemosplanCoreGitMain" />
+        <param name="showChanges" value="false" />
+        <param name="useRelativeIds" value="true" />
+      </parameters>
+    </extension>
+  </project-extensions>
+</project>
+

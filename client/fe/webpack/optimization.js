@@ -86,7 +86,7 @@ function optimization () {
           test: /\.js($|\?)/i,
           parallel: true,
           terserOptions: {
-            ecma: 2016,
+            ecma: 2022,
             compress: {
               drop_console: true,
               drop_debugger: true,

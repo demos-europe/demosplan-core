@@ -134,6 +134,7 @@ use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Exception;
+use FOS\ElasticaBundle\Index\IndexManager;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -252,6 +253,7 @@ class StatementService implements StatementServiceInterface
         private readonly FileService $fileService,
         private readonly GlobalConfigInterface $globalConfig,
         HashedQueryService $filterSetService,
+        private readonly IndexManager $indexManager,
         JsonApiPaginationParser $paginationParser,
         private readonly MessageBagInterface $messageBag,
         protected ParagraphService $paragraphService,
@@ -1644,15 +1646,22 @@ class StatementService implements StatementServiceInterface
      *
      * @throws Exception
      */
-    public function addSourceStatementAttachments(array $statements): array
+    public function addStatementAttachments(array $statements, bool $includeAdditionalAttachments = false): array
     {
         $entities = $this->elasticsearchStatementsToObjects($statements);
 
-        return \array_map(static function (array $statement) use ($entities): array {
+        return \array_map(static function (array $statement) use ($entities, $includeAdditionalAttachments): array {
+            // Add SOURCE_STATEMENT attachment
             $statement['attachments'] = array_filter(
                 $entities[$statement['id']]->getAttachments()->getValues(),
                 static fn (StatementAttachment $attachment) => StatementAttachment::SOURCE_STATEMENT === $attachment->getType()
             );
+
+            // Add additional attachments
+            if ($includeAdditionalAttachments) {
+                $files = $entities[$statement['id']]->getFiles();
+                $statement['files'] = $files;
+            }
 
             return $statement;
         }, $statements);
@@ -1698,6 +1707,9 @@ class StatementService implements StatementServiceInterface
             $statement->setVotes($existingVotes->toArray());
 
             $this->statementRepository->updateObject($statement);
+
+            // Refresh ES index to ensure the vote is immediately visible after redirect
+            $this->indexManager->getIndex('statements')->refresh();
 
             $this->messageBag->add('confirm', 'confirm.statement.marked.voted');
 
@@ -2252,9 +2264,9 @@ class StatementService implements StatementServiceInterface
             static function ($value, string $key) {
                 if ('r_submitterEmailAddress' === $key) {
                     return str_starts_with($key, 'r_') && (\is_string($value) || (\is_array($value) && [] !== $value));
-                } else {
-                    return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && [] !== $value));
                 }
+
+                return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && [] !== $value));
             }
         )->mapWithKeys(
             static function ($stringOrArrayValue, string $key) {
@@ -2687,6 +2699,12 @@ class StatementService implements StatementServiceInterface
     public function getProcedurePhaseNameFromArray(array $statement): string
     {
         $statementObject = $this->getStatement($statement['id']);
+
+        if (!$statementObject instanceof Statement) {
+            $this->logger->error('Statement with id '.$statement['id'].' not found.');
+
+            return '';
+        }
 
         return $this->getProcedurePhaseName(
             $statement['phase'],

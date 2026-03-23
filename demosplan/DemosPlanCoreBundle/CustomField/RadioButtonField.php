@@ -67,15 +67,6 @@ class RadioButtonField extends AbstractCustomField
         $this->options = $options;
     }
 
-    public function isValueValid(?string $value): bool
-    {
-        if (null === $value) {
-            return true;
-        }
-
-        return collect($this->options)->contains(fn ($option) => $option->getId() === $value);
-    }
-
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption
     {
         foreach ($this->options as $option) {
