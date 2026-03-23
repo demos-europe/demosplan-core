@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -27,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
@@ -93,6 +95,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         private readonly PermissionsInterface $permissions,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
         private readonly ProcedureService $procedureService,
+        private readonly ReportService $reportService,
         PublicAffairsAgentHandler $publicAffairsAgentHandler,
         QueryProcedure $esQueryProcedure,
         ServiceOutput $serviceOutput,
@@ -857,6 +860,8 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
     {
         $changedInternalProcedures = collect([]);
         $changedExternalProcedures = collect([]);
+        $reportEntries = [];
+        $systemUserName = $this->translator->trans('user.system.name');
 
         // internal:
         $internalWritePhaseKeys = $this->getDemosplanConfig()->getInternalPhaseKeys('write');
@@ -874,11 +879,25 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         foreach ($endedInternalProcedures as $endedInternalProcedure) {
             if (null !== $endedInternalProcedure->getEndDate()
                 && !$endedInternalProcedure->getMaster() && !$endedInternalProcedure->isDeleted()) {
+                // clone before modification so the phase change is detectable for report entry creation
+                $originalProcedure = $this->procedureService->cloneProcedure($endedInternalProcedure);
+
                 $endedInternalProcedure->setPhaseKey($internalPhaseKey);
                 $endedInternalProcedure->setPhaseName($internalPhaseName);
                 $endedInternalProcedure->setCustomer($endedInternalProcedure->getCustomer());
 
                 $updatedProcedure = $this->procedureService->updateProcedureObject($endedInternalProcedure);
+
+                try {
+                    $reportEntries[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
+                        $originalProcedure,
+                        $endedInternalProcedure,
+                        $systemUserName,
+                        true
+                    );
+                } catch (Exception $e) {
+                    $this->getLogger()->warning('Failed to create report entry for internal phase auto-switch', ['exception' => $e]);
+                }
                 $changedInternalProcedures->push($updatedProcedure);
             }
         }
@@ -899,20 +918,48 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         foreach ($endedExternalProcedures as $endedExternalProcedure) {
             if (null !== $endedExternalProcedure->getPublicParticipationEndDate()
                 && !$endedExternalProcedure->getMaster() && !$endedExternalProcedure->isDeleted()) {
+                // clone before modification so the phase change is detectable for report entry creation
+                $originalProcedure = $this->procedureService->cloneProcedure($endedExternalProcedure);
+
                 $endedExternalProcedure->setPublicParticipationPhase($externalPhaseKey);
                 $endedExternalProcedure->setPublicParticipationPhaseName($externalPhaseName);
                 $endedExternalProcedure->setCustomer($endedExternalProcedure->getCustomer());
 
                 $updatedProcedure = $this->procedureService->updateProcedureObject($endedExternalProcedure);
+
+                try {
+                    $reportEntries[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
+                        $originalProcedure,
+                        $endedExternalProcedure,
+                        $systemUserName,
+                        true
+                    );
+                } catch (Exception $e) {
+                    $this->getLogger()->warning('Failed to create report entry for external phase auto-switch', ['exception' => $e]);
+                }
                 $changedExternalProcedures->push($updatedProcedure);
             }
         }
+
+        // persist report entries
+        $this->persistReportEntries($reportEntries);
 
         // Success notice
         $this->getLogger()->info('Switched phases to evaluation of '.$changedInternalProcedures->count().' internal/toeb procedures.');
         $this->getLogger()->info('Switched phases to evaluation of '.$changedExternalProcedures->count().' external/public procedures.');
 
         return $changedExternalProcedures->merge($changedInternalProcedures)->unique();
+    }
+
+    /**
+     * @param array<int, ReportEntry|null> $reportEntries
+     */
+    private function persistReportEntries(array $reportEntries): void
+    {
+        $reportEntries = array_filter($reportEntries);
+        foreach ($reportEntries as $reportEntry) {
+            $this->reportService->persistAndFlushReportEntries($reportEntry);
+        }
     }
 
     /**
