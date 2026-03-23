@@ -52,7 +52,10 @@
         >
           <tr>
             <td>
-              <label class="whitespace-nowrap u-m-0">
+              <label
+                :for="`checkStatement:${statement.id}`"
+                class="m-0 whitespace-nowrap"
+              >
                 <input
                   :id="`checkStatement:${statement.id}`"
                   type="checkbox"
@@ -166,9 +169,10 @@
             class="border--top"
           >
             <input
-              type="checkbox"
+              :aria-label="Translator.trans('personal.data.usage.allowed')"
               checked
               disabled
+              type="checkbox"
             >
             <span> {{ Translator.trans('personal.data.usage.allowed') }} </span>
           </div>
