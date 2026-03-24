@@ -63,16 +63,6 @@
           variant="outline"
           @click="resetQuery"
         />
-        <dp-button
-          class="ml-auto"
-          data-cy="editorFullscreen"
-          :icon="isFullscreen ? 'compress' : 'expand'"
-          icon-size="medium"
-          hide-text
-          variant="outline"
-          :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
-          @click="handleFullscreenMode()"
-        />
       </div>
       <dp-bulk-edit-header
         v-if="selectedItemsCount > 0"
@@ -133,6 +123,26 @@
           ref="imageModal"
           data-cy="segment:imgModal"
         />
+        <div class="flex justify-end gap-2 py-2">
+          <dp-button
+            v-if="hasPermission('feature_segments_import_excel')"
+            data-cy="segmentsList:importOptionsXLS"
+            :href="Routing.generate('DemosPlan_procedure_import', { procedureId: procedureId }) + '#ExcelImport'"
+            icon="upload"
+            icon-size="medium"
+            variant="outline"
+            :text="Translator.trans('import.options.xls')"
+          />
+          <dp-button
+            data-cy="editorFullscreen"
+            :icon="isFullscreen ? 'compress' : 'expand'"
+            icon-size="medium"
+            hide-text
+            variant="outline"
+            :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
+            @click="handleFullscreenMode()"
+          />
+        </div>
         <div
           ref="scrollContainer"
           class="overflow-x-auto scrollbar-none"
@@ -140,7 +150,7 @@
           <dp-data-table
           ref="dataTable"
           class="min-h-12"
-          :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
+          :class="{ 'px-2': isFullscreen, 'scrollbar-none': !isFullscreen }"
           data-cy="segmentsList"
           has-flyout
           has-borders
@@ -334,7 +344,7 @@
         </dp-data-table>
         </div>
         <div
-          v-show="scrollbarVisible && !isFullscreen"
+          v-show="scrollbarVisible"
           ref="scrollBar"
           class="sticky bottom-3 left-0 right-0 h-4 overflow-x-scroll overflow-y-hidden z-[11] scrollbar-interactive"
         >
