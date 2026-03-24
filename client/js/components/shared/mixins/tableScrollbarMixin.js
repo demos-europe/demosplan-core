@@ -67,17 +67,16 @@ export default {
       }
 
       const top = this.$refs.scrollContainer.getBoundingClientRect().top
-      this.$refs.scrollContainer.style.maxHeight = `calc(100vh - ${top}px - 18px)`
+      // In fullscreen, the scrollbar is position: fixed at bottom-3 (12px), with height h-3 (12px) = 24px total.
+      // Outside fullscreen, 18px reserves space for the sticky scrollbar.
+      const offset = this.isFullscreen ? 24 : 18
+      this.$refs.scrollContainer.style.maxHeight = `calc(100vh - ${top}px - ${offset}px)`
     },
   },
 
   created () {
     /**
-     * Updating the scrollbar needs to wait for the dataTable items to load,
-     * as the table is only then present in its final width.
-     */
-    /**
-     * When fullscreen mode is toggled, recalculate or clear the scroll container height.
+     * When fullscreen mode is toggled, recalculate the scroll container height.
      * Only has effect in components that also use fullscreenModeMixin (isFullscreen exists).
      */
     this.$watch('isFullscreen', (isFullscreen) => {

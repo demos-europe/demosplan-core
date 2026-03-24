@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface overflow-y-hidden': isFullscreen }">
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
     <dp-sticky-element
       border
       class="pt-2 pb-3"
@@ -346,7 +346,8 @@
         <div
           v-show="scrollbarVisible"
           ref="scrollBar"
-          class="sticky bottom-3 left-0 right-0 h-4 overflow-x-scroll overflow-y-hidden z-[11] scrollbar-interactive"
+          class="h-3 overflow-x-scroll overflow-y-hidden z-[11] scrollbar-interactive"
+          :class="isFullscreen ? 'fixed bottom-3 left-0 right-0' : 'sticky bottom-3 left-0 right-0'"
         >
           <div :style="scrollbarInnerStyle" />
         </div>
