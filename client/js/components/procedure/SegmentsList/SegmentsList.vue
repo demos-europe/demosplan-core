@@ -113,21 +113,21 @@
       <div class="flex justify-end gap-2 py-2">
         <dp-button
           v-if="hasPermission('feature_segments_import_excel')"
-          data-cy="segmentsList:importOptionsXLS"
           :href="Routing.generate('DemosPlan_procedure_import', { procedureId: procedureId }) + '#ExcelImport'"
+          :text="Translator.trans('import.options.xls')"
+          data-cy="segmentsList:importOptionsXLS"
           icon="upload"
           icon-size="medium"
           variant="subtle"
-          :text="Translator.trans('import.options.xls')"
         />
         <dp-button
-          data-cy="editorFullscreen"
           :icon="isFullscreen ? 'compress' : 'expand'"
-          icon-size="medium"
-          hide-text
-          variant="subtle"
           :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
-          @click="handleFullscreenMode()"
+          data-cy="editorFullscreen"
+          icon-size="medium"
+          variant="subtle"
+          hide-text
+          @click="handleFullscreenMode"
         />
       </div>
     </dp-sticky-element>

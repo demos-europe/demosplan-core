@@ -67,8 +67,10 @@ export default {
       }
 
       const top = this.$refs.scrollContainer.getBoundingClientRect().top
-      // In fullscreen, the scrollbar is position: fixed at bottom-3 (12px), with height h-3 (12px) = 24px total.
-      // Outside fullscreen, 18px reserves space for the sticky scrollbar.
+      /*
+       * In fullscreen, the scrollbar is position: fixed at bottom-3 (12px), with height h-3 (12px) = 24px total.
+       * Outside fullscreen, 18px reserves space for the sticky scrollbar.
+       */
       const offset = this.isFullscreen ? 24 : 18
       this.$refs.scrollContainer.style.maxHeight = `calc(100vh - ${top}px - ${offset}px)`
     },
@@ -94,8 +96,10 @@ export default {
 
       this.$nextTick(() => {
         this.scrollbar = this.$refs?.scrollBar
-        // Allows components to use a separate scroll wrapper (ref="scrollContainer") to enable sticky headers,
-        // while keeping the dataTable itself free of overflow that would block position: sticky.
+        /*
+         * Allows components to use a separate scroll wrapper (ref="scrollContainer") to enable sticky headers,
+         * while keeping the dataTable itself free of overflow that would block position: sticky.
+         */
         this.dataTableContainerElement = this.$refs?.scrollContainer ?? this.$refs?.dataTable?.$el
 
         this.updateScrollContainerHeight()
