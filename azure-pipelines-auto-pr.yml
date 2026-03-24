@@ -1,0 +1,132 @@
+trigger:
+  branches:
+    include:
+      - feature/main-sync/*
+
+pool:
+  name: DiPlan Docker Agent Pool
+
+parameters:
+  - name: sourceBranch
+    displayName: Source branch (overrides trigger branch)
+    type: string
+    default: ''
+
+steps:
+  - checkout: none
+
+  - bash: |
+      if [ -n "$PARAM_BRANCH" ]; then
+        echo "##vso[task.setvariable variable=RESOLVED_BRANCH]$PARAM_BRANCH"
+      else
+        echo "##vso[task.setvariable variable=RESOLVED_BRANCH]$BUILD_BRANCH"
+      fi
+    displayName: Resolve source branch
+    env:
+      PARAM_BRANCH: ${{ parameters.sourceBranch }}
+      BUILD_BRANCH: $(Build.SourceBranchName)
+
+  - bash: |
+      ENCODED_PROJECT=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$PROJECT")
+      BASE_URL="${COLLECTION_URI}${ENCODED_PROJECT}/_apis/git/repositories/${REPO_NAME}"
+      AUTH="Authorization: Basic $(echo -n :$SYSTEM_TOKEN | base64 -w 0)"
+
+      # Create PR
+      CREATE_BODY=$(cat <<EOF
+      {
+        "title": "Sync from main: $SOURCE_BRANCH",
+        "sourceRefName": "refs/heads/$SOURCE_BRANCH",
+        "targetRefName": "refs/heads/develop"
+      }
+      EOF
+      )
+
+      RESPONSE=$(curl -s -w "\n%{http_code}" \
+        -X POST \
+        -H "Content-Type: application/json" \
+        -H "$AUTH" \
+        -d "$CREATE_BODY" \
+        "${BASE_URL}/pullrequests?api-version=7.1")
+
+      HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+      BODY_RESPONSE=$(echo "$RESPONSE" | head -n -1)
+
+      if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+        echo "Failed to create PR (HTTP $HTTP_CODE): $BODY_RESPONSE"
+        exit 1
+      fi
+
+      PR_ID=$(echo "$BODY_RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['pullRequestId'])")
+      COMMIT_ID=$(echo "$BODY_RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['lastMergeSourceCommit']['commitId'])")
+      echo "Created PR #$PR_ID (commit: $COMMIT_ID)"
+
+      # Complete the PR immediately
+      PATCH_BODY=$(cat <<EOF
+      {
+        "status": "completed",
+        "lastMergeSourceCommit": { "commitId": "$COMMIT_ID" },
+        "completionOptions": {
+          "mergeStrategy": "rebase",
+          "deleteSourceBranch": true
+        }
+      }
+      EOF
+      )
+
+      PATCH_RESPONSE=$(curl -s -w "\n%{http_code}" \
+        -X PATCH \
+        -H "Content-Type: application/json" \
+        -H "$AUTH" \
+        -d "$PATCH_BODY" \
+        "${BASE_URL}/pullrequests/${PR_ID}?api-version=7.1")
+
+      PATCH_CODE=$(echo "$PATCH_RESPONSE" | tail -1)
+      PATCH_BODY_RESPONSE=$(echo "$PATCH_RESPONSE" | head -n -1)
+
+      if [ "$PATCH_CODE" -lt 200 ] || [ "$PATCH_CODE" -ge 300 ]; then
+        echo "Failed to complete PR (HTTP $PATCH_CODE): $PATCH_BODY_RESPONSE"
+        exit 1
+      fi
+
+      PATCH_STATUS=$(echo "$PATCH_BODY_RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('status','unknown'), d.get('mergeStatus','unknown'))")
+      echo "PATCH response: $PATCH_STATUS"
+
+      echo "Waiting for PR #$PR_ID to complete..."
+      for i in $(seq 1 12); do
+        sleep 5
+        STATUS_RESPONSE=$(curl -s \
+          -H "$AUTH" \
+          "${BASE_URL}/pullrequests/${PR_ID}?api-version=7.1")
+        PR_STATUS=$(echo "$STATUS_RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status','unknown'))")
+        echo "Attempt $i: PR status = $PR_STATUS"
+        if [ "$PR_STATUS" = "completed" ]; then
+          echo "PR #$PR_ID completed"
+          DELETE_BODY="[{\"name\":\"refs/heads/$SOURCE_BRANCH\",\"oldObjectId\":\"$COMMIT_ID\",\"newObjectId\":\"0000000000000000000000000000000000000000\"}]"
+          DELETE_RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "$AUTH" \
+            -d "$DELETE_BODY" \
+            "${BASE_URL}/refs?api-version=7.1")
+          DELETE_CODE=$(echo "$DELETE_RESPONSE" | tail -1)
+          if [ "$DELETE_CODE" -ge 200 ] && [ "$DELETE_CODE" -lt 300 ]; then
+            echo "Source branch deleted"
+          else
+            echo "Failed to delete source branch (HTTP $DELETE_CODE)"
+          fi
+          exit 0
+        elif [ "$PR_STATUS" = "abandoned" ]; then
+          echo "PR #$PR_ID was abandoned"
+          exit 1
+        fi
+      done
+
+      echo "PR #$PR_ID did not complete within 60 seconds"
+      exit 1
+    displayName: Create and auto-complete PR into develop
+    env:
+      SYSTEM_TOKEN: $(System.AccessToken)
+      REPO_NAME: $(Build.Repository.Name)
+      SOURCE_BRANCH: $(RESOLVED_BRANCH)
+      COLLECTION_URI: $(System.CollectionUri)
+      PROJECT: $(System.TeamProject)
