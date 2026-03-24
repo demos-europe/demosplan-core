@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -52,7 +53,7 @@ class CustomerOAuthConfig extends CoreEntity implements UuidEntityInterface
     private string $keycloakClientId;
 
     /**
-     * @ORM\Column(name="keycloak_client_secret", type="string", length=255, nullable=false)
+     * @ORM\Column(name="keycloak_client_secret", type="dplan.encrypted_string", length=512, nullable=false)
      */
     private string $keycloakClientSecret;
 
@@ -73,6 +74,16 @@ class CustomerOAuthConfig extends CoreEntity implements UuidEntityInterface
      * @ORM\Column(name="keycloak_logout_route", type="string", length=1000, nullable=true)
      */
     private ?string $keycloakLogoutRoute = null;
+
+    /**
+     * Default organisation for auto-provisioning new users during Azure/Entra ID login.
+     * When set, users who don't exist yet will be created and assigned to this organisation.
+     *
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
+     *
+     * @ORM\JoinColumn(name="default_organisation_id", referencedColumnName="_o_id", nullable=true, onDelete="SET NULL")
+     */
+    private ?OrgaInterface $defaultOrganisation = null;
 
     public function getId(): string
     {
@@ -137,5 +148,15 @@ class CustomerOAuthConfig extends CoreEntity implements UuidEntityInterface
     public function setKeycloakLogoutRoute(?string $keycloakLogoutRoute): void
     {
         $this->keycloakLogoutRoute = $keycloakLogoutRoute;
+    }
+
+    public function getDefaultOrganisation(): ?OrgaInterface
+    {
+        return $this->defaultOrganisation;
+    }
+
+    public function setDefaultOrganisation(?OrgaInterface $defaultOrganisation): void
+    {
+        $this->defaultOrganisation = $defaultOrganisation;
     }
 }

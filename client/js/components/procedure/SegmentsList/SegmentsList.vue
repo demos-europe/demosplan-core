@@ -771,9 +771,6 @@ export default {
       }
       this.isLoading = true
       this.fetchSegments(payload)
-        .catch(() => {
-          dplan.notify.notify('error', Translator.trans('error.generic'))
-        })
         .then((data) => {
           /**
            * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
@@ -789,6 +786,14 @@ export default {
             filter,
             search: payload.search,
           })
+        })
+        .catch(() => {
+          if (Object.keys(this.getFilterQuery).length > 0 || this.searchTerm !== '') {
+            this.resetQuery()
+            dplan.notify.notify('warning', Translator.trans('filter.reset.failed'))
+          } else {
+            dplan.notify.notify('error', Translator.trans('error.generic'))
+          }
         })
         .finally(() => {
           this.isLoading = false

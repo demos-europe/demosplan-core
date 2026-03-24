@@ -13,8 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\CustomerOAuthConfig;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use JsonException;
@@ -33,11 +35,13 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 class SetCustomerOAuthConfigCommand extends CoreCommand
 {
     private const OPTION_CONFIG_FILE = 'config-file';
+    private const OPTION_CONFIG_JSON = 'config-json';
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly CustomerRepository $customerRepository,
         private readonly CustomerOAuthConfigRepository $configRepository,
+        private readonly OrgaRepository $orgaRepository,
         ParameterBagInterface $parameterBag,
         ?string $name = null,
     ) {
@@ -53,6 +57,13 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
             'Path to a JSON file containing per-customer OAuth2 configurations'
         );
 
+        $this->addOption(
+            self::OPTION_CONFIG_JSON,
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Inline JSON string containing per-customer OAuth2 configurations'
+        );
+
         $this->setHelp(<<<'HELP'
             Upserts per-customer Keycloak OAuth2 configuration.
 
@@ -60,7 +71,11 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
 
               <comment>%command.name% --config-file=/path/to/config.json</comment>
 
-            The JSON file must be an object keyed by customer subdomain:
+            <info>Batch mode (inline JSON):</info>
+
+              <comment>%command.name% --config-json='{"mysubdomain": {"clientId": "...", ...}}'</comment>
+
+            The JSON must be an object keyed by customer subdomain:
 
               {
                   "mysubdomain": {
@@ -79,13 +94,14 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
               }
 
             Required fields: <comment>clientId</comment>, <comment>clientSecret</comment>, <comment>authServerUrl</comment>, <comment>realm</comment>
-            Optional fields: <comment>logoutRoute</comment> (falls back to global oauth_keycloak_logout_route parameter)
+            Optional fields: <comment>logoutRoute</comment> (falls back to global oauth_keycloak_logout_route parameter),
+                             <comment>defaultOrganisationId</comment> (organisation ID for auto-provisioning new Azure users)
 
             <info>Interactive mode:</info>
 
               <comment>%command.name%</comment>
 
-            When called without <comment>--config-file</comment>, the command prompts for each value interactively.
+            When called without <comment>--config-file</comment> or <comment>--config-json</comment>, the command prompts for each value interactively.
             HELP);
     }
 
@@ -94,11 +110,16 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
         $io = new SymfonyStyle($input, $output);
 
         $configFilePath = $input->getOption(self::OPTION_CONFIG_FILE);
-        if (!is_string($configFilePath) || '' === $configFilePath) {
-            return $this->executeInteractive($io);
+        if (is_string($configFilePath) && '' !== $configFilePath) {
+            return $this->executeFromFile($io, $configFilePath);
         }
 
-        return $this->executeFromFile($io, $configFilePath);
+        $configJson = $input->getOption(self::OPTION_CONFIG_JSON);
+        if (is_string($configJson) && '' !== $configJson) {
+            return $this->executeFromJson($io, $configJson);
+        }
+
+        return $this->executeInteractive($io);
     }
 
     private function executeFromFile(SymfonyStyle $io, string $configFilePath): int
@@ -116,16 +137,21 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
             return Command::FAILURE;
         }
 
+        return $this->processJsonConfigs($io, $json);
+    }
+
+    private function processJsonConfigs(SymfonyStyle $io, string $json): int
+    {
         try {
             $configs = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
-            $io->error(sprintf('Invalid JSON in config file: %s', $e->getMessage()));
+            $io->error(sprintf('Invalid JSON: %s', $e->getMessage()));
 
             return Command::FAILURE;
         }
 
         if (!is_array($configs)) {
-            $io->error('Config file must contain a JSON object mapping subdomains to OAuth configs.');
+            $io->error('JSON must contain an object mapping subdomains to OAuth configs.');
 
             return Command::FAILURE;
         }
@@ -149,6 +175,11 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
         $io->success(sprintf('Done. Upserted: %d, Skipped: %d', $upserted, $skipped));
 
         return Command::SUCCESS;
+    }
+
+    private function executeFromJson(SymfonyStyle $io, string $json): int
+    {
+        return $this->processJsonConfigs($io, $json);
     }
 
     private function executeInteractive(SymfonyStyle $io): int
@@ -178,22 +209,26 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
             return Command::FAILURE;
         }
 
+        $existingDefaultOrgId = $existingConfig?->getDefaultOrganisation()?->getId();
+
         $customerConfig = [
-            'clientId'      => $io->ask('Client ID', $existingConfig?->getKeycloakClientId()),
-            'clientSecret'  => $clientSecret,
-            'authServerUrl' => $io->ask('Auth Server URL (e.g. https://keycloak.example.com/auth)', $existingConfig?->getKeycloakAuthServerUrl()),
-            'realm'         => $io->ask('Realm', $existingConfig?->getKeycloakRealm()),
-            'logoutRoute'   => $io->ask('Logout Route (optional, press Enter to skip)', $existingConfig?->getKeycloakLogoutRoute()),
+            'clientId'               => $io->ask('Client ID', $existingConfig?->getKeycloakClientId()),
+            'clientSecret'           => $clientSecret,
+            'authServerUrl'          => $io->ask('Auth Server URL (e.g. https://keycloak.example.com/auth)', $existingConfig?->getKeycloakAuthServerUrl()),
+            'realm'                  => $io->ask('Realm', $existingConfig?->getKeycloakRealm()),
+            'logoutRoute'            => $io->ask('Logout Route (optional, press Enter to skip)', $existingConfig?->getKeycloakLogoutRoute()),
+            'defaultOrganisationId'  => $io->ask('Default Organisation ID for auto-provisioning (optional)', $existingDefaultOrgId),
         ];
 
         $io->section('Summary');
         $io->definitionList(
             ['Subdomain' => $subdomain],
-            ['Client ID'       => $customerConfig['clientId']],
-            ['Client Secret'   => '********'],
-            ['Auth Server URL' => $customerConfig['authServerUrl']],
-            ['Realm'           => $customerConfig['realm']],
-            ['Logout Route'    => $customerConfig['logoutRoute'] ?? '(global default)'],
+            ['Client ID'              => $customerConfig['clientId']],
+            ['Client Secret'          => '********'],
+            ['Auth Server URL'        => $customerConfig['authServerUrl']],
+            ['Realm'                  => $customerConfig['realm']],
+            ['Logout Route'           => $customerConfig['logoutRoute'] ?? '(global default)'],
+            ['Default Organisation'   => $customerConfig['defaultOrganisationId'] ?? '(none)'],
         );
 
         if ($io->confirm('Save this configuration?')) {
@@ -263,5 +298,16 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
         $config->setKeycloakAuthServerUrl($customerConfig['authServerUrl']);
         $config->setKeycloakRealm($customerConfig['realm']);
         $config->setKeycloakLogoutRoute($customerConfig['logoutRoute'] ?? null);
+
+        $defaultOrgId = $customerConfig['defaultOrganisationId'] ?? null;
+        if (is_string($defaultOrgId) && '' !== $defaultOrgId) {
+            $orga = $this->orgaRepository->get($defaultOrgId);
+            if (!$orga instanceof Orga) {
+                throw new InvalidArgumentException(sprintf('No organisation found with ID "%s"', $defaultOrgId));
+            }
+            $config->setDefaultOrganisation($orga);
+        } elseif (null === $defaultOrgId || '' === $defaultOrgId) {
+            $config->setDefaultOrganisation(null);
+        }
     }
 }
