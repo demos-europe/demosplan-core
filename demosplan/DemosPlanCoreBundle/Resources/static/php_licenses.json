@@ -35,6 +35,11 @@
         "website": "https://github.com/composer/package-versions-deprecated"
     },
     {
+        "license": "Apache-2.0",
+        "package": "cyclonedx/cyclonedx-php-composer",
+        "website": "https://github.com/CycloneDX/cyclonedx-php-composer"
+    },
+    {
         "license": "MIT",
         "package": "demos-europe/demosplan-addon",
         "website": "https://github.com/demos-europe/demosplan-addon"
@@ -78,6 +83,11 @@
         "license": "LGPL-2.1",
         "package": "dompdf/dompdf",
         "website": "https://github.com/dompdf/dompdf"
+    },
+    {
+        "license": "MIT",
+        "package": "dragonmantank/cron-expression",
+        "website": "https://github.com/dragonmantank/cron-expression"
     },
     {
         "license": "MIT",
@@ -276,6 +286,16 @@
     },
     {
         "license": "Apache-2.0",
+        "package": "open-telemetry/exporter-otlp",
+        "website": "https://github.com/opentelemetry-php/exporter-otlp"
+    },
+    {
+        "license": "Apache-2.0",
+        "package": "open-telemetry/sdk",
+        "website": "https://github.com/opentelemetry-php/sdk"
+    },
+    {
+        "license": "Apache-2.0",
         "package": "openlss/lib-array2xml",
         "website": "https://github.com/nullivex/lib-array2xml"
     },
@@ -300,7 +320,7 @@
         "website": "https://github.com/PHPOffice/PhpSpreadsheet"
     },
     {
-        "license": "LGPL-3.0",
+        "license": "LGPL-3.0-only",
         "package": "phpoffice/phpword",
         "website": "https://github.com/PHPOffice/PHPWord"
     },
@@ -328,6 +348,11 @@
         "license": "BSD-3-Clause",
         "package": "phpunit/phpunit",
         "website": "https://github.com/sebastianbergmann/phpunit"
+    },
+    {
+        "license": "MIT",
+        "package": "predis/predis",
+        "website": "https://github.com/predis/predis"
     },
     {
         "license": "LGPL-2.1",
@@ -496,6 +521,11 @@
     },
     {
         "license": "MIT",
+        "package": "symfony/messenger",
+        "website": "https://github.com/symfony/messenger"
+    },
+    {
+        "license": "MIT",
         "package": "symfony/mime",
         "website": "https://github.com/symfony/mime"
     },
@@ -561,6 +591,11 @@
     },
     {
         "license": "MIT",
+        "package": "symfony/scheduler",
+        "website": "https://github.com/symfony/scheduler"
+    },
+    {
+        "license": "MIT",
         "package": "symfony/security-bundle",
         "website": "https://github.com/symfony/security-bundle"
     },
@@ -583,11 +618,6 @@
         "license": "MIT",
         "package": "symfony/string",
         "website": "https://github.com/symfony/string"
-    },
-    {
-        "license": "MIT",
-        "package": "symfony/templating",
-        "website": "https://github.com/symfony/templating"
     },
     {
         "license": "MIT",
@@ -631,6 +661,11 @@
     },
     {
         "license": "MIT",
+        "package": "thenetworg/oauth2-azure",
+        "website": "https://github.com/TheNetworg/oauth2-azure"
+    },
+    {
+        "license": "MIT",
         "package": "timeweb/phpstan-enum",
         "website": "https://github.com/timeweb/phpstan-enum"
     },
@@ -658,11 +693,6 @@
         "license": "MIT",
         "package": "willdurand/js-translation-bundle",
         "website": "https://github.com/willdurand/BazingaJsTranslationBundle"
-    },
-    {
-        "license": "MIT",
-        "package": "wrep/daemonizable-command",
-        "website": "https://github.com/mac-cain13/daemonizable-command"
     },
     {
         "license": "MIT",

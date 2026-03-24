@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -28,11 +29,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * sf doctrine:migrate:migrate && sf doctrine:migrate:migrate -C /vendor/demosplan/DemosPlanCoreBundle/Resources/config/project_migrations.yml
  */
+#[AsCommand(name: 'dplan:migrate', description: 'Run core and project migrations in correct order')]
 class MigrateCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:migrate';
-    protected static $defaultDescription = 'Run core and project migrations in correct order';
-
     public function configure(): void
     {
         $this->addOption('db', null, InputOption::VALUE_REQUIRED, 'Use Database configuration');
@@ -61,30 +60,27 @@ class MigrateCommand extends CoreCommand
         $migrationsSyncCommand = 'doctrine:migrations:sync-metadata-storage --configuration ';
         $migrationsCommand = 'doctrine:migrations:migrate --configuration ';
 
-        $commands[] = "doctrine:migrations:migrate {$db} --env={$env}";
+        $commands[] = "doctrine:migrations:migrate -vvv {$db} --env={$env}";
         $commands[] = $migrationsSyncCommand.$migrationsConfigurationPath." {$db} --env={$env}";
         $commands[] = $migrationsCommand.$migrationsConfigurationPath." {$db} --env={$env}";
+
+        /** @var DemosPlanKernel $kernel */
+        $kernel = $this->getApplication()->getKernel();
+        $activeProject = $kernel->getActiveProject();
 
         $batch = Batch::create($this->getApplication(), $output);
 
         \collect($commands)->map(
-            function (string $commandString) {
-                /** @var DemosPlanKernel $kernel */
-                $kernel = $this->getApplication()->getKernel();
-                $command = collect(sprintf(
-                    'bin/%s',
-                    $kernel->getActiveProject(),
-                ));
-
-                return $command
+            static function (string $commandString): array {
+                return collect(['bin/console'])
                     ->merge(explode(' ', $commandString))
                     // remove empty entries when no $db is given
                     ->filter()
                     ->toArray();
             }
         )->each(
-            static function (array $command) use ($batch) {
-                $batch->addShell($command, DemosPlanPath::getRootPath());
+            static function (array $command) use ($batch, $activeProject) {
+                $batch->addShell($command, DemosPlanPath::getRootPath(), ['ACTIVE_PROJECT' => $activeProject]);
             }
         );
 

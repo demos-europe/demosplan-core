@@ -40,6 +40,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,StatementInterface,FileContainer> $genericAttachments
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Elements> $elements
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Statement> $parentStatementOfSegment
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $customFields
  */
 class OriginalStatementResourceConfigBuilder extends BaseStatementResourceConfigBuilder
 {

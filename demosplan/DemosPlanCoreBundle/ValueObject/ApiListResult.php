@@ -55,7 +55,7 @@ class ApiListResult extends ValueObject implements ApiListResultInterface
      * @param array<string,mixed>                      $meta
      * @param array<string,AggregationFilterType>|null $facets       if `null` then the size of the filtered list is used
      */
-    public function __construct(array $filteredList, array $meta, ?array $facets, int $resultCount = null, Pagerfanta $paginator = null)
+    public function __construct(array $filteredList, array $meta, ?array $facets, ?int $resultCount = null, ?Pagerfanta $paginator = null)
     {
         $this->list = $filteredList;
         $this->meta = $meta;

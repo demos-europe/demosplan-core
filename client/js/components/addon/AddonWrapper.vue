@@ -1,5 +1,8 @@
 <template>
-  <div>
+  <div
+    v-if="loadedAddons.length > 0"
+    :class="wrapperClasses"
+  >
     <component
       v-bind="{ demosplanUi, ...addonProps }"
       :is="addon.component"
@@ -43,6 +46,12 @@ export default {
       type: String,
       required: false,
       default: 'Addon',
+    },
+
+    wrapperClasses: {
+      type: String,
+      required: false,
+      default: '',
     },
   },
 

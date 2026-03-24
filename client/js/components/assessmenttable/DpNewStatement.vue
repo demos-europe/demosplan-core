@@ -7,44 +7,43 @@
   All rights reserved
 </license>
 
+<template>
+  <div>
+    <slot
+      :values="values"
+      :counties="counties"
+      :municipalities="municipalities"
+      :priority-areas="priorityAreas"
+      :tags="tags"
+      :elements="elements"
+      :paragraph="paragraph"
+      :documents="documents"
+      :phases="phases"
+      :element-has-paragraphs="elementHasParagraphs"
+      :element-has-files="elementHasFiles"
+      :counties-prompt-added="countiesPromptAdded"
+      :institution-selected="institutionSelected"
+      :used-intern-ids-pattern="usedInternIdsPattern"
+      :add-location-prompt="addLocationPrompt"
+      :handle-role-change="handleRoleChange"
+      :check-for-paragraphs-and-files="checkForParagraphsAndFiles"
+      :set-phase-value="setPhaseValue"
+      :sort-selected="sortSelected"
+      :dp-validate-action="dpValidateAction"
+      :submit="submit"
+    />
+  </div>
+</template>
+
 <script>
 import {
-  DpAccordion,
-  DpButton,
-  DpDatepicker,
-  DpEditor,
-  DpInput,
-  DpLabel,
-  DpMultiselect,
-  DpSelect,
-  DpUploadFiles,
   dpValidateMixin,
   hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters } from 'vuex'
-import DpAutofillSubmitterData from '@DpJs/components/statement/statement/DpAutofillSubmitterData'
-import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster'
-import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
-import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
 
 export default {
   name: 'DpNewStatement',
-
-  components: {
-    DpAccordion,
-    DpAutofillSubmitterData,
-    DpButton,
-    DpDatepicker,
-    DpInput,
-    DpLabel,
-    DpMultiselect,
-    DpSelect,
-    DpSelectStatementCluster,
-    StatementPublish,
-    DpEditor,
-    DpUploadFiles,
-    StatementVoter,
-  },
 
   mixins: [dpValidateMixin],
 
@@ -130,8 +129,14 @@ export default {
 
     usedInternIdsPattern: {
       required: false,
-      type: Array,
-      default: () => [],
+      type: String,
+      default: '',
+    },
+
+    userOrganisation: {
+      required: false,
+      type: String,
+      default: '',
     },
   },
 
@@ -155,6 +160,7 @@ export default {
         submitType: this.defaultSubmitType,
         tags: [],
         text: this.requestText,
+        userOrganisation: this.userOrganisation,
       },
       elementHasParagraphs: false,
       elementHasFiles: false,
@@ -232,10 +238,6 @@ export default {
       this.elementHasFiles = hasOwnProp(this.documents, selectedElement.id)
     },
 
-    handlePhaseSelect () {
-      this.values.phase = document.querySelector('select[name="r_phase"]').value
-    },
-
     /**
      * Sets the preselected phase to the phase that the procedure is currently in. External phase is for citizen and
      * internal phase applies to institutions.
@@ -274,6 +276,7 @@ export default {
 
     handleRoleChange (newValue) {
       const isInstitution = newValue === '1'
+
       this.setDefaultPhase(isInstitution)
       this.institutionSelected = isInstitution
     },
@@ -281,10 +284,6 @@ export default {
 
   mounted () {
     this.applyBaseData([this.procedureId])
-
-    // Set initial options for phase select
-    const initialRole = this.$refs.submitter.currentRole
-    this.handleRoleChange(initialRole)
   },
 }
 </script>

@@ -199,7 +199,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      *
      * @ORM\Column(type="array", nullable=false)
      */
-    protected $flags;
+    protected $flags = [];
 
     /**
      * Get Newsletter.
@@ -262,6 +262,14 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     protected $orga;
 
     /**
+     * Transient property (not persisted) - holds the session-selected organisation.
+     * Set by CurrentOrganisationService on each request via CurrentOrganisationListener.
+     * Used to support multi-responsibility users where one user can belong to multiple organisations
+     * but only operates in one organisation context per session.
+     */
+    protected ?OrgaInterface $currentOrganisation = null;
+
+    /**
      * Diese Eigenschaft ist aus Legacygründen definiert, um das DB-Schema zu erhalten
      * $department enthält die einzelne Abteilung.
      *
@@ -308,7 +316,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      *
      * @var array<int, string>
      */
-    protected $rolesAllowed;
+    protected $rolesAllowed = [];
 
     /**
      * Reference to another User Entity that is combined with this user but represents the same
@@ -352,7 +360,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      *
      * @ORM\Column(type="string", nullable=true)
      */
-    private ?string $totpSecret;
+    private ?string $totpSecret = null;
 
     /**
      * @ORM\Column(type="boolean", nullable=false, options={"default": false})
@@ -364,7 +372,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      *
      * @ORM\Column(type="string", nullable=true)
      */
-    private ?string $authCode;
+    private ?string $authCode = null;
 
     /**
      * @ORM\Column(type="boolean", nullable=false, options={"default": false})
@@ -375,10 +383,8 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     {
         $this->addresses = new ArrayCollection();
         $this->departments = new ArrayCollection();
-        $this->flags = [];
         $this->orga = new ArrayCollection();
         $this->roleInCustomers = new ArrayCollection();
-        $this->rolesAllowed = [];
         $this->authorizedProcedures = new ArrayCollection();
     }
 
@@ -703,7 +709,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      */
     public function isLegacy(): bool
     {
-        return 32 === strlen($this->getPassword());
+        return 32 === strlen((string) $this->getPassword());
     }
 
     /**
@@ -957,9 +963,18 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
 
     /**
      * Organisation des Users.
+     *
+     * Returns the current session-selected organisation if set (for multi-responsibility users),
+     * otherwise falls back to the first organisation in the collection (backward compatibility).
      */
     public function getOrga(): ?OrgaInterface
     {
+        // Return session-selected organisation if set (multi-responsibility support)
+        if (null !== $this->currentOrganisation) {
+            return $this->currentOrganisation;
+        }
+
+        // Fallback to first organisation in collection (backward compatibility)
         if ($this->orga instanceof Collection && 0 < $this->orga->count()) {
             return $this->orga->first();
         }
@@ -974,7 +989,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      */
     public function getOrganisationId()
     {
-        return null === $this->getOrga() ? null : $this->getOrga()->getId();
+        return $this->getOrga() instanceof OrgaInterface ? $this->getOrga()->getId() : null;
     }
 
     /**
@@ -1013,6 +1028,67 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     public function unsetOrgas()
     {
         $this->orga = new ArrayCollection([]);
+    }
+
+    /**
+     * Set the current session-selected organisation (transient, not persisted).
+     * Used by CurrentOrganisationService to set the active organisation for multi-responsibility users.
+     */
+    public function setCurrentOrganisation(?OrgaInterface $organisation): void
+    {
+        $this->currentOrganisation = $organisation;
+    }
+
+    /**
+     * Get the current session-selected organisation (transient).
+     * Returns null if no organisation has been explicitly selected via session.
+     */
+    public function getCurrentOrganisation(): ?OrgaInterface
+    {
+        return $this->currentOrganisation;
+    }
+
+    /**
+     * Get all organisations this user belongs to.
+     *
+     * @return Collection<int, OrgaInterface>
+     */
+    public function getOrganisations(): Collection
+    {
+        return $this->orga;
+    }
+
+    /**
+     * Check if user belongs to multiple organisations (multi-responsibility user).
+     */
+    public function hasMultipleOrganisations(): bool
+    {
+        return $this->orga instanceof Collection && $this->orga->count() > 1;
+    }
+
+    /**
+     * Add an organisation to this user (for multi-responsibility support).
+     * Does nothing if the organisation is already linked.
+     */
+    public function addOrganisation(OrgaInterface $organisation): void
+    {
+        if (!$this->orga instanceof Collection) {
+            $this->orga = new ArrayCollection();
+        }
+
+        if (!$this->orga->contains($organisation)) {
+            $this->orga->add($organisation);
+        }
+    }
+
+    /**
+     * Remove an organisation from this user.
+     */
+    public function removeOrganisation(OrgaInterface $organisation): void
+    {
+        if ($this->orga instanceof Collection) {
+            $this->orga->removeElement($organisation);
+        }
     }
 
     /**
@@ -1106,9 +1182,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     public function removeRoleInCustomer(RoleInterface $role, CustomerInterface $customer): UserRoleInCustomerInterface
     {
         $roleInCustomer = $this->getRoleInCustomers()->filter(
-            function (UserRoleInCustomerInterface $roleInCustomer) use ($role, $customer) {
-                return $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId();
-            }
+            fn (UserRoleInCustomerInterface $roleInCustomer) => $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId()
         )->first();
 
         $this->roleInCustomers->removeElement($roleInCustomer);
@@ -1178,7 +1252,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     {
         $firstAddress = $this->getAddress();
 
-        return null === $firstAddress ? '' : $firstAddress->getPostalcode();
+        return $firstAddress instanceof AddressInterface ? $firstAddress->getPostalcode() : '';
     }
 
     /**
@@ -1200,7 +1274,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     {
         $firstAddress = $this->getAddress();
 
-        return null === $firstAddress ? '' : $firstAddress->getCity();
+        return $firstAddress instanceof AddressInterface ? $firstAddress->getCity() : '';
     }
 
     /**
@@ -1222,7 +1296,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     {
         $firstAddress = $this->getAddress();
 
-        return null === $firstAddress ? '' : $firstAddress->getStreet();
+        return $firstAddress instanceof AddressInterface ? $firstAddress->getStreet() : '';
     }
 
     /**
@@ -1232,7 +1306,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     {
         $firstAddress = $this->getAddress();
 
-        return null === $firstAddress ? '' : $firstAddress->getHouseNumber();
+        return $firstAddress instanceof AddressInterface ? $firstAddress->getHouseNumber() : '';
     }
 
     /**
@@ -1264,7 +1338,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     {
         $firstAddress = $this->getAddress();
 
-        return null === $firstAddress ? '' : $firstAddress->getState();
+        return $firstAddress instanceof AddressInterface ? $firstAddress->getState() : '';
     }
 
     /**

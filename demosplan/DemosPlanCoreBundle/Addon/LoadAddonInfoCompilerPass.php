@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\Definition;
 
 class LoadAddonInfoCompilerPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $addons = AddonManifestCollection::load();
         $slugify = Slugify::create();

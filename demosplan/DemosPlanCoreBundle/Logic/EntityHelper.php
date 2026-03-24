@@ -87,7 +87,7 @@ class EntityHelper
      *
      * @return string|null the first tested method name that exists in $object or null if none matched
      */
-    public function findGetterMethodForPropertyName($key, $object): ?string
+    public function findGetterMethodForPropertyName($key, mixed $object): ?string
     {
         $method = 'get'.ucfirst($key);
         if (method_exists($object, $method)) {

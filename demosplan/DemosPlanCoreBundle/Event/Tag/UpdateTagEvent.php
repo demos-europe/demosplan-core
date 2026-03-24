@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class UpdateTagEvent extends DPlanEvent implements UpdateTagEventInterface
 {
-    public function __construct(private string $tagId)
+    public function __construct(private readonly string $tagId)
     {
     }
 

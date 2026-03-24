@@ -30,7 +30,7 @@ export default {
       out = h('textarea', [ctx.props.value])
     } else {
       // This renders a text node. It uses VUE's internal API. Rendering any html element would lead to excessive DOM size
-      out = ctx._v(ctx.props.value)
+      out = String(ctx.props.value)
     }
     return out
   },

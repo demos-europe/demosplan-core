@@ -38,7 +38,7 @@
         />
         <!-- display if user is not the assignee of all fragments of this statement or if any fragments of this statement are currently assigned to departments -->
         <dp-inline-notification
-          v-if="!userIsAssigneeOfAllFragments && !fragmentsAreNotAssignedToDepartments"
+          v-if="!userIsAssigneeOfAllFragments || isAnyFragmentAssignedToDepartment"
           class="mb-2"
           :message="Translator.trans('statement.moveto.procedure.fragments.not.claimed.warning')"
           type="warning"
@@ -116,7 +116,7 @@
         <button
           type="button"
           class="btn btn--primary float-right"
-          :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments"
+          :disabled="!userIsAssigneeOfAllFragments || isAnyFragmentAssignedToDepartment"
           @click.prevent.stop="moveStatement"
         >
           {{ Translator.trans('statement.moveto.procedure.action') }}
@@ -187,13 +187,13 @@ export default {
       return this.statementFragments.filter(fragment => this.currentUserId === fragment.assigneeId).length === this.statementFragments.length
     },
 
-    fragmentsAreNotAssignedToDepartments () {
-      /*
-       * DepartmentId is set when a fragment is assigned to a department. If it is assigned to a department, the user can't move the statement despite being the assignee of the fragment.
-       ** The check prevents failure of moveStatement due to fragments being assigned to departments.
-       ** departmentId is either set to null or to '' (empty string) when the fragment is not assigned to any departments.
-       */
-      return this.statementFragments.filter(fragment => (fragment.departmentId === null || fragment.departmentId === '')).length === this.statementFragments.length
+    /*
+     * DepartmentId is set when a fragment is assigned to a department. If it is assigned to a department, the user can't move the statement despite being the assignee of the fragment.
+     ** The check prevents failure of moveStatement due to fragments being assigned to departments.
+     ** departmentId is either set to null or to '' (empty string) when the fragment is not assigned to any departments.
+     */
+    isAnyFragmentAssignedToDepartment () {
+      return this.statementFragments.some(fragment => fragment.departmentId)
     },
 
     availableProcedures () {

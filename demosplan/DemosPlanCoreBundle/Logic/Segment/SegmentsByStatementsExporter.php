@@ -14,9 +14,13 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\SegmentXlsxExportColumnsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\SegmentXlsxExportDataEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentXlsxExportColumnsEvent;
+use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentXlsxExportDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
@@ -28,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Footer;
@@ -38,6 +43,7 @@ use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use ReflectionException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentsByStatementsExporter extends SegmentsExporter
@@ -48,6 +54,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     public function __construct(
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
         CurrentUserInterface $currentUser,
+        private readonly EventDispatcherInterface $eventDispatcher,
         HtmlHelper $htmlHelper,
         protected ImageManager $imageManager,
         ImageLinkConverter $imageLinkConverter,
@@ -77,6 +84,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         array $tableHeaders,
         Procedure $procedure,
         bool $obscure,
+        array $exportFilteredByTags = [],
         bool $censorCitizenData = false,
         bool $censorInstitutionData = false,
         Statement ...$statements,
@@ -85,8 +93,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
 
-        if (0 === count($statements)) {
-            return $this->exportEmptyStatements($phpWord, $procedure);
+        if ([] === $statements) {
+            return $this->exportEmptyStatements($phpWord, $procedure, $exportFilteredByTags);
         }
 
         return $this->exportStatements(
@@ -96,7 +104,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $tableHeaders,
             $censorCitizenData,
             $censorInstitutionData,
-            $obscure
+            $obscure,
+            $exportFilteredByTags
         );
     }
 
@@ -109,7 +118,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * @throws ReflectionException
      * @throws HandlerException
      */
-    public function exportAllXlsx(Statement ...$statements): IWriter
+    public function exportAllXlsx(StatementExportTagFilter $tagFilter, Statement ...$statements): IWriter
     {
         Settings::setOutputEscapingEnabled(true);
         $exportData = [];
@@ -123,7 +132,13 @@ class SegmentsByStatementsExporter extends SegmentsExporter
                     $this->convertImagesToReferencesInRecommendations($segmentsOrStatements->toArray());
             }
             foreach ($segmentsOrStatements as $segmentOrStatement) {
-                $exportData[] = $this->statementArrayConverter->convertIntoExportableArray($segmentOrStatement);
+                $convertedData = $this->statementArrayConverter->convertIntoExportableArray($segmentOrStatement);
+                if ($segmentOrStatement instanceof Segment) {
+                    $dataEvent = new SegmentXlsxExportDataEvent($segmentOrStatement, $convertedData);
+                    $this->eventDispatcher->dispatch($dataEvent, SegmentXlsxExportDataEventInterface::class);
+                    $convertedData = $dataEvent->getExportData();
+                }
+                $exportData[] = $convertedData;
             }
         }
 
@@ -132,8 +147,15 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         }
 
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
+        $columnsEvent = new SegmentXlsxExportColumnsEvent($columnsDefinition);
+        $this->eventDispatcher->dispatch($columnsEvent, SegmentXlsxExportColumnsEventInterface::class);
+        $columnsDefinition = $columnsEvent->getColumnsDefinition();
 
-        return $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
+        $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
+
+        $this->assessmentTableXlsExporter->addFilterInfoSheet($writer, $tagFilter);
+
+        return $writer;
     }
 
     private function convertImagesToReferencesInRecommendations(array $segments): array
@@ -185,6 +207,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscureParameter,
+        array $exportFilteredByTags = [],
     ): PhpWord {
         $censored = $this->needsToBeCensored(
             $statement,
@@ -194,8 +217,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST);
-        $this->addHeader($section, $procedure);
+        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTags);
+        $this->addHeader($section, $procedure, null, $exportFilteredByTags);
         $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscureParameter);
 
         return $phpWord;
@@ -261,24 +284,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         ];
 
         return $this->createTableWithHeader($section, $headerConfigs);
-    }
-
-    protected function sortSegmentsByOrderInProcedure(array $segments): array
-    {
-        uasort($segments, [$this, 'compareOrderInProcedure']);
-
-        return $segments;
-    }
-
-    private function compareOrderInProcedure(Segment $segmentA, Segment $segmentB): int
-    {
-        return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
-    }
-
-    protected function addNoSegmentsMessage(Section $section): void
-    {
-        $noEntriesMessage = $this->translator->trans('statement.has.no.segments');
-        $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
     }
 
     /**

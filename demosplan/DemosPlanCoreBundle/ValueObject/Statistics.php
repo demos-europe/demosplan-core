@@ -26,49 +26,21 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementStatistic;
  */
 class Statistics extends ValueObject
 {
-    protected array $procedures;
-    protected array $internalPhases;
-    protected array $externalPhases;
-    protected array $roles;
-    protected array $orgas;
-    protected array $usersPerOrga;
-    protected array $allowedRoleCodeMap;
-    protected StatementStatistic $globalStatementStatistic;
-
     public function __construct(
-        StatementStatistic $globalStatementStatistic,
-        array $allowedRoleCodeMap,
-        array $externalPhases,
-        array $internalPhases,
-        array $orgas,
-        array $procedures,
-        array $roles,
-        array $usersPerOrga,
+        protected StatementStatistic $globalStatementStatistic,
+        protected array $allowedRoleCodeMap,
+        protected array $externalPhases,
+        protected array $internalPhases,
+        protected array $orgas,
+        protected array $procedures,
+        protected array $roles,
+        protected array $usersPerOrga,
     ) {
-        $this->procedures = $procedures;
-        $this->internalPhases = $internalPhases;
-        $this->externalPhases = $externalPhases;
-        $this->roles = $roles;
-        $this->orgas = $orgas;
-        $this->usersPerOrga = $usersPerOrga;
-        $this->allowedRoleCodeMap = $allowedRoleCodeMap;
-        $this->globalStatementStatistic = $globalStatementStatistic;
-
         $this->lock();
     }
 
     public function getAsTemplateVars(): array
     {
-        $templateVars = [];
-        $templateVars['procedureList'] = $this->procedures;
-        $templateVars['statementStatistic'] = $this->globalStatementStatistic;
-        $templateVars['internalPhases'] = $this->internalPhases;
-        $templateVars['externalPhases'] = $this->externalPhases;
-        $templateVars['rolesList'] = $this->roles;
-        $templateVars['orgaList'] = $this->orgas;
-        $templateVars['orgaUsersList'] = $this->usersPerOrga;
-        $templateVars['allowedRoleCodeMap'] = $this->allowedRoleCodeMap;
-
-        return $templateVars;
+        return ['procedureList' => $this->procedures, 'statementStatistic' => $this->globalStatementStatistic, 'internalPhases' => $this->internalPhases, 'externalPhases' => $this->externalPhases, 'rolesList' => $this->roles, 'orgaList' => $this->orgas, 'orgaUsersList' => $this->usersPerOrga, 'allowedRoleCodeMap' => $this->allowedRoleCodeMap];
     }
 }

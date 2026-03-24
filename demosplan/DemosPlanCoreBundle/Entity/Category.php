@@ -428,9 +428,7 @@ class Category extends CoreEntity implements UuidEntityInterface, CategoryInterf
     public function getGlobalContentsByCustomer(Customer $customer): array
     {
         $globalContentsArray = $this->globalContents->toArray();
-        $filteredGlobalContents = array_filter($globalContentsArray, function ($globalContent) use ($customer) {
-            return $globalContent->getCustomer() === $customer;
-        });
+        $filteredGlobalContents = array_filter($globalContentsArray, fn ($globalContent) => $globalContent->getCustomer() === $customer);
 
         return $filteredGlobalContents;
     }

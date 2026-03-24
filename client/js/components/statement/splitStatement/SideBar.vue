@@ -41,7 +41,7 @@
     <!-- Tags Section -->
     <div
       aria-labelledby="floatingContextButton_tags"
-      :class="['flex-1', 'flex', 'pl-2', 'pr-5', '-mr-4', { 'overflow-y-hidden': availableTags.length && tagTopics.length > 8 }]"
+      :class="['flex-1', 'flex', 'pl-2', 'pr-5', '-mr-4', { 'overflow-y-scroll': availableTags.length && tagTopics.length > 8 }]"
       @mouseover="showFloatingContextButton.tags = true"
       @mouseleave="showFloatingContextButton.tags = false"
     >
@@ -124,7 +124,7 @@
         class="relative btn--blank o-link--default font-semibold text-left w-full"
         @click="toggleVisibility('placesAndAssignee')"
       >
-        {{ Translator.trans('workflow.place') }}
+        {{ Translator.trans('workflow.place.and.assignment') }}
       </button>
 
       <div v-else>

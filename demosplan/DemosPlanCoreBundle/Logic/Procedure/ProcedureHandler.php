@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -636,7 +637,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             }
         }
 
-        if (0 === count($proceduresWithSoonEndingPhase)) {
+        if ([] === $proceduresWithSoonEndingPhase) {
             $this->getLogger()->info('No soon ending procedures found');
         }
 
@@ -743,7 +744,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                     ->lock(),
                 false
             );
-            if (is_array($settings) && 0 === count($settings)) {
+            if (is_array($settings) && [] === $settings) {
                 $this->contentService->setSetting('markedParticipated', [
                     'procedureId' => $procedureId,
                     'userId'      => $this->currentUser->getUser()->getId(),
@@ -860,6 +861,8 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
     {
         $changedInternalProcedures = collect([]);
         $changedExternalProcedures = collect([]);
+        $reportEntries = [];
+        $systemUserName = $this->translator->trans('user.system.name');
 
         // internal:
         $internalWritePhaseKeys = $this->getDemosplanConfig()->getInternalPhaseKeys('write');
@@ -876,13 +879,27 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         foreach ($endedInternalProcedures as $endedInternalProcedure) {
             if (null !== $endedInternalProcedure->getEndDate()
                 && !$endedInternalProcedure->getMaster() && !$endedInternalProcedure->isDeleted()) {
+                // clone before modification so the phase change is detectable for report entry creation
+                $originalProcedure = $this->procedureService->cloneProcedure($endedInternalProcedure);
+
                 $data = [
                     'id'       => $endedInternalProcedure->getId(),
                     'phase'    => $internalPhaseKey,
                     'customer' => $endedInternalProcedure->getCustomer(),
                 ];
-                $updatedProcedure = $this->procedureService->updateProcedure($data);
-                $changedInternalProcedures->push($updatedProcedure);
+                $this->procedureService->updateProcedure($data, isSystem: true);
+
+                try {
+                    $reportEntries[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
+                        $originalProcedure,
+                        $endedInternalProcedure,
+                        $systemUserName,
+                        true
+                    );
+                } catch (Exception $e) {
+                    $this->getLogger()->warning('Failed to create report entry for internal phase auto-switch', ['exception' => $e]);
+                }
+                $changedInternalProcedures->push($endedInternalProcedure);
             }
         }
 
@@ -901,21 +918,44 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         foreach ($endedExternalProcedures as $endedExternalProcedure) {
             if (null !== $endedExternalProcedure->getPublicParticipationEndDate()
                 && !$endedExternalProcedure->getMaster() && !$endedExternalProcedure->isDeleted()) {
+                // clone before modification so the phase change is detectable for report entry creation
+                $originalProcedure = $this->procedureService->cloneProcedure($endedExternalProcedure);
+
                 $data = [
                     'id'                       => $endedExternalProcedure->getId(),
                     'publicParticipationPhase' => $externalPhaseKey,
                     'customer'                 => $endedExternalProcedure->getCustomer(),
                 ];
-                $updatedProcedure = $this->procedureService->updateProcedure($data);
-                $changedExternalProcedures->push($updatedProcedure);
+                $this->procedureService->updateProcedure($data, isSystem: true);
+
+                try {
+                    $reportEntries[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
+                        $originalProcedure,
+                        $endedExternalProcedure,
+                        $systemUserName,
+                        true
+                    );
+                } catch (Exception $e) {
+                    $this->getLogger()->warning('Failed to create report entry for external phase auto-switch', ['exception' => $e]);
+                }
+                $changedExternalProcedures->push($endedExternalProcedure);
             }
+        }
+
+        // persist phase change report entries
+        $reportEntries = array_filter($reportEntries, static fn (?ReportEntry $e): bool => null !== $e);
+        foreach ($reportEntries as $reportEntry) {
+            $this->entityManager->persist($reportEntry);
+        }
+        if ([] !== $reportEntries) {
+            $this->entityManager->flush();
         }
 
         // Success notice
         $this->getLogger()->info('Switched phases to evaluation of '.$changedInternalProcedures->count().' internal/toeb procedures.');
         $this->getLogger()->info('Switched phases to evaluation of '.$changedExternalProcedures->count().' external/public procedures.');
 
-        return $changedExternalProcedures->merge($changedInternalProcedures)->unique('id');
+        return $changedExternalProcedures->merge($changedInternalProcedures)->unique(static fn (Procedure $p) => $p->getId());
     }
 
     /**
@@ -938,7 +978,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $ccEmailAddresses->add(trim((string) $additionalAddress));
         }
         // alle E-Mail-Adressen aus dem CC-Feld
-        if (0 < count($formEmailCC)) {
+        if ([] !== $formEmailCC) {
             foreach ($formEmailCC as $mailAddress) {
                 $ccEmailAddresses->add(trim((string) $mailAddress));
             }
@@ -956,15 +996,15 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         /** @var Orga $orgaData */
         foreach ($orgas as $orgaData) {
             if (in_array($orgaData->getId(), $orgaSelected, true)) {
-                if (0 < strlen(trim($orgaData->getEmail2()))) {
+                if (0 < strlen(trim((string) $orgaData->getEmail2()))) {
                     $recipientOrga = [
                         'ident'     => $orgaData->getId(),
                         'nameLegal' => $orgaData->getName(),
                         'email2'    => $orgaData->getEmail2(),
                     ];
                     // Füge eventuelle CC-Email für Beteiligung hinzu
-                    if (0 < strlen(trim($orgaData->getCcEmail2()))) {
-                        $ccEmailAdresses = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $orgaData->getCcEmail2());
+                    if (0 < strlen(trim((string) $orgaData->getCcEmail2()))) {
+                        $ccEmailAdresses = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', (string) $orgaData->getCcEmail2());
                         $recipientOrga['ccEmails'] = $ccEmailAdresses;
                     }
                     $recipientsWithEmail[] = $recipientOrga;

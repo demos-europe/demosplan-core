@@ -39,6 +39,14 @@ updates:
       sentry:
         patterns:
           - "@sentry/*"
+      uppy:
+        patterns:
+          - "@uppy/*"
+      vue:
+        patterns:
+          - "vue"
+          - "@vue/compiler-sfc"
+          - "@vue/compat"
     labels:
       - dependencies:yarn
 

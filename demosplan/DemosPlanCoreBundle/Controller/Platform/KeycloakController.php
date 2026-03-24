@@ -12,23 +12,23 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakClientFactory;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class KeycloakController extends AbstractController
 {
     /**
      * Link to this controller to start the "connect" process.
      */
-    #[Route(path: '/connect/keycloak_ozg', name: 'connect_keycloak_ozg_start')]
-    public function connectAction(ClientRegistry $clientRegistry)
+    #[Route(path: '/connect/keycloak_ozg', name: 'connect_keycloak_ozg_start', options: ['expose' => true])]
+    public function connect(OzgKeycloakClientFactory $ozgKeycloakClientFactory): RedirectResponse
     {
         // will redirect to keycloak!
-        return $clientRegistry
-            ->getClient('keycloak_ozg') // key used in config/packages/knpu_oauth2_client.yaml
+        return $ozgKeycloakClientFactory
+            ->createForCurrentCustomer()
             ->redirect(['openid'], []);
     }
 
@@ -38,14 +38,14 @@ class KeycloakController extends AbstractController
      * in config/packages/knpu_oauth2_client.yaml.
      */
     #[Route(path: '/connect/keycloak_ozg/check', name: 'connect_keycloak_ozg_check')]
-    public function connectCheckAction(Request $request, ClientRegistry $clientRegistry)
+    public function connectCheck(): void
     {
         // ** if you want to *authenticate* the user, then
         // leave this method blank and create a Guard authenticator
     }
 
     #[Route(path: '/connect/keycloak', name: 'connect_keycloak_start')]
-    public function connectKeycloakAction(ClientRegistry $clientRegistry): RedirectResponse
+    public function connectKeycloak(ClientRegistry $clientRegistry): RedirectResponse
     {
         // will redirect to keycloak!
         return $clientRegistry
@@ -59,7 +59,7 @@ class KeycloakController extends AbstractController
      * in config/packages/knpu_oauth2_client.yaml.
      */
     #[Route(path: '/connect/keycloak/check', name: 'connect_keycloak_check')]
-    public function connectKeycloakCheckAction(Request $request, ClientRegistry $clientRegistry): void
+    public function connectKeycloakCheck(ClientRegistry $clientRegistry): void
     {
         // ** if you want to *authenticate* the user, then
         // leave this method blank and create an authenticator

@@ -512,6 +512,7 @@ class StatementCopier
         Statement $statement,
         bool $createReport = true,
         bool $copyOnCreateStatement = false,
+        bool $flush = true,
     ): Statement {
         $newStatement = $this->copyStatementObjectWithinProcedure(
             $statement,
@@ -532,7 +533,10 @@ class StatementCopier
 
         // We do have to flush the new copied statement here if the original statement has no FileContainers otherwise
         // the new copied statement is already flushed while copying FileContainers in the previous method 'addFilesToCopiedStatement'.
-        $this->doctrine->getManager()->flush();
+        // NOTE: Can be skipped when using batch processing (Excel import) to avoid individual flushes
+        if ($flush) {
+            $this->doctrine->getManager()->flush();
+        }
 
         return $newStatement;
     }
@@ -618,7 +622,7 @@ class StatementCopier
                 $em->flush();
             }
 
-            if (true === $createReport) {
+            if ($createReport) {
                 try {
                     $entry = $this->statementReportEntryFactory->createStatementCopiedEntry($newStatement);
                     if ($persistAndFlush) {
@@ -688,7 +692,7 @@ class StatementCopier
 
         // T7137: avoid copy Statement if statement or fragments are not claimed by current user
         // or fragments are assigned to orga
-        if (true === $this->permissions->hasPermission('feature_statement_assignment')) {
+        if ($this->permissions->hasPermission('feature_statement_assignment')) {
             // check for claim of statement
             if (!$this->assignService->isStatementObjectAssignedToCurrentUser($statement)
                 && null !== $statement->getAssignee()) {
