@@ -79,7 +79,7 @@ export default {
      * When fullscreen mode is toggled, recalculate the scroll container height.
      * Only has effect in components that also use fullscreenModeMixin (isFullscreen exists).
      */
-    this.$watch('isFullscreen', (isFullscreen) => {
+    this.$watch('isFullscreen', () => {
       if (!this.$refs?.scrollContainer) {
         return
       }
