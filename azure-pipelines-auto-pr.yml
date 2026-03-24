@@ -60,6 +60,8 @@ steps:
       COMMIT_ID=$(echo "$BODY_RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['lastMergeSourceCommit']['commitId'])")
       echo "Created PR #$PR_ID (commit: $COMMIT_ID)"
 
+      sleep 5
+
       # Complete the PR immediately
       PATCH_BODY=$(cat <<EOF
       {
@@ -90,6 +92,7 @@ steps:
 
       PATCH_STATUS=$(echo "$PATCH_BODY_RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('status','unknown'), d.get('mergeStatus','unknown'))")
       echo "PATCH response: $PATCH_STATUS"
+      echo "PATCH full response: $PATCH_BODY_RESPONSE"
 
       echo "Waiting for PR #$PR_ID to complete..."
       for i in $(seq 1 12); do
@@ -98,7 +101,8 @@ steps:
           -H "$AUTH" \
           "${BASE_URL}/pullrequests/${PR_ID}?api-version=7.1")
         PR_STATUS=$(echo "$STATUS_RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status','unknown'))")
-        echo "Attempt $i: PR status = $PR_STATUS"
+        MERGE_STATUS=$(echo "$STATUS_RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('mergeStatus','unknown'))")
+        echo "Attempt $i: PR status = $PR_STATUS, mergeStatus = $MERGE_STATUS"
         if [ "$PR_STATUS" = "completed" ]; then
           echo "PR #$PR_ID completed"
           DELETE_BODY="[{\"name\":\"refs/heads/$SOURCE_BRANCH\",\"oldObjectId\":\"$COMMIT_ID\",\"newObjectId\":\"0000000000000000000000000000000000000000\"}]"
