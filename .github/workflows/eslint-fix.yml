@@ -1,0 +1,60 @@
+name: Format (JS/Vue)
+
+on:
+    pull_request:
+        paths:
+            - '**.js'
+            - '**.vue'
+            - '**.ts'
+            - 'eslint.config.js'
+
+jobs:
+  eslint-fix:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        with:
+          node-version: '24.11.1'
+
+      - run: npm install --ignore-scripts -g corepack && corepack enable && yarn set version 4.2.2
+
+      - name: Cache yarn dependencies
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: |
+            ~/.yarn/cache
+            .yarn/cache
+            node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - run: YARN_ENABLE_SCRIPTS=false yarn install --immutable
+
+      - name: Run ESLint with auto-fix
+        run: yarn eslint --fix client || true
+
+      - name: Configure git
+        env:
+          GPG_EMAIL: ${{ secrets.DEVOPS_GPG_EMAIL }}
+        run: |
+          git config user.email "$GPG_EMAIL"
+          git config user.name "Demos-CI"
+
+      - name: Commit fixes
+        run: |
+          git pull
+          if ! git diff --exit-code; then
+            git add -A '*.js' '*.vue'
+            git commit -m "style: Apply eslint --fix"
+            git push
+          fi

@@ -36,7 +36,7 @@
     "cocur/slugify": "^4.0",
     "composer/composer": "^2.8",
     "composer/package-versions-deprecated": "1.11.99.5",
-    "demos-europe/demosplan-addon": "^0.67",
+    "demos-europe/demosplan-addon": "^0.68",
     "doctrine/annotations": "^2.0",
     "doctrine/common": "^3.2",
     "doctrine/doctrine-bundle": "^2",
@@ -172,7 +172,7 @@
     "vimeo/psalm": "^5",
     "weirdan/doctrine-psalm-plugin": "^2",
     "wsdltophp/packagegenerator": "^4.1",
-    "zenstruck/foundry": "^1.33"
+    "zenstruck/foundry": "^2.5"
   },
   "autoload": {
     "psr-4": {

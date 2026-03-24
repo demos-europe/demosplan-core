@@ -35,6 +35,14 @@ class CustomerService implements CustomerServiceInterface
         return $this->customerRepository->findCustomerById($id);
     }
 
+    /**
+     * @return list<Customer>
+     */
+    public function findAll(): array
+    {
+        return $this->customerRepository->findAll();
+    }
+
     public function findCustomersByIds(array $ids): array
     {
         return $this->customerRepository->findCustomersByIds($ids);

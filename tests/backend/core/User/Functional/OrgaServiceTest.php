@@ -157,20 +157,18 @@ class OrgaServiceTest extends FunctionalTestCase
         // Orga in Customer A — should be returned
         $orgaA = OrgaFactory::createOne();
         $userA = UserFactory::createOne();
-        $userA->setOrga($orgaA->_real());
-        $orgaA->addUser($userA->_real());
+        $userA->_real()->setOrga($orgaA->_real());
+        $orgaA->_real()->addUser($userA->_real());
         $userA->_real()->addDplanrole($dataInputRole, $customerA->_real());
-        $userA->_save();
-        $orgaA->_save();
+        $this->getEntityManager()->flush();
 
         // Orga in Customer B — should NOT be returned
         $orgaB = OrgaFactory::createOne();
         $userB = UserFactory::createOne();
-        $userB->setOrga($orgaB->_real());
-        $orgaB->addUser($userB->_real());
+        $userB->_real()->setOrga($orgaB->_real());
+        $orgaB->_real()->addUser($userB->_real());
         $userB->_real()->addDplanrole($dataInputRole, $customerB->_real());
-        $userB->_save();
-        $orgaB->_save();
+        $this->getEntityManager()->flush();
 
         // -- Act --
         $orgas = $this->sut->getDataInputOrgaList($customerA->_real());
