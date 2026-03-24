@@ -110,6 +110,26 @@
           />
         </div>
       </div>
+      <div class="flex justify-end gap-2 py-2">
+        <dp-button
+          v-if="hasPermission('feature_segments_import_excel')"
+          data-cy="segmentsList:importOptionsXLS"
+          :href="Routing.generate('DemosPlan_procedure_import', { procedureId: procedureId }) + '#ExcelImport'"
+          icon="upload"
+          icon-size="medium"
+          variant="subtle"
+          :text="Translator.trans('import.options.xls')"
+        />
+        <dp-button
+          data-cy="editorFullscreen"
+          :icon="isFullscreen ? 'compress' : 'expand'"
+          icon-size="medium"
+          hide-text
+          variant="subtle"
+          :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
+          @click="handleFullscreenMode()"
+        />
+      </div>
     </dp-sticky-element>
 
     <dp-loading
@@ -123,26 +143,6 @@
           ref="imageModal"
           data-cy="segment:imgModal"
         />
-        <div class="flex justify-end gap-2 py-2">
-          <dp-button
-            v-if="hasPermission('feature_segments_import_excel')"
-            data-cy="segmentsList:importOptionsXLS"
-            :href="Routing.generate('DemosPlan_procedure_import', { procedureId: procedureId }) + '#ExcelImport'"
-            icon="upload"
-            icon-size="medium"
-            variant="outline"
-            :text="Translator.trans('import.options.xls')"
-          />
-          <dp-button
-            data-cy="editorFullscreen"
-            :icon="isFullscreen ? 'compress' : 'expand'"
-            icon-size="medium"
-            hide-text
-            variant="outline"
-            :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
-            @click="handleFullscreenMode()"
-          />
-        </div>
         <div
           ref="scrollContainer"
           class="overflow-x-auto scrollbar-none"
