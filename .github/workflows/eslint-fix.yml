@@ -5,6 +5,7 @@ on:
         paths:
             - '**.js'
             - '**.vue'
+            - '**.ts'
             - 'eslint.config.js'
 
 jobs:
