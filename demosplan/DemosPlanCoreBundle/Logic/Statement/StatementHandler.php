@@ -3010,11 +3010,11 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         // Verfahrensschritte
-        $templateVars['internalPhases'] = array_map(
+        $templateVars['internalPhaseDefinitions'] = array_map(
             static fn ($def) => ['id' => $def->getId(), 'name' => $def->getName(), 'permissionSet' => $def->getPermissionSet()],
             $this->procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer()
         );
-        $templateVars['externalPhases'] = array_map(
+        $templateVars['externalPhaseDefinitions'] = array_map(
             static fn ($def) => ['id' => $def->getId(), 'name' => $def->getName(), 'permissionSet' => $def->getPermissionSet()],
             $this->procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer()
         );
