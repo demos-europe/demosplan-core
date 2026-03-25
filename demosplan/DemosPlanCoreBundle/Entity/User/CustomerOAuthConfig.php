@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Types\IdentityProviderType;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -74,6 +75,16 @@ class CustomerOAuthConfig extends CoreEntity implements UuidEntityInterface
      * @ORM\Column(name="keycloak_logout_route", type="string", length=1000, nullable=true)
      */
     private ?string $keycloakLogoutRoute = null;
+
+    /**
+     * @ORM\Column(name="identity_provider_type", type="string", length=30, nullable=false, options={"default":"keycloak"})
+     */
+    private string $identityProviderType = IdentityProviderType::KEYCLOAK->value;
+
+    /**
+     * @ORM\Column(name="auto_provision_users", type="boolean", nullable=false, options={"default":false})
+     */
+    private bool $autoProvisionUsers = false;
 
     /**
      * Default organisation for auto-provisioning new users during Azure/Entra ID login.
@@ -148,6 +159,31 @@ class CustomerOAuthConfig extends CoreEntity implements UuidEntityInterface
     public function setKeycloakLogoutRoute(?string $keycloakLogoutRoute): void
     {
         $this->keycloakLogoutRoute = $keycloakLogoutRoute;
+    }
+
+    public function getIdentityProviderType(): IdentityProviderType
+    {
+        return IdentityProviderType::from($this->identityProviderType);
+    }
+
+    public function setIdentityProviderType(IdentityProviderType $identityProviderType): void
+    {
+        $this->identityProviderType = $identityProviderType->value;
+    }
+
+    public function isAzureEntraId(): bool
+    {
+        return IdentityProviderType::AZURE_ENTRA_ID === $this->getIdentityProviderType();
+    }
+
+    public function isAutoProvisionUsers(): bool
+    {
+        return $this->autoProvisionUsers;
+    }
+
+    public function setAutoProvisionUsers(bool $autoProvisionUsers): void
+    {
+        $this->autoProvisionUsers = $autoProvisionUsers;
     }
 
     public function getDefaultOrganisation(): ?OrgaInterface

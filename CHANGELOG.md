@@ -32,6 +32,21 @@
 ### Changed
 - Extract GetFeatureInfo logic for visible WMS layers out of Map.vue and into WmsGetFeatureInfo component
 
+## v4.29.4 (2026-03-24)
+
+### Fixed
+- Custom fields column causing errors in segments list for users without segment access permission
+
+### Added
+- Explicit identity provider type configuration for SSO connections
+
+## v4.29.3 (2026-03-18)
+
+### Fixed
+- Requests with numeric query parameter keys being incorrectly rejected as security violations
+- User lookup by email or login now works case-insensitively across all authentication flows
+- SSO login redirect URL missing from dynamic OAuth client configuration
+
 ## v4.29.2 (2026-03-13)
 
 ### Added

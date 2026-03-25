@@ -59,9 +59,9 @@ class UserAccessControlTest extends FunctionalTestCase
 
         // Act
         $userAccessControl = new UserAccessControl();
-        $userAccessControl->setUser($this->testUser->object());
-        $userAccessControl->setOrganisation($this->testOrga->object());
-        $userAccessControl->setCustomer($this->testCustomer->object());
+        $userAccessControl->setUser($this->testUser->_real());
+        $userAccessControl->setOrganisation($this->testOrga->_real());
+        $userAccessControl->setCustomer($this->testCustomer->_real());
         $userAccessControl->setRole($this->testRole);
         $userAccessControl->setPermission($permission);
 
@@ -72,9 +72,9 @@ class UserAccessControlTest extends FunctionalTestCase
         self::assertInstanceOf(UserAccessControl::class, $userAccessControl);
         self::assertNotNull($userAccessControl->getId());
         self::assertSame($permission, $userAccessControl->getPermission());
-        self::assertSame($this->testUser->object(), $userAccessControl->getUser());
-        self::assertSame($this->testOrga->object(), $userAccessControl->getOrganisation());
-        self::assertSame($this->testCustomer->object(), $userAccessControl->getCustomer());
+        self::assertSame($this->testUser->_real(), $userAccessControl->getUser());
+        self::assertSame($this->testOrga->_real(), $userAccessControl->getOrganisation());
+        self::assertSame($this->testCustomer->_real(), $userAccessControl->getCustomer());
         self::assertSame($this->testRole, $userAccessControl->getRole());
     }
 
@@ -84,16 +84,16 @@ class UserAccessControlTest extends FunctionalTestCase
         $permission = 'feature_statement_bulk_edit';
 
         $userAccessControl1 = new UserAccessControl();
-        $userAccessControl1->setUser($this->testUser->object());
-        $userAccessControl1->setOrganisation($this->testOrga->object());
-        $userAccessControl1->setCustomer($this->testCustomer->object());
+        $userAccessControl1->setUser($this->testUser->_real());
+        $userAccessControl1->setOrganisation($this->testOrga->_real());
+        $userAccessControl1->setCustomer($this->testCustomer->_real());
         $userAccessControl1->setRole($this->testRole);
         $userAccessControl1->setPermission($permission);
 
         $userAccessControl2 = new UserAccessControl();
-        $userAccessControl2->setUser($this->testUser->object());
-        $userAccessControl2->setOrganisation($this->testOrga->object());
-        $userAccessControl2->setCustomer($this->testCustomer->object());
+        $userAccessControl2->setUser($this->testUser->_real());
+        $userAccessControl2->setOrganisation($this->testOrga->_real());
+        $userAccessControl2->setCustomer($this->testCustomer->_real());
         $userAccessControl2->setRole($this->testRole);
         $userAccessControl2->setPermission($permission);
 
@@ -111,9 +111,9 @@ class UserAccessControlTest extends FunctionalTestCase
     {
         // Arrange - Use manual entity creation for now due to factory issues
         $userAccessControl = new UserAccessControl();
-        $userAccessControl->setUser($this->testUser->object());
-        $userAccessControl->setOrganisation($this->testOrga->object());
-        $userAccessControl->setCustomer($this->testCustomer->object());
+        $userAccessControl->setUser($this->testUser->_real());
+        $userAccessControl->setOrganisation($this->testOrga->_real());
+        $userAccessControl->setCustomer($this->testCustomer->_real());
         $userAccessControl->setRole($this->testRole);
         $userAccessControl->setPermission('feature_statement_bulk_edit');
 
@@ -128,9 +128,9 @@ class UserAccessControlTest extends FunctionalTestCase
         // Assert - Verify relationships are maintained
         self::assertNotNull($persistedUserAccessControl);
         self::assertSame('feature_statement_bulk_edit', $persistedUserAccessControl->getPermission());
-        self::assertSame($this->testUser->object(), $persistedUserAccessControl->getUser());
-        self::assertSame($this->testOrga->object(), $persistedUserAccessControl->getOrganisation());
-        self::assertSame($this->testCustomer->object(), $persistedUserAccessControl->getCustomer());
+        self::assertSame($this->testUser->_real(), $persistedUserAccessControl->getUser());
+        self::assertSame($this->testOrga->_real(), $persistedUserAccessControl->getOrganisation());
+        self::assertSame($this->testCustomer->_real(), $persistedUserAccessControl->getCustomer());
         self::assertSame($this->testRole, $persistedUserAccessControl->getRole());
     }
 
@@ -141,16 +141,16 @@ class UserAccessControlTest extends FunctionalTestCase
         $permission = 'feature_statement_bulk_edit';
 
         // Act
-        $userAccessControl->setUser($this->testUser->object());
-        $userAccessControl->setOrganisation($this->testOrga->object());
-        $userAccessControl->setCustomer($this->testCustomer->object());
+        $userAccessControl->setUser($this->testUser->_real());
+        $userAccessControl->setOrganisation($this->testOrga->_real());
+        $userAccessControl->setCustomer($this->testCustomer->_real());
         $userAccessControl->setRole($this->testRole);
         $userAccessControl->setPermission($permission);
 
         // Assert
-        self::assertSame($this->testUser->object(), $userAccessControl->getUser());
-        self::assertSame($this->testOrga->object(), $userAccessControl->getOrganisation());
-        self::assertSame($this->testCustomer->object(), $userAccessControl->getCustomer());
+        self::assertSame($this->testUser->_real(), $userAccessControl->getUser());
+        self::assertSame($this->testOrga->_real(), $userAccessControl->getOrganisation());
+        self::assertSame($this->testCustomer->_real(), $userAccessControl->getCustomer());
         self::assertSame($this->testRole, $userAccessControl->getRole());
         self::assertSame($permission, $userAccessControl->getPermission());
     }
@@ -179,9 +179,9 @@ class UserAccessControlTest extends FunctionalTestCase
         $permission = 'feature_statement_bulk_edit';
 
         $userAccessControl = new UserAccessControl();
-        $userAccessControl->setUser($this->testUser->object());
-        $userAccessControl->setOrganisation($differentOrga->object()); // Different org
-        $userAccessControl->setCustomer($this->testCustomer->object());
+        $userAccessControl->setUser($this->testUser->_real());
+        $userAccessControl->setOrganisation($differentOrga->_real()); // Different org
+        $userAccessControl->setCustomer($this->testCustomer->_real());
         $userAccessControl->setRole($this->testRole);
         $userAccessControl->setPermission($permission);
 
