@@ -41,6 +41,24 @@ jobs:
           composer --version
           composer install --no-interaction
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Cache node modules
+        uses: actions/cache@v4.3.0
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install JS dependencies
+        run: |
+          corepack enable
+          yarn install --immutable
+
       - name: Create parameters.yml
         run: |
           printf "parameters:\n  database_name: test\n" > projects/core/app/config/parameters.yml
