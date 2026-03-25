@@ -541,7 +541,7 @@ export default {
           filterSetHash: data.filterHash,
           page: {
             number: data.pagination.current_page,
-            size: data.pagination.count
+            size: data.pagination.per_page || data.pagination.count
           },
           view_mode: rootState.AssessmentTable.viewMode,
           sort: data.sort,
