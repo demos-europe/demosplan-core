@@ -406,13 +406,16 @@ class OAuthTokenStorageService
     /**
      * Get pending request for a user.
      *
-     * @param string $userId The user ID (UUID)
+     * @param string $userId       The user ID (UUID)
+     * @param bool   $decryptBody  When true the body is decrypted before filling the value object.
+     *                              Default false keeps the body encrypted — callers that need clear text
+     *                              must explicitly opt in.
      *
-     * @return PendingRequestData|null Request data value object with decrypted body, or null if no pending request
+     * @return PendingRequestData|null Request data value object, or null if no pending request
      *
      * @throws TokenEncryptionException if decryption of request body fails
      */
-    public function getPendingRequest(string $userId): ?PendingRequestData
+    public function getPendingRequest(string $userId, bool $decryptBody = false): ?PendingRequestData
     {
         $oauthToken = $this->oauthTokenRepository->findByUserId($userId);
 
@@ -420,10 +423,9 @@ class OAuthTokenStorageService
             return null;
         }
 
-        // Decrypt request body before filling (encryption happens in service layer)
-        $clearBody = null;
-        if (null !== $oauthToken->getPendingRequestBody()) {
-            $clearBody = $this->encryptionService->decrypt($oauthToken->getPendingRequestBody());
+        $body = $oauthToken->getPendingRequestBody();
+        if ($decryptBody && null !== $body) {
+            $body = $this->encryptionService->decrypt($body);
         }
 
         $requestData = new PendingRequestData();
@@ -435,7 +437,7 @@ class OAuthTokenStorageService
             'hasFiles'               => $oauthToken->hasPendingRequestFiles(),
             'filesMetadata'          => $oauthToken->getPendingRequestFilesMetadata(),
             'timestamp'              => $oauthToken->getPendingRequestTimestamp(),
-            'body'                   => $clearBody,
+            'body'                   => $body,
             'selectedOrganisationId' => $oauthToken->getSelectedOrganisation()?->getId(),
         ]);
 

@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\OAuth\PendingRequestCacheService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,15 +34,9 @@ class OrganisationSelectionController extends BaseController
 {
     private const SESSION_KEY_RETURN_URL = 'organisation_selection_return_url';
 
-    /**
-     * Session keys set by the authenticator when redirecting to org selection during re-auth.
-     * Public so the authenticator can write them without circular coupling.
-     */
-    public const SESSION_KEY_PENDING_PAGE_URL = 'organisation_selection_pending_page_url';
-    public const SESSION_KEY_PENDING_ORG_ID = 'organisation_selection_pending_org_id';
-
     public function __construct(
         private readonly CurrentOrganisationService $currentOrganisationService,
+        private readonly PendingRequestCacheService $pendingRequestCacheService,
     ) {
     }
 
@@ -70,10 +65,13 @@ class OrganisationSelectionController extends BaseController
             return $this->redirectToRoute('core_home_loggedin');
         }
 
+        $pendingRequest = $this->pendingRequestCacheService->retrieve($user->getId());
+        $pendingOrganisationId = $pendingRequest?->getSelectedOrganisationId();
+
         // Store validated return URL in session instead of round-tripping through form.
         // Skip during re-auth flow — referer would be the Keycloak callback URL, not a useful destination.
         $referer = $request->headers->get('referer');
-        if (null !== $referer && '' !== $referer && null === $request->getSession()->get(self::SESSION_KEY_PENDING_ORG_ID)) {
+        if (null !== $referer && '' !== $referer && null === $pendingOrganisationId) {
             $path = parse_url($referer, PHP_URL_PATH);
             $selectPath = $this->generateUrl('DemosPlan_user_select_organisation');
             if (is_string($path) && 1 === preg_match('#^/[^/]#', $path) && $path !== $selectPath) {
@@ -84,10 +82,10 @@ class OrganisationSelectionController extends BaseController
         return $this->render(
             '@DemosPlanCore/DemosPlanUser/select_organisation.html.twig',
             [
-                'title'                 => 'organisation.select',
-                'organisations'         => $organisations,
-                'currentOrganisationId' => $user->getCurrentOrganisation()?->getId(),
-                'pendingOrganisationId' => $request->getSession()->get(self::SESSION_KEY_PENDING_ORG_ID),
+                'title'                      => 'organisation.select',
+                'organisations'              => $organisations,
+                'currentOrganisationId'      => $user->getCurrentOrganisation()?->getId(),
+                'lastSelectedOrganisationId' => $pendingOrganisationId,
             ]
         );
     }
@@ -148,20 +146,22 @@ class OrganisationSelectionController extends BaseController
 
         $this->getMessageBag()->add('confirm', 'confirm.organisation.switched');
 
-        $session = $request->getSession();
+        // Re-auth flow: read pending data from cache, redirect to pending page only when same org chosen.
+        $pendingRequest = $this->pendingRequestCacheService->retrieve($user->getId());
+        $this->pendingRequestCacheService->delete($user->getId());
 
-        // Re-auth flow: redirect to the pending page only when the same org was re-selected.
-        // Different org chosen → discard pending context, proceed normally.
-        $pendingOrgId = $session->get(self::SESSION_KEY_PENDING_ORG_ID);
-        $pendingPageUrl = $session->get(self::SESSION_KEY_PENDING_PAGE_URL);
-        $session->remove(self::SESSION_KEY_PENDING_ORG_ID);
-        $session->remove(self::SESSION_KEY_PENDING_PAGE_URL);
+        if (null !== $pendingRequest) {
+            $pendingOrgId = $pendingRequest->getSelectedOrganisationId();
+            $pendingPageUrl = $pendingRequest->getPageUrl();
 
-        if (null !== $pendingOrgId && null !== $pendingPageUrl && $selectedOrga->getId() === $pendingOrgId) {
-            return new RedirectResponse($pendingPageUrl);
+            if (null !== $pendingOrgId && null !== $pendingPageUrl && $selectedOrga->getId() === $pendingOrgId) {
+                // Not yet implemented: if pendingRequest has a buffered POST, redirect to pending request review page
+                return new RedirectResponse($pendingPageUrl);
+            }
         }
 
         // Retrieve and clear the return URL from the session
+        $session = $request->getSession();
         $returnUrl = $session->get(self::SESSION_KEY_RETURN_URL);
         $session->remove(self::SESSION_KEY_RETURN_URL);
 

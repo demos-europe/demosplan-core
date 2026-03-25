@@ -14,9 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface;
-use demosplan\DemosPlanCoreBundle\Controller\User\OrganisationSelectionController;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
+use demosplan\DemosPlanCoreBundle\Logic\OAuth\PendingRequestCacheService;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakClientFactory;
@@ -24,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\Parser;
 use League\OAuth2\Client\Token\AccessToken;
@@ -42,28 +40,34 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
-class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
+class OzgKeycloakAuthenticator extends AbstractOzgKeycloakAuthenticator implements AuthenticationEntryPointInterface
 {
-    use KeycloakAuthenticationSuccessTrait {
-        onAuthenticationSuccess as traitOnAuthenticationSuccess;
-    }
-
     private ?AccessToken $pendingAccessToken = null;
 
     public function __construct(
+        LoggerInterface $logger,
+        RouterInterface $router,
+        CurrentOrganisationService $currentOrganisationService,
+        MessageBagInterface $messageBag,
+        OAuthTokenStorageService $oauthTokenStorageService,
+        PendingRequestCacheService $pendingRequestCacheService,
+        OzgKeycloakSessionManager $ozgKeycloakSessionManager,
         private readonly OzgKeycloakClientFactory $ozgKeycloakClientFactory,
         private readonly CustomerServiceInterface $customerService,
         private readonly EntityManagerInterface $entityManager,
-        private readonly MessageBagInterface $messageBag,
-        private readonly OAuthTokenStorageService $oauthTokenStorageService,
-        private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
         private readonly OzgKeycloakUserData $ozgKeycloakUserData,
-        private readonly LoggerInterface $logger,
         private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
         private readonly ParameterBagInterface $parameterBag,
-        private readonly RouterInterface $router,
-        private readonly CurrentOrganisationService $currentOrganisationService,
     ) {
+        parent::__construct(
+            $logger,
+            $router,
+            $currentOrganisationService,
+            $messageBag,
+            $oauthTokenStorageService,
+            $pendingRequestCacheService,
+            $ozgKeycloakSessionManager,
+        );
     }
 
     public function supports(Request $request): ?bool
@@ -111,7 +115,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             $this->logger->error(
                 'login failed',
                 [
-                    'requestValues' => $this->ozgKeycloakUserData ?? null,
+                    'requestValues' => $this->ozgKeycloakUserData,
                     'exception'     => $e,
                 ]
             );
@@ -125,79 +129,14 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        $accessToken = $this->pendingAccessToken;
-        $this->pendingAccessToken = null;
+        try {
+            $accessToken = $this->pendingAccessToken;
+            $this->pendingAccessToken = null;
 
-        $userId = $request->getSession()->get('userId');
-        $pendingPageUrl = null;
-        $pendingRequest = null;
-
-        if (null !== $accessToken && null !== $userId) {
-            // Read pending request BEFORE storeTokens() clears it.
-            try {
-                $pendingRequest = $this->oauthTokenStorageService->getPendingRequest($userId);
-                $pendingPageUrl = $pendingRequest?->getPageUrl();
-            } catch (Exception $e) {
-                $this->logger->error('Failed to read pending request on re-authentication', [
-                    'user_id' => $userId,
-                    'error'   => $e->getMessage(),
-                ]);
-            }
-
-            // Store tokens. storeTokens() clears the pending request and syncs the session threshold.
-            // Login succeeds even if storage fails.
-            try {
-                $this->oauthTokenStorageService->storeTokens($userId, $accessToken);
-            } catch (Exception $e) {
-                $this->logger->error('Failed to store OAuth tokens after login', [
-                    'user_id' => $userId,
-                    'error'   => $e->getMessage(),
-                ]);
-            }
-
-            // In login-only mode, token refresh never runs so:
-            // - id_token never rotates → store it once here for KeyCloak logout
-            // - EXPIRATION_TIMESTAMP is never updated by syncSession() → set it here to the PHP session lifetime
-            if ($this->ozgKeycloakSessionManager->isKeycloakLoginOnly()) {
-                $rawIdToken = $accessToken->getValues()['id_token'] ?? null;
-                if (null !== $rawIdToken) {
-                    $this->ozgKeycloakSessionManager->storeIdTokenForLogout($request->getSession(), $rawIdToken);
-                }
-
-                $this->ozgKeycloakSessionManager->injectTokenExpirationIntoSession($request->getSession(), $userId);
-            }
+            return $this->handleAuthenticationSuccess($request, $token, $accessToken);
+        } catch (Exception $e) {
+            return $this->onAuthenticationFailure($request, new AuthenticationException($e->getMessage(), 0, $e));
         }
-
-        // Re-auth with pending page: restore org context, then redirect
-        if (null !== $pendingPageUrl) {
-            $user = $token->getUser();
-            $pendingOrganisationId = $pendingRequest?->getSelectedOrganisationId();
-
-            if ($user instanceof User && $this->currentOrganisationService->hasMultipleOrganisations($user) && null !== $pendingOrganisationId) {
-                // Multi-org: route through selection page so user can confirm or change org context.
-                // Controller will redirect to pending page only when same org is chosen.
-                $request->getSession()->set(OrganisationSelectionController::SESSION_KEY_PENDING_PAGE_URL, $pendingPageUrl);
-                $request->getSession()->set(OrganisationSelectionController::SESSION_KEY_PENDING_ORG_ID, $pendingOrganisationId);
-                $this->messageBag->add('confirm', 'confirm.session.renewed');
-
-                return new RedirectResponse($this->router->generate('DemosPlan_user_select_organisation'));
-            }
-
-            // Single-org or missing org context: auto-select and redirect directly
-            if ($user instanceof User && 1 === $user->getOrganisations()->count()) {
-                $singleOrga = $user->getOrganisations()->first();
-                if (false !== $singleOrga) {
-                    $this->currentOrganisationService->setCurrentOrganisation($user, $singleOrga);
-                }
-            }
-
-            $this->messageBag->add('confirm', 'confirm.session.renewed');
-
-            return new RedirectResponse($pendingPageUrl);
-        }
-
-        // Fresh login: delegate to trait for multi-org selection + default redirect
-        return $this->traitOnAuthenticationSuccess($request, $token, $firewallName);
     }
 
     /**
