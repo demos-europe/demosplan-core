@@ -38,7 +38,7 @@ class ProcedureElasticsearchRepository
         Index $procedureSearchType,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
-        PermissionsInterface $permissions
+        PermissionsInterface $permissions,
     ) {
         $this->index = $procedureSearchType;
         $this->globalConfig = $globalConfig;

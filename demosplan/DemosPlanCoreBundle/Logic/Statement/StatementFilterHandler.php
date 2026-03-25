@@ -27,7 +27,7 @@ class StatementFilterHandler extends CoreHandler
         MessageBagInterface $messageBag,
         PermissionsInterface $permissions,
         private readonly TranslatorInterface $translator,
-        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
     ) {
         parent::__construct($messageBag);
         $this->permissions = $permissions;

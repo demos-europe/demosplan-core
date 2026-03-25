@@ -139,9 +139,9 @@ class PublicIndexProcedureLister
     public function reformatPhases(bool $isLoggedIn, array $procedures): array
     {
         $toPhaseArray = static fn (ProcedurePhaseDefinition $d): array => [
-            'id'               => $d->getId(),
-            'name'             => $d->getName(),
-            'permissionset'    => $d->getPermissionSet(),
+            'id'                 => $d->getId(),
+            'name'               => $d->getName(),
+            'permissionset'      => $d->getPermissionSet(),
             'participationstate' => $d->getParticipationState(),
         ];
 
