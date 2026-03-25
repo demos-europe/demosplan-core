@@ -2627,8 +2627,14 @@ class ProcedureService implements ProcedureServiceInterface
         if ($excludeArchived) {
             // todo: use Paths::procedure() here instead of array of strings to define the paths.
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotValue('closed', ['phase', 'key']),
-                $this->conditionFactory->propertyHasNotValue('closed', ['publicParticipationPhase', 'key'])
+                $this->conditionFactory->anyConditionApplies(
+                    $this->conditionFactory->propertyHasNotValue('hidden', ['phase', 'phaseDefinition', 'permissionSet']),
+                    $this->conditionFactory->propertyHasValue(0, ['phase', 'phaseDefinition', 'orderInAudience'])
+                ),
+                $this->conditionFactory->anyConditionApplies(
+                    $this->conditionFactory->propertyHasNotValue('hidden', ['publicParticipationPhase', 'phaseDefinition', 'permissionSet']),
+                    $this->conditionFactory->propertyHasValue(0, ['publicParticipationPhase', 'phaseDefinition', 'orderInAudience'])
+                )
             );
         }
 

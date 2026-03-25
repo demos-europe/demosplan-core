@@ -649,9 +649,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 )
             );
         }
-        if (array_key_exists('phase', $data)) {
-            $procedure->setPhase($data['phase']);
-        }
         if (array_key_exists('phaseDefinition', $data)) {
             $procedure->getPhaseObject()->setPhaseDefinition($data['phaseDefinition']);
         }
@@ -690,9 +687,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                     Carbon::instance($data['publicParticipationEndDate'])->endOfDay()->toDate()
                 );
             }
-        }
-        if (array_key_exists('publicParticipationPhase', $data)) {
-            $procedure->setPublicParticipationPhase($data['publicParticipationPhase']);
         }
         if (array_key_exists('publicParticipationPhaseDefinition', $data)) {
             $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($data['publicParticipationPhaseDefinition']);

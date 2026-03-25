@@ -861,13 +861,6 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // internal:
         $endedInternalProcedures = $this->procedureService->getProceduresWithEndedParticipation();
 
-        $internalPhaseKey = 'evaluating';
-        $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
-        // T17248: necessary because of different phasekeys per project:
-        if ($internalPhaseKey === $internalPhaseName) { // not found?
-            $internalPhaseKey = 'analysis';
-        }
-
         /** @var Procedure $endedInternalProcedure */
         foreach ($endedInternalProcedures as $endedInternalProcedure) {
             if (null !== $endedInternalProcedure->getEndDate()
@@ -875,7 +868,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 // clone before modification so the phase change is detectable for report entry creation
                 $originalProcedure = $this->procedureService->cloneProcedure($endedInternalProcedure);
 
-                $data = ['id' => $endedInternalProcedure->getId(), 'phase' => $internalPhaseKey, 'customer' => $endedInternalProcedure->getCustomer()];
+                $data = ['id' => $endedInternalProcedure->getId(), 'customer' => $endedInternalProcedure->getCustomer()];
                 $internalEvaluatingDefinition = $this->procedurePhaseDefinitionService->findEvaluatingDefinition('internal', $endedInternalProcedure->getCustomer());
                 if (null !== $internalEvaluatingDefinition) {
                     $data['phaseDefinition'] = $internalEvaluatingDefinition;
@@ -899,13 +892,6 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // external:
         $endedExternalProcedures = $this->procedureService->getProceduresWithEndedParticipation(false);
 
-        $externalPhaseKey = 'evaluating';
-        $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
-        // T17248: necessary because of different phasekeys per project:
-        if ($externalPhaseKey === $externalPhaseName) { // not found?
-            $externalPhaseKey = 'analysis';
-        }
-
         /** @var Procedure $endedExternalProcedure */
         foreach ($endedExternalProcedures as $endedExternalProcedure) {
             if (null !== $endedExternalProcedure->getPublicParticipationEndDate()
@@ -913,7 +899,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 // clone before modification so the phase change is detectable for report entry creation
                 $originalProcedure = $this->procedureService->cloneProcedure($endedExternalProcedure);
 
-                $data = ['id' => $endedExternalProcedure->getId(), 'publicParticipationPhase' => $externalPhaseKey, 'customer' => $endedExternalProcedure->getCustomer()];
+                $data = ['id' => $endedExternalProcedure->getId(), 'customer' => $endedExternalProcedure->getCustomer()];
                 $externalEvaluatingDefinition = $this->procedurePhaseDefinitionService->findEvaluatingDefinition('external', $endedExternalProcedure->getCustomer());
                 if (null !== $externalEvaluatingDefinition) {
                     $data['publicParticipationPhaseDefinition'] = $externalEvaluatingDefinition;

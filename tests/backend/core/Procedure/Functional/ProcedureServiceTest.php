@@ -3647,6 +3647,6 @@ Email:',
 
     private function isClosedPhase(ProcedurePhaseDefinition $definition): bool
     {
-        return 'read' === $definition->getPermissionSet() && null === $definition->getParticipationState();
+        return 'hidden' === $definition->getPermissionSet() && 0 !== $definition->getOrderInAudience();
     }
 }
