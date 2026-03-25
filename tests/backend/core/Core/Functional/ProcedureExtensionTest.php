@@ -55,8 +55,8 @@ class ProcedureExtensionTest extends FunctionalTestCase
         $procedure->getPhaseObject()->setPhaseDefinition($internalDefinition->_real());
         $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($externalDefinition->_real());
 
-        static::assertSame($internalDefinition->getName(), $this->sut->getPhase($procedure));
-        static::assertSame($externalDefinition->getName(), $this->sut->getPhase($procedure, 'public'));
+        static::assertSame($internalDefinition->getName(), $this->sut->getPhaseDefinitionName($procedure));
+        static::assertSame($externalDefinition->getName(), $this->sut->getPhaseDefinitionName($procedure, 'public'));
     }
 
     public function testGetPhaseKey()
@@ -70,12 +70,12 @@ class ProcedureExtensionTest extends FunctionalTestCase
 
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_INVITABLE_INSTITUTION_ONLY);
         $this->createSut($user);
-        $phase = $this->sut->getPhaseKey($procedure);
+        $phase = $this->sut->getPhaseDefinitionId($procedure);
         static::assertEquals($internalDefinition->getId(), $phase);
 
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_CITIZEN);
         $this->createSut($user);
-        $phase = $this->sut->getPhaseKey($procedure, 'public');
+        $phase = $this->sut->getPhaseDefinitionId($procedure, 'public');
         static::assertEquals($externalDefinition->getId(), $phase);
     }
 

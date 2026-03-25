@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,8 +24,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PublicIndexProcedureLister
 {
-    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly GlobalConfigInterface $globalConfig, private readonly OrgaService $orgaService, private readonly PermissionsInterface $permissions, private readonly ProcedureHandler $procedureHandler, private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly CurrentUserInterface $currentUser,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly OrgaService $orgaService,
+        private readonly PermissionsInterface $permissions,
+        private readonly ProcedureHandler $procedureHandler,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     public function getPublicIndexProcedureList(Request $request, string $orgaSlug = ''): array
@@ -130,10 +138,27 @@ class PublicIndexProcedureLister
      */
     public function reformatPhases(bool $isLoggedIn, array $procedures): array
     {
-        $includePreviewed = $this->permissions->hasPermission('feature_procedure_preview');
+        $toPhaseArray = static fn (ProcedurePhaseDefinition $d): array => [
+            'id'               => $d->getId(),
+            'name'             => $d->getName(),
+            'permissionset'    => $d->getPermissionSet(),
+            'participationstate' => $d->getParticipationState(),
+        ];
 
-        $procedures['externalPhases'] = $this->globalConfig->getExternalPhases('read||write', $includePreviewed);
-        $procedures['internalPhases'] = $this->globalConfig->getInternalPhases('read||write', $includePreviewed);
+        $procedures['internalPhases'] = array_map(
+            $toPhaseArray,
+            array_filter(
+                $this->procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer(),
+                static fn (ProcedurePhaseDefinition $d) => in_array($d->getPermissionSet(), ['read', 'write'], true)
+            )
+        );
+        $procedures['externalPhases'] = array_map(
+            $toPhaseArray,
+            array_filter(
+                $this->procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer(),
+                static fn (ProcedurePhaseDefinition $d) => in_array($d->getPermissionSet(), ['read', 'write'], true)
+            )
+        );
         $procedures['useInternalFields'] = $isLoggedIn && !$this->currentUser->getUser()->hasRole(RoleInterface::CITIZEN);
 
         // Wenn es Verfahren gibt, dann ersetze die Label der Phasen aus der Config

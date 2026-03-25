@@ -774,6 +774,18 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->phase->getKey();
     }
 
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPhaseDefinitionId(): ?string
+    {
+        return $this->phase->getPhaseDefinition()->getId();
+    }
+
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPhaseOrderInAudience(): int
+    {
+        return $this->phase->getPhaseDefinition()->getOrderInAudience();
+    }
+
     public function getPhaseObject(): ProcedurePhaseInterface
     {
         return $this->phase;
@@ -1096,6 +1108,18 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     public function getPublicParticipationPhase(): string
     {
         return $this->publicParticipationPhase->getKey();
+    }
+
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPublicParticipationPhaseDefinitionId(): ?string
+    {
+        return $this->publicParticipationPhase->getPhaseDefinition()->getId();
+    }
+
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPublicParticipationPhaseOrderInAudience(): int
+    {
+        return $this->publicParticipationPhase->getPhaseDefinition()->getOrderInAudience();
     }
 
     public function getPublicParticipationPhaseObject(): ProcedurePhaseInterface

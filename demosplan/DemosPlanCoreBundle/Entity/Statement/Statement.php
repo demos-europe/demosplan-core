@@ -1638,6 +1638,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->phaseDefinition;
     }
 
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPhaseDefinitionId(): ?string
+    {
+        return $this->phaseDefinition->getId();
+    }
+
     public function setPhaseDefinition(ProcedurePhaseDefinition $phaseDefinition): void
     {
         $this->phaseDefinition = $phaseDefinition;

@@ -68,11 +68,7 @@ class ProcedureElasticsearchRepository
         // their own procedures should be displayed even in hidden phases
         if ($esQuery->hasScope(QueryProcedure::SCOPE_INTERNAL)) {
             $boolInternalQuery = new BoolQuery();
-            $boolInternalMustNotTerms = [''];
-            foreach ($this->globalConfig->getInternalPhases('hidden') as $internalHidden) {
-                $boolInternalMustNotTerms[] = $internalHidden['key'];
-            }
-            $boolInternalQuery->addMustNot(new Terms('phase', $boolInternalMustNotTerms));
+            $boolInternalQuery->addMustNot(new Terms('phasePermissionset', ['hidden']));
 
             if (!$this->permissions->hasPermission('feature_procedure_all_orgas_invited')) {
                 $boolInternalQuery->addMust(new Terms('organisationIds', [$esQuery->getOrgaId()]));
@@ -92,10 +88,7 @@ class ProcedureElasticsearchRepository
         }
 
         if ($esQuery->hasScope(QueryProcedure::SCOPE_EXTERNAL)) {
-            $boolQuery->addMustNot(new Terms('publicParticipationPhase', ['']));
-            foreach ($this->globalConfig->getExternalPhases('hidden') as $externalHidden) {
-                $boolQuery->addMustNot(new Terms('publicParticipationPhase', [$externalHidden['key']]));
-            }
+            $boolQuery->addMustNot(new Terms('publicParticipationPhasePermissionset', ['hidden']));
         }
 
         return $boolQuery;

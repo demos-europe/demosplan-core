@@ -434,7 +434,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                     'externalName'                 => $procedureExtension->getNameFunction($procedure),
                     'publicParticipationStartDate' => $dateConvert($procedureExtension->getStartDate($procedure)),
                     'publicParticipationEndDate'   => $dateConvert($procedureExtension->getEndDate($procedure)),
-                    'publicParticipationPhaseName' => $procedureExtension->getPhase($procedure),
+                    'publicParticipationPhaseName' => $procedureExtension->getPhaseDefinitionName($procedure),
                     'externalDesc'                 => $procedure['externalDesc'],
                     'publicParticipationContact'   => $procedure['publicParticipationContact'],
                     'procedureUrl'                 => $this->generateUrl(

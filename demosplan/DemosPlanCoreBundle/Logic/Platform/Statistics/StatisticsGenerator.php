@@ -70,8 +70,8 @@ class StatisticsGenerator
             foreach ($procedureList['result'] as $procedureData) {
                 $procedureData = $this->prepareProcedureData($procedureData, $globalStatementStatistic);
                 $modifiedResults[$procedureData['id']] = $procedureData;
-                $internalPhases = $this->cacheProcedurePhase($internalPhases, $procedureData['phaseName']);
-                $externalPhases = $this->cacheProcedurePhase($externalPhases, $procedureData['publicParticipationPhaseName']);
+                $internalPhases = $this->cacheProcedurePhase($internalPhases, $procedureData['phaseObject']['phaseDefinition']['name']);
+                $externalPhases = $this->cacheProcedurePhase($externalPhases, $procedureData['publicParticipationPhaseObject']['phaseDefinition']['name']);
             }
             $procedureList['result'] = $modifiedResults;
         }

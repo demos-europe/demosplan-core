@@ -70,8 +70,8 @@ class ProcedureExtension extends ExtensionBase
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('getProcedurePhase', $this->getPhase(...)),
-            new TwigFunction('getProcedurePhaseKey', $this->getPhaseKey(...)),
+            new TwigFunction('getProcedurePhaseDefinitionName', $this->getPhaseDefinitionName(...)),
+            new TwigFunction('getProcedurePhaseDefinitionId', $this->getPhaseDefinitionId(...)),
             new TwigFunction('getProcedureStartDate', $this->getStartDate(...)),
             new TwigFunction('getProcedureEndDate', $this->getEndDate(...)),
             new TwigFunction('getProcedureName', $this->getNameFunction(...)),
@@ -88,7 +88,7 @@ class ProcedureExtension extends ExtensionBase
      *
      * @param string $type auto|public
      */
-    public function getPhase(array|Procedure $procedure, string $type = 'auto'): string
+    public function getPhaseDefinitionName(array|Procedure $procedure, string $type = 'auto'): string
     {
         try {
             $procedure = $this->getProcedureObject($procedure);
@@ -120,7 +120,7 @@ class ProcedureExtension extends ExtensionBase
      *
      * @return string
      */
-    public function getPhaseKey($procedureSomething, $type = 'auto')
+    public function getPhaseDefinitionId($procedureSomething, $type = 'auto')
     {
         try {
             $procedure = $this->getProcedureObject($procedureSomething);
