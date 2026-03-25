@@ -87,7 +87,7 @@
      --><div class="layout__item u-1-of-3">
           <fieldset>
             <legend class="weight--bold block is-label">
-              {{ Translator.trans('period.new')}}
+              {{ Translator.trans('period.new') }}
             </legend>
             <dp-date-range-picker
               id="procedurePhasePeriod"
