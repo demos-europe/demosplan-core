@@ -104,6 +104,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * An Statement has only one source attachment, that is why the property is named singular even though it is a to-many relationship
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,StatementInterface,StatementAttachmentInterface> $sourceAttachment
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Statement> $parentStatementOfSegment
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $customFields
  */
 class StatementResourceConfigBuilder extends BaseStatementResourceConfigBuilder
 {

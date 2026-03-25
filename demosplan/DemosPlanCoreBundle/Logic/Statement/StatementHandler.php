@@ -446,9 +446,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         return $this->statementFragmentService->getStatementFragmentsDepartmentArchive($esQuery, $this->getRequestValues(), $departmentId);
     }
 
-    public function addSourceStatementAttachments(array $statements)
+    public function addStatementAttachments(array $statements, bool $includeAdditionalAttachments = false)
     {
-        return $this->statementService->addSourceStatementAttachments($statements);
+        return $this->statementService->addStatementAttachments($statements, $includeAdditionalAttachments);
     }
 
     /**
@@ -573,7 +573,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         $fragmentToUpdate = $this->statementFragmentService->getStatementFragment($fragmentId);
 
-        if (!($fragmentToUpdate instanceof StatementFragment)) {
+        if (!$fragmentToUpdate instanceof StatementFragment) {
             throw new EntityNotFoundException('StatementFragment not found: '.$fragmentId);
         }
 
@@ -593,7 +593,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         $fragmentToUpdate = $this->statementFragmentService->getStatementFragment($statementFragmentId);
 
-        if (!($fragmentToUpdate instanceof StatementFragment)) {
+        if (!$fragmentToUpdate instanceof StatementFragment) {
             $this->getLogger()->error('Could not update StatementFragment, Fragment not found: '.$statementFragmentId);
 
             return false;
@@ -3046,7 +3046,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         if (array_key_exists('r_publicVerified', $data)) {
             $procedure = $this->procedureService->getProcedure($procedureId);
 
-            if (!($procedure instanceof Procedure)) {
+            if (!$procedure instanceof Procedure) {
                 throw ProcedurePublicationException::procedureNotFound($procedureId);
             }
 
@@ -3438,9 +3438,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
             if ($updatedStatement instanceof Statement) {
                 return true;
-            } else {
-                $this->getLogger()->error('Set assignee of Statement '.$statement->getId().' failed.');
             }
+            $this->getLogger()->error('Set assignee of Statement '.$statement->getId().' failed.');
         }
 
         return $statement->getExternId();
