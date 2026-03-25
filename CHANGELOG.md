@@ -9,6 +9,14 @@
 ### Fixed
 - Fix redirect to split-view after claiming statement and correct unclaim behavior to prevent false assignee confirmation dialog
 
+## v4.29.4 (2026-03-24)
+
+### Fixed
+- Custom fields column causing errors in segments list for users without segment access permission
+
+### Added
+- Explicit identity provider type configuration for SSO connections
+
 ## v4.29.3 (2026-03-18)
 
 ### Fixed
