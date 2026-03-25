@@ -575,6 +575,22 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     }
 
     /**
+     * Find non-deleted users by email address (case-insensitive).
+     *
+     * @return User[]
+     */
+    public function findNonDeletedUsersByEmailCaseInsensitive(string $email): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where('UPPER(u.email) = UPPER(:email)')
+            ->andWhere('u.deleted = :deleted')
+            ->setParameter('email', $email)
+            ->setParameter('deleted', false)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Get user by login (UserRepositoryInterface implementation).
      *
      * @param string $login User login
