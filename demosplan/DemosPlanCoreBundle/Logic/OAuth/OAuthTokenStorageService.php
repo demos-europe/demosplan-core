@@ -406,10 +406,10 @@ class OAuthTokenStorageService
     /**
      * Get pending request for a user.
      *
-     * @param string $userId       The user ID (UUID)
-     * @param bool   $decryptBody  When true the body is decrypted before filling the value object.
-     *                              Default false keeps the body encrypted — callers that need clear text
-     *                              must explicitly opt in.
+     * @param string $userId      The user ID (UUID)
+     * @param bool   $decryptBody When true the body is decrypted before filling the value object.
+     *                            Default false keeps the body encrypted — callers that need clear text
+     *                            must explicitly opt in.
      *
      * @return PendingRequestData|null Request data value object, or null if no pending request
      *

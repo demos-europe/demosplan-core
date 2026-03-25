@@ -17,7 +17,6 @@ use DateTimeZone;
 use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
 use demosplan\DemosPlanCoreBundle\ValueObject\PendingRequestData;
 use Exception;
-use Psr\Cache\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
