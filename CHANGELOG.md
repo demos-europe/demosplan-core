@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Fixed
+- Fix redirect to split-view after claiming statement and correct unclaim behavior to prevent false assignee confirmation dialog
+
 ## v4.29.4 (2026-03-24)
 
 ### Fixed
