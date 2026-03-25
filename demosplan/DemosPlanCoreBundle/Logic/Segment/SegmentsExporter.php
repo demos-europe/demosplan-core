@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
 use DateTime;
+use DateTimeZone;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -138,7 +139,7 @@ abstract class SegmentsExporter
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST, $exportTagTitles);
         $this->addHeader($section, $procedure, null, $exportTagTitles);
-        $exportDate = (new DateTime('now', new \DateTimeZone('Europe/Berlin')))->format('d.m.Y');
+        $exportDate = (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('d.m.Y');
         $userName = $this->currentUser->getUser()->getFullName();
         $pageInfoText = $this->translator->trans('export.user').': '.$userName.' am '.$exportDate.'<br>';
 
