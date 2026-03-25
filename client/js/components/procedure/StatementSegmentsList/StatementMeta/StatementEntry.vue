@@ -271,8 +271,8 @@ export default {
           authoredDate: attrs.authoredDate,
           submitDate: attrs.submitDate,
           submitType: attrs.submitType,
-          internId: attrs.internId
-        }
+          internId: attrs.internId,
+        },
       }
       if (hasPermission('field_statement_phase')) {
         changes.attributes.procedurePhase = attrs.procedurePhase
@@ -291,7 +291,7 @@ export default {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
       this.localStatement.attributes.authoredDate = this.getFormattedDate(this.localStatement.attributes.authoredDate)
       this.localStatement.attributes.submitDate = this.getFormattedDate(this.localStatement.attributes.submitDate)
-    }
+    },
   },
 
   created () {
