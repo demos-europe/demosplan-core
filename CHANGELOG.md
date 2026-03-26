@@ -6,8 +6,40 @@
 
 ## UNRELEASED
 
+## v4.32.0 (2026-03-25)
+### Added
+- Export original statements as ZIP file including attachments for archiving
+- Display custom fields in assessment table, original statement list, and public participation dialog
+- Support for users belonging to multiple organizations with organization switcher
+- Warning when saving processing steps without any step marked as "completed"
+- Segment list filters for assignee and step now use OR logic within the same category
+- Hints for map territory features
+- Protocol entries for automatic phase switch
+- Rate limiting for new statements restricted to anonymous users only
+- Option for addons to customize export column definitions
+- Allow editing organization names in user profile
+- Clear browser data on logout for improved session security
+
+### Changed
+- Renamed "Bearbeiten" to "Details" in segment list context menu and reordered menu options
+- Updated pager styling
+- Protocol export uses flow text instead of table layout
+- Redesigned attachment entries in original statement list
+
 ### Fixed
-- Fix redirect to split-view after claiming statement and correct unclaim behavior to prevent false assignee confirmation dialog
+- Redirect to split-view after claiming statement and correct unclaim behavior to prevent false assignee confirmation dialog
+- Date pickers overlapping and breaking layout in procedure creation
+- Statement attachments missing from procedure zip export for ToeB
+- Overlapping icons in searchbar
+- Support contact creation failing
+- Draft statement polygon data being truncated
+- Statement data being overwritten when saving additional submitters
+- Publication field incorrectly shown in citizen PDF when disabled
+- Flyout trigger column not staying visible when scrolling horizontally
+- Organization type permission check preventing correct access
+- Pagination errors when navigating statement lists
+- Elasticsearch search queries returning malformed results
+- Statement voting not working on MySQL 8+
 
 ## v4.31.0 (2026-02-25)
 ### Changed
