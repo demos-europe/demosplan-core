@@ -44,17 +44,6 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     protected ?string $id = null;
 
     /**
-     * Virtual property
-     * Readable Phase name.
-     */
-    protected string $name = '';
-
-    /**
-     * Virtual Property bound on phase configuration in procedurephases.yml.
-     */
-    protected string $permissionSet = ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
-
-    /**
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected DateTime $startDate;
@@ -135,18 +124,19 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     /**
      * @ORM\Column(type="string", length=25, nullable=false, options={"default":""})
+     * @deprecated phase keys will be removed
      */
     protected string $step = '';
 
     /**
      * @ORM\Column(name="phase_key", type="string", nullable=false)
+     * @deprecated phase keys will be removed
      */
     protected string $key = 'configuration';
 
     public function __construct(ProcedurePhaseDefinition $phaseDefinition)
     {
         $this->phaseDefinition = $phaseDefinition;
-        $this->permissionSet = ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
         $this->endDate = new DateTime();
         $this->startDate = new DateTime();
     }
@@ -161,34 +151,51 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->id = $id;
     }
 
+    /**
+     * @deprecated phase keys will be removed
+     */
     public function getName(): string
     {
-        return $this->name;
+        return '';
     }
 
+    /**
+     * @deprecated phase keys will be removed
+     */
     public function setName(string $name): void
     {
-        $this->name = $name;
+
     }
 
+    /**
+     * @deprecated phase keys will be removed
+     */
     public function getKey(): string
     {
         return $this->key;
     }
 
+    /**
+     * @deprecated phase keys will be removed
+     */
     public function setKey(string $key): void
     {
         $this->key = $key;
     }
 
+    /**
+     * @deprecated use ProcedurePhaseDefinition instead
+     */
     public function getPermissionSet(): string
     {
-        return $this->permissionSet;
+        return '';
     }
 
+    /**
+     * @deprecated use ProcedurePhaseDefinition instead
+     */
     public function setPermissionSet(string $permissionSet): void
     {
-        $this->permissionSet = $permissionSet;
     }
 
     public function getStartDate(): DateTime
@@ -303,11 +310,17 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->designatedEndDate = $designatedEndDate;
     }
 
+    /**
+     * @deprecated phase keys will be removed
+     */
     public function getStep(): string
     {
         return $this->step;
     }
 
+    /**
+     * @deprecated phase keys will be removed
+     */
     public function setStep(string $step): void
     {
         $this->step = $step;
@@ -315,14 +328,10 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     public function copyValuesFromPhase(ProcedurePhaseInterface $sourcePhase): void
     {
-        $this->key = $sourcePhase->getKey();
-        $this->step = $sourcePhase->getStep();
-        $this->name = $sourcePhase->getName();
         $this->designatedEndDate = $sourcePhase->getDesignatedEndDate();
         $this->designatedSwitchDate = $sourcePhase->getDesignatedSwitchDate();
         $this->designatedSwitchDateTimestamp = $sourcePhase->getDesignatedSwitchDateTimestamp();
         $this->designatedPhase = $sourcePhase->getDesignatedPhase();
-        $this->permissionSet = $sourcePhase->getPermissionSet();
         $this->startDate = $sourcePhase->getStartDate();
         $this->endDate = $sourcePhase->getEndDate();
 

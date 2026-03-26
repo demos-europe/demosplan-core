@@ -758,22 +758,20 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * @param string $phaseKey
+     *
+     * @deprecated phase keys will be removed
      */
     public function setPhase($phaseKey): Procedure
     {
-        $this->setPhaseKey($phaseKey);
-
         return $this;
     }
 
-    public function setPhaseKey($phaseKey): void
-    {
-        $this->phase->setKey($phaseKey);
-    }
-
+    /**
+     * @deprecated phase keys will be removed
+     */
     public function getPhase(): string
     {
-        return $this->phase->getKey();
+        return '';
     }
 
     /** @internal Used for Elasticsearch indexing only. */
@@ -793,17 +791,19 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->phase;
     }
 
+    /**
+     * @deprecated phase keys will be removed
+     */
     public function getPhaseName(): string
     {
-        return $this->phase->getName();
+        return '';
     }
 
     /**
-     * @param string $phaseName
+     * @deprecated phase keys will be removed
      */
     public function setPhaseName($phaseName)
     {
-        $this->phase->setName($phaseName);
     }
 
     public function getPhasePermissionset(): string
@@ -820,27 +820,19 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * Set pStep.
-     *
-     * @param string $step
-     *
-     * @return Procedure
+     * @deprecated phase keys will be removed
      */
     public function setStep($step)
     {
-        $this->phase->setStep($step);
-
         return $this;
     }
 
     /**
-     * Get pStep.
-     *
-     * @return string
+     * @deprecated phase keys will be removed
      */
     public function getStep()
     {
-        return $this->phase->getStep();
+        return '';
     }
 
     /**
@@ -1098,18 +1090,21 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @param string $publicParticipationPhaseKey
      *
+     * @deprecated phase keys will be removed
+     *
      * @return Procedure
      */
     public function setPublicParticipationPhase($publicParticipationPhaseKey)
     {
-        $this->publicParticipationPhase->setKey($publicParticipationPhaseKey);
-
         return $this;
     }
 
+    /**
+     * @deprecated phase keys will be removed
+     */
     public function getPublicParticipationPhase(): string
     {
-        return $this->publicParticipationPhase->getKey();
+        return '';
     }
 
     /** @internal Used for Elasticsearch indexing only. */
@@ -1130,19 +1125,19 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * @return string
+     * @deprecated phase keys will be removed
      */
     public function getPublicParticipationPhaseName()
     {
-        return $this->publicParticipationPhase->getName();
+        return '';
     }
 
     /**
-     * @param string $publicParticipationPhaseName
+     * @deprecated phase keys will be removed
      */
     public function setPublicParticipationPhaseName($publicParticipationPhaseName)
     {
-        $this->publicParticipationPhase->setName($publicParticipationPhaseName);
+
     }
 
     public function getPublicParticipationPhasePermissionset(): string
@@ -1159,23 +1154,19 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
-     * @param string $publicParticipationStep
+     * @deprecated phase keys will be removed
      */
     public function setPublicParticipationStep($publicParticipationStep): Procedure
     {
-        $this->publicParticipationPhase->setStep($publicParticipationStep);
-
         return $this;
     }
 
     /**
-     * Get pPublicParticipationStep.
-     *
-     * @return string
+     * @deprecated phase keys will be removed
      */
     public function getPublicParticipationStep()
     {
-        return $this->publicParticipationPhase->getStep();
+        return '';
     }
 
     /**

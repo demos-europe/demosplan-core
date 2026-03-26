@@ -187,7 +187,6 @@ class ProcedureToLegacyConverter
             'startDate'                             => $procedure->getStartDate(),
             'statementFormDefinition'               => $procedure->getStatementFormDefinition(),
             'statements'                            => $procedure->getStatements(),
-            'step'                                  => $procedure->getStep(),
             'topics'                                => $procedure->getTopics(),
         ];
     }

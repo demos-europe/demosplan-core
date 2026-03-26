@@ -552,7 +552,6 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 // if there are recipients go further
                 if (0 < count($recipients)) {
                     // save same for the mailtemplate
-                    $procedure->setPhaseName($procedure->getPhaseObject()->getPhaseDefinition()->getName());
                     $mailTemplateVars['procedure'] = $procedure;
                     $mailTemplateVars['daysToGo'] = $daysToGo;
 

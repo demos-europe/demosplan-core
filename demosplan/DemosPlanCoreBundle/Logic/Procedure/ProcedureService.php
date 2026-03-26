@@ -722,15 +722,6 @@ class ProcedureService implements ProcedureServiceInterface
         try {
             /** @var Procedure|null $procedure */
             $procedure = $this->procedureRepository->get($procedureId);
-            // set converted phase names for easier use in templates
-            if ($procedure instanceof Procedure) {
-                $procedure->setPhaseName(
-                    $procedure->getPhaseObject()->getPhaseDefinition()->getName()
-                );
-                $procedure->setPublicParticipationPhaseName(
-                    $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName()
-                );
-            }
 
             return $procedure;
         } catch (Exception $e) {
@@ -1165,10 +1156,6 @@ class ProcedureService implements ProcedureServiceInterface
      */
     private function handleProcedurePostUpdateOperations(Procedure $sourceProcedure, Procedure $updatedProcedure): Procedure
     {
-        $updatedProcedure->setPublicParticipationPhaseName(
-            $updatedProcedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName()
-        );
-
         // Dispatch event
         $this->eventDispatcher->dispatch(
             new PostProcedureUpdatedEvent($sourceProcedure, $updatedProcedure),
