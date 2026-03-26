@@ -12,10 +12,11 @@ All rights reserved
     <div
       v-if="expandable"
       :class="prefixClass('flex items-center gap-1')"
-      @click="handleDetailsOpen"
-      @keydown.enter="handleDetailsOpen"
     >
-      <dp-details :summary="listTitle">
+      <dp-details
+        :summary="listTitle"
+        @click="handleDetailsOpen"
+      >
         <dp-loading
           v-if="isLoading"
           :overlay="false"
