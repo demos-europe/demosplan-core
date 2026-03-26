@@ -472,7 +472,7 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         static::assertEquals($document->getElement()->getTitle(), $messageArray['relatedElementTitle']);
         static::assertEquals($document->getVisible(), $messageArray['visible']);
         static::assertEquals($document->isStatementEnabled(), $messageArray['statement_enabled']);
-        static::assertEquals($document->getProcedure()->getPhaseName(), $messageArray['nameOfInternalPhase']);
-        static::assertEquals($document->getProcedure()->getPublicParticipationPhaseName(), $messageArray['nameOfExternalPhase']);
+        static::assertEquals($document->getProcedure()->getPhaseObject()->getPhaseDefinition()->getName(), $messageArray['nameOfInternalPhase']);
+        static::assertEquals($document->getProcedure()->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName(), $messageArray['nameOfExternalPhase']);
     }
 }

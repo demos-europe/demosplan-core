@@ -1056,7 +1056,7 @@ class DocxExporter
         $frontPageSection->addText(htmlspecialchars((string) $procedure->getName(), ENT_NOQUOTES), $coverHeadingStyle, $coverParagraphStyle);
 
         // Verfahrensschritt
-        $phaseName = $procedure->getPhaseName();
+        $phaseName = $procedure->getPhaseObject()->getPhaseDefinition()->getName();
         if (null !== $phaseName) {
             $frontPageSection->addText(htmlspecialchars((string) $phaseName), $coverHeadingStyle, $coverParagraphStyle);
         }

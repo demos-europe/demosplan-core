@@ -882,7 +882,7 @@ class ElementsServiceTest extends FunctionalTestCase
         }
         static::assertEquals($element->getEnabled(), $messageArray['enabled']);
         static::assertEquals($element->getOrganisationNames(true), $messageArray['organisations']);
-        static::assertEquals($element->getProcedure()->getPhaseName(), $messageArray['nameOfInternalPhase']);
-        static::assertEquals($element->getProcedure()->getPublicParticipationPhaseName(), $messageArray['nameOfExternalPhase']);
+        static::assertEquals($element->getProcedure()->getPhaseObject()->getPhaseDefinition()->getName(), $messageArray['nameOfInternalPhase']);
+        static::assertEquals($element->getProcedure()->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName(), $messageArray['nameOfExternalPhase']);
     }
 }

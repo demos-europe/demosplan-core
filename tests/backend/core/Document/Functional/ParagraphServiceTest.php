@@ -692,7 +692,7 @@ class ParagraphServiceTest extends FunctionalTestCase
         static::assertEquals($paragraph->getElement()->getCategory(), $messageArray['relatedElementCategory']);
         static::assertEquals($paragraph->getElement()->getTitle(), $messageArray['relatedElementTitle']);
         static::assertEquals($paragraph->getVisible(), $messageArray['visible']);
-        static::assertEquals($paragraph->getProcedure()->getPhaseName(), $messageArray['nameOfInternalPhase']);
-        static::assertEquals($paragraph->getProcedure()->getPublicParticipationPhaseName(), $messageArray['nameOfExternalPhase']);
+        static::assertEquals($paragraph->getProcedure()->getPhaseObject()->getPhaseDefinition()->getName(), $messageArray['nameOfInternalPhase']);
+        static::assertEquals($paragraph->getProcedure()->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName(), $messageArray['nameOfExternalPhase']);
     }
 }
