@@ -1137,7 +1137,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function setPublicParticipationPhaseName($publicParticipationPhaseName)
     {
-
     }
 
     public function getPublicParticipationPhasePermissionset(): string

@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -124,12 +123,14 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     /**
      * @ORM\Column(type="string", length=25, nullable=false, options={"default":""})
+     *
      * @deprecated phase keys will be removed
      */
     protected string $step = '';
 
     /**
      * @ORM\Column(name="phase_key", type="string", nullable=false)
+     *
      * @deprecated phase keys will be removed
      */
     protected string $key = 'configuration';
@@ -164,7 +165,6 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
      */
     public function setName(string $name): void
     {
-
     }
 
     /**
