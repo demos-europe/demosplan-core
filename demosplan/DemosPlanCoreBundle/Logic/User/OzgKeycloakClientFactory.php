@@ -21,6 +21,7 @@ use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
 use KnpU\OAuth2ClientBundle\Client\Provider\KeycloakClient;
 use Stevenmaguire\OAuth2\Client\Provider\Keycloak;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use TheNetworg\OAuth2\Client\Provider\Azure;
 
 /**
@@ -36,6 +37,7 @@ class OzgKeycloakClientFactory
         private readonly CustomerOAuthConfigRepository $configRepository,
         private readonly RequestStack $requestStack,
         private readonly ClientRegistry $clientRegistry,
+        private readonly UrlGeneratorInterface $urlGenerator,
         private readonly string $defaultClientName = 'keycloak_ozg',
     ) {
     }
@@ -84,22 +86,24 @@ class OzgKeycloakClientFactory
         $customer = $this->customerService->getCurrentCustomer();
         $config = $this->configRepository->findByCustomer($customer);
 
-        return null !== $config && $this->isAzureEntraId($config);
-    }
-
-    private function isAzureEntraId(CustomerOAuthConfig $config): bool
-    {
-        return str_contains($config->getKeycloakAuthServerUrl(), 'login.microsoftonline.com');
+        return null !== $config && $config->isAzureEntraId();
     }
 
     private function createAzureClient(CustomerOAuthConfig $config): OAuth2ClientInterface
     {
+        $redirectUri = $this->urlGenerator->generate(
+            'connect_azure_check',
+            [],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+
         $provider = new Azure([
             'clientId'               => $config->getKeycloakClientId(),
             'clientSecret'           => $config->getKeycloakClientSecret(),
             'tenant'                 => $config->getKeycloakRealm(),
             'defaultEndPointVersion' => Azure::ENDPOINT_VERSION_2_0,
             'scopes'                 => ['openid', 'profile', 'email'],
+            'redirectUri'            => $redirectUri,
         ]);
 
         return new OAuth2Client($provider, $this->requestStack);
@@ -107,11 +111,18 @@ class OzgKeycloakClientFactory
 
     private function createKeycloakClient(CustomerOAuthConfig $config): OAuth2ClientInterface
     {
+        $redirectUri = $this->urlGenerator->generate(
+            'connect_keycloak_ozg_check',
+            [],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+
         $provider = new Keycloak([
             'clientId'      => $config->getKeycloakClientId(),
             'clientSecret'  => $config->getKeycloakClientSecret(),
             'authServerUrl' => $config->getKeycloakAuthServerUrl(),
             'realm'         => $config->getKeycloakRealm(),
+            'redirectUri'   => $redirectUri,
         ]);
 
         return new KeycloakClient($provider, $this->requestStack);

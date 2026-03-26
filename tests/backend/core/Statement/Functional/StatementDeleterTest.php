@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Functional;
 
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\CountyFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\MunicipalityFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\PriorityAreaFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementAttributeFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
@@ -373,14 +373,32 @@ class StatementDeleterTest extends FunctionalTestCase
      */
     public function testCascadeDeleteOriginalStatementWithSegments(): void
     {
-        $ooo = StatementFactory::createOne();
-        $testStatement = StatementFactory::createOne(['original' => $ooo]);
-        $ooo->setChildren([$testStatement->object()]);
+        // Bypass foundry factories and create entities directly to avoid cascade persist issues
+        $em = $this->getEntityManager();
 
-        $testSegment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $testStatement]);
-        $testSegment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $testStatement]);
+        // Use existing test statement
+        $testStatement = $this->getStatementReference('statementTestTagsBulkEdit1');
 
-        //        $testStatement = $this->getStatementReference('statementTestTagsBulkEdit1');
+        // Create original statement using existing approach
+        $ooo = $this->createMinimalTestStatement('original', 'originalId', 'originalAuthor');
+
+        // Set relationships without triggering foundry cascade issues
+        $testStatement->setOriginal($ooo->_real());
+        $ooo->_real()->setChildren([$testStatement]);
+
+        // Force persist using entity manager
+        $em->persist($ooo->_real());
+        $em->flush();
+        $em->persist($testStatement);
+        $em->flush();
+
+        // Get existing segments and reassign them
+        $testSegment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
+        $testSegment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
+
+        $testSegment1->setParentStatementOfSegment($testStatement);
+        $testSegment2->setParentStatementOfSegment($testStatement);
+        $em->flush();
         $testOriginalStatement = $testStatement->getOriginal();
         self::assertFalse($testStatement->isOriginal());
         self::assertNotNull($testOriginalStatement);
@@ -395,7 +413,7 @@ class StatementDeleterTest extends FunctionalTestCase
 
         // Expect exactly one children, to keep this testcase simple.
         self::assertCount(1, $testStatement->getOriginal()->getChildren());
-        $successful = $this->sut->deleteStatementObject($testStatement->object());
+        $successful = $this->sut->deleteStatementObject($testStatement);
         self::assertTrue($successful);
 
         // Use find() to search for IDs directly in DB to avoid doctrine cache

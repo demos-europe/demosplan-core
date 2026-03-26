@@ -112,6 +112,9 @@ class LogoutSubscriber implements EventSubscriberInterface
             $response->headers->clearCookie($cookieName);
         }
 
+        // Clear browser prefetch and prerender caches on logout
+        $response->headers->set('Clear-Site-Data', '"prefetchCache", "prerenderCache"');
+
         $event->setResponse($response);
     }
 
