@@ -283,7 +283,7 @@ class LoginOnlyModeTest extends TestCase
 
         return new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
-            function () {},
+            function () { /* no-op controller for test */ },
             $request,
             HttpKernelInterface::MAIN_REQUEST,
         );

@@ -23,6 +23,9 @@ use Tests\Base\FunctionalTestCase;
 
 class OAuthTokenStorageServiceTest extends FunctionalTestCase
 {
+    private const TEST_API_URL = '/api/2.0/statement';
+    private const TEST_PAGE_URL = '/verfahren/123/import';
+
     /** @var OAuthTokenStorageService */
     protected $sut;
 
@@ -73,7 +76,7 @@ class OAuthTokenStorageServiceTest extends FunctionalTestCase
         /** @var OAuthToken $oauthToken */
         $oauthToken = OAuthTokenFactory::createOne()->_real();
         $oauthToken->setPendingPageUrl('/faq');
-        $oauthToken->setPendingRequestUrl('/api/2.0/statement');
+        $oauthToken->setPendingRequestUrl(self::TEST_API_URL);
         $oauthToken->setPendingRequestMethod('POST');
         $oauthToken->setPendingRequestContentType('application/vnd.api+json');
         $oauthToken->setPendingRequestBody($encryptedBody);
@@ -86,7 +89,7 @@ class OAuthTokenStorageServiceTest extends FunctionalTestCase
         // Assert: body is still encrypted
         self::assertNotNull($result);
         self::assertSame('/faq', $result->getPageUrl());
-        self::assertSame('/api/2.0/statement', $result->getRequestUrl());
+        self::assertSame(self::TEST_API_URL, $result->getRequestUrl());
         self::assertSame('POST', $result->getMethod());
         self::assertSame($encryptedBody, $result->getBody());
         self::assertNotSame($clearBody, $result->getBody());
@@ -101,7 +104,7 @@ class OAuthTokenStorageServiceTest extends FunctionalTestCase
         /** @var OAuthToken $oauthToken */
         $oauthToken = OAuthTokenFactory::createOne()->_real();
         $oauthToken->setPendingPageUrl('/faq');
-        $oauthToken->setPendingRequestUrl('/api/2.0/statement');
+        $oauthToken->setPendingRequestUrl(self::TEST_API_URL);
         $oauthToken->setPendingRequestMethod('POST');
         $oauthToken->setPendingRequestBody($this->encryptionService->encrypt($clearBody));
         $oauthToken->setPendingRequestTimestamp(new DateTime('now', $timezone));
@@ -121,7 +124,7 @@ class OAuthTokenStorageServiceTest extends FunctionalTestCase
 
         /** @var OAuthToken $oauthToken */
         $oauthToken = OAuthTokenFactory::createOne()->_real();
-        $oauthToken->setPendingPageUrl('/verfahren/123/import');
+        $oauthToken->setPendingPageUrl(self::TEST_PAGE_URL);
         $oauthToken->setPendingRequestTimestamp(new DateTime('now', $timezone));
         $this->getEntityManager()->flush();
 
@@ -130,7 +133,7 @@ class OAuthTokenStorageServiceTest extends FunctionalTestCase
 
         // Assert
         self::assertNotNull($result);
-        self::assertSame('/verfahren/123/import', $result->getPageUrl());
+        self::assertSame(self::TEST_PAGE_URL, $result->getPageUrl());
         self::assertNull($result->getRequestUrl());
         self::assertNull($result->getMethod());
         self::assertNull($result->getBody());
@@ -159,7 +162,7 @@ class OAuthTokenStorageServiceTest extends FunctionalTestCase
 
         /** @var OAuthToken $oauthToken */
         $oauthToken = OAuthTokenFactory::createOne()->_real();
-        $oauthToken->setPendingPageUrl('/verfahren/123/import');
+        $oauthToken->setPendingPageUrl(self::TEST_PAGE_URL);
         $oauthToken->setPendingRequestTimestamp(new DateTime('now', $timezone));
         $this->getEntityManager()->flush();
 
@@ -193,10 +196,10 @@ class OAuthTokenStorageServiceTest extends FunctionalTestCase
         $this->getEntityManager()->flush();
 
         // Act
-        $this->sut->storePendingPageUrl($oauthToken, '/verfahren/123/import');
+        $this->sut->storePendingPageUrl($oauthToken, self::TEST_PAGE_URL);
 
         // Assert
-        self::assertSame('/verfahren/123/import', $oauthToken->getPendingPageUrl());
+        self::assertSame(self::TEST_PAGE_URL, $oauthToken->getPendingPageUrl());
         self::assertNull($oauthToken->getAccessToken());
         self::assertNotNull($oauthToken->getPendingRequestTimestamp());
     }
