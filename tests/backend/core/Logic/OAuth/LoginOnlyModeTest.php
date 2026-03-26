@@ -28,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AbstractOzgKeycloakAuthenticator;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\UserFromSecurityUserProvider;
 use League\OAuth2\Client\Token\AccessToken;
+use LogicException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -39,7 +40,6 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Routing\RouterInterface;
-use LogicException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface as SecurityTokenInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
@@ -314,15 +314,7 @@ class LoginOnlyModeTest extends TestCase
             static fn (string $name): string => '/'.$name
         );
 
-        return new class(
-            new NullLogger(),
-            $router,
-            $this->createMock(CurrentOrganisationService::class),
-            $this->createMock(MessageBagInterface::class),
-            $oauthTokenStorageService,
-            $this->createMock(PendingRequestCacheService::class),
-            $this->sessionManager,
-        ) extends AbstractOzgKeycloakAuthenticator {
+        return new class(new NullLogger(), $router, $this->createMock(CurrentOrganisationService::class), $this->createMock(MessageBagInterface::class), $oauthTokenStorageService, $this->createMock(PendingRequestCacheService::class), $this->sessionManager) extends AbstractOzgKeycloakAuthenticator {
             public function supports(Request $request): ?bool
             {
                 return false;
