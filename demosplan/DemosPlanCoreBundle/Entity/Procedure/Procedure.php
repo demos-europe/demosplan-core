@@ -155,7 +155,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @ORM\JoinColumn(nullable=false)
      */
-    protected ProcedurePhase $phase;
+    protected ProcedurePhaseInterface $phase;
 
     /**
      * @var string
@@ -249,7 +249,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @ORM\JoinColumn(nullable=false)
      */
-    protected ProcedurePhase $publicParticipationPhase;
+    protected ProcedurePhaseInterface $publicParticipationPhase;
 
     /**
      * @var string
@@ -756,24 +756,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->desc;
     }
 
-    /**
-     * @param string $phaseKey
-     *
-     * @deprecated phase keys will be removed
-     */
-    public function setPhase($phaseKey): Procedure
-    {
-        return $this;
-    }
-
-    /**
-     * @deprecated phase keys will be removed
-     */
-    public function getPhase(): string
-    {
-        return '';
-    }
-
     /** @internal Used for Elasticsearch indexing only. */
     public function getPhaseDefinitionId(): ?string
     {
@@ -791,48 +773,9 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->phase;
     }
 
-    /**
-     * @deprecated phase keys will be removed
-     */
-    public function getPhaseName(): string
-    {
-        return '';
-    }
-
-    /**
-     * @deprecated phase keys will be removed
-     */
-    public function setPhaseName($phaseName)
-    {
-    }
-
     public function getPhasePermissionset(): string
     {
         return $this->phase->getPhaseDefinition()->getPermissionSet();
-    }
-
-    /**
-     * @deprecated permissionSet is now read directly from the phase definition
-     */
-    public function setPhasePermissionset(string $phasePermissionset): Procedure
-    {
-        return $this;
-    }
-
-    /**
-     * @deprecated phase keys will be removed
-     */
-    public function setStep($step)
-    {
-        return $this;
-    }
-
-    /**
-     * @deprecated phase keys will be removed
-     */
-    public function getStep()
-    {
-        return '';
     }
 
     /**
@@ -1085,28 +1028,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return \filter_var($this->publicParticipation, FILTER_VALIDATE_BOOLEAN);
     }
 
-    /**
-     * Set pPublicParticipationPhase.
-     *
-     * @param string $publicParticipationPhaseKey
-     *
-     * @deprecated phase keys will be removed
-     *
-     * @return Procedure
-     */
-    public function setPublicParticipationPhase($publicParticipationPhaseKey)
-    {
-        return $this;
-    }
-
-    /**
-     * @deprecated phase keys will be removed
-     */
-    public function getPublicParticipationPhase(): string
-    {
-        return '';
-    }
-
     /** @internal Used for Elasticsearch indexing only. */
     public function getPublicParticipationPhaseDefinitionId(): ?string
     {
@@ -1124,32 +1045,9 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->publicParticipationPhase;
     }
 
-    /**
-     * @deprecated phase keys will be removed
-     */
-    public function getPublicParticipationPhaseName()
-    {
-        return '';
-    }
-
-    /**
-     * @deprecated phase keys will be removed
-     */
-    public function setPublicParticipationPhaseName($publicParticipationPhaseName)
-    {
-    }
-
     public function getPublicParticipationPhasePermissionset(): string
     {
         return $this->publicParticipationPhase->getPhaseDefinition()->getPermissionSet();
-    }
-
-    /**
-     * @deprecated permissionSet is now read directly from the phase definition
-     */
-    public function setPublicParticipationPhasePermissionset(string $publicParticipationPhasePermissionset): Procedure
-    {
-        return $this;
     }
 
     /**

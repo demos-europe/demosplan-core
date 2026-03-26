@@ -52,6 +52,7 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\OriginalStatementAnonymization;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -315,7 +316,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=false, onDelete="RESTRICT")
      */
-    protected ProcedurePhaseDefinition $phaseDefinition;
+    protected ProcedurePhaseDefinitionInterface $phaseDefinition;
 
     /**
      * @var string
@@ -1633,7 +1634,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->phase;
     }
 
-    public function getPhaseDefinition(): ProcedurePhaseDefinition
+    public function getPhaseDefinition(): ProcedurePhaseDefinitionInterface
     {
         return $this->phaseDefinition;
     }
@@ -1644,7 +1645,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->phaseDefinition->getId();
     }
 
-    public function setPhaseDefinition(ProcedurePhaseDefinition $phaseDefinition): void
+    public function setPhaseDefinition(ProcedurePhaseDefinitionInterface $phaseDefinition): void
     {
         $this->phaseDefinition = $phaseDefinition;
         // @deprecated $phase will be removed once all consumers are migrated to phaseDefinition

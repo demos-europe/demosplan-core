@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -33,7 +35,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository")
  */
-class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
+class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface, ProcedurePhaseDefinitionInterface
 {
     /**
      * @ORM\Column(type="string", length=36, options={"fixed":true})
@@ -102,7 +104,7 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id", nullable=true, onDelete="CASCADE")
      */
-    protected ?Customer $customer = null;
+    protected ?CustomerInterface $customer = null;
 
     /**
      * @Gedmo\Timestampable(on="create")
@@ -178,12 +180,12 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
         $this->orderInAudience = $orderInAudience;
     }
 
-    public function getCustomer(): ?Customer
+    public function getCustomer(): ?CustomerInterface
     {
         return $this->customer;
     }
 
-    public function setCustomer(?Customer $customer): void
+    public function setCustomer(?CustomerInterface $customer): void
     {
         $this->customer = $customer;
     }
