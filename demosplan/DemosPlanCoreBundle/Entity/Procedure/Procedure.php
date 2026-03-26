@@ -585,8 +585,10 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     protected ?CustomFieldConfiguration $customFieldConfiguration = null;
 
-    public function __construct()
-    {
+    public function __construct(
+        ProcedurePhaseDefinition $internalPhaseDefinition,
+        ProcedurePhaseDefinition $externalPhaseDefinition,
+    ) {
         $this->organisation = new ArrayCollection();
         $this->elements = new ArrayCollection();
         $this->topics = new ArrayCollection();
@@ -603,8 +605,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $this->notificationReceivers = new ArrayCollection();
         $this->exportFieldsConfigurations = new ArrayCollection();
         $this->segmentPlaces = new ArrayCollection();
-        $this->phase = new ProcedurePhase('configuration', '');
-        $this->publicParticipationPhase = new ProcedurePhase('configuration', '');
+        $this->phase = new ProcedurePhase($internalPhaseDefinition);
+        $this->publicParticipationPhase = new ProcedurePhase($externalPhaseDefinition);
     }
 
     /**

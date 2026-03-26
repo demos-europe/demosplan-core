@@ -133,15 +133,19 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     #[Assert\Positive]
     protected int $iteration = 1;
 
-    public function __construct(/**
+    /**
      * @ORM\Column(type="string", length=25, nullable=false, options={"default":""})
      */
-        protected string $step,
-        /**
-         * @ORM\Column(name="phase_key", type="string", nullable=false)
-         */
-        protected string $key = 'configuration')
+    protected string $step = '';
+
+    /**
+     * @ORM\Column(name="phase_key", type="string", nullable=false)
+     */
+    protected string $key = 'configuration';
+
+    public function __construct(ProcedurePhaseDefinition $phaseDefinition)
     {
+        $this->phaseDefinition = $phaseDefinition;
         $this->permissionSet = ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
         $this->endDate = new DateTime();
         $this->startDate = new DateTime();

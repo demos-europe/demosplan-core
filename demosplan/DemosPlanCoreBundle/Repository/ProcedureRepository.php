@@ -269,9 +269,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setXtaPlanId($data['xtaPlanId'] ?? '');
             $procedure->setElements(new ArrayCollection());
 
-            $procedure->setPhaseObject(new ProcedurePhase('configuration', ''));
+            $procedure->setPhaseObject(new ProcedurePhase($procedureMaster->getPhaseObject()->getPhaseDefinition()));
             $procedure->getPhaseObject()->copyValuesFromPhase($procedureMaster->getPhaseObject());
-            $procedure->setPublicParticipationPhaseObject(new ProcedurePhase('configuration', ''));
+            $procedure->setPublicParticipationPhaseObject(new ProcedurePhase($procedureMaster->getPublicParticipationPhaseObject()->getPhaseDefinition()));
             $procedure->getPublicParticipationPhaseObject()->copyValuesFromPhase(
                 $procedureMaster->getPublicParticipationPhaseObject()
             );

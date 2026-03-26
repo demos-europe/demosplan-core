@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedurePhaseDefinitionFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
@@ -224,7 +225,8 @@ class ProcedureExtensionTest extends FunctionalTestCase
         $result = $this->sut->getNameFunction($procedure);
         static::assertSame($procedure->getExternalName(), $result);
 
-        $procedure = new Procedure();
+        $def = new ProcedurePhaseDefinition();
+        $procedure = new Procedure($def, $def);
         $procedure->setName('Name');
         $procedure->setExternalName('externalName');
         $result = $this->sut->getNameFunction($procedure);
@@ -243,7 +245,8 @@ class ProcedureExtensionTest extends FunctionalTestCase
         static::assertSame($procedure->getName(), $result);
 
         $this->logIn($plannerUser);
-        $procedure = new Procedure();
+        $def = new ProcedurePhaseDefinition();
+        $procedure = new Procedure($def, $def);
         $procedure->setName('internalName');
         $result = $this->sut->getNameFunction($procedure);
         static::assertSame($procedure->getName(), $result);

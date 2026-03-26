@@ -64,6 +64,8 @@ class ProcedureFactory extends PersistentProxyObjectFactory
             'externId'                              => self::faker()->numberBetween(1000, 9999),
             'externalDesc'                          => self::faker()->text(400),
             'externalName'                          => 'default Procedure',
+            'externalPhaseDefinition'               => ProcedurePhaseDefinitionFactory::new(['audience' => 'external', 'permissionSet' => 'write', 'orderInAudience' => 1]),
+            'internalPhaseDefinition'               => ProcedurePhaseDefinitionFactory::new(['audience' => 'internal', 'permissionSet' => 'write', 'orderInAudience' => 1]),
             'locationName'                          => self::faker()->country(),
             'locationPostCode'                      => self::faker()->text(5),
             'logo'                                  => self::faker()->uuid(),
@@ -111,25 +113,4 @@ class ProcedureFactory extends PersistentProxyObjectFactory
         return $this->with(['publicParticipation' => false]);
     }
 
-    protected function initialize(): static
-    {
-        return $this->afterInstantiate(function (Procedure $procedure): void {
-            /** @var ProcedurePhaseDefinition $internalDef */
-            $internalDef = ProcedurePhaseDefinitionFactory::createOne([
-                'audience'        => 'internal',
-                'permissionSet'   => 'write',
-                'orderInAudience' => 1,
-            ])->_real();
-
-            /** @var ProcedurePhaseDefinition $externalDef */
-            $externalDef = ProcedurePhaseDefinitionFactory::createOne([
-                'audience'        => 'external',
-                'permissionSet'   => 'write',
-                'orderInAudience' => 1,
-            ])->_real();
-
-            $procedure->getPhaseObject()->setPhaseDefinition($internalDef);
-            $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($externalDef);
-        });
-    }
 }
