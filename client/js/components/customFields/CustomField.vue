@@ -120,13 +120,13 @@ export default {
 
   props: {
     definition: {
-      type: Object,
+      type: [Object, null],
       required: false,
       default: null,
     },
 
     definitionSourceId: {
-      type: String,
+      type: [String, null],
       required: false,
       default: null,
     },
@@ -424,11 +424,6 @@ export default {
 
         transformed.selectedOptions = selectedOptions
       }
-      /*
-       * Future types can be added here:
-       * else if (fieldType === 'text') { ... }
-       * else if (fieldType === 'number') { ... }
-       */
 
       return transformed
     },

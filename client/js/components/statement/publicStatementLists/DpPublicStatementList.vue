@@ -16,7 +16,7 @@
     />
     <div class="space-stack-m">
       <dp-public-statement
-        v-for="(statement, idx) in transformedStatements"
+        v-for="statement in transformedStatements"
         v-bind="statement"
         :key="statement.id"
         :menu-items-generator="menuItemCallback"
@@ -50,7 +50,7 @@
             type="info"
           />
           <dp-public-statement
-            v-for="(statement, idx) in publicStatements"
+            v-for="statement in publicStatements"
             v-bind="statement"
             :key="statement.id"
             :menu-items-generator="menuItemCallback"
@@ -78,7 +78,7 @@
             type="info"
           />
           <dp-public-statement
-            v-for="(statement, idx) in privateStatements"
+            v-for="statement in privateStatements"
             v-bind="statement"
             :key="statement.id"
             :menu-items-generator="menuItemCallback"

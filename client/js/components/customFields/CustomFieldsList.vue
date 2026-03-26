@@ -34,16 +34,16 @@ All rights reserved
             <custom-field
               v-for="field in fieldsToRender"
               :key="field.id"
-              :definition="definitions.find(d => d.id === field.id)"
+              :definition="definitions.find(d => d.id === field.id) || null"
               :enable-toggle="enableToggle"
               :field-data="{ id: field.id, value: field.value }"
               :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
               :mode="mode"
               :resource-id="resourceId"
               :resource-type="resourceType"
-              @edit:cancel="() => handleEditEnd(field.id)"
-              @edit:save="() => handleEditEnd(field.id)"
-              @edit:start="() => handleEditStart(field.id)"
+              @edit:cancel="handleEditEnd(field.id)"
+              @edit:save="handleEditEnd(field.id)"
+              @edit:start="handleEditStart(field.id)"
               @save:error="handleSaveError"
               @save:success="handleSaveSuccess"
               @update:value="newValue => handleValueUpdate(field.id, newValue)"
@@ -106,7 +106,7 @@ All rights reserved
           <custom-field
             v-for="field in fieldsToRender"
             :key="field.id"
-            :definition="definitions.find(d => d.id === field.id)"
+            :definition="definitions.find(d => d.id === field.id) || null"
             :enable-toggle="enableToggle"
             :field-data="{ id: field.id, value: field.value }"
             :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
@@ -164,7 +164,7 @@ All rights reserved
           <custom-field
             v-for="field in fieldsToRender"
             :key="field.id"
-            :definition="definitions.find(d => d.id === field.id)"
+            :definition="definitions.find(d => d.id === field.id) || null"
             :enable-toggle="enableToggle"
             :field-data="{ id: field.id, value: field.value }"
             :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
@@ -214,7 +214,7 @@ export default {
 
   props: {
     batchFilterPath: {
-      type: String,
+      type: [String, null],
       required: false,
       default: null,
     },
@@ -406,11 +406,11 @@ export default {
     fetchCustomFieldsData () {
       const { fetchCustomFields, fetchCustomFieldValues, getCustomFieldsDefinitions, hasCachedValues } = useCustomFields()
 
-      const defsAlreadyCached = !!getCustomFieldsDefinitions(this.definitionSourceId)
-      const valsAlreadyCached = this.batchFilterPath === null &&
+      const areDefinitionsCached = !!getCustomFieldsDefinitions(this.definitionSourceId)
+      const areValuesCached = this.batchFilterPath === null &&
         hasCachedValues(this.resourceType, this.resourceId)
 
-      if (!defsAlreadyCached || !valsAlreadyCached) {
+      if (!areDefinitionsCached || !areValuesCached) {
         this.isLoading = true
       }
       this.error = null
@@ -470,8 +470,8 @@ export default {
       if (valueIndex === -1) {
         this.values = [...this.values, { id: fieldId, value: newValue }]
       } else {
-        this.values = this.values.map((v, i) =>
-          i === valueIndex ? { ...v, value: newValue } : v,
+        this.values = this.values.map((valueEntry, index) =>
+          index === valueIndex ? { ...valueEntry, value: newValue } : valueEntry,
         )
       }
       this.$emit('update:value', { fieldId, value: newValue })
