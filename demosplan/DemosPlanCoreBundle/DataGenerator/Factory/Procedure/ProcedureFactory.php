@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\SlugFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
@@ -112,5 +111,4 @@ class ProcedureFactory extends PersistentProxyObjectFactory
     {
         return $this->with(['publicParticipation' => false]);
     }
-
 }

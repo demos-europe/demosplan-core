@@ -23,7 +23,7 @@ use Tests\Base\UnitTestCase;
 class ArrayObjectTest extends UnitTestCase
 {
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\ArrayObject
+     * @var ArrayObject
      */
     protected $sut;
 
