@@ -8,11 +8,9 @@
  * All rights reserved
  */
 
-namespace  demosplan\DemosPlanCoreBundle\Entity\User;
+namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
-use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 
 class UserPasswordHistory
 {
@@ -27,7 +25,19 @@ class UserPasswordHistory
         $this->user = $user;
         $this->hashedPassword = $hashedPassword;
     }
-    public function getHashedPassword(): string {return $this->hashedPassword;}
-    public function getUser(): User {return $this->user;}
-    public function getCreatedDate(): DateTime { return $this->createdDate;}
+
+    public function getHashedPassword(): string
+    {
+        return $this->hashedPassword;
+    }
+
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    public function getCreatedDate(): DateTime
+    {
+        return $this->createdDate;
+    }
 }
