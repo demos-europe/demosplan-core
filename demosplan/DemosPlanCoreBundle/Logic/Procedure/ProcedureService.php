@@ -1405,7 +1405,6 @@ class ProcedureService implements ProcedureServiceInterface
 
     private function resetDesignatedPhaseSwitch(ProcedureSettings $procedureSettings): void
     {
-        $procedureSettings->setDesignatedPhase(null);
         $procedureSettings->setDesignatedSwitchDate(null);
         $procedureSettings->setDesignatedEndDate(null);
         $procedureSettings->setDesignatedPhaseChangeUser(null);
@@ -1416,7 +1415,6 @@ class ProcedureService implements ProcedureServiceInterface
 
     private function resetDesignatedPublicPhaseSwitch(ProcedureSettings $procedureSettings): void
     {
-        $procedureSettings->setDesignatedPublicPhase(null);
         $procedureSettings->setDesignatedPublicSwitchDate(null);
         $procedureSettings->setDesignatedPublicEndDate(null);
         $procedureSettings->setDesignatedPublicPhaseChangeUser(null);
@@ -1897,7 +1895,7 @@ class ProcedureService implements ProcedureServiceInterface
         $participationPhase = $procedure->getPublicParticipationPhaseObject();
 
         return $participationPhase->getDesignatedSwitchDate() instanceof DateTime
-            && null !== $participationPhase->getDesignatedPhase()
+            && null !== $participationPhase->getDesignatedPhaseDefinition()
             && $participationPhase->getDesignatedEndDate() instanceof DateTime;
     }
 
@@ -1911,7 +1909,7 @@ class ProcedureService implements ProcedureServiceInterface
         $institutionPhase = $procedure->getPhaseObject();
 
         return $institutionPhase->getDesignatedSwitchDate() instanceof DateTime
-            && null !== $institutionPhase->getDesignatedPhase()
+            && null !== $institutionPhase->getDesignatedPhaseDefinition()
             && $institutionPhase->getDesignatedEndDate() instanceof DateTime;
     }
 
@@ -1932,7 +1930,8 @@ class ProcedureService implements ProcedureServiceInterface
                 [
                     'id'         => $procedure->getId(),
                     'switchDate' => $procedure->getPhaseObject()->getDesignatedSwitchDate(),
-                    'phase'      => $procedure->getPhaseObject()->getDesignatedPhase(),
+                    'phaseId'    => $procedure->getPhaseObject()->getDesignatedPhaseDefinition()?->getId(),
+                    'phaseName'  => $procedure->getPhaseObject()->getDesignatedPhaseDefinition()?->getName(),
                     'endDate'    => $procedure->getPhaseObject()->getDesignatedEndDate(),
                 ]
             );
@@ -1986,9 +1985,10 @@ class ProcedureService implements ProcedureServiceInterface
             $this->logger->info('Auto switch public phase is not possible',
                 [
                     'id'         => $procedure->getId(),
-                    'switchDate' => $procedure->getPhaseObject()->getDesignatedSwitchDate(),
-                    'phase'      => $procedure->getPhaseObject()->getDesignatedPhase(),
-                    'endDate'    => $procedure->getPhaseObject()->getDesignatedEndDate(),
+                    'switchDate' => $procedure->getPublicParticipationPhaseObject()->getDesignatedSwitchDate(),
+                    'phaseId'    => $procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()?->getId(),
+                    'phaseName'  => $procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()?->getName(),
+                    'endDate'    => $procedure->getPublicParticipationPhaseObject()->getDesignatedEndDate(),
                 ]
             );
 

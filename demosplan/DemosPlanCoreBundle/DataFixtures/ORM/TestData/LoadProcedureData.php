@@ -804,8 +804,6 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setEmailTitle('Einladung zur Beteiligung  Amt "Nordwest": Ein neues Testverfahren 1')
             ->setEmailText('Hallo Hallo! Was geht?')
             ->setEmailCc('ich@ich.de')
-            ->setDesignatedPublicPhase($this->existingInternalPhasesWrite[0] ?? 'configuration')
-            ->setDesignatedPhase('configuration')
 
             ->setDesignatedSwitchDate($switchDateTime->toDateTime())
             ->setDesignatedPublicSwitchDate($publicSwitchDateTime->toDateTime())

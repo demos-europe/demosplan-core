@@ -209,14 +209,18 @@ class PrepareReportFromProcedureService
             $update['newDesignatedCitizenSwitchEndDate'] = $this->getTimestamp($destinationEndDateOfPublicSwitchPhase);
         }
 
-        if (0 !== strcmp((string) $sourceProcedure->getSettings()->getDesignatedPublicPhase(), (string) $destinationProcedure->getSettings()->getDesignatedPublicPhase())) {
-            $update['oldDesignatedCitizenPhase'] = $sourceProcedure->getSettings()->getDesignatedPublicPhase();
-            $update['newDesignatedCitizenPhase'] = $destinationProcedure->getSettings()->getDesignatedPublicPhase();
+        $sourcePublicPhaseName = $sourceProcedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()?->getName();
+        $destinationPublicPhaseName = $destinationProcedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()?->getName();
+        if ($sourcePublicPhaseName !== $destinationPublicPhaseName) {
+            $update['oldDesignatedCitizenPhase'] = $sourcePublicPhaseName;
+            $update['newDesignatedCitizenPhase'] = $destinationPublicPhaseName;
         }
 
-        if (0 !== strcmp((string) $sourceProcedure->getSettings()->getDesignatedPhase(), (string) $destinationProcedure->getSettings()->getDesignatedPhase())) {
-            $update['oldDesignatedAgencyPhase'] = $sourceProcedure->getSettings()->getDesignatedPhase();
-            $update['newDesignatedAgencyPhase'] = $destinationProcedure->getSettings()->getDesignatedPhase();
+        $sourcePhaseName = $sourceProcedure->getPhaseObject()->getDesignatedPhaseDefinition()?->getName();
+        $destinationPhaseName = $destinationProcedure->getPhaseObject()->getDesignatedPhaseDefinition()?->getName();
+        if ($sourcePhaseName !== $destinationPhaseName) {
+            $update['oldDesignatedAgencyPhase'] = $sourcePhaseName;
+            $update['newDesignatedAgencyPhase'] = $destinationPhaseName;
         }
 
         if (0 !== strcmp((string) $sourceProcedure->getName(), (string) $destinationProcedure->getName())) {

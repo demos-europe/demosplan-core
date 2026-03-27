@@ -37,6 +37,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
@@ -59,6 +60,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use Doctrine\ORM\ORMInvalidArgumentException;
 use Exception;
 use InvalidArgumentException;
+use TypeError;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
@@ -1727,29 +1729,21 @@ Email:',
     {
         /** @var Procedure $procedure */
         $procedure = $this->fixtures->getReference('testProcedure4');
-        $procedureSettings = $procedure->getSettings();
 
-        $designatedPublicPhase = $procedureSettings->getDesignatedPublicPhase();
-        static::assertNull($designatedPublicPhase);
-
-        $designatedPhase = $procedureSettings->getDesignatedPhase();
-        static::assertNull($designatedPhase);
-
-        static::assertNull($procedureSettings->getDesignatedPublicSwitchDate());
-        static::assertNull($procedureSettings->getDesignatedSwitchDate());
+        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition());
+        static::assertNull($procedure->getPhaseObject()->getDesignatedPhaseDefinition());
+        static::assertNull($procedure->getSettings()->getDesignatedPublicSwitchDate());
+        static::assertNull($procedure->getSettings()->getDesignatedSwitchDate());
 
         $date1 = Carbon::now();
-        $endDate = new DateTime();
-
-        $phase = 'configuration';
         $date1->setDate(1999, 4, 4);
-        $endDate->setDate(1999, 5, 5);
 
-        $procedureData = $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $date1, $phase);
+        /** @var ProcedurePhaseDefinition $externalDef */
+        $externalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION);
+        $procedureData = $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $date1, $externalDef);
         $updatedProcedure = $this->sut->getProcedure($procedureData['id']);
 
-        $setPhase = $updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedPhase();
-        static::assertSame($setPhase, $updatedProcedure->getSettings()->getDesignatedPublicPhase());
+        $setPhaseDefinition = $updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition();
         $setSwitchDate = $updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedSwitchDate();
         static::assertSame($setSwitchDate, $updatedProcedure->getSettings()->getDesignatedPublicSwitchDate());
 
@@ -1758,19 +1752,17 @@ Email:',
         static::assertTrue($date1->isSameDay($setSwitchDate));
         static::assertTrue($date1->isSameHour($setSwitchDate));
         static::assertTrue($date1->isSameSecond($setSwitchDate));
-        static::assertEquals($phase, $setPhase);
+        static::assertSame($externalDef->getId(), $setPhaseDefinition->getId());
 
         $date2 = Carbon::now();
-        $phases = $this->getContainer()->get(GlobalConfigInterface::class)->getInternalPhaseKeys('write');
-        $phase = $phases[0];
         $date2->setDate(1999, 3, 3);
-        $endDate->setDate(1999, 4, 4);
 
-        $updatedProcedure = $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], $date2, $phase);
+        /** @var ProcedurePhaseDefinition $internalDef */
+        $internalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION);
+        $updatedProcedure = $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], $date2, $internalDef);
         $updatedProcedure = $this->sut->getProcedure($updatedProcedure['id']);
 
-        $setPhase = $updatedProcedure->getPhaseObject()->getDesignatedPhase();
-        static::assertSame($setPhase, $updatedProcedure->getSettings()->getDesignatedPhase());
+        $setPhaseDefinition = $updatedProcedure->getPhaseObject()->getDesignatedPhaseDefinition();
         $setSwitchDate = $updatedProcedure->getPhaseObject()->getDesignatedSwitchDate();
         static::assertSame($setSwitchDate, $updatedProcedure->getSettings()->getDesignatedSwitchDate());
 
@@ -1779,51 +1771,48 @@ Email:',
         static::assertTrue($date2->isSameDay($setSwitchDate));
         static::assertTrue($date2->isSameHour($setSwitchDate));
         static::assertTrue($date2->isSameSecond($setSwitchDate));
-        static::assertEquals($phase, $setPhase);
+        static::assertSame($internalDef->getId(), $setPhaseDefinition->getId());
 
         $updatedProcedure = $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], null, null);
         $updatedProcedure = $this->sut->getProcedure($updatedProcedure['id']);
-        $updatedProcedureSettings = $updatedProcedure->getSettings();
         static::assertEquals($procedure, $updatedProcedure);
-        static::assertNull($updatedProcedureSettings->getDesignatedPublicSwitchDate());
-        static::assertNull($updatedProcedureSettings->getDesignatedPublicPhase());
+        static::assertNull($updatedProcedure->getSettings()->getDesignatedPublicSwitchDate());
+        static::assertNull($updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition());
         static::assertFalse($this->sut->isAutoSwitchOfPublicPhasePossible($updatedProcedure));
 
         $updatedProcedure = $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], null, null);
         $updatedProcedure = $this->sut->getProcedure($updatedProcedure['id']);
-        $updatedProcedureSettings = $updatedProcedure->getSettings();
         static::assertEquals($procedure, $updatedProcedure);
-        static::assertNull($updatedProcedureSettings->getDesignatedSwitchDate());
-        static::assertNull($updatedProcedureSettings->getDesignatedPhase());
+        static::assertNull($updatedProcedure->getSettings()->getDesignatedSwitchDate());
+        static::assertNull($updatedProcedure->getPhaseObject()->getDesignatedPhaseDefinition());
         static::assertFalse($this->sut->isAutoSwitchOfPhasePossible($updatedProcedure));
     }
 
     public function testReportEntryOnSetAutoSwitch(): void
     {
         $procedure = $this->getProcedureReference('testProcedure4');
-        $procedureSettings = $procedure->getSettings();
 
-        $designatedPublicPhase = $procedureSettings->getDesignatedPublicPhase();
-        static::assertNull($designatedPublicPhase);
-        static::assertNull($procedureSettings->getDesignatedPhase());
-        static::assertNull($procedureSettings->getDesignatedPublicSwitchDate());
-        static::assertNull($procedureSettings->getDesignatedSwitchDate());
+        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition());
+        static::assertNull($procedure->getPhaseObject()->getDesignatedPhaseDefinition());
+        static::assertNull($procedure->getSettings()->getDesignatedPublicSwitchDate());
+        static::assertNull($procedure->getSettings()->getDesignatedSwitchDate());
 
-        $phase = 'configuration';
+        /** @var ProcedurePhaseDefinition $externalDef */
+        $externalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION);
         $date4 = Carbon::create(new DateTime());
         $date4->setDate(2029, 9, 9);
 
-        static::assertNotEquals($procedure->getPublicParticipationPhaseObject()->getDesignatedPhase(), $phase);
+        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition());
 
         $updatedProcedureArray = $this->setAndUpdateAutoSwitchPublic(
             ['id' => $procedure->getId()],
             $date4->toDateTime(),
-            $phase
+            $externalDef
         );
         $updatedProcedure = $this->sut->getProcedure($updatedProcedureArray['id']);
 
         static::assertEquals($procedure, $updatedProcedure);
-        static::assertEquals($phase, $updatedProcedure->getSettings()->getDesignatedPublicPhase());
+        static::assertSame($externalDef->getId(), $updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()->getId());
 
         static::assertTrue($date4->isSameYear($updatedProcedure->getSettings()->getDesignatedPublicSwitchDate()));
         static::assertTrue($date4->isSameMonth($updatedProcedure->getSettings()->getDesignatedPublicSwitchDate()));
@@ -1831,7 +1820,7 @@ Email:',
         static::assertTrue($date4->isSameHour($updatedProcedure->getSettings()->getDesignatedPublicSwitchDate()));
         static::assertTrue($date4->isSameSecond($updatedProcedure->getSettings()->getDesignatedPublicSwitchDate()));
 
-        static::assertEquals($updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedPhase(), $phase);
+        static::assertSame($externalDef->getId(), $updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()->getId());
 
         /** @var ReportEntry[] $entries */
         $entries = $this->getEntries(
@@ -1856,70 +1845,32 @@ Email:',
         static::assertTrue($date4->isSameSecond($loggedDate));
     }
 
-    public function testSetPublicAutoSwitchInvalidPhase(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        /** @var Procedure $procedure */
-        $procedure = $this->fixtures->getReference('testProcedure4');
-
-        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhase());
-        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedSwitchDate());
-
-        $invalidPhase = 'blalbllbalab';
-        $validDate = new DateTime();
-        $validDate->setDate(1999, 4, 4);
-        $validEndDate = new DateTime();
-        $validEndDate->setDate(1999, 5, 5);
-        $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], $validDate, $invalidPhase);
-    }
-
-    public function testSetAutoSwitchInvalidPhase(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        /** @var Procedure $procedure */
-        $procedure = $this->fixtures->getReference('testProcedure4');
-
-        static::assertNull($procedure->getPhaseObject()->getDesignatedPhase());
-        static::assertNull($procedure->getPhaseObject()->getDesignatedSwitchDate());
-
-        $invalidPhase = 'blalbllbalab';
-        $validDate = new DateTime();
-        $validDate->setDate(1999, 4, 4);
-        $validEndDate = new DateTime();
-        $validEndDate->setDate(1999, 5, 5);
-        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $validDate, $invalidPhase);
-    }
-
     public function testSetAutoSwitchInvalidDate(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(TypeError::class);
         /** @var Procedure $procedure */
         $procedure = $this->fixtures->getReference('testProcedure4');
 
-        static::assertNull($procedure->getPhaseObject()->getDesignatedPhase());
+        static::assertNull($procedure->getPhaseObject()->getDesignatedPhaseDefinition());
         static::assertNull($procedure->getPhaseObject()->getDesignatedSwitchDate());
 
-        $validPhase = 'configure';
-        $invalidDate = 'someDate';
-        $validEndDate = new DateTime();
-        $validEndDate->setDate(1999, 5, 5);
-        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $invalidDate, $validPhase);
+        /** @var ProcedurePhaseDefinition $validDef */
+        $validDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_CONFIGURATION_PHASE_DEFINITION);
+        $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], 'someDate', $validDef);
     }
 
     public function testSetPublicAutoSwitchInvalidDate(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(TypeError::class);
         /** @var Procedure $procedure */
         $procedure = $this->fixtures->getReference('testProcedure4');
 
-        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhase());
+        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition());
         static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedSwitchDate());
 
-        $validPhase = 'configure';
-        $invalidDate = 'someDate';
-        $validEndDate = new DateTime();
-        $validEndDate->setDate(1999, 5, 5);
-        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $validPhase, $invalidDate, $validEndDate, $this->mockSession);
+        /** @var ProcedurePhaseDefinition $validDef */
+        $validDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION);
+        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], 'someDate', $validDef);
     }
 
     public function testIsAutoSwitchPossible(): void
@@ -1950,8 +1901,8 @@ Email:',
         $this->sut->switchToDesignatedPhase($procedure);
         $this->sut->switchToDesignatedPublicPhase($procedure);
 
-        static::assertNull($procedureSettings->getDesignatedPhase());
-        static::assertNull($procedureSettings->getDesignatedPublicPhase());
+        static::assertNull($procedure->getPhaseObject()->getDesignatedPhaseDefinition());
+        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition());
         static::assertFalse($this->sut->isAutoSwitchOfPhasePossible($procedure));
         static::assertFalse($this->sut->isAutoSwitchOfPublicPhasePossible($procedure));
 
@@ -1997,8 +1948,12 @@ Email:',
         // reset autoswitch?!
         $procedure = $this->sut->getProcedure($procedure->getId());
 
-        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $autoSwitchPublicDate, 'configuration');
-        $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], $autoSwitchDate, 'participation');
+        /** @var ProcedurePhaseDefinition $externalDef */
+        $externalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION);
+        /** @var ProcedurePhaseDefinition $internalDef */
+        $internalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION);
+        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $autoSwitchPublicDate, $externalDef);
+        $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], $autoSwitchDate, $internalDef);
 
         $listOfProcedures = $this->sut->getProceduresToSwitchUntilNow();
 
@@ -2015,7 +1970,7 @@ Email:',
         static::assertEquals($autoSwitchPublicDate->minute, $setDesignatedPublicSwitchDate->minute);
         static::assertEquals(10, $setDesignatedPublicSwitchDate->second);
         static::assertEquals($autoSwitchPublicDate->second, $setDesignatedPublicSwitchDate->second);
-        static::assertEquals('configuration', $procedure->getSettings()->getDesignatedPublicPhase());
+        static::assertSame($externalDef->getId(), $procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()?->getId());
 
         static::assertEquals($autoSwitchDate->toDateTime(), $procedure->getSettings()->getDesignatedSwitchDate());
         $setDesignatedSwitchDate = new Carbon($procedure->getSettings()->getDesignatedSwitchDate());
@@ -2026,7 +1981,7 @@ Email:',
         static::assertEquals(45, $setDesignatedSwitchDate->second);
         static::assertEquals($autoSwitchDate->second, $setDesignatedSwitchDate->second);
 
-        static::assertEquals('participation', $procedure->getSettings()->getDesignatedPhase());
+        static::assertSame($internalDef->getId(), $procedure->getPhaseObject()->getDesignatedPhaseDefinition()?->getId());
     }
 
     /**
@@ -3355,71 +3310,38 @@ Email:',
      * Set designated external phase and designated date of a specific procedure.
      * Necessary to enable switch of phase of a specific procedure.
      * A cronjob will switch the external phase of the procedure
-     * to the designatedPhase on the given date.
+     * to the designatedPhaseDefinition on the given date.
      *
      * @param array $procedureUpdateData - procedure, whose external designated phase and designated date will be set
-     *
-     * @throws Exception
      */
     protected function setAndUpdateAutoSwitchPublic(
         array $procedureUpdateData,
-        $designatedSwitchDate,
-        ?string $designatedPhase,
+        ?DateTime $designatedSwitchDate,
+        ?ProcedurePhaseDefinitionInterface $designatedPhaseDefinition,
     ): array {
-        try {
-            if ($this->isValidDesignatedPhase($designatedPhase)) {
-                $procedureUpdateData['settings']['designatedPublicPhase'] = $designatedPhase;
-                $procedureUpdateData['settings']['designatedPublicSwitchDate'] = $designatedSwitchDate?->format('d.m.Y H:i:s');
-            } else {
-                throw new InvalidArgumentException('Invalid phasekey: '.$designatedPhase);
-            }
+        $procedureUpdateData['settings']['designatedPublicPhaseDefinition'] = $designatedPhaseDefinition;
+        $procedureUpdateData['settings']['designatedPublicSwitchDate'] = $designatedSwitchDate?->format('d.m.Y H:i:s');
 
-            return $this->sut->updateProcedure($procedureUpdateData);
-        } catch (Exception $e) {
-            throw $e;
-        }
+        return $this->sut->updateProcedure($procedureUpdateData);
     }
 
     /**
      * Set designated phase and designated date of a specific procedure.
      * Necessary to enable switch of phase of a specific procedure.
      * The cronjob will switch the phase of the procedure
-     * to the designatedPhase on the given date.
+     * to the designatedPhaseDefinition on the given date.
      *
      * @param array $procedureData - procedure, whose internal designated phase and designated date will be set
-     *
-     * @throws Exception
      */
     protected function setAndUpdateAutoSwitch(
         array $procedureData,
         ?DateTime $designatedSwitchDate,
-        ?string $designatedPhase,
+        ?ProcedurePhaseDefinitionInterface $designatedPhaseDefinition,
     ): array {
-        try {
-            if ($this->isValidDesignatedPhase($designatedPhase)) {
-                $procedureData['settings']['designatedPhase'] = $designatedPhase;
-                $procedureData['settings']['designatedSwitchDate'] = $designatedSwitchDate?->format('d.m.Y H:i:s');
-            } else {
-                throw new InvalidArgumentException('Invalid phasekey: '.$designatedPhase);
-            }
+        $procedureData['settings']['designatedPhaseDefinition'] = $designatedPhaseDefinition;
+        $procedureData['settings']['designatedSwitchDate'] = $designatedSwitchDate?->format('d.m.Y H:i:s');
 
-            return $this->sut->updateProcedure($procedureData);
-        } catch (Exception $e) {
-            throw $e;
-        }
-    }
-
-    /**
-     * Checks if given string is in procedurephases.yml listed as internalPhases and therefore a "valid" phasekey.
-     * Null is also a "valid" phase as "designatedPhase".
-     *
-     * @param string $phaseName - name of the phase, which will be checked
-     *
-     * @return bool - true if the given $phaseName is null or in the list of internal procedurephases of this project
-     */
-    protected function isValidDesignatedPhase($phaseName)
-    {
-        return in_array($phaseName, $this->globalConfig->getInternalPhaseKeys()) || null === $phaseName;
+        return $this->sut->updateProcedure($procedureData);
     }
 
     private function getReferenceProcedureType(string $name): ProcedureType

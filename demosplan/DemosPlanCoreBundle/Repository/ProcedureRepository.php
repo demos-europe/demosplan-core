@@ -1382,12 +1382,12 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         $orCondition = $conditionDefinition->anyConditionApplies();
         $orCondition->allConditionsApply()
             ->propertyIsNotNull(['phase', 'designatedSwitchDateTimestamp'])
-            ->propertyIsNotNull(['phase', 'designatedPhase'])
+            ->propertyIsNotNull(['phase', 'designatedPhaseDefinition'])
             ->propertyIsNotNull(['phase', 'designatedEndDate'])
             ->valueSmallerThan($now, ['phase', 'designatedSwitchDateTimestamp']);
         $orCondition->allConditionsApply()
             ->propertyIsNotNull(['publicParticipationPhase', 'designatedSwitchDateTimestamp'])
-            ->propertyIsNotNull(['publicParticipationPhase', 'designatedPhase'])
+            ->propertyIsNotNull(['publicParticipationPhase', 'designatedPhaseDefinition'])
             ->propertyIsNotNull(['publicParticipationPhase', 'designatedEndDate'])
             ->valueSmallerThan($now, ['publicParticipationPhase', 'designatedSwitchDateTimestamp']);
 
@@ -1404,10 +1404,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedureSettings->setDesignatedPublicSwitchDate($designatedPublicSwitchDate);
         }
 
-        if (array_key_exists('designatedPublicPhase', $data['settings'])) {
-            $procedureSettings->setDesignatedPublicPhase($data['settings']['designatedPublicPhase']);
-        }
-
         if (array_key_exists('designatedPublicPhaseDefinition', $data['settings'])) {
             $procedureSettings->getProcedure()
                 ->getPublicParticipationPhaseObject()
@@ -1420,7 +1416,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
 
         if (($data['settings']['designatedPublicSwitchDate'] ?? null) !== null
-        || ($data['settings']['designatedPublicPhase'] ?? null) !== null
+        || ($data['settings']['designatedPublicPhaseDefinition'] ?? null) !== null
         || ($data['settings']['designatedPublicEndDate'] ?? null) !== null) {
             $procedureSettings->setDesignatedPublicPhaseChangeUser($data['currentUser']);
         }
@@ -1436,10 +1432,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedureSettings->setDesignatedSwitchDate($designatedSwitchDate);
         }
 
-        if (array_key_exists('designatedPhase', $data['settings'])) {
-            $procedureSettings->setDesignatedPhase($data['settings']['designatedPhase']);
-        }
-
         if (array_key_exists('designatedPhaseDefinition', $data['settings'])) {
             $procedureSettings->getProcedure()
                 ->getPhaseObject()
@@ -1452,7 +1444,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
 
         if (($data['settings']['designatedSwitchDate'] ?? null) !== null
-            || ($data['settings']['designatedPhase'] ?? null) !== null
+            || ($data['settings']['designatedPhaseDefinition'] ?? null) !== null
             || ($data['settings']['designatedEndDate'] ?? null) !== null) {
             $procedureSettings->setDesignatedPhaseChangeUser($data['currentUser']);
         }
