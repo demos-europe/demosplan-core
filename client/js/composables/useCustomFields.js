@@ -153,10 +153,12 @@ function fetchBatchValues (resourceType, definitionSourceId, cacheKey, filterPat
       )
       cachedBatchValues.set(cacheKey, batchCache)
       pendingBatchFetches.delete(cacheKey)
+
       return batchCache
     })
     .catch(err => {
       pendingBatchFetches.delete(cacheKey)
+
       throw err
     })
 }
