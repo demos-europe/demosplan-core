@@ -108,6 +108,11 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType
             ->setFilterable()
             ->addPathCreationBehavior();
 
+        $configBuilder->closingPhase
+            ->setReadableByPath(DefaultField::YES)
+            ->setFilterable()
+            ->addPathCreationBehavior();
+
         $configBuilder->orderInAudience
             ->setReadableByPath(DefaultField::YES)
             ->setSortable();

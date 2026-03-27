@@ -39,6 +39,7 @@ class Version20260219100000 extends AbstractMigration
                 audience            VARCHAR(25)  NOT NULL,
                 permission_set      VARCHAR(10)  NOT NULL,
                 participation_state VARCHAR(50)  DEFAULT NULL,
+                closing_phase       TINYINT(1)   NOT NULL DEFAULT 0,
                 order_in_audience   INT UNSIGNED NOT NULL DEFAULT 0,
                 creation_date       DATETIME     NOT NULL,
                 modification_date   DATETIME     NOT NULL,
@@ -53,8 +54,8 @@ class Version20260219100000 extends AbstractMigration
         foreach (['internal', 'external'] as $audience) {
             $this->addSql(
                 'INSERT INTO procedure_phase_definition
-                    (id, customer_id, name, audience, permission_set, participation_state, order_in_audience, creation_date, modification_date)
-                    VALUES (UUID(), NULL, :name, :audience, :permissionSet, NULL, 0, NOW(), NOW())',
+                    (id, customer_id, name, audience, permission_set, participation_state, closing_phase, order_in_audience, creation_date, modification_date)
+                    VALUES (UUID(), NULL, :name, :audience, :permissionSet, NULL, 0, 0, NOW(), NOW())',
                 [
                     'name'          => 'Konfiguration',
                     'audience'      => $audience,
