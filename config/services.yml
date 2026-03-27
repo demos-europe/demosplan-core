@@ -956,6 +956,8 @@ services:
             $segmentPersister: '@fos_elastica.object_persister.statementSegments'
 
 
+    demosplan\DemosPlanCoreBundle\Logic\Statement\SegmentMarkParser: ~
+
     demosplan\DemosPlanCoreBundle\Logic\Statement\TagService:
         lazy: true
 
