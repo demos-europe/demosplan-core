@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Entity\User\UserPasswordHistory;
 use demosplan\DemosPlanCoreBundle\Exception\CouldNotDeleteAddressesOfDepartmentException;
 use demosplan\DemosPlanCoreBundle\Exception\CouldNotDeleteDraftStatementsOfDepartmentException;
 use demosplan\DemosPlanCoreBundle\Exception\CouldNotDetachMasterToebOfDepartmentException;
@@ -41,6 +42,7 @@ use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserPasswordHistoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
@@ -123,6 +125,7 @@ class UserService implements UserServiceInterface
         private readonly StatementVoteRepository $statementVoteRepository,
         private readonly TranslatorInterface $translator,
         private readonly UserPasswordHasherInterface $userPasswordHasher,
+        private readonly UserPasswordHistoryRepository $userPasswordHistoryRepository,
         private readonly UserRepository $userRepository,
         private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository,
         private readonly LoggerInterface $logger,
@@ -1001,13 +1004,26 @@ class UserService implements UserServiceInterface
             if ($verifyOld && !$this->userPasswordHasher->isPasswordValid($user, $oldPassword)) {
                 throw new \InvalidArgumentException("This is either not the user's old password or the user does not exist");
             }
+            // check new password against stored history entries
+            foreach ($this->userPasswordHistoryRepository->findByUser($user) as $entry) {
+                $tempUser = clone  $user;
+                $tempUser->setPassword($entry->getHashedPassword());
+                if ($this->userPasswordHasher->isPasswordValid($tempUser, $newPassword)) {
+                    throw new \InvalidArgumentException("Fehler beim PW erstellen");
+                }
+            }
+            // check new password against the current password
+            if ($user->getPassword() !== null && $this->userPasswordHasher->isPasswordValid($user, $newPassword)) {
+                throw new \InvalidArgumentException("Dieses Password wurde bereits genutzt. Wählen Sie ein anderes.");
+            }
 
             $newPasswordHash = $this->userPasswordHasher->hashPassword($user, $newPassword);
+            $em = $this->doctrine->getManager();
+            $em ->persist(new UserPasswordHistory($user, $newPasswordHash));
 
             $user->setPassword($newPasswordHash);
             $user->setAlternativeLoginPassword($newPasswordHash);
 
-            $em = $this->doctrine->getManager();
             $em->persist($user);
             $em->flush();
         } catch (RuntimeException $e) {
