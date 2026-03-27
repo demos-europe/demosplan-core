@@ -592,7 +592,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $this->organisation = new ArrayCollection();
         $this->elements = new ArrayCollection();
         $this->topics = new ArrayCollection();
-        $this->closedDate = new DateTime();
         $this->deletedDate = new DateTime();
         $this->dataInputOrganisations = new ArrayCollection();
         $this->authorizedUsers = new ArrayCollection();
@@ -848,34 +847,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     public function getPlisId()
     {
         return $this->plisId;
-    }
-
-    /**
-     * Set pClosed.
-     *
-     * @deprecated will be removed once the phase key system is fully replaced by ProcedurePhaseDefinition
-     *
-     * @param bool $closed
-     *
-     * @return Procedure
-     */
-    public function setClosed($closed)
-    {
-        $this->closed = \filter_var($closed, FILTER_VALIDATE_BOOLEAN);
-
-        return $this;
-    }
-
-    /**
-     * Get pClosed.
-     *
-     * @deprecated will be removed once the phase key system is fully replaced by ProcedurePhaseDefinition
-     *
-     * @return bool
-     */
-    public function getClosed()
-    {
-        return \filter_var($this->closed, FILTER_VALIDATE_BOOLEAN);
     }
 
     /**
@@ -1406,30 +1377,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         }
 
         return 7200;
-    }
-
-    /**
-     * Set pClosedDate.
-     *
-     * @param DateTime $closedDate
-     *
-     * @return Procedure
-     */
-    public function setClosedDate($closedDate)
-    {
-        $this->closedDate = $closedDate;
-
-        return $this;
-    }
-
-    /**
-     * Get pClosedDate.
-     *
-     * @return DateTime
-     */
-    public function getClosedDate()
-    {
-        return $this->closedDate;
     }
 
     /**

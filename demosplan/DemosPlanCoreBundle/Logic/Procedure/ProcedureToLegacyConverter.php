@@ -45,7 +45,6 @@ class ProcedureToLegacyConverter
         if (!$procedure instanceof Procedure) {
             // Legacy returnvalues if no procedure found
             return [
-                'closed'              => false,
                 'deleted'             => false,
                 'master'              => false,
                 'publicParticipation' => false,
@@ -136,8 +135,6 @@ class ProcedureToLegacyConverter
             'ars'                                   => $procedure->getArs(),
             'authorizedUsers'                       => $procedure->getAuthorizedUsers(),
             'authorizedUserIds'                     => $authorizedUserIds,
-            'closed'                                => $procedure->getClosed(),
-            'closedDate'                            => $procedure->getClosedDate(),
             'coordinate'                            => $procedure->getCoordinate(),
             'createdDate'                           => $procedure->getCreatedDate(),
             'currentSlug'                           => $procedure->getCurrentSlug(),

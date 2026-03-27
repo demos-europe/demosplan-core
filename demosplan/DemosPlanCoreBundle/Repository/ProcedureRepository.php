@@ -184,9 +184,11 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->select('p')
                 ->from(Procedure::class, 'p')
                 ->join('p.dataInputOrganisations', 'o')
+                ->join('p.phase', 'phase')
+                ->join('phase.phaseDefinition', 'phaseDef')
                 ->andWhere('o.id = :orgaId')
                 ->andWhere('p.deleted = 0')
-                ->andWhere('p.closed = 0')
+                ->andWhere('phaseDef.closingPhase = 0')
                 ->setParameter('orgaId', $orgaId)
                 ->orderBy('p.name', 'ASC');
 
@@ -248,7 +250,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
             $currentDate = new DateTime();
             $procedure->setDeletedDate($currentDate);
-            $procedure->setClosedDate($currentDate);
             $procedure->setAuthorizedUsers([]);
             $procedure->setCustomer($data['customer']);
             // When a procedure is created we may get an empty string as its description
@@ -566,11 +567,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      */
     public function generateObjectValues($procedure, array $data)
     {
-        // @deprecated The 'closed' flag is no longer set from the phase form handler.
-        // It will be removed once the phase key system is fully replaced by ProcedurePhaseDefinition.
-        if (array_key_exists('closed', $data)) {
-            $procedure->setClosed($data['closed']);
-        }
         if (array_key_exists('deleted', $data)) {
             $procedure->setDeleted($data['deleted']);
             $procedure->setProcedureCategories([]);

@@ -411,8 +411,6 @@ class ProcedureServiceTest extends FunctionalTestCase
         static::assertObjectHasProperty('orgaId', $procedure);
         static::assertIsString($procedure->getOrgaId());
         static::assertEquals($this->testProcedure->getOrgaId(), $procedure->getOrgaId());
-        static::assertInstanceOf('\DateTime', $procedure->getClosedDate());
-        static::assertIsNotString($procedure->getClosedDate());
         static::assertInstanceOf('\DateTime', $procedure->getPublicParticipationStartDate());
         static::assertIsNotString($procedure->getPublicParticipationStartDate());
         static::assertInstanceOf('\DateTime', $procedure->getPublicParticipationEndDate());
@@ -447,8 +445,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         $procedure = $this->sut->getSingleProcedure('I am not existant');
         // lustige legacy Rückgabewerte für ein nicht vorhandenes Verfahren
         static::assertIsArray($procedure);
-        static::assertCount(4, $procedure);
-        static::assertFalse($procedure['closed']);
+        static::assertCount(3, $procedure);
         static::assertFalse($procedure['deleted']);
         static::assertFalse($procedure['master']);
         static::assertFalse($procedure['publicParticipation']);
@@ -466,9 +463,6 @@ class ProcedureServiceTest extends FunctionalTestCase
         static::assertArrayHasKey('orgaId', $procedure);
         static::assertIsString($procedure['orgaId']);
         static::assertEquals($this->testProcedure->getOrgaId(), $procedure['orgaId']);
-        static::assertInstanceOf('\DateTime', $procedure['closedDate']);
-        static::assertIsNotString($procedure['closedDate']);
-
         static::assertIsArray($procedure['organisation']);
         static::assertIsString($procedure['organisation'][0]);
 
@@ -904,8 +898,7 @@ class ProcedureServiceTest extends FunctionalTestCase
 
         $procedureDeleted = $this->sut->getSingleProcedure($procedureId);
         static::assertIsArray($procedureDeleted);
-        static::assertCount(4, $procedureDeleted);
-        static::assertFalse($procedureDeleted['closed']);
+        static::assertCount(3, $procedureDeleted);
         static::assertFalse($procedureDeleted['deleted']);
         static::assertFalse($procedureDeleted['master']);
         static::assertFalse($procedureDeleted['publicParticipation']);
@@ -976,7 +969,6 @@ class ProcedureServiceTest extends FunctionalTestCase
         $procedureDeleted = $this->sut->getSingleProcedure($procedure['id']);
         static::assertIsArray($procedureDeleted);
         static::assertTrue($procedureDeleted['deleted']);
-        static::assertFalse($procedureDeleted['closed']);
     }
 
     /**
@@ -1071,7 +1063,6 @@ class ProcedureServiceTest extends FunctionalTestCase
         $procedureToUpdate
             ->setName('Ein neues Testverfahren 1')
             ->setDesc('')
-            ->setClosed(false)
             ->setStartDate($currentDate)
             ->setEndDate($currentDate)
             ->setExternalName('Ein neues Testverfahren')
@@ -3569,6 +3560,6 @@ Email:',
 
     private function isClosedPhase(ProcedurePhaseDefinition $definition): bool
     {
-        return 'hidden' === $definition->getPermissionSet() && 0 !== $definition->getOrderInAudience();
+        return $definition->isClosingPhase();
     }
 }
