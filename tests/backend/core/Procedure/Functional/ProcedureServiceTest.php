@@ -13,6 +13,7 @@ namespace Tests\Core\Procedure\Functional;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedurePhaseDefinitionData;
@@ -37,7 +38,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
@@ -60,10 +60,10 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use Doctrine\ORM\ORMInvalidArgumentException;
 use Exception;
 use InvalidArgumentException;
-use TypeError;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
+use TypeError;
 
 class ProcedureServiceTest extends FunctionalTestCase
 {
