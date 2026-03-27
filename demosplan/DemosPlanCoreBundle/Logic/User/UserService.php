@@ -1006,20 +1006,20 @@ class UserService implements UserServiceInterface
             }
             // check new password against stored history entries
             foreach ($this->userPasswordHistoryRepository->findByUser($user) as $entry) {
-                $tempUser = clone  $user;
+                $tempUser = clone $user;
                 $tempUser->setPassword($entry->getHashedPassword());
                 if ($this->userPasswordHasher->isPasswordValid($tempUser, $newPassword)) {
-                    throw new \InvalidArgumentException("Fehler beim PW erstellen");
+                    throw new \InvalidArgumentException('Fehler beim PW erstellen');
                 }
             }
             // check new password against the current password
-            if ($user->getPassword() !== null && $this->userPasswordHasher->isPasswordValid($user, $newPassword)) {
-                throw new \InvalidArgumentException("Dieses Password wurde bereits genutzt. Wählen Sie ein anderes.");
+            if (null !== $user->getPassword() && $this->userPasswordHasher->isPasswordValid($user, $newPassword)) {
+                throw new \InvalidArgumentException('Dieses Password wurde bereits genutzt. Wählen Sie ein anderes.');
             }
 
             $newPasswordHash = $this->userPasswordHasher->hashPassword($user, $newPassword);
             $em = $this->doctrine->getManager();
-            $em ->persist(new UserPasswordHistory($user, $newPasswordHash));
+            $em->persist(new UserPasswordHistory($user, $newPasswordHash));
 
             $user->setPassword($newPasswordHash);
             $user->setAlternativeLoginPassword($newPasswordHash);
