@@ -2252,9 +2252,9 @@ class StatementService implements StatementServiceInterface
             static function ($value, string $key) {
                 if ('r_submitterEmailAddress' === $key) {
                     return str_starts_with($key, 'r_') && (\is_string($value) || (\is_array($value) && [] !== $value));
-                } else {
-                    return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && [] !== $value));
                 }
+
+                return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && [] !== $value));
             }
         )->mapWithKeys(
             static function ($stringOrArrayValue, string $key) {
@@ -3348,19 +3348,7 @@ class StatementService implements StatementServiceInterface
 
     public function getStatisticsOfProcedure(ProcedureInterface $procedure)
     {
-        /** @var StatementInterface $statementsOfProcedure */
-        $statementsOfProcedure = $procedure->getStatements();
-        $statistics = [
-            self::STATEMENT_STATUS_NEW         => 0,
-            self::STATEMENT_STATUS_PROCESSING  => 0,
-            self::STATEMENT_STATUS_COMPLETED   => 0,
-        ];
-        foreach ($statementsOfProcedure as $statement) {
-            /** @var StatementInterface $statement */
-            if (!$statement->isOriginal()) {
-                ++$statistics[$this->getProcessingStatus($statement)];
-            }
-        }
+        $statistics = $this->statementRepository->getSegmentationStatistics($procedure->getId());
 
         return new PercentageDistribution(
             $statistics[self::STATEMENT_STATUS_NEW] +
