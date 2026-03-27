@@ -7,6 +7,7 @@
 ## UNRELEASED
 
 ### Added
+- Make custom fields available in assessment table, original statement list, my releases list, and public statement dialogs
 - Add customer admin interface for managing procedure phases - displaying and creating new phases
 
 ## v4.32.0 (2026-03-25)
