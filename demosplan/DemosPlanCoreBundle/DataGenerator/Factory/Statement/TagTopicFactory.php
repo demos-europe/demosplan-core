@@ -51,7 +51,7 @@ final class TagTopicFactory extends PersistentProxyObjectFactory
         ];
     }
 
-    protected function initialize(): self
+    protected function initialize(): static
     {
         return $this;
     }

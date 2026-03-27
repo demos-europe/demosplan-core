@@ -168,7 +168,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             $statements = $outputResult->getStatements();
 
             // add attachments to Elasticsearch statement arrays
-            $statements = $this->statementHandler->addSourceStatementAttachments($statements);
+            $statements = $this->statementHandler->addStatementAttachments($statements, true);
 
             // here, handling view_mode could be implemented in the future.
             // We can ignore this at them moment, because view_mode permission is currently just enabled in bobhh

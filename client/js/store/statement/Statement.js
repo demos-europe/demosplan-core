@@ -492,6 +492,7 @@ export default {
         'assignee',
         'sourceAttachment',
         'sourceAttachment.file',
+        'genericAttachments',
         'genericAttachments.file',
       ]
 
@@ -621,6 +622,9 @@ export default {
             SourceStatementAttachment: [
               'file',
               'attachmentType',
+            ].join(),
+            GenericStatementAttachment: [
+              'file',
             ].join(),
           },
           include: includes.join(','),
