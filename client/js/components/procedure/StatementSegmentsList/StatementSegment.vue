@@ -643,6 +643,11 @@ export default {
       return this.assignee.id === this.currentUserId
     },
 
+    isEditing () {
+      return this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation !==
+        this.segment.attributes.recommendation
+    },
+
     hasRecommendationTabs () {
       return this.recommendationModalAddons.length > 0
     },
@@ -1239,5 +1244,12 @@ export default {
         })
       })
   },
+
+  beforeUnmount () {
+    console.log('Component is being unmounted')
+
+    if (this.isEditing) {
+    }
+  }
 }
 </script>
