@@ -1533,9 +1533,12 @@ class DemosPlanProcedureController extends BaseController
         string $procedureId,
     ): Response {
         $currentUserId = $currentUser->getUser()->getId();
+        $procedure = $procedureService->getProcedure($procedureId);
         $templateVars = [
-            'newestInternalId' => $statementService->getNewestInternId($procedureId),
-            'usedInternIds'    => $statementService->getInternIdsFromProcedure($procedureId),
+            'currentInternalPhaseDefinitionId'  => $procedure?->getPhaseObject()->getPhaseDefinition()->getId(),
+            'currentExternalPhaseDefinitionId'  => $procedure?->getPublicParticipationPhaseObject()->getPhaseDefinition()->getId(),
+            'newestInternalId'                  => $statementService->getNewestInternId($procedureId),
+            'usedInternIds'                     => $statementService->getInternIdsFromProcedure($procedureId),
         ];
 
         if ($permissions->hasPermission('feature_statements_tag')) {
