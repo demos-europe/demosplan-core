@@ -25,4 +25,17 @@ class UserPasswordHistoryRepository extends EntityRepository
     {
         return $this->findBy(['user' => $user]);
     }
+
+    public function deleteExceedingEntries(User $user, int $maxEntries): void
+    {
+        $entries = $this->findBy(
+            ['user' => $user],
+            ['createdDate' => 'ASC']  // oldest first
+        );
+
+        $countToDelete = count($entries) - $maxEntries;
+        for ($i = 0; $i < $countToDelete; $i++) {
+            $this->getEntityManager()->remove($entries[$i]);
+        }
+    }
 }
