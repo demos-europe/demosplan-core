@@ -2130,7 +2130,7 @@ export default {
         } else {
           this.setStatementData({
             r_county: this.counties.some(el => el.selected) ?
-              this.counties.find(el => el.selected).value :
+              this.counties.find(el => el.selected)?.value :
               '',
           })
         }
