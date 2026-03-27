@@ -492,6 +492,7 @@ export default {
         'assignee',
         'sourceAttachment',
         'sourceAttachment.file',
+        'genericAttachments',
         'genericAttachments.file',
       ]
 
@@ -528,6 +529,10 @@ export default {
         includes.push('tags')
         statementFields.push('tags')
         fields.Tag = 'title'
+      }
+
+      if (hasPermission('feature_statements_custom_fields')) {
+        statementFields.push('customFields')
       }
 
       return dpApi({
@@ -617,6 +622,9 @@ export default {
             SourceStatementAttachment: [
               'file',
               'attachmentType',
+            ].join(),
+            GenericStatementAttachment: [
+              'file',
             ].join(),
           },
           include: includes.join(','),

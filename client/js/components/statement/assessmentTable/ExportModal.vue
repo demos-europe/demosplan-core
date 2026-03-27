@@ -697,8 +697,12 @@ export default {
 
   computed: {
     explanationZip () {
-      if (this.options.zip.exportType === 'originalStatements') {
+      if (this.exportChoice.zip.exportType === 'originalStatements') {
         return Translator.trans('explanation.export.original_statements.zip', { hasSelectedElements: this.hasSelectedElements })
+      }
+
+      if (this.exportChoice.zip.exportType === 'originalStatementsWithAttachments') {
+        return Translator.trans('explanation.export.original_statements_with_attachments.zip', { hasSelectedElements: this.hasSelectedElements })
       }
 
       return Translator.trans('explanation.export.statements.zip', { hasSelectedElements: this.hasSelectedElements })
