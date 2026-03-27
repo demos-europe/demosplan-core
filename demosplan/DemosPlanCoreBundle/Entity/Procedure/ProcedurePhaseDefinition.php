@@ -78,6 +78,13 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     protected ?string $participationState = null;
 
     /**
+     * Whether entering this phase marks the procedure as closed (archived).
+     *
+     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
+     */
+    protected bool $closingPhase = false;
+
+    /**
      * Sort order within the audience.
      * The order is independent per audience: both internal and external phases start at 0.
      *
@@ -154,6 +161,16 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     public function setParticipationState(?string $participationState): void
     {
         $this->participationState = $participationState;
+    }
+
+    public function isClosingPhase(): bool
+    {
+        return $this->closingPhase;
+    }
+
+    public function setClosingPhase(bool $closingPhase): void
+    {
+        $this->closingPhase = $closingPhase;
     }
 
     public function getOrderInAudience(): int
