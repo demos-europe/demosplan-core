@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Added
+- Make custom fields available in assessment table, original statement list, my releases list, and public statement dialogs
+
 ## v4.32.0 (2026-03-25)
 ### Added
 - Export original statements as ZIP file including attachments for archiving

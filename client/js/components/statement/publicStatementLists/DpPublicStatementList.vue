@@ -16,16 +16,15 @@
     />
     <div class="space-stack-m">
       <dp-public-statement
-        v-for="(statement, idx) in transformedStatements"
+        v-for="statement in transformedStatements"
         v-bind="statement"
-        :key="idx"
-        :statement-custom-fields="getCustomFieldsForStatement(statement.id)"
+        :key="statement.id"
         :menu-items-generator="menuItemCallback"
         :procedure-id="procedureId"
         :show-author="showAuthor"
         :show-checkbox="showCheckbox"
         @open-map-modal="openMapModal"
-        @open-statement-modal-from-list="(id) => handleOpenStatementModal(id)"
+        @open-statement-modal-from-list="handleOpenStatementModal"
       />
       <dp-map-modal
         ref="mapModal"
@@ -51,16 +50,15 @@
             type="info"
           />
           <dp-public-statement
-            v-for="(statement, idx) in publicStatements"
+            v-for="statement in publicStatements"
             v-bind="statement"
-            :key="idx"
+            :key="statement.id"
             :menu-items-generator="menuItemCallback"
             :procedure-id="procedureId"
             :show-author="showAuthor"
             :show-checkbox="showCheckbox"
-            :statement-custom-fields="getCustomFieldsForStatement(statement.id)"
             @open-map-modal="openMapModal"
-            @open-statement-modal-from-list="(id) => handleOpenStatementModal(id)"
+            @open-statement-modal-from-list="handleOpenStatementModal"
           />
           <dp-map-modal
             ref="mapModal"
@@ -80,16 +78,15 @@
             type="info"
           />
           <dp-public-statement
-            v-for="(statement, idx) in privateStatements"
+            v-for="statement in privateStatements"
             v-bind="statement"
-            :key="'authorOnly-' + idx"
-            :statement-custom-fields="getCustomFieldsForStatement(statement.id)"
+            :key="statement.id"
             :menu-items-generator="menuItemCallback"
             :procedure-id="procedureId"
             :show-author="showAuthor"
             :show-checkbox="showCheckbox"
             @open-map-modal="openMapModal"
-            @open-statement-modal-from-list="(id) => handleOpenStatementModal(id)"
+            @open-statement-modal-from-list="handleOpenStatementModal"
           />
         </div>
       </dp-tab>
@@ -99,7 +96,6 @@
 
 <script>
 import {
-  dpApi,
   DpInlineNotification,
   dpSelectAllMixin,
   DpTab,
@@ -222,12 +218,6 @@ export default {
       required: true,
     },
 
-    statementsCustomFieldsList: {
-      type: Object,
-      required: false,
-      default: () => ({}),
-    },
-
     target: {
       type: String,
       required: true,
@@ -242,7 +232,6 @@ export default {
     return {
       transformedStatements: this.transformStatements(this.statements),
       activeTabId: 'publicStatements',
-      customFieldDefinitions: [],
     }
   },
 
@@ -310,88 +299,11 @@ export default {
   },
 
   methods: {
-    fetchCustomFields () {
-      if (!hasPermission('feature_statements_custom_fields')) {
-        return
-      }
-
-      const url = Routing.generate('api_resource_list', {
-        resourceType: 'CustomField',
-      })
-
-      const params = {
-        fields: {
-          CustomField: [
-            'name',
-            'description',
-            'options',
-            'fieldType',
-          ].join(),
-        },
-        filter: {
-          sourceEntityId: {
-            condition: {
-              path: 'sourceEntityId',
-              value: this.procedureId,
-            },
-          },
-        },
-      }
-
-      dpApi.get(url, params)
-        .then(response => {
-          this.customFieldDefinitions = response.data.data || []
-        })
-        .catch(error => {
-          console.error('Failed to load custom field definitions:', error)
-          this.customFieldDefinitions = []
-        })
-    },
-
     /**
-     * Transform custom fields for a specific statement
-     * Matches IDs from Twig with definitions from API
+     * Handle opening statement modal from list
      */
-    getCustomFieldsForStatement (statementIdent) {
-      const statementCustomFields = this.statementsCustomFieldsList[statementIdent] || {}
-
-      // Create lookup map for definitions
-      const definitionsMap = new Map(
-        this.customFieldDefinitions.map(def => [def.id, def.attributes]),
-      )
-
-      return Object.values(statementCustomFields)
-        .map(savedField => {
-          const definition = definitionsMap.get(savedField.id)
-
-          if (!definition) {
-            console.warn(`Custom field definition not found for ID: ${savedField.id}`)
-
-            return null
-          }
-
-          // Find selected options by matching IDs
-          const selectedOptions = (savedField.selectedOptionIds || [])
-            .map(optionId => {
-              const option = definition.options.find(opt => opt.id === optionId)
-
-              return option || null
-            })
-            .filter(opt => opt !== null)
-
-          return {
-            id: savedField.id,
-            name: definition.name,
-            selected: selectedOptions,
-          }
-        })
-        .filter(field => field !== null && field.selected.length > 0)
-    },
-
     handleOpenStatementModal (statementId) {
-      const customFields = this.getCustomFieldsForStatement(statementId)
-
-      this.$parent.$emit('openStatementModalFromList', statementId, customFields)
+      this.$emit('openStatementModalFromList', statementId)
     },
 
     openMapModal (polygon) {
@@ -479,10 +391,6 @@ export default {
     transformStatements (statements) {
       return statements.map(s => this.transformStatement(s))
     },
-  },
-
-  mounted () {
-    this.fetchCustomFields()
   },
 }
 </script>
