@@ -1002,7 +1002,7 @@ class UserService implements UserServiceInterface
             }
 
             if ($verifyOld && !$this->userPasswordHasher->isPasswordValid($user, $oldPassword)) {
-                throw new \InvalidArgumentException("This is either not the user's old password or the user does not exist");
+                throw new InvalidArgumentException("This is either not the user's old password or the user does not exist");
             }
             // check new password against stored history entries
             foreach ($this->userPasswordHistoryRepository->findByUser($user) as $entry) {
