@@ -86,12 +86,7 @@ class OzgKeycloakClientFactory
         $customer = $this->customerService->getCurrentCustomer();
         $config = $this->configRepository->findByCustomer($customer);
 
-        return null !== $config && $this->isAzureEntraId($config);
-    }
-
-    private function isAzureEntraId(CustomerOAuthConfig $config): bool
-    {
-        return str_contains($config->getKeycloakAuthServerUrl(), 'login.microsoftonline.com');
+        return null !== $config && $config->isAzureEntraId();
     }
 
     private function createAzureClient(CustomerOAuthConfig $config): OAuth2ClientInterface
