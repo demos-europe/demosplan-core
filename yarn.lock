@@ -8312,7 +8312,6 @@ __metadata:
     d3-sankey-diagram: "npm:^0.7.3"
     dayjs: "npm:^1.11.19"
     deep-object-diff: "npm:^1.1.9"
-    dompurify: "npm:^3.3.2"
     eslint: "npm:^9.39.2"
     eslint-import-resolver-alias: "npm:^1.1.2"
     eslint-plugin-import: "npm:^2.32.0"
@@ -8464,18 +8463,6 @@ __metadata:
   linkType: hard
 
 "dompurify@npm:^3.0.0, dompurify@npm:^3.0.2":
-  version: 3.2.4
-  resolution: "dompurify@npm:3.2.4"
-  dependencies:
-    "@types/trusted-types": "npm:^2.0.7"
-  dependenciesMeta:
-    "@types/trusted-types":
-      optional: true
-  checksum: 10c0/6be56810fb7ad2776155c8fc2967af5056783c030094362c7d0cf1ad13f2129cf922d8eefab528a34bdebfb98e2f44b306a983ab93aefb9d6f24c18a3d027a05
-  languageName: node
-  linkType: hard
-
-"dompurify@npm:^3.3.2":
   version: 3.3.3
   resolution: "dompurify@npm:3.3.3"
   dependencies:
