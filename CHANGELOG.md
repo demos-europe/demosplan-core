@@ -7,6 +7,7 @@
 ## UNRELEASED
 
 ### Added
+- Introduce password check to forbid re-usage of passwords when trying to change passwords. This adds a new table to the DB, user_password_history
 - Make custom fields available in assessment table, original statement list, my releases list, and public statement dialogs
 
 ## v4.32.0 (2026-03-25)
