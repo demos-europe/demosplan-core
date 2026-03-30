@@ -130,6 +130,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Elastica\Aggregation\GlobalAggregation;
+use FOS\ElasticaBundle\Index\IndexManager;
 use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
@@ -3366,19 +3367,7 @@ class StatementService implements StatementServiceInterface
 
     public function getStatisticsOfProcedure(ProcedureInterface $procedure)
     {
-        /** @var StatementInterface $statementsOfProcedure */
-        $statementsOfProcedure = $procedure->getStatements();
-        $statistics = [
-            self::STATEMENT_STATUS_NEW         => 0,
-            self::STATEMENT_STATUS_PROCESSING  => 0,
-            self::STATEMENT_STATUS_COMPLETED   => 0,
-        ];
-        foreach ($statementsOfProcedure as $statement) {
-            /** @var StatementInterface $statement */
-            if (!$statement->isOriginal()) {
-                ++$statistics[$this->getProcessingStatus($statement)];
-            }
-        }
+        $statistics = $this->statementRepository->getSegmentationStatistics($procedure->getId());
 
         return new PercentageDistribution(
             $statistics[self::STATEMENT_STATUS_NEW] +
