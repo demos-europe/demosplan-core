@@ -1308,6 +1308,7 @@ error.organisation.selection.missing: "Bitte wählen Sie eine Organisation aus."
 error.institution.not.invited: "Eine oder mehrere Institutionen sind nicht zu diesem Verfahren eingeladen."
 error.paragraph.no_circular_references: "Ein Kapitel darf keinem seiner eigenen Unterkapitel als Unterkapitel zugewiesen werden."
 error.paragraph.no_self_references: "Ein Kapitel darf sich nicht selbst als Unterkapitel zugewiesen werden."
+error.password.already.used: 'Dieses Passwort wurde bereits verwendet. Bitte wählen Sie ein anderes Passwort.'
 error.password.change: "Das Passwort konnte nicht geändert werden."
 error.pdf.generation: "Beim Erstellen des PDFs ist ein Fehler aufgetreten."
 error.phase: "Bitte wählen Sie eine Phase."

@@ -14,9 +14,12 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserPasswordHistory;
-use Doctrine\ORM\EntityRepository;
+use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 
-class UserPasswordHistoryRepository extends EntityRepository
+/**
+ * @template-extends CoreRepository<UserPasswordHistory>
+ */
+class UserPasswordHistoryRepository extends CoreRepository
 {
     /**
      * @return UserPasswordHistory[]

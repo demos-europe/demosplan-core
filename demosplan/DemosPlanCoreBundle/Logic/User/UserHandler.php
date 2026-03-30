@@ -1504,12 +1504,15 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         }
 
         $userId = $data['userId'];
-        $oldPassword = trim((string) $data['password_old']);
-        $newPassword = trim((string) $data['password_new']);
+        $oldPassword = trim((string)$data['password_old']);
+        $newPassword = trim((string)$data['password_new']);
 
         try {
             $this->userService->changePassword($userId, $oldPassword, $newPassword);
             $this->getMessageBag()->add('confirm', 'confirm.password.changed');
+        } catch (InvalidArgumentException $e) {
+            $this->logger->warning('User password change rejected: password already used', [$e]);
+            $this->getMessageBag()->add('error', 'error.password.already.used');
         } catch (Exception $e) {
             $this->logger->error('User password change exited with an error', [$e]);
             $this->getMessageBag()->add('error', 'error.password.change');
