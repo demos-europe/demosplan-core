@@ -135,7 +135,6 @@ use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Exception;
-use FOS\ElasticaBundle\Index\IndexManager;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
