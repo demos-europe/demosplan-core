@@ -19,9 +19,9 @@ import { initialize } from '@DpJs/InitVue'
 const countMatchingProcedures = function (phaseIds) {
   const listElements = document.getElementsByClassName('c-procedurelist__item')
   let count = 0
-  for (let i = 0; i < listElements.length; i++) {
-    const phaseSpan = listElements[i].getElementsByClassName('phase')[0]
-    const phaseExtSpan = listElements[i].getElementsByClassName('phaseExt')[0]
+  for (const listElement of listElements) {
+    const phaseSpan = listElement.getElementsByClassName('phase')[0]
+    const phaseExtSpan = listElement.getElementsByClassName('phaseExt')[0]
     const phaseValue = phaseSpan ? phaseSpan.innerHTML.trim() : ''
     const phaseExtValue = phaseExtSpan ? phaseExtSpan.innerHTML.trim() : ''
     if (phaseIds.includes(phaseValue) || phaseIds.includes(phaseExtValue)) {
@@ -88,12 +88,12 @@ const filterProceduresByPhase = function () {
     const allOptionValue = document.getElementById('all-option').value
 
     // Loop over them
-    for (let i = 0; i < listElements.length; i++) {
+    for (const listElement of listElements) {
       // Get phase of procedure in procedurelist
-      const phase = listElements[i].getElementsByClassName('phase')[0]
+      const phase = listElement.getElementsByClassName('phase')[0]
       let phaseExt
-      if (listElements[i].getElementsByClassName('phaseExt')[0] !== null) {
-        phaseExt = listElements[i].getElementsByClassName('phaseExt')[0]
+      if (listElement.getElementsByClassName('phaseExt')[0] !== null) {
+        phaseExt = listElement.getElementsByClassName('phaseExt')[0]
       }
 
       // Check if phase of procedure matches selected filter option
@@ -107,17 +107,17 @@ const filterProceduresByPhase = function () {
 
       // If phase of procedure matches selected filter option, show it
       if (showElement) {
-        if (listElements[i].classList.contains('hidden')) {
-          listElements[i].classList.remove('hidden')
-          listElements[i].classList.add('block')
+        if (listElement.classList.contains('hidden')) {
+          listElement.classList.remove('hidden')
+          listElement.classList.add('block')
         }
         visibleElementsCount++
       } else if (showElement === false) {
         // If phase of procedure does not match selected filter option, hide it
-        if (listElements[i].classList.contains('block')) {
-          listElements[i].classList.remove('block')
+        if (listElement.classList.contains('block')) {
+          listElement.classList.remove('block')
         }
-        listElements[i].classList.add('hidden')
+        listElement.classList.add('hidden')
       }
     }
 
@@ -126,8 +126,9 @@ const filterProceduresByPhase = function () {
 
     //  If there are no results
     if (visibleElementsCount === 0) {
-      //  If 'all in participation' is selected, show 'all' instead
-      if (selectedPhasesToFilter.length === 3) {
+      //  If a combined filter is selected, show 'all' instead
+      const selectedOptionId = filterPhasesSelectEl.selectedOptions[0]?.id
+      if (selectedOptionId === 'combinedFilter' || selectedOptionId === 'combinedParticipationPreparation') {
         filterPhasesSelectEl.value = ['all']
       } else {
         noResults.style.display = 'block'
@@ -141,12 +142,12 @@ const filterProceduresByPhase = function () {
     //  Hide options without results
     const options = filterPhasesSelectEl.getElementsByTagName('option')
 
-    for (let i = 0; i < options.length; i++) {
+    for (const option of options) {
       //  For all options except 'all'
-      if (options[i].value !== 'all') {
-        const phaseIds = splitOptionValue(options[i].value)
+      if (option.value !== 'all') {
+        const phaseIds = splitOptionValue(option.value)
         if (countMatchingProcedures(phaseIds) === 0) {
-          options[i].style.display = 'none'
+          option.style.display = 'none'
         }
       }
     }
