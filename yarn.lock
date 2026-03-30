@@ -8354,7 +8354,7 @@ __metadata:
     stylelint: "npm:^16.26.1"
     stylelint-config-standard-scss: "npm:^16.0.0"
     swagger-ui-dist: "npm:^5.30.3"
-    tailwindcss: "npm:^4.1.17"
+    tailwindcss: "npm:^4.2.2"
     terser-webpack-plugin: "npm:^5.3.16"
     timers-browserify: "npm:^2.0.12"
     tippy.js: "npm:^6.3.7"
@@ -15741,10 +15741,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:4.1.17, tailwindcss@npm:^4.1.17":
+"tailwindcss@npm:4.1.17":
   version: 4.1.17
   resolution: "tailwindcss@npm:4.1.17"
   checksum: 10c0/1fecf618ba9895e068e5a6d842b978f56a815bc849a28338cebbcb07b13df763715c2f8848def938403c73d59f08ffff33a4b83a977a9e38fa56adc60d1d56c8
+  languageName: node
+  linkType: hard
+
+"tailwindcss@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "tailwindcss@npm:4.2.2"
+  checksum: 10c0/6eae8a125c35d504ba6c518d26ec64fba694ff4a9ab9b9cd9883050128e0b7afdf491388c472d9bed2624664c1c7d4a133d19b653151a6b52e6ce6953168a857
   languageName: node
   linkType: hard
 
