@@ -36,7 +36,7 @@ class LogoutSubscriber implements EventSubscriberInterface
         private readonly ParameterBagInterface $parameterBag,
         private readonly PermissionsInterface $permissions,
         private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly OzgKeycloakSessionManager $ozgKeycloakLogoutManager,
+        private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
     ) {
     }
 
@@ -78,7 +78,7 @@ class LogoutSubscriber implements EventSubscriberInterface
             }
 
             // Keycloak logout
-            $logoutRoute = $this->ozgKeycloakLogoutManager->getEffectiveLogoutRoute();
+            $logoutRoute = $this->ozgKeycloakSessionManager->getEffectiveLogoutRoute();
             if (null !== $logoutRoute) {
                 $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakSessionManager::KEYCLOAK_TOKEN);
                 $event->getRequest()->getSession()->invalidate();
@@ -87,7 +87,7 @@ class LogoutSubscriber implements EventSubscriberInterface
 
                 // add additional parameters to keycloak logout url for redirect
                 try {
-                    $logoutRoute = $this->ozgKeycloakLogoutManager->getLogoutUrl($logoutRoute, $keycloakToken);
+                    $logoutRoute = $this->ozgKeycloakSessionManager->getLogoutUrl($logoutRoute, $keycloakToken);
                     $this->logger->info('Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
                 } catch (Exception $e) {
                     $this->logger->error('Could not get current customer', [$e->getMessage()]);

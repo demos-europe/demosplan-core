@@ -114,7 +114,8 @@ class PendingRequestCacheService
             }
 
             $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
-            $timestamp = DateTime::createFromFormat('Y-m-d H:i:s', $data['timestamp'], $timezone);
+            $timestamp = DateTime::createFromFormat('Y-m-d H:i:s', $data['timestamp'] ?? '', $timezone)
+                ?: new DateTime('now', $timezone);
 
             $requestData = new PendingRequestData();
             $requestData->fill([
