@@ -852,18 +852,17 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 );
 
                 return $userId; // Return the failed user ID to indicate failure
-            } else {
-                $result = $this->wipeUserData($userId);
-
-                if (!$result instanceof User) {
-                    $this->logger->error("Failed to delete user with id {$userId}");
-                    $this->getMessageBag()->add('error', 'error.delete.user');
-
-                    return $userId;
-                }
-
-                $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
             }
+            $result = $this->wipeUserData($userId);
+
+            if (!$result instanceof User) {
+                $this->logger->error("Failed to delete user with id {$userId}");
+                $this->getMessageBag()->add('error', 'error.delete.user');
+
+                return $userId;
+            }
+
+            $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
         }
 
         return null;
@@ -1504,8 +1503,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         }
 
         $userId = $data['userId'];
-        $oldPassword = trim((string)$data['password_old']);
-        $newPassword = trim((string)$data['password_new']);
+        $oldPassword = trim((string) $data['password_old']);
+        $newPassword = trim((string) $data['password_new']);
 
         try {
             $this->userService->changePassword($userId, $oldPassword, $newPassword);

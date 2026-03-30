@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserPasswordHistory;
-use demosplan\DemosPlanCoreBundle\Repository\CoreRepository;
 
 /**
  * @template-extends CoreRepository<UserPasswordHistory>
