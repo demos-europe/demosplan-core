@@ -130,6 +130,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Elastica\Aggregation\GlobalAggregation;
+use FOS\ElasticaBundle\Index\IndexManager;
 use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
