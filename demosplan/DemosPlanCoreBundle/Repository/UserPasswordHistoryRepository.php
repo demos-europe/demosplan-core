@@ -37,7 +37,7 @@ class UserPasswordHistoryRepository extends CoreRepository
         );
 
         $countToDelete = count($entries) - $maxEntries;
-        for ($i = 0; $i < $countToDelete; $i++) {
+        for ($i = 0; $i < $countToDelete; ++$i) {
             $this->getEntityManager()->remove($entries[$i]);
         }
     }

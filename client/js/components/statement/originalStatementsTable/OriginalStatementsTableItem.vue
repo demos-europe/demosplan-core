@@ -111,6 +111,24 @@
           />
         </div>
 
+        <custom-fields-list
+          v-if="hasPermission('field_statements_custom_fields')"
+          :definition-source-id="procedureId"
+          :list-title="Translator.trans('statement.data')"
+          :resource-id="statementId"
+          :show-empty="false"
+          :title-info-text="Translator.trans('custom.fields.submitter.info')"
+          batch-filter-path="procedure.id"
+          class="px-4 mb-4"
+          mode="readonly"
+          resource-type="OriginalStatement"
+          expandable
+        >
+          <template v-slot:readonly-display="{ field }">
+            <span>{{ (field.value?.selectedOptions || []).map(opt => opt.label).join(', ') }}</span>
+          </template>
+        </custom-fields-list>
+
         <div
           v-if="statement.sourceAttachment || statement.genericAttachments.length > 0 || statement.polygon !== ''"
           class="u-ml u-pr text-left border--top"
@@ -215,12 +233,14 @@ import {
   hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations, mapState } from 'vuex'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import HeightLimit from '@DpJs/components/statement/HeightLimit'
 
 export default {
   name: 'OriginalStatementsTableItem',
 
   components: {
+    CustomFieldsList,
     DpFlyout,
     HeightLimit,
   },

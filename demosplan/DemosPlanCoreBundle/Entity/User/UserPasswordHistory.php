@@ -16,20 +16,25 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="user_password_history")
+ *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\UserPasswordHistoryRepository")
  */
 class UserPasswordHistory
 {
     /**
      * @ORM\Id
+     *
      * @ORM\Column(type="string", length=36)
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     private string $id;
 
     /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=false, onDelete="CASCADE")
      */
     private User $user;
