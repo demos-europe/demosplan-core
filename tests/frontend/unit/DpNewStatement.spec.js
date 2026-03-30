@@ -56,8 +56,8 @@ describe('DpNewStatement', () => {
       },
       props: {
         procedureId: '123',
-        currentExternalPhase: 'participation',
-        currentInternalPhase: 'evaluation',
+        currentExternalPhase: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+        currentInternalPhase: 'f9e8d7c6-b5a4-3210-fedc-ba0987654321',
       },
     })
   })
