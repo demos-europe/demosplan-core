@@ -435,8 +435,8 @@ export default {
       this.$emit('save', {
         attributes: {
           publicVerified: this.localStatement.attributes.publicVerified,
-          numberOfAnonymVotes: this.localStatement.attributes.numberOfAnonymVotes
-        }
+          numberOfAnonymVotes: this.localStatement.attributes.numberOfAnonymVotes,
+        },
       })
     },
 
