@@ -121,7 +121,7 @@
                     selected: true
                 }]) %}
 
-                {% set procedurePhaseControlOptions = { name: 'r_phase', options: procedurePhaseOptions } %}
+                {% set procedurePhaseControlOptions = { name: 'r_phaseDefinitionId', options: procedurePhaseOptions } %}
 
             {% elseif not readonly %}
                     {% for internalPhase in templateVars.internalPhaseDefinitions|default %}
