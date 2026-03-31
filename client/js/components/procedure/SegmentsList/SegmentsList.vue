@@ -49,7 +49,6 @@
               groupedOptions: true,
               ungroupedOptions: true
             }"
-            variant="dark"
             @filter-apply="sendFilterQuery"
             @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})"
           />
