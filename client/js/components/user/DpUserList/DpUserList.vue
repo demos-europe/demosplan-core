@@ -31,7 +31,10 @@
     />
     <!-- List of all items -->
     <div v-if="false === isLoading">
-      <div v-if="isUserSelected">
+      <div
+        v-if="isUserSelected"
+        class="border rounded-lg mt-2 py-4 px-6"
+      >
         <div class="flex items-center justify-between">
           <span>{{ Translator.trans('users.selected', { count: selectedItemsCount }) }}</span>
           <dp-button
@@ -57,6 +60,37 @@
             </li>
           </ul>
         </dp-transition-expand>
+        <hr>
+        <!--Button row -->
+        <div class="text-right mt-4 space-x-2">
+          <dp-button
+            class="p-1"
+            color="secondary"
+            variant="outline"
+            :text="Translator.trans('unselect')"
+            @click="resetSelection"
+          />
+          <dp-button
+            v-if="hasPermission('feature_user_delete') || true"
+            class="p-1"
+            color="warning"
+            data-cy="deleteSelectedItems"
+            type="button"
+            variant="outline"
+            :disabled="!isUserSelected"
+            :text="Translator.trans('delete') + ` (${selectedItemsCount})`"
+            @click="deleteItems"
+          />
+          <dp-button
+            class="p-1"
+            color="primary"
+            data-cy="userList:manageUsers"
+            type="button"
+            :disabled="!isUserSelected"
+            :text="Translator.trans('invite') + ` (${selectedItemsCount})`"
+            @click="inviteItems"
+          />
+        </div>
       </div>
       <div class="mt-4 flex items-center justify-between">
         <!-- 'Select all'-Checkbox -->
@@ -75,28 +109,6 @@
           >
             {{ Translator.trans('select.all') }}
           </label>
-        </div>
-        <!--Button row -->
-        <div class="text-right mb-3">
-          <dp-button
-            class="mb-1.5 mr-0.5"
-            color="primary"
-            data-cy="userList:manageUsers"
-            type="button"
-            :disabled="!isUserSelected"
-            :text="Translator.trans('user.marked.invite')"
-            @click="inviteItems"
-          />
-          <dp-button
-            v-if="hasPermission('feature_user_delete') || true"
-            class="mb-1.5"
-            color="warning"
-            data-cy="deleteSelectedItems"
-            type="button"
-            :disabled="!isUserSelected"
-            :text="deleteSelectedUsersLabel"
-            @click="deleteItems"
-          />
         </div>
       </div>
     </div>
