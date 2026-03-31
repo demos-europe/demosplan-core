@@ -159,7 +159,7 @@
         /*Ensure sticky header renders above regular cells but below flyout/expand columns*/
         z-index: $dp-z-above-zero + 1;
         background-color: $dp-color-white;
-        }
+    }
 
     /*     * Keep flyout and expand columns always visible at the right edge.
      * Explicit BEM classes are set in DpTableRow/DpTableHeader in demosplan-ui so that
@@ -241,6 +241,10 @@
  * flyout when present (it always precedes expand), otherwise expand alone.
  */
 .has-scrollable-content .c-data-table {
+    tr:not(.is-expanded-content) td {
+        border-top-color: $dp-color-neutral-light-3;
+    }
+
     // Flyout is always leftmost when present
     td.c-data-table__col--flyout,
     th.c-data-table__col--flyout {

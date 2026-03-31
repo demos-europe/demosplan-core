@@ -92,12 +92,23 @@
           @page-change="applyQuery"
           @size-change="handleSizeChange"
         />
+        <dp-button
+          v-if="hasPermission('feature_segments_import_excel')"
+          :href="Routing.generate('DemosPlan_procedure_import', { procedureId: procedureId }) + '#ExcelImport'"
+          :text="Translator.trans('import.options.xls')"
+          data-cy="segmentsList:importOptionsXLS"
+          icon="download"
+          icon-size="medium"
+          variant="subtle"
+        />
+      </div>
+      <div class="flex justify-end gap-2 py-2">
         <div class="flex gap-2">
           <dp-button
-            :text="Translator.trans('column.layout.reset')"
+            :text="Translator.trans('column.selection.reset')"
             color="secondary"
             variant="subtle"
-            @click="resetColumnLayout"
+            @click="resetColumnSelection"
           />
           <dp-column-selector
             appearance="subtle"
@@ -110,20 +121,11 @@
             @selection-changed="setCurrentSelection"
           />
         </div>
-      </div>
-      <div class="flex justify-end gap-2 py-2">
-        <dp-button
-          v-if="hasPermission('feature_segments_import_excel')"
-          :href="Routing.generate('DemosPlan_procedure_import', { procedureId: procedureId }) + '#ExcelImport'"
-          :text="Translator.trans('import.options.xls')"
-          data-cy="segmentsList:importOptionsXLS"
-          icon="upload"
-          icon-size="medium"
-          variant="subtle"
-        />
+
         <dp-button
           :icon="isFullscreen ? 'compress' : 'expand'"
           :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
+          color="secondary"
           data-cy="editorFullscreen"
           icon-size="medium"
           variant="subtle"
@@ -347,8 +349,8 @@
         <div
           v-show="scrollbarVisible"
           ref="scrollBar"
-          class="h-3 overflow-x-scroll overflow-y-hidden z-[11] scrollbar-interactive"
-          :class="isFullscreen ? 'fixed bottom-3 left-0 right-0' : 'sticky bottom-3 left-0 right-0'"
+          class="h-3 overflow-x-scroll overflow-y-hidden z-[11] scrollbar-interactive bg-white pt-1"
+          :class="isFullscreen ? 'fixed bottom-3 left-0 right-0' : 'sticky bottom-0 left-0 right-0'"
         >
           <div :style="scrollbarInnerStyle" />
         </div>
@@ -897,7 +899,7 @@ export default {
       this.applyQuery(page)
     },
 
-    resetColumnLayout () {
+    resetColumnSelection () {
       localStorage.removeItem('segmentList')
       this.setCurrentSelection([])
       this.$refs.columnSelector.initializeColumnSelection()
