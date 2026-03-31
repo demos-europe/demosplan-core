@@ -156,7 +156,7 @@ import {
   DpContextualHelp,
   DpLoading,
   DpSearchField,
-  DpTransitionExpand
+  DpTransitionExpand,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
@@ -493,23 +493,25 @@ export default {
     toggleOne (id) {
       const isInToggled = this.toggledItems.includes(id)
       if (this.trackDeselected) {
-        if (!isInToggled) {
-          // Deselecting: add to exclusions, remove from map if fetched
-          this.toggledItems = [...this.toggledItems, id]
-          const { [id]: _, ...rest } = this.selectedUsersMap
-          this.selectedUsersMap = rest
-        } else {
+        if (isInToggled) {
           // Re-selecting: remove from exclusions, add back to map
           this.toggledItems = this.toggledItems.filter(item => item !== id)
           this.selectedUsersMap = { ...this.selectedUsersMap, [id]: this.items[id] }
+        } else {
+          // Deselecting: add to exclusions, remove from map if fetched
+          this.toggledItems = [...this.toggledItems, id]
+          this.selectedUsersMap = Object.fromEntries(
+            Object.entries(this.selectedUsersMap).filter(([key]) => key !== id),
+          )
         }
-      } else if (!isInToggled) {
+      } else if (isInToggled) {
+        this.toggledItems = this.toggledItems.filter(item => item !== id)
+        this.selectedUsersMap = Object.fromEntries(
+          Object.entries(this.selectedUsersMap).filter(([key]) => key !== id),
+        )
+      } else {
         this.toggledItems = [...this.toggledItems, id]
         this.selectedUsersMap = { ...this.selectedUsersMap, [id]: this.items[id] }
-      } else {
-        this.toggledItems = this.toggledItems.filter(item => item !== id)
-        const { [id]: _, ...rest } = this.selectedUsersMap
-        this.selectedUsersMap = rest
       }
     },
 
