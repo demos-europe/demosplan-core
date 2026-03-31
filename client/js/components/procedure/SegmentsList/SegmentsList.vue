@@ -157,9 +157,9 @@
             class="min-h-12"
             :class="{ 'px-2': isFullscreen, 'scrollbar-none': !isFullscreen }"
             data-cy="segmentsList"
+            density="spacious"
             has-flyout
             has-borders
-            has-large-padding
             has-sticky-header
             :header-fields="availableHeaderFields"
             is-resizable
