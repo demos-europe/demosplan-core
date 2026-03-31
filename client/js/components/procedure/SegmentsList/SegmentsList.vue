@@ -556,6 +556,7 @@ export default {
         []
     },
 
+    // Passed as headerFields to DpDataTable
     availableHeaderFields () {
       if (!hasPermission('field_segments_custom_fields')) {
         return this.headerFields
@@ -570,9 +571,9 @@ export default {
         }))
 
       return [
-        this.headerFieldsAvailable.find(el => el.field === 'externId'),
-        ...this.headerFields.filter(el => el.field !== 'externId'),
-        ...selectedCustomFields,
+        this.headerFieldsAvailable.find(el => el.field === 'externId'), // Always include externId and make it the first element
+        ...this.headerFields.filter(el => el.field !== 'externId'), // Columns selected by the user
+        ...selectedCustomFields, // Custom field columns selected by the user
       ]
     },
 
@@ -622,7 +623,7 @@ export default {
      */
     selectableColumns () {
       const staticColumns = this.headerFieldsAvailable
-        .filter(el => el.field !== 'externId')
+        .filter(el => el.field !== 'externId') // ExternId should always be displayed, so it shouldn't be selectable
         .map(headerField => ([headerField.field, headerField.label]))
 
       if (!hasPermission('field_segments_custom_fields')) {
