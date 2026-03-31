@@ -161,6 +161,7 @@
     &__sticky-header {
         position: sticky;
         top: 0;
+
         /* Ensure sticky header renders above regular cells but below flyout/expand columns */
         z-index: $dp-z-above-zero + 1;
         background-color: $dp-color-white;
