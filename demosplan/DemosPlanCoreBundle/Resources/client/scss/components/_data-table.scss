@@ -130,6 +130,11 @@
         border-top: 1px solid $dp-color-neutral-light-2;
     }
 
+    // Use a lighter border when full borders (including vertical) are enabled.
+    &:has(.border-r) tr:not(.is-expanded-content) td {
+        border-top-color: $dp-color-neutral-light-3;
+    }
+
     tbody {
         tr:hover,
         tr:hover + tr.is-expanded-content,
@@ -241,10 +246,6 @@
  * flyout when present (it always precedes expand), otherwise expand alone.
  */
 .has-scrollable-content .c-data-table {
-    tr:not(.is-expanded-content) td {
-        border-top-color: $dp-color-neutral-light-3;
-    }
-
     // Flyout is always leftmost when present
     td.c-data-table__col--flyout,
     th.c-data-table__col--flyout {
