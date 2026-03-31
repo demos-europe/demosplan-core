@@ -108,7 +108,6 @@ class MultiSelectField extends AbstractCustomField
 
         return $optionNames;
 
-        return $optionNames;
     }
 
     protected function validateFieldSpecific(array $options): void
