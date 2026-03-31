@@ -14,32 +14,24 @@
 </documentation>
 
 <template>
-  <div class="u-mt">
+  <div class="mt-4">
     <!-- search -->
-    <div class="layout u-mt">
-      <div class="layout__item u-1-of-1 flex">
-        <dp-search-field
-          data-cy="search:currentSearchTerm"
-          :placeholder="Translator.trans('searchterm')"
-          @search="handleSearch"
-          @reset="handleReset"
-        />
-        <dp-contextual-help :text="tooltipContent" />
-      </div>
+    <div class="flex mt-4">
+      <dp-search-field
+        data-cy="search:currentSearchTerm"
+        :placeholder="Translator.trans('searchterm')"
+        @search="handleSearch"
+        @reset="handleReset"
+      />
+      <dp-contextual-help :text="tooltipContent" />
     </div>
     <dp-loading
       v-if="isLoading"
-      class="u-ml u-mt"
+      class="ml-4 mt-4"
     />
     <!-- List of all items -->
-    <div
-      v-if="false === isLoading"
-      class="layout"
-    >
-      <div
-        v-if="isUserSelected"
-        class="layout__item u-1-of-1"
-      >
+    <div v-if="false === isLoading">
+      <div v-if="isUserSelected">
         <div class="flex items-center justify-between">
           <span>{{ Translator.trans('users.selected', { count: selectedItemsCount }) }}</span>
           <dp-button
@@ -53,22 +45,22 @@
         <dp-transition-expand>
           <ul
             v-show="showSelectionList"
-            class="o-list u-mt-0_25"
+            class="o-list mt-0.5"
           >
             <li
               v-for="user in selectedUsersOnPage"
               :key="user.id"
-              class="u-pv-0_25"
+              class="py-1"
             >
               <div>{{ user.attributes.firstname }} {{ user.attributes.lastname }}</div>
-              <div class="color--grey font-size--small">{{ user.attributes.email }}</div>
+              <div class="text-muted text-sm">{{ user.attributes.email }}</div>
             </li>
           </ul>
         </dp-transition-expand>
       </div>
-      <div class="u-mt flex">
+      <div class="mt-4 flex items-center justify-between">
         <!-- 'Select all'-Checkbox -->
-        <div class="layout__item u-3-of-7">
+        <div>
           <input
             id="select_all"
             type="checkbox"
@@ -79,13 +71,13 @@
           <label
             v-if="hasPermission('feature_user_delete') || true"
             for="select_all"
-            class="cursor-pointer btn-icns inline-block"
+            class="cursor-pointer font-semibold text-interactive inline-block"
           >
             {{ Translator.trans('select.all') }}
           </label>
         </div>
         <!--Button row -->
-        <div class="text-right u-4-of-7 u-mb-0_5">
+        <div class="text-right mb-3">
           <dp-button
             class="mb-1.5 mr-0.5"
             color="primary"
@@ -112,7 +104,7 @@
       v-if="false === isLoading"
     >
       <ul
-        class="o-list o-list--card u-mb"
+        class="o-list o-list--card mb-4"
         data-cy="userList:userListWrapper"
       >
         <dp-user-list-item
