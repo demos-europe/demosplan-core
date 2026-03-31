@@ -167,7 +167,7 @@ class EntrypointController extends BaseController
             if (null !== $logoutRoute) {
                 $idpLogoutUrl = $ozgKeycloakLogoutManager->getLogoutUrl($logoutRoute, null);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // If we cannot build the logout URL, fall back to no logout link
         }
 
