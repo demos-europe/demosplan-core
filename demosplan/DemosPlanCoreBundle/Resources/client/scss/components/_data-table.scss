@@ -161,12 +161,13 @@
     &__sticky-header {
         position: sticky;
         top: 0;
-        /*Ensure sticky header renders above regular cells but below flyout/expand columns*/
+        /* Ensure sticky header renders above regular cells but below flyout/expand columns */
         z-index: $dp-z-above-zero + 1;
         background-color: $dp-color-white;
     }
 
-    /*     * Keep flyout and expand columns always visible at the right edge.
+    /*
+     * Keep flyout and expand columns always visible at the right edge.
      * Explicit BEM classes are set in DpTableRow/DpTableHeader in demosplan-ui so that
      * regular data columns in resizable-only tables (e.g. InstitutionList) are never affected.
      */
