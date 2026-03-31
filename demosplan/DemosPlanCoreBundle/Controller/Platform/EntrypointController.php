@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerLoginSupportContactResourceType;
 use demosplan\DemosPlanCoreBundle\ValueObject\EntrypointRoute;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
@@ -152,16 +153,29 @@ class EntrypointController extends BaseController
 
     #[DplanPermissions('area_demosplan')]
     #[Route(path: '/idp/login/error', name: 'core_login_idp_error', options: ['expose' => true])]
-    public function loginIdpError(CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType): RedirectResponse|Response
-    {
+    public function loginIdpError(
+        CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType,
+        OzgKeycloakLogoutManager $ozgKeycloakLogoutManager,
+    ): RedirectResponse|Response {
         // there is in practise only one customerLoginSupport entity for each customer
         // therefore it is ok to pass the first entry of the array via reset($array)
         $loginSupportEntities = $customerLoginSupportContactResourceType->getEntities([], []);
+
+        $idpLogoutUrl = null;
+        try {
+            $logoutRoute = $ozgKeycloakLogoutManager->getEffectiveLogoutRoute();
+            if (null !== $logoutRoute) {
+                $idpLogoutUrl = $ozgKeycloakLogoutManager->getLogoutUrl($logoutRoute, null);
+            }
+        } catch (\Exception $e) {
+            // If we cannot build the logout URL, fall back to no logout link
+        }
 
         return $this->render(
             '@DemosPlanCore/DemosPlanUser/login_idp_error.html.twig',
             [
                 'templateVars' => ['customerLoginSupport' => reset($loginSupportEntities)],
+                'idpLogoutUrl' => $idpLogoutUrl,
             ]
         );
     }
