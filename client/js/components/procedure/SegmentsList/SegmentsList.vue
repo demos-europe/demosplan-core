@@ -482,6 +482,7 @@ export default {
     return {
       appliedFilterQuery: this.initialFilter,
       currentQueryHash: '',
+      defaultColumnSelection: ['text', 'tags'],
       currentSelection: ['text', 'tags'],
       defaultPagination: {
         currentPage: 1,
@@ -901,7 +902,7 @@ export default {
 
     resetColumnSelection () {
       localStorage.removeItem('segmentList')
-      this.setCurrentSelection([])
+      this.setCurrentSelection([...this.defaultColumnSelection])
       this.$refs.columnSelector.initializeColumnSelection()
     },
 
