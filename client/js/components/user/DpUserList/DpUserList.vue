@@ -38,27 +38,34 @@
         <div class="flex items-center justify-between">
           <span>{{ Translator.trans('users.selected', { count: selectedItemsCount }) }}</span>
           <dp-button
+            :disabled="trackDeselected && toggledItems.length === 0"
             :icon="showSelectionList ? 'caret-up' : 'caret-down'"
             :text="Translator.trans('selection.show')"
             type="button"
             variant="subtle"
-            @click="showSelectionList = !showSelectionList"
+            @click="toggleSelectionList"
           />
         </div>
         <dp-transition-expand>
-          <ul
-            v-show="showSelectionList"
-            class="o-list mt-0.5"
-          >
-            <li
-              v-for="user in selectedUsersOnPage"
-              :key="user.id"
-              class="py-1"
+          <div v-show="showSelectionList">
+            <dp-loading
+              v-if="isLoadingSelectionList"
+              class="mt-1"
+            />
+            <ul
+              v-else
+              class="o-list mt-0.5"
             >
-              <div>{{ user.attributes.firstname }} {{ user.attributes.lastname }}</div>
-              <div class="text-muted text-sm">{{ user.attributes.email }}</div>
-            </li>
-          </ul>
+              <li
+                v-for="user in selectedUsersForDropdown"
+                :key="user.id"
+                class="py-1"
+              >
+                <div>{{ user.attributes.firstname }} {{ user.attributes.lastname }}</div>
+                <div class="text-muted text-sm">{{ user.attributes.email }}</div>
+              </li>
+            </ul>
+          </div>
         </dp-transition-expand>
         <hr>
         <!--Button row -->
@@ -144,6 +151,7 @@
 <script>
 import {
   debounce,
+  dpApi,
   DpButton,
   DpContextualHelp,
   DpLoading,
@@ -196,8 +204,11 @@ export default {
   data () {
     return {
       allItemsCount: 0,
+      allUsersFetched: false,
       isLoading: true,
+      isLoadingSelectionList: false,
       searchValue: '',
+      selectedUsersMap: {},
       showSelectionList: false,
       toggledItems: [],
       trackDeselected: false,
@@ -238,8 +249,8 @@ export default {
         this.toggledItems.length
     },
 
-    selectedUsersOnPage () {
-      return Object.values(this.items).filter(user => this.currentPageSelections[user.id])
+    selectedUsersForDropdown () {
+      return Object.values(this.selectedUsersMap)
     },
 
     tooltipContent () {
@@ -367,6 +378,35 @@ export default {
       return userFilter
     },
 
+    async fetchAllUsersForSelectionMap () {
+      const allUsers = {}
+      const filter = this.buildUserFilter()
+      const include = ['roles', 'orga', 'department', 'orga.allowedRoles'].join()
+      let page = 1
+      let totalPages = 1
+
+      while (page <= totalPages) {
+        // Store not used so we stay on selected page
+        const response = await dpApi.get('/api/2.0/AdministratableUser', {
+          page: { number: page },
+          filter,
+          include,
+        })
+
+        const users = response.data?.data || []
+        users.forEach(user => {
+          if (!this.toggledItems.includes(user.id)) {
+            allUsers[user.id] = user
+          }
+        })
+        totalPages = response.data?.meta?.pagination?.total_pages ?? 1
+        page++
+      }
+
+      this.selectedUsersMap = allUsers
+      this.allUsersFetched = true
+    },
+
     async fetchAllUserIds () {
       const allIds = []
       const filter = this.buildUserFilter()
@@ -436,22 +476,51 @@ export default {
     },
 
     resetSelection () {
+      this.allUsersFetched = false
+      this.selectedUsersMap = {}
       this.showSelectionList = false
       this.trackDeselected = false
       this.toggledItems = []
     },
 
     toggleAll (status) {
+      this.allUsersFetched = false
+      this.selectedUsersMap = {}
       this.trackDeselected = status
       this.toggledItems = []
     },
 
     toggleOne (id) {
-      const index = this.toggledItems.indexOf(id)
-      if (index === -1) {
+      const isInToggled = this.toggledItems.includes(id)
+      if (this.trackDeselected) {
+        if (!isInToggled) {
+          // Deselecting: add to exclusions, remove from map if fetched
+          this.toggledItems = [...this.toggledItems, id]
+          const { [id]: _, ...rest } = this.selectedUsersMap
+          this.selectedUsersMap = rest
+        } else {
+          // Re-selecting: remove from exclusions, add back to map
+          this.toggledItems = this.toggledItems.filter(item => item !== id)
+          this.selectedUsersMap = { ...this.selectedUsersMap, [id]: this.items[id] }
+        }
+      } else if (!isInToggled) {
         this.toggledItems = [...this.toggledItems, id]
+        this.selectedUsersMap = { ...this.selectedUsersMap, [id]: this.items[id] }
       } else {
         this.toggledItems = this.toggledItems.filter(item => item !== id)
+        const { [id]: _, ...rest } = this.selectedUsersMap
+        this.selectedUsersMap = rest
+      }
+    },
+
+    async toggleSelectionList () {
+      if (!this.showSelectionList && this.trackDeselected && !this.allUsersFetched) {
+        this.showSelectionList = true
+        this.isLoadingSelectionList = true
+        await this.fetchAllUsersForSelectionMap()
+        this.isLoadingSelectionList = false
+      } else {
+        this.showSelectionList = !this.showSelectionList
       }
     },
 
