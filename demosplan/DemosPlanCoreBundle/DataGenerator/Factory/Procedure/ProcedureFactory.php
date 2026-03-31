@@ -55,7 +55,6 @@ class ProcedureFactory extends PersistentProxyObjectFactory
 
         return [
             'ars'                                   => self::faker()->text(12),
-            'closed'                                => false,
             'addSlug'                               => $slug,
             'currentSlug'                           => $slug,
             'deleted'                               => false,
