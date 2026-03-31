@@ -227,17 +227,18 @@ class UserService implements UserServiceInterface
 
     public function findDistinctUserByEmailOrLogin($loginOrEmail)
     {
-        $user = $this->userRepository->findOneBy(['login' => $loginOrEmail, 'deleted' => false]);
+        // Use case-insensitive login lookup (explicit UPPER() in query)
+        $user = $this->userRepository->getFirstUserByCaseInsensitiveLogin($loginOrEmail);
 
-        if ($user instanceof User) {
+        if ($user instanceof User && !$user->isDeleted()) {
             return $user;
         }
-        // User not found, try to find user by email address:
+        // User not found, try to find user by email address (case-insensitive):
         $this->logger->info('Could not find user by given login',
             [$loginOrEmail]);
 
         // important to return null in case of more than one user was found!
-        $foundUsers = $this->userRepository->findBy(['email' => $loginOrEmail, 'deleted' => false]);
+        $foundUsers = $this->userRepository->findNonDeletedUsersByEmailCaseInsensitive($loginOrEmail);
 
         if (1 === count($foundUsers) && $foundUsers[0] instanceof User) {
             $this->logger->info('User found by email');
