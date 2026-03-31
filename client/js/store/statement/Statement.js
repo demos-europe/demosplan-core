@@ -359,7 +359,7 @@ export default {
     },
 
     updatePagination (state, value) {
-      state.pagination = Object.assign(state.pagination, value)
+      state.pagination = { ...state.pagination, ...value }
     },
 
     updatePersistStatementSelection (state, value) {
@@ -492,6 +492,7 @@ export default {
         'assignee',
         'sourceAttachment',
         'sourceAttachment.file',
+        'genericAttachments',
         'genericAttachments.file',
       ]
 
@@ -621,6 +622,9 @@ export default {
             SourceStatementAttachment: [
               'file',
               'attachmentType',
+            ].join(),
+            GenericStatementAttachment: [
+              'file',
             ].join(),
           },
           include: includes.join(','),

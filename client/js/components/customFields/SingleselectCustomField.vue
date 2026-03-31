@@ -10,7 +10,7 @@ All rights reserved
 <template>
   <dl
     v-if="mode === 'readonly'"
-    class="mb-0"
+    :class="prefixClass('mb-0')"
   >
     <dt :class="prefixClass('flex items-start gap-1 font-[500] mb-1')">
       {{ field.attributes.name }}<span v-if="field.attributes.isRequired"> *</span>

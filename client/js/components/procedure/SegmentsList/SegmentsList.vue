@@ -246,8 +246,8 @@
               }"
             />
             <span
-              v-else
               v-for="tag in getTagsBySegment(rowData.id)"
+              v-else
               :key="tag.id"
               class="rounded-md color--grey-dark bg-color--grey-light-2 px-1 py-0.5 mx-0.5 my-1 inline-block"
             >
@@ -1139,7 +1139,9 @@ export default {
       })
     }
     this.initPagination()
-    this.getCustomFields()
+    if (hasPermission('field_segments_custom_fields')) {
+      this.getCustomFields()
+    }
     this.applyQuery(this.pagination.currentPage)
 
     this.fetchPlaces()

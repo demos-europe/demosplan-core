@@ -52,7 +52,10 @@
         >
           <tr>
             <td>
-              <label class="whitespace-nowrap u-m-0">
+              <label
+                :for="`checkStatement:${statement.id}`"
+                class="m-0 whitespace-nowrap"
+              >
                 <input
                   :id="`checkStatement:${statement.id}`"
                   type="checkbox"
@@ -127,11 +130,11 @@
         </custom-fields-list>
 
         <div
-          v-if="statement.sourceAttachment || statement.files.length > 0 || statement.polygon !== ''"
+          v-if="statement.sourceAttachment || statement.genericAttachments.length > 0 || statement.polygon !== ''"
           class="u-ml u-pr text-left border--top"
         >
           <div
-            v-if="statement.sourceAttachment || statement.files.length > 0"
+            v-if="statement.sourceAttachment || statement.genericAttachments.length > 0"
             class="break-words"
           >
             <i
@@ -145,16 +148,16 @@
               target="_blank"
               rel="noopener"
               class="o-hellip"
-              :class="statement.files.length > 0 ? 'border--right border-color--grey-light u-mr-0_5 u-pr-0_5' : ''"
+              :class="statement.genericAttachments.length > 0 ? 'border--right border-color--grey-light u-mr-0_5 u-pr-0_5' : ''"
               :href="Routing.generate('core_file_procedure', { hash: statement.sourceAttachment.hash, procedureId: procedureId })"
             >
               {{ statement.sourceAttachment.filename }}
             </a>
 
             <a
-              v-for="(file, idx) in statement.files"
+              v-for="(file, idx) in statement.genericAttachments"
               :key="idx"
-              :title="file.name"
+              :title="file.filename"
               target="_blank"
               rel="noopener"
               class="o-hellip"
@@ -184,9 +187,10 @@
             class="border--top"
           >
             <input
-              type="checkbox"
+              :aria-label="Translator.trans('personal.data.usage.allowed')"
               checked
               disabled
+              type="checkbox"
             >
             <span> {{ Translator.trans('personal.data.usage.allowed') }} </span>
           </div>

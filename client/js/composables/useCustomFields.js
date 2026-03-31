@@ -153,10 +153,12 @@ function fetchBatchValues (resourceType, definitionSourceId, cacheKey, filterPat
       )
       cachedBatchValues.set(cacheKey, batchCache)
       pendingBatchFetches.delete(cacheKey)
+
       return batchCache
     })
     .catch(err => {
       pendingBatchFetches.delete(cacheKey)
+
       throw err
     })
 }
@@ -203,16 +205,16 @@ export function useCustomFields () {
        * Batch cache keys use 'resourceType:definitionSourceId:filterPath', so we
        * match on ':definitionSourceId:' to avoid false positives at the start or end.
        */
-      const segment = `:${definitionSourceId}:`
+      const definitionIdCacheKey = `:${definitionSourceId}:`
       customFieldsDefinitions.delete(definitionSourceId)
       pendingFetches.delete(definitionSourceId)
       for (const key of cachedBatchValues.keys()) {
-        if (key.includes(segment)) {
+        if (key.includes(definitionIdCacheKey)) {
           cachedBatchValues.delete(key)
         }
       }
       for (const key of pendingBatchFetches.keys()) {
-        if (key.includes(segment)) {
+        if (key.includes(definitionIdCacheKey)) {
           pendingBatchFetches.delete(key)
         }
       }

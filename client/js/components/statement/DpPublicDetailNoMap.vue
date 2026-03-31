@@ -113,7 +113,7 @@ export default {
        */
       const hasUnsavedChanges = this.$refs.statementModal.unsavedDrafts.includes(id)
 
-      if (!hasUnsavedChanges && customFields && customFields.length > 0) {
+      if (!hasUnsavedChanges && customFields?.length > 0) {
         this.$refs.statementModal.setCustomFieldsForEditing(customFields)
       }
 
