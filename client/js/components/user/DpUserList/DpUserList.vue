@@ -38,8 +38,33 @@
     >
       <div
         v-if="isUserSelected"
+        class="layout__item u-1-of-1"
       >
-        {{ selectedItemsCount }}
+        <div class="flex items-center justify-between">
+          <span>{{ Translator.trans('users.selected', { count: selectedItemsCount }) }}</span>
+          <dp-button
+            :icon="showSelectionList ? 'caret-up' : 'caret-down'"
+            :text="Translator.trans('selection.show')"
+            type="button"
+            variant="subtle"
+            @click="showSelectionList = !showSelectionList"
+          />
+        </div>
+        <dp-transition-expand>
+          <ul
+            v-show="showSelectionList"
+            class="o-list u-mt-0_25"
+          >
+            <li
+              v-for="user in selectedUsersOnPage"
+              :key="user.id"
+              class="u-pv-0_25"
+            >
+              <div>{{ user.attributes.firstname }} {{ user.attributes.lastname }}</div>
+              <div class="color--grey font-size--small">{{ user.attributes.email }}</div>
+            </li>
+          </ul>
+        </dp-transition-expand>
       </div>
       <div class="u-mt flex">
         <!-- 'Select all'-Checkbox -->
@@ -119,6 +144,7 @@ import {
   DpContextualHelp,
   DpLoading,
   DpSearchField,
+  DpTransitionExpand
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
@@ -131,6 +157,7 @@ export default {
     DpContextualHelp,
     DpLoading,
     DpSearchField,
+    DpTransitionExpand,
     DpSlidingPagination: defineAsyncComponent(async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
       return DpSlidingPagination
@@ -167,6 +194,7 @@ export default {
       allItemsCount: 0,
       isLoading: true,
       searchValue: '',
+      showSelectionList: false,
       toggledItems: [],
       trackDeselected: false,
     }
@@ -204,6 +232,10 @@ export default {
       return this.trackDeselected ?
         this.allItemsCount - this.toggledItems.length :
         this.toggledItems.length
+    },
+
+    selectedUsersOnPage () {
+      return Object.values(this.items).filter(user => this.currentPageSelections[user.id])
     },
 
     tooltipContent () {
@@ -400,6 +432,7 @@ export default {
     },
 
     resetSelection () {
+      this.showSelectionList = false
       this.trackDeselected = false
       this.toggledItems = []
     },
