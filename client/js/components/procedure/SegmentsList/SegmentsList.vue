@@ -101,7 +101,10 @@
           variant="subtle"
         />
       </div>
-      <div class="flex justify-end gap-2 py-2">
+      <div
+        v-show="!isLoading"
+        class="flex justify-end gap-2 py-2"
+      >
         <div class="flex gap-2">
           <dp-button
             :text="Translator.trans('column.selection.reset')"
