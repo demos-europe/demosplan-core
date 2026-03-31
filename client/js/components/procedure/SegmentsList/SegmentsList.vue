@@ -1180,7 +1180,9 @@ export default {
       })
     }
     this.initPagination()
-    this.getCustomFields()
+    if (hasPermission('field_segments_custom_fields')) {
+      this.getCustomFields()
+    }
     this.applyQuery(this.pagination.currentPage)
 
     this.fetchPlaces()
