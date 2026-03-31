@@ -399,13 +399,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     protected $represents = '';
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="_ds_phase", type="string", length=50, nullable=false)
-     */
-    protected $phase = '';
-
-    /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
      *
      * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=false, onDelete="RESTRICT")
@@ -1517,30 +1510,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         return $this;
     }
 
-    /**
-     * Set phase.
-     *
-     * @param string $phase
-     *
-     * @return DraftStatementInterface
-     */
-    public function setPhase($phase)
-    {
-        $this->phase = $phase;
-
-        return $this;
-    }
-
-    /**
-     * Get phase.
-     *
-     * @return string
-     */
-    public function getPhase()
-    {
-        return $this->phase;
-    }
-
     public function getPhaseDefinition(): ProcedurePhaseDefinitionInterface
     {
         return $this->phaseDefinition;
@@ -1549,8 +1518,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     public function setPhaseDefinition(ProcedurePhaseDefinitionInterface $phaseDefinition): void
     {
         $this->phaseDefinition = $phaseDefinition;
-        // @deprecated $phase will be removed once all consumers are migrated to phaseDefinition
-        $this->phase = $phaseDefinition->getName();
     }
 
     /**

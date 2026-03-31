@@ -39,7 +39,7 @@ final class Version20260312100000 extends AbstractMigration
         $this->addSql(
             'ALTER TABLE _draft_statement
                 ADD COLUMN phase_definition_id CHAR(36) DEFAULT NULL,
-                ADD CONSTRAINT fk_ds_phase_definition
+                ADD CONSTRAINT IDX_5D77C03C8EFDFE33
                     FOREIGN KEY (phase_definition_id)
                     REFERENCES procedure_phase_definition (id) ON DELETE RESTRICT'
         );
@@ -54,7 +54,7 @@ final class Version20260312100000 extends AbstractMigration
 
         $this->addSql(
             'ALTER TABLE _draft_statement
-                DROP FOREIGN KEY fk_ds_phase_definition,
+                DROP FOREIGN KEY IDX_5D77C03C8EFDFE33,
                 DROP COLUMN phase_definition_id'
         );
     }

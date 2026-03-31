@@ -1578,12 +1578,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "28cf12eb766c7cca43bf7fc95b2094ccee4dbdb3"
+                "reference": "428ce0482d481776877ccda0bb4ebd0875ec928f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/28cf12eb766c7cca43bf7fc95b2094ccee4dbdb3",
-                "reference": "28cf12eb766c7cca43bf7fc95b2094ccee4dbdb3",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/428ce0482d481776877ccda0bb4ebd0875ec928f",
+                "reference": "428ce0482d481776877ccda0bb4ebd0875ec928f",
                 "shasum": ""
             },
             "require": {
@@ -1652,7 +1652,7 @@
             "support": {
                 "source": "https://github.com/demos-europe/demosplan-addon/tree/f-DPLAN-16766-phase-definition-interface-integration"
             },
-            "time": "2026-03-27T17:42:44+00:00"
+            "time": "2026-03-31T14:44:18+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
