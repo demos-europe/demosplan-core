@@ -1009,12 +1009,12 @@ class UserService implements UserServiceInterface
                 $tempUser = clone $user;
                 $tempUser->setPassword($entry->getHashedPassword());
                 if ($this->userPasswordHasher->isPasswordValid($tempUser, $newPassword)) {
-                    throw new InvalidArgumentException('Dieses Password wurde bereits genutzt. Wählen Sie ein anderes.');
+                    throw new InvalidArgumentException('This password has already been used. Please choose a different one.');
                 }
             }
             // check new password against the current password
             if (null !== $user->getPassword() && $this->userPasswordHasher->isPasswordValid($user, $newPassword)) {
-                throw new InvalidArgumentException('Dieses Password wurde bereits genutzt. Wählen Sie ein anderes.');
+                throw new InvalidArgumentException('This password has already been used. Please choose a different one.');
             }
 
             $newPasswordHash = $this->userPasswordHasher->hashPassword($user, $newPassword);
