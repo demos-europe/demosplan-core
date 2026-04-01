@@ -8,7 +8,7 @@
 </license>
 
 <documentation>
-  <!-- Expandable component that displays form fields to create a new item, e.g. user or organisation
+  <!-- Modal component that displays form fields to create a new item, e.g. user or organisation
       It receives the form fields via a child component that can by dynamically included
 
       We might put the form fields part inside a slot and add some form fields as default content, should a more
@@ -17,14 +17,26 @@
 </documentation>
 
 <template>
-  <dp-accordion
-    :is-open="isOpen"
-    :title="Translator.trans(itemTitle)"
-    @item:toggle="(open) => { toggleItem(open) }"
-  >
-    <div class="o-box--dark soft">
+  <div>
+    <div
+      class="flex justify-between bg-surface-medium p-4"
+    >
+      <h3
+        class="mb-0"
+      >
+        {{ Translator.trans(itemTitle) }}
+      </h3>
+      <dp-button
+        variant="outline"
+        :text="Translator.trans('add')"
+        @click="toggleModal"
+      />
+    </div>
+    <dp-modal
+      ref="createItemModal"
+      content-classes="u-2-of-3"
+    >
       <div
-        class="px-3 py-3"
         :data-cy="customComponent[entity].formName"
         :data-dp-validate="customComponent[entity].formName"
       >
@@ -33,27 +45,35 @@
           v-bind="dynamicComponentProps"
           :is="dynamicComponent"
           ref="formFields"
+          class=""
           @[dynamicEvent]="update"
           @reset:complete="shouldResetForm = false"
         />
 
         <!-- Save/Abort buttons   -->
-        <dp-button-row
-          class="mt-6"
-          data-cy="createItem"
-          :form-name="customComponent[entity].formName"
-          primary
-          secondary
-          @primary-action="dpValidateAction(customComponent[entity].formName, save)"
-          @secondary-action="reset"
-        />
+        <div
+          class="text-right space-x-2 mt-4"
+        >
+          <dp-button
+            color="secondary"
+            data-cy="createItem:abortButton"
+            variant="outline"
+            :text="Translator.trans('abort')"
+            @click="reset"
+          />
+          <dp-button
+            data-cy="createItem:saveButton"
+            :text="Translator.trans('save')"
+            @click="dpValidateAction(customComponent[entity].formName, save)"
+          />
+        </div>
       </div>
-    </div>
-  </dp-accordion>
+    </dp-modal>
+  </div>
 </template>
 
 <script>
-import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { DpButton, DpButtonRow, DpModal, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 
@@ -74,8 +94,9 @@ export default {
   },
 
   components: {
-    DpAccordion,
+    DpButton,
     DpButtonRow,
+    DpModal,
     DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationList/DpOrganisationFormFields')),
     DpUserFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "user-form-fields" */ './DpUserList/DpUserFormFields')),
   },
@@ -99,7 +120,7 @@ export default {
     },
 
     /**
-     * Accordion title
+     * Title for the trigger button
      */
     itemTitle: {
       type: String,
@@ -180,7 +201,6 @@ export default {
           updateEvent: 'user:update',
         },
       },
-      isOpen: false,
       item: {},
       shouldResetForm: false,
     }
@@ -257,7 +277,7 @@ export default {
     },
 
     reset () {
-      this.isOpen = false
+      this.$refs.createItemModal.close()
       this.item = {}
       this.shouldResetForm = true
 
@@ -325,8 +345,8 @@ export default {
         .finally(() => this.reset())
     },
 
-    toggleItem (open) {
-      this.isOpen = open
+    toggleModal () {
+      this.$refs.createItemModal.toggle()
     },
 
     update (item) {
