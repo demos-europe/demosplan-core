@@ -82,7 +82,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statementOrig->setMeta((new StatementMeta())->setStatement($statementOrig));
         $statementOrig->setOrganisation($testOrga);
         $statementOrig->setParagraph($testParagraphVersion);
-        $statementOrig->setPhase('participation');
         $statementOrig->setProcedure($testProcedure);
         $statementOrig->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statementOrig->setSubmitType('system');
@@ -106,7 +105,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement->setOriginal($statementOrig);
         $statement->setParent($statementOrig);
         $statement->setParagraph($testParagraphVersion);
-        $statement->setPhase('participation');
         $statement->setProcedure($testProcedure);
         $statement->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statement->setRepresentationCheck(true);
@@ -133,7 +131,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement1->setOriginal($statementOrig);
         $statement1->setParagraph($testParagraphVersion);
         $statement1->setParent($statementOrig);
-        $statement1->setPhase('participation');
         $statement1->setProcedure($testProcedure);
         $statement1->setPublicVerified(Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED);
         $statement1->setRepresentationCheck(true);
@@ -296,7 +293,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement5->setOriginal($statementOrig);
         $statement5->setParent($statementOrig);
         $statement5->setParagraph($testParagraphVersion);
-        $statement5->setPhase('participation');
         $statement5->setProcedure($testProcedure);
         $statement5->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statement5->setRepresentationCheck(true);
@@ -333,7 +329,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement2->setOrganisation($testOrga);
         $statement2->setOriginal($this->getReference('testFixtureStatement'));
         $statement2->setParagraph($testParagraphVersion);
-        $statement2->setPhase('participation');
         $statement2->setProcedure($testProcedure);
         $statement2->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statement2->setSubmitType('system');
@@ -372,7 +367,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement5->setOriginal($statementOrig);
         $statement5->setParent($statementOrig);
         $statement5->setParagraph($testParagraphVersion);
-        $statement5->setPhase('participation');
         $statement5->setProcedure($testProcedure);
         $statement5->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statement5->setSubmitType('system');
@@ -408,7 +402,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement3->setMeta((new StatementMeta())->setStatement($statement3));
         $statement3->setOrganisation($this->getReference('testOrgaPB'));
         $statement3->setParagraph($testParagraphVersion);
-        $statement3->setPhase('participation');
         $statement3->setProcedure($testProcedure);
         $statement3->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statement3->setSubmit(new DateTime());
@@ -428,7 +421,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement4->setOrganisation($this->getReference('testOrgaPB'));
         $statement4->setOriginal($this->getReference('testStatementOtherOrga'));
         $statement4->setParent($this->getReference('testStatementOtherOrga'));
-        $statement4->setPhase('participation');
         $statement4->setProcedure($testProcedure);
         $statement4->setPublicVerified(Statement::PUBLICATION_APPROVED);
         $statement4->setSubmit(new DateTime());
@@ -450,7 +442,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement6->setOriginal($this->getReference('testStatementOtherOrga'));
         $statement6->setParagraph($testParagraphVersion);
         $statement6->setParent($this->getReference('testStatementOtherOrga'));
-        $statement6->setPhase('participation');
         $statement6->setProcedure($testProcedure);
         $statement6->setPublicVerified(Statement::PUBLICATION_APPROVED);
         $statement6->setSubmit(new DateTime());
@@ -471,7 +462,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement7->setOriginal($this->getReference('testStatementOtherOrga'));
         $statement7->setParagraph($testParagraphVersion);
         $statement7->setParent($this->getReference('testStatementOtherOrga'));
-        $statement7->setPhase('participation');
         $statement7->setProcedure($testProcedure);
         $statement7->setPublicVerified(Statement::PUBLICATION_APPROVED);
         $statement7->setSubmit(new DateTime());
@@ -490,7 +480,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $clusterStatement01->setExternId('G1008');
         $clusterStatement01->setGdprConsent(new GdprConsent());
         $clusterStatement01->setMeta((new StatementMeta())->setStatement($clusterStatement01));
-        $clusterStatement01->setPhase('participation');
         $clusterStatement01->setProcedure($testProcedure);
         $clusterStatement01->setPublicVerified(Statement::PUBLICATION_PENDING);
         $clusterStatement01->setText('Ich bin der Text für das cluster-original #1');
@@ -508,7 +497,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $clusterStatement1->setMeta((new StatementMeta())->setStatement($clusterStatement1));
         $clusterStatement1->setOriginal($clusterStatement01);
         $clusterStatement1->setParent($clusterStatement01);
-        $clusterStatement1->setPhase('participation');
         $clusterStatement1->setProcedure($testProcedure);
         $clusterStatement1->setPublicVerified(Statement::PUBLICATION_PENDING);
         $clusterStatement1->setText('Ich bin der Text für das cluster #1');
@@ -522,7 +510,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement10->setExternId('1010');
         $statement10->setMeta((new StatementMeta())->setStatement($statement10));
         $statement10->setParagraph($testParagraphVersion);
-        $statement10->setPhase('participation');
         $statement10->setProcedure($testProcedure);
         $statement10->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statement10->setText('Ich bin der Text für das Statement 10 ');
@@ -536,7 +523,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement11->setExternId('1011');
         $statement11->setMeta((new StatementMeta())->setStatement($statement11));
         $statement11->setParagraph($testParagraphVersion);
-        $statement11->setPhase('participation');
         $statement11->setProcedure($testProcedure);
         $statement11->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statement11->setText('Ich bin der Text für das Statement 11 ');
@@ -551,7 +537,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $clusterStatement2->setCluster([$statement10, $statement11]);
         $clusterStatement2->setExternId('C1009');
         $clusterStatement2->setMeta((new StatementMeta())->setStatement($clusterStatement2));
-        $clusterStatement2->setPhase('participation');
         $clusterStatement2->setProcedure($testProcedure);
         $clusterStatement2->setPublicVerified(Statement::PUBLICATION_PENDING);
         $clusterStatement2->setText('Ich bin der Text für das cluster #2');
@@ -569,7 +554,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement12->setOriginal($this->getReference('testStatementOtherOrga'));
         $statement12->setParagraph($testParagraphVersion);
         $statement12->setParent($this->getReference('testStatementOtherOrga'));
-        $statement12->setPhase('participation');
         $statement12->setProcedure($testProcedure);
         $statement12->setPublicVerified(Statement::PUBLICATION_APPROVED);
         $statement12->setSubmit(new DateTime());
@@ -591,7 +575,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement13->setOriginal($this->getReference('testStatementOtherOrga'));
         $statement13->setParagraph($testParagraphVersion);
         $statement13->setParent($this->getReference('testStatementOtherOrga'));
-        $statement13->setPhase('participation');
         $statement13->setProcedure($testProcedure);
         $statement13->setPublicVerified(Statement::PUBLICATION_APPROVED);
         $statement13->setSubmit(new DateTime());
@@ -610,7 +593,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement14->setOrganisation($this->getReference('testOrgaPB'));
         $statement14->setOriginal($statementOrig);
         $statement14->setParent($statementOrig);
-        $statement14->setPhase('participation');
         $statement14->setProcedure($testProcedure);
         $statement14->setPublicVerified(Statement::PUBLICATION_APPROVED);
         $statement14->setSubmit(new DateTime());
@@ -631,7 +613,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement15->setOriginal($statementOrig);
         $statement15->setParagraph($testParagraphVersion);
         $statement15->setParent($statement14);
-        $statement15->setPhase('participation');
         $statement15->setProcedure($testProcedure);
         $statement15->setPublicVerified(Statement::PUBLICATION_APPROVED);
         $statement15->setSubmit(new DateTime());
@@ -652,7 +633,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement16->setOriginal($statementOrig);
         $statement16->setParagraph($testParagraphVersion);
         $statement16->setParent($statement14);
-        $statement16->setPhase('participation');
         $statement16->setProcedure($testProcedure);
         $statement16->setPublicVerified(Statement::PUBLICATION_APPROVED);
         $statement16->setSubmit(new DateTime());
@@ -670,7 +650,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $originalStatement17->setGdprConsent(new GdprConsent());
         $originalStatement17->setMeta((new StatementMeta())->setStatement($originalStatement17));
         $originalStatement17->setOrganisation($this->getReference('testOrgaPB'));
-        $originalStatement17->setPhase('participation');
         $originalStatement17->setProcedure($testProcedure);
         $originalStatement17->setPublicVerified(Statement::PUBLICATION_PENDING);
         $originalStatement17->setSubmit(new DateTime());
@@ -689,7 +668,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement17->setOrganisation($this->getReference('testOrgaPB'));
         $statement17->setOriginal($originalStatement17);
         $statement17->setParent($originalStatement17);
-        $statement17->setPhase('participation');
         $statement17->setProcedure($testProcedure);
         $statement17->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statement17->setSubmit(new DateTime());
@@ -707,7 +685,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $originalStatement18->setGdprConsent(new GdprConsent());
         $originalStatement18->setMeta((new StatementMeta())->setStatement($originalStatement18));
         $originalStatement18->setOrganisation($this->getReference('testOrgaPB'));
-        $originalStatement18->setPhase('participation');
         $originalStatement18->setProcedure($testProcedure);
         $originalStatement18->setPublicVerified(Statement::PUBLICATION_PENDING);
         $originalStatement18->setSubmit(new DateTime());
@@ -726,7 +703,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement18->setOrganisation($this->getReference('testOrgaPB'));
         $statement18->setOriginal($originalStatement18);
         $statement18->setParent($originalStatement18);
-        $statement18->setPhase('participation');
         $statement18->setProcedure($testProcedure);
         $statement18->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statement18->setSubmit(new DateTime());
@@ -744,7 +720,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $originalStatement19->setMeta((new StatementMeta())->setStatement($originalStatement19));
         $originalStatement19->setOrganisation($this->getReference('testOrgaPB'));
         $originalStatement19->setParagraph($testParagraphVersion);
-        $originalStatement19->setPhase('participation');
         $originalStatement19->setProcedure($testProcedure);
         $originalStatement19->setPublicVerified(Statement::PUBLICATION_PENDING);
         $originalStatement19->setSubmit(new DateTime());
@@ -763,7 +738,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement19->setOriginal($originalStatement19);
         $statement19->setParagraph($testParagraphVersion);
         $statement19->setParent($originalStatement19);
-        $statement19->setPhase('participation');
         $statement19->setProcedure($testProcedure);
         $statement19->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statement19->setSubmit(new DateTime());
@@ -781,7 +755,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement20->setOrganisation($this->getReference('testOrgaPB'));
         $statement20->setOriginal($statementOrig);
         $statement20->setParent($statementOrig);
-        $statement20->setPhase('participation');
         $statement20->setProcedure($testProcedure);
         $statement20->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statement20->setSubmit(new DateTime());
@@ -832,7 +805,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $originalStatement21->setMeta((new StatementMeta())->setStatement($originalStatement21));
         $originalStatement21->setOrganisation($this->getReference('testOrgaPB'));
         $originalStatement21->setParent($statement2);
-        $originalStatement21->setPhase('participation');
         $originalStatement21->setProcedure($testProcedure);
         $originalStatement21->setPublicVerified(Statement::PUBLICATION_PENDING);
         $originalStatement21->setSubmit(new DateTime());
@@ -849,7 +821,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement21->setOrganisation($this->getReference('testOrgaPB'));
         $statement21->setOriginal($originalStatement21);
         $statement21->setParent($originalStatement21);
-        $statement21->setPhase('participation');
         $statement21->setProcedure($testProcedure);
         $statement21->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statement21->setSubmit(new DateTime());
@@ -867,7 +838,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement22->setOriginal($this->getReference('testStatementOtherOrga'));
         $statement22->setParagraph($testParagraphVersion);
         $statement22->setParent($this->getReference('testStatementOtherOrga'));
-        $statement22->setPhase('participation');
         $statement22->setProcedure($testProcedure);
         $statement22->setPublicVerified(Statement::PUBLICATION_APPROVED);
         $statement22->setSubmit(new DateTime());
@@ -888,7 +858,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statementWithFile->setOriginal($this->getReference('testStatementOtherOrga'));
         $statementWithFile->setParagraph($testParagraphVersion);
         $statementWithFile->setParent($this->getReference('testStatementOtherOrga'));
-        $statementWithFile->setPhase('participation');
         $statementWithFile->setProcedure($testProcedure);
         $statementWithFile->setPublicVerified(Statement::PUBLICATION_APPROVED);
         $statementWithFile->setSubmit(new DateTime());
@@ -920,7 +889,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $clusterStatement3->setCluster([$statement22]);
         $clusterStatement3->setExternId('C1013');
         $clusterStatement3->setMeta((new StatementMeta())->setStatement($clusterStatement3));
-        $clusterStatement3->setPhase('participation');
         $clusterStatement3->setProcedure($testProcedure);
         $clusterStatement3->setPublicVerified(Statement::PUBLICATION_PENDING);
         $clusterStatement3->setText('Ich bin der Text für das cluster #3');
@@ -933,7 +901,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statementTestTagsBulkEdit1->setProcedure($testProcedure);
         $statementTestTagsBulkEdit1->setOriginal($statementOrig);
         $statementTestTagsBulkEdit1->setExternId('stmBulkEdit1');
-        $statementTestTagsBulkEdit1->setPhase('participation');
         $statementTestTagsBulkEdit1->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statementTestTagsBulkEdit1->setText('Lorem ipsum');
         $statementTestTagsBulkEdit1->setPhaseDefinition($phaseDefinition);
@@ -950,7 +917,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statementOrigWithToken->setMeta((new StatementMeta())->setStatement($statementOrigWithToken));
         $statementOrigWithToken->setOrganisation($testOrga);
         $statementOrigWithToken->setParagraph($testParagraphVersion);
-        $statementOrigWithToken->setPhase('participation');
         $statementOrigWithToken->setProcedure($testProcedure2);
         $statementOrigWithToken->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statementOrigWithToken->setSubmitType('system');
@@ -974,7 +940,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statementWithToken->setOriginal($statementOrigWithToken);
         $statementWithToken->setParent($statementOrigWithToken);
         $statementWithToken->setParagraph($testParagraphVersion);
-        $statementWithToken->setPhase('participation');
         $statementWithToken->setProcedure($testProcedure2);
         $statementWithToken->setPublicVerified(Statement::PUBLICATION_PENDING);
         $statementWithToken->setRepresentationCheck(true);
@@ -1032,7 +997,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $clusterStatement22OfProcedureToDelete->setOriginal($this->getReference('testStatementOtherOrga'));
         $clusterStatement22OfProcedureToDelete->setParagraph($testParagraphVersion);
         $clusterStatement22OfProcedureToDelete->setParent($this->getReference('testStatementOtherOrga'));
-        $clusterStatement22OfProcedureToDelete->setPhase('participation');
         $clusterStatement22OfProcedureToDelete->setProcedure($procedureToDelete);
         $clusterStatement22OfProcedureToDelete->setPublicVerified(Statement::PUBLICATION_APPROVED);
         $clusterStatement22OfProcedureToDelete->setSubmit(new DateTime());
@@ -1048,7 +1012,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $clusterStatement11OfProcedureToDelete->setExternId('2554');
         $clusterStatement11OfProcedureToDelete->setMeta((new StatementMeta())->setStatement($clusterStatement11OfProcedureToDelete));
         $clusterStatement11OfProcedureToDelete->setParagraph($testParagraphVersion);
-        $clusterStatement11OfProcedureToDelete->setPhase('participation');
         $clusterStatement11OfProcedureToDelete->setProcedure($procedureToDelete);
         $clusterStatement11OfProcedureToDelete->setPublicVerified(Statement::PUBLICATION_PENDING);
         $clusterStatement11OfProcedureToDelete->setText('Ich bin der Text für das Statement 10 ');
@@ -1062,7 +1025,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $clusterStatement1OfProcedureToDelete->setClusterStatement(true);
         $clusterStatement1OfProcedureToDelete->setExternId('G1056');
         $clusterStatement1OfProcedureToDelete->setMeta((new StatementMeta())->setStatement($clusterStatement1OfProcedureToDelete));
-        $clusterStatement1OfProcedureToDelete->setPhase('participation');
         $clusterStatement1OfProcedureToDelete->setProcedure($procedureToDelete);
         $clusterStatement1OfProcedureToDelete->setPublicVerified(Statement::PUBLICATION_PENDING);
         $clusterStatement1OfProcedureToDelete->setText('Ich bin der Text für das cluster #1056');
@@ -1078,7 +1040,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $emptyOriginalStatementOfProcedureToDelete->setOriginal(null);
         $emptyOriginalStatementOfProcedureToDelete->setParagraph($testParagraphVersion);
         $emptyOriginalStatementOfProcedureToDelete->setParent(null);
-        $emptyOriginalStatementOfProcedureToDelete->setPhase('participation');
         $emptyOriginalStatementOfProcedureToDelete->setProcedure($procedureToDelete);
         $emptyOriginalStatementOfProcedureToDelete->setPublicVerified(Statement::PUBLICATION_PENDING);
         $emptyOriginalStatementOfProcedureToDelete->setText('Ich bin der Text für das Statement 2444');
@@ -1093,7 +1054,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $originalStatement2OfProcedureToDelete->setOriginal(null);
         $originalStatement2OfProcedureToDelete->setParagraph($testParagraphVersion);
         $originalStatement2OfProcedureToDelete->setParent(null);
-        $originalStatement2OfProcedureToDelete->setPhase('participation');
         $originalStatement2OfProcedureToDelete->setProcedure($procedureToDelete);
         $originalStatement2OfProcedureToDelete->setPublicVerified(Statement::PUBLICATION_PENDING);
         $originalStatement2OfProcedureToDelete->setText('Ich bin der Text für das Statement 2445');
@@ -1109,7 +1069,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $normalStatement->setOriginal($originalStatement2OfProcedureToDelete);
         $normalStatement->setParagraph($testParagraphVersion);
         $normalStatement->setParent($originalStatement2OfProcedureToDelete);
-        $normalStatement->setPhase('participation');
         $normalStatement->setProcedure($procedureToDelete);
         $normalStatement->setPublicVerified(Statement::PUBLICATION_PENDING);
         $normalStatement->setText('Ich bin der Text für das Statement 25665');
@@ -1123,7 +1082,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $normalStatement2->setOriginal($originalStatement2OfProcedureToDelete);
         $normalStatement2->setParagraph($testParagraphVersion);
         $normalStatement2->setParent($originalStatement2OfProcedureToDelete);
-        $normalStatement2->setPhase('participation');
         $normalStatement2->setProcedure($procedureToDelete);
         $normalStatement2->setPublicVerified(Statement::PUBLICATION_PENDING);
         $normalStatement2->setText('Ich bin der Text für das Statement 3456');
@@ -1141,7 +1099,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $copyOfnNormalStatement2->setOriginal($originalStatement2OfProcedureToDelete);
         $copyOfnNormalStatement2->setParagraph($testParagraphVersion);
         $copyOfnNormalStatement2->setParent($normalStatement2);
-        $copyOfnNormalStatement2->setPhase('participation');
         $copyOfnNormalStatement2->setProcedure($procedureToDelete);
         $copyOfnNormalStatement2->setPublicVerified(Statement::PUBLICATION_PENDING);
         $copyOfnNormalStatement2->setText('Ich bin der Text für das kopierte Statement 34562');
@@ -1157,7 +1114,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $placeholderStatement->setOriginal($originalStatement2OfProcedureToDelete);
         $placeholderStatement->setParagraph($testParagraphVersion);
         $placeholderStatement->setParent($normalStatement2);
-        $placeholderStatement->setPhase('participation');
         $placeholderStatement->setPlaceholderStatement(null);
         $placeholderStatement->setProcedure($procedureToDelete);
         $placeholderStatement->setPublicVerified(Statement::PUBLICATION_PENDING);
@@ -1174,7 +1130,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $placeholderStatementInAnotherProcedure->setOriginal($this->getReference('testStatementOtherOrga'));
         $placeholderStatementInAnotherProcedure->setParagraph($testParagraphVersion);
         $placeholderStatementInAnotherProcedure->setParent($this->getReference('testStatementOtherOrga'));
-        $placeholderStatementInAnotherProcedure->setPhase('participation');
         $placeholderStatementInAnotherProcedure->setPlaceholderStatement(null);
         $placeholderStatementInAnotherProcedure->setProcedure($this->getReference(LoadProcedureData::TESTPROCEDURE));
         $placeholderStatementInAnotherProcedure->setPublicVerified(Statement::PUBLICATION_PENDING);
@@ -1191,7 +1146,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $movedStatementInAnotherProcedure->setOriginal($originalStatement2OfProcedureToDelete);
         $movedStatementInAnotherProcedure->setParagraph($testParagraphVersion);
         $movedStatementInAnotherProcedure->setParent($normalStatement2);
-        $movedStatementInAnotherProcedure->setPhase('participation');
         $movedStatementInAnotherProcedure->setPlaceholderStatement($placeholderStatement);
         $movedStatementInAnotherProcedure->setProcedure($this->getReference(LoadProcedureData::TESTPROCEDURE));
         $movedStatementInAnotherProcedure->setPublicVerified(Statement::PUBLICATION_PENDING);
@@ -1211,7 +1165,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $movedStatementInThisProcedure->setOriginal($originalStatement2OfProcedureToDelete);
         $movedStatementInThisProcedure->setParagraph($testParagraphVersion);
         $movedStatementInThisProcedure->setParent($normalStatement2);
-        $movedStatementInThisProcedure->setPhase('participation');
         $movedStatementInThisProcedure->setPlaceholderStatement($placeholderStatementInAnotherProcedure);
         $movedStatementInThisProcedure->setProcedure($procedureToDelete);
         $movedStatementInThisProcedure->setPublicVerified(Statement::PUBLICATION_PENDING);
@@ -1256,7 +1209,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement23WithPolygonAndMap->setOriginal($this->getReference('testStatementOtherOrga'));
         $statement23WithPolygonAndMap->setParagraph($paragraphVersion);
         $statement23WithPolygonAndMap->setParent($this->getReference('testStatementOtherOrga'));
-        $statement23WithPolygonAndMap->setPhase('participation');
         $statement23WithPolygonAndMap->setProcedure($procedure);
         $statement23WithPolygonAndMap->setPublicVerified(Statement::PUBLICATION_APPROVED);
         $statement23WithPolygonAndMap->setSubmit(new DateTime());
@@ -1277,7 +1229,6 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
     {
         $statement = new Statement();
         $statement->setExternId('9876')
-        ->setPhase('participation')
         ->setProcedure($this->getReference(LoadProcedureData::TESTPROCEDURE_IN_PUBLIC_PARTICIPATION_PHASE))
         ->setPublicVerified(Statement::PUBLICATION_PENDING)
         ->setText('bla');

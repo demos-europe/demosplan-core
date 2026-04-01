@@ -647,7 +647,6 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $statement->setOrganisation($this->getReference('testOrgaInvitableInstitution'));
         $statement->setElement($this->getReference('testSingleDocumentElement'));
         $statement->setParagraph($this->getReference('testParagraphVersion'));
-        $statement->setPhase($this->existingInternalPhasesWrite[0] ?? 'participation');
         $statement->setMapFile('Chrysanthemum.jpg:fefcd2bc-51a6-46c0-96a1-fbe62c9dc64c:879394:image/pjpeg');
         $statement->setFile('toDeleteFile');
         $statement->addCounty($locationArray['county']);
