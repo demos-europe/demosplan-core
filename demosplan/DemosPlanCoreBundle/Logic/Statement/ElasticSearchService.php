@@ -511,7 +511,12 @@ class ElasticSearchService extends CoreService
         $resultSet->setFilterSet($filterSet);
         $resultSet->setSortingSet($sortingSet);
         $pager = $elasticsearchResult->getPager();
-        $resultSet->setTotal(null !== $pager ? $pager->getNbResults() : count($elasticsearchResult->getHits()['hits'] ?? []));
+        if (null !== $pager) {
+            $resultSet->setTotal($pager->getNbResults());
+        } else {
+            $hits = $elasticsearchResult->getHits()['hits'] ?? [];
+            $resultSet->setTotal(count($hits));
+        }
         $resultSet->setSearchFields($elasticsearchResult->getSearchFields());
         $resultSet->setSearch($search ?? '');
         $resultSet->setPager($pager);
