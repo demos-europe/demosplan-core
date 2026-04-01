@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedurePhaseDefinitionResourceConfigBuilder;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 
@@ -107,7 +108,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType
         $configBuilder->closingPhase
             ->setReadableByPath(DefaultField::YES)
             ->setFilterable()
-            ->addPathCreationBehavior();
+            ->addPathCreationBehavior(OptionalField::YES);
 
         $configBuilder->orderInAudience
             ->setReadableByPath(DefaultField::YES)
