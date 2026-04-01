@@ -1599,7 +1599,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->pId;
     }
 
-
     public function getPhaseDefinition(): ProcedurePhaseDefinitionInterface
     {
         return $this->phaseDefinition;
