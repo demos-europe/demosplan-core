@@ -48,9 +48,8 @@ class StatementFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'anonymous'           => false,
-            'clusterStatement'    => false,
-            'countyNotified'      => false,
+            'anonymous'      => false,
+            'countyNotified' => false,
             'created'             => self::faker()->dateTime(),
             'deleted'             => false,
             'deletedDate'         => self::faker()->dateTime(),
