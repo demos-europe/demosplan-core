@@ -36,8 +36,8 @@ class Version20260401000000 extends AbstractMigration
         $this->addSql("UPDATE _statement SET entity_type = 'StatementGroup' WHERE cluster_statement = 1 AND entity_type = 'Statement'");
 
         // Add group-specific nullable columns (no default data needed — existing rows stay NULL)
-        $this->addSql("ALTER TABLE _statement ADD group_name VARCHAR(200) DEFAULT NULL");
-        $this->addSql("ALTER TABLE _statement ADD group_representative_id CHAR(36) DEFAULT NULL");
+        $this->addSql('ALTER TABLE _statement ADD group_name VARCHAR(200) DEFAULT NULL');
+        $this->addSql('ALTER TABLE _statement ADD group_representative_id CHAR(36) DEFAULT NULL');
         $this->addSql("ALTER TABLE _statement ADD group_created_at DATETIME DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)'");
 
         // FK from group_representative_id back into _statement, with an index for join performance

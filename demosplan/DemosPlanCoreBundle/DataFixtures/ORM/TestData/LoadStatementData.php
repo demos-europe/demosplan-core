@@ -304,7 +304,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
             new ArrayCollection([
                 $this->getReference('testProcedurePerson1'),
                 $this->getReference('testProcedurePerson2'),
-                ]
+            ]
             )
         );
 
