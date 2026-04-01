@@ -28,20 +28,22 @@
           @search="term => updateSearchQuery(term)"
           @reset="handleResetSearch"
         />
-        <div class="ml-2 space-x-1 space-x-reverse">
+        <div class="ml-2 space-x-2">
           <filter-flyout
             v-for="(filter, idx) in Object.values(filters)"
             ref="filterFlyout"
             :key="`filter_${filter.labelTranslationKey}`"
             :additional-query-params="{ searchPhrase: searchTerm }"
             :category="{ id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }"
-            class="inline-block first:mr-1"
+            class="inline-block"
             :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
             align="left"
             :groups-object="filter.groupsObject"
+            :hint="filter.labelTranslationKey!=='tags'"
             :initial-query-ids="queryIds"
             :items-object="filter.itemsObject"
             :operator="filter.comparisonOperator"
+            :member-of="groupName(filter.labelTranslationKey)"
             :path="filter.rootPath"
             :show-count="{
               groupedOptions: true,
@@ -244,8 +246,8 @@
               }"
             />
             <span
-              v-else
               v-for="tag in getTagsBySegment(rowData.id)"
+              v-else
               :key="tag.id"
               class="rounded-md color--grey-dark bg-color--grey-light-2 px-1 py-0.5 mx-0.5 my-1 inline-block"
             >
@@ -264,20 +266,6 @@
           <template v-slot:flyout="rowData">
             <dp-flyout data-cy="segmentsList:flyoutEditMenu">
               <a
-                class="block leading-[2] whitespace-nowrap"
-                :href="Routing.generate('dplan_statement_segments_list', {
-                  action: 'editText',
-                  procedureId: procedureId,
-                  segment: rowData.id,
-                  statementId: rowData.relationships.parentStatement.data.id
-                })"
-                data-cy="segmentsList:edit"
-                rel="noopener"
-                @click="storeNavigationContextInLocalStorage"
-              >
-                {{ Translator.trans('edit') }}
-              </a>
-              <a
                 v-if="hasPermission('feature_segment_recommendation_edit')"
                 class="block leading-[2] whitespace-nowrap"
                 :href="Routing.generate('dplan_statement_segments_list', {
@@ -290,6 +278,20 @@
                 @click="storeNavigationContextInLocalStorage"
               >
                 {{ Translator.trans('segments.recommendations.create') }}
+              </a>
+              <a
+                class="block leading-[2] whitespace-nowrap"
+                :href="Routing.generate('dplan_statement_segments_list', {
+                  action: 'editText',
+                  procedureId: procedureId,
+                  segment: rowData.id,
+                  statementId: rowData.relationships.parentStatement.data.id
+                })"
+                data-cy="segmentsList:edit"
+                rel="noopener"
+                @click="storeNavigationContextInLocalStorage"
+              >
+                {{ Translator.trans('details') }}
               </a>
               <!-- Version history view -->
               <button
@@ -574,13 +576,15 @@ export default {
     queryIds () {
       let ids = []
       if (Array.isArray(this.appliedFilterQuery) === false && Object.values(this.appliedFilterQuery).length > 0) {
-        ids = Object.values(this.appliedFilterQuery).map(el => {
-          if (!el.condition.value) {
-            return 'unassigned'
-          }
+        ids = Object.values(this.appliedFilterQuery)
+          .filter(el => el.condition) // Remove group objects
+          .map(el => {
+            if (!el.condition.value) {
+              return 'unassigned'
+            }
 
-          return el.condition.value
-        })
+            return el.condition.value
+          })
       }
       return ids
     },
@@ -739,9 +743,6 @@ export default {
       }
       this.isLoading = true
       this.fetchSegments(payload)
-        .catch(() => {
-          dplan.notify.notify('error', Translator.trans('error.generic'))
-        })
         .then((data) => {
           /**
            * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
@@ -757,6 +758,14 @@ export default {
             filter,
             search: payload.search,
           })
+        })
+        .catch(() => {
+          if (Object.keys(this.getFilterQuery).length > 0 || this.searchTerm !== '') {
+            this.resetQuery()
+            dplan.notify.notify('warning', Translator.trans('filter.reset.failed'))
+          } else {
+            dplan.notify.notify('error', Translator.trans('error.generic'))
+          }
         })
         .finally(() => {
           this.isLoading = false
@@ -830,6 +839,15 @@ export default {
       return null
     },
 
+
+    groupName (filterType) {
+      if (filterType === 'tags') {
+        return null
+      }
+      // Replace '.' in workflow.places because it is forbidden in group names
+      return `${filterType.replaceAll('.', '-')}_group`
+    },
+
     handleBulkEdit () {
       this.storeToggledSegments()
       // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
@@ -870,13 +888,14 @@ export default {
      * @param params {Object}
      * @param params.additionalQueryParams {Object}
      * @param params.category {Object} id, label
+     * @param params.currentQuery {Array}
      * @param params.filter {Object}
      * @param params.isInitialWithQuery {Boolean}
      * @param params.path {String}
      * @param params.searchPhrase {String}
      */
     sendFilterOptionsRequest (params) {
-      const { additionalQueryParams, category, filter, isInitialWithQuery, path } = params
+      const { additionalQueryParams, category, currentQuery, filter, isInitialWithQuery, path } = params
       const requestParams = {
         ...additionalQueryParams,
         filter: {
@@ -920,14 +939,14 @@ export default {
 
                   if (option) {
                     const { attributes, id } = option
-                    const { count, description, label, selected } = attributes
+                    const { count, description, label } = attributes
 
                     return {
                       count,
                       description,
                       id,
                       label,
-                      selected,
+                      selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
                     }
                   }
 
@@ -950,14 +969,14 @@ export default {
               // Ungrouped filter options
               if (resourceIsFilterOption && filterOptionBelongsToFilterType) {
                 const { id, attributes } = resource
-                const { count, description, label, selected } = attributes
+                const { count, description, label } = attributes
 
                 ungroupedOptions.push({
                   id,
                   count,
                   description,
                   label,
-                  selected,
+                  selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
                   ungrouped: true,
                 })
               }
@@ -970,7 +989,7 @@ export default {
                 count: result.data[0].attributes.missingResourcesSum,
                 label: Translator.trans('not.assigned'),
                 ungrouped: true,
-                selected: result.meta.unassigned_selected,
+                selected: currentQuery?.length ? currentQuery.includes('unassigned') : result.meta.unassigned_selected,
               })
             }
 
@@ -1110,13 +1129,19 @@ export default {
 
     if (Array.isArray(this.initialFilter) === false && Object.keys(this.initialFilter).length) {
       Object.values(this.initialFilter).forEach(filter => {
+        if (!filter.condition) {
+          return
+        }
+
         const query = {}
         query[filter.condition.value] = filter
         this.updateFilterQuery(query)
       })
     }
     this.initPagination()
-    this.getCustomFields()
+    if (hasPermission('field_segments_custom_fields')) {
+      this.getCustomFields()
+    }
     this.applyQuery(this.pagination.currentPage)
 
     this.fetchPlaces()
