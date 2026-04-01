@@ -53,7 +53,6 @@ class UserPasswordHistory
 
     public function __construct(User $user, string $hashedPassword)
     {
-        $this->id = \Ramsey\Uuid\Uuid::uuid4()->toString();
         $this->user = $user;
         $this->hashedPassword = $hashedPassword;
     }
