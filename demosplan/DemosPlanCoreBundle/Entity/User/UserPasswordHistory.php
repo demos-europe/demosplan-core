@@ -55,6 +55,7 @@ class UserPasswordHistory
         $this->user = $user;
         $this->hashedPassword = $hashedPassword;
     }
+
     public function getId(): string
     {
         return $this->id;
