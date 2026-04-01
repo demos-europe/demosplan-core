@@ -75,6 +75,7 @@ class UserService implements UserServiceInterface
      * The hash function that is being used to generate password hashes.
      */
     private const PW_HASH = 'sha512';
+    private const PASSWORD_HISTORY_MAX_ENTRIES = 5;
 
     /**
      * @var ContentService
@@ -1021,7 +1022,7 @@ class UserService implements UserServiceInterface
             $newPasswordHash = $this->userPasswordHasher->hashPassword($user, $newPassword);
             $em = $this->doctrine->getManager();
             $em->persist(new UserPasswordHistory($user, $newPasswordHash));
-            $this->userPasswordHistoryRepository->deleteExceedingEntries($user, 5);
+            $this->userPasswordHistoryRepository->deleteExceedingEntries($user, self::PASSWORD_HISTORY_MAX_ENTRIES);
 
             $user->setPassword($newPasswordHash);
             $user->setAlternativeLoginPassword($newPasswordHash);
