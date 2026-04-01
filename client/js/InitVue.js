@@ -25,6 +25,7 @@ import { bootstrap } from '@DpJs/bootstrap'
 import { configureCompat } from '@vue/compat'
 import { createApp } from 'vue'
 import DPVueCorePlugin from '@DpJs/plugins/DPVueCore'
+import GlobalConfirmDialog from '@DpJs/components/shared/GlobalConfirmDialog'
 import HamburgerMenuButton from '@DpJs/components/button/HamburgerMenuButton'
 import { initStore } from '@DpJs/store/core/initStore'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'
@@ -91,6 +92,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     // Register components that are used globally
     app.component('BackToTopButton', BackToTopButton)
     app.component('DpObscure', DpObscure)
+    app.component('GlobalConfirmDialog', GlobalConfirmDialog)
     app.component('NotifyContainer', NotifyContainer)
     app.component('DpAccordion', DpAccordion)
     app.component('DpFlyout', DpFlyout)

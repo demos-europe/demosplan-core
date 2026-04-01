@@ -471,6 +471,7 @@ import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import unsavedChangesGuardMixin from '@DpJs/components/shared/mixins/unsavedChangesGuardMixin'
 
 export default {
   name: 'StatementSegment',
@@ -505,7 +506,7 @@ export default {
     tooltip: Tooltip,
   },
 
-  mixins: [prefixClassMixin],
+  mixins: [prefixClassMixin, unsavedChangesGuardMixin],
 
   props: {
     currentUserFirstName: {
@@ -643,7 +644,11 @@ export default {
       return this.assignee.id === this.currentUserId
     },
 
-    isEditing () {
+    /**
+     * Required by unsavedChangesGuardMixin
+     * Returns true if there are unsaved changes
+     */
+    hasUnsavedChanges () {
       return this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation !==
         this.segment.attributes.recommendation
     },
@@ -1244,12 +1249,5 @@ export default {
         })
       })
   },
-
-  beforeUnmount () {
-    console.log('Component is being unmounted')
-
-    if (this.isEditing) {
-    }
-  }
 }
 </script>

@@ -191,6 +191,9 @@
                 </notify-container>
             {% endblock notify_container %}
 
+            {# Global confirm dialog (can be overridden in project-specific templates) #}
+            {% block global_confirm_dialog %}{% endblock global_confirm_dialog %}
+
         </div>{# end #app #}
 
         {# Exposes global variables to window #}
