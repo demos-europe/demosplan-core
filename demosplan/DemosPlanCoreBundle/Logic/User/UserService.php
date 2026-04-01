@@ -31,6 +31,7 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateGwIdException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
+use demosplan\DemosPlanCoreBundle\Exception\PasswordAlreadyUsedException;
 use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
@@ -1009,12 +1010,12 @@ class UserService implements UserServiceInterface
                 $tempUser = clone $user;
                 $tempUser->setPassword($entry->getHashedPassword());
                 if ($this->userPasswordHasher->isPasswordValid($tempUser, $newPassword)) {
-                    throw new InvalidArgumentException('This password has already been used. Please choose a different one.');
+                    throw new PasswordAlreadyUsedException('This password has already been used. Please choose a different one.');
                 }
             }
             // check new password against the current password
             if (null !== $user->getPassword() && $this->userPasswordHasher->isPasswordValid($user, $newPassword)) {
-                throw new InvalidArgumentException('This password has already been used. Please choose a different one.');
+                throw new PasswordAlreadyUsedException('This password has already been used. Please choose a different one.');
             }
 
             $newPasswordHash = $this->userPasswordHasher->hashPassword($user, $newPassword);

@@ -44,6 +44,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidUserDataException;
 use demosplan\DemosPlanCoreBundle\Exception\LoginNameInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\PasswordAlreadyUsedException;
 use demosplan\DemosPlanCoreBundle\Exception\ReservedSystemNameException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
 use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
@@ -1509,7 +1510,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         try {
             $this->userService->changePassword($userId, $oldPassword, $newPassword);
             $this->getMessageBag()->add('confirm', 'confirm.password.changed');
-        } catch (InvalidArgumentException $e) {
+        } catch (PasswordAlreadyUsedException $e) {
             $this->logger->warning('User password change rejected: password already used', [$e]);
             $this->getMessageBag()->add('error', 'error.password.already.used');
         } catch (Exception $e) {
