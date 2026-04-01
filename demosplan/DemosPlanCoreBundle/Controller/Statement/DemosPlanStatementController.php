@@ -2511,8 +2511,7 @@ class DemosPlanStatementController extends BaseController
         path: '/verfahren/{procedureId}/stellungnahmen/beteilugengsimport',
         name: 'DemosPlan_statement_participation_import',
         options: ['expose' => true],
-        methods: [Request::METHOD_POST])
-    ]
+        methods: [Request::METHOD_POST])]
     public function importParticipationStatements(
         FileService $fileService,
         ProcedureService $procedureService,
