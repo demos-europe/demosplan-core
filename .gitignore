@@ -29,6 +29,7 @@ phpstan.neon
 logs
 /docker-compose.override.yml
 plans
+tasks
 
 # Core project
 /projects/core/app/cache/*

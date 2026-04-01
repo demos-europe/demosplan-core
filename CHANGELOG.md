@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Added
+- Make custom fields available in assessment table, original statement list, my releases list, and public statement dialogs
+
 ## v4.32.0 (2026-03-25)
 ### Added
 - Export original statements as ZIP file including attachments for archiving
@@ -180,6 +183,11 @@
 
 ### Features
 - Add possibility to delete custom fields and their options
+
+## v4.15.4 (2026-03-06)
+- Fix statement vote on mysql8+, immediately show vote
+- Rate limit new statements only for anonymous users
+- Set TUS resumable upload cache TTL to a week by default
 
 ## v4.15.3 (2025-12-02)
 
