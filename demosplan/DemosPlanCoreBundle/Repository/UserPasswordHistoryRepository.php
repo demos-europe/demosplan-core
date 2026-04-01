@@ -34,10 +34,8 @@ class UserPasswordHistoryRepository extends CoreRepository
             ['user' => $user],
             ['createdDate' => 'ASC']  // oldest first
         );
-
-        $countToDelete = count($entries) - $maxEntries;
-        for ($i = 0; $i < $countToDelete; ++$i) {
-            $this->getEntityManager()->remove($entries[$i]);
+        foreach (array_slice($entries, $maxEntries) as $entry) {
+            $this->getEntityManager()->remove($entry);
         }
     }
 }
