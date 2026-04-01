@@ -74,7 +74,7 @@ use UnexpectedValueException;
  *
  * @ORM\DiscriminatorColumn(name="entity_type", type="string")
  *
- * @ORM\DiscriminatorMap({"Statement"="Statement", "Segment" = "demosplan\DemosPlanCoreBundle\Entity\Statement\Segment"})
+ * @ORM\DiscriminatorMap({"Statement"="Statement", "Segment" = "demosplan\DemosPlanCoreBundle\Entity\Statement\Segment", "StatementGroup" = "demosplan\DemosPlanCoreBundle\Entity\Statement\StatementGroup"})
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementRepository")
  *
@@ -3510,6 +3510,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         }
     }
 
+    /**
+     * @deprecated Use instanceof StatementGroup instead
+     */
     public function isClusterStatement(): bool
     {
         return $this->clusterStatement;
