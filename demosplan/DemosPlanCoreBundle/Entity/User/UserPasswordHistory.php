@@ -15,7 +15,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\UserPasswordHistoryRepository")
  */
 class UserPasswordHistory
