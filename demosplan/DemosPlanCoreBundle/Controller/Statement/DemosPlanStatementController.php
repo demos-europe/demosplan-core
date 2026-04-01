@@ -615,9 +615,7 @@ class DemosPlanStatementController extends BaseController
         // todo: should be able do in twig by using getProcedurePhase()?!
         $outputResult->setStatementList($this->replacePhaseByPhaseNameForDraftStatements($outputResult->getStatementList()));
 
-        $votedStatements = $this->replacePhaseByPhaseNameForVotedStatementList(
-            $statementHandler->determineVotedStatements($procedure)
-        );
+        $votedStatements = $statementHandler->determineVotedStatements($procedure);
 
         if ($requestPost->has('pdfExport') || $requestPost->has('pdfExportSingle')) {
             if ($requestPost->has('pdfExportSingle')) {
@@ -1864,27 +1862,6 @@ class DemosPlanStatementController extends BaseController
         }
 
         return $draftStatementList;
-    }
-
-    /**
-     * Replace phase by translated string.
-     *
-     * @param array<int, Statement> $statementList - list of statements, whose phase will be translated
-     *
-     * @return array<int, Statement> - equal to the input parameter $statementList, except of the translated phases
-     */
-    protected function replacePhaseByPhaseNameForVotedStatementList(array $statementList): array
-    {
-        // replace the phase name that is stored within the votedStatement
-        /** @var Statement $statement */
-        foreach ($statementList as $statement) {
-            $statement->setPhase($this->globalConfig->getPhaseNameWithPriorityExternal($statement->getPhase()));
-            if (Statement::INTERNAL === $statement->getPublicStatement()) {
-                $statement->setPhase($this->globalConfig->getPhaseNameWithPriorityInternal($statement->getPhase()));
-            }
-        }
-
-        return $statementList;
     }
 
     /**

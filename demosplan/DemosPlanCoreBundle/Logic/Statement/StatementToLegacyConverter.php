@@ -55,6 +55,7 @@ class StatementToLegacyConverter
             $statementArray = $this->convertStatementAttributes($statementArray, $statement->getStatementAttributes());
             $statementArray = $this->handleDocumentConversion($statementArray);
             $statementArray = $this->convertProcedure($statementArray);
+            $statementArray = $this->convertPhaseDefinition($statementArray, $statement);
             $statementArray = $this->convertOrga($statementArray);
             $statementArray = $this->convertStatementMeta($statementArray);
             $statementArray = $this->convertVotes($statementArray);
@@ -194,6 +195,13 @@ class StatementToLegacyConverter
                 );
             }
         }
+
+        return $statementArray;
+    }
+
+    private function convertPhaseDefinition(array $statementArray, Statement $statement): array
+    {
+        $statementArray['phaseDefinition'] = $this->entityHelper->toArray($statement->getPhaseDefinition());
 
         return $statementArray;
     }
