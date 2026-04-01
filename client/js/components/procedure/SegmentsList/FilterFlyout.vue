@@ -57,13 +57,10 @@
     @open="handleOpen"
   >
     <template v-slot:trigger>
-      <span :class="{ 'weight--bold' : (appliedQuery.length > 0) }">
-        {{ category.label }}
-        <span
-          v-if="appliedQuery.length > 0"
-          class="o-badge o-badge--small o-badge--transparent mb-px mr-1"
-        >
-          {{ appliedQuery.length }}
+      <span :class="[{ 'weight--bold' : (appliedQuery.length > 0) }, 'px-1']">
+        <span :class="{ 'mr-0.5': appliedQuery.length > 0 }">{{ category.label }}</span>
+        <span v-if="appliedQuery.length > 0">
+          ({{ appliedQuery.length }})
         </span>
       </span>
       <i

@@ -56,13 +56,39 @@ export default {
         this.dataTableContainerElement.classList.remove('has-scrollable-content')
       }
     },
+
+    /**
+     * Calculate and set the max height of the scroll container so it fits within the viewport.
+     * Only applies when a ref="scrollContainer" is present.
+     */
+    updateScrollContainerHeight () {
+      if (!this.$refs?.scrollContainer) {
+        return
+      }
+
+      const top = this.$refs.scrollContainer.getBoundingClientRect().top
+      /*
+       * In fullscreen, the scrollbar is position: fixed at bottom-3 (12px), with height h-3 (12px) = 24px total.
+       * Outside fullscreen, 18px reserves space for the sticky scrollbar.
+       */
+      const offset = this.isFullscreen ? 24 : 18
+      this.$refs.scrollContainer.style.maxHeight = `calc(100vh - ${top}px - ${offset}px)`
+    },
   },
 
   created () {
     /**
-     * Updating the scrollbar needs to wait for the dataTable items to load,
-     * as the table is only then present in its final width.
+     * When fullscreen mode is toggled, recalculate the scroll container height.
+     * Only has effect in components that also use fullscreenModeMixin (isFullscreen exists).
      */
+    this.$watch('isFullscreen', () => {
+      if (!this.$refs?.scrollContainer) {
+        return
+      }
+
+      this.$nextTick(() => this.updateScrollContainerHeight())
+    })
+
     this.$watch('isLoading', (isLoading) => {
       if (isLoading) {
         return
@@ -70,7 +96,13 @@ export default {
 
       this.$nextTick(() => {
         this.scrollbar = this.$refs?.scrollBar
-        this.dataTableContainerElement = this.$refs?.dataTable?.$el
+        /*
+         * Allows components to use a separate scroll wrapper (ref="scrollContainer") to enable sticky headers,
+         * while keeping the dataTable itself free of overflow that would block position: sticky.
+         */
+        this.dataTableContainerElement = this.$refs?.scrollContainer ?? this.$refs?.dataTable?.$el
+
+        this.updateScrollContainerHeight()
         this.dataTableElement = this.$refs?.dataTable?.$refs?.tableEl
 
         if (!this.dataTableContainerElement) {
