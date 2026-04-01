@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -138,7 +139,9 @@ class StatementCopier
         $newExternId = $copiedOriginalStatement->getExternId();
         $statementElementOfTargetProcedure = $this->elementService->getStatementElement($targetProcedure->getId());
 
-        $copiedStatement = new Statement();
+        $copiedStatement = $sourceStatement instanceof StatementGroup
+            ? new StatementGroup()
+            : new Statement();
 
         $copiedStatement->setPriority($sourceStatement->getPriority());
         $copiedStatement->setOriginal($copiedOriginalStatement);
