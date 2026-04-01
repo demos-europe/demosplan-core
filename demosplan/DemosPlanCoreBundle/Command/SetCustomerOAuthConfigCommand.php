@@ -13,8 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\CustomerOAuthConfig;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
+use demosplan\DemosPlanCoreBundle\Types\IdentityProviderType;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use JsonException;
@@ -33,11 +36,13 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 class SetCustomerOAuthConfigCommand extends CoreCommand
 {
     private const OPTION_CONFIG_FILE = 'config-file';
+    private const OPTION_CONFIG_JSON = 'config-json';
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly CustomerRepository $customerRepository,
         private readonly CustomerOAuthConfigRepository $configRepository,
+        private readonly OrgaRepository $orgaRepository,
         ParameterBagInterface $parameterBag,
         ?string $name = null,
     ) {
@@ -53,6 +58,13 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
             'Path to a JSON file containing per-customer OAuth2 configurations'
         );
 
+        $this->addOption(
+            self::OPTION_CONFIG_JSON,
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Inline JSON string containing per-customer OAuth2 configurations'
+        );
+
         $this->setHelp(<<<'HELP'
             Upserts per-customer Keycloak OAuth2 configuration.
 
@@ -60,7 +72,11 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
 
               <comment>%command.name% --config-file=/path/to/config.json</comment>
 
-            The JSON file must be an object keyed by customer subdomain:
+            <info>Batch mode (inline JSON):</info>
+
+              <comment>%command.name% --config-json='{"mysubdomain": {"clientId": "...", ...}}'</comment>
+
+            The JSON must be an object keyed by customer subdomain:
 
               {
                   "mysubdomain": {
@@ -79,13 +95,16 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
               }
 
             Required fields: <comment>clientId</comment>, <comment>clientSecret</comment>, <comment>authServerUrl</comment>, <comment>realm</comment>
-            Optional fields: <comment>logoutRoute</comment> (falls back to global oauth_keycloak_logout_route parameter)
+            Optional fields: <comment>logoutRoute</comment> (falls back to global oauth_keycloak_logout_route parameter),
+                             <comment>defaultOrganisationId</comment> (organisation ID for auto-provisioning new Azure users),
+                             <comment>identityProviderType</comment> ("keycloak" or "azure_entra_id", default: "keycloak"),
+                             <comment>autoProvisionUsers</comment> (true/false, default: false — requires defaultOrganisationId)
 
             <info>Interactive mode:</info>
 
               <comment>%command.name%</comment>
 
-            When called without <comment>--config-file</comment>, the command prompts for each value interactively.
+            When called without <comment>--config-file</comment> or <comment>--config-json</comment>, the command prompts for each value interactively.
             HELP);
     }
 
@@ -94,11 +113,16 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
         $io = new SymfonyStyle($input, $output);
 
         $configFilePath = $input->getOption(self::OPTION_CONFIG_FILE);
-        if (!is_string($configFilePath) || '' === $configFilePath) {
-            return $this->executeInteractive($io);
+        if (is_string($configFilePath) && '' !== $configFilePath) {
+            return $this->executeFromFile($io, $configFilePath);
         }
 
-        return $this->executeFromFile($io, $configFilePath);
+        $configJson = $input->getOption(self::OPTION_CONFIG_JSON);
+        if (is_string($configJson) && '' !== $configJson) {
+            return $this->executeFromJson($io, $configJson);
+        }
+
+        return $this->executeInteractive($io);
     }
 
     private function executeFromFile(SymfonyStyle $io, string $configFilePath): int
@@ -116,16 +140,21 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
             return Command::FAILURE;
         }
 
+        return $this->processJsonConfigs($io, $json);
+    }
+
+    private function processJsonConfigs(SymfonyStyle $io, string $json): int
+    {
         try {
             $configs = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
-            $io->error(sprintf('Invalid JSON in config file: %s', $e->getMessage()));
+            $io->error(sprintf('Invalid JSON: %s', $e->getMessage()));
 
             return Command::FAILURE;
         }
 
         if (!is_array($configs)) {
-            $io->error('Config file must contain a JSON object mapping subdomains to OAuth configs.');
+            $io->error('JSON must contain an object mapping subdomains to OAuth configs.');
 
             return Command::FAILURE;
         }
@@ -151,23 +180,25 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
         return Command::SUCCESS;
     }
 
+    private function executeFromJson(SymfonyStyle $io, string $json): int
+    {
+        return $this->processJsonConfigs($io, $json);
+    }
+
     private function executeInteractive(SymfonyStyle $io): int
     {
         $io->title('Interactive OAuth2 Configuration');
 
-        $subdomain = $io->ask('Customer subdomain');
-        if (null === $subdomain || '' === $subdomain) {
-            $io->error('Subdomain is required.');
+        $customers = $this->customerRepository->findAll();
+        $subdomains = array_map(
+            static fn ($c) => $c->getSubdomain(),
+            $customers
+        );
+        sort($subdomains);
 
-            return Command::FAILURE;
-        }
+        $subdomain = $io->choice('Customer subdomain', $subdomains);
 
         $customer = $this->customerRepository->findOneBy(['subdomain' => $subdomain]);
-        if (null === $customer) {
-            $io->error(sprintf('No customer found with subdomain "%s".', $subdomain));
-
-            return Command::FAILURE;
-        }
 
         $existingConfig = $this->configRepository->findByCustomer($customer);
 
@@ -178,22 +209,36 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
             return Command::FAILURE;
         }
 
+        $existingDefaultOrgId = $existingConfig?->getDefaultOrganisation()?->getId();
+        $existingIdpType = $existingConfig?->getIdentityProviderType()->value ?? IdentityProviderType::KEYCLOAK->value;
+        $existingAutoProvision = $existingConfig?->isAutoProvisionUsers() ? 'true' : 'false';
+
         $customerConfig = [
-            'clientId'      => $io->ask('Client ID', $existingConfig?->getKeycloakClientId()),
-            'clientSecret'  => $clientSecret,
-            'authServerUrl' => $io->ask('Auth Server URL (e.g. https://keycloak.example.com/auth)', $existingConfig?->getKeycloakAuthServerUrl()),
-            'realm'         => $io->ask('Realm', $existingConfig?->getKeycloakRealm()),
-            'logoutRoute'   => $io->ask('Logout Route (optional, press Enter to skip)', $existingConfig?->getKeycloakLogoutRoute()),
+            'clientId'               => $io->ask('Client ID', $existingConfig?->getKeycloakClientId()),
+            'clientSecret'           => $clientSecret,
+            'authServerUrl'          => $io->ask('Auth Server URL (e.g. https://keycloak.example.com/auth)', $existingConfig?->getKeycloakAuthServerUrl()),
+            'realm'                  => $io->ask('Realm', $existingConfig?->getKeycloakRealm()),
+            'logoutRoute'            => $io->ask('Logout Route (optional, press Enter to skip)', $existingConfig?->getKeycloakLogoutRoute()),
+            'defaultOrganisationId'  => $io->ask('Default Organisation ID for auto-provisioning (optional)', $existingDefaultOrgId),
+            'identityProviderType'   => $io->choice(
+                'Identity Provider Type',
+                array_column(IdentityProviderType::cases(), 'value'),
+                $existingIdpType
+            ),
+            'autoProvisionUsers'     => $io->ask('Auto-provision users (true/false)', $existingAutoProvision),
         ];
 
         $io->section('Summary');
         $io->definitionList(
             ['Subdomain' => $subdomain],
-            ['Client ID'       => $customerConfig['clientId']],
-            ['Client Secret'   => '********'],
-            ['Auth Server URL' => $customerConfig['authServerUrl']],
-            ['Realm'           => $customerConfig['realm']],
-            ['Logout Route'    => $customerConfig['logoutRoute'] ?? '(global default)'],
+            ['Client ID'              => $customerConfig['clientId']],
+            ['Client Secret'          => '********'],
+            ['Auth Server URL'        => $customerConfig['authServerUrl']],
+            ['Realm'                  => $customerConfig['realm']],
+            ['Logout Route'           => $customerConfig['logoutRoute'] ?? '(global default)'],
+            ['Default Organisation'   => $customerConfig['defaultOrganisationId'] ?? '(none)'],
+            ['Identity Provider'      => $customerConfig['identityProviderType']],
+            ['Auto-provision Users'   => $customerConfig['autoProvisionUsers']],
         );
 
         if ($io->confirm('Save this configuration?')) {
@@ -234,17 +279,8 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
      */
     private function upsertCustomerConfig(string $subdomain, array $customerConfig): void
     {
-        $requiredKeys = ['clientId', 'clientSecret', 'authServerUrl', 'realm'];
-        foreach ($requiredKeys as $key) {
-            if (!isset($customerConfig[$key]) || '' === $customerConfig[$key]) {
-                throw new InvalidArgumentException(sprintf('Missing or empty required field "%s"', $key));
-            }
-        }
-
-        if (!filter_var($customerConfig['authServerUrl'], FILTER_VALIDATE_URL)
-            || !str_starts_with($customerConfig['authServerUrl'], 'https://')) {
-            throw new InvalidArgumentException(sprintf('authServerUrl must be a valid HTTPS URL, got "%s"', $customerConfig['authServerUrl']));
-        }
+        $this->validateRequiredFields($customerConfig);
+        $this->validateAuthServerUrl($customerConfig['authServerUrl']);
 
         $customer = $this->customerRepository->findOneBy(['subdomain' => $subdomain]);
         if (null === $customer) {
@@ -263,5 +299,90 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
         $config->setKeycloakAuthServerUrl($customerConfig['authServerUrl']);
         $config->setKeycloakRealm($customerConfig['realm']);
         $config->setKeycloakLogoutRoute($customerConfig['logoutRoute'] ?? null);
+
+        $defaultOrgId = $customerConfig['defaultOrganisationId'] ?? null;
+        $this->applyDefaultOrganisation($config, $defaultOrgId);
+        $this->applyIdentityProviderType($config, $customerConfig['identityProviderType'] ?? null);
+        $this->applyAutoProvisionUsers($config, $customerConfig['autoProvisionUsers'] ?? null, $defaultOrgId);
+    }
+
+    /**
+     * @param array<string, string> $customerConfig
+     *
+     * @throws InvalidArgumentException
+     */
+    private function validateRequiredFields(array $customerConfig): void
+    {
+        $requiredKeys = ['clientId', 'clientSecret', 'authServerUrl', 'realm'];
+        foreach ($requiredKeys as $key) {
+            if (!isset($customerConfig[$key]) || '' === $customerConfig[$key]) {
+                throw new InvalidArgumentException(sprintf('Missing or empty required field "%s"', $key));
+            }
+        }
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    private function validateAuthServerUrl(string $authServerUrl): void
+    {
+        if (!filter_var($authServerUrl, FILTER_VALIDATE_URL)
+            || !str_starts_with($authServerUrl, 'https://')) {
+            throw new InvalidArgumentException(sprintf('authServerUrl must be a valid HTTPS URL, got "%s"', $authServerUrl));
+        }
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    private function applyDefaultOrganisation(CustomerOAuthConfig $config, ?string $defaultOrgId): void
+    {
+        if (is_string($defaultOrgId) && '' !== $defaultOrgId) {
+            $orga = $this->orgaRepository->get($defaultOrgId);
+            if (!$orga instanceof Orga) {
+                throw new InvalidArgumentException(sprintf('No organisation found with ID "%s"', $defaultOrgId));
+            }
+            $config->setDefaultOrganisation($orga);
+        } elseif (null === $defaultOrgId || '' === $defaultOrgId) {
+            $config->setDefaultOrganisation(null);
+        }
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    private function applyIdentityProviderType(CustomerOAuthConfig $config, ?string $idpTypeValue): void
+    {
+        if (!is_string($idpTypeValue) || '' === $idpTypeValue) {
+            return;
+        }
+
+        $idpType = IdentityProviderType::tryFrom($idpTypeValue);
+        if (null === $idpType) {
+            throw new InvalidArgumentException(sprintf('Invalid identityProviderType "%s". Valid values: %s', $idpTypeValue, implode(', ', array_column(IdentityProviderType::cases(), 'value'))));
+        }
+        $config->setIdentityProviderType($idpType);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    private function applyAutoProvisionUsers(CustomerOAuthConfig $config, string|bool|null $autoProvisionValue, ?string $defaultOrgId): void
+    {
+        if (null === $autoProvisionValue || '' === $autoProvisionValue) {
+            return;
+        }
+
+        $autoProvision = filter_var($autoProvisionValue, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        if (null === $autoProvision) {
+            throw new InvalidArgumentException(sprintf('autoProvisionUsers must be "true" or "false", got "%s"', $autoProvisionValue));
+        }
+        if ($autoProvision && (null === $defaultOrgId || '' === $defaultOrgId)) {
+            throw new InvalidArgumentException('autoProvisionUsers requires a defaultOrganisationId to be set');
+        }
+        if ($autoProvision && IdentityProviderType::AZURE_ENTRA_ID !== $config->getIdentityProviderType()) {
+            throw new InvalidArgumentException('autoProvisionUsers is only supported for azure_entra_id identity provider type');
+        }
+        $config->setAutoProvisionUsers($autoProvision);
     }
 }

@@ -57,13 +57,10 @@
     @open="handleOpen"
   >
     <template v-slot:trigger>
-      <span :class="{ 'weight--bold' : (appliedQuery.length > 0) }">
-        {{ category.label }}
-        <span
-          v-if="appliedQuery.length > 0"
-          class="o-badge o-badge--small o-badge--transparent mb-px mr-1"
-        >
-          {{ appliedQuery.length }}
+      <span :class="[{ 'weight--bold' : (appliedQuery.length > 0) }, 'px-1']">
+        <span :class="{ 'mr-0.5': appliedQuery.length > 0 }">{{ category.label }}</span>
+        <span v-if="appliedQuery.length > 0">
+          ({{ appliedQuery.length }})
         </span>
       </span>
       <i
@@ -95,6 +92,12 @@
         :style="flyoutHeightStyle"
         class="w-full border--bottom overflow-y-scroll u-p-0_5"
       >
+        <dp-inline-notification
+          v-if="hint"
+          class="mb-2"
+          :message="Translator.trans('filter.hint.or.logic')"
+          type="info"
+        />
         <ul
           v-if="ungroupedOptions?.length > 0"
           class="o-list line-height--1_6"
@@ -187,6 +190,7 @@ import {
   dataTableSearch,
   DpButton,
   DpFlyout,
+  DpInlineNotification,
   DpLoading,
   DpResettableInput,
   hasOwnProp,
@@ -200,6 +204,7 @@ export default {
   components: {
     DpButton,
     DpFlyout,
+    DpInlineNotification,
     DpLoading,
     DpResettableInput,
     FilterFlyoutCheckbox,
@@ -225,6 +230,12 @@ export default {
       validator: prop => {
         return hasOwnProp(prop, 'label') && hasOwnProp(prop, 'id')
       },
+    },
+
+    hint: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     // Contains ids of applied filters from this and the neighboring filterFlyouts
@@ -344,6 +355,13 @@ export default {
               path: this.path,
               operator: 'IS NULL',
             },
+          }
+
+          if (this.memberOf) {
+            filter[id].condition = {
+              ...filter[id].condition,
+              memberOf: this.memberOf,
+            }
           }
         } else {
           filter[id] = {
@@ -526,9 +544,24 @@ export default {
      * @param {boolean} [isInitialWithQuery=false] - Indicates if it is an initial request with query.
      */
     requestFilterOptions (isInitialWithQuery = false) {
+      // For OR groups (memberOf is set), exclude this group's own filters so counts always show full availability
+      let filter = this.getFilterQuery
+
+      if (this.memberOf && !isInitialWithQuery) {
+        filter = Object.fromEntries(
+          Object.entries(this.getFilterQuery).filter(([key, val]) => {
+            if (key === this.memberOf) {
+              return false
+            }
+
+            return val.condition?.memberOf !== this.memberOf
+          }),
+        )
+      }
+
       this.$emit('filterOptions:request', {
         additionalQueryParams: this.additionalQueryParams,
-        filter: this.getFilterQuery,
+        filter,
         isInitialWithQuery,
         path: this.path,
         currentQuery: this.currentQuery,

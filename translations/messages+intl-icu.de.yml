@@ -477,6 +477,7 @@ cluster.data: "Angaben zur Gruppe"
 cluster.release: "Gruppe auflösen"
 cluster: "Gruppe"
 cluster.name: "Gruppenname"
+column.selection.reset: "Spaltenauswahl zurücksetzen"
 comment.add: "Kommentar hinzufügen"
 comment.add.to_segment: "Kommentar zum Abschnitt {segmentExternId} hinzufügen"
 comments: "Kommentare"
@@ -848,7 +849,9 @@ create.note: "Notiz anlegen"
 current.online.participation: "<strong>Aktuelle</strong> Online-Beteiligungen"
 custom.fields.edit.info: "Hier können Sie die konfigurierbaren Felder für dieses Verfahren anpassen."
 custom.fields.edit.info.entities: "Hier können Sie die konfigurierbaren Felder anpassen, die an {entities} verfügbar sind."
+custom.fields.submitter.info: "Weitere Angaben der einreichenden Person oder Institution"
 custom.fields.edit.warning.multiSelect: "Nachdem die erste Stellungnahme eingegangen ist, dürfen an den konfigurierbaren Feldern keine Änderungen mehr vorgenommen werden."
+custom.fields.error.loading: "Ein oder mehrere konfigurierbare Felder konnten nicht geladen werden."
 custom.field.edit.message.warning: "Ihre Änderung wird automatisch überall übernommen, wo dieses Feld verwendet wird."
 custom.field.delete.message.warning: "Das Feld wird automatisch überall gelöscht, wo es verwendet wird."
 custom.field.type.multiSelect: "Mehrfachauswahl"
@@ -1462,7 +1465,7 @@ explanation.claim.possibility: "Mit Ihrem echten Namen können Sie später nachw
 explanation.considerationtable.empty.filtered: "Zu Ihrer Suche/Filterung konnten keine Einträge in der Abwägungstabelle gefunden werden."
 explanation.coordinate.desc: "Per Klick in die Karte können Sie Ihrem Verfahren eine Position geben, an der es in der Karte im öffentlichen Bereich angezeigt wird."
 explanation.customer.masterblueprint: "Diese Blaupause wird als Verfahrensvorlage für alle Verfahrensträger im Bundesland verwendet. Die Verfahrensträger können zusätzlich eigene Blaupausen anlegen, die die Plattform-Blaupause ergänzen. Nur eine Blaupause kann als Plattform-Blaupause angelegt werden."
-explanation.customer.masterblueprint.uncheck.existing: "Derzeit ist bereits eine andere Blaupause als Plattform-Blaupause angelegt. Die aktuelle Plattform-Blaupause muss zunächst deaktiviert werden (Häkchen entfernen), um diese Blaupause als Plattform-Blaupause auszuwählen."
+explanation.customer.masterblueprint.uncheck.existing: "Derzeit ist bereits eine andere Blaupause als Plattform-Blaupause angelegt: \"{procedureName}\" von {organisationName}. Die aktuelle Plattform-Blaupause muss zunächst deaktiviert werden (Häkchen entfernen), um diese Blaupause als Plattform-Blaupause auszuwählen."
 explanation.data.protection.before.vote: "Die Stellungnahme muss für den öffentlichen Bereich freigegeben sein."
 explanation.data.user.change: "Sollten sich Ihre Daten geändert haben, ändern Sie sie bitte vor der Einreichung der Stellungnahme(n) im <a class=\"o-link--default\" href=\"{href}\"><i class=\"fa fa-external-link\" aria-hidden=\"true\"></i> {label}</a> unter Menüpunkt \"Benutzerprofil/Daten ändern\" (Sie verlassen diese Seite)."
 explanation.data.user.change.portal: "Sollte sich Ihr Name oder Ihre E-Mail-Adresse geändert haben, ändern Sie sie bitte vor der Einreichung der Stellungnahme(n) unter \"<a href=\"{url}\">{label}</a>\"."
@@ -1488,6 +1491,11 @@ explanation.export.original_statements.zip: |
     { hasSelectedElements, select,
         true { Exportiert ausgewählte Originalstellungnahmen als einzelne PDF-Dateien in einem ZIP-Archiv. }
         other { Exportiert alle Originalstellungnahmen als einzelne PDF-Dateien in einem ZIP-Archiv. }
+    }
+explanation.export.original_statements_with_attachments.zip: |
+    { hasSelectedElements, select,
+        true { Exportiert ausgewählte Originalstellungnahmen mit allen Anhängen in eigenen Ordnern als ZIP-Archiv. }
+        other { Exportiert alle Originalstellungnahmen mit allen Anhängen in eigenen Ordnern als ZIP-Archiv. }
     }
 explanation.export.statements: |
     {hasSelectedElements, select,
@@ -1776,6 +1784,7 @@ filter.active.remove: "Aktive Filter entfernen"
 filter.apply: "Filter anwenden"
 filter.by: "Filtern nach..."
 filter.fragments: "Datensätze filtern"
+filter.hint.or.logic: "Sie können mehrere Optionen auswählen. Es werden alle passenden Abschnitte angezeigt."
 filter.settings_not_current: "Bitte beachten Sie, dass die Filtereinstellungen und die Auflistung der Stellungnahmen sich auf die initial angewendeten Filter beziehen."
 filter.modalTitle: "Abwägungstabelle filtern"
 filter.noAssignment: "Keine Zuordnung"
@@ -1787,6 +1796,7 @@ filter.phase.participation: "Beteiligung"
 filter.phase.potentialanalysis: "Bestands- und Potentialanalyse"
 filter.phase.heatplanningdraft: "Entwurf Wärmeplan"
 filter.reset: "Filterauswahl zurücksetzen"
+filter.reset.failed: "Die ausgewählten Filter konnten nicht angewandt werden und wurden zurückgesetzt."
 filter.publicCheck.no: "Nicht gewünscht"
 filter.savedFilterSet.delete.confirm: "Möchten Sie diese Filterkombination wirklich löschen?"
 filter.saveFilterSet.back: "Zurück zur Filterauswahl"
@@ -2220,8 +2230,8 @@ login.page.quicklink: "Zum Login mit bestehendem Konto."
 login.other_account: "Externe Anmeldung"
 login.idp.action: "Mit anderem Konto anmelden"
 login.idp.description: "Mit dem Nutzerkonto Brandenburg können Sie sich als Bürger*in auf Bauleitplanung Online anmelden. Sie benötigen dann kein separates Konto."
-login.azure.action: "Mit Azure AD anmelden"
-login.azure.description: "Melden Sie sich mit Ihrem Azure Active Directory Konto an."
+login.azure.action: "Mit SSO anmelden"
+login.azure.description: "Melden Sie sich über Ihr SingleSignOn an."
 # Used for alt-attr in header images
 logo.alt.brand: "Logo der Landesdachmarke 'Schleswig-Holstein. Landesregierung'"
 logo.alt.platform: "Logo der Beteiligungs-Plattform BOB"

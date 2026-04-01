@@ -52,7 +52,10 @@
         >
           <tr>
             <td>
-              <label class="whitespace-nowrap u-m-0">
+              <label
+                :for="`checkStatement:${statement.id}`"
+                class="m-0 whitespace-nowrap"
+              >
                 <input
                   :id="`checkStatement:${statement.id}`"
                   type="checkbox"
@@ -108,12 +111,30 @@
           />
         </div>
 
+        <custom-fields-list
+          v-if="hasPermission('field_statements_custom_fields')"
+          :definition-source-id="procedureId"
+          :list-title="Translator.trans('statement.data')"
+          :resource-id="statementId"
+          :show-empty="false"
+          :title-info-text="Translator.trans('custom.fields.submitter.info')"
+          batch-filter-path="procedure.id"
+          class="px-4 mb-4"
+          mode="readonly"
+          resource-type="OriginalStatement"
+          expandable
+        >
+          <template v-slot:readonly-display="{ field }">
+            <span>{{ (field.value?.selectedOptions || []).map(opt => opt.label).join(', ') }}</span>
+          </template>
+        </custom-fields-list>
+
         <div
-          v-if="statement.sourceAttachment || statement.files.length > 0 || statement.polygon !== ''"
+          v-if="statement.sourceAttachment || statement.genericAttachments.length > 0 || statement.polygon !== ''"
           class="u-ml u-pr text-left border--top"
         >
           <div
-            v-if="statement.sourceAttachment || statement.files.length > 0"
+            v-if="statement.sourceAttachment || statement.genericAttachments.length > 0"
             class="break-words"
           >
             <i
@@ -127,16 +148,16 @@
               target="_blank"
               rel="noopener"
               class="o-hellip"
-              :class="statement.files.length > 0 ? 'border--right border-color--grey-light u-mr-0_5 u-pr-0_5' : ''"
+              :class="statement.genericAttachments.length > 0 ? 'border--right border-color--grey-light u-mr-0_5 u-pr-0_5' : ''"
               :href="Routing.generate('core_file_procedure', { hash: statement.sourceAttachment.hash, procedureId: procedureId })"
             >
               {{ statement.sourceAttachment.filename }}
             </a>
 
             <a
-              v-for="(file, idx) in statement.files"
+              v-for="(file, idx) in statement.genericAttachments"
               :key="idx"
-              :title="file.name"
+              :title="file.filename"
               target="_blank"
               rel="noopener"
               class="o-hellip"
@@ -166,9 +187,10 @@
             class="border--top"
           >
             <input
-              type="checkbox"
+              :aria-label="Translator.trans('personal.data.usage.allowed')"
               checked
               disabled
+              type="checkbox"
             >
             <span> {{ Translator.trans('personal.data.usage.allowed') }} </span>
           </div>
@@ -211,12 +233,14 @@ import {
   hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations, mapState } from 'vuex'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import HeightLimit from '@DpJs/components/statement/HeightLimit'
 
 export default {
   name: 'OriginalStatementsTableItem',
 
   components: {
+    CustomFieldsList,
     DpFlyout,
     HeightLimit,
   },
