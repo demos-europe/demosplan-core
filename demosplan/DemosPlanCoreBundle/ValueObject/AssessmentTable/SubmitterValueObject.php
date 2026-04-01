@@ -73,12 +73,12 @@ class SubmitterValueObject extends ValueObject
     public function setSubmitter($organisation, $department, $author = '', $postalcode = '', $city = '')
     {
         $this->submitter = [
-           'organisation' => $organisation,
-           'department'   => $department,
-           'name'         => $author,
-           'postalCode'   => $postalcode,
-           'city'         => $city,
-       ];
+            'organisation' => $organisation,
+            'department'   => $department,
+            'name'         => $author,
+            'postalCode'   => $postalcode,
+            'city'         => $city,
+        ];
     }
 
     public function jsonSerialize(): array
