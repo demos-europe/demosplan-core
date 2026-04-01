@@ -3034,10 +3034,6 @@ class StatementService implements StatementServiceInterface
             $statement['memo'] = $data['r_memo'];
         }
 
-        if (\array_key_exists('r_phase', $data)) {
-            $statement['phase'] = $data['r_phase'];
-        }
-
         if (\array_key_exists('r_phaseDefinitionId', $data) && '' !== $data['r_phaseDefinitionId']) {
             $statement['phaseDefinitionId'] = $data['r_phaseDefinitionId'];
         }
