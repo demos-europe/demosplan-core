@@ -8362,7 +8362,7 @@ __metadata:
     mini-css-extract-plugin: "npm:^2.9.4"
     ol: "npm:^10.7.0"
     olcs: "npm:2.22.1"
-    plyr: "npm:^3.8.3"
+    plyr: "npm:^3.8.4"
     postcss: "npm:^8.5.6"
     postcss-flexbugs-fixes: "npm:^5.0.2"
     postcss-loader: "npm:^8.2.0"
@@ -12990,16 +12990,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"plyr@npm:^3.8.3":
-  version: 3.8.3
-  resolution: "plyr@npm:3.8.3"
+"plyr@npm:^3.8.4":
+  version: 3.8.4
+  resolution: "plyr@npm:3.8.4"
   dependencies:
     core-js: "npm:^3.45.1"
     custom-event-polyfill: "npm:^1.0.7"
     loadjs: "npm:^4.3.0"
     rangetouch: "npm:^2.0.1"
     url-polyfill: "npm:^1.1.13"
-  checksum: 10c0/a75774c53cbfbb861a80c06b1e1db66cbbf834d5898ea74a784eba7bea4357a276a18e6ef658a6d2a21e4e5d420fa9838044ee361654b0a6a0e19bb9262cf1f4
+  checksum: 10c0/3df02e413af9b0baa8c3c65ba5069081dd29752cda50e96976706f7a2258536e7f0984e5678ac35c59cf8f58fcd672f8cdbacdb23b6079929a33e2fdf2fb437f
   languageName: node
   linkType: hard
 
