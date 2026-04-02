@@ -100,7 +100,7 @@
         />
         <ul
           v-if="ungroupedOptions?.length > 0"
-          class="o-list line-height--1_6"
+          class="o-list line-height--1_6 border--bottom u-pb-0_5 u-mb-0_5"
         >
           <filter-flyout-checkbox
             v-for="option in searchedUngroupedOptions"
@@ -113,13 +113,13 @@
           />
         </ul>
         <ul
-          v-for="group in searchedGroupedOptions"
+          v-for="(group, index) in searchedGroupedOptions"
           :key="`list_${group.id}}`"
-          class="o-list line-height--1_6"
+          :class="['o-list line-height--1_6', { 'border--bottom u-pb-0_5 u-mb-0_5': index < searchedGroupedOptions.length - 1 }]"
         >
-          <span class="font-size-small">
+          <li class="weight--bold mb-1">
             {{ group.label }}
-          </span>
+          </li>
           <filter-flyout-checkbox
             v-for="option in group.options"
             :key="option.id"

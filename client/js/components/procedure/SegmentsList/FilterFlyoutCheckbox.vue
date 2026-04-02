@@ -8,8 +8,9 @@
 </license>
 
 <template>
-  <li>
+  <li class="flex items-start mb-1">
     <input
+      class="mt-1"
       :id="`${instance}_id_${option.id}`"
       :data-cy="`flyoutOption:${instance}:${option.id}`"
       :checked="checked"
@@ -19,14 +20,14 @@
     >
     <label
       :class="{'weight--normal': highlight === false }"
-      class="inline-block u-m-0"
+      class="text-small mx-1 mt-0 mb-1"
       :for="`${instance}_id_${option.id}`"
     >
       {{ option.label }} <template v-if="showCount">({{ option.count }})</template>
     </label>
     <dp-contextual-help
       v-if="option.description && instance !=='itemsSelected'"
-      class="float-right mt-0.5"
+      class="ml-auto mt-0.5"
       :text="option.description"
     />
   </li>
