@@ -253,7 +253,10 @@ export default {
         return false
       }
 
-      const initialAttributes = this.statement.attributes
+      const initialAttributes = JSON.parse(JSON.stringify(this.statement.attributes))
+      initialAttributes.authoredDate = this.getFormattedDate(initialAttributes.authoredDate)
+      initialAttributes.submitDate = this.getFormattedDate(initialAttributes.submitDate)
+
       const currentAttributes = this.localStatement.attributes
 
       return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
