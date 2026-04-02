@@ -10,7 +10,7 @@
 <template>
   <li class="flex items-start mb-1">
     <input
-      class="mt-1"
+      class="mt-0.5"
       :id="`${instance}_id_${option.id}`"
       :data-cy="`flyoutOption:${instance}:${option.id}`"
       :checked="checked"
@@ -20,7 +20,7 @@
     >
     <label
       :class="{'weight--normal': highlight === false }"
-      class="text-small mx-1 mt-0 mb-1"
+      class="text-sm mx-1 mt-0 mb-1"
       :for="`${instance}_id_${option.id}`"
     >
       {{ option.label }} <template v-if="showCount">({{ option.count }})</template>
