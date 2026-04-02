@@ -276,6 +276,22 @@ export default {
     },
   },
 
+  computed: {
+    /**
+     * Required by unsavedChangesGuardMixin
+     */
+    hasUnsavedChanges () {
+      if (!this.localAttachments || !this.initialAttachments) {
+        return false
+      }
+
+      const initialAttributes = this.localAttachments
+      const currentAttributes = this.initialAttachments
+
+      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+    },
+  },
+
   methods: {
     ...mapActions('Statement', {
       getStatementAction: 'get',

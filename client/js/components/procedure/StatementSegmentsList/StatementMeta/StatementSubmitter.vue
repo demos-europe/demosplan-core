@@ -241,6 +241,20 @@ export default {
       return this.localStatement.attributes.isManual
     },
 
+    /**
+     * Required by unsavedChangesGuardMixin
+     */
+    hasUnsavedChanges () {
+      if (!this.localStatement || !this.statement) {
+        return false
+      }
+
+      const initialAttributes = this.statement.attributes
+      const currentAttributes = this.localStatement.attributes
+
+      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+    },
+
     similarStatementSubmitters () {
       if (typeof this.statement.hasRelationship === 'function' && this.statement.hasRelationship('similarStatementSubmitters')) {
         return Object.values(this.statement.relationships.similarStatementSubmitters.list())

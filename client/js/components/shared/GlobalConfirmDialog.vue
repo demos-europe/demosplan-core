@@ -9,6 +9,7 @@
 
 <template>
   <dp-confirm-dialog
+    id="globalConfirmDialog"
     ref="confirmDialog"
     :confirm-button-text="confirmButtonText"
     :decline-button-text="declineButtonText"

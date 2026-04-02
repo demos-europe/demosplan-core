@@ -177,6 +177,8 @@ import {
   DpTextArea,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
+import unsavedChangesGuardMixin from '@DpJs/components/shared/mixins/unsavedChangesGuardMixin'
+
 export default {
   name: 'StatementEntry',
 
@@ -188,7 +190,7 @@ export default {
     DpTextArea,
   },
 
-  mixins: [dpValidateMixin],
+  mixins: [dpValidateMixin, unsavedChangesGuardMixin],
 
   props: {
     editable: {
@@ -241,6 +243,20 @@ export default {
 
     isStatementManual () {
       return this.localStatement.attributes.isManual
+    },
+
+    /**
+     * Required by unsavedChangesGuardMixin
+     */
+    hasUnsavedChanges () {
+      if (!this.localStatement || !this.statement) {
+        return false
+      }
+
+      const initialAttributes = this.statement.attributes
+      const currentAttributes = this.localStatement.attributes
+
+      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
     },
   },
 
