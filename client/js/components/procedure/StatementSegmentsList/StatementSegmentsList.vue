@@ -46,22 +46,22 @@
             v-if="hasPermission('feature_segment_recommendation_edit')"
             class="btn-group"
           >
-            <button
-              class="btn btn--outline btn--primary"
+            <a
+              href="#addRecommendation"
+              class="btn btn--outline btn--primary p-2"
               :class="{'is-current': currentAction === 'addRecommendation'}"
               data-cy="addRecommendation"
-              @click="currentAction = 'addRecommendation'"
             >
               {{ Translator.trans('segment.recommendation') }}
-            </button>
-            <button
-              class="btn btn--outline btn--primary"
+            </a>
+            <a
+              href="#editText"
+              class="btn btn--outline btn--primary p-2"
               :class="{'is-current': currentAction === 'editText'}"
               data-cy="editText"
-              @click="currentAction = 'editText'"
             >
               {{ Translator.trans('details') }}
-            </button>
+            </a>
           </div>
         </div>
         <ul class="float-right space-inline-s flex items-center">
@@ -546,6 +546,18 @@ export default {
       'toggleSlidebarContent',
     ]),
 
+    /**
+     * Handle hash change to update current action based on URL hash
+     * This is called both by link clicks and browser back/forward navigation
+     */
+    handleHashChange () {
+      const hash = window.location.hash.slice(1) // Remove the '#'
+
+      if (hash === 'addRecommendation' || hash === 'editText') {
+        this.currentAction = hash
+      }
+    },
+
     checkStatementClaim () {
       if (this.statementClaimChecked === false) {
         this.statementClaimChecked = true
@@ -679,6 +691,14 @@ export default {
     },
 
     setInitialAction () {
+      // First check URL hash
+      const hash = window.location.hash.slice(1) // Remove the '#'
+      if (hash === 'addRecommendation' || hash === 'editText') {
+        this.currentAction = hash
+        return
+      }
+
+      // Fallback to query params
       const queryParams = new URLSearchParams(window.location.search)
       let action = queryParams.get('action')
 
@@ -798,6 +818,9 @@ export default {
       },
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
+
+    // Listen for hash changes (e.g., browser back/forward navigation)
+    window.addEventListener('hashchange', this.handleHashChange)
     this.fetchProcedureMapSettings({ procedureId: this.procedure.id })
       .then(response => {
         if (response?.attributes) {
@@ -811,6 +834,11 @@ export default {
           .filter(layer => layer.attributes.isEnabled && layer.attributes.hasDefaultVisibility)
           .map(layer => layer.attributes)
       })
+  },
+
+  beforeUnmount () {
+    // Remove hash change listener
+    window.removeEventListener('hashchange', this.handleHashChange)
   },
 }
 </script>
