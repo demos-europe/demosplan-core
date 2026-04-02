@@ -992,7 +992,13 @@ export default {
                   }
 
                   return null
-                }).filter(option => option !== null)
+                }).filter(option => {
+                  if (option === null) {
+                    return false
+                  }
+
+                  return !(path === 'tags' && option.count === 0 && !option.selected)
+                })
 
                 if (filterOptions.length > 0) {
                   const { id, attributes } = resource
@@ -1011,13 +1017,18 @@ export default {
               if (resourceIsFilterOption && filterOptionBelongsToFilterType) {
                 const { id, attributes } = resource
                 const { count, description, label } = attributes
+                const selected = currentQuery?.length ? currentQuery.includes(id) : attributes.selected
+
+                if (path === 'tags' && count === 0 && !selected) {
+                  return
+                }
 
                 ungroupedOptions.push({
                   id,
                   count,
                   description,
                   label,
-                  selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
+                  selected,
                   ungrouped: true,
                 })
               }
