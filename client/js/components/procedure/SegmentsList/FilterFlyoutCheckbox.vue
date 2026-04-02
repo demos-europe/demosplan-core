@@ -10,8 +10,8 @@
 <template>
   <li class="flex items-start mb-1">
     <input
-      class="mt-0.5"
       :id="`${instance}_id_${option.id}`"
+      class="mt-0.5"
       :data-cy="`flyoutOption:${instance}:${option.id}`"
       :checked="checked"
       :name="`${instance}_name_${option.id}`"
