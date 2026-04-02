@@ -130,7 +130,7 @@ class UserService implements UserServiceInterface
         private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository,
         private readonly LoggerInterface $logger,
         private readonly ManagerRegistry $doctrine,
-        private readonly int $passwordHistoryMaxEntries,
+        private readonly ParameterBagInterface $parameterBag,
     ) {
         $this->addressService = $addressService;
         $this->contentService = $serviceContent;
@@ -1021,7 +1021,7 @@ class UserService implements UserServiceInterface
             $newPasswordHash = $this->userPasswordHasher->hashPassword($user, $newPassword);
             $em = $this->doctrine->getManager();
             $em->persist(new UserPasswordHistory($user, $newPasswordHash));
-            $this->userPasswordHistoryRepository->deleteExceedingEntries($user, $this->passwordHistoryMaxEntries);
+            $this->userPasswordHistoryRepository->deleteExceedingEntries($user, $this->parameterBag->get('password_history_max_entries'));
 
             $user->setPassword($newPasswordHash);
             $user->setAlternativeLoginPassword($newPasswordHash);

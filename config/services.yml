@@ -1146,8 +1146,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\User\UserService:
         lazy: true
-        arguments:
-                $passwordHistoryMaxEntries: '%password_history_max_entries%'
 
     demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService: ~
 
