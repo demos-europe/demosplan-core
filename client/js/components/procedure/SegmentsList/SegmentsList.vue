@@ -963,6 +963,7 @@ export default {
           if (result) {
             const groupedOptions = []
             const ungroupedOptions = []
+            const isUnusedTag = (filterPath, count, selected) => filterPath === 'tags' && count === 0 && !selected
 
             result.included?.forEach(resource => {
               const filter = result.data.find(type => type.attributes.path === path)
@@ -992,13 +993,7 @@ export default {
                   }
 
                   return null
-                }).filter(option => {
-                  if (option === null) {
-                    return false
-                  }
-
-                  return !(path === 'tags' && option.count === 0 && !option.selected)
-                })
+                }).filter(option => option !== null && !isUnusedTag(path, option.count, option.selected))
 
                 if (filterOptions.length > 0) {
                   const { id, attributes } = resource
@@ -1019,7 +1014,7 @@ export default {
                 const { count, description, label } = attributes
                 const selected = currentQuery?.length ? currentQuery.includes(id) : attributes.selected
 
-                if (path === 'tags' && count === 0 && !selected) {
+                if (isUnusedTag(path, count, selected)) {
                   return
                 }
 
