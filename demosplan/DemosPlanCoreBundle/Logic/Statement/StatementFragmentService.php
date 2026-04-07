@@ -641,7 +641,7 @@ class StatementFragmentService extends CoreService
             }
             $filters['includeVersions'] = true;
             $esResult = $this->getElasticsearchStatementFragmentResult($filters);
-            $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null, 'result');
+            $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null);
             $fieldVersions = [];
             // compute versioned Fields
             foreach ($esResult->getResult() as $fragment) {
@@ -684,7 +684,7 @@ class StatementFragmentService extends CoreService
         try {
             $filters['procedureId'] = $procedureId;
             $esResult = $this->getElasticsearchStatementFragmentResult($filters, '', null, $limit, $page);
-            $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null, 'result');
+            $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null);
         } catch (Exception $e) {
             $this->logger->error('Could not get StatementFragment Procedure List', [$e]);
 
@@ -756,7 +756,7 @@ class StatementFragmentService extends CoreService
             }
 
             $esResult = $this->getElasticsearchStatementFragmentResult($userFilters, $search, null, $limit, $page, [], false);
-            $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null, 'result');
+            $esResult = $this->searchService->simplifyEsStructure($esResult, '', [], null);
         } catch (Exception $e) {
             $this->logger->error('Could not get StatementFragment Statement List', [$e]);
 

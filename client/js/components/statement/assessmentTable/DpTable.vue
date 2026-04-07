@@ -542,7 +542,8 @@ export default {
     handleSizeChange (newSize) {
       const tmpPager = {
         ...this.pagination,
-        count: newSize
+        count: newSize,
+        per_page: newSize
       }
       this.updatePagination(tmpPager)
       this.changeUrl(tmpPager)
