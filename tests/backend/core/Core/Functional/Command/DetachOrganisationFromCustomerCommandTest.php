@@ -13,12 +13,7 @@ namespace Tests\Core\Core\Functional\Command;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
 use demosplan\DemosPlanCoreBundle\Command\Data\DetachOrganisationFromCustomerCommand;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Console\Command\Command;
@@ -30,6 +25,8 @@ use Tests\Base\FunctionalTestCase;
 
 class DetachOrganisationFromCustomerCommandTest extends FunctionalTestCase
 {
+    use CustomerCommandTestHelper;
+
     private const CUSTOMER_NAME = 'Test Customer';
     private const CUSTOMER_SUBDOMAIN = 'test-sub';
     private const CUSTOMER_ID = 'test-id';
@@ -238,48 +235,4 @@ class DetachOrganisationFromCustomerCommandTest extends FunctionalTestCase
         return $commandTester;
     }
 
-    private function createOrga(string $name, string $id): MockObject&Orga
-    {
-        $orga = $this->createMock(Orga::class);
-        $orga->method('getName')->willReturn($name);
-        $orga->method('getId')->willReturn($id);
-
-        return $orga;
-    }
-
-    private function createOrgaType(string $name): MockObject&OrgaType
-    {
-        $orgaType = $this->createMock(OrgaType::class);
-        $orgaType->method('getLabel')->willReturn($name);
-
-        return $orgaType;
-    }
-
-    private function createOrgaStatusInCustomer(
-        MockObject&Orga $orga,
-        MockObject&OrgaType $orgaType,
-        string $status,
-    ): MockObject&OrgaStatusInCustomer {
-        $orgaStatus = $this->createMock(OrgaStatusInCustomer::class);
-        $orgaStatus->method('getOrga')->willReturn($orga);
-        $orgaStatus->method('getOrgaType')->willReturn($orgaType);
-        $orgaStatus->method('getStatus')->willReturn($status);
-
-        return $orgaStatus;
-    }
-
-    private function createCustomerWithOrgaStatuses(
-        string $name,
-        string $subdomain,
-        string $id,
-        array $orgaStatuses,
-    ): MockObject&Customer {
-        $customer = $this->createMock(Customer::class);
-        $customer->method('getName')->willReturn($name);
-        $customer->method('getSubdomain')->willReturn($subdomain);
-        $customer->method('getId')->willReturn($id);
-        $customer->method('getOrgaStatuses')->willReturn(new ArrayCollection($orgaStatuses));
-
-        return $customer;
-    }
 }
