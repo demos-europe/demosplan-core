@@ -113,6 +113,7 @@
             @click="resetColumnSelection"
           />
           <dp-column-selector
+            :key="columnSelectorKey"
             appearance="subtle"
             data-cy="segmentsList:selectableColumns"
             has-select-all-option
@@ -484,8 +485,9 @@ export default {
     return {
       appliedFilterQuery: this.initialFilter,
       currentQueryHash: '',
-      defaultColumnSelection: ['text', 'tags'],
-      currentSelection: ['text', 'tags'],
+      columnSelectorKey: 0,
+      defaultColumnSelection: [],
+      currentSelection: [],
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -911,7 +913,7 @@ export default {
     resetColumnSelection () {
       localStorage.removeItem('segmentList')
       this.setCurrentSelection([...this.defaultColumnSelection])
-      this.$refs.columnSelector.initializeColumnSelection()
+      this.columnSelectorKey++
     },
 
     resetQuery () {
