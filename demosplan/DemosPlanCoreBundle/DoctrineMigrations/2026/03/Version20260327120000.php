@@ -30,24 +30,19 @@ class Version20260327120000 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-
         $tableExists = $this->connection->fetchOne("SHOW TABLES LIKE 'user_password_history'");
         if (false !== $tableExists) {
             return;
         }
+        $this->addSql('CREATE TABLE user_password_history (
+        id VARCHAR(36) NOT NULL,
+        user_id CHAR(36) NOT NULL,
+        hashed_password VARCHAR(255) NOT NULL,
+        created_date DATETIME NOT NULL,
+        INDEX IDX_72206399A76ED395 (user_id),
+        PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
 
-        $this->addSql('
-              CREATE TABLE user_password_history (
-                  id CHAR(36) NOT NULL,
-                  user_id CHAR(36) NOT NULL,
-                  hashed_password VARCHAR(255) NOT NULL,
-                  created_date DATETIME NOT NULL,
-                  PRIMARY KEY (id),
-                  INDEX IDX_user_password_history_user (user_id),
-                  CONSTRAINT FK_user_password_history_user
-                      FOREIGN KEY (user_id) REFERENCES _user (_u_id) ON DELETE CASCADE
-              ) DEFAULT CHARACTER SET UTF8 COLLATE UTF8_unicode_ci ENGINE = InnoDB
-          ');
+        $this->addSql('ALTER TABLE user_password_history ADD CONSTRAINT FK_72206399A76ED395 FOREIGN KEY (user_id) REFERENCES _user (_u_id) ON DELETE CASCADE');
     }
 
     /**
@@ -56,8 +51,12 @@ class Version20260327120000 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
-
-        $this->addSql('DROP TABLE IF EXISTS user_password_history');
+        $this->abortIf(
+            !$schema->hasTable('user_password_history'),
+            'Cannot migrate: Table user_password_history does not exist'
+        );
+        $this->addSql('ALTER TABLE user_password_history DROP FOREIGN KEY FK_72206399A76ED395');
+        $this->addSql('DROP TABLE user_password_history');
     }
 
     /**
