@@ -302,6 +302,11 @@ export default {
       this.$emit('save', changes)
     },
 
+    saveUnsavedChanges () {
+      this.save()
+      return Promise.resolve()
+    },
+
     setDate (val, field) {
       this.localStatement.attributes[field] = val
     },
@@ -310,6 +315,10 @@ export default {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
       this.localStatement.attributes.authoredDate = this.getFormattedDate(this.localStatement.attributes.authoredDate)
       this.localStatement.attributes.submitDate = this.getFormattedDate(this.localStatement.attributes.submitDate)
+    },
+
+    onDiscardChanges () {
+      this.reset()
     },
   },
 

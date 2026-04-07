@@ -493,6 +493,10 @@ export default {
       }
     },
 
+    saveUnsavedChanges () {
+      return this.saveGenericAttachments()
+    },
+
     saveGenericAttachments () {
       this.isProcessingGenericAttachments = true
       const promises = []
@@ -516,7 +520,7 @@ export default {
         })
       }
 
-      Promise.allSettled(promises)
+      return Promise.allSettled(promises)
         .then(() => {
           if (this.genericAttachmentsMarkedForDeletion.length > 0) {
             this.genericAttachmentsMarkedForDeletion = []
@@ -534,6 +538,7 @@ export default {
         .catch(error => {
           console.error(error)
           this.isProcessingGenericAttachments = false
+          throw error
         })
     },
 
@@ -551,6 +556,10 @@ export default {
 
     setSourceAttachmentFileId (id) {
       this.fileIdSourceAttachment = id
+    },
+
+    onDiscardChanges () {
+      this.handleResetGenericAttachments()
     },
 
     triggerStatementRequest () {

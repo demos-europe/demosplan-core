@@ -150,12 +150,9 @@ export default {
               window.location.href = target.href
             })
           } else if (action === 'discard') {
-            const discardPromise = this.onDiscardChanges ? this.onDiscardChanges() : Promise.resolve()
-
-            return discardPromise.then(() => {
-              window.removeEventListener('beforeunload', this.handleBeforeUnload)
-              window.location.href = target.href
-            })
+            if (this.onDiscardChanges) {
+              return this.onDiscardChanges()
+            }
           } else if (action === 'cancel') {
             if (this.onCancelNavigation) {
               return this.onCancelNavigation()

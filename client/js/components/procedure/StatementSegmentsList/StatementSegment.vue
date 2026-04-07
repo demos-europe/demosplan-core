@@ -724,16 +724,6 @@ export default {
       setSegment: 'setItem',
     }),
 
-    saveUnsavedChanges () {
-      return this.save()
-    },
-
-    onDiscardChanges () {
-      console.log('onDiscardChanges')
-      this.abort()
-      return Promise.resolve()
-    },
-
     abort () {
       // Restore initial recommendation value, set it also in tiptap
       const initText = this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation
@@ -1022,6 +1012,10 @@ export default {
         })
     },
 
+    saveUnsavedChanges () {
+      return this.save()
+    },
+
     setActiveTabId (id) {
       this.activeId = id
     },
@@ -1133,6 +1127,10 @@ export default {
 
     toggleRecommendationModal () {
       this.$refs.recommendationModal.toggle()
+    },
+
+    onDiscardChanges () {
+      this.abort()
     },
 
     unclaimSegment () {

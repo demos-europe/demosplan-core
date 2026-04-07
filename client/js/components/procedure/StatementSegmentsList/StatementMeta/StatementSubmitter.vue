@@ -348,8 +348,17 @@ export default {
       })
     },
 
+    saveUnsavedChanges () {
+      this.save()
+      return Promise.resolve()
+    },
+
     setInitValues () {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
+    },
+
+    onDiscardChanges () {
+      this.reset()
     },
   },
 
