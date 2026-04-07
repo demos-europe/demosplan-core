@@ -130,5 +130,4 @@ class ListCustomerOrganisationsCommandTest extends FunctionalTestCase
 
         return $commandTester;
     }
-
 }

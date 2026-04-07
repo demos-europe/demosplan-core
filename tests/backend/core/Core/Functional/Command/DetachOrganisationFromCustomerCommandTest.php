@@ -234,5 +234,4 @@ class DetachOrganisationFromCustomerCommandTest extends FunctionalTestCase
 
         return $commandTester;
     }
-
 }
