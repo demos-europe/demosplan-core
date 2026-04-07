@@ -12,11 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Command\Helpers\CustomerSelectionTrait;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -99,7 +99,7 @@ class DetachOrganisationFromCustomerCommand extends CoreCommand
             }
 
             $this->entityManager->flush();
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $io->error('Failed to detach organisations: '.$exception->getMessage());
 
             return Command::FAILURE;
