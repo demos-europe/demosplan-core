@@ -70,6 +70,7 @@ use Exception;
 use Illuminate\Support\Collection;
 use LogicException;
 use RuntimeException;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\Validator\Constraints\Email;
@@ -168,6 +169,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         private readonly UserSecurityHandler $userSecurityHandler,
         UserService $userService,
         ValidatorInterface $validator,
+        private readonly ParameterBagInterface $parameterBag,
     ) {
         parent::__construct($messageBag);
         $this->customerService = $customerService;
@@ -1512,7 +1514,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $this->getMessageBag()->add('confirm', 'confirm.password.changed');
         } catch (PasswordAlreadyUsedException $e) {
             $this->logger->warning('User password change rejected: password already used', [$e]);
-            $this->getMessageBag()->add('error', 'error.password.already.used');
+            $this->getMessageBag()->add('error', 'error.password.already.used', ['passwordHistoryMaxEntries' => $this->parameterBag->get('password_history_max_entries')]);
         } catch (Exception $e) {
             $this->logger->error('User password change exited with an error', [$e]);
             $this->getMessageBag()->add('error', 'error.password.change');
