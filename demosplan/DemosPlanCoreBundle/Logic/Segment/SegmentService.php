@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Doctrine\ORM\EntityManager;
@@ -32,6 +33,7 @@ class SegmentService extends CoreService implements SegmentServiceInterface
 {
     public function __construct(
         private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly RecommendationVersionService $recommendationVersionService,
         private readonly SegmentValidator $segmentValidator,
         private readonly SegmentRepository $segmentRepository,
         private readonly TransactionService $transactionService,
@@ -139,6 +141,17 @@ class SegmentService extends CoreService implements SegmentServiceInterface
             $updateTime
         );
         $this->segmentRepository->persistEntities($contentChanges);
+
+        // Record recommendation versions before the DQL UPDATE runs.
+        // This method bypasses Statement::setRecommendation() (uses raw DQL for performance),
+        // so we must call recordVersion() explicitly here.
+        // @see Statement::setRecommendation() for the ORM-based hook that handles all other paths.
+        foreach ($segments as $segment) {
+            $effectiveNewText = $attach
+                ? $segment->getRecommendation() . $recommendationText
+                : $recommendationText;
+            $this->recommendationVersionService->recordVersion($segment, $segment->getRecommendation(), $effectiveNewText);
+        }
 
         // do the actual change in the database
         $segmentIds = array_map(static fn (Segment $segment): string => $segment->getId(), $segments);

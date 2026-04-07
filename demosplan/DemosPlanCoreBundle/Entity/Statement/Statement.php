@@ -56,8 +56,10 @@ use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EventListener\DoctrineStatementListener;
+use demosplan\DemosPlanCoreBundle\EventListener\RecommendationVersionEntityListener;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -686,6 +688,21 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $version;
 
     /**
+     * @var Collection<int, RecommendationVersion>
+     *
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\RecommendationVersion", mappedBy="statement", cascade={"remove"})
+     *
+     * @ORM\OrderBy({"versionNumber" = "DESC"})
+     */
+    protected $recommendationVersions;
+
+    /**
+     * Injected via {@see RecommendationVersionEntityListener} on postLoad.
+     * Null for newly created entities (not loaded from DB).
+     */
+    private ?RecommendationVersionService $recommendationVersionService = null;
+
+    /**
      * @var StatementAttribute[]
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute", mappedBy="statement", cascade={"remove"})
@@ -1069,6 +1086,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         $this->attachments = new ArrayCollection();
         $this->similarStatementSubmitters = new ArrayCollection();
         $this->statementsCreatedFromOriginal = new ArrayCollection();
+        $this->recommendationVersions = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -2309,12 +2327,26 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
+     * @see RecommendationVersionEntityListener::postLoad()
+     */
+    public function setRecommendationVersionService(RecommendationVersionService $service): void
+    {
+        $this->recommendationVersionService = $service;
+    }
+
+    /**
      * Set recommendation.
+     *
+     * Before overwriting the value, records the old recommendation as a version
+     * via {@see RecommendationVersionService::recordVersion()} if the service is
+     * available (injected via {@see RecommendationVersionEntityListener} on postLoad).
      *
      * @param string $recommendation
      */
     public function setRecommendation($recommendation): Statement
     {
+        $this->recommendationVersionService?->recordVersion($this, $this->recommendation, $recommendation);
+
         $this->recommendation = $recommendation;
 
         return $this;
@@ -2871,6 +2903,42 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function getVersion()
     {
         return $this->version;
+    }
+
+    /**
+     * Returns recommendation versions including a virtual "current" version.
+     *
+     * Stored versions represent OLD recommendation texts (the state before each update).
+     * The virtual version represents the current live recommendation on the entity and
+     * has versionNumber = max stored version + 1 (or 1 if no stored versions exist).
+     *
+     * Returns the raw collection if recommendation is empty and no stored versions exist.
+     *
+     * @return Collection<int, RecommendationVersion>
+     */
+    public function getRecommendationVersions(): Collection
+    {
+        if ('' !== $this->recommendation) {
+            // Collection is ordered by versionNumber DESC, so first() is the latest.
+            $maxVersionNumber = $this->recommendationVersions->isEmpty()
+                ? 0
+                : $this->recommendationVersions->first()->getVersionNumber();
+
+            $virtualVersion = new RecommendationVersion();
+            // Virtual version needs an ID for API serialization.
+            // Use a deterministic ID derived from statement ID to ensure stability.
+            $virtualVersion->setId('virtual-' . $this->getId());
+            $virtualVersion->setStatement($this);
+            $virtualVersion->setVersionNumber($maxVersionNumber + 1);
+            $virtualVersion->setRecommendationText($this->recommendation);
+
+            // Prepend virtual version to maintain DESC order
+            $merged = new ArrayCollection([$virtualVersion, ...$this->recommendationVersions->toArray()]);
+
+            return $merged;
+        }
+
+        return $this->recommendationVersions;
     }
 
     /**

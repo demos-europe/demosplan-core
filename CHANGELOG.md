@@ -8,6 +8,7 @@
 
 ### Added
 - Make custom fields available in assessment table, original statement list, my releases list, and public statement dialogs
+- Track recommendation versions for statements and segments with full text snapshots, exposed via API and XLSX export (permission: `feature_enable_recommendation_versions`)
 
 ## v4.32.0 (2026-03-25)
 ### Added
