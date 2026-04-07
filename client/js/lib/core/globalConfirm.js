@@ -18,6 +18,12 @@ function isGlobalConfirmDialogAvailable () {
 /**
  * Show a global confirm dialog (custom DpConfirmDialog, not native browser confirm).
  * Returns true immediately if GlobalConfirmDialog is not available (allows navigation).
+ *
+ * @param {Object} options
+ * @param {string} options.message - The message to display
+ * @param {string} options.confirmButtonText - Text for confirm button
+ * @param {string} options.declineButtonText - Text for decline button
+ * @returns {Promise<string>} - 'save', 'discard', or 'cancel'
  */
 export function showGlobalConfirm ({
   message,
@@ -32,7 +38,7 @@ export function showGlobalConfirm ({
   return new Promise((resolve) => {
     const handleResult = (event) => {
       document.removeEventListener('global-confirm-dialog:result', handleResult)
-      resolve(event.detail.confirmed)
+      resolve(event.detail.action)
     }
 
     document.addEventListener('global-confirm-dialog:result', handleResult)
@@ -48,10 +54,14 @@ export function showGlobalConfirm ({
   })
 }
 
+/**
+ * Show unsaved changes confirm dialog
+ * @returns {Promise<string>} - 'save', 'discard', or 'cancel'
+ */
 export function showUnsavedChangesConfirm () {
   return showGlobalConfirm({
-    message: window.Translator?.trans('check.lock.loose.text') || 'You have unsaved changes. Do you really want to leave?',
-    confirmButtonText: window.Translator?.trans('leave') || 'Leave',
-    declineButtonText: window.Translator?.trans('abort') || 'Cancel',
+    message: 'Ihre Änderungen wurden noch nicht gespeichert.\n' + '\n' + 'Möchten Sie die Änderungen speichern, bevor Sie die Seite verlassen?',
+    confirmButtonText: 'Speichern und verlassen',
+    declineButtonText: 'Weiter bearbeiten',
   })
 }

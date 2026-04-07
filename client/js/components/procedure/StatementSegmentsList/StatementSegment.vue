@@ -724,6 +724,16 @@ export default {
       setSegment: 'setItem',
     }),
 
+    saveUnsavedChanges () {
+      return this.save()
+    },
+
+    onDiscardChanges () {
+      console.log('onDiscardChanges')
+      this.abort()
+      return Promise.resolve()
+    },
+
     abort () {
       // Restore initial recommendation value, set it also in tiptap
       const initText = this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation
@@ -988,7 +998,7 @@ export default {
         } :
         { id: this.segment.id }
 
-      this.saveSegmentAction(savePayload)
+      return this.saveSegmentAction(savePayload)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           this.isFullscreen = false
@@ -1004,10 +1014,11 @@ export default {
             }
           })
         })
-        .catch(() => {
+        .catch((error) => {
           this.restoreComments(comments)
           this.setProperty({ prop: 'isLoading', val: false })
           this.isEditing = false
+          throw error
         })
     },
 

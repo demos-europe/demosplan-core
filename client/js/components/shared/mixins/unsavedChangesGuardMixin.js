@@ -13,9 +13,15 @@
  * Components using this mixin must:
  * 1. Implement a `hasUnsavedChanges` computed property that returns a boolean
  *
+ * Components may optionally implement:
+ * 1. `saveUnsavedChanges()` - Called when user clicks "Save" button
+ * 2. `onDiscardChanges()` - Called when user clicks "Discard" button (before navigation)
+ * 3. `onCancelNavigation()` - Called when user clicks "Cancel" button (stays on page)
+ *
  * The mixin will:
  * - Show native browser dialog on page close/refresh/back
  * - Show global custom confirm dialog on in-page link navigation
+ * - Execute appropriate callbacks based on user's choice
  *
  * **IMPORTANT**: This mixin only works in projects that have GlobalConfirmDialog rendered.
  * If GlobalConfirmDialog is not available, the mixin does nothing (navigation works normally).
@@ -61,6 +67,43 @@ export default {
 
   methods: {
     /**
+     * Components SHOULD implement this method to save changes.
+     * This will be called when user clicks "Save" in the confirm dialog.
+     * If not implemented, the "Save" option will not be available.
+     *
+     * @returns {Promise<void>}
+     */
+    async saveUnsavedChanges () {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(
+          `Component "${this.$options.name || 'Unknown'}" is using unsavedChangesGuardMixin but hasn't implemented "saveUnsavedChanges" method.`
+        )
+      }
+    },
+
+    /**
+     * Components MAY implement this method to perform custom actions when user discards changes.
+     * This will be called when user clicks "Discard" in the confirm dialog.
+     * Called AFTER the user has confirmed they want to discard, but BEFORE navigation.
+     *
+     * @returns {Promise<void>}
+     */
+    async onDiscardChanges () {
+      // Optional hook - no warning needed
+    },
+
+    /**
+     * Components MAY implement this method to perform custom actions when user cancels navigation.
+     * This will be called when user clicks "Cancel" in the confirm dialog.
+     * Called when the user decides to stay on the current page.
+     *
+     * @returns {Promise<void>}
+     */
+    async onCancelNavigation () {
+      // Optional hook - no warning needed
+    },
+
+    /**
      * Handles the native browser beforeunload event.
      * Shows browser's native "leave page" dialog when user tries to:
      * - Close the browser tab/window
@@ -82,7 +125,7 @@ export default {
      *
      * @param {Event} event - The click event
      */
-    async handleLinkClick (event) {
+    handleLinkClick (event) {
       if (!this.hasUnsavedChanges) {
         return
       }
@@ -96,16 +139,36 @@ export default {
       event.preventDefault()
       event.stopPropagation()
 
-      try {
-        const confirmed = await showUnsavedChangesConfirm()
+      showUnsavedChangesConfirm()
+        .then(action => {
+          if (action === 'save') {
+            // User wants to save changes - call the save method
+            const savePromise = this.saveUnsavedChanges ? this.saveUnsavedChanges() : Promise.resolve()
 
-        if (confirmed) {
-          window.removeEventListener('beforeunload', this.handleBeforeUnload)
-          window.location.href = target.href
-        }
-      } catch (error) {
-        console.debug('Navigation cancelled by user', error)
-      }
+            return savePromise.then(() => {
+              window.removeEventListener('beforeunload', this.handleBeforeUnload)
+              window.location.href = target.href
+            })
+          } else if (action === 'discard') {
+            const discardPromise = this.onDiscardChanges ? this.onDiscardChanges() : Promise.resolve()
+
+            return discardPromise.then(() => {
+              window.removeEventListener('beforeunload', this.handleBeforeUnload)
+              window.location.href = target.href
+            })
+          } else if (action === 'cancel') {
+            if (this.onCancelNavigation) {
+              return this.onCancelNavigation()
+            }
+          }
+        })
+        .catch(error => {
+          console.debug('Navigation cancelled by user', error)
+          // On error, also call cancel hook
+          if (this.onCancelNavigation) {
+            return this.onCancelNavigation()
+          }
+        })
     },
   },
 
