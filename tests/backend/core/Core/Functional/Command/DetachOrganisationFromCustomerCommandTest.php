@@ -174,7 +174,7 @@ class DetachOrganisationFromCustomerCommandTest extends FunctionalTestCase
         $regularLabel = 'Regular Org | Type: Planning Agency | Status: accepted | ID: regular-orga-id';
         $callCount = 0;
         $this->questionHelperMock->method('ask')
-            ->willReturnCallback(function ($askInput, $askOutput, $question) use (&$capturedChoices, &$callCount, $regularLabel) {
+            ->willReturnCallback(function ($_askInput, $_askOutput, $question) use (&$capturedChoices, &$callCount, $regularLabel) {
                 ++$callCount;
 
                 if (1 === $callCount) {
