@@ -70,7 +70,6 @@
             padding-right: 2em;
         }
 
-
         .c-data-table__resizable {
             position: relative;
             overflow: hidden;
@@ -125,7 +124,6 @@
     table {
         margin-bottom: $inuit-base-spacing-unit;
     }
-
 
     td,
     th {
@@ -211,7 +209,6 @@
             background-color: $dp-color-white;
         }
     }
-
 
     // When expand follows flyout, offset flyout left by the expand column's width
     td.c-data-table__col--flyout:has(+ td.c-data-table__col--expand),

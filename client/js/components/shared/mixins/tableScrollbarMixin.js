@@ -107,7 +107,7 @@ export default {
       const scrollWidth = this.dataTableContainerElement.scrollWidth
       const clientWidth = this.dataTableContainerElement.clientWidth
       const trackWidth = this.scrollbar.clientWidth
-      const thumbWidth = parseFloat(this.thumbStyle.width)
+      const thumbWidth = Number.parseFloat(this.thumbStyle.width)
 
       const onMousemove = (moveEvent) => {
         const dx = moveEvent.clientX - startX
