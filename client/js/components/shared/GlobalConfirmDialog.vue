@@ -10,13 +10,16 @@
 <template>
   <dp-confirm-dialog
     id="globalConfirmDialog"
-    ref="confirmDialog"
-    :confirm-button-text="confirmButtonText"
-    :decline-button-text="declineButtonText"
-    :message="message"
-    third-action-text="Änderung verwerfen"
-    @handle-confirm="handleConfirm"
-    @third-action="handleThirdAction"
+    ref="globalConfirmDialog"
+    :confirm-button-text="Translator.trans('save.leave')"
+    content-header-classes="font-size-h2 border--none pb-4"
+    :decline-button-text="Translator.trans('edit.continue')"
+    :header="Translator.trans('unsaved.changes')"
+    :message="Translator.trans('warning.unsaved.changes')"
+    :tertiary-button-text="Translator.trans('change.discard')"
+    secondary-btn-variant="outline"
+    @confirmed="handleConfirm"
+    @tertiary-action="handleTertiaryAction"
   />
 </template>
 
@@ -32,74 +35,51 @@ export default {
 
   data () {
     return {
-      confirmButtonText: '',
-      declineButtonText: '',
-      message: '',
       currentResolver: null,
+      handleGlobalConfirmDialogShow: null,
     }
   },
 
   methods: {
-    /**
-     * Show confirm dialog and return a promise
-     * @param {Object} options
-     * @param {string} options.message - The message to display
-     * @param {string} options.confirmButtonText - Text for confirm button
-     * @param {string} options.declineButtonText - Text for decline button
-     * @returns {Promise<string>} - Resolves to 'save', 'discard', or 'cancel'
-     */
-    show ({ message, confirmButtonText, declineButtonText }) {
-      this.message = message
-      this.confirmButtonText = confirmButtonText
-      this.declineButtonText = declineButtonText
-
-      // Create a promise that will be resolved by the event handlers
-      return new Promise((resolve) => {
+    show () {
+      return new Promise(resolve => {
         this.currentResolver = resolve
-        this.$refs.confirmDialog.open()
+        this.$refs.globalConfirmDialog.open()
       })
     },
 
-    handleConfirm (isConfirmed) {
-      if (isConfirmed) {
-        if (this.currentResolver) {
-          this.currentResolver('save')
-          this.currentResolver = null
-        }
-      } else {
-        if (this.currentResolver) {
-          this.currentResolver('cancel')
-          this.currentResolver = null
-        }
+    resolveDialog (action) {
+      if (!this.currentResolver) {
+        return
       }
+
+      this.currentResolver(action)
+      this.currentResolver = null
     },
 
-    handleThirdAction () {
-      if (this.currentResolver) {
-        this.currentResolver('discard')
-        this.currentResolver = null
-      }
+    handleConfirm (isConfirmed) {
+      this.resolveDialog(isConfirmed ? 'save' : 'cancel')
+    },
+
+    handleTertiaryAction () {
+      this.resolveDialog('discard')
     },
   },
 
   mounted () {
-    // Listen for global confirm dialog requests
-    document.addEventListener('global-confirm-dialog:show', async (event) => {
-      try {
-        const result = await this.show(event.detail)
-        // Dispatch result event with action (save/discard/cancel)
-        const resultEvent = new CustomEvent('global-confirm-dialog:result', {
-          detail: { action: result },
-        })
-        document.dispatchEvent(resultEvent)
-      } catch (error) {
-        // User cancelled or error occurred
-        const resultEvent = new CustomEvent('global-confirm-dialog:result', {
-          detail: { action: 'cancel' },
-        })
-        document.dispatchEvent(resultEvent)
-      }
-    })
+    this.handleGlobalConfirmDialogShow = async () => {
+      const result = await this.show()
+
+      document.dispatchEvent(new CustomEvent('global-confirm-dialog:result', {
+        detail: { action: result },
+      }))
+    }
+
+    document.addEventListener('global-confirm-dialog:show', this.handleGlobalConfirmDialogShow)
+  },
+
+  beforeUnmount () {
+    document.removeEventListener('global-confirm-dialog:show', this.handleGlobalConfirmDialogShow)
   },
 }
 </script>
