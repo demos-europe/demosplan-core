@@ -10,23 +10,12 @@
 /**
  * Mixin to guard against navigation when there are unsaved changes.
  *
- * **IMPORTANT - USE IN PARENT COMPONENTS ONLY**:
- * - Only add this mixin to ONE parent/container component per page
- * - DO NOT add this mixin to multiple child components on the same page
- * - Parent component should aggregate `hasUnsavedChanges` from all children
- * - Parent component should coordinate save/discard actions for all children
- *
  * Components using this mixin must:
  * 1. Implement a `hasUnsavedChanges` computed property that returns a boolean
- *    - For parent components: aggregate from all child components
- *    - Example: `return this.$refs.child1?.hasUnsavedChanges || this.$refs.child2?.hasUnsavedChanges`
  *
  * Components may optionally implement:
  * 1. `saveUnsavedChanges()` - Called when user clicks "Save" button
- *    - For parent components: should call save methods on all child components with changes
- *    - Example: `return Promise.all([this.$refs.child1.save(), this.$refs.child2.save()])`
- * 2. `onDiscardChanges()` - Called when user clicks "Discard" button (before navigation)
- *    - For parent components: should call discard/reset methods on all child components
+ * 2. `onDiscardChanges()` - Called when user clicks "Discard" button (stays on page)
  * 3. `onCancelNavigation()` - Called when user clicks "Cancel" button (stays on page)
  *
  * The mixin will:
@@ -52,14 +41,8 @@ function isGlobalConfirmDialogAvailable () {
 export default {
   data () {
     return {
-      /**
-       * Flag to track if the mixin is active in this project
-       */
       isUnsavedChangesGuardActive: false,
-      /**
-       * Flag to prevent beforeunload when intentionally navigating
-       */
-      allowNavigation: false,
+      isNavigationConfirmed: false,
     }
   },
 
@@ -67,8 +50,6 @@ export default {
     /**
      * Components MUST implement this computed property.
      * Should return true if there are unsaved changes, false otherwise.
-     *
-     * @returns {boolean}
      */
     hasUnsavedChanges () {
       if (process.env.NODE_ENV === 'development') {
@@ -84,9 +65,6 @@ export default {
     /**
      * Components SHOULD implement this method to save changes.
      * This will be called when user clicks "Save" in the confirm dialog.
-     * If not implemented, the "Save" option will not be available.
-     *
-     * @returns {Promise<void>}
      */
     async saveUnsavedChanges () {
       if (process.env.NODE_ENV === 'development') {
@@ -99,9 +77,6 @@ export default {
     /**
      * Components MAY implement this method to perform custom actions when user discards changes.
      * This will be called when user clicks "Discard" in the confirm dialog.
-     * Called AFTER the user has confirmed they want to discard, but BEFORE navigation.
-     *
-     * @returns {Promise<void>}
      */
     async onDiscardChanges () {
       // Optional hook - no warning needed
@@ -110,25 +85,19 @@ export default {
     /**
      * Components MAY implement this method to perform custom actions when user cancels navigation.
      * This will be called when user clicks "Cancel" in the confirm dialog.
-     * Called when the user decides to stay on the current page.
-     *
-     * @returns {Promise<void>}
      */
     async onCancelNavigation () {
       // Optional hook - no warning needed
     },
 
     /**
-     * Handles the native browser beforeunload event.
      * Shows browser's native "leave page" dialog when user tries to:
      * - Close the browser tab/window
      * - Refresh the page
      * - Use browser back/forward buttons
-     *
-     * @param {Event} event - The beforeunload event
      */
     handleBeforeUnload (event) {
-      if (this.hasUnsavedChanges && !this.allowNavigation) {
+      if (this.hasUnsavedChanges && !this.isNavigationConfirmed) {
         event.preventDefault()
         event.returnValue = ''
       }
@@ -137,8 +106,6 @@ export default {
     /**
      * Handles clicks on links within the page.
      * Shows global custom confirm dialog before allowing navigation to proceed.
-     *
-     * @param {Event} event - The click event
      */
     handleLinkClick (event) {
       if (!this.hasUnsavedChanges) {
@@ -157,11 +124,10 @@ export default {
       showUnsavedChangesConfirm()
         .then(action => {
           if (action === 'save') {
-            // User wants to save changes - call the save method
             const savePromise = this.saveUnsavedChanges ? this.saveUnsavedChanges() : Promise.resolve()
 
             return savePromise.then(() => {
-              this.allowNavigation = true
+              this.isNavigationConfirmed = true
               window.location.href = target.href
             })
           } else if (action === 'discard') {
@@ -175,8 +141,6 @@ export default {
           }
         })
         .catch(error => {
-          console.debug('Navigation cancelled by user', error)
-          // On error, also call cancel hook
           if (this.onCancelNavigation) {
             return this.onCancelNavigation()
           }
@@ -185,7 +149,6 @@ export default {
   },
 
   mounted () {
-    // Check if GlobalConfirmDialog is available
     if (!isGlobalConfirmDialogAvailable()) {
       return
     }
