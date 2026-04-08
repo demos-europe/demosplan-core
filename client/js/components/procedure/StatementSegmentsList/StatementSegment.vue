@@ -1009,6 +1009,9 @@ export default {
         })
     },
 
+    /**
+     * Required by unsavedChangesGuardMixin
+     */
     saveUnsavedChanges () {
       return this.save()
     },
@@ -1126,6 +1129,9 @@ export default {
       this.$refs.recommendationModal.toggle()
     },
 
+    /**
+     * unsavedChangesGuardMixin
+     */
     onDiscardChanges () {
       this.abort()
     },

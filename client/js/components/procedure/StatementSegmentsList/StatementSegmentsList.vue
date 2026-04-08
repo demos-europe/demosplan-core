@@ -546,14 +546,6 @@ export default {
       'toggleSlidebarContent',
     ]),
 
-    handleHashChange () {
-      const hash = window.location.hash.slice(1)
-
-      if (hash === 'recommendation' || hash === 'details') {
-        this.currentAction = hash
-      }
-    },
-
     checkStatementClaim () {
       if (this.statementClaimChecked === false) {
         this.statementClaimChecked = true
@@ -637,6 +629,14 @@ export default {
       })
 
       return this.getStatementAction(params)
+    },
+
+    handleHashChange () {
+      const hash = window.location.hash.slice(1)
+
+      if (hash === 'recommendation' || hash === 'details') {
+        this.currentAction = hash
+      }
     },
 
     hasDraftSegments () {
@@ -832,7 +832,6 @@ export default {
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
 
-    // Listen for hash changes (allows tab switching without page reload)
     window.addEventListener('hashchange', this.handleHashChange)
 
     this.fetchProcedureMapSettings({ procedureId: this.procedure.id })
@@ -851,7 +850,6 @@ export default {
   },
 
   beforeUnmount () {
-    // Clean up hash change listener
     window.removeEventListener('hashchange', this.handleHashChange)
   },
 }

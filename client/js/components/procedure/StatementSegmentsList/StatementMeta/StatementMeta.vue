@@ -325,8 +325,6 @@ export default {
       const submitterHasChanges = this.$refs.statementSubmitter?.hasUnsavedChanges || false
       const attachmentsHaveChanges = this.$refs.statementMetaAttachments?.hasUnsavedChanges || false
 
-      // Add more child components here if needed
-
       return attachmentsHaveChanges || entryHasChanges || submitterHasChanges
     },
   },
@@ -418,7 +416,6 @@ export default {
     },
 
     /**
-     * Save changes in child components
      * Required by unsavedChangesGuardMixin
      */
     saveUnsavedChanges () {
@@ -440,8 +437,7 @@ export default {
     },
 
     /**
-     * Discard changes in child components
-     * Required by unsavedChangesGuardMixin
+     * unsavedChangesGuardMixin
      */
     onDiscardChanges () {
       if (this.$refs.statementEntry?.hasUnsavedChanges) {

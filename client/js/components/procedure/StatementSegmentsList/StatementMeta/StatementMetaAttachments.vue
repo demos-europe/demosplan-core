@@ -528,7 +528,6 @@ export default {
         .catch(error => {
           console.error(error)
           this.isProcessingGenericAttachments = false
-          throw error
         })
     },
 

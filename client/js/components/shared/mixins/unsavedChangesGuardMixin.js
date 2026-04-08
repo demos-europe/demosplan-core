@@ -48,7 +48,6 @@ export default {
   computed: {
     /**
      * Components MUST implement this computed property.
-     * Should return true if there are unsaved changes, false otherwise.
      */
     hasUnsavedChanges () {
       if (process.env.NODE_ENV === 'development') {
@@ -74,7 +73,6 @@ export default {
     },
 
     /**
-     * Components MAY implement this method to perform custom actions when user discards changes.
      * This will be called when user clicks "Discard" in the confirm dialog.
      */
     async onDiscardChanges () {
@@ -82,7 +80,6 @@ export default {
     },
 
     /**
-     * Components MAY implement this method to perform custom actions when user cancels navigation.
      * This will be called when user clicks "Cancel" in the confirm dialog.
      */
     async onCancelNavigation () {
@@ -111,8 +108,9 @@ export default {
         return
       }
 
-      const target = event.target.closest('a')
-      if (!target || !target.href) {
+      const link = event.target.closest('a')
+
+      if (!link?.href) {
         return
       }
 
@@ -123,27 +121,23 @@ export default {
       showUnsavedChangesConfirm()
         .then(action => {
           if (action === 'save') {
-            const savePromise = this.saveUnsavedChanges ? this.saveUnsavedChanges() : Promise.resolve()
+            const savePromise = this.saveUnsavedChanges()
 
             return savePromise.then(() => {
               this.isNavigationConfirmed = true
-              window.location.href = target.href
+              globalThis.location.href = link.href
             })
-          } else if (action === 'discard') {
-            if (this.onDiscardChanges) {
-              return this.onDiscardChanges()
-            }
-          } else if (action === 'cancel') {
-            if (this.onCancelNavigation) {
-              return this.onCancelNavigation()
-            }
           }
-        })
-        .catch(error => {
-          if (this.onCancelNavigation) {
+
+          if (action === 'discard') {
+            return this.onDiscardChanges()
+          }
+
+          if (action === 'cancel') {
             return this.onCancelNavigation()
           }
         })
+        .catch(() => this.onCancelNavigation())
     },
   },
 
