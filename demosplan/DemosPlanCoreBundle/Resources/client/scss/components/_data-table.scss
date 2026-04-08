@@ -115,6 +115,7 @@
             }
         }
 
+        // When the hovered resizable column is immediately followed by a flyout or expand column, the border is hidden to avoid visual clutter.
         th.c-data-table__resizable:has(+ th.c-data-table__col--flyout),
         th.c-data-table__resizable:has(+ th.c-data-table__col--expand) {
             &:hover {
