@@ -109,9 +109,21 @@
         }
 
         @for $i from 1 through $data-table-max-columns {
-            &:has(th.c-data-table__resizable:nth-child(#{$i}):hover) td:nth-child(#{$i}) {
+            &:has(th.c-data-table__resizable:nth-child(#{$i}):hover) td:nth-child(#{$i}):not(:has(+ td.c-data-table__col--flyout)):not(:has(+ td.c-data-table__col--expand)) {
                 border-right-width: 2px !important;
                 border-right-color: var(--dp-color-interactive, #006fd0) !important;
+            }
+        }
+
+        th.c-data-table__resizable:has(+ th.c-data-table__col--flyout),
+        th.c-data-table__resizable:has(+ th.c-data-table__col--expand) {
+            &:hover {
+                border-right-width: 0 !important;
+                border-right-color: transparent !important;
+            }
+
+            .c-data-table__resize-handle {
+                display: none;
             }
         }
     }
