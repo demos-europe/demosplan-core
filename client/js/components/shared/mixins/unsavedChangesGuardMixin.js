@@ -8,33 +8,42 @@
  */
 
 /**
- * Mixin to guard against navigation when there are unsaved changes.
+ * Mixin that prevents navigation when there are unsaved changes.
  *
- * Components using this mixin must:
- * 1. Implement a `hasUnsavedChanges` computed property that returns a boolean
+ * Components using this mixin must implement:
+ * - `hasUnsavedChanges` (computed): returns whether the component has unsaved changes
  *
- * Components may optionally implement:
- * 1. `saveUnsavedChanges()` - Called when user clicks "Save" button
- * 2. `onDiscardChanges()` - Called when user clicks "Discard" button (stays on page)
- * 3. `onCancelNavigation()` - Called when user clicks "Cancel" button (stays on page)
+ * Components may optionally override:
+ * - `saveUnsavedChanges()`: called when the user clicks "Save"
+ * - `onDiscardChanges()`: called when the user clicks "Discard" (stays on the page)
+ * - `onCancelNavigation()`: called when the user clicks "Cancel" (stays on the page)
  *
- * The mixin will:
- * - Show native browser dialog on page close/refresh/back
- * - Show global custom confirm dialog on in-page link navigation
- * - Execute appropriate callbacks based on user's choice
+ * The mixin shows the native browser dialog on page unload and a global custom dialog on link navigation.
  *
- * **IMPORTANT**: This mixin only works in projects that have GlobalConfirmDialog rendered.
- * If GlobalConfirmDialog is not available, the mixin does nothing (navigation works normally).
- *
- * No need to import or add DpConfirmDialog to template - the global dialog is used automatically.
+ * IMPORTANT: Works only if `GlobalConfirmDialog` is rendered.
+ * If it is not available, the mixin stays inactive and navigation works normally.
  */
-import { showUnsavedChangesConfirm } from '@DpJs/lib/core/globalConfirm'
 
 /**
  * Check if GlobalConfirmDialog component is available in the DOM
  */
 function isGlobalConfirmDialogAvailable () {
   return document.querySelector('#globalConfirmDialog') !== null
+}
+
+/**
+ * @returns {Promise<'save' | 'discard' | 'cancel'>}
+ */
+function showUnsavedChangesConfirmDialog () {
+  return new Promise((resolve) => {
+    const handleResult = (event) => {
+      document.removeEventListener('global-confirm-dialog:result', handleResult)
+      resolve(event.detail.action)
+    }
+
+    document.addEventListener('global-confirm-dialog:result', handleResult)
+    document.dispatchEvent(new CustomEvent('global-confirm-dialog:show'))
+  })
 }
 
 export default {
@@ -60,10 +69,6 @@ export default {
   },
 
   methods: {
-    /**
-     * Components SHOULD implement this method to save changes.
-     * This will be called when user clicks "Save" in the confirm dialog.
-     */
     async saveUnsavedChanges () {
       if (process.env.NODE_ENV === 'development') {
         console.warn(
@@ -72,19 +77,9 @@ export default {
       }
     },
 
-    /**
-     * This will be called when user clicks "Discard" in the confirm dialog.
-     */
-    async onDiscardChanges () {
-      // Optional hook - no warning needed
-    },
+    async onDiscardChanges () {},
 
-    /**
-     * This will be called when user clicks "Cancel" in the confirm dialog.
-     */
-    async onCancelNavigation () {
-      // Optional hook - no warning needed
-    },
+    async onCancelNavigation () {},
 
     /**
      * Shows browser's native "leave page" dialog when user tries to:
@@ -114,11 +109,10 @@ export default {
         return
       }
 
-      // Prevent default navigation
       event.preventDefault()
       event.stopPropagation()
 
-      showUnsavedChangesConfirm()
+      showUnsavedChangesConfirmDialog()
         .then(action => {
           if (action === 'save') {
             const savePromise = this.saveUnsavedChanges()
@@ -148,10 +142,7 @@ export default {
 
     this.isUnsavedChangesGuardActive = true
 
-    // Listen for browser-level navigation attempts (close, refresh, back)
     window.addEventListener('beforeunload', this.handleBeforeUnload)
-
-    // Listen for link clicks (in-page navigation)
     document.addEventListener('click', this.handleLinkClick, true)
   },
 
