@@ -146,12 +146,7 @@ class SegmentService extends CoreService implements SegmentServiceInterface
         // This method bypasses Statement::setRecommendation() (uses raw DQL for performance),
         // so we must call recordVersion() explicitly here.
         // @see Statement::setRecommendation() for the ORM-based hook that handles all other paths.
-        foreach ($segments as $segment) {
-            $effectiveNewText = $attach
-                ? $segment->getRecommendation() . $recommendationText
-                : $recommendationText;
-            $this->recommendationVersionService->recordVersion($segment, $segment->getRecommendation(), $effectiveNewText);
-        }
+        $this->recommendationVersionService->recordVersionsForBulkEdit($segments, $recommendationText, $attach);
 
         // do the actual change in the database
         $segmentIds = array_map(static fn (Segment $segment): string => $segment->getId(), $segments);
