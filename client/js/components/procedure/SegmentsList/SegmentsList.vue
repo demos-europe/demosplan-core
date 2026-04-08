@@ -313,7 +313,7 @@
                 <a
                   class="block leading-[2] whitespace-nowrap"
                   :href="Routing.generate('dplan_statement_segments_list', {
-                    action: 'editText',
+                    action: 'details',
                     procedureId: procedureId,
                     segment: rowData.id,
                     statementId: rowData.relationships.parentStatement.data.id

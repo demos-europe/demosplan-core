@@ -47,17 +47,17 @@
             class="btn-group"
           >
             <a
-              href="#addRecommendation"
+              href="#recommendation"
               class="btn btn--outline btn--primary p-2"
-              :class="{'is-current': currentAction === 'addRecommendation'}"
+              :class="{'is-current': currentAction === 'recommendation'}"
               data-cy="addRecommendation"
             >
               {{ Translator.trans('segment.recommendation') }}
             </a>
             <a
-              href="#editText"
+              href="#details"
               class="btn btn--outline btn--primary p-2"
-              :class="{'is-current': currentAction === 'editText'}"
+              :class="{'is-current': currentAction === 'details'}"
               data-cy="editText"
             >
               {{ Translator.trans('details') }}
@@ -174,13 +174,13 @@
         @updated-voters="getStatement"
       />
       <segments-recommendations
-        v-if="currentAction === 'addRecommendation' && hasPermission('feature_segment_recommendation_edit')"
+        v-if="currentAction === 'recommendation' && hasPermission('feature_segment_recommendation_edit')"
         :current-user="currentUser"
         :procedure-id="procedure.id"
         :statement-id="statementId"
       />
       <statement-segments-edit
-        v-else-if="currentAction === 'editText'"
+        v-else-if="currentAction === 'details'"
         :current-user="currentUser"
         :editable="editable"
         :has-draft-segments="hasDraftSegments()"
@@ -337,7 +337,7 @@ export default {
 
   data () {
     return {
-      currentAction: 'addRecommendation',
+      currentAction: 'recommendation',
       isLoading: false,
       procedureMapSettings: {},
       returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedure.id }),
@@ -506,7 +506,7 @@ export default {
   watch: {
     currentAction: {
       handler () {
-        this.showInfobox = this.currentAction === 'editText'
+        this.showInfobox = this.currentAction === 'details'
       },
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
     },
@@ -546,14 +546,10 @@ export default {
       'toggleSlidebarContent',
     ]),
 
-    /**
-     * Handle hash change to update current action based on URL hash
-     * This is called both by link clicks and browser back/forward navigation
-     */
     handleHashChange () {
-      const hash = window.location.hash.slice(1) // Remove the '#'
+      const hash = window.location.hash.slice(1)
 
-      if (hash === 'addRecommendation' || hash === 'editText') {
+      if (hash === 'recommendation' || hash === 'details') {
         this.currentAction = hash
       }
     },
@@ -629,6 +625,12 @@ export default {
       this.getAdminProcedureWithFields(payload)
     },
 
+    getActionFromQueryParams (queryParams) {
+      const action = queryParams.get('action')
+
+      return action?.split('?')[0] || null
+    },
+
     getStatement () {
       const params = buildDetailedStatementQuery(this.statementId, {
         isSourceAndCoupledProcedure: this.isSourceAndCoupledProcedure,
@@ -639,6 +641,16 @@ export default {
 
     hasDraftSegments () {
       return Boolean(this.statement?.attributes?.segmentDraftList?.data?.attributes?.segments?.length)
+    },
+
+
+    moveActionToHash(queryParams) {
+      queryParams.delete('action')
+
+      const search = queryParams.toString()
+      const newUrl = `${window.location.pathname}${search ? `?${search}` : ''}#${this.currentAction}`
+
+      window.history.replaceState({}, '', newUrl)
     },
 
     removeNavigationSourceStorageEntry () {
@@ -691,23 +703,24 @@ export default {
     },
 
     setInitialAction () {
-      // First check URL hash
-      const hash = window.location.hash.slice(1) // Remove the '#'
-      if (hash === 'addRecommendation' || hash === 'editText') {
+      const hash = window.location.hash.slice(1)
+
+      if (hash === 'recommendation' || hash === 'details') {
         this.currentAction = hash
+
         return
       }
 
-      // Fallback to query params
       const queryParams = new URLSearchParams(window.location.search)
-      let action = queryParams.get('action')
+      const actionFromParams = this.getActionFromQueryParams(queryParams)
 
-      if (action?.includes('?')) {
-        action = action.split('?')[0]
+      const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'recommendation' : 'details'
+      const selectedAction = actionFromParams || defaultAction
+      this.currentAction = selectedAction
+
+      if (actionFromParams) {
+        this.moveActionToHash(queryParams)
       }
-
-      const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'addRecommendation' : 'editText'
-      this.currentAction = action || defaultAction
     },
 
     setReturnLink () {
@@ -763,7 +776,7 @@ export default {
     },
 
     toggleInfobox () {
-      this.currentAction = 'editText'
+      this.currentAction = 'details'
       this.$refs.metadataFlyout.isExpanded = false
     },
 
@@ -819,8 +832,9 @@ export default {
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
 
-    // Listen for hash changes (e.g., browser back/forward navigation)
+    // Listen for hash changes (allows tab switching without page reload)
     window.addEventListener('hashchange', this.handleHashChange)
+
     this.fetchProcedureMapSettings({ procedureId: this.procedure.id })
       .then(response => {
         if (response?.attributes) {
@@ -837,7 +851,7 @@ export default {
   },
 
   beforeUnmount () {
-    // Remove hash change listener
+    // Clean up hash change listener
     window.removeEventListener('hashchange', this.handleHashChange)
   },
 }
