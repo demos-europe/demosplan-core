@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
-use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PostLoadEventArgs;
 use Doctrine\ORM\Mapping\PostLoad;
 
 /**
@@ -43,7 +43,7 @@ class RecommendationVersionEntityListener
     }
 
     /** @PostLoad */
-    public function postLoad(Statement $statement, LifecycleEventArgs $event): void
+    public function postLoad(Statement $statement, PostLoadEventArgs $event): void
     {
         $statement->setRecommendationVersionService($this->recommendationVersionService);
     }
