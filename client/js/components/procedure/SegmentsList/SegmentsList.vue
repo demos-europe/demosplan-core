@@ -581,6 +581,8 @@ export default {
         .map(customField => ({
           field: `customField_${customField.id}`,
           label: customField.attributes.name,
+          colWidth: '180px',
+          initialMinWidth: 180,
         }))
 
       return [
