@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\RecommendationVersion;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\RecommendationVersionResourceConfigBuilder;
@@ -44,7 +46,17 @@ final class RecommendationVersionResourceType extends DplanResourceType
 
     protected function getAccessConditions(): array
     {
-        return [];
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (!$procedure instanceof Procedure) {
+            return [$this->conditionFactory->false()];
+        }
+
+        return [
+            $this->conditionFactory->propertyHasValue(
+                $procedure->getId(),
+                Paths::recommendationVersion()->statement->procedure->id
+            ),
+        ];
     }
 
     protected function getProperties(): ResourceConfigBuilderInterface
@@ -54,7 +66,10 @@ final class RecommendationVersionResourceType extends DplanResourceType
         $configBuilder->id->setReadableByPath();
         $configBuilder->versionNumber->setReadableByPath()->setFilterable()->setSortable();
         $configBuilder->recommendationText->setReadableByPath();
-        $configBuilder->createdAt->setReadableByPath()->setFilterable()->setSortable();
+        $configBuilder->createdAt
+            ->setReadableByCallable(fn (RecommendationVersion $version): ?string => $this->formatDate($version->getCreatedAt()))
+            ->setFilterable()
+            ->setSortable();
         $configBuilder->statement
             ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
             ->setReadableByPath()

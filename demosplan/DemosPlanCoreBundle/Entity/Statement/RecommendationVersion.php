@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RecommendationVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -38,7 +39,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\RecommendationVersionRepository")
  */
-class RecommendationVersion extends CoreEntity implements UuidEntityInterface
+class RecommendationVersion extends CoreEntity implements UuidEntityInterface, RecommendationVersionInterface
 {
     /**
      * @var string|null
@@ -129,7 +130,7 @@ class RecommendationVersion extends CoreEntity implements UuidEntityInterface
         $this->recommendationText = $recommendationText;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): ?DateTime
     {
         return $this->createdAt;
     }
