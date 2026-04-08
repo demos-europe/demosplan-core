@@ -70,6 +70,7 @@
             padding-right: 2em;
         }
 
+
         .c-data-table__resizable {
             position: relative;
             overflow: hidden;
@@ -109,22 +110,9 @@
         }
 
         @for $i from 1 through $data-table-max-columns {
-            &:has(th.c-data-table__resizable:nth-child(#{$i}):hover) td:nth-child(#{$i}):not(:has(+ td.c-data-table__col--flyout)):not(:has(+ td.c-data-table__col--expand)) {
+            &:has(th.c-data-table__resizable:nth-child(#{$i}):hover) td:nth-child(#{$i}) {
                 border-right-width: 2px !important;
                 border-right-color: var(--dp-color-interactive, #006fd0) !important;
-            }
-        }
-
-        // When the hovered resizable column is immediately followed by a flyout or expand column, the border is hidden to avoid visual clutter.
-        th.c-data-table__resizable:has(+ th.c-data-table__col--flyout),
-        th.c-data-table__resizable:has(+ th.c-data-table__col--expand) {
-            &:hover {
-                border-right-width: 0 !important;
-                border-right-color: transparent !important;
-            }
-
-            .c-data-table__resize-handle {
-                display: none;
             }
         }
     }
@@ -137,6 +125,7 @@
     table {
         margin-bottom: $inuit-base-spacing-unit;
     }
+
 
     td,
     th {
@@ -198,6 +187,11 @@
      * regular data columns in resizable-only tables (e.g. InstitutionList) are never affected.
      */
 
+    // Allow mouse events to pass through the flyout header cell so the last column's resize handle remains accessible
+    th.c-data-table__col--flyout {
+        pointer-events: none;
+    }
+
     td.c-data-table__col--flyout,
     th.c-data-table__col--flyout {
         position: sticky;
@@ -217,6 +211,7 @@
             background-color: $dp-color-white;
         }
     }
+
 
     // When expand follows flyout, offset flyout left by the expand column's width
     td.c-data-table__col--flyout:has(+ td.c-data-table__col--expand),
