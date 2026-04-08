@@ -241,9 +241,6 @@ export default {
       return this.localStatement.attributes.isManual
     },
 
-    /**
-     * Required by unsavedChangesGuardMixin
-     */
     hasUnsavedChanges () {
       if (!this.localStatement || !this.statement) {
         return false
@@ -345,11 +342,6 @@ export default {
           initialOrganisationCity: attrs.initialOrganisationCity,
         },
       })
-    },
-
-    saveUnsavedChanges () {
-      this.save()
-      return Promise.resolve()
     },
 
     setInitValues () {

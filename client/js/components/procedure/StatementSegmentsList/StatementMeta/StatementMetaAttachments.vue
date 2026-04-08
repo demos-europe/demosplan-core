@@ -277,9 +277,6 @@ export default {
   },
 
   computed: {
-    /**
-     * Required by unsavedChangesGuardMixin
-     */
     hasUnsavedChanges () {
       if (!this.localAttachments || !this.initialAttachments) {
         return false
@@ -488,10 +485,6 @@ export default {
       } else {
         this.createSourceAttachment()
       }
-    },
-
-    saveUnsavedChanges () {
-      return this.saveGenericAttachments()
     },
 
     saveGenericAttachments () {

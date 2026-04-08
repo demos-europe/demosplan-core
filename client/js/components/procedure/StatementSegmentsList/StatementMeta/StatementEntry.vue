@@ -244,9 +244,6 @@ export default {
       return this.localStatement.attributes.isManual
     },
 
-    /**
-     * Required by unsavedChangesGuardMixin
-     */
     hasUnsavedChanges () {
       if (!this.localStatement || !this.statement) {
         return false
@@ -299,11 +296,6 @@ export default {
         changes.attributes.memo = attrs.memo
       }
       this.$emit('save', changes)
-    },
-
-    saveUnsavedChanges () {
-      this.save()
-      return Promise.resolve()
     },
 
     setDate (val, field) {

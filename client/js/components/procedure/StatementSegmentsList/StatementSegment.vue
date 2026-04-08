@@ -646,11 +646,9 @@ export default {
 
     /**
      * Required by unsavedChangesGuardMixin
-     * Returns true if there are unsaved changes
      */
     hasUnsavedChanges () {
-      return this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation !==
-        this.segment.attributes.recommendation
+      return this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation !== this.segment.attributes.recommendation
     },
 
     hasRecommendationTabs () {
@@ -1004,11 +1002,10 @@ export default {
             }
           })
         })
-        .catch((error) => {
+        .catch(() => {
           this.restoreComments(comments)
           this.setProperty({ prop: 'isLoading', val: false })
           this.isEditing = false
-          throw error
         })
     },
 

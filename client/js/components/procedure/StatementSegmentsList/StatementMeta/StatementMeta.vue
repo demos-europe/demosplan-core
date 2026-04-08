@@ -321,11 +321,11 @@ export default {
      * Required by unsavedChangesGuardMixin
      */
     hasUnsavedChanges () {
-      const attachmentsHaveChanges = this.$refs.statementMetaAttachments?.hasUnsavedChanges || false
       const entryHasChanges = this.$refs.statementEntry?.hasUnsavedChanges || false
       const submitterHasChanges = this.$refs.statementSubmitter?.hasUnsavedChanges || false
+      const attachmentsHaveChanges = this.$refs.statementMetaAttachments?.hasUnsavedChanges || false
 
-      // Add more child components here as needed
+      // Add more child components here if needed
 
       return attachmentsHaveChanges || entryHasChanges || submitterHasChanges
     },
@@ -418,43 +418,43 @@ export default {
     },
 
     /**
-     * Save changes in all child components
+     * Save changes in child components
      * Required by unsavedChangesGuardMixin
      */
     saveUnsavedChanges () {
       const promises = []
-
-      if (this.$refs.statementMetaAttachments?.hasUnsavedChanges) {
-        promises.push(this.$refs.statementMetaAttachments.saveGenericAttachments())
-      }
 
       if (this.$refs.statementEntry?.hasUnsavedChanges) {
         promises.push(this.$refs.statementEntry.save())
       }
 
       if (this.$refs.statementSubmitter?.hasUnsavedChanges) {
-         promises.push(this.$refs.statementSubmitter.save())
+        promises.push(this.$refs.statementSubmitter.save())
+      }
+
+      if (this.$refs.statementMetaAttachments?.hasUnsavedChanges) {
+        promises.push(this.$refs.statementMetaAttachments.saveGenericAttachments())
       }
 
       return Promise.all(promises)
     },
 
     /**
-     * Discard changes in all child components
+     * Discard changes in child components
      * Required by unsavedChangesGuardMixin
      */
     onDiscardChanges () {
+      if (this.$refs.statementEntry?.hasUnsavedChanges) {
+        this.$refs.statementEntry.reset()
+      }
+
+      if (this.$refs.statementSubmitter?.hasUnsavedChanges) {
+        this.$refs.statementSubmitter.reset()
+      }
+
       if (this.$refs.statementMetaAttachments?.hasUnsavedChanges) {
         this.$refs.statementMetaAttachments.handleResetGenericAttachments()
       }
-
-      if (this.$refs.statementEntry?.hasUnsavedChanges) {
-         this.$refs.statementEntry.reset()
-       }
-
-       if (this.$refs.statementSubmitter?.hasUnsavedChanges) {
-         this.$refs.statementSubmitter.reset()
-       }
 
       return Promise.resolve()
     },

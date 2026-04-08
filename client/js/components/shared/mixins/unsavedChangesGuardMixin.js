@@ -32,7 +32,6 @@ import { showUnsavedChangesConfirm } from '@DpJs/lib/core/globalConfirm'
 
 /**
  * Check if GlobalConfirmDialog component is available in the DOM
- * @returns {boolean}
  */
 function isGlobalConfirmDialogAvailable () {
   return document.querySelector('#globalConfirmDialog') !== null
