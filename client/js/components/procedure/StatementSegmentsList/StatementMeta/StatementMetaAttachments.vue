@@ -246,6 +246,19 @@ export default {
     }
   },
 
+  computed: {
+    hasUnsavedChanges () {
+      if (!this.localAttachments || !this.initialAttachments) {
+        return false
+      }
+
+      const initialAttributes = this.localAttachments
+      const currentAttributes = this.initialAttachments
+
+      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+    },
+  },
+
   watch: {
     editable: {
       handler (newVal) {
@@ -273,19 +286,6 @@ export default {
         this.localAttachments.originalAttachment = JSON.parse(JSON.stringify(newVal))
       },
       deep: true,
-    },
-  },
-
-  computed: {
-    hasUnsavedChanges () {
-      if (!this.localAttachments || !this.initialAttachments) {
-        return false
-      }
-
-      const initialAttributes = this.localAttachments
-      const currentAttributes = this.initialAttachments
-
-      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
     },
   },
 

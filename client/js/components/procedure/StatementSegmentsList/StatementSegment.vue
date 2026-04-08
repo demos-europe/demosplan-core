@@ -1130,7 +1130,7 @@ export default {
     },
 
     /**
-     * unsavedChangesGuardMixin
+     * UnsavedChangesGuardMixin
      */
     onDiscardChanges () {
       this.abort()
