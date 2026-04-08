@@ -352,10 +352,14 @@
         <div
           v-show="scrollbarVisible"
           ref="scrollBar"
-          class="h-3 overflow-x-scroll overflow-y-hidden z-[11] scrollbar-interactive bg-white pt-1"
-          :class="isFullscreen ? 'fixed bottom-3 left-0 right-0' : 'sticky bottom-0 left-0 right-0'"
+          class="h-[16px] z-[11] relative bg-neutral-light-4 mt-[10px]"
+          :class="isFullscreen ? 'fixed bottom-3 left-0 right-0 mx-2' : 'sticky bottom-0 left-0 right-0'"
         >
-          <div :style="scrollbarInnerStyle" />
+          <div
+            class="absolute inset-y-[2px] rounded-full bg-neutral-light-2 cursor-pointer hover:bg-interactive active:bg-interactive-hover"
+            :style="thumbStyle"
+            @mousedown="onThumbMousedown"
+          />
         </div>
       </template>
 

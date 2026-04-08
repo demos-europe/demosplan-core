@@ -8,7 +8,7 @@
  */
 /**
  * This mixin is intended to show a fixed scrollbar below a dataTable that exceeds its container.
- * Example usage:
+ * Example usage with native scrollbar:
  *
  * <dp-data-table
  *   ref="dataTable"
@@ -16,11 +16,17 @@
  *   <!-- other required attrs for dataTable... --> />
  * <div
  *   ref="scrollBar"
- *   class="sticky bottom-0 left-0 right-0 -mt-3 overflow-x-scroll overflow-y-hidden">
+ *   class="sticky bottom-0 left-0 right-0 overflow-x-scroll overflow-y-hidden">
  *   <div :style="scrollbarInnerStyle" />
  * </div>
  *
- * Important thing to note is that both elements should have exactly the refs shown in the example.
+ * Example usage with custom thumb (always visible, cross-browser):
+ *
+ * <div ref="scrollBar" class="sticky bottom-0 left-0 right-0 h-3 relative bg-neutral-light-4">
+ *   <div class="absolute inset-y-1 rounded-full bg-neutral-light-2 cursor-pointer" :style="thumbStyle" @mousedown="onThumbMousedown" />
+ * </div>
+ *
+ * Important: both elements should have exactly the refs shown in the example.
  * Also, within the using component, `isLoading` should be present within data.
  */
 export default {
@@ -31,6 +37,10 @@ export default {
         width: '0px',
       },
       scrollbarVisible: false,
+      thumbStyle: {
+        width: '0px',
+        left: '0px',
+      },
     }
   },
 
@@ -55,6 +65,66 @@ export default {
         this.scrollbarVisible = false
         this.dataTableContainerElement.classList.remove('has-scrollable-content')
       }
+
+      this.updateThumb()
+    },
+
+    /**
+     * Recalculate the custom thumb's width and left position based on current scroll state.
+     * Only has effect in components that use the custom thumb pattern.
+     */
+    updateThumb () {
+      if (!this.scrollbar || !this.dataTableContainerElement) {
+        return
+      }
+
+      const scrollWidth = this.dataTableContainerElement.scrollWidth
+      const clientWidth = this.dataTableContainerElement.clientWidth
+      const scrollLeft = this.dataTableContainerElement.scrollLeft
+      const trackWidth = this.scrollbar.clientWidth
+
+      if (scrollWidth <= clientWidth) {
+        return
+      }
+
+      const thumbWidth = Math.max(30, (clientWidth / scrollWidth) * trackWidth)
+      const maxScrollLeft = scrollWidth - clientWidth
+      const maxThumbLeft = trackWidth - thumbWidth
+      const thumbLeft = maxScrollLeft > 0 ? (scrollLeft / maxScrollLeft) * maxThumbLeft : 0
+
+      this.thumbStyle = {
+        width: thumbWidth + 'px',
+        left: thumbLeft + 'px',
+      }
+    },
+
+    /**
+     * Handle drag interaction on the custom scrollbar thumb.
+     */
+    onThumbMousedown (e) {
+      const startX = e.clientX
+      const startScrollLeft = this.dataTableContainerElement.scrollLeft
+      const scrollWidth = this.dataTableContainerElement.scrollWidth
+      const clientWidth = this.dataTableContainerElement.clientWidth
+      const trackWidth = this.scrollbar.clientWidth
+      const thumbWidth = parseFloat(this.thumbStyle.width)
+
+      const onMousemove = (moveEvent) => {
+        const dx = moveEvent.clientX - startX
+        const scrollRatio = dx / (trackWidth - thumbWidth)
+        this.dataTableContainerElement.scrollLeft = startScrollLeft + scrollRatio * (scrollWidth - clientWidth)
+      }
+
+      const onMouseup = () => {
+        document.removeEventListener('mousemove', onMousemove)
+        document.removeEventListener('mouseup', onMouseup)
+        document.body.style.userSelect = ''
+      }
+
+      document.body.style.userSelect = 'none'
+      document.addEventListener('mousemove', onMousemove)
+      document.addEventListener('mouseup', onMouseup)
+      e.preventDefault()
     },
 
     /**
@@ -116,6 +186,7 @@ export default {
 
         this.dataTableContainerElement.addEventListener('scroll', () => {
           this.scrollbar.scrollLeft = this.dataTableContainerElement.scrollLeft
+          this.updateThumb()
         })
 
         // Observe changes to dataTable to update scrollbar accordingly
