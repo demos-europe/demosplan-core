@@ -51,6 +51,7 @@
         data-dp-validate="statementMetaData"
       >
         <statement-entry
+          ref="statementEntry"
           :editable="editable"
           :statement="statement"
           :submit-type-options="submitTypeOptions"
@@ -58,6 +59,7 @@
         />
 
         <statement-submitter
+          ref="statementSubmitter"
           :editable="editable"
           :procedure="procedure"
           :statement="statement"
@@ -118,6 +120,7 @@
         />
 
         <statement-meta-attachments
+          ref="statementMetaAttachments"
           :initial-attachments="attachments"
           :editable="editable"
           :is-source-and-coupled-procedure="isSourceAndCoupledProcedure"
@@ -151,6 +154,7 @@ import StatementMetaLocationAndDocumentReference from './StatementMetaLocationAn
 import StatementMetaMultiselect from './StatementMetaMultiselect'
 import StatementPublicationAndVoting from './StatementPublicationAndVoting'
 import StatementSubmitter from './StatementSubmitter'
+import unsavedChangesGuardMixin from '@DpJs/components/shared/mixins/unsavedChangesGuardMixin'
 
 export default {
   name: 'StatementMeta',
@@ -166,7 +170,7 @@ export default {
     StatementSubmitter,
   },
 
-  mixins: [dpValidateMixin],
+  mixins: [dpValidateMixin, unsavedChangesGuardMixin],
 
   props: {
     attachments: {
@@ -311,6 +315,20 @@ export default {
       const option = this.submitTypeOptions.find(option => option.value === this.statement.attributes.submitType)
       return option ? Translator.trans(option.label) : ''
     },
+
+    /**
+     * Check if any child component has unsaved changes
+     * Required by unsavedChangesGuardMixin
+     */
+    hasUnsavedChanges () {
+      const attachmentsHaveChanges = this.$refs.statementMetaAttachments?.hasUnsavedChanges || false
+      const entryHasChanges = this.$refs.statementEntry?.hasUnsavedChanges || false
+      const submitterHasChanges = this.$refs.statementSubmitter?.hasUnsavedChanges || false
+
+      // Add more child components here as needed
+
+      return attachmentsHaveChanges || entryHasChanges || submitterHasChanges
+    },
   },
 
   methods: {
@@ -397,6 +415,48 @@ export default {
     updateLocalStatementProperties (value, field) {
       this.localStatement.attributes[field] = value
       this.localStatement.attributes[field].sort((a, b) => a.name.localeCompare(b.name))
+    },
+
+    /**
+     * Save changes in all child components
+     * Required by unsavedChangesGuardMixin
+     */
+    saveUnsavedChanges () {
+      const promises = []
+
+      if (this.$refs.statementMetaAttachments?.hasUnsavedChanges) {
+        promises.push(this.$refs.statementMetaAttachments.saveGenericAttachments())
+      }
+
+      if (this.$refs.statementEntry?.hasUnsavedChanges) {
+        promises.push(this.$refs.statementEntry.save())
+      }
+
+      if (this.$refs.statementSubmitter?.hasUnsavedChanges) {
+         promises.push(this.$refs.statementSubmitter.save())
+      }
+
+      return Promise.all(promises)
+    },
+
+    /**
+     * Discard changes in all child components
+     * Required by unsavedChangesGuardMixin
+     */
+    onDiscardChanges () {
+      if (this.$refs.statementMetaAttachments?.hasUnsavedChanges) {
+        this.$refs.statementMetaAttachments.handleResetGenericAttachments()
+      }
+
+      if (this.$refs.statementEntry?.hasUnsavedChanges) {
+         this.$refs.statementEntry.reset()
+       }
+
+       if (this.$refs.statementSubmitter?.hasUnsavedChanges) {
+         this.$refs.statementSubmitter.reset()
+       }
+
+      return Promise.resolve()
     },
   },
 

@@ -186,7 +186,6 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapState } from 'vuex'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
-import unsavedChangesGuardMixin from '@DpJs/components/shared/mixins/unsavedChangesGuardMixin'
 
 export default {
   name: 'StatementSubmitter',
@@ -198,7 +197,7 @@ export default {
     SimilarStatementSubmitters,
   },
 
-  mixins: [dpValidateMixin, unsavedChangesGuardMixin],
+  mixins: [dpValidateMixin],
 
   props: {
     editable: {
@@ -355,10 +354,6 @@ export default {
 
     setInitValues () {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
-    },
-
-    onDiscardChanges () {
-      this.reset()
     },
   },
 

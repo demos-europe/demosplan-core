@@ -177,7 +177,6 @@ import {
   DpTextArea,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
-import unsavedChangesGuardMixin from '@DpJs/components/shared/mixins/unsavedChangesGuardMixin'
 
 export default {
   name: 'StatementEntry',
@@ -190,7 +189,7 @@ export default {
     DpTextArea,
   },
 
-  mixins: [dpValidateMixin, unsavedChangesGuardMixin],
+  mixins: [dpValidateMixin],
 
   props: {
     editable: {
@@ -315,10 +314,6 @@ export default {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
       this.localStatement.attributes.authoredDate = this.getFormattedDate(this.localStatement.attributes.authoredDate)
       this.localStatement.attributes.submitDate = this.getFormattedDate(this.localStatement.attributes.submitDate)
-    },
-
-    onDiscardChanges () {
-      this.reset()
     },
   },
 

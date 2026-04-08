@@ -10,12 +10,23 @@
 /**
  * Mixin to guard against navigation when there are unsaved changes.
  *
+ * **IMPORTANT - USE IN PARENT COMPONENTS ONLY**:
+ * - Only add this mixin to ONE parent/container component per page
+ * - DO NOT add this mixin to multiple child components on the same page
+ * - Parent component should aggregate `hasUnsavedChanges` from all children
+ * - Parent component should coordinate save/discard actions for all children
+ *
  * Components using this mixin must:
  * 1. Implement a `hasUnsavedChanges` computed property that returns a boolean
+ *    - For parent components: aggregate from all child components
+ *    - Example: `return this.$refs.child1?.hasUnsavedChanges || this.$refs.child2?.hasUnsavedChanges`
  *
  * Components may optionally implement:
  * 1. `saveUnsavedChanges()` - Called when user clicks "Save" button
+ *    - For parent components: should call save methods on all child components with changes
+ *    - Example: `return Promise.all([this.$refs.child1.save(), this.$refs.child2.save()])`
  * 2. `onDiscardChanges()` - Called when user clicks "Discard" button (before navigation)
+ *    - For parent components: should call discard/reset methods on all child components
  * 3. `onCancelNavigation()` - Called when user clicks "Cancel" button (stays on page)
  *
  * The mixin will:
@@ -45,6 +56,10 @@ export default {
        * Flag to track if the mixin is active in this project
        */
       isUnsavedChangesGuardActive: false,
+      /**
+       * Flag to prevent beforeunload when intentionally navigating
+       */
+      allowNavigation: false,
     }
   },
 
@@ -113,7 +128,7 @@ export default {
      * @param {Event} event - The beforeunload event
      */
     handleBeforeUnload (event) {
-      if (this.hasUnsavedChanges) {
+      if (this.hasUnsavedChanges && !this.allowNavigation) {
         event.preventDefault()
         event.returnValue = ''
       }
@@ -146,7 +161,7 @@ export default {
             const savePromise = this.saveUnsavedChanges ? this.saveUnsavedChanges() : Promise.resolve()
 
             return savePromise.then(() => {
-              window.removeEventListener('beforeunload', this.handleBeforeUnload)
+              this.allowNavigation = true
               window.location.href = target.href
             })
           } else if (action === 'discard') {

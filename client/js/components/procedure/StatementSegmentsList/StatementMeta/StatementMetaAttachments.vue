@@ -176,7 +176,6 @@ import {
 import { buildDetailedStatementQuery } from '../../Shared/utils/statementQueryBuilder'
 import { mapActions } from 'vuex'
 import StatementMetaAttachmentsLink from './StatementMetaAttachmentsLink'
-import unsavedChangesGuardMixin from '@DpJs/components/shared/mixins/unsavedChangesGuardMixin'
 
 export default {
   name: 'StatementMetaAttachments',
@@ -188,8 +187,6 @@ export default {
     DpUpload,
     StatementMetaAttachmentsLink,
   },
-
-  mixins: [unsavedChangesGuardMixin],
 
   props: {
     initialAttachments: {
@@ -556,10 +553,6 @@ export default {
 
     setSourceAttachmentFileId (id) {
       this.fileIdSourceAttachment = id
-    },
-
-    onDiscardChanges () {
-      this.handleResetGenericAttachments()
     },
 
     triggerStatementRequest () {
