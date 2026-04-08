@@ -13,8 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\RecommendationVersion;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
 use demosplan\DemosPlanCoreBundle\Repository\RecommendationVersionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -73,6 +74,41 @@ class RecommendationVersionService
 
         $latestVersionNumber = $this->repository->getLatestVersionNumber($statement->getId());
 
+        return $this->createVersionIfNeeded($statement, $oldRecommendation, $latestVersionNumber);
+    }
+
+    /**
+     * Batch-aware version of {@see recordVersion()} for bulk edits.
+     *
+     * Pre-fetches all latest version numbers in a single query to avoid N+1.
+     *
+     * @param Segment[] $segments
+     */
+    public function recordVersionsForBulkEdit(array $segments, string $recommendationText, bool $attach): void
+    {
+        $statementIds = array_map(
+            static fn (Segment $segment): string => $segment->getId(),
+            $segments
+        );
+        $versionNumbers = $this->repository->getVersionCountsForStatementIds($statementIds);
+
+        foreach ($segments as $segment) {
+            $oldRecommendation = $segment->getRecommendation();
+            $effectiveNewText = $attach
+                ? $oldRecommendation . $recommendationText
+                : $recommendationText;
+
+            if ($oldRecommendation === $effectiveNewText) {
+                continue;
+            }
+
+            $latestVersionNumber = $versionNumbers[$segment->getId()] ?? 0;
+            $this->createVersionIfNeeded($segment, $oldRecommendation, $latestVersionNumber);
+        }
+    }
+
+    private function createVersionIfNeeded(Statement $statement, string $oldRecommendation, int $latestVersionNumber): ?RecommendationVersion
+    {
         if ('' === $oldRecommendation && 0 === $latestVersionNumber) {
             return null;
         }
@@ -85,6 +121,7 @@ class RecommendationVersionService
         $version->setRecommendationText($oldRecommendation);
 
         $this->entityManager->persist($version);
+        $statement->addRecommendationVersion($version);
 
         return $version;
     }
