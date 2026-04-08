@@ -130,6 +130,9 @@ class DetachOrganisationFromCustomerCommand extends CoreCommand
             try {
                 $orgaName = $status->getOrga()->getName();
                 $orgaId = $status->getOrga()->getId();
+                if ('' === $orgaName || null === $orgaName) {
+                    $orgaName = '(no name)';
+                }
             } catch (EntityNotFoundException) {
                 $orgaName = 'ORPHANED';
                 $orgaId = $status->getId();
@@ -161,9 +164,13 @@ class DetachOrganisationFromCustomerCommand extends CoreCommand
                 $orgaName = $orga->getName();
                 $orgaId = $orga->getId();
 
-                // Never allow detaching the default citizen organisation
-                if ($orga->isDefaultCitizenOrganisation()) {
+                // Never allow detaching the default citizen organisation or soft-deleted orgas
+                if ($orga->isDefaultCitizenOrganisation() || $orga->isDeleted()) {
                     continue;
+                }
+
+                if ('' === $orgaName || null === $orgaName) {
+                    $orgaName = '(no name)';
                 }
             } catch (EntityNotFoundException) {
                 $orgaName = 'ORPHANED';
@@ -184,6 +191,8 @@ class DetachOrganisationFromCustomerCommand extends CoreCommand
         if ([] === $choices) {
             return null;
         }
+
+        usort($choices, static fn (string $a, string $b): int => strnatcasecmp($a, $b));
 
         $question = new ChoiceQuestion(
             'Select organisation(s) to detach (comma-separated for multiple):',

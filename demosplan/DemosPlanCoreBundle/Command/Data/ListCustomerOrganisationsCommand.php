@@ -57,7 +57,7 @@ class ListCustomerOrganisationsCommand extends CoreCommand
         $table->setHeaders(['Orga Name', 'Orga ID', 'Orga Type', 'Status']);
 
         $orphanedCount = 0;
-        $displayedCount = 0;
+        $rows = [];
 
         /** @var OrgaStatusInCustomer $orgaStatus */
         foreach ($orgaStatuses as $orgaStatus) {
@@ -67,29 +67,34 @@ class ListCustomerOrganisationsCommand extends CoreCommand
                 $orgaName = $orga->getName();
                 $orgaId = $orga->getId();
 
-                if ($orga->isDefaultCitizenOrganisation()) {
+                if ($orga->isDefaultCitizenOrganisation() || $orga->isDeleted()) {
                     continue;
                 }
+
+                $rows[] = [
+                    '' !== $orgaName && null !== $orgaName ? $orgaName : '<comment>(no name)</comment>',
+                    $orgaId,
+                    $orgaStatus->getOrgaType()->getLabel(),
+                    $orgaStatus->getStatus(),
+                ];
             } catch (EntityNotFoundException) {
                 ++$orphanedCount;
-                ++$displayedCount;
-                $table->addRow([
+                $rows[] = [
                     '<error>ORPHANED</error>',
                     $orgaStatus->getId(),
                     $orgaStatus->getOrgaType()->getLabel(),
                     $orgaStatus->getStatus(),
-                ]);
-                continue;
+                ];
             }
-
-            ++$displayedCount;
-            $table->addRow([
-                $orgaName,
-                $orgaId,
-                $orgaStatus->getOrgaType()->getLabel(),
-                $orgaStatus->getStatus(),
-            ]);
         }
+
+        usort($rows, static fn (array $a, array $b): int => strnatcasecmp(strip_tags($a[0]), strip_tags($b[0])));
+
+        foreach ($rows as $row) {
+            $table->addRow($row);
+        }
+
+        $displayedCount = count($rows);
 
         if (0 === $displayedCount) {
             $io->info('No organisations found for customer "'.$customer->getName().'".');
