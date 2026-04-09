@@ -300,6 +300,8 @@ class OAuthTokenStorageService
      * Timestamp is set only when no pending data exists yet, so the maintenance command
      * (clearOutdated) has an anchor for cleanup on URL-only entries.
      * Always clears expired token fields (idempotent).
+     *
+     * @throws InvalidArgumentException if the page URL fails validation (e.g. not a relative path)
      */
     public function storePendingPageUrl(OAuthToken $oauthToken, string $pageUrl): void
     {
@@ -309,6 +311,20 @@ class OAuthTokenStorageService
 
         if ($needsTimestamp) {
             $oauthToken->setPendingRequestTimestamp(new DateTime('now', new DateTimeZone(OAuthToken::TIMEZONE)));
+        }
+
+        $violations = $this->validator->validate($oauthToken);
+        if (count($violations) > 0) {
+            $errors = [];
+            foreach ($violations as $violation) {
+                $errors[] = $violation->getPropertyPath().': '.$violation->getMessage();
+            }
+            $this->logger->error('Pending page URL validation failed', [
+                'user_id'  => $oauthToken->getUser()->getId(),
+                'page_url' => $pageUrl,
+                'errors'   => $errors,
+            ]);
+            throw new InvalidArgumentException('Validation failed: '.implode(', ', $errors));
         }
 
         $this->entityManager->flush();
