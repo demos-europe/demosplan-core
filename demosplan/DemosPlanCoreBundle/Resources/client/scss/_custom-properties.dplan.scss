@@ -1,0 +1,34 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS plan GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  Map SCSS color tokens to CSS custom properties.
+//
+//  The Tailwind utilities defined in demosplan-ui reference CSS custom properties
+//  (e.g. `bg-interactive` → `var(--dp-color-interactive, ...)`). In order to be able
+//  to override the defaults from demosplan-ui in the projects, we need to map the css
+//  properties to the SCSS variables that are defined in the project _settings-*.scss files
+//
+// Temporary fix until demosplan-ui theming is implemented
+
+:root {
+  // Brand colors
+  --dp-color-main: #{$dp-color-main};
+  --dp-color-main-contrast: #{$dp-color-main-contrast};
+  --dp-color-alt: #{$dp-color-alt};
+  --dp-color-alt-contrast: #{$dp-color-alt-contrast};
+  --dp-color-highlight: #{$dp-color-highlight};
+  --dp-color-highlight-contrast: #{$dp-color-highlight-contrast};
+
+  // Interactive colors (buttons, links, etc.)
+  --dp-color-interactive: #{$dp-color-interactive-default};
+  --dp-color-interactive-hover: #{$dp-color-interactive-hover};
+  --dp-color-interactive-active: #{$dp-color-interactive-active};
+  --dp-color-interactive-subtle-hover: #{$dp-color-interactive-subtle-hover};
+  --dp-color-interactive-subtle-active: #{$dp-color-interactive-subtle-active};
+}
