@@ -1007,10 +1007,9 @@ class UserService implements UserServiceInterface
                 throw new InvalidArgumentException("This is either not the user's old password or the user does not exist");
             }
             // check new password against stored history entries
+            $hasher = $this->passwordHasherFactory->getPasswordHasher($user);
             foreach ($this->userPasswordHistoryRepository->findByUser($user) as $entry) {
-                $tempUser = clone $user;
-                $tempUser->setPassword($entry->getHashedPassword());
-                if ($this->userPasswordHasher->isPasswordValid($tempUser, $newPassword)) {
+                if ($hasher->verify($entry->getHashedPassword(), $newPassword)) {
                     throw new PasswordAlreadyUsedException('This password has already been used. Please choose a different one.');
                 }
             }
@@ -1022,7 +1021,7 @@ class UserService implements UserServiceInterface
             $newPasswordHash = $this->userPasswordHasher->hashPassword($user, $newPassword);
             $em = $this->doctrine->getManager();
             $em->persist(new UserPasswordHistory($user, $newPasswordHash));
-            $this->userPasswordHistoryRepository->deleteExceedingEntries($user, $this->parameterBag->get('password_history_max_entries'));
+            $this->userPasswordHistoryRepository->deleteExceedingEntries($user, $this->parameterBag->get('password_history_max_entries')-1);
 
             $user->setPassword($newPasswordHash);
             $user->setAlternativeLoginPassword($newPasswordHash);

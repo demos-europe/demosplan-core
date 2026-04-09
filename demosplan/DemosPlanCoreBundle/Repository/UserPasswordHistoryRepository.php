@@ -32,7 +32,7 @@ class UserPasswordHistoryRepository extends CoreRepository
     {
         $entries = $this->findBy(
             ['user' => $user],
-            ['createdDate' => 'ASC']  // oldest first
+            ['createdDate' => 'DESC']  // newest first
         );
         foreach (array_slice($entries, $maxEntries) as $entry) {
             $this->getEntityManager()->remove($entry);
