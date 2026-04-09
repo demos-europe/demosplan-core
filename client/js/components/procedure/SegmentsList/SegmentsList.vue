@@ -150,6 +150,7 @@
           data-cy="segment:imgModal"
         />
         <div
+          id="segmentsListScrollContainer"
           ref="scrollContainer"
           class="overflow-x-auto scrollbar-none"
         >
@@ -358,10 +359,12 @@
           <div
             :aria-valuenow="scrollPercent"
             :style="thumbStyle"
+            aria-controls="segmentsListScrollContainer"
             aria-valuemax="100"
             aria-valuemin="0"
             class="absolute inset-y-[2px] rounded-full bg-neutral-light-2 cursor-pointer hover:bg-interactive active:bg-interactive-hover"
             role="scrollbar"
+            tabindex="0"
             @mousedown="onThumbMousedown"
           />
         </div>
