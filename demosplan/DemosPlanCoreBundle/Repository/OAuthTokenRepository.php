@@ -95,20 +95,14 @@ class OAuthTokenRepository extends CoreRepository
         $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
         $threshold = new DateTime("-{$olderThanMinutes} minutes", $timezone);
 
-        $qb = $this->createQueryBuilder('t');
-        $qb->where('t.pendingRequestTimestamp IS NOT NULL')
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        // DQL DELETE returns int (affected rows) or throws an exception — cast for static analysis
+        return (int) $qb->delete(OAuthToken::class, 't')
+            ->where('t.pendingRequestTimestamp IS NOT NULL')
             ->andWhere('t.pendingRequestTimestamp < :threshold')
-            ->setParameter('threshold', $threshold);
-
-        $tokens = $qb->getQuery()->getResult();
-        $count = 0;
-
-        foreach ($tokens as $token) {
-            $this->getEntityManager()->remove($token);
-            ++$count;
-        }
-        $this->getEntityManager()->flush();
-
-        return $count;
+            ->setParameter('threshold', $threshold)
+            ->getQuery()
+            ->execute();
     }
 }
