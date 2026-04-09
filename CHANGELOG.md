@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Changed
+- Segment transformer extracts segment IDs and text from `<segment-mark>` elements in textualReference instead of charStart/charEnd positions
+
 ### Added
 - Make custom fields available in assessment table, original statement list, my releases list, and public statement dialogs
 
