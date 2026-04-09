@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
+use Masterminds\HTML5;
 
 /**
  * Parses textualReference HTML containing <segment-mark> elements
@@ -36,14 +37,12 @@ class SegmentMarkParser
             return [];
         }
 
-        $dom = new DOMDocument();
-        $dom->encoding = 'UTF-8';
-        libxml_use_internal_errors(true);
-        $dom->loadHTML('<?xml encoding="UTF-8"><div>'.$html.'</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-        libxml_clear_errors();
+        $parser = new HTML5();
+        $dom = $parser->loadHTML('<div>'.$html.'</div>');
 
         $xpath = new DOMXPath($dom);
-        $nodes = $xpath->query('//segment-mark');
+        $xpath->registerNamespace('html', 'http://www.w3.org/1999/xhtml');
+        $nodes = $xpath->query('//html:segment-mark');
         $results = [];
 
         foreach ($nodes as $node) {
