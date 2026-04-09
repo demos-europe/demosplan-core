@@ -30,6 +30,7 @@ use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Lock\LockFactory;
+use ReflectionMethod;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Lock\Store\InMemoryStore;
 
@@ -152,7 +153,7 @@ class KeycloakTokenRefreshServiceTest extends TestCase
         $this->arrangeSuccessfulKeycloakRefresh();
 
         // Act
-        $result = $this->sut->refreshTokensForUser('test-user-id');
+        $result = $this->callRefreshTokensForUser($this->sut, 'test-user-id');
 
         // Assert
         self::assertTrue($result);
@@ -169,7 +170,7 @@ class KeycloakTokenRefreshServiceTest extends TestCase
             ->with('test-user-id', $newAccessToken);
 
         // Act
-        $this->sut->refreshTokensForUser('test-user-id');
+        $this->callRefreshTokensForUser($this->sut, 'test-user-id');
     }
 
     public function testRefreshTokensReturnsFalseWhenNoTokenDataExists(): void
@@ -178,7 +179,7 @@ class KeycloakTokenRefreshServiceTest extends TestCase
         $this->tokenStorageService->method('getClearTokenData')->willReturn(null);
 
         // Act
-        $result = $this->sut->refreshTokensForUser('test-user-id');
+        $result = $this->callRefreshTokensForUser($this->sut, 'test-user-id');
 
         // Assert
         self::assertFalse($result);
@@ -194,7 +195,7 @@ class KeycloakTokenRefreshServiceTest extends TestCase
         $this->tokenStorageService->method('getClearTokenData')->willReturn($tokenData);
 
         // Act
-        $result = $this->sut->refreshTokensForUser('test-user-id');
+        $result = $this->callRefreshTokensForUser($this->sut, 'test-user-id');
 
         // Assert
         self::assertFalse($result);
@@ -250,7 +251,7 @@ class KeycloakTokenRefreshServiceTest extends TestCase
         );
 
         // Act
-        $result = $sut->refreshTokensForUser('test-user-id');
+        $result = $this->callRefreshTokensForUser($sut, 'test-user-id');
 
         // Assert: exception caught, returns false
         self::assertFalse($result);
@@ -295,13 +296,21 @@ class KeycloakTokenRefreshServiceTest extends TestCase
         );
 
         // Act
-        $result = $sut->refreshTokensForUser('test-user-id');
+        $result = $this->callRefreshTokensForUser($sut, 'test-user-id');
 
         // Assert: returns true without calling Keycloak
         self::assertTrue($result);
     }
 
     // ===== Helper methods =====
+
+    private function callRefreshTokensForUser(KeycloakTokenRefreshService $service, string $userId): bool
+    {
+        $method = new ReflectionMethod($service, 'refreshTokensForUser');
+        $method->setAccessible(true);
+
+        return $method->invoke($service, $userId);
+    }
 
     private function createTokenWithUser(): OAuthToken
     {

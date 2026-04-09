@@ -127,7 +127,7 @@ class KeycloakTokenRefreshService
      *
      * @return bool True if tokens were successfully refreshed, false on any error
      */
-    public function refreshTokensForUser(string $userId): bool
+    private function refreshTokensForUser(string $userId): bool
     {
         // One lock per user — keyed on user ID so concurrent refreshes for different
         // users never block each other.

@@ -131,19 +131,11 @@ class TokenRefreshTerminateListener
             return;
         }
 
-        if ($this->tokenExpirationService->isRefreshTokenExpired($oauthToken)) {
-            $this->logger->info('Proactive refresh skipped - refresh token expired, blocking listener will handle re-authentication', [
-                'user_id' => $user->getId(),
-            ]);
-
-            return;
-        }
-
         $this->logger->info('Access token approaching expiry - attempting proactive background refresh', [
             'user_id' => $user->getId(),
         ]);
 
-        $success = $this->tokenRefreshService->refreshTokensForUser($user->getId());
+        $success = $this->tokenRefreshService->tryRefreshTokens($oauthToken);
 
         if ($success) {
             $this->logger->info('Proactive token refresh successful', ['user_id' => $user->getId()]);
