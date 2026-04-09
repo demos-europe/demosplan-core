@@ -21,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
  * Value object for OAuth token data.
  *
  * @method string        getAccessToken()
- * @method string        getIdToken()
+ * @method string|null   getIdToken()
  * @method DateTime      getAccessTokenExpiresAt()
  * @method string|null   getRefreshToken()
  * @method DateTime|null getRefreshTokenExpiresAt()
@@ -37,7 +37,7 @@ class TokenData extends ValueObject
     /**
      * The decrypted OpenID Connect ID token.
      */
-    protected string $idToken;
+    protected ?string $idToken = null;
 
     /**
      * Access token expiration timestamp.
@@ -68,7 +68,10 @@ class TokenData extends ValueObject
     {
         // Decrypt required tokens (guaranteed by validation on storage)
         $this->accessToken = $encryptionService->decrypt($oauthToken->getAccessToken());
-        $this->idToken = $encryptionService->decrypt($oauthToken->getIdToken());
+
+        if (null !== $oauthToken->getIdToken()) {
+            $this->idToken = $encryptionService->decrypt($oauthToken->getIdToken());
+        }
         $this->accessTokenExpiresAt = $oauthToken->getAccessTokenExpiresAt();
         $this->provider = $oauthToken->getProvider();
 
