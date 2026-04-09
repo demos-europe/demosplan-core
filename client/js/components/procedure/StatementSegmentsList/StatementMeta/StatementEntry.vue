@@ -261,11 +261,12 @@ export default {
 
   methods: {
     /**
-     * Deep clone by serializing to JSON.
-     * This intentionally uses JSON serialization to filter out non-serializable data
-     * (functions, symbols, etc.) from Vuex store objects.
+     * Deep clone via JSON serialization.
+     *
+     * `structuredClone()` may fail on Vuex store objects containing functions/methods.
      */
     deepCloneSerializable (obj) {
+      // eslint-disable-next-line unicorn/prefer-structured-clone
       return JSON.parse(JSON.stringify(obj))
     },
 
