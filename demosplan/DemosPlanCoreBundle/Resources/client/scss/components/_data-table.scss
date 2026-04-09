@@ -111,7 +111,7 @@
         @for $i from 1 through $data-table-max-columns {
             &:has(th.c-data-table__resizable:nth-child(#{$i}):hover) td:nth-child(#{$i}) {
                 border-right-width: 2px !important;
-                border-right-color: var(--dp-color-interactive, #006fd0) !important;
+                border-right-color: $dp-color-interactive-default !important;
             }
         }
     }
