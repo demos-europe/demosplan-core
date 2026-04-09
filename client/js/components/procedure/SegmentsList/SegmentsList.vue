@@ -356,6 +356,10 @@
           :class="isFullscreen ? 'fixed bottom-3 left-0 right-0 mx-2' : 'sticky bottom-0 left-0 right-0'"
         >
           <div
+            role="scrollbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            :aria-valuenow="scrollPercent"
             class="absolute inset-y-[2px] rounded-full bg-neutral-light-2 cursor-pointer hover:bg-interactive active:bg-interactive-hover"
             :style="thumbStyle"
             @mousedown="onThumbMousedown"

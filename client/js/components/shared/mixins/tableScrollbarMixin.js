@@ -37,6 +37,7 @@ export default {
         width: '0px',
       },
       scrollbarVisible: false,
+      scrollPercent: 0,
       thumbStyle: {
         width: '0px',
         left: '0px',
@@ -96,6 +97,8 @@ export default {
         width: thumbWidth + 'px',
         left: thumbLeft + 'px',
       }
+
+      this.scrollPercent = maxScrollLeft > 0 ? Math.round((scrollLeft / maxScrollLeft) * 100) : 0
     },
 
     /**
