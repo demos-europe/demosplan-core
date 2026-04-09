@@ -437,7 +437,7 @@ export default {
     },
 
     /**
-     * unsavedChangesGuardMixin
+     * UnsavedChangesGuardMixin
      */
     onDiscardChanges () {
       if (this.$refs.statementEntry?.hasUnsavedChanges) {

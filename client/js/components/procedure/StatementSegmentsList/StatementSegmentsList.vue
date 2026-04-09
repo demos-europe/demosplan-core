@@ -644,7 +644,7 @@ export default {
     },
 
 
-    moveActionToHash(queryParams) {
+    moveActionToHash (queryParams) {
       queryParams.delete('action')
 
       const search = queryParams.toString()

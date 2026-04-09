@@ -61,7 +61,7 @@ export default {
     hasUnsavedChanges () {
       if (process.env.NODE_ENV === 'development') {
         console.warn(
-          `Component "${this.$options.name || 'Unknown'}" is using unsavedChangesGuardMixin but hasn't implemented "hasUnsavedChanges" computed property.`
+          `Component "${this.$options.name || 'Unknown'}" is using unsavedChangesGuardMixin but hasn't implemented "hasUnsavedChanges" computed property.`,
         )
       }
       return false
@@ -72,7 +72,7 @@ export default {
     async saveUnsavedChanges () {
       if (process.env.NODE_ENV === 'development') {
         console.warn(
-          `Component "${this.$options.name || 'Unknown'}" is using unsavedChangesGuardMixin but hasn't implemented "saveUnsavedChanges" method.`
+          `Component "${this.$options.name || 'Unknown'}" is using unsavedChangesGuardMixin but hasn't implemented "saveUnsavedChanges" method.`,
         )
       }
     },
