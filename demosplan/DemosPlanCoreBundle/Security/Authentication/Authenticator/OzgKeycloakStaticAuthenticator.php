@@ -80,6 +80,8 @@ class OzgKeycloakStaticAuthenticator extends AbstractOzgKeycloakAuthenticator
         private readonly SecretEncryptor $tokenEncryptionService,
         #[Autowire('%kernel.environment%')]
         private readonly string $environment,
+        #[Autowire('%oauth_token_timezone%')]
+        private readonly string $tokenTimezoneString,
     ) {
         parent::__construct(
             $logger,
@@ -192,7 +194,7 @@ class OzgKeycloakStaticAuthenticator extends AbstractOzgKeycloakAuthenticator
         // Set pending fields directly instead of using storePendingRequest(),
         // which calls clearTokens() and leaves the entity without tokens —
         // causing the expiry listener to force re-auth on the next request.
-        $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
+        $timezone = new DateTimeZone($this->tokenTimezoneString);
 
         $oauthToken->setPendingPageUrl($this->router->generate('DemosPlan_faq'));
         $oauthToken->setPendingRequestUrl('/api/2.0/statement');

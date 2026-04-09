@@ -12,25 +12,32 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
+use DateTimeZone;
 use demosplan\DemosPlanCoreBundle\Message\PurgeExpiredOAuthTokensMessage;
 use demosplan\DemosPlanCoreBundle\Repository\OAuthTokenRepository;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
 final class PurgeExpiredOAuthTokensMessageHandler
 {
+    private readonly DateTimeZone $tokenTimezone;
+
     public function __construct(
         private readonly OAuthTokenRepository $oauthTokenRepository,
         private readonly LoggerInterface $logger,
+        #[Autowire('%oauth_token_timezone%')]
+        string $tokenTimezone,
     ) {
+        $this->tokenTimezone = new DateTimeZone($tokenTimezone);
     }
 
     public function __invoke(PurgeExpiredOAuthTokensMessage $message): void
     {
         try {
-            $deleted = $this->oauthTokenRepository->clearOutdated();
+            $deleted = $this->oauthTokenRepository->clearOutdated($this->tokenTimezone);
             $this->logger->info('Maintenance: purged expired OAuth token entries', ['deleted' => $deleted]);
         } catch (Exception $exception) {
             $this->logger->error('Maintenance: failed to purge expired OAuth token entries', [$exception]);

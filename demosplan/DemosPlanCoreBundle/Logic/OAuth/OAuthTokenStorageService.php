@@ -28,6 +28,7 @@ use Exception;
 use InvalidArgumentException;
 use League\OAuth2\Client\Token\AccessToken;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -42,6 +43,8 @@ use Webmozart\Assert\Assert;
  */
 class OAuthTokenStorageService
 {
+    private readonly DateTimeZone $tokenTimezone;
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly LoggerInterface $logger,
@@ -51,7 +54,10 @@ class OAuthTokenStorageService
         private readonly SecretEncryptor $encryptionService,
         private readonly UserRepository $userRepository,
         private readonly ValidatorInterface $validator,
+        #[Autowire('%oauth_token_timezone%')]
+        string $tokenTimezone,
     ) {
+        $this->tokenTimezone = new DateTimeZone($tokenTimezone);
     }
 
     /**
@@ -113,7 +119,7 @@ class OAuthTokenStorageService
             }
 
             // Calculate and store expiration times
-            $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
+            $timezone = $this->tokenTimezone;
             $accessTokenExpiresAt = null;
 
             if (null !== $expiresTimestamp) {
@@ -310,7 +316,7 @@ class OAuthTokenStorageService
         $oauthToken->setPendingPageUrl($pageUrl);
 
         if ($needsTimestamp) {
-            $oauthToken->setPendingRequestTimestamp(new DateTime('now', new DateTimeZone(OAuthToken::TIMEZONE)));
+            $oauthToken->setPendingRequestTimestamp(new DateTime('now', $this->tokenTimezone));
         }
 
         $violations = $this->validator->validate($oauthToken);
@@ -355,7 +361,7 @@ class OAuthTokenStorageService
                 'contentType'   => $request->headers->get('Content-Type'),
                 'hasFiles'      => $request->files->count() > 0,
                 'filesMetadata' => $this->getFilesMetadata($request),
-                'timestamp'     => new DateTime('now', new DateTimeZone(OAuthToken::TIMEZONE)),
+                'timestamp'     => new DateTime('now', $this->tokenTimezone),
                 'body'          => $this->getRequestBody($request),
             ]);
 

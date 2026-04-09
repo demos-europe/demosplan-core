@@ -26,6 +26,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 class TokenExpirationServiceTest extends TestCase
 {
+    private const TIMEZONE = 'Europe/Berlin';
+
     protected $sut;
 
     protected function setUp(): void
@@ -39,6 +41,7 @@ class TokenExpirationServiceTest extends TestCase
             $this->createMock(OzgKeycloakSessionManager::class),
             $this->createMock(RouterInterface::class),
             $this->createMock(SecretEncryptor::class),
+            self::TIMEZONE,
         );
     }
 
@@ -160,7 +163,7 @@ class TokenExpirationServiceTest extends TestCase
     private function createTokenWithAccessExpiry(string $modifier): OAuthToken
     {
         $token = new OAuthToken();
-        $expiry = new DateTime('now', new DateTimeZone(OAuthToken::TIMEZONE));
+        $expiry = new DateTime('now', new DateTimeZone(self::TIMEZONE));
         $expiry->modify($modifier);
         $token->setAccessTokenExpiresAt($expiry);
 
@@ -171,7 +174,7 @@ class TokenExpirationServiceTest extends TestCase
     {
         $token = new OAuthToken();
         $token->setRefreshToken('fake-encrypted-refresh-token');
-        $expiry = new DateTime('now', new DateTimeZone(OAuthToken::TIMEZONE));
+        $expiry = new DateTime('now', new DateTimeZone(self::TIMEZONE));
         $expiry->modify($modifier);
         $token->setRefreshTokenExpiresAt($expiry);
 

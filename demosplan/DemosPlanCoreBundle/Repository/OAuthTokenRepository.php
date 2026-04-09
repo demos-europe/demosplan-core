@@ -63,7 +63,7 @@ class OAuthTokenRepository extends CoreRepository
      *
      * @param string $userId The user ID (UUID)
      */
-    public function haveTokensBeenRefreshed(string $userId): bool
+    public function haveTokensBeenRefreshed(string $userId, DateTimeZone $timezone): bool
     {
         $oauthToken = $this->findByUserId($userId);
 
@@ -75,7 +75,7 @@ class OAuthTokenRepository extends CoreRepository
 
         $expiresAt = $oauthToken->getAccessTokenExpiresAt();
 
-        return null !== $expiresAt && $expiresAt > new DateTime('now', new DateTimeZone(OAuthToken::TIMEZONE));
+        return null !== $expiresAt && $expiresAt > new DateTime('now', $timezone);
     }
 
     /**
@@ -90,9 +90,8 @@ class OAuthTokenRepository extends CoreRepository
      *
      * @return int Number of deleted entries
      */
-    public function clearOutdated(int $olderThanMinutes = 60): int
+    public function clearOutdated(DateTimeZone $timezone, int $olderThanMinutes = 60): int
     {
-        $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
         $threshold = new DateTime("-{$olderThanMinutes} minutes", $timezone);
 
         $qb = $this->getEntityManager()->createQueryBuilder();

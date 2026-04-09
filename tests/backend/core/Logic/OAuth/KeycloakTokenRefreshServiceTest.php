@@ -35,6 +35,8 @@ use Symfony\Component\Lock\Store\InMemoryStore;
 
 class KeycloakTokenRefreshServiceTest extends TestCase
 {
+    private const TIMEZONE = 'Europe/Berlin';
+
     protected $sut;
 
     private MockObject&TokenExpirationService $tokenExpirationService;
@@ -65,6 +67,7 @@ class KeycloakTokenRefreshServiceTest extends TestCase
             $this->tokenStorageService,
             $this->sessionManager,
             $this->tokenExpirationService,
+            self::TIMEZONE,
         );
 
         $this->session = new Session(new MockArraySessionStorage());
@@ -243,6 +246,7 @@ class KeycloakTokenRefreshServiceTest extends TestCase
             $this->tokenStorageService,
             $this->sessionManager,
             $this->tokenExpirationService,
+            self::TIMEZONE,
         );
 
         // Act
@@ -287,6 +291,7 @@ class KeycloakTokenRefreshServiceTest extends TestCase
             $this->tokenStorageService,
             $this->sessionManager,
             $this->tokenExpirationService,
+            self::TIMEZONE,
         );
 
         // Act

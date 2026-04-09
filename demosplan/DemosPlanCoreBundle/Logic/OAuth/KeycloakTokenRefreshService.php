@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\OAuth;
 
+use DateTimeZone;
 use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use demosplan\DemosPlanCoreBundle\Repository\OAuthTokenRepository;
@@ -19,6 +20,7 @@ use Exception;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Lock\LockFactory;
 
@@ -42,6 +44,8 @@ use Symfony\Component\Lock\LockFactory;
  */
 class KeycloakTokenRefreshService
 {
+    private readonly DateTimeZone $tokenTimezone;
+
     public function __construct(
         private readonly ClientRegistry $clientRegistry,
         private readonly LockFactory $lockFactory,
@@ -50,7 +54,10 @@ class KeycloakTokenRefreshService
         private readonly OAuthTokenStorageService $tokenStorageService,
         private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
         private readonly TokenExpirationService $tokenExpirationService,
+        #[Autowire('%oauth_token_timezone%')]
+        string $tokenTimezone,
     ) {
+        $this->tokenTimezone = new DateTimeZone($tokenTimezone);
     }
 
     /**
@@ -138,7 +145,7 @@ class KeycloakTokenRefreshService
         try {
             $this->logger->info('Starting token refresh', ['user_id' => $userId]);
 
-            if ($wasContested && $this->oauthTokenRepository->haveTokensBeenRefreshed($userId)) {
+            if ($wasContested && $this->oauthTokenRepository->haveTokensBeenRefreshed($userId, $this->tokenTimezone)) {
                 $this->logger->info('Token already refreshed by concurrent process - skipping own KeyCloak call', [
                     'user_id' => $userId,
                 ]);

@@ -25,6 +25,7 @@ class OAuthTokenStorageServiceTest extends FunctionalTestCase
 {
     private const TEST_API_URL = '/api/2.0/statement';
     private const TEST_PAGE_URL = '/verfahren/123/import';
+    private const TIMEZONE = 'Europe/Berlin';
 
     /** @var OAuthTokenStorageService */
     protected $sut;
@@ -71,7 +72,7 @@ class OAuthTokenStorageServiceTest extends FunctionalTestCase
         // Arrange: token with pending page URL and encrypted body
         $clearBody = '{"data":{"type":"Statement","attributes":{"text":"Testtext"}}}';
         $encryptedBody = $this->encryptionService->encrypt($clearBody);
-        $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
+        $timezone = new DateTimeZone(self::TIMEZONE);
 
         /** @var OAuthToken $oauthToken */
         $oauthToken = OAuthTokenFactory::createOne()->_real();
@@ -99,7 +100,7 @@ class OAuthTokenStorageServiceTest extends FunctionalTestCase
     {
         // Arrange
         $clearBody = '{"data":{"type":"Statement","attributes":{"text":"Testtext"}}}';
-        $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
+        $timezone = new DateTimeZone(self::TIMEZONE);
 
         /** @var OAuthToken $oauthToken */
         $oauthToken = OAuthTokenFactory::createOne()->_real();
@@ -120,7 +121,7 @@ class OAuthTokenStorageServiceTest extends FunctionalTestCase
     public function testGetPendingRequestReturnsPageUrlOnlyEntry(): void
     {
         // Arrange: only page URL set (GET request, no buffered POST)
-        $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
+        $timezone = new DateTimeZone(self::TIMEZONE);
 
         /** @var OAuthToken $oauthToken */
         $oauthToken = OAuthTokenFactory::createOne()->_real();
@@ -158,7 +159,7 @@ class OAuthTokenStorageServiceTest extends FunctionalTestCase
     public function testDeleteTokensUnlessPendingDataPreservesWhenPendingDataExists(): void
     {
         // Arrange: token with pending page URL
-        $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
+        $timezone = new DateTimeZone(self::TIMEZONE);
 
         /** @var OAuthToken $oauthToken */
         $oauthToken = OAuthTokenFactory::createOne()->_real();
@@ -207,7 +208,7 @@ class OAuthTokenStorageServiceTest extends FunctionalTestCase
     public function testStorePendingPageUrlDoesNotOverwriteExistingTimestamp(): void
     {
         // Arrange: token already has a timestamp from a previous buffer
-        $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
+        $timezone = new DateTimeZone(self::TIMEZONE);
         $originalTimestamp = new DateTime('2026-01-01 12:00:00', $timezone);
 
         /** @var OAuthToken $oauthToken */

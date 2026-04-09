@@ -14,10 +14,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic\OAuth;
 
 use DateTime;
 use DateTimeZone;
-use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
 use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use demosplan\DemosPlanCoreBundle\ValueObject\PendingRequestData;
 use Exception;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -35,11 +35,16 @@ class PendingRequestCacheService
     private const CACHE_KEY_PREFIX = 'pending_reauth_request_';
     private const CACHE_TTL_SECONDS = 1800; // 30 minutes
 
+    private readonly DateTimeZone $tokenTimezone;
+
     public function __construct(
         private readonly CacheInterface $cache,
         private readonly LoggerInterface $logger,
         private readonly SecretEncryptor $encryptionService,
+        #[Autowire('%oauth_token_timezone%')]
+        string $tokenTimezone,
     ) {
+        $this->tokenTimezone = new DateTimeZone($tokenTimezone);
     }
 
     /**
@@ -114,7 +119,7 @@ class PendingRequestCacheService
                 $clearBody = $this->encryptionService->decrypt($data['encryptedBody']);
             }
 
-            $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
+            $timezone = $this->tokenTimezone;
             $timestamp = DateTime::createFromFormat('Y-m-d H:i:s', $data['timestamp'] ?? '', $timezone)
                 ?: new DateTime('now', $timezone);
 

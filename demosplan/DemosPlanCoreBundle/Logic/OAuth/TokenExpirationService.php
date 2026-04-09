@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use Exception;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -42,6 +43,8 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class TokenExpirationService
 {
+    private readonly DateTimeZone $tokenTimezone;
+
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly OAuthTokenStorageService $oauthTokenStorageService,
@@ -49,7 +52,10 @@ class TokenExpirationService
         private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
         private readonly RouterInterface $router,
         private readonly SecretEncryptor $tokenEncryptionService,
+        #[Autowire('%oauth_token_timezone%')]
+        string $tokenTimezone,
     ) {
+        $this->tokenTimezone = new DateTimeZone($tokenTimezone);
     }
 
     /**
@@ -155,7 +161,7 @@ class TokenExpirationService
             return true;
         }
 
-        $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
+        $timezone = $this->tokenTimezone;
         $now = new DateTime('now', $timezone);
 
         // Check actual expiration (no buffer)
@@ -184,7 +190,7 @@ class TokenExpirationService
             return true;
         }
 
-        $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
+        $timezone = $this->tokenTimezone;
         $now = new DateTime('now', $timezone);
 
         // Check actual expiration (no buffer)
@@ -221,7 +227,7 @@ class TokenExpirationService
             return true;
         }
 
-        $timezone = new DateTimeZone(OAuthToken::TIMEZONE);
+        $timezone = $this->tokenTimezone;
         $now = new DateTime('now', $timezone);
         $threshold = (clone $token->getAccessTokenExpiresAt())->modify("-{$bufferMinutes} minutes");
 

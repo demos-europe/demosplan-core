@@ -35,6 +35,7 @@ class PurgeExpiredOAuthTokensMessageHandlerTest extends TestCase
         $this->sut = new PurgeExpiredOAuthTokensMessageHandler(
             $this->oauthTokenRepository,
             new NullLogger(),
+            'Europe/Berlin',
         );
     }
 
