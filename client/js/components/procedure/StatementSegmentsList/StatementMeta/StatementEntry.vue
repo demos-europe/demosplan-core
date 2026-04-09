@@ -249,7 +249,7 @@ export default {
         return false
       }
 
-      const initialAttributes = JSON.parse(JSON.stringify(this.statement.attributes))
+      const initialAttributes = this.deepCloneSerializable(this.statement.attributes)
       initialAttributes.authoredDate = this.getFormattedDate(initialAttributes.authoredDate)
       initialAttributes.submitDate = this.getFormattedDate(initialAttributes.submitDate)
 
@@ -260,6 +260,15 @@ export default {
   },
 
   methods: {
+    /**
+     * Deep clone by serializing to JSON.
+     * This intentionally uses JSON serialization to filter out non-serializable data
+     * (functions, symbols, etc.) from Vuex store objects.
+     */
+    deepCloneSerializable (obj) {
+      return JSON.parse(JSON.stringify(obj))
+    },
+
     getFormattedDate (date) {
       if (!date) {
         return ''
@@ -303,7 +312,7 @@ export default {
     },
 
     setInitValues () {
-      this.localStatement = JSON.parse(JSON.stringify(this.statement))
+      this.localStatement = this.deepCloneSerializable(this.statement)
       this.localStatement.attributes.authoredDate = this.getFormattedDate(this.localStatement.attributes.authoredDate)
       this.localStatement.attributes.submitDate = this.getFormattedDate(this.localStatement.attributes.submitDate)
     },

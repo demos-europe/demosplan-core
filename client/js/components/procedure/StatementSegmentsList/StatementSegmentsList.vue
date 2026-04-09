@@ -553,7 +553,7 @@ export default {
 
         if (isAssignedToCurrentUser === false) {
           const isAssignedToOtherUser = this.statement.hasRelationship('assignee') && this.statement.relationships.assignee.data.id !== this.currentUser.id
-          if (isAssignedToOtherUser && window.dpconfirm(Translator.trans('warning.statement.needLock.generic')) === false) {
+          if (isAssignedToOtherUser && globalThis.dpconfirm(Translator.trans('warning.statement.needLock.generic')) === false) {
             return false
           }
         }
@@ -632,7 +632,7 @@ export default {
     },
 
     handleHashChange () {
-      const hash = window.location.hash.slice(1)
+      const hash = globalThis.location.hash.slice(1)
 
       if (hash === 'recommendation' || hash === 'details') {
         this.currentAction = hash
@@ -648,9 +648,10 @@ export default {
       queryParams.delete('action')
 
       const search = queryParams.toString()
-      const newUrl = `${window.location.pathname}${search ? `?${search}` : ''}#${this.currentAction}`
+      const searchPart = search ? `?${search}` : ''
+      const newUrl = `${globalThis.location.pathname}${searchPart}#${this.currentAction}`
 
-      window.history.replaceState({}, '', newUrl)
+      globalThis.history.replaceState({}, '', newUrl)
     },
 
     removeNavigationSourceStorageEntry () {
@@ -703,7 +704,7 @@ export default {
     },
 
     setInitialAction () {
-      const hash = window.location.hash.slice(1)
+      const hash = globalThis.location.hash.slice(1)
 
       if (hash === 'recommendation' || hash === 'details') {
         this.currentAction = hash
@@ -711,7 +712,7 @@ export default {
         return
       }
 
-      const queryParams = new URLSearchParams(window.location.search)
+      const queryParams = new URLSearchParams(globalThis.location.search)
       const actionFromParams = this.getActionFromQueryParams(queryParams)
 
       const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'recommendation' : 'details'
@@ -832,7 +833,7 @@ export default {
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
 
-    window.addEventListener('hashchange', this.handleHashChange)
+    globalThis.addEventListener('hashchange', this.handleHashChange)
 
     this.fetchProcedureMapSettings({ procedureId: this.procedure.id })
       .then(response => {
@@ -850,7 +851,7 @@ export default {
   },
 
   beforeUnmount () {
-    window.removeEventListener('hashchange', this.handleHashChange)
+    globalThis.removeEventListener('hashchange', this.handleHashChange)
   },
 }
 </script>
