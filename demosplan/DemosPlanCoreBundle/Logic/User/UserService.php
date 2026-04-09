@@ -1021,7 +1021,7 @@ class UserService implements UserServiceInterface
             $newPasswordHash = $this->userPasswordHasher->hashPassword($user, $newPassword);
             $em = $this->doctrine->getManager();
             $em->persist(new UserPasswordHistory($user, $newPasswordHash));
-            $this->userPasswordHistoryRepository->deleteExceedingEntries($user, $this->parameterBag->get('password_history_max_entries')-1);
+            $this->userPasswordHistoryRepository->deleteExceedingEntries($user, $this->parameterBag->get('password_history_max_entries') - 1);
 
             $user->setPassword($newPasswordHash);
             $user->setAlternativeLoginPassword($newPasswordHash);
