@@ -266,7 +266,7 @@ export default {
      * `structuredClone()` may fail on Vuex store objects containing functions/methods.
      */
     deepCloneSerializable (obj) {
-      // eslint-disable-next-line
+      // eslint-disable-next-line unicorn/prefer-structured-clone
       return JSON.parse(JSON.stringify(obj))
     },
 
