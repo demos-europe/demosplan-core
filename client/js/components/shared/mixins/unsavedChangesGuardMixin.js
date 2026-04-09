@@ -18,17 +18,17 @@
  * - `onDiscardChanges()`: called when the user clicks "Discard" (stays on the page)
  * - `onCancelNavigation()`: called when the user clicks "Cancel" (stays on the page)
  *
- * The mixin shows the native browser dialog on page unload and a global custom dialog on link navigation.
+ * The mixin shows the native browser dialog on page unload and a custom unsaved changes dialog on link navigation.
  *
- * IMPORTANT: Works only if `GlobalConfirmDialog` is rendered.
+ * IMPORTANT: Works only if `UnsavedChangesDialog` is rendered.
  * If it is not available, the mixin stays inactive and navigation works normally.
  */
 
 /**
- * Check if GlobalConfirmDialog component is available in the DOM
+ * Check if UnsavedChangesDialog component is available in the DOM
  */
-function isGlobalConfirmDialogAvailable () {
-  return document.querySelector('#globalConfirmDialog') !== null
+function isUnsavedChangesDialogAvailable () {
+  return document.querySelector('#unsavedChangesDialog') !== null
 }
 
 /**
@@ -37,12 +37,12 @@ function isGlobalConfirmDialogAvailable () {
 function showUnsavedChangesConfirmDialog () {
   return new Promise((resolve) => {
     const handleResult = (event) => {
-      document.removeEventListener('global-confirm-dialog:result', handleResult)
+      document.removeEventListener('unsaved-changes-dialog:result', handleResult)
       resolve(event.detail.action)
     }
 
-    document.addEventListener('global-confirm-dialog:result', handleResult)
-    document.dispatchEvent(new CustomEvent('global-confirm-dialog:show'))
+    document.addEventListener('unsaved-changes-dialog:result', handleResult)
+    document.dispatchEvent(new CustomEvent('unsaved-changes-dialog:show'))
   })
 }
 
@@ -136,7 +136,7 @@ export default {
   },
 
   mounted () {
-    if (!isGlobalConfirmDialogAvailable()) {
+    if (!isUnsavedChangesDialogAvailable()) {
       return
     }
 

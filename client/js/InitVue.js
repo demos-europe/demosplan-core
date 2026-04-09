@@ -25,7 +25,6 @@ import { bootstrap } from '@DpJs/bootstrap'
 import { configureCompat } from '@vue/compat'
 import { createApp } from 'vue'
 import DPVueCorePlugin from '@DpJs/plugins/DPVueCore'
-import GlobalConfirmDialog from '@DpJs/components/shared/GlobalConfirmDialog'
 import HamburgerMenuButton from '@DpJs/components/button/HamburgerMenuButton'
 import { initStore } from '@DpJs/store/core/initStore'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'
@@ -34,6 +33,7 @@ import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import SessionTimer from '@DpJs/components/shared/SessionTimer'
+import UnsavedChangesDialog from '@DpJs/components/shared/UnsavedChangesDialog'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}, modifyApp = () => {}) {
   bootstrap()
@@ -92,7 +92,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     // Register components that are used globally
     app.component('BackToTopButton', BackToTopButton)
     app.component('DpObscure', DpObscure)
-    app.component('GlobalConfirmDialog', GlobalConfirmDialog)
+    app.component('UnsavedChangesDialog', UnsavedChangesDialog)
     app.component('NotifyContainer', NotifyContainer)
     app.component('DpAccordion', DpAccordion)
     app.component('DpFlyout', DpFlyout)

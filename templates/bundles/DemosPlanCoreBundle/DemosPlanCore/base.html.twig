@@ -191,8 +191,14 @@
                 </notify-container>
             {% endblock notify_container %}
 
-            {# Global confirm dialog (can be overridden in project-specific templates) #}
-            {% block global_confirm_dialog %}{% endblock global_confirm_dialog %}
+            {#
+                UnsavedChangesDialog: prevents navigation when there are unsaved changes.
+
+                This block is empty by default. Projects that use `unsavedChangesGuardMixin`
+                must override it in their project-specific `base.html.twig` template to render
+                `UnsavedChangesDialog`.
+            #}
+            {% block unsaved_changes_dialog %}{% endblock unsaved_changes_dialog %}
 
         </div>{# end #app #}
 

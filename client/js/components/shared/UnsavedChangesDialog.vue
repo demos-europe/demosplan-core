@@ -9,8 +9,8 @@
 
 <template>
   <dp-confirm-dialog
-    id="globalConfirmDialog"
-    ref="globalConfirmDialog"
+    id="unsavedChangesDialog"
+    ref="unsavedChangesDialog"
     :confirm-button-text="Translator.trans('save.leave')"
     content-header-classes="font-size-h2 border--none pb-4"
     :decline-button-text="Translator.trans('edit.continue')"
@@ -27,7 +27,7 @@
 import { DpConfirmDialog } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'GlobalConfirmDialog',
+  name: 'UnsavedChangesDialog',
 
   components: {
     DpConfirmDialog,
@@ -36,7 +36,7 @@ export default {
   data () {
     return {
       currentResolver: null,
-      handleGlobalConfirmDialogShow: null,
+      handleUnsavedChangesDialogShow: null,
     }
   },
 
@@ -44,7 +44,7 @@ export default {
     show () {
       return new Promise(resolve => {
         this.currentResolver = resolve
-        this.$refs.globalConfirmDialog.open()
+        this.$refs.unsavedChangesDialog.open()
       })
     },
 
@@ -67,19 +67,19 @@ export default {
   },
 
   mounted () {
-    this.handleGlobalConfirmDialogShow = async () => {
+    this.handleUnsavedChangesDialogShow = async () => {
       const result = await this.show()
 
-      document.dispatchEvent(new CustomEvent('global-confirm-dialog:result', {
+      document.dispatchEvent(new CustomEvent('unsaved-changes-dialog:result', {
         detail: { action: result },
       }))
     }
 
-    document.addEventListener('global-confirm-dialog:show', this.handleGlobalConfirmDialogShow)
+    document.addEventListener('unsaved-changes-dialog:show', this.handleUnsavedChangesDialogShow)
   },
 
   beforeUnmount () {
-    document.removeEventListener('global-confirm-dialog:show', this.handleGlobalConfirmDialogShow)
+    document.removeEventListener('unsaved-changes-dialog:show', this.handleUnsavedChangesDialogShow)
   },
 }
 </script>
