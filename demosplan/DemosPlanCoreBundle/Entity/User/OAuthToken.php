@@ -86,13 +86,13 @@ class OAuthToken implements EntityInterface
     /**
      * @ORM\Column(name="pending_page_url", type="text", nullable=true)
      */
-    #[Assert\Regex(pattern: '/^\//', message: 'Pending page URL must be an internal path starting with /')]
+    #[Assert\Regex(pattern: '/^\/[^\/]/', message: 'Pending page URL must be an internal path starting with / (protocol-relative URLs rejected)')]
     private ?string $pendingPageUrl = null;
 
     /**
      * @ORM\Column(name="pending_request_url", type="text", nullable=true)
      */
-    #[Assert\Regex(pattern: '/^\//', message: 'Pending request URL must be an internal path starting with /')]
+    #[Assert\Regex(pattern: '/^\/[^\/]/', message: 'Pending request URL must be an internal path starting with / (protocol-relative URLs rejected)')]
     private ?string $pendingRequestUrl = null;
 
     /**
