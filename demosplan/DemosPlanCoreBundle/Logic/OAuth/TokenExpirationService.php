@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
+use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -47,7 +48,7 @@ class TokenExpirationService
         private readonly OrgaRepository $orgaRepository,
         private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
         private readonly RouterInterface $router,
-        private readonly TokenEncryptionService $tokenEncryptionService,
+        private readonly SecretEncryptor $tokenEncryptionService,
     ) {
     }
 

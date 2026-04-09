@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\OAuth;
 use DateTime;
 use DateTimeZone;
 use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
+use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use demosplan\DemosPlanCoreBundle\ValueObject\PendingRequestData;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -37,7 +38,7 @@ class PendingRequestCacheService
     public function __construct(
         private readonly CacheInterface $cache,
         private readonly LoggerInterface $logger,
-        private readonly TokenEncryptionService $encryptionService,
+        private readonly SecretEncryptor $encryptionService,
     ) {
     }
 

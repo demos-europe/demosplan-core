@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Exception\TokenEncryptionException;
+use demosplan\DemosPlanCoreBundle\Exception\CryptoException;
 use demosplan\DemosPlanCoreBundle\Exception\TokenStorageException;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\PendingRequestCacheService;
@@ -126,7 +126,7 @@ abstract class AbstractOzgKeycloakAuthenticator extends OAuth2Authenticator
      *
      * Body stays encrypted (decryptBody=false) so it can be passed straight to cache.
      *
-     * @throws TokenEncryptionException
+     * @throws CryptoException
      */
     private function readPendingRequest(string $userId): ?PendingRequestData
     {

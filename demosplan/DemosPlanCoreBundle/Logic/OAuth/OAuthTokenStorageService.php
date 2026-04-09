@@ -15,9 +15,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic\OAuth;
 use DateTime;
 use DateTimeZone;
 use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
-use demosplan\DemosPlanCoreBundle\Exception\TokenEncryptionException;
+use demosplan\DemosPlanCoreBundle\Exception\CryptoException;
 use demosplan\DemosPlanCoreBundle\Exception\TokenStorageException;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
+use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use demosplan\DemosPlanCoreBundle\Repository\OAuthTokenRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\PendingRequestData;
@@ -47,7 +48,7 @@ class OAuthTokenStorageService
         private readonly OAuthTokenRepository $oauthTokenRepository,
         private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
         private readonly RequestStack $requestStack,
-        private readonly TokenEncryptionService $encryptionService,
+        private readonly SecretEncryptor $encryptionService,
         private readonly UserRepository $userRepository,
         private readonly ValidatorInterface $validator,
     ) {
@@ -176,7 +177,7 @@ class OAuthTokenStorageService
      *
      * @return TokenData|null Token data value object with decrypted tokens, or null if no tokens found
      *
-     * @throws TokenEncryptionException if decryption fails
+     * @throws CryptoException if decryption fails
      */
     public function getClearTokenData(string $userId): ?TokenData
     {
@@ -246,7 +247,7 @@ class OAuthTokenStorageService
      * @param OAuthToken         $oauthToken  The OAuth token entity to store the request buffer in
      * @param PendingRequestData $requestData Request data value object with clear (unencrypted) data
      *
-     * @throws TokenEncryptionException if encryption of request body fails
+     * @throws CryptoException if encryption of request body fails
      * @throws InvalidArgumentException if validation of request data fails
      */
     public function storePendingRequest(OAuthToken $oauthToken, PendingRequestData $requestData): void
@@ -413,7 +414,7 @@ class OAuthTokenStorageService
      *
      * @return PendingRequestData|null Request data value object, or null if no pending request
      *
-     * @throws TokenEncryptionException if decryption of request body fails
+     * @throws CryptoException if decryption of request body fails
      */
     public function getPendingRequest(string $userId, bool $decryptBody = false): ?PendingRequestData
     {

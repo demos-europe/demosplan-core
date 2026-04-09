@@ -17,7 +17,7 @@ use DateTimeZone;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\OAuth\OAuthTokenFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
-use demosplan\DemosPlanCoreBundle\Logic\OAuth\TokenEncryptionService;
+use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use demosplan\DemosPlanCoreBundle\Repository\OAuthTokenRepository;
 use Tests\Base\FunctionalTestCase;
 
@@ -32,7 +32,7 @@ class OAuthTokenStorageServiceTest extends FunctionalTestCase
     /** @var OAuthTokenRepository */
     private $oauthTokenRepository;
 
-    /** @var TokenEncryptionService */
+    /** @var SecretEncryptor */
     private $encryptionService;
 
     protected function setUp(): void
@@ -42,7 +42,7 @@ class OAuthTokenStorageServiceTest extends FunctionalTestCase
         $container = self::getContainer();
         $this->sut = $container->get(OAuthTokenStorageService::class);
         $this->oauthTokenRepository = $container->get(OAuthTokenRepository::class);
-        $this->encryptionService = $container->get(TokenEncryptionService::class);
+        $this->encryptionService = $container->get(SecretEncryptor::class);
     }
 
     // ===== getPendingRequest =====

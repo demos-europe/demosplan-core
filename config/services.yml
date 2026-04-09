@@ -25,11 +25,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService: ~
 
-    demosplan\DemosPlanCoreBundle\Logic\OAuth\TokenEncryptionService:
-        lazy: true
-        arguments:
-            $encryptionKey: '%oauth_token_encryption_key%'
-
     demosplan\DemosPlanCoreBundle\Logic\OAuth\TokenExpirationService: ~
 
     demosplan\DemosPlanCoreBundle\ValueObject\AzureUserData: ~

@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\PendingRequestCacheService;
-use demosplan\DemosPlanCoreBundle\Logic\OAuth\TokenEncryptionService;
+use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
@@ -77,7 +77,7 @@ class OzgKeycloakStaticAuthenticator extends AbstractOzgKeycloakAuthenticator
         private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
         private readonly OzgKeycloakStaticUserDataProvider $userDataProvider,
         private readonly OAuthTokenRepository $oauthTokenRepository,
-        private readonly TokenEncryptionService $tokenEncryptionService,
+        private readonly SecretEncryptor $tokenEncryptionService,
         #[Autowire('%kernel.environment%')]
         private readonly string $environment,
     ) {

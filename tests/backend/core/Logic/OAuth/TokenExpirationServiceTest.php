@@ -16,7 +16,7 @@ use DateTime;
 use DateTimeZone;
 use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
-use demosplan\DemosPlanCoreBundle\Logic\OAuth\TokenEncryptionService;
+use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\TokenExpirationService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
@@ -38,7 +38,7 @@ class TokenExpirationServiceTest extends TestCase
             $this->createMock(OrgaRepository::class),
             $this->createMock(OzgKeycloakSessionManager::class),
             $this->createMock(RouterInterface::class),
-            $this->createMock(TokenEncryptionService::class),
+            $this->createMock(SecretEncryptor::class),
         );
     }
 

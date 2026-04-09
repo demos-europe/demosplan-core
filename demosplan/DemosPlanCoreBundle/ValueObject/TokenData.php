@@ -14,8 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
-use demosplan\DemosPlanCoreBundle\Exception\TokenEncryptionException;
-use demosplan\DemosPlanCoreBundle\Logic\OAuth\TokenEncryptionService;
+use demosplan\DemosPlanCoreBundle\Exception\CryptoException;
+use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 
 /**
  * Value object for OAuth token data.
@@ -62,9 +62,9 @@ class TokenData extends ValueObject
     /**
      * Fill the value object with decrypted token data from an OAuthToken entity.
      *
-     * @throws TokenEncryptionException if decryption fails
+     * @throws CryptoException if decryption fails
      */
-    public function fill(OAuthToken $oauthToken, TokenEncryptionService $encryptionService): void
+    public function fill(OAuthToken $oauthToken, SecretEncryptor $encryptionService): void
     {
         // Decrypt required tokens (guaranteed by validation on storage)
         $this->accessToken = $encryptionService->decrypt($oauthToken->getAccessToken());
