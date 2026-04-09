@@ -100,7 +100,7 @@
 
             &:hover {
                 border-right-width: 2px !important;
-                border-right-color: var(--dp-color-interactive, #006fd0) !important;
+                border-right-color: $dp-color-interactive-default !important;
 
                 .c-data-table__resize-handle {
                     visibility: visible;
