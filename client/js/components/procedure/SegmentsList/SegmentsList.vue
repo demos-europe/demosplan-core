@@ -508,7 +508,7 @@ export default {
       demosplanUi,
       hasStyledTopicalTags: false,
       headerFieldsAvailable: [
-        { field: 'externId', label: Translator.trans('id'), colWidth: '120px', initialMinWidth: 120 },
+        { field: 'externId', label: Translator.trans('id'), colWidth: '120px', initialMinWidth: 120, fixed: true },
         { field: 'statementStatus', label: Translator.trans('statement.status'), colWidth: '180px', initialMinWidth: 180 },
         { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '120px', initialMinWidth: 120 },
         { field: 'submitter', label: Translator.trans('submitter'), colWidth: '180px', initialMinWidth: 180 },
