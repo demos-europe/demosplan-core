@@ -164,7 +164,7 @@
             has-borders
             has-sticky-header
             :header-fields="availableHeaderFields"
-            :is-columns-draggable="true"
+            :is-columns-draggable
             is-resizable
             is-selectable
             :items="items"
