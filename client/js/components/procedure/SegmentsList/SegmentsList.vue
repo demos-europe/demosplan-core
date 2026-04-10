@@ -164,6 +164,7 @@
             has-borders
             has-sticky-header
             :header-fields="availableHeaderFields"
+            column-storage-key="segmentsList"
             is-columns-draggable
             is-resizable
             is-selectable
