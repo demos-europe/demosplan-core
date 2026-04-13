@@ -1393,15 +1393,6 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface: '@demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoToSegmentTransformer'
 
-    # API Platform: Override buggy service definition from api-platform/symfony 3.4.17.
-    # The bundle's openapi.xml registers this command with the old namespace
-    # (ApiPlatform\Symfony\Bundle\Command\OpenApiCommand) which points to a stub file
-    # that doesn't actually define the class. The real class was moved to
-    # api-platform/openapi package. This override prevents a DebugClassLoader error
-    # during container compilation.
-    api_platform.openapi.command:
-        class: ApiPlatform\OpenApi\Command\OpenApiCommand
-
     # API Platform: Decorate the JSON:API normalizer to return plain UUIDs
     # instead of IRIs (e.g., "550e8400-..." instead of "/api/3.0/Resource/550e8400-...").
     # Required for compatibility with EDT and the existing frontend.
