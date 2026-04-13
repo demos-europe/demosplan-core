@@ -457,7 +457,17 @@ abstract class CoreRepository extends FluentRepository
                 fn ($tagName) => ["<{$tagName}>", "</{$tagName}>"]
             )->implode('');
 
-        return strip_tags($text, $allowedTags);
+        $text = strip_tags($text, $allowedTags);
+
+        // Replace non-numeric CSS line-height values (inherit, normal, initial, unset)
+        // that PHPWord cannot handle during DOCX export
+        $text = preg_replace(
+            '/line-height:\s*(inherit|normal|initial|unset)\b[^;]*/i',
+            'line-height: 1',
+            $text
+        );
+
+        return $text;
     }
 
     /**

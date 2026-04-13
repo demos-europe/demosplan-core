@@ -944,6 +944,7 @@ class DocxExporter
         }
         try {
             $text = self::replaceTags($text);
+            $text = self::sanitizeCssForPhpWord($text);
             Html::addHtml($cell, $text, false);
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not parse HTML in Export', [$e, $text, $e->getTraceAsString()]);
@@ -973,6 +974,20 @@ class DocxExporter
         ];
 
         return preg_replace(array_keys($replacements), array_values($replacements), $text);
+    }
+
+    /**
+     * Remove CSS property values that PHPWord cannot handle.
+     * PHPWord tries to multiply line-height values as numbers, but CSS keywords
+     * like "inherit", "normal", or "initial" cause a TypeError.
+     */
+    private static function sanitizeCssForPhpWord(string $text): string
+    {
+        return preg_replace(
+            '/line-height:\s*(inherit|normal|initial|unset)\b[^;]*/i',
+            'line-height: 1',
+            $text
+        );
     }
 
     /**
