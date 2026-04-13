@@ -3778,6 +3778,11 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $successfulAddedStatement =
                     $this->statementService->updateStatementFromObject($statementToAdd, $ignoreAssignmentOfStatement, true);
                 if ($successfulAddedStatement instanceof Statement) {
+                    $this->entityManager->getConnection()->executeStatement(
+                        "UPDATE _statement SET entity_type = 'StatementMember' WHERE _st_id = :id",
+                        ['id' => $statementToAdd->getId()]
+                    );
+
                     return $successfulAddedStatement->getHeadStatement();
                 }
             }
@@ -3963,6 +3968,11 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $this->getMessageBag()->add(
                     'error', 'error.statement.cluster.resolve',
                     ['clusterId' => $headStatement->getExternId()]
+                );
+            } else {
+                $this->entityManager->getConnection()->executeStatement(
+                    "UPDATE _statement SET entity_type = 'Statement' WHERE _st_id = :id",
+                    ['id' => $statement->getId()]
                 );
             }
         }
