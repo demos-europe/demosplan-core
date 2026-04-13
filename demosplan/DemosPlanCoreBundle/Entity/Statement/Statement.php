@@ -3517,7 +3517,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     public function isClusterStatement(): bool
     {
-        return $this->clusterStatement;
+        return $this instanceof StatementGroup;
     }
 
     /**
