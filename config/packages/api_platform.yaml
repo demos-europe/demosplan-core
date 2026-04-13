@@ -1,5 +1,5 @@
 api_platform:
-    title: DemosPlan API
+    title: demosplan API
     version: 3.0.0
     mapping:
         paths:
