@@ -1392,3 +1392,10 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Services\SegmentServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface: '@demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoToSegmentTransformer'
+
+    # API Platform: Decorate the JSON:API normalizer to return plain UUIDs
+    # instead of IRIs (e.g., "550e8400-..." instead of "/api/3.0/Resource/550e8400-...").
+    # Required for compatibility with EDT and the existing frontend.
+    DemosEurope\DemosplanAddon\ApiPlatform\Serializer\PlainIdJsonApiNormalizer:
+        decorates: 'api_platform.jsonapi.normalizer.item'
+        arguments: ['@.inner']
