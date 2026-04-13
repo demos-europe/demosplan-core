@@ -168,6 +168,13 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
                 $headStatement->setCluster($statements);
                 $manager->persist($headStatement);
                 $manager->flush();
+
+                foreach ($statements as $statement) {
+                    $this->getEntityManager()->getConnection()->executeStatement(
+                        "UPDATE _statement SET entity_type = 'StatementMember' WHERE _st_id = :id",
+                        ['id' => $statement->getId()]
+                    );
+                }
             }
 
             return $headStatement;
@@ -1767,6 +1774,10 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
                 $notDetachedStatements->push($statement);
                 throw new Exception('error.statement.cluster.resolve'.$headStatement->getId());
             }
+            $this->getEntityManager()->getConnection()->executeStatement(
+                "UPDATE _statement SET entity_type = 'Statement' WHERE _st_id = :id",
+                ['id' => $statement->getId()]
+            );
         }
 
         if (0 === $notDetachedStatements->count()) {
