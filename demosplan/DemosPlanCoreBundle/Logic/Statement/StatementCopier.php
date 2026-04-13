@@ -161,7 +161,6 @@ class StatementCopier
         $copiedStatement->setDraftStatement(null);
         $copiedStatement->setDeleted($sourceStatement->getDeleted());
         $copiedStatement->setHeadStatement(null);
-        $copiedStatement->setClusterStatement($sourceStatement->isClusterStatement());
         $copiedStatement->setCountyNotified(false);
         $copiedStatement->setFeedback($sourceStatement->getFeedback());
         $copiedStatement->setFragmentsFilteredCount($sourceStatement->getFragmentsFilteredCount());

@@ -28,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField;
@@ -1607,8 +1608,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->groupBy('statement.procedure')
             ->andWhere('statement.deleted = :deleted')
             ->setParameter('deleted', false)
-            ->andWhere('statement.clusterStatement = :clusterStatement')
-            ->setParameter('clusterStatement', false)
+            ->andWhere(sprintf('statement NOT INSTANCE OF %s', StatementGroup::class))
             ->andWhere($queryBuilder->expr()->isNull('statement.movedStatement'))
             ->andWhere($queryBuilder->expr()->in('statement.procedure', $procedureIds));
 
@@ -1661,13 +1661,20 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
 
         /** @var Statement $statement */
         foreach ($statements as $statement) {
-            $statement->setClusterStatement(false);
             $statement->setHeadStatement(null);
             $statement->setOriginal(null);
             $statement->setParent(null);
             $this->getEntityManager()->persist($statement);
         }
         $this->getEntityManager()->flush();
+
+        // Reset entity_type for former cluster heads and members so that isInCluster() /
+        // isClusterStatement() reflect the dissolved state correctly.
+        $connection = $this->getEntityManager()->getConnection();
+        $connection->executeStatement(
+            "UPDATE _statement SET entity_type = 'Statement' WHERE _p_id = :procedureId AND entity_type IN ('StatementGroup', 'StatementMember')",
+            ['procedureId' => $procedureId]
+        );
     }
 
     /**

@@ -66,6 +66,7 @@ use Exception;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
+use function PHPUnit\Framework\throwException;
 
 /**
  * @ORM\Table(name="_statement", uniqueConstraints={@ORM\UniqueConstraint(name="internId_procedure", columns={"_st_intern_id", "_p_id"})})
@@ -905,12 +906,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     protected $manual = false;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable = false, options={"default":false})
-     */
-    protected $clusterStatement = false;
 
     /**
      * Statement to remains in source procedure after moved to target procedure.
@@ -3224,7 +3219,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         $this->cluster = \is_array($statements) ? new ArrayCollection($statements) : $statements;
         foreach ($statements as $statement) {
             $statement->setHeadStatement($this);
-            $this->clusterStatement = true;
         }
 
         return $this;
@@ -3282,8 +3276,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
             }
         }
 
-        $this->clusterStatement = $isCluster;
-
         return $isCluster;
     }
 
@@ -3294,7 +3286,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     public function isInCluster(): bool
     {
-        return null !== $this->getHeadStatement();
+        return $this instanceof StatementMember;
     }
 
     /**
@@ -3520,18 +3512,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this instanceof StatementGroup;
     }
 
-    /**
-     * Because of headStatements are only used as container and will be deleted on resolving a cluster,
-     * there is no need to set this flag to false.
-     *
-     * @param bool $isCluster
-     */
-    public function setClusterStatement($isCluster): Statement
-    {
-        $this->clusterStatement = $isCluster;
-
-        return $this;
-    }
 
     public function getAuthorName(): string
     {
@@ -4206,5 +4186,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function setCustomFields(?CustomFieldValuesList $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function setClusterStatement($isCluster): StatementInterface
+    {
+        throw new \BadMethodCallException(
+            'setClusterStatement() must not be called — cluster head identity is determined by the StatementGroup entity type.'
+        );
     }
 }

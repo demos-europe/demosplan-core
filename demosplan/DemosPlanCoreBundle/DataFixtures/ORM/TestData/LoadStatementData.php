@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField;
@@ -471,9 +472,8 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $manager->persist($statement7);
 
         // Cluster Statement01
-        $clusterStatement01 = new Statement();
+        $clusterStatement01 = new StatementGroup();
         $clusterStatement01->setAssignee($testUser);
-        $clusterStatement01->setClusterStatement(true);
         $clusterStatement01->setExternId('G1008');
         $clusterStatement01->setGdprConsent(new GdprConsent());
         $clusterStatement01->setMeta((new StatementMeta())->setStatement($clusterStatement01));
@@ -486,10 +486,9 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $manager->persist($clusterStatement01);
 
         // Cluster Statement1
-        $clusterStatement1 = new Statement();
+        $clusterStatement1 = new StatementGroup();
         $clusterStatement1->setAssignee($testUser);
         $clusterStatement1->setCluster([$statement7]);
-        $clusterStatement1->setClusterStatement(true);
         $clusterStatement1->setExternId('G1008');
         $clusterStatement1->setMeta((new StatementMeta())->setStatement($clusterStatement1));
         $clusterStatement1->setOriginal($clusterStatement01);
@@ -529,7 +528,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $manager->persist($statement11);
 
         // Cluster Statement2
-        $clusterStatement2 = new Statement();
+        $clusterStatement2 = new StatementGroup();
         $clusterStatement2->setAssignee($testUser);
         $clusterStatement2->setCluster([$statement10, $statement11]);
         $clusterStatement2->setExternId('C1009');
@@ -882,7 +881,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $manager->persist($statementWithFile);
 
         // Cluster Statement3: unassigned Cluster
-        $clusterStatement3 = new Statement();
+        $clusterStatement3 = new StatementGroup();
         $clusterStatement3->setCluster([$statement22]);
         $clusterStatement3->setExternId('C1013');
         $clusterStatement3->setMeta((new StatementMeta())->setStatement($clusterStatement3));
@@ -1013,9 +1012,8 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $manager->persist($clusterStatement11OfProcedureToDelete);
 
         // headstatement
-        $clusterStatement1OfProcedureToDelete = new Statement();
+        $clusterStatement1OfProcedureToDelete = new StatementGroup();
         $clusterStatement1OfProcedureToDelete->setCluster([$clusterStatement22OfProcedureToDelete, $clusterStatement11OfProcedureToDelete]);
-        $clusterStatement1OfProcedureToDelete->setClusterStatement(true);
         $clusterStatement1OfProcedureToDelete->setExternId('G1056');
         $clusterStatement1OfProcedureToDelete->setMeta((new StatementMeta())->setStatement($clusterStatement1OfProcedureToDelete));
         $clusterStatement1OfProcedureToDelete->setPhase('participation');

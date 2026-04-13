@@ -37,7 +37,6 @@ class StatementConditionDefinition extends ConditionDefinition
     public function notClusterRelated(): self
     {
         return $this->allConditionsApply()
-            ->propertyHasValue(false, ['clusterStatement'])
             ->propertyIsNull(['headStatement'])
             ->propertyHasSize(0, ['cluster']);
     }

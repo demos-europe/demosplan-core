@@ -49,7 +49,6 @@ class StatementFactory extends PersistentProxyObjectFactory
     {
         return [
             'anonymous'           => false,
-            'clusterStatement'    => false,
             'countyNotified'      => false,
             'created'             => self::faker()->dateTime(),
             'deleted'             => false,
