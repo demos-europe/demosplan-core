@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+## v4.34.0 (2026-04-13)
+-  introduces API Platform as a second API framework alongside the existing EDT (Entity Definition Toolkit). The long-term goal is to gradually migrate all JSON:API endpoints from EDT to API Platform. This PR sets up only the infrastructure — no concrete API resources are exposed yet.
+
 ## v4.33.0 (2026-04-02)
 
 ### Added
