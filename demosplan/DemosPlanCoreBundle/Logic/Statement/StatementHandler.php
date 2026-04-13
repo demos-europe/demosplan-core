@@ -37,6 +37,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
@@ -3622,7 +3623,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      */
     protected function generateHeadStatement(Statement $representativeStatement, ?string $name = null): Statement
     {
-        $headStatement = new Statement();
+        $headStatement = new StatementGroup();
         try {
             // do not check for instance of Statement because of Proxy Object in Unit tests (will fail)
             if (!$headStatement instanceof Statement) {
