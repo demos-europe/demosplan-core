@@ -7,7 +7,25 @@
 ## UNRELEASED
 
 ## v4.34.0 (2026-04-13)
--  introduces API Platform as a second API framework alongside the existing EDT (Entity Definition Toolkit). The long-term goal is to gradually migrate all JSON:API endpoints from EDT to API Platform. This PR sets up only the infrastructure — no concrete API resources are exposed yet.
+
+### Added
+- Set up API Platform infrastructure alongside existing EDT (Entity Definition Toolkit) as part of the gradual API migration (DPLAN-17129)
+- Add dedicated security firewall for API Platform routes (`/api/3.0/`) with shared session authentication
+- Add bridge classes in demosplan-addon v0.69 for EDT-to-API Platform relationship handling during migration (`PlainIdJsonApiNormalizer`, `ApiPlatformRelationshipConfig`, `ExtendedDynamicTransformer`)
+
+### Changed
+- Bump demosplan-addon from v0.68 to v0.69
+- Bump `doctrine/persistence` from `^2.0` to `^2.0 || ^3.0` (required by API Platform)
+
+### Fixed
+- `AccessProcedureListener` now checks for array controller before accessing index, preventing crashes on API Platform routes
+
+### New dependencies
+- `api-platform/core ^3.4`
+- `nelmio/cors-bundle ^2.6`
+
+### New environment variable
+- `CORS_ALLOW_ORIGIN` — Required. Controls which origins are allowed to make cross-origin requests to API Platform endpoints. Default: `'^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'`
 
 ## v4.33.0 (2026-04-02)
 
