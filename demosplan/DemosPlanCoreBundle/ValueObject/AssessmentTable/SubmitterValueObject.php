@@ -26,6 +26,8 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
  * @method setLastStatementCountyIds(array $ids)
  * @method getLastStatementMunicipalityIds()
  * @method setLastStatementMunicipalityIds(array $ids)
+ * @method getOrgaId()
+ * @method setOrgaId(string|null $id)
  */
 class SubmitterValueObject extends ValueObject
 {
@@ -43,6 +45,9 @@ class SubmitterValueObject extends ValueObject
 
     /** @var array */
     protected $submitter;
+
+    /** @var string|null */
+    protected $orgaId;
 
     /**
      * Holds the countyIds of the latest submitted statement.
@@ -68,12 +73,12 @@ class SubmitterValueObject extends ValueObject
     public function setSubmitter($organisation, $department, $author = '', $postalcode = '', $city = '')
     {
         $this->submitter = [
-           'organisation' => $organisation,
-           'department'   => $department,
-           'name'         => $author,
-           'postalCode'   => $postalcode,
-           'city'         => $city,
-       ];
+            'organisation' => $organisation,
+            'department'   => $department,
+            'name'         => $author,
+            'postalCode'   => $postalcode,
+            'city'         => $city,
+        ];
     }
 
     public function jsonSerialize(): array
@@ -83,6 +88,7 @@ class SubmitterValueObject extends ValueObject
             'entityType'     => $this->getEntityType(),
             'list'           => $this->getList(),
             'submitter'      => $this->getSubmitter(),
+            'orgaId'         => $this->getOrgaId(),
             'counties'       => $this->getLastStatementCountyIds() ?? [],
             'municipalities' => $this->getLastStatementMunicipalityIds() ?? [],
         ];

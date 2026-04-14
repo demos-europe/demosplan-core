@@ -130,6 +130,11 @@
         border-top: 1px solid $dp-color-neutral-light-2;
     }
 
+    // Use a lighter border when full borders (including vertical) are enabled.
+    &:has(.border-r) tr:not(.is-expanded-content) td {
+        border-top-color: $dp-color-neutral-light-3;
+    }
+
     tbody {
         tr:hover,
         tr:hover + tr.is-expanded-content,
@@ -157,6 +162,8 @@
         position: sticky;
         top: 0;
 
+        /* Ensure sticky header renders above regular cells but below flyout/expand columns */
+        z-index: $dp-z-above-zero + 1;
         background-color: $dp-color-white;
     }
 

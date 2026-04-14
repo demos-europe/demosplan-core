@@ -817,9 +817,10 @@ class ExportService
             $exportResult = $this->segmentsByStatementsExporter->exportAll(
                 $tableHeaders,
                 $this->procedureService->getProcedure($procedureId),
-                false, // obscure = false
-                false, // censorCitizenData = false
-                false, // censorInstitutionData = false
+                false, // obscure
+                [],    // exportFilteredByTags
+                false, // censorCitizenData
+                false, // censorInstitutionData
                 ...$statementEntities
             );
 

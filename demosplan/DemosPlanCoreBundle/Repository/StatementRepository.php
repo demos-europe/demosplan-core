@@ -2129,4 +2129,61 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     {
         return $this->getEntityManager()->getRepository(File::class);
     }
+
+    /**
+     * Get segmentation processing statistics for a procedure using a single DQL query
+     * instead of loading all statements and their segments into memory.
+     *
+     * A non-original statement is:
+     * - 'new' if it has no segments
+     * - 'completed' if all its segments have place.solved = true
+     * - 'processing' otherwise
+     *
+     * @return array{new: int, processing: int, completed: int}
+     */
+    public function getSegmentationStatistics(string $procedureId): array
+    {
+        $em = $this->getEntityManager();
+
+        // Step 1: Count total non-original statements in this procedure
+        $totalDql = 'SELECT COUNT(s.id) FROM '.Statement::class.' s
+            WHERE s.procedure = :procedureId
+              AND s.original IS NOT NULL
+              AND s INSTANCE OF '.Statement::class;
+
+        $total = (int) $em->createQuery($totalDql)
+            ->setParameter('procedureId', $procedureId)
+            ->getSingleScalarResult();
+
+        // Step 2: For each non-original statement, get segment count and solved count
+        // We use a subquery approach: first get statements that have segments,
+        // then among those, find which are completed (all segments solved)
+        $segmentStatsDql = 'SELECT IDENTITY(seg.parentStatementOfSegment) AS stmtId,
+                COUNT(seg.id) AS segmentCount,
+                SUM(CASE WHEN p.solved = true THEN 1 ELSE 0 END) AS solvedCount
+            FROM '.Segment::class.' seg
+            JOIN seg.place p
+            JOIN seg.parentStatementOfSegment stmt
+            WHERE stmt.procedure = :procedureId
+              AND stmt.original IS NOT NULL
+            GROUP BY seg.parentStatementOfSegment';
+
+        $rows = $em->createQuery($segmentStatsDql)
+            ->setParameter('procedureId', $procedureId)
+            ->getArrayResult();
+
+        $statementsWithSegments = count($rows);
+        $completed = 0;
+        foreach ($rows as $row) {
+            if ((int) $row['solvedCount'] === (int) $row['segmentCount']) {
+                ++$completed;
+            }
+        }
+
+        return [
+            'new'        => $total - $statementsWithSegments,
+            'processing' => $statementsWithSegments - $completed,
+            'completed'  => $completed,
+        ];
+    }
 }

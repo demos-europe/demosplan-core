@@ -33,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
-use Elastica\Exception\NotFoundException;
 use Exception;
 use proj4php\Point;
 use proj4php\Proj;
@@ -61,76 +60,6 @@ use function substr;
  */
 class DemosPlanProcedureListController extends DemosPlanProcedureController
 {
-    /**
-     * Public procedure search.
-     *
-     * @param string $orgaSlug Must be empty instead of null to allow
-     *                         URL generation without $orgaSlug somewhere
-     *                         else in the application
-     *
-     * @return RedirectResponse|Response|null
-     *
-     * @throws Exception
-     */
-    #[DplanPermissions('area_public_participation')]
-    #[Route(name: 'DemosPlan_procedure_list_search', path: '/verfahren/suche')]
-    public function publicProcedureSearch(
-        BrandingService $brandingService,
-        ContentService $contentService,
-        CurrentUserInterface $currentUser,
-        OrgaService $orgaService,
-        PermissionsInterface $permissions,
-        PublicIndexProcedureLister $procedureLister,
-        ProcedureListService $procedureListService,
-        Request $request,
-        string $orgaSlug = '')
-    {
-        $templateVars = [];
-        try {
-            if (!$permissions->hasPermission('feature_orga_slug')
-                && 'DemosPlan_procedure_public_orga_index' === $request->get('_route')) {
-                throw new NotFoundException('This content is not available');
-            }
-
-            $orgaRedirect = $this->handleRedirectOrgaSlug($orgaService, $orgaSlug);
-            if ($orgaRedirect instanceof RedirectResponse) {
-                return $orgaRedirect;
-            }
-            $orga = $orgaRedirect;
-
-            // orga Branding
-            if ($orga instanceof Orga && $permissions->hasPermission('area_orga_display')) {
-                $orgaBranding = $brandingService->createOrgaBranding($orga);
-                $templateVars['orgaBranding'] = $orgaBranding;
-            }
-
-            $user = $currentUser->getUser();
-
-            $templateVars = $procedureLister->getPublicIndexProcedureList($request, $orgaSlug);
-            $templateVars = $procedureLister->reformatPhases($currentUser->getUser()->isLoggedIn(), $templateVars);
-
-            $templateVars = $this->collectProcedureListTemplateVars(
-                $templateVars,
-                $contentService,
-                $user,
-                $request,
-                $procedureListService,
-                $currentUser
-            );
-
-            return $this->render(
-                '@DemosPlanCore/DemosPlanProcedure/public_index.html.twig',
-                [
-                    'templateVars' => $templateVars,
-                    'title'        => 'procedure.list',
-                    'gatewayURL'   => $this->globalConfig->getGatewayURL(),
-                ]
-            );
-        } catch (Exception $e) {
-            return $this->handleError($e);
-        }
-    }
-
     /**
      * Orga branded index page.
      *

@@ -3018,6 +3018,10 @@ class StatementService implements StatementServiceInterface
             $statement['author_feedback'] = true;
         }
 
+        if (\array_key_exists('r_oId', $data) && 36 === \strlen((string) $data['r_oId'])) {
+            $statement['oId'] = $data['r_oId'];
+        }
+
         if (\array_key_exists('r_orga_name', $data)) {
             $statement['orga_name'] = $data['r_orga_name'];
         }
@@ -3341,19 +3345,7 @@ class StatementService implements StatementServiceInterface
 
     public function getStatisticsOfProcedure(ProcedureInterface $procedure)
     {
-        /** @var StatementInterface $statementsOfProcedure */
-        $statementsOfProcedure = $procedure->getStatements();
-        $statistics = [
-            self::STATEMENT_STATUS_NEW         => 0,
-            self::STATEMENT_STATUS_PROCESSING  => 0,
-            self::STATEMENT_STATUS_COMPLETED   => 0,
-        ];
-        foreach ($statementsOfProcedure as $statement) {
-            /** @var StatementInterface $statement */
-            if (!$statement->isOriginal()) {
-                ++$statistics[$this->getProcessingStatus($statement)];
-            }
-        }
+        $statistics = $this->statementRepository->getSegmentationStatistics($procedure->getId());
 
         return new PercentageDistribution(
             $statistics[self::STATEMENT_STATUS_NEW] +
