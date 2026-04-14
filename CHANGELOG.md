@@ -9,6 +9,15 @@
 ### Added
 - Add customer admin interface for managing procedure phases - displaying and creating new phases
 
+## v4.34.0 (2026-04-09)
+
+### Added
+- Console commands to list and detach organisations from customers
+
+### Fixed
+- Various visual and interaction issues in the configurable segment list table
+- Organisation ID was not set when manually creating statements for institutions
+
 ## v4.33.0 (2026-04-02)
 
 ### Added
@@ -29,7 +38,6 @@
 - Procedure exports could fail in certain cases
 
 ## v4.32.0 (2026-03-25)
-
 ### Added
 - Export original statements as ZIP file including attachments for archiving
 - Display custom fields in assessment table, original statement list, and public participation dialog
@@ -203,6 +211,11 @@
 
 ### Features
 - Add possibility to delete custom fields and their options
+
+## v4.15.4 (2026-03-06)
+- Fix statement vote on mysql8+, immediately show vote
+- Rate limit new statements only for anonymous users
+- Set TUS resumable upload cache TTL to a week by default
 
 ## v4.15.3 (2025-12-02)
 
