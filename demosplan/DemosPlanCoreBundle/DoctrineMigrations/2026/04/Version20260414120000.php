@@ -31,7 +31,7 @@ class Version20260414120000 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql("
+        $this->addSql('
             CREATE TABLE personal_data_audit_log (
                 id CHAR(36) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL PRIMARY KEY,
                 user_id CHAR(36) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NULL,
@@ -50,7 +50,7 @@ class Version20260414120000 extends AbstractMigration
                 INDEX idx_pda_user (user_id),
                 INDEX idx_pda_created (created)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ");
+        ');
     }
 
     /**

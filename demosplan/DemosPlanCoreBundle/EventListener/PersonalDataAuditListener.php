@@ -20,6 +20,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\UnitOfWork;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -94,9 +95,9 @@ class PersonalDataAuditListener
 
         try {
             $this->writePendingEntries($connection, $entries);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->critical('GDPR audit trail write failure - entries lost', [
-                'exception' => $e,
+                'exception'  => $e,
                 'entryCount' => count($entries),
             ]);
         }
@@ -129,12 +130,12 @@ class PersonalDataAuditListener
             $isSensitive = $this->isSensitiveField($trackedFields[$field]);
 
             $this->pendingAuditEntries[] = [
-                'entityType' => $entityClass,
-                'entityId' => $entityId,
-                'entityField' => $field,
-                'changeType' => PersonalDataAuditLog::CHANGE_TYPE_UPDATE,
-                'preUpdateValue' => $isSensitive ? PersonalDataAuditLog::SENSITIVE_MASK : $this->serializeValue($oldValue),
-                'postUpdateValue' => $isSensitive ? PersonalDataAuditLog::SENSITIVE_MASK : $this->serializeValue($newValue),
+                'entityType'       => $entityClass,
+                'entityId'         => $entityId,
+                'entityField'      => $field,
+                'changeType'       => PersonalDataAuditLog::CHANGE_TYPE_UPDATE,
+                'preUpdateValue'   => $isSensitive ? PersonalDataAuditLog::SENSITIVE_MASK : $this->serializeValue($oldValue),
+                'postUpdateValue'  => $isSensitive ? PersonalDataAuditLog::SENSITIVE_MASK : $this->serializeValue($newValue),
                 'isSensitiveField' => $isSensitive,
             ];
         }
@@ -162,12 +163,12 @@ class PersonalDataAuditListener
             $isSensitive = $this->isSensitiveField($config);
 
             $this->pendingAuditEntries[] = [
-                'entityType' => $entityClass,
-                'entityId' => $entityId,
-                'entityField' => $field,
-                'changeType' => PersonalDataAuditLog::CHANGE_TYPE_CREATE,
-                'preUpdateValue' => null,
-                'postUpdateValue' => $isSensitive ? PersonalDataAuditLog::SENSITIVE_MASK : $this->serializeValue($value),
+                'entityType'       => $entityClass,
+                'entityId'         => $entityId,
+                'entityField'      => $field,
+                'changeType'       => PersonalDataAuditLog::CHANGE_TYPE_CREATE,
+                'preUpdateValue'   => null,
+                'postUpdateValue'  => $isSensitive ? PersonalDataAuditLog::SENSITIVE_MASK : $this->serializeValue($value),
                 'isSensitiveField' => $isSensitive,
             ];
         }
@@ -195,12 +196,12 @@ class PersonalDataAuditListener
             $isSensitive = $this->isSensitiveField($config);
 
             $this->pendingAuditEntries[] = [
-                'entityType' => $entityClass,
-                'entityId' => $entityId,
-                'entityField' => $field,
-                'changeType' => PersonalDataAuditLog::CHANGE_TYPE_DELETE,
-                'preUpdateValue' => $isSensitive ? PersonalDataAuditLog::SENSITIVE_MASK : $this->serializeValue($value),
-                'postUpdateValue' => null,
+                'entityType'       => $entityClass,
+                'entityId'         => $entityId,
+                'entityField'      => $field,
+                'changeType'       => PersonalDataAuditLog::CHANGE_TYPE_DELETE,
+                'preUpdateValue'   => $isSensitive ? PersonalDataAuditLog::SENSITIVE_MASK : $this->serializeValue($value),
+                'postUpdateValue'  => null,
                 'isSensitiveField' => $isSensitive,
             ];
         }
@@ -219,22 +220,22 @@ class PersonalDataAuditListener
         try {
             foreach ($entries as $entry) {
                 $connection->insert('personal_data_audit_log', [
-                    'id' => Uuid::uuid4()->toString(),
-                    'user_id' => $userId,
-                    'user_name' => $userName,
-                    'entity_type' => $entry['entityType'],
-                    'entity_id' => $entry['entityId'],
-                    'entity_field' => $entry['entityField'],
-                    'change_type' => $entry['changeType'],
-                    'pre_update_value' => $entry['preUpdateValue'],
-                    'post_update_value' => $entry['postUpdateValue'],
+                    'id'                 => Uuid::uuid4()->toString(),
+                    'user_id'            => $userId,
+                    'user_name'          => $userName,
+                    'entity_type'        => $entry['entityType'],
+                    'entity_id'          => $entry['entityId'],
+                    'entity_field'       => $entry['entityField'],
+                    'change_type'        => $entry['changeType'],
+                    'pre_update_value'   => $entry['preUpdateValue'],
+                    'post_update_value'  => $entry['postUpdateValue'],
                     'is_sensitive_field' => $entry['isSensitiveField'] ? 1 : 0,
-                    'context' => $context,
-                    'created' => $now->format('Y-m-d H:i:s'),
+                    'context'            => $context,
+                    'created'            => $now->format('Y-m-d H:i:s'),
                 ]);
             }
             $connection->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $connection->rollBack();
 
             throw $e;
@@ -254,7 +255,7 @@ class PersonalDataAuditListener
                     return [$user->getId(), $user->getLogin()];
                 }
             }
-        } catch (\Exception) {
+        } catch (Exception) {
             // Token storage may not be available in CLI context
         }
 

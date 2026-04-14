@@ -24,6 +24,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(
  *     name="personal_data_audit_log",
  *     indexes={
+ *
  *         @ORM\Index(name="idx_pda_entity", columns={"entity_type", "entity_id"}),
  *         @ORM\Index(name="idx_pda_user", columns={"user_id"}),
  *         @ORM\Index(name="idx_pda_created", columns={"created"})

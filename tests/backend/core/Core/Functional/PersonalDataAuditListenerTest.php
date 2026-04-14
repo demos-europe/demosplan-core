@@ -35,9 +35,9 @@ class PersonalDataAuditListenerTest extends FunctionalTestCase
     {
         // Arrange
         $user = UserFactory::createOne([
-            'email' => 'original@example.com',
+            'email'     => 'original@example.com',
             'firstname' => 'Max',
-            'lastname' => 'Mustermann',
+            'lastname'  => 'Mustermann',
         ]);
         $userId = $user->getId();
         $this->getEntityManager()->clear();
@@ -50,9 +50,9 @@ class PersonalDataAuditListenerTest extends FunctionalTestCase
 
         // Assert
         $entries = $this->getEntries(PersonalDataAuditLog::class, [
-            'entityId' => $userId,
+            'entityId'    => $userId,
             'entityField' => 'email',
-            'changeType' => PersonalDataAuditLog::CHANGE_TYPE_UPDATE,
+            'changeType'  => PersonalDataAuditLog::CHANGE_TYPE_UPDATE,
         ]);
 
         static::assertCount(1, $entries);
@@ -76,9 +76,9 @@ class PersonalDataAuditListenerTest extends FunctionalTestCase
 
         // Assert
         $entries = $this->getEntries(PersonalDataAuditLog::class, [
-            'entityId' => $userId,
+            'entityId'    => $userId,
             'entityField' => 'password',
-            'changeType' => PersonalDataAuditLog::CHANGE_TYPE_UPDATE,
+            'changeType'  => PersonalDataAuditLog::CHANGE_TYPE_UPDATE,
         ]);
 
         static::assertCount(1, $entries);
@@ -102,9 +102,9 @@ class PersonalDataAuditListenerTest extends FunctionalTestCase
 
         // Assert
         $entries = $this->getEntries(PersonalDataAuditLog::class, [
-            'entityId' => $userId,
+            'entityId'    => $userId,
             'entityField' => 'firstname',
-            'changeType' => PersonalDataAuditLog::CHANGE_TYPE_UPDATE,
+            'changeType'  => PersonalDataAuditLog::CHANGE_TYPE_UPDATE,
         ]);
 
         static::assertCount(0, $entries);
@@ -125,7 +125,7 @@ class PersonalDataAuditListenerTest extends FunctionalTestCase
 
         // Assert
         $entries = $this->getEntries(PersonalDataAuditLog::class, [
-            'entityId' => $userId,
+            'entityId'    => $userId,
             'entityField' => 'providedByIdentityProvider',
         ]);
 
@@ -148,9 +148,9 @@ class PersonalDataAuditListenerTest extends FunctionalTestCase
 
         // Assert
         $entries = $this->getEntries(PersonalDataAuditLog::class, [
-            'entityId' => $userId,
+            'entityId'    => $userId,
             'entityField' => 'email',
-            'changeType' => PersonalDataAuditLog::CHANGE_TYPE_UPDATE,
+            'changeType'  => PersonalDataAuditLog::CHANGE_TYPE_UPDATE,
         ]);
 
         static::assertCount(0, $entries);
