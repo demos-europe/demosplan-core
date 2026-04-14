@@ -6,6 +6,15 @@
 
 ## UNRELEASED
 
+## v4.34.0 (2026-04-09)
+
+### Added
+- Console commands to list and detach organisations from customers
+
+### Fixed
+- Various visual and interaction issues in the configurable segment list table
+- Organisation ID was not set when manually creating statements for institutions
+
 ## v4.33.0 (2026-04-02)
 
 ### Added
