@@ -8,7 +8,7 @@ jobs:
   vendor_update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
 
       - name: Setup PHP with composer v2
         uses: shivammathur/setup-php@v2
@@ -18,7 +18,7 @@ jobs:
           tools: composer:v2
 
       - name: Cache php modules
-        uses: actions/cache@v5.0.4
+        uses: actions/cache@v5.0.5
         with:
           path: |
             ~/.composer/cache
@@ -28,7 +28,7 @@ jobs:
             ${{ runner.os }}-build-php-
 
       - name: Miscellaneous runtime caches
-        uses: actions/cache@v5.0.4
+        uses: actions/cache@v5.0.5
         with:
           path: |
             infrastructure/.runtime/cache
@@ -42,12 +42,12 @@ jobs:
           composer install --no-interaction
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
 
       - name: Cache node modules
-        uses: actions/cache@v5.0.4
+        uses: actions/cache@v5.0.5
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}

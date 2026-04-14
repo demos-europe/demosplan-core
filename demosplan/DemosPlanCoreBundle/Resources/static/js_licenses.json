@@ -35,6 +35,11 @@
         "website": "https://github.com/babel/babel"
     },
     {
+        "package": "@babel/preset-typescript",
+        "license": "MIT",
+        "website": "https://github.com/babel/babel"
+    },
+    {
         "package": "@babel/runtime",
         "license": "MIT",
         "website": "https://github.com/babel/babel"
@@ -350,11 +355,6 @@
         "website": "https://github.com/Leaflet/Leaflet.markercluster"
     },
     {
-        "package": "license-checker",
-        "license": "BSD-3-Clause",
-        "website": "https://github.com/davglass/license-checker"
-    },
-    {
         "package": "lscache",
         "license": "Apache-2.0",
         "website": "https://github.com/pamelafox/lscache"
@@ -467,7 +467,7 @@
     {
         "package": "terser-webpack-plugin",
         "license": "MIT",
-        "website": "https://github.com/webpack-contrib/terser-webpack-plugin"
+        "website": "https://github.com/webpack/terser-webpack-plugin"
     },
     {
         "package": "timers-browserify",
@@ -478,6 +478,11 @@
         "package": "tippy.js",
         "license": "MIT",
         "website": "https://github.com/atomiks/tippyjs"
+    },
+    {
+        "package": "typescript",
+        "license": "Apache-2.0",
+        "website": "https://github.com/microsoft/TypeScript"
     },
     {
         "package": "typescript-eslint",

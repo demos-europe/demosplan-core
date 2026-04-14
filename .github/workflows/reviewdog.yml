@@ -23,14 +23,14 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
       - uses: actions/setup-node@v6
         with:
           node-version: '24.11.1'
       - run: npm install --ignore-scripts -g corepack && corepack enable && yarn set version 4.2.2
 
       - name: Cache yarn dependencies
-        uses: actions/cache@v5.0.4
+        uses: actions/cache@v5.0.5
         with:
           path: |
             ~/.yarn/cache
@@ -52,7 +52,7 @@ jobs:
           tools: composer:v2
 
       - name: Cache php modules
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:
           path: |
             ~/.composer/cache
@@ -62,7 +62,7 @@ jobs:
             ${{ runner.os }}-build-php-
 
       - name: Miscellaneous runtime caches
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:
           path: |
             config/.runtime/cache
