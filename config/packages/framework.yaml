@@ -5,7 +5,7 @@ framework:
     secret: '%env(APP_SECRET)%'
     form: ~
     csrf_protection: ~
-    enabled_locales: ['de']
+    enabled_locales: ['de', 'en']
     validation: { enable_annotations: true }
     trusted_proxies: "%proxy_trusted%"
     trusted_headers: [ 'x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-prefix' ]

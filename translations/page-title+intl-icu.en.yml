@@ -1,0 +1,233 @@
+404.title: "Page not found"
+500.title: "An error occurred"
+
+accessibility: "Accessibility"
+assessment.table: Assessment table
+assessment.table.anonymous: Assessment table without names
+assessment.table.cluster.detail: Statement group details
+assessment.table.statement.detail: Statement details
+assessment.table.statements.original: Original statements
+assessment.table.statements.fragment: Split statement
+
+category.admin.new: Create new category
+category.admin.edit: Edit category
+category.admin: Create category
+
+dashboard.index: Overview
+
+drawing: Site plan
+drawing.admin.adjustments.gis: Define map section
+drawing.admin.gis.layers: Site plan/GIS
+drawing.admin.gis.layers.global: List of global GIS layers
+drawing.admin.gis.layer.global.edit: Edit global GIS layer
+drawing.admin.gis.layer.new: Create GIS layer
+drawing.admin.gis.layer.edit: Edit GIS layer
+drawing.admin.territory: Draw planning area
+drawing.map.new: Create location reference
+
+element.admin.category: Edit category
+element.admin.category.new: Create category
+element.detail.document.add: "Add planning document"
+element.detail.document.edit: "Edit planning document"
+element.drawing.statement.new: Site plan
+element.list: Planning documents
+element.list.admin: Planning documents
+element.paragraph.agreement: Textual provisions
+element.paragraph: Chapter
+element.paragraph.reason: Justification
+
+elements.bulk.edit: "Edit planning documents"
+elements.dashboard: Planning documents and site plan
+
+email.invitation.write: Compose email invitation
+
+export.titlepage: Export cover page
+
+faq.admin: Manage FAQ
+faq.admin.new: Create new FAQ
+faq.admin.edit: Edit FAQ
+faq.list: FAQ
+faq.public: Information
+
+forum.development: Development
+forum.development.release.list: Releases
+forum.development.release.new: Create new release
+forum.development.release.edit: Edit release
+forum.development.release.story.new: Create new user story
+forum.development.release.story.edit: Edit user story
+forum.development.release.story.delete: Delete user story
+forum.development.release.story: User story - Detail
+forum.development.story.threadentry.new: New post
+forum.development.story.threadentry.edit: Edit post
+
+fragment.bulk.edit: Edit records
+fragments.list: Records
+fragments.list.archive: Record - Archive
+
+gdpr.consent.revoke.disabled: "Automated revocation disabled"
+
+help.contextualHelp.list: Contextual help - Overview
+help.contextualHelp.edit: Edit
+history: Version history
+import: "Import"
+institution.tags.management: Tag institutions
+invitable_institution.unregistered.administer: Manage unregistered institutions
+invitable_institution.unregistered.invite: Invite unregistered institutions
+language.simple: Easy language
+
+mail.create.template: Mail - Create template
+mail.status: Mail - Status
+
+misc.contact: Contact
+misc.howToLogin: Login
+misc.imprint: Legal notice
+misc.dataProtection: Privacy policy
+misc.softwarecomponents: Software components used
+misc.information: Information
+misc.information.documents: Documents
+misc.termsOfUse: Terms of use
+misc.xplanning: XPlanning
+
+
+news: News/Announcements
+news.admin: News/Announcements
+news.admin.new: Create announcement
+news.admin.edit: Edit announcement
+news.detail: Detail
+news.export: News
+news.global.export: Portal announcements
+news.global: News/Portal announcements
+news.global.admin: News/Portal announcements
+news.global.admin.new: Create portal announcement
+news.global.admin.edit: Edit portal announcement
+news.global.detail: Detail
+
+paragraph.agreement: Textual provisions
+paragraph.agreement.edit: Edit chapter
+paragraph.agreement.export: Textual provisions
+paragraph.new: Create chapter
+paragraph.edit: Edit chapter
+paragraph.reason: Justification
+paragraph.reason.edit: Edit justification
+paragraph.reason.export: Justification
+
+
+procedure: Procedure
+procedure.public: Procedure
+procedure.adjustments: Basic settings
+procedure.admin.list: Manage procedures
+procedure.analysis: Evaluation
+procedure.boilerplates: Boilerplates
+procedure.boilerplate.edit: Edit boilerplate
+procedure.boilerplateGroup.edit: Edit boilerplate group
+procedure.list: Participation
+procedure.mail.submitters.send: Compose email to all submitters
+procedure.mail.submitters.send.confirm: Send email to all submitters
+procedure.master.adjustments: Blueprint - Settings
+procedure.master: Blueprint
+procedure.master.admin: Blueprints
+procedure.master.new: Create blueprint
+procedure.new: Create procedure
+procedure.notifications: Notifications
+procedure.places: Processing steps
+procedure.proposal.create: Propose procedure
+procedure.proposal.detail: Procedure proposal
+procedure.proposal.list: List of procedure proposals
+procedure.public.agency.add: Add institutions
+procedure.public.agency.administration: Manage institutions
+procedure.public.agency.list.export: Export institution list
+
+procedure.public.list: List of planning procedures in public participation
+procedure.public.participation: Public participation
+procedure.report: Procedure report
+procedure.types: Procedure types
+procedure.type.edit: Edit procedure type
+procedure.type.create: Create procedure type
+
+procedures.search.statements: Cross-procedure statement search
+
+project.name: "{projectName}"
+
+service.mode: Maintenance mode
+
+segments: "Segments"
+segments.bulk.edit: "Edit segments"
+segments.import: "Import segments"
+segments.recommendations.create: "Compose responses"
+
+signLanguage: "Sign language"
+start.welcome: Welcome
+
+statement.anonymize: Anonymise statement
+statement.do.fragment: Split statement
+statement.edit: Edit statement
+statement.view: View statement
+statement.indication.error: Statements - No findings
+statement.manual: Create manual statement
+statement.new: Create statement
+statement.new.create: "Compose new statement"
+statement.own: Your statement
+statement.print: Print statements
+statement.public: Public statement
+statement.submit: Submit statement
+statement.version: Statement version
+statement.versions: Statement versions
+statement.vote: Co-sign statement
+
+statement.bulk.edit: Edit statements
+
+statements: Statements
+statements.drafts: Drafts
+statements.final.group: Organisation submissions
+statements.final.own: My submissions
+statements.import: Import statements
+statements.original: Original statements
+statements.other.companies: Published submissions (statements from other institutions)
+statements.released: My approvals
+statements.released.group: Organisation approvals
+statements.send.per.email: Send statement by email
+statements.uploaded.confirm: Confirm imported statements
+statements.uploaded.recheck: Review imported statements
+
+statistic: Statistics
+
+submitters: Submitters
+
+titlepage: Cover page
+
+tag.administration_single: Edit tag
+
+user.add.department: Create new department
+user.add.orga: Create new organisation
+user.add.user: Create new user
+user.admin.member: Manage users
+user.admin.departments: Manage departments
+user.admin.orga.data: Organisation data
+user.admin.orgas: Manage organisations
+user.admin.user: Manage users
+user.choose.orga: Select organisation
+user.delete.departments: Delete departments
+user.delete.orga: Delete organisation
+user.delete.user: Delete user
+user.edit.department: Edit department
+user.edit.orga: Edit organisation data
+user.edit.orga.branding: "Edit public area appearance"
+user.edit.profil: Edit my data
+user.list.visibility.changes.invitable_institution: Changes to institution list visibility
+user.login: Login
+user.mail.inbox: Inbox
+user.mail.delete: Delete message
+user.mail.new: New message
+user.mail.outbox: Sent messages
+user.mail.read: Read message
+user.participants: Participants
+user.password.recover: Forgot password
+user.profile: My data
+user.invitable_institution.master: "Master institution list"
+user.invitable_institution.master.merge: "Merge institutions"
+user.invitable_institution.master.report: "Changes to master institution list"
+user.profile.edit: My data
+user.register: Register
+user.register.citizen: Register
+user.statements: Your submitted statements
+user.welcome: Welcome

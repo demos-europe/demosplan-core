@@ -325,7 +325,7 @@ class DemosPlanUserController extends BaseController
         }
 
         // invert current locale set by setting current session:
-        $languageKey = ('de' === $request->getSession()->get('_locale', 'de')) ? 'de_plain' : 'de';
+        $languageKey = ('de' === $request->getSession()->get('_locale', 'de')) ? 'en' : 'de';
         $request->getSession()->set('_locale', $languageKey);
 
         // redirect to current page:
