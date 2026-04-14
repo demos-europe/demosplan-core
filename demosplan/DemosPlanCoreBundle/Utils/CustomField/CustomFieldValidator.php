@@ -88,12 +88,7 @@ abstract class CustomFieldValidator implements FieldTypeValidatorInterface
         $allowedTargets = $sourceToTargetMap[$sourceEntity];
 
         if (!in_array($targetEntity, $allowedTargets, true)) {
-            throw new InvalidArgumentException(sprintf(
-                'The target entity "%s" is not valid for source entity "%s". Allowed targets: %s.',
-                $targetEntity,
-                $sourceEntity,
-                implode(', ', $allowedTargets)
-            ));
+            throw new InvalidArgumentException(sprintf('The target entity "%s" is not valid for source entity "%s". Allowed targets: %s.', $targetEntity, $sourceEntity, implode(', ', $allowedTargets)));
         }
     }
 
