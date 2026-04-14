@@ -15,6 +15,8 @@ use Tests\Base\FunctionalTestCase;
 
 class HTMLSanitizerTest extends FunctionalTestCase
 {
+    private const SAFE_LINE_HEIGHT = 'line-height: 1';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -87,25 +89,25 @@ class HTMLSanitizerTest extends FunctionalTestCase
     public function testSanitizeCssForPhpWord(): void
     {
         // Should replace non-numeric line-height values
-        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: inherit'));
-        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: normal'));
-        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: initial'));
-        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: unset'));
+        static::assertEquals(self::SAFE_LINE_HEIGHT, $this->sut->sanitizeCssForPhpWord('line-height: inherit'));
+        static::assertEquals(self::SAFE_LINE_HEIGHT, $this->sut->sanitizeCssForPhpWord('line-height: normal'));
+        static::assertEquals(self::SAFE_LINE_HEIGHT, $this->sut->sanitizeCssForPhpWord('line-height: initial'));
+        static::assertEquals(self::SAFE_LINE_HEIGHT, $this->sut->sanitizeCssForPhpWord('line-height: unset'));
 
         // Case insensitive
-        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: INHERIT'));
-        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: Normal'));
+        static::assertEquals(self::SAFE_LINE_HEIGHT, $this->sut->sanitizeCssForPhpWord('line-height: INHERIT'));
+        static::assertEquals(self::SAFE_LINE_HEIGHT, $this->sut->sanitizeCssForPhpWord('line-height: Normal'));
 
         // Varying whitespace after colon
-        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height:inherit'));
-        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height:   inherit'));
+        static::assertEquals(self::SAFE_LINE_HEIGHT, $this->sut->sanitizeCssForPhpWord('line-height:inherit'));
+        static::assertEquals(self::SAFE_LINE_HEIGHT, $this->sut->sanitizeCssForPhpWord('line-height:   inherit'));
 
         // With !important
-        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: inherit !important'));
+        static::assertEquals(self::SAFE_LINE_HEIGHT, $this->sut->sanitizeCssForPhpWord('line-height: inherit !important'));
 
         // Should NOT replace numeric values
         static::assertEquals('line-height: 1.5', $this->sut->sanitizeCssForPhpWord('line-height: 1.5'));
-        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: 1'));
+        static::assertEquals(self::SAFE_LINE_HEIGHT, $this->sut->sanitizeCssForPhpWord('line-height: 1'));
         static::assertEquals('line-height: 24px', $this->sut->sanitizeCssForPhpWord('line-height: 24px'));
         static::assertEquals('line-height: 120%', $this->sut->sanitizeCssForPhpWord('line-height: 120%'));
 
