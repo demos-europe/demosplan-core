@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementGroup;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
@@ -38,7 +39,7 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
 
     public function getEntityClass(): string
     {
-        return Statement::class;
+        return StatementGroup::class;
     }
 
     public function isAvailable(): bool
@@ -65,11 +66,7 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
 
         return [
             $this->conditionFactory->propertyIsNotNull($this->original),
-            $this->conditionFactory->propertyHasValue(true, $this->clusterStatement),
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
-            // only get non-clusterMember to avoid getting cluster of cluster and
-            // bring result into line with ES result in ATable:
-            $this->conditionFactory->propertyIsNull($this->headStatement),
             // statement placeholders are not considered actual statement resources
             $this->conditionFactory->propertyIsNull($this->movedStatement),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),

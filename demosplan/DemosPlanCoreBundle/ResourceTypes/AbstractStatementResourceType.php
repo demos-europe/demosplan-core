@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementGroup;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
@@ -65,7 +66,6 @@ use EDT\PathBuilding\End;
  * @property-read End $fragmentsCount @deprecated Create a {@link StatementFragment} relationship instead
  * @property-read End $isCitizen
  * @property-read End $isCluster @deprecated Cluster statements should get a separate resource type instead, which allows this attribute to be removed
- * @property-read End $clusterStatement
  * @property-read End $likesNum @deprecated Use relationship to {@link StatementLike} instead
  * @property-read End $memo
  * @property-read End $movedFromProcedureId @deprecated Use relationship to a PlaceholderStatement resource type instead
@@ -155,7 +155,7 @@ abstract class AbstractStatementResourceType extends DplanResourceType
         $configBuilder->isCitizen
             ->readable(true, static fn (Statement $statement): bool => User::ANONYMOUS_USER_ORGA_NAME === $statement->getMeta()->getOrgaName());
         $configBuilder->isCluster
-            ->readable(true)->aliasedPath(Paths::statement()->clusterStatement);
+            ->readable(true, static fn (Statement $statement): bool => $statement instanceof StatementGroup);
         $configBuilder->likesNum
             ->readable(true, static fn (Statement $statement): int => $statement->getLikesNum());
         $configBuilder->movedFromProcedureId
@@ -287,7 +287,7 @@ abstract class AbstractStatementResourceType extends DplanResourceType
 
         // this information is needed in FE to show a hint of this statement was given anonymously
         if ($this->currentUser->hasPermission('area_admin_assessmenttable')) {
-            $configBuilder->anonymous->readable();
+            $configBuilder->anonymous->readable(false, static fn (Statement $statement): bool => $statement->isAnonymous());
         }
 
         if ($this->currentUser->hasPermission('area_admin_consultations')) {

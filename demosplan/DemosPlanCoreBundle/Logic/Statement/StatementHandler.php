@@ -3631,7 +3631,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 throw new InvalidArgumentException('Could not choose Statement to create Cluster');
             }
 
-            $headStatement->setClusterStatement(true);
             $headStatement->setAssignee($representativeStatement->getAssignee());
             $headStatement->setCounties($representativeStatement->getCounties());
             $headStatement->setDocument($representativeStatement->getDocument());

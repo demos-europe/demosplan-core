@@ -663,7 +663,7 @@ class DemosPlanAssessmentTableController extends BaseController
         }
 
         // ref: T7689: redirect if statement is member of cluster (after update statement)
-        if (array_key_exists('clusterStatement', $statementAsArray)
+        if (isset($statementAsArray['headStatement'])
             && $statementAsArray['headStatement'] instanceof Statement
         ) {
             $routeParameters = ['procedure' => $procedureId, 'statementId' => $statementId];

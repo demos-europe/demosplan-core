@@ -250,7 +250,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         // currently updates are only needed for "normal" statements
         $simpleStatementCondition = $this->conditionFactory->allConditionsApply(
             $this->conditionFactory->propertyHasValue(false, Paths::statement()->deleted),
-            $this->conditionFactory->propertyHasValue(false, Paths::statement()->clusterStatement),
+            $this->conditionFactory->propertyHasSize(0, Paths::statement()->cluster),
             $this->conditionFactory->propertyIsNull(Paths::statement()->headStatement->id),
             $this->conditionFactory->propertyIsNotNull(Paths::statement()->original->id),
             // all segments must have a segment set, hence the following check is used to ensure this resource type does not return segments
