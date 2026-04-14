@@ -47,7 +47,7 @@ class Version20260413120000 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql("ALTER TABLE _statement ADD COLUMN cluster_statement TINYINT(1) NOT NULL DEFAULT 0");
+        $this->addSql('ALTER TABLE _statement ADD COLUMN cluster_statement TINYINT(1) NOT NULL DEFAULT 0');
 
         $this->addSql("
             UPDATE _statement

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use BadMethodCallException;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
@@ -66,7 +67,6 @@ use Exception;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
-use function PHPUnit\Framework\throwException;
 
 /**
  * @ORM\Table(name="_statement", uniqueConstraints={@ORM\UniqueConstraint(name="internId_procedure", columns={"_st_intern_id", "_p_id"})})
@@ -905,7 +905,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * @ORM\Column(name="`manual`", type="boolean", nullable = false, options={"default":false})
      */
     protected $manual = false;
-
 
     /**
      * Statement to remains in source procedure after moved to target procedure.
@@ -3512,7 +3511,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this instanceof StatementGroup;
     }
 
-
     public function getAuthorName(): string
     {
         return $this->getMeta()->getAuthorName();
@@ -4190,8 +4188,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     public function setClusterStatement($isCluster): StatementInterface
     {
-        throw new \BadMethodCallException(
-            'setClusterStatement() must not be called — cluster head identity is determined by the StatementGroup entity type.'
-        );
+        throw new BadMethodCallException('setClusterStatement() must not be called — cluster head identity is determined by the StatementGroup entity type.');
     }
 }
