@@ -55,8 +55,8 @@ class CustomFieldOption
      */
     public function fromJson(array $json): void
     {
-        $this->id        = $json['id'];
-        $this->label     = $json['label'];
+        $this->id = $json['id'];
+        $this->label = $json['label'];
         $this->sortOrder = $json['sortOrder'] ?? 0;
     }
 
