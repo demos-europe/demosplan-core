@@ -2184,4 +2184,20 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             'completed'  => $completed,
         ];
     }
+
+    /**
+     * Returns all statement IDs for a procedure without loading full entities.
+     * Used for efficient batch re-indexing.
+     *
+     * @return string[]
+     */
+    public function getStatementIdsByProcedureId(string $procedureId): array
+    {
+        return $this->createQueryBuilder('s')
+            ->select('s.id')
+            ->where('s.procedure = :procedureId')
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery()
+            ->getSingleColumnResult();
+    }
 }

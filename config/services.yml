@@ -955,6 +955,10 @@ services:
         arguments:
             $segmentPersister: '@fos_elastica.object_persister.statementSegments'
 
+    demosplan\DemosPlanCoreBundle\MessageHandler\ReindexProcedureStatementsMessageHandler:
+        arguments:
+            $statementPersister: '@fos_elastica.object_persister.statements'
+
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\TagService:
         lazy: true

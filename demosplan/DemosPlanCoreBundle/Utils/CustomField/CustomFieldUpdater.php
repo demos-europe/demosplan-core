@@ -16,10 +16,12 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Message\ReindexProcedureStatementsMessage;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Constraint\ProcedureWithStatementsCustomFieldConstraint;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\EntityCustomFieldUsageStrategyFactory;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CustomFieldUpdater
@@ -27,6 +29,7 @@ class CustomFieldUpdater
     public function __construct(
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly EntityCustomFieldUsageStrategyFactory $entityCustomFieldUsageStrategyFactory,
+        private readonly MessageBusInterface $messageBus,
         private readonly ValidatorInterface $validator,
     ) {
     }
@@ -60,6 +63,12 @@ class CustomFieldUpdater
         // Save back to CustomFieldConfiguration
         $customFieldConfiguration->setConfiguration($customField);
         $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
+
+        if (isset($attributes['options'])) {
+            $this->messageBus->dispatch(
+                new ReindexProcedureStatementsMessage($customFieldConfiguration->getSourceEntityId())
+            );
+        }
 
         return $customField;
     }
