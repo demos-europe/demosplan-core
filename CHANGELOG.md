@@ -6,6 +6,8 @@
 
 ## UNRELEASED
 
+## v4.33.0 (2026-04-02)
+
 ### Added
 - Make custom fields available in assessment table, original statement list, my releases list, and public statement dialogs
 - Improved segment list interface with configurable column layout
