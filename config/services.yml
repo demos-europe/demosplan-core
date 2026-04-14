@@ -335,6 +335,13 @@ services:
     demosplan\DemosPlanCoreBundle\EventListener\BaseEventListener:
         abstract: true
 
+    demosplan\DemosPlanCoreBundle\EventListener\PersonalDataAuditListener:
+        arguments:
+            $fieldMapping: '%personal_data_audit_fields_mapping%'
+        tags:
+            - { name: doctrine.event_listener, event: onFlush, method: onFlush }
+            - { name: doctrine.event_listener, event: postFlush, method: postFlush }
+
     demosplan\DemosPlanCoreBundle\EventListener\DoctrineLoggerListener:
         tags:
             - { name: doctrine.event_listener, event: postUpdate, method: postUpdate }
