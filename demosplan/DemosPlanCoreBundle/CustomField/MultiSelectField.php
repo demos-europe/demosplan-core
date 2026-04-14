@@ -65,7 +65,10 @@ class MultiSelectField extends AbstractCustomField
 
     public function getOptions(): array
     {
-        return $this->options;
+        $options = $this->options;
+        usort($options, static fn (CustomFieldOption $a, CustomFieldOption $b) => $a->getSortOrder() <=> $b->getSortOrder());
+
+        return $options;
     }
 
     public function setOptions(array $options): void

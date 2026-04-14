@@ -42,11 +42,11 @@ class SingleSelectFieldFactory implements CustomFieldFactoryInterface
     {
         $normalizedOptions = [];
 
-        foreach ($options as $option) {
-            // Already in new format or ensure it has required keys
+        foreach (array_values($options) as $index => $option) {
             $customFieldOption = new CustomFieldOption();
             $customFieldOption->setId(Uuid::uuid4()->toString());
             $customFieldOption->setLabel($option['label']);
+            $customFieldOption->setSortOrder($index);
             $normalizedOptions[] = $customFieldOption;
         }
 
