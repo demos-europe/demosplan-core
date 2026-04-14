@@ -27,6 +27,7 @@ use LogicException;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
+use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Service\Attribute\Required;
 use Illuminate\Support\Collection;
@@ -43,6 +44,8 @@ abstract class CoreRepository extends FluentRepository
      */
     protected $validator;
 
+    protected HTMLSanitizer $htmlSanitizer;
+
     protected $obscureTag = 'dp-obscure';
 
     /**
@@ -54,6 +57,19 @@ abstract class CoreRepository extends FluentRepository
     public function setValidator(ValidatorInterface $validator)
     {
         $this->validator = $validator;
+
+        return $this;
+    }
+
+    /**
+     * Please don't use `@required` for DI. It should only be used in base classes like this one.
+     *
+     * @return $this
+     */
+    #[Required]
+    public function setHtmlSanitizer(HTMLSanitizer $htmlSanitizer)
+    {
+        $this->htmlSanitizer = $htmlSanitizer;
 
         return $this;
     }
@@ -401,7 +417,6 @@ abstract class CoreRepository extends FluentRepository
 
     /**
      * Removes not all HTML-Tags, except the allowed Tags and the additionalAllowedTags.
-     * Allowed Tags are defined in the used function: wysiwygFilter().
      *
      * @param string $stringToSanitize
      * @param array  $additionalAllowedTags
@@ -410,64 +425,7 @@ abstract class CoreRepository extends FluentRepository
      */
     protected function sanitize($stringToSanitize, $additionalAllowedTags = [])
     {
-        return $this->wysiwygFilter($stringToSanitize, $additionalAllowedTags);
-    }
-
-    /**
-     * HTML-Filter fuer Eingaben aus dem WYSIWYG-Editor.
-     *
-     * @param string $text
-     * @param array  $additionalAllowedTags
-     *
-     * @return string
-     */
-    public function wysiwygFilter($text, $additionalAllowedTags = [])
-    {
-        // sort alphabetically:
-        $allowedTags = collect(
-            [
-                'a',
-                'abbr',
-                'b',
-                'br',
-                'del',
-                'em',
-                'i',
-                'img',
-                'ins',
-                'li',
-                'mark',
-                'ol',
-                'p',
-                's',
-                'span',
-                'strike',
-                'strong',
-                'sup',
-                'table',
-                'td',
-                'th',
-                'thead',
-                'tr',
-                'u',
-                'ul',
-            ]
-        )->merge($additionalAllowedTags)
-            ->flatMap(
-                fn ($tagName) => ["<{$tagName}>", "</{$tagName}>"]
-            )->implode('');
-
-        $text = strip_tags($text, $allowedTags);
-
-        // Replace non-numeric CSS line-height values (inherit, normal, initial, unset)
-        // that PHPWord cannot handle during DOCX export
-        $text = preg_replace(
-            '/line-height:\s*(inherit|normal|initial|unset)\b[^;]*/i',
-            'line-height: 1',
-            $text
-        );
-
-        return $text;
+        return $this->htmlSanitizer->wysiwygFilter($stringToSanitize, $additionalAllowedTags);
     }
 
     /**

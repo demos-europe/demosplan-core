@@ -84,6 +84,53 @@ class HTMLSanitizerTest extends FunctionalTestCase
         static::assertEquals($expected, $result);
     }
 
+    public function testSanitizeCssForPhpWord(): void
+    {
+        // Should replace non-numeric line-height values
+        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: inherit'));
+        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: normal'));
+        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: initial'));
+        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: unset'));
+
+        // Case insensitive
+        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: INHERIT'));
+        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: Normal'));
+
+        // Varying whitespace after colon
+        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height:inherit'));
+        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height:   inherit'));
+
+        // With !important
+        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: inherit !important'));
+
+        // Should NOT replace numeric values
+        static::assertEquals('line-height: 1.5', $this->sut->sanitizeCssForPhpWord('line-height: 1.5'));
+        static::assertEquals('line-height: 1', $this->sut->sanitizeCssForPhpWord('line-height: 1'));
+        static::assertEquals('line-height: 24px', $this->sut->sanitizeCssForPhpWord('line-height: 24px'));
+        static::assertEquals('line-height: 120%', $this->sut->sanitizeCssForPhpWord('line-height: 120%'));
+
+        // Should not touch surrounding CSS properties
+        static::assertEquals(
+            'color: red; line-height: 1; font-size: 14px',
+            $this->sut->sanitizeCssForPhpWord('color: red; line-height: inherit; font-size: 14px')
+        );
+
+        // Realistic pasted HTML from Word/Outlook
+        static::assertEquals(
+            '<p style="margin: 0cm; font-size: 11pt; font-family: Calibri, sans-serif; line-height: 1;">Text</p>',
+            $this->sut->sanitizeCssForPhpWord('<p style="margin: 0cm; font-size: 11pt; font-family: Calibri, sans-serif; line-height: normal;">Text</p>')
+        );
+
+        // No line-height at all — passthrough
+        static::assertEquals('<p>No CSS here</p>', $this->sut->sanitizeCssForPhpWord('<p>No CSS here</p>'));
+
+        // Multiple occurrences in one string
+        static::assertEquals(
+            '<span style="line-height: 1">a</span><span style="line-height: 1">b</span>',
+            $this->sut->sanitizeCssForPhpWord('<span style="line-height: inherit">a</span><span style="line-height: normal">b</span>')
+        );
+    }
+
     public function testAdditionalTags()
     {
         $textToTest = '<p><img src="abc">';
