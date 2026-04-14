@@ -113,6 +113,7 @@
             @click="resetColumnSelection"
           />
           <dp-column-selector
+            :key="columnSelectorKey"
             appearance="subtle"
             data-cy="segmentsList:selectableColumns"
             has-select-all-option
@@ -149,6 +150,7 @@
           data-cy="segment:imgModal"
         />
         <div
+          id="segmentsListScrollContainer"
           ref="scrollContainer"
           class="overflow-x-auto scrollbar-none"
         >
@@ -353,10 +355,20 @@
         <div
           v-show="scrollbarVisible"
           ref="scrollBar"
-          class="h-3 overflow-x-scroll overflow-y-hidden z-[11] scrollbar-interactive bg-white pt-1"
-          :class="isFullscreen ? 'fixed bottom-3 left-0 right-0' : 'sticky bottom-0 left-0 right-0'"
+          class="h-[16px] z-[11] relative bg-neutral-light-4 mt-[10px]"
+          :class="isFullscreen ? 'fixed bottom-3 left-0 right-0 mx-2' : 'sticky bottom-0 left-0 right-0'"
         >
-          <div :style="scrollbarInnerStyle" />
+          <div
+            :aria-valuenow="scrollPercent"
+            :style="thumbStyle"
+            aria-controls="segmentsListScrollContainer"
+            aria-valuemax="100"
+            aria-valuemin="0"
+            class="absolute inset-y-[2px] rounded-full bg-neutral-light-2 cursor-pointer hover:bg-interactive active:bg-interactive-hover"
+            role="scrollbar"
+            tabindex="0"
+            @mousedown="onThumbMousedown"
+          />
         </div>
       </template>
 
@@ -486,8 +498,9 @@ export default {
     return {
       appliedFilterQuery: this.initialFilter,
       currentQueryHash: '',
-      defaultColumnSelection: ['text', 'tags'],
-      currentSelection: ['text', 'tags'],
+      columnSelectorKey: 0,
+      defaultColumnSelection: [],
+      currentSelection: [],
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -565,8 +578,14 @@ export default {
 
     // Passed as headerFields to DpDataTable
     availableHeaderFields () {
+      const externIdField = this.headerFieldsAvailable.find(el => el.field === 'externId')
+      const userHeaderFields = this.headerFields.filter(el => el.field !== 'externId')
+
       if (!hasPermission('field_segments_custom_fields')) {
-        return this.headerFields
+        return [
+          externIdField, // Always include externId and make it the first element
+          ...userHeaderFields, // Columns selected by the user
+        ]
       }
 
       const customFields = Object.values(this.customFields)
@@ -575,11 +594,13 @@ export default {
         .map(customField => ({
           field: `customField_${customField.id}`,
           label: customField.attributes.name,
+          colWidth: '180px',
+          initialMinWidth: 180,
         }))
 
       return [
-        this.headerFieldsAvailable.find(el => el.field === 'externId'), // Always include externId and make it the first element
-        ...this.headerFields.filter(el => el.field !== 'externId'), // Columns selected by the user
+        externIdField, // Always include externId and make it the first element
+        ...userHeaderFields, // Columns selected by the user
         ...selectedCustomFields, // Custom field columns selected by the user
       ]
     },
@@ -907,7 +928,7 @@ export default {
     resetColumnSelection () {
       localStorage.removeItem('segmentList')
       this.setCurrentSelection([...this.defaultColumnSelection])
-      this.$refs.columnSelector.initializeColumnSelection()
+      this.columnSelectorKey++
     },
 
     resetQuery () {
