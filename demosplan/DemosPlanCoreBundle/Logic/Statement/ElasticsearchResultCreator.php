@@ -1588,6 +1588,15 @@ class ElasticsearchResultCreator
                 'cluster.uName.sort' => $sortDirection,
             ];
         }
+        if (str_starts_with($sortProperty, 'customField.')) {
+            $fieldId = explode('.', $sortProperty, 2)[1];
+            $esSort = [
+                "customFieldsLabel.{$fieldId}.keyword" => [
+                    'order'   => $sortDirection,
+                    'missing' => '_last',
+                ],
+            ];
+        }
 
         // add default sort, additionally to primary sort
         if (!\array_key_exists('submit', $esSort) || 'asc' !== strtolower((string) $esSort['submit'])) {

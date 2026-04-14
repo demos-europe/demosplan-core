@@ -430,19 +430,10 @@ export default {
         'statementText',
         'typeOfSubmission',
       ],
+      customFieldConfigs: [],
       searchFieldsSelected: null,
       searchValue: '',
       selectedSort: '-submitDate',
-      sortOptions: [
-        { value: '-submitDate', label: Translator.trans('sort.date.descending') },
-        { value: 'submitDate', label: Translator.trans('sort.date.ascending') },
-        { value: '-submitName', label: Translator.trans('sort.author.descending') },
-        { value: 'submitName', label: Translator.trans('sort.author.ascending') },
-        { value: '-internId', label: Translator.trans('sort.internId.descending') },
-        { value: 'internId', label: Translator.trans('sort.internId.ascending') },
-        { value: '-initialOrganisationName', label: Translator.trans('sort.organisation.descending') },
-        { value: 'initialOrganisationName', label: Translator.trans('sort.organisation.ascending') },
-      ],
     }
   },
 
@@ -470,6 +461,26 @@ export default {
             id: user.id,
           })) :
         []
+    },
+
+    sortOptions () {
+      const baseSortOptions = [
+        { value: '-submitDate', label: Translator.trans('sort.date.descending') },
+        { value: 'submitDate', label: Translator.trans('sort.date.ascending') },
+        { value: '-submitName', label: Translator.trans('sort.author.descending') },
+        { value: 'submitName', label: Translator.trans('sort.author.ascending') },
+        { value: '-internId', label: Translator.trans('sort.internId.descending') },
+        { value: 'internId', label: Translator.trans('sort.internId.ascending') },
+        { value: '-initialOrganisationName', label: Translator.trans('sort.organisation.descending') },
+        { value: 'initialOrganisationName', label: Translator.trans('sort.organisation.ascending') },
+      ]
+
+      const customFieldSortOptions = this.customFieldConfigs.flatMap(field => [
+        { value: `customField.${field.id}`, label: `${field.attributes.name} (A-Z)` },
+        { value: `-customField.${field.id}`, label: `${field.attributes.name} (Z-A)` },
+      ])
+
+      return [...baseSortOptions, ...customFieldSortOptions]
     },
 
     exportRoute: function () {
@@ -1056,6 +1067,25 @@ export default {
         Orga: 'name',
       },
     })
+
+    dpApi.get(Routing.generate('api_resource_list', { resourceType: 'CustomField' }), {
+      fields: { CustomField: ['name', 'fieldType'].join() },
+      filter: {
+        sourceEntityId: {
+          condition: {
+            path: 'sourceEntityId',
+            value: this.procedureId,
+          },
+        },
+      },
+    }).then(response => {
+      this.customFieldConfigs = (response.data?.data ?? []).filter(field =>
+        ['singleSelect', 'multiSelect'].includes(field.attributes?.fieldType)
+      )
+    }).catch(() => {
+      // sort options fall back to base options when custom fields cannot be loaded
+    })
+
     this.initPagination()
     this.restoreSelectedSort()
     this.getItemsByPage(this.pagination.currentPage)
