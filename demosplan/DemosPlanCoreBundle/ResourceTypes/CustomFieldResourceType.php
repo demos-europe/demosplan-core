@@ -47,6 +47,7 @@ use EDT\Wrapping\ResourceBehavior\ResourceReadability;
 use EDT\Wrapping\ResourceBehavior\ResourceUpdatability;
 use Exception;
 use IteratorAggregate;
+use ReflectionClass;
 use League\Fractal\TransformerAbstract;
 use Pagerfanta\Pagerfanta;
 
@@ -114,11 +115,22 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
         $configBuilder->id->setReadableByPath();
         $configBuilder->name->setReadableByPath(DefaultField::YES)->addPathCreationBehavior()->addPathUpdateBehavior();
-        $configBuilder->isRequired->setReadableByPath()->addPathCreationBehavior(OptionalField::YES)->addPathUpdateBehavior();
+        $configBuilder->isRequired
+            ->setReadableByCallable(
+                static fn (CustomFieldInterface $customField): ?bool =>
+                    (new ReflectionClass($customField))->hasProperty('isRequired')
+                        ? $customField->getRequired()
+                        : null
+            )
+            ->addPathCreationBehavior(OptionalField::YES)
+            ->addPathUpdateBehavior();
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->options
             ->setReadableByCallable(
-                static fn (CustomFieldInterface $customField): array => array_map(static fn (CustomFieldOption $option) => $option->toJson(), $customField->getOptions())
+                static fn (CustomFieldInterface $customField): array =>
+                    (new ReflectionClass($customField))->hasProperty('options')
+                        ? array_map(static fn (CustomFieldOption $option) => $option->toJson(), $customField->getOptions())
+                        : []
             )
             ->addPathCreationBehavior()
             ->addPathUpdateBehavior();
