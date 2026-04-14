@@ -33,10 +33,12 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
 use Exception;
+use Illuminate\Support\Collection;
 use Monolog\Logger;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;
@@ -51,7 +53,6 @@ use ReflectionException;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Illuminate\Support\Collection;
 use Twig\Environment;
 
 class DocxExporter
@@ -135,6 +136,7 @@ class DocxExporter
         private readonly FieldDecider $exportFieldDecider,
         FileService $fileService,
         GlobalConfigInterface $config,
+        private readonly HTMLSanitizer $htmlSanitizer,
         LoggerInterface $logger,
         protected readonly MapService $mapService,
         PermissionsInterface $permissions,
@@ -944,6 +946,7 @@ class DocxExporter
         }
         try {
             $text = self::replaceTags($text);
+            $text = $this->htmlSanitizer->sanitizeCssForPhpWord($text);
             Html::addHtml($cell, $text, false);
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not parse HTML in Export', [$e, $text, $e->getTraceAsString()]);
