@@ -20,8 +20,8 @@ class MultiSelectFieldValidator extends CustomFieldValidator
     public function getSourceToTargetMapping(): array
     {
         return [
-            'PROCEDURE'          => 'STATEMENT',
-            'PROCEDURE_TEMPLATE' => 'STATEMENT',
+            'PROCEDURE'          => ['STATEMENT', 'SEGMENT'],
+            'PROCEDURE_TEMPLATE' => ['STATEMENT', 'SEGMENT'],
         ];
     }
 }

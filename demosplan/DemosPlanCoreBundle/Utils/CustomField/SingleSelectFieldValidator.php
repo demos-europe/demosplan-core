@@ -20,8 +20,8 @@ class SingleSelectFieldValidator extends CustomFieldValidator
     public function getSourceToTargetMapping(): array
     {
         return [
-            'PROCEDURE'          => 'SEGMENT',
-            'PROCEDURE_TEMPLATE' => 'SEGMENT',
+            'PROCEDURE'          => ['STATEMENT', 'SEGMENT'],
+            'PROCEDURE_TEMPLATE' => ['STATEMENT', 'SEGMENT'],
         ];
     }
 }
