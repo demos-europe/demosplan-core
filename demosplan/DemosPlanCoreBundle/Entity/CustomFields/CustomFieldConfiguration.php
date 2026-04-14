@@ -18,6 +18,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository")
+ * @ORM\Table(name="custom_field_configuration", indexes={
+ *     @ORM\Index(name="idx_custom_field_source_target", columns={"source_entity_id", "source_entity_class", "target_entity_class"})
+ * })
  */
 class CustomFieldConfiguration extends CoreEntity
 {
