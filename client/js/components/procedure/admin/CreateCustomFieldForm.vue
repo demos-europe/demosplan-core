@@ -44,42 +44,29 @@
           maxlength="250"
         />
 
-        <fieldset class="border-0 m-0 p-0">
-          <dp-label
-            :text="Translator.trans('custom.field.target')"
-            class="mb-1"
-            required
-          />
-          <div
-            v-for="[entityKey, entityLabel] in Object.entries(targetOptions)"
-            :key="entityKey"
-            class="mb-1"
-          >
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input
-                v-model="customField.targetEntity"
-                :data-cy="`customFields:targetEntity:${entityKey}`"
-                :value="entityKey"
-                class="mr-1"
-                name="customFieldTargetEntity"
-                type="radio"
-                required
-              >
-              {{ entityLabel }}
-            </label>
-          </div>
-        </fieldset>
+        <dp-select
+          id="newFieldTarget"
+          v-model="customField.targetEntity"
+          :label="{
+            text: Translator.trans('custom.field.target')
+          }"
+          :options="targetEntityOptions"
+          class="w-[calc(100%-26px)]"
+          data-cy="customFields:targetEntity"
+          required
+        />
 
         <dp-select
           id="newFieldType"
           v-model="customField.fieldType"
-          class="w-[calc(100%-26px)]"
-          data-cy="customFields:newFieldType"
+          :disabled="!!customField.targetEntity"
           :label="{
             text: Translator.trans('type'),
             tooltip: Translator.trans('explanation.field.type')
           }"
           :options="typeOptions"
+          class="w-[calc(100%-26px)]"
+          data-cy="customFields:newFieldType"
           required
         />
 
@@ -115,7 +102,6 @@ import {
   DpButtonRow,
   DpCheckbox,
   DpInput,
-  DpLabel,
   DpLoading,
   DpSelect,
   dpValidateMixin,
@@ -129,7 +115,6 @@ export default {
     DpButtonRow,
     DpCheckbox,
     DpInput,
-    DpLabel,
     DpLoading,
     DpSelect,
   },
@@ -182,7 +167,21 @@ export default {
     }
   },
 
+  computed: {
+    targetEntityOptions () {
+      return Object.entries(this.targetOptions).map(([value, label]) => ({ value, label }))
+    },
+  },
+
   watch: {
+    'customField.targetEntity' (targetEntity) {
+      const typeMap = {
+        STATEMENT: 'multiSelect',
+        SEGMENT: 'singleSelect',
+      }
+      this.customField.fieldType = typeMap[targetEntity] ?? ''
+    },
+
     handleSuccess: {
       handler (newVal) {
         if (newVal) {
