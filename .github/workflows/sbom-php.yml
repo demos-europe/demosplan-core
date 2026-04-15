@@ -1,0 +1,54 @@
+name: Generate PHP SBOM
+
+on:
+  schedule:
+    - cron: 0 7 * * 1
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - composer.lock
+
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Setup PHP with composer v2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: gd soap sockets zip
+          tools: composer:v2
+
+      - name: Cache php modules
+        uses: actions/cache@v5.0.5
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: ${{ runner.os }}-build-php-${{ hashFiles('**/composer-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-php-
+
+      - name: Install composer dependencies
+        run: |
+          composer --version
+          composer install --no-interaction
+
+      - name: Generate PHP SBOM
+        run: |
+          composer CycloneDX:make-sbom \
+            --output-format=JSON \
+            --output-file=sbom-php.cdx.json \
+            --spec-version=1.5 \
+            --output-reproducible \
+            --validate
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-php
+          path: sbom-php.cdx.json
