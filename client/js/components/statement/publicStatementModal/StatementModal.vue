@@ -169,6 +169,7 @@
           :show-empty="true"
           mode="editable"
           resource-type="DraftStatement"
+          target-entity="STATEMENT"
           @loaded="handleCustomFieldsListLoaded"
           @update:value="handleCustomFieldValueUpdateFromList"
         />
