@@ -83,7 +83,7 @@ class PersonalDataAuditListener
         }
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
-            $this->collectDeleteEntries($entity, $uow);
+            $this->collectDeleteEntries($entity);
         }
     }
 
@@ -189,7 +189,7 @@ class PersonalDataAuditListener
         }
     }
 
-    private function collectDeleteEntries(object $entity, UnitOfWork $uow): void
+    private function collectDeleteEntries(object $entity): void
     {
         $entityClass = ClassUtils::getClass($entity);
         if (!isset($this->fieldMapping[$entityClass])) {
@@ -306,6 +306,7 @@ class PersonalDataAuditListener
                 return $entity->getProcedure()?->getId();
             }
         } catch (Exception) {
+            // Lazy-loaded relations may not be available during flush
         }
 
         return null;
@@ -321,6 +322,7 @@ class PersonalDataAuditListener
                 return $entity->getId();
             }
         } catch (Exception) {
+            // Lazy-loaded relations may not be available during flush
         }
 
         return null;

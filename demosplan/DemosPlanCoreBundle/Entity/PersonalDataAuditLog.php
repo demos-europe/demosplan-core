@@ -176,23 +176,9 @@ class PersonalDataAuditLog extends CoreEntity implements UuidEntityInterface
         return $this->entityType;
     }
 
-    public function setEntityType(string $entityType): self
-    {
-        $this->entityType = $entityType;
-
-        return $this;
-    }
-
     public function getEntityId(): string
     {
         return $this->entityId;
-    }
-
-    public function setEntityId(string $entityId): self
-    {
-        $this->entityId = $entityId;
-
-        return $this;
     }
 
     public function getEntityField(): string
@@ -200,23 +186,9 @@ class PersonalDataAuditLog extends CoreEntity implements UuidEntityInterface
         return $this->entityField;
     }
 
-    public function setEntityField(string $entityField): self
-    {
-        $this->entityField = $entityField;
-
-        return $this;
-    }
-
     public function getChangeType(): string
     {
         return $this->changeType;
-    }
-
-    public function setChangeType(string $changeType): self
-    {
-        $this->changeType = $changeType;
-
-        return $this;
     }
 
     public function getPreUpdateValue(): ?string
@@ -248,23 +220,9 @@ class PersonalDataAuditLog extends CoreEntity implements UuidEntityInterface
         return $this->isSensitiveField;
     }
 
-    public function setIsSensitiveField(bool $isSensitiveField): self
-    {
-        $this->isSensitiveField = $isSensitiveField;
-
-        return $this;
-    }
-
     public function getContext(): ?string
     {
         return $this->context;
-    }
-
-    public function setContext(?string $context): self
-    {
-        $this->context = $context;
-
-        return $this;
     }
 
     public function getProcedureId(): ?string
@@ -272,22 +230,8 @@ class PersonalDataAuditLog extends CoreEntity implements UuidEntityInterface
         return $this->procedureId;
     }
 
-    public function setProcedureId(?string $procedureId): self
-    {
-        $this->procedureId = $procedureId;
-
-        return $this;
-    }
-
     public function getOrgaId(): ?string
     {
         return $this->orgaId;
-    }
-
-    public function setOrgaId(?string $orgaId): self
-    {
-        $this->orgaId = $orgaId;
-
-        return $this;
     }
 }
