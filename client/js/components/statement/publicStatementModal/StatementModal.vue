@@ -169,6 +169,7 @@
           :show-empty="true"
           mode="editable"
           resource-type="DraftStatement"
+          source-entity="PROCEDURE"
           target-entity="STATEMENT"
           @loaded="handleCustomFieldsListLoaded"
           @update:value="handleCustomFieldValueUpdateFromList"
@@ -1328,10 +1329,22 @@ export default {
             ].join(),
           },
           filter: {
+            sourceEntity: {
+              condition: {
+                path: 'sourceEntity',
+                value: 'PROCEDURE',
+              },
+            },
             sourceEntityId: {
               condition: {
                 path: 'sourceEntityId',
                 value: this.procedureId,
+              },
+            },
+            targetEntity: {
+              condition: {
+                path: 'targetEntity',
+                value: 'STATEMENT',
               },
             },
           },
