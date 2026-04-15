@@ -562,14 +562,24 @@ class ProcedureService implements ProcedureServiceInterface
      *
      * @param int $limit
      *
-     * @return Procedure[]|null
+     * @return Procedure[]
      *
      * @throws Exception
      */
-    public function getDeletedProcedures($limit = 100_000_000)
+    public function getDeletedProcedures($limit = 100_000_000, ?\DateTimeInterface $deletedBefore = null): array
     {
         try {
-            return $this->procedureRepository->findBy(['deleted' => true], null, $limit);
+            if (null === $deletedBefore) {
+                return $this->procedureRepository->findBy(['deleted' => true], null, $limit);
+            }
+
+            return $this->procedureRepository->createQueryBuilder('p')
+                ->where('p.deleted = true')
+                ->andWhere('p.deletedDate <= :deletedBefore')
+                ->setParameter('deletedBefore', $deletedBefore)
+                ->setMaxResults($limit)
+                ->getQuery()
+                ->getResult();
         } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf der getProcedureDeleted: ', [$e]);
             throw $e;

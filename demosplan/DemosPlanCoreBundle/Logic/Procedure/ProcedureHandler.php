@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
@@ -651,10 +652,11 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      *
      * @throws Exception
      */
-    public function purgeDeletedProcedures($limit = 1): int
+    public function purgeDeletedProcedures($limit = 1, int $retentionDays = 0): int
     {
+        $deletedBefore = $retentionDays > 0 ? new DateTime("-$retentionDays days") : null;
         $proceduresPurged = 0;
-        foreach ($this->procedureService->getDeletedProcedures($limit) as $deletedProcedure) {
+        foreach ($this->procedureService->getDeletedProcedures($limit, $deletedBefore) as $deletedProcedure) {
             $procedureId = $deletedProcedure->getId();
             try {
                 $this->procedureDeleter->beginTransactionAndDisableForeignKeyChecks();
