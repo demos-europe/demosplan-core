@@ -271,6 +271,7 @@
       :show-empty="true"
       mode="readonly"
       resource-type="DraftStatement"
+      source-entity="PROCEDURE"
       target-entity="STATEMENT"
       expandable
     />

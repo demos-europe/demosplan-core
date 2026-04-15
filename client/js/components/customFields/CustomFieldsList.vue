@@ -278,6 +278,12 @@ export default {
       default: false,
     },
 
+    sourceEntity: {
+      type: [String, null],
+      required: false,
+      default: null,
+    },
+
     targetEntity: {
       type: [String, null],
       required: false,
@@ -413,7 +419,7 @@ export default {
     fetchCustomFieldsData () {
       const { fetchCustomFields, fetchCustomFieldValues, getCustomFieldsDefinitions, hasCachedValues } = useCustomFields()
 
-      const areDefinitionsCached = !!getCustomFieldsDefinitions(this.definitionSourceId, { targetEntity: this.targetEntity })
+      const areDefinitionsCached = !!getCustomFieldsDefinitions(this.definitionSourceId, { sourceEntity: this.sourceEntity, targetEntity: this.targetEntity })
       const areValuesCached = this.batchFilterPath === null &&
         hasCachedValues(this.resourceType, this.resourceId)
 
@@ -423,7 +429,7 @@ export default {
       this.error = null
 
       // 1. Fetch definitions (gets array of field definitions with IDs)
-      fetchCustomFields(this.definitionSourceId, { targetEntity: this.targetEntity })
+      fetchCustomFields(this.definitionSourceId, { sourceEntity: this.sourceEntity, targetEntity: this.targetEntity })
         .then(defs => {
           this.definitions = defs
 
