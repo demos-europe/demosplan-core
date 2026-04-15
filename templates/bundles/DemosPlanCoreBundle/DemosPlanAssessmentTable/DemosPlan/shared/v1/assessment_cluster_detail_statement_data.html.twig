@@ -116,7 +116,7 @@
 
                 {# set selected option #}
                 {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
-                    label: statement.phase,
+                    label: statement.phaseDefinition.name,
                     value: '',
                     selected: true
                 }]) %}
@@ -125,7 +125,7 @@
 
             {% elseif not readonly %}
                     {% for internalPhase in templateVars.internalPhaseDefinitions|default %}
-                        {% if internalPhase.name == statement.phase %}
+                        {% if internalPhase.id == statement.phaseDefinition.id %}
                             {% set internalOptions = internalOptions|merge([{
                                 label: internalPhase.name,
                                 value: internalPhase.id,
@@ -140,7 +140,7 @@
                     {% endfor %}
 
                     {% for externalPhase in templateVars.externalPhaseDefinitions|default %}
-                        {% if externalPhase.name == statement.phase %}
+                        {% if externalPhase.id == statement.phaseDefinition.id %}
                             {% set externalOptions = externalOptions|merge([{
                                 label: externalPhase.name,
                                 value: externalPhase.id,

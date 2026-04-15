@@ -1125,10 +1125,6 @@ class DemosPlanAssessmentTableController extends BaseController
             $templateVars['topics'] = $this->procedureService->getTopics($procedureId);
         }
 
-        // Ersetze die Phase, in der die SN eingegangen ist
-        $templateVars['table']['statement']['phase'] =
-            $statementService->getProcedurePhaseNameFromArray($statementAsArray);
-
         // hole Infos zu den Mitzeichnern
         foreach ($templateVars['table']['statement']['votes'] as $key => $vote) {
             $voteUser = $this->userService->getSingleUser($vote['uId']);

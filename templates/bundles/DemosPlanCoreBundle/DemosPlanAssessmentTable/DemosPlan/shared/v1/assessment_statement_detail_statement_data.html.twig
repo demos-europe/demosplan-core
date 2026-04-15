@@ -644,7 +644,7 @@
 
                         {# set selected option #}
                         {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
-                            label: statement.phase,
+                            label: statement.phaseDefinition.name,
                             value: '',
                             selected: true
                         }]) %}
@@ -663,7 +663,7 @@
                             {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
                                 label: phaseDefinition.name,
                                 value: phaseDefinition.id,
-                                selected: phaseDefinition.name == statement.phase
+                                selected: phaseDefinition.id == statement.phaseDefinition.id
                             }]) %}
                         {% endfor %}
 
