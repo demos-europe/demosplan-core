@@ -177,7 +177,7 @@
 
         <!-- New statement OR draft with localStorage: individual fields with own fieldset -->
         <fieldset
-          v-else-if="hasPermission('feature_statements_custom_fields')"
+          v-else-if="hasPermission('feature_statements_custom_fields') && selectableCustomFields.length > 0"
           :class="prefixClass('mb-2 pb-0')"
         >
           <legend :class="prefixClass('mb-2 text-[1em] font-[500]')">
