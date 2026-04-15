@@ -1,47 +1,27 @@
 <template>
   <div>
     <dp-inline-notification
-      v-if="isStatementField && procedureReceivedStatements"
-      class="mb-4"
-      data-cy="customFields:editWarning"
-      dismissible
-      :dismissible-key="helpTextDismissibleKey"
-      type="warning"
-      :message="Translator.trans('custom.fields.edit.warning.multiSelect')"
-    />
-
-    <dp-inline-notification
-      v-else
-      class="mb-4"
-      data-cy="customFields:editInfo"
-      dismissible
+      v-if="helpText"
       :dismissible-key="helpTextDismissibleKey"
       :message="helpText"
+      class="mb-4"
+      data-cy="customFields:editInfo"
       type="info"
+      dismissible
     />
 
     <create-custom-field-form
-      v-if="!isStatementField || !procedureReceivedStatements"
-      :disable-type-selection="true"
+      v-if="canCreateCustomFields"
       :handle-success="isSuccess"
       :is-loading="isLoading"
-      :preselected-type="isStatementField ? 'multiSelect' : 'singleSelect'"
-      @save="customFieldData => saveNewField(customFieldData)"
+      :target-options="createTargetOptions"
+      @save="saveNewField"
     >
       <div>
-        <dp-checkbox
-          v-if="isStatementField"
-          id="requiredCheckbox"
-          v-model="isRequired"
-          class="mb-2"
-          :label="{
-            text: Translator.trans('statements.fields.configurable.required')
-          }"
-        />
         <dp-label
+          :text="Translator.trans('options')"
           class="mb-1"
           required
-          :text="Translator.trans('options')"
         />
         <dp-input
           id="newFieldOption:1"
@@ -76,9 +56,9 @@
             :data-cy="`customFields:removeOptionInput:${option.label}`"
             :text="Translator.trans('remove')"
             class="w-[20px] inline-block ml-1"
-            hide-text
             icon="x"
             variant="subtle"
+            hide-text
             @click="removeOptionInput(idx + 2)"
           />
         </div>
@@ -93,222 +73,222 @@
       </div>
     </create-custom-field-form>
 
-    <dp-data-table
-      v-if="isProcedureTemplate ? !procedureTemplateCustomFieldsLoading : !procedureCustomFieldsLoading"
-      :header-fields="headerFields"
-      :items="customFieldItems"
-      data-cy="customFields:table"
-      data-dp-validate="editCustomFieldsForm"
-      has-flyout
-      track-by="id"
+    <dp-tabs
+      :active-id="activeTabId"
+      tab-size="medium"
+      @change="setActiveTabId"
     >
-      <template v-slot:name="rowData">
-        <div v-if="rowData.edit">
-          <dp-input
-            id="customFieldName"
-            v-model="newRowData.name"
-            required
+      <dp-tab
+        v-for="[tabKey, tabLabel] in Object.entries(targetOptions)"
+        :id="tabKey"
+        :key="tabKey"
+        :is-active="activeTabId === tabKey"
+        :label="tabLabel"
+      >
+        <div
+          v-if="activeTabId === tabKey"
+          class="mt-4"
+        >
+          <dp-inline-notification
+            v-if="isActiveTabStatementContext && procedureReceivedStatements"
+            :dismissible-key="helpTextDismissibleKey"
+            :message="Translator.trans('custom.fields.edit.warning.multiSelect')"
+            class="mb-4"
+            data-cy="customFields:editWarning"
+            type="warning"
+            dismissible
           />
-        </div>
-        <div v-else>
-          {{ rowData.name }}
-        </div>
-      </template>
 
-      <template v-slot:options="rowData">
-        <ul v-if="!rowData.edit">
-          <li
-            v-for="(option, index) in displayedOptions(rowData)"
-            :key="index"
-            :data-cy="`customFields:option${option.label}`"
-            class="mb-1"
+          <dp-data-table
+            v-if="!isLoadingFields"
+            :header-fields="headerFields"
+            :items="customFieldItems"
+            data-cy="customFields:table"
+            data-dp-validate="editCustomFieldsForm"
+            track-by="id"
+            has-flyout
           >
-            <div>
-              {{ option.label }}
-            </div>
-          </li>
-        </ul>
-        <ul v-else>
-          <li
-            v-for="(option, index) in newRowData.options"
-            :key="index"
-            class="mb-1"
-          >
-            <div class="flex">
-              <dp-input
-                :id="`option:${index}`"
-                :key="`option:${index}`"
-                v-model="newRowData.options[index].label"
-                required
+            <template v-slot:name="rowData">
+              <div v-if="rowData.edit">
+                <dp-input
+                  id="customFieldName"
+                  v-model="newRowData.name"
+                  required
+                />
+              </div>
+              <div v-else>
+                {{ rowData.name }}
+              </div>
+            </template>
+
+            <template v-slot:options="rowData">
+              <ul v-if="!rowData.edit">
+                <li
+                  v-for="(option, index) in displayedOptions(rowData)"
+                  :key="index"
+                  :data-cy="`customFields:option${option.label}`"
+                  class="mb-1"
+                >
+                  <div>{{ option.label }}</div>
+                </li>
+              </ul>
+              <ul v-else>
+                <li
+                  v-for="(option, index) in newRowData.options"
+                  :key="index"
+                  class="mb-1"
+                >
+                  <div class="flex">
+                    <dp-input
+                      :id="`option:${index}`"
+                      :key="`option:${index}`"
+                      v-model="newRowData.options[index].label"
+                      required
+                    />
+                    <dp-button
+                      :data-cy="`customFields:removeOptionInput:${option.label}`"
+                      :text="Translator.trans('remove')"
+                      class="w-[20px] inline-block ml-1"
+                      icon="x"
+                      variant="subtle"
+                      hide-text
+                      @click="deleteOptionOnEdit(index)"
+                    />
+                  </div>
+                </li>
+                <li>
+                  <dp-button
+                    :text="Translator.trans('option.add')"
+                    data-cy="customFields:addOptionOnEdit"
+                    icon="plus"
+                    variant="subtle"
+                    @click="addOptionInputOnEdit(rowData)"
+                  />
+                </li>
+              </ul>
+            </template>
+
+            <template v-slot:description="rowData">
+              <div v-if="rowData.edit">
+                <dp-input
+                  id="customFieldDescription"
+                  v-model="newRowData.description"
+                />
+              </div>
+              <div v-else>
+                {{ rowData.description }}
+              </div>
+            </template>
+
+            <template v-slot:fieldType="rowData">
+              <div class="mt-1">
+                <dp-badge
+                  :text="fieldTypeText(rowData.fieldType)"
+                  color="default"
+                />
+              </div>
+            </template>
+
+            <template v-slot:isRequired="rowData">
+              <dp-checkbox
+                v-if="rowData.edit"
+                v-model="newRowData.isRequired"
+                :label="{
+                  text: Translator.trans('field.required'),
+                  hide: true
+                }"
               />
+              <span v-else>
+                {{ rowData.isRequired ? Translator.trans('yes') : Translator.trans('no') }}
+              </span>
+            </template>
 
-              <dp-button
-                class="w-[20px] inline-block ml-1"
-                :data-cy="`customFields:removeOptionInput:${option.label}`"
-                hide-text
-                icon="x"
-                :text="Translator.trans('remove')"
-                variant="subtle"
-                @click="deleteOptionOnEdit(index)"
-              />
-            </div>
-          </li>
-          <li>
-            <dp-button
-              data-cy="customFields:addOptionOnEdit"
-              icon="plus"
-              variant="subtle"
-              :text="Translator.trans('option.add')"
-              @click="addOptionInputOnEdit(rowData)"
-            />
-          </li>
-        </ul>
-      </template>
+            <template v-slot:flyout="rowData">
+              <div class="flex float-right">
+                <button
+                  v-if="!rowData.edit"
+                  :aria-label="Translator.trans('item.edit')"
+                  :disabled="isActiveTabStatementContext && procedureReceivedStatements"
+                  :title="Translator.trans('edit')"
+                  class="btn--blank o-link--default mr-1"
+                  data-cy="customFields:editField"
+                  @click="editCustomField(rowData)"
+                >
+                  <dp-icon aria-hidden="true" icon="edit" />
+                </button>
 
-      <template v-slot:description="rowData">
-        <div v-if="rowData.edit">
-          <dp-input
-            id="customFieldDescription"
-            v-model="newRowData.description"
-          />
+                <button
+                  v-if="!rowData.edit"
+                  :aria-label="Translator.trans('item.delete')"
+                  :disabled="isActiveTabStatementContext && procedureReceivedStatements"
+                  :title="Translator.trans('delete')"
+                  class="btn--blank o-link--default mr-1"
+                  data-cy="customFields:deleteField"
+                  @click="handleDeleteCustomField(rowData)"
+                >
+                  <dp-icon aria-hidden="true" icon="delete" />
+                </button>
+
+
+                <template v-else>
+                  <button
+                    :aria-label="Translator.trans('save')"
+                    :disabled="isSaveDisabled[rowData.id]"
+                    :title="Translator.trans('save')"
+                    class="btn--blank o-link--default u-mr-0_25 inline-block"
+                    data-cy="customFields:saveEdit"
+                    @click="dpValidateAction('editCustomFieldsForm', () => saveEditedFields(), false)"
+                  >
+                    <dp-icon aria-hidden="true" icon="check" />
+                  </button>
+
+                  <button
+                    :aria-label="Translator.trans('abort')"
+                    :title="Translator.trans('abort')"
+                    class="btn--blank o-link--default inline-block"
+                    data-cy="customFields:abortEdit"
+                    @click="abortFieldEdit(rowData)"
+                  >
+                    <dp-icon aria-hidden="true" icon="xmark" />
+                  </button>
+                </template>
+
+
+                <button
+                  v-if="!rowData.open"
+                  :aria-label="Translator.trans('aria.expand')"
+                  :disabled="rowData.options.length < 3"
+                  class="btn--blank o-link--default"
+                  data-cy="customFields:showOptions"
+                  @click="showOptions(rowData)"
+                >
+                  <dp-icon aria-hidden="true" icon="caret-down" />
+                </button>
+
+                <template v-else>
+                  <button
+                    v-if="!rowData.edit"
+                    :aria-label="Translator.trans('aria.collapse')"
+                    class="btn--blank o-link--default"
+                    data-cy="customFields:hideOptions"
+                    @click="hideOptions(rowData)"
+                  >
+                    <dp-icon aria-hidden="true" icon="caret-up" />
+                  </button>
+                </template>
+              </div>
+            </template>
+          </dp-data-table>
+
+          <dp-loading v-else />
         </div>
-        <div v-else>
-          {{ rowData.description }}
-        </div>
-      </template>
+      </dp-tab>
+    </dp-tabs>
 
-      <template v-slot:fieldType="rowData">
-        <div class="mt-1">
-          <dp-badge
-            color="default"
-            :text="fieldTypeText(rowData.fieldType)"
-          />
-        </div>
-      </template>
-
-      <template v-slot:isRequired="rowData">
-        <div v-if="isStatementField">
-          <dp-checkbox
-            v-if="rowData.edit"
-            v-model="newRowData.isRequired"
-            :label="{
-              text: Translator.trans('field.required'),
-              hide:true
-            }"
-          />
-          <span v-else>
-            {{ rowData.isRequired ? Translator.trans('yes') : Translator.trans('no') }}
-          </span>
-        </div>
-      </template>
-
-      <template v-slot:flyout="rowData">
-        <div class="flex float-right">
-          <button
-            v-if="!rowData.edit"
-            class="btn--blank o-link--default mr-1"
-            data-cy="customFields:editField"
-            :disabled="isStatementField && procedureReceivedStatements"
-            :aria-label="Translator.trans('item.edit')"
-            :title="Translator.trans('edit')"
-            @click="editCustomField(rowData)"
-          >
-            <dp-icon
-              aria-hidden="true"
-              icon="edit"
-            />
-          </button>
-
-          <button
-            v-if="!rowData.edit"
-            class="btn--blank o-link--default mr-1"
-            data-cy="customFields:deleteField"
-            :disabled="isStatementField && procedureReceivedStatements"
-            :aria-label="Translator.trans('item.edit')"
-            :title="Translator.trans('edit')"
-            @click="handleDeleteCustomField(rowData)"
-          >
-            <dp-icon
-              aria-hidden="true"
-              icon="delete"
-            />
-          </button>
-
-          <dp-confirm-dialog
-            v-if="!rowData.edit"
-            ref="deleteConfirmDialog"
-            data-cy="customFields:deleteConfirm"
-            :message="deleteWarningMessage"
-          />
-
-          <template v-else>
-            <button
-              :aria-label="Translator.trans('save')"
-              :disabled="isSaveDisabled[rowData.id]"
-              :title="Translator.trans('save')"
-              class="btn--blank o-link--default u-mr-0_25 inline-block"
-              data-cy="customFields:saveEdit"
-              @click="dpValidateAction('editCustomFieldsForm', () => saveEditedFields(), false)"
-            >
-              <dp-icon
-                aria-hidden="true"
-                icon="check"
-              />
-            </button>
-
-            <button
-              :aria-label="Translator.trans('abort')"
-              :title="Translator.trans('abort')"
-              class="btn--blank o-link--default inline-block"
-              data-cy="customFields:abortEdit"
-              @click="abortFieldEdit(rowData)"
-            >
-              <dp-icon
-                aria-hidden="true"
-                icon="xmark"
-              />
-            </button>
-          </template>
-
-          <dp-confirm-dialog
-            ref="confirmDialog"
-            :message="editWarningMessage"
-            data-cy="customFields:saveEditConfirm"
-          />
-
-          <button
-            v-if="!rowData.open"
-            :aria-label="Translator.trans('aria.expand')"
-            :disabled="rowData.options.length < 3"
-            class="btn--blank o-link--default"
-            data-cy="customFields:showOptions"
-            @click="showOptions(rowData)"
-          >
-            <dp-icon
-              aria-hidden="true"
-              icon="caret-down"
-            />
-          </button>
-
-          <template v-else>
-            <button
-              v-if="!rowData.edit"
-              :aria-label="Translator.trans('aria.collapse')"
-              class="btn--blank o-link--default"
-              data-cy="customFields:hideOptions"
-              @click="hideOptions(rowData)"
-            >
-              <dp-icon
-                aria-hidden="true"
-                icon="caret-up"
-              />
-            </button>
-          </template>
-        </div>
-      </template>
-    </dp-data-table>
-
-    <dp-loading v-else />
+    <dp-confirm-dialog
+      ref="confirmationDialog"
+      :message="currentConfirmMessage"
+    />
   </div>
 </template>
 
@@ -325,10 +305,19 @@ import {
   DpInput,
   DpLabel,
   DpLoading,
+  DpTab,
+  DpTabs,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
-import { mapActions, mapMutations, mapState } from 'vuex'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
+
+const {
+  createCustomFieldDefinition,
+  deleteCustomFieldDefinition,
+  fetchCustomFields: fetchCustomFieldsFromComposable,
+  updateCustomFieldDefinition,
+} = useCustomFields()
 
 export default {
   name: 'AdministrationCustomFieldsList',
@@ -345,6 +334,8 @@ export default {
     DpInput,
     DpLabel,
     DpLoading,
+    DpTab,
+    DpTabs,
   },
 
   mixins: [dpValidateMixin],
@@ -359,10 +350,18 @@ export default {
       type: String,
       required: true,
     },
+
+    targetOptions: {
+      type: Object,
+      required: true,
+    },
   },
 
   data () {
     return {
+      activeTabId: Object.keys(this.targetOptions ?? {})[0] || '',
+      allDefinitions: [],
+      currentConfirmMessage: '',
       customFieldItems: [],
       enabledFieldsEntities: {
         field_segments_custom_fields: 'Abschnitten',
@@ -370,9 +369,8 @@ export default {
       },
       initialRowData: {},
       isLoading: false,
-      isNewFieldFormOpen: false,
+      isLoadingFields: false,
       isSaveDisabled: {},
-      isRequired: false,
       isSuccess: false,
       newFieldOptions: [
         {
@@ -385,28 +383,35 @@ export default {
       newRowData: {},
       statementsCount: 0,
       translationKeys: {
-        info: 'custom.fields.edit.info.entities',
         delete: 'warning.custom_field.delete.message',
         edit: 'warning.custom_field.edit.message',
+        info: 'custom.fields.edit.info.entities',
       },
     }
   },
 
   computed: {
-    ...mapState('CustomField', {
-      customFields: 'items',
-    }),
-
-    ...mapState('AdminProcedure', {
-      procedureCustomFieldsLoading: 'loading',
-    }),
-
-    ...mapState('ProcedureTemplate', {
-      procedureTemplateCustomFieldsLoading: 'loading',
-    }),
-
     additionalOptions () {
       return this.newFieldOptions.filter((option, index) => index > 1)
+    },
+
+    canCreateCustomFields () {
+      return Object.keys(this.createTargetOptions).length > 0
+    },
+
+    /*
+     * Filters out targets that cannot receive new fields.
+     * STATEMENT fields cannot be created once statements have been submitted
+     * to preserve data consistency.
+     */
+    createTargetOptions () {
+      if (this.procedureReceivedStatements) {
+        return Object.fromEntries(
+          Object.entries(this.targetOptions).filter(([key]) => key !== 'STATEMENT')
+        )
+      }
+
+      return this.targetOptions
     },
 
     deleteWarningMessage () {
@@ -418,6 +423,7 @@ export default {
         if (rowData.edit && this.newRowData.options) {
           return this.newRowData.options
         }
+
         return rowData.open ? rowData.options : rowData.options.slice(0, 2)
       }
     },
@@ -463,7 +469,7 @@ export default {
         },
       ]
 
-      if (this.isStatementField) {
+      if (this.isActiveTabStatementContext) {
         fields.push({
           field: 'isRequired',
           label: Translator.trans('field.required'),
@@ -482,8 +488,8 @@ export default {
       return 'customFieldsHint'
     },
 
-    isStatementField () {
-      return this.hasPermission('field_statements_custom_fields')
+    isActiveTabStatementContext () {
+      return this.activeTabId === 'STATEMENT'
     },
 
     procedureReceivedStatements () {
@@ -492,6 +498,16 @@ export default {
   },
 
   watch: {
+    activeTabId () {
+      this.customFieldItems = []
+      this.newRowData = {}
+      this.resetNewFieldForm()
+      this.fetchCustomFields()
+      if (this.isActiveTabStatementContext) {
+        this.fetchStatementsCount()
+      }
+    },
+
     newRowData: {
       handler (newVal) {
         if (newVal && newVal.id) {
@@ -503,27 +519,10 @@ export default {
   },
 
   methods: {
-    ...mapActions('CustomField', {
-      createCustomField: 'create',
-      deleteCustomField: 'delete',
-    }),
-
-    ...mapActions('AdminProcedure', {
-      getAdminProcedureWithFields: 'get',
-    }),
-
-    ...mapActions('ProcedureTemplate', {
-      getProcedureTemplateWithFields: 'get',
-    }),
-
-    ...mapMutations('CustomField', {
-      addCustomField: 'setItem',
-    }),
-
     abortFieldEdit (rowData) {
       rowData.description = this.initialRowData.description
-      rowData.name = this.initialRowData.name
       rowData.isRequired = this.initialRowData.isRequired
+      rowData.name = this.initialRowData.name
       rowData.options = this.initialRowData.options
 
       this.newRowData = {}
@@ -544,18 +543,20 @@ export default {
      * @returns { boolean }
      */
     checkIfNameIsUnique (name) {
-      const identicalNames = Object.values(this.customFields).filter(field => field.attributes.name === name)
-      const inEditMode = this.customFieldItems.filter(field => field.name === name && field.edit).length > 0
+      const identicalNames = this.allDefinitions.filter(definition =>
+        definition.attributes?.name === name
+      )
+      const isInEditMode = this.customFieldItems.some(field => field.name === name && field.edit)
 
-      if (!inEditMode) {
-        return identicalNames.length === 0
+      if (isInEditMode) {
+        return identicalNames.length <= 1
       }
 
-      return identicalNames.length <= 1
+      return identicalNames.length === 0
     },
 
     /**
-     * @param options { array } Array of strings
+     * @param options { array } Array of objects with label property
      * @param name { string }
      * @returns { boolean }
      */
@@ -563,32 +564,6 @@ export default {
       const identicalNames = options.filter(option => option.label === name)
 
       return identicalNames.length <= 1
-    },
-
-    async handleDeleteCustomField (rowData) {
-      if (this.$refs.deleteConfirmDialog?.open) {
-        const isConfirmed = await this.$refs.deleteConfirmDialog.open()
-
-        if (isConfirmed) {
-          const currentField = { ...this.customFields[rowData.id] }
-          try {
-            await this.deleteCustomField(rowData.id)
-
-            // Show success notification
-            dplan.notify.confirm(Translator.trans('confirm.deleted'))
-
-            // Rebuild custom fields list from store to rerender the current list
-            this.reduceCustomFields()
-          } catch (error) {
-            // Re-add field to store, if anything goes wrong
-            this.addCustomField(currentField)
-
-            console.error('Error deleting custom field:', error)
-
-            dplan.notify.error(Translator.trans('error.generic'))
-          }
-        }
-      }
     },
 
     deleteOptionOnEdit (index) {
@@ -618,57 +593,48 @@ export default {
       this.setFieldBeingEdited(rowData)
     },
 
-    /**
-     * Fetch custom fields that are available either in the procedure or in the procedure template
-     * The payload structure differs depending on whether statement or segment custom fields are requested.
-     * The parameter `statementsCount` is only required when fetching statement custom fields,
-     * to disable multiSelect field creation and editing if there are existing statements to prevent data inconsistency.
+    /*
+     * Fetch custom field definitions for the active tab from the composable.
+     * Server filters by targetEntity and sourceEntity; no client-side filtering needed.
+     * Results are cached per targetEntity/sourceEntity combination.
      */
     fetchCustomFields () {
-      const sourceEntity = this.isProcedureTemplate ?
-        'ProcedureTemplate' :
-        'AdminProcedure'
+      this.isLoadingFields = true
 
-      const payload = {
-        id: this.procedureId,
-        fields: {
-          [sourceEntity]: [
-            this.isStatementField ? 'statementCustomFields' : 'segmentCustomFields',
-          ].join(),
-          // StatementsCount is only needed to disable multiSelect field editing when there are existing statements
-          ...(this.isStatementField && {
-            AdminProcedure: ['statementCustomFields', 'statementsCount'].join(),
-          }),
-          CustomField: [
-            'name',
-            'description',
-            'options',
-            'fieldType',
-            ...(this.isStatementField ? ['isRequired'] : []),
-          ].join(),
-        },
-        include: [this.isStatementField ? 'statementCustomFields' : 'segmentCustomFields'].join(),
-      }
-
-      this.getCustomFields(payload).then(() => {
-        this.reduceCustomFields()
+      return fetchCustomFieldsFromComposable(this.procedureId, {
+        targetEntity: this.activeTabId,
+        sourceEntity: this.isProcedureTemplate ? 'PROCEDURE_TEMPLATE' : 'PROCEDURE',
       })
+        .then(definitions => {
+          this.allDefinitions = definitions
+          this.reduceCustomFields()
+        })
         .catch(err => console.error(err))
+        .finally(() => {
+          this.isLoadingFields = false
+        })
     },
 
-    getCustomFields (payload) {
-      return this.isProcedureTemplate ?
-        this.getProcedureTemplateWithFields(payload)
-          .then(response => {
-            return response
-          }) :
-        this.getAdminProcedureWithFields(payload)
-          .then(response => {
-            const statementsCount = response?.data?.AdminProcedure?.[this.procedureId]?.attributes?.statementsCount
-            this.statementsCount = statementsCount || 0
+    /*
+     * Fetch the number of submitted statements for the procedure.
+     * Only called for non-template procedures when the STATEMENT tab is active.
+     * Cached in statementsCount after first fetch to avoid repeated requests.
+     */
+    fetchStatementsCount () {
+      if (this.isProcedureTemplate || this.statementsCount > 0) {
+        return
+      }
 
-            return response
-          })
+      const url = Routing.generate('api_resource_get', {
+        resourceType: 'AdminProcedure',
+        resourceId: this.procedureId,
+      })
+
+      dpApi.get(url, { fields: { AdminProcedure: 'statementsCount' } })
+        .then(response => {
+          this.statementsCount = response?.data?.data?.attributes?.statementsCount ?? 0
+        })
+        .catch(err => console.error(err))
     },
 
     getIndexOfRowData (rowData) {
@@ -676,7 +642,7 @@ export default {
     },
 
     /**
-     * Returns appropriate text based on which custom field types are enabled in the project
+     * Returns appropriate text based on which custom field types are enabled in the project.
      * @param textType {String} The type of text to retrieve (e.g., 'info', 'delete', 'edit')
      * @param multiplePermissionsText {String} Translation key to use when multiple field types are enabled
      * @returns {String} The translated text message or empty string
@@ -697,43 +663,67 @@ export default {
       return ''
     },
 
+    handleDeleteCustomField (rowData) {
+      this.requestConfirmation(this.deleteWarningMessage)
+        .then(isConfirmed => {
+          if (!isConfirmed) {
+            return
+          }
+
+          const definitionSnapshot = this.allDefinitions.find(definition => definition.id === rowData.id)
+          const removedIndex = this.customFieldItems.findIndex(item => item.id === rowData.id)
+          const removedItem = this.customFieldItems.splice(removedIndex, 1)[0]
+
+          deleteCustomFieldDefinition(rowData.id, this.procedureId)
+            .then(() => {
+              this.allDefinitions = this.allDefinitions.filter(definition => definition.id !== rowData.id)
+              dplan.notify.confirm(Translator.trans('confirm.deleted'))
+            })
+            .catch(error => {
+              if (removedIndex >= 0) {
+                this.customFieldItems.splice(removedIndex, 0, removedItem)
+              }
+
+              if (definitionSnapshot) {
+                this.allDefinitions = [...this.allDefinitions, definitionSnapshot]
+              }
+
+              console.error('Error deleting custom field:', error)
+              dplan.notify.error(Translator.trans('error.generic'))
+            })
+        })
+    },
+
     hideOptions (rowData) {
       const idx = this.getIndexOfRowData(rowData)
 
       this.customFieldItems[idx].open = false
     },
 
-    /**
-     * CustomFields reduced to the format we need in the FE
+    /*
+     * Transform the raw composable definitions into the flat format needed by the table.
+     * Server already filtered by targetEntity — no client-side filtering needed.
      */
     reduceCustomFields () {
-      const fieldsReduced = Object.values(this.customFields)
-        .map(field => {
-          if (field) {
-            const { id, attributes } = field
-            const { description, name, fieldType, isRequired, options } = attributes
+      const fieldsReduced = this.allDefinitions
+        .map(definition => {
+          const { id, attributes } = definition
+          const { description, fieldType, isRequired, name, options } = attributes
 
-            return {
-              id,
-              name,
-              description,
-              fieldType,
-              ...(this.isStatementField && { isRequired }),
-              options: JSON.parse(JSON.stringify(options)),
-              open: false,
-              edit: false,
-            }
+          return {
+            id,
+            name,
+            description,
+            fieldType,
+            ...(this.isActiveTabStatementContext && { isRequired }),
+            options: JSON.parse(JSON.stringify(options)),
+            open: false,
+            edit: false,
           }
-
-          return undefined
         })
-        .filter(field => field !== undefined)
 
-      if (this.customFieldItems.length > 0) {
-        this.customFieldItems = []
-      }
-
-      fieldsReduced.forEach((field) => {
+      this.customFieldItems = []
+      fieldsReduced.forEach(field => {
         this.customFieldItems.push(field)
       })
     },
@@ -742,8 +732,14 @@ export default {
       this.newFieldOptions.splice(index, 1)
     },
 
+    requestConfirmation (message) {
+      this.currentConfirmMessage = message
+
+      return this.$refs.confirmationDialog.open()
+    },
+
     resetEditedUnsavedField (customField) {
-      const { description = '', isRequired = false,  name = '', options = [] } = this.initialRowData
+      const { description = '', isRequired = false, name = '', options = [] } = this.initialRowData
 
       customField.description = description
       customField.edit = false
@@ -766,33 +762,27 @@ export default {
       ]
     },
 
-    saveCustomField (payload) {
-      const url = Routing.generate('api_resource_update', { resourceType: 'CustomField', resourceId: this.newRowData.id })
-
-      return dpApi.patch(url, {}, {
-        data: payload,
-      })
-    },
-
-    async saveEditedFields () {
+    saveEditedFields () {
       const isDataValid = this.validateNamesAreUnique(this.newRowData.name, this.newRowData.options)
 
       if (!isDataValid) {
         return
       }
 
-      if (this.$refs.confirmDialog?.open) {
-        const isConfirmed = await this.$refs.confirmDialog.open()
+      this.requestConfirmation(this.editWarningMessage)
+        .then(isConfirmed => {
+          if (!isConfirmed) {
+            return
+          }
 
-        if (isConfirmed) {
-          const storeField = this.customFields[this.newRowData.id]
+          const sourceDefinition = this.allDefinitions.find(definition => definition.id === this.newRowData.id)
           const { description = '', isRequired, name, options } = this.newRowData
 
-          const updatedField = {
-            ...storeField,
+          const updatedPayload = {
+            ...sourceDefinition,
             attributes: Object.fromEntries(
               Object.entries({
-                ...storeField.attributes,
+                ...sourceDefinition.attributes,
                 description,
                 isRequired,
                 name,
@@ -801,28 +791,31 @@ export default {
             ),
           }
 
-          await this.saveCustomField(updatedField)
+          updateCustomFieldDefinition(this.newRowData.id, updatedPayload, this.procedureId)
             .then(() => {
-              const idx = this.customFieldItems.findIndex(el => el.id === storeField.id)
+              const idx = this.customFieldItems.findIndex(item => item.id === sourceDefinition.id)
               this.customFieldItems[idx] = { ...this.newRowData }
-              this.setEditMode(storeField, false)
+              this.setEditMode(sourceDefinition, false)
             })
             .finally(() => {
-              // Fetch custom fields to get a consistent state for the custom fields
               this.fetchCustomFields()
             })
-        }
-      }
+        })
     },
 
     /**
-     * Prepare payload and send create request for custom field
+     * Prepare payload and send create request for custom field.
+     * After save, switches to the tab matching the created field's targetEntity
+     * so the new field is immediately visible.
      * @param customFieldData {Object}
-     * @param customFieldData.name {String}
      * @param customFieldData.description {String}
+     * @param customFieldData.fieldType {String}
+     * @param customFieldData.isRequired {Boolean}
+     * @param customFieldData.name {String}
+     * @param customFieldData.targetEntity {String}
      */
     saveNewField (customFieldData) {
-      const { description, name, fieldType } = customFieldData
+      const { description, fieldType, isRequired, name, targetEntity } = customFieldData
       const options = this.newFieldOptions.filter(option => option.label !== '')
       const isDataValid = this.validateNamesAreUnique(name, options)
 
@@ -832,23 +825,23 @@ export default {
 
       this.isLoading = true
 
-      const payload = {
-        type: 'CustomField',
-        attributes: {
-          description,
-          name,
-          options,
-          fieldType,
-          ...(this.isStatementField && { isRequired: this.isRequired }),
-          sourceEntity: this.isProcedureTemplate ? 'PROCEDURE_TEMPLATE' : 'PROCEDURE',
-          sourceEntityId: this.procedureId,
-          targetEntity: this.isStatementField ? 'STATEMENT' : 'SEGMENT',
-        },
+      const previousTabId = this.activeTabId
+
+      const customFieldAttributes = {
+        description,
+        fieldType,
+        name,
+        options,
+        ...(targetEntity === 'STATEMENT' && { isRequired }),
+        sourceEntity: this.isProcedureTemplate ? 'PROCEDURE_TEMPLATE' : 'PROCEDURE',
+        sourceEntityId: this.procedureId,
+        targetEntity,
       }
 
-      this.createCustomField(payload)
+      createCustomFieldDefinition(customFieldAttributes, this.procedureId)
         .then(() => {
           this.isSuccess = true
+          this.activeTabId = targetEntity
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(err => {
@@ -858,8 +851,20 @@ export default {
           this.isLoading = false
           this.isSuccess = false
           this.resetNewFieldForm()
-          this.fetchCustomFields()
+          /*
+           * If the tab did not change, the watcher will not fire, so fetch manually.
+           * If the tab changed, the watcher handles the fetch.
+           */
+          if (this.activeTabId === previousTabId) {
+            this.fetchCustomFields()
+          }
         })
+    },
+
+    setActiveTabId (id) {
+      if (id) {
+        this.activeTabId = id
+      }
     },
 
     setEditMode (rowData, editState = true) {
@@ -881,19 +886,19 @@ export default {
 
       this.initialRowData = {
         description,
-        ...(this.isStatementField && { isRequired }),
+        ...(this.isActiveTabStatementContext && { isRequired }),
         name,
         options: JSON.parse(JSON.stringify(options)),
       }
     },
 
     setNewRowData (rowData) {
-      const { id, description = '', isRequired, name, options } = rowData
+      const { description = '', id, isRequired, name, options } = rowData
 
       this.newRowData = {
         id,
         description,
-        ...(this.isStatementField && { isRequired }),
+        ...(this.isActiveTabStatementContext && { isRequired }),
         name,
         options,
       }
@@ -906,9 +911,8 @@ export default {
     },
 
     /**
-     *
      * @param customFieldName {String}
-     * @param customFieldOptions {Array} array of objects with label property
+     * @param customFieldOptions {Array} Array of objects with label property
      */
     validateNamesAreUnique (customFieldName, customFieldOptions) {
       const isNameDuplicated = !this.checkIfNameIsUnique(customFieldName)
@@ -934,6 +938,10 @@ export default {
 
   mounted () {
     this.fetchCustomFields()
+
+    if (this.isActiveTabStatementContext) {
+      this.fetchStatementsCount()
+    }
   },
 }
 </script>
