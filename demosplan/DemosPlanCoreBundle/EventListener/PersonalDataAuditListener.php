@@ -153,43 +153,15 @@ class PersonalDataAuditListener
 
     private function collectInsertEntries(object $entity): void
     {
-        $entityClass = ClassUtils::getClass($entity);
-        if (!isset($this->fieldMapping[$entityClass])) {
-            return;
-        }
-
-        $trackedFields = $this->fieldMapping[$entityClass];
-        $entityId = $this->getEntityId($entity);
-        if (null === $entityId) {
-            return;
-        }
-
-        $procedureId = $this->resolveProcedureId($entity);
-        $orgaId = $this->resolveOrgaId($entity);
-
-        foreach ($trackedFields as $field => $config) {
-            $value = $this->getFieldValue($entity, $field);
-            if (null === $value) {
-                continue;
-            }
-
-            $isSensitive = $this->isSensitiveField($config);
-
-            $this->pendingAuditEntries[] = [
-                'entityType'       => $entityClass,
-                'entityId'         => $entityId,
-                'entityField'      => $field,
-                'changeType'       => PersonalDataAuditLog::CHANGE_TYPE_CREATE,
-                'preUpdateValue'   => null,
-                'postUpdateValue'  => $isSensitive ? PersonalDataAuditLog::SENSITIVE_MASK : $this->serializeValue($value),
-                'isSensitiveField' => $isSensitive,
-                'procedureId'      => $procedureId,
-                'orgaId'           => $orgaId,
-            ];
-        }
+        $this->collectFieldEntries($entity, PersonalDataAuditLog::CHANGE_TYPE_CREATE);
     }
 
     private function collectDeleteEntries(object $entity): void
+    {
+        $this->collectFieldEntries($entity, PersonalDataAuditLog::CHANGE_TYPE_DELETE);
+    }
+
+    private function collectFieldEntries(object $entity, string $changeType): void
     {
         $entityClass = ClassUtils::getClass($entity);
         if (!isset($this->fieldMapping[$entityClass])) {
@@ -204,6 +176,7 @@ class PersonalDataAuditListener
 
         $procedureId = $this->resolveProcedureId($entity);
         $orgaId = $this->resolveOrgaId($entity);
+        $isCreate = PersonalDataAuditLog::CHANGE_TYPE_CREATE === $changeType;
 
         foreach ($trackedFields as $field => $config) {
             $value = $this->getFieldValue($entity, $field);
@@ -212,14 +185,15 @@ class PersonalDataAuditListener
             }
 
             $isSensitive = $this->isSensitiveField($config);
+            $serialized = $isSensitive ? PersonalDataAuditLog::SENSITIVE_MASK : $this->serializeValue($value);
 
             $this->pendingAuditEntries[] = [
                 'entityType'       => $entityClass,
                 'entityId'         => $entityId,
                 'entityField'      => $field,
-                'changeType'       => PersonalDataAuditLog::CHANGE_TYPE_DELETE,
-                'preUpdateValue'   => $isSensitive ? PersonalDataAuditLog::SENSITIVE_MASK : $this->serializeValue($value),
-                'postUpdateValue'  => null,
+                'changeType'       => $changeType,
+                'preUpdateValue'   => $isCreate ? null : $serialized,
+                'postUpdateValue'  => $isCreate ? $serialized : null,
                 'isSensitiveField' => $isSensitive,
                 'procedureId'      => $procedureId,
                 'orgaId'           => $orgaId,
@@ -286,7 +260,7 @@ class PersonalDataAuditListener
 
     private function resolveContext(): string
     {
-        if ('cli' === \PHP_SAPI) {
+        if ('cli' === PHP_SAPI) {
             return PersonalDataAuditLog::CONTEXT_CLI;
         }
 

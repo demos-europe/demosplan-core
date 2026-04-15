@@ -27,7 +27,7 @@ class PersonalDataAuditListenerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->listener = self::getContainer()->get(PersonalDataAuditListener::class);
+        $this->listener = $this->getContainer()->get(PersonalDataAuditListener::class);
         $this->logIn($this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY));
     }
 

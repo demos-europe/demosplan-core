@@ -18,11 +18,11 @@ use demosplan\DemosPlanCoreBundle\Entity\PersonalDataAuditLog;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Repository\PersonalDataAuditRepository;
 
-class PersonalDataAuditService
+readonly class PersonalDataAuditService
 {
     public function __construct(
-        private readonly PersonalDataAuditRepository $repository,
-        private readonly PermissionsInterface $permissions,
+        private PersonalDataAuditRepository $repository,
+        private PermissionsInterface $permissions,
     ) {
     }
 
