@@ -32,7 +32,7 @@ class CustomFieldDisplayResolver
         CustomFieldValuesList $values,
         CustomFieldSupportedEntity $sourceEntity,
         string $sourceEntityId,
-        CustomFieldSupportedEntity $targetEntity
+        CustomFieldSupportedEntity $targetEntity,
     ): array {
         if ($values->isEmpty()) {
             return [];
