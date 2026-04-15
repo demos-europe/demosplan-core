@@ -347,22 +347,22 @@ class PersonalDataAuditListener
             return null;
         }
 
-        if (is_string($value)) {
-            return $value;
-        }
-
-        if (is_bool($value)) {
-            return $value ? 'true' : 'false';
-        }
-
-        if (is_int($value) || is_float($value)) {
-            return (string) $value;
+        if (is_scalar($value)) {
+            return match (true) {
+                is_bool($value) => $value ? 'true' : 'false',
+                default         => (string) $value,
+            };
         }
 
         if ($value instanceof DateTimeInterface) {
             return $value->format('Y-m-d H:i:s');
         }
 
+        return $this->serializeComplexValue($value);
+    }
+
+    private function serializeComplexValue(mixed $value): ?string
+    {
         if (is_object($value) && method_exists($value, 'getId')) {
             return (string) $value->getId();
         }
