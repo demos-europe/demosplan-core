@@ -5,8 +5,8 @@
       class="text-right mb-4"
     >
       <dp-button
-        data-cy="customFields:addField"
         :text="Translator.trans('add')"
+        data-cy="customFields:addField"
         @click="open"
       />
     </div>
@@ -43,6 +43,33 @@
           }"
           maxlength="250"
         />
+
+        <fieldset class="border-0 m-0 p-0">
+          <dp-label
+            :text="Translator.trans('custom.field.target')"
+            class="mb-1"
+            required
+          />
+          <div
+            v-for="[entityKey, entityLabel] in Object.entries(targetOptions)"
+            :key="entityKey"
+            class="mb-1"
+          >
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                v-model="customField.targetEntity"
+                :data-cy="`customFields:targetEntity:${entityKey}`"
+                :value="entityKey"
+                class="mr-1"
+                name="customFieldTargetEntity"
+                type="radio"
+                required
+              >
+              {{ entityLabel }}
+            </label>
+          </div>
+        </fieldset>
+
         <dp-select
           id="newFieldType"
           v-model="customField.fieldType"
@@ -53,8 +80,18 @@
             tooltip: Translator.trans('explanation.field.type')
           }"
           :options="typeOptions"
-          :disabled="disableTypeSelection"
-          :required="preselectedType === ''"
+          required
+        />
+
+        <dp-checkbox
+          v-if="customField.targetEntity === 'STATEMENT'"
+          id="requiredCheckbox"
+          v-model="customField.isRequired"
+          :label="{
+            text: Translator.trans('statements.fields.configurable.required')
+          }"
+          class="mb-2"
+          data-cy="customFields:isRequired"
         />
 
         <slot />
@@ -76,7 +113,9 @@
 import {
   DpButton,
   DpButtonRow,
+  DpCheckbox,
   DpInput,
+  DpLabel,
   DpLoading,
   DpSelect,
   dpValidateMixin,
@@ -88,7 +127,9 @@ export default {
   components: {
     DpButton,
     DpButtonRow,
+    DpCheckbox,
     DpInput,
+    DpLabel,
     DpLoading,
     DpSelect,
   },
@@ -96,11 +137,6 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
-    disableTypeSelection: {
-      type: Boolean,
-      default: false,
-    },
-
     handleSuccess: {
       type: Boolean,
       default: false,
@@ -111,9 +147,9 @@ export default {
       default: false,
     },
 
-    preselectedType: {
-      type: String,
-      default: '',
+    targetOptions: {
+      type: Object,
+      required: true,
     },
   },
 
@@ -126,9 +162,11 @@ export default {
   data () {
     return {
       customField: {
-        name: '',
         description: '',
-        fieldType: this.preselectedType,
+        fieldType: '',
+        isRequired: false,
+        name: '',
+        targetEntity: '',
       },
       isOpen: false,
       typeOptions: [
@@ -180,9 +218,11 @@ export default {
     },
 
     reset () {
-      this.customField.name = ''
       this.customField.description = ''
-      this.customField.fieldType = this.preselectedType
+      this.customField.fieldType = ''
+      this.customField.isRequired = false
+      this.customField.name = ''
+      this.customField.targetEntity = ''
     },
   },
 }
