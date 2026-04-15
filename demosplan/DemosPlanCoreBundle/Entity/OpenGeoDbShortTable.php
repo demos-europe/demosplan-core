@@ -10,14 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use demosplan\DemosPlanCoreBundle\Repository\OpenGeoDbRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OpenGeoDbShortTableInterface;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Table(name="geodb_short_table")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OpenGeoDbRepository")
- */
+#[ORM\Table(name: 'geodb_short_table')]
+#[ORM\Entity(repositoryClass: OpenGeoDbRepository::class)]
 class OpenGeoDbShortTable extends CoreEntity implements OpenGeoDbShortTableInterface
 {
     /**
@@ -25,77 +24,70 @@ class OpenGeoDbShortTable extends CoreEntity implements OpenGeoDbShortTableInter
      *
      * @var string|null
      *
-     * @ORM\Column(name="id", type="string", length=36)
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: 'id', type: 'string', length: 36)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $uniqueId;
 
     /**
      * Identification from OpenGeoDb of the Location.
      *
      * @var string
-     *
-     * @ORM\Column(name="loc_id", type="integer", length=11)
      */
+    #[ORM\Column(name: 'loc_id', type: 'integer', length: 11)]
     protected $id;
 
     /**
      * Postcode.
      *
      * @var string
-     *
-     * @ORM\Column(name="postcode", type="string", length=256, nullable=false)
      */
+    #[ORM\Column(name: 'postcode', type: 'string', length: 256, nullable: false)]
     protected $postcode;
 
     /**
      * City.
      *
      * @var string
-     *
-     * @ORM\Column(name="city", type="string", length=256, nullable=false)
      */
+    #[ORM\Column(name: 'city', type: 'string', length: 256, nullable: false)]
     protected $city;
 
     /**
      * MunicipalCode.
      *
      * @var string
-     *
-     * @ORM\Column(name="municipal_code", type="string", length=10, nullable=false)
      */
+    #[ORM\Column(name: 'municipal_code', type: 'string', length: 10, nullable: false)]
     protected $municipalCode;
 
     /**
      * State.
      *
      * @var string
-     *
-     * @ORM\Column(name="state", type="string", length=256, nullable=false)
      */
+    #[ORM\Column(name: 'state', type: 'string', length: 256, nullable: false)]
     protected $state;
 
     /**
      * Latitude.
      *
      * @var string
-     *
-     * @ORM\Column(name="lat", type="float", nullable=false)
      */
+    #[ORM\Column(name: 'lat', type: 'float', nullable: false)]
     protected $lat;
 
     /**
      * Longitude.
      *
      * @var string
-     *
-     * @ORM\Column(name="lon", type="float", nullable=false)
      */
+    #[ORM\Column(name: 'lon', type: 'float', nullable: false)]
     protected $lon;
 
     /**

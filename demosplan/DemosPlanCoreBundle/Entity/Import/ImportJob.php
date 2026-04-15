@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Import;
 
+use demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -20,15 +22,15 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository")
  *
- * @ORM\Table(name="import_job")
  *
  * @SuppressWarnings(PHPMD.TooManyMethods)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * Entities naturally have many methods due to standard getters/setters for each property.
  * This is acceptable as it follows the active record pattern and Doctrine conventions.
  */
+#[ORM\Table(name: 'import_job')]
+#[ORM\Entity(repositoryClass: ImportJobRepository::class)]
 class ImportJob extends CoreEntity
 {
     final public const STATUS_PENDING = 'pending';
@@ -39,91 +41,84 @@ class ImportJob extends CoreEntity
     /**
      * @var string|null
      *
-     * @ORM\Id
      *
-     * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var Procedure
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
-     * @ORM\JoinColumn(name="procedure_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: 'procedure_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class)]
     protected $procedure;
 
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="_u_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: '_u_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $user;
 
     /**
      * The organisation context when this job was created.
      * Used to restore organisation context during background processing.
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      *
-     * @ORM\JoinColumn(name="organisation_id", referencedColumnName="_o_id", nullable=true, onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: 'organisation_id', referencedColumnName: '_o_id', nullable: true, onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: Orga::class)]
     protected ?Orga $organisation = null;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="file_path", type="string", length=500)
      */
+    #[ORM\Column(name: 'file_path', type: 'string', length: 500)]
     protected $filePath;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="file_name", type="string", length=255)
      */
+    #[ORM\Column(name: 'file_name', type: 'string', length: 255)]
     protected $fileName;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="status", type="string", length=50)
      */
+    #[ORM\Column(name: 'status', type: 'string', length: 50)]
     protected $status = self::STATUS_PENDING;
 
     /**
      * @var DateTime|null
-     *
-     * @ORM\Column(name="last_activity_at", type="datetime", nullable=true)
      */
+    #[ORM\Column(name: 'last_activity_at', type: 'datetime', nullable: true)]
     protected $lastActivityAt;
 
     /**
      * @var array|null
-     *
-     * @ORM\Column(name="result", type="json", nullable=true)
      */
+    #[ORM\Column(name: 'result', type: 'json', nullable: true)]
     protected $result;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="error", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'error', type: 'text', nullable: true)]
     protected $error;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="created_at", type="datetime")
      */
+    #[ORM\Column(name: 'created_at', type: 'datetime')]
     protected $createdAt;
 
     public function __construct()

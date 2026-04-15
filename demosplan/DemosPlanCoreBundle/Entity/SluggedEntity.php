@@ -17,29 +17,29 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/** @ORM\MappedSuperclass */
+#[ORM\MappedSuperclass]
 abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface, SluggedEntityInterface
 {
     /**
      * @var SlugInterface
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Slug")
      *
-     * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
      */
+    #[ORM\JoinColumn(referencedColumnName: 'id', nullable: false)]
+    #[ORM\OneToOne(targetEntity: Slug::class)]
     protected $currentSlug;
 
     /**
      * @var Collection SlugInterface[]
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Slug", cascade={"persist"})
      *
-     * @ORM\JoinTable(
-     *     name="entity_slugs_doctrine",
-     *     joinColumns={@ORM\JoinColumn(name="entity_id", referencedColumnName="_entity_id", onDelete="RESTRICT")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="s_id", referencedColumnName="id", onDelete="RESTRICT")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: 'entity_slugs_doctrine',
+        joinColumns: [new ORM\JoinColumn(name: 'entity_id', referencedColumnName: '_entity_id', onDelete: 'RESTRICT')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 's_id', referencedColumnName: 'id', onDelete: 'RESTRICT')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Slug::class, cascade: ['persist'])]
     protected $slugs;
 
     public function getSlugs(): Collection

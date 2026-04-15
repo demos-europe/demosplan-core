@@ -10,43 +10,32 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use demosplan\DemosPlanCoreBundle\Repository\UserPasswordHistoryRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\UserPasswordHistoryRepository")
- */
+#[ORM\Entity(repositoryClass: UserPasswordHistoryRepository::class)]
 class UserPasswordHistory
 {
-    /**
-     * @ORM\Id
-     *
-     * @ORM\Column(type="string", length=36)
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', length: 36)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private string $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=false, onDelete="CASCADE")
-     */
+    #[ORM\JoinColumn(referencedColumnName: '_u_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     private User $user;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private string $hashedPassword;
 
     /**
-     * @ORM\Column(type="datetime")
-     *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(type: 'datetime')]
     private DateTime $createdDate;
 
     public function __construct(User $user, string $hashedPassword)

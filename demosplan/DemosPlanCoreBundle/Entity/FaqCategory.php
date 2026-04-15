@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -17,65 +19,59 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use UnexpectedValueException;
 
-/**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository")
- */
+#[ORM\Entity(repositoryClass: FaqCategoryRepository::class)]
 class FaqCategory extends CoreEntity implements FaqCategoryInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false, options={"default":""})
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: false, options: ['default' => ''])]
     protected $title;
 
     /**
      * Has no function for custom categories.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", length=50, nullable=false, options={"default":"custom_category"})
      */
+    #[ORM\Column(type: 'string', length: 50, nullable: false, options: ['default' => 'custom_category'])]
     protected $type = self::FAQ_CATEGORY_TYPES_OPTIONAL;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     /**
      * @var Customer
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      *
-     * @ORM\JoinColumn(referencedColumnName="_c_id", onDelete="CASCADE", nullable=false)
      */
+    #[ORM\JoinColumn(referencedColumnName: '_c_id', onDelete: 'CASCADE', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Customer::class)]
     protected $customer;
 
     public function getId(): ?string

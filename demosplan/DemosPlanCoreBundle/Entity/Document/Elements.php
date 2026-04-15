@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
+use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
@@ -24,47 +26,42 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_elements")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ElementsRepository")
- */
+#[ORM\Table(name: '_elements')]
+#[ORM\Entity(repositoryClass: ElementsRepository::class)]
 class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_e_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_e_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_e_p_id", type="string", length=36, options={"fixed":true}, nullable=true)
      */
+    #[ORM\Column(name: '_e_p_id', type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
     protected $elementParentId;
 
     /**
      * @var ElementsInterface|null
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", inversedBy="children")
      *
-     * @ORM\JoinColumn(name="_e_p_id", referencedColumnName="_e_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_e_p_id', referencedColumnName: '_e_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: Elements::class, inversedBy: 'children')]
     protected $parent;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_id", type="string", length=36, options={"fixed":true}, nullable=false)
      */
+    #[ORM\Column(name: '_p_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $pId;
 
     /**
@@ -73,156 +70,142 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
      *
      * @var Procedure
      *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="elements", cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class, inversedBy: 'elements', cascade: ['persist'])]
     protected $procedure;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_e_category", type="string", length=255, options={"fixed":true}, nullable=false)
      */
+    #[ORM\Column(name: '_e_category', type: 'string', length: 255, options: ['fixed' => true], nullable: false)]
     protected $category = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_e_title", type="string", length=256, nullable=false)
      */
+    #[ORM\Column(name: '_e_title', type: 'string', length: 256, nullable: false)]
     protected $title = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_e_icon", type="string", length=36, nullable=false)
      */
+    #[ORM\Column(name: '_e_icon', type: 'string', length: 36, nullable: false)]
     protected $icon = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_e_icon_title", type="string", options={"comment":"Content of title-tag for icon"})
      */
+    #[ORM\Column(name: '_e_icon_title', type: 'string', options: ['comment' => 'Content of title-tag for icon'])]
     protected $iconTitle = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_e_text", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_e_text', type: 'text', length: 65535, nullable: false)]
     protected $text = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_e_file", type="string", length=256, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_e_file', type: 'string', length: 256, nullable: false, options: ['default' => ''])]
     protected $file = '';
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_e_order", type="integer", nullable=false)
      */
+    #[ORM\Column(name: '_e_order', type: 'integer', nullable: false)]
     protected $order;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_e_enabled", type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(name: '_e_enabled', type: 'boolean', nullable: false, options: ['default' => true])]
     protected $enabled = true;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_e_deleted", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_e_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted = false;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_e_create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_e_create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_e_modify_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_e_modify_date', type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_e_delete_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_e_delete_date', type: 'datetime', nullable: false)]
     protected $deleteDate;
 
     /**
      * @var Collection<int,SingleDocument>
      *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument", mappedBy="element")
      *
-     * @ORM\OrderBy({"order" = "ASC", "createDate" = "ASC"})
      */
+    #[ORM\OneToMany(targetEntity: SingleDocument::class, mappedBy: 'element')]
+    #[ORM\OrderBy(['order' => 'ASC', 'createDate' => 'ASC'])]
     protected $documents;
 
     /**
      * @var Collection<int,Elements>
      *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", mappedBy="parent")
      *
-     * @ORM\OrderBy({"order" = "ASC"})
      */
+    #[ORM\OneToMany(targetEntity: Elements::class, mappedBy: 'parent')]
+    #[ORM\OrderBy(['order' => 'ASC'])]
     protected $children;
 
     /**
      * @var Collection<int,Paragraph>
      *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph", mappedBy="element")
      *
-     * @ORM\OrderBy({"order" = "ASC"})
      */
+    #[ORM\OneToMany(targetEntity: Paragraph::class, mappedBy: 'element')]
+    #[ORM\OrderBy(['order' => 'ASC'])]
     protected $paragraphs;
 
     /**
      * @var Collection<int,Orga>|Orga[]
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      *
-     * @ORM\JoinTable(
-     *     name="_elements_orga_doctrine",
-     *     joinColumns={@ORM\JoinColumn(name="_e_id", referencedColumnName="_e_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="CASCADE")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: '_elements_orga_doctrine',
+        joinColumns: [new ORM\JoinColumn(name: '_e_id', referencedColumnName: '_e_id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', onDelete: 'CASCADE')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Orga::class)]
     protected $organisations;
 
     protected $type;
 
     /**
      * @var DateTime|null
-     *
-     * @ORM\Column(name = "_e_designated_switch_date", type = "datetime", nullable = true)
      */
+    #[ORM\Column(name: '_e_designated_switch_date', type: 'datetime', nullable: true)]
     protected $designatedSwitchDate;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(type = "string", nullable = true, options={"default":null, "comment":"Needed permission, to get this element."})
      */
+    #[ORM\Column(type: 'string', nullable: true, options: ['default' => null, 'comment' => 'Needed permission, to get this element.'])]
     protected $permission;
 
     public function __construct()

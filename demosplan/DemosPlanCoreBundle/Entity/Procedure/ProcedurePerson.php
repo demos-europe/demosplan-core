@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Repository\ProcedurePersonRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
@@ -22,63 +24,56 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedurePersonRepository")
- */
+#[ORM\Entity(repositoryClass: ProcedurePersonRepository::class)]
 class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
 {
     /**
      * @var string|null `null` if this instance was created but not persisted yet
      *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private $id;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="text", nullable=true)
      */
     #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
+    #[ORM\Column(type: 'text', nullable: true)]
     private $streetName;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="text", nullable=true)
      */
     #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
+    #[ORM\Column(type: 'text', nullable: true)]
     private $streetNumber;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="text", nullable=true)
      */
     #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
+    #[ORM\Column(type: 'text', nullable: true)]
     private $city;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="text", nullable=true)
      */
     #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
+    #[ORM\Column(type: 'text', nullable: true)]
     private $postalCode;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="text", nullable=true)
      */
     #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
     #[Assert\Email]
+    #[ORM\Column(type: 'text', nullable: true)]
     private $emailAddress;
 
     /**
@@ -87,29 +82,14 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
      *
      * @var Collection<int, Statement>
      *
-     * @ORM\ManyToMany(
-     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement",
-     *     mappedBy="similarStatementSubmitters",
-     *     cascade={"persist"},
-     * )
      *
-     * @ORM\JoinTable(
-     *     name="similar_statement_submitter",
-     *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="statement_id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="id", referencedColumnName="submitter_id")}
-     * )
      */
+    #[ORM\ManyToMany(targetEntity: Statement::class, mappedBy: 'similarStatementSubmitters', cascade: ['persist'])]
     private Collection $similarForeignStatements;
 
-    public function __construct(/**
-     * @ORM\Column(type="text", nullable=false)
-     */
-        #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
-        private string $fullName, /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
-     */
+    public function __construct(#[Assert\NotBlank(allowNull: false, normalizer: 'trim')] #[ORM\Column(type: 'text', nullable: false)]
+        private string $fullName, #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false)]
+        #[ORM\ManyToOne(targetEntity: Procedure::class)]
         private ProcedureInterface $procedure)
     {
         $this->similarForeignStatements = new ArrayCollection();

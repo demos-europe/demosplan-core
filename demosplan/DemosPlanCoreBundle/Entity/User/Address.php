@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use demosplan\DemosPlanCoreBundle\Repository\AddressRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\AddressInterface;
@@ -19,147 +21,130 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Table(name="_address")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\AddressRepository")
- */
+#[ORM\Table(name: '_address')]
+#[ORM\Entity(repositoryClass: AddressRepository::class)]
 class Address extends CoreEntity implements UuidEntityInterface, AddressInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_a_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_a_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_a_code", type="string", length=10, nullable=true)
      */
     #[Assert\Length(min: 0, max: 10)]
+    #[ORM\Column(name: '_a_code', type: 'string', length: 10, nullable: true)]
     protected $code;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_a_street", type="string", length=100, nullable=true)
      */
     #[Assert\Length(min: 1, max: 100)]
+    #[ORM\Column(name: '_a_street', type: 'string', length: 100, nullable: true)]
     protected $street;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_a_street_1", type="string", length=100, nullable=true)
      */
     #[Assert\Length(min: 1, max: 100)]
+    #[ORM\Column(name: '_a_street_1', type: 'string', length: 100, nullable: true)]
     protected $street1;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_a_postalcode", type="string", length=10, nullable=true)
      */
     #[Assert\Length(min: 5, max: 5)]
+    #[ORM\Column(name: '_a_postalcode', type: 'string', length: 10, nullable: true)]
     protected $postalcode;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_a_city", type="string", length=100, nullable=true)
      */
     #[Assert\Length(min: 1, max: 100)]
+    #[ORM\Column(name: '_a_city', type: 'string', length: 100, nullable: true)]
     protected $city = '';
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_a_region", type="string", length=45, nullable=true)
      */
+    #[ORM\Column(name: '_a_region', type: 'string', length: 45, nullable: true)]
     protected $region;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_a_state", type="string", length=65, nullable=true)
      */
+    #[ORM\Column(name: '_a_state', type: 'string', length: 65, nullable: true)]
     protected $state;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_a_postofficebox", type="string", length=10, nullable=true)
      */
+    #[ORM\Column(name: '_a_postofficebox', type: 'string', length: 10, nullable: true)]
     protected $postofficebox;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_a_phone", type="string", length=30, nullable=true)
      */
+    #[ORM\Column(name: '_a_phone', type: 'string', length: 30, nullable: true)]
     protected $phone;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_a_fax", type="string", length=30, nullable=true)
      */
+    #[ORM\Column(name: '_a_fax', type: 'string', length: 30, nullable: true)]
     protected $fax;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_a_email", type="string", length=364, nullable=true)
      */
     #[Assert\Email(message: 'email.address.invalid')]
+    #[ORM\Column(name: '_a_email', type: 'string', length: 364, nullable: true)]
     protected $email;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_a_url", type="string", length=364, nullable=true)
      */
     #[Assert\Url]
+    #[ORM\Column(name: '_a_url', type: 'string', length: 364, nullable: true)]
     protected $url;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_a_created_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: '_a_created_date', type: 'datetime', nullable: false)]
     protected $createdDate;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_a_modified_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(name: '_a_modified_date', type: 'datetime', nullable: false)]
     protected $modifiedDate;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_a_deleted", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_a_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted = false;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=false,  options={"default":""})
      */
+    #[ORM\Column(type: 'string', nullable: false, options: ['default' => ''])]
     protected $houseNumber = '';
 
     public function getId(): ?string

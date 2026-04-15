@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
+use demosplan\DemosPlanCoreBundle\Repository\DevelopmentReleaseRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DevelopmentReleaseInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -20,78 +22,71 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  *  DevelopmentRelease.
  *
- * @ORM\Table(name="_progression_releases")
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DevelopmentReleaseRepository")
  */
+#[ORM\Table(name: '_progression_releases')]
+#[ORM\Entity(repositoryClass: DevelopmentReleaseRepository::class)]
 class DevelopmentRelease extends CoreEntity implements UuidEntityInterface, DevelopmentReleaseInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_pr_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_pr_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $ident;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pr_description", type="text", length=65535, nullable=true)
      */
+    #[ORM\Column(name: '_pr_description', type: 'text', length: 65535, nullable: true)]
     protected $description;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pr_title", type="string", length=1024, nullable=false)
      */
+    #[ORM\Column(name: '_pr_title', type: 'string', length: 1024, nullable: false)]
     protected $title;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pr_phase", type="string", length=128, nullable=false, options={"default":"configuration"})
      */
+    #[ORM\Column(name: '_pr_phase', type: 'string', length: 128, nullable: false, options: ['default' => 'configuration'])]
     protected $phase;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_pr_start_date", type="datetime", nullable=true)
      */
+    #[ORM\Column(name: '_pr_start_date', type: 'datetime', nullable: true)]
     protected $startDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_pr_end_date", type="datetime", nullable=true)
      */
+    #[ORM\Column(name: '_pr_end_date', type: 'datetime', nullable: true)]
     protected $endDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_pr_modified_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_pr_modified_date', type: 'datetime', nullable: false)]
     protected $modifiedDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_pr_create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_pr_create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     public function getId(): ?string

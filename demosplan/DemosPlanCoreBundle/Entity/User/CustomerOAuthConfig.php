@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -24,76 +26,55 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * Customers without a record fall back to the global static keycloak_ozg client.
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository")
  *
- * @ORM\Table(name="customer_oauth_config")
  */
+#[ORM\Table(name: 'customer_oauth_config')]
+#[ORM\Entity(repositoryClass: CustomerOAuthConfigRepository::class)]
 class CustomerOAuthConfig extends CoreEntity implements UuidEntityInterface
 {
-    /**
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
-     */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected string $id;
 
-    /**
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
-     *
-     * @ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id", nullable=false, onDelete="CASCADE", unique=true)
-     */
+    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: '_c_id', nullable: false, onDelete: 'CASCADE', unique: true)]
+    #[ORM\OneToOne(targetEntity: Customer::class)]
     private CustomerInterface $customer;
 
-    /**
-     * @ORM\Column(name="keycloak_client_id", type="string", length=255, nullable=false)
-     */
+    #[ORM\Column(name: 'keycloak_client_id', type: 'string', length: 255, nullable: false)]
     private string $keycloakClientId;
 
-    /**
-     * @ORM\Column(name="keycloak_client_secret", type="dplan.encrypted_string", length=512, nullable=false)
-     */
+    #[ORM\Column(name: 'keycloak_client_secret', type: 'dplan.encrypted_string', length: 512, nullable: false)]
     private string $keycloakClientSecret;
 
-    /**
-     * @ORM\Column(name="keycloak_auth_server_url", type="string", length=500, nullable=false)
-     */
+    #[ORM\Column(name: 'keycloak_auth_server_url', type: 'string', length: 500, nullable: false)]
     private string $keycloakAuthServerUrl;
 
-    /**
-     * @ORM\Column(name="keycloak_realm", type="string", length=255, nullable=false)
-     */
+    #[ORM\Column(name: 'keycloak_realm', type: 'string', length: 255, nullable: false)]
     private string $keycloakRealm;
 
     /**
      * Template for the Keycloak logout URL (e.g. with post_logout_redirect_uri and id_token_hint placeholders).
      * When null, falls back to the global oauth_keycloak_logout_route parameter.
-     *
-     * @ORM\Column(name="keycloak_logout_route", type="string", length=1000, nullable=true)
      */
+    #[ORM\Column(name: 'keycloak_logout_route', type: 'string', length: 1000, nullable: true)]
     private ?string $keycloakLogoutRoute = null;
 
-    /**
-     * @ORM\Column(name="identity_provider_type", type="string", length=30, nullable=false, options={"default":"keycloak"})
-     */
+    #[ORM\Column(name: 'identity_provider_type', type: 'string', length: 30, nullable: false, options: ['default' => 'keycloak'])]
     private string $identityProviderType = IdentityProviderType::KEYCLOAK->value;
 
-    /**
-     * @ORM\Column(name="auto_provision_users", type="boolean", nullable=false, options={"default":false})
-     */
+    #[ORM\Column(name: 'auto_provision_users', type: 'boolean', nullable: false, options: ['default' => false])]
     private bool $autoProvisionUsers = false;
 
     /**
      * Default organisation for auto-provisioning new users during Azure/Entra ID login.
      * When set, users who don't exist yet will be created and assigned to this organisation.
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      *
-     * @ORM\JoinColumn(name="default_organisation_id", referencedColumnName="_o_id", nullable=true, onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: 'default_organisation_id', referencedColumnName: '_o_id', nullable: true, onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: Orga::class)]
     private ?OrgaInterface $defaultOrganisation = null;
 
     public function getId(): string

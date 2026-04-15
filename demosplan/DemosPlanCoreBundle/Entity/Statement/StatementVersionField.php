@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementVersionFieldInterface;
@@ -17,86 +18,78 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_statement_version_fields", indexes={@ORM\Index(name="_st_id", columns={"_st_id"})})
- *
- * @ORM\Entity
- */
+#[ORM\Table(name: '_statement_version_fields')]
+#[ORM\Index(name: '_st_id', columns: ['_st_id'])]
+#[ORM\Entity]
 class StatementVersionField implements UuidEntityInterface, StatementVersionFieldInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_sv_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_sv_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * UserId. Muss nicht als Assoziation modelliert werden, weil es nicht genutzt wird.
      *
      * @var string
-     *
-     * @ORM\Column(name="_u_id", type="string", length=36, options={"fixed":true}, nullable=false)
      */
+    #[ORM\Column(name: '_u_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $userIdent = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_name", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_u_name', type: 'string', length: 255, nullable: false)]
     protected $userName;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_s_id", type="string", length=36, options={"fixed":true}, nullable=false)
      */
+    #[ORM\Column(name: '_s_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $sessionIdent = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_sv_name", type="string", length=255, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_sv_name', type: 'string', length: 255, nullable: false, options: ['fixed' => true])]
     protected $name;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_sv_type", type="string", length=255, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_sv_type', type: 'string', length: 255, nullable: false, options: ['fixed' => true])]
     protected $type;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_sv_value", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_sv_value', type: 'text', length: 65535, nullable: false)]
     protected $value;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_sv_created_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: '_sv_created_date', type: 'datetime', nullable: false)]
     protected $created;
 
     /**
      * @var StatementInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="version")
      *
-     * @ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_st_id', referencedColumnName: '_st_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'version')]
     protected $statement;
 
     /**

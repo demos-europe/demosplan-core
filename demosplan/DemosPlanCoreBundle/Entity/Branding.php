@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BrandingInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -17,22 +18,20 @@ use demosplan\DemosPlanCoreBundle\Constraint\ValidCssVarsConstraint;
 use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=BrandingRepository::class)
- */
+#[ORM\Entity(repositoryClass: BrandingRepository::class)]
 class Branding extends CoreEntity implements UuidEntityInterface, BrandingInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Id
      *
-     * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
@@ -41,19 +40,19 @@ class Branding extends CoreEntity implements UuidEntityInterface, BrandingInterf
      *
      * @var ?string
      *
-     * @ORM\Column(type="text", nullable=true)
      *
      * @ValidCssVarsConstraint()
      */
+    #[ORM\Column(type: 'text', nullable: true)]
     protected $cssvars;
 
     /**
      * @var FileInterface|null
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File")
      *
-     * @ORM\JoinColumn(name="logo", referencedColumnName="_f_ident", nullable=true, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: 'logo', referencedColumnName: '_f_ident', nullable: true, onDelete: 'CASCADE')]
+    #[ORM\OneToOne(targetEntity: File::class)]
     protected $logo;
 
     public function getId(): ?string

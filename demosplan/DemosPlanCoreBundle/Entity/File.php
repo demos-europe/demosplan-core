@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
@@ -25,17 +27,17 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * IMPORTANT: All files not listed in {@link FileInUseChecker::isFileInUse} are deleted as orphans. Make sure to register new
  * new file relationships there.
  *
- * @ORM\Table(name="_files", indexes={@ORM\Index(columns={"_f_hash"})})
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FileRepository")
  */
+#[ORM\Table(name: '_files')]
+#[ORM\Index(columns: ['_f_hash'])]
+#[ORM\Entity(repositoryClass: FileRepository::class)]
 class File extends CoreEntity implements UuidEntityInterface, FileInterface
 {
     /**
      * @var int
-     *
-     * @ORM\Column(name="_f_id", type="integer", nullable=true)
      */
+    #[ORM\Column(name: '_f_id', type: 'integer', nullable: true)]
     protected $id;
 
     /**
@@ -43,161 +45,145 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
      *
      * @var string|null
      *
-     * @ORM\Column(name="_f_ident", type="string", length=36, options={"fixed":true, "comment":"This id is used in filestrings to reference to the file entity"})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator")
      */
+    #[ORM\Column(name: '_f_ident', type: 'string', length: 36, options: ['fixed' => true, 'comment' => 'This id is used in filestrings to reference to the file entity'])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: NCNameGenerator::class)]
     protected $ident;
 
     /**
      * This hash is used as filename.
      *
      * @var string
-     *
-     * @ORM\Column(name="_f_hash", type="string", length=36, options={"fixed":true, "comment":"This hash is used as filename"}, nullable=true)
      */
+    #[ORM\Column(name: '_f_hash', type: 'string', length: 36, options: ['fixed' => true, 'comment' => 'This hash is used as filename'], nullable: true)]
     protected $hash;
 
     /**
      * @deprecated use $filename instead
      *
      * @var string
-     *
-     * @ORM\Column(name="_f_name", type="string", length=256, nullable=true)
      */
+    #[ORM\Column(name: '_f_name', type: 'string', length: 256, nullable: true)]
     protected $name;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_f_description", type="text", length=65535, nullable=true)
      */
+    #[ORM\Column(name: '_f_description', type: 'text', length: 65535, nullable: true)]
     protected $description;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_f_path", type="string", length=256, nullable=true)
      */
+    #[ORM\Column(name: '_f_path', type: 'string', length: 256, nullable: true)]
     protected $path;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_f_filename", type="string", length=256, nullable=true)
      */
+    #[ORM\Column(name: '_f_filename', type: 'string', length: 256, nullable: true)]
     protected $filename;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_f_tags", type="text", length=65535, nullable=true)
      */
+    #[ORM\Column(name: '_f_tags', type: 'text', length: 65535, nullable: true)]
     protected $tags;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_f_author", type="string", length=64, nullable=true)
      */
+    #[ORM\Column(name: '_f_author', type: 'string', length: 64, nullable: true)]
     protected $author;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_f_application", type="string", length=64, nullable=true)
      */
+    #[ORM\Column(name: '_f_application', type: 'string', length: 64, nullable: true)]
     protected $application;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_f_mimetype", type="string", length=256, nullable=true)
      */
+    #[ORM\Column(name: '_f_mimetype', type: 'string', length: 256, nullable: true)]
     protected $mimetype;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_f_created", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_f_created', type: 'datetime', nullable: false)]
     protected $created;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_f_modified", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_f_modified', type: 'datetime', nullable: false)]
     protected $modified;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_f_valid_until", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: '_f_valid_until', type: 'datetime', nullable: false)]
     protected $validUntil;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_f_deleted", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_f_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted = false;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_f_stat_down", type="integer", nullable=false, options={"default":0})
      */
+    #[ORM\Column(name: '_f_stat_down', type: 'integer', nullable: false, options: ['default' => 0])]
     protected $statDown = 0;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_f_infected", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_f_infected', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $infected = false;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_f_last_v_scan", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: '_f_last_v_scan', type: 'datetime', nullable: false)]
     protected $lastVScan;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_f_blocked", type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(name: '_f_blocked', type: 'boolean', nullable: false, options: ['default' => true])]
     protected $blocked = false;
 
     /**
      * @var int|null
-     *
-     * @ORM\Column(name="size", type="bigint", nullable=true)
      */
+    #[ORM\Column(name: 'size', type: 'bigint', nullable: true)]
     protected $size;
 
     /**
      * @var ProcedureInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="files")
      *
-     * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=true)
      */
+    #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: Procedure::class, inversedBy: 'files')]
     protected $procedure;
 
     public function __construct()

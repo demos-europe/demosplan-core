@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\News;
 
+use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\NewsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -25,11 +27,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Table(name="_news")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\NewsRepository")
- */
+#[ORM\Table(name: '_news')]
+#[ORM\Entity(repositoryClass: NewsRepository::class)]
 class News extends CoreEntity implements UuidEntityInterface, NewsInterface
 {
     final public const MANUAL_SORT_NAMESPACE = 'news';
@@ -38,157 +37,142 @@ class News extends CoreEntity implements UuidEntityInterface, NewsInterface
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_n_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_n_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $ident;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_id", type="string", length=36, options={"fixed":true}, nullable=false)
      */
     #[Assert\NotBlank(allowNull: false)]
+    #[ORM\Column(name: '_p_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $pId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_n_title", type="string", length=255, nullable=false)
      */
     #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.heading')]
+    #[ORM\Column(name: '_n_title', type: 'string', length: 255, nullable: false)]
     protected $title = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_n_description", type="text", length=65535, nullable=false)
      */
     #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.teaser')]
     #[Assert\Type('string', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
     #[Assert\Length(max: NewsHandler::NEWS_DESCRIPTION_MAX_LENGTH, maxMessage: 'error.news.description.toolong', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
+    #[ORM\Column(name: '_n_description', type: 'text', length: 65535, nullable: false)]
     protected $description = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_n_text", type="text", length=65535, nullable=false)
      */
     #[Assert\Type('string', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
     #[Assert\Length(max: NewsHandler::NEWS_TEXT_MAX_LENGTH, maxMessage: 'error.news.text.toolong', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
+    #[ORM\Column(name: '_n_text', type: 'text', length: 65535, nullable: false)]
     protected $text = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_n_picture", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_n_picture', type: 'string', length: 255, nullable: false)]
     protected $picture = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_n_picture_title", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_n_picture_title', type: 'string', length: 255, nullable: false)]
     protected $pictitle = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_n_pdf", type="string", length=255, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_n_pdf', type: 'string', length: 255, nullable: false, options: ['default' => ''])]
     protected $pdf = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_n_pdf_title", type="string", length=255, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_n_pdf_title', type: 'string', length: 255, nullable: false, options: ['default' => ''])]
     protected $pdftitle = '';
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_n_enabled", type="boolean", nullable=false)
      */
     #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.status')]
+    #[ORM\Column(name: '_n_enabled', type: 'boolean', nullable: false)]
     protected $enabled = false;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_n_deleted", type="boolean", nullable=false)
      */
+    #[ORM\Column(name: '_n_deleted', type: 'boolean', nullable: false)]
     protected $deleted = false;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_n_create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_n_create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_n_modify_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_n_modify_date', type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_n_delete_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_n_delete_date', type: 'datetime', nullable: false)]
     protected $deleteDate;
 
     /**
      * @var Collection<int, Role>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Role")
      *
-     * @ORM\JoinTable(
-     *     name="_news_roles",
-     *     joinColumns={@ORM\JoinColumn(name="_n_id", referencedColumnName="_n_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_r_id", referencedColumnName="_r_id", onDelete="CASCADE")}
-     * )
      *
      * @AllRolesInGroupPresentConstraint(groupCodes={Role::GLAUTH}, groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      */
+    #[ORM\JoinTable(
+        name: '_news_roles',
+        joinColumns: [new ORM\JoinColumn(name: '_n_id', referencedColumnName: '_n_id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_r_id', referencedColumnName: '_r_id', onDelete: 'CASCADE')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Role::class)]
     protected $roles;
 
     /**
      * @var DateTime|null
      *
-     * @ORM\Column(type = "datetime", nullable = true)
      *
      * @DateInFutureConstraint(groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected $designatedSwitchDate;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type = "boolean", nullable = true)
      */
+    #[ORM\Column(type: 'boolean', nullable: true)]
     protected $designatedState;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type = "boolean", nullable = false)
      */
+    #[ORM\Column(type: 'boolean', nullable: false)]
     protected $determinedToSwitch = false;
 
     public function __construct()

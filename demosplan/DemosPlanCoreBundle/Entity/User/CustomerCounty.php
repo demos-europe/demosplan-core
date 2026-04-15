@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerCountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
@@ -23,32 +25,24 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Links the Customer to their counties and vice-versa.
  *
- * @ORM\Table(
- *     name="customer_county",
- *     uniqueConstraints={
  *
- *         @ORM\UniqueConstraint(
- *             name="customer_county_unique_context",
- *             columns={"customer_id", "county_id"}
- *         )
- *     }
- * )
- *
- * @ORM\Entity
  */
+#[ORM\Table(name: 'customer_county')]
+#[ORM\UniqueConstraint(name: 'customer_county_unique_context', columns: ['customer_id', 'county_id'])]
+#[ORM\Entity]
 class CustomerCounty extends CoreEntity implements UuidEntityInterface, CustomerCountyInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="cc_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: 'cc_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
@@ -56,10 +50,10 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface, Customer
      *
      * @var CustomerInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="customerCounties", cascade={"remove"})
      *
-     * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false)
      */
+    #[ORM\JoinColumn(referencedColumnName: '_c_id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'customerCounties', cascade: ['remove'])]
     protected $customer;
 
     /**
@@ -67,19 +61,18 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface, Customer
      *
      * @var CountyInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\County", inversedBy="customerCounties", cascade={"remove"})
      *
-     * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false)
      */
+    #[ORM\JoinColumn(referencedColumnName: '_c_id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: County::class, inversedBy: 'customerCounties', cascade: ['remove'])]
     protected $county;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="text", length=255, nullable=false)
      */
     #[Assert\NotNull]
     #[Assert\Email]
+    #[ORM\Column(type: 'text', length: 255, nullable: false)]
     protected $eMailAddress = '';
 
     public function getId(): ?string

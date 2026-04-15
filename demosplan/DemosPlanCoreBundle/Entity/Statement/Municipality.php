@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use demosplan\DemosPlanCoreBundle\Repository\MunicipalityRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\MunicipalityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
@@ -19,63 +21,50 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Table(name="_municipality", uniqueConstraints={@ORM\UniqueConstraint(name="official_municipality_key", columns={"official_municipality_key"})})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\MunicipalityRepository")
- */
+#[ORM\Table(name: '_municipality')]
+#[ORM\UniqueConstraint(name: 'official_municipality_key', columns: ['official_municipality_key'])]
+#[ORM\Entity(repositoryClass: MunicipalityRepository::class)]
 class Municipality extends CoreEntity implements UuidEntityInterface, MunicipalityInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_m_id", type="string", length=36, nullable=false, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_m_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_m_name", type="string", length=255, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_m_name', type: 'string', length: 255, nullable: false, options: ['fixed' => true])]
     protected $name;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=true, options={"fixed":true, "default":null})
      */
+    #[ORM\Column(type: 'string', nullable: true, options: ['fixed' => true, 'default' => null])]
     protected $officialMunicipalityKey = null;
 
     /**
      * @var Collection<int, StatementInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="municipalities")
      *
-     * @ORM\JoinTable(
-     *     name="_statement_municipality",
-     *     joinColumns={@ORM\JoinColumn(name="_m_id", referencedColumnName="_m_id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id")}
-     * )
      */
+    #[ORM\ManyToMany(targetEntity: Statement::class, mappedBy: 'municipalities')]
     protected $statements;
 
     /**
      * @var Collection<int, StatementFragmentInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", mappedBy="municipalities", cascade={"persist"})
      *
-     * @ORM\JoinTable(
-     *     joinColumns={@ORM\JoinColumn(name="_m_id", referencedColumnName="_m_id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id")}
-     * )
      */
+    #[ORM\ManyToMany(targetEntity: StatementFragment::class, mappedBy: 'municipalities', cascade: ['persist'])]
     protected $statementFragments;
 
     public function __construct()

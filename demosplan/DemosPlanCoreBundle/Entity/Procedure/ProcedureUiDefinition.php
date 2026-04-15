@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureUiDefinitionRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
@@ -27,43 +29,41 @@ use Symfony\Component\Validator\Constraints as Assert;
  * ProcedureUiDefinition - Defines the customizable parts of the Form/UI of a Procedure.
  * A ProcedureUiDefinition should never have an direct relationship to a Procedure and to a ProcedureType.
  *
- * @ORM\Table
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureUiDefinitionRepository")
  *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: ProcedureUiDefinitionRepository::class)]
 class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, ProcedureUiDefinitionInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private $id;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
+    #[ORM\Column(type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
     private $creationDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
+    #[ORM\Column(type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
     private $modificationDate;
 
     /**
@@ -75,10 +75,10 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
      *
      * @var Procedure|null
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="procedureUiDefinition")
      *
-     * @JoinColumn(referencedColumnName="_p_id")
      */
+    #[JoinColumn(referencedColumnName: '_p_id')]
+    #[ORM\OneToOne(targetEntity: Procedure::class, mappedBy: 'procedureUiDefinition')]
     private $procedure;
 
     /**
@@ -88,38 +88,34 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
      *
      * @var ProcedureType|null
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType", mappedBy="procedureUiDefinition")
      *
-     * @JoinColumn()
      */
+    #[JoinColumn]
+    #[ORM\OneToOne(targetEntity: ProcedureType::class, mappedBy: 'procedureUiDefinition')]
     private $procedureType;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="text", nullable=false)
      */
+    #[ORM\Column(type: 'text', nullable: false)]
     private $mapHintDefault = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="text", nullable=false)
      */
+    #[ORM\Column(type: 'text', nullable: false)]
     private $statementFormHintStatement = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="text", nullable=false)
      */
+    #[ORM\Column(type: 'text', nullable: false)]
     private $statementFormHintPersonalData = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="text", nullable=false)
      */
+    #[ORM\Column(type: 'text', nullable: false)]
     private $statementFormHintRecheck = '';
 
     /**
@@ -128,11 +124,10 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
      * replaced by the actual external ID when the text is shown.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", length=500, nullable=false, options={"default":""})
      */
     #[Assert\Length(min: 0, max: 500, maxMessage: 'procedureUiDefinition.statementPublicSubmitConfirmationText.maxLength')]
     #[Assert\NotNull]
+    #[ORM\Column(type: 'string', length: 500, nullable: false, options: ['default' => ''])]
     private $statementPublicSubmitConfirmationText = '';
 
     public function getId(): ?string

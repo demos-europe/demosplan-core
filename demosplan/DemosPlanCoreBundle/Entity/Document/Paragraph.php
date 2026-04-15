@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
+use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphInterface;
@@ -22,33 +25,30 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_para_doc")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository")
- */
+#[ORM\Table(name: '_para_doc')]
+#[ORM\Entity(repositoryClass: ParagraphRepository::class)]
 class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_pd_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_pd_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var ProcedureInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class)]
     protected $procedure;
 
     /**
@@ -59,19 +59,19 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
     /**
      * @var ParagraphInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph", inversedBy="children")
      *
-     * @ORM\JoinColumn(name="_pd_parent_id", referencedColumnName="_pd_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_pd_parent_id', referencedColumnName: '_pd_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: Paragraph::class, inversedBy: 'children')]
     protected $parent;
 
     /**
      * @var Collection<int, ParagraphInterface>
      *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph", mappedBy="parent")
      *
-     * @ORM\OrderBy({"order" = "ASC"})
      */
+    #[ORM\OneToMany(targetEntity: Paragraph::class, mappedBy: 'parent')]
+    #[ORM\OrderBy(['order' => 'ASC'])]
     protected $children;
 
     /**
@@ -82,95 +82,85 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
     /**
      * @var ElementsInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", inversedBy="paragraphs")
      *
-     * @ORM\JoinColumn(name="_e_id", referencedColumnName="_e_id", nullable=false, onDelete="CASCADE")
      **/
+    #[ORM\JoinColumn(name: '_e_id', referencedColumnName: '_e_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Elements::class, inversedBy: 'paragraphs')]
     protected $element;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pd_category", type="string", length=36, options={"fixed":true}, nullable=false)
      */
+    #[ORM\Column(name: '_pd_category', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $category;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pd_title", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_pd_title', type: 'text', length: 65535, nullable: false)]
     protected $title = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pd_text", type="text", length=16777215, nullable=false)
      */
+    #[ORM\Column(name: '_pd_text', type: 'text', length: 16777215, nullable: false)]
     protected $text = '';
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_pd_order", type="integer", nullable=false)
      */
+    #[ORM\Column(name: '_pd_order', type: 'integer', nullable: false)]
     protected $order = 0;
 
     /**
      * @var int 1 = released, 2 = locked (Statement not possible but visible), 0 = blocked
-     *
-     * @ORM\Column(name="_pd_visible", type="integer", nullable=false)
      */
+    #[ORM\Column(name: '_pd_visible', type: 'integer', nullable: false)]
     protected $visible = 1;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_pd_deleted", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_pd_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pd_lockreason", type="string", nullable=false, length=300, options={"default":""})
      */
+    #[ORM\Column(name: '_pd_lockreason', type: 'string', nullable: false, length: 300, options: ['default' => ''])]
     protected $lockReason = '';
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_pd_create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_pd_create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_pd_modify_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_pd_modify_date', type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_pd_delete_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_pd_delete_date', type: 'datetime', nullable: false)]
     protected $deleteDate;
 
     /**
      * @var ParagraphVersionInterface[]
      *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", mappedBy="paragraph")
      *
-     * @ORM\JoinColumn(name="_pd_id", referencedColumnName="_pd_id")
      */
+    #[ORM\JoinColumn(name: '_pd_id', referencedColumnName: '_pd_id')]
+    #[ORM\OneToMany(targetEntity: ParagraphVersion::class, mappedBy: 'paragraph')]
     protected $versions;
 
     public function __construct()

@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use demosplan\DemosPlanCoreBundle\Repository\ContentRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GlobalContentInterface;
@@ -26,10 +28,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * GlobalContent (derzeit GlobalFaq und GlobalNews).
  *
- * @ORM\Table(name="_platform_content")
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ContentRepository")
  */
+#[ORM\Table(name: '_platform_content')]
+#[ORM\Entity(repositoryClass: ContentRepository::class)]
 class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalContentInterface
 {
     final public const NEW_GLOBAL_NEWS_VALIDATION_GROUP = 'new_global_news';
@@ -41,158 +43,143 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_pc_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_pc_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $ident;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="_pc_type", type="string", length=60, nullable=false, options={"default":""})
      *
      * @deprecated No longer required. Previously, FAQ and GlobalNews were stored in this table together and this string
      *             identified their type ("faq" or "news"). Now, FAQ were moved to their own tables, so this string
      *             may only have the value "news" (or something is broken) and may thus be removed. The only reason
      *             it's still here is that there were no time resources for safely deleting this everywhere.
      */
+    #[ORM\Column(name: '_pc_type', type: 'string', length: 60, nullable: false, options: ['default' => ''])]
     protected $type;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pc_title", type="string", length=255, nullable=false, options={"default":""})
      */
     #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.heading')]
+    #[ORM\Column(name: '_pc_title', type: 'string', length: 255, nullable: false, options: ['default' => ''])]
     protected $title = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pc_description", type="text", length=65535, nullable=true)
      */
     #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.teaser')]
     #[Assert\Type('string', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
     #[Assert\Length(max: NewsHandler::NEWS_DESCRIPTION_MAX_LENGTH, maxMessage: 'error.news.description.toolong', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
+    #[ORM\Column(name: '_pc_description', type: 'text', length: 65535, nullable: true)]
     protected $description = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pc_text", type="text", length=65535, nullable=true)
      */
     #[Assert\Type('string', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
     #[Assert\Length(max: NewsHandler::NEWS_TEXT_MAX_LENGTH, maxMessage: 'error.news.text.toolong', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
+    #[ORM\Column(name: '_pc_text', type: 'text', length: 65535, nullable: true)]
     protected $text = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pc_picture", type="string", length=255, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_pc_picture', type: 'string', length: 255, nullable: false, options: ['default' => ''])]
     protected $picture = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pc_picture_title", type="string", length=255, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_pc_picture_title', type: 'string', length: 255, nullable: false, options: ['default' => ''])]
     protected $pictitle = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pc_pdf", type="string", length=255, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_pc_pdf', type: 'string', length: 255, nullable: false, options: ['default' => ''])]
     protected $pdf = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pc_pdf_title", type="string", length=255, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_pc_pdf_title', type: 'string', length: 255, nullable: false, options: ['default' => ''])]
     protected $pdftitle = '';
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_pc_enabled", type="boolean", nullable=false, options={"default":false })
      */
     #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.status')]
+    #[ORM\Column(name: '_pc_enabled', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $enabled = false;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_pc_deleted", type="boolean", nullable=false, options={"default":false })
      */
+    #[ORM\Column(name: '_pc_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted = false;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_pc_create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_pc_create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_pc_modify_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_pc_modify_date', type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_pc_delete_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_pc_delete_date', type: 'datetime', nullable: false)]
     protected $deleteDate;
 
     /**
      * @var Collection<int, Role>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Role")
      *
-     * @ORM\JoinTable(
-     *     name="_platform_content_roles",
-     *     joinColumns={@ORM\JoinColumn(name="_pc_id", referencedColumnName="_pc_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_r_id", referencedColumnName="_r_id", onDelete="CASCADE")}
-     * )
      */
     #[Assert\Count(min: 1, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], minMessage: 'error.mandatoryfield.visibility')]
+    #[ORM\JoinTable(
+        name: '_platform_content_roles',
+        joinColumns: [new ORM\JoinColumn(name: '_pc_id', referencedColumnName: '_pc_id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_r_id', referencedColumnName: '_r_id', onDelete: 'CASCADE')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Role::class)]
     protected $roles;
 
     // todo: why is this a n:m relation?
     /**
      * @var Collection<int, Category>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Category", inversedBy ="globalContents")
      *
-     * @ORM\JoinTable(
-     *     name="_platform_content_categories",
-     *     joinColumns={@ORM\JoinColumn(name="_pc_id", referencedColumnName="_pc_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id", onDelete="CASCADE")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: '_platform_content_categories',
+        joinColumns: [new ORM\JoinColumn(name: '_pc_id', referencedColumnName: '_pc_id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_c_id', referencedColumnName: '_c_id', onDelete: 'CASCADE')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'globalContents')]
     protected $categories;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id", onDelete="CASCADE", nullable=false)
-     */
+    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: '_c_id', onDelete: 'CASCADE', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Customer::class, cascade: ['persist'])]
     protected CustomerInterface $customer;
 
     public function __construct()

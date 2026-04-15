@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use demosplan\DemosPlanCoreBundle\Repository\GdprConsentRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use \demosplan\DemosPlanCoreBundle\Entity\User\User;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GdprConsentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
@@ -37,23 +40,23 @@ use Doctrine\ORM\Mapping as ORM;
  * in a one-to-many relationship -> crosstable) but the DraftStatements need to hold the consents as well which
  * results in an additional one-to-many relationship between DraftStatements and GdprConsent).
  *
- * @ORM\Table
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\GdprConsentRepository")
  */
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: GdprConsentRepository::class)]
 class GdprConsent extends CoreEntity implements UuidEntityInterface, GdprConsentInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
@@ -63,10 +66,10 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface, GdprConsent
      *
      * @var StatementInterface
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="gdprConsent")
      *
-     * @ORM\JoinColumn(referencedColumnName="_st_id")
      */
+    #[ORM\JoinColumn(referencedColumnName: '_st_id')]
+    #[ORM\OneToOne(targetEntity: Statement::class, inversedBy: 'gdprConsent')]
     protected $statement;
 
     /**
@@ -75,9 +78,8 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface, GdprConsent
      * (should currently not be possible for new statements) yet.
      *
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     protected $consentReceived = false;
 
     /**
@@ -86,16 +88,14 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface, GdprConsent
      * Will be null if no consent was received yet.
      *
      * @var DateTime|null
-     *
-     * @ORM\Column(type="datetime", nullable=true, options={"default":null})
      */
+    #[ORM\Column(type: 'datetime', nullable: true, options: ['default' => null])]
     protected $consentReceivedDate;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     protected $consentRevoked = false;
 
     /**
@@ -103,9 +103,8 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface, GdprConsent
      * A null value indicates that the consent was not revoked yet.
      *
      * @var DateTime|null
-     *
-     * @ORM\Column(type="datetime", nullable=true, options={"default":null})
      */
+    #[ORM\Column(type: 'datetime', nullable: true, options: ['default' => null])]
     protected $consentRevokedDate;
 
     /**
@@ -118,10 +117,10 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface, GdprConsent
      *
      * @var UserInterface|null
      *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
-     * @ORM\JoinColumn(referencedColumnName="_u_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(referencedColumnName: '_u_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $consentee;
 
     public function getId(): ?string

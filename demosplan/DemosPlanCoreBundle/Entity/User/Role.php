@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -22,29 +24,28 @@ use Stringable;
 /**
  * @see for Details https://yaits.demos-deutschland.de/w/demosplan/functions/permissions/user_roles/
  *
- * @ORM\Table(name="_role")
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\RoleRepository")
  */
+#[ORM\Table(name: '_role')]
+#[ORM\Entity(repositoryClass: RoleRepository::class)]
 class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Stringable
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_r_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_r_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $ident;
     /**
      * @var string
-     *
-     * @ORM\Column(name="_r_code", type="string", length=6, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_r_code', type: 'string', length: 6, nullable: false, options: ['fixed' => true])]
     protected $code;
     /**
      * This property is set by {@link RoleEntityListener} on the postLoad event to allow the usage of
@@ -55,21 +56,18 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
     protected $name;
     /**
      * @var string
-     *
-     * @ORM\Column(name="_r_group_code", type="string", length=6, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_r_group_code', type: 'string', length: 6, nullable: false, options: ['fixed' => true])]
     protected $groupCode;
     /**
      * @var string
-     *
-     * @ORM\Column(name="_r_group_name", type="string", length=60, nullable=false)
      */
+    #[ORM\Column(name: '_r_group_name', type: 'string', length: 60, nullable: false)]
     protected $groupName;
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer", mappedBy="role")
      */
+    #[ORM\OneToMany(targetEntity: UserRoleInCustomer::class, mappedBy: 'role')]
     protected $userRoleInCustomers;
 
     public function __construct()

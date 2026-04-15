@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
+use demosplan\DemosPlanCoreBundle\Repository\ForumEntryFileRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ForumEntryFileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -17,93 +19,83 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_forum_entry_files", indexes={@ORM\Index(name="_fef_entry_id__fef_order", columns={"_fef_entry_id", "_fef_order"})})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ForumEntryFileRepository")
- */
+#[ORM\Table(name: '_forum_entry_files')]
+#[ORM\Index(name: '_fef_entry_id__fef_order', columns: ['_fef_entry_id', '_fef_order'])]
+#[ORM\Entity(repositoryClass: ForumEntryFileRepository::class)]
 class ForumEntryFile extends CoreEntity implements UuidEntityInterface, ForumEntryFileInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_fef_id", type="string", length=36, nullable=false, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_fef_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $ident;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_fef_entry_id", type="string", length=36, options={"fixed":true}, nullable=false)
      */
+    #[ORM\Column(name: '_fef_entry_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $entryId;
 
     /**
      * @var ForumEntry
      *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry")
      *
-     * @ORM\JoinColumn(name="_fef_entry_id", referencedColumnName="_fe_id", onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_fef_entry_id', referencedColumnName: '_fe_id', onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: ForumEntry::class)]
     protected $entry;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_fef_create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_fef_create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_fef_modified_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_fef_modified_date', type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_fef_deleted", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_fef_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted = false;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_fef_blocked", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_fef_blocked', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $blocked = false;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_fef_order", type="smallint", length=3, nullable=false, options={"unsigned":true})
      */
+    #[ORM\Column(name: '_fef_order', type: 'smallint', length: 3, nullable: false, options: ['unsigned' => true])]
     protected $order = 0;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_fef_string", type="string", length=2048, nullable=false)
      */
+    #[ORM\Column(name: '_fef_string', type: 'string', length: 2048, nullable: false)]
     protected $string;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_fef_hash", type="string", length=36, options={"fixed":true}, nullable=false)
      */
+    #[ORM\Column(name: '_fef_hash', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $hash;
 
     public function getId(): ?string

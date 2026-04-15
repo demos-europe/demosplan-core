@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
+use demosplan\DemosPlanCoreBundle\Repository\ForumThreadRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ForumThreadInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -18,70 +20,62 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\NonUniqueResultException;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_forum_threads", indexes={@ORM\Index(name="fk__forum_topic_tfk_1", columns={"_ft_id"})})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ForumThreadRepository")
- */
+#[ORM\Table(name: '_forum_threads')]
+#[ORM\Index(name: 'fk__forum_topic_tfk_1', columns: ['_ft_id'])]
+#[ORM\Entity(repositoryClass: ForumThreadRepository::class)]
 class ForumThread extends CoreEntity implements UuidEntityInterface, ForumThreadInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_ft_id", type="string", length=36, nullable=false, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_ft_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $ident;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ft_url", type="string", length=255, nullable=true, unique=true)
      */
+    #[ORM\Column(name: '_ft_url', type: 'string', length: 255, nullable: true, unique: true)]
     protected $url;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_ft_closed", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_ft_closed', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $closed = false;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ft_closing_reason", type="string", length=1024, nullable=true)
      */
+    #[ORM\Column(name: '_ft_closing_reason', type: 'string', length: 1024, nullable: true)]
     protected $closingReason;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_ft_progression", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_ft_progression', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $progression = false;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_ft_create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_ft_create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_ft_modified_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_ft_modified_date', type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     /**

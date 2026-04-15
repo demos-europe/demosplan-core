@@ -10,6 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use \demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateGroupInterface;
@@ -23,11 +27,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_predefined_texts")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository")
- */
+#[ORM\Table(name: '_predefined_texts')]
+#[ORM\Entity(repositoryClass: BoilerplateRepository::class)]
 class Boilerplate extends CoreEntity implements UuidEntityInterface, BoilerplateInterface
 {
     /**
@@ -35,23 +36,23 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      *
      * @var string|null
      *
-     * @ORM\Column(name="_pt_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_pt_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $ident;
 
     /**
      * @var ProcedureInterface
      *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class)]
     protected $procedure;
 
     /**
@@ -60,14 +61,9 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      *
      * @var Collection<int,BoilerplateCategoryInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory", mappedBy="boilerplates", cascade={"persist"})
      *
-     * @ORM\JoinTable(
-     *     name="predefined_texts_categories",
-     *     joinColumns={@ORM\JoinColumn(name="_pt_id", referencedColumnName="_pt_id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_ptc_id", referencedColumnName="ptc_id")}
-     * )
      */
+    #[ORM\ManyToMany(targetEntity: BoilerplateCategory::class, mappedBy: 'boilerplates', cascade: ['persist'])]
     protected $categories;
 
     /**
@@ -77,49 +73,44 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      *
      * This Class/Entity is the owning side
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup", inversedBy="boilerplates")
      *
-     * @ORM\JoinColumn(referencedColumnName="id", nullable = true)
      */
+    #[ORM\JoinColumn(referencedColumnName: 'id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: BoilerplateGroup::class, inversedBy: 'boilerplates')]
     protected $group;
 
     /**
      * @var Collection<int, TagInterface>
-     *
-     * @ORM\OneToMany(targetEntity = "\demosplan\DemosPlanCoreBundle\Entity\Statement\Tag", mappedBy = "boilerplate")
      */
+    #[ORM\OneToMany(targetEntity: Tag::class, mappedBy: 'boilerplate')]
     protected $tags;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pt_title", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_pt_title', type: 'string', length: 255, nullable: true)]
     protected $title;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pt_text", type="text", nullable=true)
      */
+    #[ORM\Column(name: '_pt_text', type: 'text', nullable: true)]
     protected $text;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_pt_create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_pt_create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_pt_modify_date",type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_pt_modify_date', type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     public function __construct()

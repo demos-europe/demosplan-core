@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Map;
 
+use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ContextualHelpInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
@@ -22,10 +24,11 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * Class GisLayer.
  *
- * @ORM\Table(name="_gis", indexes={@ORM\Index(name="_g_global_id", columns={"_g_global_id"})})
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\MapRepository")
  */
+#[ORM\Table(name: '_gis')]
+#[ORM\Index(name: '_g_global_id', columns: ['_g_global_id'])]
+#[ORM\Entity(repositoryClass: MapRepository::class)]
 class GisLayer extends CoreEntity implements GisLayerInterface
 {
     /**
@@ -33,159 +36,137 @@ class GisLayer extends CoreEntity implements GisLayerInterface
      *
      * @var string|null
      *
-     * @ORM\Column(name="_g_id", type="string", length=36, nullable=false, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_g_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $ident;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_g_bplan", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_g_bplan', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $bplan = false;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     protected $defaultVisibility = false;
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_g_deleted", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_g_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted = false;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_g_legend", type="string", length=512, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_g_legend', type: 'string', length: 512, nullable: false, options: ['default' => ''])]
     protected $legend = '';
 
     /**
      * @var string
-     *
-     *@ORM\Column(name="_g_layers", type="string", length=4096, nullable=false)
      */
+    #[ORM\Column(name: '_g_layers', type: 'string', length: 4096, nullable: false)]
     protected $layers = '';
 
     /**
      * LayerName.
      *
      * @var string
-     *
-     * @ORM\Column(name="_g_name", type="string", length=256, nullable=false)
      */
+    #[ORM\Column(name: '_g_name', type: 'string', length: 256, nullable: false)]
     protected $name = '';
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_g_opacity", type="integer", length=3, nullable=false, options={"default":100})
      */
+    #[ORM\Column(name: '_g_opacity', type: 'integer', length: 3, nullable: false, options: ['default' => 100])]
     protected $opacity = 100;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_g_order", type="integer", length=4, nullable=false, options={"default":0})
      */
+    #[ORM\Column(name: '_g_order', type: 'integer', length: 4, nullable: false, options: ['default' => 0])]
     protected $order = 0;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_projection_label", type="string", nullable=false,
-     *              options={"default":"EPSG:3857"})
      */
+    #[ORM\Column(name: '_projection_label', type: 'string', nullable: false, options: ['default' => 'EPSG:3857'])]
     protected $projectionLabel = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_projection_value", type="string", nullable=false,
-     *              options={"default":"+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs"})
      */
+    #[ORM\Column(name: '_projection_value', type: 'string', nullable: false, options: ['default' => '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs'])]
     protected $projectionValue = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_id", type="string", length=36, options={"fixed":true}, nullable=false)
      */
+    #[ORM\Column(name: '_p_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $procedureId = '';
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_g_print", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_g_print', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $print = false;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_g_scope", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_g_scope', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $scope = false;
 
     /**
      * todo: potential improvement: this is not needed?!
      *
      * @var bool
-     *
-     * @ORM\Column(name="_g_scope1", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_g_scope1', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $scope1 = false;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_g_type", type="string", length=64, nullable=false)
      */
+    #[ORM\Column(name: '_g_type', type: 'string', length: 64, nullable: false)]
     protected $type = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_g_servicetype", type="string", length=12, nullable=false, options={"default":"wms"})
      */
+    #[ORM\Column(name: '_g_servicetype', type: 'string', length: 12, nullable: false, options: ['default' => 'wms'])]
     protected $serviceType = 'wms';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_g_cabilities", type="text", length=65535, nullable=true)
      */
+    #[ORM\Column(name: '_g_cabilities', type: 'text', length: 65535, nullable: true)]
     protected $capabilities;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_g_tile_matrix_set", type="string", length=256, nullable=true)
      */
+    #[ORM\Column(name: '_g_tile_matrix_set', type: 'string', length: 256, nullable: true)]
     protected $tileMatrixSet;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_g_url", type="string", length=4096, nullable=false)
      */
+    #[ORM\Column(name: '_g_url', type: 'string', length: 4096, nullable: false)]
     protected $url = '';
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     protected $enabled = true;
 
     // improve T16806
@@ -198,9 +179,8 @@ class GisLayer extends CoreEntity implements GisLayerInterface
      * GlobalLayerId.
      *
      * @var string
-     *
-     * @ORM\Column(name="_g_global_id", type="string", length=36, options={"fixed":true}, nullable=true)
      */
+    #[ORM\Column(name: '_g_global_id', type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
     protected $gId;
 
     /**
@@ -214,52 +194,47 @@ class GisLayer extends CoreEntity implements GisLayerInterface
      * The service version for the layer.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=false)
      */
+    #[ORM\Column(type: 'string', nullable: false)]
     protected $layerVersion = '1.3.0';
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_g_xplan", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_g_xplan', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $xplan = false;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_g_create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_g_create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_g_modify_date",type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_g_modify_date', type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_g_delete_date",type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_g_delete_date', type: 'datetime', nullable: false)]
     protected $deleteDate;
 
     /**
      * @var ContextualHelpInterface
      *
-     * @ORM\OneToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp", cascade={"remove"}, fetch="EAGER")
      *
-     * @ORM\JoinColumn(name="_g_pcsh_id", referencedColumnName="_pcsh_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_g_pcsh_id', referencedColumnName: '_pcsh_id', onDelete: 'SET NULL')]
+    #[ORM\OneToOne(targetEntity: ContextualHelp::class, cascade: ['remove'], fetch: 'EAGER')]
     protected $contextualHelp;
 
     /**
@@ -267,42 +242,38 @@ class GisLayer extends CoreEntity implements GisLayerInterface
      *
      * Many GisLayers has one GisLayerCategory
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory", inversedBy="gisLayers", cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
      */
+    #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: GisLayerCategory::class, inversedBy: 'gisLayers', cascade: ['persist'])]
     protected $category;
 
     /**
      * @var int
-     *
-     * @ORM\Column(type="integer", nullable=false, options={"default":0})
      */
+    #[ORM\Column(type: 'integer', nullable: false, options: ['default' => 0])]
     protected $treeOrder = 0;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     protected $userToggleVisibility = true;
 
     /**
      * VisibilityGroupId.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true}, nullable=true, options={"default":null})
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['default' => null], nullable: true)]
     protected $visibilityGroupId;
 
     /**
      * Is this GisLayer the one shown in the minimap?
      *
      * @var bool
-     *
-     * @ORM\Column(name="_g_is_minimap", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_g_is_minimap', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $isMiniMap = false;
 
     /**

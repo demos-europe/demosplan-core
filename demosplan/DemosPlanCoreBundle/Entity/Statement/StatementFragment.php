@@ -10,6 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\Department;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
+use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
@@ -42,236 +50,213 @@ use Symfony\Component\Validator\Constraints as Assert;
  * and used to sort, search and filter the multiple arguments
  * contained in a statement into a more workable version.
  *
- * @ORM\Table(
- *     name="statement_fragment",
- *     uniqueConstraints={
  *
- *         @ORM\UniqueConstraint(
- *             name="statement_fragment_unique_sort_index",
- *             columns={"statement_id", "sort_index"}
- *         )
- *     }
- * )
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository")
  */
+#[ORM\Table(name: 'statement_fragment')]
+#[ORM\UniqueConstraint(name: 'statement_fragment_unique_sort_index', columns: ['statement_id', 'sort_index'])]
+#[ORM\Entity(repositoryClass: StatementFragmentRepository::class)]
 class StatementFragment extends CoreEntity implements UuidEntityInterface, StatementFragmentInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="sf_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: 'sf_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var StatementInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="fragments")
      *
-     * @ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id", onDelete="CASCADE", nullable=false)
      */
+    #[ORM\JoinColumn(name: 'statement_id', referencedColumnName: '_st_id', onDelete: 'CASCADE', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'fragments')]
     protected $statement;
 
     /**
      * @var int // unsigned int auto_increment
-     *
-     * @ORM\Column(name="display_id", type="integer", options={"unsigned":true})
      */
+    #[ORM\Column(name: 'display_id', type: 'integer', options: ['unsigned' => true])]
     protected $displayId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sf_text", type="text", length=16777215, nullable=false)
      */
+    #[ORM\Column(name: 'sf_text', type: 'text', length: 16777215, nullable: false)]
     protected $text;
 
     /**
      * @var Collection<int, TagInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Tag")
      *
-     * @ORM\JoinTable(
-     *     name="statement_fragment_tag",
-     *     joinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="tag_id", referencedColumnName="_t_id")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: 'statement_fragment_tag',
+        joinColumns: [new ORM\JoinColumn(name: 'sf_id', referencedColumnName: 'sf_id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'tag_id', referencedColumnName: '_t_id')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Tag::class)]
     protected $tags;
 
     /**
      * @var ProcedureInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class)]
     protected $procedure;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sf_vote_advice", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sf_vote_advice', type: 'text', nullable: true)]
     protected $voteAdvice;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sf_vote", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sf_vote', type: 'text', nullable: true)]
     protected $vote;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="created_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: 'created_date', type: 'datetime', nullable: false)]
     protected $created;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="modified_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: 'modified_date', type: 'datetime', nullable: false)]
     protected $modified;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="assigned_to_fb_date", type="datetime", nullable=true)
      */
+    #[ORM\Column(name: 'assigned_to_fb_date', type: 'datetime', nullable: true)]
     protected $assignedToFbDate;
 
     /**
      * @var DepartmentInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
      *
-     * @ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", nullable=true, onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_d_id', referencedColumnName: '_d_id', nullable: true, onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: Department::class)]
     protected $department;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sf_consideration_advice", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sf_consideration_advice', type: 'text', nullable: true)]
     protected $considerationAdvice;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sf_consideration", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sf_consideration', type: 'text', nullable: true)]
     protected $consideration;
 
     /**
      * @var Collection<int, CountyInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\County", inversedBy="statementFragments", cascade={"persist"})
      *
-     * @ORM\JoinTable(
-     *     name="_statement_fragment_county",
-     *     joinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: '_statement_fragment_county',
+        joinColumns: [new ORM\JoinColumn(name: 'sf_id', referencedColumnName: 'sf_id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_c_id', referencedColumnName: '_c_id')]
+    )]
+    #[ORM\ManyToMany(targetEntity: County::class, inversedBy: 'statementFragments', cascade: ['persist'])]
     protected $counties;
 
     /**
      * @var Collection<int, PriorityAreaInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea", inversedBy="statementFragments", cascade={"persist"})
      *
-     * @ORM\JoinTable(
-     *     name="_statement_fragment_priority_area",
-     *     joinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_pa_id", referencedColumnName="_pa_id")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: '_statement_fragment_priority_area',
+        joinColumns: [new ORM\JoinColumn(name: 'sf_id', referencedColumnName: 'sf_id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_pa_id', referencedColumnName: '_pa_id')]
+    )]
+    #[ORM\ManyToMany(targetEntity: PriorityArea::class, inversedBy: 'statementFragments', cascade: ['persist'])]
     protected $priorityAreas;
 
     /**
      * @var Collection<int, MunicipalityInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality", inversedBy="statementFragments", cascade={"persist"})
      *
-     * @ORM\JoinTable(
-     *     name="_statement_fragment_municipality",
-     *     joinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_m_id", referencedColumnName="_m_id")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: '_statement_fragment_municipality',
+        joinColumns: [new ORM\JoinColumn(name: 'sf_id', referencedColumnName: 'sf_id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_m_id', referencedColumnName: '_m_id')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Municipality::class, inversedBy: 'statementFragments', cascade: ['persist'])]
     protected $municipalities;
 
     /**
      * @var DepartmentInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
      *
-     * @ORM\JoinColumn(name="_archived_d_id", referencedColumnName="_d_id", nullable=true)
      */
+    #[ORM\JoinColumn(name: '_archived_d_id', referencedColumnName: '_d_id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: Department::class)]
     protected $archivedDepartment;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sf_archived_orga_name", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sf_archived_orga_name', type: 'text', nullable: true)]
     protected $archivedOrgaName;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sf_archived_department_name", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sf_archived_department_name', type: 'text', nullable: true)]
     protected $archivedDepartmentName;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sf_archived_vote_user_name", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sf_archived_vote_user_name', type: 'text', nullable: true)]
     protected $archivedVoteUserName;
 
     /**
      * @var UserInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
-     * @ORM\JoinColumn(name="assignee", referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
-     * This is the user that is currently assigned to this fragment. Assigned users are
-     * exclusively permitted to change fragments
      */
+    #[ORM\JoinColumn(name: 'assignee', referencedColumnName: '_u_id', nullable: true, onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $assignee;
 
     /**
      * @var Collection<int,StatementFragmentVersionInterface>
      *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragmentVersion", mappedBy="statementFragment")
      *
-     * @ORM\OrderBy({"created" = "DESC"})
      */
+    #[ORM\OneToMany(targetEntity: StatementFragmentVersion::class, mappedBy: 'statementFragment')]
+    #[ORM\OrderBy(['created' => 'DESC'])]
     protected $versions;
 
     /**
      * @var int
-     *
-     * @ORM\Column(type="integer", nullable=false, options={"default":-1})
      */
     #[Assert\PositiveOrZero(groups: ['mandatory'])]
+    #[ORM\Column(type: 'integer', nullable: false, options: ['default' => -1])]
     protected $sortIndex = -1;
 
     /**
@@ -279,35 +264,34 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
      *
      * @var UserInterface
      *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
-     * @ORM\JoinColumn(name="modified_by_u_id", referencedColumnName="_u_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: 'modified_by_u_id', referencedColumnName: '_u_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $modifiedByUser;
 
     /**
      * @var DepartmentInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
      *
-     * @ORM\JoinColumn(name="modified_by_d_id", referencedColumnName="_d_id", onDelete="SET NULL")
      **/
+    #[ORM\JoinColumn(name: 'modified_by_d_id', referencedColumnName: '_d_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: Department::class)]
     protected $modifiedByDepartment;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type = "string", nullable = true, options={"default":"fragment.status.new"})
      */
+    #[ORM\Column(type: 'string', nullable: true, options: ['default' => 'fragment.status.new'])]
     protected $status = 'fragment.status.new';
 
     /**
      * @var UserInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
-     * @ORM\JoinColumn(name="last_claimed", referencedColumnName="_u_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: 'last_claimed', referencedColumnName: '_u_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $lastClaimed;
 
     /**
@@ -327,28 +311,28 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
     /**
      * @var ElementsInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="element_id", referencedColumnName="_e_id", onDelete="SET NULL")
      **/
+    #[ORM\JoinColumn(name: 'element_id', referencedColumnName: '_e_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: Elements::class, cascade: ['persist'])]
     protected $element;
 
     /**
      * @var ParagraphVersionInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="paragraph_id", referencedColumnName="_pdv_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: 'paragraph_id', referencedColumnName: '_pdv_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: ParagraphVersion::class, cascade: ['persist'])]
     protected $paragraph;
 
     /**
      * @var SingleDocumentVersionInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="document_id", referencedColumnName="_sdv_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: 'document_id', referencedColumnName: '_sdv_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: SingleDocumentVersion::class, cascade: ['persist'])]
     protected $document;
 
     /**

@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureSubscriptionRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureSubscriptionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -18,34 +20,31 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_procedure_subscriptions", uniqueConstraints={@ORM\UniqueConstraint(name="_psu_id", columns={"_psu_id"})})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureSubscriptionRepository")
- */
+#[ORM\Table(name: '_procedure_subscriptions')]
+#[ORM\UniqueConstraint(name: '_psu_id', columns: ['_psu_id'])]
+#[ORM\Entity(repositoryClass: ProcedureSubscriptionRepository::class)]
 class ProcedureSubscription extends CoreEntity implements UuidEntityInterface, ProcedureSubscriptionInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_psu_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_psu_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $ident;
 
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
-     * @ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", onDelete="RESTRICT")
-     * })
      */
+    #[ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $user;
 
     /**
@@ -55,64 +54,58 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface, P
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_email", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_u_email', type: 'string', length: 255, nullable: false)]
     protected $userEmail;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_psu_postalcode", type="string", length=5, nullable=false)
      */
+    #[ORM\Column(name: '_psu_postalcode', type: 'string', length: 5, nullable: false)]
     protected $postcode;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_psu_city", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_psu_city', type: 'string', length: 255, nullable: false)]
     protected $city;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_psu_distance", type="integer", length=3, nullable=false)
      */
+    #[ORM\Column(name: '_psu_distance', type: 'integer', length: 3, nullable: false)]
     protected $distance;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_psu_deleted", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_psu_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted = false;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_psu_created_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: '_psu_created_date', type: 'datetime', nullable: false)]
     protected $createdDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_psu_modified_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_psu_modified_date', type: 'datetime', nullable: false)]
     protected $modifiedDate;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_psu_deleted_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(name: '_psu_deleted_date', type: 'datetime', nullable: false)]
     protected $deletedDate;
 
     public function getId(): ?string

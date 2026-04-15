@@ -10,120 +10,100 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntityContentChangeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository")
- */
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: EntityContentChangeRepository::class)]
 class EntityContentChange extends CoreEntity implements UuidEntityInterface, EntityContentChangeInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected $created;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected $modified;
 
     /**
      * No relation, to avoid difficulties on deleting user.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true}, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
     protected $userId;
 
     /**
      * Name of User of userId, for simple access and rendering.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected $userName;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=false)
      */
+    #[ORM\Column(type: 'string', nullable: false)]
     protected $entityType;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true}, nullable=false)
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $entityId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=false)
      */
+    #[ORM\Column(type: 'string', nullable: false)]
     protected $entityField;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="text", nullable=true, length=15000000)
      */
+    #[ORM\Column(type: 'text', nullable: true, length: 15000000)]
     protected $preUpdate;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="text", nullable=true, length=15000000)
      */
+    #[ORM\Column(type: 'text', nullable: true, length: 15000000)]
     protected $postUpdate;
 
     /**
      * @var ?string
-     *
-     * @ORM\Column(type="text", nullable=true, length=15000000)
      */
+    #[ORM\Column(type: 'text', nullable: true, length: 15000000)]
     protected $contentChange;
 
-    /**
-     * @ORM\Column(
-     *     type="boolean",
-     *     nullable=false,
-     *     options={
-     *      "default":false,
-     *      "comment":"Determines if this change was made on a custom field."
-     *     }
-     * )
-     */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false, 'comment' => 'Determines if this change was made on a custom field.'])]
     protected bool $customFieldChange = false;
 
     public function getId(): ?string

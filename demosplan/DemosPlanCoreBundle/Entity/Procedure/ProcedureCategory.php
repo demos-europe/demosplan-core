@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureCategoryRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -18,37 +20,35 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Procedure category.
  *
- * @ORM\Table(name="procedure_category")
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureCategoryRepository")
  */
+#[ORM\Table(name: 'procedure_category')]
+#[ORM\Entity(repositoryClass: ProcedureCategoryRepository::class)]
 class ProcedureCategory extends CoreEntity implements UuidEntityInterface, ProcedureCategoryInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="procedure_category_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: 'procedure_category_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="procedure_category_name", type="string", length=4096, nullable=false)
      */
+    #[ORM\Column(name: 'procedure_category_name', type: 'string', length: 4096, nullable: false)]
     protected $name;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="procedure_category_slug", type="string", length=4096, nullable=false)
      */
+    #[ORM\Column(name: 'procedure_category_slug', type: 'string', length: 4096, nullable: false)]
     protected $slug;
 
     public function getId(): ?string

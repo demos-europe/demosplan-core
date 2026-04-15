@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -27,33 +30,31 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_draft_statement_versions", indexes={@ORM\Index(name="_ds_id", columns={"_ds_id"})})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository")
- */
+#[ORM\Table(name: '_draft_statement_versions')]
+#[ORM\Index(name: '_ds_id', columns: ['_ds_id'])]
+#[ORM\Entity(repositoryClass: DraftStatementVersionRepository::class)]
 class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, DraftStatementVersionInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_dsv_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_dsv_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var DraftStatement
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement", inversedBy="versions", )
      *
-     * @ORM\JoinColumn(name="_ds_id", referencedColumnName="_ds_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_ds_id', referencedColumnName: '_ds_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: DraftStatement::class, inversedBy: 'versions')]
     protected $draftStatement;
 
     /**
@@ -66,10 +67,10 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
     /**
      * @var Procedure
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class)]
     protected $procedure;
 
     /**
@@ -79,32 +80,29 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_ds_number", type="integer", nullable=false, options={"default":0})
      */
+    #[ORM\Column(name: '_ds_number', type: 'integer', nullable: false, options: ['default' => 0])]
     protected $number = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_title", type="string", length=4000, nullable=false)
      */
+    #[ORM\Column(name: '_ds_title', type: 'string', length: 4000, nullable: false)]
     protected $title = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_text", type="text", nullable=false, length=15000000)
      */
+    #[ORM\Column(name: '_ds_text', type: 'text', nullable: false, length: 15000000)]
     protected $text = '';
 
     /**
      * @var string
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="_ds_paragraph_id", referencedColumnName="_pdv_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_ds_paragraph_id', referencedColumnName: '_pdv_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: ParagraphVersion::class, cascade: ['persist'])]
     protected $paragraph;
 
     /**
@@ -117,10 +115,10 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
     /**
      * @var SingleDocumentVersion
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="_ds_document_id", referencedColumnName="_sdv_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_ds_document_id', referencedColumnName: '_sdv_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: SingleDocumentVersion::class, cascade: ['persist'])]
     protected $document;
 
     /**
@@ -143,26 +141,24 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
     /**
      * @var Elements
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="_ds_element_id", referencedColumnName="_e_id", onDelete="SET NULL")
      **/
+    #[ORM\JoinColumn(name: '_ds_element_id', referencedColumnName: '_e_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: Elements::class, cascade: ['persist'])]
     protected $element;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_polygon", type="text", length=16777215, nullable=false)
      */
+    #[ORM\Column(name: '_ds_polygon', type: 'text', length: 16777215, nullable: false)]
     protected $polygon = '';
 
     /**
      * todo: potential improvement: options={"fixed":false},.
      *
      * @var string
-     *
-     * @ORM\Column(name="_ds_file", type="string", length=255, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_ds_file', type: 'string', length: 255, nullable: false, options: ['fixed' => true])]
     protected $file = '';
 
     /**
@@ -176,9 +172,8 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_map_file", type="string", length=255, nullable=true, options={"fixed":true})
      */
+    #[ORM\Column(name: '_ds_map_file', type: 'string', length: 255, nullable: true, options: ['fixed' => true])]
     protected $mapFile;
 
     /**
@@ -186,10 +181,10 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
      *
      * @var Orga
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      *
-     * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=false, onDelete="RESTRICT")
      */
+    #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', nullable: false, onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: Orga::class)]
     protected $organisation;
 
     /**
@@ -201,25 +196,23 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_o_name", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_o_name', type: 'string', length: 255, nullable: false)]
     protected $oName = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_d_name", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_d_name', type: 'string', length: 255, nullable: false)]
     protected $dName = '';
 
     /**
      * @var Department
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
      *
-     * @ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", nullable=false, onDelete="RESTRICT")
      **/
+    #[ORM\JoinColumn(name: '_d_id', referencedColumnName: '_d_id', nullable: false, onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: Department::class)]
     protected $department;
 
     /**
@@ -232,10 +225,10 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
-     * @ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", nullable=false, onDelete="RESTRICT")
      */
+    #[ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', nullable: false, onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $user;
 
     /**
@@ -247,189 +240,165 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_name", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_u_name', type: 'string', length: 255, nullable: false)]
     protected $uName = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_street", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_u_street', type: 'string', length: 255, nullable: false)]
     protected $uStreet = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_postal_code", type="string", length=6, nullable=false)
      */
+    #[ORM\Column(name: '_u_postal_code', type: 'string', length: 6, nullable: false)]
     protected $uPostalCode = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_city", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_u_city', type: 'string', length: 255, nullable: false)]
     protected $uCity = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_email", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_u_email', type: 'string', length: 255, nullable: false)]
     protected $uEmail = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_feedback", type="string", length=10, nullable=false)
      */
+    #[ORM\Column(name: '_ds_feedback', type: 'string', length: 10, nullable: false)]
     protected $feedback = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_extern_id", type="string", length=25, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_ds_extern_id', type: 'string', length: 25, nullable: false, options: ['fixed' => true])]
     protected $externId = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_rejected_reason", type="string", length=4000, nullable=false)
      */
+    #[ORM\Column(name: '_ds_rejected_reason', type: 'string', length: 4000, nullable: false)]
     protected $rejectedReason = '';
 
     /**
      * todo: potential improvement: options={"default":false},.
      *
      * @var int
-     *
-     * @ORM\Column(name="_ds_negative_statement", type="boolean", nullable=false)
      */
+    #[ORM\Column(name: '_ds_negative_statement', type: 'boolean', nullable: false)]
     protected $negativ = 0;
 
     /**
      * todo: potential improvement: options={"default":false},.
      *
      * @var int
-     *
-     * @ORM\Column(name="_ds_submited", type="boolean", nullable=false)
      */
+    #[ORM\Column(name: '_ds_submited', type: 'boolean', nullable: false)]
     protected $submitted = 0;
 
     /**
      * todo: potential improvement: options={"default":false},.
      *
      * @var int
-     *
-     * @ORM\Column(name="_ds_released", type="boolean", nullable=false)
      */
+    #[ORM\Column(name: '_ds_released', type: 'boolean', nullable: false)]
     protected $released = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_ds_show_all", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_ds_show_all', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $showToAll = 0;
 
     /**
      * todo: potential improvement: options={"default":false},.
      *
      * @var int
-     *
-     * @ORM\Column(name="_ds_deleted", type="boolean", nullable=false)
      */
+    #[ORM\Column(name: '_ds_deleted', type: 'boolean', nullable: false)]
     protected $deleted = 0;
 
     /**
      * todo: potential improvement: options={"default":false},.
      *
      * @var int
-     *
-     * @ORM\Column(name="_ds_rejected", type="boolean", nullable=false)
      */
+    #[ORM\Column(name: '_ds_rejected', type: 'boolean', nullable: false)]
     protected $rejected = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_ds_public_allowed", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_ds_public_allowed', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $publicAllowed = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_ds_public_use_name", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_ds_public_use_name', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $publicUseName = 0;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_public_draft_statement", type="string", length=20, nullable=false)
      */
+    #[ORM\Column(name: '_ds_public_draft_statement', type: 'string', length: 20, nullable: false)]
     protected $publicDraftStatement = DraftStatement::INTERNAL;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_phase", type="string", length=50, nullable=false)
      */
+    #[ORM\Column(name: '_ds_phase', type: 'string', length: 50, nullable: false)]
     protected $phase = '';
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_ds_version_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: '_ds_version_date', type: 'datetime', nullable: false)]
     protected $versionDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_ds_created_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_ds_created_date', type: 'datetime', nullable: false)]
     protected $createdDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_ds_deleted_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_ds_deleted_date', type: 'datetime', nullable: false)]
     protected $deletedDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_ds_last_modified_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_ds_last_modified_date', type: 'datetime', nullable: false)]
     protected $lastModifiedDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_ds_submited_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_ds_submited_date', type: 'datetime', nullable: false)]
     protected $submittedDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_ds_released_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_ds_released_date', type: 'datetime', nullable: false)]
     protected $releasedDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_ds_rejected_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_ds_rejected_date', type: 'datetime', nullable: false)]
     protected $rejectedDate;
 
     public function __construct()

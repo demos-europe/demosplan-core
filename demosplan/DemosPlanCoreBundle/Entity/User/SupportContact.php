@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SupportContactInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\SupportContactConstraint;
@@ -21,12 +23,10 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Table(uniqueConstraints={@UniqueConstraint(name="customer_title_unique", columns={"customer", "title"})})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository")
- */
 #[SupportContactConstraint]
+#[ORM\Table]
+#[UniqueConstraint(name: 'customer_title_unique', columns: ['customer', 'title'])]
+#[ORM\Entity(repositoryClass: SupportContactRepository::class)]
 class SupportContact extends CoreEntity implements UuidEntityInterface, SupportContactInterface
 {
     use TimestampableEntity;
@@ -43,55 +43,31 @@ class SupportContact extends CoreEntity implements UuidEntityInterface, SupportC
     final public const SUPPORT_CONTACT_TYPE_CUSTOMER_LOGIN = 'customerLogin';
     final public const SUPPORT_CONTACT_TYPE_PLATFORM = 'platform';
 
-    /**
-     * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
-     */
+    #[ORM\Column(name: 'id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private ?string $id = null;
 
     public function __construct(
-        /**
-         * @ORM\Column(name="type", type="string", length=255, nullable=false, options={"default":"customer"})
-         */
         #[Assert\Choice(choices: [
             SupportContact::SUPPORT_CONTACT_TYPE_DEFAULT,
             SupportContact::SUPPORT_CONTACT_TYPE_CUSTOMER_LOGIN,
             SupportContact::SUPPORT_CONTACT_TYPE_PLATFORM,
-        ], message: 'invalid support type')]
+        ], message: 'invalid support type')] #[ORM\Column(name: 'type', type: 'string', length: 255, nullable: false, options: ['default' => 'customer'])]
         private readonly string $supportType,
-        /**
-         * @ORM\Column(name="title", type="string", length=255, nullable=true)
-         */
-        #[Assert\NotBlank(allowNull: true)]
+        #[Assert\NotBlank(allowNull: true)] #[ORM\Column(name: 'title', type: 'string', length: 255, nullable: true)]
         private ?string $title,
-        /**
-         * @ORM\Column(name="phone_number", type="string", length=255, nullable=true)
-         */
-        #[Assert\NotBlank(allowNull: true)]
+        #[Assert\NotBlank(allowNull: true)] #[ORM\Column(name: 'phone_number', type: 'string', length: 255, nullable: true)]
         private ?string $phoneNumber,
-        /**
-         * @ORM\Column(type="string", length=255, name="email_address", nullable=true)
-         */
-        #[Assert\Email(mode: 'strict')]
+        #[Assert\Email(mode: 'strict')] #[ORM\Column(type: 'string', length: 255, name: 'email_address', nullable: true)]
         private ?string $eMailAddress,
-        /**
-         * @ORM\Column(name="text", type="text", nullable=true)
-         */
+        #[ORM\Column(name: 'text', type: 'text', nullable: true)]
         private ?string $text,
-        /**
-         * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="contacts")
-         *
-         * @ORM\JoinColumn(name="customer", referencedColumnName="_c_id", nullable=true)
-         */
+        #[ORM\JoinColumn(name: 'customer', referencedColumnName: '_c_id', nullable: true)]
+        #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'contacts')]
         private ?Customer $customer,
-        /**
-         * @ORM\Column(name="visible", type="boolean", options={"default":false})
-         */
+        #[ORM\Column(name: 'visible', type: 'boolean', options: ['default' => false])]
         private bool $visible = false
     ) {
     }

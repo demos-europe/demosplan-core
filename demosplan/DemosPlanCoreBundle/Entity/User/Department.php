@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\AddressInterface;
@@ -23,70 +25,64 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_department", uniqueConstraints={@ORM\UniqueConstraint(name="_d_gw_id", columns={"_d_gw_id"})})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository")
- */
+#[ORM\Table(name: '_department')]
+#[ORM\UniqueConstraint(name: '_d_gw_id', columns: ['_d_gw_id'])]
+#[ORM\Entity(repositoryClass: DepartmentRepository::class)]
 class Department extends CoreEntity implements UuidEntityInterface, DepartmentInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_d_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_d_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_d_name", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_d_name', type: 'string', length: 255, nullable: false)]
     protected $name;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_d_code", type="string", length=128, nullable=true)
      */
+    #[ORM\Column(name: '_d_code', type: 'string', length: 128, nullable: true)]
     protected $code;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_d_created_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: '_d_created_date', type: 'datetime', nullable: false)]
     protected $createdDate;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_d_modified_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(name: '_d_modified_date', type: 'datetime', nullable: false)]
     protected $modifiedDate;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_d_deleted", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_d_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted = false;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_d_gw_id", type="string", length=36, options={"fixed":true}, nullable=true)
      */
+    #[ORM\Column(name: '_d_gw_id', type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
     protected $gwId;
 
     /**
@@ -94,9 +90,8 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
      * $orga enthält die einzelne Organisation.
      *
      * @var Collection<int, OrgaInterface>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="departments")
      */
+    #[ORM\ManyToMany(targetEntity: Orga::class, mappedBy: 'departments')]
     protected $orgas;
 
     /**
@@ -109,14 +104,14 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
     /**
      * @var Collection<int, AddressInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Address")
      *
-     * @ORM\JoinTable(
-     *     name="_department_addresses_doctrine",
-     *     joinColumns={@ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", onDelete="RESTRICT")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_a_id", referencedColumnName="_a_id", onDelete="RESTRICT")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: '_department_addresses_doctrine',
+        joinColumns: [new ORM\JoinColumn(name: '_d_id', referencedColumnName: '_d_id', onDelete: 'RESTRICT')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_a_id', referencedColumnName: '_a_id', onDelete: 'RESTRICT')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Address::class)]
     protected $addresses;
 
     /**
@@ -125,14 +120,14 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
      *
      * @var Collection<int, UserInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", inversedBy="departments", cascade={"persist"})
      *
-     * @ORM\JoinTable(
-     *     name="_department_users_doctrine",
-     *     joinColumns={@ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", onDelete="RESTRICT")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", onDelete="RESTRICT")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: '_department_users_doctrine',
+        joinColumns: [new ORM\JoinColumn(name: '_d_id', referencedColumnName: '_d_id', onDelete: 'RESTRICT')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', onDelete: 'RESTRICT')]
+    )]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'departments', cascade: ['persist'])]
     protected $users;
 
     /**

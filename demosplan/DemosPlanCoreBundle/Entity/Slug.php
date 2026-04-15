@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use demosplan\DemosPlanCoreBundle\Repository\SlugRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SlugInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -18,32 +20,29 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 use Faker\Provider\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Table (uniqueConstraints={@UniqueConstraint(name="slug_unique", columns={"name"})})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SlugRepository")
- */
+#[ORM\Table]
+#[UniqueConstraint(name: 'slug_unique', columns: ['name'])]
+#[ORM\Entity(repositoryClass: SlugRepository::class)]
 class Slug extends CoreEntity implements UuidEntityInterface, SlugInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string")
      */
     #[Assert\Length(min: 0, max: 255)]
+    #[ORM\Column(type: 'string')]
     protected $name;
 
     /**

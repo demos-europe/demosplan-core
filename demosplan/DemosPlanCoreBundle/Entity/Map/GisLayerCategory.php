@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Map;
 
+use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
@@ -25,10 +27,10 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * Class GisLayerCategory.
  *
- * @ORM\Table
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository")
  */
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: GisLayerCategoryRepository::class)]
 class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
 {
     /**
@@ -36,56 +38,52 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
      *
      * @var string|null
      *
-     * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var ProcedureInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", cascade={"persist"})
      *
-     * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class, cascade: ['persist'])]
     protected $procedure;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=false)
      */
+    #[ORM\Column(type: 'string', nullable: false)]
     protected $name;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     /**
      * @var Collection<int, GisLayerInterface>
      *                                         One GisLayerCategory has many GisLayers
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer", mappedBy="category", fetch="EAGER")
      */
+    #[ORM\OneToMany(targetEntity: GisLayer::class, mappedBy: 'category', fetch: 'EAGER')]
     protected $gisLayers;
 
     /**
@@ -95,43 +93,39 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
      *
      * If this is null, we have arrived at the root category of a procedure
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory", inversedBy="children", cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="parent_id", referencedColumnName="id")
      */
+    #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: GisLayerCategory::class, inversedBy: 'children', cascade: ['persist'])]
     protected $parent;
 
     /**
      * @var Collection<int, GisLayerCategoryInterface>
      *
      * Child categories of a categorys
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory", mappedBy="parent", cascade={"persist"})
      */
+    #[ORM\OneToMany(targetEntity: GisLayerCategory::class, mappedBy: 'parent', cascade: ['persist'])]
     protected $children;
 
     /**
      * @var int
-     *
-     * @ORM\Column(type="integer", nullable=false, options={"default":0})
      */
+    #[ORM\Column(type: 'integer', nullable: false, options: ['default' => 0])]
     protected $treeOrder = 0;
 
     // @improve T16792
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     protected $visible = true;
 
     /**
      * Hides all children for the category and displays the category as layer instead.
      *
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false, "comment":"Hides all children for the category and displays the category as layer instead."})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false, 'comment' => 'Hides all children for the category and displays the category as layer instead.'])]
     protected $layerWithChildrenHidden = false;
 
     public function __construct()

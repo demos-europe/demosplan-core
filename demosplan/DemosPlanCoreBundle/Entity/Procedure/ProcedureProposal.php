@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureProposalRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureProposalInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -24,10 +26,10 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * Procedure proposal.
  *
- * @ORM\Table
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureProposalRepository")
  */
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: ProcedureProposalRepository::class)]
 class ProcedureProposal extends CoreEntity implements UuidEntityInterface, ProcedureProposalInterface
 {
     final public const STATUS = [
@@ -38,91 +40,86 @@ class ProcedureProposal extends CoreEntity implements UuidEntityInterface, Proce
     /**
      * @var string|null
      *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", length=4096, nullable=false)
      */
+    #[ORM\Column(type: 'string', length: 4096, nullable: false)]
     protected $name;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="text", nullable=false)
      */
+    #[ORM\Column(type: 'text', nullable: false)]
     protected $description = '';
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected $createdDate;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected $modifiedDate;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="text", nullable=false)
      */
+    #[ORM\Column(type: 'text', nullable: false)]
     protected $additionalExplanation = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", length=2048, nullable=false)
      */
+    #[ORM\Column(type: 'string', length: 2048, nullable: false)]
     protected $coordinate = '';
 
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
-     * @ORM\JoinColumn(name="user", referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: 'user', referencedColumnName: '_u_id', nullable: true, onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $user;
 
     /**
      * May only have one of the status listed in self::STATUS.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=false, options={"default":"new"})
      */
+    #[ORM\Column(type: 'string', nullable: false, options: ['default' => 'new'])]
     protected $status = 'new';
 
     /**
      * @var Collection<int, File>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File",)
      *
-     * @ORM\JoinTable(
-     *     name="procedureproposal_file_doctrine",
-     *     joinColumns={@ORM\JoinColumn(name="procedureProposal", referencedColumnName="id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="file", referencedColumnName="_f_ident")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: 'procedureproposal_file_doctrine',
+        joinColumns: [new ORM\JoinColumn(name: 'procedureProposal', referencedColumnName: 'id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'file', referencedColumnName: '_f_ident')]
+    )]
+    #[ORM\ManyToMany(targetEntity: File::class)]
     protected $files;
 
     public function __construct()

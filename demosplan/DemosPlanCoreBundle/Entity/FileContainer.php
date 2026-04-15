@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileContainerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
@@ -17,93 +19,80 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="file_container",indexes={@ORM\Index(columns={"entity_id", "entity_class"})})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository")
- */
+#[ORM\Table(name: 'file_container')]
+#[ORM\Index(columns: ['entity_id', 'entity_class'])]
+#[ORM\Entity(repositoryClass: FileContainerRepository::class)]
 class FileContainer extends CoreEntity implements UuidEntityInterface, FileContainerInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="id", type="string", length=36, nullable=false, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: 'id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="entity_id", type="string", length=36, options={"fixed":true}, nullable=false)
      */
+    #[ORM\Column(name: 'entity_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $entityId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="entity_class", type="string", options={"fixed":true}, nullable=false)
      */
+    #[ORM\Column(name: 'entity_class', type: 'string', options: ['fixed' => true], nullable: false)]
     protected $entityClass;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="entity_field", type="string", nullable=false)
      */
+    #[ORM\Column(name: 'entity_field', type: 'string', nullable: false)]
     protected $entityField;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: 'create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="modify_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: 'modify_date', type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="orderNum", type="smallint", length=3, nullable=false, options={"unsigned":true})
      */
+    #[ORM\Column(name: 'orderNum', type: 'smallint', length: 3, nullable: false, options: ['unsigned' => true])]
     protected $order = 0;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="file_string", type="string", length=2048, nullable=false)
      */
+    #[ORM\Column(name: 'file_string', type: 'string', length: 2048, nullable: false)]
     protected $fileString;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(name="file_id", referencedColumnName="_f_ident", nullable=false, onDelete="CASCADE")
-     */
+    #[ORM\JoinColumn(name: 'file_id', referencedColumnName: '_f_ident', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: File::class, cascade: ['persist'])]
     protected $file;
 
     /**
      * Is the file visible in this statement for other users than Fachplaner (yes = true, no = false).
      *
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true, "comment":"Is the file visible in this statement for other users than Fachplaner"})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true, 'comment' => 'Is the file visible in this statement for other users than Fachplaner'])]
     protected $publicAllowed = true;
 
     public function getId(): ?string

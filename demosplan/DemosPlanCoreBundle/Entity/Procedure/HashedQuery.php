@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Repository\HashedQueryRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\HashedQueryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -21,64 +23,61 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * @see https://yaits.demos-deutschland.de/w/demosplan/functions/filterhash/ Wiki: Filterhash
  *
- * @ORM\Table(indexes={@ORM\Index(name="hash_idx", columns={"hash"})})
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\HashedQueryRepository")
  */
+#[ORM\Table]
+#[ORM\Index(name: 'hash_idx', columns: ['hash'])]
+#[ORM\Entity(repositoryClass: HashedQueryRepository::class)]
 class HashedQuery extends CoreEntity implements UuidEntityInterface, HashedQueryInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=false, length=12, unique=true)
      */
+    #[ORM\Column(type: 'string', nullable: false, length: 12, unique: true)]
     protected $hash;
 
     /**
      * @var StoredQueryInterface
-     *
-     * @ORM\Column(type="dplan.stored_query", nullable=false)
      */
+    #[ORM\Column(type: 'dplan.stored_query', nullable: false)]
     protected $storedQuery;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected $created;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected $modified;
 
     /**
      * @var Procedure
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", cascade={"persist"})
      *
-     * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false, onDelete="NO ACTION")
      */
+    #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false, onDelete: 'NO ACTION')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class, cascade: ['persist'])]
     protected $procedure;
 
     public function getId(): ?string

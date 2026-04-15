@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Repository\StatementFormDefinitionRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
@@ -29,56 +31,50 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * to define the availability of customizable fields on a statement (participation).
  * A StatementFormDefinition should never have an direct relationship to a Procedure and to a ProcedureType.
  *
- * @ORM\Table
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFormDefinitionRepository")
  *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: StatementFormDefinitionRepository::class)]
 class StatementFormDefinition extends CoreEntity implements UuidEntityInterface, StatementFormDefinitionInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private $id;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
+    #[ORM\Column(type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
     private $creationDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
+    #[ORM\Column(type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
     private $modificationDate;
 
     /**
      * @var Collection<int, StatementFieldDefinition>
      *
-     * @ORM\OneToMany(
-     *      targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition",
-     *      mappedBy="statementFormDefinition",
-     *      cascade={"persist", "remove"}
-     *     )
      *
-     * @ORM\OrderBy({"orderNumber" = "ASC"})
      */
+    #[ORM\OneToMany(targetEntity: StatementFieldDefinition::class, mappedBy: 'statementFormDefinition', cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['orderNumber' => 'ASC'])]
     private $fieldDefinitions;
 
     /**
@@ -90,10 +86,10 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      *
      * @var Procedure|null
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="statementFormDefinition")
      *
-     * @JoinColumn(referencedColumnName="_p_id")
      */
+    #[JoinColumn(referencedColumnName: '_p_id')]
+    #[ORM\OneToOne(targetEntity: Procedure::class, mappedBy: 'statementFormDefinition')]
     private $procedure;
 
     /**
@@ -103,10 +99,10 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      *
      * @var ProcedureType|null
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType", mappedBy="statementFormDefinition")
      *
-     * @JoinColumn()
      */
+    #[JoinColumn]
+    #[ORM\OneToOne(targetEntity: ProcedureType::class, mappedBy: 'statementFormDefinition')]
     private $procedureType;
 
     public function __construct()

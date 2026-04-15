@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
+use demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryVoteRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DevelopmentUserStoryVoteInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -19,33 +21,30 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_progression_userstory_votes")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryVoteRepository")
- */
+#[ORM\Table(name: '_progression_userstory_votes')]
+#[ORM\Entity(repositoryClass: DevelopmentUserStoryVoteRepository::class)]
 class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface, DevelopmentUserStoryVoteInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_puv_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_puv_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $ident;
 
     /**
      * @var Orga
      *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      *
-     * @ORM\JoinColumn(name="_puv_orga_id", referencedColumnName="_o_id", nullable=false, onDelete="RESTRICT")
      */
+    #[ORM\JoinColumn(name: '_puv_orga_id', referencedColumnName: '_o_id', nullable: false, onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: Orga::class)]
     protected $orga;
 
     /**
@@ -56,10 +55,10 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
-     * @ORM\JoinColumn(name="_puv_user_id", referencedColumnName="_u_id", nullable=false, onDelete="RESTRICT")
      */
+    #[ORM\JoinColumn(name: '_puv_user_id', referencedColumnName: '_u_id', nullable: false, onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $user;
 
     /**
@@ -70,10 +69,10 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
     /**
      * @var DevelopmentUserStory
      *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory")
      *
-     * @ORM\JoinColumn(name="_puv_userstroy_id", referencedColumnName="_pu_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_puv_userstroy_id', referencedColumnName: '_pu_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: DevelopmentUserStory::class)]
     protected $userStory;
 
     /**
@@ -85,27 +84,25 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
      * todo: smallint to int.
      *
      * @var int
-     *
-     * @ORM\Column(name="_puv_number_of_votes", type="smallint", length=2, nullable=false, options={"unsigned":true, "default":1})
      */
+    #[ORM\Column(name: '_puv_number_of_votes', type: 'smallint', length: 2, nullable: false, options: ['unsigned' => true, 'default' => 1])]
     protected $numberOfVotes;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_puv_modified_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(name: '_puv_modified_date', type: 'datetime', nullable: false)]
     protected $modifiedDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_puv_create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_puv_create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     public function getId(): ?string

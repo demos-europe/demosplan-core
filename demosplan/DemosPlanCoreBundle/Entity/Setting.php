@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use demosplan\DemosPlanCoreBundle\Repository\SettingRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SettingInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -19,33 +21,31 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_settings", indexes={@ORM\Index(name="_s_key", columns={"_s_key"})})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SettingRepository")
- */
+#[ORM\Table(name: '_settings')]
+#[ORM\Index(name: '_s_key', columns: ['_s_key'])]
+#[ORM\Entity(repositoryClass: SettingRepository::class)]
 class Setting extends CoreEntity implements UuidEntityInterface, SettingInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      *
-     * @ORM\Column(name="_s_id", type="string", length=36, options={"fixed":true})
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
+    #[ORM\Column(name: '_s_id', type: 'string', length: 36, options: ['fixed' => true])]
     protected $ident;
 
     /**
      * @var Procedure
      *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
-     * @ORM\JoinColumn(name="_s_procedure_id", referencedColumnName="_p_id", onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_s_procedure_id', referencedColumnName: '_p_id', onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class)]
     protected $procedure;
 
     /**
@@ -58,10 +58,10 @@ class Setting extends CoreEntity implements UuidEntityInterface, SettingInterfac
     /**
      * @var User
      *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
-     * @ORM\JoinColumn(name="_s_user_id", referencedColumnName="_u_id", onDelete="RESTRICT")
      */
+    #[ORM\JoinColumn(name: '_s_user_id', referencedColumnName: '_u_id', onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $user;
 
     /**
@@ -74,33 +74,30 @@ class Setting extends CoreEntity implements UuidEntityInterface, SettingInterfac
     /**
      * @var Orga
      *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      *
-     * @ORM\JoinColumn(name="_s_orga_id", referencedColumnName="_o_id", onDelete="RESTRICT")
      */
+    #[ORM\JoinColumn(name: '_s_orga_id', referencedColumnName: '_o_id', onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: Orga::class)]
     protected $orga;
 
     /**
      * Virtuelle Eigenshaft der Id der Ogranisation.
      *
      * @var string
-     *
-     * @ORM\Column(name="_s_orga_id", type="string", length=36, options={"fixed":true}, nullable=true)
      */
+    #[ORM\Column(name: '_s_orga_id', type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
     protected $orgaId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_s_key", type="string", nullable=false)
      */
+    #[ORM\Column(name: '_s_key', type: 'string', nullable: false)]
     protected $key;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_s_content", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_s_content', type: 'text', length: 65535, nullable: false)]
     protected $content;
 
     /**
@@ -109,9 +106,8 @@ class Setting extends CoreEntity implements UuidEntityInterface, SettingInterfac
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_s_create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_s_create_date', type: 'datetime', nullable: false)]
     protected $created;
 
     /**
@@ -120,9 +116,8 @@ class Setting extends CoreEntity implements UuidEntityInterface, SettingInterfac
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_s_modified_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_s_modified_date', type: 'datetime', nullable: false)]
     protected $modified;
 
     /**

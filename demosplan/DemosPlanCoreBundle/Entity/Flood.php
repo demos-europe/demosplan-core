@@ -10,60 +10,56 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use demosplan\DemosPlanCoreBundle\Repository\FloodRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FloodInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="plugin_flood")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\FloodRepository")
- */
+#[ORM\Table(name: 'plugin_flood')]
+#[ORM\Entity(repositoryClass: FloodRepository::class)]
 class Flood extends CoreEntity implements UuidEntityInterface, FloodInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="fid", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: 'fid', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="event", type="string", length=128)
      */
+    #[ORM\Column(name: 'event', type: 'string', length: 128)]
     protected $event;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="identifier", type="string", length=256)
      */
+    #[ORM\Column(name: 'identifier', type: 'string', length: 256)]
     protected $identifier;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="created", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: 'created', type: 'datetime', nullable: false)]
     protected $created;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="expires", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: 'expires', type: 'datetime', nullable: false)]
     protected $expires;
 
     public function getId(): ?string

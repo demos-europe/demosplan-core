@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use demosplan\DemosPlanCoreBundle\Repository\CountyRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\User\CustomerCounty;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerCountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
@@ -21,39 +24,34 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Table(name="_county")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CountyRepository")
- */
+#[ORM\Table(name: '_county')]
+#[ORM\Entity(repositoryClass: CountyRepository::class)]
 class County extends CoreEntity implements UuidEntityInterface, CountyInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_c_id", type="string", length=36, nullable=false, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_c_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var Collection<int, CustomerCountyInterface>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\CustomerCounty", mappedBy="county", cascade={"persist"})
      */
+    #[ORM\OneToMany(targetEntity: CustomerCounty::class, mappedBy: 'county', cascade: ['persist'])]
     protected $customerCounties
     ;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_c_name", type="string", length=36, nullable=false)
      */
+    #[ORM\Column(name: '_c_name', type: 'string', length: 36, nullable: false)]
     protected $name;
 
     /**
@@ -68,27 +66,17 @@ class County extends CoreEntity implements UuidEntityInterface, CountyInterface
     /**
      * @var Collection<int, StatementInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="counties")
      *
-     * @ORM\JoinTable(
-     *     name="_statement_county",
-     *     joinColumns={@ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id")}
-     * )
      */
+    #[ORM\ManyToMany(targetEntity: Statement::class, mappedBy: 'counties')]
     protected $statements;
 
     /**
      * @var Collection<int, StatementFragmentInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", mappedBy="counties", cascade={"persist"})
      *
-     * @ORM\JoinTable(
-     *     name="_statement_fragment_county",
-     *     joinColumns={@ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id")}
-     * )
      */
+    #[ORM\ManyToMany(targetEntity: StatementFragment::class, mappedBy: 'counties', cascade: ['persist'])]
     protected $statementFragments;
 
     public function __construct()

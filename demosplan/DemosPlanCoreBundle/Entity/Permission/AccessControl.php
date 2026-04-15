@@ -12,6 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Permission;
 
+use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
@@ -24,61 +29,44 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * This entity represents a permission for a specific role, customer and organisation.
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository")
  *
- * @ORM\Table(name="access_control", uniqueConstraints={@ORM\UniqueConstraint(name="unique_orga_customer_role_permission", columns={"orga_id", "customer_id", "role_id", "permission"})})
  */
+#[ORM\Table(name: 'access_control')]
+#[ORM\UniqueConstraint(name: 'unique_orga_customer_role_permission', columns: ['orga_id', 'customer_id', 'role_id', 'permission'])]
+#[ORM\Entity(repositoryClass: AccessControlRepository::class)]
 class AccessControl extends CoreEntity implements UuidEntityInterface
 {
-    /**
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
-     */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected string $id;
 
-    /**
-     * @ORM\Column(name="permission", type="string", nullable=false)
-     */
+    #[ORM\Column(name: 'permission', type: 'string', nullable: false)]
     protected string $permission = '';
 
     /**
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private DateTime $creationDate;
 
     /**
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private DateTime $modificationDate;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
-     *
-     * @ORM\JoinColumn(name="orga_id", referencedColumnName="_o_id", nullable=false, onDelete="CASCADE")
-     */
+    #[ORM\JoinColumn(name: 'orga_id', referencedColumnName: '_o_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Orga::class)]
     protected OrgaInterface $organisation;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Role")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_r_id", nullable=false, onDelete="CASCADE")
-     */
+    #[ORM\JoinColumn(referencedColumnName: '_r_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Role::class)]
     protected RoleInterface $role;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false, onDelete="CASCADE")
-     */
+    #[ORM\JoinColumn(referencedColumnName: '_c_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Customer::class)]
     protected CustomerInterface $customer;
 
     public function getId(): string

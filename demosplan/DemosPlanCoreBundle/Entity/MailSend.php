@@ -10,17 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\MailSendInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_mail_send")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\MailRepository")
- */
+#[ORM\Table(name: '_mail_send')]
+#[ORM\Entity(repositoryClass: MailRepository::class)]
 class MailSend implements IntegerIdEntityInterface, MailSendInterface
 {
     final public const MAIL_SCOPE_EXTERN = 'extern';
@@ -28,33 +26,30 @@ class MailSend implements IntegerIdEntityInterface, MailSendInterface
     /**
      * @var int|null
      *
-     * @ORM\Column(name="_ms_id", type="integer")
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
+    #[ORM\Column(name: '_ms_id', type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     protected $id;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_ms_id_ref", type="integer", nullable=true)
      */
+    #[ORM\Column(name: '_ms_id_ref', type: 'integer', nullable: true)]
     protected $idRef;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ms_mt_template", type="string", length=50, nullable=false)
      */
+    #[ORM\Column(name: '_ms_mt_template', type: 'string', length: 50, nullable: false)]
     protected $template = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ms_to", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_ms_to', type: 'text', length: 65535, nullable: false)]
     protected $to;
 
     /**
@@ -62,9 +57,8 @@ class MailSend implements IntegerIdEntityInterface, MailSendInterface
      * sending mail has to be from systemmail to avoid spam problems with spf.
      *
      * @var string
-     *
-     * @ORM\Column(name="_ms_from", type="string", length=4096, nullable=false)
      */
+    #[ORM\Column(name: '_ms_from', type: 'string', length: 4096, nullable: false)]
     protected $from;
 
     /**
@@ -72,9 +66,8 @@ class MailSend implements IntegerIdEntityInterface, MailSendInterface
      *             Length 10000 is a magic number until it is refactored to type="text".
      *             Type Text could not have a default value, so behaviour
      *             changes from return '' now to return null later
-     *
-     * @ORM\Column(name="_ms_cc", type="string", length=10000, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_ms_cc', type: 'string', length: 10000, nullable: false, options: ['default' => ''])]
     protected $cc = '';
 
     /**
@@ -86,106 +79,92 @@ class MailSend implements IntegerIdEntityInterface, MailSendInterface
      *             You have to change some columns to TEXT or BLOBs"
      *             Might be refactored to type="text" buut Type Text could not have a default value, so behaviour
      *             changes from return '' now to return null later
-     *
-     * @ORM\Column(name="_ms_bcc", type="string", length=5, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_ms_bcc', type: 'string', length: 5, nullable: false, options: ['default' => ''])]
     protected $bcc = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ms_title", type="string", length=1024, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_ms_title', type: 'string', length: 1024, nullable: false, options: ['default' => ''])]
     protected $title;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ms_content", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_ms_content', type: 'text', length: 65535, nullable: false)]
     protected $content;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_ms_created_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_ms_created_date', type: 'datetime', nullable: false)]
     protected $createdDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_ms_send_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_ms_send_date', type: 'datetime', nullable: false)]
     protected $sendDate;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ms_scope", type="string", length=6, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_ms_scope', type: 'string', length: 6, nullable: false, options: ['fixed' => true])]
     protected $scope = 'extern';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ms_status", type="string", length=10, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_ms_status', type: 'string', length: 10, nullable: false, options: ['default' => ''])]
     protected $status = 'new';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ms_context", type="string", length=256, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_ms_context', type: 'string', length: 256, nullable: false, options: ['default' => ''])]
     protected $context = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ms_context2", type="string", length=256, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_ms_context2', type: 'string', length: 256, nullable: false, options: ['default' => ''])]
     protected $context2 = '';
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_ms_send_attempt", type="integer", length=3, nullable=false, options={"default":0})
      */
+    #[ORM\Column(name: '_ms_send_attempt', type: 'integer', length: 3, nullable: false, options: ['default' => 0])]
     protected $sendAttempt = 0;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_ms_last_status_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_ms_last_status_date', type: 'datetime', nullable: false)]
     protected $lastStatusDate;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ms_error_code", type="string", length=255, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_ms_error_code', type: 'string', length: 255, nullable: false, options: ['default' => ''])]
     protected $errorCode = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ms_error_message", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_ms_error_message', type: 'text', length: 65535, nullable: false)]
     protected $errorMessage = '';
 
     /**
      * @var array
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\MailAttachment", mappedBy="mailSend", cascade={"persist"})
      */
+    #[ORM\OneToMany(targetEntity: MailAttachment::class, mappedBy: 'mailSend', cascade: ['persist'])]
     protected $attachments;
 
     public function __construct()

@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Help;
 
+use demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ContextualHelpInterface;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,55 +20,51 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * Contextual Help.
  *
- * @ORM\Table(name="_platform_context_sensitive_help")
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository")
  */
+#[ORM\Table(name: '_platform_context_sensitive_help')]
+#[ORM\Entity(repositoryClass: ContextualHelpRepository::class)]
 class ContextualHelp implements ContextualHelpInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_pcsh_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_pcsh_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $ident;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pcsh_key", type="string", length=255)
      */
+    #[ORM\Column(name: '_pcsh_key', type: 'string', length: 255)]
     protected $key;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pcsh_text", type="text", length=65535)
      */
+    #[ORM\Column(name: '_pcsh_text', type: 'text', length: 65535)]
     protected $text;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_pcsh_created", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_pcsh_created', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")     *
-     *
-     * @ORM\Column(name="_pcsh_modified", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_pcsh_modified', type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     /**

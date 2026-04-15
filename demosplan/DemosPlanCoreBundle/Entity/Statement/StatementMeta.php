@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use demosplan\DemosPlanCoreBundle\Repository\StatementMetaRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementMetaInterface;
@@ -19,33 +21,30 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Table(name="_statement_meta")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementMetaRepository")
- */
+#[ORM\Table(name: '_statement_meta')]
+#[ORM\Entity(repositoryClass: StatementMetaRepository::class)]
 class StatementMeta extends CoreEntity implements UuidEntityInterface, StatementMetaInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_stm_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_stm_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var StatementInterface
      *
-     * @ORM\OneToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="meta", cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_st_id', referencedColumnName: '_st_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\OneToOne(targetEntity: Statement::class, inversedBy: 'meta', cascade: ['persist'])]
     protected $statement;
 
     /**
@@ -55,116 +54,103 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_stm_author_name", type="string", length=255, nullable=false)
      */
     #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidAuthorNull')]
+    #[ORM\Column(name: '_stm_author_name', type: 'string', length: 255, nullable: false)]
     protected $authorName = '';
 
     /**
      * User generally wants feedback for this statement. Statement.feedback holds the kind of desired feedback.
      *
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false)
      */
+    #[ORM\Column(type: 'boolean', nullable: false)]
     protected $authorFeedback = false;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_stm_submit_u_id", type="string", length=36, nullable=true, options={"fixed":true})
      */
+    #[ORM\Column(name: '_stm_submit_u_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected $submitUId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_stm_submit_name", type="string", length=255, nullable=false)
      */
     #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidSubmitNull')]
+    #[ORM\Column(name: '_stm_submit_name', type: 'string', length: 255, nullable: false)]
     protected $submitName = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_stm_orga_name", type="string", length=255, nullable=false)
      */
     #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaNameNull')]
+    #[ORM\Column(name: '_stm_orga_name', type: 'string', length: 255, nullable: false)]
     protected $orgaName = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_stm_orga_department_name", type="string", length=255, nullable=false)
      */
     #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaDepartmentNull')]
+    #[ORM\Column(name: '_stm_orga_department_name', type: 'string', length: 255, nullable: false)]
     protected $orgaDepartmentName = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_stm_orga_case_worker_name", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_stm_orga_case_worker_name', type: 'string', length: 255, nullable: false)]
     protected $caseWorkerName = '';
 
     /**
      * @var string
      *             !This is also the street of the unregistered user, if he give this data on new statement
-     *
-     * @ORM\Column(name="_stm_orga_street", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_stm_orga_street', type: 'string', length: 255, nullable: false)]
     protected $orgaStreet = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false)
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     protected $houseNumber = '';
 
     /**
      * @var string
      *             !This is also the postal code of the unregistered user, if he give this data on new statement
      *
-     * @ORM\Column(name="_stm_orga_postalcode", type="string", length=255, nullable=false)
      *
      * @PostcodeConstraint(groups={Statement::IMPORT_VALIDATION})
      */
     #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaPostalNull')]
+    #[ORM\Column(name: '_stm_orga_postalcode', type: 'string', length: 255, nullable: false)]
     protected $orgaPostalCode = '';
 
     /**
      * @var string
      *             !This is also the city of the unregistered user, if he give this data on new statement
-     *
-     * @ORM\Column(name="_stm_orga_city", type="string", length=255, nullable=false)
      */
     #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaCityNull')]
+    #[ORM\Column(name: '_stm_orga_city', type: 'string', length: 255, nullable: false)]
     protected $orgaCity = '';
 
     /**
      * @var string
      *             !This is also the email address of the unregistered user, if he give this data on new statement
-     *
-     * @ORM\Column(name="_stm_orga_email", type="string", length=255, nullable=false)
      */
     #[Assert\NotNull(groups: [Statement::IMPORT_VALIDATION], message: 'statementMeta.import.invalidOrgaMailNull')]
     #[Assert\Email(groups: [Statement::IMPORT_VALIDATION], message: 'email.address.invalid')]
+    #[ORM\Column(name: '_stm_orga_email', type: 'string', length: 255, nullable: false)]
     protected $orgaEmail = '';
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_stm_authored_date", type="datetime", nullable=true, options={"comment":"T441: Store the date on which manual statements have been (allegedly) submitted"})
      */
+    #[ORM\Column(name: '_stm_authored_date', type: 'datetime', nullable: true, options: ['comment' => 'T441: Store the date on which manual statements have been (allegedly) submitted'])]
     protected $authoredDate;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_stm_submit_o_id", type="string", length=36, nullable=true, options={"fixed":true})
      */
+    #[ORM\Column(name: '_stm_submit_o_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected $submitOrgaId;
 
     /**
@@ -177,9 +163,8 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
      * {@link StatementMetaInterface::USER_PHONE}.
      *
      * @var array|null
-     *
-     * @ORM\Column(name="_stm_misc_data", type="array", nullable=true)
      */
+    #[ORM\Column(name: '_stm_misc_data', type: 'array', nullable: true)]
     protected $miscData = [];
 
     public function __construct()

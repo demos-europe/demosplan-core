@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateGroupInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
@@ -21,58 +23,54 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository")
- */
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: BoilerplateGroupRepository::class)]
 class BoilerplateGroup extends CoreEntity implements UuidEntityInterface, BoilerplateGroupInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false)
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     protected $title = '';
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var ProcedureInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
-     * @ORM\JoinColumn(referencedColumnName="_p_id", nullable = false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class)]
     protected $procedure;
 
     /**
      * @var Collection<int, BoilerplateInterface>
      *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate", mappedBy = "group")
      *
-     * @ORM\OrderBy({"title" = "ASC"})
      */
+    #[ORM\OneToMany(targetEntity: Boilerplate::class, mappedBy: 'group')]
+    #[ORM\OrderBy(['title' => 'ASC'])]
     protected $boilerplates;
 
     /**

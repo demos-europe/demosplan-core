@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureBehaviorDefinitionRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureBehaviorDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
@@ -26,43 +28,41 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * ProcedureBehaviorDefinition - Defines the customizable parts of the behavior of a Procedure.
  * A ProcedureBehaviorDefinition should never have an direct relationship to a Procedure and to a ProcedureType.
  *
- * @ORM\Table
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureBehaviorDefinitionRepository")
  *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: ProcedureBehaviorDefinitionRepository::class)]
 class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterface, ProcedureBehaviorDefinitionInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private $id;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private $creationDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private $modificationDate;
 
     /**
@@ -74,10 +74,10 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      *
      * @var ProcedureInterface|null
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="procedureBehaviorDefinition")
      *
-     * @JoinColumn(referencedColumnName="_p_id")
      */
+    #[JoinColumn(referencedColumnName: '_p_id')]
+    #[ORM\OneToOne(targetEntity: Procedure::class, mappedBy: 'procedureBehaviorDefinition')]
     private $procedure;
 
     /**
@@ -87,24 +87,22 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      *
      * @var ProcedureTypeInterface|null
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType", mappedBy="procedureBehaviorDefinition")
      *
-     * @JoinColumn() // Without this, Doctrine doesn't add the column to table, so please don't delete.
      */
+    #[JoinColumn]
+    #[ORM\OneToOne(targetEntity: ProcedureType::class, mappedBy: 'procedureBehaviorDefinition')]
     private $procedureType;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $allowedToEnableMap = true;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     private $hasPriorityArea = false;
 
     /**
@@ -112,9 +110,8 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      * planners.
      *
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     private $participationGuestOnly = false;
 
     public function getId(): ?string

@@ -10,6 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Branding;
+use demosplan\DemosPlanCoreBundle\Entity\Video;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BrandingInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerCountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
@@ -26,36 +31,31 @@ use Doctrine\ORM\Mapping as ORM;
 use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Table(name="customer")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomerRepository")
- */
+#[ORM\Table(name: 'customer')]
+#[ORM\Entity(repositoryClass: CustomerRepository::class)]
 class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterface, Stringable
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_c_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_c_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private $id;
     /**
      * @var Collection<int, CustomerCountyInterface>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\CustomerCounty", mappedBy="customer", cascade={"persist"})
      */
+    #[ORM\OneToMany(targetEntity: CustomerCounty::class, mappedBy: 'customer', cascade: ['persist'])]
     private $customerCounties;
     /**
      * @var string
-     *
-     * @ORM\Column(type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(type: 'text', length: 65535, nullable: false)]
     private $imprint = '';
     /**
      * $orgas not mapped to a Table because they are now retrieved from {@link Customer::$orgaStatuses}.
@@ -65,56 +65,54 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     private $orgas;
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer", mappedBy="customer")
      */
+    #[ORM\OneToMany(targetEntity: UserRoleInCustomer::class, mappedBy: 'customer')]
     protected $userRoles;
     /**
      * @var Collection<int, OrgaStatusInCustomerInterface>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer", mappedBy="customer")
      */
+    #[ORM\OneToMany(targetEntity: OrgaStatusInCustomer::class, mappedBy: 'customer')]
     protected $orgaStatuses;
     /**
      * Data privacy protection setting of the customer which is displayed as legal requirement on the website.
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/impressum/ Wiki: Impressum / Datenschutz / Nutz.b.
      *
-     * @ORM\Column(name="data_protection", type="text", length=65535, nullable=false)
      *
      * @var string
      */
     #[Assert\Length(max: 65000, groups: [CustomerInterface::GROUP_UPDATE])]
+    #[ORM\Column(name: 'data_protection', type: 'text', length: 65535, nullable: false)]
     protected $dataProtection = '';
     /**
      * Terms of use setting of the customer which is displayed as legal requirement on the website.
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/impressum/ Wiki: Impressum / Datenschutz / Nutz.b.
      *
-     * @ORM\Column(type="text", length=65535, nullable=false)
      *
      * @var string
      */
     #[Assert\Length(max: 65000, groups: [CustomerInterface::GROUP_UPDATE])]
+    #[ORM\Column(type: 'text', length: 65535, nullable: false)]
     protected $termsOfUse = '';
     /**
      * Information page about xplanning. Should possibly be moved someday to some kind of cms like system.
      *
-     * @ORM\Column(type="text", length=65535, nullable=false)
      *
      * @var string
      */
     #[Assert\Length(max: 65000, groups: [CustomerInterface::GROUP_UPDATE])]
+    #[ORM\Column(type: 'text', length: 65535, nullable: false)]
     protected $xplanning = '';
     /**
      * T15644:.
      *
      * @var ProcedureInterface
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", cascade={"remove"})
      *
-     * @ORM\JoinColumn(name="_procedure", referencedColumnName="_p_id", nullable=true)
      */
+    #[ORM\JoinColumn(name: '_procedure', referencedColumnName: '_p_id', nullable: true)]
+    #[ORM\OneToOne(targetEntity: Procedure::class, cascade: ['remove'])]
     protected $defaultProcedureBlueprint;
     /**
      * T16986
@@ -122,10 +120,9 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * e.g. "© basemap.de BKG".
      *
      * @var string
-     *
-     * @ORM\Column(type="text", length=4096, nullable=false)
      */
     #[Assert\Length(min: 0, max: 4096, groups: [CustomerInterface::GROUP_UPDATE])]
+    #[ORM\Column(type: 'text', length: 4096, nullable: false)]
     protected $mapAttribution = '';
     /**
      * T16986
@@ -134,10 +131,9 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * e.g. "https://sgx.geodatenzentrum.de/wms_basemapde".
      *
      * @var string
-     *
-     *@ORM\Column(type="string", length=4096, nullable=false, options={"default":""})
      */
     #[Assert\Length(min: 0, max: 4096, groups: [CustomerInterface::GROUP_UPDATE])]
+    #[ORM\Column(type: 'string', length: 4096, nullable: false, options: ['default' => ''])]
     protected $baseLayerUrl = '';
     /**
      * T16986
@@ -146,79 +142,69 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * e.g. "de_basemapde_web_raster_grau".
      *
      * @var string
-     *
-     *@ORM\Column(type="string", length=4096, nullable=false, options={"default":""})
      */
     #[Assert\Length(min: 0, max: 4096, groups: [CustomerInterface::GROUP_UPDATE])]
+    #[ORM\Column(type: 'string', length: 4096, nullable: false, options: ['default' => ''])]
     protected $baseLayerLayers = '';
     /**
      * @var BrandingInterface|null
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Branding", cascade={"persist", "remove"})
      */
     #[Assert\Valid]
+    #[ORM\OneToOne(targetEntity: Branding::class, cascade: ['persist', 'remove'])]
     protected $branding;
     /**
      * @var string
-     *
-     * @ORM\Column(name="accessibility_explanation", type="text",  nullable=false, options={"fixed":true})
      */
     #[Assert\Length(max: 65000, groups: [CustomerInterface::GROUP_UPDATE])]
+    #[ORM\Column(name: 'accessibility_explanation', type: 'text', nullable: false, options: ['fixed' => true])]
     protected $accessibilityExplanation = '';
     /**
      * Optional videos explaining the content and basic navigation of the website in sign language.
      *
      * @var Collection<int, VideoInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Video")
      *
-     * @ORM\JoinTable(name="sign_language_overview_video",
-     *      joinColumns={@ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="video_id", referencedColumnName="id", unique=true)}
-     * )
      */
+    #[ORM\JoinTable(
+        name: 'sign_language_overview_video',
+        joinColumns: [new ORM\JoinColumn(name: 'customer_id', referencedColumnName: '_c_id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'video_id', referencedColumnName: 'id', unique: true)]
+    )]
+    #[ORM\ManyToMany(targetEntity: Video::class)]
     private $signLanguageOverviewVideos;
     /**
      * Description text for the page in which {@link CustomerInterface::$signLanguageOverviewVideos} are shown.
      *
      * @var string
-     *
-     * @ORM\Column(type="text", nullable=false)
      */
+    #[ORM\Column(type: 'text', nullable: false)]
     private $signLanguageOverviewDescription = '';
     /**
      * A text that will be shown on a separate page, explaining content and navigation of the
      * website in simple language.
      *
      * @var string
-     *
-     * @ORM\Column(name="simple_language_overview_description", type="text", nullable=false)
      */
     #[Assert\Length(max: 65536)]
+    #[ORM\Column(name: 'simple_language_overview_description', type: 'text', nullable: false)]
     protected $overviewDescriptionInSimpleLanguage = '';
 
     /**
      * @var Collection<int, SupportContact>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\SupportContact", mappedBy="customer")
      */
     #[Assert\Valid]
+    #[ORM\OneToMany(targetEntity: SupportContact::class, mappedBy: 'customer')]
     protected Collection $contacts;
 
     /**
      * @var Collection<int, InstitutionTagCategory>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory", mappedBy="customer", cascade={"remove"})
      */
     #[Assert\Valid]
+    #[ORM\OneToMany(targetEntity: InstitutionTagCategory::class, mappedBy: 'customer', cascade: ['remove'])]
     protected Collection $customerCategories;
 
-    public function __construct(/**
-     * @ORM\Column(name="_c_name", type="string", length=50, nullable=false)
-     */
-        private string $name, /**
-     * @ORM\Column(name="_c_subdomain", type="string", length=50, nullable=false)
-     */
+    public function __construct(#[ORM\Column(name: '_c_name', type: 'string', length: 50, nullable: false)]
+        private string $name, #[ORM\Column(name: '_c_subdomain', type: 'string', length: 50, nullable: false)]
         private string $subdomain, string $mapAttribution = '')
     {
         $this->mapAttribution = $mapAttribution;

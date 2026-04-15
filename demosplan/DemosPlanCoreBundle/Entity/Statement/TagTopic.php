@@ -10,6 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use \demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
+use \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
@@ -21,62 +25,45 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(
- *     name="_tag_topic",
- *     uniqueConstraints={
- *
- *         @ORM\UniqueConstraint(
- *             name="tag_topic_unique_title",
- *             columns={"_p_id", "_tt_title"}
- *         )
- *     }
- * )
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository")
- */
+#[ORM\Table(name: '_tag_topic')]
+#[ORM\UniqueConstraint(name: 'tag_topic_unique_title', columns: ['_p_id', '_tt_title'])]
+#[ORM\Entity(repositoryClass: TagTopicRepository::class)]
 class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_tt_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_tt_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
-     * @ORM\Column(name="_tt_create_date", type="datetime", nullable=false)
-     *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: '_tt_create_date', type: 'datetime', nullable: false)]
     protected DateTime $createDate;
 
     /**
      * @var Collection<int, TagInterface>
      *
-     * @ORM\OneToMany(targetEntity = "\demosplan\DemosPlanCoreBundle\Entity\Statement\Tag", mappedBy = "topic", cascade={"remove"})
      *
-     * @ORM\OrderBy({"title" = "ASC"})
      */
+    #[ORM\OneToMany(targetEntity: Tag::class, mappedBy: 'topic', cascade: ['remove'])]
+    #[ORM\OrderBy(['title' => 'ASC'])]
     protected Collection $tags;
 
     /**
      * * Necessary to set Type of $this->tags.
      */
-    public function __construct(/**
-     * @ORM\Column(name="_tt_title", type="string", length=255,  nullable=false)
-     */
-        protected string $title, /**
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="topics")
-     *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable = false, onDelete="CASCADE")
-     */
+    public function __construct(#[ORM\Column(name: '_tt_title', type: 'string', length: 255, nullable: false)]
+        protected string $title, #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+        #[ORM\ManyToOne(targetEntity: Procedure::class, inversedBy: 'topics')]
         protected ProcedureInterface $procedure)
     {
         $this->tags = new ArrayCollection();

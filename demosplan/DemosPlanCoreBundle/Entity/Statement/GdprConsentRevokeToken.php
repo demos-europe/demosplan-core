@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use demosplan\DemosPlanCoreBundle\Repository\GdprConsentRevokeTokenRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GdprConsentRevokeTokenInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -38,22 +40,21 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * The usage of the token is possible only once. However the token must not be deleted to be able
  * to inform the user that the token was already used in case he tries to use it multiple times.
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\GdprConsentRevokeTokenRepository")
  */
+#[ORM\Entity(repositoryClass: GdprConsentRevokeTokenRepository::class)]
 class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface, GdprConsentRevokeTokenInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: 'id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
@@ -78,13 +79,14 @@ class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface, 
      *
      * @var Statement[]
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement")
      *
-     * @ORM\JoinTable(name="gdpr_consent_revoke_token_statements",
-     *      joinColumns={@ORM\JoinColumn(name="token_id", referencedColumnName="id", nullable=false)},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id", unique=true, nullable=false)}
-     * )
      */
+    #[ORM\JoinTable(
+        name: 'gdpr_consent_revoke_token_statements',
+        joinColumns: [new ORM\JoinColumn(name: 'token_id', referencedColumnName: 'id', nullable: false)],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'statement_id', referencedColumnName: '_st_id', unique: true, nullable: false)]
+    )]
+    #[ORM\ManyToMany(targetEntity: Statement::class)]
     protected $statements;
 
     /**
@@ -95,9 +97,8 @@ class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface, 
      * As of writing a filter hash is used to maintain a relatively short token value.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", length=12, nullable=false, unique=true, options={"fixed":true})
      */
+    #[ORM\Column(type: 'string', length: 12, nullable: false, unique: true, options: ['fixed' => true])]
     protected $token;
 
     /**
@@ -106,14 +107,10 @@ class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface, 
      * leave GDPR relevant data behind. As the creation of tokens without an email address makes no
      * sense this property can be used to check if the taken was already used.
      *
-     * @ORM\ManyToOne(
-     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\EmailAddress",
-     *     cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="email_id",
-     *     referencedColumnName="id",
-     *     nullable = false)
      */
+    #[ORM\JoinColumn(name: 'email_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: EmailAddress::class, cascade: ['persist'])]
     protected $emailAddress;
 
     /**

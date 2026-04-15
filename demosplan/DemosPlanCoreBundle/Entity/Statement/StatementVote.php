@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementVoteInterface;
@@ -18,43 +21,40 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_statement_votes")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository")
- */
+#[ORM\Table(name: '_statement_votes')]
+#[ORM\Entity(repositoryClass: StatementVoteRepository::class)]
 class StatementVote implements UuidEntityInterface, StatementVoteInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_stv_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_stv_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var StatementInterface
      *                         onDelete="CASCADE": Delete this Vote, in case of related Statement will be deleted
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="votes")
      *
-     * @ORM\JoinColumn(name="_st_id", nullable = false, referencedColumnName="_st_id", onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_st_id', nullable: false, referencedColumnName: '_st_id', onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'votes')]
     protected $statement;
 
     /**
      * @var UserInterface|null
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
-     * @ORM\JoinColumn(name="_u_id", nullable = true, referencedColumnName="_u_id", onDelete="RESTRICT")
      */
+    #[ORM\JoinColumn(name: '_u_id', nullable: true, referencedColumnName: '_u_id', onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $user;
 
     /**
@@ -66,113 +66,101 @@ class StatementVote implements UuidEntityInterface, StatementVoteInterface
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_firstname", type="string", length=128, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_u_firstname', type: 'string', length: 128, nullable: false, options: ['default' => ''])]
     protected $firstName = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_lastname", type="string", length=128, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_u_lastname', type: 'string', length: 128, nullable: false, options: ['default' => ''])]
     protected $lastName = '';
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_st_v_active", type="boolean", length=1, nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_st_v_active', type: 'boolean', length: 1, nullable: false, options: ['default' => false])]
     protected $active = true;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_st_v_deleted", type="boolean", length=1, nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_st_v_deleted', type: 'boolean', length: 1, nullable: false, options: ['default' => false])]
     protected $deleted = false;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_st_v_created_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: '_st_v_created_date', type: 'datetime', nullable: false)]
     protected $createdDate;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_st_v_modified_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(name: '_st_v_modified_date', type: 'datetime', nullable: false)]
     protected $modifiedDate;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_st_v_deleted_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(name: '_st_v_deleted_date', type: 'datetime', nullable: false)]
     protected $deletedDate;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="`manual`", type="boolean", nullable = false, options={"default":false})
      */
+    #[ORM\Column(name: '`manual`', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $manual = false;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable = false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     protected $createdByCitizen = false;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected $organisationName;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected $departmentName;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected $userName;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected $userMail;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected $userPostcode;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected $userCity;
 
     public function getId(): ?string

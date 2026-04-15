@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ManualListSortInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -18,59 +21,49 @@ use Doctrine\ORM\Mapping as ORM;
 
 use function is_string;
 
-/**
- * @ORM\Table(name="_manual_list_sort")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository")
- */
+#[ORM\Table(name: '_manual_list_sort')]
+#[ORM\Entity(repositoryClass: ManualListSortRepository::class)]
 class ManualListSort extends CoreEntity implements UuidEntityInterface, ManualListSortInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_mls_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_mls_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_id", type="string", length=36, options={"fixed":true}, nullable=false)
      */
+    #[ORM\Column(name: '_p_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $pId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mls_context", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_mls_context', type: 'string', length: 255, nullable: false)]
     protected $context;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mls_namespace", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_mls_namespace', type: 'string', length: 255, nullable: false)]
     protected $namespace;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id", onDelete="CASCADE", nullable=true)
-     */
+    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: '_c_id', onDelete: 'CASCADE', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: Customer::class, cascade: ['persist'])]
     protected ?CustomerInterface $customer = null;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mls_idents", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_mls_idents', type: 'text', length: 65535, nullable: false)]
     protected $idents;
 
     public function getId(): ?string

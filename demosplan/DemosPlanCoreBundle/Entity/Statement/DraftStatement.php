@@ -10,6 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\Department;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementFileInterface;
@@ -32,43 +41,42 @@ use Exception;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * @ORM\Table(name="_draft_statement")
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository")
  *
  * @FormDefinitionConstraint()
  */
+#[ORM\Table(name: '_draft_statement')]
+#[ORM\Entity(repositoryClass: DraftStatementRepository::class)]
 class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftStatementInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_ds_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_ds_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * used to either limit the visibility scope within the drafts-folder to only the author
      * or in case this value is set to false - the scope is set
      * visible for all members of the {{ @see self::$organisation }}.
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     protected bool $authorOnly = true;
 
     /**
      * @var ProcedureInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class)]
     protected $procedure;
 
     /**
@@ -78,32 +86,29 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_ds_number", type="integer", nullable=false, options={"default":0})
      */
+    #[ORM\Column(name: '_ds_number', type: 'integer', nullable: false, options: ['default' => 0])]
     protected $number = 1000;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_title", type="string", length=4000, nullable=false)
      */
+    #[ORM\Column(name: '_ds_title', type: 'string', length: 4000, nullable: false)]
     protected $title = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_text", type="text", nullable=false, length=15000000)
      */
+    #[ORM\Column(name: '_ds_text', type: 'text', nullable: false, length: 15000000)]
     protected $text = '';
 
     /**
      * @var ParagraphVersionInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", cascade={"all"})
      *
-     * @ORM\JoinColumn(name="_ds_paragraph_id", referencedColumnName="_pdv_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_ds_paragraph_id', referencedColumnName: '_pdv_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: ParagraphVersion::class, cascade: ['all'])]
     protected $paragraph;
 
     /**
@@ -116,10 +121,10 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     /**
      * @var SingleDocumentVersionInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="_ds_document_id", referencedColumnName="_sdv_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_ds_document_id', referencedColumnName: '_sdv_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: SingleDocumentVersion::class, cascade: ['persist'])]
     protected $document;
 
     /**
@@ -150,47 +155,43 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     /**
      * @var ElementsInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="_ds_element_id", referencedColumnName="_e_id", onDelete="SET NULL")
      **/
+    #[ORM\JoinColumn(name: '_ds_element_id', referencedColumnName: '_e_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: Elements::class, cascade: ['persist'])]
     protected $element;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_polygon", type="text", length=16777215, nullable=false)
      */
+    #[ORM\Column(name: '_ds_polygon', type: 'text', length: 16777215, nullable: false)]
     protected $polygon = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_file", type="string", length=255, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_ds_file', type: 'string', length: 255, nullable: false, options: ['fixed' => true])]
     protected $file = '';
 
     /**
      * @var Collection<int, DraftStatementFileInterface>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementFile", mappedBy="draftStatement", orphanRemoval=true, fetch="EAGER", cascade={"persist"})
      */
+    #[ORM\OneToMany(targetEntity: DraftStatementFile::class, mappedBy: 'draftStatement', orphanRemoval: true, fetch: 'EAGER', cascade: ['persist'])]
     protected $files;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_map_file", type="string", length=255, nullable=true, options={"fixed":true})
      */
+    #[ORM\Column(name: '_ds_map_file', type: 'string', length: 255, nullable: true, options: ['fixed' => true])]
     protected $mapFile;
 
     /**
      * @var OrgaInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      *
-     * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=false, onDelete="RESTRICT")
      */
+    #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', nullable: false, onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: Orga::class)]
     protected $organisation;
 
     /**
@@ -202,9 +203,8 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_o_name", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_o_name', type: 'string', length: 255, nullable: false)]
     protected $oName = '';
 
     /**
@@ -216,18 +216,17 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_d_name", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_d_name', type: 'string', length: 255, nullable: false)]
     protected $dName = '';
 
     /**
      * @var DepartmentInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
      *
-     * @ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", nullable=false, onDelete="RESTRICT")
      **/
+    #[ORM\JoinColumn(name: '_d_id', referencedColumnName: '_d_id', nullable: false, onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: Department::class)]
     protected $department;
 
     /**
@@ -240,10 +239,10 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     /**
      * @var UserInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
-     * @ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", nullable=false, onDelete="RESTRICT")},
      */
+    #[ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', nullable: false, onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $user;
 
     /**
@@ -255,220 +254,192 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_name", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_u_name', type: 'string', length: 255, nullable: false)]
     protected $uName = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_street", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_u_street', type: 'string', length: 255, nullable: false)]
     protected $uStreet = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false)
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     protected $houseNumber = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_postal_code", type="string", length=6, nullable=false)
      */
+    #[ORM\Column(name: '_u_postal_code', type: 'string', length: 6, nullable: false)]
     protected $uPostalCode = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_city", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_u_city', type: 'string', length: 255, nullable: false)]
     protected $uCity = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_email", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_u_email', type: 'string', length: 255, nullable: false)]
     protected $uEmail = '';
 
     /**
      * User generally wants feedback for this statement. $feedback holds the kind of desired feedback.
      *
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false)
      */
+    #[ORM\Column(type: 'boolean', nullable: false)]
     protected $uFeedback = false;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_feedback", type="string", length=10, nullable=false)
      */
+    #[ORM\Column(name: '_ds_feedback', type: 'string', length: 10, nullable: false)]
     protected $feedback = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_extern_id", type="string", length=25, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_ds_extern_id', type: 'string', length: 25, nullable: false, options: ['fixed' => true])]
     protected $externId = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_rejected_reason", type="string", length=4000, nullable=false)
      */
+    #[ORM\Column(name: '_ds_rejected_reason', type: 'string', length: 4000, nullable: false)]
     protected $rejectedReason = '';
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_ds_negative_statement", type="boolean", nullable=false)
      */
+    #[ORM\Column(name: '_ds_negative_statement', type: 'boolean', nullable: false)]
     protected $negativ = false;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_ds_submited", type="boolean", nullable=false)
      */
+    #[ORM\Column(name: '_ds_submited', type: 'boolean', nullable: false)]
     protected $submitted = false;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_ds_released", type="boolean", nullable=false)
      */
+    #[ORM\Column(name: '_ds_released', type: 'boolean', nullable: false)]
     protected $released = false;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_ds_show_all", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_ds_show_all', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $showToAll = false;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_ds_deleted", type="boolean", nullable=false)
      */
+    #[ORM\Column(name: '_ds_deleted', type: 'boolean', nullable: false)]
     protected $deleted = false;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_ds_rejected", type="boolean", nullable=false)
      */
+    #[ORM\Column(name: '_ds_rejected', type: 'boolean', nullable: false)]
     protected $rejected = false;
 
     /**
      * Darf die Stellungnahme auf der Beteiligungsebene angezeigt werden?
      *
      * @var bool
-     *
-     * @ORM\Column(name="_ds_public_allowed", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_ds_public_allowed', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $publicAllowed = false;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_ds_public_use_name", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_ds_public_use_name', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $publicUseName = false;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_public_draft_statement", type="string", length=20, nullable=false)
      */
+    #[ORM\Column(name: '_ds_public_draft_statement', type: 'string', length: 20, nullable: false)]
     protected $publicDraftStatement = DraftStatementInterface::INTERNAL;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_represents", type="string", length=256, nullable=true, options={"default":""})
      */
+    #[ORM\Column(name: '_ds_represents', type: 'string', length: 256, nullable: true, options: ['default' => ''])]
     protected $represents = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ds_phase", type="string", length=50, nullable=false)
      */
+    #[ORM\Column(name: '_ds_phase', type: 'string', length: 50, nullable: false)]
     protected $phase = '';
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_ds_created_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: '_ds_created_date', type: 'datetime', nullable: false)]
     protected $createdDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_ds_deleted_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_ds_deleted_date', type: 'datetime', nullable: false)]
     protected $deletedDate;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_ds_last_modified_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(name: '_ds_last_modified_date', type: 'datetime', nullable: false)]
     protected $lastModifiedDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_ds_submited_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_ds_submited_date', type: 'datetime', nullable: false)]
     protected $submittedDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_ds_released_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_ds_released_date', type: 'datetime', nullable: false)]
     protected $releasedDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_ds_rejected_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_ds_rejected_date', type: 'datetime', nullable: false)]
     protected $rejectedDate;
 
     /**
      * @var ProcedureInterface
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion", mappedBy="draftStatement")
      */
+    #[ORM\OneToMany(targetEntity: DraftStatementVersion::class, mappedBy: 'draftStatement')]
     protected $versions;
 
     /**
      * @var Collection<int, StatementAttributeInterface>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute", mappedBy="draftStatement")
      */
+    #[ORM\OneToMany(targetEntity: StatementAttribute::class, mappedBy: 'draftStatement')]
     protected $statementAttributes;
 
     /**
      * @var array
-     *
-     * @ORM\Column(name="_ds_misc_data", type="array", nullable=true)
      */
+    #[ORM\Column(name: '_ds_misc_data', type: 'array', nullable: true)]
     protected $miscData = [];
 
     /**
@@ -476,14 +447,11 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
      * (This is currently only possible as unregistered guest user in public detail).
      *
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable = false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     private $anonymous = false;
 
-    /**
-     * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
-     */
+    #[ORM\Column(type: 'dplan.custom_fields_value', nullable: true)]
     private ?CustomFieldValuesList $customFields = null;
 
     public function __construct()

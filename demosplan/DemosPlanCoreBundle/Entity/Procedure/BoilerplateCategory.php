@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Repository\BoilerplateCategoryRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
@@ -21,11 +24,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_predefined_texts_category")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\BoilerplateCategoryRepository")
- */
+#[ORM\Table(name: '_predefined_texts_category')]
+#[ORM\Entity(repositoryClass: BoilerplateCategoryRepository::class)]
 class BoilerplateCategory extends CoreEntity implements UuidEntityInterface, BoilerplateCategoryInterface
 {
     /**
@@ -33,68 +33,64 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface, Boi
      *
      * @var string|null
      *
-     * @ORM\Column(name="ptc_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: 'ptc_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var ProcedureInterface
      *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class)]
     protected $procedure;
 
     /**
      * @var Collection<int, BoilerplateInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate", inversedBy="categories", cascade={"persist"})
      *
-     * @ORM\JoinTable(
-     *     name="predefined_texts_categories",
-     *     joinColumns={@ORM\JoinColumn(name="_ptc_id", referencedColumnName="ptc_id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_pt_id", referencedColumnName="_pt_id")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: 'predefined_texts_categories',
+        joinColumns: [new ORM\JoinColumn(name: '_ptc_id', referencedColumnName: 'ptc_id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_pt_id', referencedColumnName: '_pt_id')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Boilerplate::class, inversedBy: 'categories', cascade: ['persist'])]
     protected $boilerplates;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="ptc_title", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: 'ptc_title', type: 'string', length: 255, nullable: true)]
     protected $title;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="ptc_text", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'ptc_text', type: 'text', nullable: true)]
     protected $description;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="ptc_create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: 'ptc_create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="ptc_modify_date",type="datetime", nullable=false)
      */
+    #[ORM\Column(name: 'ptc_modify_date', type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     public function __construct()

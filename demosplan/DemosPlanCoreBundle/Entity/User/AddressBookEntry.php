@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use demosplan\DemosPlanCoreBundle\Repository\AddressBookEntryRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -20,31 +22,27 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\AddressBookEntryRepository")
- */
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: AddressBookEntryRepository::class)]
 class AddressBookEntry extends CoreEntity implements UuidEntityInterface, AddressBookEntryInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected $name;
 
     /**
@@ -53,35 +51,34 @@ class AddressBookEntry extends CoreEntity implements UuidEntityInterface, Addres
      * Many address book entries have one organisation. This is the owning side.
      * (In Doctrine Many have to be the owning side in a ManyToOne relationship.)
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="addressBookEntries")
      *
-     * @ORM\JoinColumn(referencedColumnName="_o_id", onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(referencedColumnName: '_o_id', onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Orga::class, inversedBy: 'addressBookEntries')]
     protected $organisation;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=false)
      */
+    #[ORM\Column(type: 'string', nullable: false)]
     protected $emailAddress;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected $createdDate;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected $modifiedDate;
 
     public function __construct(string $name, string $emailAddress, Orga $organisation)

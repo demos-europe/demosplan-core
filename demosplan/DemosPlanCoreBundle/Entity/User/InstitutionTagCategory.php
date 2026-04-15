@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagCategoryRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagCategoryInterface;
@@ -22,59 +24,49 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_category_name_for_customer", columns={"customer_id", "name"})})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\InstitutionTagCategoryRepository")
- */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'unique_category_name_for_customer', columns: ['customer_id', 'name'])]
+#[ORM\Entity(repositoryClass: InstitutionTagCategoryRepository::class)]
 class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface, InstitutionTagCategoryInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
     #[Assert\NotNull(message: 'institutionTag.label.not.null')]
     #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     protected string $name;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="customerCategories", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false)
-     */
+    #[ORM\JoinColumn(referencedColumnName: '_c_id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'customerCategories', cascade: ['persist'])]
     protected Customer $customer;
 
     /**
      * @var Collection<int, InstitutionTag>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag", mappedBy="category", cascade={"remove"})
      */
+    #[ORM\OneToMany(targetEntity: InstitutionTag::class, mappedBy: 'category', cascade: ['remove'])]
     protected $tags;
 
     /**
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected DateTime $creationDate;
 
     /**
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private DateTime $modificationDate;
 
     public function getId(): ?string

@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -38,125 +40,93 @@ use Illuminate\Support\Collection as IlluminateCollection;
 use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Table(
- *     name="_orga",
- *     uniqueConstraints={
- *
- *         @ORM\UniqueConstraint(
- *             name="_o_gw_id",
- *             columns={"_o_gw_id"}
- *         )
- *     }
- * )
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OrgaRepository")
- *
- * @ORM\AssociationOverrides({
- *
- *      @ORM\AssociationOverride(name="slugs",
- *          joinTable=@ORM\JoinTable(
- *              joinColumns=@ORM\JoinColumn(name="o_id", referencedColumnName="_o_id"),
- *              inverseJoinColumns=@ORM\JoinColumn(name="s_id", referencedColumnName="id")
- *          )
- *      )
- * })
- */
+#[ORM\Table(name: '_orga')]
+#[ORM\UniqueConstraint(name: '_o_gw_id', columns: ['_o_gw_id'])]
+#[ORM\Entity(repositoryClass: OrgaRepository::class)]
+#[ORM\AssociationOverrides([new ORM\AssociationOverride(name: 'slugs', joinTable: new ORM\JoinTable(joinColumns: new ORM\JoinColumn(name: 'o_id', referencedColumnName: '_o_id'), inverseJoinColumns: new ORM\JoinColumn(name: 's_id', referencedColumnName: 'id')))])]
 class Orga extends SluggedEntity implements OrgaInterface, Stringable
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_o_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_o_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_o_name", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_o_name', type: 'string', length: 255, nullable: true)]
     protected $name;
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_o_gateway_name", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_o_gateway_name', type: 'string', length: 255, nullable: true)]
     protected $gatewayName = '';
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_o_code", type="string", length=128, nullable=true)
      */
+    #[ORM\Column(name: '_o_code', type: 'string', length: 128, nullable: true)]
     protected $code;
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_o_created_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_o_created_date', type: 'datetime', nullable: false)]
     protected $createdDate;
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_o_modified_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_o_modified_date', type: 'datetime', nullable: false)]
     protected $modifiedDate;
     /**
      * Comma separated list of cc-Email addresses.
      *
      * @var string|null
-     *
-     * @ORM\Column(name="_o_cc_email2", type="string", length=4096, nullable=true)
      */
+    #[ORM\Column(name: '_o_cc_email2', type: 'string', length: 4096, nullable: true)]
     protected $ccEmail2;
     /**
      * This E-mail is used as "Koordinatoremail der Fachbehörden".
      *
      * @var string|null
-     *
-     * @ORM\Column(name="_o_email_reviewer_admin", type="string", length=4096, nullable=true)
      */
     #[Assert\Email(message: 'email.address.invalid')]
+    #[ORM\Column(name: '_o_email_reviewer_admin', type: 'string', length: 4096, nullable: true)]
     protected $emailReviewerAdmin;
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_o_deleted", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_o_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted = false;
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_o_showname", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_o_showname', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $showname = false;
     /**
      * @var bool
      *           Is this orga listed in public toeb list
-     *
-     * @ORM\Column(name="_o_showlist", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_o_showlist', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $showlist = true;
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_o_gw_id", type="string", length=250, nullable=true)
      */
+    #[ORM\Column(name: '_o_gw_id', type: 'string', length: 250, nullable: true)]
     protected $gwId;
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_o_competence", type="text", length=65535, nullable=true)
      */
+    #[ORM\Column(name: '_o_competence', type: 'text', length: 65535, nullable: true)]
     protected $competence;
     /**
      * In case of this organisation is a public agency and is in use, logically this property
@@ -164,43 +134,39 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      * Beteiligungsemail - "Sie erhalten Benachrichtigungen an diese Adresse bezüglich Ihrer Stellungnahme(n).".
      *
      * @var string|null
-     *
-     * @ORM\Column(name="_o_email2", type="string", length=364, nullable=true)
      */
     #[Assert\Email(message: 'email.address.invalid')]
+    #[ORM\Column(name: '_o_email2', type: 'string', length: 364, nullable: true)]
     protected $email2;
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_o_contact_person", type="string", length=256, nullable=true)
      */
+    #[ORM\Column(name: '_o_contact_person', type: 'string', length: 256, nullable: true)]
     protected $contactPerson;
     /**
      * @var int|null This is currently nullable, but we're phasing that out. Eventually, it should
      *               not be nullable. This is why the setter requires an non-nullable int.
-     *
-     * @ORM\Column(name="_o_paper_copy", type="integer", length=2, nullable=true, options={"unsigned":true})
      */
+    #[ORM\Column(name: '_o_paper_copy', type: 'integer', length: 2, nullable: true, options: ['unsigned' => true])]
     protected $paperCopy;
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_o_paper_copy_spec", type="string", length=4096, nullable=true)
      */
+    #[ORM\Column(name: '_o_paper_copy_spec', type: 'string', length: 4096, nullable: true)]
     protected $paperCopySpec;
     /**
      * @var Collection<int, AddressInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Address", cascade={"persist"})
      *
-     * @ORM\JoinTable(
-     *     name="_orga_addresses_doctrine",
-     *     joinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="cascade")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_a_id", referencedColumnName="_a_id", onDelete="cascade")}
-     * )
      */
     #[Assert\All([new Assert\Type(type: 'demosplan\DemosPlanCoreBundle\Entity\User\Address')])]
     #[Assert\Type(type: Collection::class)]
+    #[ORM\JoinTable(
+        name: '_orga_addresses_doctrine',
+        joinColumns: [new ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', onDelete: 'cascade')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_a_id', referencedColumnName: '_a_id', onDelete: 'cascade')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Address::class, cascade: ['persist'])]
     protected $addresses;
     /**
      * $customers not mapped to a Table because they are now retrieved from {@link Orga::$statusInCustomers}.
@@ -237,20 +203,20 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/impressum/ Wiki: Impressum / Datenschutz
      *
-     * @ORM\Column(name="data_protection", type="text", length=65535, nullable=false)
      *
      * @var string
      */
+    #[ORM\Column(name: 'data_protection', type: 'text', length: 65535, nullable: false)]
     protected $dataProtection = '';
     /**
      * Data privacy protection setting of the orga which is displayed as legal requirement on the website.
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/impressum/ Wiki: Impressum / Datenschutz
      *
-     * @ORM\Column(name="imprint", type="text", length=65535, nullable=false)
      *
      * @var string
      */
+    #[ORM\Column(name: 'imprint', type: 'text', length: 65535, nullable: false)]
     protected $imprint = '';
     /**
      * @var ArrayCollection array[]
@@ -262,15 +228,14 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      *
      * @var Collection<int, UserInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", inversedBy="orga",
-     *                 cascade={"persist"})
      *
-     * @ORM\JoinTable(
-     *     name="_orga_users_doctrine",
-     *     joinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="RESTRICT")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", onDelete="RESTRICT")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: '_orga_users_doctrine',
+        joinColumns: [new ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', onDelete: 'RESTRICT')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', onDelete: 'RESTRICT')]
+    )]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'orga', cascade: ['persist'])]
     protected $users;
     /**
      * Aus Legacygründen wird dies als Many-to-Many-Association modelliert, damit das DB-Schema erhalten bleibt
@@ -278,27 +243,24 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      *
      * @var Collection<int, DepartmentInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department", inversedBy="orgas",
-     *                 cascade={"persist", "all"})
      *
-     * @ORM\JoinTable(
-     *     name="_orga_departments_doctrine",
-     *     joinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="RESTRICT")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", onDelete="RESTRICT")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: '_orga_departments_doctrine',
+        joinColumns: [new ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', onDelete: 'RESTRICT')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_d_id', referencedColumnName: '_d_id', onDelete: 'RESTRICT')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Department::class, inversedBy: 'orgas', cascade: ['persist', 'all'])]
     protected $departments;
     /**
      ** @var Collection<int, Procedure>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="orga")
      */
+    #[ORM\OneToMany(targetEntity: Procedure::class, mappedBy: 'orga')]
     protected $procedures;
     /**
      * @var Collection<int, Procedure>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="organisation")
      */
+    #[ORM\ManyToMany(targetEntity: Procedure::class, mappedBy: 'organisation')]
     protected $procedureInvitations;
     /**
      * Virtual property for statement submissionType saved in Settings.
@@ -309,46 +271,41 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     /**
      * @var Collection<int, AddressBookEntryInterface>
      *                                                 One organisation has many address book entries. This is the inverse side.
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry", mappedBy="organisation")
      */
+    #[ORM\OneToMany(targetEntity: AddressBookEntry::class, mappedBy: 'organisation')]
     protected $addressBookEntries;
     /**
      * @var Collection<int, OrgaStatusInCustomerInterface>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer", mappedBy="orga", cascade={"persist"})
      */
+    #[ORM\OneToMany(targetEntity: OrgaStatusInCustomer::class, mappedBy: 'orga', cascade: ['persist'])]
     protected $statusInCustomers;
     /**
      * @var MasterToebInterface|null
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb", mappedBy="orga")
      */
+    #[ORM\OneToOne(targetEntity: MasterToeb::class, mappedBy: 'orga')]
     protected $masterToeb;
     /**
      * @var BrandingInterface|null
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Branding", cascade={"persist", "remove"})
      */
+    #[ORM\OneToOne(targetEntity: Branding::class, cascade: ['persist', 'remove'])]
     protected $branding;
     /**
      * The {@link Procedure} entities this organisation (if a planning agency) is allowed to administrate.
      *
      * @var Collection<int, ProcedureInterface>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="planningOffices")
      */
+    #[ORM\ManyToMany(targetEntity: Procedure::class, mappedBy: 'planningOffices')]
     protected $administratableProcedures;
     /**
      * @var Collection<int,InstitutionTagInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag", inversedBy="taggedInstitutions", cascade={"persist", "remove"})
      *
-     * @ORM\JoinTable(
-     *     joinColumns={@ORM\JoinColumn(referencedColumnName="_o_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="id", onDelete="CASCADE")}
-     * )
      */
+    #[ORM\JoinTable(
+        joinColumns: [new ORM\JoinColumn(referencedColumnName: '_o_id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(referencedColumnName: 'id', onDelete: 'CASCADE')]
+    )]
+    #[ORM\ManyToMany(targetEntity: InstitutionTag::class, inversedBy: 'taggedInstitutions', cascade: ['persist', 'remove'])]
     protected $assignedTags;
 
     public function __construct()

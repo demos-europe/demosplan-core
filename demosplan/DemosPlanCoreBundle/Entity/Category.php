@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use demosplan\DemosPlanCoreBundle\Repository\CategoryRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -19,116 +21,101 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_category")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CategoryRepository")
- */
+#[ORM\Table(name: '_category')]
+#[ORM\Entity(repositoryClass: CategoryRepository::class)]
 class Category extends CoreEntity implements UuidEntityInterface, CategoryInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_c_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_c_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_c_name", type="string", length=50, nullable=false, options={"default":"custom_category", "comment":"Has no function for custom categories"})
      */
+    #[ORM\Column(name: '_c_name', type: 'string', length: 50, nullable: false, options: ['default' => 'custom_category', 'comment' => 'Has no function for custom categories'])]
     protected $name = 'custom_category';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_c_title", type="string", length=255, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_c_title', type: 'string', length: 255, nullable: false, options: ['default' => ''])]
     protected $title;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_c_description", type="text", length=65535, nullable=true, options={"default":null})
      */
+    #[ORM\Column(name: '_c_description', type: 'text', length: 65535, nullable: true, options: ['default' => null])]
     protected $description;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_c_picture", type="string", length=128, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_c_picture', type: 'string', length: 128, nullable: false, options: ['default' => ''])]
     protected $picture = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_c_picture_title", type="string", length=255, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_c_picture_title', type: 'string', length: 255, nullable: false, options: ['default' => ''])]
     protected $pictitle = '';
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_c_enabled", type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(name: '_c_enabled', type: 'boolean', nullable: false, options: ['default' => true])]
     protected $enabled = true;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_c_deleted", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_c_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted = false;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_c_create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_c_create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_c_modify_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_c_modify_date', type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_c_delete_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_c_delete_date', type: 'datetime', nullable: false)]
     protected $deleteDate;
 
     /**
      * @var Collection<int, GlobalContent>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\GlobalContent", mappedBy="categories")
      */
+    #[ORM\ManyToMany(targetEntity: GlobalContent::class, mappedBy: 'categories')]
     protected $globalContents;
 
     /**
      * Determines if this entry was created by a user or is predefined.
      *
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true, "comment":"Determines if this entry was created by a user or is predefined."})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true, 'comment' => 'Determines if this entry was created by a user or is predefined.'])]
     protected $custom = true;
 
     public function __construct()

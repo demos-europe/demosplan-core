@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Repository\InstitutionMailRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionMailInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -18,58 +21,53 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="institution_mail")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\InstitutionMailRepository")
- */
+#[ORM\Table(name: 'institution_mail')]
+#[ORM\Entity(repositoryClass: InstitutionMailRepository::class)]
 class InstitutionMail extends CoreEntity implements UuidEntityInterface, InstitutionMailInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_tm_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_tm_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var Procedure
      *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class)]
     protected $procedure;
 
     /**
      * @var Orga
      *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      *
-     * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=false, onDelete="cascade")
      */
+    #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', nullable: false, onDelete: 'cascade')]
+    #[ORM\ManyToOne(targetEntity: Orga::class)]
     protected $organisation;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_phase", type="string", length=50)
      */
+    #[ORM\Column(name: '_p_phase', type: 'string', length: 50)]
     protected $procedurePhase;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_tm_created_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_tm_created_date', type: 'datetime', nullable: false)]
     protected $createdDate;
 
     public function getId(): ?string

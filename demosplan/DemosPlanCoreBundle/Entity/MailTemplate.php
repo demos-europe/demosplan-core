@@ -13,50 +13,43 @@ namespace demosplan\DemosPlanCoreBundle\Entity;
 use DemosEurope\DemosplanAddon\Contracts\Entities\MailTemplateInterface;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Table(name="_mail_templates")
- *
- * @ORM\Entity
- */
+#[ORM\Table(name: '_mail_templates')]
+#[ORM\Entity]
 class MailTemplate implements IntegerIdEntityInterface, MailTemplateInterface
 {
     /**
      * @var int|null
      *
-     * @ORM\Column(name="_mt_id", type="integer")
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
+    #[ORM\Column(name: '_mt_id', type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_label", type="string", length=50, nullable=false)
      */
+    #[ORM\Column(name: '_mt_label', type: 'string', length: 50, nullable: false)]
     protected $label;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_language", type="string", length=6, options={"fixed":true}, nullable=false)
      */
+    #[ORM\Column(name: '_mt_language', type: 'string', length: 6, options: ['fixed' => true], nullable: false)]
     protected $language;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_title", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_mt_title', type: 'string', length: 255, nullable: false)]
     protected $title;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_content", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_mt_content', type: 'text', length: 65535, nullable: false)]
     protected $content;
 
     public function getId(): ?int

@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseInterface;
@@ -26,21 +29,16 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Stores the information about the current phase of a procedure.
  * Currently there a two phases related to a procedure, therefore this Entity is related to the procedure twice.
  *
- * @ORM\Table
  *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseRepository")
  */
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: ProcedurePhaseRepository::class)]
 class ProcedurePhase extends CoreEntity implements UuidEntityInterface, ProcedurePhaseInterface
 {
-    /**
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
-     */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected ?string $id = null;
 
     /**
@@ -54,45 +52,33 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
      */
     protected string $permissionSet = ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false)
-     */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected DateTime $startDate;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false)
-     */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected DateTime $endDate;
 
     /**
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private DateTime $creationDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private $modificationDate;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
     protected ?string $designatedPhase = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected ?DateTime $designatedSwitchDate = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     protected ?int $designatedSwitchDateTimestamp = null;
 
     /**
@@ -102,30 +88,22 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
      *
      * @var UserInterface|null
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
-     * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(referencedColumnName: '_u_id', nullable: true, onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $designatedPhaseChangeUser;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected ?DateTime $designatedEndDate = null;
 
-    /**
-     * @ORM\Column(type="smallint", nullable=false, options={"unsigned":true, "default":1})
-     */
     #[Assert\Positive]
+    #[ORM\Column(type: 'smallint', nullable: false, options: ['unsigned' => true, 'default' => 1])]
     protected int $iteration = 1;
 
-    public function __construct(/**
-     * @ORM\Column(type="string", length=25, nullable=false, options={"default":""})
-     */
+    public function __construct(#[ORM\Column(type: 'string', length: 25, nullable: false, options: ['default' => ''])]
         protected string $step,
-        /**
-         * @ORM\Column(name="phase_key", type="string", nullable=false)
-         */
+        #[ORM\Column(name: 'phase_key', type: 'string', nullable: false)]
         protected string $key = 'configuration')
     {
         $this->permissionSet = ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;

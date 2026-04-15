@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
+use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
@@ -20,24 +23,21 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_single_doc_version")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository")
- */
+#[ORM\Table(name: '_single_doc_version')]
+#[ORM\Entity(repositoryClass: SingleDocumentVersionRepository::class)]
 class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, SingleDocumentVersionInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_sdv_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_sdv_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
@@ -45,10 +45,10 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
      *
      * @var SingleDocumentInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument", inversedBy="versions")
      *
-     * @ORM\JoinColumn(name="_sd_id", referencedColumnName="_sd_id", nullable=true, onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_sd_id', referencedColumnName: '_sd_id', nullable: true, onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: SingleDocument::class, inversedBy: 'versions')]
     protected $singleDocument;
 
     /**
@@ -61,10 +61,10 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
     /**
      * @var ProcedureInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class)]
     protected $procedure;
 
     /**
@@ -80,103 +80,91 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
     /**
      * @var ElementsInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", inversedBy="documents")
      *
-     * @ORM\JoinColumn(name="_e_id", referencedColumnName="_e_id", nullable=true, onDelete="SET NULL")
      **/
+    #[ORM\JoinColumn(name: '_e_id', referencedColumnName: '_e_id', nullable: true, onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: Elements::class, inversedBy: 'documents')]
     protected $element;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_sd_category", type="string", length=36, options={"fixed":true}, nullable=false, length=36)
      */
+    #[ORM\Column(name: '_sd_category', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $category;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_sd_order", type="integer", nullable=false, length=10)
      */
+    #[ORM\Column(name: '_sd_order', type: 'integer', nullable: false, length: 10)]
     protected $order = 0;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_sd_title", type="string", nullable=false, options={"default":""}, length=256)
      */
+    #[ORM\Column(name: '_sd_title', type: 'string', nullable: false, options: ['default' => ''], length: 256)]
     protected $title = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_sd_text", type="text", nullable=false, length=65535)
      */
+    #[ORM\Column(name: '_sd_text', type: 'text', nullable: false, length: 65535)]
     protected $text = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_sd_symbol", type="string", nullable=false, length=36)
      */
+    #[ORM\Column(name: '_sd_symbol', type: 'string', nullable: false, length: 36)]
     protected $symbol = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_sd_document", type="string", nullable=false, length=256)
      */
+    #[ORM\Column(name: '_sd_document', type: 'string', nullable: false, length: 256)]
     protected $document = '';
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_sd_statement_enabled", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_sd_statement_enabled', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $statementEnabled = true;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_sd_visible", type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(name: '_sd_visible', type: 'boolean', nullable: false, options: ['default' => true])]
     protected $visible = true;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_sd_deleted", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_sd_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted = false;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_sdv_version_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: '_sdv_version_date', type: 'datetime', nullable: false)]
     protected $versionDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_sd_create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_sd_create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_sd_modify_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_sd_modify_date', type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_sd_delete_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_sd_delete_date', type: 'datetime', nullable: false)]
     protected $deleteDate;
 
     public function getId(): ?string

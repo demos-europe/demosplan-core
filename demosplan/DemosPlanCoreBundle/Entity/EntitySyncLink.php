@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntitySyncLinkInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -20,53 +22,48 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Table (uniqueConstraints={
  *
- *     @UniqueConstraint(name="unique_source", columns={"class", "source_id"}),
- *     @UniqueConstraint(name="unique_target", columns={"class", "target_id"})
- * })
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository")
  *
  * @template T of \DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface
  */
+#[ORM\Table]
+#[UniqueConstraint(name: 'unique_source', columns: ['class', 'source_id'])]
+#[UniqueConstraint(name: 'unique_target', columns: ['class', 'target_id'])]
+#[ORM\Entity(repositoryClass: EntitySyncLinkRepository::class)]
 class EntitySyncLink implements UuidEntityInterface, EntitySyncLinkInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private $id;
 
     /**
      * @var class-string<T>
-     *
-     * @ORM\Column(type="string")
      */
     #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
+    #[ORM\Column(type: 'string')]
     private $class;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
      */
     #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     private $sourceId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
      */
     #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     private $targetId;
 
     /**

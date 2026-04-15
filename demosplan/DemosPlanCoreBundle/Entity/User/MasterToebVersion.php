@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use demosplan\DemosPlanCoreBundle\Repository\MasterToebVersionRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -19,33 +21,30 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_master_toeb_versions")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\MasterToebVersionRepository")
- */
+#[ORM\Table(name: '_master_toeb_versions')]
+#[ORM\Entity(repositoryClass: MasterToebVersionRepository::class)]
 class MasterToebVersion extends CoreEntity implements UuidEntityInterface, MasterToebVersionInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_mtv_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_mtv_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $ident;
 
     /**
      * @var MasterToeb
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb")
      *
-     * @ORM\JoinColumn(name="_mt_id", referencedColumnName="_mt_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_mt_id', referencedColumnName: '_mt_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: MasterToeb::class)]
     protected $masterToeb;
 
     /**
@@ -55,25 +54,23 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface, Maste
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_gateway_group", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_mt_gateway_group', type: 'string', length: 255, nullable: true)]
     protected $gatewayGroup;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_orga_name", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_mt_orga_name', type: 'string', length: 255, nullable: true)]
     protected $orgaName;
 
     /**
      * @var Orga
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
      *
-     * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: Orga::class)]
     protected $orga;
     /**
      * @var string
@@ -83,10 +80,10 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface, Maste
     /**
      * @var Department
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
      *
-     * @ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_d_id', referencedColumnName: '_d_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: Department::class)]
     protected $department;
 
     /**
@@ -96,165 +93,142 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface, Maste
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_department_name", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_mt_department_name', type: 'string', length: 255, nullable: true)]
     protected $departmentName;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_sign", type="string", length=50, nullable=true)
      */
+    #[ORM\Column(name: '_mt_sign', type: 'string', length: 50, nullable: true)]
     protected $sign;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_email", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_mt_email', type: 'string', length: 255, nullable: true)]
     protected $email;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_cc_email", type="string", length=4096, nullable=true)
      */
+    #[ORM\Column(name: '_mt_cc_email', type: 'string', length: 4096, nullable: true)]
     protected $ccEmail;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_contact_person", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_mt_contact_person', type: 'string', length: 255, nullable: true)]
     protected $contactPerson;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_memo", type="text", length=65535,  nullable=true)
      */
+    #[ORM\Column(name: '_mt_memo', type: 'text', length: 65535, nullable: true)]
     protected $memo;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_comment", type="text", length=65535,  nullable=true)
      */
+    #[ORM\Column(name: '_mt_comment', type: 'text', length: 65535, nullable: true)]
     protected $comment;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_mt_registered", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_registered', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $registered = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_hh_mitte", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_district_hh_mitte', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $districtHHMitte = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_eimsbuettel", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_district_eimsbuettel', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $districtEimsbuettel = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_altona", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_district_altona', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $districtAltona = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_hh_nord", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_district_hh_nord', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $districtHHNord = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_wandsbek", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_district_wandsbek', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $districtWandsbek = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_bergedorf", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_district_bergedorf', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $districtBergedorf = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_harburg", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_district_harburg', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $districtHarburg = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_bsu", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_district_bsu', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $districtBsu;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_document_rough_agreement", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_document_rough_agreement', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $documentRoughAgreement;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_document_agreement", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_document_agreement', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $documentAgreement;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_document_notice", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_document_notice', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $documentNotice;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_document_assessment", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_document_assessment', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $documentAssessment;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_mt_created_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_mt_created_date', type: 'datetime', nullable: false)]
     protected $createdDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_mt_modified_date",type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_mt_modified_date', type: 'datetime', nullable: false)]
     protected $modifiedDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_mtv_version_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_mtv_version_date', type: 'datetime', nullable: false)]
     protected $versionDate;
 
     public function __construct()

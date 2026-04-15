@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use demosplan\DemosPlanCoreBundle\Repository\OrgaStatusInCustomerRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
@@ -22,29 +24,24 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Links the user, the role and the customer (currently only relevant for the CustomerMasterUser).
  *
- * @ORM\Table(name="relation_customer_orga_orga_type",
- *    uniqueConstraints={
  *
- *        @ORM\UniqueConstraint(name="o_c_ot_unique",
- *            columns={"_o_id", "_c_id", "_ot_id"})
- *    }
- * )
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OrgaStatusInCustomerRepository")
  */
+#[ORM\Table(name: 'relation_customer_orga_orga_type')]
+#[ORM\UniqueConstraint(name: 'o_c_ot_unique', columns: ['_o_id', '_c_id', '_ot_id'])]
+#[ORM\Entity(repositoryClass: OrgaStatusInCustomerRepository::class)]
 class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, OrgaStatusInCustomerInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
@@ -52,10 +49,10 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
      *
      * @var OrgaInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="statusInCustomers", cascade={"remove"})
      *
-     * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Orga::class, inversedBy: 'statusInCustomers', cascade: ['remove'])]
     protected $orga;
 
     /**
@@ -63,10 +60,10 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
      *
      * @var OrgaTypeInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\OrgaType", inversedBy="orgaStatusInCustomers", cascade={"remove"})
      *
-     * @ORM\JoinColumn(name="_ot_id", referencedColumnName="_ot_id", nullable=false)
      */
+    #[ORM\JoinColumn(name: '_ot_id', referencedColumnName: '_ot_id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: OrgaType::class, inversedBy: 'orgaStatusInCustomers', cascade: ['remove'])]
     protected $orgaType;
 
     /**
@@ -74,17 +71,16 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
      *
      * @var CustomerInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="orgaStatuses", cascade={"remove"})
      *
-     * @ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id", nullable=false)
      */
+    #[ORM\JoinColumn(name: '_c_id', referencedColumnName: '_c_id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'orgaStatuses', cascade: ['remove'])]
     protected $customer;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false)
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     protected $status;
 
     public function getId(): ?string

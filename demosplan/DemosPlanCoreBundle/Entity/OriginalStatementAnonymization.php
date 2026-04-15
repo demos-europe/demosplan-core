@@ -10,6 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use demosplan\DemosPlanCoreBundle\Repository\OriginalStatementAnonymizationRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OriginalStatementAnonymizationInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
@@ -19,79 +23,72 @@ use demosplan\DemosPlanCoreBundle\Constraint\IsOriginalStatementConstraint;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OriginalStatementAnonymizationRepository")
- */
+#[ORM\Entity(repositoryClass: OriginalStatementAnonymizationRepository::class)]
 class OriginalStatementAnonymization implements OriginalStatementAnonymizationInterface, UuidEntityInterface
 {
     /**
      * @var string
      *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected $created;
 
     /**
      * @var StatementInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="anonymizations")
      *
-     * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)
      *
      * @IsOriginalStatementConstraint()
      */
+    #[ORM\JoinColumn(referencedColumnName: '_st_id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'anonymizations')]
     protected $statement;
 
     /**
      * @var UserInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      *
-     * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=false)
      */
+    #[ORM\JoinColumn(referencedColumnName: '_u_id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $createdBy;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     protected $attachmentsDeleted;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     protected $textVersionHistoryDeleted;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     protected $textPassagesAnonymized;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     protected $submitterAndAuthorMetaDataAnonymized;
 
     public function getId(): string

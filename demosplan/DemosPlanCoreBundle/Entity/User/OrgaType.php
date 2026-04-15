@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -18,45 +20,39 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Table(name="_orga_type")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository")
- */
+#[ORM\Table(name: '_orga_type')]
+#[ORM\Entity(repositoryClass: OrgaTypeRepository::class)]
 class OrgaType extends CoreEntity implements UuidEntityInterface, OrgaTypeInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_ot_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_ot_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string things like {@link OrgaTypeInterface::MUNICIPALITY}
-     *
-     * @ORM\Column(name="_ot_name", type="string", length=6, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_ot_name', type: 'string', length: 6, nullable: false, options: ['fixed' => true])]
     protected $name;
 
     /**
      * @var string things like "Institution"
-     *
-     * @ORM\Column(name="_ot_label", type="string", length=45, nullable=false)
      */
+    #[ORM\Column(name: '_ot_label', type: 'string', length: 45, nullable: false)]
     protected $label;
 
     /**
      * @var Collection<int, OrgaStatusInCustomerInterface>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer", mappedBy="orgaType")
      */
+    #[ORM\OneToMany(targetEntity: OrgaStatusInCustomer::class, mappedBy: 'orgaType')]
     protected $orgaStatusInCustomers;
 
     public function __construct()

@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use demosplan\DemosPlanCoreBundle\Repository\PriorityAreaRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\PriorityAreaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
@@ -20,64 +22,50 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 
-/**
- * @ORM\Table(name="_priority_area",uniqueConstraints={@UniqueConstraint(name="key_idx", columns={"_pa_key"})})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\PriorityAreaRepository")
- */
+#[ORM\Table(name: '_priority_area')]
+#[UniqueConstraint(name: 'key_idx', columns: ['_pa_key'])]
+#[ORM\Entity(repositoryClass: PriorityAreaRepository::class)]
 class PriorityArea extends CoreEntity implements UuidEntityInterface, PriorityAreaInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_pa_id", type="string", length=36, nullable=false, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_pa_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pa_key", type="string", length=36, options={"fixed":true}, nullable=false)
      */
+    #[ORM\Column(name: '_pa_key', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $key;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_pa_type", type="string", length=36, options={"fixed":true, "default":NULL}, nullable=true)
      */
+    #[ORM\Column(name: '_pa_type', type: 'string', length: 36, options: ['fixed' => true, 'default' => null], nullable: true)]
     protected $type;
 
     /**
      * @var Collection<int, StatementInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="priorityAreas")
      *
-     * @ORM\JoinTable(
-     *     name="_statement_priority_area",
-     *     joinColumns={@ORM\JoinColumn(name="_pa_id", referencedColumnName="_pa_id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id")}
-     * )
      */
+    #[ORM\ManyToMany(targetEntity: Statement::class, mappedBy: 'priorityAreas')]
     protected $statements;
 
     /**
      * @var Collection<int, StatementFragmentInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", mappedBy="priorityAreas", cascade={"persist"})
      *
-     * @ORM\JoinTable(
-     *     name="_statement_fragment_priority_area",
-     *     joinColumns={@ORM\JoinColumn(name="_pa_id", referencedColumnName="_pa_id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="sf_id", referencedColumnName="sf_id")}
-     * )
      */
+    #[ORM\ManyToMany(targetEntity: StatementFragment::class, mappedBy: 'priorityAreas', cascade: ['persist'])]
     protected $statementFragments;
 
     public function __construct()

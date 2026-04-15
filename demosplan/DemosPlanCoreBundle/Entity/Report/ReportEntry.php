@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Report;
 
+use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ReportEntryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -25,17 +27,12 @@ use Seld\JsonLint\JsonParser;
 use Seld\JsonLint\ParsingException;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Table(name="_report_entries",indexes={
- *
- *     @ORM\Index(columns={"_re_category"}),
- *     @ORM\Index(columns={"_re_group"}),
- *     @ORM\Index(columns={"_re_identifier_type"}),
- *     @ORM\Index(columns={"_re_identifier"}),
- * })
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ReportRepository")
- */
+#[ORM\Table(name: '_report_entries')]
+#[ORM\Index(columns: ['_re_category'])]
+#[ORM\Index(columns: ['_re_group'])]
+#[ORM\Index(columns: ['_re_identifier_type'])]
+#[ORM\Index(columns: ['_re_identifier'])]
+#[ORM\Entity(repositoryClass: ReportRepository::class)]
 class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntryInterface
 {
     final public const GROUP_PROCEDURE = 'procedure';
@@ -78,120 +75,110 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_re_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_re_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_re_category", type="string", length=100, nullable=false, options={"fixed":true})
      */
     #[Assert\NotBlank]
+    #[ORM\Column(name: '_re_category', type: 'string', length: 100, nullable: false, options: ['fixed' => true])]
     protected $category;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_re_group", type="string", length=100, nullable=false, options={"fixed":true})
      */
     #[Assert\NotBlank]
+    #[ORM\Column(name: '_re_group', type: 'string', length: 100, nullable: false, options: ['fixed' => true])]
     protected $group;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_re_level", type="string", length=255, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_re_level', type: 'string', length: 255, nullable: false, options: ['fixed' => true])]
     protected $level = 'INFO';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_id", type="string", length=36, options={"fixed":true}, nullable=false)
      */
+    #[ORM\Column(name: '_u_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $userId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_name", type="string", length=255, nullable=false, options={"fixed":true})
      */
     #[Assert\NotBlank]
+    #[ORM\Column(name: '_u_name', type: 'string', length: 255, nullable: false, options: ['fixed' => true])]
     protected $userName;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="_s_id", type="string", length=36, options={"fixed":true}, nullable=false)
      *
      * @deprecated this property doesn't seem to be in use anymore
      */
+    #[ORM\Column(name: '_s_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $sessionId = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_re_identifier_type", type="string", length=50, nullable=false)
      */
     #[Assert\NotBlank]
+    #[ORM\Column(name: '_re_identifier_type', type: 'string', length: 50, nullable: false)]
     protected $identifierType;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_re_identifier", type="string", length=36, options={"fixed":true}, nullable=false)
      */
     #[Assert\NotBlank]
+    #[ORM\Column(name: '_re_identifier', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
     protected $identifier;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="_re_message_mime_type", type="string", length=255, nullable=false)
      *
      * @deprecated this property doesn't seem to be in use anymore, {@link $message} is always JSON
      */
+    #[ORM\Column(name: '_re_message_mime_type', type: 'string', length: 255, nullable: false)]
     protected $mimeType = '';
 
     /**
      * @var string always in JSON format (a simple string is considered valid JSON)
-     *
-     * @ORM\Column(name="_re_message", type="text", nullable=false, length=15000000)
      */
     #[Assert\NotBlank]
+    #[ORM\Column(name: '_re_message', type: 'text', nullable: false, length: 15000000)]
     protected $message;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_re_incoming", type="text", nullable=false, length=15000000)
      */
+    #[ORM\Column(name: '_re_incoming', type: 'text', nullable: false, length: 15000000)]
     protected $incoming = '';
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create"), updateable = true
-     *
-     * @ORM\Column(name="_re_created_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_re_created_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var Customer
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      *
-     * @ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id", nullable=false)
      */
     #[Assert\NotBlank]
+    #[ORM\JoinColumn(name: '_c_id', referencedColumnName: '_c_id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Customer::class)]
     protected $customer;
 
     /**

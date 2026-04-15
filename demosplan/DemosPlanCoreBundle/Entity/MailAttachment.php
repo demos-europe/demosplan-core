@@ -10,51 +10,47 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\MailAttachmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Table(name="_mail_attachment")
- *
- * @ORM\Entity
- */
+#[ORM\Table(name: '_mail_attachment')]
+#[ORM\Entity]
 class MailAttachment implements UuidEntityInterface, MailAttachmentInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(name="_ma_id", type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_ma_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var MailSend
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\MailSend", inversedBy="attachments")
      *
-     * @ORM\JoinColumn(name="_ma_ms_id", referencedColumnName="_ms_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_ma_ms_id', referencedColumnName: '_ms_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: MailSend::class, inversedBy: 'attachments')]
     protected $mailSend;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ma_filename", type="string", length=256, nullable=true)
      */
+    #[ORM\Column(name: '_ma_filename', type: 'string', length: 256, nullable: true)]
     protected $filename;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_ma_delete_on_sent", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_ma_delete_on_sent', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleteOnSent;
 
     public function getId(): ?string

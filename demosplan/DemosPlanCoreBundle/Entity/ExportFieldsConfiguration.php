@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
+use demosplan\DemosPlanCoreBundle\Repository\ExportFieldsConfigurationRepository;
+use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ExportFieldsConfigurationInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
@@ -20,22 +22,20 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ExportFieldsConfigurationRepository")
- */
+#[ORM\Entity(repositoryClass: ExportFieldsConfigurationRepository::class)]
 class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterface, ExportFieldsConfigurationInterface
 {
     /**
      * @var string|null
      *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
-     * @ORM\Id
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private $id;
 
     /**
@@ -43,224 +43,194 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
      *
      * @var ProcedureInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="exportFieldsConfigurations", cascade={"persist"})
      *
-     * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
      */
+    #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Procedure::class, inversedBy: 'exportFieldsConfigurations', cascade: ['persist'])]
     private $procedure;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private $creationDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private $modificationDate;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $idExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $statementNameExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $creationDateExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $procedureNameExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $procedurePhaseExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $votesNumExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $userStateExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $userGroupExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $userOrganisationExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $userPositionExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $institutionExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $publicParticipationExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $orgaNameExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $departmentNameExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $submitterNameExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $showInPublicAreaExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $documentExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $paragraphExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $filesExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $attachmentsExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $priorityExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $emailExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $phoneNumberExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $streetExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $streetNumberExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $postalCodeExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $cityExportable;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $institutionOrCitizenExportable;
 
     public function __construct(Procedure $procedure)
