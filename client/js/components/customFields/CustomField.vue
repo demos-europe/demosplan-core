@@ -170,6 +170,18 @@ export default {
       required: false,
       default: null,
     },
+
+    sourceEntity: {
+      type: [String, null],
+      required: false,
+      default: null,
+    },
+
+    targetEntity: {
+      type: [String, null],
+      required: false,
+      default: null,
+    },
   },
 
   emits: [
@@ -274,7 +286,7 @@ export default {
 
       this.isLoading = true
 
-      fetchCustomFields(this.definitionSourceId)
+      fetchCustomFields(this.definitionSourceId, { sourceEntity: this.sourceEntity, targetEntity: this.targetEntity })
         .then(definitions => {
           this.resolvedDefinition = definitions.find(d => d.id === this.fieldData.id)
 
