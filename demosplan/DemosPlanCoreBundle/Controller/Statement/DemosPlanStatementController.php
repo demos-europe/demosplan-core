@@ -612,9 +612,6 @@ class DemosPlanStatementController extends BaseController
             $manualSortScope
         );
 
-        // todo: should be able do in twig by using getProcedurePhase()?!
-        $outputResult->setStatementList($this->replacePhaseByPhaseNameForDraftStatements($outputResult->getStatementList()));
-
         $votedStatements = $statementHandler->determineVotedStatements($procedure);
 
         if ($requestPost->has('pdfExport') || $requestPost->has('pdfExportSingle')) {
@@ -1837,31 +1834,6 @@ class DemosPlanStatementController extends BaseController
         }
 
         return $result;
-    }
-
-    /**
-     * Replace phase by translated string.
-     *
-     * @param array<int, array> $draftStatementList - list of draftStatements, whose phase will be translated
-     *
-     * @return array<int, array> - equal to the input parameter $statementList, except of the translated phases
-     */
-    protected function replacePhaseByPhaseNameForDraftStatements(array $draftStatementList): array
-    {
-        // replace the phase name that is stored within the draftStatement
-        foreach ($draftStatementList as $key => $draftStatementArrayFormat) {
-            if (\array_key_exists('phase', $draftStatementArrayFormat)
-                && \array_key_exists('publicDraftStatement', $draftStatementArrayFormat)
-            ) {
-                $draftStatementList[$key]['phase'] = $this->globalConfig->getPhaseNameWithPriorityExternal($draftStatementArrayFormat['phase']);
-                if (DraftStatement::INTERNAL === $draftStatementArrayFormat['publicDraftStatement']
-                ) {
-                    $draftStatementList[$key]['phase'] = $this->globalConfig->getPhaseNameWithPriorityInternal($draftStatementArrayFormat['phase']);
-                }
-            }
-        }
-
-        return $draftStatementList;
     }
 
     /**
