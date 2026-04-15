@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use Carbon\Carbon;
 use DateTime;
+use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
@@ -566,7 +567,7 @@ class ProcedureService implements ProcedureServiceInterface
      *
      * @throws Exception
      */
-    public function getDeletedProcedures($limit = 100_000_000, ?\DateTimeInterface $deletedBefore = null): array
+    public function getDeletedProcedures($limit = 100_000_000, ?DateTimeInterface $deletedBefore = null): array
     {
         try {
             if (null === $deletedBefore) {

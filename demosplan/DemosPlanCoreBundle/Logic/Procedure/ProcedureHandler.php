@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
