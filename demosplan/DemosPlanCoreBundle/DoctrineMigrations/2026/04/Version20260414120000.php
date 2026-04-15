@@ -33,22 +33,26 @@ class Version20260414120000 extends AbstractMigration
 
         $this->addSql('
             CREATE TABLE personal_data_audit_log (
-                id CHAR(36) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL PRIMARY KEY,
-                user_id CHAR(36) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NULL,
+                id CHAR(36) NOT NULL PRIMARY KEY,
+                user_id CHAR(36) NULL,
                 user_name VARCHAR(255) NULL,
                 entity_type VARCHAR(255) NOT NULL,
-                entity_id CHAR(36) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+                entity_id CHAR(36) NOT NULL,
                 entity_field VARCHAR(255) NOT NULL,
                 change_type VARCHAR(20) NOT NULL,
-                pre_update_value TEXT NULL,
-                post_update_value TEXT NULL,
+                pre_update_value LONGTEXT NULL,
+                post_update_value LONGTEXT NULL,
                 is_sensitive_field TINYINT(1) NOT NULL DEFAULT 0,
+                procedure_id CHAR(36) NULL,
+                orga_id CHAR(36) NULL,
                 context VARCHAR(20) NULL,
                 created DATETIME NOT NULL,
 
                 INDEX idx_pda_entity (entity_type, entity_id),
                 INDEX idx_pda_user (user_id),
-                INDEX idx_pda_created (created)
+                INDEX idx_pda_created (created),
+                INDEX idx_pda_procedure (procedure_id),
+                INDEX idx_pda_orga (orga_id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ');
     }

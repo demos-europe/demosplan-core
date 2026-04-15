@@ -15,6 +15,11 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 use DateTime;
 use DateTimeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\PersonalDataAuditLog;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\Event\OnFlushEventArgs;
@@ -117,6 +122,9 @@ class PersonalDataAuditListener
             return;
         }
 
+        $procedureId = $this->resolveProcedureId($entity);
+        $orgaId = $this->resolveOrgaId($entity);
+
         foreach ($changeSet as $field => [$oldValue, $newValue]) {
             if (!array_key_exists($field, $trackedFields)) {
                 continue;
@@ -137,6 +145,8 @@ class PersonalDataAuditListener
                 'preUpdateValue'   => $isSensitive ? PersonalDataAuditLog::SENSITIVE_MASK : $this->serializeValue($oldValue),
                 'postUpdateValue'  => $isSensitive ? PersonalDataAuditLog::SENSITIVE_MASK : $this->serializeValue($newValue),
                 'isSensitiveField' => $isSensitive,
+                'procedureId'      => $procedureId,
+                'orgaId'           => $orgaId,
             ];
         }
     }
@@ -154,6 +164,9 @@ class PersonalDataAuditListener
             return;
         }
 
+        $procedureId = $this->resolveProcedureId($entity);
+        $orgaId = $this->resolveOrgaId($entity);
+
         foreach ($trackedFields as $field => $config) {
             $value = $this->getFieldValue($entity, $field);
             if (null === $value) {
@@ -170,6 +183,8 @@ class PersonalDataAuditListener
                 'preUpdateValue'   => null,
                 'postUpdateValue'  => $isSensitive ? PersonalDataAuditLog::SENSITIVE_MASK : $this->serializeValue($value),
                 'isSensitiveField' => $isSensitive,
+                'procedureId'      => $procedureId,
+                'orgaId'           => $orgaId,
             ];
         }
     }
@@ -187,6 +202,9 @@ class PersonalDataAuditListener
             return;
         }
 
+        $procedureId = $this->resolveProcedureId($entity);
+        $orgaId = $this->resolveOrgaId($entity);
+
         foreach ($trackedFields as $field => $config) {
             $value = $this->getFieldValue($entity, $field);
             if (null === $value) {
@@ -203,6 +221,8 @@ class PersonalDataAuditListener
                 'preUpdateValue'   => $isSensitive ? PersonalDataAuditLog::SENSITIVE_MASK : $this->serializeValue($value),
                 'postUpdateValue'  => null,
                 'isSensitiveField' => $isSensitive,
+                'procedureId'      => $procedureId,
+                'orgaId'           => $orgaId,
             ];
         }
     }
@@ -230,6 +250,8 @@ class PersonalDataAuditListener
                     'pre_update_value'   => $entry['preUpdateValue'],
                     'post_update_value'  => $entry['postUpdateValue'],
                     'is_sensitive_field' => $entry['isSensitiveField'] ? 1 : 0,
+                    'procedure_id'       => $entry['procedureId'],
+                    'orga_id'            => $entry['orgaId'],
                     'context'            => $context,
                     'created'            => $now->format('Y-m-d H:i:s'),
                 ]);
@@ -269,6 +291,39 @@ class PersonalDataAuditListener
         }
 
         return PersonalDataAuditLog::CONTEXT_WEB;
+    }
+
+    private function resolveProcedureId(object $entity): ?string
+    {
+        try {
+            if ($entity instanceof StatementMeta) {
+                return $entity->getStatement()?->getProcedure()?->getId();
+            }
+            if ($entity instanceof DraftStatement) {
+                return $entity->getProcedureId();
+            }
+            if ($entity instanceof ProcedurePerson) {
+                return $entity->getProcedure()?->getId();
+            }
+        } catch (\Exception) {
+        }
+
+        return null;
+    }
+
+    private function resolveOrgaId(object $entity): ?string
+    {
+        try {
+            if ($entity instanceof User) {
+                return $entity->getOrganisationId();
+            }
+            if ($entity instanceof Orga) {
+                return $entity->getId();
+            }
+        } catch (\Exception) {
+        }
+
+        return null;
     }
 
     private function isSensitiveField(mixed $config): bool

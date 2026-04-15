@@ -27,7 +27,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  *         @ORM\Index(name="idx_pda_entity", columns={"entity_type", "entity_id"}),
  *         @ORM\Index(name="idx_pda_user", columns={"user_id"}),
- *         @ORM\Index(name="idx_pda_created", columns={"created"})
+ *         @ORM\Index(name="idx_pda_created", columns={"created"}),
+ *         @ORM\Index(name="idx_pda_procedure", columns={"procedure_id"}),
+ *         @ORM\Index(name="idx_pda_orga", columns={"orga_id"})
  *     }
  * )
  *
@@ -113,6 +115,20 @@ class PersonalDataAuditLog extends CoreEntity implements UuidEntityInterface
      * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
     protected bool $isSensitiveField = false;
+
+    /**
+     * Set for procedure-scoped entities (StatementMeta, DraftStatement, ProcedurePerson).
+     *
+     * @ORM\Column(type="string", length=36, options={"fixed":true}, nullable=true)
+     */
+    protected ?string $procedureId = null;
+
+    /**
+     * Set for user-scoped entities (User -> their Orga, Orga -> self).
+     *
+     * @ORM\Column(type="string", length=36, options={"fixed":true}, nullable=true)
+     */
+    protected ?string $orgaId = null;
 
     /**
      * Source context: web, cli.
@@ -247,6 +263,30 @@ class PersonalDataAuditLog extends CoreEntity implements UuidEntityInterface
     public function setContext(?string $context): self
     {
         $this->context = $context;
+
+        return $this;
+    }
+
+    public function getProcedureId(): ?string
+    {
+        return $this->procedureId;
+    }
+
+    public function setProcedureId(?string $procedureId): self
+    {
+        $this->procedureId = $procedureId;
+
+        return $this;
+    }
+
+    public function getOrgaId(): ?string
+    {
+        return $this->orgaId;
+    }
+
+    public function setOrgaId(?string $orgaId): self
+    {
+        $this->orgaId = $orgaId;
 
         return $this;
     }
