@@ -2951,7 +2951,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
             $maxVersionNumber = [] === $versions ? 0 : $versions[0]->getVersionNumber();
 
             $virtualVersion = new RecommendationVersion();
-            $virtualVersion->setId('virtual-' . $this->getId());
+            $virtualVersion->setId('virtual-'.$this->getId());
             $virtualVersion->setStatement($this);
             $virtualVersion->setVersionNumber($maxVersionNumber + 1);
             $virtualVersion->setRecommendationText($this->recommendation);

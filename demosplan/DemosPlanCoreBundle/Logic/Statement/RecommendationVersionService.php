@@ -95,7 +95,7 @@ class RecommendationVersionService
         foreach ($segments as $segment) {
             $oldRecommendation = $segment->getRecommendation();
             $effectiveNewText = $attach
-                ? $oldRecommendation . $recommendationText
+                ? $oldRecommendation.$recommendationText
                 : $recommendationText;
 
             if ($oldRecommendation === $effectiveNewText) {
