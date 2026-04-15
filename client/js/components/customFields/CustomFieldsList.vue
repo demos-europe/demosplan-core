@@ -278,6 +278,12 @@ export default {
       default: false,
     },
 
+    targetEntity: {
+      type: [String, null],
+      required: false,
+      default: null,
+    },
+
     titleClass: {
       type: [String, Array, Object],
       required: false,
@@ -331,13 +337,14 @@ export default {
      * Match definitions with values and filter based on showEmpty prop.
      * Definitions without a matching value are included with value: null
      * to also show empty custom fields in edit or toggle mode.
+     * Filtering by targetEntity happens server-side via fetchCustomFields options.
      */
     fieldsToRender () {
-      const allFields = this.definitions.map(def => {
-        const valueObj = this.values.find(v => v.id === def.id)
+      const allFields = this.definitions.map(definition => {
+        const matchingValue = this.values.find(value => value.id === definition.id)
         return {
-          id: def.id,
-          value: valueObj?.value ?? null,
+          id: definition.id,
+          value: matchingValue?.value ?? null,
         }
       })
 
@@ -406,7 +413,7 @@ export default {
     fetchCustomFieldsData () {
       const { fetchCustomFields, fetchCustomFieldValues, getCustomFieldsDefinitions, hasCachedValues } = useCustomFields()
 
-      const areDefinitionsCached = !!getCustomFieldsDefinitions(this.definitionSourceId)
+      const areDefinitionsCached = !!getCustomFieldsDefinitions(this.definitionSourceId, { targetEntity: this.targetEntity })
       const areValuesCached = this.batchFilterPath === null &&
         hasCachedValues(this.resourceType, this.resourceId)
 
@@ -416,7 +423,7 @@ export default {
       this.error = null
 
       // 1. Fetch definitions (gets array of field definitions with IDs)
-      fetchCustomFields(this.definitionSourceId)
+      fetchCustomFields(this.definitionSourceId, { targetEntity: this.targetEntity })
         .then(defs => {
           this.definitions = defs
 
