@@ -854,7 +854,7 @@ custom.fields.edit.warning.multiSelect: "Nachdem die erste Stellungnahme eingega
 custom.fields.error.loading: "Ein oder mehrere konfigurierbare Felder konnten nicht geladen werden."
 custom.field.edit.message.warning: "Ihre Änderung wird automatisch überall übernommen, wo dieses Feld verwendet wird."
 custom.field.delete.message.warning: "Das Feld wird automatisch überall gelöscht, wo es verwendet wird."
-custom.field.target: "Ziel"
+custom.field.target: "Zielkontext"
 custom.field.type.multiSelect: "Mehrfachauswahl"
 custom.field.type.singleSelect: "Einzelauswahl"
 customer: |
@@ -1513,6 +1513,7 @@ explanation.export.statementsAndFragments: "Es wird die Stellungnahme exportiert
 explanation.export.topicsAndTags: "Es werden die Begründungen zu den Stellungnahmen mit Themen und Schlagworten exportiert."
 explanation.feedback.email: "An die hinterlegte E-Mail-Adresse erhalten Sie die Bestätigung Ihrer Stellungnahme und eine Information, sobald die Ergebnisse der Online-Beteiligung vorliegen."
 explanation.feedback.vote.email: "Die Rückmeldung zu dieser Stellungnahme erhalten Sie an die hinterlegte E-Mail-Adresse."
+explanation.field.target: "Wählen Sie den Kontext, für den das Feld angelegt werden soll"
 explanation.field.type: "Bestimmt Datentyp und Eingabemodus des Feldes"
 explanation.file.noupload: "Es wurde keine Datei hochgeladen."
 explanation.file.upload: "Nach dem Upload wird die Datei auf Viren gescannt."

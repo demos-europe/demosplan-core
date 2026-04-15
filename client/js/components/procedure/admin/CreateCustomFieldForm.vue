@@ -48,7 +48,8 @@
           id="newFieldTarget"
           v-model="customField.targetEntity"
           :label="{
-            text: Translator.trans('custom.field.target')
+            text: Translator.trans('custom.field.target'),
+            tooltip: Translator.trans('explanation.field.target'),
           }"
           :options="targetEntityOptions"
           class="w-[calc(100%-26px)]"
