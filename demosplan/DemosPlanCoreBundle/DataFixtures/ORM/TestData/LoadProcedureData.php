@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData;
 
 use Carbon\Carbon;
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -65,18 +64,13 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
     final public const TEST_PROCEDURE_2 = 'testProcedure2';
 
     private $currentDate;
-    private $existingExternalPhasesWrite;
-    private $existingInternalPhasesWrite;
     private $manager;
     private $testOrgaFP;
     private $testUser;
 
-    public function __construct(EntityManagerInterface $entityManager, GlobalConfigInterface $globalConfig)
+    public function __construct(EntityManagerInterface $entityManager)
     {
         parent::__construct($entityManager);
-
-        $this->existingInternalPhasesWrite = $globalConfig->getInternalPhaseKeys('write');
-        $this->existingExternalPhasesWrite = $globalConfig->getExternalPhaseKeys('write');
     }
 
     public function load(ObjectManager $manager): void
@@ -761,7 +755,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $draftStatementVersion->setOName($this->testOrgaFP->getName());
         $draftStatementVersion->setElement($this->getReference('testSingleDocumentElement'));
         $draftStatementVersion->setParagraph($this->getReference('testParagraphVersion'));
-        $draftStatementVersion->setPhase($this->existingInternalPhasesWrite[0] ?? 'participation');
+        $draftStatementVersion->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
         $draftStatementVersion->setFile('Chrysanthemum.jpg:fefcd2bc-51a6-46c0-96a1-fbe62c9dc64c:879394:image/pjpeg');
         $draftStatementVersion->setMapFile('Map_6e0f8e31-d468-465d-9087-4f0a69ec637c.png:e1883475-60cb-49c4-b0b6-11e4b5536e75');
         $draftStatementVersion->setCreatedDate(new DateTime());
