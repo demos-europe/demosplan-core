@@ -7,8 +7,35 @@
 ## UNRELEASED
 
 ### Added
-- Make custom fields available in assessment table, original statement list, my releases list, and public statement dialogs
 - Track recommendation versions for statements and segments with full text snapshots, exposed via API and XLSX export (permission: `feature_enable_recommendation_versions`)
+
+## v4.34.0 (2026-04-09)
+
+### Added
+- Console commands to list and detach organisations from customers
+
+### Fixed
+- Various visual and interaction issues in the configurable segment list table
+- Organisation ID was not set when manually creating statements for institutions
+
+## v4.33.0 (2026-04-02)
+
+### Added
+- Introduce password check to forbid re-usage of passwords when trying to change passwords. This adds a new table to the DB, user_password_history
+- Make custom fields available in assessment table, original statement list, my releases list, and public statement dialogs
+- Improved segment list interface with configurable column layout
+- Show blueprint name and organization in platform blueprint warning
+
+### Changed
+- Improved performance of procedure statistics endpoint
+
+### Fixed
+- Global GIS layers were always saved as enabled regardless of the selected setting
+- "Split now" button in statement details only assigned the statement without redirecting to the split view
+- Pagination in assessment table required double click to navigate
+- Public paragraph list could fail when an element was missing
+- Statement votes were not immediately visible after voting
+- Procedure exports could fail in certain cases
 
 ## v4.32.0 (2026-03-25)
 ### Added
