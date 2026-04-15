@@ -65,8 +65,8 @@ class RecommendationVersionServiceTest extends FunctionalTestCase
     {
         $segment = SegmentFactory::createOne(['recommendation' => 'text v3'])->_real();
         RecommendationVersionFactory::createOne([
-            'statement' => $segment,
-            'versionNumber' => 1,
+            'statement'          => $segment,
+            'versionNumber'      => 1,
             'recommendationText' => 'text v1',
         ]);
 
@@ -81,8 +81,8 @@ class RecommendationVersionServiceTest extends FunctionalTestCase
     {
         $segment = SegmentFactory::createOne(['recommendation' => ''])->_real();
         RecommendationVersionFactory::createOne([
-            'statement' => $segment,
-            'versionNumber' => 1,
+            'statement'          => $segment,
+            'versionNumber'      => 1,
             'recommendationText' => 'original text',
         ]);
 
@@ -118,8 +118,8 @@ class RecommendationVersionServiceTest extends FunctionalTestCase
     {
         $segment = SegmentFactory::createOne(['recommendation' => 'current text'])->_real();
         RecommendationVersionFactory::createOne([
-            'statement' => $segment,
-            'versionNumber' => 1,
+            'statement'          => $segment,
+            'versionNumber'      => 1,
             'recommendationText' => 'old text',
         ]);
 

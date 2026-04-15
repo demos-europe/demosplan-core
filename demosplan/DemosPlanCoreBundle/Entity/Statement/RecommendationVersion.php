@@ -33,6 +33,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(
  *     name="recommendation_version",
  *     uniqueConstraints={
+ *
  *         @ORM\UniqueConstraint(name="unique_statement_version", columns={"statement_id", "version_number"})
  *     }
  * )
