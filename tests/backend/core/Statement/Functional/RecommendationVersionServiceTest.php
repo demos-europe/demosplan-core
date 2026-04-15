@@ -21,6 +21,10 @@ use Tests\Base\FunctionalTestCase;
 
 class RecommendationVersionServiceTest extends FunctionalTestCase
 {
+    private const SOME_TEXT = 'some text';
+    private const OLD_TEXT = 'old text';
+    private const NEW_TEXT = 'new text';
+
     protected $sut;
 
     private $repository;
@@ -34,9 +38,9 @@ class RecommendationVersionServiceTest extends FunctionalTestCase
 
     public function testNoVersionCreatedWhenTextUnchanged(): void
     {
-        $segment = SegmentFactory::createOne(['recommendation' => 'some text'])->_real();
+        $segment = SegmentFactory::createOne(['recommendation' => self::SOME_TEXT])->_real();
 
-        $result = $this->sut->recordVersion($segment, 'some text', 'some text');
+        $result = $this->sut->recordVersion($segment, self::SOME_TEXT, self::SOME_TEXT);
 
         static::assertNull($result);
     }
@@ -52,13 +56,13 @@ class RecommendationVersionServiceTest extends FunctionalTestCase
 
     public function testVersionCreatedOnRecommendationUpdate(): void
     {
-        $segment = SegmentFactory::createOne(['recommendation' => 'old text'])->_real();
+        $segment = SegmentFactory::createOne(['recommendation' => self::OLD_TEXT])->_real();
 
-        $result = $this->sut->recordVersion($segment, 'old text', 'new text');
+        $result = $this->sut->recordVersion($segment, self::OLD_TEXT, self::NEW_TEXT);
 
         static::assertInstanceOf(RecommendationVersion::class, $result);
         static::assertSame(1, $result->getVersionNumber());
-        static::assertSame('old text', $result->getRecommendationText());
+        static::assertSame(self::OLD_TEXT, $result->getRecommendationText());
     }
 
     public function testVersionNumberIncrements(): void
@@ -86,7 +90,7 @@ class RecommendationVersionServiceTest extends FunctionalTestCase
             'recommendationText' => 'original text',
         ]);
 
-        $result = $this->sut->recordVersion($segment, '', 'new text');
+        $result = $this->sut->recordVersion($segment, '', self::NEW_TEXT);
 
         static::assertInstanceOf(RecommendationVersion::class, $result);
         static::assertSame(2, $result->getVersionNumber());
@@ -95,14 +99,14 @@ class RecommendationVersionServiceTest extends FunctionalTestCase
 
     public function testVirtualVersionReturnedForStatementWithRecommendationButNoStoredVersions(): void
     {
-        $segment = SegmentFactory::createOne(['recommendation' => 'some text'])->_real();
+        $segment = SegmentFactory::createOne(['recommendation' => self::SOME_TEXT])->_real();
 
         $versions = $segment->getRecommendationVersions();
 
         static::assertCount(1, $versions);
         $virtual = $versions->first();
         static::assertSame(1, $virtual->getVersionNumber());
-        static::assertSame('some text', $virtual->getRecommendationText());
+        static::assertSame(self::SOME_TEXT, $virtual->getRecommendationText());
     }
 
     public function testEmptyCollectionReturnedForStatementWithoutRecommendation(): void
@@ -120,7 +124,7 @@ class RecommendationVersionServiceTest extends FunctionalTestCase
         RecommendationVersionFactory::createOne([
             'statement'          => $segment,
             'versionNumber'      => 1,
-            'recommendationText' => 'old text',
+            'recommendationText' => self::OLD_TEXT,
         ]);
 
         $versions = $segment->getRecommendationVersions();
@@ -135,16 +139,16 @@ class RecommendationVersionServiceTest extends FunctionalTestCase
 
     public function testSetRecommendationTriggersVersionRecording(): void
     {
-        $segment = SegmentFactory::createOne(['recommendation' => 'old text'])->_real();
+        $segment = SegmentFactory::createOne(['recommendation' => self::OLD_TEXT])->_real();
         // Ensure the postLoad listener has injected the service
         self::getContainer()->get('doctrine.orm.entity_manager')->refresh($segment);
 
-        $segment->setRecommendation('new text');
+        $segment->setRecommendation(self::NEW_TEXT);
         self::getContainer()->get('doctrine.orm.entity_manager')->flush();
 
         $storedVersions = $this->repository->findByStatementId($segment->getId());
         static::assertCount(1, $storedVersions);
-        static::assertSame('old text', $storedVersions[0]->getRecommendationText());
+        static::assertSame(self::OLD_TEXT, $storedVersions[0]->getRecommendationText());
         static::assertSame(1, $storedVersions[0]->getVersionNumber());
     }
 }
