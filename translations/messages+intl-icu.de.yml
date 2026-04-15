@@ -854,6 +854,7 @@ custom.fields.edit.warning.multiSelect: "Nachdem die erste Stellungnahme eingega
 custom.fields.error.loading: "Ein oder mehrere konfigurierbare Felder konnten nicht geladen werden."
 custom.field.edit.message.warning: "Ihre Änderung wird automatisch überall übernommen, wo dieses Feld verwendet wird."
 custom.field.delete.message.warning: "Das Feld wird automatisch überall gelöscht, wo es verwendet wird."
+custom.field.target: "Ziel"
 custom.field.type.multiSelect: "Mehrfachauswahl"
 custom.field.type.singleSelect: "Einzelauswahl"
 customer: |
