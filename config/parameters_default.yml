@@ -532,6 +532,8 @@ parameters:
     ai_service_salt: ""
     ai_service_post_url: ""
 
+    languagetool_url: ''
+
     # #refactor: used only once, could be constant
     drafts_info_schema_path: "%kernel.project_dir%/config/json-schema/drafts-info-schema.json"
 
