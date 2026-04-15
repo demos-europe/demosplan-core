@@ -55,7 +55,7 @@ class CustomFieldDisplayResolver
             if (!$customFieldDefinition instanceof CustomFieldInterface) {
                 $this->logger->warning(
                     'CustomFieldDisplayResolver: no definition found for field value ID "{fieldValueId}". '
-                    . 'The field configuration may have been deleted while values still reference it.',
+                    .'The field configuration may have been deleted while values still reference it.',
                     [
                         'fieldValueId'   => $fieldValue->getId(),
                         'sourceEntityId' => $sourceEntityId,

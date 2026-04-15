@@ -23,7 +23,7 @@ use Tests\Base\FunctionalTestCase;
 class CustomFieldDisplayResolverTest extends FunctionalTestCase
 {
     private ?CustomFieldDisplayResolver $sut = null;
-    private $procedure = null;
+    private $procedure;
 
     protected function setUp(): void
     {
