@@ -271,6 +271,7 @@
       :show-empty="true"
       mode="readonly"
       resource-type="DraftStatement"
+      target-entity="STATEMENT"
       expandable
     />
   </dp-table-card>

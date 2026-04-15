@@ -122,6 +122,7 @@
           class="px-4 mb-4"
           mode="readonly"
           resource-type="OriginalStatement"
+          target-entity="STATEMENT"
           expandable
         >
           <template v-slot:readonly-display="{ field }">
