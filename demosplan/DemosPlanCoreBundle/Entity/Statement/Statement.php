@@ -2928,7 +2928,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * The explicit sort is necessary because new versions may be added to the
      * Doctrine PersistentCollection via {@see addRecommendationVersion()} within
      * the same request (e.g. when setRecommendation() triggers version recording).
-     * Doctrine's @ORM\OrderBy only applies when loading from the database, so
+     * Doctrine's ORM OrderBy only applies when loading from the database, so
      * added items end up at the end regardless of their versionNumber. Sorting
      * here ensures correct DESC order even when the in-memory collection has
      * been modified.
