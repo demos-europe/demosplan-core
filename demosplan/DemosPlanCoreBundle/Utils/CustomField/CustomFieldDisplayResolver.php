@@ -15,11 +15,13 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
+use Psr\Log\LoggerInterface;
 
 class CustomFieldDisplayResolver
 {
     public function __construct(
         private readonly CustomFieldProvider $customFieldProvider,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -51,6 +53,15 @@ class CustomFieldDisplayResolver
             )->first();
 
             if (!$customFieldDefinition instanceof CustomFieldInterface) {
+                $this->logger->warning(
+                    'CustomFieldDisplayResolver: no definition found for field value ID "{fieldValueId}". '
+                    . 'The field configuration may have been deleted while values still reference it.',
+                    [
+                        'fieldValueId'   => $fieldValue->getId(),
+                        'sourceEntityId' => $sourceEntityId,
+                        'targetEntity'   => $targetEntity->value,
+                    ]
+                );
                 continue;
             }
 
