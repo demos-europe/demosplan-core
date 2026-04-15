@@ -3,20 +3,15 @@
 {% block component_part %}
     {# Build targetOptions: maps targetEntity values to translated tab labels, filtered by permission #}
     {% set targetOptions = {} %}
-    {% if hasPermission('field_statements_custom_fields') %}
-        {% set targetOptions = targetOptions|merge({'STATEMENT': 'statements.fields.configurable'|trans}) %}
-    {% endif %}
     {% if hasPermission('field_segments_custom_fields') %}
-        {% set targetOptions = targetOptions|merge({'SEGMENT': 'segments.fields.configurable'|trans}) %}
+        {% set targetOptions = targetOptions|merge({'SEGMENT': 'segments.fields'|trans}) %}
     {% endif %}
-
-    {# Use specific heading if exactly one field type, generic if multiple #}
-    {% set headingKey = targetOptions|length == 1
-        ? targetOptions|first
-        : 'fields.configurable'|trans %}
+    {% if hasPermission('field_statements_custom_fields') %}
+        {% set targetOptions = targetOptions|merge({'STATEMENT': 'statements.fields'|trans}) %}
+    {% endif %}
 
     {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
-        heading: headingKey
+        heading: 'fields.configurable'|trans
     } %}
 
     <administration-custom-fields-list
