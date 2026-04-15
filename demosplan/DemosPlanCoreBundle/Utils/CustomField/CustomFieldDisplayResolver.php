@@ -38,7 +38,7 @@ class CustomFieldDisplayResolver
             return [];
         }
 
-        $fieldDefinitions = $this->customFieldProvider->getCustomFieldsByCriteria(
+        $customFieldDefinitions = $this->customFieldProvider->getCustomFieldsByCriteria(
             $sourceEntity->value,
             $sourceEntityId,
             $targetEntity->value
@@ -46,34 +46,20 @@ class CustomFieldDisplayResolver
 
         $resolved = [];
         foreach ($values->getCustomFieldsValues() as $fieldValue) {
-            $definition = $fieldDefinitions->filter(
+            $customFieldDefinition = $customFieldDefinitions->filter(
                 fn (CustomFieldInterface $field) => $field->getId() === $fieldValue->getId()
             )->first();
 
-            if (!$definition instanceof CustomFieldInterface) {
+            if (!$customFieldDefinition instanceof CustomFieldInterface) {
                 continue;
             }
 
             $resolved[] = [
-                'name'  => $definition->getName(),
-                'value' => $this->resolveValueLabel($definition, $fieldValue->getValue()),
+                'name'  => $customFieldDefinition->getName(),
+                'value' => $customFieldDefinition->formatValueForDisplay($fieldValue->getValue()),
             ];
         }
 
         return $resolved;
-    }
-
-    private function resolveValueLabel(CustomFieldInterface $definition, mixed $rawValue): string
-    {
-        if (is_array($rawValue)) {
-            $labels = array_filter(array_map(
-                fn (string $optionId) => $definition->getCustomOptionValueById($optionId)?->getLabel(),
-                $rawValue
-            ));
-
-            return implode(', ', $labels);
-        }
-
-        return $definition->getCustomOptionValueById((string) $rawValue)?->getLabel() ?? (string) $rawValue;
     }
 }
