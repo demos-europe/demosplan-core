@@ -305,7 +305,7 @@ class PersonalDataAuditListener
             if ($entity instanceof ProcedurePerson) {
                 return $entity->getProcedure()?->getId();
             }
-        } catch (\Exception) {
+        } catch (Exception) {
         }
 
         return null;
@@ -320,7 +320,7 @@ class PersonalDataAuditListener
             if ($entity instanceof Orga) {
                 return $entity->getId();
             }
-        } catch (\Exception) {
+        } catch (Exception) {
         }
 
         return null;
