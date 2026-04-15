@@ -1,31 +1,27 @@
 {% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
 
 {% block component_part %}
-    {# Define mapping of field permissions to their specific headings #}
-    {% set fieldTypePermissions = {
-        'field_segments_custom_fields': 'segments.fields.configurable',
-        'field_statements_custom_fields': 'statements.fields.configurable'
-    } %}
-
-    {# Check which field permissions the user has #}
-    {% set fieldTypeHeadings = [] %}
-    {% for permission, headingKey in fieldTypePermissions %}
-        {% if hasPermission(permission) %}
-            {% set fieldTypeHeadings = fieldTypeHeadings|merge([headingKey]) %}
-        {% endif %}
-    {% endfor %}
+    {# Build targetOptions: maps targetEntity values to translated tab labels, filtered by permission #}
+    {% set targetOptions = {} %}
+    {% if hasPermission('field_statements_custom_fields') %}
+        {% set targetOptions = targetOptions|merge({'STATEMENT': 'statements.fields.configurable'|trans}) %}
+    {% endif %}
+    {% if hasPermission('field_segments_custom_fields') %}
+        {% set targetOptions = targetOptions|merge({'SEGMENT': 'segments.fields.configurable'|trans}) %}
+    {% endif %}
 
     {# Use specific heading if exactly one field type, generic if multiple #}
-    {% set headingKey = fieldTypeHeadings|length == 1
-        ? fieldTypeHeadings[0]
-        : 'fields.configurable' %}
+    {% set headingKey = targetOptions|length == 1
+        ? targetOptions|first
+        : 'fields.configurable'|trans %}
 
     {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
-        heading: headingKey|trans
+        heading: headingKey
     } %}
 
     <administration-custom-fields-list
         :is-procedure-template="Boolean({{ templateVars.procedureTemplate|default(false) }})"
+        :target-options='{{ targetOptions|json_encode }}'
         procedure-id="{{ templateVars.procedureId }}">
     </administration-custom-fields-list>
 {% endblock component_part %}
