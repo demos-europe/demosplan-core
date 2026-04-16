@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "47fddb896a59ef2bcbe66ec912851af4",
+    "content-hash": "2816c5e69c33fa62c81c163b996b511b",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -16024,7 +16024,7 @@
         },
         {
             "name": "symfony/polyfill-apcu",
-            "version": "v1.34.0",
+            "version": "v1.36.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-apcu.git",
@@ -16078,7 +16078,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-apcu/tree/v1.34.0"
+                "source": "https://github.com/symfony/polyfill-apcu/tree/v1.36.0"
             },
             "funding": [
                 {
