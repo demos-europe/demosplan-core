@@ -175,7 +175,6 @@ class AssessmentTableServiceStorage
         $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['orga_postalcode']);
         $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['orga_street']);
         $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['paragraph', 'reason_paragraph']);
-        $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['phase']);
         $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['phaseDefinitionId']);
         $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['phone']);
         $statementArray = $this->updateFieldInStatementArray($statementArray, $rParams, ['planningDocument', 'planning_document']);
