@@ -1395,9 +1395,6 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['inData']['r_shortUrl'] = $procedureAsArray['currentSlug']->getName();
 
             // Verfahrensschritte
-            $templateVars['internalPhases'] = $this->globalConfig->getInternalPhases();
-            $templateVars['externalPhases'] = $this->globalConfig->getExternalPhases();
-
             $templateVars['internalPhaseDefinitions'] =
                 $procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer();
             $templateVars['externalPhaseDefinitions'] =

@@ -1873,19 +1873,6 @@ class ProcedureService implements ProcedureServiceInterface
     }
 
     /**
-     * Checks if given string is in procedurephases.yml listed as publicPhases and therefore a "valid" phasekey.
-     * Null is also a "valid" phase as "designatedPhase".
-     *
-     * @param string $phaseName - name of the public phase
-     *
-     * @return bool - true if the given $phaseName is null or in the list of public procedurephases of this project
-     */
-    protected function isValidDesignatedPublicPhase($phaseName)
-    {
-        return \in_array($phaseName, $this->globalConfig->getExternalPhaseKeys()) || null === $phaseName;
-    }
-
-    /**
      * Check if the given procedure have a designated public date to switch on AND a public phase to switch to.
      *
      * @return bool true if designated phase and date are not null, otherwise false
@@ -2619,23 +2606,11 @@ class ProcedureService implements ProcedureServiceInterface
             );
         }
 
-        // may be simplified
-        $hiddenPhases = \array_unique(
-            \array_merge(
-                $this->globalConfig->getInternalPhaseKeys('hidden'),
-                $this->globalConfig->getExternalPhaseKeys('hidden')
-            )
-        );
-
         if (isset($filters['excludeHiddenPhases'])) {
             // Include only procedures where at least one phase is not hidden
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                [] === $hiddenPhases
-                    ? $this->conditionFactory->false()
-                    : $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase', 'key']),
-                [] === $hiddenPhases
-                    ? $this->conditionFactory->false()
-                    : $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase', 'key']),
+                $this->conditionFactory->propertyHasNotValue('hidden', ['phase', 'phaseDefinition', 'permissionSet']),
+                $this->conditionFactory->propertyHasNotValue('hidden', ['publicParticipationPhase', 'phaseDefinition', 'permissionSet']),
             );
         }
 

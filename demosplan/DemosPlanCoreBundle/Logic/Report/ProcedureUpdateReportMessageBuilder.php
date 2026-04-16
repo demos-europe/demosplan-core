@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -26,7 +25,7 @@ class ProcedureUpdateReportMessageBuilder
     /**
      * @param array<string, mixed> $messageData
      */
-    public function __construct(private readonly array $messageData, private readonly DateExtension $dateExtension, private readonly TranslatorInterface $translator, private readonly GlobalConfigInterface $globalConfig, private readonly string $oldPrefix, private readonly string $newPrefix)
+    public function __construct(private readonly array $messageData, private readonly DateExtension $dateExtension, private readonly TranslatorInterface $translator, private readonly string $oldPrefix, private readonly string $newPrefix)
     {
     }
 
@@ -72,10 +71,10 @@ class ProcedureUpdateReportMessageBuilder
         $timeFormat = $formatDate ? 'H:i' : null;
 
         $message = $this->translator->trans($translationKey, [
-            "%$this->oldPrefix$valueKey%"       => $this->getMessageParameter($oldValue, $public, $dateFormat),
-            "%$this->newPrefix$valueKey%"       => $this->getMessageParameter($newValue, $public, $dateFormat),
-            "%$this->oldPrefix{$valueKey}Time%" => $this->getMessageParameter($oldValue, $public, $timeFormat),
-            "%$this->newPrefix{$valueKey}Time%" => $this->getMessageParameter($newValue, $public, $timeFormat),
+            "%$this->oldPrefix$valueKey%"       => $this->getMessageParameter($oldValue, $dateFormat),
+            "%$this->newPrefix$valueKey%"       => $this->getMessageParameter($newValue, $dateFormat),
+            "%$this->oldPrefix{$valueKey}Time%" => $this->getMessageParameter($oldValue, $timeFormat),
+            "%$this->newPrefix{$valueKey}Time%" => $this->getMessageParameter($newValue, $timeFormat),
         ]);
 
         $this->messages[] = "$visibilityMessage: $message";
@@ -89,7 +88,7 @@ class ProcedureUpdateReportMessageBuilder
         return $this->messages;
     }
 
-    private function getMessageParameter($value, bool $public, ?string $dateFormat): ?string
+    private function getMessageParameter($value, ?string $dateFormat): ?string
     {
         if (null === $value) {
             return null;
@@ -100,10 +99,8 @@ class ProcedureUpdateReportMessageBuilder
             return $this->getConvertedTime($value, $dateFormat);
         }
 
-        // in case of a phase, determine translation key
-        $translationKey = $this->getPhaseTranslationKey($public, $value);
-
-        return $this->translator->trans($translationKey);
+        // value is already the display name stored at write time
+        return $value;
     }
 
     private function getConvertedTime($value, string $format): string
@@ -111,40 +108,4 @@ class ProcedureUpdateReportMessageBuilder
         return $this->dateExtension->dateFilter($value, $format);
     }
 
-    /**
-     * We may only get a value like `scoping` or `participation1` for the phase and need to translate
-     * it by getting the correct translation key from the `procedurephases.yml` file, like:.
-     *
-     * * procedure.phases.internal.configuration
-     * * procedure.phases.internal.preparation
-     * * procedure.phases.internal.participation
-     * * procedure.phases.internal.internalphase2
-     * * procedure.phases.internal.internalphase3
-     * * procedure.phases.internal.analysis
-     * * procedure.phases.internal.closed
-     * * procedure.phases.external.configuration
-     * * procedure.phases.external.evaluation
-     * * procedure.phases.external.preparation
-     * * procedure.phases.external.participation
-     * * procedure.phases.external.internalphase2
-     * * procedure.phases.external.internalphase3
-     * * procedure.phases.external.analysis
-     * * procedure.phases.external.closed
-     * * procedure.phases.external.consultation
-     * * procedure.phases.external.information
-     * * procedure.phases.external.participation
-     * * procedure.phases.internal.announcement
-     * * procedure.phases.internal.conference
-     * * procedure.phases.internal.decision
-     * * procedure.phases.internal.participation2
-     * * procedure.phases.internal.participation
-     * * procedure.phases.internal.pause
-     * * procedure.phases.internal.scoping
-     */
-    private function getPhaseTranslationKey(bool $public, string $value): string
-    {
-        return $public
-            ? $this->globalConfig->getPhaseNameWithPriorityExternal($value)
-            : $this->globalConfig->getPhaseNameWithPriorityInternal($value);
-    }
 }

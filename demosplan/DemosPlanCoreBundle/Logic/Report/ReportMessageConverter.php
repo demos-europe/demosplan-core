@@ -339,7 +339,6 @@ class ReportMessageConverter
             $message,
             $dateExtension,
             $this->translator,
-            $this->globalConfig,
             'oldDesignated',
             'newDesignated'
         );

@@ -522,10 +522,6 @@ class DemosPlanAssessmentTableController extends BaseController
             $baseData['fragmentStatus'] = $this->getFormParameter('fragment_status');
         }
 
-        // Verfahrensschritte
-        $baseData['internalPhases'] = $this->globalConfig->getInternalPhases();
-        $baseData['externalPhases'] = $this->globalConfig->getExternalPhases();
-
         $resElements = $statementHandler->getElementBlock($procedureId);
         $baseData['elements'] = $resElements['elements'] ?? [];
         $baseData['paragraph'] = $resElements['paragraph'] ?? [];
@@ -1059,9 +1055,6 @@ class DemosPlanAssessmentTableController extends BaseController
         $templateVars['filterHash'] = $filterHash;
 
         // Verfahrensschritte
-        $templateVars['internalPhases'] = $this->globalConfig->getInternalPhases();
-        $templateVars['externalPhases'] = $this->globalConfig->getExternalPhases();
-
         $templateVars['internalPhaseDefinitions'] =
             $this->procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer();
         $templateVars['externalPhaseDefinitions'] =

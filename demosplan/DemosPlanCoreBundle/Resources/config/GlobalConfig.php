@@ -44,7 +44,6 @@ use const FILTER_VALIDATE_BOOLEAN;
 
 class GlobalConfig implements GlobalConfigInterface
 {
-    private const PHASE_TRANSLATION_KEY_FIELD = 'translationKey';
     private const CUSTOMER_PLACEHOLFER = '{customer}';
 
     /**
@@ -310,28 +309,10 @@ class GlobalConfig implements GlobalConfigInterface
     protected $honeypotDisabled;
     protected int $honeypotTimeout;
     /**
-     * @var array
-     */
-    protected $internalPhases;
-    /**
-     * @var array
-     */
-    protected $internalPhasesAssoc;
-
-    /**
      * @var string
      */
     protected $entrypointRouteRtedit;
 
-    // aus ServiceLayer/Resources/config
-    /**
-     * @var array
-     */
-    protected $externalPhases;
-    /**
-     * @var array
-     */
-    protected $externalPhasesAssoc;
     /**
      * @var bool
      */
@@ -728,28 +709,10 @@ class GlobalConfig implements GlobalConfigInterface
         // Art des Stellungnahmeabgabeprozesses
         $this->projectSubmissionType = $parameterBag->get('project_submission_type');
 
-        // Verfahrensschritte
-        $this->internalPhases = $parameterBag->get('internalPhases');
-        $this->externalPhases = $parameterBag->get('externalPhases');
-
         // Links to other projects
         $this->projects = $parameterBag->get('projects');
         if (!is_array($this->projects)) {
             $this->projects = [];
-        }
-
-        foreach ($this->internalPhases as $index => $internalPhase) {
-            $internalPhase[self::PHASE_TRANSLATION_KEY_FIELD] = $internalPhase['name'];
-            $internalPhase['name'] = $translator->trans($internalPhase['name']);
-            $this->internalPhases[$index] = $internalPhase;
-            $this->internalPhasesAssoc[$internalPhase['key']] = $internalPhase;
-        }
-
-        foreach ($this->externalPhases as $index => $externalPhase) {
-            $externalPhase[self::PHASE_TRANSLATION_KEY_FIELD] = $externalPhase['name'];
-            $externalPhase['name'] = $translator->trans($externalPhase['name']);
-            $this->externalPhases[$index] = $externalPhase;
-            $this->externalPhasesAssoc[$externalPhase['key']] = $externalPhase;
         }
 
         // Key für MaintenanceTasks (CronJob)
@@ -1302,138 +1265,6 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->mapPublicSearchAutozoom;
     }
 
-    /**
-     * @param string $permissionset    "all" || "read||write"
-     * @param bool   $includePreviewed if set to true this function will include internal phases with the 'previewed' property set to 'true' regardless of the permissionset of these
-     */
-    public function getInternalPhases($permissionset = 'all', bool $includePreviewed = false): array
-    {
-        return $this->filterPhases($this->internalPhases, $permissionset, $includePreviewed);
-    }
-
-    /**
-     * Filtere nur bestimmte Permissionsets aus den Phasen.
-     *
-     * @param array  $phases
-     * @param string $permissionset    "all" || "read||write"
-     * @param bool   $includePreviewed if set to true this function will include phases with the 'previewed' property set to 'true' regardless of the permissionset of these
-     */
-    protected function filterPhases($phases, $permissionset, bool $includePreviewed = false): array
-    {
-        if ('all' === $permissionset) {
-            return $phases;
-        }
-
-        $permissionsets = explode('||', $permissionset);
-
-        return array_filter($phases, static function ($phase) use ($permissionsets, $includePreviewed) {
-            $ignorePermissionset =
-                $includePreviewed
-                && array_key_exists('previewed', $phase)
-                && true === $phase['previewed'];
-
-            return $ignorePermissionset || in_array($phase['permissionset'], $permissionsets, true);
-        });
-    }
-
-    /**
-     * @param string $permissionset    "all" || "read||write"
-     * @param bool   $includePreviewed if set to true this function will include external phases with the 'previewed' property set to 'true' regardless of the permissionset of these
-     */
-    public function getExternalPhases($permissionset = 'all', bool $includePreviewed = false): array
-    {
-        return $this->filterPhases($this->externalPhases, $permissionset, $includePreviewed);
-    }
-
-    /**
-     * Keys der Phasen als array.
-     *
-     * @param string $permissionset "all" || "read||write"
-     */
-    public function getInternalPhaseKeys($permissionset = 'all'): array
-    {
-        $phases = $this->filterPhases($this->internalPhases, $permissionset);
-        $keys = [];
-        foreach ($phases as $phase) {
-            $keys[] = $phase['key'];
-        }
-
-        return $keys;
-    }
-
-    /**
-     * Keys der Phasen als array.
-     *
-     * @param string $permissionset "all" || "read||write"
-     */
-    public function getExternalPhaseKeys($permissionset = 'all'): array
-    {
-        $phases = $this->filterPhases($this->externalPhases, $permissionset);
-        $keys = [];
-        foreach ($phases as $phase) {
-            $keys[] = $phase['key'];
-        }
-
-        return $keys;
-    }
-
-    /**
-     * @param string $permissionset "all" || "read||write"
-     */
-    public function getInternalPhasesAssoc($permissionset = 'all'): array
-    {
-        return $this->filterPhases($this->internalPhasesAssoc, $permissionset);
-    }
-
-    /**
-     * @param string $permissionset "all" || "read||write"
-     */
-    public function getExternalPhasesAssoc($permissionset = 'all'): array
-    {
-        return $this->filterPhases($this->externalPhasesAssoc, $permissionset);
-    }
-
-    /**
-     * Returns phase name based on key with internal phases being checked first for a match.
-     */
-    public function getPhaseNameWithPriorityInternal(string $phaseKey): string
-    {
-        return $this->getPhaseNameWithPriority($phaseKey, $this->internalPhasesAssoc, $this->externalPhasesAssoc);
-    }
-
-    /**
-     * This method returns the corresponding phase name to a given phase key. The two given arrays must be
-     * {@see $internalPhasesAssoc} and {@see $internalPhasesAssoc} with the order telling where to look for the name first.
-     * If there is no name found, the key will be returned.
-     *
-     * @param array<string, array> $higherPriorityPhasesArray
-     * @param array<string, array> $lowerPriorityPhasesArray
-     */
-    protected function getPhaseNameWithPriority(string $phaseKey, array $higherPriorityPhasesArray, array $lowerPriorityPhasesArray): string
-    {
-        $phaseName = $phaseKey;
-        // Check for name in higher priority array
-        if (array_key_exists($phaseKey, $higherPriorityPhasesArray)) {
-            $phaseName = $higherPriorityPhasesArray[$phaseKey]['name'];
-        }
-
-        // Check for name in lower priority array if no name has been found in higher priority array
-        $hasNotFoundPhaseKey = $phaseKey === $phaseName;
-        if ($hasNotFoundPhaseKey && array_key_exists($phaseKey, $lowerPriorityPhasesArray)) {
-            $phaseName = $lowerPriorityPhasesArray[$phaseKey]['name'];
-        }
-
-        return $phaseName;
-    }
-
-    /**
-     * Returns phase name based on key with external phases being checked first for a match.
-     */
-    public function getPhaseNameWithPriorityExternal(string $phaseKey): string
-    {
-        return $this->getPhaseNameWithPriority($phaseKey, $this->externalPhasesAssoc, $this->internalPhasesAssoc);
-    }
-
     public function getMapPublicBaselayer(): string
     {
         return $this->mapPublicBaselayer;
@@ -1745,16 +1576,6 @@ class GlobalConfig implements GlobalConfigInterface
     public function getMapDefaultProjection(): array
     {
         return $this->mapDefaultProjection;
-    }
-
-    public function getInternalPhaseTranslationKey(string $phaseKey): ?string
-    {
-        return $this->internalPhasesAssoc[$phaseKey][self::PHASE_TRANSLATION_KEY_FIELD] ?? null;
-    }
-
-    public function getExternalPhaseTranslationKey(string $phaseKey): ?string
-    {
-        return $this->externalPhasesAssoc[$phaseKey][self::PHASE_TRANSLATION_KEY_FIELD] ?? null;
     }
 
     public function isAdvancedSupport(): bool

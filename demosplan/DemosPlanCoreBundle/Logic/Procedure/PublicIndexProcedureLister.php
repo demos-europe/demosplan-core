@@ -170,15 +170,7 @@ class PublicIndexProcedureLister
         if (isset($procedures['list']['procedurelist'], $procedures['list']['filters']['filters']['phase'])
             && 0 < (is_countable($procedures['list']['procedurelist']) ? count($procedures['list']['procedurelist']) : 0)) {
             foreach ($procedures['list']['filters']['filters']['phase'] as $key => $filterEntry) {
-                if ($procedures['useInternalFields']) {
-                    $procedures['list']['filters']['filters']['phase'][$key]['label'] = $this->globalConfig->getPhaseNameWithPriorityInternal(
-                        $filterEntry['value']
-                    );
-                    continue;
-                }
-                $procedures['list']['filters']['filters']['phase'][$key]['label'] = $this->globalConfig->getPhaseNameWithPriorityExternal(
-                    $filterEntry['value']
-                );
+                $procedures['list']['filters']['filters']['phase'][$key]['label'] = $filterEntry['value'];
             }
         }
 
