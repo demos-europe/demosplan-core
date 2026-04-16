@@ -79,28 +79,41 @@ class OAuthTokenRepository extends CoreRepository
     }
 
     /**
-     * Delete OAuth token entries with outdated pending data (full request buffer or URL-only entry).
+     * Delete stale OAuth token entries.
      *
-     * Removes entire token entries where pendingRequestTimestamp is older than the specified age.
-     * This covers both full POST buffers and URL-only entries (set by storePendingPageUrl),
-     * since both write a timestamp as an anchor for this cleanup.
-     * Stale entries mean the user never re-authenticated after token expiry.
-     *
-     * @param int $olderThanMinutes Delete entries with pending data older than this many minutes (default: 60 = 1 hour)
+     * @param int $olderThanMinutes Delete pending entries older than this many minutes (default: 60)
      *
      * @return int Number of deleted entries
      */
     public function clearOutdated(DateTimeZone $timezone, int $olderThanMinutes = 60): int
     {
-        $threshold = new DateTime("-{$olderThanMinutes} minutes", $timezone);
+        $pendingThreshold = new DateTime("-{$olderThanMinutes} minutes", $timezone);
+
+        // 8 hours = 6h max PHP session lifetime (SESSION_LIFETIME) + 2h buffer to avoid
+        // cutting off tokens that might still be relevant for future features
+        $tokenThreshold = new DateTime('-8 hours', $timezone);
 
         $qb = $this->getEntityManager()->createQueryBuilder();
 
+        // A pending request was buffered but the user never re-authenticated within the threshold
+        $stalePendingRequest = $qb->expr()->andX(
+            't.pendingRequestTimestamp IS NOT NULL',
+            't.pendingRequestTimestamp < :pendingThreshold'
+        );
+
+        // The session was never explicitly closed (e.g. browser just closed) but the
+        // expired tokens are beyond the session lifetime + buffer and of no use anymore
+        $abandonedSession = $qb->expr()->andX(
+            't.accessTokenExpiresAt IS NOT NULL',
+            't.accessTokenExpiresAt < :tokenThreshold',
+            't.pendingRequestTimestamp IS NULL'
+        );
+
         // DQL DELETE returns int (affected rows) or throws an exception — cast for static analysis
         return (int) $qb->delete(OAuthToken::class, 't')
-            ->where('t.pendingRequestTimestamp IS NOT NULL')
-            ->andWhere('t.pendingRequestTimestamp < :threshold')
-            ->setParameter('threshold', $threshold)
+            ->where($qb->expr()->orX($stalePendingRequest, $abandonedSession))
+            ->setParameter('pendingThreshold', $pendingThreshold)
+            ->setParameter('tokenThreshold', $tokenThreshold)
             ->getQuery()
             ->execute();
     }
