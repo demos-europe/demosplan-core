@@ -939,7 +939,7 @@ export default {
   mounted () {
     this.fetchCustomFields()
 
-    if (this.isActiveTabStatementContext) {
+    if ('STATEMENT' in this.targetOptions) {
       this.fetchStatementsCount()
     }
   },
