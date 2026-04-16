@@ -958,6 +958,39 @@ export default {
      */
     sendFilterOptionsRequest (params) {
       const { additionalQueryParams, category, currentQuery, filter, isInitialWithQuery, path } = params
+      const isUnusedTag = (filterPath, count, selected) => filterPath === 'tags' && count === 0 && !selected
+
+      const buildGroupOptions = (resource, resultIncluded, currentQuery, filterPath) => {
+        const filterOptionsIds = resource.relationships.aggregationFilterItems?.data.length > 0 ? resource.relationships.aggregationFilterItems.data.map(item => item.id) : []
+        const options = filterOptionsIds.map(id => {
+          const option = resultIncluded.find(item => item.id === id)
+
+          if (option) {
+            const { attributes, id } = option
+            const { count, description, label } = attributes
+
+            return {
+              count,
+              description,
+              id,
+              label,
+              selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
+            }
+          }
+
+          return null
+        }).filter(option => option !== null && !isUnusedTag(filterPath, option.count, option.selected))
+
+        if (options.length === 0) {
+          return null
+        }
+
+        return {
+          id: resource.id,
+          label: resource.attributes.label,
+          options,
+        }
+      }
       const requestParams = {
         ...additionalQueryParams,
         filter: {
@@ -982,67 +1015,25 @@ export default {
           const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ? data[0].result : null
 
           if (result) {
-            const groupedOptions = []
-            const ungroupedOptions = []
+            const filter = result.data.find(type => type.attributes.path === path)
+            const groupIds = new Set(filter.relationships.aggregationFilterGroups?.data.map(group => group.id) ?? [])
+            const itemIds = new Set(filter.relationships.aggregationFilterItems?.data.map(item => item.id) ?? [])
 
-            result.included?.forEach(resource => {
-              const filter = result.data.find(type => type.attributes.path === path)
-              const resourceIsGroup = resource.type === 'AggregationFilterGroup'
-              const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0
-              const groupBelongsToFilterType = resourceIsGroup && filterHasGroups ? !!filter.relationships.aggregationFilterGroups.data.find(group => group.id === resource.id) : false
-              const resourceIsFilterOption = resource.type === 'AggregationFilterItem'
-              const filterHasFilterOptions = filter.relationships.aggregationFilterItems?.data.length > 0
-              const filterOptionBelongsToFilterType = resourceIsFilterOption && filterHasFilterOptions ? !!filter.relationships.aggregationFilterItems.data.find(option => option.id === resource.id) : false
+            const groupedOptions = (result.included ?? [])
+              .filter(resource => resource.type === 'AggregationFilterGroup' && groupIds.has(resource.id))
+              .map(group => buildGroupOptions(group, result.included, currentQuery, path))
+              .filter(Boolean)
 
-              if (resourceIsGroup && groupBelongsToFilterType) {
-                const filterOptionsIds = resource.relationships.aggregationFilterItems?.data.length > 0 ? resource.relationships.aggregationFilterItems.data.map(item => item.id) : []
-                const filterOptions = filterOptionsIds.map(id => {
-                  const option = result.included.find(item => item.id === id)
-
-                  if (option) {
-                    const { attributes, id } = option
-                    const { count, description, label } = attributes
-
-                    return {
-                      count,
-                      description,
-                      id,
-                      label,
-                      selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
-                    }
-                  }
-
-                  return null
-                }).filter(option => option !== null)
-
-                if (filterOptions.length > 0) {
-                  const { id, attributes } = resource
-                  const { label } = attributes
-                  const group = {
-                    id,
-                    label,
-                    options: filterOptions,
-                  }
-
-                  groupedOptions.push(group)
-                }
-              }
-
-              // Ungrouped filter options
-              if (resourceIsFilterOption && filterOptionBelongsToFilterType) {
+            const ungroupedOptions = (result.included ?? [])
+              .filter(resource => resource.type === 'AggregationFilterItem' && itemIds.has(resource.id))
+              .map(resource => {
                 const { id, attributes } = resource
                 const { count, description, label } = attributes
+                const selected = currentQuery?.length ? currentQuery.includes(id) : attributes.selected
 
-                ungroupedOptions.push({
-                  id,
-                  count,
-                  description,
-                  label,
-                  selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
-                  ungrouped: true,
-                })
-              }
-            })
+                return { id, count, description, label, selected, ungrouped: true }
+              })
+              .filter(option => !isUnusedTag(path, option.count, option.selected))
 
             // Needs to be added to ungroupedOptions
             if (result.data[0].attributes.path === 'assignee') {
