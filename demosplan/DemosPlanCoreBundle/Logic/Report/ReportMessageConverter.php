@@ -456,8 +456,7 @@ class ReportMessageConverter
             $returnMessage[] = $this->getSubjectLine($mailSubject);
         }
 
-        // hole den Phasennamen
-        $returnMessage[] = $this->globalConfig->getPhaseNameWithPriorityInternal($entryData->getPhase());
+        $returnMessage[] = $entryData->getPhase();
         if ([] !== $invitedOrgas) {
             $returnMessage[] = $this->translator->trans('email.invitation.sent');
 
