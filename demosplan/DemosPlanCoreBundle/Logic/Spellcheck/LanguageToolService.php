@@ -12,8 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Spellcheck;
 
-use Psr\Log\LoggerInterface;
-use RuntimeException;
+use demosplan\DemosPlanCoreBundle\Exception\LanguageToolServiceException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -23,7 +22,6 @@ class LanguageToolService
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
-        private readonly LoggerInterface $logger,
         ParameterBagInterface $parameterBag,
     ) {
         $this->languageToolUrl = $parameterBag->get('languagetool_url');
@@ -57,7 +55,7 @@ class LanguageToolService
     private function getUrl(string $path): string
     {
         if ('' === $this->languageToolUrl) {
-            throw new RuntimeException('LanguageTool service not configured');
+            throw new LanguageToolServiceException('LanguageTool service not configured: missing languagetool_url parameter');
         }
 
         return $this->languageToolUrl.$path;
