@@ -1121,7 +1121,7 @@ class ProcedureDeleter
                 $this->defaultStorage->delete($flysystemPath);
             } catch (FilesystemException $e) {
                 $this->logger->warning('Could not delete file from storage during procedure deletion', [
-                    'path' => $flysystemPath,
+                    'path'  => $flysystemPath,
                     'error' => $e->getMessage(),
                 ]);
             }
