@@ -27,10 +27,10 @@ use League\OAuth2\Client\Token\AccessToken;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use ReflectionMethod;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Lock\LockFactory;
-use ReflectionMethod;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Lock\Store\InMemoryStore;
 

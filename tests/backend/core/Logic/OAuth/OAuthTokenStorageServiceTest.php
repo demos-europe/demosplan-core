@@ -17,8 +17,8 @@ use DateTimeZone;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\OAuth\OAuthTokenFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
-use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use demosplan\DemosPlanCoreBundle\Repository\OAuthTokenRepository;
+use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use Tests\Base\FunctionalTestCase;
 
 class OAuthTokenStorageServiceTest extends FunctionalTestCase

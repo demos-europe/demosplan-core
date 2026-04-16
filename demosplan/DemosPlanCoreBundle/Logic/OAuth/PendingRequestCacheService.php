@@ -17,8 +17,8 @@ use DateTimeZone;
 use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use demosplan\DemosPlanCoreBundle\ValueObject\PendingRequestData;
 use Exception;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 

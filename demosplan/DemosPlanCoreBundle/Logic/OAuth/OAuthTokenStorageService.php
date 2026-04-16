@@ -18,9 +18,9 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
 use demosplan\DemosPlanCoreBundle\Exception\CryptoException;
 use demosplan\DemosPlanCoreBundle\Exception\TokenStorageException;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
-use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use demosplan\DemosPlanCoreBundle\Repository\OAuthTokenRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use demosplan\DemosPlanCoreBundle\ValueObject\PendingRequestData;
 use demosplan\DemosPlanCoreBundle\ValueObject\TokenData;
 use Doctrine\ORM\EntityManagerInterface;
@@ -253,7 +253,7 @@ class OAuthTokenStorageService
      * @param OAuthToken         $oauthToken  The OAuth token entity to store the request buffer in
      * @param PendingRequestData $requestData Request data value object with clear (unencrypted) data
      *
-     * @throws CryptoException if encryption of request body fails
+     * @throws CryptoException          if encryption of request body fails
      * @throws InvalidArgumentException if validation of request data fails
      */
     public function storePendingRequest(OAuthToken $oauthToken, PendingRequestData $requestData): void
