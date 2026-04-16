@@ -10,13 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedurePhaseDefinitionFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
-use Error;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
@@ -64,7 +62,11 @@ class StatementFactory extends PersistentProxyObjectFactory
             'modified'            => self::faker()->dateTime(),
             'negativeStatement'   => false,
             'numberOfAnonymVotes' => self::faker()->randomNumber(),
-            'phase'               => ProcedureInterface::PROCEDURE_PARTICIPATION_PHASE,
+            'phaseDefinition'     => ProcedurePhaseDefinitionFactory::new([
+                'audience'        => 'internal',
+                'permissionSet'   => 'write',
+                'orderInAudience' => 1,
+            ]),
             'planningDocument'    => self::faker()->text(4096),
             'polygon'             => self::faker()->text(65535),
             'priority'            => self::faker()->text(10),
@@ -91,22 +93,5 @@ class StatementFactory extends PersistentProxyObjectFactory
     public function withProcedure(ProcedureFactory $procedure): self
     {
         return $this->with(['procedure' => $procedure]);
-    }
-
-    protected function initialize(): static
-    {
-        return $this->afterInstantiate(function (Statement $statement): void {
-            try {
-                $statement->getPhaseDefinition();
-            } catch (Error) {
-                $statement->setPhaseDefinition(
-                    ProcedurePhaseDefinitionFactory::createOne([
-                        'audience'        => 'internal',
-                        'permissionSet'   => 'write',
-                        'orderInAudience' => 1,
-                    ])->_real()
-                );
-            }
-        });
     }
 }
