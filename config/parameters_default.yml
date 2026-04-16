@@ -393,6 +393,14 @@ parameters:
     # https://login.microsoftonline.com/<tenant>/oauth2/v2.0/logout
     oauth_azure_logout_route: ''
 
+    # When enabled, KeyCloak is only used for initial login and logout.
+    # Token refresh and expiry enforcement are skipped — the PHP session governs the session lifetime (default 6 hours).
+    # The FE logout countdown reflects the PHP session lifetime, not the KeyCloak token TTL.
+    # When disabled (false), full token management is active: tokens are refreshed in the background
+    # and the FE countdown reflects the refresh token TTL.
+    # Set to false in parameters_default_project.yml to enable full token management.
+    oauth_keycloak_login_only: true
+
     # Timezone used for all OAuth token expiry calculations and pending request timestamps.
     # Must match the DB server timezone to avoid DST drift in token comparisons.
     # Default: Europe/Berlin. Override via OAUTH_TOKEN_TIMEZONE env var if needed.

@@ -86,22 +86,16 @@ class TokenRefreshTerminateListener
      *
      * Checks (in order of cost, cheapest first):
      * - KeyCloak not configured in production
+     * - Login-only mode (oauth_keycloak_login_only parameter — no token refresh needed)
      * - Not a main request (sub-requests skip)
      * - User is a non-human (AnonymousUser, AiApiUser, etc. — all extend FunctionalUser)
-     * - Login-only mode (feature_keycloak_used_for_login_only — no token refresh needed)
      */
     private function shallReturnEarly(TerminateEvent $event): bool
     {
-        if ($this->ozgKeycloakSessionManager->shouldSkipInProductionWithoutKeycloak()
-            || !$event->isMainRequest()) {
-            return true;
-        }
-
-        if ($this->currentUser->getUser() instanceof FunctionalUser) {
-            return true;
-        }
-
-        return $this->ozgKeycloakSessionManager->isKeycloakLoginOnly();
+        return $this->ozgKeycloakSessionManager->shouldSkipInProductionWithoutKeycloak()
+            || $this->ozgKeycloakSessionManager->isKeycloakLoginOnly()
+            || !$event->isMainRequest()
+            || $this->currentUser->getUser() instanceof FunctionalUser;
     }
 
     /**

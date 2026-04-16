@@ -48,7 +48,6 @@ class OzgKeycloakSessionManager
     public function __construct(
         private readonly KernelInterface $kernel,
         private readonly LoggerInterface $logger,
-        private readonly CurrentUserService $currentUser,
         private readonly CustomerService $customerService,
         private readonly ParameterBagInterface $parameterBag,
         private readonly CustomerOAuthConfigRepository $configRepository,
@@ -91,7 +90,7 @@ class OzgKeycloakSessionManager
 
     public function isKeycloakLoginOnly(): bool
     {
-        return $this->currentUser->hasPermission('feature_keycloak_used_for_login_only');
+        return $this->parameterBag->get('oauth_keycloak_login_only');
     }
 
     /**
@@ -166,7 +165,7 @@ class OzgKeycloakSessionManager
      * Also updates EXPIRATION_TIMESTAMP (used by the FE logout countdown) to the refresh token expiry
      * when full KeyCloak token management is active. The refresh token TTL is the real user-facing
      * session boundary — the access token is an implementation detail refreshed transparently.
-     * When feature_keycloak_used_for_login_only is enabled, EXPIRATION_TIMESTAMP is left untouched
+     * When oauth_keycloak_login_only is enabled, EXPIRATION_TIMESTAMP is left untouched
      * (already set to the PHP session lifetime by injectTokenExpirationIntoSession on login).
      *
      * Used after:

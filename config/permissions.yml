@@ -738,16 +738,6 @@ feature_auto_logout_warning:
     expose: true
     label: 'Remind the user of the upcoming automatic log out'
     loginRequired: true
-feature_keycloak_used_for_login_only:
-    description: |
-        When enabled, KeyCloak is only used for initial login and logout.
-        Token refresh and expiry enforcement are skipped — the PHP session governs the session lifetime (default 6 hours).
-        The FE logout countdown reflects the PHP session lifetime, not the KeyCloak token TTL.
-        When disabled (default), full token management is active: tokens are refreshed in the background
-        and the FE countdown reflects the refresh token TTL.
-    expose: true
-    label: 'Use KeyCloak for login and logout only (no token refresh)'
-    loginRequired: true
 feature_auto_switch_element_state:
     description: |
         The FP can pick a date and time on which the state of the element will be switched.

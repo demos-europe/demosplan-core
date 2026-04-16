@@ -92,13 +92,7 @@ class ExpirationTimestampRequestListener
         // Non-IdP users (form-login) are also skipped — token management only applies to KeyCloak users.
         $user = $this->userFromSecurityUserProvider->get();
 
-        if (null === $user || !$user->isProvidedByIdentityProvider()) {
-            return true;
-        }
-
-        // When KeyCloak is used for login only (feature_keycloak_used_for_login_only), the PHP session
-        // lifetime governs session expiry — no token refresh or expiry enforcement needed.
-        return $this->ozgKeycloakSessionManager->isKeycloakLoginOnly();
+        return null === $user || !$user->isProvidedByIdentityProvider();
     }
 
     /**
@@ -107,6 +101,7 @@ class ExpirationTimestampRequestListener
      * Checks (in order of cost, cheapest first):
      * - Session not started
      * - KeyCloak not configured in production
+     * - Login-only mode (oauth_keycloak_login_only parameter — no token refresh needed)
      * - Not a main request (sub-requests skip)
      * - User is a non-human (FunctionalUser — AnonymousUser, AiApiUser, etc.)
      * - Session threshold not yet reached (tokens were recently validated)
@@ -119,6 +114,7 @@ class ExpirationTimestampRequestListener
 
         if (!$session->isStarted()
             || $this->ozgKeycloakSessionManager->shouldSkipInProductionWithoutKeycloak()
+            || $this->ozgKeycloakSessionManager->isKeycloakLoginOnly()
             || !$event->isMainRequest()
             || null === $securityUser
             || $securityUser instanceof FunctionalUser) {

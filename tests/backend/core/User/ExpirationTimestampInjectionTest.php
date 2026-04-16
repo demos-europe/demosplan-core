@@ -14,7 +14,6 @@ namespace Tests\Core\User;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
@@ -38,12 +37,12 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
             'session_lifetime_seconds'               => 7200,
             'oauth_keycloak_logout_route'            => '',
             'oauth_token_fast_path_interval_seconds' => 180,
+            'oauth_keycloak_login_only'              => false,
         ]);
 
         $this->sut = new OzgKeycloakSessionManager(
             self::getContainer()->get(KernelInterface::class),
             self::getContainer()->get(LoggerInterface::class),
-            self::getContainer()->get(CurrentUserService::class),
             self::getContainer()->get(CustomerService::class),
             $parameterBag,
             self::getContainer()->get(CustomerOAuthConfigRepository::class),
@@ -102,7 +101,20 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
 
     public function testSyncSessionSkipsExpirationTimestampWhenLoginOnly(): void
     {
-        $this->enablePermissions(['feature_keycloak_used_for_login_only']);
+        $loginOnlyParamBag = new ParameterBag([
+            'session_lifetime_seconds'               => 7200,
+            'oauth_keycloak_logout_route'            => '',
+            'oauth_token_fast_path_interval_seconds' => 180,
+            'oauth_keycloak_login_only'              => true,
+        ]);
+
+        $this->sut = new OzgKeycloakSessionManager(
+            self::getContainer()->get(KernelInterface::class),
+            self::getContainer()->get(LoggerInterface::class),
+            self::getContainer()->get(CustomerService::class),
+            $loginOnlyParamBag,
+            self::getContainer()->get(CustomerOAuthConfigRepository::class),
+        );
 
         $accessExpiry = new DateTime('+5 minutes');
         $refreshExpiry = new DateTime('+30 minutes');
