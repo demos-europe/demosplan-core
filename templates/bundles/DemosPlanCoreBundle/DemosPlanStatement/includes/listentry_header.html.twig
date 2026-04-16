@@ -62,9 +62,9 @@
                     {{ "date.submitted"|trans }}: {{ statement.submittedDate|dplanDate("d.m.Y H:i") }}
                 </span>
             {% endif %}
-            {% if statement.phase is defined and statement.phase != '' and show_phase is defined %}
+            {% if statement.phaseDefinition.name is defined and statement.phaseDefinition.name != '' and show_phase is defined %}
                 <span class="{{ 'o-piped__item'|prefixClass }}">
-                    {{- statement.phase -}}
+                    {{- statement.phaseDefinition.name -}}
                 </span>
             {% endif %}
 
