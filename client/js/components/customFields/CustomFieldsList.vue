@@ -31,34 +31,38 @@ All rights reserved
           :resource-type="resourceType"
         >
           <div :class="layoutClasses">
-            <custom-field
+            <div
               v-for="field in fieldsToRender"
               :key="field.id"
-              :definition="definitions.find(d => d.id === field.id) || null"
-              :enable-toggle="enableToggle"
-              :field-data="{ id: field.id, value: field.value }"
-              :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
-              :mode="mode"
-              :resource-id="resourceId"
-              :resource-type="resourceType"
-              @edit:cancel="handleEditEnd(field.id)"
-              @edit:save="handleEditEnd(field.id)"
-              @edit:start="handleEditStart(field.id)"
-              @save:error="handleSaveError"
-              @save:success="handleSaveSuccess"
-              @update:value="newValue => handleValueUpdate(field.id, newValue)"
+              :class="showFieldBorders ? prefixClass('border-l-4 border-neutral pl-3') : null"
             >
-              <!-- Forward readonly-display slot if parent provided it -->
-              <template
-                v-if="$slots['readonly-display']"
-                v-slot:readonly-display="slotProps"
+              <custom-field
+                :definition="definitions.find(d => d.id === field.id) || null"
+                :enable-toggle="enableToggle"
+                :field-data="{ id: field.id, value: field.value }"
+                :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
+                :mode="mode"
+                :resource-id="resourceId"
+                :resource-type="resourceType"
+                @edit:cancel="handleEditEnd(field.id)"
+                @edit:save="handleEditEnd(field.id)"
+                @edit:start="handleEditStart(field.id)"
+                @save:error="handleSaveError"
+                @save:success="handleSaveSuccess"
+                @update:value="newValue => handleValueUpdate(field.id, newValue)"
               >
-                <slot
-                  v-bind="slotProps"
-                  name="readonly-display"
-                />
-              </template>
-            </custom-field>
+                <!-- Forward readonly-display slot if parent provided it -->
+                <template
+                  v-if="$slots['readonly-display']"
+                  v-slot:readonly-display="slotProps"
+                >
+                  <slot
+                    v-bind="slotProps"
+                    name="readonly-display"
+                  />
+                </template>
+              </custom-field>
+            </div>
           </div>
         </slot>
       </dp-details>
@@ -103,34 +107,38 @@ All rights reserved
         :resource-type="resourceType"
       >
         <div :class="layoutClasses">
-          <custom-field
+          <div
             v-for="field in fieldsToRender"
             :key="field.id"
-            :definition="definitions.find(d => d.id === field.id) || null"
-            :enable-toggle="enableToggle"
-            :field-data="{ id: field.id, value: field.value }"
-            :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
-            :mode="mode"
-            :resource-id="resourceId"
-            :resource-type="resourceType"
-            @edit:cancel="handleEditEnd(field.id)"
-            @edit:save="handleEditEnd(field.id)"
-            @edit:start="handleEditStart(field.id)"
-            @save:error="handleSaveError"
-            @save:success="handleSaveSuccess"
-            @update:value="newValue => handleValueUpdate(field.id, newValue)"
+            :class="prefixClass('border-l-4 border-neutral pl-3')"
           >
-            <!-- Forward readonly-display slot if parent provided it -->
-            <template
-              v-if="$slots['readonly-display']"
-              v-slot:readonly-display="slotProps"
+            <custom-field
+              :definition="definitions.find(d => d.id === field.id) || null"
+              :enable-toggle="enableToggle"
+              :field-data="{ id: field.id, value: field.value }"
+              :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
+              :mode="mode"
+              :resource-id="resourceId"
+              :resource-type="resourceType"
+              @edit:cancel="handleEditEnd(field.id)"
+              @edit:save="handleEditEnd(field.id)"
+              @edit:start="handleEditStart(field.id)"
+              @save:error="handleSaveError"
+              @save:success="handleSaveSuccess"
+              @update:value="newValue => handleValueUpdate(field.id, newValue)"
             >
-              <slot
-                v-bind="slotProps"
-                name="readonly-display"
-              />
-            </template>
-          </custom-field>
+              <!-- Forward readonly-display slot if parent provided it -->
+              <template
+                v-if="$slots['readonly-display']"
+                v-slot:readonly-display="slotProps"
+              >
+                <slot
+                  v-bind="slotProps"
+                  name="readonly-display"
+                />
+              </template>
+            </custom-field>
+          </div>
         </div>
       </slot>
     </fieldset>
@@ -161,34 +169,38 @@ All rights reserved
         :resource-type="resourceType"
       >
         <div :class="layoutClasses">
-          <custom-field
+          <div
             v-for="field in fieldsToRender"
             :key="field.id"
-            :definition="definitions.find(d => d.id === field.id) || null"
-            :enable-toggle="enableToggle"
-            :field-data="{ id: field.id, value: field.value }"
-            :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
-            :mode="mode"
-            :resource-id="resourceId"
-            :resource-type="resourceType"
-            @edit:cancel="handleEditEnd(field.id)"
-            @edit:save="handleEditEnd(field.id)"
-            @edit:start="handleEditStart(field.id)"
-            @save:error="handleSaveError"
-            @save:success="handleSaveSuccess"
-            @update:value="newValue => handleValueUpdate(field.id, newValue)"
+            :class="prefixClass('border-l-4 border-neutral pl-3')"
           >
-            <!-- Forward readonly-display slot if parent provided it -->
-            <template
-              v-if="$slots['readonly-display']"
-              v-slot:readonly-display="slotProps"
+            <custom-field
+              :definition="definitions.find(d => d.id === field.id) || null"
+              :enable-toggle="enableToggle"
+              :field-data="{ id: field.id, value: field.value }"
+              :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
+              :mode="mode"
+              :resource-id="resourceId"
+              :resource-type="resourceType"
+              @edit:cancel="handleEditEnd(field.id)"
+              @edit:save="handleEditEnd(field.id)"
+              @edit:start="handleEditStart(field.id)"
+              @save:error="handleSaveError"
+              @save:success="handleSaveSuccess"
+              @update:value="newValue => handleValueUpdate(field.id, newValue)"
             >
-              <slot
-                v-bind="slotProps"
-                name="readonly-display"
-              />
-            </template>
-          </custom-field>
+              <!-- Forward readonly-display slot if parent provided it -->
+              <template
+                v-if="$slots['readonly-display']"
+                v-slot:readonly-display="slotProps"
+              >
+                <slot
+                  v-bind="slotProps"
+                  name="readonly-display"
+                />
+              </template>
+            </custom-field>
+          </div>
         </div>
       </slot>
     </div>
@@ -273,6 +285,12 @@ export default {
     },
 
     showEmpty: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
+    showFieldBorders: {
       type: Boolean,
       required: false,
       default: false,
