@@ -429,6 +429,10 @@ export default {
     },
 
     editWarningMessage () {
+      if (this.isActiveTabStatementContext) {
+        return Translator.trans('warning.custom_field.edit.statement.message')
+      }
+
       return this.getTextForEnabledFieldTypes('edit', 'custom.field.edit.message.warning')
     },
 
