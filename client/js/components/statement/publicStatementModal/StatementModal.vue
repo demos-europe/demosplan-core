@@ -1122,6 +1122,7 @@ export default {
       continueWriting: false,
       draftStatementId: '',
       editDraftDataInPublicDetail: true,
+      fieldIdsWithServerValues: [],
       formFields: [...this.statementFormFields, ...this.personalDataFormFields, ...this.feedbackFormFields],
       hasPlanningDocuments: this.initHasPlanningDocuments,
       isLoading: false,
@@ -1281,6 +1282,8 @@ export default {
       // Clear readonly display custom fields
       this.statementCustomFields = []
 
+      this.fieldIdsWithServerValues = []
+
       // Clear formData.customFields
       if (this.formData.customFields && this.formData.customFields.length > 0) {
         this.setStatementData({ customFields: [] })
@@ -1408,6 +1411,10 @@ export default {
         const existingData = JSON.parse(existingDataString)
 
         this.setStatementData(existingData)
+
+        this.fieldIdsWithServerValues = (existingData.customFields || [])
+          .filter(customField => customField.value != null)
+          .map(customField => customField.id)
 
         // Always restore custom field selections (for both new and draft statements)
         this.$nextTick(() => {
@@ -1785,7 +1792,8 @@ export default {
        * Empty arrays are included intentionally to allow clearing multiselect fields on the server.
        */
       const customFieldValues = (this.formData.customFields || [])
-        .filter(field => field.id && field.value !== null && field.value !== undefined)
+        .filter(field => field.id && field.value !== undefined &&
+          (field.value !== null || this.fieldIdsWithServerValues.includes(field.id)))
         .map(field => ({
           id: field.id,
           value: field.value,
@@ -1810,6 +1818,10 @@ export default {
     },
 
     handleCustomFieldsListLoaded (serverValues) {
+      this.fieldIdsWithServerValues = serverValues
+        .filter(serverField => serverField.value != null)
+        .map(serverField => serverField.id)
+
       this.selectableCustomFields = this.selectableCustomFields.map(def => {
         const serverField = serverValues.find(v => v.id === def.id)
         return serverField ? { ...def, value: serverField.value } : def
