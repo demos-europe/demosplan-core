@@ -15,7 +15,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.head_ref }}
@@ -28,7 +28,7 @@ jobs:
       - run: npm install --ignore-scripts -g corepack && corepack enable && yarn set version 4.2.2
 
       - name: Cache yarn dependencies
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             ~/.yarn/cache
@@ -54,7 +54,7 @@ jobs:
         run: |
           git pull
           if ! git diff --exit-code; then
-            git add -A '*.js' '*.vue'
+            git add -A '*.js' '*.vue' '*.ts'
             git commit -m "style: Apply eslint --fix"
             git push
           fi

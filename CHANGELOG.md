@@ -26,6 +26,34 @@
 - **New parameters** (with defaults): `oauth_keycloak_login_only` (true — safe default, no behaviour change), `oauth_token_timezone` (Europe/Berlin), `oauth_token_fast_path_interval_seconds` (180), `oauth_token_refresh_buffer_minutes` (2)
 - To enable full token management for a project, set `oauth_keycloak_login_only: false` in `parameters_default_project.yml`
 
+## v4.34.0 (2026-04-09)
+
+### Added
+- Console commands to list and detach organisations from customers
+
+### Fixed
+- Various visual and interaction issues in the configurable segment list table
+- Organisation ID was not set when manually creating statements for institutions
+
+## v4.33.0 (2026-04-02)
+
+### Added
+- Introduce password check to forbid re-usage of passwords when trying to change passwords. This adds a new table to the DB, user_password_history
+- Make custom fields available in assessment table, original statement list, my releases list, and public statement dialogs
+- Improved segment list interface with configurable column layout
+- Show blueprint name and organization in platform blueprint warning
+
+### Changed
+- Improved performance of procedure statistics endpoint
+
+### Fixed
+- Global GIS layers were always saved as enabled regardless of the selected setting
+- "Split now" button in statement details only assigned the statement without redirecting to the split view
+- Pagination in assessment table required double click to navigate
+- Public paragraph list could fail when an element was missing
+- Statement votes were not immediately visible after voting
+- Procedure exports could fail in certain cases
+
 ## v4.32.0 (2026-03-25)
 ### Added
 - Export original statements as ZIP file including attachments for archiving
@@ -200,6 +228,11 @@
 
 ### Features
 - Add possibility to delete custom fields and their options
+
+## v4.15.4 (2026-03-06)
+- Fix statement vote on mysql8+, immediately show vote
+- Rate limit new statements only for anonymous users
+- Set TUS resumable upload cache TTL to a week by default
 
 ## v4.15.3 (2025-12-02)
 

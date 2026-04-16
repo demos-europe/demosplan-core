@@ -177,6 +177,7 @@ parameters:
     ratelimit_anonymous_statement_limit: '%env(int:RATELIMIT_ANONYMOUS_STATEMENT_LIMIT)%'
     ratelimit_anonymous_statement_rate_interval: '%env(RATELIMIT_ANONYMOUS_STATEMENT_RATE_INTERVAL)%'
     ratelimit_anonymous_statement_rate_amount: '%env(int:RATELIMIT_ANONYMOUS_STATEMENT_RATE_AMOUNT)%'
+    password_history_max_entries: '%env(int:PASSWORD_HISTORY_MAX_ENTRIES)%'
 
     # GitHub token may be used to download addons directly from github
     github_token: '%env(GITHUB_TOKEN)%'
@@ -441,6 +442,15 @@ parameters:
     honeypot_timeout: 2
     # Key, der für den Aufruf des Maintenancetasks z.B. per Cron mit übergeben werden muss
     maintenance_key: ""
+
+    # nelmio_security: clickjacking paths configuration.
+    # Maps URL patterns to X-Frame-Options values (DENY, SAMEORIGIN, ALLOW).
+    # Set to empty map {} to disable the header entirely (rely on CSP frame-ancestors instead).
+    demosplan_clickjacking_paths:
+        '^/.*': DENY
+    # nelmio_security: Cross-Origin-Resource-Policy header value.
+    # Set to same-origin, same-site, or cross-origin.
+    demosplan_corp_policy: 'same-origin'
 
     demosplan_csp_base_uri: ['self']
     demosplan_csp_font_src:

@@ -106,6 +106,20 @@ export default {
       this.activeTab = tabId
     },
 
+    openStatementModalFromList (id, customFields) {
+      /*
+       * Only set custom fields from list if there are NO unsaved changes
+       * If there are unsaved changes, localStorage will restore them
+       */
+      const hasUnsavedChanges = this.$refs.statementModal.unsavedDrafts.includes(id)
+
+      if (!hasUnsavedChanges && customFields?.length > 0) {
+        this.$refs.statementModal.setCustomFieldsForEditing(customFields)
+      }
+
+      this.$refs.statementModal.getDraftStatement(id, true, true)
+    },
+
     updateStatementAndOpenModal (updateStatementPayload) {
       this.toggleStatementModal(updateStatementPayload)
       this.updateHighlighted({ key: 'documents', val: false })
@@ -124,15 +138,6 @@ export default {
     } else if (['#procedureDetailsMap', '#procedureDetailsDocumentlist', '#procedureDetailsStatementsPublic'].includes(currentHash)) {
       this.toggleTabs(currentHash)
     }
-
-    // Make sure, that custom fields are just displayed and not editable in the draft dialog
-    this.$on('openStatementModalFromList', (id, customFields) => {
-      if (customFields && customFields.length > 0) {
-        this.$refs.statementModal.setCustomFieldsReadOnly(customFields)
-      }
-
-      this.$refs.statementModal.getDraftStatement(id, true, true)
-    })
   },
 }
 </script>
