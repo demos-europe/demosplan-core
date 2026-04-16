@@ -516,7 +516,7 @@
           <!--  custom fields  -->
           <dp-item-row
             v-if="hasPermission('feature_statements_custom_fields') && (hasCustomFieldContent ?? true)"
-            class="pb-0"
+            class="u-pb-0"
             title="custom.fields"
           >
             <custom-fields-list
@@ -527,7 +527,9 @@
               :show-empty="true"
               :title-info-text="Translator.trans('custom.fields.submitter.info')"
               batch-filter-path="procedure.id"
+              class="py-2"
               resource-type="Statement"
+              show-field-borders
               source-entity="PROCEDURE"
               target-entity="STATEMENT"
               title-class="font-[600] mb-2"
