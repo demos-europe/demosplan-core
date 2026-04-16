@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
-use DateTimeZone;
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -377,22 +376,6 @@ class OAuthToken implements EntityInterface
         $this->pendingRequestFilesMetadata = null;
         $this->pendingRequestTimestamp = null;
         $this->selectedOrganisation = null;
-    }
-
-    /**
-     * Check if pending request is older than specified minutes.
-     */
-    public function isPendingRequestExpired(int $minutes): bool
-    {
-        if (null === $this->pendingRequestTimestamp) {
-            return false;
-        }
-
-        $timezone = new DateTimeZone(self::TIMEZONE);
-        $now = new DateTime('now', $timezone);
-        $threshold = (clone $this->pendingRequestTimestamp)->modify("+{$minutes} minutes");
-
-        return $now >= $threshold;
     }
 
     /**
