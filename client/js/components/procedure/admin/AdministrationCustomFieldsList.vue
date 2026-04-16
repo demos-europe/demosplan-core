@@ -43,43 +43,48 @@
           required
           :text="Translator.trans('options')"
         />
-        <dp-input
-          id="newFieldOption:1"
-          v-model="newFieldOptions[0].label"
-          class="mb-2 w-[calc(100%-26px)]"
-          data-cy="customFields:newFieldOption1"
-          maxlength="250"
-          required
-        />
-        <dp-input
-          id="newFieldOption:2"
-          v-model="newFieldOptions[1].label"
-          class="mb-2 w-[calc(100%-26px)]"
-          data-cy="customFields:newFieldOption2"
-          maxlength="250"
-          required
-        />
 
         <div
-          v-for="(option, idx) in additionalOptions"
-          :key="`option:${idx}`"
+          v-for="(option, idx) in newFieldOptions"
+          :key="`new-option-${idx}`"
+          class="flex items-center gap-1 mb-2"
         >
-          <div class="w-[calc(100%-26px)] inline-block mb-2">
-            <dp-input
-              :id="`option:${newFieldOptions[idx + 2].label}`"
-              v-model="newFieldOptions[idx + 2].label"
-              :data-cy="`customFields:newFieldOption${idx + 2}`"
-              maxlength="250"
-            />
-          </div>
+          <dp-input
+            :id="`newFieldOption:${idx}`"
+            v-model="newFieldOptions[idx].label"
+            :data-cy="`customFields:newFieldOption${idx}`"
+            :required="idx < 2"
+            class="flex-1"
+            maxlength="250"
+          />
           <dp-button
+            hide-text
+            icon="caret-up"
+            :disabled="idx === 0"
+            :text="Translator.trans('move.up')"
+            variant="subtle"
+            @click="moveNewOptionUp(idx)"
+          />
+          <dp-button
+            hide-text
+            icon="caret-down"
+            :disabled="idx === newFieldOptions.length - 1"
+            :text="Translator.trans('move.down')"
+            variant="subtle"
+            @click="moveNewOptionDown(idx)"
+          />
+          <dp-button
+            v-if="idx >= 2"
             :data-cy="`customFields:removeOptionInput:${option.label}`"
             :text="Translator.trans('remove')"
-            class="w-[20px] inline-block ml-1"
             hide-text
             icon="x"
             variant="subtle"
-            @click="removeOptionInput(idx + 2)"
+            @click="removeOptionInput(idx)"
+          />
+          <div
+            v-else
+            class="w-[20px] shrink-0"
           />
         </div>
 
@@ -134,7 +139,7 @@
             :key="index"
             class="mb-1"
           >
-            <div class="flex">
+            <div class="flex items-center gap-1">
               <dp-input
                 :id="`option:${index}`"
                 :key="`option:${index}`"
@@ -143,7 +148,23 @@
               />
 
               <dp-button
-                class="w-[20px] inline-block ml-1"
+                hide-text
+                icon="caret-up"
+                :disabled="index === 0"
+                :text="Translator.trans('move.up')"
+                variant="subtle"
+                @click="moveOptionUp(index)"
+              />
+              <dp-button
+                hide-text
+                icon="caret-down"
+                :disabled="index === newRowData.options.length - 1"
+                :text="Translator.trans('move.down')"
+                variant="subtle"
+                @click="moveOptionDown(index)"
+              />
+              <dp-button
+                class="w-[20px] inline-block"
                 :data-cy="`customFields:removeOptionInput:${option.label}`"
                 hide-text
                 icon="x"
@@ -405,10 +426,6 @@ export default {
       procedureTemplateCustomFieldsLoading: 'loading',
     }),
 
-    additionalOptions () {
-      return this.newFieldOptions.filter((option, index) => index > 1)
-    },
-
     deleteWarningMessage () {
       return this.getTextForEnabledFieldTypes('delete', 'custom.field.delete.message.warning')
     },
@@ -589,6 +606,34 @@ export default {
           }
         }
       }
+    },
+
+    moveNewOptionUp (index) {
+      if (index === 0) return
+      const options = [...this.newFieldOptions]
+      ;[options[index - 1], options[index]] = [options[index], options[index - 1]]
+      this.newFieldOptions = options
+    },
+
+    moveNewOptionDown (index) {
+      if (index >= this.newFieldOptions.length - 1) return
+      const options = [...this.newFieldOptions]
+      ;[options[index], options[index + 1]] = [options[index + 1], options[index]]
+      this.newFieldOptions = options
+    },
+
+    moveOptionUp (index) {
+      if (index === 0) return
+      const options = [...this.newRowData.options]
+      ;[options[index - 1], options[index]] = [options[index], options[index - 1]]
+      this.newRowData.options = options
+    },
+
+    moveOptionDown (index) {
+      if (index >= this.newRowData.options.length - 1) return
+      const options = [...this.newRowData.options]
+      ;[options[index], options[index + 1]] = [options[index + 1], options[index]]
+      this.newRowData.options = options
     },
 
     deleteOptionOnEdit (index) {

@@ -113,11 +113,13 @@ class CustomFieldUpdater
         $currentOptionsById = collect($currentOptions)->keyBy(fn (CustomFieldOption $option) => $option->getId());
 
         return collect($newOptions)
-            ->map(function (array $newOption) use ($currentOptionsById) {
+            ->values()
+            ->map(function (array $newOption, int $position) use ($currentOptionsById) {
                 $customFieldOption = new CustomFieldOption();
                 $customFieldOption->fromJson([
-                    'id'    => $newOption['id'] ?? Uuid::uuid4()->toString(),
-                    'label' => $newOption['label'] ?? $currentOptionsById->get($newOption['id'] ?? '')?->getLabel() ?? '',
+                    'id'        => $newOption['id'] ?? Uuid::uuid4()->toString(),
+                    'label'     => $newOption['label'] ?? $currentOptionsById->get($newOption['id'] ?? '')?->getLabel() ?? '',
+                    'sortOrder' => $position,
                 ]);
 
                 return $customFieldOption;
