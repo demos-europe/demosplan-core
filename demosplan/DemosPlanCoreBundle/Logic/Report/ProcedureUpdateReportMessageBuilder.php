@@ -40,7 +40,7 @@ class ProcedureUpdateReportMessageBuilder
         string $fromNullTranslationKey,
         string $toNullTranslationKey,
         bool $public,
-        bool $formatDate = false
+        bool $formatDate = false,
     ): void {
         $visibilityKey = $public ? 'Citizen' : 'Agency';
         $oldValueKey = $this->oldPrefix.$visibilityKey.$valueKey;
@@ -107,5 +107,4 @@ class ProcedureUpdateReportMessageBuilder
     {
         return $this->dateExtension->dateFilter($value, $format);
     }
-
 }
