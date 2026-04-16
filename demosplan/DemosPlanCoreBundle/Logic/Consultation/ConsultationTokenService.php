@@ -59,7 +59,7 @@ class ConsultationTokenService
         private readonly SortMethodFactory $sortMethodFactory,
         private readonly StatementHandler $statementHandler,
         private readonly StatementService $statementService,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -74,7 +74,7 @@ class ConsultationTokenService
         string $submitterCity,
         string $submitterPostalCode,
         string $submitterStreet,
-        string $submitterHouseNumber
+        string $submitterHouseNumber,
     ): void {
         $this->permissions->checkPermission('area_admin_consultations');
 
