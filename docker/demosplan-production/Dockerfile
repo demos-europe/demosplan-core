@@ -142,12 +142,8 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
 FROM debian:bookworm-20260202-slim AS fpm
 
 ARG PROJECT_NAME
-ARG COMMIT_SHA_CORE=""
-ARG COMMIT_SHA_PROJECT=""
 
 LABEL org.opencontainers.image.source="https://github.com/demos-europe/demosplan-core"
-LABEL de.demos.core.revision=$COMMIT_SHA_CORE
-LABEL de.demos.project.revision=$COMMIT_SHA_PROJECT
 
 ENV PROJECT_PREFIX=$PROJECT_NAME \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
@@ -205,6 +201,12 @@ RUN rm -rf /srv/www/var/cache/* && \
     # create php-fpm log file \
     touch /var/log/php8.3-fpm.log && chown www-data:www-data /var/log/php8.3-fpm.log
 
+# Commit SHA labels at end to avoid busting layer cache for apt-get
+ARG COMMIT_SHA_CORE=""
+ARG COMMIT_SHA_PROJECT=""
+LABEL de.demos.core.revision=$COMMIT_SHA_CORE
+LABEL de.demos.project.revision=$COMMIT_SHA_PROJECT
+
 # run as rootless container
 USER www-data
 CMD ["/usr/sbin/php-fpm8.3", "-F"]
@@ -213,12 +215,9 @@ FROM nginxinc/nginx-unprivileged:alpine3.23-slim AS nginx
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
-ARG COMMIT_SHA_CORE=""
-ARG COMMIT_SHA_PROJECT=""
 
 LABEL org.opencontainers.image.source="https://github.com/demos-europe/demosplan-core"
-LABEL de.demos.core.revision=$COMMIT_SHA_CORE
-LABEL de.demos.project.revision=$COMMIT_SHA_PROJECT
+
 ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung \
     BUILD_MODE=$BUILD_MODE
 
@@ -240,3 +239,9 @@ COPY --from=build /srv/www/projects/$PROJECT_NAME/web /srv/www/projects/$PROJECT
 
 # Ensure text/csv is defined in mime.types
 RUN sed -i '/^}/i\    text/csv csv;' /etc/nginx/mime.types
+
+# Commit SHA labels at end to avoid busting layer cache
+ARG COMMIT_SHA_CORE=""
+ARG COMMIT_SHA_PROJECT=""
+LABEL de.demos.core.revision=$COMMIT_SHA_CORE
+LABEL de.demos.project.revision=$COMMIT_SHA_PROJECT
