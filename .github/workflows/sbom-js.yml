@@ -36,7 +36,7 @@ jobs:
       - run: YARN_ENABLE_SCRIPTS=false yarn install --immutable
 
       - name: Generate JS SBOM
-        run: npx @cyclonedx/cdxgen -t yarn -o sbom-js.cdx.json --spec-version 1.5 --validate --production
+        run: npx @cyclonedx/cdxgen -t yarn -o sbom-js.cdx.json --spec-version 1.5 --validate
 
       - name: Upload SBOM
         uses: actions/upload-artifact@v4
