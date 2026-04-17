@@ -23,12 +23,16 @@ All rights reserved
         size="large"
         :text="Translator.trans('segment.oracle.tooltip')"
       />
-      <dp-badge
+      <dp-tooltip
         v-if="activeId === 'oracleRec'"
-        class="absolute right-4"
-        size="smaller"
-        :text="Translator.trans('segment.oracle.beta')"
-      />
+        :text="Translator.trans('segment.oracle.beta.tooltip')"
+      >
+        <dp-badge
+          class="absolute right-4"
+          size="smaller"
+          :text="Translator.trans('segment.oracle.beta')"
+        />
+      </dp-tooltip>
     </div>
     <dp-tabs
       v-if="tabAddonsLoaded && segmentDataLoaded"
@@ -57,8 +61,8 @@ All rights reserved
 </template>
 <script>
 import * as demosplanUi from '@demos-europe/demosplan-ui'
-import { DpBadge, DpContextualHelp, DpModal, DpTab, DpTabs } from '@demos-europe/demosplan-ui'
-import loadAddonComponents from '../../../lib/addon/loadAddonComponents'
+import { DpBadge, DpContextualHelp, DpModal, DpTab, DpTabs, DpTooltip } from '@demos-europe/demosplan-ui'
+import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import { shallowRef } from 'vue'
 
 export default {
@@ -69,25 +73,30 @@ export default {
     DpModal,
     DpTab,
     DpTabs,
+    DpTooltip,
   },
   props: {
     procedureId: {
       type: String,
       required: true,
     },
+
     segmentDataLoaded: {
       type: Boolean,
       required: true,
     },
+
     segmentId: {
       type: String,
       required: true,
     },
   },
+
   emits: [
     'addons:loaded',
     'recommendation:insert',
   ],
+
   data () {
     return {
       activeId: '',
@@ -96,6 +105,7 @@ export default {
       tabAddonsLoaded: false,
     }
   },
+
   methods: {
     closeRecommendationModalAfterInsert (recommendation) {
       this.$emit('recommendation:insert', recommendation)
@@ -110,6 +120,7 @@ export default {
       this.$refs.recommendationModal.toggle()
     },
   },
+
   mounted () {
     loadAddonComponents('segment.recommendationModal.tab')
       .then(addons => {
