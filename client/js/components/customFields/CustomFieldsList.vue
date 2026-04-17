@@ -24,6 +24,7 @@ All rights reserved
         <slot
           v-else
           :definition-source-id="definitionSourceId"
+          :definitions="definitions"
           :enable-toggle="enableToggle"
           :fields="fieldsToRender"
           :mode="mode"
@@ -37,7 +38,7 @@ All rights reserved
               :class="showFieldBorders ? prefixClass('border-l-4 border-neutral pl-3') : null"
             >
               <custom-field
-                :definition="definitions.find(d => d.id === field.id) || null"
+                :definition="definitions.find(definition => definition.id === field.id) || null"
                 :enable-toggle="enableToggle"
                 :field-data="{ id: field.id, value: field.value }"
                 :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
@@ -100,6 +101,7 @@ All rights reserved
       />
       <slot
         :definition-source-id="definitionSourceId"
+        :definitions="definitions"
         :enable-toggle="enableToggle"
         :fields="fieldsToRender"
         :mode="mode"
@@ -113,7 +115,7 @@ All rights reserved
             :class="showFieldBorders ? prefixClass('border-l-4 border-neutral pl-3') : null"
           >
             <custom-field
-              :definition="definitions.find(d => d.id === field.id) || null"
+              :definition="definitions.find(definition => definition.id === field.id) || null"
               :enable-toggle="enableToggle"
               :field-data="{ id: field.id, value: field.value }"
               :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
@@ -162,6 +164,7 @@ All rights reserved
       </div>
       <slot
         :definition-source-id="definitionSourceId"
+        :definitions="definitions"
         :enable-toggle="enableToggle"
         :fields="fieldsToRender"
         :mode="mode"
@@ -175,7 +178,7 @@ All rights reserved
             :class="showFieldBorders ? prefixClass('border-l-4 border-neutral pl-3') : null"
           >
             <custom-field
-              :definition="definitions.find(d => d.id === field.id) || null"
+              :definition="definitions.find(definition => definition.id === field.id) || null"
               :enable-toggle="enableToggle"
               :field-data="{ id: field.id, value: field.value }"
               :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
