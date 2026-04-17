@@ -70,7 +70,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 #[ORM\Table(name: '_procedure')]
 #[ORM\Entity(repositoryClass: ProcedureRepository::class)]
-#[ORM\AssociationOverrides([new ORM\AssociationOverride(name: 'slugs', joinTable: new ORM\JoinTable(joinColumns: new ORM\JoinColumn(name: 'p_id', referencedColumnName: '_p_id'), inverseJoinColumns: new ORM\JoinColumn(name: 's_id', referencedColumnName: 'id')))])]
+#[ORM\AssociationOverrides([new ORM\AssociationOverride(name: 'slugs', joinColumns: [new ORM\JoinColumn(name: 'p_id', referencedColumnName: '_p_id')], inverseJoinColumns: [new ORM\JoinColumn(name: 's_id', referencedColumnName: 'id')], joinTable: new ORM\JoinTable())])]
 class Procedure extends SluggedEntity implements ProcedureInterface
 {
     /**

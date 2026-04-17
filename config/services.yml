@@ -1264,6 +1264,7 @@ services:
     EDT\DqlQuerying\ConditionFactories\DqlConditionFactory: ~
 
     EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor:
+        class: demosplan\DemosPlanCoreBundle\Doctrine\PropertyAccessors\AttributeAwareIso8601PropertyAccessor
         arguments:
             $objectManager: '@doctrine.orm.entity_manager'
 

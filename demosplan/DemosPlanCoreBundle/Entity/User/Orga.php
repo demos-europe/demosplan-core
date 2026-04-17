@@ -43,7 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: '_orga')]
 #[ORM\UniqueConstraint(name: '_o_gw_id', columns: ['_o_gw_id'])]
 #[ORM\Entity(repositoryClass: OrgaRepository::class)]
-#[ORM\AssociationOverrides([new ORM\AssociationOverride(name: 'slugs', joinTable: new ORM\JoinTable(joinColumns: new ORM\JoinColumn(name: 'o_id', referencedColumnName: '_o_id'), inverseJoinColumns: new ORM\JoinColumn(name: 's_id', referencedColumnName: 'id')))])]
+#[ORM\AssociationOverrides([new ORM\AssociationOverride(name: 'slugs', joinColumns: [new ORM\JoinColumn(name: 'o_id', referencedColumnName: '_o_id')], inverseJoinColumns: [new ORM\JoinColumn(name: 's_id', referencedColumnName: 'id')], joinTable: new ORM\JoinTable())])]
 class Orga extends SluggedEntity implements OrgaInterface, Stringable
 {
     /**
