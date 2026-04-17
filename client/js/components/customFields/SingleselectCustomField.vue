@@ -47,22 +47,22 @@ All rights reserved
       :text="field.attributes.name"
       :tooltip="field.attributes.description || ''"
     />
-    <dp-select
+    <dp-multiselect
       :id="`custom-field-${field.id}`"
       :data-dp-validate-error-fieldname="field.attributes.name"
-      :model-value="currentValue"
-      :options="field.attributes.options || []"
+      :options="(field.attributes?.options || []).filter(opt => opt != null)"
       :placeholder="Translator.trans('choose')"
       :required="field.attributes.isRequired"
+      :value="currentValue"
       label="label"
       track-by="id"
-      @update:model-value="handleUpdate"
+      @input="handleUpdate"
     />
   </div>
 </template>
 
 <script>
-import { DpContextualHelp, DpLabel, DpSelect, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, DpLabel, DpMultiselect, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'SingleselectCustomField',
@@ -70,7 +70,7 @@ export default {
   components: {
     DpContextualHelp,
     DpLabel,
-    DpSelect,
+    DpMultiselect,
   },
 
   mixins: [prefixClassMixin],
