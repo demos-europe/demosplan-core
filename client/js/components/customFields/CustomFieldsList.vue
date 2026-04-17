@@ -27,21 +27,22 @@ All rights reserved
           :definitions="definitions"
           :enable-toggle="enableToggle"
           :fields="fieldsToRender"
+          :fields-with-definitions="fieldsWithDefinitions"
           :mode="mode"
           :resource-id="resourceId"
           :resource-type="resourceType"
         >
           <div :class="layoutClasses">
             <div
-              v-for="field in fieldsToRender"
+              v-for="{ field, definition } in fieldsWithDefinitions"
               :key="field.id"
               :class="showFieldBorders ? prefixClass('border-l-4 border-neutral pl-3') : null"
             >
               <custom-field
-                :definition="definitions.find(definition => definition.id === field.id) || null"
+                :definition="definition"
                 :enable-toggle="enableToggle"
                 :field-data="{ id: field.id, value: field.value }"
-                :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
+                :is-active-edit="getIsActiveEdit(field.id)"
                 :mode="mode"
                 :resource-id="resourceId"
                 :resource-type="resourceType"
@@ -104,21 +105,22 @@ All rights reserved
         :definitions="definitions"
         :enable-toggle="enableToggle"
         :fields="fieldsToRender"
+        :fields-with-definitions="fieldsWithDefinitions"
         :mode="mode"
         :resource-id="resourceId"
         :resource-type="resourceType"
       >
         <div :class="layoutClasses">
           <div
-            v-for="field in fieldsToRender"
+            v-for="{ field, definition } in fieldsWithDefinitions"
             :key="field.id"
             :class="showFieldBorders ? prefixClass('border-l-4 border-neutral pl-3') : null"
           >
             <custom-field
-              :definition="definitions.find(definition => definition.id === field.id) || null"
+              :definition="definition"
               :enable-toggle="enableToggle"
               :field-data="{ id: field.id, value: field.value }"
-              :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
+              :is-active-edit="getIsActiveEdit(field.id)"
               :mode="mode"
               :resource-id="resourceId"
               :resource-type="resourceType"
@@ -167,21 +169,22 @@ All rights reserved
         :definitions="definitions"
         :enable-toggle="enableToggle"
         :fields="fieldsToRender"
+        :fields-with-definitions="fieldsWithDefinitions"
         :mode="mode"
         :resource-id="resourceId"
         :resource-type="resourceType"
       >
         <div :class="layoutClasses">
           <div
-            v-for="field in fieldsToRender"
+            v-for="{ field, definition } in fieldsWithDefinitions"
             :key="field.id"
             :class="showFieldBorders ? prefixClass('border-l-4 border-neutral pl-3') : null"
           >
             <custom-field
-              :definition="definitions.find(definition => definition.id === field.id) || null"
+              :definition="definition"
               :enable-toggle="enableToggle"
               :field-data="{ id: field.id, value: field.value }"
-              :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
+              :is-active-edit="getIsActiveEdit(field.id)"
               :mode="mode"
               :resource-id="resourceId"
               :resource-type="resourceType"
@@ -387,6 +390,13 @@ export default {
       )
     },
 
+    fieldsWithDefinitions () {
+      return this.fieldsToRender.map(field => ({
+        definition: this.definitions.find(definition => definition.id === field.id) || null,
+        field,
+      }))
+    },
+
     hasFieldsToRender () {
       return !this.isLoading && !this.error && this.fieldsToRender.length > 0
     },
@@ -472,6 +482,14 @@ export default {
             this.$emit('hasContent', this.hasFieldsToRender)
           })
         })
+    },
+
+    findDefinitionForField (fieldId) {
+      return this.definitions.find(definition => definition.id === fieldId) || null
+    },
+
+    getIsActiveEdit (fieldId) {
+      return this.enableToggle ? (this.activeEditFieldId === null || this.activeEditFieldId === fieldId) : null
     },
 
     handleDetailsOpen () {

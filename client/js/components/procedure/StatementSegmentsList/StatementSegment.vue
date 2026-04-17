@@ -303,7 +303,7 @@
           </dp-multiselect>
           <custom-fields-list
             v-if="hasPermission('field_segments_custom_fields')"
-            v-slot="{ fields, definitions }"
+            v-slot="{ fieldsWithDefinitions }"
             :definition-source-id="procedureId"
             :resource-id="segment.id"
             :show-empty="true"
@@ -315,17 +315,17 @@
             @loaded="onCustomFieldsLoaded"
           >
             <div
-              v-for="field in fields"
+              v-for="{ field, definition } in fieldsWithDefinitions"
               :key="field.id"
             >
               <dp-label
                 :bold="false"
                 class="mb-0.5 mt-2"
                 :for="`custom-field-${field.id}`"
-                :text="definitions.find(definition => definition.id === field.id)?.attributes?.name || ''"
+                :text="definition?.attributes?.name || ''"
               />
               <custom-field
-                :definition="definitions.find(definition => definition.id === field.id) || null"
+                :definition="definition"
                 :field-data="{ id: field.id, value: customFieldValueForId(field.id) }"
                 :show-label="false"
                 mode="editable"
