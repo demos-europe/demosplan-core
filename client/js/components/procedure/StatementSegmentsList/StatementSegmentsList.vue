@@ -598,25 +598,6 @@ export default {
         })
     },
 
-    fetchCustomFields () {
-      const payload = {
-        id: this.procedure.id,
-        fields: {
-          AdminProcedure: [
-            'segmentCustomFields',
-          ].join(),
-          CustomField: [
-            'name',
-            'description',
-            'options',
-          ].join(),
-        },
-        include: ['segmentCustomFields'].join(),
-      }
-
-      this.getAdminProcedureWithFields(payload)
-    },
-
     getStatement () {
       const params = buildDetailedStatementQuery(this.statementId, {
         isSourceAndCoupledProcedure: this.isSourceAndCoupledProcedure,
@@ -788,9 +769,6 @@ export default {
 
     this.setReturnLink()
 
-    if (hasPermission('field_segments_custom_fields')) {
-      this.fetchCustomFields()
-    }
     this.listAssignableUser({
       include: 'orga',
       fields: {

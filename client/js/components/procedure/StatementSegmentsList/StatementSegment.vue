@@ -57,20 +57,17 @@
                 </dt>
                 <dd>{{ assignee.name }}</dd>
               </div>
-              <template v-if="hasPermission('field_segments_custom_fields')">
-                <div
-                  v-for="customField in segment.attributes.customFields"
-                  :key="customField.id"
-                >
-                  <dt class="weight--bold">
-                    {{ Object.values(customFields).find(field => field.id === customField.id)?.attributes?.name || '' }}:
-                  </dt>
-                  <dd>
-                    {{ customField.value ? customField.value : Translator.trans('not.assigned') }}
-                  </dd>
-                </div>
-              </template>
             </dl>
+            <custom-fields-list
+              v-if="hasPermission('field_segments_custom_fields')"
+              :definition-source-id="procedureId"
+              :resource-id="segment.id"
+              :show-title="false"
+              mode="readonly"
+              resource-type="StatementSegment"
+              source-entity="PROCEDURE"
+              target-entity="SEGMENT"
+            />
           </div>
         </template>
       </v-popover>
@@ -304,28 +301,40 @@
               </div>
             </template>
           </dp-multiselect>
-          <template v-if="hasPermission('field_segments_custom_fields')">
-            <template
-              v-for="field in Object.values(customFields)"
+          <custom-fields-list
+            v-if="hasPermission('field_segments_custom_fields')"
+            v-slot="{ fields, definitions }"
+            :definition-source-id="procedureId"
+            :resource-id="segment.id"
+            :show-empty="true"
+            :show-title="false"
+            mode="editable"
+            resource-type="StatementSegment"
+            source-entity="PROCEDURE"
+            target-entity="SEGMENT"
+            @loaded="onCustomFieldsLoaded"
+          >
+            <div
+              v-for="field in fields"
               :key="field.id"
             >
               <dp-label
                 :bold="false"
                 class="mb-0.5 mt-2"
-                :for="field.id"
-                :text="field.attributes.name"
+                :for="`custom-field-${field.id}`"
+                :text="definitions.find(definition => definition.id === field.id)?.attributes?.name || ''"
               />
-              <dp-multiselect
-                :id="field.id"
-                allow-empty
-                :value="customFieldValues[field.id]"
-                label="name"
-                :options="customFieldsOptions[field.id]"
-                track-by="id"
-                @select="(value) => setCustomFieldValue(value)"
+              <custom-field
+                :definition="definitions.find(definition => definition.id === field.id) || null"
+                :field-data="{ id: field.id, value: customFieldValueForId(field.id) }"
+                :show-label="false"
+                mode="editable"
+                :resource-id="segment.id"
+                resource-type="StatementSegment"
+                @update:value="newValue => onCustomFieldValueUpdate({ fieldId: field.id, value: newValue })"
               />
-            </template>
-          </template>
+            </div>
+          </custom-fields-list>
         </div>
       </div>
       <dp-button-row
@@ -466,11 +475,14 @@ import {
 import { defineAsyncComponent, shallowRef } from 'vue'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import CustomField from '@DpJs/components/customFields/CustomField'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
   name: 'StatementSegment',
@@ -479,6 +491,8 @@ export default {
 
   components: {
     AddonWrapper,
+    CustomField,
+    CustomFieldsList,
     DpBadge,
     DpBoilerPlateModal,
     DpButtonRow,
@@ -550,7 +564,8 @@ export default {
         procedureId: this.procedureId,
       },
       claimLoading: false,
-      customFieldValues: {},
+      customFieldsChanged: false,
+      customFieldValues: [],
       currentUserName: this.currentUserFirstName + ' ' + this.currentUserLastName,
       demosplanUi: shallowRef(demosplanUi),
       isCollapsed: !(this.segment.relationships?.assignee?.data && this.segment.relationships.assignee.data.id === this.currentUserId),
@@ -577,10 +592,6 @@ export default {
 
     ...mapState('Place', {
       placeItems: 'items',
-    }),
-
-    ...mapState('CustomField', {
-      customFields: 'items',
     }),
 
     assignableUsers () {
@@ -613,26 +624,6 @@ export default {
 
     commentCount () {
       return this.segment.relationships.comments?.data?.length || 0
-    },
-
-    /**
-     * @returns {Object} - Custom fields options by custom field id
-     */
-    customFieldsOptions () {
-      return Object.values(this.customFields).reduce((acc, el) => {
-        const opts = [...el.attributes.options].map(opt => ({
-          fieldId: el.id,
-          id: `${el.id}:${opt.label}`,
-          name: opt.label,
-        }))
-
-        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id, value: 'UNASSIGNED' })
-
-        return {
-          ...acc,
-          [el.id]: opts,
-        }
-      }, {})
     },
 
     displayEditableFieldsLabel () {
@@ -785,16 +776,10 @@ export default {
       dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
     },
 
-    getCurrentSelectedOption (fieldId) {
-      const selectedOption = this.customFields[fieldId].attributes.options?.find(
-        option => option.id === this.segment.attributes.customFields?.find(
-          customFieldIdValue => customFieldIdValue.id === fieldId)?.value)
+    customFieldValueForId (fieldId) {
+      const entry = this.customFieldValues.find(valueEntry => valueEntry.id === fieldId)
 
-      if (!selectedOption) {
-        return
-      }
-
-      return selectedOption
+      return entry?.value ?? null
     },
 
     handleTabChange (id) {
@@ -832,21 +817,6 @@ export default {
         })
     },
 
-    initCustomFieldValues () {
-      Object.values(this.customFields)
-        .forEach(field => {
-          const selectedOption = this.getCurrentSelectedOption(field.id)
-
-          if (selectedOption) {
-            this.customFieldValues[field.id] = {
-              fieldId: field.id,
-              id: `${selectedOption.id}:${selectedOption.label}`,
-              name: selectedOption.label,
-            }
-          }
-        })
-    },
-
     initPlaces () {
       const placeItemsLoaded = Object.keys(this.placeItems).length
 
@@ -870,6 +840,26 @@ export default {
         .then(() => {
           this.setSelectedPlace()
         })
+    },
+
+    onCustomFieldsLoaded (values) {
+      this.customFieldValues = values
+      this.customFieldsChanged = false
+    },
+
+    onCustomFieldValueUpdate ({ fieldId, value }) {
+      this.customFieldsChanged = true
+      const fieldIndex = this.customFieldValues.findIndex(field => field.id === fieldId)
+
+      if (fieldIndex === -1) {
+        this.customFieldValues = [...this.customFieldValues, { id: fieldId, value }]
+      } else {
+        this.customFieldValues = this.customFieldValues.map((field, index) =>
+          index === fieldIndex ?
+            { ...field, value } :
+            field,
+        )
+      }
     },
 
     openBoilerPlate () {
@@ -905,53 +895,17 @@ export default {
     save () {
       const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
       const { assignee, place } = this.updateRelationships()
-      const hasCustomFields = hasPermission('field_segments_custom_fields') && Object.values(this.customFieldValues).length > 0
-      let attributes = null
-
-      if (hasCustomFields) {
-        attributes = {
-          customFields: Object.values(this.customFieldValues).map(option => ({
-            id: option.fieldId,
-            value: this.getCustomFieldValueForPayload(option),
-          })).filter(option => option.value !== 'undefined'),
-        }
-      }
-
-      const payload = {
-        data: {
-          id: this.segment.id,
-          type: 'StatementSegment',
-          attributes: {
-            recommendation: this.segment.attributes.recommendation,
-          },
-          relationships: {
-            assignee,
-            place,
-          },
-        },
-      }
-
-      if (attributes) {
-        payload.data.attributes = attributes
-      }
 
       const updatedSegment = {
         id: this.segment.id,
         type: 'StatementSegment',
         attributes: {
           ...this.segment.attributes,
-          ...(hasCustomFields ?
-            {
-              customFields: {
-                ...this.segment.attributes.customFields,
-                ...payload.data.attributes?.customFields,
-              },
-            } :
-            {}),
         },
         relationships: {
           ...this.segment.relationships,
-          ...payload.data.relationships,
+          assignee,
+          place,
         },
       }
 
@@ -962,36 +916,33 @@ export default {
         id: this.segment.id,
       })
 
-      /**
-       * By default, the `saveAction` method (from vuex-json-api) only sends changed properties.
-       * Since the `id` inside `customFields` has not changed, it is excluded from the update payload.
-       * Using the `full` option forces the entire `customFields` object to be included in the PATCH request.
-       */
-      const savePayload = hasCustomFields ?
-        {
-          id: this.segment.id,
-          options: {
-            attributes: {
-              full: 'customFields',
-            },
-          },
-        } :
-        { id: this.segment.id }
-
-      this.saveSegmentAction(savePayload)
+      this.saveSegmentAction({ id: this.segment.id })
         .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-          this.isFullscreen = false
-          this.isEditing = false
+          /*
+           * Custom fields are saved via a separate PATCH using the composable's updateCustomFields,
+           * which bypasses the vuex-json-api diff mechanism (unreliable for array attributes)
+           * and properly invalidates the composable's value cache.
+           */
+          const saveCustomFields = this.customFieldsChanged && hasPermission('field_segments_custom_fields') ?
+            useCustomFields().updateCustomFields('StatementSegment', this.segment.id, this.customFieldValues).then(() => {
+              this.customFieldsChanged = false
+            }) :
+            Promise.resolve()
 
-          this.restoreComments(comments)
-          this.setProperty({ prop: 'isLoading', val: false })
+          return saveCustomFields.then(() => {
+            dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+            this.isFullscreen = false
+            this.isEditing = false
 
-          this.toggleAssignableUsersSelect()
-          this.$nextTick(() => {
-            if (this.$refs.recommendationContainer) {
-              this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
-            }
+            this.restoreComments(comments)
+            this.setProperty({ prop: 'isLoading', val: false })
+
+            this.toggleAssignableUsersSelect()
+            this.$nextTick(() => {
+              if (this.$refs.recommendationContainer) {
+                this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+              }
+            })
           })
         })
         .catch(() => {
@@ -1003,30 +954,6 @@ export default {
 
     setActiveTabId (id) {
       this.activeId = id
-    },
-
-    /**
-     * Add custom field to custom fields with selected option
-     * @param {Object} value
-     * @param {string} value.id   id of the selected option
-     * @param {string} value.fieldId   id of the custom field
-     * @param {string} value.name   name of the selected option
-     * @param {string} value.value   optional explicit value to use ('UNASSIGNED' for unassigned)
-     */
-    setCustomFieldValue (value) {
-      // Store the value directly, the unset option already has value: 'UNASSIGNED'
-      this.customFieldValues[value.fieldId] = value
-    },
-
-    setInitiallySelectedCustomFieldValues () {
-      this.segment.attributes.customFields.forEach(field => {
-        const fieldId = field.id
-        const selectedOption = this.customFieldsOptions[fieldId].find(option => option.name === field.value)
-
-        if (selectedOption) {
-          this.customFieldValues[fieldId] = selectedOption
-        }
-      })
     },
 
     setSelectedAssignee () {
@@ -1201,23 +1128,11 @@ export default {
       this.setSegment({ ...updated, id: this.segment.id })
     },
 
-    // Helper to get the custom field value from an option
-    getCustomFieldValueForPayload (customFieldValue) {
-      const selectedOption = this.customFields[customFieldValue.fieldId]?.attributes.options.find(option => option.label === customFieldValue.name)
-
-      // Return null for unassigned options instead of 'UNASSIGNED'
-      return customFieldValue.value === 'UNASSIGNED' ? null : selectedOption?.id
-    },
   },
 
   mounted () {
     this.initPlaces()
     this.initAssignableUsers()
-    this.initCustomFieldValues()
-
-    if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
-      this.setInitiallySelectedCustomFieldValues()
-    }
 
     loadAddonComponents('segment.recommendationModal.tab')
       .then(addons => {
