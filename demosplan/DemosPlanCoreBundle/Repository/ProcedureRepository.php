@@ -1404,7 +1404,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
 
         if (array_key_exists('designatedPublicEndDate', $data['settings'])) {
-            $convertedDate = $this->convertUserInputDate($data['settings']['designatedPublicEndDate']);
+            $convertedDate = $this->convertUserInputDate($data['settings']['designatedPublicEndDate'], '23:59:59');
             $procedureSettings->setDesignatedPublicEndDate($convertedDate);
         }
 
@@ -1430,7 +1430,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
 
         if (array_key_exists('designatedEndDate', $data['settings'])) {
-            $convertedDate = $this->convertUserInputDate($data['settings']['designatedEndDate']);
+            $convertedDate = $this->convertUserInputDate($data['settings']['designatedEndDate'], '23:59:59');
             $procedureSettings->setDesignatedEndDate($convertedDate);
         }
 
