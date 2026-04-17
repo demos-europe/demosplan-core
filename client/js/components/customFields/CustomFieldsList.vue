@@ -110,7 +110,7 @@ All rights reserved
           <div
             v-for="field in fieldsToRender"
             :key="field.id"
-            :class="prefixClass('border-l-4 border-neutral pl-3')"
+            :class="showFieldBorders ? prefixClass('border-l-4 border-neutral pl-3') : null"
           >
             <custom-field
               :definition="definitions.find(d => d.id === field.id) || null"
@@ -172,7 +172,7 @@ All rights reserved
           <div
             v-for="field in fieldsToRender"
             :key="field.id"
-            :class="prefixClass('border-l-4 border-neutral pl-3')"
+            :class="showFieldBorders ? prefixClass('border-l-4 border-neutral pl-3') : null"
           >
             <custom-field
               :definition="definitions.find(d => d.id === field.id) || null"
