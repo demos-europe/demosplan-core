@@ -13,6 +13,7 @@
     "ext-filter": "*",
     "ext-gd": "*",
     "ext-iconv": "*",
+    "ext-intl": "*",
     "ext-json": "*",
     "ext-libxml": "*",
     "ext-mbstring": "*",
