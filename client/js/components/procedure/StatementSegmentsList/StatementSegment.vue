@@ -303,7 +303,7 @@
           </dp-multiselect>
           <custom-fields-list
             v-if="hasPermission('field_segments_custom_fields')"
-            v-slot="{ fieldsWithDefinitions }"
+            v-slot:default="{ fieldsWithDefinitions }"
             :definition-source-id="procedureId"
             :resource-id="segment.id"
             :show-empty="true"

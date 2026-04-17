@@ -214,7 +214,10 @@
                   data-cy="customFields:editField"
                   @click="editCustomField(rowData)"
                 >
-                  <dp-icon aria-hidden="true" icon="edit" />
+                  <dp-icon
+                    aria-hidden="true"
+                    icon="edit"
+                  />
                 </button>
 
                 <button
@@ -226,7 +229,10 @@
                   data-cy="customFields:deleteField"
                   @click="handleDeleteCustomField(rowData)"
                 >
-                  <dp-icon aria-hidden="true" icon="delete" />
+                  <dp-icon
+                    aria-hidden="true"
+                    icon="delete"
+                  />
                 </button>
 
 
@@ -239,7 +245,10 @@
                     data-cy="customFields:saveEdit"
                     @click="dpValidateAction('editCustomFieldsForm', () => saveEditedFields(), false)"
                   >
-                    <dp-icon aria-hidden="true" icon="check" />
+                    <dp-icon
+                      aria-hidden="true"
+                      icon="check"
+                    />
                   </button>
 
                   <button
@@ -249,7 +258,10 @@
                     data-cy="customFields:abortEdit"
                     @click="abortFieldEdit(rowData)"
                   >
-                    <dp-icon aria-hidden="true" icon="xmark" />
+                    <dp-icon
+                      aria-hidden="true"
+                      icon="xmark"
+                    />
                   </button>
                 </template>
 
@@ -262,7 +274,10 @@
                   data-cy="customFields:showOptions"
                   @click="showOptions(rowData)"
                 >
-                  <dp-icon aria-hidden="true" icon="caret-down" />
+                  <dp-icon
+                    aria-hidden="true"
+                    icon="caret-down"
+                  />
                 </button>
 
                 <template v-else>
@@ -273,7 +288,10 @@
                     data-cy="customFields:hideOptions"
                     @click="hideOptions(rowData)"
                   >
-                    <dp-icon aria-hidden="true" icon="caret-up" />
+                    <dp-icon
+                      aria-hidden="true"
+                      icon="caret-up"
+                    />
                   </button>
                 </template>
               </div>
@@ -309,8 +327,8 @@ import {
   DpTabs,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
-import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 const {
   createCustomFieldDefinition,
@@ -407,7 +425,7 @@ export default {
     createTargetOptions () {
       if (this.procedureReceivedStatements) {
         return Object.fromEntries(
-          Object.entries(this.targetOptions).filter(([key]) => key !== 'STATEMENT')
+          Object.entries(this.targetOptions).filter(([key]) => key !== 'STATEMENT'),
         )
       }
 
@@ -548,7 +566,7 @@ export default {
      */
     checkIfNameIsUnique (name) {
       const identicalNames = this.allDefinitions.filter(definition =>
-        definition.attributes?.name === name
+        definition.attributes?.name === name,
       )
       const isInEditMode = this.customFieldItems.some(field => field.name === name && field.edit)
 

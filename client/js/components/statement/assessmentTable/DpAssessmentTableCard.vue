@@ -516,7 +516,7 @@
           <!--  custom fields  -->
           <dp-item-row
             v-if="hasPermission('feature_statements_custom_fields') && (hasCustomFieldContent ?? true)"
-            class="u-pb-0"
+            class="pb-0"
             title="custom.fields"
           >
             <custom-fields-list
