@@ -1457,6 +1457,11 @@ feature_password_recovery:
     description: 'Enables passwort reset.'
     label: 'Users can reset their passwords'
     loginRequired: false
+feature_personal_data_audit_view:
+    description: 'View the GDPR-compliant audit trail for changes to personal data entities (User, Orga, Address, Department, Statement).'
+    expose: true
+    label: 'View personal data audit log.'
+    loginRequired: true
 feature_plain_language:
     description: 'Enable to switch the language of the app (so all translation keys) between ''regular'' and plain, simplified language.'
     expose: true

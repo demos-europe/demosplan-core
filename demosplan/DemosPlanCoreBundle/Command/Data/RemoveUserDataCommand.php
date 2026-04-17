@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
+use demosplan\DemosPlanCoreBundle\Entity\PersonalDataAuditLog;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
@@ -33,6 +34,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\EventListener\PersonalDataAuditListener;
 use demosplan\DemosPlanCoreBundle\Faker\Provider\ApproximateLengthText;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
@@ -115,6 +117,7 @@ class RemoveUserDataCommand extends CoreCommand
         StatementService $statementService,
         DraftStatementService $draftStatementService,
         ManagerRegistry $doctrine,
+        private readonly PersonalDataAuditListener $personalDataAuditListener,
         ?string $name = null,
     ) {
         $this->userService = $userService;
@@ -150,7 +153,10 @@ class RemoveUserDataCommand extends CoreCommand
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->output = $output;
-        $this->totalProgress = $this->initializeProgressBar(22, 22);
+        $this->totalProgress = $this->initializeProgressBar(23, 23);
+
+        // Disable audit listener to prevent logging anonymization changes as new audit entries
+        $this->personalDataAuditListener->disable();
 
         $projectName = strtoupper($this->parameterBag->get('project_name'));
         if ('BOBHH' === $projectName || 'BOPHH' === $projectName) {
@@ -181,6 +187,7 @@ class RemoveUserDataCommand extends CoreCommand
         $this->removeUserDataFromStatementVotes();
         $this->removeUserDataFromReportEntries();
         $this->removeUserDataFromEntityContentChanges();
+        $this->removeUserDataFromPersonalDataAuditLogs();
 
         // depended on address + users:
         $this->removeUserDataFromProcedureSubscriptions();
@@ -196,6 +203,8 @@ class RemoveUserDataCommand extends CoreCommand
 
         // depended on draftstatements:
         $this->removeUserDataFromDraftStatementVersions();
+
+        $this->personalDataAuditListener->enable();
 
         return (int) Command::SUCCESS;
     }
@@ -754,6 +763,42 @@ class RemoveUserDataCommand extends CoreCommand
 
         $this->currentProgressBar->finish();
         $this->updateAll(EntityContentChange::class, $allEntityContentChanges);
+    }
+
+    protected function removeUserDataFromPersonalDataAuditLogs(): void
+    {
+        $this->checkForAlreadyProcessedUsers();
+
+        /** @var PersonalDataAuditLog[] $allAuditLogs */
+        $allAuditLogs = $this->initializeRemovingDataForEntity(PersonalDataAuditLog::class);
+
+        $userCache = [];
+        foreach ($allAuditLogs as $auditLog) {
+            $nameToUse = $this->map($auditLog->getUserName(), $this->faker->name);
+
+            $userId = $auditLog->getUserId();
+            if (null !== $userId) {
+                if (!array_key_exists($userId, $userCache)) {
+                    $userCache[$userId] = $this->userService->getSingleUser($userId);
+                }
+                if ($userCache[$userId] instanceof User) {
+                    $nameToUse = $userCache[$userId]->getUserIdentifier();
+                }
+            }
+
+            $auditLog->setUserName($nameToUse);
+
+            // Anonymize the actual personal data values stored in the audit entries
+            if (!$auditLog->isSensitiveField()) {
+                $auditLog->setPreUpdateValue('[anonymized]');
+                $auditLog->setPostUpdateValue('[anonymized]');
+            }
+
+            $this->currentProgressBar->advance();
+        }
+
+        $this->currentProgressBar->finish();
+        $this->updateAll(PersonalDataAuditLog::class, $allAuditLogs);
     }
 
     protected function removeUserDataFromNotificationReceivers(): void

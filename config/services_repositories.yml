@@ -24,6 +24,9 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl'
 
+    demosplan\DemosPlanCoreBundle\Repository\PersonalDataAuditRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\PersonalDataAuditLog'
+
     DemosEurope\DemosplanAddon\Contracts\Repositories\ProcedurePhaseRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseRepository'
 
     DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository'
