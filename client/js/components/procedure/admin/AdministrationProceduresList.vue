@@ -312,7 +312,6 @@ export default {
             'externalPhaseDefinitionName',
             'internalStartDate',
             'internalEndDate',
-            'internalPhaseIdentifier',
             'internalPhaseDefinitionName',
             'originalStatementsCount',
             'statementsCount',
