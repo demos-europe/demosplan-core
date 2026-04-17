@@ -38,9 +38,10 @@ All rights reserved
   </dl>
   <div
     v-else
-    :class="prefixClass('mb-3')"
+    :class="showLabel ? prefixClass('mb-3') : null"
   >
     <dp-label
+      v-if="showLabel"
       :class="prefixClass('mb-2')"
       :for="`custom-field-${field.id}`"
       :required="field.attributes.isRequired"
@@ -86,6 +87,12 @@ export default {
       required: false,
       default: 'readonly',
       validator: (value) => ['readonly', 'editable'].includes(value),
+    },
+
+    showLabel: {
+      type: Boolean,
+      required: false,
+      default: true,
     },
   },
 
