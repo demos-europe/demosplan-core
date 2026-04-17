@@ -100,11 +100,12 @@ export default {
 
   computed: {
     /**
-     * Current selected option (full object for dp-select)
+     * Current selected option (full object for dp-multiselect)
      * Already matched in CustomField.transformValueForRenderer()
      */
     currentValue () {
       const selectedOptions = this.field.value?.selectedOptions || []
+
       return selectedOptions[0] || null
     },
   },
@@ -118,7 +119,7 @@ export default {
     handleUpdate (newValue) {
       this.$emit('update:value', {
         id: this.field.id,
-        value: newValue ? newValue.id : null,
+        value: newValue?.id ?? null,
       })
     },
   },

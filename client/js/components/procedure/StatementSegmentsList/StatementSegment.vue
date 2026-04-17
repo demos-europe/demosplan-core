@@ -320,16 +320,16 @@
             >
               <dp-label
                 :bold="false"
-                class="mb-0.5 mt-2"
                 :for="`custom-field-${field.id}`"
                 :text="definition?.attributes?.name || ''"
+                class="mb-0.5 mt-2"
               />
               <custom-field
                 :definition="definition"
                 :field-data="{ id: field.id, value: customFieldValueForId(field.id) }"
+                :resource-id="segment.id"
                 :show-label="false"
                 mode="editable"
-                :resource-id="segment.id"
                 resource-type="StatementSegment"
                 @update:value="newValue => onCustomFieldValueUpdate({ fieldId: field.id, value: newValue })"
               />

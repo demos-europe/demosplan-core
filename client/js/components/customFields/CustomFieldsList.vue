@@ -518,7 +518,7 @@ export default {
     },
 
     handleValueUpdate (fieldId, newValue) {
-      const valueIndex = this.values.findIndex(v => v.id === fieldId)
+      const valueIndex = this.values.findIndex(valueEntry => valueEntry.id === fieldId)
       if (valueIndex === -1) {
         this.values = [...this.values, { id: fieldId, value: newValue }]
       } else {
