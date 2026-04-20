@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
+use Closure;
 use demosplan\DemosPlanCoreBundle\Addon\AddonAutoloading;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCache;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use Closure;
 use Exception;
 use LogicException;
 use Symfony\Component\Console\Input\ArgvInput;

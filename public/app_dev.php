@@ -13,6 +13,6 @@ use demosplan\DemosPlanCoreBundle\Application\FrontController;
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
 $_SERVER['APP_DEBUG'] = '1';
-$_SERVER['APP_ENV']   = 'dev';
+$_SERVER['APP_ENV'] = 'dev';
 
 return FrontController::webRuntime();
