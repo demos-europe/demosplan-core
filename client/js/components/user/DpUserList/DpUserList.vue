@@ -33,7 +33,7 @@
     <div v-if="false === isLoading">
       <div
         v-if="isUserSelected"
-        class="border rounded-lg mt-2 py-4 px-6"
+        class="shadow-sm rounded-lg mt-2 py-4 px-6"
       >
         <div class="flex items-center justify-between">
           <span>{{ Translator.trans('users.selected', { count: selectedItemsCount }) }}</span>
@@ -123,13 +123,13 @@
       v-if="false === isLoading"
     >
       <ul
-        class="o-list o-list--card mb-4"
+        class="o-list space-y-2 mb-4"
         data-cy="userList:userListWrapper"
       >
         <dp-user-list-item
           v-for="(item, idx, index) in items"
           :key="idx"
-          class="o-list__item"
+          class="o-list__item bg-surface border border-neutral"
           :selected="currentPageSelections[item.id] || false"
           :user="item"
           :data-cy="`userList:userListBlk:${index}`"
@@ -254,9 +254,9 @@ export default {
     },
 
     tooltipContent () {
-      return '<h3 class="u-mt color--white">' + Translator.trans('search.options') + '</h3>' +
+      return '<h3 class="mt-4 text-on-dark">' + Translator.trans('search.options') + '</h3>' +
         Translator.trans('search.options.description') +
-        '<h3 class="u-mt color--white">' + Translator.trans('search.special.characters') + '</h3>' +
+        '<h3 class="mt-4 text-on-dark">' + Translator.trans('search.special.characters') + '</h3>' +
         Translator.trans('search.special.characters.description')
     },
   },

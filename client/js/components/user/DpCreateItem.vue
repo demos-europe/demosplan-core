@@ -8,7 +8,8 @@
 </license>
 
 <documentation>
-  <!-- Modal component that displays form fields to create a new item, e.g. user or organisation
+  <!-- Displays form fields to create a new item, e.g. user or organisation, inside an
+      inline expand/collapse area that toggles via an add button.
       It receives the form fields via a child component that can by dynamically included
 
       We might put the form fields part inside a slot and add some form fields as default content, should a more
@@ -19,24 +20,23 @@
 <template>
   <div>
     <div
-      class="flex justify-between bg-surface-medium p-4"
+      class="flex justify-between py-4"
     >
-      <h3
+      <h4
         class="mb-0"
       >
         {{ Translator.trans(itemTitle) }}
-      </h3>
+      </h4>
       <dp-button
-        variant="outline"
+        variant="subtle"
+        :icon-after="isFormOpen ? 'caret-up' : 'caret-down'"
         :text="Translator.trans('add')"
-        @click="toggleModal"
+        @click="toggleForm"
       />
     </div>
-    <dp-modal
-      ref="createItemModal"
-      content-classes="u-2-of-3"
-    >
+    <dp-transition-expand>
       <div
+        v-show="isFormOpen"
         :data-cy="customComponent[entity].formName"
         :data-dp-validate="customComponent[entity].formName"
       >
@@ -68,12 +68,12 @@
           />
         </div>
       </div>
-    </dp-modal>
+    </dp-transition-expand>
   </div>
 </template>
 
 <script>
-import { DpButton, DpButtonRow, DpModal, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { DpButton, DpButtonRow, DpTransitionExpand, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 
@@ -96,8 +96,8 @@ export default {
   components: {
     DpButton,
     DpButtonRow,
-    DpModal,
     DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationList/DpOrganisationFormFields')),
+    DpTransitionExpand,
     DpUserFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "user-form-fields" */ './DpUserList/DpUserFormFields')),
   },
 
@@ -201,6 +201,7 @@ export default {
           updateEvent: 'user:update',
         },
       },
+      isFormOpen: false,
       item: {},
       shouldResetForm: false,
     }
@@ -277,7 +278,7 @@ export default {
     },
 
     reset () {
-      this.$refs.createItemModal.close()
+      this.isFormOpen = false
       this.item = {}
       this.shouldResetForm = true
 
@@ -345,8 +346,8 @@ export default {
         .finally(() => this.reset())
     },
 
-    toggleModal () {
-      this.$refs.createItemModal.toggle()
+    toggleForm () {
+      this.isFormOpen = !this.isFormOpen
     },
 
     update (item) {
