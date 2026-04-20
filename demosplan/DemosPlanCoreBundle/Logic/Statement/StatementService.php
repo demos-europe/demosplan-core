@@ -3043,6 +3043,10 @@ class StatementService implements StatementServiceInterface
             $statement['author_feedback'] = true;
         }
 
+        if (\array_key_exists('r_oId', $data) && 36 === \strlen((string) $data['r_oId'])) {
+            $statement['oId'] = $data['r_oId'];
+        }
+
         if (\array_key_exists('r_orga_name', $data)) {
             $statement['orga_name'] = $data['r_orga_name'];
         }

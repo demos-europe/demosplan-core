@@ -57,6 +57,13 @@ server
 
     default_type text/html;
 
+    # Custom error pages to avoid leaking nginx version information
+    error_page 502 503 504 /custom_error.html;
+    location = /custom_error.html {
+        internal;
+        return 503 '<!DOCTYPE html><html><head><title>Service Temporarily Unavailable</title></head><body><h1>503 Service Temporarily Unavailable</h1></body></html>';
+    }
+
     #https://www.vagrantup.com/docs/synced-folders/virtualbox.html
     sendfile off;
     autoindex off;

@@ -97,10 +97,18 @@
             }
 
             &:hover {
+                border-right-width: 2px !important;
+                border-right-color: $dp-color-interactive-default !important;
+
                 .c-data-table__resize-handle {
                     visibility: visible;
                 }
             }
+        }
+
+        td.is-col-hovered {
+            border-right-width: 2px !important;
+            border-right-color: $dp-color-interactive-default !important;
         }
     }
 
@@ -130,6 +138,11 @@
         border-top: 1px solid $dp-color-neutral-light-2;
     }
 
+    // Use a lighter border when full borders (including vertical) are enabled.
+    &:has(.border-r) tr:not(.is-expanded-content) td {
+        border-top-color: $dp-color-neutral-light-3;
+    }
+
     tbody {
         tr:hover,
         tr:hover + tr.is-expanded-content,
@@ -157,6 +170,8 @@
         position: sticky;
         top: 0;
 
+        /* Ensure sticky header renders above regular cells but below flyout/expand columns */
+        z-index: $dp-z-above-zero + 1;
         background-color: $dp-color-white;
     }
 
@@ -165,6 +180,11 @@
      * Explicit BEM classes are set in DpTableRow/DpTableHeader in demosplan-ui so that
      * regular data columns in resizable-only tables (e.g. InstitutionList) are never affected.
      */
+
+    // Allow mouse events to pass through the flyout header cell so the last column's resize handle remains accessible
+    th.c-data-table__col--flyout {
+        pointer-events: none;
+    }
 
     td.c-data-table__col--flyout,
     th.c-data-table__col--flyout {

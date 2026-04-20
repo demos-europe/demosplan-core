@@ -76,9 +76,11 @@ export default {
 
     // Get count of segments assigned to the current user
     const segmentUrl = Routing.generate('api_resource_list', { resourceType: 'StatementSegment' })
-    dpApi.get(segmentUrl, { filter: filterQuery }).then(response => {
-      this.assignedSegmentCount = response.data.data.length
-    })
+    dpApi.get(segmentUrl, { filter: filterQuery })
+      .then(response => {
+        this.assignedSegmentCount = response.data.data.length
+      })
+      .catch(e => console.error('Failed to fetch assigned segments count', e))
 
     /*
      * It is currently difficult to get the default filter hash but a filter hash is needed to retrieve an updated hash.
@@ -101,13 +103,14 @@ export default {
 
         // Get the actual filter hash
         const url = Routing.generate('dplan_rpc_segment_list_query_update', { queryHash })
-        dpApi.patch(url, {}, filterData)
+        return dpApi.patch(url, {}, filterData)
           .then(({ data }) => {
             if (data) {
               this.userHash = data
             }
           })
       })
+      .catch(e => console.error('Failed to fetch segment filter hash', e))
   },
 }
 </script>
