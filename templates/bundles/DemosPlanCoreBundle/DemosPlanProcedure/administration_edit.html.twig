@@ -188,7 +188,8 @@
                                         data-cy="internal:selectedAgencies"
                                         label="name"
                                         multiple
-                                        :options="sortedAgenciesOptions"
+                                        :options="JSON.parse('{{ agencies|default([])|json_encode|e('js', 'utf-8')
+                                        }}')"
                                         track-by="id">
                                         <template v-slot:option="{ props }">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
