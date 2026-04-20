@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\OAuth\PendingRequestCacheService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,6 +36,7 @@ class OrganisationSelectionController extends BaseController
 
     public function __construct(
         private readonly CurrentOrganisationService $currentOrganisationService,
+        private readonly PendingRequestCacheService $pendingRequestCacheService,
     ) {
     }
 
@@ -63,9 +65,13 @@ class OrganisationSelectionController extends BaseController
             return $this->redirectToRoute('core_home_loggedin');
         }
 
-        // Store validated return URL in session instead of round-tripping through form
+        $pendingRequest = $this->pendingRequestCacheService->retrieve($user->getId());
+        $pendingOrganisationId = $pendingRequest?->getSelectedOrganisationId();
+
+        // Store validated return URL in session instead of round-tripping through form.
+        // Skip during re-auth flow — referer would be the Keycloak callback URL, not a useful destination.
         $referer = $request->headers->get('referer');
-        if (null !== $referer && '' !== $referer) {
+        if (null !== $referer && '' !== $referer && null === $pendingOrganisationId) {
             $path = parse_url($referer, PHP_URL_PATH);
             $selectPath = $this->generateUrl('DemosPlan_user_select_organisation');
             if (is_string($path) && 1 === preg_match('#^/[^/]#', $path) && $path !== $selectPath) {
@@ -76,9 +82,10 @@ class OrganisationSelectionController extends BaseController
         return $this->render(
             '@DemosPlanCore/DemosPlanUser/select_organisation.html.twig',
             [
-                'title'                 => 'organisation.select',
-                'organisations'         => $organisations,
-                'currentOrganisationId' => $user->getCurrentOrganisation()?->getId(),
+                'title'                      => 'organisation.select',
+                'organisations'              => $organisations,
+                'currentOrganisationId'      => $user->getCurrentOrganisation()?->getId(),
+                'lastSelectedOrganisationId' => $pendingOrganisationId,
             ]
         );
     }
@@ -138,6 +145,20 @@ class OrganisationSelectionController extends BaseController
         ]);
 
         $this->getMessageBag()->add('confirm', 'confirm.organisation.switched');
+
+        // Re-auth flow: read pending data from cache, redirect to pending page only when same org chosen.
+        $pendingRequest = $this->pendingRequestCacheService->retrieve($user->getId());
+        $this->pendingRequestCacheService->delete($user->getId());
+
+        if (null !== $pendingRequest) {
+            $pendingOrgId = $pendingRequest->getSelectedOrganisationId();
+            $pendingPageUrl = $pendingRequest->getPageUrl();
+
+            if (null !== $pendingOrgId && null !== $pendingPageUrl && $selectedOrga->getId() === $pendingOrgId) {
+                // Not yet implemented: if pendingRequest has a buffered POST, redirect to pending request review page
+                return new RedirectResponse($pendingPageUrl);
+            }
+        }
 
         // Retrieve and clear the return URL from the session
         $session = $request->getSession();

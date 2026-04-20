@@ -6,6 +6,26 @@
 
 ## UNRELEASED
 
+### Added
+- Full OAuth2 token lifecycle management with Keycloak: tokens (access, refresh, ID) are now stored encrypted (via `SecretEncryptor` / XSalsa20-Poly1305) in a new `oauth_tokens` table and refreshed transparently in the background before expiry
+- Request buffering during re-authentication: when tokens expire mid-request, the pending request (including POST body) is preserved encrypted in the database and the user is redirected back to the original page after re-authenticating (a review page for replaying buffered POST data is planned but not yet implemented)
+- Organisation-aware re-authentication for multi-org users: the selected organisation is persisted through the re-auth flow; users are shown the org-selection page and redirected back to their original page if the same org is chosen
+- Scheduled cleanup of expired OAuth tokens via Symfony Messenger
+- Parameter `oauth_keycloak_login_only` (default: `true`) to control whether full token management is active; set to `false` in `parameters_default_project.yml` per project to enable token refresh
+- Translation `confirm.session.renewed` shown as flash message after seamless re-authentication
+
+### Changed
+- Replaced `KeycloakAuthenticationSuccessTrait` with `AbstractOzgKeycloakAuthenticator` base class shared by both real and static (test) authenticators
+- `ExpirationTimestampRequestListener` now checks actual OAuth token expiry instead of only PHP session lifetime; includes a configurable fast-path interval to avoid DB queries on every request
+- `OzgKeycloakSessionManager` (renamed from `OzgKeycloakLogoutManager`) now also handles per-customer OAuth config lookup and session sync
+- `LogoutSubscriber` uses `getEffectiveLogoutRoute()` for per-customer Keycloak config
+
+### Deployment notes
+- **Migration**: creates `oauth_tokens` table with FK to `_user` and `_orga` — run `doctrine:migrations:migrate`
+- **Required env var**: `OAUTH_SECRET_ENCRYPTION_KEY` — generate with `php -r "echo base64_encode(sodium_crypto_secretbox_keygen());"` and add to `.env.local` on every environment (shared with other encryption features)
+- **New parameters** (with defaults): `oauth_keycloak_login_only` (true — safe default, no behaviour change), `oauth_token_timezone` (Europe/Berlin), `oauth_token_fast_path_interval_seconds` (180), `oauth_token_refresh_buffer_minutes` (2)
+- To enable full token management for a project, set `oauth_keycloak_login_only: false` in `parameters_default_project.yml`
+
 ## v4.34.0 (2026-04-09)
 
 ### Added

@@ -12,9 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
-use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
+use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -30,10 +32,11 @@ class LogoutSubscriber implements EventSubscriberInterface
 
     public function __construct(
         private readonly LoggerInterface $logger,
+        private readonly OAuthTokenStorageService $oauthTokenStorageService,
         private readonly ParameterBagInterface $parameterBag,
         private readonly PermissionsInterface $permissions,
         private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly OzgKeycloakLogoutManager $ozgKeycloakLogoutManager,
+        private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
     ) {
     }
 
@@ -66,18 +69,25 @@ class LogoutSubscriber implements EventSubscriberInterface
 
         // let oauth identity provider handle logout when defined and user was provided by identity provider
         $user = $event->getToken()?->getUser();
-        if ($user && method_exists($user, 'isProvidedByIdentityProvider') && $user->isProvidedByIdentityProvider()) {
+        if ($user instanceof UserInterface && $user->isProvidedByIdentityProvider()) {
+            // Delete stored OAuth tokens on logout to prevent stale encrypted data in the database
+            try {
+                $this->oauthTokenStorageService->deleteTokensUnlessPendingData($user->getId());
+            } catch (Exception $e) {
+                $this->logger->warning('Failed to delete OAuth tokens on logout', ['error' => $e->getMessage()]);
+            }
+
             // Keycloak logout
-            $logoutRoute = $this->ozgKeycloakLogoutManager->getEffectiveLogoutRoute();
+            $logoutRoute = $this->ozgKeycloakSessionManager->getEffectiveLogoutRoute();
             if (null !== $logoutRoute) {
-                $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN);
+                $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakSessionManager::KEYCLOAK_TOKEN);
                 $event->getRequest()->getSession()->invalidate();
 
                 $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
 
                 // add additional parameters to keycloak logout url for redirect
                 try {
-                    $logoutRoute = $this->ozgKeycloakLogoutManager->getLogoutUrl($logoutRoute, $keycloakToken);
+                    $logoutRoute = $this->ozgKeycloakSessionManager->getLogoutUrl($logoutRoute, $keycloakToken);
                     $this->logger->info('Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
                 } catch (Exception $e) {
                     $this->logger->error('Could not get current customer', [$e->getMessage()]);
