@@ -164,8 +164,6 @@
             has-borders
             has-sticky-header
             :header-fields="availableHeaderFields"
-            column-storage-key="segmentsList"
-            is-columns-draggable
             is-resizable
             is-selectable
             :items="items"
@@ -509,7 +507,7 @@ export default {
       demosplanUi,
       hasStyledTopicalTags: false,
       headerFieldsAvailable: [
-        { field: 'externId', label: Translator.trans('id'), colWidth: '120px', initialMinWidth: 120, fixed: true },
+        { field: 'externId', label: Translator.trans('id'), colWidth: '120px', initialMinWidth: 120},
         { field: 'statementStatus', label: Translator.trans('statement.status'), colWidth: '180px', initialMinWidth: 180 },
         { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '120px', initialMinWidth: 120 },
         { field: 'submitter', label: Translator.trans('submitter'), colWidth: '180px', initialMinWidth: 180 },
