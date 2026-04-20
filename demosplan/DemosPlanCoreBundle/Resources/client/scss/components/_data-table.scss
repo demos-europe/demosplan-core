@@ -40,12 +40,13 @@
     }
 
     &__resize-handle {
-        visibility: hidden;
+        opacity: 0;
         width: 30px;
         display: inline-block;
         position: absolute;
         top: $data-table-padding-cell;
         right: 0;
+        z-index: $dp-z-above-zero + 2 !important;
         cursor: move; // Fallback if grab cursor is not supported
         cursor: grab;
         text-align: center;
@@ -59,7 +60,7 @@
 
         &.is-active {
             display: inline !important;
-            visibility: visible;
+            opacity: 1;
         }
     }
 
@@ -101,7 +102,7 @@
                 border-right-color: $dp-color-interactive-default !important;
 
                 .c-data-table__resize-handle {
-                    visibility: visible;
+                    opacity: 1;
                 }
             }
         }
@@ -180,11 +181,6 @@
      * Explicit BEM classes are set in DpTableRow/DpTableHeader in demosplan-ui so that
      * regular data columns in resizable-only tables (e.g. InstitutionList) are never affected.
      */
-
-    // Allow mouse events to pass through the flyout header cell so the last column's resize handle remains accessible
-    th.c-data-table__col--flyout {
-        pointer-events: none;
-    }
 
     td.c-data-table__col--flyout,
     th.c-data-table__col--flyout {
