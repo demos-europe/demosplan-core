@@ -62,7 +62,9 @@
                 class="py-1"
               >
                 <div>{{ user.attributes.firstname }} {{ user.attributes.lastname }}</div>
-                <div class="text-muted text-sm">{{ user.attributes.email }}</div>
+                <div class="text-muted text-sm">
+                  {{ user.attributes.email }}
+                </div>
               </li>
             </ul>
           </div>
