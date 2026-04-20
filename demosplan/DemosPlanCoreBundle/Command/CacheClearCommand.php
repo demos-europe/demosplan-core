@@ -32,7 +32,7 @@ use Symfony\Component\Filesystem\Filesystem;
 #[AsCommand(name: 'dplan:cache:clear', description: 'Clear apcu and op caches')]
 class CacheClearCommand extends CoreCommand
 {
-    final public const APCU_CLEAR_SCHEDULE_FILE = 'web/uploads/scheduled-apcu-clear';
+    final public const APCU_CLEAR_SCHEDULE_FILE = 'uploads/scheduled-apcu-clear';
 
     public function configure(): void
     {
@@ -98,10 +98,10 @@ class CacheClearCommand extends CoreCommand
         $output->comment('Schedule clearing of Web APCu');
 
         $fs = new DemosFilesystem();
-        $file = DemosPlanPath::getProjectPath(self::APCU_CLEAR_SCHEDULE_FILE);
+        $file = DemosPlanPath::getPublicPath(self::APCU_CLEAR_SCHEDULE_FILE);
 
         // in case of our dev servers the file would be put into src folder,
-        // but needs to be in the htdocs web/uploads folder
+        // but needs to be in the htdocs public/uploads folder
         if (str_contains($file, 'src/projects')) {
             $file = str_replace('src/projects', 'htdocs/projects', $file);
             $output->writeln('Recognized dev server environment. Adjust path for scheduled file');

@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Application;
 use demosplan\DemosPlanCoreBundle\Addon\AddonAutoloading;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCache;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use Closure;
 use Exception;
 use LogicException;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -91,6 +92,51 @@ final class FrontController
         }
 
         return $input;
+    }
+
+    /**
+     * Runtime-component entry point for `public/index.php`.
+     *
+     * Symfony runtime handles Dotenv, `Debug::enable()` and trusted-proxy
+     * setup; we only need to register addon autoloading and hand back a
+     * closure that builds the kernel from the resolved context (APP_ENV,
+     * APP_DEBUG, ACTIVE_PROJECT). `HttpCache` wrapping is handled by
+     * `framework.http_cache` in prod, not here.
+     */
+    public static function webRuntime(): Closure
+    {
+        return static function (array $context): DemosPlanKernel {
+            AddonAutoloading::register();
+
+            return new DemosPlanKernel(
+                $context['ACTIVE_PROJECT'],
+                $context['APP_ENV'],
+                (bool) $context['APP_DEBUG'],
+            );
+        };
+    }
+
+    /**
+     * Runtime-component entry point for `bin/console` (and `bin/<project>`).
+     *
+     * Symfony runtime handles Dotenv, `Debug::enable()`, `set_time_limit(0)`
+     * and argv parsing of `--env` / `--no-debug`; we only need to register
+     * addon autoloading and hand back a closure that wires the kernel into
+     * our `ConsoleApplication`.
+     */
+    public static function consoleRuntime(): Closure
+    {
+        return static function (array $context): ConsoleApplication {
+            AddonAutoloading::register();
+
+            $kernel = new DemosPlanKernel(
+                $context['ACTIVE_PROJECT'],
+                $context['APP_ENV'],
+                (bool) $context['APP_DEBUG'],
+            );
+
+            return new ConsoleApplication($kernel, false);
+        };
     }
 
     public static function console(string $activeProject, bool $deprecatedFrontcontroller = false): void

@@ -40,6 +40,17 @@ tasks
 /projects/core/web/js
 /projects/core/web/video
 /projects/core/web/files
+/public/css
+/public/fonts
+/public/img
+/public/js
+/public/video
+/public/files
+/public/uploads/*
+!/public/uploads/.gitkeep
+!/public/uploads/files/
+/public/uploads/files/*
+!/public/uploads/files/.gitkeep
 !/var/.gitkeep
 
 ###> symfony/framework-bundle ###

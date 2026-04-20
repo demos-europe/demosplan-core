@@ -7,4 +7,4 @@ tus:
     cache_ttl: '%tus_cache_ttl%'
 
     # Directory for finished uploads
-    upload_dir: '%demosplan.project_dir%/web/uploads'
+    upload_dir: '%kernel.project_dir%/public/uploads'

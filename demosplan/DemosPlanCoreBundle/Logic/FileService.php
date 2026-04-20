@@ -325,7 +325,7 @@ class FileService implements FileServiceInterface
         $finder = new Finder();
         // local file only, no need for flysystem
         $fs = new Filesystem();
-        $finder->files()->in(DemosPlanPath::getProjectPath('web/uploads/files'));
+        $finder->files()->in(DemosPlanPath::getPublicPath('uploads/files'));
 
         $filesDeleted = 0;
         foreach ($finder as $file) {
@@ -1106,7 +1106,7 @@ class FileService implements FileServiceInterface
         try {
             $globalConfig = $this->globalConfig;
             $fileDirectoryFreeSpace = disk_free_space($globalConfig->getFileServiceFilePath());
-            $uploadDirectoryFreeSpace = disk_free_space(DemosPlanPath::getProjectPath('web/uploads/files'));
+            $uploadDirectoryFreeSpace = disk_free_space(DemosPlanPath::getPublicPath('uploads/files'));
             $smallerValue = $uploadDirectoryFreeSpace < $fileDirectoryFreeSpace ? $uploadDirectoryFreeSpace : $fileDirectoryFreeSpace;
         } catch (Exception $e) {
             $this->logger->error('Error on getRemainingDiskSpace(): ', [$e]);

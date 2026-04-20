@@ -49,7 +49,6 @@ server
 
     if (-d /srv/www/public) {
         set $project_server_root /srv/www/public;
-        set $is_mono_repo true;
     }
 
     root $project_server_root;
@@ -57,7 +56,7 @@ server
     access_log /var/log/nginx/access.log;
     error_log /var/log/nginx/error.log;
 
-    index app.php;
+    index index.php;
 
     default_type text/html;
 
@@ -107,13 +106,13 @@ server
         }
     }
 
-    # Try all locations and relay to app.php as a fallback.
+    # Try all locations and relay to index.php as a fallback.
     location /
     {
-        try_files $uri $uri/ /app.php$is_args$args;
+        try_files $uri $uri/ /index.php$is_args$args;
     }
 
-    location ~ ^/app\.php(/|$)
+    location ~ ^/index\.php(/|$)
     {
         fastcgi_split_path_info ^(.+\.php)(/.*)$;
         include fastcgi_params;
