@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- add showPhases prop to AdministrationProceduresList and fix header alignment
 
 ## v4.34.0 (2026-04-09)
 
