@@ -74,6 +74,9 @@
 // Generic
 @import 'inuit-5/generic.shared';
 
+// CSS Custom Properties (map SCSS tokens to CSS variables for Tailwind-based components)
+@import 'custom-properties.dplan';
+
 // Base (Elements)
 @import 'inuit-5/base.page';
 @import 'base.dplan';
