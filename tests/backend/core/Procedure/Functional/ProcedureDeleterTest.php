@@ -11,11 +11,14 @@
 namespace backend\core\Procedure\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\FileFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
+use League\Flysystem\FilesystemOperator;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
@@ -112,6 +115,66 @@ class ProcedureDeleterTest extends FunctionalTestCase
         }
 
         return $customFieldsCount;
+    }
+
+    public function testDeleteProcedureRemovesFilesFromStorage(): void
+    {
+        // Arrange
+        $defaultStorage = $this->getContainer()->get('default.storage');
+        \assert($defaultStorage instanceof FilesystemOperator);
+
+        $procedure = $this->testProcedure->_real();
+        $filePath = 'files/test';
+        $fileHash = md5(uniqid('', true));
+        $flysystemPath = $filePath.'/'.$fileHash;
+
+        $defaultStorage->write($flysystemPath, 'test content');
+        static::assertTrue($defaultStorage->fileExists($flysystemPath));
+
+        FileFactory::createOne([
+            'hash'      => $fileHash,
+            'path'      => $filePath,
+            'filename'  => 'test.txt',
+            'mimetype'  => 'text/plain',
+            'size'      => 12,
+            'procedure' => $procedure,
+        ]);
+
+        // Act
+        $this->sut->deleteProcedures([$procedure->getId()], false);
+
+        // Assert
+        static::assertFalse($defaultStorage->fileExists($flysystemPath), 'File should be deleted from storage');
+        static::assertSame(0, $this->countEntries(File::class, ['procedure' => $procedure]));
+    }
+
+    public function testDeleteProcedureDryRunKeepsFilesInStorage(): void
+    {
+        // Arrange
+        $defaultStorage = $this->getContainer()->get('default.storage');
+        \assert($defaultStorage instanceof FilesystemOperator);
+
+        $procedure = $this->testProcedure->_real();
+        $filePath = 'files/test';
+        $fileHash = md5(uniqid('', true));
+        $flysystemPath = $filePath.'/'.$fileHash;
+
+        $defaultStorage->write($flysystemPath, 'test content');
+
+        FileFactory::createOne([
+            'hash'      => $fileHash,
+            'path'      => $filePath,
+            'filename'  => 'test.txt',
+            'mimetype'  => 'text/plain',
+            'size'      => 12,
+            'procedure' => $procedure,
+        ]);
+
+        // Act
+        $this->sut->deleteProcedures([$procedure->getId()], true);
+
+        // Assert
+        static::assertTrue($defaultStorage->fileExists($flysystemPath), 'File should still exist in storage after dry run');
     }
 
     /**
