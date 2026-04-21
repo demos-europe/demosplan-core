@@ -84,7 +84,7 @@ class RadioButtonField extends AbstractCustomField
             return '';
         }
 
-        return $this->getCustomOptionValueById($value)?->getLabel() ?? $value;
+        return $this->getCustomOptionValueById($value)?->getLabel() ?? '';
     }
 
     protected function validateFieldSpecific(array $options): void
