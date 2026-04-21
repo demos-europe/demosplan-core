@@ -62,6 +62,7 @@ All rights reserved
           class="layout__item u-2-of-12 u-6-of-12-lap-down"
           :class="{ 'color--grey': active === false }">
           <dp-label
+            class="mb-0.5"
             required
             :text="Translator.trans('on')"
             :for="dateId" />
