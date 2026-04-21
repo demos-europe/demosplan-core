@@ -151,6 +151,7 @@
     </div>
   </div>
   <dp-inline-notification
+    v-if="isCreateItem"
     class="mt-4"
     type="info"
     :message="Translator.trans('user.automated.email.info')"
@@ -173,10 +174,14 @@ export default {
     DpSelect,
   },
 
-  inject: [
-    'presetUserOrgaId',
-    'projectName',
-  ],
+  inject: {
+    isCreateItem: {
+      from: 'isCreateItem',
+      default: false,
+    },
+    presetUserOrgaId: 'presetUserOrgaId',
+    projectName: 'projectName',
+  },
 
   props: {
     user: {

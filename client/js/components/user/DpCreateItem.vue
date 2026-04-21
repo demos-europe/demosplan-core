@@ -82,6 +82,7 @@ export default {
 
   provide () {
     return {
+      isCreateItem: true,
       proceduresDirectLinkPrefix: this.proceduresDirectLinkPrefix,
       projectName: this.projectName,
       subdomain: this.subdomain,
