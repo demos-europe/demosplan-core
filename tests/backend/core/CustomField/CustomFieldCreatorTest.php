@@ -15,6 +15,7 @@ namespace Tests\Core\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
+use demosplan\DemosPlanCoreBundle\CustomField\TextField;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
@@ -193,7 +194,54 @@ class CustomFieldCreatorTest extends UnitTestCase
                 ],
                 'expectedErrorMessage' => 'The target entity "SEGMENT" does not match the expected target entity "STATEMENT" for source entity "PROCEDURE".',
             ],
+            'textFieldInvalidTargetEntity' => [
+                'attributes' => [
+                    'fieldType'    => 'text',
+                    'sourceEntity' => 'PROCEDURE',
+                    'targetEntity' => 'SEGMENT', // Wrong target for text
+                    'name'         => self::TEST_FIELD_NAME,
+                    'description'  => self::TEST_DESCRIPTION,
+                ],
+                'expectedErrorMessage' => 'The target entity "SEGMENT" does not match the expected target entity "STATEMENT" for source entity "PROCEDURE".',
+            ],
         ];
+    }
+
+    public function testCreateTextFieldSuccessfully(): void
+    {
+        // Arrange
+        $this->attributes['fieldType']    = 'text';
+        $this->attributes['isRequired']   = false;
+        $this->attributes['targetEntity'] = 'STATEMENT';
+        unset($this->attributes['options']); // Text fields have no predefined options
+
+        // Act
+        $result = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        static::assertInstanceOf(CustomFieldInterface::class, $result);
+        static::assertInstanceOf(TextField::class, $result);
+        static::assertEquals(self::TEST_FIELD_NAME, $result->getName());
+        static::assertEquals(self::TEST_DESCRIPTION, $result->getDescription());
+        static::assertEquals('text', $result->getFieldType());
+        static::assertEmpty($result->getOptions());
+        static::assertNotEmpty($result->getId());
+    }
+
+    public function testCreateRequiredTextFieldSuccessfully(): void
+    {
+        // Arrange
+        $this->attributes['fieldType']    = 'text';
+        $this->attributes['isRequired']   = true;
+        $this->attributes['targetEntity'] = 'STATEMENT';
+        unset($this->attributes['options']);
+
+        // Act
+        $result = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        static::assertInstanceOf(TextField::class, $result);
+        static::assertTrue($result->getRequired());
     }
 
     public function testValidationFailsWhenProcedureHasStatements(): void

@@ -271,6 +271,108 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         );
     }
 
+    public function testAddTextFieldValueSuccessfully(): void
+    {
+        // Arrange
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($this->procedure->_real())
+            ->withRelatedTargetEntity(CustomFieldSupportedEntity::statement->value)
+            ->asTextField('Notes', isRequired: false)
+            ->create();
+
+        $newCustomFieldValuesData = [
+            ['id' => $customField->getId(), 'value' => 'This is a free-form note.'],
+        ];
+
+        // Act
+        $result = $this->sut->updateOrAddCustomFieldValues(
+            new CustomFieldValuesList(),
+            $newCustomFieldValuesData,
+            $this->procedure->getId(),
+            CustomFieldSupportedEntity::procedure->value,
+            CustomFieldSupportedEntity::statement->value
+        );
+
+        // Assert
+        $storedValue = $result->findById($customField->getId());
+        static::assertIsString($storedValue->getValue());
+        static::assertEquals('This is a free-form note.', $storedValue->getValue());
+        $this->commonCustomFieldValueAssertions($customField, $result);
+    }
+
+    public function testTextFieldAcceptsNullValueWhenNotRequired(): void
+    {
+        // Arrange
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($this->procedure->_real())
+            ->withRelatedTargetEntity(CustomFieldSupportedEntity::statement->value)
+            ->asTextField('OptionalNote', isRequired: false)
+            ->create();
+
+        $newCustomFieldValuesData = [
+            ['id' => $customField->getId(), 'value' => null],
+        ];
+
+        // Act
+        $result = $this->sut->updateOrAddCustomFieldValues(
+            new CustomFieldValuesList(),
+            $newCustomFieldValuesData,
+            $this->procedure->getId(),
+            CustomFieldSupportedEntity::procedure->value,
+            CustomFieldSupportedEntity::statement->value
+        );
+
+        // Assert — null value means the field is not stored
+        static::assertInstanceOf(CustomFieldValuesList::class, $result);
+        static::assertCount(0, $result->getCustomFieldsValues());
+    }
+
+    #[DataProvider('textFieldValidationErrorDataProvider')]
+    public function testUpdateOrAddCustomFieldValuesTextFieldValidationErrors(
+        array $testData,
+        string $expectedErrorMessage,
+    ): void {
+        $this->assertValidationError(
+            $testData,
+            $expectedErrorMessage,
+            CustomFieldSupportedEntity::statement->value,
+            fn ($factory, $data) => $factory->asTextField(
+                $data['fieldName'],
+                isRequired: $data['isRequired']
+            )->create()
+        );
+    }
+
+    public static function textFieldValidationErrorDataProvider(): array
+    {
+        return [
+            'requiredFieldWithNullValue' => [
+                'testData' => [
+                    'fieldName'  => 'RequiredNote',
+                    'isRequired' => true,
+                    'value'      => null,
+                ],
+                'expectedErrorMessage' => 'Required text field must have a non-empty value',
+            ],
+            'requiredFieldWithEmptyString' => [
+                'testData' => [
+                    'fieldName'  => 'RequiredNote',
+                    'isRequired' => true,
+                    'value'      => '',
+                ],
+                'expectedErrorMessage' => 'Required text field must have a non-empty value',
+            ],
+            'nonStringValue' => [
+                'testData' => [
+                    'fieldName'  => 'Notes',
+                    'isRequired' => false,
+                    'value'      => 123,
+                ],
+                'expectedErrorMessage' => 'Text field value must be a string for CustomFieldId',
+            ],
+        ];
+    }
+
     public static function multiSelectValidationErrorDataProvider(): array
     {
         $expectedErrorMessageString = 'Each element must be a string';
