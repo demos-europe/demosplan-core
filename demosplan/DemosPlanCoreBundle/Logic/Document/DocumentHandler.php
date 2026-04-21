@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
@@ -93,7 +94,7 @@ class DocumentHandler extends CoreHandler
         $statusHash = md5($sessionId.$procedure);
         $status = Json::encode(['bulkImportFilesTotal' => 0, 'bulkImportFilesProcessed' => 0]);
         try {
-            $fs->dumpFile('uploads/files/importStatus_'.$statusHash.'.json', $status);
+            $fs->dumpFile(DemosPlanPath::getPublicPath('uploads/files/importStatus_'.$statusHash.'.json'), $status);
         } catch (IOException $e) {
             $this->logger->warning('Could not dump Statusfile: ', [$e]);
         }
