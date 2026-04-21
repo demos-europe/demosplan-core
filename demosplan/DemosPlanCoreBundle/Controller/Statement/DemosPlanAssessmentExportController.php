@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidPostParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
@@ -72,11 +73,11 @@ class DemosPlanAssessmentExportController extends BaseController
     ): ?Response {
         $exportFormat = $request->request->get('r_export_format');
         $docxTemplates = $this->assessmentExportOptions->get('assessment_table')['docx']['templates'] ?? [];
-        $hasPortraitWithPrioritization = is_array($docxTemplates) && array_key_exists('portraitWithPrioritization', $docxTemplates);
+        $hasPortraitWithPrioritization = is_array($docxTemplates) && array_key_exists(DocxExporter::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION, $docxTemplates);
         $exportParameters = $this->getExportParameters($request, $procedureId, $original);
         // switch to elements view for the dedicated portraitWithPrioritization template if permission allows:
         if ('docx' === $exportFormat && $permissions->hasPermission('feature_export_docx_elements_view_mode_only')) {
-            $shouldOverride = $hasPortraitWithPrioritization ? 'portraitWithPrioritization' === $exportParameters['template'] : 'portrait' !== $exportParameters['template'];
+            $shouldOverride = $hasPortraitWithPrioritization ? DocxExporter::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION === $exportParameters['template'] : 'portrait' !== $exportParameters['template'];
             if ($shouldOverride) {
                 $exportParameters['viewMode'] = AssessmentTableViewMode::ELEMENTS_VIEW;
             }

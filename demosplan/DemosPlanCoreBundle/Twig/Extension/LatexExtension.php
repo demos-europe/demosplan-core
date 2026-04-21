@@ -16,10 +16,12 @@ use Exception;
 use League\Flysystem\FilesystemOperator;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\String\AbstractUnicodeString;
 use Twig\TwigFilter;
 
 use function preg_quote;
 use function preg_replace;
+use function Symfony\Component\String\u;
 
 /**
  * Wysiwyg-Editor.
@@ -71,8 +73,8 @@ class LatexExtension extends ExtensionBase
         '&#039; '                              => '\textquoteright~',
         '&#039;'                               => '\textquoteright ',
         '§'                                    => '\S~',
-        '" '                                   => '\dq~',
-        '"'                                    => '\dq ',
+        '" '                                   => '\textquotedbl~',
+        '"'                                    => '\textquotedbl ',
         '#'                                    => '\#',
         '_'                                    => '\_',
         '€'                                    => '\texteuro~',
@@ -81,6 +83,23 @@ class LatexExtension extends ExtensionBase
         '█'                                    => '\ding{122}',
         '­'                                    => '\-',
         '</ins>'                               => '',
+    ];
+
+    /**
+     * Applied after NFKC normalization, for codepoints NFKC leaves intact but
+     * inputenc (in the TeX Live used by the renderer) cannot map.
+     */
+    private const UNICODE_REPLACEMENTS = [
+        "\u{200B}" => '',                // zero width space
+        "\u{200C}" => '',                // zero width non-joiner
+        "\u{200D}" => '',                // zero width joiner
+        "\u{2060}" => '',                // word joiner
+        "\u{FEFF}" => '',                // BOM / zero width no-break space
+        "\u{2190}" => '$\leftarrow$',
+        "\u{2191}" => '$\uparrow$',
+        "\u{2192}" => '$\rightarrow$',
+        "\u{2193}" => '$\downarrow$',
+        "\u{2194}" => '$\leftrightarrow$',
     ];
 
     public function __construct(
@@ -118,6 +137,18 @@ class LatexExtension extends ExtensionBase
     public function latexNewlineFilter($text)
     {
         return str_replace("\n", '\\\\', (string) $text);
+    }
+
+    /**
+     * NFKC collapses typographic ligatures (ﬁ→fi, ﬂ→fl, …) and compatibility
+     * forms (narrow/thin space → space) that the TeX inputenc setup can't map,
+     * then strip/rewrite the residue inputenc still trips over.
+     */
+    public function normalizeUnicode(string $text): string
+    {
+        $text = u($text)->normalize(AbstractUnicodeString::NFKC)->toString();
+
+        return strtr($text, self::UNICODE_REPLACEMENTS);
     }
 
     /**
@@ -216,6 +247,9 @@ class LatexExtension extends ExtensionBase
 
             // Latex-Umbau
             $text = str_replace(array_keys(self::HTML_TO_LATEX), self::HTML_TO_LATEX, $text);
+            // Runs AFTER HTML_TO_LATEX so that mapped keys like `´` are consumed
+            // first and the \$ / \ emitted for arrows is not re-escaped.
+            $text = $this->normalizeUnicode($text);
             if (false !== stripos($text, '<table')) {
                 $text = $this->processTable($text);
             }

@@ -94,6 +94,18 @@ class MultiSelectField extends AbstractCustomField
         return null;
     }
 
+    public function formatValueForDisplay(mixed $value): string
+    {
+        if (!is_array($value)) {
+            return '';
+        }
+
+        return collect($value)
+            ->map(fn (string $optionId) => $this->getCustomOptionValueById($optionId)?->getLabel())
+            ->filter()
+            ->implode(', ');
+    }
+
     protected function validateFieldSpecific(array $options): void
     {
         if (count($options) < 2) {

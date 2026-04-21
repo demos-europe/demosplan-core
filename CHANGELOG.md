@@ -9,6 +9,8 @@
 ### Added
 - Add customer admin interface for managing procedure phases - displaying and creating new phases
 
+## v4.35.0 (2026-04-09)
+
 ## v4.34.0 (2026-04-09)
 
 ### Added

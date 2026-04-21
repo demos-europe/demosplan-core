@@ -74,6 +74,7 @@ function docker_build() {
 
     DOCKER_BUILDKIT=1 docker build \
         $VERBOSE \
+        --provenance=false \
         --platform $PLATFORM \
         --build-arg PROJECT_NAME=$PROJECT_NAME \
         --build-arg BUILD_MODE=$BUILD_MODE \
