@@ -210,8 +210,8 @@ class CustomFieldCreatorTest extends UnitTestCase
     public function testCreateTextFieldSuccessfully(): void
     {
         // Arrange
-        $this->attributes['fieldType']    = 'text';
-        $this->attributes['isRequired']   = false;
+        $this->attributes['fieldType'] = 'text';
+        $this->attributes['isRequired'] = false;
         $this->attributes['targetEntity'] = 'STATEMENT';
         unset($this->attributes['options']); // Text fields have no predefined options
 
@@ -231,8 +231,8 @@ class CustomFieldCreatorTest extends UnitTestCase
     public function testCreateRequiredTextFieldSuccessfully(): void
     {
         // Arrange
-        $this->attributes['fieldType']    = 'text';
-        $this->attributes['isRequired']   = true;
+        $this->attributes['fieldType'] = 'text';
+        $this->attributes['isRequired'] = true;
         $this->attributes['targetEntity'] = 'STATEMENT';
         unset($this->attributes['options']);
 
