@@ -29,10 +29,10 @@ class TextField extends AbstractCustomField
 
     public function fromJson(array $json): void
     {
-        $this->fieldType   = $json['fieldType'];
-        $this->name        = $json['name'];
+        $this->fieldType = $json['fieldType'];
+        $this->name = $json['name'];
         $this->description = $json['description'];
-        $this->isRequired  = $json['isRequired'] ?? false;
+        $this->isRequired = $json['isRequired'] ?? false;
     }
 
     public function toJson(): array
