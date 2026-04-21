@@ -102,8 +102,8 @@ class CacheClearCommand extends CoreCommand
 
         // in case of our dev servers the file would be put into src folder,
         // but needs to be in the htdocs public/uploads folder
-        if (str_contains($file, 'src/projects')) {
-            $file = str_replace('src/projects', 'htdocs/projects', $file);
+        if (str_contains($file, 'src')) {
+            $file = str_replace('src', 'htdocs', $file);
             $output->writeln('Recognized dev server environment. Adjust path for scheduled file');
             $output->writeln('Filepath: '.$file);
         }
