@@ -17,7 +17,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     php8.3-sqlite3 php8.3-xml php8.3-zip unzip -y \
     && update-alternatives --set php /usr/bin/php8.3 \
     && mkdir -p /opt/uploads
-COPY zzz-dplan-cli.ini /etc/php/8.3/cli/conf.d/zzz-dplan-cli.ini
+COPY --link zzz-dplan-cli.ini /etc/php/8.3/cli/conf.d/zzz-dplan-cli.ini
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
@@ -32,9 +32,9 @@ ENV PROJECT_PREFIX=$PROJECT_NAME \
 
 # Setup timezone
 RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
-COPY zzz-dplan.ini /etc/php/8.3/fpm/conf.d/zzz-dplan.ini
-COPY zzz-dplan-cli.ini /etc/php/8.3/cli/conf.d/zzz-dplan-cli.ini
-COPY php-fpm_www.conf /etc/php/8.3/fpm/pool.d/zzz-www.conf
+COPY --link zzz-dplan.ini /etc/php/8.3/fpm/conf.d/zzz-dplan.ini
+COPY --link zzz-dplan-cli.ini /etc/php/8.3/cli/conf.d/zzz-dplan-cli.ini
+COPY --link php-fpm_www.conf /etc/php/8.3/fpm/pool.d/zzz-www.conf
 
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,sharing=locked \
@@ -62,7 +62,7 @@ RUN mkdir -p /opt/uploads && \
 USER www-data
 WORKDIR /srv/www
 # Install composer and yarn before copying the project files to make use of the docker cache
-COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
+COPY --link composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
 # do not use --no-scripts, as we do not need all the aws stuff
 RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
@@ -77,7 +77,7 @@ RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=loc
     rm -rf /srv/www/.cache/*
 
 USER root
-COPY . /srv/www
+COPY --link . /srv/www
 
 # Remove app_dev.php in production mode
 RUN if [ "$BUILD_MODE" = "prod" ]; then \
@@ -100,8 +100,8 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
     chown -R www-data /srv/www/client/css/generated && \
 # define doctrine in memory database for the asset build \
     mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
-COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
-COPY parameters_build.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
+COPY --link doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
+COPY --link parameters_build.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
 
 USER www-data
 # mount .env.local as a secret to ensure that addons can be installed while keeping the layer clean.
@@ -124,7 +124,7 @@ RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
 
 USER root
 RUN mv /tmp/doctrine.yaml /srv/www/config/packages/doctrine.yaml
-COPY projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/parameters.yml
+COPY --link projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/parameters.yml
 
 RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     ln -s /opt/config/parameters.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
@@ -161,7 +161,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && echo "deb https://packages.sury.org/php/ bookworm main" > /etc/apt/sources.list.d/deb.sury.org.list \
     && apt-get update -y \
     && apt-get --no-install-recommends install acl bind9-host ca-certificates curl \
-       default-mysql-client gettext-base lnav php8.3 php8.3-apcu php8.3-bcmath php8.3-bz2 php8.3-cli \
+       default-mysql-client gettext-base libfcgi-bin lnav php8.3 php8.3-apcu php8.3-bcmath php8.3-bz2 php8.3-cli \
        php8.3-common php8.3-curl php8.3-excimer php8.3-fpm php8.3-gd php8.3-intl php8.3-mbstring \
        php8.3-mysqli php8.3-soap php8.3-sqlite3 php8.3-xml php8.3-zip unzip vim-tiny -y \
     && apt-get clean \
@@ -170,17 +170,18 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && mkdir -p /opt/uploads \
     && ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
 
-# Copy PHP configuration
-COPY zzz-dplan.ini /etc/php/8.3/fpm/conf.d/zzz-dplan.ini
-COPY zzz-dplan-cli.ini /etc/php/8.3/cli/conf.d/zzz-dplan-cli.ini
-COPY php-fpm_www.conf /etc/php/8.3/fpm/pool.d/zzz-www.conf
-COPY php-fpm.conf /etc/php/8.3/fpm/php-fpm.conf
+# Copy PHP configuration. --link lets these layers stay independent from each other so
+# touching one ini file doesn't invalidate the rest.
+COPY --link zzz-dplan.ini /etc/php/8.3/fpm/conf.d/zzz-dplan.ini
+COPY --link zzz-dplan-cli.ini /etc/php/8.3/cli/conf.d/zzz-dplan-cli.ini
+COPY --link php-fpm_www.conf /etc/php/8.3/fpm/pool.d/zzz-www.conf
+COPY --link php-fpm.conf /etc/php/8.3/fpm/php-fpm.conf
 
 WORKDIR /srv/www
 
 # Copy only built artifacts from build stage (no build tools, no node_modules history)
-COPY --from=build /srv/www /srv/www
-COPY --from=build /opt/config/parameters.yml /opt/config/parameters.yml
+COPY --link --from=build /srv/www /srv/www
+COPY --link --from=build /opt/config/parameters.yml /opt/config/parameters.yml
 
 # Setup directories and permissions
 RUN rm -rf /srv/www/var/cache/* && \
@@ -200,6 +201,10 @@ RUN rm -rf /srv/www/var/cache/* && \
     rm -f /etc/php/8.3/fpm/pool.d/www.conf && \
     # create php-fpm log file \
     touch /var/log/php8.3-fpm.log && chown www-data:www-data /var/log/php8.3-fpm.log
+
+# Strip setuid/setgid bits — defense-in-depth against privilege escalation from a compromised
+# runtime (matches dunglas/symfony-docker + BSI SYS.1.6 hardening guidance).
+RUN find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true
 
 # Commit SHA labels at end to avoid busting layer cache for apt-get
 ARG COMMIT_SHA_CORE=""
@@ -222,8 +227,8 @@ ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung \
     BUILD_MODE=$BUILD_MODE
 
 # Copy nginx config templates to context
-COPY nginx.conf.template /tmp/nginx.conf.template
-COPY nginx.conf.template-dev /tmp/nginx.conf.template-dev
+COPY --link nginx.conf.template /tmp/nginx.conf.template
+COPY --link nginx.conf.template-dev /tmp/nginx.conf.template-dev
 
 # Use appropriate template based on build mode
 RUN mkdir -p /etc/nginx/templates && \
@@ -235,7 +240,7 @@ RUN mkdir -p /etc/nginx/templates && \
 
 WORKDIR /srv/www
 # only webfolder with frontcontroller and static files is needed for nginx
-COPY --from=build /srv/www/projects/$PROJECT_NAME/web /srv/www/projects/$PROJECT_NAME/web
+COPY --link --from=build /srv/www/projects/$PROJECT_NAME/web /srv/www/projects/$PROJECT_NAME/web
 
 # Ensure text/csv is defined in mime.types
 RUN sed -i '/^}/i\    text/csv csv;' /etc/nginx/mime.types
