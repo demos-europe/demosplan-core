@@ -263,7 +263,7 @@ class DocumentHandler extends CoreHandler
                 );
                 try {
                     $statusHash = md5($sessionId.$procedure);
-                    $fs->dumpFile('uploads/files/importStatus_'.$statusHash.'.json', $status);
+                    $fs->dumpFile(DemosPlanPath::getPublicPath('uploads/files/importStatus_'.$statusHash.'.json'), $status);
                 } catch (IOException $e) {
                     $this->logger->warning('could not update Statusfile: ', [$e]);
                 }
