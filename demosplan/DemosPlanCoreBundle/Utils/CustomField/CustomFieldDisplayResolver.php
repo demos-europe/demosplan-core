@@ -19,6 +19,9 @@ use Psr\Log\LoggerInterface;
 
 class CustomFieldDisplayResolver
 {
+    /** @var array<string, true> Keyed by field value ID to suppress duplicate warnings per request */
+    private array $loggedMissingDefinitions = [];
+
     public function __construct(
         private readonly CustomFieldProvider $customFieldProvider,
         private readonly LoggerInterface $logger,
@@ -53,15 +56,21 @@ class CustomFieldDisplayResolver
             )->first();
 
             if (!$customFieldDefinition instanceof CustomFieldInterface) {
-                $this->logger->warning(
-                    'CustomFieldDisplayResolver: no definition found for field value ID "{fieldValueId}". '
-                    .'The field configuration may have been deleted while values still reference it.',
-                    [
-                        'fieldValueId'   => $fieldValue->getId(),
-                        'sourceEntityId' => $sourceEntityId,
-                        'targetEntity'   => $targetEntity->value,
-                    ]
-                );
+                if (!isset($this->loggedMissingDefinitions[$fieldValue->getId()])) {
+                    $this->loggedMissingDefinitions[$fieldValue->getId()] = true;
+                    $this->logger->warning(
+                        sprintf(
+                            'CustomFieldDisplayResolver: no definition found for field value ID "%s". '
+                            .'The field configuration may have been deleted while values still reference it.',
+                            $fieldValue->getId()
+                        ),
+                        [
+                            'fieldValueId'   => $fieldValue->getId(),
+                            'sourceEntityId' => $sourceEntityId,
+                            'targetEntity'   => $targetEntity->value,
+                        ]
+                    );
+                }
                 continue;
             }
 
