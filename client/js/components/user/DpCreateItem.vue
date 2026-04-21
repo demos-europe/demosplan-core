@@ -20,13 +20,13 @@
 <template>
   <div>
     <div
-      class="flex justify-between py-4"
+      :class="`${showHeaderBottomBorder ? 'border-y' : 'border-t'} border-neutral flex justify-between items-baseline py-4 mt-4`"
     >
-      <h4
-        class="mb-0"
+      <h3
+        class="mb-0 font-semibold"
       >
         {{ Translator.trans(itemTitle) }}
-      </h4>
+      </h3>
       <dp-button
         variant="subtle"
         :icon-after="isFormOpen ? 'caret-up' : 'caret-down'"
@@ -39,33 +39,36 @@
         v-show="isFormOpen"
         :data-cy="customComponent[entity].formName"
         :data-dp-validate="customComponent[entity].formName"
+        @transitionend.self="onFormTransitionEnd"
       >
-        <!-- Form fields   -->
-        <component
-          v-bind="dynamicComponentProps"
-          :is="dynamicComponent"
-          ref="formFields"
-          class=""
-          @[dynamicEvent]="update"
-          @reset:complete="shouldResetForm = false"
-        />
+        <div class="border-b border-neutral pb-4">
+          <!-- Form fields   -->
+          <component
+            v-bind="dynamicComponentProps"
+            :is="dynamicComponent"
+            ref="formFields"
+            class=""
+            @[dynamicEvent]="update"
+            @reset:complete="shouldResetForm = false"
+          />
 
-        <!-- Save/Abort buttons   -->
-        <div
-          class="text-right space-x-2 mt-4"
-        >
-          <dp-button
-            color="secondary"
-            data-cy="createItem:abortButton"
-            variant="outline"
-            :text="Translator.trans('abort')"
-            @click="reset"
-          />
-          <dp-button
-            data-cy="createItem:saveButton"
-            :text="Translator.trans('save')"
-            @click="dpValidateAction(customComponent[entity].formName, save)"
-          />
+          <!-- Save/Abort buttons   -->
+          <div
+            class="text-right space-x-2 mt-4"
+          >
+            <dp-button
+              color="secondary"
+              data-cy="createItem:abortButton"
+              variant="outline"
+              :text="Translator.trans('abort')"
+              @click="reset"
+            />
+            <dp-button
+              data-cy="createItem:saveButton"
+              :text="Translator.trans('save')"
+              @click="dpValidateAction(customComponent[entity].formName, save)"
+            />
+          </div>
         </div>
       </div>
     </dp-transition-expand>
@@ -205,6 +208,7 @@ export default {
       isFormOpen: false,
       item: {},
       shouldResetForm: false,
+      showHeaderBottomBorder: true,
     }
   },
 
@@ -349,6 +353,15 @@ export default {
 
     toggleForm () {
       this.isFormOpen = !this.isFormOpen
+      if (this.isFormOpen) {
+        this.showHeaderBottomBorder = false
+      }
+    },
+
+    onFormTransitionEnd (e) {
+      if (e.propertyName === 'height' && this.isFormOpen === false) {
+        this.showHeaderBottomBorder = true
+      }
     },
 
     update (item) {

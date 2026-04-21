@@ -35,7 +35,7 @@
         v-if="isUserSelected"
         class="shadow-sm rounded-lg mt-2 py-4 px-6"
       >
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between border-b border-neutral py-2">
           <span>{{ Translator.trans('users.selected', { count: selectedItemsCount }) }}</span>
           <dp-button
             :disabled="trackDeselected && toggledItems.length === 0"
@@ -69,7 +69,6 @@
             </ul>
           </div>
         </dp-transition-expand>
-        <hr>
         <!--Button row -->
         <div class="text-right mt-4 space-x-2">
           <dp-button
