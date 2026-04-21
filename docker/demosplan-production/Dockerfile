@@ -203,7 +203,7 @@ RUN rm -rf /srv/www/var/cache/* && \
     touch /var/log/php8.3-fpm.log && chown www-data:www-data /var/log/php8.3-fpm.log
 
 # Strip setuid/setgid bits — defense-in-depth against privilege escalation from a compromised
-# runtime (matches dunglas/symfony-docker + BSI SYS.1.6 hardening guidance).
+# runtime.
 RUN find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true
 
 # Commit SHA labels at end to avoid busting layer cache for apt-get
