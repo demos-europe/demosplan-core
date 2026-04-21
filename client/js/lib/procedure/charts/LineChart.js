@@ -7,6 +7,7 @@
  * All rights reserved
  */
 
+import 'd3-transition'
 import { axisBottom, axisLeft } from 'd3-axis'
 import { scaleBand, scaleLinear } from 'd3-scale'
 import Legend from './Legend'
