@@ -30,12 +30,13 @@ class BaseLayerVisibilityValidator
 
     public function ensureOnlyOneBaseLayerIsVisible(?string $procedureId, array $gisLayer): void
     {
-        if (null === $procedureId || '' === $procedureId) {
+        if (!$this->shouldDisableOtherBaseLayers($gisLayer)) {
             return;
         }
 
-        if (!$this->shouldDisableOtherBaseLayers($gisLayer)) {
-            return;
+        // Global layers have no procedure; the DB stores them with procedureId='' (NOT NULL column default)
+        if (null === $procedureId) {
+            $procedureId = '';
         }
 
         $this->disableOtherBaseLayersDefaultVisibility($procedureId, $gisLayer['id']);
