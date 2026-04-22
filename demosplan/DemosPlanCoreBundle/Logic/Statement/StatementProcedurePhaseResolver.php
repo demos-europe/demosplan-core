@@ -19,6 +19,16 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedurePhaseVO;
 
 class StatementProcedurePhaseResolver
 {
+    /**
+     * @var array<int, list<ProcedurePhaseVO>>
+     */
+    private array $cachedPhases = [];
+
+    /**
+     * @var array<int, array<string, ProcedurePhaseVO>>
+     */
+    private array $cachedPhaseMap = [];
+
     public function __construct(private readonly GlobalConfigInterface $globalConfig)
     {
     }
@@ -40,33 +50,61 @@ class StatementProcedurePhaseResolver
      */
     public function getProcedurePhaseVO(string $phaseKey, bool $isSubmittedByCitizen): ProcedurePhaseVO
     {
-        $availablePhases = $this->getAvailableProcedurePhases($isSubmittedByCitizen);
-
-        foreach ($availablePhases as $phase) {
-            if ($phase->getKey() === $phaseKey) {
-                // Phase key matches the name of the phase
-                return $phase;
-            }
+        $phaseMap = $this->getPhaseMap($isSubmittedByCitizen);
+        if (isset($phaseMap[$phaseKey])) {
+            return $phaseMap[$phaseKey];
         }
+
         throw new UndefinedPhaseException($phaseKey);
     }
 
+    /**
+     * @return list<ProcedurePhaseVO>
+     */
     public function getAvailableProcedurePhases(bool $isSubmittedByCitizen): array
     {
-        $phases = [];
-
-        if ($isSubmittedByCitizen) {
-            foreach ($this->globalConfig->getExternalPhasesAssoc() as $internalPhase) {
-                $phases[] = $this->createProcedurePhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
-            }
-
-            return $phases;
+        $bucket = (int) $isSubmittedByCitizen;
+        if (!isset($this->cachedPhases[$bucket])) {
+            $this->cachedPhases[$bucket] = $this->buildAvailableProcedurePhases($isSubmittedByCitizen);
         }
 
-        foreach ($this->globalConfig->getInternalPhasesAssoc() as $internalPhase) {
-            $phases[] = $this->createProcedurePhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
+        return $this->cachedPhases[$bucket];
+    }
+
+    /**
+     * @return list<ProcedurePhaseVO>
+     */
+    private function buildAvailableProcedurePhases(bool $isSubmittedByCitizen): array
+    {
+        $source = $isSubmittedByCitizen
+            ? $this->globalConfig->getExternalPhasesAssoc()
+            : $this->globalConfig->getInternalPhasesAssoc();
+        $scope = $isSubmittedByCitizen
+            ? Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL
+            : Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL;
+
+        $phases = [];
+        foreach ($source as $phaseConfig) {
+            $phases[] = $this->createProcedurePhaseVO($phaseConfig, $scope);
         }
 
         return $phases;
+    }
+
+    /**
+     * @return array<string, ProcedurePhaseVO>
+     */
+    private function getPhaseMap(bool $isSubmittedByCitizen): array
+    {
+        $bucket = (int) $isSubmittedByCitizen;
+        if (!isset($this->cachedPhaseMap[$bucket])) {
+            $map = [];
+            foreach ($this->getAvailableProcedurePhases($isSubmittedByCitizen) as $phase) {
+                $map[$phase->getKey()] = $phase;
+            }
+            $this->cachedPhaseMap[$bucket] = $map;
+        }
+
+        return $this->cachedPhaseMap[$bucket];
     }
 }
