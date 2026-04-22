@@ -142,6 +142,7 @@
           }"
           :tus-endpoint="dplan.paths.tusEndpoint"
           :value="segment.attributes.recommendation"
+          :enable-spellcheck="hasPermission('feature_spellcheck')"
           @input="value => updateSegment('recommendation', value)"
         >
           <template v-slot:modal="modalProps">

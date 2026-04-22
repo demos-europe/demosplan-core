@@ -218,6 +218,10 @@
 
             font-size: .9em;
 
+            .lt-error {
+                border-bottom: 1px solid red;
+            }
+
             div[contenteditable='true'] {
                 height: 100%;
                 overflow-y: auto;
