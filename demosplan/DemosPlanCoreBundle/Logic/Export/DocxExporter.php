@@ -63,6 +63,7 @@ class DocxExporter
     final public const EXPORT_SORT_BY_PARAGRAPH_FRAGMENTS_ONLY = 'byParagraphFragmentsOnly';
     final public const EXPORT_SORT_BY_PARAGRAPH = 'byParagraph';
     final public const EXPORT_SORT_DEFAULT = 'default';
+    final public const TEMPLATE_PORTRAIT_WITH_PRIORITIZATION = 'portraitWithPrioritization';
     /**
      * @var array Style, wie Tabelle im gesamten aussehen soll
      */
@@ -1356,7 +1357,7 @@ class DocxExporter
                 }
 
                 // Address
-                if ($this->isAddressExportable($organisationData, $exportConfig, $statement, $anonym)) {
+                if (self::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION !== $templateName && $this->isAddressExportable($organisationData, $exportConfig, $statement, $anonym)) {
                     $cell2->addText(
                         htmlspecialchars($organisationData['postalAddressPartsOfAuthor']),
                         null,
@@ -1364,7 +1365,7 @@ class DocxExporter
                     );
                 }
 
-                if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_SUBMITTER_NAME,
+                if (self::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION !== $templateName && $this->exportFieldDecider->isExportable(FieldDecider::FIELD_SUBMITTER_NAME,
                     $exportConfig,
                     $statement,
                     $organisationData,
@@ -1415,7 +1416,7 @@ class DocxExporter
                     );
                 }
 
-                if ($this->exportFieldDecider->isExportable(
+                if (self::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION !== $templateName && $this->exportFieldDecider->isExportable(
                     FieldDecider::FIELD_SUBMITTER_NAME,
                     $exportConfig,
                     $statement,
@@ -1430,7 +1431,7 @@ class DocxExporter
                     );
                 }
 
-                if ($this->isAddressExportable($citizenDetails, $exportConfig, $statement, $anonym)) {
+                if (self::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION !== $templateName && $this->isAddressExportable($citizenDetails, $exportConfig, $statement, $anonym)) {
                     // Adresse
                     $cell2->addText(
                         htmlspecialchars((string) $citizenDetails['postalAddressPartsOfAuthor']),
@@ -1537,8 +1538,8 @@ class DocxExporter
                     });
             }
 
-            // Priorität
-            if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_PRIORITY, $exportConfig, $statement)) {
+            // Priorität (redundant in TEMPLATE_PORTRAIT_WITH_PRIORITIZATION as it is already shown in the group heading)
+            if (self::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION !== $templateName && $this->exportFieldDecider->isExportable(FieldDecider::FIELD_PRIORITY, $exportConfig, $statement)) {
                 $textRun2 = $cell2->addTextRun($cellHCentered);
                 $textRun2AddText = $this->containerAddTextFunctionConstructor($textRun2, null, null);
                 $textRun2AddText('priority', '');
