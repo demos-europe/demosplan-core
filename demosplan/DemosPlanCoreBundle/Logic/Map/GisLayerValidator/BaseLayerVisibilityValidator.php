@@ -57,22 +57,24 @@ class BaseLayerVisibilityValidator
     private function disableOtherBaseLayersDefaultVisibility(string $procedureId, string $exceptLayerId): void
     {
         try {
-            // Get all layers for this procedure
+            if ('' === $procedureId) {
+                $this->mapHandler->disableDefaultVisibilityForOtherGlobalBaseLayers($exceptLayerId);
+
+                return;
+            }
+
             $allLayers = $this->mapService->getGisAdminList($procedureId);
             $layerObjects = $this->mapService->getLayerObjects($allLayers);
 
             foreach ($layerObjects as $layer) {
-                // Skip if not a base layer, or if it's the layer we're currently saving
                 if (!$layer->isBaseLayer() || $layer->getId() === $exceptLayerId) {
                     continue;
                 }
 
-                // Skip if already disabled
                 if (!$layer->hasDefaultVisibility()) {
                     continue;
                 }
 
-                // Disable default visibility for this base layer
                 $this->mapHandler->updateGis([
                     'id'                => $layer->getId(),
                     'defaultVisibility' => false,
