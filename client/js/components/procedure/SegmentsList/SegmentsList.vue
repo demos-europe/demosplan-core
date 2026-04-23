@@ -152,7 +152,7 @@
         <div
           id="segmentsListScrollContainer"
           ref="scrollContainer"
-          class="overflow-x-auto scrollbar-none"
+          class="overflow-x-auto scrollbar-none isolate"
         >
           <dp-data-table
             ref="dataTable"
