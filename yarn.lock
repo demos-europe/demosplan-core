@@ -1997,9 +1997,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:0.4.19":
-  version: 0.4.19
-  resolution: "@demos-europe/demosplan-ui@npm:0.4.19"
+"@demos-europe/demosplan-ui@npm:0.4.19-hotfix.1":
+  version: 0.4.19-hotfix.1
+  resolution: "@demos-europe/demosplan-ui@npm:0.4.19-hotfix.1"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.6.0"
@@ -2053,7 +2053,7 @@ __metadata:
     vue-click-outside: "npm:^1.1.0"
     vue-multiselect: "npm:^3.1.0"
     vue-sliding-pagination: "npm:^v2.0.0-alpha-1"
-  checksum: 10c0/03295bf87e1f901ee1c730544ce876530ea5ea65fdba40b55305ef4c5b9eb2b574933ebf5afa26ad495ed43f29de60fbca0eae21ee0779436a3b043c1e8eb4cd
+  checksum: 10c0/008ff680c8925fa53edc5aebe229f45a0e6802c0c551a99b89d62b67b9b493ecc80b6d4e93fc4610345ed6133e1b7f5602fd24eac10894583b12e38d86532a42
   languageName: node
   linkType: hard
 
@@ -12721,7 +12721,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.26.0"
     "@babel/runtime": "npm:^7.26.0"
     "@cesium/engine": "npm:^15.0.0"
-    "@demos-europe/demosplan-ui": "npm:0.4.19"
+    "@demos-europe/demosplan-ui": "npm:0.4.19-hotfix.1"
     "@demos-europe/dp-consent": "npm:^1.3"
     "@efrane/vuex-json-api": "npm:^0.1.3"
     "@fullhuman/postcss-purgecss": "npm:^7.0.2"
