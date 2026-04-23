@@ -237,10 +237,6 @@ export default {
       statements: 'items',
     }),
 
-    isStatementManual () {
-      return this.localStatement.attributes.isManual
-    },
-
     hasUnsavedChanges () {
       if (!this.localStatement || !this.statement) {
         return false
@@ -250,6 +246,10 @@ export default {
       const currentAttributes = this.localStatement.attributes
 
       return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+    },
+
+    isStatementManual () {
+      return this.localStatement.attributes.isManual
     },
 
     similarStatementSubmitters () {

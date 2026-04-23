@@ -293,6 +293,18 @@ export default {
       return this.menuEntries.filter(entry => entry.condition ?? true)
     },
 
+    /**
+     * Check if any child component has unsaved changes
+     * Required by useUnsavedChangesGuard composable
+     */
+    hasUnsavedChanges () {
+      const entryHasChanges = this.$refs.statementEntry?.hasUnsavedChanges || false
+      const submitterHasChanges = this.$refs.statementSubmitter?.hasUnsavedChanges || false
+      const attachmentsHaveChanges = this.$refs.statementMetaAttachments?.hasUnsavedChanges || false
+
+      return attachmentsHaveChanges || entryHasChanges || submitterHasChanges
+    },
+
     isCurrentUserAssigned () {
       if (this.storageStatement[this.statement.id].relationships.assignee.data) {
         return this.currentUserId === this.storageStatement[this.statement.id].relationships.assignee.data.id
@@ -323,18 +335,6 @@ export default {
       }
       const option = this.submitTypeOptions.find(option => option.value === this.statement.attributes.submitType)
       return option ? Translator.trans(option.label) : ''
-    },
-
-    /**
-     * Check if any child component has unsaved changes
-     * Required by useUnsavedChangesGuard composable
-     */
-    hasUnsavedChanges () {
-      const entryHasChanges = this.$refs.statementEntry?.hasUnsavedChanges || false
-      const submitterHasChanges = this.$refs.statementSubmitter?.hasUnsavedChanges || false
-      const attachmentsHaveChanges = this.$refs.statementMetaAttachments?.hasUnsavedChanges || false
-
-      return attachmentsHaveChanges || entryHasChanges || submitterHasChanges
     },
   },
 

@@ -649,8 +649,8 @@ export default {
       return Translator.trans(hasPermission('field_segments_custom_fields') ? 'fields.more.edit' : 'workflow.change.assignee.place')
     },
 
-    isAssignedToMe () {
-      return this.assignee.id === this.currentUserId
+    hasRecommendationTabs () {
+      return this.recommendationModalAddons.length > 0
     },
 
     /**
@@ -660,8 +660,8 @@ export default {
       return this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation !== this.segment.attributes.recommendation
     },
 
-    hasRecommendationTabs () {
-      return this.recommendationModalAddons.length > 0
+    isAssignedToMe () {
+      return this.assignee.id === this.currentUserId
     },
 
     places () {
@@ -887,6 +887,13 @@ export default {
         .then(() => {
           this.setSelectedPlace()
         })
+    },
+
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    onDiscardChanges () {
+      this.abort()
     },
 
     openBoilerPlate () {
@@ -1136,13 +1143,6 @@ export default {
 
     toggleRecommendationModal () {
       this.$refs.recommendationModal.toggle()
-    },
-
-    /**
-     * Required by useUnsavedChangesGuard composable
-     */
-    onDiscardChanges () {
-      this.abort()
     },
 
     unclaimSegment () {
