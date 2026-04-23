@@ -109,7 +109,7 @@ export function useUnsavedChangesGuard () {
       onDiscardChanges = async () => {},
       onCancelNavigation = async () => {},
     } = options
-66
+    66
     if (!isUnsavedChangesDialogAvailable()) {
       return
     }
