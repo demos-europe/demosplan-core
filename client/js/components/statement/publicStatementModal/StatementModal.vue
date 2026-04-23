@@ -2141,9 +2141,11 @@ export default {
               this.counties.find(el => el.selected)?.value :
               '',
           }
+
           if (this.isNameUsageRequired) {
             initialStatementDefaults.r_useName = '1'
           }
+
           this.applyInitialDefaults(initialStatementDefaults)
         }
       } else {
