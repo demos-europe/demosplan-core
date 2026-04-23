@@ -336,55 +336,24 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     private function updateRelatedGis($item, $data): void
     {
         try {
-            // Keys that must not be propagated to procedure copies:
-            // - procedureId / globalGisId / ident: procedure-specific identifiers
-            // - categoryId: each copy belongs to its own procedure's root category
-            // - contextualHelpText: creates ContextualHelp entities keyed by layer ID,
-            //   which differs per copy and cannot be handled in a bulk statement
-            $skipKeys = ['procedureId', 'globalGisId', 'ident', 'categoryId', 'contextualHelpText'];
-            $dataForCopies = array_diff_key($data, array_flip($skipKeys));
-
-            // Mapping from incoming data keys to Doctrine entity property names.
-            // Legacy aliases are listed first so canonical keys below them take
-            // precedence when both appear in the same request.
-            $propertyMap = [
-                'default'              => 'defaultVisibility',
-                'territory'            => 'scope',
-                'mapOrder'             => 'order',
-                'visible'              => 'enabled',
-                'name'                 => 'name',
-                'type'                 => 'type',
-                'url'                  => 'url',
-                'isMinimap'            => 'isMiniMap',
-                'layers'               => 'layers',
-                'layerVersion'         => 'layerVersion',
-                'legend'               => 'legend',
-                'opacity'              => 'opacity',
-                'print'                => 'print',
-                'capabilities'         => 'capabilities',
-                'defaultVisibility'    => 'defaultVisibility',
-                'tileMatrixSet'        => 'tileMatrixSet',
-                'scope'                => 'scope',
-                'serviceType'          => 'serviceType',
-                'order'                => 'order',
-                'enabled'              => 'enabled',
-                'deleted'              => 'deleted',
-                'bplan'                => 'bplan',
-                'xplan'                => 'xplan',
-                'treeOrder'            => 'treeOrder',
-                'userToggleVisibility' => 'userToggleVisibility',
-                'projectionLabel'      => 'projectionLabel',
-                'projectionValue'      => 'projectionValue',
-            ];
-
-            // Resolve the final value per entity property. Iterating in order means
-            // canonical keys overwrite legacy aliases for the same property.
-            $updates = [];
-            foreach ($propertyMap as $dataKey => $entityProperty) {
-                if (array_key_exists($dataKey, $dataForCopies)) {
-                    $updates[$entityProperty] = ['param' => 'p_'.$dataKey, 'value' => $dataForCopies[$dataKey]];
+            // Normalize legacy aliases to canonical entity property names
+            foreach (['default' => 'defaultVisibility', 'territory' => 'scope',
+                      'mapOrder' => 'order', 'visible' => 'enabled', 'isMinimap' => 'isMiniMap']
+                     as $alias => $canonical) {
+                if (array_key_exists($alias, $data)) {
+                    $data[$canonical] ??= $data[$alias]; // canonical key wins if already present
                 }
             }
+
+            // Scalar properties safe to bulk-update on all procedure copies.
+            // Excluded: procedureId/globalGisId/ident (identifiers), categoryId (each copy
+            // belongs to its own procedure root category), contextualHelpText (side-effects).
+            $updates = array_intersect_key($data, array_flip([
+                'name', 'type', 'url', 'isMiniMap', 'layers', 'layerVersion', 'legend',
+                'opacity', 'print', 'capabilities', 'defaultVisibility', 'tileMatrixSet',
+                'scope', 'serviceType', 'order', 'enabled', 'deleted', 'bplan', 'xplan',
+                'treeOrder', 'userToggleVisibility', 'projectionLabel', 'projectionValue',
+            ]));
 
             if (empty($updates)) {
                 return;
@@ -395,9 +364,9 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 ->where('g.gId = :globalId')
                 ->setParameter('globalId', $item->getIdent());
 
-            foreach ($updates as $entityProperty => $paramData) {
-                $qb->set('g.'.$entityProperty, ':'.$paramData['param'])
-                    ->setParameter($paramData['param'], $paramData['value']);
+            foreach ($updates as $property => $value) {
+                $qb->set('g.'.$property, ':p_'.$property)
+                    ->setParameter('p_'.$property, $value);
             }
 
             $qb->getQuery()->execute();
