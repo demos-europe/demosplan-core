@@ -337,11 +337,21 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     {
         try {
             // Translate legacy aliases to canonical property names, canonical key wins if both present
-            if (array_key_exists('default',   $data)) { $data['defaultVisibility'] ??= $data['default']; }
-            if (array_key_exists('territory', $data)) { $data['scope']             ??= $data['territory']; }
-            if (array_key_exists('mapOrder',  $data)) { $data['order']             ??= $data['mapOrder']; }
-            if (array_key_exists('visible',   $data)) { $data['enabled']           ??= $data['visible']; }
-            if (array_key_exists('isMinimap', $data)) { $data['isMiniMap']         ??= $data['isMinimap']; }
+            if (array_key_exists('default', $data)) {
+                $data['defaultVisibility'] ??= $data['default'];
+            }
+            if (array_key_exists('territory', $data)) {
+                $data['scope'] ??= $data['territory'];
+            }
+            if (array_key_exists('mapOrder', $data)) {
+                $data['order'] ??= $data['mapOrder'];
+            }
+            if (array_key_exists('visible', $data)) {
+                $data['enabled'] ??= $data['visible'];
+            }
+            if (array_key_exists('isMinimap', $data)) {
+                $data['isMiniMap'] ??= $data['isMinimap'];
+            }
 
             // Scalar properties safe to bulk-update on all procedure copies.
             // Excluded: procedureId/globalGisId/ident (identifiers), categoryId (each copy
