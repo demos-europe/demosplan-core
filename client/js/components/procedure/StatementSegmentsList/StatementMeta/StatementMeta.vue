@@ -478,6 +478,7 @@ export default {
       hasUnsavedChanges: () => this.hasUnsavedChanges,
       saveUnsavedChanges: () => this.saveUnsavedChanges(),
       onDiscardChanges: () => this.onDiscardChanges(),
+      componentId: `statement-meta-${this.statement.id}`,
     })
   },
 

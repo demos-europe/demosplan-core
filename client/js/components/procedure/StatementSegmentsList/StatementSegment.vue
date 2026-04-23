@@ -1275,6 +1275,7 @@ export default {
       hasUnsavedChanges: () => this.hasUnsavedChanges,
       saveUnsavedChanges: () => this.saveUnsavedChanges(),
       onDiscardChanges: () => this.onDiscardChanges(),
+      componentId: `segment-${this.segment.id}`,
     })
   },
 

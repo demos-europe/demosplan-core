@@ -29,13 +29,149 @@ function showUnsavedChangesConfirmDialog () {
   })
 }
 
+let isGuardActive = false
+let isNavigationConfirmed = false
+const registeredComponents = new Map()
+
+/**
+ * Global beforeunload handler
+ */
+function handleBeforeUnload (event) {
+  const hasAnyUnsavedChanges = Array.from(registeredComponents.values()).some(
+    component => component.hasUnsavedChanges(),
+  )
+
+  if (hasAnyUnsavedChanges && !isNavigationConfirmed) {
+    event.preventDefault()
+    event.returnValue = ''
+  }
+}
+
+/**
+ * Handle save action for all components with unsaved changes
+ */
+function handleSaveAllAndNavigate (link) {
+  const componentsWithChanges = Array.from(registeredComponents.values()).filter(
+    component => component.hasUnsavedChanges(),
+  )
+
+  const savePromises = componentsWithChanges.map(component => component.saveUnsavedChanges())
+
+  return Promise.all(savePromises).then(() => {
+    isNavigationConfirmed = true
+    globalThis.location.href = link.href
+  })
+}
+
+/**
+ * Handle discard action for all components with unsaved changes
+ */
+function handleDiscardAll () {
+  const componentsWithChanges = Array.from(registeredComponents.values()).filter(
+    component => component.hasUnsavedChanges(),
+  )
+
+  const discardPromises = componentsWithChanges.map(component => component.onDiscardChanges())
+
+  return Promise.all(discardPromises).then(() => {})
+}
+
+/**
+ * Handle cancel action for all components with unsaved changes
+ */
+function handleCancelAll () {
+  const componentsWithChanges = Array.from(registeredComponents.values()).filter(
+    component => component.hasUnsavedChanges(),
+  )
+
+  const cancelPromises = componentsWithChanges.map(component => component.onCancelNavigation())
+
+  return Promise.all(cancelPromises).then(() => {})
+}
+
+/**
+ * Handle dialog action result
+ */
+function handleDialogResult (action, link) {
+  if (action === 'save') {
+    return handleSaveAllAndNavigate(link)
+  }
+
+  if (action === 'discard') {
+    return handleDiscardAll()
+  }
+
+  if (action === 'cancel') {
+    return handleCancelAll()
+  }
+
+  return Promise.resolve()
+}
+
+/**
+ * Global link click handler
+ */
+function handleLinkClick (event) {
+  const hasAnyUnsavedChanges = Array.from(registeredComponents.values()).some(
+    component => component.hasUnsavedChanges(),
+  )
+
+  if (!hasAnyUnsavedChanges) {
+    return
+  }
+
+  const link = event.target.closest('a')
+
+  if (!link?.href) {
+    return
+  }
+
+  event.preventDefault()
+  event.stopPropagation()
+
+  showUnsavedChangesConfirmDialog()
+    .then(action => handleDialogResult(action, link))
+    .catch(() => handleCancelAll())
+}
+
+/**
+ * Initialize global event listeners (only once)
+ */
+function initializeGlobalListeners () {
+  if (isGuardActive) {
+    return
+  }
+
+  if (!isUnsavedChangesDialogAvailable()) {
+    return
+  }
+
+  isGuardActive = true
+  window.addEventListener('beforeunload', handleBeforeUnload)
+  document.addEventListener('click', handleLinkClick, true)
+}
+
+/**
+ * Remove global event listeners
+ */
+function removeGlobalListeners () {
+  if (!isGuardActive) {
+    return
+  }
+
+  window.removeEventListener('beforeunload', handleBeforeUnload)
+  document.removeEventListener('click', handleLinkClick, true)
+  isGuardActive = false
+}
+
 /**
  * Composable that prevents navigation when there are unsaved changes.
  *
  * Returns an init function that should be called from mounted() with component methods.
  * Returns a cleanup function that should be called from beforeUnmount().
  *
- * The composable shows the native browser dialog on page unload and a custom unsaved changes dialog on link navigation.
+ * The composable uses a singleton pattern to ensure only ONE global event listener
+ * handles unsaved changes across ALL components on the page.
  *
  * IMPORTANT: Works only if `UnsavedChangesDialog` is rendered.
  * If it is not available, the composable stays inactive and navigation works normally.
@@ -72,6 +208,7 @@ function showUnsavedChangesConfirmDialog () {
  *       hasUnsavedChanges: () => this.hasUnsavedChanges,
  *       saveUnsavedChanges: () => this.saveUnsavedChanges(),
  *       onDiscardChanges: () => this.onDiscardChanges(),
+ *       componentId: this._uid, // Unique component identifier
  *     })
  *   },
  *   beforeUnmount() {
@@ -80,10 +217,7 @@ function showUnsavedChangesConfirmDialog () {
  * }
  */
 export function useUnsavedChangesGuard () {
-  let isUnsavedChangesGuardActive = false
-  let isNavigationConfirmed = false
-  let handleBeforeUnload = null
-  let handleLinkClick = null
+  let componentId = null
 
   /**
    * Initialize the unsaved changes guard with component-specific callbacks
@@ -93,6 +227,7 @@ export function useUnsavedChangesGuard () {
    * @param {Function} [options.saveUnsavedChanges] - Optional function to save changes
    * @param {Function} [options.onDiscardChanges] - Optional function called when discarding changes
    * @param {Function} [options.onCancelNavigation] - Optional function called when canceling navigation
+   * @param {string|number} [options.componentId] - Unique component identifier (e.g., component._uid)
    */
   const init = (options = {}) => {
     const {
@@ -100,99 +235,35 @@ export function useUnsavedChangesGuard () {
       saveUnsavedChanges = async () => {},
       onDiscardChanges = async () => {},
       onCancelNavigation = async () => {},
+      componentId: providedComponentId = Math.random().toString(36),
     } = options
 
-    if (!isUnsavedChangesDialogAvailable()) {
-      return
-    }
+    componentId = providedComponentId
 
-    isUnsavedChangesGuardActive = true
+    // Register this component
+    registeredComponents.set(componentId, {
+      hasUnsavedChanges,
+      saveUnsavedChanges,
+      onDiscardChanges,
+      onCancelNavigation,
+    })
 
-    /**
-     * Handle save action and navigate
-     */
-    const handleSaveAndNavigate = (link) => {
-      return saveUnsavedChanges().then(() => {
-        isNavigationConfirmed = true
-        globalThis.location.href = link.href
-      })
-    }
-
-    /**
-     * Handle user decision from dialog
-     */
-    const handleDialogAction = (action, link) => {
-      if (action === 'save') {
-        return handleSaveAndNavigate(link)
-      }
-
-      if (action === 'discard') {
-        return onDiscardChanges()
-      }
-
-      if (action === 'cancel') {
-        return onCancelNavigation()
-      }
-    }
-
-    /**
-     * Shows browser's native "leave page" dialog when user tries to:
-     * - Close the browser tab/window
-     * - Refresh the page
-     * - Use browser back/forward buttons
-     */
-    handleBeforeUnload = (event) => {
-      if (hasUnsavedChanges() && !isNavigationConfirmed) {
-        event.preventDefault()
-        event.returnValue = ''
-      }
-    }
-
-    /**
-     * Handles clicks on links within the page.
-     * Shows global custom confirm dialog before allowing navigation to proceed.
-     */
-    handleLinkClick = (event) => {
-      if (!hasUnsavedChanges()) {
-        return
-      }
-
-      const link = event.target.closest('a')
-
-      if (!link?.href) {
-        return
-      }
-
-      event.preventDefault()
-      event.stopPropagation()
-
-      showUnsavedChangesConfirmDialog()
-        .then(action => handleDialogAction(action, link))
-        .catch(() => onCancelNavigation())
-    }
-
-    window.addEventListener('beforeunload', handleBeforeUnload)
-    document.addEventListener('click', handleLinkClick, true)
+    // Initialize global listeners (only once for all components)
+    initializeGlobalListeners()
   }
 
   /**
-   * Cleanup function to remove event listeners
-   * Should be called from beforeUnmount()
+   * Cleanup function to unregister component and remove listeners if last one
    */
   const cleanup = () => {
-    if (!isUnsavedChangesGuardActive) {
-      return
+    if (componentId !== null) {
+      registeredComponents.delete(componentId)
     }
 
-    if (handleBeforeUnload) {
-      window.removeEventListener('beforeunload', handleBeforeUnload)
+    // If no more components are registered, remove global listeners
+    if (registeredComponents.size === 0) {
+      removeGlobalListeners()
     }
-
-    if (handleLinkClick) {
-      document.removeEventListener('click', handleLinkClick, true)
-    }
-
-    isUnsavedChangesGuardActive = false
   }
 
   return {
