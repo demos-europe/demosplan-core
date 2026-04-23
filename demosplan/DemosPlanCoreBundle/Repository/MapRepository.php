@@ -338,8 +338,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
         try {
             // Normalize legacy aliases to canonical entity property names
             foreach (['default' => 'defaultVisibility', 'territory' => 'scope',
-                      'mapOrder' => 'order', 'visible' => 'enabled', 'isMinimap' => 'isMiniMap']
-                     as $alias => $canonical) {
+                'mapOrder'      => 'order', 'visible' => 'enabled', 'isMinimap' => 'isMiniMap'] as $alias => $canonical) {
                 if (array_key_exists($alias, $data)) {
                     $data[$canonical] ??= $data[$alias]; // canonical key wins if already present
                 }
