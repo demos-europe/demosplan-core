@@ -154,7 +154,7 @@ import StatementMetaLocationAndDocumentReference from './StatementMetaLocationAn
 import StatementMetaMultiselect from './StatementMetaMultiselect'
 import StatementPublicationAndVoting from './StatementPublicationAndVoting'
 import StatementSubmitter from './StatementSubmitter'
-import unsavedChangesGuardMixin from '@DpJs/components/shared/mixins/unsavedChangesGuardMixin'
+import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
 
 export default {
   name: 'StatementMeta',
@@ -170,7 +170,16 @@ export default {
     StatementSubmitter,
   },
 
-  mixins: [dpValidateMixin, unsavedChangesGuardMixin],
+  mixins: [dpValidateMixin],
+
+  setup () {
+    const { init, cleanup } = useUnsavedChangesGuard()
+
+    return {
+      initUnsavedChangesGuard: init,
+      cleanupUnsavedChangesGuard: cleanup,
+    }
+  },
 
   props: {
     attachments: {
@@ -318,7 +327,7 @@ export default {
 
     /**
      * Check if any child component has unsaved changes
-     * Required by unsavedChangesGuardMixin
+     * Required by useUnsavedChangesGuard composable
      */
     hasUnsavedChanges () {
       const entryHasChanges = this.$refs.statementEntry?.hasUnsavedChanges || false
@@ -416,7 +425,7 @@ export default {
     },
 
     /**
-     * Required by unsavedChangesGuardMixin
+     * Required by useUnsavedChangesGuard composable
      */
     saveUnsavedChanges () {
       const promises = []
@@ -437,7 +446,7 @@ export default {
     },
 
     /**
-     * UnsavedChangesGuardMixin
+     * Required by useUnsavedChangesGuard composable
      */
     onDiscardChanges () {
       if (this.$refs.statementEntry?.hasUnsavedChanges) {
@@ -463,10 +472,19 @@ export default {
   mounted () {
     window.addEventListener('scroll', this.handleScroll)
     this.scrollToItemFromHash()
+
+    // Initialize unsaved changes guard
+    this.initUnsavedChangesGuard({
+      hasUnsavedChanges: () => this.hasUnsavedChanges,
+      saveUnsavedChanges: () => this.saveUnsavedChanges(),
+      onDiscardChanges: () => this.onDiscardChanges(),
+      componentName: 'StatementMeta',
+    })
   },
 
   beforeUnmount () {
     window.removeEventListener('scroll', this.handleScroll)
+    this.cleanupUnsavedChangesGuard()
   },
 }
 </script>

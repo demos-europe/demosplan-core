@@ -471,7 +471,7 @@ import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
-import unsavedChangesGuardMixin from '@DpJs/components/shared/mixins/unsavedChangesGuardMixin'
+import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
 
 export default {
   name: 'StatementSegment',
@@ -506,7 +506,16 @@ export default {
     tooltip: Tooltip,
   },
 
-  mixins: [prefixClassMixin, unsavedChangesGuardMixin],
+  mixins: [prefixClassMixin],
+
+  setup () {
+    const { init, cleanup } = useUnsavedChangesGuard()
+
+    return {
+      initUnsavedChangesGuard: init,
+      cleanupUnsavedChangesGuard: cleanup,
+    }
+  },
 
   props: {
     currentUserFirstName: {
@@ -645,7 +654,7 @@ export default {
     },
 
     /**
-     * Required by unsavedChangesGuardMixin
+     * Required by useUnsavedChangesGuard composable
      */
     hasUnsavedChanges () {
       return this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation !== this.segment.attributes.recommendation
@@ -1010,7 +1019,7 @@ export default {
     },
 
     /**
-     * Required by unsavedChangesGuardMixin
+     * Required by useUnsavedChangesGuard composable
      */
     saveUnsavedChanges () {
       return this.save()
@@ -1130,7 +1139,7 @@ export default {
     },
 
     /**
-     * UnsavedChangesGuardMixin
+     * Required by useUnsavedChangesGuard composable
      */
     onDiscardChanges () {
       this.abort()
@@ -1260,6 +1269,18 @@ export default {
           }
         })
       })
+
+    // Initialize unsaved changes guard
+    this.initUnsavedChangesGuard({
+      hasUnsavedChanges: () => this.hasUnsavedChanges,
+      saveUnsavedChanges: () => this.saveUnsavedChanges(),
+      onDiscardChanges: () => this.onDiscardChanges(),
+      componentName: 'StatementSegment',
+    })
+  },
+
+  beforeUnmount () {
+    this.cleanupUnsavedChangesGuard()
   },
 }
 </script>
