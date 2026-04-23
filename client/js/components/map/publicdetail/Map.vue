@@ -878,7 +878,7 @@ export default {
         overviewMapControlView = new View({
           center: [this.mapx, this.mapy],
           projection: this.mapprojection,
-          resolutions: this.resolutions,
+          resolution: this.resolutions[0],
         })
       }
 
