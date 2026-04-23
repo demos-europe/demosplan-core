@@ -35,6 +35,7 @@ class TusCors implements TusMiddleware
 
         $headers['Access-Control-Allow-Headers'] = $allowHeaders.', '.Header::FILE_HASH.', '.Header::FILE_ID;
         $headers['Access-Control-Expose-Headers'] = $exposeHeaders.', '.Header::FILE_HASH.', '.Header::FILE_ID;
+        $headers['Access-Control-Allow-Credentials'] = 'true';
 
         $response->replaceHeaders($headers);
     }
