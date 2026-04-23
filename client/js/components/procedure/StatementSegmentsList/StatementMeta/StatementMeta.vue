@@ -372,6 +372,25 @@ export default {
       }
     },
 
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    onDiscardChanges () {
+      if (this.$refs.statementEntry?.hasUnsavedChanges) {
+        this.$refs.statementEntry.reset()
+      }
+
+      if (this.$refs.statementSubmitter?.hasUnsavedChanges) {
+        this.$refs.statementSubmitter.reset()
+      }
+
+      if (this.$refs.statementMetaAttachments?.hasUnsavedChanges) {
+        this.$refs.statementMetaAttachments.handleResetGenericAttachments()
+      }
+
+      return Promise.resolve()
+    },
+
     reset () {
       this.setInitValues()
     },
@@ -443,25 +462,6 @@ export default {
       }
 
       return Promise.all(promises)
-    },
-
-    /**
-     * Required by useUnsavedChangesGuard composable
-     */
-    onDiscardChanges () {
-      if (this.$refs.statementEntry?.hasUnsavedChanges) {
-        this.$refs.statementEntry.reset()
-      }
-
-      if (this.$refs.statementSubmitter?.hasUnsavedChanges) {
-        this.$refs.statementSubmitter.reset()
-      }
-
-      if (this.$refs.statementMetaAttachments?.hasUnsavedChanges) {
-        this.$refs.statementMetaAttachments.handleResetGenericAttachments()
-      }
-
-      return Promise.resolve()
     },
   },
 
