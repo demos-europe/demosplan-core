@@ -65,6 +65,12 @@ class StatementArrayConverter
 
         $exportData['fileNames'] = $this->getFileNamesWithOriginal($segmentOrStatement);
 
+        // Add procedure information
+        $procedure = $segmentOrStatement instanceof Segment
+            ? $segmentOrStatement->getParentStatementOfSegment()->getProcedure()
+            : $segmentOrStatement->getProcedure();
+        $exportData['procedure'] = ['name' => $procedure->getName()];
+
         // Some data is stored on parentStatement instead on Segment and have to get from there
         if ($segmentOrStatement instanceof Segment) {
             $parentStatement = $segmentOrStatement->getParentStatementOfSegment();
