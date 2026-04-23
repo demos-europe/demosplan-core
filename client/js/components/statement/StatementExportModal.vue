@@ -27,10 +27,10 @@
       </h2>
 
       <fieldset v-if="!isSingleStatementExport">
-        <legend
-          class="o-form__label text-base"
-          v-text="Translator.trans('export.type')"
-        />
+        <legend class="o-form__label text-base">
+          {{ Translator.trans('export.type') }}
+          <span aria-hidden="true">*</span>
+        </legend>
         <div class="grid grid-cols-3 mt-2 mb-3 gap-x-2 gap-y-5">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
@@ -259,7 +259,7 @@ export default {
 
   data () {
     return {
-      active: 'docx_normal',
+      active: '',
       docxColumns: {
         col1: {
           dataCy: 'exportModal:input:col1',
@@ -498,6 +498,12 @@ export default {
     },
 
     handleExport () {
+      if (!this.active) {
+        dplan.notify.error(Translator.trans('error.generic'))
+
+        return
+      }
+
       const columnTitles = {}
       const shouldConfirm = /^(docx|zip)_/.test(this.active)
 
@@ -653,8 +659,6 @@ export default {
     },
 
     setInitialValues () {
-      this.active = 'docx_normal'
-
       Object.keys(this.docxColumns).forEach(key => {
         const storageKey = `exportModal:docxCol:${key}`
         const storedColumnTitle = this.getItemFromSessionStorage(storageKey)
