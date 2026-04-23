@@ -1651,7 +1651,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     public function getCustomers(): array
     {
         return $this->roleInCustomers
-            ->map(static fn (UserRoleInCustomerInterface $roleInCustomer) => $roleInCustomer->getCustomer())->toArray();
+            ->map(static fn (UserRoleInCustomerInterface $roleInCustomer) => $roleInCustomer->getCustomer())->getValues();
     }
 
     public function isConnectedToCustomerId(string $customerId): bool
