@@ -72,7 +72,6 @@ function showUnsavedChangesConfirmDialog () {
  *       hasUnsavedChanges: () => this.hasUnsavedChanges,
  *       saveUnsavedChanges: () => this.saveUnsavedChanges(),
  *       onDiscardChanges: () => this.onDiscardChanges(),
- *       componentName: 'MyComponent'
  *     })
  *   },
  *   beforeUnmount() {
@@ -94,27 +93,47 @@ export function useUnsavedChangesGuard () {
    * @param {Function} [options.saveUnsavedChanges] - Optional function to save changes
    * @param {Function} [options.onDiscardChanges] - Optional function called when discarding changes
    * @param {Function} [options.onCancelNavigation] - Optional function called when canceling navigation
-   * @param {string} [options.componentName] - Component name for debugging
    */
   const init = (options = {}) => {
     const {
       hasUnsavedChanges = () => false,
-      saveUnsavedChanges = async () => {
-        if (process.env.NODE_ENV === 'development') {
-          console.warn(
-            `Component "${options.componentName || 'Unknown'}" is using useUnsavedChangesGuard but hasn't implemented "saveUnsavedChanges" method.`,
-          )
-        }
-      },
+      saveUnsavedChanges = async () => {},
       onDiscardChanges = async () => {},
       onCancelNavigation = async () => {},
     } = options
-    66
+
     if (!isUnsavedChangesDialogAvailable()) {
       return
     }
 
     isUnsavedChangesGuardActive = true
+
+    /**
+     * Handle save action and navigate
+     */
+    const handleSaveAndNavigate = (link) => {
+      return saveUnsavedChanges().then(() => {
+        isNavigationConfirmed = true
+        globalThis.location.href = link.href
+      })
+    }
+
+    /**
+     * Handle user decision from dialog
+     */
+    const handleDialogAction = (action, link) => {
+      if (action === 'save') {
+        return handleSaveAndNavigate(link)
+      }
+
+      if (action === 'discard') {
+        return onDiscardChanges()
+      }
+
+      if (action === 'cancel') {
+        return onCancelNavigation()
+      }
+    }
 
     /**
      * Shows browser's native "leave page" dialog when user tries to:
@@ -148,24 +167,7 @@ export function useUnsavedChangesGuard () {
       event.stopPropagation()
 
       showUnsavedChangesConfirmDialog()
-        .then(action => {
-          if (action === 'save') {
-            const savePromise = saveUnsavedChanges()
-
-            return savePromise.then(() => {
-              isNavigationConfirmed = true
-              globalThis.location.href = link.href
-            })
-          }
-
-          if (action === 'discard') {
-            return onDiscardChanges()
-          }
-
-          if (action === 'cancel') {
-            return onCancelNavigation()
-          }
-        })
+        .then(action => handleDialogAction(action, link))
         .catch(() => onCancelNavigation())
     }
 
