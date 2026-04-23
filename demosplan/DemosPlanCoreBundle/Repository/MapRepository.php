@@ -333,7 +333,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
      *
      * @throws Exception
      */
-    private function updateRelatedGis($item, $data): void
+    private function updateRelatedGis($item, $data): GisLayer
     {
         try {
             // Translate legacy aliases to canonical property names, canonical key wins if both present
@@ -363,21 +363,25 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 'treeOrder', 'userToggleVisibility', 'projectionLabel', 'projectionValue',
             ]));
 
-            if (empty($updates)) {
-                return;
+            if (!empty($updates)) {
+                $qb = $this->getEntityManager()->createQueryBuilder()
+                    ->update(GisLayer::class, 'g')
+                    ->where('g.gId = :globalId')
+                    ->setParameter('globalId', $item->getIdent());
+
+                foreach ($updates as $property => $value) {
+                    $qb->set('g.'.$property, ':p_'.$property)
+                        ->setParameter('p_'.$property, $value);
+                }
+
+                $qb->getQuery()->execute();
             }
 
-            $qb = $this->getEntityManager()->createQueryBuilder()
-                ->update(GisLayer::class, 'g')
-                ->where('g.gId = :globalId')
-                ->setParameter('globalId', $item->getIdent());
+            // DQL bulk UPDATE bypasses Doctrine's identity map. Clear it so the caller
+            // and any subsequent loads return the updated state from the database.
+            $this->getEntityManager()->clear();
 
-            foreach ($updates as $property => $value) {
-                $qb->set('g.'.$property, ':p_'.$property)
-                    ->setParameter('p_'.$property, $value);
-            }
-
-            $qb->getQuery()->execute();
+            return $this->get($item->getIdent());
         } catch (Exception $e) {
             $this->logger->warning('Related gisLayer of global gisLayer could not be updated. ', [$e]);
             throw $e;
@@ -399,7 +403,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
             } else {
                 $toUpdate = $this->get($data['id']);
                 if ($this->isGlobal($toUpdate)) {
-                    $this->updateRelatedGis($toUpdate, $data);
+                    $toUpdate = $this->updateRelatedGis($toUpdate, $data);
                 }
             }
 
