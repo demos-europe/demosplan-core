@@ -333,27 +333,74 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
      *
      * @throws Exception
      */
-    private function updateRelatedGis($item, $data)
+    private function updateRelatedGis($item, $data): void
     {
         try {
-            $dataWithoutPId = $data;
-            if (array_key_exists('procedureId', $data)) {
-                unset($dataWithoutPId['procedureId']);
+            // Keys that must not be propagated to procedure copies:
+            // - procedureId / globalGisId / ident: procedure-specific identifiers
+            // - categoryId: each copy belongs to its own procedure's root category
+            // - contextualHelpText: creates ContextualHelp entities keyed by layer ID,
+            //   which differs per copy and cannot be handled in a bulk statement
+            $skipKeys = ['procedureId', 'globalGisId', 'ident', 'categoryId', 'contextualHelpText'];
+            $dataForCopies = array_diff_key($data, array_flip($skipKeys));
+
+            // Mapping from incoming data keys to Doctrine entity property names.
+            // Legacy aliases are listed first so canonical keys below them take
+            // precedence when both appear in the same request.
+            $propertyMap = [
+                'default'              => 'defaultVisibility',
+                'territory'            => 'scope',
+                'mapOrder'             => 'order',
+                'visible'              => 'enabled',
+                'name'                 => 'name',
+                'type'                 => 'type',
+                'url'                  => 'url',
+                'isMinimap'            => 'isMiniMap',
+                'layers'               => 'layers',
+                'layerVersion'         => 'layerVersion',
+                'legend'               => 'legend',
+                'opacity'              => 'opacity',
+                'print'                => 'print',
+                'capabilities'         => 'capabilities',
+                'defaultVisibility'    => 'defaultVisibility',
+                'tileMatrixSet'        => 'tileMatrixSet',
+                'scope'                => 'scope',
+                'serviceType'          => 'serviceType',
+                'order'                => 'order',
+                'enabled'              => 'enabled',
+                'deleted'              => 'deleted',
+                'bplan'                => 'bplan',
+                'xplan'                => 'xplan',
+                'treeOrder'            => 'treeOrder',
+                'userToggleVisibility' => 'userToggleVisibility',
+                'projectionLabel'      => 'projectionLabel',
+                'projectionValue'      => 'projectionValue',
+            ];
+
+            // Resolve the final value per entity property. Iterating in order means
+            // canonical keys overwrite legacy aliases for the same property.
+            $updates = [];
+            foreach ($propertyMap as $dataKey => $entityProperty) {
+                if (array_key_exists($dataKey, $dataForCopies)) {
+                    $updates[$entityProperty] = ['param' => 'p_'.$dataKey, 'value' => $dataForCopies[$dataKey]];
+                }
             }
 
-            if (array_key_exists('globalGisId', $data)) {
-                unset($dataWithoutPId['globalGisId']);
+            if (empty($updates)) {
+                return;
             }
 
-            if (array_key_exists('ident', $data)) {
-                unset($dataWithoutPId['ident']);
+            $qb = $this->getEntityManager()->createQueryBuilder()
+                ->update(GisLayer::class, 'g')
+                ->where('g.gId = :globalId')
+                ->setParameter('globalId', $item->getIdent());
+
+            foreach ($updates as $entityProperty => $paramData) {
+                $qb->set('g.'.$entityProperty, ':'.$paramData['param'])
+                    ->setParameter($paramData['param'], $paramData['value']);
             }
 
-            $listToUpdate = $this->findBy(['gId' => $item->getIdent()]);
-
-            foreach ($listToUpdate as $layer) {
-                $this->updateGisFromHash($layer, $dataWithoutPId);
-            }
+            $qb->getQuery()->execute();
         } catch (Exception $e) {
             $this->logger->warning('Related gisLayer of global gisLayer could not be updated. ', [$e]);
             throw $e;
