@@ -252,8 +252,8 @@ export default {
         return false
       }
 
-      const initialAttributes = this.localAttachments
-      const currentAttributes = this.initialAttachments
+      const initialAttributes = this.initialAttachments
+      const currentAttributes = this.localAttachments
 
       return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
     },
