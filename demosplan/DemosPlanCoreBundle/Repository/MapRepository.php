@@ -336,13 +336,12 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     private function updateRelatedGis($item, $data): void
     {
         try {
-            // Normalize legacy aliases to canonical entity property names
-            foreach (['default' => 'defaultVisibility', 'territory' => 'scope',
-                'mapOrder'      => 'order', 'visible' => 'enabled', 'isMinimap' => 'isMiniMap'] as $alias => $canonical) {
-                if (array_key_exists($alias, $data)) {
-                    $data[$canonical] ??= $data[$alias]; // canonical key wins if already present
-                }
-            }
+            // Translate legacy aliases to canonical property names, canonical key wins if both present
+            if (array_key_exists('default',   $data)) { $data['defaultVisibility'] ??= $data['default']; }
+            if (array_key_exists('territory', $data)) { $data['scope']             ??= $data['territory']; }
+            if (array_key_exists('mapOrder',  $data)) { $data['order']             ??= $data['mapOrder']; }
+            if (array_key_exists('visible',   $data)) { $data['enabled']           ??= $data['visible']; }
+            if (array_key_exists('isMinimap', $data)) { $data['isMiniMap']         ??= $data['isMinimap']; }
 
             // Scalar properties safe to bulk-update on all procedure copies.
             // Excluded: procedureId/globalGisId/ident (identifiers), categoryId (each copy
