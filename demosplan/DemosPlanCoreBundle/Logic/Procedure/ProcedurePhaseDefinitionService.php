@@ -12,13 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Services\ProcedurePhaseDefinitionServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 
-readonly class ProcedurePhaseDefinitionService
+readonly class ProcedurePhaseDefinitionService implements ProcedurePhaseDefinitionServiceInterface
 {
     public function __construct(
         private readonly CustomerService $customerService,
