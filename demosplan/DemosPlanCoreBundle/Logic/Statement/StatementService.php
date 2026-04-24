@@ -2698,7 +2698,24 @@ class StatementService implements StatementServiceInterface
      */
     public function getProcedurePhaseNameFromArray(array $statement): string
     {
-        $statementObject = $this->getStatement($statement['id']);
+        // Fast path: large exports feed thousands of statement arrays through here,
+        // so avoid the per-statement getStatement() round-trip when publicStatement
+        // is already present on the array (ES- and JSON-sourced statements have it).
+        if (isset($statement['publicStatement'])) {
+            return $this->getProcedurePhaseName(
+                $statement['phase'] ?? '',
+                StatementInterface::EXTERNAL === $statement['publicStatement']
+            );
+        }
+
+        $statementId = $statement['id'] ?? null;
+        $statementObject = null !== $statementId ? $this->getStatement($statementId) : null;
+
+        if (!$statementObject instanceof Statement) {
+            $this->logger->warning('Statement with id '.($statementId ?? '').' not found.');
+
+            return '';
+        }
 
         if (!$statementObject instanceof Statement) {
             $this->logger->error('Statement with id '.$statement['id'].' not found.');
@@ -2707,7 +2724,7 @@ class StatementService implements StatementServiceInterface
         }
 
         return $this->getProcedurePhaseName(
-            $statement['phase'],
+            $statement['phase'] ?? '',
             $statementObject->isSubmittedByCitizen()
         );
     }
@@ -2723,7 +2740,10 @@ class StatementService implements StatementServiceInterface
                 throw new UndefinedPhaseException($phaseKey);
             }
         } catch (UndefinedPhaseException $e) {
-            $this->logger->error($e->getMessage());
+            // warning, not error: legacy statements can carry phase keys no longer
+            // defined in the phase config, which floods the error channel on large
+            // exports/listings without representing an actionable runtime fault.
+            $this->logger->warning($e->getMessage());
         }
 
         return $phaseName;
