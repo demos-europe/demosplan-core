@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTokenRequestAuthenticator;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Authenticator\JWTAuthenticator;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\TokenExtractorInterface;
@@ -51,6 +52,7 @@ class ApiAuthenticator extends JWTAuthenticator
         UserProviderInterface $userProvider,
         private readonly UserRepository $userRepository,
         private readonly LoggerInterface $logger,
+        private readonly PersonalAccessTokenRequestAuthenticator $personalAccessTokenAuthenticator,
         ?TranslatorInterface $translator = null,
     ) {
         parent::__construct($jwtManager, $eventDispatcher, $tokenExtractor, $userProvider, $translator);
@@ -58,13 +60,37 @@ class ApiAuthenticator extends JWTAuthenticator
 
     public function supports(Request $request): bool
     {
-        // Support requests with an authenticated session, a real JWT token, or a plain session (anonymous fallback)
-        return $this->hasValidSession($request) || $this->hasRealJwtToken($request) || $request->hasSession();
+        // Support PAT-bearing requests, authenticated sessions, real JWT tokens, or anonymous fallback with a session
+        return $this->personalAccessTokenAuthenticator->supports($request)
+            || $this->hasValidSession($request)
+            || $this->hasRealJwtToken($request)
+            || $request->hasSession();
     }
 
     public function doAuthenticate(Request $request): Passport
     {
-        // First, try session-based authentication for browser clients with an active session
+        // Personal access tokens take precedence over both session and JWT so that clients can override an
+        // incidental browser session by sending Authorization: Bearer dplan_pat_...
+        if ($this->personalAccessTokenAuthenticator->supports($request)) {
+            $user = $this->personalAccessTokenAuthenticator->authenticate($request);
+            if (null !== $user) {
+                $this->authenticatedViaSession = false;
+
+                return new SelfValidatingPassport(
+                    new UserBadge($user->getLogin(), fn () => $user)
+                );
+            }
+            // A PAT-looking header that failed to verify should not silently fall through to JWT/session.
+            // Returning an anonymous passport here preserves the firewall's existing failure semantics.
+            $this->authenticatedViaSession = false;
+            $anonymous = new AnonymousUser();
+
+            return new SelfValidatingPassport(
+                new UserBadge($anonymous->getLogin(), fn () => $anonymous)
+            );
+        }
+
+        // Session-based authentication for browser clients with an active session
         if ($this->hasValidSession($request)) {
             $user = $this->getUserFromSession($request);
             if (null !== $user) {
@@ -80,7 +106,7 @@ class ApiAuthenticator extends JWTAuthenticator
             }
         }
 
-        // Try JWT authentication for external API clients
+        // JWT authentication for external API clients
         // Guard against frontend sending a literal "Bearer null" placeholder
         if ($this->hasRealJwtToken($request)) {
             $this->logger->debug('API request falling back to JWT authentication');

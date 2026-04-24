@@ -33,6 +33,8 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTokenContext;
+use demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTokenScope;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
 use InvalidArgumentException;
@@ -115,6 +117,23 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      * @var array<non-empty-string, ResolvablePermissionCollection> mapping from addon name to permissions
      */
     private array $addonPermissionCollections = [];
+
+    /**
+     * Active personal access token context for the current request, if any. When non-null,
+     * permission evaluation additionally intersects with the PAT's scope-derived permission set
+     * and enforces the token's optional procedure allowlist. Set per-request by
+     * {@see \demosplan\DemosPlanCoreBundle\EventListener\ConfigurePersonalAccessTokenContextListener}.
+     */
+    private ?PersonalAccessTokenContext $personalAccessTokenContext = null;
+
+    /**
+     * Memoised flip of the permissions that appear in any PAT scope. Permissions outside this
+     * set are not gated by the PAT (they pertain to non-API code paths that a PAT-authenticated
+     * API request never reaches anyway).
+     *
+     * @var array<string, int>|null
+     */
+    private static ?array $scopeGatedPermissionsIndex = null;
 
     public function __construct(
         AddonRegistry $addonRegistry,
@@ -1134,6 +1153,29 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
 
         if ($this->permissions[$permission]->isEnabled()) {
+            // When the request is authenticated via a personal access token, enforce the token's scope
+            // restrictions in addition to the user's own permissions. A PAT can only narrow the user's
+            // rights, never widen them: the isEnabled() check above already covers the user-grant half
+            // of the intersection.
+            if (null !== $this->personalAccessTokenContext) {
+                // Procedure allowlist: if the PAT pins to specific procedures, deny any permission check
+                // that happens while a procedure outside the allowlist is the active context.
+                if (null !== $this->procedure
+                    && $this->personalAccessTokenContext->hasProcedureRestriction()
+                    && !$this->personalAccessTokenContext->allowsProcedure($this->procedure->getId())
+                ) {
+                    throw AccessDeniedException::missingPermission($permission, $this->user);
+                }
+                // Scope gate: permissions that fall under any scope's implied set must be granted by at
+                // least one of this PAT's scopes. Permissions outside the scope-gated set are not
+                // affected — they govern non-API code paths that a PAT request would not reach anyway.
+                if (isset(self::getScopeGatedPermissionsIndex()[$permission])
+                    && !$this->personalAccessTokenContext->allowsPermission($permission)
+                ) {
+                    throw AccessDeniedException::missingPermission($permission, $this->user);
+                }
+            }
+
             if ($this->permissions[$permission]->isLoginRequired() && (null === $this->user || !$this->user->isLoggedIn())) {
                 throw new SessionUnavailableException('Für diese Aktion müssen Sie angemeldet sein.', 1001);
             }
@@ -1146,6 +1188,30 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
             throw AccessDeniedException::missingPermission($permission, $this->user);
         }
+    }
+
+    public function setPersonalAccessTokenContext(?PersonalAccessTokenContext $context): void
+    {
+        $this->personalAccessTokenContext = $context;
+    }
+
+    public function getPersonalAccessTokenContext(): ?PersonalAccessTokenContext
+    {
+        return $this->personalAccessTokenContext;
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private static function getScopeGatedPermissionsIndex(): array
+    {
+        if (null === self::$scopeGatedPermissionsIndex) {
+            self::$scopeGatedPermissionsIndex = array_flip(
+                PersonalAccessTokenScope::unionPermissions(PersonalAccessTokenScope::all())
+            );
+        }
+
+        return self::$scopeGatedPermissionsIndex;
     }
 
     public function setProcedure(?ProcedureInterface $procedure): void

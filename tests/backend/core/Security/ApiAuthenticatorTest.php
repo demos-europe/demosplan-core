@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator;
+use demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTokenRequestAuthenticator;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\TokenExtractorInterface;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -32,6 +33,7 @@ class ApiAuthenticatorTest extends UnitTestCase
     private ?ApiAuthenticator $sut = null;
     private ?MockObject $userRepository = null;
     private ?MockObject $tokenExtractor = null;
+    private ?MockObject $patAuthenticator = null;
 
     protected function setUp(): void
     {
@@ -43,6 +45,9 @@ class ApiAuthenticatorTest extends UnitTestCase
         $userProvider = $this->createMock(UserProviderInterface::class);
         $this->userRepository = $this->createMock(UserRepository::class);
         $logger = $this->createMock(LoggerInterface::class);
+        $this->patAuthenticator = $this->createMock(PersonalAccessTokenRequestAuthenticator::class);
+        // Default: no PAT in the request; each test that needs PAT support overrides this.
+        $this->patAuthenticator->method('supports')->willReturn(false);
 
         $this->sut = new ApiAuthenticator(
             $jwtManager,
@@ -50,7 +55,8 @@ class ApiAuthenticatorTest extends UnitTestCase
             $this->tokenExtractor,
             $userProvider,
             $this->userRepository,
-            $logger
+            $logger,
+            $this->patAuthenticator,
         );
     }
 

@@ -339,6 +339,10 @@ services:
         tags:
             - { name: doctrine.event_listener, event: postUpdate, method: postUpdate }
 
+    demosplan\DemosPlanCoreBundle\EventListener\RevokeTokensOnUserDeactivationListener:
+        tags:
+            - { name: doctrine.event_listener, event: postUpdate, method: postUpdate }
+
     demosplan\DemosPlanCoreBundle\EventListener\EncryptedStringTypeInitializer:
         tags:
             - { name: doctrine.event_listener, event: postConnect, method: postConnect }

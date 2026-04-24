@@ -333,6 +333,15 @@ area_manage_orgas_all:
     label: 'Administer all orgas, irrespective of the customer'
     loginRequired: true
     parent: area_manage_orgas
+area_manage_user_tokens:
+    description: |-
+        Enables an admin (typically customer master user or platform support) to list and revoke
+        personal access tokens owned by other users in their customer. Secrets are never exposed
+        through this area; only token metadata (name, prefix, scopes, expiry, last used).
+    expose: true
+    label: 'Manage personal access tokens of other users'
+    loginRequired: true
+    parent: area_manage
 area_manage_users:
     description: 'Displays a page to manage user'
     expose: true
@@ -1457,6 +1466,17 @@ feature_password_recovery:
     description: 'Enables passwort reset.'
     label: 'Users can reset their passwords'
     loginRequired: false
+feature_personal_access_tokens:
+    description: |-
+        Allows a user to create and manage their own personal access tokens (PATs) for long-lived,
+        scoped, revocable API authentication. Each token is bound to one customer, carries a
+        curated set of scopes (resource:action presets), and expires within at most 365 days.
+        PATs can never grant permissions the owning user does not already possess (scope
+        intersection is enforced at request time).
+    expose: true
+    label: 'Personal access tokens (self-service)'
+    loginRequired: true
+    parent: area_mydata
 feature_plain_language:
     description: 'Enable to switch the language of the app (so all translation keys) between ''regular'' and plain, simplified language.'
     expose: true
