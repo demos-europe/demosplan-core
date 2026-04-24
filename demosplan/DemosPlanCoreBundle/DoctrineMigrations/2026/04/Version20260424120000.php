@@ -36,33 +36,13 @@ class Version20260424120000 extends AbstractMigration
             return;
         }
 
-        $this->addSql('CREATE TABLE personal_access_token (
-            id VARCHAR(36) NOT NULL,
-            user CHAR(36) NOT NULL,
-            customer CHAR(36) NOT NULL,
-            name VARCHAR(120) NOT NULL,
-            token_prefix VARCHAR(12) NOT NULL,
-            token_hash VARCHAR(255) NOT NULL,
-            scopes JSON NOT NULL,
-            procedure_ids JSON DEFAULT NULL,
-            expires_at DATETIME NOT NULL,
-            last_used_at DATETIME DEFAULT NULL,
-            revoked_at DATETIME DEFAULT NULL,
-            revoked_by CHAR(36) DEFAULT NULL,
-            created_at DATETIME NOT NULL,
-            UNIQUE INDEX pat_token_prefix_unique (token_prefix),
-            INDEX IDX_pat_user (user),
-            INDEX IDX_pat_customer (customer),
-            INDEX IDX_pat_revoked_by (revoked_by),
-            PRIMARY KEY(id)
-        ) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
-
-        $this->addSql('ALTER TABLE personal_access_token
-            ADD CONSTRAINT FK_pat_user FOREIGN KEY (user) REFERENCES _user (_u_id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE personal_access_token
-            ADD CONSTRAINT FK_pat_customer FOREIGN KEY (customer) REFERENCES customer (_c_id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE personal_access_token
-            ADD CONSTRAINT FK_pat_revoked_by FOREIGN KEY (revoked_by) REFERENCES _user (_u_id) ON DELETE SET NULL');
+        // SQL matches the output of `bin/console doctrine:migrations:diff` for the entity
+        // demosplan\DemosPlanCoreBundle\Entity\User\PersonalAccessToken. Keeping it verbatim
+        // (including index-name hashes and DC2Type comments) so future diffs stay quiet.
+        $this->addSql("CREATE TABLE personal_access_token (id CHAR(36) NOT NULL, user CHAR(36) NOT NULL, customer CHAR(36) NOT NULL, revoked_by CHAR(36) DEFAULT NULL, name VARCHAR(120) NOT NULL, token_prefix VARCHAR(12) NOT NULL, token_hash VARCHAR(255) NOT NULL, scopes JSON NOT NULL COMMENT '(DC2Type:json)', procedure_ids JSON DEFAULT NULL COMMENT '(DC2Type:json)', expires_at DATETIME NOT NULL, last_used_at DATETIME DEFAULT NULL, revoked_at DATETIME DEFAULT NULL, created_at DATETIME NOT NULL, INDEX IDX_5017171A8D93D649 (user), INDEX IDX_5017171A81398E09 (customer), INDEX IDX_5017171A8E5493E3 (revoked_by), UNIQUE INDEX pat_token_prefix_unique (token_prefix), PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB");
+        $this->addSql('ALTER TABLE personal_access_token ADD CONSTRAINT FK_5017171A8D93D649 FOREIGN KEY (user) REFERENCES _user (_u_id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE personal_access_token ADD CONSTRAINT FK_5017171A81398E09 FOREIGN KEY (customer) REFERENCES customer (_c_id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE personal_access_token ADD CONSTRAINT FK_5017171A8E5493E3 FOREIGN KEY (revoked_by) REFERENCES _user (_u_id) ON DELETE SET NULL');
     }
 
     /**
@@ -75,9 +55,9 @@ class Version20260424120000 extends AbstractMigration
             !$schema->hasTable('personal_access_token'),
             'Cannot migrate: Table personal_access_token does not exist'
         );
-        $this->addSql('ALTER TABLE personal_access_token DROP FOREIGN KEY FK_pat_revoked_by');
-        $this->addSql('ALTER TABLE personal_access_token DROP FOREIGN KEY FK_pat_customer');
-        $this->addSql('ALTER TABLE personal_access_token DROP FOREIGN KEY FK_pat_user');
+        $this->addSql('ALTER TABLE personal_access_token DROP FOREIGN KEY FK_5017171A8D93D649');
+        $this->addSql('ALTER TABLE personal_access_token DROP FOREIGN KEY FK_5017171A81398E09');
+        $this->addSql('ALTER TABLE personal_access_token DROP FOREIGN KEY FK_5017171A8E5493E3');
         $this->addSql('DROP TABLE personal_access_token');
     }
 

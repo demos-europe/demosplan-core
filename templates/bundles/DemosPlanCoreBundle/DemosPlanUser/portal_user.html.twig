@@ -40,6 +40,15 @@
                             </change-password>
                         </dp-accordion>
                     {% endif -%}
+
+                    {%- if hasPermission('feature_personal_access_tokens') %}
+                        <hr>
+                        <dp-accordion
+                            title="{{ 'personal.access.tokens.heading'|trans }}"
+                            class="u-mb u-mt-0_75">
+                            <personal-access-tokens class="u-mv" />
+                        </dp-accordion>
+                    {% endif -%}
                 {% else %}
                     {{ uiComponent('inline-notification', {
                         message: 'warning.email.and.password.editable.via.serviceprovider'|trans,

@@ -15,9 +15,12 @@ namespace Tests\Core\Security\PersonalAccessToken;
 use DateInterval;
 use DateTime;
 use DateTimeImmutable;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\PersonalAccessToken;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\Report\PersonalAccessTokenReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\PersonalAccessTokenRepository;
 use demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTokenScope;
 use demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTokenService;
@@ -36,6 +39,8 @@ class PersonalAccessTokenServiceTest extends UnitTestCase
     private ?MockObject $repository = null;
     private ?MockObject $entityManager = null;
     private ?MockObject $hasher = null;
+    private ?MockObject $reportService = null;
+    private ?MockObject $reportEntryFactory = null;
 
     protected function setUp(): void
     {
@@ -54,10 +59,18 @@ class PersonalAccessTokenServiceTest extends UnitTestCase
         $factory = $this->createMock(PasswordHasherFactoryInterface::class);
         $factory->method('getPasswordHasher')->willReturn($this->hasher);
 
+        $this->reportEntryFactory = $this->createMock(PersonalAccessTokenReportEntryFactory::class);
+        $this->reportEntryFactory->method('createCreationEntry')->willReturn(new ReportEntry());
+        $this->reportEntryFactory->method('createRevocationEntry')->willReturn(new ReportEntry());
+
+        $this->reportService = $this->createMock(ReportService::class);
+
         $this->sut = new PersonalAccessTokenService(
             $this->repository,
             $this->entityManager,
             $factory,
+            $this->reportEntryFactory,
+            $this->reportService,
             new NullLogger(),
         );
     }
@@ -200,7 +213,7 @@ class PersonalAccessTokenServiceTest extends UnitTestCase
         $factory->method('getPasswordHasher')->willReturn($verifyHasher);
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $sut = new PersonalAccessTokenService($repo, $em, $factory, new NullLogger());
+        $sut = $this->buildService($repo, $em, $factory);
 
         self::assertSame($token, $sut->findByPlaintext($candidate));
     }
@@ -228,7 +241,7 @@ class PersonalAccessTokenServiceTest extends UnitTestCase
         $factory->method('getPasswordHasher')->willReturn($verifyHasher);
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $sut = new PersonalAccessTokenService($repo, $em, $factory, new NullLogger());
+        $sut = $this->buildService($repo, $em, $factory);
 
         self::assertNull($sut->findByPlaintext($candidate));
     }
@@ -256,7 +269,7 @@ class PersonalAccessTokenServiceTest extends UnitTestCase
         $factory->method('getPasswordHasher')->willReturn($verifyHasher);
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $sut = new PersonalAccessTokenService($repo, $em, $factory, new NullLogger());
+        $sut = $this->buildService($repo, $em, $factory);
 
         self::assertNull($sut->findByPlaintext($candidate));
     }
@@ -276,6 +289,50 @@ class PersonalAccessTokenServiceTest extends UnitTestCase
         self::assertTrue($token->isRevoked());
 
         $this->sut->revoke($token);
+    }
+
+    public function testCreateWritesAuditEntry(): void
+    {
+        $this->reportEntryFactory->expects(self::once())->method('createCreationEntry');
+        $this->reportService->expects(self::once())->method('persistAndFlushReportEntry');
+
+        $this->sut->create(
+            user: $this->user(),
+            customer: $this->customer(),
+            name: 'audit-test',
+            scopes: [PersonalAccessTokenScope::STATEMENTS_READ],
+            expiresAt: $this->daysFromNow(30),
+        );
+    }
+
+    public function testRevokeWritesAuditEntry(): void
+    {
+        $this->reportEntryFactory->expects(self::once())->method('createRevocationEntry');
+        $this->reportService->expects(self::once())->method('persistAndFlushReportEntry');
+
+        $token = $this->existingToken(
+            prefix: str_repeat('y', PersonalAccessToken::TOKEN_PREFIX_LENGTH),
+            expiresAt: $this->daysFromNow(30),
+            revokedAt: null,
+        );
+        $this->sut->revoke($token);
+    }
+
+    public function testAuditWriteFailureDoesNotPropagate(): void
+    {
+        $this->reportService->method('persistAndFlushReportEntry')
+            ->willThrowException(new \RuntimeException('downstream audit store is offline'));
+
+        // Must not throw — token operation succeeds even when audit fails.
+        $result = $this->sut->create(
+            user: $this->user(),
+            customer: $this->customer(),
+            name: 'audit-fail-test',
+            scopes: [PersonalAccessTokenScope::STATEMENTS_READ],
+            expiresAt: $this->daysFromNow(30),
+        );
+
+        self::assertNotEmpty($result->plaintext);
     }
 
     private function user(): User
@@ -301,6 +358,25 @@ class PersonalAccessTokenServiceTest extends UnitTestCase
             : (new DateTimeImmutable())->sub(new DateInterval('P'.abs($days).'D'));
 
         return DateTime::createFromImmutable($immutable);
+    }
+
+    private function buildService(
+        PersonalAccessTokenRepository $repo,
+        EntityManagerInterface $em,
+        PasswordHasherFactoryInterface $factory,
+    ): PersonalAccessTokenService {
+        $reportEntryFactory = $this->createMock(PersonalAccessTokenReportEntryFactory::class);
+        $reportEntryFactory->method('createCreationEntry')->willReturn(new ReportEntry());
+        $reportEntryFactory->method('createRevocationEntry')->willReturn(new ReportEntry());
+
+        return new PersonalAccessTokenService(
+            $repo,
+            $em,
+            $factory,
+            $reportEntryFactory,
+            $this->createMock(ReportService::class),
+            new NullLogger(),
+        );
     }
 
     private function existingToken(

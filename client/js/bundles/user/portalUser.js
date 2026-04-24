@@ -14,11 +14,13 @@
 import { DpAccordion, dpValidate } from '@demos-europe/demosplan-ui'
 import ChangePassword from '@DpJs/components/user/portalUser/ChangePassword'
 import { initialize } from '@DpJs/InitVue'
+import PersonalAccessTokens from '@DpJs/components/user/portalUser/PersonalAccessTokens'
 import PersonalData from '@DpJs/components/user/portalUser/PersonalData'
 
 const components = {
   ChangePassword,
   DpAccordion,
+  PersonalAccessTokens,
   PersonalData,
 }
 

@@ -18,6 +18,8 @@ use DateTimeImmutable;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\PersonalAccessToken;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\Report\PersonalAccessTokenReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\PersonalAccessTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
@@ -25,6 +27,7 @@ use Psr\Log\LoggerInterface;
 use Random\Randomizer;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\PasswordHasherInterface;
+use Throwable;
 
 /**
  * Lifecycle manager for {@see PersonalAccessToken}: create, verify, revoke, list.
@@ -54,6 +57,8 @@ class PersonalAccessTokenService
         private readonly PersonalAccessTokenRepository $repository,
         private readonly EntityManagerInterface $entityManager,
         private readonly PasswordHasherFactoryInterface $passwordHasherFactory,
+        private readonly PersonalAccessTokenReportEntryFactory $reportEntryFactory,
+        private readonly ReportService $reportService,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -138,6 +143,11 @@ class PersonalAccessTokenService
             'expires_at'   => $expiresAt->format(DATE_ATOM),
         ]);
 
+        $this->recordAuditEntry(
+            static fn (PersonalAccessTokenReportEntryFactory $f) => $f->createCreationEntry($token),
+            'create'
+        );
+
         return new PersonalAccessTokenCreationResult($token, $fullToken);
     }
 
@@ -192,6 +202,11 @@ class PersonalAccessTokenService
             'user_id'      => $token->getUser()->getId(),
             'revoked_by'   => $by?->getId(),
         ]);
+
+        $this->recordAuditEntry(
+            static fn (PersonalAccessTokenReportEntryFactory $f) => $f->createRevocationEntry($token, $by),
+            'revoke'
+        );
     }
 
     /**
@@ -255,5 +270,24 @@ class PersonalAccessTokenService
             $dummyHash = $hasher->hash(bin2hex(random_bytes(16)));
         }
         $hasher->verify($dummyHash, $secret);
+    }
+
+    /**
+     * Writes an audit entry best-effort: a failure to record (e.g. no current customer
+     * context in a CLI job) must not block the primary token operation.
+     *
+     * @param callable(PersonalAccessTokenReportEntryFactory): \demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry $build
+     */
+    private function recordAuditEntry(callable $build, string $operation): void
+    {
+        try {
+            $entry = $build($this->reportEntryFactory);
+            $this->reportService->persistAndFlushReportEntry($entry);
+        } catch (Throwable $e) {
+            $this->logger->warning('Failed to record PAT audit entry', [
+                'operation' => $operation,
+                'exception' => $e->getMessage(),
+            ]);
+        }
     }
 }
