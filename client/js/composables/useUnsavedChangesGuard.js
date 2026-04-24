@@ -232,7 +232,7 @@ export function useUnsavedChangesGuard () {
       saveUnsavedChanges = async () => {},
       onDiscardChanges = async () => {},
       onCancelNavigation = async () => {},
-      componentId: providedComponentId = Math.random().toString(36),
+      componentId: providedComponentId,
     } = options
 
     componentId = providedComponentId
