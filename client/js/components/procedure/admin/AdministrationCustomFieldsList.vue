@@ -378,7 +378,7 @@ export default {
   data () {
     return {
       activeTabId: Object.keys(this.targetOptions ?? {})[0] || '',
-      allDefinitions: [],
+      currentTabDefinitions: [],
       currentConfirmMessage: '',
       customFieldItems: [],
       enabledFieldsEntities: {
@@ -565,7 +565,7 @@ export default {
      * @returns { boolean }
      */
     checkIfNameIsUnique (name) {
-      const identicalNames = this.allDefinitions.filter(definition =>
+      const identicalNames = this.currentTabDefinitions.filter(definition =>
         definition.attributes?.name === name,
       )
       const isInEditMode = this.customFieldItems.some(field => field.name === name && field.edit)
@@ -628,7 +628,7 @@ export default {
         sourceEntity: this.isProcedureTemplate ? 'PROCEDURE_TEMPLATE' : 'PROCEDURE',
       })
         .then(definitions => {
-          this.allDefinitions = definitions
+          this.currentTabDefinitions = definitions
           this.reduceCustomFields()
         })
         .catch(err => console.error(err))
@@ -692,13 +692,13 @@ export default {
             return
           }
 
-          const definitionSnapshot = this.allDefinitions.find(definition => definition.id === rowData.id)
+          const definitionSnapshot = this.currentTabDefinitions.find(definition => definition.id === rowData.id)
           const removedIndex = this.customFieldItems.findIndex(item => item.id === rowData.id)
           const removedItem = this.customFieldItems.splice(removedIndex, 1)[0]
 
           deleteCustomFieldDefinition(rowData.id, this.procedureId)
             .then(() => {
-              this.allDefinitions = this.allDefinitions.filter(definition => definition.id !== rowData.id)
+              this.currentTabDefinitions = this.currentTabDefinitions.filter(definition => definition.id !== rowData.id)
               dplan.notify.confirm(Translator.trans('confirm.deleted'))
             })
             .catch(error => {
@@ -707,7 +707,7 @@ export default {
               }
 
               if (definitionSnapshot) {
-                this.allDefinitions = [...this.allDefinitions, definitionSnapshot]
+                this.currentTabDefinitions = [...this.currentTabDefinitions, definitionSnapshot]
               }
 
               console.error('Error deleting custom field:', error)
@@ -727,7 +727,7 @@ export default {
      * Server already filtered by targetEntity — no client-side filtering needed.
      */
     reduceCustomFields () {
-      const fieldsReduced = this.allDefinitions
+      const fieldsReduced = this.currentTabDefinitions
         .map(definition => {
           const { id, attributes } = definition
           const { description, fieldType, isRequired, name, options } = attributes
@@ -797,7 +797,7 @@ export default {
             return
           }
 
-          const sourceDefinition = this.allDefinitions.find(definition => definition.id === this.newRowData.id)
+          const sourceDefinition = this.currentTabDefinitions.find(definition => definition.id === this.newRowData.id)
           const { description = '', isRequired, name, options } = this.newRowData
 
           const updatedPayload = {
