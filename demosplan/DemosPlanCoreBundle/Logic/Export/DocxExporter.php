@@ -33,6 +33,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
@@ -134,6 +135,7 @@ class DocxExporter
         FileService $fileService,
         protected readonly FilesystemOperator $defaultStorage,
         GlobalConfigInterface $config,
+        private readonly HTMLSanitizer $htmlSanitizer,
         LoggerInterface $logger,
         protected readonly MapService $mapService,
         private readonly OdtHtmlProcessor $odtHtmlProcessor,
@@ -991,6 +993,9 @@ class DocxExporter
             return '';
         }
         try {
+            $text = self::replaceTags($text);
+            $text = $this->htmlSanitizer->sanitizeCssForPhpWord($text);
+            Html::addHtml($cell, $text, false);
             $text = $this->replaceTags($text);
             // remove STX (start of text) EOT (end of text) special chars
             $text = str_replace([chr(2), chr(3)], '', $text);
