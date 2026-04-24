@@ -484,10 +484,6 @@ export default {
         })
     },
 
-    findDefinitionForField (fieldId) {
-      return this.definitions.find(definition => definition.id === fieldId) || null
-    },
-
     getIsActiveEdit (fieldId) {
       return this.enableToggle ? (this.activeEditFieldId === null || this.activeEditFieldId === fieldId) : null
     },
