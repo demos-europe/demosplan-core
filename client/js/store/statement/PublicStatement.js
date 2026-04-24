@@ -184,6 +184,11 @@ const PublicStatementStore = {
       }
     },
 
+    applyInitialDefaults (state, data) {
+      state.statement = { ...state.statement, ...data }
+      state.initForm = JSON.stringify(state.statement)
+    },
+
     removeStatementProp (state, propKey) {
       delete state.statement[propKey]
     },
