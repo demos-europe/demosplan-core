@@ -399,6 +399,27 @@ export default {
       this.$emit('save', data)
     },
 
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    saveUnsavedChanges () {
+      const promises = []
+
+      if (this.$refs.statementEntry?.hasUnsavedChanges) {
+        promises.push(this.$refs.statementEntry.save())
+      }
+
+      if (this.$refs.statementSubmitter?.hasUnsavedChanges) {
+        promises.push(this.$refs.statementSubmitter.save())
+      }
+
+      if (this.$refs.statementMetaAttachments?.hasUnsavedChanges) {
+        promises.push(this.$refs.statementMetaAttachments.saveGenericAttachments())
+      }
+
+      return Promise.all(promises)
+    },
+
     scrollToItem (id) {
       this.isScrolling = true
       const element = document.querySelector(`#${id}`)
@@ -441,27 +462,6 @@ export default {
     updateLocalStatementProperties (value, field) {
       this.localStatement.attributes[field] = value
       this.localStatement.attributes[field].sort((a, b) => a.name.localeCompare(b.name))
-    },
-
-    /**
-     * Required by useUnsavedChangesGuard composable
-     */
-    saveUnsavedChanges () {
-      const promises = []
-
-      if (this.$refs.statementEntry?.hasUnsavedChanges) {
-        promises.push(this.$refs.statementEntry.save())
-      }
-
-      if (this.$refs.statementSubmitter?.hasUnsavedChanges) {
-        promises.push(this.$refs.statementSubmitter.save())
-      }
-
-      if (this.$refs.statementMetaAttachments?.hasUnsavedChanges) {
-        promises.push(this.$refs.statementMetaAttachments.saveGenericAttachments())
-      }
-
-      return Promise.all(promises)
     },
   },
 

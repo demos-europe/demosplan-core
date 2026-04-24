@@ -89,9 +89,6 @@ function handleCancelAll () {
   return Promise.all(cancelPromises).then(() => {})
 }
 
-/**
- * Handle dialog action result
- */
 function handleDialogResult (action, link) {
   if (action === 'save') {
     return handleSaveAllAndNavigate(link)
