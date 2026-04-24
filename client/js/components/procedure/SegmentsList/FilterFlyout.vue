@@ -117,7 +117,7 @@
           :key="`list_${group.id}`"
           :class="['m-0 p-0 list-none leading-[1.6]', { 'border-b border-neutral mb-2': index < searchedGroupedOptions.length - 1 }]"
         >
-          <li class="font-semibold text-sm mb-1">
+          <li class="weight--bold text-sm mb-2">
             {{ group.label }}
           </li>
           <filter-flyout-checkbox
