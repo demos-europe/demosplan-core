@@ -776,6 +776,15 @@ export default {
       dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
     },
 
+    customFieldsSaveError (definitions) {
+      const fieldNames = this.customFieldValues
+        .map(({ id }) => definitions.find(def => def.id === id)?.attributes?.name)
+        .filter(Boolean)
+        .join(', ')
+
+      return Translator.trans('error.custom_fields.save', { fields: fieldNames })
+    },
+
     customFieldValueForId (fieldId) {
       const entry = this.customFieldValues.find(valueEntry => valueEntry.id === fieldId)
 
@@ -955,12 +964,8 @@ export default {
                 targetEntity: 'SEGMENT',
                 sourceEntity: 'PROCEDURE',
               }) || []
-              const fieldNames = this.customFieldValues
-                .map(({ id }) => definitions.find(def => def.id === id)?.attributes?.name)
-                .filter(Boolean)
-                .join(', ')
 
-              dplan.notify.error(Translator.trans('error.custom_fields.save', { fields: fieldNames }))
+              dplan.notify.error(this.customFieldsSaveError(definitions))
               this.finalizeSave(comments)
             })
         })
