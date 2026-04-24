@@ -782,6 +782,12 @@ export default {
       return entry?.value ?? null
     },
 
+    finalizeSave (comments) {
+      this.restoreComments(comments)
+      this.setProperty({ prop: 'isLoading', val: false })
+      this.isEditing = false
+    },
+
     handleTabChange (id) {
       this.activeId = id
     },
@@ -929,26 +935,37 @@ export default {
             }) :
             Promise.resolve()
 
-          return saveCustomFields.then(() => {
-            dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-            this.isFullscreen = false
-            this.isEditing = false
+          return saveCustomFields
+            .then(() => {
+              dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+              this.isFullscreen = false
 
-            this.restoreComments(comments)
-            this.setProperty({ prop: 'isLoading', val: false })
+              this.finalizeSave(comments)
 
-            this.toggleAssignableUsersSelect()
-            this.$nextTick(() => {
-              if (this.$refs.recommendationContainer) {
-                this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
-              }
+              this.toggleAssignableUsersSelect()
+              this.$nextTick(() => {
+                if (this.$refs.recommendationContainer) {
+                  this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+                }
+              })
             })
-          })
+            .catch(() => {
+              const { getCustomFieldsDefinitions } = useCustomFields()
+              const definitions = getCustomFieldsDefinitions(this.procedureId, {
+                targetEntity: 'SEGMENT',
+                sourceEntity: 'PROCEDURE',
+              }) || []
+              const fieldNames = this.customFieldValues
+                .map(({ id }) => definitions.find(def => def.id === id)?.attributes?.name)
+                .filter(Boolean)
+                .join(', ')
+
+              dplan.notify.error(Translator.trans('error.custom_fields.save', { fields: fieldNames }))
+              this.finalizeSave(comments)
+            })
         })
         .catch(() => {
-          this.restoreComments(comments)
-          this.setProperty({ prop: 'isLoading', val: false })
-          this.isEditing = false
+          this.finalizeSave(comments)
         })
     },
 
