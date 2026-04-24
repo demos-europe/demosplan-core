@@ -101,9 +101,7 @@ class SegmentBulkEditorService
             ['count' => count($lockedSegments)],
         );
 
-        throw new SegmentLockedException(
-            'Bulk edit batch contains segments locked for the current user.',
-        );
+        throw new SegmentLockedException('Bulk edit batch contains segments locked for the current user.');
     }
 
     public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace, $customFields)

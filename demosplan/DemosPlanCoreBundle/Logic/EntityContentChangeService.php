@@ -178,13 +178,13 @@ class EntityContentChangeService
                     $incomingData,
                     $fieldsToTrack
                 );
-            } else {
-                return $this->calculateChangesOfStandardFieldsOfPreUpdateObjectAndPostUpdateArray(
-                    $relatedRepository->get($this->entityHelper->extractId($incomingData)),
-                    $incomingData,
-                    $fieldsToTrack
-                );
             }
+
+            return $this->calculateChangesOfStandardFieldsOfPreUpdateObjectAndPostUpdateArray(
+                $relatedRepository->get($this->entityHelper->extractId($incomingData)),
+                $incomingData,
+                $fieldsToTrack
+            );
         } catch (Exception $e) {
             $this->logger->warning('Could not calculate content changes', [$e, $e->getTraceAsString()]);
             throw $e;
@@ -453,9 +453,6 @@ class EntityContentChangeService
      * One of the given parameters has to be an Object, to ensure availability of information about objectType.
      * In this case, the $contentChange parameter is the one, because in most cases you can easily
      * get the current Object from the DB.
-     *
-     * @param string|CoreEntity|int|null $contentChange diff of values
-     * @param Department|User            $changer       (juristic) person who is executing the change. Can be a department or a user.
      */
     /**
      * Segment lock feature — Versionsverlauf entry for a single segment whose

@@ -14,8 +14,8 @@ namespace Tests\Core\Statement\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
@@ -121,8 +121,8 @@ class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
 
     /**
      * @param list<string>                                                      $lockedSegmentIds
-     *                                                                                             Identifiers the enforcement stub will report as locked for
-     *                                                                                             the current user; everything else is treated as unlocked
+     *                                                                                            Identifiers the enforcement stub will report as locked for
+     *                                                                                            the current user; everything else is treated as unlocked
      * @param MessageBagInterface&\PHPUnit\Framework\MockObject\MockObject|null $messageBag
      */
     private function buildSut(

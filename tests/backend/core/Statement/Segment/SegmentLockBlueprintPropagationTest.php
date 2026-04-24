@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
+use ReflectionMethod;
 use Tests\Base\FunctionalTestCase;
 
 /**
@@ -80,7 +81,7 @@ class SegmentLockBlueprintPropagationTest extends FunctionalTestCase
      */
     private function invokePrivateCopyPlaces(Procedure $source, Procedure $target): void
     {
-        $method = new \ReflectionMethod(ProcedureService::class, 'copyPlaces');
+        $method = new ReflectionMethod(ProcedureService::class, 'copyPlaces');
         $method->setAccessible(true);
         $method->invoke($this->sut, $source->getId(), $target);
     }
