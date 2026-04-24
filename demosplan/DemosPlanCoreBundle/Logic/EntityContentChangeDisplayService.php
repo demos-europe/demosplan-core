@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
@@ -110,6 +111,15 @@ class EntityContentChangeDisplayService
                 $fieldName,
                 $entityType
             );
+        }
+
+        // Segment-lock feature: `locked` is derived from Segment.place.locked,
+        // so the rollback-based path below has no stable getter vocabulary
+        // to walk backwards from. The stored content_change already encodes
+        // the diff (old/new strings embedded) — just post-process it for
+        // display (CSS classes + HTML decode + Twig render).
+        if ('locked' === $fieldName) {
+            return $this->renderLockByPlaceSwitchesJson($entityContentChange->getContentChange());
         }
 
         // step 1: get the value stored in the parent entities. for example, assignee id or text
@@ -230,6 +240,40 @@ class EntityContentChangeDisplayService
         );
 
         return $renderedString;
+    }
+
+    /**
+     * Renders a stored `locked` diff JSON directly into the Versionsverlauf
+     * display HTML without going through the rollback path.
+     *
+     * The rollback path assumes the field lives directly on the entity and
+     * its current value can be read via a getter whose return matches the
+     * stored diff vocabulary. `locked` doesn't fit that model — it is
+     * derived from Segment.place.locked, so there is no stable current-state
+     * anchor to walk backwards from. The content_change column already
+     * encodes the full diff (old/new strings embedded), so the only work
+     * left is the same post-processing the generic path runs at its tail:
+     * wrap <ins>/<del> with CSS classes, decode HTML entities, and render
+     * through the html_diff Twig template.
+     *
+     * Null input (when no diff was generated at emission time) is passed
+     * through unchanged.
+     * @throws JsonException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Exception
+     */
+    private function renderLockByPlaceSwitchesJson(?string $jsonString): ?string
+    {
+        if (null === $jsonString) {
+            return null;
+        }
+
+        return $this->twig->render(
+            '@DemosPlanCore/DemosPlanCore/html_diff.html.twig',
+            ['diffArray' => Json::decodeToArray($jsonString)]
+        );
     }
 
     /**

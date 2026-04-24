@@ -23,6 +23,12 @@ parameters:
             customFields: #special case!
                 fieldType: "json"
                 noHighlighting: true
+            locked:
+                fieldType: "string"
+                translationKey: "segment.locked"
+                getterMethod: "isLocked"
+                noHighlighting: true
+                skipAutoDiff: true # derived field; entries are emitted by EntityContentChangeService's dedicated lock methods
             text:
                 fieldType: "tipTapHtmlString"
                 translationKey: "text"

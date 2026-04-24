@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
@@ -22,7 +23,9 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\SegmentLockedException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
@@ -39,7 +42,68 @@ class SegmentBulkEditorService
         protected TagService $tagService,
         protected TagValidator $tagValidator,
         protected CustomFieldValueCreator $customFieldValueCreator,
+        protected SegmentLockEnforcementService $segmentLockEnforcementService,
+        protected MessageBagInterface $messageBag,
+        protected EntityContentChangeService $entityContentChangeService,
     ) {
+    }
+
+    /**
+     * Return the subset of segments that are locked for the current user.
+     *
+     * Exposed so the RPC caller can both validate the batch (via
+     * assertBatchEditable) and re-derive the locked list in its catch
+     * block to build a structured error response with external IDs.
+     *
+     * @param array<int, Segment> $segments
+     *
+     * @return list<Segment>
+     */
+    public function findLockedSegments(array $segments): array
+    {
+        return array_values(array_filter(
+            $segments,
+            fn (Segment $segment): bool => $this->segmentLockEnforcementService
+                ->isSegmentLockedForCurrentUser($segment),
+        ));
+    }
+
+    /**
+     * Pre-validate a batch of segments against the workflow-place lock.
+     *
+     * Runs before any mutations inside the bulk-edit transaction — if any
+     * segment in the batch is locked for the current user, throws
+     * SegmentLockedException. The throw is caught by the RPC's
+     * access-denied branch which rolls back the whole batch (no partial
+     * success) and builds a structured error response for the frontend
+     * with the affected external IDs and total count.
+     *
+     * Admins (holders of feature_administrate_segment_lock) are short-
+     * circuited inside the enforcement service and pass through unaffected
+     * — enabling the FPA unlock flow (one segment, bulk.edit with target
+     * place + assignee).
+     *
+     * @param array<int, Segment> $segments
+     *
+     * @throws SegmentLockedException when the batch contains one or more
+     *                                segments the current user may not write
+     */
+    public function assertBatchEditable(array $segments): void
+    {
+        $lockedSegments = $this->findLockedSegments($segments);
+        if ([] === $lockedSegments) {
+            return;
+        }
+
+        $this->messageBag->add(
+            'warning',
+            'warning.segment.bulk.contains.locked',
+            ['count' => count($lockedSegments)],
+        );
+
+        throw new SegmentLockedException(
+            'Bulk edit batch contains segments locked for the current user.',
+        );
     }
 
     public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace, $customFields)
@@ -54,7 +118,16 @@ class SegmentBulkEditorService
             }
 
             if (null !== $workflowPlace) {
+                $oldPlace = $segment->getPlace();
                 $segment->setPlace($workflowPlace);
+                // Emit Versionsverlauf "Gesperrt" / "Entsperrt" entry when the
+                // place change crosses the lock/unlock boundary. Service
+                // self-gates on the feature flag and on old/new being equal.
+                $this->entityContentChangeService->createSegmentLockedChangeEntryOnPlaceChange(
+                    $segment,
+                    $oldPlace,
+                    $workflowPlace,
+                );
             }
 
             if ([] !== $customFields) {

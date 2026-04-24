@@ -159,6 +159,12 @@ parameters:
     # Art des Stellungnahmeabgabeprozesses
     project_submission_type: "standard"
 
+    # Enables the segment lock mechanism. When true, segments whose workflow place
+    # has `locked = true` become read-only for everyone except holders of
+    # the `feature_administrate_segment_lock` permission. When false, the `locked`
+    # flag on workflow places has no effect anywhere in the application.
+    segment_lock_by_workflow_place: false
+
     # #refactor: This parameter could possibly be skipped when using empty piwik_url as disabled
     # #refactor: Should be renamed to matomo_*
     piwik_enable: false

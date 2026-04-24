@@ -8,3 +8,4 @@ parameters:
     subdomain: 'hindsight'
     project_prefix: 'dplan_test'
     honeypot_disabled: true
+    segment_lock_by_workflow_place: true

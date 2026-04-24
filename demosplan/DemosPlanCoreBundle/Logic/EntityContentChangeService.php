@@ -16,11 +16,14 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentLockEnforcementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
@@ -72,6 +75,7 @@ class EntityContentChangeService
         private readonly CurrentUserService $currentUserService,
         private readonly LoggerInterface $logger,
         private readonly ManagerRegistry $doctrine,
+        private readonly SegmentLockEnforcementService $segmentLockEnforcementService,
     ) {
         $this->tokenStorage = $tokenStorage;
     }
@@ -453,6 +457,130 @@ class EntityContentChangeService
      * @param string|CoreEntity|int|null $contentChange diff of values
      * @param Department|User            $changer       (juristic) person who is executing the change. Can be a department or a user.
      */
+    /**
+     * Segment lock feature — Versionsverlauf entry for a single segment whose
+     * workflow place changed and crossed the lock/unlock boundary.
+     *
+     * No-op when old and new place are equally (un)locked, since there is no
+     * state change to record. The caller passes the *original* place (as
+     * read from the UnitOfWork change set or equivalent) and the *new* one.
+     */
+    public function createSegmentLockedChangeEntryOnPlaceChange(
+        Segment $segment,
+        ?Place $oldPlace,
+        ?Place $newPlace,
+    ): void {
+        if (!$this->segmentLockEnforcementService->isFeatureEnabled()) {
+            return;
+        }
+
+        $oldLocked = $oldPlace instanceof Place && $oldPlace->isLocked();
+        $newLocked = $newPlace instanceof Place && $newPlace->isLocked();
+        if ($oldLocked === $newLocked) {
+            return;
+        }
+
+        $contentChange = $this->generateActualDiff(
+            $this->translateLockedState($oldLocked),
+            $this->translateLockedState($newLocked),
+            'locked',
+            Segment::class,
+            $this->lockedDiffOptions(),
+        );
+        if (null === $contentChange) {
+            return;
+        }
+
+        $this->addEntityContentChangeEntries($segment, ['locked' => $contentChange]);
+    }
+
+    /**
+     * Segment lock feature — Versionsverlauf entries for every segment
+     * currently on $place when its `locked` flag toggled.
+     *
+     * Loads all affected segments through the ORM and creates one
+     * EntityContentChange per segment via createEntityContentChangeEntity,
+     * then persists the batch through the repository — same code path as
+     * addEntityContentChangeEntries. Keeps the writes inside the Doctrine
+     * UnitOfWork so the surrounding transaction can roll them back
+     * atomically if anything downstream fails.
+     *
+     * No-op when old and new are identical (no real toggle).
+     */
+    public function createSegmentLockedChangeEntriesForPlaceToggle(
+        Place $place,
+        bool $oldLocked,
+        bool $newLocked,
+    ): void {
+        if (!$this->segmentLockEnforcementService->isFeatureEnabled()) {
+            return;
+        }
+
+        if ($oldLocked === $newLocked) {
+            return;
+        }
+
+        $segments = $this->doctrine->getManager()
+            ->getRepository(Segment::class)
+            ->findBy(['place' => $place]);
+        if ([] === $segments) {
+            return;
+        }
+
+        $changer = $this->determineChanger(false);
+        $creationDate = new DateTime();
+        $entityType = $this->doctrine->getManager()->getClassMetadata(Segment::class)->getName();
+
+        $diffJson = $this->generateActualDiff(
+            $this->translateLockedState($oldLocked),
+            $this->translateLockedState($newLocked),
+            'locked',
+            Segment::class,
+            $this->lockedDiffOptions(),
+        );
+        if (null === $diffJson) {
+            return;
+        }
+
+        $entries = [];
+        foreach ($segments as $segment) {
+            $entries[] = $this->createEntityContentChangeEntity(
+                $segment,
+                'locked',
+                $diffJson,
+                $changer,
+                $entityType,
+                $creationDate,
+            );
+        }
+
+        $this->entityContentChangeRepository->persistAndDelete($entries, []);
+    }
+
+    /**
+     * Diff options for the segment-lock feature. Disable within-line detail
+     * highlighting so the stored diff shows full-word replacement
+     * ("Gesperrt" → "Entsperrt") instead of the default character-level
+     * minimal-edit view ("<del>Ge</del>sperrt" → "<ins>Ent</ins>sperrt"),
+     * which is visually noisy for a binary state transition.
+     *
+     * @return array{differOptions: array<string, mixed>, rendererOptions: array<string, mixed>}
+     */
+    private function lockedDiffOptions(): array
+    {
+        return [
+            'differOptions'   => ['context' => 0],
+            'rendererOptions' => ['detailLevel' => 'none'],
+        ];
+    }
+
+    private function translateLockedState(bool $locked): string
+    {
+        return $this->translator->trans(
+            $locked ? 'segment.lock.state.locked' : 'segment.lock.state.unlocked',
+        );
+    }
+
     public function maybeCreateEntityContentChangeEntry(
         CoreEntity $updatedObject,
         string $changedEntityField,
@@ -1157,7 +1285,15 @@ class EntityContentChangeService
     ): array {
         $changes = [];
 
-        foreach (array_keys($fieldsToTrack) as $propertyName) {
+        foreach ($fieldsToTrack as $propertyName => $fieldMetaData) {
+            // Skip fields that are only tracked for display purposes and are
+            // not backed by a real Doctrine column (e.g. Segment::locked,
+            // which is derived from place->locked). The auto-diff pipeline
+            // would otherwise fail when comparing the blank preUpdate value
+            // to a typed getter result.
+            if (true === ($fieldMetaData['skipAutoDiff'] ?? false)) {
+                continue;
+            }
             if ('customFields' === $propertyName) {
                 $changes['customFields'] = $this->diffCustomFields(
                     $preUpdateArray['customFields'] ?? null,
@@ -1204,7 +1340,11 @@ class EntityContentChangeService
         $changes = [];
         $class = ClassUtils::getClass($preUpdateObject);
 
-        foreach (array_keys($fieldsToTrack) as $propertyName) {
+        foreach ($fieldsToTrack as $propertyName => $fieldMetaData) {
+            // See skip reasoning in calculateChangesOfStandardFieldsOfPreUpdateArrayAndPostUpdateObject.
+            if (true === ($fieldMetaData['skipAutoDiff'] ?? false)) {
+                continue;
+            }
             if ('customFields' === $propertyName) {
                 $changes['customFields'] = $this->diffCustomFields(
                     $preUpdateObject->getCustomFields(),

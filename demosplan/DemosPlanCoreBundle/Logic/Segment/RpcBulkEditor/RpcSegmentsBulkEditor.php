@@ -107,6 +107,12 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     $segmentIds = $rpcRequest->params->segmentIds;
                     $segments = $this->segmentBulkEditorService->getValidSegments($segmentIds, $procedureId);
 
+                    // Reject the whole batch if any segment is locked by its
+                    // workflow place for the current user (see
+                    // SegmentBulkEditorService::assertBatchEditable). Admins
+                    // with feature_administrate_segment_lock pass through.
+                    $this->segmentBulkEditorService->assertBatchEditable($segments);
+
                     // update texts directly in database for performance reasons
                     $recommendationTextEdit = $rpcRequest->params->recommendationTextEdit;
                     $this->segmentBulkEditorService->updateRecommendations($segments, $recommendationTextEdit, $procedureId, $entityType, $methodCallTime);

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2816c5e69c33fa62c81c163b996b511b",
+    "content-hash": "2ba59504ab9e3eacfa463fb58e4f5a91",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1148,79 +1148,6 @@
             "time": "2021-04-07T13:37:33+00:00"
         },
         {
-            "name": "composer/package-versions-deprecated",
-            "version": "1.11.99.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/composer/package-versions-deprecated.git",
-                "reference": "b4f54f74ef3453349c24a845d22392cd31e65f1d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/composer/package-versions-deprecated/zipball/b4f54f74ef3453349c24a845d22392cd31e65f1d",
-                "reference": "b4f54f74ef3453349c24a845d22392cd31e65f1d",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.1.0 || ^2.0",
-                "php": "^7 || ^8"
-            },
-            "replace": {
-                "ocramius/package-versions": "1.11.99"
-            },
-            "require-dev": {
-                "composer/composer": "^1.9.3 || ^2.0@dev",
-                "ext-zip": "^1.13",
-                "phpunit/phpunit": "^6.5 || ^7"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "PackageVersions\\Installer",
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "PackageVersions\\": "src/PackageVersions"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marco Pivetta",
-                    "email": "ocramius@gmail.com"
-                },
-                {
-                    "name": "Jordi Boggiano",
-                    "email": "j.boggiano@seld.be"
-                }
-            ],
-            "description": "Composer plugin that provides efficient querying for installed package versions (no runtime IO)",
-            "support": {
-                "issues": "https://github.com/composer/package-versions-deprecated/issues",
-                "source": "https://github.com/composer/package-versions-deprecated/tree/1.11.99.5"
-            },
-            "funding": [
-                {
-                    "url": "https://packagist.com",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/composer",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/composer/composer",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2022-01-17T14:14:24+00:00"
-        },
-        {
             "name": "composer/pcre",
             "version": "3.3.2",
             "source": {
@@ -1570,16 +1497,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.68",
+            "version": "dev-f_DPLAN-17493_segment_lock_additions",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "6aece2f47f7c006bf11e48d1082f8f25f01b385d"
+                "reference": "0ac96c63a4470abfd7f2fc0bc051c75ca1f56ef7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/6aece2f47f7c006bf11e48d1082f8f25f01b385d",
-                "reference": "6aece2f47f7c006bf11e48d1082f8f25f01b385d",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/0ac96c63a4470abfd7f2fc0bc051c75ca1f56ef7",
+                "reference": "0ac96c63a4470abfd7f2fc0bc051c75ca1f56ef7",
                 "shasum": ""
             },
             "require": {
@@ -1646,9 +1573,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.68"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/f_DPLAN-17493_segment_lock_additions"
             },
-            "time": "2026-03-03T16:34:49+00:00"
+            "time": "2026-04-23T13:08:54+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -5483,66 +5410,6 @@
             "time": "2025-05-17T08:52:11+00:00"
         },
         {
-            "name": "goetas-webservices/xsd2php-runtime",
-            "version": "0.2.18",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/goetas-webservices/xsd2php-runtime.git",
-                "reference": "1215ce8504f2726b1a0c5025478da86a2791a0ba"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/goetas-webservices/xsd2php-runtime/zipball/1215ce8504f2726b1a0c5025478da86a2791a0ba",
-                "reference": "1215ce8504f2726b1a0c5025478da86a2791a0ba",
-                "shasum": ""
-            },
-            "require": {
-                "jms/serializer": "^1.2|^2.0|^3.0",
-                "php": ">=7.1",
-                "symfony/yaml": "^2.2|^3.0|^4.0|^5.0|^6.0|^7.0|^8.0"
-            },
-            "conflict": {
-                "jms/serializer": "1.4.1|1.6.1|1.6.2"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^7.0|^8.0|^9.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.2-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "GoetasWebservices\\Xsd\\XsdToPhpRuntime\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Asmir Mustafic"
-                }
-            ],
-            "description": "Convert XSD  (XML Schema) definitions into PHP classes",
-            "keywords": [
-                "converter",
-                "jms",
-                "php",
-                "serializer",
-                "xml",
-                "xsd"
-            ],
-            "support": {
-                "issues": "https://github.com/goetas-webservices/xsd2php-runtime/issues",
-                "source": "https://github.com/goetas-webservices/xsd2php-runtime/tree/0.2.18"
-            },
-            "time": "2026-01-16T19:24:00+00:00"
-        },
-        {
             "name": "google/protobuf",
             "version": "v4.33.6",
             "source": {
@@ -6935,64 +6802,6 @@
                 "source": "https://github.com/jsonrainbow/json-schema/tree/6.8.0"
             },
             "time": "2026-04-02T12:43:11+00:00"
-        },
-        {
-            "name": "khanamiryan/qrcode-detector-decoder",
-            "version": "2.0.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/khanamiryan/php-qrcode-detector-decoder.git",
-                "reference": "17c570bb39f641cc1c4c41a46177ac491393a01d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/khanamiryan/php-qrcode-detector-decoder/zipball/17c570bb39f641cc1c4c41a46177ac491393a01d",
-                "reference": "17c570bb39f641cc1c4c41a46177ac491393a01d",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.1"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^7.5 | ^8.0 | ^9.0",
-                "rector/rector": "^1.0.4",
-                "symplify/easy-coding-standard": "^11.0",
-                "vimeo/psalm": "^4.24"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "lib/Common/customFunctions.php"
-                ],
-                "psr-4": {
-                    "Zxing\\": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT",
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Ashot Khanamiryan",
-                    "email": "a.khanamiryan@gmail.com",
-                    "homepage": "https://github.com/khanamiryan",
-                    "role": "Developer"
-                }
-            ],
-            "description": "QR code decoder / reader",
-            "homepage": "https://github.com/khanamiryan/php-qrcode-detector-decoder/",
-            "keywords": [
-                "barcode",
-                "qr",
-                "zxing"
-            ],
-            "support": {
-                "issues": "https://github.com/khanamiryan/php-qrcode-detector-decoder/issues",
-                "source": "https://github.com/khanamiryan/php-qrcode-detector-decoder/tree/2.0.3"
-            },
-            "time": "2025-06-10T08:44:02+00:00"
         },
         {
             "name": "knplabs/knp-menu",
@@ -8728,69 +8537,6 @@
                 "source": "https://github.com/jmespath/jmespath.php/tree/2.8.0"
             },
             "time": "2024-09-04T18:46:31+00:00"
-        },
-        {
-            "name": "myclabs/php-enum",
-            "version": "1.8.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/myclabs/php-enum.git",
-                "reference": "e7be26966b7398204a234f8673fdad5ac6277802"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/php-enum/zipball/e7be26966b7398204a234f8673fdad5ac6277802",
-                "reference": "e7be26966b7398204a234f8673fdad5ac6277802",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "php": "^7.3 || ^8.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^9.5",
-                "squizlabs/php_codesniffer": "1.*",
-                "vimeo/psalm": "^4.6.2 || ^5.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "MyCLabs\\Enum\\": "src/"
-                },
-                "classmap": [
-                    "stubs/Stringable.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "PHP Enum contributors",
-                    "homepage": "https://github.com/myclabs/php-enum/graphs/contributors"
-                }
-            ],
-            "description": "PHP Enum implementation",
-            "homepage": "https://github.com/myclabs/php-enum",
-            "keywords": [
-                "enum"
-            ],
-            "support": {
-                "issues": "https://github.com/myclabs/php-enum/issues",
-                "source": "https://github.com/myclabs/php-enum/tree/1.8.5"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/mnapoli",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/myclabs/php-enum",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2025-01-14T11:49:03+00:00"
         },
         {
             "name": "namshi/jose",
@@ -20703,64 +20449,6 @@
             "time": "2026-04-10T13:45:13+00:00"
         },
         {
-            "name": "escapestudios/symfony2-coding-standard",
-            "version": "3.18.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/djoos/Symfony-coding-standard.git",
-                "reference": "c18f77aacaa77b0c7087b8a725dbf1ca5e9b0561"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/djoos/Symfony-coding-standard/zipball/c18f77aacaa77b0c7087b8a725dbf1ca5e9b0561",
-                "reference": "c18f77aacaa77b0c7087b8a725dbf1ca5e9b0561",
-                "shasum": ""
-            },
-            "require": {
-                "squizlabs/php_codesniffer": "^4.0.0"
-            },
-            "conflict": {
-                "squizlabs/php_codesniffer": "<4 || >=5"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^8.0 || ^9.3.4 || ^10.5.32 || ^11.3.3"
-            },
-            "type": "phpcodesniffer-standard",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.x-dev"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "David Joos",
-                    "email": "iam@davidjoos.com"
-                },
-                {
-                    "name": "Community contributors",
-                    "homepage": "https://github.com/djoos/Symfony-coding-standard/graphs/contributors"
-                }
-            ],
-            "description": "CodeSniffer ruleset for the Symfony 2+ coding standard",
-            "homepage": "https://github.com/djoos/Symfony-coding-standard",
-            "keywords": [
-                "Coding Standard",
-                "Symfony2",
-                "phpcs",
-                "static analysis",
-                "symfony"
-            ],
-            "support": {
-                "issues": "https://github.com/djoos/Symfony-coding-standard/issues",
-                "source": "https://github.com/djoos/Symfony-coding-standard"
-            },
-            "time": "2025-12-17T15:53:30+00:00"
-        },
-        {
             "name": "evenement/evenement",
             "version": "v3.0.2",
             "source": {
@@ -21075,165 +20763,6 @@
             "time": "2026-04-12T17:00:09+00:00"
         },
         {
-            "name": "goetas-webservices/xsd-reader",
-            "version": "0.4.11",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/goetas-webservices/xsd-reader.git",
-                "reference": "b383dc1032ab83789cba24ce6f5ee0cf55c9d086"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/goetas-webservices/xsd-reader/zipball/b383dc1032ab83789cba24ce6f5ee0cf55c9d086",
-                "reference": "b383dc1032ab83789cba24ce6f5ee0cf55c9d086",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.14",
-                "phpstan/phpstan": "^1.9",
-                "phpunit/phpunit": "^9.6",
-                "sebastian/phpcpd": "^6.0",
-                "vimeo/psalm": "^5.6"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.3-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "GoetasWebservices\\CS\\": "./php-cs-fixer/",
-                    "GoetasWebservices\\XML\\XSDReader\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Asmir Mustafic",
-                    "email": "goetas@lignano.it"
-                }
-            ],
-            "description": "Read any XML Schema (XSD) programmatically with PHP",
-            "keywords": [
-                "parser",
-                "php",
-                "xml",
-                "xmlschema",
-                "xsd"
-            ],
-            "support": {
-                "issues": "https://github.com/goetas-webservices/xsd-reader/issues",
-                "source": "https://github.com/goetas-webservices/xsd-reader/tree/0.4.11"
-            },
-            "funding": [
-                {
-                    "url": "https://www.goetas.com/",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/goetas",
-                    "type": "github"
-                },
-                {
-                    "url": "https://www.patreon.com/goetas",
-                    "type": "patreon"
-                }
-            ],
-            "time": "2025-09-09T13:11:22+00:00"
-        },
-        {
-            "name": "goetas-webservices/xsd2php",
-            "version": "0.4.14",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/goetas-webservices/xsd2php.git",
-                "reference": "1c4d79e4572beaf4a786d16be690c6b18d575deb"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/goetas-webservices/xsd2php/zipball/1c4d79e4572beaf4a786d16be690c6b18d575deb",
-                "reference": "1c4d79e4572beaf4a786d16be690c6b18d575deb",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/inflector": "^2.0",
-                "goetas-webservices/xsd-reader": "^0.4.7",
-                "laminas/laminas-code": "^3.3.2|^4.0",
-                "php": ">=7.2|^8.0",
-                "psr/log": "^1.0 | ^2.0 | ^3.0",
-                "symfony/config": "^2.2|^3.0|^4.0|^5.0|^6.0|^7.0",
-                "symfony/console": "^2.7|^3.0|^4.0|^5.0|^6.0|^7.0",
-                "symfony/dependency-injection": "^2.2|^3.0|^4.0|^5.0|^6.0|^7.0",
-                "symfony/yaml": "^2.2|^3.0|^4.0|^5.0|^6.0|^7.0"
-            },
-            "require-dev": {
-                "dms/phpunit-arraysubset-asserts": "^0.3.1",
-                "goetas-webservices/xsd2php-runtime": "^0.2.13@dev",
-                "jms/serializer": "^1.9|^2.0|^3.0",
-                "phpunit/phpunit": "^6.0|^7.0|^8.0|^9.0",
-                "symfony/validator": "^2.3.24|^3.0|^4.0|^5.0|^6.0|^7.0"
-            },
-            "bin": [
-                "bin/xsd2php"
-            ],
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.4-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "GoetasWebservices\\Xsd\\XsdToPhp\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Asmir Mustafic",
-                    "email": "goetas@gmail.com"
-                }
-            ],
-            "description": "Convert XSD  (XML Schema) definitions into PHP classes and JMS metadata",
-            "keywords": [
-                "converter",
-                "jms",
-                "php",
-                "serializer",
-                "xml",
-                "xsd"
-            ],
-            "support": {
-                "issues": "https://github.com/goetas-webservices/xsd2php/issues",
-                "source": "https://github.com/goetas-webservices/xsd2php/tree/0.4.14"
-            },
-            "funding": [
-                {
-                    "url": "https://www.goetas.com/",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/goetas",
-                    "type": "github"
-                },
-                {
-                    "url": "https://www.patreon.com/goetas",
-                    "type": "patreon"
-                }
-            ],
-            "time": "2025-03-13T19:59:00+00:00"
-        },
-        {
             "name": "liip/functional-test-bundle",
             "version": "4.15.0",
             "source": {
@@ -21459,6 +20988,69 @@
                 }
             ],
             "time": "2025-08-01T08:46:24+00:00"
+        },
+        {
+            "name": "myclabs/php-enum",
+            "version": "1.8.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/myclabs/php-enum.git",
+                "reference": "e7be26966b7398204a234f8673fdad5ac6277802"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/myclabs/php-enum/zipball/e7be26966b7398204a234f8673fdad5ac6277802",
+                "reference": "e7be26966b7398204a234f8673fdad5ac6277802",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": "^7.3 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5",
+                "squizlabs/php_codesniffer": "1.*",
+                "vimeo/psalm": "^4.6.2 || ^5.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MyCLabs\\Enum\\": "src/"
+                },
+                "classmap": [
+                    "stubs/Stringable.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP Enum contributors",
+                    "homepage": "https://github.com/myclabs/php-enum/graphs/contributors"
+                }
+            ],
+            "description": "PHP Enum implementation",
+            "homepage": "https://github.com/myclabs/php-enum",
+            "keywords": [
+                "enum"
+            ],
+            "support": {
+                "issues": "https://github.com/myclabs/php-enum/issues",
+                "source": "https://github.com/myclabs/php-enum/tree/1.8.5"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/mnapoli",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/myclabs/php-enum",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2025-01-14T11:49:03+00:00"
         },
         {
             "name": "netresearch/jsonmapper",
@@ -21985,132 +21577,6 @@
                 "source": "https://github.com/php-parallel-lint/PHP-Console-Highlighter/tree/v1.0.0"
             },
             "time": "2022-02-18T08:23:19+00:00"
-        },
-        {
-            "name": "phpspec/prophecy",
-            "version": "v1.26.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "09c2e5949d676286358a62af818f8407167a9dd6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/09c2e5949d676286358a62af818f8407167a9dd6",
-                "reference": "09c2e5949d676286358a62af818f8407167a9dd6",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/instantiator": "^1.2 || ^2.0",
-                "php": "8.2.* || 8.3.* || 8.4.* || 8.5.*",
-                "phpdocumentor/reflection-docblock": "^5.2 || ^6.0",
-                "sebastian/comparator": "^3.0 || ^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0",
-                "sebastian/recursion-context": "^3.0 || ^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0",
-                "symfony/deprecation-contracts": "^2.5 || ^3.1"
-            },
-            "require-dev": {
-                "php-cs-fixer/shim": "^3.93.1",
-                "phpspec/phpspec": "^6.0 || ^7.0 || ^8.0",
-                "phpstan/phpstan": "^2.1.13, <2.1.34 || ^2.1.39",
-                "phpunit/phpunit": "^11.0 || ^12.0 || ^13.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Prophecy\\": "src/Prophecy"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Konstantin Kudryashov",
-                    "email": "ever.zet@gmail.com",
-                    "homepage": "http://everzet.com"
-                },
-                {
-                    "name": "Marcello Duarte",
-                    "email": "marcello.duarte@gmail.com"
-                }
-            ],
-            "description": "Highly opinionated mocking framework for PHP 5.3+",
-            "homepage": "https://github.com/phpspec/prophecy",
-            "keywords": [
-                "Double",
-                "Dummy",
-                "dev",
-                "fake",
-                "mock",
-                "spy",
-                "stub"
-            ],
-            "support": {
-                "issues": "https://github.com/phpspec/prophecy/issues",
-                "source": "https://github.com/phpspec/prophecy/tree/v1.26.1"
-            },
-            "time": "2026-04-13T14:35:16+00:00"
-        },
-        {
-            "name": "phpspec/prophecy-phpunit",
-            "version": "v2.5.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/phpspec/prophecy-phpunit.git",
-                "reference": "89f91b01d0640b7820e427e02a007bc6489d8a26"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy-phpunit/zipball/89f91b01d0640b7820e427e02a007bc6489d8a26",
-                "reference": "89f91b01d0640b7820e427e02a007bc6489d8a26",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.3 || ^8",
-                "phpspec/prophecy": "^1.18",
-                "phpunit/phpunit": "^9.1 || ^10.1 || ^11.0 || ^12.0 || ^13.0"
-            },
-            "require-dev": {
-                "phpstan/phpstan": "^1.10"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Prophecy\\PhpUnit\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Christophe Coevoet",
-                    "email": "stof@notk.org"
-                }
-            ],
-            "description": "Integrating the Prophecy mocking library in PHPUnit test cases",
-            "homepage": "http://phpspec.net",
-            "keywords": [
-                "phpunit",
-                "prophecy"
-            ],
-            "support": {
-                "issues": "https://github.com/phpspec/prophecy-phpunit/issues",
-                "source": "https://github.com/phpspec/prophecy-phpunit/tree/v2.5.0"
-            },
-            "time": "2026-02-09T15:40:55+00:00"
         },
         {
             "name": "phpstan/phpstan",
@@ -24269,85 +23735,6 @@
             "time": "2025-12-15T09:00:41+00:00"
         },
         {
-            "name": "squizlabs/php_codesniffer",
-            "version": "4.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "0525c73950de35ded110cffafb9892946d7771b5"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/0525c73950de35ded110cffafb9892946d7771b5",
-                "reference": "0525c73950de35ded110cffafb9892946d7771b5",
-                "shasum": ""
-            },
-            "require": {
-                "ext-simplexml": "*",
-                "ext-tokenizer": "*",
-                "ext-xmlwriter": "*",
-                "php": ">=7.2.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^8.4.0 || ^9.3.4 || ^10.5.32 || 11.3.3 - 11.5.28 || ^11.5.31"
-            },
-            "bin": [
-                "bin/phpcbf",
-                "bin/phpcs"
-            ],
-            "type": "library",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Greg Sherwood",
-                    "role": "Former lead"
-                },
-                {
-                    "name": "Juliette Reinders Folmer",
-                    "role": "Current lead"
-                },
-                {
-                    "name": "Contributors",
-                    "homepage": "https://github.com/PHPCSStandards/PHP_CodeSniffer/graphs/contributors"
-                }
-            ],
-            "description": "PHP_CodeSniffer tokenizes PHP files and detects violations of a defined set of coding standards.",
-            "homepage": "https://github.com/PHPCSStandards/PHP_CodeSniffer",
-            "keywords": [
-                "phpcs",
-                "standards",
-                "static analysis"
-            ],
-            "support": {
-                "issues": "https://github.com/PHPCSStandards/PHP_CodeSniffer/issues",
-                "security": "https://github.com/PHPCSStandards/PHP_CodeSniffer/security/policy",
-                "source": "https://github.com/PHPCSStandards/PHP_CodeSniffer",
-                "wiki": "https://github.com/PHPCSStandards/PHP_CodeSniffer/wiki"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/PHPCSStandards",
-                    "type": "github"
-                },
-                {
-                    "url": "https://github.com/jrfnl",
-                    "type": "github"
-                },
-                {
-                    "url": "https://opencollective.com/php_codesniffer",
-                    "type": "open_collective"
-                },
-                {
-                    "url": "https://thanks.dev/u/gh/phpcsstandards",
-                    "type": "thanks_dev"
-                }
-            ],
-            "time": "2025-11-10T16:43:36+00:00"
-        },
-        {
             "name": "symfony/debug-bundle",
             "version": "v6.4.35",
             "source": {
@@ -25058,450 +24445,6 @@
             "time": "2023-07-15T05:44:30+00:00"
         },
         {
-            "name": "wsdltophp/domhandler",
-            "version": "2.0.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/WsdlToPhp/DomHandler.git",
-                "reference": "21eb8c020484508268a57a5393ed93ab938b7786"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/WsdlToPhp/DomHandler/zipball/21eb8c020484508268a57a5393ed93ab938b7786",
-                "reference": "21eb8c020484508268a57a5393ed93ab938b7786",
-                "shasum": ""
-            },
-            "require": {
-                "ext-dom": "*",
-                "php": ">=7.4"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "~3.0",
-                "phpstan/phpstan": "^1.4",
-                "phpunit/phpunit": "^9"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "WsdlToPhp\\DomHandler\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mikaël DELSOL",
-                    "email": "contact@wsdltophp.com",
-                    "homepage": "https://www.wsdltophp.com",
-                    "role": "Owner"
-                },
-                {
-                    "name": "phordijk",
-                    "role": "Contributor"
-                }
-            ],
-            "description": "Decorative design pattern to ease DOM handling",
-            "homepage": "https://github.com/WsdlToPhp/DomHandler",
-            "keywords": [
-                "Xpath",
-                "dom",
-                "php",
-                "xml"
-            ],
-            "support": {
-                "email": "contact@wsdltophp.com",
-                "issues": "https://github.com/WsdlToPhp/DomHandler/issues",
-                "source": "https://github.com/WsdlToPhp/DomHandler/tree/2.0.6"
-            },
-            "time": "2022-03-24T20:28:45+00:00"
-        },
-        {
-            "name": "wsdltophp/packagebase",
-            "version": "5.0.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/WsdlToPhp/PackageBase.git",
-                "reference": "7a92579b0f854ef1cb56c7a0f3aace175b9d2639"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/WsdlToPhp/PackageBase/zipball/7a92579b0f854ef1cb56c7a0f3aace175b9d2639",
-                "reference": "7a92579b0f854ef1cb56c7a0f3aace175b9d2639",
-                "shasum": ""
-            },
-            "require": {
-                "ext-dom": "*",
-                "ext-json": "*",
-                "ext-soap": "*",
-                "php": ">=7.4"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.0",
-                "phpstan/phpstan": "^2",
-                "phpunit/phpunit": "^9",
-                "rector/rector": "^2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "WsdlToPhp\\PackageBase\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mikaël DELSOL",
-                    "email": "contact@wsdltophp.com",
-                    "role": "Owner"
-                },
-                {
-                    "name": "Luke Rodgers",
-                    "email": "lukerodgers90@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Arthur Moore",
-                    "email": "github@cd-net.net",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Necati Yared Ozal",
-                    "email": "mail@necatiozal.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Gemorroj",
-                    "email": "wapinet@mail.ru",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "hordijk",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Jacob Dreesen",
-                    "email": "jacob.dreesen@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Karl Pierce",
-                    "email": "kpierce@ratespecial.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "maurobn",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Christo Yovev",
-                    "role": "Contributor"
-                }
-            ],
-            "description": "Contains the base classes to be used by classes generated by wsdltophp/packagegenerator",
-            "homepage": "https://github.com/WsdlToPhp/PackageBase",
-            "keywords": [
-                "models",
-                "php"
-            ],
-            "support": {
-                "email": "contact@wsdltophp.com",
-                "issues": "https://github.com/WsdlToPhp/PackageBase/issues",
-                "source": "https://github.com/WsdlToPhp/PackageBase/tree/5.0.5"
-            },
-            "time": "2026-02-07T10:55:33+00:00"
-        },
-        {
-            "name": "wsdltophp/packagegenerator",
-            "version": "4.1.17",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/WsdlToPhp/PackageGenerator.git",
-                "reference": "78c996d03cc1098cb2c24d4717f94fc8706c57f7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/WsdlToPhp/PackageGenerator/zipball/78c996d03cc1098cb2c24d4717f94fc8706c57f7",
-                "reference": "78c996d03cc1098cb2c24d4717f94fc8706c57f7",
-                "shasum": ""
-            },
-            "require": {
-                "composer/composer": "^2.0",
-                "ext-dom": "*",
-                "ext-json": "*",
-                "ext-libxml": "*",
-                "ext-mbstring": "*",
-                "ext-soap": "*",
-                "php": ">=7.4",
-                "symfony/console": "^4.0|^5.0|^6.0|^7.0|^8.0",
-                "symfony/yaml": "^4.0|^5.0|^6.0|^7.0|^8.0",
-                "wsdltophp/packagebase": "^5.0",
-                "wsdltophp/phpgenerator": "^4.0",
-                "wsdltophp/wsdlhandler": "^1.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.0",
-                "phpstan/phpstan": "^2",
-                "phpunit/phpunit": "^9",
-                "rector/rector": "^2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "WsdlToPhp\\PackageGenerator\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mikaël DELSOL",
-                    "email": "contact@wsdltophp.com",
-                    "homepage": "https://www.wsdltophp.com",
-                    "role": "Owner"
-                },
-                {
-                    "name": "Gemorroj",
-                    "email": "wapinet@mail.ru",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "ceeram",
-                    "email": "c33ram@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "GroxExMachine",
-                    "email": "grox@mail.ru",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Jan Zaeske",
-                    "email": "mail@jzaeske.de",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Tom Mottram",
-                    "email": "tom@pay4later.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Catirau Mihail",
-                    "email": "ustmaestro@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Alexander M. Turek",
-                    "email": "me@derrabus.de",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Valérian Girard",
-                    "email": "waldo2188@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "hordijk",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Andreas Möller",
-                    "email": "am@localheinz.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Andreas Kintzinger",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Hendrik Luup",
-                    "email": "hendrik@luup.info",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Jacob Dreesen",
-                    "email": "jacob.dreesen@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Clifford Vickrey",
-                    "email": "clifforddavidvickrey@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Arnaud POINTET",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "dypa",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "gugglegum",
-                    "email": "gugglegum@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "tbreuss",
-                    "email": "thomasbreuss@gmx.ch",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Alex Krátký",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Michel Tomas",
-                    "email": "michel.p.tomas@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Kai Dederichs",
-                    "role": "Contributor"
-                }
-            ],
-            "description": "Generate hierarchical PHP classes based on a WSDL",
-            "homepage": "https://github.com/WsdlToPhp/PackageGenerator",
-            "keywords": [
-                "generator",
-                "php",
-                "soap",
-                "wsdl"
-            ],
-            "support": {
-                "email": "contact@wsdltophp.com",
-                "issues": "https://github.com/WsdlToPhp/PackageGenerator/issues",
-                "source": "https://github.com/WsdlToPhp/PackageGenerator/tree/4.1.17"
-            },
-            "time": "2026-03-17T04:49:49+00:00"
-        },
-        {
-            "name": "wsdltophp/phpgenerator",
-            "version": "4.1.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/WsdlToPhp/PhpGenerator.git",
-                "reference": "95ea84741b88bf5adb37ddecc8d2da4b980134fd"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/WsdlToPhp/PhpGenerator/zipball/95ea84741b88bf5adb37ddecc8d2da4b980134fd",
-                "reference": "95ea84741b88bf5adb37ddecc8d2da4b980134fd",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.4"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.0",
-                "phpstan/phpstan": "^2",
-                "phpunit/phpunit": "^9",
-                "rector/rector": "^2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "WsdlToPhp\\PhpGenerator\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mikaël DELSOL",
-                    "email": "contact@wsdltophp.com",
-                    "role": "Owner"
-                },
-                {
-                    "name": "survik1",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Alden Weddleton",
-                    "role": "Contributor"
-                }
-            ],
-            "description": "Generate php source file",
-            "homepage": "https://github.com/WsdlToPhp/PhpGenerator",
-            "keywords": [
-                "generator",
-                "php"
-            ],
-            "support": {
-                "email": "contact@wsdltophp.com",
-                "issues": "https://github.com/WsdlToPhp/PhpGenerator/issues",
-                "source": "https://github.com/WsdlToPhp/PhpGenerator/tree/4.1.4"
-            },
-            "time": "2026-03-21T12:33:11+00:00"
-        },
-        {
-            "name": "wsdltophp/wsdlhandler",
-            "version": "1.0.7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/WsdlToPhp/WsdlHandler.git",
-                "reference": "4067dc4c1f46cd072e41edeea6d80ed6e1c818e4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/WsdlToPhp/WsdlHandler/zipball/4067dc4c1f46cd072e41edeea6d80ed6e1c818e4",
-                "reference": "4067dc4c1f46cd072e41edeea6d80ed6e1c818e4",
-                "shasum": ""
-            },
-            "require": {
-                "ext-dom": "*",
-                "php": ">=7.4",
-                "wsdltophp/domhandler": "~2.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "~3.0",
-                "phpstan/phpstan": "^1.4",
-                "phpunit/phpunit": "^9"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "WsdlToPhp\\WsdlHandler\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mikaël DELSOL",
-                    "email": "contact@wsdltophp.com",
-                    "homepage": "https://www.wsdltophp.com",
-                    "role": "Owner"
-                }
-            ],
-            "description": "Decorative design pattern to ease WSDL handling",
-            "homepage": "https://github.com/WsdlToPhp/WsdlHandler",
-            "keywords": [
-                "Xpath",
-                "dom",
-                "php",
-                "wsdl",
-                "xml",
-                "xsd"
-            ],
-            "support": {
-                "email": "contact@wsdltophp.com",
-                "issues": "https://github.com/WsdlToPhp/WsdlHandler/issues",
-                "source": "https://github.com/WsdlToPhp/WsdlHandler/tree/1.0.7"
-            },
-            "time": "2025-01-13T19:40:31+00:00"
-        },
-        {
             "name": "zenstruck/assert",
             "version": "v1.7.0",
             "source": {
@@ -25691,7 +24634,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "demos-europe/demosplan-addon": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
@@ -25702,6 +24647,7 @@
         "ext-filter": "*",
         "ext-gd": "*",
         "ext-iconv": "*",
+        "ext-intl": "*",
         "ext-json": "*",
         "ext-libxml": "*",
         "ext-mbstring": "*",

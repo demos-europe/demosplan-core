@@ -136,6 +136,11 @@ class Segment extends Statement implements SegmentInterface
         return $this->place->getId();
     }
 
+    public function isLocked(): bool
+    {
+        return $this->place->isLocked();
+    }
+
     public function addComment(SegmentCommentInterface $comment): self
     {
         $this->comments->add($comment);

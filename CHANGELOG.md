@@ -6,6 +6,10 @@
 
 ## UNRELEASED
 
+### Added
+- Segment lock feature: workflow places can now be marked as locked, making segments on them read-only for users without the `feature_administrate_segment_lock` permission. Enforced on JSON:API PATCH, `segment.bulk.edit` RPC, and place updates; transitions are recorded in the segment Versionsverlauf.
+- Project config parameter `segment_lock_by_workflow_place` (default `false`) toggles the segment lock feature per project. Requires `demos-europe/demosplan-addon` ^0.68.1.
+
 ## v4.35.0 (2026-04-09)
 
 ## v4.34.0 (2026-04-09)
