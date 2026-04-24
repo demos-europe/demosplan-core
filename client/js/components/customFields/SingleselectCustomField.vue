@@ -48,6 +48,7 @@ All rights reserved
       :text="field.attributes.name"
       :tooltip="field.attributes.description || ''"
     />
+    <!-- DpMultiselect without :multiple handles { label, id } option objects via track-by/label; DpSelect does not -->
     <dp-multiselect
       :id="`custom-field-${field.id}`"
       :data-dp-validate-error-fieldname="field.attributes.name"
