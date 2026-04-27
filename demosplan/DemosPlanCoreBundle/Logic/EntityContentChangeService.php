@@ -494,9 +494,9 @@ class EntityContentChangeService
      *
      * Loads all affected segments through the ORM and creates one
      * EntityContentChange per segment via
-     * {{ @link EntityContentChangeService::createEntityContentChangeEntity }},
+     * {{ @see EntityContentChangeService::createEntityContentChangeEntity }},
      * then persists the batch through the repository — same code path as
-     * {{ @link EntityContentChangeService::addEntityContentChangeEntries }}.
+     * {{ @see EntityContentChangeService::addEntityContentChangeEntries }}.
      * Keeps the writes inside the Doctrine UnitOfWork so the surrounding
      * transaction can roll them back atomically if anything downstream fails.
      *

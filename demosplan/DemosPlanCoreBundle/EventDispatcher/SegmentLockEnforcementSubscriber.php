@@ -27,10 +27,10 @@ use Doctrine\ORM\EntityManagerInterface;
  * Rejects JSON:API PATCH writes to a segment whose current workflow place has
  * `locked = true` when the segment lock feature is enabled via project config
  * and the caller lacks the segment-lock administration permission.
- * Wraps the EDT update pipeline via {{ @link BeforeResourceUpdateFlushEvent }}.
+ * Wraps the EDT update pipeline via {{ @see BeforeResourceUpdateFlushEvent }}.
  *
  * The check uses the *original* place (read from the UnitOfWork's original
- * entity data — see {{ @link SegmentLockEnforcementSubscriber::resolveOriginalPlace }}
+ * entity data — see {{ @see SegmentLockEnforcementSubscriber::resolveOriginalPlace }}
  * for why the change set is unreliable here) so that a non-admin cannot
  * escape the lock by including a place change in the PATCH payload.
  *

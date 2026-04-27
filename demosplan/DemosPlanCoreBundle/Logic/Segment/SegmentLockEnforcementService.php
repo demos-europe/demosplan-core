@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  * Central enforcement point for the segment-lock feature.
  *
  * Mirrors the shape of
- * {{ @link StatementService::isStatementObjectLockedByAssignment }}: a
+ * {{ @see StatementService::isStatementObjectLockedByAssignment }}: a
  * two-step "is this user blocked from writing this segment?" check, used by
  * every write surface that could touch a segment on a locked workflow place.
  *
