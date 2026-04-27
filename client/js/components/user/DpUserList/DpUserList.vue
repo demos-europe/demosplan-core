@@ -79,7 +79,7 @@
             @click="resetSelection"
           />
           <dp-button
-            v-if="hasPermission('feature_user_delete') || true"
+            v-if="hasPermission('feature_user_delete')"
             class="p-1"
             color="warning"
             data-cy="deleteSelectedItems"
