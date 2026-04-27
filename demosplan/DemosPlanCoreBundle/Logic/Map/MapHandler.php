@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
 use demosplan\DemosPlanCoreBundle\Exception\FunctionalLogicException;
 use demosplan\DemosPlanCoreBundle\Exception\GisLayerCategoryTreeTooDeepException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Map\GisLayerValidator\BaseLayerVisibilityValidator;
 use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\ORM\EntityManagerInterface;
@@ -376,6 +377,29 @@ class MapHandler extends CoreHandler
     public function updateGis($data)
     {
         return $this->mapService->updateGis($data);
+    }
+
+    /**
+     * Disable defaultVisibility for all global base layers except the given one.
+     * Uses a single DQL UPDATE to avoid cascading per-procedure copy updates.
+     */
+    public function disableDefaultVisibilityForOtherGlobalBaseLayers(string $exceptLayerId): void
+    {
+        $this->entityManager
+            ->createQueryBuilder()
+            ->update(GisLayer::class, 'g')
+            ->set('g.defaultVisibility', ':false')
+            ->where('g.procedureId = :procedureId')
+            ->andWhere('g.type = :type')
+            ->andWhere('g.id != :exceptId')
+            ->andWhere('g.defaultVisibility = :true')
+            ->setParameter('false', false)
+            ->setParameter('true', true)
+            ->setParameter('procedureId', '')
+            ->setParameter('type', BaseLayerVisibilityValidator::BASE_LAYER_TYPE)
+            ->setParameter('exceptId', $exceptLayerId)
+            ->getQuery()
+            ->execute();
     }
 
     /**
