@@ -19,8 +19,8 @@ namespace demosplan\DemosPlanCoreBundle\Exception;
  * Mirrors the shape of LockedByAssignmentException for the workflow-place
  * based lock feature. Callers are responsible for composing the exception
  * message and for adding a matching entry to the MessageBag (e.g.
- * `warning.segment.locked.by.place` for a single-segment reject or
- * `warning.segment.bulk.contains.locked` for a batch reject) so the user
+ * `error.segment.locked.by.place` for a single-segment reject or
+ * `error.segment.bulk.contains.locked` for a batch reject) so the user
  * sees a clear explanation in addition to the HTTP 403 that Symfony
  * produces for AccessDeniedException subclasses.
  */

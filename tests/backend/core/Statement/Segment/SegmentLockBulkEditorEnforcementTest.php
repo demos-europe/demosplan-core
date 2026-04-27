@@ -16,7 +16,6 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
 use demosplan\DemosPlanCoreBundle\Exception\SegmentLockedException;
@@ -37,9 +36,10 @@ use Tests\Base\FunctionalTestCase;
  * exercised against real entities.
  *
  * Collaborators unrelated to lock enforcement are mocked with no
- * expectations; the enforcement service is mocked to return pre-programmed
- * per-segment answers so the truth-table rows can be exercised independently
- * of the live permission/config pipeline (that one has its own unit test).
+ * expectations; the enforcement service is mocked to report enforcement as
+ * applicable, so per-segment lock state is driven entirely by the real
+ * Place entities attached to each fixture (the feature-off / admin-bypass
+ * paths have their own unit test).
  */
 class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
 {
@@ -51,7 +51,7 @@ class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
             'place' => PlaceFactory::createOne(['locked' => false]),
         ])->_real();
 
-        $this->sut = $this->buildSut(lockedSegmentIds: []);
+        $this->sut = $this->buildSut();
 
         self::assertSame([], $this->sut->findLockedSegments([$segment]));
     }
@@ -65,7 +65,7 @@ class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
             'place' => PlaceFactory::createOne(['locked' => false]),
         ])->_real();
 
-        $this->sut = $this->buildSut(lockedSegmentIds: [$lockedSegment->getId()]);
+        $this->sut = $this->buildSut();
 
         self::assertSame(
             [$lockedSegment],
@@ -82,7 +82,7 @@ class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
         $messageBag = $this->createMock(MessageBagInterface::class);
         $messageBag->expects(self::never())->method('add');
 
-        $this->sut = $this->buildSut(lockedSegmentIds: [], messageBag: $messageBag);
+        $this->sut = $this->buildSut(messageBag: $messageBag);
 
         $this->sut->assertBatchEditable([$segment]);
 
@@ -105,35 +105,25 @@ class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
         $messageBag->expects(self::once())
             ->method('add')
             ->with(
-                'warning',
-                'warning.segment.bulk.contains.locked',
+                'error',
+                'error.segment.bulk.contains.locked',
                 ['count' => 2],
             );
 
-        $this->sut = $this->buildSut(
-            lockedSegmentIds: [$locked1->getId(), $locked2->getId()],
-            messageBag: $messageBag,
-        );
+        $this->sut = $this->buildSut(messageBag: $messageBag);
 
         $this->expectException(SegmentLockedException::class);
         $this->sut->assertBatchEditable([$locked1, $locked2, $unlocked]);
     }
 
     /**
-     * @param list<string>                                                      $lockedSegmentIds
-     *                                                                                             Identifiers the enforcement stub will report as locked for
-     *                                                                                             the current user; everything else is treated as unlocked
      * @param MessageBagInterface&\PHPUnit\Framework\MockObject\MockObject|null $messageBag
      */
     private function buildSut(
-        array $lockedSegmentIds,
         ?MessageBagInterface $messageBag = null,
     ): SegmentBulkEditorService {
         $enforcement = $this->createMock(SegmentLockEnforcementService::class);
-        $enforcement->method('isSegmentLockedForCurrentUser')
-            ->willReturnCallback(
-                static fn (Segment $segment): bool => in_array($segment->getId(), $lockedSegmentIds, true)
-            );
+        $enforcement->method('isEnforcementApplicable')->willReturn(true);
 
         return new SegmentBulkEditorService(
             $this->createMock(UserHandler::class),

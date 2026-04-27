@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Segment;
 
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
  * Pure unit test for the decision logic in SegmentLockEnforcementService.
- * Collaborators (PermissionsInterface, ParameterBagInterface) are mocked so
+ * Collaborators (CurrentUserInterface, ParameterBagInterface) are mocked so
  * each of the four truth-table rows can be exercised independently.
  */
 class SegmentLockEnforcementServiceTest extends TestCase
@@ -71,6 +71,14 @@ class SegmentLockEnforcementServiceTest extends TestCase
         self::assertFalse($this->buildSut(featureEnabled: false, hasPermission: false)->isFeatureEnabled());
     }
 
+    public function testIsEnforcementApplicableComposesFeatureFlagAndAdminPermission(): void
+    {
+        self::assertFalse($this->buildSut(featureEnabled: false, hasPermission: false)->isEnforcementApplicable());
+        self::assertFalse($this->buildSut(featureEnabled: false, hasPermission: true)->isEnforcementApplicable());
+        self::assertFalse($this->buildSut(featureEnabled: true, hasPermission: true)->isEnforcementApplicable());
+        self::assertTrue($this->buildSut(featureEnabled: true, hasPermission: false)->isEnforcementApplicable());
+    }
+
     private function buildSut(bool $featureEnabled, bool $hasPermission): SegmentLockEnforcementService
     {
         $parameterBag = $this->createMock(ParameterBagInterface::class);
@@ -78,12 +86,12 @@ class SegmentLockEnforcementServiceTest extends TestCase
             ->with(SegmentLockEnforcementService::CONFIG_PARAM_FEATURE_ENABLED)
             ->willReturn($featureEnabled);
 
-        $permissions = $this->createMock(PermissionsInterface::class);
-        $permissions->method('hasPermission')
+        $currentUser = $this->createMock(CurrentUserInterface::class);
+        $currentUser->method('hasPermission')
             ->with(SegmentLockEnforcementService::PERMISSION_ADMINISTRATE)
             ->willReturn($hasPermission);
 
-        return new SegmentLockEnforcementService($parameterBag, $permissions);
+        return new SegmentLockEnforcementService($currentUser, $parameterBag);
     }
 
     private function segmentOnPlace(bool $locked): Segment

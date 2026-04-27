@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -34,8 +34,8 @@ class SegmentLockEnforcementService
     public const PERMISSION_ADMINISTRATE = 'feature_administrate_segment_lock';
 
     public function __construct(
+        private readonly CurrentUserInterface $currentUser,
         private readonly ParameterBagInterface $parameterBag,
-        private readonly PermissionsInterface $permissions,
     ) {
     }
 
@@ -59,15 +59,25 @@ class SegmentLockEnforcementService
      */
     public function isPlaceLockedForCurrentUser(?Place $place): bool
     {
-        if (!$this->isFeatureEnabled()) {
+        if (!$this->isEnforcementApplicable()) {
             return false;
         }
 
-        if (!$place instanceof Place || !$place->isLocked()) {
-            return false;
-        }
+        return $place instanceof Place && $place->isLocked();
+    }
 
-        return !$this->permissions->hasPermission(self::PERMISSION_ADMINISTRATE);
+    /**
+     * True when segment-lock enforcement applies to the current request at all.
+     *
+     * Composes the two batch-invariant checks (feature flag + administrate
+     * permission) so batch callers can short-circuit once instead of asking
+     * per segment. When this returns false the rest of the enforcement chain
+     * is a no-op for every place in the request.
+     */
+    public function isEnforcementApplicable(): bool
+    {
+        return $this->isFeatureEnabled()
+            && !$this->currentUser->hasPermission(self::PERMISSION_ADMINISTRATE);
     }
 
     public function isFeatureEnabled(): bool

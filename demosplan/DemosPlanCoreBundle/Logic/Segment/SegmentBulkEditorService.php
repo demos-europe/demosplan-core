@@ -61,10 +61,15 @@ class SegmentBulkEditorService
      */
     public function findLockedSegments(array $segments): array
     {
+        // Short-circuit on the batch-invariant checks (feature flag +
+        // administrate permission) so we don't re-ask them per segment.
+        if (!$this->segmentLockEnforcementService->isEnforcementApplicable()) {
+            return [];
+        }
+
         return array_values(array_filter(
             $segments,
-            fn (Segment $segment): bool => $this->segmentLockEnforcementService
-                ->isSegmentLockedForCurrentUser($segment),
+            static fn (Segment $segment): bool => $segment->getPlace()->isLocked(),
         ));
     }
 
@@ -96,8 +101,8 @@ class SegmentBulkEditorService
         }
 
         $this->messageBag->add(
-            'warning',
-            'warning.segment.bulk.contains.locked',
+            'error',
+            'error.segment.bulk.contains.locked',
             ['count' => count($lockedSegments)],
         );
 

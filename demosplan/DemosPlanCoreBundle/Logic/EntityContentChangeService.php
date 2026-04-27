@@ -30,6 +30,8 @@ use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use InvalidArgumentException;
@@ -506,22 +508,21 @@ class EntityContentChangeService
      * atomically if anything downstream fails.
      *
      * No-op when old and new are identical (no real toggle).
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function createSegmentLockedChangeEntriesForPlaceToggle(
         Place $place,
         bool $oldLocked,
         bool $newLocked,
     ): void {
-        if (!$this->segmentLockEnforcementService->isFeatureEnabled()) {
+        if (!$this->segmentLockEnforcementService->isFeatureEnabled()
+            || $oldLocked === $newLocked)
+        {
             return;
         }
 
-        if ($oldLocked === $newLocked) {
-            return;
-        }
-
-        $segments = $this->doctrine->getManager()
-            ->getRepository(Segment::class)
+        $segments = $this->repositoryHelper->getRepository(Segment::class)
             ->findBy(['place' => $place]);
         if ([] === $segments) {
             return;

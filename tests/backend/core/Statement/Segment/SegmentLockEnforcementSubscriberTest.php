@@ -99,7 +99,7 @@ class SegmentLockEnforcementSubscriberTest extends TestCase
         $this->messageBag
             ->expects(self::once())
             ->method('add')
-            ->with('warning', 'warning.segment.locked.by.place');
+            ->with('error', 'error.segment.locked.by.place');
 
         $this->contentChanges
             ->expects(self::never())

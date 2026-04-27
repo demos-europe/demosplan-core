@@ -28,12 +28,13 @@ use Doctrine\ORM\EntityManagerInterface;
  * `locked = true` when the caller lacks the segment-lock administration
  * permission. Wraps the EDT update pipeline via BeforeResourceUpdateFlushEvent.
  *
- * The check uses the *original* place (from Doctrine's UnitOfWork change set)
- * so that a non-admin cannot escape the lock by including a place change in
- * the PATCH payload — for example submitting `{ place: unlockedTarget, text:
- * "new text" }` on a segment currently on a locked place would otherwise make
- * `$segment->getPlace()` read as the unlocked target by the time this event
- * fires, silently letting the write through.
+ * The check uses the *original* place (read from the UnitOfWork's original
+ * entity data — see `resolveOriginalPlace()` for why the change set cannot be
+ * used here) so that a non-admin cannot escape the lock by including a place
+ * change in the PATCH payload — for example submitting `{ place:
+ * unlockedTarget, text: "new text" }` on a segment currently on a locked place
+ * would otherwise make `$segment->getPlace()` read as the unlocked target by
+ * the time this event fires, silently letting the write through.
  *
  * Holders of the administration permission are short-circuited inside the
  * enforcement service and pass through unaffected, enabling the FPA unlock
@@ -70,7 +71,7 @@ class SegmentLockEnforcementSubscriber extends BaseEventSubscriber
         $originalPlace = $this->resolveOriginalPlace($segment);
 
         if ($this->segmentLockEnforcementService->isPlaceLockedForCurrentUser($originalPlace)) {
-            $this->messageBag->add('warning', 'warning.segment.locked.by.place');
+            $this->messageBag->add('error', 'error.segment.locked.by.place');
 
             throw new SegmentLockedException(sprintf(
                 'Segment %s is locked for the current user.',
@@ -103,8 +104,9 @@ class SegmentLockEnforcementSubscriber extends BaseEventSubscriber
             return $originalData['place'];
         }
 
-        $current = $segment->getPlace();
-
-        return $current instanceof Place ? $current : null;
+        // Fallback for entities not tracked by the UoW yet (no original data
+        // recorded). Segment::getPlace() is typed PlaceInterface, but Place
+        // is its only concrete implementation in this codebase.
+        return $segment->getPlace();
     }
 }
