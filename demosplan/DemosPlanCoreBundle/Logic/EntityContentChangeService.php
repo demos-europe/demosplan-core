@@ -1287,12 +1287,15 @@ class EntityContentChangeService
         $changes = [];
 
         foreach ($fieldsToTrack as $propertyName => $fieldMetaData) {
-            // Skip fields that are only tracked for display purposes and are
-            // not backed by a real Doctrine column (e.g. Segment::locked,
-            // which is derived from place->locked). The auto-diff pipeline
-            // would otherwise fail when comparing the blank preUpdate value
-            // to a typed getter result.
-            if (true === ($fieldMetaData['skipAutoDiff'] ?? false)) {
+            /**
+             * Display-only field derived from {{ @link Segment::isLocked }};
+             * entries are emitted explicitly by
+             * {{ @link EntityContentChangeService::createSegmentLockedChangeEntryOnPlaceChange }}
+             * and {{ @link EntityContentChangeService::createSegmentLockedChangeEntriesForPlaceToggle }}.
+             * The auto-diff pipeline would otherwise compare a blank
+             * preUpdate to the bool getter result and produce noise.
+             */
+            if ('locked' === $propertyName) {
                 continue;
             }
             if ('customFields' === $propertyName) {
@@ -1342,8 +1345,11 @@ class EntityContentChangeService
         $class = ClassUtils::getClass($preUpdateObject);
 
         foreach ($fieldsToTrack as $propertyName => $fieldMetaData) {
-            // See skip reasoning in calculateChangesOfStandardFieldsOfPreUpdateArrayAndPostUpdateObject.
-            if (true === ($fieldMetaData['skipAutoDiff'] ?? false)) {
+            /**
+             * See skip reasoning in
+             * {{ @link EntityContentChangeService::calculateChangesOfStandardFieldsOfPreUpdateArrayAndPostUpdateObject }}.
+             */
+            if ('locked' === $propertyName) {
                 continue;
             }
             if ('customFields' === $propertyName) {
