@@ -196,22 +196,23 @@ class SegmentLockEnforcementSubscriberTest extends TestCase
      * feed it into a {{ @param class-string<T> $class}}.
      *
      * @return T
+     *
      * @throws ReflectionException
-     * @link BeforeResourceUpdateFlushEvent
+     *
+     * @see BeforeResourceUpdateFlushEvent
      *
      * Why the reflection bypass is safe in this test:
      *  - The subscriber under test reads the resource type *only* via
      *    `$event->getType() instanceof StatementSegmentResourceType`. No
      *    property is accessed, no method is invoked, so any object state
      *    that the constructor would normally establish is never observed.
-     *  - The resource types ({{ @link PlaceResourceType }},
-     *    {{ @link StatementSegmentResourceType }}) are `final`, which rules
+     *  - The resource types ({{ @see PlaceResourceType }},
+     *    {{ @see StatementSegmentResourceType }}) are `final`, which rules
      *    out `createMock()` and a hand-rolled subclass.
      *  - The bypass is scoped to test code; production never instantiates
      *    these classes this way.
      *
      * @template T of object
-     *
      */
     private function bareInstance(string $class): object
     {

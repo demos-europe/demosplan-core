@@ -75,5 +75,4 @@ class SegmentLockBlueprintPropagationTest extends FunctionalTestCase
             'Unlocked blueprint place must propagate `locked=false` to the cloned procedure',
         );
     }
-
 }

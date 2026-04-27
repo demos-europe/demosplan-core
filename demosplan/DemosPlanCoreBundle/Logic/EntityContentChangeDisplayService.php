@@ -233,7 +233,7 @@ class EntityContentChangeDisplayService
     /**
      * Resolves an entity's current field value into the human-readable text
      * vocabulary used by the rollback walk in
-     * {{ @link EntityContentChangeDisplayService::getContentChangeComparisonString }}.
+     * {{ @see EntityContentChangeDisplayService::getContentChangeComparisonString }}.
      *
      * Branches on `fieldType` from the mapping yaml plus the runtime type of
      * the value: dateTime/date are formatted; collections are flattened to a
