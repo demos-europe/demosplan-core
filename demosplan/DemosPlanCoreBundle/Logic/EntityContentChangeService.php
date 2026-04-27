@@ -452,11 +452,6 @@ class EntityContentChangeService
     }
 
     /**
-     * One of the given parameters has to be an Object, to ensure availability of information about objectType.
-     * In this case, the $contentChange parameter is the one, because in most cases you can easily
-     * get the current Object from the DB.
-     */
-    /**
      * Segment lock feature — Versionsverlauf entry for a single segment whose
      * workflow place changed and crossed the lock/unlock boundary.
      *
