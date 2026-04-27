@@ -230,7 +230,7 @@ export default {
       const url = Routing.generate('dplan_statement_segments_list', {
         statementId: rowData.id,
         procedureId: this.procedureId,
-        action: 'editText',
+        action: 'details',
       })
 
       return `${url}${submittersHash}`

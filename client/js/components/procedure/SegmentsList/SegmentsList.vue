@@ -152,7 +152,7 @@
         <div
           id="segmentsListScrollContainer"
           ref="scrollContainer"
-          class="overflow-x-auto scrollbar-none"
+          class="overflow-x-auto scrollbar-none isolate"
         >
           <dp-data-table
             ref="dataTable"
@@ -317,7 +317,7 @@
                 <a
                   class="block leading-[2] whitespace-nowrap"
                   :href="Routing.generate('dplan_statement_segments_list', {
-                    action: 'editText',
+                    action: 'details',
                     procedureId: procedureId,
                     segment: rowData.id,
                     statementId: rowData.relationships.parentStatement.data.id
