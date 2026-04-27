@@ -235,10 +235,6 @@ export default {
       }, {})
     },
 
-    deleteSelectedUsersLabel () {
-      return Translator.trans('entities.marked.delete', { entities: Translator.trans('users'), sum: this.selectedItemsCount })
-    },
-
     isUserSelected () {
       return this.selectedItemsCount > 0
     },
