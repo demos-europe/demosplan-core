@@ -139,14 +139,10 @@ export default {
           const { attributes, id, relationships, type } = category
           const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
 
-          // Sort tags naturally within each topic
-          const sortedTags = Object.values(tags)
-            .sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' }))
-
           return {
             id,
             attributes,
-            children: sortedTags.map(tag => {
+            children: tags.map(tag => {
               const { attributes, id, relationships, type } = tag
               const boilerplate = relationships?.boilerplate?.get ? relationships.boilerplate.get() : null
 
