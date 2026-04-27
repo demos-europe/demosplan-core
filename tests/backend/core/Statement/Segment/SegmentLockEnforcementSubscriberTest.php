@@ -193,13 +193,7 @@ class SegmentLockEnforcementSubscriberTest extends TestCase
 
     /**
      * Builds a constructor-less instance of a final resource type so we can
-     * feed it into a {{ @param class-string<T> $class}}.
-     *
-     * @return T
-     *
-     * @throws ReflectionException
-     *
-     * @see BeforeResourceUpdateFlushEvent
+     * feed it into a {{ @see BeforeResourceUpdateFlushEvent }}.
      *
      * Why the reflection bypass is safe in this test:
      *  - The subscriber under test reads the resource type *only* via
@@ -213,6 +207,12 @@ class SegmentLockEnforcementSubscriberTest extends TestCase
      *    these classes this way.
      *
      * @template T of object
+     *
+     * @param class-string<T> $class
+     *
+     * @return T
+     *
+     * @throws ReflectionException
      */
     private function bareInstance(string $class): object
     {
