@@ -111,7 +111,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     $this->validateRpcRequest($rpcRequest);
                     $segmentIds = $rpcRequest->params->segmentIds;
 
-                    /**
+                    /*
                      * Reject the whole batch if the segment lock feature is
                      * enabled for the current project and any segment is locked
                      * by its workflow place for the current user — see

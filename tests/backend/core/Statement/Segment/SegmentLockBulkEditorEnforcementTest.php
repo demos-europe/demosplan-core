@@ -52,7 +52,7 @@ class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
         $procedure = ProcedureFactory::createOne()->_real();
         $segment = SegmentFactory::createOne([
             'procedure' => $procedure,
-            'place' => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => false]),
+            'place'     => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => false]),
         ])->_real();
 
         $this->sut = $this->buildSut();
@@ -77,11 +77,11 @@ class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
         $procedure = ProcedureFactory::createOne()->_real();
         $lockedSegment = SegmentFactory::createOne([
             'procedure' => $procedure,
-            'place' => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => true]),
+            'place'     => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => true]),
         ])->_real();
         $unlockedSegment = SegmentFactory::createOne([
             'procedure' => $procedure,
-            'place' => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => false]),
+            'place'     => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => false]),
         ])->_real();
 
         $this->sut = $this->buildSut();
@@ -104,7 +104,7 @@ class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
         $procedureB = ProcedureFactory::createOne()->_real();
         $lockedInA = SegmentFactory::createOne([
             'procedure' => $procedureA,
-            'place' => PlaceFactory::createOne(['procedure' => $procedureA, 'locked' => true]),
+            'place'     => PlaceFactory::createOne(['procedure' => $procedureA, 'locked' => true]),
         ])->_real();
 
         $this->sut = $this->buildSut();
@@ -120,7 +120,7 @@ class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
         $procedure = ProcedureFactory::createOne()->_real();
         $segment = SegmentFactory::createOne([
             'procedure' => $procedure,
-            'place' => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => false]),
+            'place'     => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => false]),
         ])->_real();
 
         $messageBag = $this->createMock(MessageBagInterface::class);
@@ -138,15 +138,15 @@ class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
         $procedure = ProcedureFactory::createOne()->_real();
         $locked1 = SegmentFactory::createOne([
             'procedure' => $procedure,
-            'place' => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => true]),
+            'place'     => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => true]),
         ])->_real();
         $locked2 = SegmentFactory::createOne([
             'procedure' => $procedure,
-            'place' => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => true]),
+            'place'     => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => true]),
         ])->_real();
         $unlocked = SegmentFactory::createOne([
             'procedure' => $procedure,
-            'place' => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => false]),
+            'place'     => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => false]),
         ])->_real();
 
         $messageBag = $this->createMock(MessageBagInterface::class);
