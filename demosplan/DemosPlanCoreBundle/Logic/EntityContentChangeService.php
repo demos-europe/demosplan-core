@@ -493,11 +493,12 @@ class EntityContentChangeService
      * currently on $place when its `locked` flag toggled.
      *
      * Loads all affected segments through the ORM and creates one
-     * EntityContentChange per segment via createEntityContentChangeEntity,
+     * EntityContentChange per segment via
+     * {{ @link EntityContentChangeService::createEntityContentChangeEntity }},
      * then persists the batch through the repository — same code path as
-     * addEntityContentChangeEntries. Keeps the writes inside the Doctrine
-     * UnitOfWork so the surrounding transaction can roll them back
-     * atomically if anything downstream fails.
+     * {{ @link EntityContentChangeService::addEntityContentChangeEntries }}.
+     * Keeps the writes inside the Doctrine UnitOfWork so the surrounding
+     * transaction can roll them back atomically if anything downstream fails.
      *
      * No-op when old and new are identical (no real toggle).
      * @throws ORMException
