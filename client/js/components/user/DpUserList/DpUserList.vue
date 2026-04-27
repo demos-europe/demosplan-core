@@ -375,58 +375,32 @@ export default {
     },
 
     async fetchAllUsersForSelectionMap () {
-      const allUsers = {}
       const filter = this.buildUserFilter()
-      const include = ['roles', 'orga', 'department', 'orga.allowedRoles'].join()
-      let page = 1
-      let totalPages = 1
 
-      while (page <= totalPages) {
-        // Store not used so we stay on selected page
-        const response = await dpApi.get('/api/2.0/AdministratableUser', {
-          page: { number: page },
-          filter,
-          include,
-        })
+      // Store not used so we stay on selected page
+      const response = await dpApi.get('/api/2.0/AdministratableUser', {
+        filter,
+      })
 
-        const users = response.data?.data || []
-        users.forEach(user => {
-          if (!this.toggledItems.includes(user.id)) {
-            allUsers[user.id] = user
-          }
-        })
-        totalPages = response.data?.meta?.pagination?.total_pages ?? 1
-        page++
-      }
-
-      this.selectedUsersMap = allUsers
+      const users = response.data?.data || []
+      this.selectedUsersMap = users.reduce((acc, user) => {
+        if (!this.toggledItems.includes(user.id)) {
+          acc[user.id] = user
+        }
+        return acc
+      }, {})
       this.allUsersFetched = true
     },
 
     async fetchAllUserIds () {
-      const allIds = []
       const filter = this.buildUserFilter()
-      const include = ['roles', 'orga', 'department', 'orga.allowedRoles'].join()
-      let page = 1
-      let totalPages = 1
 
-      while (page <= totalPages) {
-        const response = await this.userList({
-          page: { number: page },
-          filter,
-          include,
-        })
+      // Direct API call instead of `userList`, so the store-backed current page is not replaced.
+      const response = await dpApi.get('/api/2.0/AdministratableUser', {
+        filter,
+      })
 
-        const resourceData = response.data.AdministratableUser || response.data
-        allIds.push(...Object.keys(resourceData))
-        totalPages = response.meta.pagination.total_pages
-        page++
-      }
-
-      // Restore the current page view since userList replaces store items on each call
-      this.getItemsByPage(this.currentPage)
-
-      return allIds
+      return (response.data?.data || []).map(user => user.id)
     },
 
     getFilteredItems: debounce(function () {
@@ -453,6 +427,10 @@ export default {
     async resolveSelectedIds () {
       if (!this.trackDeselected) {
         return [...this.toggledItems]
+      }
+
+      if (this.allUsersFetched) {
+        return Object.keys(this.selectedUsersMap)
       }
 
       const allIds = await this.fetchAllUserIds()
