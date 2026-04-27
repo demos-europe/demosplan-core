@@ -9,6 +9,8 @@
 ### Added
 - Support multiple custom field types and target contexts per project
 
+## v4.35.0 (2026-04-09)
+
 ## v4.34.0 (2026-04-09)
 
 ### Added
