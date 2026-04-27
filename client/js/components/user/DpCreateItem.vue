@@ -47,7 +47,6 @@
             v-bind="dynamicComponentProps"
             :is="dynamicComponent"
             ref="formFields"
-            class=""
             @[dynamicEvent]="update"
             @reset:complete="shouldResetForm = false"
           />
