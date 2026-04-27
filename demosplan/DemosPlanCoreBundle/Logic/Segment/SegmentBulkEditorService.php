@@ -52,7 +52,7 @@ class SegmentBulkEditorService
      * Return the subset of segments that are locked for the current user.
      *
      * Exposed so the RPC caller can both validate the batch (via
-     * {{ @link SegmentBulkEditorService::assertBatchEditable }}) and re-derive
+     * {{ @see SegmentBulkEditorService::assertBatchEditable }}) and re-derive
      * the locked list in its catch block to build a structured error response
      * with external IDs.
      *
@@ -79,7 +79,7 @@ class SegmentBulkEditorService
      *
      * Runs before any mutations inside the bulk-edit transaction — if any
      * segment in the batch is locked for the current user, throws
-     * {{ @link SegmentLockedException }}. The throw is caught by the RPC's
+     * {{ @see SegmentLockedException }}. The throw is caught by the RPC's
      * access-denied branch which rolls back the whole batch (no partial
      * success) and builds a structured error response for the frontend
      * with the affected external IDs and total count.
