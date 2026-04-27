@@ -123,9 +123,10 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->options
             ->setReadableByCallable(
-                static fn (CustomFieldInterface $customField): array => (new ReflectionClass($customField))->hasProperty('options')
-                        ? array_map(static fn (CustomFieldOption $option) => $option->toJson(), $customField->getOptions())
-                        : []
+                static fn (CustomFieldInterface $customField): array => array_map(
+                    static fn (CustomFieldOption $option) => $option->toJson(),
+                    $customField->getOptions()
+                )
             )
             ->addPathCreationBehavior()
             ->addPathUpdateBehavior();
