@@ -491,6 +491,10 @@ export default {
     },
 
     async toggleSelectionList () {
+      if (this.isLoadingSelectionList) {
+        return
+      }
+
       if (!this.showSelectionList && this.trackDeselected && !this.allUsersFetched) {
         this.showSelectionList = true
         this.isLoadingSelectionList = true
