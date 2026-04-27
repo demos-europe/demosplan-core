@@ -178,6 +178,7 @@ import {
   DpTextArea,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
+
 export default {
   name: 'StatementEntry',
 
@@ -246,12 +247,36 @@ export default {
       return this.$store.state.ProcedurePhaseDefinition?.items?.[id]?.attributes?.name || '-'
     },
 
+    hasUnsavedChanges () {
+      if (!this.localStatement || !this.statement) {
+        return false
+      }
+
+      const initialAttributes = this.deepCloneSerializable(this.statement.attributes)
+      initialAttributes.authoredDate = this.getFormattedDate(initialAttributes.authoredDate)
+      initialAttributes.submitDate = this.getFormattedDate(initialAttributes.submitDate)
+
+      const currentAttributes = this.localStatement.attributes
+
+      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+    },
+
     isStatementManual () {
       return this.localStatement.attributes.isManual
     },
   },
 
   methods: {
+    /**
+     * Deep clone via JSON serialization.
+     *
+     * `structuredClone()` may fail on Vuex store objects containing functions/methods.
+     */
+    deepCloneSerializable (obj) {
+      // eslint-disable-next-line unicorn/prefer-structured-clone
+      return JSON.parse(JSON.stringify(obj))
+    },
+
     getFormattedDate (date) {
       if (!date) {
         return ''
@@ -300,7 +325,7 @@ export default {
     },
 
     setInitValues () {
-      this.localStatement = JSON.parse(JSON.stringify(this.statement))
+      this.localStatement = this.deepCloneSerializable(this.statement)
       this.localStatement.attributes.authoredDate = this.getFormattedDate(this.localStatement.attributes.authoredDate)
       this.localStatement.attributes.submitDate = this.getFormattedDate(this.localStatement.attributes.submitDate)
 

@@ -3114,7 +3114,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
                 if ($this->permissions->hasPermission('feature_segments_of_statement_list')) {
                     $routeName = 'dplan_statement_segments_list';
-                    $routeParameters = ['procedureId' => $newOriginalStatement->getProcedureId(), 'statementId' => $assessableStatement->getId(), 'action' => 'editText'];
+                    $routeParameters = ['procedureId' => $newOriginalStatement->getProcedureId(), 'statementId' => $assessableStatement->getId(), 'action' => 'details'];
                 }
 
                 // check for permission to avoid link to an unreachable area
