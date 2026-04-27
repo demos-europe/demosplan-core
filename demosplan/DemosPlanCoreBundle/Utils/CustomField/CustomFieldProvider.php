@@ -17,6 +17,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 class CustomFieldProvider
 {
+    /** @var array<string, ArrayCollection> */
+    private array $cache = [];
+
     public function __construct(
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
     ) {
@@ -24,6 +27,12 @@ class CustomFieldProvider
 
     public function getCustomFieldsByCriteria(string $sourceEntity, string $sourceEntityId, string $targetEntity): ArrayCollection
     {
-        return $this->customFieldConfigurationRepository->getCustomFields($sourceEntity, $sourceEntityId, $targetEntity);
+        $cacheKey = $sourceEntity.'|'.$sourceEntityId.'|'.$targetEntity;
+
+        if (!isset($this->cache[$cacheKey])) {
+            $this->cache[$cacheKey] = $this->customFieldConfigurationRepository->getCustomFields($sourceEntity, $sourceEntityId, $targetEntity);
+        }
+
+        return $this->cache[$cacheKey];
     }
 }
