@@ -115,6 +115,16 @@ abstract class AbstractCustomField implements CustomFieldInterface
         $this->description = $description;
     }
 
+    public function getOptions(): array
+    {
+        return [];
+    }
+
+    public function getRequired(): bool
+    {
+        return false;
+    }
+
     public function setFieldType(string $type): void
     {
         $this->fieldType = $type;
