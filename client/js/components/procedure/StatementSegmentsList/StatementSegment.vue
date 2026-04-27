@@ -471,6 +471,7 @@ import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
 
 export default {
   name: 'StatementSegment',
@@ -506,6 +507,15 @@ export default {
   },
 
   mixins: [prefixClassMixin],
+
+  setup () {
+    const { init, cleanup } = useUnsavedChangesGuard()
+
+    return {
+      initUnsavedChangesGuard: init,
+      cleanupUnsavedChangesGuard: cleanup,
+    }
+  },
 
   props: {
     currentUserFirstName: {
@@ -639,12 +649,19 @@ export default {
       return Translator.trans(hasPermission('field_segments_custom_fields') ? 'fields.more.edit' : 'workflow.change.assignee.place')
     },
 
-    isAssignedToMe () {
-      return this.assignee.id === this.currentUserId
-    },
-
     hasRecommendationTabs () {
       return this.recommendationModalAddons.length > 0
+    },
+
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    hasUnsavedChanges () {
+      return this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation !== this.segment.attributes.recommendation
+    },
+
+    isAssignedToMe () {
+      return this.assignee.id === this.currentUserId
     },
 
     places () {
@@ -872,6 +889,13 @@ export default {
         })
     },
 
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    onDiscardChanges () {
+      this.abort()
+    },
+
     openBoilerPlate () {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
@@ -978,7 +1002,7 @@ export default {
         } :
         { id: this.segment.id }
 
-      this.saveSegmentAction(savePayload)
+      return this.saveSegmentAction(savePayload)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           this.isFullscreen = false
@@ -999,6 +1023,13 @@ export default {
           this.setProperty({ prop: 'isLoading', val: false })
           this.isEditing = false
         })
+    },
+
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    saveUnsavedChanges () {
+      return this.save()
     },
 
     setActiveTabId (id) {
@@ -1238,6 +1269,18 @@ export default {
           }
         })
       })
+
+    // Initialize unsaved changes guard
+    this.initUnsavedChangesGuard({
+      hasUnsavedChanges: () => this.hasUnsavedChanges,
+      saveUnsavedChanges: () => this.saveUnsavedChanges(),
+      onDiscardChanges: () => this.onDiscardChanges(),
+      componentId: `segment-${this.segment.id}`,
+    })
+  },
+
+  beforeUnmount () {
+    this.cleanupUnsavedChangesGuard()
   },
 }
 </script>
