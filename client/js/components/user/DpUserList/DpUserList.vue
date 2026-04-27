@@ -228,8 +228,9 @@ export default {
     },
 
     currentPageSelections () {
+      const toggledSet = new Set(this.toggledItems)
       return Object.keys(this.items).reduce((acc, id) => {
-        const isInToggled = this.toggledItems.includes(id)
+        const isInToggled = toggledSet.has(id)
         acc[id] = this.trackDeselected ? !isInToggled : isInToggled
         return acc
       }, {})
