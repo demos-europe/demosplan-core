@@ -113,11 +113,14 @@ class EntityContentChangeDisplayService
             );
         }
 
-        // Segment-lock feature: `locked` is derived from Segment.place.locked,
-        // so the rollback-based path below has no stable getter vocabulary
-        // to walk backwards from. The stored content_change already encodes
-        // the diff (old/new strings embedded) — just post-process it for
-        // display (CSS classes + HTML decode + Twig render).
+        // Segment-lock feature: Segment::isLocked() exists and is wired as
+        // the getterMethod for `locked` in the mapping yaml, but it returns
+        // a bool. The stored content_change uses the translated full-word
+        // vocabulary ("Gesperrt"/"Entsperrt") chosen for readability. Feeding
+        // a string-cast bool ("1"/"") into a rollback walk over translated
+        // strings would corrupt the trace, so we bypass the generic path —
+        // the stored diff is self-contained and only needs the display-side
+        // post-processing the generic path runs at its tail.
         if ('locked' === $fieldName) {
             return $this->renderLockByPlaceSwitchesJson($entityContentChange->getContentChange());
         }
@@ -246,15 +249,21 @@ class EntityContentChangeDisplayService
      * Renders a stored `locked` diff JSON directly into the Versionsverlauf
      * display HTML without going through the rollback path.
      *
-     * The rollback path assumes the field lives directly on the entity and
-     * its current value can be read via a getter whose return matches the
-     * stored diff vocabulary. `locked` doesn't fit that model — it is
-     * derived from Segment.place.locked, so there is no stable current-state
-     * anchor to walk backwards from. The content_change column already
-     * encodes the full diff (old/new strings embedded), so the only work
-     * left is the same post-processing the generic path runs at its tail:
-     * wrap <ins>/<del> with CSS classes, decode HTML entities, and render
-     * through the html_diff Twig template.
+     * The rollback path needs the current entity value in the same
+     * vocabulary as the stored diffs so it can walk backwards through them.
+     * Segment::isLocked() exists and is mapped as the getter for `locked`,
+     * but it returns a bool — and the stored content_change uses the
+     * translated full-word vocabulary ("Gesperrt"/"Entsperrt") chosen by
+     * EntityContentChangeService::lockedDiffOptions() to keep the diff
+     * readable on a binary toggle. The two don't compose: the rollback walk
+     * would start from "1"/"" and try to apply diffs recorded as "Gesperrt"
+     * → "Entsperrt", silently corrupting the trace.
+     *
+     * Since the stored content_change already embeds old and new strings,
+     * we skip the rollback entirely and only run the same post-processing
+     * the generic path applies at its tail: wrap <ins>/<del> with CSS
+     * classes, decode HTML entities, and render through the html_diff
+     * Twig template.
      *
      * Null input (when no diff was generated at emission time) is passed
      * through unchanged.
