@@ -83,73 +83,33 @@ All rights reserved
       :overlay="false"
     />
 
-    <!-- Editable (non-expandable): fieldset with legend for accessibility -->
-    <fieldset
-      v-else-if="mode === 'editable'"
-      :class="prefixClass('pb-0')"
+    <!-- Non-expandable: fieldset (editable) or div (readonly) -->
+    <component
+      :is="isEditable ? 'fieldset' : 'div'"
+      v-else
+      :class="isEditable ? prefixClass('pb-0') : null"
     >
-      <legend
-        v-if="showTitle"
-        :class="prefixClass('mb-2 text-[1em] font-[500]')"
-      >
-        {{ listTitle }}
-      </legend>
-      <dp-contextual-help
-        v-if="titleInfoText"
-        :text="titleInfoText"
-        icon="info"
-        size="medium"
-      />
-      <slot
-        :definition-source-id="definitionSourceId"
-        :definitions="definitions"
-        :enable-toggle="enableToggle"
-        :fields="fieldsToRender"
-        :fields-with-definitions="fieldsWithDefinitions"
-        :mode="mode"
-        :resource-id="resourceId"
-        :resource-type="resourceType"
-      >
-        <div :class="layoutClasses">
-          <div
-            v-for="{ field, definition } in fieldsWithDefinitions"
-            :key="field.id"
-            :class="showFieldBorders ? prefixClass('border-l-4 border-neutral pl-3') : null"
-          >
-            <custom-field
-              :definition="definition"
-              :enable-toggle="enableToggle"
-              :field-data="{ id: field.id, value: field.value }"
-              :is-active-edit="getIsActiveEdit(field.id)"
-              :mode="mode"
-              :resource-id="resourceId"
-              :resource-type="resourceType"
-              @edit:cancel="handleEditEnd(field.id)"
-              @edit:save="handleEditEnd(field.id)"
-              @edit:start="handleEditStart(field.id)"
-              @save:error="handleSaveError"
-              @save:success="handleSaveSuccess"
-              @update:value="newValue => handleValueUpdate(field.id, newValue)"
-            >
-              <!-- Forward readonly-display slot if parent provided it -->
-              <template
-                v-if="$slots['readonly-display']"
-                v-slot:readonly-display="slotProps"
-              >
-                <slot
-                  v-bind="slotProps"
-                  name="readonly-display"
-                />
-              </template>
-            </custom-field>
-          </div>
-        </div>
-      </slot>
-    </fieldset>
+      <!-- Editable header: legend + contextual-help as separate siblings (legend must be direct child of fieldset) -->
+      <template v-if="isEditable">
+        <legend
+          v-if="showTitle"
+          :class="prefixClass('mb-2 text-[1em] font-[500]')"
+        >
+          {{ listTitle }}
+        </legend>
+        <dp-contextual-help
+          v-if="titleInfoText"
+          :text="titleInfoText"
+          icon="info"
+          size="medium"
+        />
+      </template>
 
-    <!-- Readonly non-expandable: optional title (tag configurable via titleTag prop) -->
-    <div v-else>
-      <div :class="[prefixClass('flex items-center gap-1'), effectiveTitleClass]">
+      <!-- Readonly header: title + contextual-help in flex wrapper -->
+      <div
+        v-else
+        :class="[prefixClass('flex items-center gap-1'), effectiveTitleClass]"
+      >
         <component
           :is="effectiveTitleTag"
           v-if="showTitle"
@@ -164,6 +124,7 @@ All rights reserved
           size="medium"
         />
       </div>
+
       <slot
         :definition-source-id="definitionSourceId"
         :definitions="definitions"
@@ -209,7 +170,7 @@ All rights reserved
           </div>
         </div>
       </slot>
-    </div>
+    </component>
   </div>
 </template>
 
@@ -399,6 +360,10 @@ export default {
 
     hasFieldsToRender () {
       return !this.isLoading && !this.error && this.fieldsToRender.length > 0
+    },
+
+    isEditable () {
+      return this.mode === 'editable'
     },
 
     /*
