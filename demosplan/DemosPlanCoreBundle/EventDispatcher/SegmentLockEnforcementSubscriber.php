@@ -25,16 +25,13 @@ use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * Rejects JSON:API PATCH writes to a segment whose current workflow place has
- * `locked = true` when the caller lacks the segment-lock administration
- * permission. Wraps the EDT update pipeline via BeforeResourceUpdateFlushEvent.
+ * `locked = true` when the segment lock feature is enabled via project config
+ * and the caller lacks the segment-lock administration permission.
+ * Wraps the EDT update pipeline via BeforeResourceUpdateFlushEvent.
  *
  * The check uses the *original* place (read from the UnitOfWork's original
- * entity data — see `resolveOriginalPlace()` for why the change set cannot be
- * used here) so that a non-admin cannot escape the lock by including a place
- * change in the PATCH payload — for example submitting `{ place:
- * unlockedTarget, text: "new text" }` on a segment currently on a locked place
- * would otherwise make `$segment->getPlace()` read as the unlocked target by
- * the time this event fires, silently letting the write through.
+ * entity data so that a non-admin cannot escape the lock by including a place
+ * change in the PATCH payload.
  *
  * Holders of the administration permission are short-circuited inside the
  * enforcement service and pass through unaffected, enabling the FPA unlock
@@ -101,9 +98,7 @@ class SegmentLockEnforcementSubscriber extends BaseEventSubscriber
             return $originalData['place'];
         }
 
-        // Fallback for entities not tracked by the UoW yet (no original data
-        // recorded). Segment::getPlace() is typed PlaceInterface, but Place
-        // is its only concrete implementation in this codebase.
+        // Fallback for entities not tracked by the UoW yet (no original data recorded).
         return $segment->getPlace();
     }
 }
