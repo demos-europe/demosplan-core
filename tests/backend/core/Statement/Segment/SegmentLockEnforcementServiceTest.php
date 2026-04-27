@@ -14,7 +14,6 @@ namespace Tests\Core\Statement\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentLockEnforcementService;
 use PHPUnit\Framework\TestCase;
@@ -34,7 +33,7 @@ class SegmentLockEnforcementServiceTest extends TestCase
         $this->sut = $this->buildSut(featureEnabled: false, hasPermission: false);
 
         self::assertFalse(
-            $this->sut->isSegmentLockedForCurrentUser($this->segmentOnPlace(locked: true))
+            $this->sut->isPlaceLockedForCurrentUser($this->place(locked: true))
         );
     }
 
@@ -43,8 +42,15 @@ class SegmentLockEnforcementServiceTest extends TestCase
         $this->sut = $this->buildSut(featureEnabled: true, hasPermission: false);
 
         self::assertFalse(
-            $this->sut->isSegmentLockedForCurrentUser($this->segmentOnPlace(locked: false))
+            $this->sut->isPlaceLockedForCurrentUser($this->place(locked: false))
         );
+    }
+
+    public function testReturnsFalseWhenPlaceIsNull(): void
+    {
+        $this->sut = $this->buildSut(featureEnabled: true, hasPermission: false);
+
+        self::assertFalse($this->sut->isPlaceLockedForCurrentUser(null));
     }
 
     public function testReturnsFalseWhenCurrentUserHasAdministratePermission(): void
@@ -52,7 +58,7 @@ class SegmentLockEnforcementServiceTest extends TestCase
         $this->sut = $this->buildSut(featureEnabled: true, hasPermission: true);
 
         self::assertFalse(
-            $this->sut->isSegmentLockedForCurrentUser($this->segmentOnPlace(locked: true))
+            $this->sut->isPlaceLockedForCurrentUser($this->place(locked: true))
         );
     }
 
@@ -61,7 +67,7 @@ class SegmentLockEnforcementServiceTest extends TestCase
         $this->sut = $this->buildSut(featureEnabled: true, hasPermission: false);
 
         self::assertTrue(
-            $this->sut->isSegmentLockedForCurrentUser($this->segmentOnPlace(locked: true))
+            $this->sut->isPlaceLockedForCurrentUser($this->place(locked: true))
         );
     }
 
@@ -94,14 +100,11 @@ class SegmentLockEnforcementServiceTest extends TestCase
         return new SegmentLockEnforcementService($currentUser, $parameterBag);
     }
 
-    private function segmentOnPlace(bool $locked): Segment
+    private function place(bool $locked): Place
     {
         $place = new Place(new Procedure(), 'test-place', 0);
         $place->setLocked($locked);
 
-        $segment = new Segment();
-        $segment->setPlace($place);
-
-        return $segment;
+        return $place;
     }
 }

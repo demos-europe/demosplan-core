@@ -77,8 +77,8 @@ class SegmentLockEnforcementSubscriber extends BaseEventSubscriber
         // Enforcement passed (either segment was on an unlocked place or the
         // caller holds the administration permission). If the PATCH changes
         // the segment's place AND that crosses the lock/unlock boundary,
-        // record a Versionsverlauf entry. The service gates itself on the
-        // feature flag and skips when old and new lock state match.
+        // record a Versionsverlauf entry. The audit method gates itself on
+        // the feature flag and skips when old and new lock state match.
         $this->entityContentChangeService->createSegmentLockedChangeEntryOnPlaceChange(
             $segment,
             $originalPlace,

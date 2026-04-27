@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\HistoryDay;
 use Doctrine\ORM\PersistentCollection;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -48,6 +49,7 @@ class EntityContentChangeDisplayService
         private readonly EntityContentChangeRepository $entityContentChangeRepository,
         Environment $twig,
         private readonly RepositoryHelper $repositoryHelper,
+        private readonly LoggerInterface $logger,
     ) {
         $this->entityContentChangeRollbackVersionService = $entityContentChangeRollbackVersionService;
         $this->entityContentChangeService = $entityContentChangeService;
@@ -312,9 +314,24 @@ class EntityContentChangeDisplayService
             return null;
         }
 
+        try {
+            $diffArray = Json::decodeToArray($jsonString);
+        } catch (Exception $e) {
+            // The column is only written by code we control via
+            // {{ @see EntityContentChangeService::generateActualDiff }}, so a
+            // failure here points at out-of-band data corruption. Skip this
+            // row instead of breaking the whole Versionsverlauf.
+            $this->logger->warning(
+                'Malformed locked-state diff JSON in entity_content_change',
+                ['exception' => $e],
+            );
+
+            return null;
+        }
+
         return $this->twig->render(
             '@DemosPlanCore/DemosPlanCore/html_diff.html.twig',
-            ['diffArray' => Json::decodeToArray($jsonString)]
+            ['diffArray' => $diffArray]
         );
     }
 

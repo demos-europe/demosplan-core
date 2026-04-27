@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
@@ -41,22 +40,18 @@ class SegmentLockEnforcementService
     }
 
     /**
-     * True when the given segment is locked for the current user — meaning any
-     * write attempt (text, tags, assignee, place, etc.) should be rejected.
+     * Lock predicate for an explicit place. The two production callers feed
+     * in either:
+     *  - the *original* place of a segment before a pending update (via
+     *    UnitOfWork original entity data) — see
+     *    {{ @see SegmentLockEnforcementSubscriber::resolveOriginalPlace }};
+     *  - or, indirectly through the bulk-editor's
+     *    {{ @see SegmentBulkEditorService::isEnforcementApplicable }}
+     *    short-circuit, no place at all (the DB filter does the place lookup).
      *
-     * False means the caller may proceed; the feature is either disabled for
-     * this project, the segment's place is not locked, or the caller holds the
-     * administration permission.
-     */
-    public function isSegmentLockedForCurrentUser(Segment $segment): bool
-    {
-        return $this->isPlaceLockedForCurrentUser($segment->getPlace());
-    }
-
-    /**
-     * Lock predicate for an explicit place — use when the caller needs to
-     * check the *original* place of a segment before a pending update (via
-     * Doctrine change set) rather than the in-memory post-mutation state.
+     * Returns false when the feature is disabled for this project, the
+     * place is null or unlocked, or the caller holds the administration
+     * permission.
      */
     public function isPlaceLockedForCurrentUser(?Place $place): bool
     {

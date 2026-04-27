@@ -199,6 +199,20 @@ class SegmentService extends CoreService implements SegmentServiceInterface
     }
 
     /**
+     * Returns the subset of given IDs that belong to `$procedureId` AND
+     * whose current workflow place has `locked = true`. Delegates to
+     * {{ @see SegmentRepository::findLockedByIds }}.
+     *
+     * @param list<string> $ids
+     *
+     * @return list<Segment>
+     */
+    public function findLockedByIds(array $ids, string $procedureId): array
+    {
+        return $this->segmentRepository->findLockedByIds($ids, $procedureId);
+    }
+
+    /**
      * @return array<int, Segment>
      */
     public function findByParentStatementId(string $statementId): array

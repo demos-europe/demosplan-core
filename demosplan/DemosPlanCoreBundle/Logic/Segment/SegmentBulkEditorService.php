@@ -49,54 +49,59 @@ class SegmentBulkEditorService
     }
 
     /**
-     * Return the subset of segments that are locked for the current user.
+     * Return the subset of given IDs that belong to `$procedureId` AND
+     * point to segments locked for the current user.
      *
-     * Exposed so the RPC caller can both validate the batch (via
-     * {{ @see SegmentBulkEditorService::assertBatchEditable }}) and re-derive
-     * the locked list in its catch block to build a structured error response
-     * with external IDs.
+     * Takes raw IDs (not loaded entities) so the caller can fail-fast on the
+     * RPC input before paying the cost of {{ @see
+     * SegmentBulkEditorService::getValidSegments }} entity hydration.
+     * The procedure scope prevents an out-of-procedure ID from triggering
+     * a misleading "locked" response that would also leak the lock state
+     * of another procedure's segments.
+     * Internally the lookup runs as a single JOINed DQL via
+     * {{ @see SegmentRepository::findLockedByIds }}, so there is no N+1 on
+     * the place association.
      *
-     * @param array<int, Segment> $segments
+     * @param list<string> $segmentIds
      *
      * @return list<Segment>
      */
-    public function findLockedSegments(array $segments): array
+    public function findLockedSegments(array $segmentIds, string $procedureId): array
     {
         // Short-circuit on the batch-invariant checks (feature flag +
-        // administrate permission) so we don't re-ask them per segment.
+        // administrate permission) so we don't hit the DB at all when
+        // enforcement doesn't apply to this request.
         if (!$this->segmentLockEnforcementService->isEnforcementApplicable()) {
             return [];
         }
 
-        return array_values(array_filter(
-            $segments,
-            static fn (Segment $segment): bool => $segment->getPlace()->isLocked(),
-        ));
+        return $this->segmentHandler->findLockedByIds($segmentIds, $procedureId);
     }
 
     /**
-     * Pre-validate a batch of segments against the workflow-place lock.
+     * Pre-validate a batch of segment IDs against the workflow-place lock.
      *
-     * Runs before any mutations inside the bulk-edit transaction — if any
-     * segment in the batch is locked for the current user, throws
+     * Runs *before* {{ @see SegmentBulkEditorService::getValidSegments }}
+     * loads the entities — if any ID in the batch points to a segment in
+     * `$procedureId` that's locked for the current user, throws
      * {{ @see SegmentLockedException }}. The throw is caught by the RPC's
      * access-denied branch which rolls back the whole batch (no partial
-     * success) and builds a structured error response for the frontend
-     * with the affected external IDs and total count.
+     * success). The user-facing count reaches the FE via the MessageBag
+     * toast channel.
      *
      * Admins (holders of feature_administrate_segment_lock) are short-
      * circuited inside the enforcement service and pass through unaffected
      * — enabling the FPA unlock flow (one segment, bulk.edit with target
      * place + assignee).
      *
-     * @param array<int, Segment> $segments
+     * @param list<string> $segmentIds
      *
      * @throws SegmentLockedException when the batch contains one or more
      *                                segments the current user may not write
      */
-    public function assertBatchEditable(array $segments): void
+    public function assertBatchEditable(array $segmentIds, string $procedureId): void
     {
-        $lockedSegments = $this->findLockedSegments($segments);
+        $lockedSegments = $this->findLockedSegments($segmentIds, $procedureId);
         if ([] === $lockedSegments) {
             return;
         }

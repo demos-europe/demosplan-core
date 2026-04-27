@@ -14,6 +14,7 @@ namespace Tests\Core\Statement\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
@@ -31,15 +32,16 @@ use Tests\Base\FunctionalTestCase;
 /**
  * Functional-style test for the segment-lock enforcement surface on
  * SegmentBulkEditorService. Uses Foundry fixtures for the real Segment/Place
- * objects (properly constructed, with valid IDs via Doctrine's UUID
- * generator) so the per-segment filter and MessageBag message shape are
- * exercised against real entities.
+ * objects (properly persisted, valid IDs via Doctrine's UUID generator) so
+ * the DQL lock filter in {{ @see SegmentRepository::findLockedByIds }} runs
+ * against the test DB and returns real results.
  *
  * Collaborators unrelated to lock enforcement are mocked with no
  * expectations; the enforcement service is mocked to report enforcement as
- * applicable, so per-segment lock state is driven entirely by the real
- * Place entities attached to each fixture (the feature-off / admin-bypass
- * paths have their own unit test).
+ * applicable; the SegmentHandler is the real one resolved from the
+ * container so the layered call chain (handler → service → repository)
+ * is exercised end-to-end (the feature-off / admin-bypass paths have their
+ * own unit test).
  */
 class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
 {
@@ -47,36 +49,78 @@ class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
 
     public function testFindLockedSegmentsReturnsEmptyListWhenNoSegmentLocked(): void
     {
+        $procedure = ProcedureFactory::createOne()->_real();
         $segment = SegmentFactory::createOne([
-            'place' => PlaceFactory::createOne(['locked' => false]),
-        ])->_real();
-
-        $this->sut = $this->buildSut();
-
-        self::assertSame([], $this->sut->findLockedSegments([$segment]));
-    }
-
-    public function testFindLockedSegmentsReturnsOnlyLockedSubsetForMixedBatch(): void
-    {
-        $lockedSegment = SegmentFactory::createOne([
-            'place' => PlaceFactory::createOne(['locked' => true]),
-        ])->_real();
-        $unlockedSegment = SegmentFactory::createOne([
-            'place' => PlaceFactory::createOne(['locked' => false]),
+            'procedure' => $procedure,
+            'place' => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => false]),
         ])->_real();
 
         $this->sut = $this->buildSut();
 
         self::assertSame(
-            [$lockedSegment],
-            $this->sut->findLockedSegments([$lockedSegment, $unlockedSegment]),
+            [],
+            $this->sut->findLockedSegments([$segment->getId()], $procedure->getId()),
+        );
+    }
+
+    public function testFindLockedSegmentsReturnsEmptyListForEmptyInput(): void
+    {
+        $procedure = ProcedureFactory::createOne()->_real();
+
+        $this->sut = $this->buildSut();
+
+        self::assertSame([], $this->sut->findLockedSegments([], $procedure->getId()));
+    }
+
+    public function testFindLockedSegmentsReturnsOnlyLockedSubsetForMixedBatch(): void
+    {
+        $procedure = ProcedureFactory::createOne()->_real();
+        $lockedSegment = SegmentFactory::createOne([
+            'procedure' => $procedure,
+            'place' => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => true]),
+        ])->_real();
+        $unlockedSegment = SegmentFactory::createOne([
+            'procedure' => $procedure,
+            'place' => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => false]),
+        ])->_real();
+
+        $this->sut = $this->buildSut();
+
+        $result = $this->sut->findLockedSegments(
+            [$lockedSegment->getId(), $unlockedSegment->getId()],
+            $procedure->getId(),
+        );
+
+        self::assertCount(1, $result);
+        self::assertSame($lockedSegment->getId(), $result[0]->getId());
+    }
+
+    public function testFindLockedSegmentsIsScopedToGivenProcedure(): void
+    {
+        // Locked segment lives in procedure A; the query asks for procedure B.
+        // The procedure scope must prevent A's lock state from leaking into
+        // B's response.
+        $procedureA = ProcedureFactory::createOne()->_real();
+        $procedureB = ProcedureFactory::createOne()->_real();
+        $lockedInA = SegmentFactory::createOne([
+            'procedure' => $procedureA,
+            'place' => PlaceFactory::createOne(['procedure' => $procedureA, 'locked' => true]),
+        ])->_real();
+
+        $this->sut = $this->buildSut();
+
+        self::assertSame(
+            [],
+            $this->sut->findLockedSegments([$lockedInA->getId()], $procedureB->getId()),
         );
     }
 
     public function testAssertBatchEditableIsNoopForFullyUnlockedBatch(): void
     {
+        $procedure = ProcedureFactory::createOne()->_real();
         $segment = SegmentFactory::createOne([
-            'place' => PlaceFactory::createOne(['locked' => false]),
+            'procedure' => $procedure,
+            'place' => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => false]),
         ])->_real();
 
         $messageBag = $this->createMock(MessageBagInterface::class);
@@ -84,21 +128,25 @@ class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
 
         $this->sut = $this->buildSut(messageBag: $messageBag);
 
-        $this->sut->assertBatchEditable([$segment]);
+        $this->sut->assertBatchEditable([$segment->getId()], $procedure->getId());
 
         self::addToAssertionCount(1); // documents that no exception was thrown
     }
 
     public function testAssertBatchEditableThrowsAndRecordsWarningWhenBatchContainsLocked(): void
     {
+        $procedure = ProcedureFactory::createOne()->_real();
         $locked1 = SegmentFactory::createOne([
-            'place' => PlaceFactory::createOne(['locked' => true]),
+            'procedure' => $procedure,
+            'place' => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => true]),
         ])->_real();
         $locked2 = SegmentFactory::createOne([
-            'place' => PlaceFactory::createOne(['locked' => true]),
+            'procedure' => $procedure,
+            'place' => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => true]),
         ])->_real();
         $unlocked = SegmentFactory::createOne([
-            'place' => PlaceFactory::createOne(['locked' => false]),
+            'procedure' => $procedure,
+            'place' => PlaceFactory::createOne(['procedure' => $procedure, 'locked' => false]),
         ])->_real();
 
         $messageBag = $this->createMock(MessageBagInterface::class);
@@ -113,7 +161,10 @@ class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
         $this->sut = $this->buildSut(messageBag: $messageBag);
 
         $this->expectException(SegmentLockedException::class);
-        $this->sut->assertBatchEditable([$locked1, $locked2, $unlocked]);
+        $this->sut->assertBatchEditable(
+            [$locked1->getId(), $locked2->getId(), $unlocked->getId()],
+            $procedure->getId(),
+        );
     }
 
     /**
@@ -128,7 +179,7 @@ class SegmentLockBulkEditorEnforcementTest extends FunctionalTestCase
         return new SegmentBulkEditorService(
             $this->createMock(UserHandler::class),
             $this->createMock(CurrentUserInterface::class),
-            $this->createMock(SegmentHandler::class),
+            $this->getContainer()->get(SegmentHandler::class),
             $this->createMock(SegmentValidator::class),
             $this->createMock(TagService::class),
             $this->createMock(TagValidator::class),
