@@ -27,6 +27,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\UnitOfWork;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 /**
  * Unit test for the JSON:API PATCH enforcement path on segment updates.
@@ -203,6 +204,6 @@ class SegmentLockEnforcementSubscriberTest extends TestCase
      */
     private function bareInstance(string $class): object
     {
-        return (new \ReflectionClass($class))->newInstanceWithoutConstructor();
+        return (new ReflectionClass($class))->newInstanceWithoutConstructor();
     }
 }

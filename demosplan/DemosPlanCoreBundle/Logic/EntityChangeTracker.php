@@ -29,7 +29,7 @@ class EntityChangeTracker
     private bool $trackingEnabled = false;
 
     public function __construct(
-        private readonly CacheInterface $cache
+        private readonly CacheInterface $cache,
     ) {
     }
 
@@ -66,7 +66,7 @@ class EntityChangeTracker
         string $fieldName,
         mixed $oldValue,
         mixed $newValue,
-        bool $isRelationChange = false
+        bool $isRelationChange = false,
     ): void {
         if (!$this->trackingEnabled) {
             return;
@@ -145,9 +145,10 @@ class EntityChangeTracker
         }
 
         $cacheKey = $this->getCacheKey($entityId);
-        
+
         return $this->cache->get($cacheKey, function (ItemInterface $item) {
             $item->expiresAfter(self::CACHE_TTL);
+
             return [];
         });
     }
@@ -161,8 +162,7 @@ class EntityChangeTracker
     {
         $allChanges = $this->getTrackedChangesForEntity($entityId);
 
-        return array_filter($allChanges, fn (EntityChange $change) => 
-            $change->getFieldName() === $fieldName
+        return array_filter($allChanges, fn (EntityChange $change) => $change->getFieldName() === $fieldName
         );
     }
 
@@ -228,9 +228,10 @@ class EntityChangeTracker
     {
         $cacheKey = $this->getCacheKey($entityId);
         $this->cache->delete($cacheKey);
-        
+
         $this->cache->get($cacheKey, function (ItemInterface $item) use ($changes) {
             $item->expiresAfter(self::CACHE_TTL);
+
             return $changes;
         });
     }

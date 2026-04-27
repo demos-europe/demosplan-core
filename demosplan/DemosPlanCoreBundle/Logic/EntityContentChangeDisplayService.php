@@ -258,6 +258,7 @@ class EntityContentChangeDisplayService
      *
      * Null input (when no diff was generated at emission time) is passed
      * through unchanged.
+     *
      * @throws JsonException
      * @throws LoaderError
      * @throws RuntimeError

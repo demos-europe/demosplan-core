@@ -73,10 +73,7 @@ class SegmentLockEnforcementSubscriber extends BaseEventSubscriber
         if ($this->segmentLockEnforcementService->isPlaceLockedForCurrentUser($originalPlace)) {
             $this->messageBag->add('error', 'error.segment.locked.by.place');
 
-            throw new SegmentLockedException(sprintf(
-                'Segment %s is locked for the current user.',
-                $segment->getId() ?? '<unsaved>'
-            ));
+            throw new SegmentLockedException(sprintf('Segment %s is locked for the current user.', $segment->getId() ?? '<unsaved>'));
         }
 
         // Enforcement passed (either segment was on an unlocked place or the
