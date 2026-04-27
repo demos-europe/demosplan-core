@@ -882,7 +882,11 @@ class DemosPlanStatementController extends BaseController
                 throw new Exception('In der aktuellen Phase darf keine Stellungnahme abgegeben werden');
             }
 
-            $limiter = $anonymousStatementLimiter->create($request->getSession()->getId());
+            // Key the limiter on the client IP, matching the pattern used by the
+            // other anonymous-flow limiters (userRegisterLimiter, password recovery).
+            // Trusted proxies must be configured (PROXY_IP) for this to be per-visitor
+            // behind a load balancer.
+            $limiter = $anonymousStatementLimiter->create($request->getClientIp() ?? '');
             $isLoggedIn = $this->currentUser->getUser()->isLoggedIn();
 
             // avoid brute force attacks
