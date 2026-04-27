@@ -501,6 +501,7 @@ class EntityContentChangeService
      * transaction can roll them back atomically if anything downstream fails.
      *
      * No-op when old and new are identical (no real toggle).
+     *
      * @throws ORMException
      * @throws OptimisticLockException
      */
@@ -510,8 +511,7 @@ class EntityContentChangeService
         bool $newLocked,
     ): void {
         if (!$this->segmentLockEnforcementService->isFeatureEnabled()
-            || $oldLocked === $newLocked)
-        {
+            || $oldLocked === $newLocked) {
             return;
         }
 
@@ -1288,7 +1288,7 @@ class EntityContentChangeService
         $changes = [];
 
         foreach ($fieldsToTrack as $propertyName => $fieldMetaData) {
-            /**
+            /*
              * Display-only field derived from {{ @link Segment::isLocked }};
              * entries are emitted explicitly by
              * {{ @link EntityContentChangeService::createSegmentLockedChangeEntryOnPlaceChange }}
@@ -1346,7 +1346,7 @@ class EntityContentChangeService
         $class = ClassUtils::getClass($preUpdateObject);
 
         foreach ($fieldsToTrack as $propertyName => $fieldMetaData) {
-            /**
+            /*
              * See skip reasoning in
              * {{ @link EntityContentChangeService::calculateChangesOfStandardFieldsOfPreUpdateArrayAndPostUpdateObject }}.
              */

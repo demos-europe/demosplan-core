@@ -14,8 +14,8 @@ namespace Tests\Core\Statement\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
 use demosplan\DemosPlanCoreBundle\Exception\SegmentLockedException;
