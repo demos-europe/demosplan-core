@@ -103,18 +103,17 @@
       <div class="mt-4 flex items-center justify-between">
         <!-- 'Select all'-Checkbox -->
         <div>
-          <input
-            id="select_all"
-            type="checkbox"
-            data-cy="allSelected"
-            :checked="allOnPageSelected"
-            @change="toggleAll(!allOnPageSelected)"
-          >
           <label
-            v-if="hasPermission('feature_user_delete') || true"
             for="select_all"
             class="cursor-pointer font-semibold text-interactive inline-block"
           >
+            <input
+              id="select_all"
+              type="checkbox"
+              data-cy="allSelected"
+              :checked="allOnPageSelected"
+              @change="toggleAll(!allOnPageSelected)"
+            >
             {{ Translator.trans('select.all') }}
           </label>
         </div>
