@@ -125,6 +125,7 @@
     "symfony/property-info": "6.*.*",
     "symfony/proxy-manager-bridge": "6.*.*",
     "symfony/rate-limiter": "6.*.*",
+    "symfony/runtime": "6.*.*",
     "symfony/scheduler": "6.*.*",
     "symfony/security-bundle": "6.*.*",
     "symfony/security-csrf": "6.*.*",
@@ -215,6 +216,7 @@
     "sort-packages": true,
     "allow-plugins": {
       "symfony/flex": true,
+      "symfony/runtime": true,
       "demos-europe/demosplan-addon-installer": true,
       "bamarni/composer-bin-plugin": true,
       "php-http/discovery": false,

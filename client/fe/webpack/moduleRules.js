@@ -137,7 +137,6 @@ const moduleRules =
               quietDeps: true,
               additionalData: `$url-path-prefix: '${config.urlPathPrefix}';`,
               loadPaths: [
-                config.projectRoot + 'web/',
                 config.publicPath,
               ],
             },

@@ -81,19 +81,19 @@ COPY . /srv/www
 
 # Remove app_dev.php in production mode
 RUN if [ "$BUILD_MODE" = "prod" ]; then \
-        rm -f /srv/www/projects/$PROJECT_NAME/web/app_dev.php; \
+        rm -f /srv/www/public/app_dev.php; \
     fi
 
 # set permissions needed during build
-RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/fonts && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/images && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/video && \
+RUN mkdir -p /srv/www/public/js && \
+    mkdir -p /srv/www/public/fonts && \
+    mkdir -p /srv/www/public/img && \
+    mkdir -p /srv/www/public/video && \
     mkdir -p /srv/www/var/cache && \
     mkdir -p /srv/www/var/log && \
     mkdir -p /srv/www/var/certs && \
     mkdir -p /srv/www/client/css/generated && \
-    chown -R www-data /srv/www/projects/$PROJECT_NAME/web && \
+    chown -R www-data /srv/www/public && \
     chown -R www-data /srv/www/var/cache && \
     chown -R www-data /srv/www/var/log && \
     chown -R www-data /srv/www/var/certs && \
@@ -130,12 +130,12 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     ln -s /opt/config/parameters.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     touch /opt/config/.env.local && \
     ln -s /opt/config/.env.local /srv/www/.env.local && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/uploads/files && \
-    chmod -R 775 /srv/www/projects/$PROJECT_NAME/web/uploads && \
+    mkdir -p /srv/www/public/uploads/files && \
+    chmod -R 775 /srv/www/public/uploads && \
     mkdir -p /opt/uploads && \
-    chown -R root:root /srv/www/projects/$PROJECT_NAME/web && \
+    chown -R root:root /srv/www/public && \
     chown -R www-data /opt/uploads && \
-    chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
+    chown -R www-data /srv/www/public/uploads && \
     touch /var/log/php8.3-fpm.log && chown www-data:www-data /var/log/php8.3-fpm.log
 
 # Runtime stage - starts fresh WITHOUT build tools (Node.js, npm, composer)
@@ -235,7 +235,7 @@ RUN mkdir -p /etc/nginx/templates && \
 
 WORKDIR /srv/www
 # only webfolder with frontcontroller and static files is needed for nginx
-COPY --from=build /srv/www/projects/$PROJECT_NAME/web /srv/www/projects/$PROJECT_NAME/web
+COPY --from=build /srv/www/public /srv/www/public
 
 # Ensure text/csv is defined in mime.types
 RUN sed -i '/^}/i\    text/csv csv;' /etc/nginx/mime.types
