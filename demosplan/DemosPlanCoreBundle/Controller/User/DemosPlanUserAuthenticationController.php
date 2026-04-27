@@ -43,8 +43,8 @@ use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Throwable;
 
 use function in_array;
@@ -308,7 +308,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         ParameterBagInterface $parameterBag,
         Request $request,
     ) {
-        if (!($currentUser->getUser() instanceof AnonymousUser)) {
+        if (!$currentUser->getUser() instanceof AnonymousUser) {
             return $this->redirectToRoute('core_home_loggedin');
         }
 
