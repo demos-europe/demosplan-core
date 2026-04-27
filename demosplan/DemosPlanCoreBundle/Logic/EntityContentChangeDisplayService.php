@@ -142,28 +142,11 @@ class EntityContentChangeDisplayService
 
         // step 2: even though we have the value, we might not have the actual human-readable string. we still need to get or generate that.
         // this can be anything, a string, an object or an id
-        $currentThing = $currentObject->$currentObjectMethod();
-        if (null !== $currentThing && 'dateTime' === $service->getMappingValue($fieldName, $entityType, 'fieldType')) {
-            $currentText = date('Y-m-d H:i:s', $currentThing);
-        } elseif (null !== $currentThing && 'date' === $service->getMappingValue($fieldName, $entityType, 'fieldType')) {
-            $currentText = date('Y-m-d', $currentThing);
-        } elseif ($currentThing instanceof PersistentCollection) {
-            $objectArray = $currentThing->toArray();
-            $currentThingArray = [];
-            /** @var CoreEntity $coreEntity */
-            foreach ($objectArray as $coreEntity) {
-                $currentThingArray[] = $coreEntity->getEntityContentChangeIdentifier();
-            }
-            sort($currentThingArray);
-            $currentText = $service->convertToVersionString($currentThingArray);
-        } elseif (is_object($currentThing)) {
-            /** @var CoreEntity $currentThing */
-            $currentText = $currentThing->getEntityContentChangeIdentifier();
-        } elseif (null === $currentThing) {
-            $currentText = '';
-        } else { // is string
-            $currentText = $currentThing;
-        }
+        $currentText = $this->renderCurrentValueAsText(
+            $currentObject->$currentObjectMethod(),
+            $fieldName,
+            $entityType,
+        );
 
         // roll back versions
         $changingText = $currentText;
@@ -245,6 +228,53 @@ class EntityContentChangeDisplayService
         );
 
         return $renderedString;
+    }
+
+    /**
+     * Resolves an entity's current field value into the human-readable text
+     * vocabulary used by the rollback walk in
+     * {{ @link EntityContentChangeDisplayService::getContentChangeComparisonString }}.
+     *
+     * Branches on `fieldType` from the mapping yaml plus the runtime type of
+     * the value: dateTime/date are formatted; collections are flattened to a
+     * stable, sorted version string; objects fall back to their
+     * `getEntityContentChangeIdentifier`; null is the empty string; anything
+     * else is taken as-is.
+     */
+    private function renderCurrentValueAsText(
+        mixed $currentThing,
+        string $fieldName,
+        string $entityType,
+    ): string {
+        $service = $this->getEntityContentChangeService();
+        $stringRepresentation = '';
+        if (null !== $currentThing && 'date' === $service->getMappingValue($fieldName, $entityType, 'fieldType')) {
+            $stringRepresentation = date('Y-m-d', $currentThing);
+        }
+
+        if (null !== $currentThing && 'dateTime' === $service->getMappingValue($fieldName, $entityType, 'fieldType')) {
+            $stringRepresentation = date('Y-m-d H:i:s', $currentThing);
+        }
+
+        if ($currentThing instanceof PersistentCollection) {
+            $currentThingArray = [];
+            /** @var CoreEntity $coreEntity */
+            foreach ($currentThing->toArray() as $coreEntity) {
+                $currentThingArray[] = $coreEntity->getEntityContentChangeIdentifier();
+            }
+            sort($currentThingArray);
+
+            $stringRepresentation = $service->convertToVersionString($currentThingArray);
+        } elseif (is_object($currentThing)) {
+            /** @var CoreEntity $currentThing */
+            $stringRepresentation = $currentThing->getEntityContentChangeIdentifier();
+        }
+
+        if ('' === $stringRepresentation && is_scalar($currentThing)) {
+            $stringRepresentation = (string) $currentThing;
+        }
+
+        return $stringRepresentation;
     }
 
     /**

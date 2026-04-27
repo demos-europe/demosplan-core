@@ -14,11 +14,8 @@ namespace Tests\Core\Statement\Segment;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
-use ReflectionMethod;
 use Tests\Base\FunctionalTestCase;
 
 /**
@@ -28,9 +25,10 @@ use Tests\Base\FunctionalTestCase;
  * Without the `$newPlace->setLocked($sourcePlace->isLocked())` call in the
  * copy loop, procedures spawned from a blueprint configured with locked
  * workflow places would silently lose the lock configuration. This test
- * drives the private `copyPlaces` method via reflection (it is called from
- * `copyFromBlueprint` during procedure creation) and asserts the
- * per-place lock state survives the copy.
+ * drives the private `copyPlaces` method via the base class's
+ * `invokeProtectedMethod` helper (it is called from `copyFromBlueprint`
+ * during procedure creation) and asserts the per-place lock state survives
+ * the copy.
  */
 class SegmentLockBlueprintPropagationTest extends FunctionalTestCase
 {
@@ -53,7 +51,11 @@ class SegmentLockBlueprintPropagationTest extends FunctionalTestCase
 
         $target = ProcedureFactory::createOne()->_real();
 
-        $this->invokePrivateCopyPlaces($blueprint, $target);
+        $this->invokeProtectedMethod(
+            [$this->sut, 'copyPlaces'],
+            $blueprint->getId(),
+            $target,
+        );
         $this->getEntityManager()->flush();
 
         $clones = $this->placeRepository->findBy(['procedure' => $target]);
@@ -74,15 +76,4 @@ class SegmentLockBlueprintPropagationTest extends FunctionalTestCase
         );
     }
 
-    /**
-     * copyPlaces is intentionally private — it's an implementation detail of
-     * procedure duplication. Reflection keeps the test focused on the copy
-     * loop without pulling in the whole blueprint-to-procedure pipeline.
-     */
-    private function invokePrivateCopyPlaces(Procedure $source, Procedure $target): void
-    {
-        $method = new ReflectionMethod(ProcedureService::class, 'copyPlaces');
-        $method->setAccessible(true);
-        $method->invoke($this->sut, $source->getId(), $target);
-    }
 }

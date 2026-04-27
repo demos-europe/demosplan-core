@@ -28,6 +28,7 @@ use Doctrine\ORM\UnitOfWork;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use ReflectionException;
 
 /**
  * Unit test for the JSON:API PATCH enforcement path on segment updates.
@@ -191,16 +192,26 @@ class SegmentLockEnforcementSubscriberTest extends TestCase
     }
 
     /**
-     * PHPUnit can't mock final classes, but the subscriber only inspects the
-     * event type via `instanceof`. An instance-without-constructor gives us
-     * a valid object of the requested class for that purpose, no mocked
-     * methods needed.
+     * Builds a constructor-less instance of a final resource type so we can
+     * feed it into a {{ @param class-string<T> $class}}.
+     *
+     * @return T
+     * @throws ReflectionException
+     * @link BeforeResourceUpdateFlushEvent
+     *
+     * Why the reflection bypass is safe in this test:
+     *  - The subscriber under test reads the resource type *only* via
+     *    `$event->getType() instanceof StatementSegmentResourceType`. No
+     *    property is accessed, no method is invoked, so any object state
+     *    that the constructor would normally establish is never observed.
+     *  - The resource types ({{ @link PlaceResourceType }},
+     *    {{ @link StatementSegmentResourceType }}) are `final`, which rules
+     *    out `createMock()` and a hand-rolled subclass.
+     *  - The bypass is scoped to test code; production never instantiates
+     *    these classes this way.
      *
      * @template T of object
      *
-     * @param class-string<T> $class
-     *
-     * @return T
      */
     private function bareInstance(string $class): object
     {
