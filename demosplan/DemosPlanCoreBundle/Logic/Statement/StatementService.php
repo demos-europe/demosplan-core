@@ -130,11 +130,11 @@ use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Elastica\Aggregation\GlobalAggregation;
-use FOS\ElasticaBundle\Index\IndexManager;
 use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Exception;
+use FOS\ElasticaBundle\Index\IndexManager;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -1153,7 +1153,6 @@ class StatementService implements StatementServiceInterface
                 $this->logger->warning('Trying to update a locked by assignment statement.');
             }
 
-
             // is a original statement?
             $lockedByOriginal = false;
             $isOriginal = $currentStatementObject->isOriginal();
@@ -1271,7 +1270,6 @@ class StatementService implements StatementServiceInterface
 
         return $fileHashToFileContainerMapping;
     }
-
 
     /**
      * Determines if the given statement is "locked" because of assigned to another user.
