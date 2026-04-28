@@ -23,6 +23,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use stdClass;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -277,7 +278,7 @@ class PiiAwareLoggerTest extends TestCase
     /** @return callable(): PiiLogRecord */
     private function captureWrittenRecord(): callable
     {
-        $holder = new \stdClass();
+        $holder = new stdClass();
         $holder->record = null;
 
         $this->writer
