@@ -186,6 +186,11 @@ export default {
     },
 
     addTagToNewTopic (parentTopic, tagId) {
+      const existingTags = parentTopic.relationships?.tags?.data || []
+      const updatedTags = [...existingTags]
+      // Wenn newIndex angegeben: dort einfügen, sonst am Ende
+      updatedTags.splice(newIndex ?? updatedTags.length, 0, { type: 'Tag', id: tagId })
+
       this.updateTagTopic({
         id: parentTopic.id,
         type: 'TagTopic',
@@ -214,10 +219,28 @@ export default {
     handleDragEnd (event, item, parentId) {
       console.log('end fired:', { event, item, parentId })
 
-      if (!parentId) {
-
+      // 1. No-Op: gleiche Liste, gleicher Index
+      if (event.from === event.to && event.oldIndex === event.newIndex) {
         return
       }
+
+      // 2 Intra Topic reorder: gleiche Liste (gleicher parentId), anderer Index
+      if (event.from === event.to) {
+        console.log('INTRA', { tagId: item.id, parentId, newIndex: event.newIndex })
+        return
+      }
+
+      // 3. Cross-topic move: alles andere
+      const newParentId = event.to.id
+
+      if (!this.TagTopic[newParentId]) {
+        console.error('[TagsList] Unknown destination topic', newParentId)
+        return
+      }
+
+      this.addTagToNewTopic(this.TagTopic[newParentId], item.id, event.newIndex)
+      this.removeTagFromOldTopic(this.TagTopic[parentId], item.id)
+
     },
 
     deleteItem (item) {
