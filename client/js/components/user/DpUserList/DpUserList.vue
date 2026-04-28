@@ -284,7 +284,13 @@ export default {
     }),
 
     async inviteItems () {
-      const ids = await this.resolveSelectedIds()
+      let ids
+      try {
+        ids = await this.resolveSelectedIds()
+      } catch (error) {
+        dplan.notify.notify('error', Translator.trans('error.api.generic'))
+        return
+      }
       const form = this.$el.closest('form')
       const currentPageIds = new Set(Object.keys(this.items))
 
@@ -318,7 +324,13 @@ export default {
 
       if (!isConfirmed) return
 
-      const ids = await this.resolveSelectedIds()
+      let ids
+      try {
+        ids = await this.resolveSelectedIds()
+      } catch (error) {
+        dplan.notify.notify('error', Translator.trans('error.api.generic'))
+        return
+      }
 
       let successCount = 0
       let errorCount = 0
@@ -504,8 +516,14 @@ export default {
       if (!this.showSelectionList && this.trackDeselected && !this.allUsersFetched) {
         this.showSelectionList = true
         this.isLoadingSelectionList = true
-        await this.fetchAllUsersForSelectionMap()
-        this.isLoadingSelectionList = false
+        try {
+          await this.fetchAllUsersForSelectionMap()
+        } catch (error) {
+          dplan.notify.notify('error', Translator.trans('error.api.generic'))
+          this.showSelectionList = false
+        } finally {
+          this.isLoadingSelectionList = false
+        }
       } else {
         this.showSelectionList = !this.showSelectionList
       }
