@@ -205,7 +205,6 @@ export default {
 
     // Handles the @end event from DpTreeList — fires once per drag, on drop instead of multible times like the @draggable:change event from DpTreeListNode
     handleDragEnd (event, item, parentId) {
-      console.log('end fired:', { event, item, parentId })
 
       // 1. No-Op: gleiche Liste, gleicher Index
       if (event.from === event.to && event.oldIndex === event.newIndex) {
@@ -214,7 +213,7 @@ export default {
 
       // 2 Intra Topic reorder: gleiche Liste (gleicher parentId), anderer Index
       if (event.from === event.to) {
-        console.log('INTRA', { tagId: item.id, parentId, newIndex: event.newIndex })
+        this.reorderTagInTopic(parentId, item.id, event.newIndex)
         return
       }
 
@@ -266,6 +265,24 @@ export default {
       })
     },
 
+    // MOCK: remove once backend DPLAN-17223-BE is ready
+    // Fakes the tag.reorder RPC — only updates displayOrder in the local Tag store
+    mockTagReorder ({ elementId, newIndex, parentId }) {
+      const topic = this.TagTopic[parentId]
+      if (!topic) return Promise.resolve()
+
+      topic.relationships.tags.data.forEach((tagRef, idx) => {
+        const tag = this.Tag[tagRef.id]
+        if (tag) {
+          this.updateTag({
+            ...tag,
+            attributes: { ...tag.attributes, displayOrder: idx }
+          })
+        }
+      })
+      return Promise.resolve()
+    },
+
     removeTagFromOldTopic (oldParent, tagId) {
       const oldParentTags = [...oldParent.relationships?.tags?.data || []]
       const indexToBeRemoved = oldParentTags.findIndex(el => el.id === tagId)
@@ -283,6 +300,38 @@ export default {
       })
 
       this.saveTagTopic(oldParent.id)
+    },
+
+    // Persist new tag order within a topic — optimistic update + rollback on failure
+    reorderTagInTopic (parentId, tagId, newIndex) {
+      const topic = this.TagTopic[parentId]
+      if (!topic) return
+
+      const oldTagsData = [...(topic.relationships?.tags?.data || [])]
+      const newTagsData = oldTagsData.filter(t => t.id !== tagId)
+      newTagsData.splice(newIndex, 0, { type: 'Tag', id: tagId })
+
+      // Optimistic UI update
+      this.updateTagTopic({
+        id: topic.id,
+        type: 'TagTopic',
+        attributes: topic.attributes,
+        relationships: { ...topic.relationships, tags: { data: newTagsData } }
+      })
+
+      this.mockTagReorder({ elementId: tagId, newIndex, parentId })
+        .then(() => dplan.notify.confirm(Translator.trans('confirm.saved')))
+        .catch(error => {
+          console.error(error)
+          // Rollback
+          this.updateTagTopic({
+            id: topic.id,
+            type: 'TagTopic',
+            attributes: topic.attributes,
+            relationships: { ...topic.relationships, tags: { data: oldTagsData } }
+          })
+          dplan.notify.error(Translator.trans('error.changes.not.saved'))
+        })
     },
 
     save ({ id, attributes, type, isTitleChanged }) {
