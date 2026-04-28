@@ -74,7 +74,12 @@ use UnexpectedValueException;
  *
  * @ORM\DiscriminatorColumn(name="entity_type", type="string")
  *
- * @ORM\DiscriminatorMap({"Statement"="Statement", "Segment" = "demosplan\DemosPlanCoreBundle\Entity\Statement\Segment"})
+ * @ORM\DiscriminatorMap({
+ *     "Statement"       = "Statement",
+ *     "Segment"         = "demosplan\DemosPlanCoreBundle\Entity\Statement\Segment",
+ *     "StatementGroup"  = "demosplan\DemosPlanCoreBundle\Entity\Statement\StatementGroup",
+ *     "StatementMember" = "demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMember"
+ * })
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementRepository")
  *
