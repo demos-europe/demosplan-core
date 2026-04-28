@@ -265,22 +265,15 @@ export default {
     createPhase () {
       this.isLoading = true
 
-      dpApi({
-        method: 'POST',
-        url: Routing.generate('api_resource_create', { resourceType: 'ProcedurePhaseDefinition' }),
+      dpApi.post(Routing.generate('api_resource_create', { resourceType: 'ProcedurePhaseDefinition' }), {}, {
         data: {
-          data: {
-            type: 'ProcedurePhaseDefinition',
-            attributes: {
-              audience: this.newPhase.audience,
-              name: this.newPhase.name.trim(),
-              participationState: this.newPhase.participationState,
-              permissionSet: this.newPhase.permissionSet,
-            },
+          type: 'ProcedurePhaseDefinition',
+          attributes: {
+            audience: this.newPhase.audience,
+            name: this.newPhase.name.trim(),
+            participationState: this.newPhase.participationState,
+            permissionSet: this.newPhase.permissionSet,
           },
-        },
-        headers: {
-          'X-CSRF-Token': dplan.csrfToken,
         },
       })
         .then(() => {
