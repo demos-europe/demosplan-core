@@ -2514,6 +2514,11 @@ feature_statements_vote_may_vote:
     label: 'Stellungnahme anderer mitzeichnen (Aktion ausführen)'
     loginRequired: true
     parent: feature_statement
+feature_spellcheck:
+    description: 'Enables the spellcheck proxy to a self-hosted LanguageTool instance. Requires languagetool_url parameter to be configured.'
+    expose: true
+    label: 'Enables spellcheck via LanguageTool'
+    loginRequired: false
 feature_switchorga:
     label: 'Organisation Fachplanung und Institution wechseln'
     loginRequired: true

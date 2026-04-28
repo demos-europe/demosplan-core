@@ -1205,6 +1205,10 @@ export default {
       return this.unsavedDrafts.includes(this.draftStatementId)
     },
 
+    isNameUsageRequired () {
+      return !this.allowAnonymousStatements && this.formData.r_useName !== '1'
+    },
+
     personalDataFormDefinitions () {
       return this.personalDataFormFields.map(el => {
         this.availableFormComponents[el.name].width = this.availableFormComponents[el.name].width || 'u-1-of-2'
@@ -1260,6 +1264,7 @@ export default {
 
     ...mapMutations('PublicStatement', [
       'addUnsavedDraft',
+      'applyInitialDefaults',
       'clearDraftState',
       'removeStatementProp',
       'removeUnsavedDraft',
@@ -2149,25 +2154,30 @@ export default {
           sessionStorageBegunStatementParsed.r_ident === ''
         ) {
           this.setStatementData(sessionStorageBegunStatementParsed)
+          if (this.isNameUsageRequired) {
+            this.setStatementData({ r_useName: '1' })
+          }
 
           this.$nextTick(() => {
             this.restoreCustomFieldSelections()
           })
         } else {
-          this.setStatementData({
+          const initialStatementDefaults = {
             r_county: this.counties.some(el => el.selected) ?
               this.counties.find(el => el.selected)?.value :
               '',
-          })
+          }
+
+          if (this.isNameUsageRequired) {
+            initialStatementDefaults.r_useName = '1'
+          }
+
+          this.applyInitialDefaults(initialStatementDefaults)
         }
       } else {
         this.getDraftStatement(this.draftStatementId)
       }
     })
-
-    if (!this.allowAnonymousStatements && this.formData.r_useName !== '1') {
-      this.setPrivacyPreference({ r_useName: '1' })
-    }
 
     this.$root.$on('updateStatementFormMapData', (data = {}, toggle = true) => {
       this.setStatementData(data)

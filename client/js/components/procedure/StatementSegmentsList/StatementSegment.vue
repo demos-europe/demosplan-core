@@ -483,6 +483,7 @@ import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
+import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
 
 export default {
   name: 'StatementSegment',
@@ -520,6 +521,15 @@ export default {
   },
 
   mixins: [prefixClassMixin],
+
+  setup () {
+    const { init, cleanup } = useUnsavedChangesGuard()
+
+    return {
+      initUnsavedChangesGuard: init,
+      cleanupUnsavedChangesGuard: cleanup,
+    }
+  },
 
   props: {
     currentUserFirstName: {
@@ -630,12 +640,19 @@ export default {
       return Translator.trans(hasPermission('field_segments_custom_fields') ? 'fields.more.edit' : 'workflow.change.assignee.place')
     },
 
-    isAssignedToMe () {
-      return this.assignee.id === this.currentUserId
-    },
-
     hasRecommendationTabs () {
       return this.recommendationModalAddons.length > 0
+    },
+
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    hasUnsavedChanges () {
+      return this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation !== this.segment.attributes.recommendation
+    },
+
+    isAssignedToMe () {
+      return this.assignee.id === this.currentUserId
     },
 
     places () {
@@ -877,6 +894,13 @@ export default {
       }
     },
 
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    onDiscardChanges () {
+      this.abort()
+    },
+
     openBoilerPlate () {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
@@ -931,7 +955,7 @@ export default {
         id: this.segment.id,
       })
 
-      this.saveSegmentAction({ id: this.segment.id })
+      return this.saveSegmentAction({ id: this.segment.id })
         .then(() => {
           /*
            * Custom fields are saved via a separate PATCH using the composable's updateCustomFields,
@@ -972,6 +996,13 @@ export default {
         .catch(() => {
           this.finalizeSave(comments)
         })
+    },
+
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    saveUnsavedChanges () {
+      return this.save()
     },
 
     setActiveTabId (id) {
@@ -1175,6 +1206,18 @@ export default {
           }
         })
       })
+
+    // Initialize unsaved changes guard
+    this.initUnsavedChangesGuard({
+      hasUnsavedChanges: () => this.hasUnsavedChanges,
+      saveUnsavedChanges: () => this.saveUnsavedChanges(),
+      onDiscardChanges: () => this.onDiscardChanges(),
+      componentId: `segment-${this.segment.id}`,
+    })
+  },
+
+  beforeUnmount () {
+    this.cleanupUnsavedChangesGuard()
   },
 }
 </script>

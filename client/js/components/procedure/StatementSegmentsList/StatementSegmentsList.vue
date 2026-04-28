@@ -46,22 +46,22 @@
             v-if="hasPermission('feature_segment_recommendation_edit')"
             class="btn-group"
           >
-            <button
-              class="btn btn--outline btn--primary"
-              :class="{'is-current': currentAction === 'addRecommendation'}"
+            <a
+              href="#recommendation"
+              class="btn btn--outline btn--primary p-2"
+              :class="{'is-current': currentAction === 'recommendation'}"
               data-cy="addRecommendation"
-              @click="currentAction = 'addRecommendation'"
             >
               {{ Translator.trans('segment.recommendation') }}
-            </button>
-            <button
-              class="btn btn--outline btn--primary"
-              :class="{'is-current': currentAction === 'editText'}"
+            </a>
+            <a
+              href="#details"
+              class="btn btn--outline btn--primary p-2"
+              :class="{'is-current': currentAction === 'details'}"
               data-cy="editText"
-              @click="currentAction = 'editText'"
             >
               {{ Translator.trans('details') }}
-            </button>
+            </a>
           </div>
         </div>
         <ul class="float-right space-inline-s flex items-center">
@@ -174,13 +174,13 @@
         @updated-voters="getStatement"
       />
       <segments-recommendations
-        v-if="currentAction === 'addRecommendation' && hasPermission('feature_segment_recommendation_edit')"
+        v-if="currentAction === 'recommendation' && hasPermission('feature_segment_recommendation_edit')"
         :current-user="currentUser"
         :procedure-id="procedure.id"
         :statement-id="statementId"
       />
       <statement-segments-edit
-        v-else-if="currentAction === 'editText'"
+        v-else-if="currentAction === 'details'"
         :current-user="currentUser"
         :editable="editable"
         :has-draft-segments="hasDraftSegments()"
@@ -337,7 +337,7 @@ export default {
 
   data () {
     return {
-      currentAction: 'addRecommendation',
+      currentAction: 'recommendation',
       isLoading: false,
       procedureMapSettings: {},
       returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedure.id }),
@@ -506,7 +506,7 @@ export default {
   watch: {
     currentAction: {
       handler () {
-        this.showInfobox = this.currentAction === 'editText'
+        this.showInfobox = this.currentAction === 'details'
       },
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
     },
@@ -553,7 +553,7 @@ export default {
 
         if (isAssignedToCurrentUser === false) {
           const isAssignedToOtherUser = this.statement.hasRelationship('assignee') && this.statement.relationships.assignee.data.id !== this.currentUser.id
-          if (isAssignedToOtherUser && window.dpconfirm(Translator.trans('warning.statement.needLock.generic')) === false) {
+          if (isAssignedToOtherUser && globalThis.dpconfirm(Translator.trans('warning.statement.needLock.generic')) === false) {
             return false
           }
         }
@@ -598,6 +598,12 @@ export default {
         })
     },
 
+    getActionFromQueryParams (queryParams) {
+      const action = queryParams.get('action')
+
+      return action?.split('?')[0] || null
+    },
+
     getStatement () {
       const params = buildDetailedStatementQuery(this.statementId, {
         isSourceAndCoupledProcedure: this.isSourceAndCoupledProcedure,
@@ -606,8 +612,27 @@ export default {
       return this.getStatementAction(params)
     },
 
+    handleHashChange () {
+      const hash = globalThis.location.hash.slice(1)
+
+      if (hash === 'recommendation' || hash === 'details') {
+        this.currentAction = hash
+      }
+    },
+
     hasDraftSegments () {
       return Boolean(this.statement?.attributes?.segmentDraftList?.data?.attributes?.segments?.length)
+    },
+
+
+    moveActionToHash (queryParams) {
+      queryParams.delete('action')
+
+      const search = queryParams.toString()
+      const searchPart = search ? `?${search}` : ''
+      const newUrl = `${globalThis.location.pathname}${searchPart}#${this.currentAction}`
+
+      globalThis.history.replaceState({}, '', newUrl)
     },
 
     removeNavigationSourceStorageEntry () {
@@ -660,15 +685,24 @@ export default {
     },
 
     setInitialAction () {
-      const queryParams = new URLSearchParams(window.location.search)
-      let action = queryParams.get('action')
+      const hash = globalThis.location.hash.slice(1)
 
-      if (action?.includes('?')) {
-        action = action.split('?')[0]
+      if (hash === 'recommendation' || hash === 'details') {
+        this.currentAction = hash
+
+        return
       }
 
-      const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'addRecommendation' : 'editText'
-      this.currentAction = action || defaultAction
+      const queryParams = new URLSearchParams(globalThis.location.search)
+      const actionFromParams = this.getActionFromQueryParams(queryParams)
+
+      const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'recommendation' : 'details'
+      const selectedAction = actionFromParams || defaultAction
+      this.currentAction = selectedAction
+
+      if (actionFromParams) {
+        this.moveActionToHash(queryParams)
+      }
     },
 
     setReturnLink () {
@@ -724,7 +758,7 @@ export default {
     },
 
     toggleInfobox () {
-      this.currentAction = 'editText'
+      this.currentAction = 'details'
       this.$refs.metadataFlyout.isExpanded = false
     },
 
@@ -776,6 +810,9 @@ export default {
       },
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
+
+    globalThis.addEventListener('hashchange', this.handleHashChange)
+
     this.fetchProcedureMapSettings({ procedureId: this.procedure.id })
       .then(response => {
         if (response?.attributes) {
@@ -789,6 +826,10 @@ export default {
           .filter(layer => layer.attributes.isEnabled && layer.attributes.hasDefaultVisibility)
           .map(layer => layer.attributes)
       })
+  },
+
+  beforeUnmount () {
+    globalThis.removeEventListener('hashchange', this.handleHashChange)
   },
 }
 </script>
