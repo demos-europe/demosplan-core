@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Filter;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\FilterDisplay;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\FilterPrefix;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Search;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\SearchField;
@@ -66,7 +67,7 @@ class QueryProcedureTest extends FunctionalTestCase
         static::assertEquals('feature_procedure_filter_any', $availableFiltersDefault[0]->getPermission());
         static::assertEquals('locationPostCode', $availableFiltersDefault[1]->getName());
         static::assertEquals('locationName', $availableFiltersDefault[3]->getName());
-        static::assertEquals('publicParticipationPhase', $availableFiltersDefault[9]->getName());
+        static::assertEquals('publicParticipationPhaseDefinitionId', $availableFiltersDefault[9]->getName());
         static::assertEquals('feature_procedure_filter_external_public_participation_phase', $availableFiltersDefault[9]->getPermission());
         static::assertEquals('feature_procedure_filter_external_public_participation_phase_permissionset', $availableFiltersDefault[8]->getPermission());
         static::assertEquals('orgaName', $availableFiltersDefault[10]->getName());
@@ -95,7 +96,7 @@ class QueryProcedureTest extends FunctionalTestCase
         static::assertEquals('municipalCode', $availableFiltersDefault[0]->getName());
         static::assertEquals('locationPostCode', $availableFiltersDefault[1]->getName());
         static::assertEquals('locationName', $availableFiltersDefault[3]->getName());
-        static::assertEquals('phase', $availableFiltersDefault[9]->getName());
+        static::assertEquals('phaseDefinitionId', $availableFiltersDefault[9]->getName());
         static::assertEquals('feature_procedure_filter_internal_phase', $availableFiltersDefault[9]->getPermission());
         static::assertEquals('feature_procedure_filter_internal_phase_permissionset', $availableFiltersDefault[8]->getPermission());
         static::assertEquals('orgaName', $availableFiltersDefault[10]->getName());
@@ -113,8 +114,8 @@ class QueryProcedureTest extends FunctionalTestCase
         static::assertEquals('municipalCode', $availableFiltersDefault[0]->getName());
         static::assertEquals('locationPostCode', $availableFiltersDefault[1]->getName());
         static::assertEquals('locationName', $availableFiltersDefault[3]->getName());
-        static::assertEquals('phase', $availableFiltersDefault[9]->getName());
-        static::assertEquals('publicParticipationPhase', $availableFiltersDefault[11]->getName());
+        static::assertEquals('phaseDefinitionId', $availableFiltersDefault[9]->getName());
+        static::assertEquals('publicParticipationPhaseDefinitionId', $availableFiltersDefault[11]->getName());
     }
 
     public function testScopesPlanner(): void
@@ -704,7 +705,7 @@ class QueryProcedureTest extends FunctionalTestCase
         );
         // generiere ein Stub vom GlobalConfig
         $stub = $this->getElasticsearchQueryDefinitionMock($invalidConfiguation);
-        new QueryProcedure($stub, $this->translator, $this->currentUser);
+        new QueryProcedure($stub, $this->translator, $this->currentUser, $this->getContainer()->get(ProcedurePhaseDefinitionService::class));
         self::fail('Exception should have been thrown');
     }
 
@@ -714,7 +715,7 @@ class QueryProcedureTest extends FunctionalTestCase
     public function testValidConfiguration(array $validConfiguration, int $amountAvailableFields, array $expectedFieldKeys): void
     {
         $stub = $this->getElasticsearchQueryDefinitionMock($validConfiguration);
-        $queryProcedure = new QueryProcedure($stub, $this->translator, $this->currentUser);
+        $queryProcedure = new QueryProcedure($stub, $this->translator, $this->currentUser, $this->getContainer()->get(ProcedurePhaseDefinitionService::class));
         $availableFields = $queryProcedure->getAvailableSearch()->getAvailableFields();
         $availableFieldNames = array_map(static function (SearchField $field): string {
             return $field->getName();
