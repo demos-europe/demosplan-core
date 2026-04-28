@@ -54,6 +54,8 @@ interface CustomFieldInterface
 
     public function getOptions(): array;
 
+    public function getRequired(): bool;
+
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption;
 
     public function getApiAttributes(): array;

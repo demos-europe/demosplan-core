@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
+
 class SingleSelectFieldValidator extends CustomFieldValidator
 {
     public function getFieldType(): string
@@ -20,8 +22,8 @@ class SingleSelectFieldValidator extends CustomFieldValidator
     public function getSourceToTargetMapping(): array
     {
         return [
-            'PROCEDURE'          => 'SEGMENT',
-            'PROCEDURE_TEMPLATE' => 'SEGMENT',
+            CustomFieldSupportedEntity::procedure->value         => [CustomFieldSupportedEntity::statement->value, CustomFieldSupportedEntity::segment->value],
+            CustomFieldSupportedEntity::procedureTemplate->value => [CustomFieldSupportedEntity::statement->value, CustomFieldSupportedEntity::segment->value],
         ];
     }
 }
