@@ -65,6 +65,15 @@ class TextField extends AbstractCustomField
         return $this->isRequired;
     }
 
+    public function formatValueForDisplay(mixed $value): string
+    {
+        if (!is_string($value)) {
+            return '';
+        }
+
+        return $value;
+    }
+
     protected function validateFieldSpecific(array $options): void
     {
         // Text fields have no predefined options — nothing to validate here
