@@ -7,6 +7,7 @@
  * All rights reserved
  */
 
+import 'd3-transition'
 import { format } from 'd3-format'
 import { hasOwnProp } from '@demos-europe/demosplan-ui'
 import { select } from 'd3-selection'
