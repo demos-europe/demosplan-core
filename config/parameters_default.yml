@@ -43,6 +43,8 @@ parameters:
     procedure_public_list_default_sort_key: "publicParticipationEndDate"
     # Purge procedures if deleted
     purge_deleted_procedures: false
+    # Days to keep deleted procedures after deletion to be able to restore them in case of an emergency
+    purge_deleted_retention_period_days: 60
 
     # Defines whether access to procedure is granted by owning organisation (false)
     # or whether it is possible to define specific users withing the organisation
@@ -531,6 +533,8 @@ parameters:
 
     ai_service_salt: ""
     ai_service_post_url: ""
+
+    languagetool_url: ''
 
     # #refactor: used only once, could be constant
     drafts_info_schema_path: "%kernel.project_dir%/config/json-schema/drafts-info-schema.json"

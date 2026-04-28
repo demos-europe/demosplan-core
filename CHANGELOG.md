@@ -9,6 +9,32 @@
 ### Added
 - Track recommendation versions for statements and segments with full text snapshots, exposed via API and XLSX export (permission: `feature_enable_recommendation_versions`)
 
+## v4.37.0 (2026-04-27)
+
+## v4.36.0 (2026-04-24)
+
+### Added
+- Tables support draggable column reordering, persisted locally per user
+- Administrators can configure a retention period for purging deleted procedures
+
+### Changed
+- Unused tags are no longer shown in the filter flyout
+- Improved performance of procedure phase resolution on list and export views
+- Submitter name, address and priority are hidden in the "portrait with prioritization" export
+
+### Fixed
+- Filter flyout could be hidden behind sticky table headers
+- Incorrect initial filter state on statements
+- Tooltips for hidden table columns were shown incorrectly
+- Hover color on checked multiselect checkbox
+- Overview map was shown on initial render when it should have been hidden
+- Logout button now appears on the IDP error page to terminate the Keycloak session
+- Designated end dates were saved with 00:00:00 instead of 23:59:59
+- Elasticsearch error when removing a keyword that was in use
+- Document exports could fail when CSS contained non-numeric line-height values
+
+## v4.35.0 (2026-04-09)
+
 ## v4.34.0 (2026-04-09)
 
 ### Added
