@@ -195,9 +195,9 @@ export default {
         type: 'TagTopic',
         attributes: parentTopic.attributes,
         relationships: {
-          ...(parentTopic.relationships),
-          tags: { data: updatedTags }
-        }
+          ...parentTopic.relationships,
+          tags: { data: updatedTags },
+        },
       })
 
       this.saveTagTopic(parentTopic.id)
@@ -205,7 +205,6 @@ export default {
 
     // Handles the @end event from DpTreeList — fires once per drag, on drop instead of multible times like the @draggable:change event from DpTreeListNode
     handleDragEnd (event, item, parentId) {
-
       // No-Op
       if (event.from === event.to && event.oldIndex === event.newIndex) {
         return
@@ -227,7 +226,6 @@ export default {
 
       this.addTagToNewTopic(this.TagTopic[newParentId], item.id, event.newIndex)
       this.removeTagFromOldTopic(this.TagTopic[parentId], item.id)
-
     },
 
     deleteItem (item) {
@@ -265,7 +263,6 @@ export default {
       })
     },
 
-    // MOCK: remove once backend DPLAN-17223-BE is ready
     // Fakes the tag.reorder RPC — only updates displayOrder in the local Tag store
     mockTagReorder ({ elementId, newIndex, parentId }) {
       const topic = this.TagTopic[parentId]
@@ -276,7 +273,10 @@ export default {
         if (tag) {
           this.updateTag({
             ...tag,
-            attributes: { ...tag.attributes, displayOrder: idx }
+            attributes: {
+              ...tag.attributes,
+              displayOrder: idx,
+            },
           })
         }
       })
@@ -316,7 +316,12 @@ export default {
         id: topic.id,
         type: 'TagTopic',
         attributes: topic.attributes,
-        relationships: { ...topic.relationships, tags: { data: newTagsData } }
+        relationships: {
+          ...topic.relationships,
+          tags: {
+            data: newTagsData,
+          },
+        },
       })
 
       this.mockTagReorder({ elementId: tagId, newIndex, parentId })
@@ -328,7 +333,7 @@ export default {
             id: topic.id,
             type: 'TagTopic',
             attributes: topic.attributes,
-            relationships: { ...topic.relationships, tags: { data: oldTagsData } }
+            relationships: { ...topic.relationships, tags: { data: oldTagsData } },
           })
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
         })
