@@ -43,6 +43,8 @@ parameters:
     procedure_public_list_default_sort_key: "publicParticipationEndDate"
     # Purge procedures if deleted
     purge_deleted_procedures: false
+    # Days to keep deleted procedures after deletion to be able to restore them in case of an emergency
+    purge_deleted_retention_period_days: 60
 
     # Defines whether access to procedure is granted by owning organisation (false)
     # or whether it is possible to define specific users withing the organisation
@@ -177,6 +179,7 @@ parameters:
     ratelimit_anonymous_statement_limit: '%env(int:RATELIMIT_ANONYMOUS_STATEMENT_LIMIT)%'
     ratelimit_anonymous_statement_rate_interval: '%env(RATELIMIT_ANONYMOUS_STATEMENT_RATE_INTERVAL)%'
     ratelimit_anonymous_statement_rate_amount: '%env(int:RATELIMIT_ANONYMOUS_STATEMENT_RATE_AMOUNT)%'
+    password_history_max_entries: '%env(int:PASSWORD_HISTORY_MAX_ENTRIES)%'
 
     # GitHub token may be used to download addons directly from github
     github_token: '%env(GITHUB_TOKEN)%'
@@ -530,6 +533,8 @@ parameters:
 
     ai_service_salt: ""
     ai_service_post_url: ""
+
+    languagetool_url: ''
 
     # #refactor: used only once, could be constant
     drafts_info_schema_path: "%kernel.project_dir%/config/json-schema/drafts-info-schema.json"

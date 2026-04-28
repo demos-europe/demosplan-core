@@ -175,23 +175,23 @@ class CustomFieldCreatorTest extends UnitTestCase
                 'attributes' => [
                     'fieldType'    => 'singleSelect',
                     'sourceEntity' => 'PROCEDURE',
-                    'targetEntity' => 'STATEMENT', // Wrong target for singleSelect
+                    'targetEntity' => 'PROCEDURE_TEMPLATE', // not a valid target in either validator
                     'name'         => self::TEST_FIELD_NAME,
                     'description'  => self::TEST_DESCRIPTION,
                     'options'      => self::TEST_OPTIONS_ONLY_ONE_TWO,
                 ],
-                'expectedErrorMessage' => 'The target entity "STATEMENT" does not match the expected target entity "SEGMENT" for source entity "PROCEDURE".',
+                'expectedErrorMessage' => 'The target entity "PROCEDURE_TEMPLATE" is not valid for source entity "PROCEDURE". Allowed targets: STATEMENT, SEGMENT.',
             ],
             'multiSelectInvalidSourceTargetEntityCombination' => [
                 'attributes' => [
                     'fieldType'    => 'multiSelect',
                     'sourceEntity' => 'PROCEDURE',
-                    'targetEntity' => 'SEGMENT', // Wrong target for multiSelect
+                    'targetEntity' => 'PROCEDURE_TEMPLATE', // not a valid target in either validator
                     'name'         => self::TEST_FIELD_NAME,
                     'description'  => self::TEST_DESCRIPTION,
                     'options'      => self::TEST_OPTIONS_ONLY_ONE_TWO,
                 ],
-                'expectedErrorMessage' => 'The target entity "SEGMENT" does not match the expected target entity "STATEMENT" for source entity "PROCEDURE".',
+                'expectedErrorMessage' => 'The target entity "PROCEDURE_TEMPLATE" is not valid for source entity "PROCEDURE". Allowed targets: STATEMENT, SEGMENT.',
             ],
         ];
     }

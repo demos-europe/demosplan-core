@@ -464,6 +464,7 @@ class DemosPlanAssessmentController extends BaseController
                 $submitter = new SubmitterValueObject();
                 $submitter->setEntityId($department->getId());
                 $submitter->setList(SubmitterValueObject::LIST_INSTITUTION);
+                $submitter->setOrgaId($orga->getId());
                 $submitter->setSubmitter($orga->getName(), $department->getName(), '', $orga->getPostalcode(), $orga->getCity());
                 // for now there is no need to implement setLastStatementCountyIds &&
                 // setLastStatementMunicipalityIds, as permissions are not used together
@@ -534,6 +535,7 @@ class DemosPlanAssessmentController extends BaseController
             $submitter = new SubmitterValueObject();
             $submitter->setEntityId($statement->getId());
             $submitter->setList($listType);
+            $submitter->setOrgaId($statement->getOrganisation()?->getId());
             $submitter->setSubmitter($orgaName, $departmentName, $authorName, $postalCode, $city);
             $submitter->setLastStatementCountyIds($countyIds);
             $submitter->setLastStatementMunicipalityIds($municipalityIds);

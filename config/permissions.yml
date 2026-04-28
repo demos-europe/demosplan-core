@@ -1919,6 +1919,15 @@ feature_segment_content_changes_view:
     expose: true
     label: 'Allows access to Segment`s change history.'
     loginRequired: true
+feature_enable_recommendation_versions:
+    description: |
+        When enabled, recommendation versions are exposed via API and included
+        in exports. Holds a versionCount and the recommendation text for that
+        specific version. Tracking itself always happens regardless of this
+        permission — this only controls visibility on both segments and statements.
+    expose: true
+    label: 'Enables recommendation version display and export.'
+    loginRequired: true
 feature_segment_polygon_read:
     description: |-
         Allows read-access to the statementSegment polygon property via StatementSegmentResourceType
@@ -2514,6 +2523,11 @@ feature_statements_vote_may_vote:
     label: 'Stellungnahme anderer mitzeichnen (Aktion ausführen)'
     loginRequired: true
     parent: feature_statement
+feature_spellcheck:
+    description: 'Enables the spellcheck proxy to a self-hosted LanguageTool instance. Requires languagetool_url parameter to be configured.'
+    expose: true
+    label: 'Enables spellcheck via LanguageTool'
+    loginRequired: false
 feature_switchorga:
     label: 'Organisation Fachplanung und Institution wechseln'
     loginRequired: true

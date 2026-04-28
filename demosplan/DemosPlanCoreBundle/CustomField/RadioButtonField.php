@@ -78,6 +78,15 @@ class RadioButtonField extends AbstractCustomField
         return null;
     }
 
+    public function formatValueForDisplay(mixed $value): string
+    {
+        if (!is_string($value) || '' === $value) {
+            return '';
+        }
+
+        return $this->getCustomOptionValueById($value)?->getLabel() ?? '';
+    }
+
     protected function validateFieldSpecific(array $options): void
     {
         if (count($options) < 2) {

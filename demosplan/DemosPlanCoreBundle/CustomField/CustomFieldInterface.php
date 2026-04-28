@@ -54,7 +54,15 @@ interface CustomFieldInterface
 
     public function getOptions(): array;
 
+    public function getRequired(): bool;
+
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption;
 
     public function getApiAttributes(): array;
+
+    /**
+     * Returns the human-readable representation of a stored value for display purposes (e.g. PDF export).
+     * Each field type is responsible for resolving its own value format.
+     */
+    public function formatValueForDisplay(mixed $value): string;
 }

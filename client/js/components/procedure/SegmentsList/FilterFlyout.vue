@@ -57,13 +57,10 @@
     @open="handleOpen"
   >
     <template v-slot:trigger>
-      <span :class="{ 'weight--bold' : (appliedQuery.length > 0) }">
-        {{ category.label }}
-        <span
-          v-if="appliedQuery.length > 0"
-          class="o-badge o-badge--small o-badge--transparent mb-px mr-1"
-        >
-          {{ appliedQuery.length }}
+      <span :class="[{ 'weight--bold' : (appliedQuery.length > 0) }, 'px-1']">
+        <span :class="{ 'mr-0.5': appliedQuery.length > 0 }">{{ category.label }}</span>
+        <span v-if="appliedQuery.length > 0">
+          ({{ appliedQuery.length }})
         </span>
       </span>
       <i
@@ -74,7 +71,7 @@
     </template>
 
     <div
-      class="min-w-12 border--bottom u-p-0_5 leading-[2] whitespace-nowrap"
+      class="min-w-12 border-b border-neutral p-2 leading-[2] whitespace-nowrap"
     >
       <dp-resettable-input
         :id="`searchField_${path}`"
@@ -87,13 +84,13 @@
 
     <dp-loading
       v-if="isLoading"
-      class="u-mt u-ml-0_5 u-pb"
+      class="mt-4 ml-2 pb-4"
     />
 
     <div v-else>
       <div
         :style="flyoutHeightStyle"
-        class="w-full border--bottom overflow-y-scroll u-p-0_5"
+        class="w-full border-b border-neutral overflow-y-scroll p-2"
       >
         <dp-inline-notification
           v-if="hint"
@@ -103,7 +100,7 @@
         />
         <ul
           v-if="ungroupedOptions?.length > 0"
-          class="o-list line-height--1_6"
+          class="m-0 p-0 pb-2 list-none leading-[1.6] border-b border-neutral mb-2"
         >
           <filter-flyout-checkbox
             v-for="option in searchedUngroupedOptions"
@@ -116,13 +113,13 @@
           />
         </ul>
         <ul
-          v-for="group in searchedGroupedOptions"
-          :key="`list_${group.id}}`"
-          class="o-list line-height--1_6"
+          v-for="(group, index) in searchedGroupedOptions"
+          :key="`list_${group.id}`"
+          :class="['m-0 p-0 list-none leading-[1.6]', { 'border-b border-neutral mb-2': index < searchedGroupedOptions.length - 1 }]"
         >
-          <span class="font-size-small">
+          <li class="font-semibold text-sm mb-1">
             {{ group.label }}
-          </span>
+          </li>
           <filter-flyout-checkbox
             v-for="option in group.options"
             :key="option.id"
@@ -143,13 +140,13 @@
         class="flow-root"
       >
         <h3
-          class="inline-block font-size-small weight--normal u-m-0_5"
+          class="inline-block text-sm font-normal m-2"
         >
           {{ Translator.trans('filter.active') }}
         </h3>
         <button
           v-if="currentQuery.length"
-          class="o-link--default btn--blank font-size-small u-m-0_5 float-right"
+          class="o-link--default btn--blank text-sm m-2 float-right"
           :data-cy="`filter:removeActiveFilter:${path}`"
           @click="resetAndApply"
         >
@@ -157,7 +154,7 @@
         </button>
       </div>
       <ul
-        class="o-list u-p-0_5 u-pt-0 line-height--1_6"
+        class="m-0 list-none p-2 pt-0 leading-[1.6]"
       >
         <filter-flyout-checkbox
           v-for="item in itemsSelected"
@@ -169,7 +166,7 @@
           @change="updateQuery"
         />
       </ul>
-      <div class="flow-root u-p-0_5 u-pt-0">
+      <div class="flow-root p-2 pt-0">
         <dp-button
           class="float-left"
           :data-cy="`filter:applyFilter:${path}`"

@@ -7,7 +7,62 @@
 ## UNRELEASED
 
 ### Added
+- Track recommendation versions for statements and segments with full text snapshots, exposed via API and XLSX export (permission: `feature_enable_recommendation_versions`)
+- Support multiple custom field types and target contexts per project
+
+## v4.37.0 (2026-04-27)
+
+## v4.36.0 (2026-04-24)
+
+### Added
+- Tables support draggable column reordering, persisted locally per user
+- Administrators can configure a retention period for purging deleted procedures
+
+### Changed
+- Unused tags are no longer shown in the filter flyout
+- Improved performance of procedure phase resolution on list and export views
+- Submitter name, address and priority are hidden in the "portrait with prioritization" export
+
+### Fixed
+- Filter flyout could be hidden behind sticky table headers
+- Incorrect initial filter state on statements
+- Tooltips for hidden table columns were shown incorrectly
+- Hover color on checked multiselect checkbox
+- Overview map was shown on initial render when it should have been hidden
+- Logout button now appears on the IDP error page to terminate the Keycloak session
+- Designated end dates were saved with 00:00:00 instead of 23:59:59
+- Elasticsearch error when removing a keyword that was in use
+- Document exports could fail when CSS contained non-numeric line-height values
+
+## v4.35.0 (2026-04-09)
+
+## v4.34.0 (2026-04-09)
+
+### Added
+- Console commands to list and detach organisations from customers
+
+### Fixed
+- Various visual and interaction issues in the configurable segment list table
+- Organisation ID was not set when manually creating statements for institutions
+
+## v4.33.0 (2026-04-02)
+
+### Added
+- Introduce password check to forbid re-usage of passwords when trying to change passwords. This adds a new table to the DB, user_password_history
 - Make custom fields available in assessment table, original statement list, my releases list, and public statement dialogs
+- Improved segment list interface with configurable column layout
+- Show blueprint name and organization in platform blueprint warning
+
+### Changed
+- Improved performance of procedure statistics endpoint
+
+### Fixed
+- Global GIS layers were always saved as enabled regardless of the selected setting
+- "Split now" button in statement details only assigned the statement without redirecting to the split view
+- Pagination in assessment table required double click to navigate
+- Public paragraph list could fail when an element was missing
+- Statement votes were not immediately visible after voting
+- Procedure exports could fail in certain cases
 
 ## v4.32.0 (2026-03-25)
 ### Added

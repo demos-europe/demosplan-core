@@ -49,7 +49,6 @@
               groupedOptions: true,
               ungroupedOptions: true
             }"
-            variant="dark"
             @filter-apply="sendFilterQuery"
             @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})"
           />
@@ -62,16 +61,6 @@
           :text="Translator.trans('reset')"
           variant="outline"
           @click="resetQuery"
-        />
-        <dp-button
-          class="ml-auto"
-          data-cy="editorFullscreen"
-          :icon="isFullscreen ? 'compress' : 'expand'"
-          icon-size="medium"
-          hide-text
-          variant="outline"
-          :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
-          @click="handleFullscreenMode()"
         />
       </div>
       <dp-bulk-edit-header
@@ -102,13 +91,49 @@
           @page-change="applyQuery"
           @size-change="handleSizeChange"
         />
-        <dp-column-selector
-          data-cy="segmentsList:selectableColumns"
-          :initial-selection="currentSelection"
-          local-storage-key="segmentList"
-          :selectable-columns="selectableColumns"
-          use-local-storage
-          @selection-changed="setCurrentSelection"
+        <dp-button
+          v-if="hasPermission('feature_segments_import_excel')"
+          :href="Routing.generate('DemosPlan_procedure_import', { procedureId: procedureId }) + '#ExcelImport'"
+          :text="Translator.trans('import.options.xls')"
+          data-cy="segmentsList:importOptionsXLS"
+          icon="download"
+          icon-size="medium"
+          variant="subtle"
+        />
+      </div>
+      <div
+        v-show="!isLoading"
+        class="flex justify-end gap-2 py-2"
+      >
+        <div class="flex gap-2">
+          <dp-button
+            :text="Translator.trans('column.selection.reset')"
+            color="secondary"
+            variant="subtle"
+            @click="resetColumnSelection"
+          />
+          <dp-column-selector
+            :key="columnSelectorKey"
+            appearance="subtle"
+            data-cy="segmentsList:selectableColumns"
+            has-select-all-option
+            :initial-selection="currentSelection"
+            local-storage-key="segmentList"
+            :selectable-columns="selectableColumns"
+            use-local-storage
+            @selection-changed="setCurrentSelection"
+          />
+        </div>
+
+        <dp-button
+          :icon="isFullscreen ? 'compress' : 'expand'"
+          :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
+          color="secondary"
+          data-cy="editorFullscreen"
+          icon-size="medium"
+          variant="subtle"
+          hide-text
+          @click="handleFullscreenMode"
         />
       </div>
     </dp-sticky-element>
@@ -124,206 +149,225 @@
           ref="imageModal"
           data-cy="segment:imgModal"
         />
-        <dp-data-table
-          ref="dataTable"
-          class="overflow-x-auto pb-3 min-h-12"
-          :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
-          data-cy="segmentsList"
-          has-flyout
-          :header-fields="availableHeaderFields"
-          is-resizable
-          is-selectable
-          :items="items"
-          :multi-page-all-selected="allSelectedVisually"
-          :multi-page-selection-items-total="allItemsCount"
-          :multi-page-selection-items-toggled="toggledItems.length"
-          :should-be-selected-items="currentlySelectedItems"
-          track-by="id"
-          @select-all="handleSelectAll"
-          @items-toggled="handleToggleItem"
+        <div
+          id="segmentsListScrollContainer"
+          ref="scrollContainer"
+          class="overflow-x-auto scrollbar-none isolate"
         >
-          <template v-slot:header-tags>
-            <span class="inline-flex items-center">
-              {{ Translator.trans('segment.tags') }}
+          <dp-data-table
+            ref="dataTable"
+            class="min-h-12"
+            :class="{ 'px-2': isFullscreen, 'scrollbar-none': !isFullscreen }"
+            data-cy="segmentsList"
+            density="spacious"
+            has-flyout
+            has-borders
+            has-sticky-header
+            :header-fields="availableHeaderFields"
+            column-storage-key="segmentsList"
+            is-columns-draggable
+            is-resizable
+            is-selectable
+            :items="items"
+            :multi-page-all-selected="allSelectedVisually"
+            :multi-page-selection-items-total="allItemsCount"
+            :multi-page-selection-items-toggled="toggledItems.length"
+            :should-be-selected-items="currentlySelectedItems"
+            track-by="id"
+            @select-all="handleSelectAll"
+            @items-toggled="handleToggleItem"
+          >
+            <template v-slot:header-tags>
+              <span class="inline-flex items-center">
+                {{ Translator.trans('segment.tags') }}
+                <addon-wrapper
+                  v-if="hasStyledTopicalTags"
+                  hook-name="tag.extend.form"
+                  :addon-props="{ demosplanUi, isIconOnly: true}"
+                />
+              </span>
+            </template>
+            <template v-slot:externId="rowData">
+              <v-popover trigger="hover focus">
+                <div class="whitespace-nowrap">
+                  {{ rowData.attributes.externId }}
+                </div>
+                <template v-slot:popover>
+                  <statement-meta-tooltip
+                    :assignable-users="assignableUsers"
+                    :statement="statementsObject[rowData.relationships.parentStatement.data.id]"
+                    :segment="rowData"
+                    :places="places"
+                  />
+                </template>
+              </v-popover>
+            </template>
+            <template v-slot:statementStatus="rowData">
+              <status-badge
+                class="mt-0.5 max-w-fit !block o-hellip--nowrap"
+                :status="statementsObject[rowData.relationships.parentStatement.data.id].attributes.status"
+              />
+            </template>
+            <template v-slot:internId="rowData">
+              <div class="o-hellip__wrapper">
+                <div
+                  v-tooltip="statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId"
+                  class="o-hellip--nowrap text-right"
+                  dir="rtl"
+                >
+                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId }}
+                </div>
+              </div>
+            </template>
+            <template v-slot:submitter="rowData">
+              <ul class="o-list max-w-12">
+                <li
+                  v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName !== ''"
+                  class="o-list__item o-hellip--nowrap"
+                >
+                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName }}
+                </li>
+                <li
+                  v-else
+                  class="o-list__item o-hellip--nowrap"
+                >
+                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.submitName }}
+                </li>
+                <li
+                  v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationName !== ''"
+                  class="o-list__item o-hellip--nowrap"
+                >
+                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationName }}
+                </li>
+              </ul>
+            </template>
+            <template v-slot:address="rowData">
+              <ul class="o-list">
+                <li
+                  v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationStreet !== ''"
+                  class="o-list__item o-hellip--nowrap"
+                >
+                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationStreet }}
+                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationHouseNumber }}
+                </li>
+                <li
+                  v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationPostalCode !== ''"
+                  class="o-list__item o-hellip--nowrap"
+                >
+                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationPostalCode }}
+                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationCity }}
+                </li>
+              </ul>
+            </template>
+            <template v-slot:place="rowData">
+              {{ placesObject[rowData.relationships.place.data.id].attributes.name }}
+            </template>
+            <template v-slot:text="rowData">
+              <text-content-renderer
+                class="overflow-word-break c-styled-html"
+                :text="rowData.attributes.text"
+              />
+            </template>
+            <template v-slot:recommendation="rowData">
+              <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
+            </template>
+            <template v-slot:tags="rowData">
               <addon-wrapper
                 v-if="hasStyledTopicalTags"
-                hook-name="tag.extend.form"
-                :addon-props="{ demosplanUi, isIconOnly: true}"
+                hook-name="tag.style.segments.list"
+                :addon-props="{
+                  demosplanUi,
+                  tags: getTagsBySegment(rowData.id)
+                }"
               />
-            </span>
-          </template>
-          <template v-slot:externId="rowData">
-            <v-popover trigger="hover focus">
-              <div class="whitespace-nowrap">
-                {{ rowData.attributes.externId }}
-              </div>
-              <template v-slot:popover>
-                <statement-meta-tooltip
-                  :assignable-users="assignableUsers"
-                  :statement="statementsObject[rowData.relationships.parentStatement.data.id]"
-                  :segment="rowData"
-                  :places="places"
-                />
-              </template>
-            </v-popover>
-          </template>
-          <template v-slot:statementStatus="rowData">
-            <status-badge
-              class="mt-0.5 max-w-fit !block o-hellip--nowrap"
-              :status="statementsObject[rowData.relationships.parentStatement.data.id].attributes.status"
-            />
-          </template>
-          <template v-slot:internId="rowData">
-            <div class="o-hellip__wrapper">
-              <div
-                v-tooltip="statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId"
-                class="o-hellip--nowrap text-right"
-                dir="rtl"
-              >
-                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId }}
-              </div>
-            </div>
-          </template>
-          <template v-slot:submitter="rowData">
-            <ul class="o-list max-w-12">
-              <li
-                v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName !== ''"
-                class="o-list__item o-hellip--nowrap"
-              >
-                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName }}
-              </li>
-              <li
+              <span
+                v-for="tag in getTagsBySegment(rowData.id)"
                 v-else
-                class="o-list__item o-hellip--nowrap"
+                :key="tag.id"
+                class="rounded-md color--grey-dark bg-color--grey-light-2 px-1 py-0.5 mx-0.5 my-1 inline-block"
               >
-                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.submitName }}
-              </li>
-              <li
-                v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationName !== ''"
-                class="o-list__item o-hellip--nowrap"
-              >
-                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationName }}
-              </li>
-            </ul>
-          </template>
-          <template v-slot:address="rowData">
-            <ul class="o-list">
-              <li
-                v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationStreet !== ''"
-                class="o-list__item o-hellip--nowrap"
-              >
-                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationStreet }}
-                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationHouseNumber }}
-              </li>
-              <li
-                v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationPostalCode !== ''"
-                class="o-list__item o-hellip--nowrap"
-              >
-                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationPostalCode }}
-                {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationCity }}
-              </li>
-            </ul>
-          </template>
-          <template v-slot:place="rowData">
-            {{ placesObject[rowData.relationships.place.data.id].attributes.name }}
-          </template>
-          <template v-slot:text="rowData">
-            <text-content-renderer
-              class="overflow-word-break c-styled-html"
-              :text="rowData.attributes.text"
-            />
-          </template>
-          <template v-slot:recommendation="rowData">
-            <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
-          </template>
-          <template v-slot:tags="rowData">
-            <addon-wrapper
-              v-if="hasStyledTopicalTags"
-              hook-name="tag.style.segments.list"
-              :addon-props="{
-                demosplanUi,
-                tags: getTagsBySegment(rowData.id)
-              }"
-            />
-            <span
-              v-for="tag in getTagsBySegment(rowData.id)"
-              v-else
-              :key="tag.id"
-              class="rounded-md color--grey-dark bg-color--grey-light-2 px-1 py-0.5 mx-0.5 my-1 inline-block"
+                {{ tag.attributes.title }}
+              </span>
+            </template>
+            <template
+              v-for="customField in selectedCustomFields"
+              :key="customField.field"
+              v-slot:[customField.field]="rowData"
             >
-              {{ tag.attributes.title }}
-            </span>
-          </template>
-          <template
-            v-for="customField in selectedCustomFields"
-            :key="customField.field"
-            v-slot:[customField.field]="rowData"
-          >
-            <div>
-              {{ getCustomFieldOptionLabel(rowData.attributes.customFields, customField.fieldId) }}
-            </div>
-          </template>
-          <template v-slot:flyout="rowData">
-            <dp-flyout data-cy="segmentsList:flyoutEditMenu">
-              <a
-                v-if="hasPermission('feature_segment_recommendation_edit')"
-                class="block leading-[2] whitespace-nowrap"
-                :href="Routing.generate('dplan_statement_segments_list', {
-                  procedureId: procedureId,
-                  segment: rowData.id,
-                  statementId: rowData.relationships.parentStatement.data.id
-                })"
-                data-cy="segmentsList:segmentsRecommendationsCreate"
-                rel="noopener"
-                @click="storeNavigationContextInLocalStorage"
-              >
-                {{ Translator.trans('segments.recommendations.create') }}
-              </a>
-              <a
-                class="block leading-[2] whitespace-nowrap"
-                :href="Routing.generate('dplan_statement_segments_list', {
-                  action: 'editText',
-                  procedureId: procedureId,
-                  segment: rowData.id,
-                  statementId: rowData.relationships.parentStatement.data.id
-                })"
-                data-cy="segmentsList:edit"
-                rel="noopener"
-                @click="storeNavigationContextInLocalStorage"
-              >
-                {{ Translator.trans('details') }}
-              </a>
-              <!-- Version history view -->
-              <button
-                type="button"
-                class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
-                data-cy="segmentsList:segmentVersionHistory"
-                @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)"
-              >
-                {{ Translator.trans('history') }}
-              </button>
-              <a
-                v-if="hasPermission('feature_read_source_statement_via_api')"
-                class="block leading-[2] whitespace-nowrap"
-                :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
-                data-cy="segmentsList:originalPDF"
-                target="_blank"
-                :href="Routing.generate('core_file_procedure', { hash: getOriginalPdfAttachmentHashBySegment(rowData), procedureId: procedureId })"
-                rel="noopener noreferrer"
-              >
-                {{ Translator.trans('original.pdf') }}
-              </a>
-            </dp-flyout>
-          </template>
-        </dp-data-table>
-
+              <div>
+                {{ getCustomFieldOptionLabel(rowData.attributes.customFields, customField.fieldId) }}
+              </div>
+            </template>
+            <template v-slot:flyout="rowData">
+              <dp-flyout data-cy="segmentsList:flyoutEditMenu">
+                <a
+                  v-if="hasPermission('feature_segment_recommendation_edit')"
+                  class="block leading-[2] whitespace-nowrap"
+                  :href="Routing.generate('dplan_statement_segments_list', {
+                    procedureId: procedureId,
+                    segment: rowData.id,
+                    statementId: rowData.relationships.parentStatement.data.id
+                  })"
+                  data-cy="segmentsList:segmentsRecommendationsCreate"
+                  rel="noopener"
+                  @click="storeNavigationContextInLocalStorage"
+                >
+                  {{ Translator.trans('segments.recommendations.create') }}
+                </a>
+                <a
+                  class="block leading-[2] whitespace-nowrap"
+                  :href="Routing.generate('dplan_statement_segments_list', {
+                    action: 'details',
+                    procedureId: procedureId,
+                    segment: rowData.id,
+                    statementId: rowData.relationships.parentStatement.data.id
+                  })"
+                  data-cy="segmentsList:edit"
+                  rel="noopener"
+                  @click="storeNavigationContextInLocalStorage"
+                >
+                  {{ Translator.trans('details') }}
+                </a>
+                <!-- Version history view -->
+                <button
+                  type="button"
+                  class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
+                  data-cy="segmentsList:segmentVersionHistory"
+                  @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)"
+                >
+                  {{ Translator.trans('history') }}
+                </button>
+                <a
+                  v-if="hasPermission('feature_read_source_statement_via_api')"
+                  class="block leading-[2] whitespace-nowrap"
+                  :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
+                  data-cy="segmentsList:originalPDF"
+                  target="_blank"
+                  :href="Routing.generate('core_file_procedure', { hash: getOriginalPdfAttachmentHashBySegment(rowData), procedureId: procedureId })"
+                  rel="noopener noreferrer"
+                >
+                  {{ Translator.trans('original.pdf') }}
+                </a>
+              </dp-flyout>
+            </template>
+          </dp-data-table>
+        </div>
         <div
-          v-show="scrollbarVisible && !isFullscreen"
+          v-show="scrollbarVisible"
           ref="scrollBar"
-          class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden"
+          class="h-[16px] z-[11] relative bg-neutral-light-4 mt-[10px]"
+          :class="isFullscreen ? 'fixed bottom-3 left-0 right-0 mx-2' : 'sticky bottom-0 left-0 right-0'"
         >
           <div
-            :style="scrollbarInnerStyle"
+            :aria-valuenow="scrollPercent"
+            :style="thumbStyle"
+            aria-controls="segmentsListScrollContainer"
+            aria-valuemax="100"
+            aria-valuemin="0"
+            class="absolute inset-y-[2px] rounded-full bg-neutral-light-2 cursor-pointer hover:bg-interactive active:bg-interactive-hover"
+            role="scrollbar"
+            tabindex="0"
+            @mousedown="onThumbMousedown"
           />
         </div>
       </template>
@@ -454,7 +498,9 @@ export default {
     return {
       appliedFilterQuery: this.initialFilter,
       currentQueryHash: '',
-      currentSelection: ['text', 'tags'],
+      columnSelectorKey: 0,
+      defaultColumnSelection: [],
+      currentSelection: [],
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -463,15 +509,15 @@ export default {
       demosplanUi,
       hasStyledTopicalTags: false,
       headerFieldsAvailable: [
-        { field: 'externId', label: Translator.trans('id') },
-        { field: 'statementStatus', label: Translator.trans('statement.status') },
-        { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '150px' },
-        { field: 'submitter', label: Translator.trans('submitter') },
-        { field: 'address', label: Translator.trans('address') },
-        { field: 'text', label: Translator.trans('text'), colWidth: '200px' },
-        { field: 'recommendation', label: Translator.trans('segment.recommendation'), colWidth: '200px' },
-        { field: 'tags', label: Translator.trans('segment.tags') },
-        { field: 'place', label: Translator.trans('workflow.place') },
+        { field: 'externId', label: Translator.trans('id'), colWidth: '120px', initialMinWidth: 120, fixed: true },
+        { field: 'statementStatus', label: Translator.trans('statement.status'), colWidth: '180px', initialMinWidth: 180 },
+        { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '120px', initialMinWidth: 120 },
+        { field: 'submitter', label: Translator.trans('submitter'), colWidth: '180px', initialMinWidth: 180 },
+        { field: 'address', label: Translator.trans('address'), colWidth: '180px', initialMinWidth: 180 },
+        { field: 'text', label: Translator.trans('text'), colWidth: '270px', initialMinWidth: 270 },
+        { field: 'recommendation', label: Translator.trans('segment.recommendation'), colWidth: '180px', initialMinWidth: 180 },
+        { field: 'tags', label: Translator.trans('segment.tags'), colWidth: '270px', initialMinWidth: 270 },
+        { field: 'place', label: Translator.trans('workflow.place'), colWidth: '180px', initialMinWidth: 180 },
       ],
       isLoading: true,
       lsKey: {
@@ -530,9 +576,16 @@ export default {
         []
     },
 
+    // Passed as headerFields to DpDataTable
     availableHeaderFields () {
+      const externIdField = this.headerFieldsAvailable.find(el => el.field === 'externId')
+      const userHeaderFields = this.headerFields.filter(el => el.field !== 'externId')
+
       if (!hasPermission('field_segments_custom_fields')) {
-        return this.headerFields
+        return [
+          externIdField, // Always include externId and make it the first element
+          ...userHeaderFields, // Columns selected by the user
+        ]
       }
 
       const customFields = Object.values(this.customFields)
@@ -541,11 +594,14 @@ export default {
         .map(customField => ({
           field: `customField_${customField.id}`,
           label: customField.attributes.name,
+          colWidth: '180px',
+          initialMinWidth: 180,
         }))
 
       return [
-        ...this.headerFields,
-        ...selectedCustomFields,
+        externIdField, // Always include externId and make it the first element
+        ...userHeaderFields, // Columns selected by the user
+        ...selectedCustomFields, // Custom field columns selected by the user
       ]
     },
 
@@ -594,7 +650,9 @@ export default {
      * @return {[string, string][]}
      */
     selectableColumns () {
-      const staticColumns = this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+      const staticColumns = this.headerFieldsAvailable
+        .filter(el => el.field !== 'externId') // ExternId should always be displayed, so it shouldn't be selectable
+        .map(headerField => ([headerField.field, headerField.label]))
 
       if (!hasPermission('field_segments_custom_fields')) {
         return staticColumns
@@ -867,6 +925,12 @@ export default {
       this.applyQuery(page)
     },
 
+    resetColumnSelection () {
+      localStorage.removeItem('segmentList')
+      this.setCurrentSelection([...this.defaultColumnSelection])
+      this.columnSelectorKey++
+    },
+
     resetQuery () {
       this.resetSearchQuery()
       this.appliedFilterQuery = []
@@ -896,6 +960,39 @@ export default {
      */
     sendFilterOptionsRequest (params) {
       const { additionalQueryParams, category, currentQuery, filter, isInitialWithQuery, path } = params
+      const isUnusedTag = (filterPath, count, selected) => filterPath === 'tags' && count === 0 && !selected
+
+      const buildGroupOptions = (resource, resultIncluded, currentQuery, filterPath) => {
+        const filterOptionsIds = resource.relationships.aggregationFilterItems?.data.length > 0 ? resource.relationships.aggregationFilterItems.data.map(item => item.id) : []
+        const options = filterOptionsIds.map(id => {
+          const option = resultIncluded.find(item => item.id === id)
+
+          if (option) {
+            const { attributes, id } = option
+            const { count, description, label } = attributes
+
+            return {
+              count,
+              description,
+              id,
+              label,
+              selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
+            }
+          }
+
+          return null
+        }).filter(option => option !== null && !isUnusedTag(filterPath, option.count, option.selected))
+
+        if (options.length === 0) {
+          return null
+        }
+
+        return {
+          id: resource.id,
+          label: resource.attributes.label,
+          options,
+        }
+      }
       const requestParams = {
         ...additionalQueryParams,
         filter: {
@@ -920,67 +1017,25 @@ export default {
           const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ? data[0].result : null
 
           if (result) {
-            const groupedOptions = []
-            const ungroupedOptions = []
+            const filter = result.data.find(type => type.attributes.path === path)
+            const groupIds = new Set(filter.relationships.aggregationFilterGroups?.data.map(group => group.id) ?? [])
+            const itemIds = new Set(filter.relationships.aggregationFilterItems?.data.map(item => item.id) ?? [])
 
-            result.included?.forEach(resource => {
-              const filter = result.data.find(type => type.attributes.path === path)
-              const resourceIsGroup = resource.type === 'AggregationFilterGroup'
-              const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0
-              const groupBelongsToFilterType = resourceIsGroup && filterHasGroups ? !!filter.relationships.aggregationFilterGroups.data.find(group => group.id === resource.id) : false
-              const resourceIsFilterOption = resource.type === 'AggregationFilterItem'
-              const filterHasFilterOptions = filter.relationships.aggregationFilterItems?.data.length > 0
-              const filterOptionBelongsToFilterType = resourceIsFilterOption && filterHasFilterOptions ? !!filter.relationships.aggregationFilterItems.data.find(option => option.id === resource.id) : false
+            const groupedOptions = (result.included ?? [])
+              .filter(resource => resource.type === 'AggregationFilterGroup' && groupIds.has(resource.id))
+              .map(group => buildGroupOptions(group, result.included, currentQuery, path))
+              .filter(Boolean)
 
-              if (resourceIsGroup && groupBelongsToFilterType) {
-                const filterOptionsIds = resource.relationships.aggregationFilterItems?.data.length > 0 ? resource.relationships.aggregationFilterItems.data.map(item => item.id) : []
-                const filterOptions = filterOptionsIds.map(id => {
-                  const option = result.included.find(item => item.id === id)
-
-                  if (option) {
-                    const { attributes, id } = option
-                    const { count, description, label } = attributes
-
-                    return {
-                      count,
-                      description,
-                      id,
-                      label,
-                      selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
-                    }
-                  }
-
-                  return null
-                }).filter(option => option !== null)
-
-                if (filterOptions.length > 0) {
-                  const { id, attributes } = resource
-                  const { label } = attributes
-                  const group = {
-                    id,
-                    label,
-                    options: filterOptions,
-                  }
-
-                  groupedOptions.push(group)
-                }
-              }
-
-              // Ungrouped filter options
-              if (resourceIsFilterOption && filterOptionBelongsToFilterType) {
+            const ungroupedOptions = (result.included ?? [])
+              .filter(resource => resource.type === 'AggregationFilterItem' && itemIds.has(resource.id))
+              .map(resource => {
                 const { id, attributes } = resource
                 const { count, description, label } = attributes
+                const selected = currentQuery?.length ? currentQuery.includes(id) : attributes.selected
 
-                ungroupedOptions.push({
-                  id,
-                  count,
-                  description,
-                  label,
-                  selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
-                  ungrouped: true,
-                })
-              }
-            })
+                return { id, count, description, label, selected, ungrouped: true }
+              })
+              .filter(option => !isUnusedTag(path, option.count, option.selected))
 
             // Needs to be added to ungroupedOptions
             if (result.data[0].attributes.path === 'assignee') {
