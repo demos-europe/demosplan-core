@@ -60,6 +60,7 @@ class LoadProcedurePhaseDefinitionData extends TestFixture
         $internalClosedDefinition->setAudience('internal');
         $internalClosedDefinition->setPermissionSet('hidden');
         $internalClosedDefinition->setOrderInAudience(3);
+        $internalClosedDefinition->setClosingPhase(true);
         $manager->persist($internalClosedDefinition);
         $this->setReference(self::TEST_INTERNAL_CLOSED_PHASE_DEFINITION, $internalClosedDefinition);
 
@@ -101,6 +102,7 @@ class LoadProcedurePhaseDefinitionData extends TestFixture
         $externalClosedDefinition->setAudience('external');
         $externalClosedDefinition->setPermissionSet('hidden');
         $externalClosedDefinition->setOrderInAudience(4);
+        $externalClosedDefinition->setClosingPhase(true);
         $manager->persist($externalClosedDefinition);
         $this->setReference(self::TEST_EXTERNAL_CLOSED_PHASE_DEFINITION, $externalClosedDefinition);
 
