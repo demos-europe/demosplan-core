@@ -98,7 +98,7 @@ All rights reserved
       >
         <dp-data-table
           :header-fields="headerFields"
-          :items="internalPhases"
+          :items="internalPhaseDefinitions"
           track-by="id"
         />
       </dp-accordion>
@@ -110,7 +110,7 @@ All rights reserved
       >
         <dp-data-table
           :header-fields="headerFields"
-          :items="externalPhases"
+          :items="externalPhaseDefinitions"
           track-by="id"
         />
       </dp-accordion>
@@ -167,7 +167,7 @@ export default {
         permissionSet: '',
         participationState: null,
       },
-      phases: [],
+      phaseDefinitions: [],
     }
   },
 
@@ -179,14 +179,14 @@ export default {
       ]
     },
 
-    externalPhases () {
-      return this.phases
+    externalPhaseDefinitions () {
+      return this.phaseDefinitions
         .filter(phase => phase.audience === 'external')
         .map(phase => this.mapPhaseForDisplay(phase))
     },
 
-    internalPhases () {
-      return this.phases
+    internalPhaseDefinitions () {
+      return this.phaseDefinitions
         .filter(phase => phase.audience === 'internal')
         .map(phase => this.mapPhaseForDisplay(phase))
     },
@@ -198,7 +198,7 @@ export default {
         return false
       }
 
-      return this.phases.some(phase =>
+      return this.phaseDefinitions.some(phase =>
         phase.audience === this.newPhase.audience &&
         phase.name.trim().toLowerCase() === trimmedName.toLowerCase(),
       )
@@ -242,7 +242,7 @@ export default {
         .then(() => {
           dplan.notify.confirm(Translator.trans('phase.created.success'))
 
-          this.fetchPhases()
+          this.fetchPhaseDefinitions()
           this.resetForm()
         })
         .catch(err => {
@@ -254,7 +254,7 @@ export default {
         })
     },
 
-    fetchPhases () {
+    fetchPhaseDefinitions () {
       this.isInitiallyLoading = true
 
       dpApi.get(Routing.generate('api_resource_list', {
@@ -271,7 +271,7 @@ export default {
         sort: 'orderInAudience',
       }))
         .then(({ data }) => {
-          this.phases = data.data.map(item => ({
+          this.phaseDefinitions = data.data.map(item => ({
             audience: item.attributes.audience,
             id: item.id,
             name: item.attributes.name,
@@ -324,7 +324,7 @@ export default {
   },
 
   mounted () {
-    this.fetchPhases()
+    this.fetchPhaseDefinitions()
   },
 }
 </script>
