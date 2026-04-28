@@ -185,7 +185,7 @@ export default {
       this.isInEditState = ''
     },
 
-    addTagToNewTopic (parentTopic, tagId) {
+    addTagToNewTopic (parentTopic, tagId, newIndex = null) {
       const existingTags = parentTopic.relationships?.tags?.data || []
       const updatedTags = [...existingTags]
       // Wenn newIndex angegeben: dort einfügen, sonst am Ende
