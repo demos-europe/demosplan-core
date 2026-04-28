@@ -96,6 +96,7 @@ All rights reserved
         :title="Translator.trans('audience.internal')"
         is-open
       >
+        <div class="overflow-x-auto pb-3">
           <addon-wrapper
             :addon-props="{
               phaseDefinitions: internalPhaseDefinitions,
@@ -112,8 +113,12 @@ All rights reserved
             v-else-if="!isAddonActive"
             :header-fields="headerFields"
             :items="internalPhaseDefinitions"
+            density="spacious"
             track-by="id"
+            has-borders
+            is-resizable
           />
+        </div>
       </dp-accordion>
 
       <dp-accordion
@@ -121,6 +126,7 @@ All rights reserved
         :title="Translator.trans('audience.external')"
         is-open
       >
+        <div class="overflow-x-auto pb-3">
           <addon-wrapper
             :addon-props="{
               phaseDefinitions: externalPhaseDefinitions,
@@ -137,8 +143,12 @@ All rights reserved
             v-else-if="!isAddonActive"
             :header-fields="headerFields"
             :items="externalPhaseDefinitions"
+            density="spacious"
             track-by="id"
+            has-borders
+            is-resizable
           />
+        </div>
       </dp-accordion>
 
       <dp-loading v-if="isInitiallyLoading" />
@@ -212,10 +222,10 @@ export default {
 
     headerFields () {
       return [
-        { field: 'name', label: Translator.trans('phase.name') },
-        ...(this.isAddonActive ? [{ field: 'phaseCode', label: Translator.trans('procedure.phase.code') }] : []),
-        { field: 'permissionSetLabel', label: Translator.trans('permissionset.label') },
-        { field: 'participationStateLabel', label: Translator.trans('participation.state.finished') },
+        { field: 'name', label: Translator.trans('phase.name'), colWidth: '270px', initialMinWidth: 270 },
+        ...(this.isAddonActive ? [{ field: 'phaseCode', label: Translator.trans('procedure.phase.code'), colWidth: '160px', initialMinWidth: 160 }] : []),
+        { field: 'permissionSetLabel', label: Translator.trans('permissionset.label'), colWidth: '270px', initialMinWidth: 270 },
+        { field: 'participationStateLabel', label: Translator.trans('participation.state.finished'), colWidth: '160px', initialMinWidth: 160 },
       ]
     },
 
