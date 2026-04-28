@@ -8,7 +8,8 @@
 </license>
 
 <documentation>
-  <!-- Expandable component that displays form fields to create a new item, e.g. user or organisation
+  <!-- Displays form fields to create a new item, e.g. user or organisation, inside an
+      inline expand/collapse area that toggles via an add button.
       It receives the form fields via a child component that can by dynamically included
 
       We might put the form fields part inside a slot and add some form fields as default content, should a more
@@ -17,43 +18,64 @@
 </documentation>
 
 <template>
-  <dp-accordion
-    :is-open="isOpen"
-    :title="Translator.trans(itemTitle)"
-    @item:toggle="(open) => { toggleItem(open) }"
-  >
-    <div class="o-box--dark soft">
+  <div>
+    <div
+      :class="`${showHeaderBottomBorder ? 'border-y' : 'border-t'} border-neutral flex justify-between items-baseline py-4 mt-4`"
+    >
+      <h3
+        class="mb-0 font-semibold"
+      >
+        {{ Translator.trans(itemTitle) }}
+      </h3>
+      <dp-button
+        variant="subtle"
+        :icon-after="isFormOpen ? 'caret-up' : 'caret-down'"
+        :text="Translator.trans('add')"
+        @click="toggleForm"
+      />
+    </div>
+    <dp-transition-expand>
       <div
-        class="px-3 py-3"
+        v-show="isFormOpen"
         :data-cy="customComponent[entity].formName"
         :data-dp-validate="customComponent[entity].formName"
+        @transitionend.self="onFormTransitionEnd"
       >
-        <!-- Form fields   -->
-        <component
-          v-bind="dynamicComponentProps"
-          :is="dynamicComponent"
-          ref="formFields"
-          @[dynamicEvent]="update"
-          @reset:complete="shouldResetForm = false"
-        />
+        <div class="border-b border-neutral pb-4">
+          <!-- Form fields   -->
+          <component
+            v-bind="dynamicComponentProps"
+            :is="dynamicComponent"
+            ref="formFields"
+            @[dynamicEvent]="update"
+            @reset:complete="shouldResetForm = false"
+          />
 
-        <!-- Save/Abort buttons   -->
-        <dp-button-row
-          class="mt-6"
-          data-cy="createItem"
-          :form-name="customComponent[entity].formName"
-          primary
-          secondary
-          @primary-action="dpValidateAction(customComponent[entity].formName, save)"
-          @secondary-action="reset"
-        />
+          <!-- Save/Abort buttons   -->
+          <div
+            class="text-right space-x-2 mt-4"
+          >
+            <dp-button
+              color="secondary"
+              data-cy="createItem:abortButton"
+              variant="outline"
+              :text="Translator.trans('abort')"
+              @click="reset"
+            />
+            <dp-button
+              data-cy="createItem:saveButton"
+              :text="Translator.trans('save')"
+              @click="dpValidateAction(customComponent[entity].formName, save)"
+            />
+          </div>
+        </div>
       </div>
-    </div>
-  </dp-accordion>
+    </dp-transition-expand>
+  </div>
 </template>
 
 <script>
-import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { DpButton, DpButtonRow, DpTransitionExpand, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 
@@ -62,6 +84,7 @@ export default {
 
   provide () {
     return {
+      isCreateItem: true,
       proceduresDirectLinkPrefix: this.proceduresDirectLinkPrefix,
       projectName: this.projectName,
       subdomain: this.subdomain,
@@ -74,9 +97,10 @@ export default {
   },
 
   components: {
-    DpAccordion,
+    DpButton,
     DpButtonRow,
     DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationList/DpOrganisationFormFields')),
+    DpTransitionExpand,
     DpUserFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "user-form-fields" */ './DpUserList/DpUserFormFields')),
   },
 
@@ -99,7 +123,7 @@ export default {
     },
 
     /**
-     * Accordion title
+     * Title for the trigger button
      */
     itemTitle: {
       type: String,
@@ -180,9 +204,10 @@ export default {
           updateEvent: 'user:update',
         },
       },
-      isOpen: false,
+      isFormOpen: false,
       item: {},
       shouldResetForm: false,
+      showHeaderBottomBorder: true,
     }
   },
 
@@ -257,7 +282,7 @@ export default {
     },
 
     reset () {
-      this.isOpen = false
+      this.isFormOpen = false
       this.item = {}
       this.shouldResetForm = true
 
@@ -325,8 +350,17 @@ export default {
         .finally(() => this.reset())
     },
 
-    toggleItem (open) {
-      this.isOpen = open
+    toggleForm () {
+      this.isFormOpen = !this.isFormOpen
+      if (this.isFormOpen) {
+        this.showHeaderBottomBorder = false
+      }
+    },
+
+    onFormTransitionEnd (e) {
+      if (e.propertyName === 'height' && this.isFormOpen === false) {
+        this.showHeaderBottomBorder = true
+      }
     },
 
     update (item) {
