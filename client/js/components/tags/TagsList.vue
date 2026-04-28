@@ -206,22 +206,22 @@ export default {
     // Handles the @end event from DpTreeList — fires once per drag, on drop instead of multible times like the @draggable:change event from DpTreeListNode
     handleDragEnd (event, item, parentId) {
 
-      // 1. No-Op: gleiche Liste, gleicher Index
+      // No-Op
       if (event.from === event.to && event.oldIndex === event.newIndex) {
         return
       }
 
-      // 2 Intra Topic reorder: gleiche Liste (gleicher parentId), anderer Index
+      // Intra Topic reorder
       if (event.from === event.to) {
         this.reorderTagInTopic(parentId, item.id, event.newIndex)
+
         return
       }
 
-      // 3. Cross-topic move: alles andere
+      // Cross-topic move
       const newParentId = event.to.id
 
       if (!this.TagTopic[newParentId]) {
-        console.error('[TagsList] Unknown destination topic', newParentId)
         return
       }
 
