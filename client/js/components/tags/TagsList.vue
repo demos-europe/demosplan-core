@@ -23,7 +23,8 @@
         }
       }"
       :branch-identifier="isBranch"
-      @end="handleDragEnd"
+      @draggable:change="changeTopic"
+      @end="handleIntraSort"
     >
       <template v-slot:header>
         <div class="flex">
@@ -210,29 +211,36 @@ export default {
       this.saveTagTopic(parentTopic.id)
     },
 
-    // Handles the @end event from DpTreeList — fires once per drag, on drop instead of multiple times like the @draggable:change event from DpTreeListNode
-    handleDragEnd (event, item, parentId) {
-      // No-Op
-      if (event.from === event.to && event.oldIndex === event.newIndex) {
+    // Cross-topic moves: kept on the original @draggable:change listener (byte-identical to main)
+    changeTopic ({ elementId, parentId }) {
+      if (!parentId) {
         return
       }
 
-      // Intra Topic reorder
-      if (event.from === event.to) {
-        this.reorderTagInTopic(parentId, item.id, event.newIndex)
+      const hasNewParent = !this.TagTopic[parentId].relationships?.tags.data.find(tag => tag.id === elementId)
 
+      if (hasNewParent) {
+        const parentTopic = { ...this.TagTopic[parentId] }
+        const oldParent = Object.values(this.TagTopic).find(topic => topic.relationships?.tags.data.find(tag => tag.id === elementId))
+
+        this.addTagToNewTopic(parentTopic, elementId)
+        this.removeTagFromOldTopic(oldParent, elementId)
+      }
+    },
+
+    // Intra-topic reorder via @end (fires once per drop, ideal for persistence)
+    handleIntraSort (event, item, parentId) {
+      // Skip cross-cat moves — handled by changeTopic via @draggable:change
+      if (event.from !== event.to) {
         return
       }
 
-      // Cross-topic move
-      const newParentId = event.to.id
-
-      if (!this.TagTopic[newParentId]) {
+      // No-Op: dropped at same position
+      if (event.oldIndex === event.newIndex) {
         return
       }
 
-      this.addTagToNewTopic(this.TagTopic[newParentId], item.id)
-      this.removeTagFromOldTopic(this.TagTopic[parentId], item.id)
+      this.reorderTagInTopic(parentId, item.id, event.newIndex)
     },
 
     deleteItem (item) {
