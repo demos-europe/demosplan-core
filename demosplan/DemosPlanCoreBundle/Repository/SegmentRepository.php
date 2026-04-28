@@ -12,6 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
@@ -185,6 +188,12 @@ class SegmentRepository extends CoreRepository
 
     /**
      * Change the recommendation in all segments with the given ID *if* they are in the given procedure.
+     *
+     * WARNING: This method uses raw DQL and bypasses {@see Statement::setRecommendation()}.
+     * Recommendation version recording is NOT handled here — the caller
+     * ({@see SegmentService::editSegmentRecommendations()}) is responsible for calling
+     * {@see RecommendationVersionService::recordVersion()} before invoking this method.
+     * Do not call this method from new contexts without considering version tracking.
      *
      * @param array<int, string> $segmentIds
      * @param bool               $attach     use true to attach the given text to the existing recommendation, otherwise it will be replaced

@@ -7,6 +7,7 @@
 ## UNRELEASED
 
 ### Added
+- Track recommendation versions for statements and segments with full text snapshots, exposed via API and XLSX export (permission: `feature_enable_recommendation_versions`)
 - Support multiple custom field types and target contexts per project
 
 ## v4.37.0 (2026-04-27)
