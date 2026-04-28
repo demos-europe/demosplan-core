@@ -203,7 +203,7 @@ export default {
       this.saveTagTopic(parentTopic.id)
     },
 
-    // Handles the @end event from DpTreeList — fires once per drag, on drop instead of multible times like the @draggable:change event from DpTreeListNode
+    // Handles the @end event from DpTreeList — fires once per drag, on drop instead of multiple times like the @draggable:change event from DpTreeListNode
     handleDragEnd (event, item, parentId) {
       // No-Op
       if (event.from === event.to && event.oldIndex === event.newIndex) {
@@ -263,10 +263,15 @@ export default {
       })
     },
 
-    // Fakes the tag.reorder RPC — only updates displayOrder in the local Tag store
+    /*
+     * MOCK: remove once backend DPLAN-17223-BE is ready
+     * Fakes the tag.reorder RPC — only updates displayOrder in the local Tag store
+     */
     mockTagReorder ({ elementId, newIndex, parentId }) {
       const topic = this.TagTopic[parentId]
-      if (!topic) return Promise.resolve()
+      if (!topic) {
+        return Promise.resolve()
+      }
 
       topic.relationships.tags.data.forEach((tagRef, idx) => {
         const tag = this.Tag[tagRef.id]
@@ -305,7 +310,10 @@ export default {
     // Persist new tag order within a topic — optimistic update + rollback on failure
     reorderTagInTopic (parentId, tagId, newIndex) {
       const topic = this.TagTopic[parentId]
-      if (!topic) return
+
+      if (!topic) {
+        return
+      }
 
       const oldTagsData = [...(topic.relationships?.tags?.data || [])]
       const newTagsData = oldTagsData.filter(t => t.id !== tagId)
