@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use demosplan\DemosPlanCoreBundle\CustomField\TextField;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -197,12 +198,12 @@ class CustomFieldCreatorTest extends UnitTestCase
             'textFieldInvalidTargetEntity' => [
                 'attributes' => [
                     'fieldType'    => 'text',
-                    'sourceEntity' => 'PROCEDURE',
+                    'sourceEntity' => 'CUSTOMER',
                     'targetEntity' => 'SEGMENT', // Wrong target for text
                     'name'         => self::TEST_FIELD_NAME,
                     'description'  => self::TEST_DESCRIPTION,
                 ],
-                'expectedErrorMessage' => 'The target entity "SEGMENT" does not match the expected target entity "STATEMENT" for source entity "PROCEDURE".',
+                'expectedErrorMessage' => 'The target entity "SEGMENT" does not match the expected target entity "ORGA" for source entity "CUSTOMER".',
             ],
         ];
     }
@@ -210,13 +211,19 @@ class CustomFieldCreatorTest extends UnitTestCase
     public function testCreateTextFieldSuccessfully(): void
     {
         // Arrange
-        $this->attributes['fieldType'] = 'text';
-        $this->attributes['isRequired'] = false;
-        $this->attributes['targetEntity'] = 'STATEMENT';
-        unset($this->attributes['options']); // Text fields have no predefined options
+        $customer = CustomerFactory::createOne();
+        $attributes = [
+            'fieldType'      => 'text',
+            'name'           => self::TEST_FIELD_NAME,
+            'description'    => self::TEST_DESCRIPTION,
+            'isRequired'     => false,
+            'sourceEntity'   => 'CUSTOMER',
+            'sourceEntityId' => $customer->getId(),
+            'targetEntity'   => 'ORGA',
+        ];
 
         // Act
-        $result = $this->sut->createCustomField($this->attributes);
+        $result = $this->sut->createCustomField($attributes);
 
         // Assert
         static::assertInstanceOf(CustomFieldInterface::class, $result);
@@ -231,13 +238,19 @@ class CustomFieldCreatorTest extends UnitTestCase
     public function testCreateRequiredTextFieldSuccessfully(): void
     {
         // Arrange
-        $this->attributes['fieldType'] = 'text';
-        $this->attributes['isRequired'] = true;
-        $this->attributes['targetEntity'] = 'STATEMENT';
-        unset($this->attributes['options']);
+        $customer = CustomerFactory::createOne();
+        $attributes = [
+            'fieldType'      => 'text',
+            'name'           => self::TEST_FIELD_NAME,
+            'description'    => self::TEST_DESCRIPTION,
+            'isRequired'     => true,
+            'sourceEntity'   => 'CUSTOMER',
+            'sourceEntityId' => $customer->getId(),
+            'targetEntity'   => 'ORGA',
+        ];
 
         // Act
-        $result = $this->sut->createCustomField($this->attributes);
+        $result = $this->sut->createCustomField($attributes);
 
         // Assert
         static::assertInstanceOf(TextField::class, $result);
