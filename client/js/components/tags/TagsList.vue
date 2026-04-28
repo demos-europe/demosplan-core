@@ -188,28 +188,16 @@ export default {
     addTagToNewTopic (parentTopic, tagId, newIndex = null) {
       const existingTags = parentTopic.relationships?.tags?.data || []
       const updatedTags = [...existingTags]
-      // Wenn newIndex angegeben: dort einfügen, sonst am Ende
       updatedTags.splice(newIndex ?? updatedTags.length, 0, { type: 'Tag', id: tagId })
 
       this.updateTagTopic({
         id: parentTopic.id,
         type: 'TagTopic',
         attributes: parentTopic.attributes,
-        relationships: parentTopic.relationships ?
-          {
-            ...parentTopic.relationships,
-            tags: {
-              data: parentTopic.relationships.tags.data.concat({
-                type: 'Tag',
-                id: tagId,
-              }),
-            },
-          } :
-          {
-            tags: {
-              data: [{ type: 'Tag', id: tagId }],
-            },
-          },
+        relationships: {
+          ...(parentTopic.relationships),
+          tags: { data: updatedTags }
+        }
       })
 
       this.saveTagTopic(parentTopic.id)
