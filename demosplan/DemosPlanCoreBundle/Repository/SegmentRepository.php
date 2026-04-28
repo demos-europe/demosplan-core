@@ -76,6 +76,48 @@ class SegmentRepository extends CoreRepository
     }
 
     /**
+     * Returns the subset of given IDs that belong to `$procedureId` AND
+     * whose current workflow place has `locked = true`. One round-trip
+     * with an explicit JOIN — the lock state is read at query time instead
+     * of triggering N lazy place fetches when the caller iterates the
+     * result.
+     *
+     * The procedure filter prevents an out-of-procedure segment ID from
+     * triggering a "your batch contains locked segments" response that
+     * would also leak the existence and lock state of segments belonging
+     * to a different procedure.
+     *
+     * Note: the JOIN does not `addSelect('p')`, so the `place` association
+     * on each returned `Segment` remains a lazy proxy. Fine for the
+     * current caller (which only counts the result); future callers that
+     * need to walk `$segment->getPlace()->...` should add the select to
+     * avoid reintroducing N+1.
+     *
+     * Used by {{ @see SegmentBulkEditorService::findLockedSegments }} to
+     * pre-validate batches against the segment-lock feature.
+     *
+     * @param list<string> $ids
+     *
+     * @return list<Segment>
+     */
+    public function findLockedByIds(array $ids, string $procedureId): array
+    {
+        if ([] === $ids) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('s')
+            ->innerJoin('s.place', 'p')
+            ->where('s.id IN (:ids)')
+            ->andWhere('s.procedure = :procedureId')
+            ->andWhere('p.locked = true')
+            ->setParameter('ids', $ids)
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Returns the highest number in field orderInProcedure filtered by procedure id.
      */
     public function getLastSortedSegmentNumber(string $procedureId): int

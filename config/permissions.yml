@@ -668,6 +668,19 @@ feature_admin_new_procedure:
     label: 'Create a new procedure'
     loginRequired: true
     parent: feature_admin
+feature_administrate_segment_lock:
+    description: |-
+        Grants write access to the segment lock mechanism. Holders may toggle the
+        `locked` flag on workflow places, edit segments whose current place is locked,
+        and move segments into or out of a locked place. Users without this permission
+        can still read the lock state of segments but cannot perform any of the above
+        writes. The whole feature is additionally gated per project via the config
+        parameter `segment_lock_by_workflow_place` — if that is false the permission
+        has no effect.
+    expose: true
+    label: 'Allows to administrate the segment lock (toggle locked places, edit or move locked segments).'
+    loginRequired: true
+    parent: area_statement_segmentation
 feature_adjust_export_file_name:
     expose: false
     label: 'alters the preamble header of an exported doc to include the procedure name instead of the export-date'

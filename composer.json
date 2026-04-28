@@ -36,7 +36,7 @@
     "cebe/php-openapi": "^1.5",
     "cocur/slugify": "^4.0",
     "composer/composer": "^2.8",
-    "demos-europe/demosplan-addon": "^0.68",
+    "demos-europe/demosplan-addon": "dev-f_DPLAN-17493_segment_lock_additions",
     "doctrine/annotations": "^2.0",
     "doctrine/common": "^3.2",
     "doctrine/doctrine-bundle": "^2",

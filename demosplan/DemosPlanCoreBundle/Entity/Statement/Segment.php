@@ -136,6 +136,17 @@ class Segment extends Statement implements SegmentInterface
         return $this->place->getId();
     }
 
+    /**
+     * Referenced as `getterMethod` for the `locked` field in
+     * `entity_content_change_fields_mapping.yml`. The mapping is read
+     * reflectively, so static analysis will not surface a caller — keep this
+     * method even though no PHP code invokes it directly.
+     */
+    public function isLocked(): bool
+    {
+        return $this->place->isLocked();
+    }
+
     public function addComment(SegmentCommentInterface $comment): self
     {
         $this->comments->add($comment);
