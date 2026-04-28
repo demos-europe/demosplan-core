@@ -185,19 +185,26 @@ export default {
       this.isInEditState = ''
     },
 
-    addTagToNewTopic (parentTopic, tagId, newIndex = null) {
-      const existingTags = parentTopic.relationships?.tags?.data || []
-      const updatedTags = [...existingTags]
-      updatedTags.splice(newIndex ?? updatedTags.length, 0, { type: 'Tag', id: tagId })
-
+    addTagToNewTopic (parentTopic, tagId) {
       this.updateTagTopic({
         id: parentTopic.id,
         type: 'TagTopic',
         attributes: parentTopic.attributes,
-        relationships: {
-          ...parentTopic.relationships,
-          tags: { data: updatedTags },
-        },
+        relationships: parentTopic.relationships ?
+          {
+            ...parentTopic.relationships,
+            tags: {
+              data: parentTopic.relationships.tags.data.concat({
+                type: 'Tag',
+                id: tagId,
+              }),
+            },
+          } :
+          {
+            tags: {
+              data: [{ type: 'Tag', id: tagId }],
+            },
+          },
       })
 
       this.saveTagTopic(parentTopic.id)
@@ -224,7 +231,7 @@ export default {
         return
       }
 
-      this.addTagToNewTopic(this.TagTopic[newParentId], item.id, event.newIndex)
+      this.addTagToNewTopic(this.TagTopic[newParentId], item.id)
       this.removeTagFromOldTopic(this.TagTopic[parentId], item.id)
     },
 
