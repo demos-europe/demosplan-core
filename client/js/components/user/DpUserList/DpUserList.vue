@@ -288,6 +288,7 @@ export default {
       try {
         ids = await this.resolveSelectedIds()
       } catch (error) {
+        console.error('Failed to resolve selected user ids for invite:', error)
         dplan.notify.notify('error', Translator.trans('error.api.generic'))
         return
       }
@@ -328,6 +329,7 @@ export default {
       try {
         ids = await this.resolveSelectedIds()
       } catch (error) {
+        console.error('Failed to resolve selected user ids for delete:', error)
         dplan.notify.notify('error', Translator.trans('error.api.generic'))
         return
       }
@@ -519,6 +521,7 @@ export default {
         try {
           await this.fetchAllUsersForSelectionMap()
         } catch (error) {
+          console.error('Failed to load selected users:', error)
           dplan.notify.notify('error', Translator.trans('error.api.generic'))
           this.showSelectionList = false
         } finally {
