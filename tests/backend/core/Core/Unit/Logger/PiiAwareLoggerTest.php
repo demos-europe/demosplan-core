@@ -225,6 +225,7 @@ class PiiAwareLoggerTest extends TestCase
 
             public function eraseCredentials(): void
             {
+                // No transient credentials held by this stub; required by Symfony's UserInterface.
             }
 
             public function getUserIdentifier(): string
@@ -276,20 +277,22 @@ class PiiAwareLoggerTest extends TestCase
     /** @return callable(): PiiLogRecord */
     private function captureWrittenRecord(): callable
     {
-        $captured = null;
+        $holder = new \stdClass();
+        $holder->record = null;
+
         $this->writer
             ->expects(self::once())
             ->method('write')
-            ->willReturnCallback(static function (PiiLogRecord $record) use (&$captured): string {
-                $captured = $record;
+            ->willReturnCallback(static function (PiiLogRecord $record) use ($holder): string {
+                $holder->record = $record;
 
                 return 'row-id';
             });
 
-        return static function () use (&$captured): PiiLogRecord {
-            self::assertInstanceOf(PiiLogRecord::class, $captured);
+        return static function () use ($holder): PiiLogRecord {
+            self::assertInstanceOf(PiiLogRecord::class, $holder->record);
 
-            return $captured;
+            return $holder->record;
         };
     }
 }
