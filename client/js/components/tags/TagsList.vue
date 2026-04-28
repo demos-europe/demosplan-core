@@ -23,7 +23,7 @@
         }
       }"
       :branch-identifier="isBranch"
-      @draggable:change="changeTopic"
+      @draggable:change="handleTopicChange"
       @end="handleIntraSort"
     >
       <template v-slot:header>
@@ -212,7 +212,7 @@ export default {
     },
 
     // Cross-topic moves: kept on the original @draggable:change listener (byte-identical to main)
-    changeTopic ({ elementId, parentId }) {
+    handleTopicChange ({ elementId, parentId }) {
       if (!parentId) {
         return
       }
@@ -230,7 +230,7 @@ export default {
 
     // Intra-topic reorder via @end (fires once per drop, ideal for persistence)
     handleIntraSort (event, item, parentId) {
-      // Skip cross-cat moves — handled by changeTopic via @draggable:change
+      // Skip cross-cat moves — handled by handleTopicChange via @draggable:change
       if (event.from !== event.to) {
         return
       }
