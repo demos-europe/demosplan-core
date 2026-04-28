@@ -96,11 +96,24 @@ All rights reserved
         :title="Translator.trans('audience.internal')"
         is-open
       >
-        <dp-data-table
-          :header-fields="headerFields"
-          :items="internalPhaseDefinitions"
-          track-by="id"
-        />
+          <addon-wrapper
+            :addon-props="{
+              phaseDefinitions: internalPhaseDefinitions,
+              headerFields,
+              audience: 'internal',
+            }"
+            hook-name="phases.table.with.codes"
+            @addons:loaded="handleAddonsLoaded"
+          />
+
+          <dp-loading v-if="!addonsResolved" />
+
+          <dp-data-table
+            v-else-if="!isAddonActive"
+            :header-fields="headerFields"
+            :items="internalPhaseDefinitions"
+            track-by="id"
+          />
       </dp-accordion>
 
       <dp-accordion
@@ -108,11 +121,24 @@ All rights reserved
         :title="Translator.trans('audience.external')"
         is-open
       >
-        <dp-data-table
-          :header-fields="headerFields"
-          :items="externalPhaseDefinitions"
-          track-by="id"
-        />
+          <addon-wrapper
+            :addon-props="{
+              phaseDefinitions: externalPhaseDefinitions,
+              headerFields,
+              audience: 'external',
+            }"
+            hook-name="phases.table.with.codes"
+            @addons:loaded="handleAddonsLoaded"
+          />
+
+          <dp-loading v-if="!addonsResolved" />
+
+          <dp-data-table
+            v-else-if="!isAddonActive"
+            :header-fields="headerFields"
+            :items="externalPhaseDefinitions"
+            track-by="id"
+          />
       </dp-accordion>
 
       <dp-loading v-if="isInitiallyLoading" />
@@ -133,11 +159,13 @@ import {
   DpSelect,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
   name: 'ProcedurePhasesDefinition',
 
   components: {
+    AddonWrapper,
     DpAccordion,
     DpButton,
     DpButtonRow,
@@ -152,12 +180,9 @@ export default {
 
   data () {
     return {
+      addonsResolved: false,
       hasAttemptedSubmit: false,
-      headerFields: [
-        { field: 'name', label: Translator.trans('phase.name') },
-        { field: 'permissionSetLabel', label: Translator.trans('permissionset.label') },
-        { field: 'participationStateLabel', label: Translator.trans('participation.state.finished') },
-      ],
+      isAddonActive: false,
       isCreating: false,
       isInitiallyLoading: true,
       isLoading: false,
@@ -183,6 +208,15 @@ export default {
       return this.phaseDefinitions
         .filter(phase => phase.audience === 'external')
         .map(phase => this.mapPhaseForDisplay(phase))
+    },
+
+    headerFields () {
+      return [
+        { field: 'name', label: Translator.trans('phase.name') },
+        ...(this.isAddonActive ? [{ field: 'phaseCode', label: Translator.trans('procedure.phase.code') }] : []),
+        { field: 'permissionSetLabel', label: Translator.trans('permissionset.label') },
+        { field: 'participationStateLabel', label: Translator.trans('participation.state.finished') },
+      ]
     },
 
     internalPhaseDefinitions () {
@@ -287,6 +321,11 @@ export default {
         .finally(() => {
           this.isInitiallyLoading = false
         })
+    },
+
+    handleAddonsLoaded (addonNames) {
+      this.isAddonActive = addonNames.length > 0
+      this.addonsResolved = true
     },
 
     mapPhaseForDisplay (phase) {
