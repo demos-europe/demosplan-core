@@ -16186,7 +16186,7 @@
         },
         {
             "name": "symfony/polyfill-intl-messageformatter",
-            "version": "v1.36.0",
+            "version": "v1.37.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-messageformatter.git",
@@ -16247,7 +16247,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-messageformatter/tree/v1.36.0"
+                "source": "https://github.com/symfony/polyfill-intl-messageformatter/tree/v1.37.0"
             },
             "funding": [
                 {
