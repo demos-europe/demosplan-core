@@ -14,9 +14,11 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum;
 
 enum CustomFieldSupportedEntity: string
 {
-    case procedure = 'PROCEDURE';
+    case customer          = 'CUSTOMER';
+    case draftStatement    = 'DRAFT_STATEMENT';
+    case orga              = 'ORGA';
+    case procedure         = 'PROCEDURE';
     case procedureTemplate = 'PROCEDURE_TEMPLATE';
-    case statement = 'STATEMENT';
-    case draftStatement = 'DRAFT_STATEMENT';
-    case segment = 'SEGMENT';
+    case segment           = 'SEGMENT';
+    case statement         = 'STATEMENT';
 }

@@ -20,8 +20,7 @@ class TextFieldValidator extends CustomFieldValidator
     public function getSourceToTargetMapping(): array
     {
         return [
-            'PROCEDURE'          => 'STATEMENT',
-            'PROCEDURE_TEMPLATE' => 'STATEMENT',
+            'CUSTOMER' => 'ORGA',
         ];
     }
 }
