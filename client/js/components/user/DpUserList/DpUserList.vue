@@ -52,21 +52,27 @@
               v-if="isLoadingSelectionList"
               class="mt-1"
             />
-            <ul
+            <div
+              v-for="user in selectedUsersForDropdown"
               v-else
-              class="o-list mt-0.5"
+              :key="user.id"
+              class="grid grid-cols-[1fr_2fr_auto] gap-4 items-center border-b border-neutral py-2 my-2"
             >
-              <li
-                v-for="user in selectedUsersForDropdown"
-                :key="user.id"
-                class="py-1"
-              >
-                <div>{{ user.attributes.firstname }} {{ user.attributes.lastname }}</div>
-                <div class="text-muted text-sm">
-                  {{ user.attributes.email }}
-                </div>
-              </li>
-            </ul>
+              <div class="font-semibold">
+                {{ user.attributes.firstname }} {{ user.attributes.lastname }}
+              </div>
+              <div>
+                {{ user.attributes.email }}
+              </div>
+              <dp-button
+                variant="subtle"
+                icon="x"
+                icon-weight="bold"
+                :text="Translator.trans('remove')"
+                hide-text
+                @click="toggleOne(user.id)"
+              />
+            </div>
           </div>
         </dp-transition-expand>
         <!--Button row -->
