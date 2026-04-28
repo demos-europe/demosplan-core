@@ -23,7 +23,7 @@
         }
       }"
       :branch-identifier="isBranch"
-      @draggable:change="changeTopic"
+      @end="handleDragEnd"
     >
       <template v-slot:header>
         <div class="flex">
@@ -137,7 +137,7 @@ export default {
         .sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' }))
         .map(category => {
           const { attributes, id, relationships, type } = category
-          const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
+          const tags = category.relationships?.tags?.data.length > 0 ? Object.values(category.relationships.tags.list()) : []
 
           return {
             id,
@@ -210,23 +210,13 @@ export default {
       this.saveTagTopic(parentTopic.id)
     },
 
-    changeTopic ({ elementId, parentId }) {
+    // Handles the @end event from DpTreeList — fires once per drag, on drop instead of multible times like the @draggable:change event from DpTreeListNode
+    handleDragEnd (event, item, parentId) {
+      console.log('end fired:', { event, item, parentId })
+
       if (!parentId) {
-        console.error('No parentId provided:', { elementId, parentId })
 
         return
-      }
-
-      const hasNewParent = !this.TagTopic[parentId].relationships?.tags.data.find(tag => tag.id === elementId)
-
-      if (hasNewParent) {
-        const parentTopic = { ...this.TagTopic[parentId] }
-        const oldParent = Object.values(this.TagTopic).find(topic => topic.relationships?.tags.data.find(tag => tag.id === elementId))
-
-        this.addTagToNewTopic(parentTopic, elementId)
-        this.removeTagFromOldTopic(oldParent, elementId)
-      } else {
-        dplan.notify.notify('warning', Translator.trans('tags.can.only.be.moved.to.topics'))
       }
     },
 
