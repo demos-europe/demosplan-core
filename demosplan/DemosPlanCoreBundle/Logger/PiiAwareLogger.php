@@ -71,7 +71,6 @@ class PiiAwareLogger extends AbstractLogger
 
     /**
      * @param mixed                $level   PSR-3 string or Monolog int/Level
-     * @param string|Stringable    $message
      * @param array<string, mixed> $context
      */
     public function log($level, string|Stringable $message, array $context = []): void
