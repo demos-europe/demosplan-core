@@ -20,6 +20,7 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterfa
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\AllAttributesTransformer;
@@ -27,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldDeleter;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldUpdater;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
@@ -76,7 +78,8 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         private readonly CustomFieldUpdater $customFieldUpdater,
         private readonly CustomFieldDeleter $customFieldDeleter,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
-        private readonly CurrentUserInterface $currentUser)
+        private readonly CurrentUserInterface $currentUser,
+        private readonly CustomerService $customerService,)
     {
     }
 
@@ -256,6 +259,17 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             return $this->getTransactionService()->executeAndFlushInTransaction(
                 function () use ($entityData): ModifiedEntity {
                     $attributes = $entityData->getAttributes();
+
+                    /*
+                      * For CUSTOMER source the sourceEntityId is always the current
+                      * customer. Server-side override removes that responsibility from
+                      * the frontend and prevents cross-customer creation.
+                      */
+
+                    if (CustomFieldSupportedEntity::customer->value === $attributes['sourceEntity']) {
+                        $attributes['sourceEntityId'] = $this->customerService->getCurrentCustomer()->getId();
+                    }
+
                     $customField = $this->customFieldCreator->createCustomField($attributes);
 
                     // Using AllAttributesTransformer which always returns all attributes
