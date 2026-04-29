@@ -356,6 +356,11 @@ services:
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\User\Role, lazy: true }
 
+    demosplan\DemosPlanCoreBundle\EventListener\RecommendationVersionEntityListener:
+        lazy: true
+        tags:
+            - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement, lazy: true }
+
     demosplan\DemosPlanCoreBundle\EventListener\CountyEntityListener:
         lazy: true
         tags:
