@@ -77,12 +77,27 @@ class HTMLSanitizer
             ->implode('');
 
         $text = strip_tags($text, $allowedTags);
+        $text = $this->sanitizeCssForPhpWord($text);
 
         if ($purify) {
             $text = $this->purify($text);
         }
 
         return $text;
+    }
+
+    /**
+     * Remove CSS property values that PHPWord cannot handle.
+     * PHPWord tries to multiply line-height values as numbers, but CSS keywords
+     * like "inherit", "normal", or "initial" cause a TypeError.
+     */
+    public function sanitizeCssForPhpWord(string $text): string
+    {
+        return preg_replace(
+            '/line-height:\s*(inherit|normal|initial|unset)\b[^;"\']*/i',
+            'line-height: 1',
+            $text
+        );
     }
 
     public function purify(string $text): string
