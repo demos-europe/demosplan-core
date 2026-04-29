@@ -100,9 +100,9 @@ final class StatementSearchResourceType extends AbstractStatementResourceType
                 $allowedProcedureIds,
                 $this->procedure->id
             ),
-            /** Defense in depth: scope to current customer too, mirroring
-            * { @see ProcedureResourceType::getResourceTypeConditions()}. Keeps statement
-            visibility consistent with what an `include=procedure` sideload would resolve.*/
+            /* Defense in depth: scope to current customer too, mirroring
+             * { @see ProcedureResourceType::getResourceTypeConditions()}. Keeps statement
+             * visibility consistent with what an `include=procedure` sideload would resolve.*/
             $this->conditionFactory->propertyHasValue(
                 $this->currentCustomerService->getCurrentCustomer()->getId(),
                 $this->procedure->customer->id
