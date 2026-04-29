@@ -110,6 +110,7 @@
           v-show="statement.r_useName !== '0'"
           :class="prefixClass('layout__item u-1-of-1-palm u-2-of-3 mt-2 u-pl-1_5')"
           :disabled="statement.r_useName === '0'"
+          :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
           :required="statement.r_getFeedback === 'on' && statement.r_getEvaluation === 'snailmail' && statement.r_useName !== '0'"
         />
       </div>
