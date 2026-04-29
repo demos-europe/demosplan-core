@@ -9,6 +9,7 @@
 ### Added
 - Track recommendation versions for statements and segments with full text snapshots, exposed via API and XLSX export (permission: `feature_enable_recommendation_versions`)
 - Support multiple custom field types and target contexts per project
+- Add customer admin interface for managing procedure phases - displaying and creating new phases
 
 ## v4.37.0 (2026-04-27)
 
