@@ -95,6 +95,8 @@ class StatementArrayConverter
         $exportData['topicNames'] = $segmentOrStatement->getTopicNames();
         $exportData['isClusterStatement'] = $segmentOrStatement->isClusterStatement();
 
+        $exportData['recommendationVersionCount'] = count($segmentOrStatement->getRecommendationVersions());
+
         return $exportData;
     }
 

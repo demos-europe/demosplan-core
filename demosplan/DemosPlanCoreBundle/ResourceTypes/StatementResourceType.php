@@ -584,6 +584,12 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->readable(true);
         }
 
+        if ($this->currentUser->hasPermission('feature_enable_recommendation_versions')) {
+            $configBuilder->recommendationVersions
+                ->setRelationshipType($this->resourceTypeStore->getRecommendationVersionResourceType())
+                ->readable(true, static fn (Statement $statement): array => $statement->getRecommendationVersions()->toArray(), true);
+        }
+
         return $configBuilder;
     }
 
