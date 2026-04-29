@@ -171,7 +171,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         $configBuilder->description->setReadableByPath()->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->targetEntity->setAliasedPath(['targetEntityClass'])->addPathCreationBehavior()->setReadableByPath()->setFilterable();
         $configBuilder->sourceEntity->setAliasedPath(['sourceEntityClass'])->addPathCreationBehavior()->setReadableByPath()->setFilterable();
-        $configBuilder->sourceEntityId->addPathCreationBehavior()->setFilterable();
+        $configBuilder->sourceEntityId->addPathCreationBehavior(OptionalField::YES)->setFilterable();
 
         return $configBuilder->build();
     }
