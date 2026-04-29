@@ -67,7 +67,6 @@ class AddonInstallFromZipCommand extends CoreCommand
     private ?string $tag = null;
     private ?string $name = null;
 
-
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly Registrator $installer,
