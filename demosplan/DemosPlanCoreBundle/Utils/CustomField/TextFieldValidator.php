@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
+
 class TextFieldValidator extends CustomFieldValidator
 {
     public function getFieldType(): string
@@ -20,7 +22,7 @@ class TextFieldValidator extends CustomFieldValidator
     public function getSourceToTargetMapping(): array
     {
         return [
-            'CUSTOMER' => 'ORGA',
+            CustomFieldSupportedEntity::customer->value => [CustomFieldSupportedEntity::orga->value],
         ];
     }
 }
