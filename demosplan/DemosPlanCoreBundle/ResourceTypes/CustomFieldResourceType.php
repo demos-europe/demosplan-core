@@ -79,7 +79,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         private readonly CustomFieldDeleter $customFieldDeleter,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly CurrentUserInterface $currentUser,
-        private readonly CustomerService $customerService,)
+        private readonly CustomerService $customerService, )
     {
     }
 
