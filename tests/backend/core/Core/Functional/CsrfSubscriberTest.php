@@ -46,33 +46,25 @@ class CsrfSubscriberTest extends FunctionalTestCase
      */
     public function testOnKernelRequestWithValidToken($method): void
     {
-        // Set up a valid token
-        $validToken = new CsrfToken('token_id', 'valid_token');
-        $this->csrfTokenManager->expects($this->once())
-            ->method('getToken')
-            ->with('valid_token')
-            ->willReturn($validToken);
-
+        // The subscriber must NOT lazily look up tokens by client-supplied id —
+        // that was the original bug. It must validate isTokenValid directly
+        // against the well-known CsrfSubscriber::TOKEN_ID with the client value.
+        $this->csrfTokenManager->expects($this->never())->method('getToken');
         $this->csrfTokenManager->expects($this->once())
             ->method('isTokenValid')
-            ->with($validToken)
+            ->with($this->callback(fn (CsrfToken $t) => CsrfSubscriber::TOKEN_ID === $t->getId()
+                && 'valid_token' === $t->getValue()))
             ->willReturn(true);
 
-        // Create a subscriber with the mocked dependencies
         $subscriber = new CsrfSubscriber($this->csrfTokenManager, $this->messageBag, $this->logger, $this->headerSanitizer);
 
-        // Create a request event with a request and a valid token
         $request = new Request([], ['_token' => 'valid_token'], [], [], [], ['REQUEST_URI' => '/some-uri', 'REQUEST_METHOD' => $method]);
         $event = new RequestEvent($this->createMock(KernelInterface::class), $request, 1);
 
-        // Call the onKernelRequest method
-        $subscriber->onKernelRequest($event);
-
-        // Assert that no messages were added to the message bag
         $this->messageBag->expects($this->never())->method('add');
-
-        // Assert that the logger was not called for a valid token
         $this->logger->expects($this->never())->method('info');
+
+        $subscriber->onKernelRequest($event);
     }
 
     /**
