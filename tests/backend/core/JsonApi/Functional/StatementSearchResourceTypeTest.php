@@ -20,7 +20,6 @@ use Tests\Base\JsonApiTest;
 
 class StatementSearchResourceTypeTest extends JsonApiTest
 {
-
     public function testListWithoutPermissionIsRejected(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
@@ -150,5 +149,4 @@ class StatementSearchResourceTypeTest extends JsonApiTest
             }
         }
     }
-
 }
