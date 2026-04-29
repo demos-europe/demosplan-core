@@ -40,6 +40,11 @@ All rights reserved
           required
         />
 
+        <addon-wrapper
+          hook-name="phase.create.form"
+          @change="updateAddonPayload"
+        />
+
         <dp-select
           id="phaseAudience"
           v-model="newPhase.audience"
@@ -190,6 +195,12 @@ export default {
 
   data () {
     return {
+      addonPayload: {
+        attributes: null,
+        parentRelationshipName: '',
+        resourceType: '',
+        value: '',
+      },
       addonsResolved: false,
       hasAttemptedSubmit: false,
       isAddonActive: false,
@@ -197,10 +208,10 @@ export default {
       isInitiallyLoading: true,
       isLoading: false,
       newPhase: {
-        name: '',
         audience: '',
-        permissionSet: '',
+        name: '',
         participationState: null,
+        permissionSet: '',
       },
       phaseDefinitions: [],
     }
@@ -262,8 +273,26 @@ export default {
   },
 
   methods: {
+    createAddonPayload (parentId) {
+      const { attributes, parentRelationshipName, resourceType } = this.addonPayload
+
+      return {
+        type: resourceType,
+        attributes,
+        relationships: {
+          [parentRelationshipName]: {
+            data: {
+              type: 'ProcedurePhaseDefinition',
+              id: parentId,
+            },
+          },
+        },
+      }
+    },
+
     createPhase () {
       this.isLoading = true
+      let codeFailed = false
 
       dpApi.post(Routing.generate('api_resource_create', { resourceType: 'ProcedurePhaseDefinition' }), {}, {
         data: {
@@ -276,8 +305,29 @@ export default {
           },
         },
       })
+        .then(response => {
+          const newPhaseId = response.data.data.id
+
+          if (!this.addonPayload.value) {
+            return null
+          }
+
+          return dpApi.post(
+            Routing.generate('api_resource_create', { resourceType: this.addonPayload.resourceType }),
+            {},
+            { data: this.createAddonPayload(newPhaseId) },
+          )
+            .catch(codeErr => {
+              console.error(codeErr)
+              codeFailed = true
+            })
+        })
         .then(() => {
-          dplan.notify.confirm(Translator.trans('phase.created.success'))
+          if (codeFailed) {
+            dplan.notify.error(Translator.trans('phase.created.code.failed'))
+          } else {
+            dplan.notify.confirm(Translator.trans('phase.created.success'))
+          }
 
           this.fetchPhaseDefinitions()
           this.resetForm()
@@ -344,7 +394,18 @@ export default {
     resetForm () {
       this.isCreating = false
       this.hasAttemptedSubmit = false
-      this.newPhase = { name: '', audience: '', permissionSet: '', participationState: null }
+      this.addonPayload = {
+        attributes: null,
+        parentRelationshipName: '',
+        resourceType: '',
+        value: '',
+      }
+      this.newPhase = {
+        audience: '',
+        name: '',
+        participationState: null,
+        permissionSet: '',
+      }
     },
 
     setParticipationState (value) {
@@ -362,6 +423,10 @@ export default {
 
       this.hasAttemptedSubmit = false
       this.dpValidateAction('phaseForm', () => this.createPhase(), false)
+    },
+
+    updateAddonPayload (payload) {
+      this.addonPayload = payload
     },
   },
 
