@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cb3fd914bd4f2bd720c063e7ccf2a6ba",
+    "content-hash": "2befbfcb14691b54b74ae7415a5d6c5c",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1501,12 +1501,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "bde9c265e35ac36007317953eb7bfc5beaf92e36"
+                "reference": "578b1f524608df3111c0a7895ac86c4bd1d0be67"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/bde9c265e35ac36007317953eb7bfc5beaf92e36",
-                "reference": "bde9c265e35ac36007317953eb7bfc5beaf92e36",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/578b1f524608df3111c0a7895ac86c4bd1d0be67",
+                "reference": "578b1f524608df3111c0a7895ac86c4bd1d0be67",
                 "shasum": ""
             },
             "require": {
@@ -1575,7 +1575,7 @@
             "support": {
                 "source": "https://github.com/demos-europe/demosplan-addon/tree/f-DPLAN-16766-phase-definition-interface-integration"
             },
-            "time": "2026-04-24T11:41:36+00:00"
+            "time": "2026-04-29T10:21:28+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
