@@ -48,33 +48,27 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
      * Foreign key, Orga object.
      *
      * @var OrgaInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', nullable: false, onDelete: 'CASCADE')]
-    #[ORM\ManyToOne(targetEntity: Orga::class, inversedBy: 'statusInCustomers', cascade: ['remove'])]
+    #[ORM\ManyToOne(targetEntity: Orga::class, inversedBy: 'statusInCustomers')]
     protected $orga;
 
     /**
      * Foreign key, Orga Type object.
      *
      * @var OrgaTypeInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_ot_id', referencedColumnName: '_ot_id', nullable: false)]
-    #[ORM\ManyToOne(targetEntity: OrgaType::class, inversedBy: 'orgaStatusInCustomers', cascade: ['remove'])]
+    #[ORM\ManyToOne(targetEntity: OrgaType::class, inversedBy: 'orgaStatusInCustomers')]
     protected $orgaType;
 
     /**
      * Foreign key, Customer object.
      *
      * @var CustomerInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_c_id', referencedColumnName: '_c_id', nullable: false)]
-    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'orgaStatuses', cascade: ['remove'])]
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'orgaStatuses')]
     protected $customer;
 
     /**

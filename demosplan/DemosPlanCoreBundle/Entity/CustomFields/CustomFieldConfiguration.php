@@ -18,6 +18,8 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
+#[ORM\Table(name: 'custom_field_configuration')]
+#[ORM\Index(name: 'idx_custom_field_source_target', columns: ['source_entity_id', 'source_entity_class', 'target_entity_class'])]
 #[ORM\Entity(repositoryClass: CustomFieldConfigurationRepository::class)]
 class CustomFieldConfiguration extends CoreEntity
 {

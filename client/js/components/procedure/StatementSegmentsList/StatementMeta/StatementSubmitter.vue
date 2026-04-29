@@ -237,6 +237,17 @@ export default {
       statements: 'items',
     }),
 
+    hasUnsavedChanges () {
+      if (!this.localStatement || !this.statement) {
+        return false
+      }
+
+      const initialAttributes = this.statement.attributes
+      const currentAttributes = this.localStatement.attributes
+
+      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+    },
+
     isStatementManual () {
       return this.localStatement.attributes.isManual
     },
