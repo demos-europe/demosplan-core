@@ -15,8 +15,10 @@ namespace Tests\Core\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
+use demosplan\DemosPlanCoreBundle\CustomField\TextField;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -193,7 +195,66 @@ class CustomFieldCreatorTest extends UnitTestCase
                 ],
                 'expectedErrorMessage' => 'The target entity "PROCEDURE_TEMPLATE" is not valid for source entity "PROCEDURE". Allowed targets: STATEMENT, SEGMENT.',
             ],
+            'textFieldInvalidTargetEntity' => [
+                'attributes' => [
+                    'fieldType'    => 'text',
+                    'sourceEntity' => 'CUSTOMER',
+                    'targetEntity' => 'SEGMENT', // Wrong target for text
+                    'name'         => self::TEST_FIELD_NAME,
+                    'description'  => self::TEST_DESCRIPTION,
+                ],
+                'expectedErrorMessage' => 'The target entity "SEGMENT" does not match the expected target entity "ORGA" for source entity "CUSTOMER".',
+            ],
         ];
+    }
+
+    public function testCreateTextFieldSuccessfully(): void
+    {
+        // Arrange
+        $customer = CustomerFactory::createOne();
+        $attributes = [
+            'fieldType'      => 'text',
+            'name'           => self::TEST_FIELD_NAME,
+            'description'    => self::TEST_DESCRIPTION,
+            'isRequired'     => false,
+            'sourceEntity'   => 'CUSTOMER',
+            'sourceEntityId' => $customer->getId(),
+            'targetEntity'   => 'ORGA',
+        ];
+
+        // Act
+        $result = $this->sut->createCustomField($attributes);
+
+        // Assert
+        static::assertInstanceOf(CustomFieldInterface::class, $result);
+        static::assertInstanceOf(TextField::class, $result);
+        static::assertEquals(self::TEST_FIELD_NAME, $result->getName());
+        static::assertEquals(self::TEST_DESCRIPTION, $result->getDescription());
+        static::assertEquals('text', $result->getFieldType());
+        static::assertEmpty($result->getOptions());
+        static::assertNotEmpty($result->getId());
+    }
+
+    public function testCreateRequiredTextFieldSuccessfully(): void
+    {
+        // Arrange
+        $customer = CustomerFactory::createOne();
+        $attributes = [
+            'fieldType'      => 'text',
+            'name'           => self::TEST_FIELD_NAME,
+            'description'    => self::TEST_DESCRIPTION,
+            'isRequired'     => true,
+            'sourceEntity'   => 'CUSTOMER',
+            'sourceEntityId' => $customer->getId(),
+            'targetEntity'   => 'ORGA',
+        ];
+
+        // Act
+        $result = $this->sut->createCustomField($attributes);
+
+        // Assert
+        static::assertInstanceOf(TextField::class, $result);
+        static::assertTrue($result->getRequired());
     }
 
     public function testValidationFailsWhenProcedureHasStatements(): void

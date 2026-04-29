@@ -82,6 +82,21 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
         ]);
     }
 
+    public function asTextField(
+        string $name = 'Notes',
+        string $description = 'Enter free text',
+        bool $isRequired = false,
+    ): self {
+        return $this->with([
+            'configuration' => TextFieldFactory::new([
+                'name'        => $name,
+                'description' => $description,
+                'fieldType'   => 'text',
+                'required'    => $isRequired,
+            ]),
+        ]);
+    }
+
     public function withRelatedTargetEntity(string $entityClass): self
     {
         return $this->with([
