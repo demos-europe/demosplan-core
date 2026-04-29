@@ -964,7 +964,7 @@ export default {
 
       // Add submitted date and phase
       parts.push(`${Translator.trans('statement.date.submitted')}: ${this.statementDate(this.statement.submitDate)}`)
-      parts.push(`${Translator.trans('phase')}: ${this.statement.phase}`)
+      parts.push(`${Translator.trans('phase')}: ${this.statement.procedurePhase?.name}`)
 
       // Add moved procedure info if available
       if (this.statement.movedFromProcedureId !== '') {

@@ -16,9 +16,12 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedurePhaseDefinitionFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
@@ -44,34 +47,37 @@ class ProcedureExtensionTest extends FunctionalTestCase
 
     public function testGetPhase()
     {
-        $poorPeoplesDataProvider = $this->getDataProviderProcedurePhases();
-
         /** @var Procedure $procedure */
         $procedure = $this->fixtures->getReference(LoadProcedureData::TESTPROCEDURE);
 
-        foreach ($poorPeoplesDataProvider as $data) {
-            $procedure->setPhase($data[0]['phase']);
-            $procedure->setPublicParticipationPhase($data[0]['publicParticipationPhase']);
-            $phase = $this->sut->getPhase($procedure);
-            static::assertEquals($data[0]['assertedPhase'], $phase);
+        $internalDefinition = ProcedurePhaseDefinitionFactory::createOne(['audience' => 'internal']);
+        $externalDefinition = ProcedurePhaseDefinitionFactory::createOne(['audience' => 'external']);
 
-            $phase = $this->sut->getPhase($procedure, 'public');
-            static::assertEquals($data[0]['assertedPublicParticipationPhase'], $phase);
-        }
+        $procedure->getPhaseObject()->setPhaseDefinition($internalDefinition->_real());
+        $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($externalDefinition->_real());
+
+        static::assertSame($internalDefinition->getName(), $this->sut->getPhaseDefinitionName($procedure));
+        static::assertSame($externalDefinition->getName(), $this->sut->getPhaseDefinitionName($procedure, 'public'));
     }
 
     public function testGetPhaseKey()
     {
+        /** @var Procedure $procedure */
         $procedure = $this->getProcedure();
+        $internalDefinition = ProcedurePhaseDefinitionFactory::createOne(['audience' => 'internal']);
+        $externalDefinition = ProcedurePhaseDefinitionFactory::createOne(['audience' => 'external']);
+        $procedure->getPhaseObject()->setPhaseDefinition($internalDefinition->_real());
+        $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($externalDefinition->_real());
+
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_INVITABLE_INSTITUTION_ONLY);
         $this->createSut($user);
-        $phase = $this->sut->getPhaseKey($procedure);
-        static::assertEquals($procedure->getPhase(), $phase);
+        $phase = $this->sut->getPhaseDefinitionId($procedure);
+        static::assertEquals($internalDefinition->getId(), $phase);
 
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_CITIZEN);
         $this->createSut($user);
-        $phase = $this->sut->getPhaseKey($procedure, 'public');
-        static::assertEquals($procedure->getPublicParticipationPhase(), $phase);
+        $phase = $this->sut->getPhaseDefinitionId($procedure, 'public');
+        static::assertEquals($externalDefinition->getId(), $phase);
     }
 
     /**
@@ -201,40 +207,6 @@ class ProcedureExtensionTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * No real DataProvider as container is needed.
-     *
-     * @return array
-     */
-    public function getDataProviderProcedurePhases()
-    {
-        $globalConfig = self::getContainer()->get(GlobalConfigInterface::class);
-        $internalPhases = $globalConfig->getInternalPhases();
-        $externalPhases = $globalConfig->getExternalPhases();
-
-        $phasesDataProvider = [];
-        // internal phases
-        foreach ($internalPhases as $internalPhase) {
-            $phasesDataProvider[] = [[
-                'phase'                            => $internalPhase['key'],
-                'assertedPhase'                    => $internalPhase['name'],
-                'publicParticipationPhase'         => $externalPhases[1]['key'],
-                'assertedPublicParticipationPhase' => $externalPhases[1]['name'],
-            ]];
-        }
-        // external phases
-        foreach ($externalPhases as $externalPhase) {
-            $phasesDataProvider[] = [[
-                'phase'                            => $internalPhases[1]['key'],
-                'assertedPhase'                    => $internalPhases[1]['name'],
-                'publicParticipationPhase'         => $externalPhase['key'],
-                'assertedPublicParticipationPhase' => $externalPhase['name'],
-            ]];
-        }
-
-        return $phasesDataProvider;
-    }
-
     protected function getProcedure(): Procedure
     {
         return $this->fixtures->getReference(LoadProcedureData::TESTPROCEDURE);
@@ -253,7 +225,8 @@ class ProcedureExtensionTest extends FunctionalTestCase
         $result = $this->sut->getNameFunction($procedure);
         static::assertSame($procedure->getExternalName(), $result);
 
-        $procedure = new Procedure();
+        $def = new ProcedurePhaseDefinition();
+        $procedure = new Procedure($def, $def);
         $procedure->setName('Name');
         $procedure->setExternalName('externalName');
         $result = $this->sut->getNameFunction($procedure);
@@ -272,7 +245,8 @@ class ProcedureExtensionTest extends FunctionalTestCase
         static::assertSame($procedure->getName(), $result);
 
         $this->logIn($plannerUser);
-        $procedure = new Procedure();
+        $def = new ProcedurePhaseDefinition();
+        $procedure = new Procedure($def, $def);
         $procedure->setName('internalName');
         $result = $this->sut->getNameFunction($procedure);
         static::assertSame($procedure->getName(), $result);
@@ -367,6 +341,7 @@ class ProcedureExtensionTest extends FunctionalTestCase
             self::getContainer()->get(GlobalConfigInterface::class),
             new NullLogger(),
             $permissions,
+            self::getContainer()->get(ProcedurePhaseDefinitionService::class),
             self::getContainer()->get(ProcedureService::class),
             self::getContainer()->get(TranslatorInterface::class)
         );

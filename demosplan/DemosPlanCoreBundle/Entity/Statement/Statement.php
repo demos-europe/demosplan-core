@@ -22,6 +22,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\PriorityAreaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
@@ -303,13 +304,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $representationCheck = false;
 
     /**
-     * Must have one of a set of predefined values which differs in projects, see respective configuration file.
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
      *
-     * @var string
-     *
-     * @ORM\Column(name="_st_phase", type="string", length=50, nullable=false)
+     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=false, onDelete="RESTRICT")
      */
-    protected $phase;
+    protected ProcedurePhaseDefinitionInterface $phaseDefinition;
 
     /**
      * @var string
@@ -1628,29 +1627,20 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->pId;
     }
 
-    /**
-     * Set phase.
-     *
-     * @param string $phase
-     */
-    public function setPhase($phase): Statement
+    public function getPhaseDefinition(): ProcedurePhaseDefinitionInterface
     {
-        if ('' === $phase) {
-            $message = 'Tried to set empty string as statement phase, please choose a valid value.';
-            throw new UnexpectedValueException($message);
-        }
-
-        $this->phase = $phase;
-
-        return $this;
+        return $this->phaseDefinition;
     }
 
-    /**
-     * Get phase.
-     */
-    public function getPhase(): string
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPhaseDefinitionId(): ?string
     {
-        return $this->phase;
+        return $this->phaseDefinition->getId();
+    }
+
+    public function setPhaseDefinition(ProcedurePhaseDefinitionInterface $phaseDefinition): void
+    {
+        $this->phaseDefinition = $phaseDefinition;
     }
 
     /**

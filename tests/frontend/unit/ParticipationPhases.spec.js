@@ -11,7 +11,6 @@ describe('ParticipationPhases', () => {
         fieldName: 'some_name',
         helpText: 'Some Help Text',
         labelText: 'I am a Label',
-        participationPhases: ['first', 'second', 'third'],
         permissionMessage: 'Some Message',
         phaseOptions: [{
           label: 'My Label C',
@@ -38,13 +37,13 @@ describe('ParticipationPhases', () => {
   })
 
   it('should set the `inParticipation` state correctly depending on whether the selected Phase is a participation phase or not', async () => {
-    expect(wrapper.vm.isInParticipation).toBe(true)
+    expect(wrapper.vm.isInParticipation).toBe(false)
 
     await wrapper.setData({
       selectedPhase: 'fourth',
     })
 
-    expect(wrapper.vm.isInParticipation).toBe(false)
+    expect(wrapper.vm.isInParticipation).toBe(true)
 
     await wrapper.setData({
       selectedPhase: 'noneAtall',

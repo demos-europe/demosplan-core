@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedurePhaseDefinitionResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
@@ -24,7 +25,7 @@ use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 /**
  * @template-extends DplanResourceType<ProcedurePhaseDefinition>
  */
-final class ProcedurePhaseDefinitionResourceType extends DplanResourceType
+final class ProcedurePhaseDefinitionResourceType extends DplanResourceType implements ProcedurePhaseDefinitionResourceTypeInterface
 {
     public function __construct(
         private readonly ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository,
@@ -48,7 +49,11 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasPermission('area_customer_procedure_phase_definitions');
+        return $this->currentUser->hasAnyPermissions(
+            'area_customer_procedure_phase_definitions',
+            'area_admin_assessmenttable',
+            'area_search_submitter_in_procedures'
+        );
     }
 
     public function isGetAllowed(): bool

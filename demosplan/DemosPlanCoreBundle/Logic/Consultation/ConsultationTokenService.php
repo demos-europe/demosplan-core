@@ -13,10 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Consultation;
 
 use Carbon\Carbon;
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
@@ -26,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\ConsultationTokenRepository;
@@ -55,12 +54,12 @@ class ConsultationTokenService
         private readonly DqlConditionFactory $conditionFactory,
         private readonly ElementsService $elementsService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly GlobalConfigInterface $globalConfig,
         private readonly PermissionsInterface $permissions,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         private readonly SortMethodFactory $sortMethodFactory,
         private readonly StatementHandler $statementHandler,
         private readonly StatementService $statementService,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -75,7 +74,7 @@ class ConsultationTokenService
         string $submitterCity,
         string $submitterPostalCode,
         string $submitterStreet,
-        string $submitterHouseNumber
+        string $submitterHouseNumber,
     ): void {
         $this->permissions->checkPermission('area_admin_consultations');
 
@@ -100,7 +99,7 @@ class ConsultationTokenService
             'orga_postalcode'       => $submitterPostalCode,
             'orga_street'           => $submitterStreet,
             'pId'                   => $procedureId,
-            'phase'                 => $this->getWritableExternalPhase(),
+            'phaseDefinitionId'     => $this->getWritableExternalPhaseDefinitionId(),
             'publicVerified'        => Statement::PUBLICATION_PENDING,
             'submit_name'           => $submitterName,
             'submit_type'           => Statement::SUBMIT_TYPE_UNKNOWN,
@@ -226,16 +225,16 @@ class ConsultationTokenService
         $this->consultationTokenRepository->persistAndDelete([$token], []);
     }
 
-    private function getWritableExternalPhase()
+    private function getWritableExternalPhaseDefinitionId(): string
     {
-        $procedurePhases = $this->globalConfig->getExternalPhases();
-        foreach ($procedurePhases as $procedurePhase) {
-            if ('write' === $procedurePhase['permissionset']) {
-                return $procedurePhase['key'];
+        $definitions = $this->procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer();
+        foreach ($definitions as $definition) {
+            if ('write' === $definition->getPermissionSet()) {
+                return $definition->getId();
             }
         }
 
-        return Procedure::PROCEDURE_PARTICIPATION_PHASE;
+        return $definitions[0]->getId();
     }
 
     /**

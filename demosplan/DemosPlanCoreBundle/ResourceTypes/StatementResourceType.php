@@ -22,18 +22,17 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
-use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementProcedurePhaseResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
@@ -45,7 +44,6 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
-use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedurePhaseVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
@@ -89,7 +87,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly ParagraphVersionRepository $paragraphVersionRepository,
         private readonly ParagraphRepository $paragraphRepository,
         private readonly ElementsService $elementsService,
-        private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
         private readonly FileContainerRepository $fileContainerRepository,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
@@ -560,32 +558,24 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         }
 
         $configBuilder->procedurePhase
-            ->updatable($statementConditions, function (Statement $statement, array $procedurePhase): array {
-                // check that phaseKey exists so that it is not possible to set a phase that does not exist
-                try {
-                    $this->statementProcedurePhaseResolver->getProcedurePhaseVO($procedurePhase[ProcedurePhaseVO::PROCEDURE_PHASE_KEY], $statement->isSubmittedByCitizen());
-                    $statement->setPhase($procedurePhase[ProcedurePhaseVO::PROCEDURE_PHASE_KEY]);
-                } catch (UndefinedPhaseException $e) {
-                    $this->logger->error($e->getMessage());
-
-                    return [];
+            ->setRelationshipType($this->resourceTypeStore->getProcedurePhaseDefinitionResourceType())
+            ->setReadableByCallable(static fn (Statement $statement): ProcedurePhaseDefinition => $statement->getPhaseDefinition())
+            ->updatable($statementConditions, [], static function (Statement $statement, ?ProcedurePhaseDefinition $phaseDefinition): array {
+                if ($phaseDefinition instanceof ProcedurePhaseDefinition) {
+                    $statement->setPhaseDefinition($phaseDefinition);
                 }
 
                 return [];
-            })
-            ->readable(false, function (Statement $statement): ?array {
-                try {
-                    return $this->statementProcedurePhaseResolver->getProcedurePhaseVO($statement->getPhase(), $statement->isSubmittedByCitizen())->jsonSerialize();
-                } catch (UndefinedPhaseException $e) {
-                    $this->logger->error($e->getMessage());
-
-                    return null;
-                }
             });
 
         if ($this->currentUser->hasPermission('field_statement_phase')) {
             $configBuilder->availableProcedurePhases
-                ->readable(false, fn (Statement $statement): ?array => $this->statementProcedurePhaseResolver->getAvailableProcedurePhases($statement->isSubmittedByCitizen()));
+                ->readable(false, fn (Statement $statement): array => array_map(
+                    static fn (ProcedurePhaseDefinition $d): array => ['id' => $d->getId(), 'name' => $d->getName()],
+                    $statement->isSubmittedByCitizen()
+                        ? $this->procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer()
+                        : $this->procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer()
+                ));
         }
 
         if ($this->getTypes()->getStatementVoteResourceType()->isAvailable()) {

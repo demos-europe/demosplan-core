@@ -56,7 +56,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NoTargetsException;
-use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownIdsException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -288,7 +287,6 @@ class StatementService implements StatementServiceInterface
         private readonly UserRepository $userRepository,
         UserService $userService,
         private readonly StatementDeleter $statementDeleter,
-        private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
         private readonly LoggerInterface $logger,
         private readonly ManagerRegistry $doctrine,
         private readonly ProfilerService $profilerService,
@@ -2687,35 +2685,15 @@ class StatementService implements StatementServiceInterface
     }
 
     /**
-     * Gets the internal or external phase of the given statement depending on
-     * the value set for the 'publicStatement' field.
+     * Gets the phase name of the given statement from its phase definition.
      *
      * @param array $statement The statement entity as array
      *
-     * @return string the internal or external phase of the given statement
-     *
-     * @deprecated use {@link getProcedurePhaseName} instead
+     * @return string the phase name of the given statement
      */
     public function getProcedurePhaseNameFromArray(array $statement): string
     {
-        // Fast path: large exports feed thousands of statement arrays through here,
-        // so avoid the per-statement getStatement() round-trip when publicStatement
-        // is already present on the array (ES- and JSON-sourced statements have it).
-        if (isset($statement['publicStatement'])) {
-            return $this->getProcedurePhaseName(
-                $statement['phase'] ?? '',
-                StatementInterface::EXTERNAL === $statement['publicStatement']
-            );
-        }
-
-        $statementId = $statement['id'] ?? null;
-        $statementObject = null !== $statementId ? $this->getStatement($statementId) : null;
-
-        if (!$statementObject instanceof Statement) {
-            $this->logger->warning('Statement with id '.($statementId ?? '').' not found.');
-
-            return '';
-        }
+        $statementObject = $this->getStatement($statement['id']);
 
         if (!$statementObject instanceof Statement) {
             $this->logger->error('Statement with id '.$statement['id'].' not found.');
@@ -2723,30 +2701,7 @@ class StatementService implements StatementServiceInterface
             return '';
         }
 
-        return $this->getProcedurePhaseName(
-            $statement['phase'] ?? '',
-            $statementObject->isSubmittedByCitizen()
-        );
-    }
-
-    public function getProcedurePhaseName(string $phaseKey, bool $isSubmittedByCitizen): string
-    {
-        $phaseName = '';
-        try {
-            $phaseVO = $this->statementProcedurePhaseResolver->getProcedurePhaseVO($phaseKey, $isSubmittedByCitizen);
-            $phaseName = $phaseVO->getName();
-
-            if ('' === $phaseName) {
-                throw new UndefinedPhaseException($phaseKey);
-            }
-        } catch (UndefinedPhaseException $e) {
-            // warning, not error: legacy statements can carry phase keys no longer
-            // defined in the phase config, which floods the error channel on large
-            // exports/listings without representing an actionable runtime fault.
-            $this->logger->warning($e->getMessage());
-        }
-
-        return $phaseName;
+        return $statementObject->getPhaseDefinition()->getName();
     }
 
     /**
@@ -3083,8 +3038,8 @@ class StatementService implements StatementServiceInterface
             $statement['memo'] = $data['r_memo'];
         }
 
-        if (\array_key_exists('r_phase', $data)) {
-            $statement['phase'] = $data['r_phase'];
+        if (\array_key_exists('r_phaseDefinitionId', $data) && '' !== $data['r_phaseDefinitionId']) {
+            $statement['phaseDefinitionId'] = $data['r_phaseDefinitionId'];
         }
 
         if (\array_key_exists('r_created_date', $data)) {

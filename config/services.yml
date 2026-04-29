@@ -63,6 +63,8 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService'
 
+    DemosEurope\DemosplanAddon\Contracts\Services\ProcedurePhaseDefinitionServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService'
+
     DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\CustomerService'
 
     DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
@@ -187,6 +189,10 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\OriginalStatementResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType
+        public: true
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedurePhaseDefinitionResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedurePhaseDefinitionResourceType
         public: true
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\ResourceTypeServiceInterface:
@@ -812,12 +818,6 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanCoreBundle\EventListener\DoctrineProcedureListener:
-        autowire: true
-        lazy: true
-        tags:
-            - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure, lazy: true }
-
     demosplan\DemosPlanCoreBundle\Form\ProcedureFormType: ~
 
 
@@ -830,9 +830,6 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
-
-    demosplan\DemosPlanCoreBundle\Logic\Procedure\PhasePermissionsetLoader:
-        lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService:
         lazy: true

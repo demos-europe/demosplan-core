@@ -66,6 +66,7 @@ class AddonInstallFromZipCommand extends CoreCommand
     private ?string $branch = null;
     private ?string $tag = null;
     private ?string $name = null;
+    private bool $developMode = false;
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
@@ -131,6 +132,7 @@ class AddonInstallFromZipCommand extends CoreCommand
                     $path = $this->loadFromApiRepository($input, $output);
                     $this->setZipPaths($path);
                 } elseif ($input->getOption('develop')) {
+                    $this->developMode = true;
                     $path = $this->getPathFromLocalDevelopment($input, $output);
                     $this->setDevelopPaths($path);
                 } else {
@@ -260,7 +262,8 @@ class AddonInstallFromZipCommand extends CoreCommand
         // If composer.json does not exist, create it
         if (!file_exists($this->addonsDirectory.'composer.json')) {
             $content = [
-                'minimum-stability' => 'stable',
+                'minimum-stability' => $this->developMode ? 'dev' : 'stable',
+                'prefer-stable'     => true,
                 'require'           => [],
                 'config'            => [
                     'sort-packages' => true,

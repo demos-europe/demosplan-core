@@ -293,8 +293,8 @@
           <!-- Hidden input for phase -->
           <input
             type="hidden"
-            name="r_phase"
-            :value="currentProcedurePhase"
+            name="r_phaseDefinitionId"
+            :value="currentPhaseDefinitionId"
           >
 
           <!-- Tags -->
@@ -489,10 +489,16 @@ export default {
       required: true,
     },
 
-    currentProcedurePhase: {
+    currentExternalPhaseDefinitionId: {
       type: String,
       required: false,
-      default: 'analysis',
+      default: '',
+    },
+
+    currentInternalPhaseDefinitionId: {
+      type: String,
+      required: false,
+      default: '',
     },
 
     documentId: {
@@ -586,6 +592,12 @@ export default {
   },
 
   computed: {
+    currentPhaseDefinitionId () {
+      return this.values.submitter.institution ?
+        this.currentInternalPhaseDefinitionId :
+        this.currentExternalPhaseDefinitionId
+    },
+
     escapedUsedInternIds () {
       const specialCharEscaper = /\[|\\|\^|\$|\.|\||\?|\*|\+|\(|\)|\//g
       return this.usedInternIds.map(id => id.replace(specialCharEscaper, (specialChar) => `\\${specialChar}`))

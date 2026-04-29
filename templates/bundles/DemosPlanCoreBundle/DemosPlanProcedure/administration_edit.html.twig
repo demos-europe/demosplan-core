@@ -106,8 +106,12 @@
         :init-auth-users="JSON.parse('{{ selectedAuthUsers|default([])|json_encode|e('js', 'utf-8') }}')"
         :init-data-input-orgas="JSON.parse('{{ selectedDataInputOrgas|default([])|json_encode|e('js', 'utf-8') }}')"
         :init-procedure-categories="JSON.parse('{{ selectedProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
-        init-procedure-phase-internal="{{ proceduresettings.phase }}"
-        init-procedure-phase-public="{{ proceduresettings.publicParticipationPhase }}"
+        :external-phase-options="JSON.parse('{{ templateVars.externalPhaseDefinitions|default([])|map(definition => {
+            value: definition.id,
+            permissionset: definition.permissionSet
+        })|json_encode|e('js', 'utf-8') }}')"
+        init-procedure-phase-internal="{{ proceduresettings.phaseObject.phaseDefinition.id }}"
+        init-procedure-phase-public="{{ proceduresettings.publicParticipationPhaseObject.phaseDefinition.id }}"
         :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
         :init-public-participation-feedback-enabled="{{ proceduresettings.settings.publicParticipationFeedbackEnabled ? 'true' : 'false' }}"
         init-pictogram-alt-text="{{ proceduresettings.pictogramAltText|default }}"
@@ -143,7 +147,7 @@
             <input type="hidden" value="{% if proceduresettings.ident is defined %}{{ proceduresettings.ident }}{% endif %}" name="r_ident">
 
             {% if hasPermission('feature_institution_participation') %}
-                <input type="hidden" name="r_currentPublicParticipationPhase" value="{{ proceduresettings.publicParticipationPhase|default }}">
+                <input type="hidden" name="r_currentPublicParticipationPhaseDefinitionId" value="{{ proceduresettings.publicParticipationPhaseObject.phaseDefinition.id|default }}">
             {% endif %}
 
             {#  The following contextual help elements were displayed besides the accordion toggles for the former field groups.
@@ -739,24 +743,23 @@
                                 {% if hasPermission('feature_procedure_change_phase') %}
                                     {# phase for institution participation #}
                                     {% set internalPhaseOptions = [] %}
-                                    {% for phase in templateVars.internalPhases %}
+                                    {% for definition in templateVars.internalPhaseDefinitions %}
                                         {% set internalPhaseOptions = internalPhaseOptions|merge([{
-                                            value: phase.key,
-                                            label: phase.name,
-                                            permissionset: phase.permissionset,
+                                            value: definition.id,
+                                            label: definition.name,
+                                            permissionset: definition.permissionSet,
                                         }]) %}
                                     {% endfor %}
 
                                     <participation-phases
-                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: evaluatingPhase|trans|default('') }) }}"
+                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: evaluatingPhaseName|default('') }) }}"
                                         data-cy="internalPhase"
-                                        field-name="r_phase"
+                                        field-name="r_phaseDefinitionId"
                                         help-text="{{ 'text.procedure.edit.internal.change_phase'|trans }}"
                                         label-text="{{ "procedure.phase.institutions"|trans }}"
-                                        :participation-phases="['participation', 'earlyparticipation', 'anotherparticipation']"
                                         permission-message="{{ 'explanation.procedure.internal.permissions'|trans }}"
                                         :phase-options="JSON.parse('{{ internalPhaseOptions|json_encode|e('js', 'utf-8') }}')"
-                                        init-selected-phase="{{ proceduresettings.phase }}"
+                                        init-selected-phase="{{ proceduresettings.phaseObject.phaseDefinition.id }}"
                                         :iterator="{
                                             label: Translator.trans('procedure.phase.phasecounter'),
                                             name: 'r_phase_iteration',
@@ -828,15 +831,16 @@
                                 {# Change Procedure Step Institutions #}
                                 {% if hasPermission('feature_auto_switch_procedure_phase') %}
                                     <auto-switch-procedure-phase-form
-                                        :available-procedure-phases="JSON.parse('{{ templateVars.internalPhases|map(internalPhase => {
-                                            label: internalPhase.name,
-                                            permission: internalPhase.permissionset,
-                                            value: internalPhase.key
+                                        :available-procedure-phases="JSON.parse('{{ templateVars.internalPhaseDefinitions|map(definition => {
+                                            label: definition.name,
+                                            participationState: definition.participationState,
+                                            permission: definition.permissionSet,
+                                            value: definition.id
                                         })|json_encode|e('js', 'utf-8') }}')"
                                         data-cy-phase-period="internalPhasePeriod"
                                         class="u-mb"
                                         end-date="{{ proceduresettings.phaseObject.designatedEndDate|default|dplanDate }}"
-                                        init-selected-phase="{{ proceduresettings.phaseObject.designatedPhase }}"
+                                        init-selected-phase="{{ proceduresettings.phaseObject.designatedPhaseDefinition ? proceduresettings.phaseObject.designatedPhaseDefinition.id : '' }}"
                                         init-switch-date="{{ proceduresettings.phaseObject.designatedSwitchDate|default|isoDate }}"
                                         is-internal
                                         min-switch-date="{{ 'now'|date('d.m.Y') }}"
@@ -893,24 +897,23 @@
                                 {# phase for public participation #}
                                 {% if hasPermission('feature_procedure_change_phase') %}
                                     {% set externalPhaseOptions = [] %}
-                                    {% for phase in templateVars.externalPhases %}
+                                    {% for definition in templateVars.externalPhaseDefinitions %}
                                         {% set externalPhaseOptions = externalPhaseOptions|merge([{
-                                            value: phase.key,
-                                            label: phase.name,
-                                            permissionset: phase.permissionset,
+                                            value: definition.id,
+                                            label: definition.name,
+                                            permissionset: definition.permissionSet,
                                         }]) %}
                                     {% endfor %}
 
                                     <participation-phases
-                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.external.evaluating'|trans }) }}"
+                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: evaluatingPublicParticipationPhaseName|default('') }) }}"
                                         data-cy="publicPhase"
-                                        field-name="r_publicParticipationPhase"
+                                        field-name="r_publicParticipationPhaseDefinitionId"
                                         help-text="{{ 'text.procedure.edit.external.change_phase'|trans }}"
                                         label-text="{{ "procedure.public.phase"|trans }}"
-                                        :participation-phases="['participation', 'earlyparticipation', 'anotherparticipation']"
                                         permission-message="{{ 'explanation.procedure.external.permissions'|trans }}"
                                         :phase-options="JSON.parse('{{ externalPhaseOptions|json_encode|e('js', 'utf-8') }}')"
-                                        init-selected-phase="{{ proceduresettings.publicParticipationPhase }}"
+                                        init-selected-phase="{{ proceduresettings.publicParticipationPhaseObject.phaseDefinition.id }}"
                                         :iterator="{
                                             label: Translator.trans('procedure.phase.phasecounter'),
                                             name: 'r_public_participation_phase_iteration',
@@ -960,15 +963,16 @@
                                 {# Change Procedure Step public participation #}
                                 {% if hasPermission('feature_auto_switch_procedure_phase') %}
                                     <auto-switch-procedure-phase-form
-                                        :available-procedure-phases="JSON.parse('{{ templateVars.externalPhases|map(externalPhase => {
-                                            label: externalPhase.name,
-                                            permission: externalPhase.permissionset,
-                                            value: externalPhase.key
+                                        :available-procedure-phases="JSON.parse('{{ templateVars.externalPhaseDefinitions|map(definition => {
+                                            label: definition.name,
+                                            participationState: definition.participationState,
+                                            permission: definition.permissionSet,
+                                            value: definition.id
                                         })|json_encode|e('js', 'utf-8') }}')"
                                         data-cy-phase-period="publicPhasePeriod"
                                         class="u-mb"
                                         end-date="{{ proceduresettings.publicParticipationPhaseObject.designatedEndDate|default|dplanDate }}"
-                                        init-selected-phase="{{ proceduresettings.publicParticipationPhaseObject.designatedPhase }}"
+                                        init-selected-phase="{{ proceduresettings.publicParticipationPhaseObject.designatedPhaseDefinition ? proceduresettings.publicParticipationPhaseObject.designatedPhaseDefinition.id : '' }}"
                                         init-switch-date="{{ proceduresettings.publicParticipationPhaseObject.designatedSwitchDate|default|isoDate }}"
                                         min-switch-date="{{ 'now'|date('d.m.Y') }}"
                                         :selected-current-phase="state.selectedPublicPhase"

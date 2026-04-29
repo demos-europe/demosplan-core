@@ -86,6 +86,7 @@ use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
@@ -234,6 +235,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         PermissionsInterface $permissions,
         PriorityAreaService $priorityAreaService,
         ProcedureHandler $procedureHandler,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         ProcedureService $procedureService,
         QueryFragment $esQueryFragment,
         ServiceImporter $serviceImporter,
@@ -3008,8 +3010,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         // Verfahrensschritte
-        $templateVars['internalPhases'] = $this->getDemosplanConfig()->getInternalPhases();
-        $templateVars['externalPhases'] = $this->getDemosplanConfig()->getExternalPhases();
+        $templateVars['internalPhaseDefinitions'] = array_map(
+            static fn ($def) => ['id' => $def->getId(), 'name' => $def->getName(), 'permissionSet' => $def->getPermissionSet()],
+            $this->procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer()
+        );
+        $templateVars['externalPhaseDefinitions'] = array_map(
+            static fn ($def) => ['id' => $def->getId(), 'name' => $def->getName(), 'permissionSet' => $def->getPermissionSet()],
+            $this->procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer()
+        );
 
         // add vars for location fields
         $procedureService = $this->procedureService;
@@ -3652,7 +3660,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
             $headStatement->setMunicipalities($representativeStatement->getMunicipalities());
             $headStatement->setParagraph($representativeStatement->getParagraph());
-            $headStatement->setPhase($representativeStatement->getPhase());
+            $headStatement->setPhaseDefinition($representativeStatement->getPhaseDefinition());
             $headStatement->setPolygon($representativeStatement->getPolygon());
             $headStatement->setPriority($representativeStatement->getPriority());
             $headStatement->setPriorityAreas($representativeStatement->getPriorityAreas()->toArray());

@@ -59,10 +59,7 @@ class StatementArrayConverter
         $exportData['submitDateString'] = $segmentOrStatement->getSubmitDateString();
         $exportData['countyNames'] = $segmentOrStatement->getCountyNames();
         $exportData['meta']['authoredDate'] = $segmentOrStatement->getAuthoredDateString();
-        $exportData['phase'] = $this->statementService->getProcedurePhaseName(
-            $segmentOrStatement->getPhase(),
-            $segmentOrStatement->isSubmittedByCitizen()
-        );
+        $exportData['phase'] = $segmentOrStatement->getPhaseDefinition()->getName();
 
         $exportData['fileNames'] = $this->getFileNamesWithOriginal($segmentOrStatement);
 

@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -33,7 +35,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository")
  */
-class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
+class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface, ProcedurePhaseDefinitionInterface
 {
     /**
      * @ORM\Column(type="string", length=36, options={"fixed":true})
@@ -62,8 +64,20 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     protected string $audience = '';
 
     /**
-     * The permission set for this phase.
+     * Controls visibility and participation access for this phase.
      * Values: 'hidden' | 'read' | 'write'.
+     *
+     * For internal phases (audience = 'internal'), this governs invitable institutions ("Institutionen"):
+     * * `'hidden'`: institutions cannot see the procedure or its planning documents; participation is not allowed
+     * * `'read'`: invited institutions can see the procedure and its planning documents, but cannot participate
+     * * `'write'`: invited institutions can see the procedure and its planning documents and can participate
+     *
+     * For external phases (audience = 'external'), this governs guests and citizens:
+     * * `'hidden'`: guests and citizens cannot see the procedure or its planning documents; participation is not allowed
+     * * `'read'`: guests and citizens can see the procedure and its planning documents, but cannot participate
+     * * `'write'`: guests and citizens can see the procedure and its planning documents and can participate
+     *
+     * Note: planners always have 'write' access for procedures they own, regardless of this value.
      *
      * @ORM\Column(type="string", length=10, nullable=false)
      */
@@ -97,7 +111,7 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id", nullable=true, onDelete="CASCADE")
      */
-    protected ?Customer $customer = null;
+    protected ?CustomerInterface $customer = null;
 
     /**
      * @Gedmo\Timestampable(on="create")
@@ -183,12 +197,12 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
         $this->orderInAudience = $orderInAudience;
     }
 
-    public function getCustomer(): ?Customer
+    public function getCustomer(): ?CustomerInterface
     {
         return $this->customer;
     }
 
-    public function setCustomer(?Customer $customer): void
+    public function setCustomer(?CustomerInterface $customer): void
     {
         $this->customer = $customer;
     }

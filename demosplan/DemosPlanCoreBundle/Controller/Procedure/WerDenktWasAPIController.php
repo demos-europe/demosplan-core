@@ -21,14 +21,13 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 
 class WerDenktWasAPIController extends BaseController
 {
     #[DplanPermissions('area_public_participation')]
     #[Route(path: '/api/werdenktwas/procedures', methods: ['GET'])]
-    public function procedureListGeoJSON(TranslatorInterface $translator, LoggerInterface $logger): ?JsonResponse
+    public function procedureListGeoJSON(LoggerInterface $logger): ?JsonResponse
     {
         $searchProceduresResponse = $this->forward(
             '\demosplan\DemosPlanCoreBundle\Controller\Procedure\DemosPlanProcedureAPIController::searchProceduresAjax',
@@ -80,7 +79,7 @@ class WerDenktWasAPIController extends BaseController
                         'end'   => Carbon::createFromTimeString(
                             $procedureInfo['attributes']['externalEndDate'] ?? ''
                         )->toIso8601String(),
-                        'phase' => $translator->trans($procedureInfo['attributes']['externalPhaseTranslationKey'] ?? ''),
+                        'phase' => $procedureInfo['attributes']['externalPhaseDefinitionName'] ?? '',
                     ],
                     'url'           => $this->generateUrl(
                         'DemosPlan_procedure_public_detail',

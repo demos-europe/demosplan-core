@@ -70,7 +70,7 @@ class LoadSegmentData extends TestFixture implements DependentFixtureInterface
         $segment->setParentStatementOfSegment($statement);
         $segment->setProcedure($statement->getProcedure());
         $segment->setExternId($reference);
-        $segment->setPhase('participation');
+        $segment->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
         $segment->setPublicVerified(Statement::PUBLICATION_PENDING);
         $segment->setText('Lorem ipsum');
         $segment->setPlace($place);
@@ -83,6 +83,7 @@ class LoadSegmentData extends TestFixture implements DependentFixtureInterface
     public function getDependencies()
     {
         return [
+            LoadProcedurePhaseDefinitionData::class,
             LoadStatementData::class,
         ];
     }

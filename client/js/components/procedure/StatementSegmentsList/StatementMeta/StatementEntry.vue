@@ -124,14 +124,15 @@ All rights reserved
       <dp-select
         v-if="availableProcedurePhases.length > 1"
         id="statementProcedurePhase"
-        v-model="localStatement.attributes.procedurePhase.key"
-        class="mb-3"
-        data-cy="statementEntry:procedurePhase"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('procedure.public.phase')
         }"
         :options="availableProcedurePhases"
+        :selected="localStatement.relationships?.procedurePhase?.data?.id"
+        class="mb-3"
+        data-cy="statementEntry:procedurePhase"
+        @select="id => localStatement.relationships.procedurePhase.data = { id, type: 'ProcedurePhaseDefinition' }"
       />
       <dl
         v-else
@@ -141,7 +142,7 @@ All rights reserved
           {{ Translator.trans('procedure.public.phase') }}
         </dt>
         <dd class="text-muted">
-          {{ localStatement.attributes.procedurePhase?.name || '-' }}
+          {{ currentPhaseName }}
         </dd>
       </dl>
     </template>
@@ -226,7 +227,7 @@ export default {
 
       return phases.map(phase => ({
         label: phase.name,
-        value: phase.key,
+        value: phase.id,
       }))
     },
 
@@ -238,6 +239,12 @@ export default {
 
       today = dd + '.' + mm + '.' + yyyy
       return today
+    },
+
+    currentPhaseName () {
+      const id = this.localStatement.relationships?.procedurePhase?.data?.id
+
+      return this.$store.state.ProcedurePhaseDefinition?.items?.[id]?.attributes?.name || '-'
     },
 
     hasUnsavedChanges () {
@@ -299,12 +306,17 @@ export default {
           internId: attrs.internId,
         },
       }
+
       if (hasPermission('field_statement_phase')) {
-        changes.attributes.procedurePhase = attrs.procedurePhase
+        changes.relationships = {
+          procedurePhase: this.localStatement.relationships.procedurePhase,
+        }
       }
+
       if (hasPermission('field_statement_memo')) {
         changes.attributes.memo = attrs.memo
       }
+
       this.$emit('save', changes)
     },
 
@@ -316,6 +328,14 @@ export default {
       this.localStatement = this.deepCloneSerializable(this.statement)
       this.localStatement.attributes.authoredDate = this.getFormattedDate(this.localStatement.attributes.authoredDate)
       this.localStatement.attributes.submitDate = this.getFormattedDate(this.localStatement.attributes.submitDate)
+
+      if (!this.localStatement.relationships) {
+        this.localStatement.relationships = {}
+      }
+
+      if (!this.localStatement.relationships.procedurePhase) {
+        this.localStatement.relationships.procedurePhase = { data: null }
+      }
     },
   },
 

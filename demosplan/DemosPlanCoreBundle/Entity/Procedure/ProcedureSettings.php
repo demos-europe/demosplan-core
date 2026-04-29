@@ -870,48 +870,6 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     }
 
     /**
-     * Returns the internal phase to which will be switch, when the time(dateOfSwitchPhase) has come.
-     *
-     * @return string
-     */
-    public function getDesignatedPhase()
-    {
-        return $this->procedure->getPhaseObject()->getDesignatedPhase();
-    }
-
-    /**
-     * @param string $designatedPhase
-     *
-     * @return $this
-     */
-    public function setDesignatedPhase($designatedPhase)
-    {
-        $this->procedure->getPhaseObject()->setDesignatedPhase($designatedPhase);
-
-        return $this;
-    }
-
-    /**
-     * Returns the external phase to which will be switch, when the time(dateOfSwitchPublicPhase) has come.
-     *
-     * @return string
-     */
-    public function getDesignatedPublicPhase()
-    {
-        return $this->procedure->getPublicParticipationPhaseObject()->getDesignatedPhase();
-    }
-
-    /**
-     * @param string $designatedPublicPhase
-     */
-    public function setDesignatedPublicPhase($designatedPublicPhase): self
-    {
-        $this->procedure->getPublicParticipationPhaseObject()->setDesignatedPhase($designatedPublicPhase);
-
-        return $this;
-    }
-
-    /**
      * Returns the date which is defined for switching the current phase of the procedure to the designated phase.
      * Null is a valid value in this case and indicates that no date is set.
      *

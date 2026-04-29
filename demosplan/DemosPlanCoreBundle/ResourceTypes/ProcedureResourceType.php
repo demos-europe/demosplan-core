@@ -18,7 +18,6 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInter
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\PhasePermissionsetLoader;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
@@ -49,14 +48,14 @@ use EDT\PathBuilding\End;
  * @property-read End                                 $externalName
  * @property-read End                                 $externalStartDate
  * @property-read End                                 $externalEndDate
- * @property-read End                                 $externalPhaseTranslationKey
  * @property-read End                                 $publicParticipationStartDate
  * @property-read End                                 $publicParticipationEndDate
  * @property-read End                                 $internalStartDate
  * @property-read End                                 $startDate
  * @property-read End                                 $endDate
  * @property-read End                                 $internalEndDate
- * @property-read End                                 $internalPhaseTranslationKey
+ * @property-read End                                 $externalPhaseDefinitionName
+ * @property-read End                                 $internalPhaseDefinitionName
  * @property-read End                                 $daysLeft
  * @property-read End                                 $statementSubmitted
  * @property-read End                                 $owningOrganisationName
@@ -69,7 +68,6 @@ use EDT\PathBuilding\End;
 final class ProcedureResourceType extends DplanResourceType implements ProcedureResourceTypeInterface
 {
     public function __construct(
-        private readonly PhasePermissionsetLoader $phasePermissionsetLoader,
         private readonly DraftStatementService $draftStatementService,
         private readonly ProcedureAccessEvaluator $accessEvaluator,
         private readonly ProcedureExtension $procedureExtension,
@@ -245,18 +243,16 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
             $properties[] = $this->createAttribute($this->externalEndDate)->readable(false, fn (Procedure $procedure): ?string => $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
                 ? $this->formatDate($procedure->getPublicParticipationEndDate())
                 : null);
-            $properties[] = $this->createAttribute($this->externalPhaseTranslationKey)->readable(false, fn (Procedure $procedure): ?string => $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
-                ? $this->globalConfig->getExternalPhaseTranslationKey($procedure->getPublicParticipationPhase())
-                : null);
             $properties[] = $this->createAttribute($this->internalStartDate)->readable(false, fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
                 ? $this->formatDate($procedure->getStartDate())
                 : null);
             $properties[] = $this->createAttribute($this->internalEndDate)->readable(false, fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
                 ? $this->formatDate($procedure->getEndDate())
                 : null);
-            $properties[] = $this->createAttribute($this->internalPhaseTranslationKey)->readable(false, fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
-                ? $this->globalConfig->getInternalPhaseTranslationKey($procedure->getPhase())
-                : null);
+            $properties[] = $this->createAttribute($this->externalPhaseDefinitionName)
+                ->readable(false, fn (Procedure $procedure): string => $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName());
+            $properties[] = $this->createAttribute($this->internalPhaseDefinitionName)
+                ->readable(false, fn (Procedure $procedure): string => $procedure->getPhaseObject()->getPhaseDefinition()->getName());
             $properties[] = $this->createAttribute($this->owningOrganisationName)->readable()->aliasedPath($this->orga->name);
 
             // T18749
@@ -265,9 +261,9 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
             });
 
             $properties[] = $this->createAttribute($this->internalPhasePermissionset)
-                ->readable(false, $this->phasePermissionsetLoader->getInternalPhasePermissionset(...));
+                ->readable(false, fn (Procedure $procedure): string => $procedure->getPhaseObject()->getPhaseDefinition()->getPermissionSet());
             $properties[] = $this->createAttribute($this->externalPhasePermissionset)
-                ->readable(false, $this->phasePermissionsetLoader->getExternalPhasePermissionset(...));
+                ->readable(false, fn (Procedure $procedure): string => $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet());
         }
 
         return $properties;
