@@ -9,6 +9,7 @@
 ### Added
 - Track recommendation versions for statements and segments with full text snapshots, exposed via API and XLSX export (permission: `feature_enable_recommendation_versions`)
 - Support multiple custom field types and target contexts per project
+- Cross-procedure submitter search API (`StatementSearchResourceType`) for locating statements by author or submitter name across all procedures the user can administer, scoped to the current customer (permission: `area_search_submitter_in_procedures`)
 
 ## v4.37.0 (2026-04-27)
 
