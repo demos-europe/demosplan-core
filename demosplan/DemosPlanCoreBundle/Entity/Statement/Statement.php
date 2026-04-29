@@ -57,8 +57,10 @@ use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EventListener\DoctrineStatementListener;
+use demosplan\DemosPlanCoreBundle\EventListener\RecommendationVersionEntityListener;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -685,6 +687,31 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $version;
 
     /**
+     * @var Collection<int, RecommendationVersion>
+     *
+     * Recommendation versions are created automatically when {@see setRecommendation()}
+     * is called. Do not call setRecommendation() more than once per request.
+     *
+     * Do NOT add a setter for this collection. The getter applies explicit sorting
+     * (to handle in-memory additions within the same request) and prepends a virtual
+     * "current" version. A setter would bypass both and cause incorrect state.
+     *
+     * @see getRecommendationVersions()
+     * @see addRecommendationVersion() internal use only — called by RecommendationVersionService
+     *
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\RecommendationVersion", mappedBy="statement", cascade={"remove"})
+     *
+     * @ORM\OrderBy({"versionNumber" = "DESC"})
+     */
+    protected $recommendationVersions;
+
+    /**
+     * Injected via {@see RecommendationVersionEntityListener} on postLoad.
+     * Null for newly created entities (not loaded from DB).
+     */
+    private ?RecommendationVersionService $recommendationVersionService = null;
+
+    /**
      * @var StatementAttribute[]
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute", mappedBy="statement", cascade={"remove"})
@@ -1068,6 +1095,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         $this->attachments = new ArrayCollection();
         $this->similarStatementSubmitters = new ArrayCollection();
         $this->statementsCreatedFromOriginal = new ArrayCollection();
+        $this->recommendationVersions = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -2299,12 +2327,29 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
+     * @see RecommendationVersionEntityListener::postLoad()
+     */
+    public function setRecommendationVersionService(RecommendationVersionService $service): void
+    {
+        $this->recommendationVersionService = $service;
+    }
+
+    /**
      * Set recommendation.
+     *
+     * Before overwriting the value, records the old recommendation as a version
+     * via {@see RecommendationVersionService::recordVersion()} if the service is
+     * available (injected via {@see RecommendationVersionEntityListener} on postLoad).
+     *
+     * WARNING: Do not call this method more than once per request on the same entity.
+     * Each call with a changed value creates a new recommendation version entry.
      *
      * @param string $recommendation
      */
     public function setRecommendation($recommendation): Statement
     {
+        $this->recommendationVersionService?->recordVersion($this, $this->recommendation, $recommendation);
+
         $this->recommendation = $recommendation;
 
         return $this;
@@ -2861,6 +2906,62 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function getVersion()
     {
         return $this->version;
+    }
+
+    /**
+     * Returns all recommendation versions including a virtual "current" version.
+     *
+     * Stored versions represent OLD recommendation texts (the state before each update).
+     * The virtual version represents the current live recommendation on the entity and
+     * has versionNumber = max stored version + 1 (or 1 if no stored versions exist).
+     *
+     * The explicit sort is necessary because new versions may be added to the
+     * Doctrine PersistentCollection via {@see addRecommendationVersion()} within
+     * the same request (e.g. when setRecommendation() triggers version recording).
+     * Doctrine's ORM OrderBy only applies when loading from the database, so
+     * added items end up at the end regardless of their versionNumber. Sorting
+     * here ensures correct DESC order even when the in-memory collection has
+     * been modified.
+     *
+     * We return a new ArrayCollection to avoid exposing the managed
+     * PersistentCollection with the virtual version mixed in.
+     *
+     * Do NOT introduce a setRecommendationVersions() method — it would replace
+     * the Doctrine-managed PersistentCollection and bypass the sorting and
+     * virtual version logic, causing incorrect state and potential persistence issues.
+     *
+     * @return Collection<int, RecommendationVersion>
+     */
+    public function getRecommendationVersions(): Collection
+    {
+        $versions = $this->recommendationVersions->toArray();
+        usort($versions, static fn (RecommendationVersion $a, RecommendationVersion $b): int => $b->getVersionNumber() <=> $a->getVersionNumber());
+
+        if ('' !== $this->recommendation) {
+            $maxVersionNumber = [] === $versions ? 0 : $versions[0]->getVersionNumber();
+
+            $virtualVersion = new RecommendationVersion();
+            $virtualVersion->setId('virtual-'.$this->getId());
+            $virtualVersion->setStatement($this);
+            $virtualVersion->setVersionNumber($maxVersionNumber + 1);
+            $virtualVersion->setRecommendationText($this->recommendation);
+
+            return new ArrayCollection([$virtualVersion, ...$versions]);
+        }
+
+        return new ArrayCollection($versions);
+    }
+
+    /**
+     * Adds a version to the Doctrine-managed PersistentCollection.
+     *
+     * Internal use only — called by {@see RecommendationVersionService}.
+     * Do not call directly from other code; use {@see setRecommendation()}
+     * which triggers version recording automatically.
+     */
+    public function addRecommendationVersion(RecommendationVersion $version): void
+    {
+        $this->recommendationVersions->add($version);
     }
 
     /**
