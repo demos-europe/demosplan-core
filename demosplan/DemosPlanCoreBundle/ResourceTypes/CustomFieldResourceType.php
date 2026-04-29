@@ -63,6 +63,7 @@ use Pagerfanta\Pagerfanta;
  * @property-read End $description
  * @property-read End $targetEntity
  * @property-read End $sourceEntity
+ * @property-read End $sourceEntityClass
  * @property-read End $sourceEntityId
  * @property-read End $options
  *
@@ -116,12 +117,12 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             $this->conditionFactory->anyConditionApplies(
                 $this->conditionFactory->propertyHasNotValue(
                     CustomFieldSupportedEntity::customer->value,
-                    $this->sourceEntity
+                    $this->sourceEntityClass
                 ),
                 $this->conditionFactory->allConditionsApply(
                     $this->conditionFactory->propertyHasValue(
                         CustomFieldSupportedEntity::customer->value,
-                        $this->sourceEntity
+                        $this->sourceEntityClass
                     ),
                     $this->conditionFactory->propertyHasValue(
                         $currentCustomer->getId(),
