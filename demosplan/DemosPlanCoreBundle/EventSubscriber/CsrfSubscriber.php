@@ -21,6 +21,8 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class CsrfSubscriber implements EventSubscriberInterface
 {
+    public const TOKEN_ID = 'csrf';
+
     public function __construct(
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
         private readonly MessageBagInterface $messageBag,
@@ -37,28 +39,28 @@ class CsrfSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $tokenId = $request->request->get('_token');
+        // The form field / header carries the token *value*, not its id. The id
+        // is the well-known 'csrf' constant matching the value emitted by
+        // `csrf_token('csrf')` in twig templates.
+        $tokenValue = $request->request->get('_token');
         if ($request->headers->has('x-csrf-token')) {
-            $tokenId = $this->headerSanitizer->sanitizeCsrfToken(
+            $tokenValue = $this->headerSanitizer->sanitizeCsrfToken(
                 $request->headers->get('x-csrf-token')
             );
         }
 
-        if (null === $tokenId) {
+        if (null === $tokenValue || '' === $tokenValue) {
             $this->messageBag->add('dev', 'error.csrf.missing', ['uri' => $request->getRequestUri()]);
             $this->logger->info('CSRF token missing', ['uri' => $request->getRequestUri()]);
 
             return;
         }
 
-        $token = $this->csrfTokenManager->getToken($tokenId);
-
-        if ($token instanceof CsrfToken && $this->csrfTokenManager->isTokenValid($token)) {
-            // all clear, token is set and valid
+        if ($this->csrfTokenManager->isTokenValid(new CsrfToken(self::TOKEN_ID, $tokenValue))) {
             return;
         }
 
-        $this->logger->info('CSRF token invalid', ['uri' => $request->getRequestUri(), 'token' => $tokenId]);
+        $this->logger->info('CSRF token invalid', ['uri' => $request->getRequestUri()]);
     }
 
     public static function getSubscribedEvents(): array
