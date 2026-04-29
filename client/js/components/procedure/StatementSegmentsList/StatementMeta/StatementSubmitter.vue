@@ -26,19 +26,6 @@ All rights reserved
     </div>
 
     <div class="grid grid-cols-1 gap-x-4 md:grid-cols-2">
-      <dp-input
-        v-if="hasPermission('field_statement_meta_orga_department_name') && !localStatement.attributes.isSubmittedByCitizen"
-        id="statementDepartmentName"
-        :disabled="!editable || !isStatementManual"
-        :label="{
-          text: Translator.trans('department')
-        }"
-        :model-value="getDisplayValue(localStatement.attributes.initialOrganisationDepartmentName)"
-        class="mb-2"
-        data-cy="statementSubmitter:departmentName"
-        @update:model-value="value => localStatement.attributes.initialOrganisationDepartmentName = value"
-      />
-
       <!--  TO DO: add if not participationGuestOnly -->
       <dp-input
         v-if="!localStatement.attributes.isSubmittedByCitizen"
@@ -51,6 +38,18 @@ All rights reserved
         class="mb-2"
         data-cy="statementSubmitter:orgaName"
         @update:model-value="value => localStatement.attributes.initialOrganisationName = value"
+      />
+      <dp-input
+        v-if="hasPermission('field_statement_meta_orga_department_name') && !localStatement.attributes.isSubmittedByCitizen"
+        id="statementDepartmentName"
+        :disabled="!editable || !isStatementManual"
+        :label="{
+          text: Translator.trans('department')
+        }"
+        :model-value="getDisplayValue(localStatement.attributes.initialOrganisationDepartmentName)"
+        class="mb-2"
+        data-cy="statementSubmitter:departmentName"
+        @update:model-value="value => localStatement.attributes.initialOrganisationDepartmentName = value"
       />
 
       <dp-contextual-help
@@ -236,6 +235,17 @@ export default {
     ...mapState('Statement', {
       statements: 'items',
     }),
+
+    hasUnsavedChanges () {
+      if (!this.localStatement || !this.statement) {
+        return false
+      }
+
+      const initialAttributes = this.statement.attributes
+      const currentAttributes = this.localStatement.attributes
+
+      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+    },
 
     isStatementManual () {
       return this.localStatement.attributes.isManual
