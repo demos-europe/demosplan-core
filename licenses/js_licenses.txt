@@ -42,8 +42,16 @@ core-js: MIT
 cross-env: MIT
 css-loader: MIT
 css-minimizer-webpack-plugin: MIT
-d3: ISC
+d3-array: ISC
+d3-axis: ISC
+d3-format: ISC
+d3-interpolate: ISC
 d3-sankey-diagram: MIT
+d3-scale: ISC
+d3-selection: ISC
+d3-shape: ISC
+d3-time-format: ISC
+d3-transition: ISC
 dayjs: MIT
 deep-object-diff: MIT
 dompurify: (MPL-2.0 OR Apache-2.0)
@@ -111,4 +119,4 @@ webpack-bundle-analyzer: MIT
 webpack-manifest-plugin: MIT
 webpack-merge: MIT
 
-As of 30.03.2026 07:31
+As of 29.04.2026 07:41
