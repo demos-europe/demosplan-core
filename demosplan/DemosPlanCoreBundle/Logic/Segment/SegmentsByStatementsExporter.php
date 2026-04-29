@@ -81,6 +81,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         array $exportFilteredByTagsWithTopics = [],
         bool $censorCitizenData = false,
         bool $censorInstitutionData = false,
+        string $customHeaderText = '',
         Statement ...$statements,
     ): WriterInterface {
         Settings::setOutputEscapingEnabled(true);
@@ -88,7 +89,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
 
         if ([] === $statements) {
-            return $this->exportEmptyStatements($phpWord, $procedure, $exportFilteredByTagsWithTopics);
+            return $this->exportEmptyStatements($phpWord, $procedure, $exportFilteredByTagsWithTopics, $customHeaderText);
         }
 
         return $this->exportStatements(
@@ -99,7 +100,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $censorCitizenData,
             $censorInstitutionData,
             $obscure,
-            $exportFilteredByTagsWithTopics
+            $exportFilteredByTagsWithTopics,
+            $customHeaderText,
         );
     }
 
@@ -193,6 +195,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $censorInstitutionData,
         bool $obscureParameter,
         array $exportFilteredByTagsWithTopics = [],
+        string $customHeaderText,
     ): PhpWord {
         $censored = $this->needsToBeCensored(
             $statement,

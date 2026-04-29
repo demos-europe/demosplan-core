@@ -49,6 +49,7 @@
       </dp-bulk-edit-header>
       <statement-export-modal
         data-cy="listStatements:export"
+        :has-permission-adjust-preamble="hasPermission('feature_adjust_preamble_export_file')"
         :procedure-id="procedureId"
         @export="showHintAndDoExport"
       />
@@ -473,7 +474,7 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds) => {
+      return (exportRoute, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText) => {
         const parameters = {
           filter: {
             procedureId: {
@@ -507,6 +508,9 @@ export default {
 
         if (fileNameTemplate) {
           parameters.fileNameTemplate = fileNameTemplate
+        }
+        if (customHeaderText) {
+          parameters.customHeaderText = customHeaderText
         }
 
         return Routing.generate(exportRoute, parameters)
@@ -996,8 +1000,8 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds }) {
-      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds)
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, customHeaderText, shouldConfirm, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds }) {
+      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText)
       if (!shouldConfirm || window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = url
       }

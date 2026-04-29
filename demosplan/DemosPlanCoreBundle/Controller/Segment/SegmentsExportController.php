@@ -43,6 +43,7 @@ class SegmentsExportController extends BaseController
     private const CITIZEN_CENSOR_PARAMETER = 'isCitizenDataCensored';
     private const INSTITUTION_CENSOR_PARAMETER = 'isInstitutionDataCensored';
     private const OBSCURE_PARAMETER = 'isObscured';
+    private const CUSTOM_HEADER_TEXT_PARAMETER = 'customHeaderText';
 
     public function __construct(
         private readonly NameGenerator $nameGenerator,
@@ -137,6 +138,7 @@ class SegmentsExportController extends BaseController
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
         // geschwärzt
         $obscureParameter = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
+        $customHeaderText = $this->requestStack->getCurrentRequest()->query->get(self::CUSTOM_HEADER_TEXT_PARAMETER);
 
         $response = new StreamedResponse(
             function () use (
@@ -148,6 +150,7 @@ class SegmentsExportController extends BaseController
                 $censorInstitutionData,
                 $obscureParameter,
                 $exportFilteredByTagsWithTopics,
+                $customHeaderText,
             ) {
                 $exportedDoc = $exporter->exportAll(
                     $tableHeaders,
@@ -156,6 +159,7 @@ class SegmentsExportController extends BaseController
                     $exportFilteredByTagsWithTopics,
                     $censorCitizenData,
                     $censorInstitutionData,
+                    $customHeaderText,
                     ...$statementEntities
                 );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);

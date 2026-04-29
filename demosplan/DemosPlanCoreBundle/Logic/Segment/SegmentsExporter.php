@@ -108,10 +108,11 @@ abstract class SegmentsExporter
         Procedure $procedure,
         ?string $headerType = null,
         array $exportFilteredByTagsWithTopics = [],
+        string $customHeaderText = '',
     ): void {
         $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
         $header->addText(
-            $procedure->getName(),
+            '' !== $customHeaderText ? $customHeaderText : $procedure->getName(),
             $this->styles['documentTitleFont'],
             $this->styles['documentTitleParagraph']
         );
@@ -134,11 +135,11 @@ abstract class SegmentsExporter
     /**
      * This function adds a metadata sheet as the first page in the docx export, including the name of the initiator of the export, tags and tag topics if a filter was being used.
      */
-    protected function addMetaDataSheet(PhpWord $phpWord, Procedure $procedure, array $exportTagTitles = []): void
+    protected function addMetaDataSheet(PhpWord $phpWord, Procedure $procedure, array $exportTagTitles = [], string $customHeaderText = ''): void
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST, $exportTagTitles);
-        $this->addHeader($section, $procedure, null, $exportTagTitles);
+        $this->addHeader($section, $procedure, Footer::FIRST, $exportTagTitles, $customHeaderText);
+        $this->addHeader($section, $procedure, null, $exportTagTitles, $customHeaderText);
         $exportDate = (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('d.m.Y');
         $userName = $this->currentUser->getUser()->getFullName();
         $pageInfoText = $this->translator->trans('export.user').': '.$userName.' am '.$exportDate.'<br>';
@@ -352,11 +353,11 @@ abstract class SegmentsExporter
     /**
      * @throws Exception
      */
-    protected function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure, array $exportFilteredByTagsWithTopics = []): WriterInterface
+    protected function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure, array $exportFilteredByTagsWithTopics = [], string $customHeaderText = ''): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTagsWithTopics);
-        $this->addHeader($section, $procedure, null, $exportFilteredByTagsWithTopics);
+        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTagsWithTopics, $customHeaderText);
+        $this->addHeader($section, $procedure, null, $exportFilteredByTagsWithTopics, $customHeaderText);
 
         return $this->addNoStatementsMessage($phpWord, $section);
     }
@@ -399,11 +400,12 @@ abstract class SegmentsExporter
         bool $censorInstitutionData,
         bool $obscure,
         array $exportFilteredByTagsWithTopics = [],
+        string $customHeaderText = '',
     ): WriterInterface {
-        $this->addMetaDataSheet($phpWord, $procedure, $exportFilteredByTagsWithTopics);
+        $this->addMetaDataSheet($phpWord, $procedure, $exportFilteredByTagsWithTopics, $customHeaderText);
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTagsWithTopics);
-        $this->addHeader($section, $procedure, null, $exportFilteredByTagsWithTopics);
+        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTagsWithTopics, $customHeaderText);
+        $this->addHeader($section, $procedure, null, $exportFilteredByTagsWithTopics, $customHeaderText);
 
         foreach ($statements as $index => $statement) {
             $censored = $this->needsToBeCensored(

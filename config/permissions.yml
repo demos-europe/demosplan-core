@@ -659,7 +659,7 @@ feature_admin_new_procedure:
     loginRequired: true
     parent: feature_admin
 feature_adjust_preamble_export_file:
-    expose: false
+    expose: true
     label: 'alters the preamble header of an exported doc to include the procedure name instead of the export-date'
     loginRequired: true
 feature_allow_update_on_non_manual_statements:
