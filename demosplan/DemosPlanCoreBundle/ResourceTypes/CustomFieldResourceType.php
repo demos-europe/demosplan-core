@@ -63,6 +63,7 @@ use Pagerfanta\Pagerfanta;
  * @property-read End $description
  * @property-read End $targetEntity
  * @property-read End $sourceEntity
+ * @property-read End $sourceEntityId
  * @property-read End $options
  *
  * @method bool isNullSafe(int $index)
@@ -95,7 +96,40 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     protected function getAccessConditions(): array
     {
-        return [];
+        $currentCustomer = $this->customerService->getCurrentCustomer();
+
+        /*
+         * Defensive: if no current customer is in scope (which should not happen
+         * for routes that pass our permission gates), return an always-false
+         * condition rather than leak data.
+         */
+        if (null === $currentCustomer) {
+            return [$this->conditionFactory->false()];
+        }
+
+        /*
+         * For CUSTOMER source the row must belong to the current customer.
+         * Non-CUSTOMER sources (PROCEDURE etc.) keep their existing behaviour
+         * — their sourceEntityId is still supplied by the caller as a filter.
+         */
+        return [
+            $this->conditionFactory->anyConditionApplies(
+                $this->conditionFactory->propertyHasNotValue(
+                    CustomFieldSupportedEntity::customer->value,
+                    $this->sourceEntity
+                ),
+                $this->conditionFactory->allConditionsApply(
+                    $this->conditionFactory->propertyHasValue(
+                        CustomFieldSupportedEntity::customer->value,
+                        $this->sourceEntity
+                    ),
+                    $this->conditionFactory->propertyHasValue(
+                        $currentCustomer->getId(),
+                        $this->sourceEntityId
+                    )
+                )
+            ),
+        ];
     }
 
     protected function getInstantiability(): ResourceInstantiability
