@@ -150,6 +150,20 @@
             <span v-text="exampleFileName" />
           </div>
         </fieldset>
+        <fieldset v-if="active === 'docx_normal' && !isSingleStatementExport && hasPermissionAdjustPreamble">
+          <legend
+            class="o-form__label text-base"
+            v-text="Translator.trans('docx.export.header.custom')"
+          />
+          <dp-input
+            id="customHeaderText"
+            v-model="customHeaderText"
+            data-cy="exportModal:customHeaderText"
+            class="mt-1"
+            :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
+            type="text"
+          />
+        </fieldset>
       </fieldset>
 
       <fieldset v-if="active === 'docx_normal' && !isSingleStatementExport && hasPermissionAdjustPreamble">
@@ -267,7 +281,11 @@ export default {
       type: Boolean,
       default: false,
     },
-
+    hasPermissionAdjustPreamble: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
     procedureId: {
       required: true,
       type: String,
@@ -320,6 +338,7 @@ export default {
         },
       },
       fileName: '',
+      customHeaderText: '',
       filter: {
         comparisonOperator: 'ARRAY_CONTAINS_VALUE',
         grouping: {
@@ -659,6 +678,7 @@ export default {
       this.isObscure = false
       this.selectedTagIds = []
       this.selectedTags = []
+      this.customHeaderText = ''
     },
 
     scrollModalToBottom () {
