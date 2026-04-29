@@ -30,11 +30,6 @@
         "website": "https://github.com/composer/composer"
     },
     {
-        "license": "MIT",
-        "package": "composer/package-versions-deprecated",
-        "website": "https://github.com/composer/package-versions-deprecated"
-    },
-    {
         "license": "Apache-2.0",
         "package": "cyclonedx/cyclonedx-php-composer",
         "website": "https://github.com/CycloneDX/cyclonedx-php-composer"
@@ -126,11 +121,6 @@
     },
     {
         "license": "MIT",
-        "package": "escapestudios/symfony2-coding-standard",
-        "website": "https://github.com/djoos/Symfony-coding-standard"
-    },
-    {
-        "license": "MIT",
         "package": "exercise/htmlpurifier-bundle",
         "website": "https://github.com/Exercise/HTMLPurifierBundle"
     },
@@ -161,16 +151,6 @@
     },
     {
         "license": "MIT",
-        "package": "goetas-webservices/xsd2php",
-        "website": "https://github.com/goetas-webservices/xsd2php"
-    },
-    {
-        "license": "MIT",
-        "package": "goetas-webservices/xsd2php-runtime",
-        "website": "https://github.com/goetas-webservices/xsd2php-runtime"
-    },
-    {
-        "license": "MIT",
         "package": "guzzlehttp/guzzle",
         "website": "https://github.com/guzzle/guzzle"
     },
@@ -198,11 +178,6 @@
         "license": "MIT",
         "package": "jms/serializer-bundle",
         "website": "https://github.com/schmittjoh/JMSSerializerBundle"
-    },
-    {
-        "license": "MIT",
-        "package": "khanamiryan/qrcode-detector-decoder",
-        "website": "https://github.com/khanamiryan/php-qrcode-detector-decoder"
     },
     {
         "license": "MIT",
@@ -271,11 +246,6 @@
     },
     {
         "license": "MIT",
-        "package": "myclabs/php-enum",
-        "website": "https://github.com/myclabs/php-enum"
-    },
-    {
-        "license": "MIT",
         "package": "nelmio/security-bundle",
         "website": "https://github.com/nelmio/NelmioSecurityBundle"
     },
@@ -323,16 +293,6 @@
         "license": "LGPL-3.0-only",
         "package": "phpoffice/phpword",
         "website": "https://github.com/PHPOffice/PHPWord"
-    },
-    {
-        "license": "MIT",
-        "package": "phpspec/prophecy",
-        "website": "https://github.com/phpspec/prophecy"
-    },
-    {
-        "license": "MIT",
-        "package": "phpspec/prophecy-phpunit",
-        "website": "https://github.com/phpspec/prophecy-phpunit"
     },
     {
         "license": "MIT",
@@ -403,11 +363,6 @@
         "license": "MIT",
         "package": "sentry/sentry-symfony",
         "website": "https://github.com/getsentry/sentry-symfony"
-    },
-    {
-        "license": "BSD-3-Clause",
-        "package": "squizlabs/php_codesniffer",
-        "website": "https://github.com/PHPCSStandards/PHP_CodeSniffer"
     },
     {
         "license": "MIT",
@@ -561,11 +516,6 @@
     },
     {
         "license": "MIT",
-        "package": "symfony/polyfill-php80",
-        "website": "https://github.com/symfony/polyfill-php80"
-    },
-    {
-        "license": "MIT",
         "package": "symfony/process",
         "website": "https://github.com/symfony/process"
     },
@@ -693,11 +643,6 @@
         "license": "MIT",
         "package": "willdurand/js-translation-bundle",
         "website": "https://github.com/willdurand/BazingaJsTranslationBundle"
-    },
-    {
-        "license": "MIT",
-        "package": "wsdltophp/packagegenerator",
-        "website": "https://github.com/WsdlToPhp/PackageGenerator"
     },
     {
         "license": "MIT",

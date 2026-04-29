@@ -4,7 +4,6 @@ beberlei/doctrineextensions: BSD-3-Clause
 cebe/php-openapi: MIT
 cocur/slugify: MIT
 composer/composer: MIT
-composer/package-versions-deprecated: MIT
 cyclonedx/cyclonedx-php-composer: Apache-2.0
 demos-europe/demosplan-addon: MIT
 doctrine/annotations: MIT
@@ -23,22 +22,18 @@ endroid/qr-code-bundle: MIT
 enqueue/enqueue-bundle: MIT
 enqueue/fs: MIT
 erusev/parsedown: MIT
-escapestudios/symfony2-coding-standard: MIT
 exercise/htmlpurifier-bundle: MIT
 fakerphp/faker: MIT
 friendsofphp/php-cs-fixer: MIT
 friendsofsymfony/elastica-bundle: MIT
 friendsofsymfony/jsrouting-bundle: MIT
 geocoder-php/nominatim-provider: MIT
-goetas-webservices/xsd2php: MIT
-goetas-webservices/xsd2php-runtime: MIT
 guzzlehttp/guzzle: MIT
 illuminate/collections: MIT
 intervention/image: MIT
 jfcherng/php-diff: BSD-3-Clause
 jmikola/geojson: MIT
 jms/serializer-bundle: MIT
-khanamiryan/qrcode-detector-decoder: MIT
 knplabs/knp-menu-bundle: MIT
 knpuniversity/oauth2-client-bundle: MIT
 league/csv: MIT
@@ -52,7 +47,6 @@ liip/functional-test-bundle: MIT
 liip/test-fixtures-bundle: MIT
 maennchen/zipstream-php: MIT
 masterminds/html5: MIT
-myclabs/php-enum: MIT
 nelmio/security-bundle: MIT
 nesbot/carbon: MIT
 open-telemetry/exporter-otlp: Apache-2.0
@@ -63,8 +57,6 @@ php-parallel-lint/php-console-highlighter: MIT
 phpdocumentor/reflection-docblock: MIT
 phpoffice/phpspreadsheet: MIT
 phpoffice/phpword: LGPL-3.0-only
-phpspec/prophecy: MIT
-phpspec/prophecy-phpunit: MIT
 phpstan/phpstan: MIT
 phpstan/phpstan-symfony: MIT
 phpunit/phpunit: BSD-3-Clause
@@ -79,7 +71,6 @@ scheb/2fa-bundle: MIT
 scheb/2fa-email: MIT
 scheb/2fa-totp: MIT
 sentry/sentry-symfony: MIT
-squizlabs/php_codesniffer: BSD-3-Clause
 stevenmaguire/oauth2-keycloak: MIT
 stof/doctrine-extensions-bundle: MIT
 symfony/asset: MIT
@@ -110,7 +101,6 @@ symfony/password-hasher: MIT
 symfony/phpunit-bridge: MIT
 symfony/polyfill-apcu: MIT
 symfony/polyfill-intl-messageformatter: MIT
-symfony/polyfill-php80: MIT
 symfony/process: MIT
 symfony/property-access: MIT
 symfony/property-info: MIT
@@ -137,7 +127,6 @@ weirdan/doctrine-psalm-plugin: MIT
 wgirhad/geophp: GPL-2.0-or-later
 willdurand/geocoder-bundle: MIT
 willdurand/js-translation-bundle: MIT
-wsdltophp/packagegenerator: MIT
 zenstruck/foundry: MIT
 
-As of 30.03.2026 07:31
+As of 29.04.2026 07:41
