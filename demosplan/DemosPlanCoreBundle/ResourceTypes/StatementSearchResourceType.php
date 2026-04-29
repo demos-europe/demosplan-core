@@ -29,7 +29,9 @@ use Webmozart\Assert\Assert;
  * procedure context.
  *
  * In contrast to {@link StatementResourceType}, this type:
- * - is only available when the user holds `area_search_submitter_in_procedures`
+ * - is only available when the user holds `feature_json_api_statement_cross_procedures_search`
+ *   (a dedicated permission, deliberately separate from `area_search_submitter_in_procedures`
+ *   which also activates the ROBOBSH "Einreicher suchen" procedure-list UI flow)
  * - scopes statements to the user's administrable procedures via pre-fetched IDs (no current procedure context required)
  * - exposes only the property surface the search-results UI needs; it deliberately does not inherit
  *   the assessment-table-specific surface of {@link StatementResourceType}
@@ -59,7 +61,7 @@ final class StatementSearchResourceType extends AbstractStatementResourceType
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasPermission('area_search_submitter_in_procedures');
+        return $this->currentUser->hasPermission('feature_json_api_statement_cross_procedures_search');
     }
 
     public function isDeleteAllowed(): bool

@@ -34,7 +34,7 @@ class StatementSearchResourceTypeTest extends JsonApiTest
     public function testListReturnsValidJsonApiPayloadForAdministrableUser(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $this->enablePermissions(['area_search_submitter_in_procedures']);
+        $this->enablePermissions(['feature_json_api_statement_cross_procedures_search']);
 
         $responseBody = $this->executeListRequest(
             StatementSearchResourceType::getName(),
@@ -63,7 +63,7 @@ class StatementSearchResourceTypeTest extends JsonApiTest
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         // ProcedureResourceType.isAvailable requires area_admin_procedures; without it `include=procedure`
         // silently drops, and the FE would not get procedure names for the grouping headings.
-        $this->enablePermissions(['area_search_submitter_in_procedures', 'area_admin_procedures']);
+        $this->enablePermissions(['feature_json_api_statement_cross_procedures_search', 'area_admin_procedures']);
 
         $responseBody = $this->executeListRequest(
             StatementSearchResourceType::getName(),
@@ -89,7 +89,7 @@ class StatementSearchResourceTypeTest extends JsonApiTest
     public function testListFiltersBySubmitterAuthorName(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $this->enablePermissions(['area_search_submitter_in_procedures']);
+        $this->enablePermissions(['feature_json_api_statement_cross_procedures_search']);
 
         $responseBody = $this->executeListRequest(
             StatementSearchResourceType::getName(),
@@ -121,7 +121,7 @@ class StatementSearchResourceTypeTest extends JsonApiTest
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
-        $this->enablePermissions(['area_search_submitter_in_procedures']);
+        $this->enablePermissions(['feature_json_api_statement_cross_procedures_search']);
 
         $responseBody = $this->executeListRequest(
             StatementSearchResourceType::getName(),
