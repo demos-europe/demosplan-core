@@ -96,11 +96,29 @@ All rights reserved
         :title="Translator.trans('audience.internal')"
         is-open
       >
-        <dp-data-table
-          :header-fields="headerFields"
-          :items="internalPhaseDefinitions"
-          track-by="id"
-        />
+        <div class="overflow-x-auto pb-3">
+          <addon-wrapper
+            :addon-props="{
+              phaseDefinitions: internalPhaseDefinitions,
+              headerFields,
+              audience: 'internal',
+            }"
+            hook-name="phases.table.with.codes"
+            @addons:loaded="handleAddonsLoaded"
+          />
+
+          <dp-loading v-if="!addonsResolved" />
+
+          <dp-data-table
+            v-else-if="!isAddonActive"
+            :header-fields="headerFields"
+            :items="internalPhaseDefinitions"
+            density="spacious"
+            track-by="id"
+            has-borders
+            is-resizable
+          />
+        </div>
       </dp-accordion>
 
       <dp-accordion
@@ -108,11 +126,29 @@ All rights reserved
         :title="Translator.trans('audience.external')"
         is-open
       >
-        <dp-data-table
-          :header-fields="headerFields"
-          :items="externalPhaseDefinitions"
-          track-by="id"
-        />
+        <div class="overflow-x-auto pb-3">
+          <addon-wrapper
+            :addon-props="{
+              phaseDefinitions: externalPhaseDefinitions,
+              headerFields,
+              audience: 'external',
+            }"
+            hook-name="phases.table.with.codes"
+            @addons:loaded="handleAddonsLoaded"
+          />
+
+          <dp-loading v-if="!addonsResolved" />
+
+          <dp-data-table
+            v-else-if="!isAddonActive"
+            :header-fields="headerFields"
+            :items="externalPhaseDefinitions"
+            density="spacious"
+            track-by="id"
+            has-borders
+            is-resizable
+          />
+        </div>
       </dp-accordion>
 
       <dp-loading v-if="isInitiallyLoading" />
@@ -133,11 +169,13 @@ import {
   DpSelect,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
   name: 'ProcedurePhasesDefinition',
 
   components: {
+    AddonWrapper,
     DpAccordion,
     DpButton,
     DpButtonRow,
@@ -152,12 +190,9 @@ export default {
 
   data () {
     return {
+      addonsResolved: false,
       hasAttemptedSubmit: false,
-      headerFields: [
-        { field: 'name', label: Translator.trans('phase.name') },
-        { field: 'permissionSetLabel', label: Translator.trans('permissionset.label') },
-        { field: 'participationStateLabel', label: Translator.trans('participation.state.finished') },
-      ],
+      isAddonActive: false,
       isCreating: false,
       isInitiallyLoading: true,
       isLoading: false,
@@ -183,6 +218,15 @@ export default {
       return this.phaseDefinitions
         .filter(phase => phase.audience === 'external')
         .map(phase => this.mapPhaseForDisplay(phase))
+    },
+
+    headerFields () {
+      return [
+        { field: 'name', label: Translator.trans('phase.name'), colWidth: '270px', initialMinWidth: 270 },
+        ...(this.isAddonActive ? [{ field: 'phaseCode', label: Translator.trans('procedure.phase.code'), colWidth: '160px', initialMinWidth: 160 }] : []),
+        { field: 'permissionSetLabel', label: Translator.trans('permissionset.label'), colWidth: '270px', initialMinWidth: 270 },
+        { field: 'participationStateLabel', label: Translator.trans('participation.state.finished'), colWidth: '160px', initialMinWidth: 160 },
+      ]
     },
 
     internalPhaseDefinitions () {
@@ -221,22 +265,15 @@ export default {
     createPhase () {
       this.isLoading = true
 
-      dpApi({
-        method: 'POST',
-        url: Routing.generate('api_resource_create', { resourceType: 'ProcedurePhaseDefinition' }),
+      dpApi.post(Routing.generate('api_resource_create', { resourceType: 'ProcedurePhaseDefinition' }), {}, {
         data: {
-          data: {
-            type: 'ProcedurePhaseDefinition',
-            attributes: {
-              audience: this.newPhase.audience,
-              name: this.newPhase.name.trim(),
-              participationState: this.newPhase.participationState,
-              permissionSet: this.newPhase.permissionSet,
-            },
+          type: 'ProcedurePhaseDefinition',
+          attributes: {
+            audience: this.newPhase.audience,
+            name: this.newPhase.name.trim(),
+            participationState: this.newPhase.participationState,
+            permissionSet: this.newPhase.permissionSet,
           },
-        },
-        headers: {
-          'X-CSRF-Token': dplan.csrfToken,
         },
       })
         .then(() => {
@@ -287,6 +324,11 @@ export default {
         .finally(() => {
           this.isInitiallyLoading = false
         })
+    },
+
+    handleAddonsLoaded (addonNames) {
+      this.isAddonActive = addonNames.length > 0
+      this.addonsResolved = true
     },
 
     mapPhaseForDisplay (phase) {
