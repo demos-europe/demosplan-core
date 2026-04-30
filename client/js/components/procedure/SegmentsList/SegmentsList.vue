@@ -152,7 +152,7 @@
         <div
           id="segmentsListScrollContainer"
           ref="scrollContainer"
-          class="overflow-x-auto scrollbar-none"
+          class="overflow-x-auto scrollbar-none isolate"
         >
           <dp-data-table
             ref="dataTable"
@@ -164,6 +164,8 @@
             has-borders
             has-sticky-header
             :header-fields="availableHeaderFields"
+            column-storage-key="segmentsList"
+            is-columns-draggable
             is-resizable
             is-selectable
             :items="items"
@@ -315,7 +317,7 @@
                 <a
                   class="block leading-[2] whitespace-nowrap"
                   :href="Routing.generate('dplan_statement_segments_list', {
-                    action: 'editText',
+                    action: 'details',
                     procedureId: procedureId,
                     segment: rowData.id,
                     statementId: rowData.relationships.parentStatement.data.id
@@ -507,7 +509,7 @@ export default {
       demosplanUi,
       hasStyledTopicalTags: false,
       headerFieldsAvailable: [
-        { field: 'externId', label: Translator.trans('id'), colWidth: '120px', initialMinWidth: 120 },
+        { field: 'externId', label: Translator.trans('id'), colWidth: '120px', initialMinWidth: 120, fixed: true },
         { field: 'statementStatus', label: Translator.trans('statement.status'), colWidth: '180px', initialMinWidth: 180 },
         { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '120px', initialMinWidth: 120 },
         { field: 'submitter', label: Translator.trans('submitter'), colWidth: '180px', initialMinWidth: 180 },

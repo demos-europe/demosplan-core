@@ -51,6 +51,7 @@
         data-dp-validate="statementMetaData"
       >
         <statement-entry
+          ref="statementEntry"
           :editable="editable"
           :statement="statement"
           :submit-type-options="submitTypeOptions"
@@ -58,6 +59,7 @@
         />
 
         <statement-submitter
+          ref="statementSubmitter"
           :editable="editable"
           :procedure="procedure"
           :statement="statement"
@@ -118,6 +120,7 @@
         />
 
         <statement-meta-attachments
+          ref="statementMetaAttachments"
           :initial-attachments="attachments"
           :editable="editable"
           :is-source-and-coupled-procedure="isSourceAndCoupledProcedure"
@@ -151,6 +154,7 @@ import StatementMetaLocationAndDocumentReference from './StatementMetaLocationAn
 import StatementMetaMultiselect from './StatementMetaMultiselect'
 import StatementPublicationAndVoting from './StatementPublicationAndVoting'
 import StatementSubmitter from './StatementSubmitter'
+import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
 
 export default {
   name: 'StatementMeta',
@@ -167,6 +171,15 @@ export default {
   },
 
   mixins: [dpValidateMixin],
+
+  setup () {
+    const { init, cleanup } = useUnsavedChangesGuard()
+
+    return {
+      initUnsavedChangesGuard: init,
+      cleanupUnsavedChangesGuard: cleanup,
+    }
+  },
 
   props: {
     attachments: {
@@ -280,6 +293,18 @@ export default {
       return this.menuEntries.filter(entry => entry.condition ?? true)
     },
 
+    /**
+     * Check if any child component has unsaved changes
+     * Required by useUnsavedChangesGuard composable
+     */
+    hasUnsavedChanges () {
+      const entryHasChanges = this.$refs.statementEntry?.hasUnsavedChanges || false
+      const submitterHasChanges = this.$refs.statementSubmitter?.hasUnsavedChanges || false
+      const attachmentsHaveChanges = this.$refs.statementMetaAttachments?.hasUnsavedChanges || false
+
+      return attachmentsHaveChanges || entryHasChanges || submitterHasChanges
+    },
+
     isCurrentUserAssigned () {
       if (this.storageStatement[this.statement.id].relationships.assignee.data) {
         return this.currentUserId === this.storageStatement[this.statement.id].relationships.assignee.data.id
@@ -347,12 +372,52 @@ export default {
       }
     },
 
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    onDiscardChanges () {
+      if (this.$refs.statementEntry?.hasUnsavedChanges) {
+        this.$refs.statementEntry.reset()
+      }
+
+      if (this.$refs.statementSubmitter?.hasUnsavedChanges) {
+        this.$refs.statementSubmitter.reset()
+      }
+
+      if (this.$refs.statementMetaAttachments?.hasUnsavedChanges) {
+        this.$refs.statementMetaAttachments.handleResetGenericAttachments()
+      }
+
+      return Promise.resolve()
+    },
+
     reset () {
       this.setInitValues()
     },
 
     save (data) {
       this.$emit('save', data)
+    },
+
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    saveUnsavedChanges () {
+      const promises = []
+
+      if (this.$refs.statementEntry?.hasUnsavedChanges) {
+        promises.push(this.$refs.statementEntry.save())
+      }
+
+      if (this.$refs.statementSubmitter?.hasUnsavedChanges) {
+        promises.push(this.$refs.statementSubmitter.save())
+      }
+
+      if (this.$refs.statementMetaAttachments?.hasUnsavedChanges) {
+        promises.push(this.$refs.statementMetaAttachments.saveGenericAttachments())
+      }
+
+      return Promise.all(promises)
     },
 
     scrollToItem (id) {
@@ -407,10 +472,19 @@ export default {
   mounted () {
     window.addEventListener('scroll', this.handleScroll)
     this.scrollToItemFromHash()
+
+    // Initialize unsaved changes guard
+    this.initUnsavedChangesGuard({
+      hasUnsavedChanges: () => this.hasUnsavedChanges,
+      saveUnsavedChanges: () => this.saveUnsavedChanges(),
+      onDiscardChanges: () => this.onDiscardChanges(),
+      componentId: `statement-meta-${this.statement.id}`,
+    })
   },
 
   beforeUnmount () {
     window.removeEventListener('scroll', this.handleScroll)
+    this.cleanupUnsavedChangesGuard()
   },
 }
 </script>

@@ -1,0 +1,45 @@
+name: Generate JS SBOM
+
+on:
+  schedule:
+    - cron: 0 7 * * 1
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - yarn.lock
+
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.11.1'
+
+      - run: npm install --ignore-scripts -g corepack && corepack enable && yarn set version 4.2.2
+
+      - name: Cache yarn dependencies
+        uses: actions/cache@v5.0.5
+        with:
+          path: |
+            ~/.yarn/cache
+            .yarn/cache
+            node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - run: YARN_ENABLE_SCRIPTS=false yarn install --immutable
+
+      - name: Generate JS SBOM
+        run: npx @cyclonedx/cdxgen -t yarn -o sbom-js.cdx.json --spec-version 1.5 --validate
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v7
+        with:
+          name: sbom-js
+          path: sbom-js.cdx.json
