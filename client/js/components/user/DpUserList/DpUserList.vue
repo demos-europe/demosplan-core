@@ -488,28 +488,53 @@ export default {
     },
 
     toggleOne (id) {
-      const isInToggled = this.toggledItems.includes(id)
       if (this.trackDeselected) {
-        if (isInToggled) {
-          // Re-selecting: remove from exclusions, add back to map
-          this.toggledItems = this.toggledItems.filter(item => item !== id)
-          this.selectedUsersMap = { ...this.selectedUsersMap, [id]: this.items[id] }
-        } else {
-          // Deselecting: add to exclusions, remove from map if fetched
-          this.toggledItems = [...this.toggledItems, id]
-          this.selectedUsersMap = Object.fromEntries(
-            Object.entries(this.selectedUsersMap).filter(([key]) => key !== id),
-          )
-        }
-      } else if (isInToggled) {
-        this.toggledItems = this.toggledItems.filter(item => item !== id)
-        this.selectedUsersMap = Object.fromEntries(
-          Object.entries(this.selectedUsersMap).filter(([key]) => key !== id),
-        )
+        this.toggleInDeselectMode(id)
       } else {
-        this.toggledItems = [...this.toggledItems, id]
+        this.toggleInSelectMode(id)
+      }
+    },
+
+    toggleInDeselectMode (id) {
+      if (this.toggledItems.includes(id)) {
+        this.reselectUser(id)
+      } else {
+        this.deselectUser(id)
+      }
+    },
+
+    toggleInSelectMode (id) {
+      if (this.toggledItems.includes(id)) {
+        this.removeFromSelection(id)
+      } else {
+        this.addToSelection(id)
+      }
+    },
+
+    reselectUser (id) {
+      this.toggledItems = this.toggledItems.filter(item => item !== id)
+      if (this.items[id]) {
         this.selectedUsersMap = { ...this.selectedUsersMap, [id]: this.items[id] }
       }
+    },
+
+    deselectUser (id) {
+      this.toggledItems = [...this.toggledItems, id]
+      this.selectedUsersMap = Object.fromEntries(
+        Object.entries(this.selectedUsersMap).filter(([key]) => key !== id),
+      )
+    },
+
+    addToSelection (id) {
+      this.toggledItems = [...this.toggledItems, id]
+      this.selectedUsersMap = { ...this.selectedUsersMap, [id]: this.items[id] }
+    },
+
+    removeFromSelection (id) {
+      this.toggledItems = this.toggledItems.filter(item => item !== id)
+      this.selectedUsersMap = Object.fromEntries(
+        Object.entries(this.selectedUsersMap).filter(([key]) => key !== id),
+      )
     },
 
     async toggleSelectionList () {
