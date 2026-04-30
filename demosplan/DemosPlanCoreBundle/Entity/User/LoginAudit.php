@@ -51,8 +51,7 @@ class LoginAudit implements EntityInterface
 
     /**
      * Stored as a plain UUID string instead of a ManyToOne association so that
-     * audit rows survive user deletion (compliance requirement) and so the
-     * column charset can stay on utf8mb4 (whereas `_user._u_id` is utf8mb3).
+     * audit rows survive user deletion.
      *
      * @ORM\Column(name="user_id", type="string", length=36, nullable=true, options={"fixed":true})
      */
