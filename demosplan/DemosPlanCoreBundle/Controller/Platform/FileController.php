@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Response\BinaryFileDownload;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
 use League\Flysystem\FilesystemOperator;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -48,6 +49,21 @@ class FileController extends BaseController
             $this->getLogger()->info('Could not serve file: ', [$e]);
             throw new NotFoundHttpException();
         }
+    }
+
+    /**
+     * Status probe for the import flow: tells the client whether the flysystem
+     * blob backing a freshly-uploaded file hash is in place yet. The hash is
+     * exposed early by Plan B (TusUploadEventSubscriber) but the underlying
+     * virus scan + flysystem move can still be running for several minutes on
+     * large uploads. The Import form polls this so it only enables Submit
+     * once the file is actually consumable.
+     */
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions(permissions: ['area_main_file'])]
+    #[Route(path: '/file/{hash}/ready', name: 'core_file_ready', options: ['expose' => true], methods: ['GET'])]
+    public function fileReadyAction(FileService $fileService, string $hash): JsonResponse
+    {
+        return new JsonResponse(['ready' => $fileService->isHashReady($hash)]);
     }
 
     /**

@@ -1277,6 +1277,22 @@ class FileService implements FileServiceInterface
         return $path;
     }
 
+    /**
+     * Lightweight check that the flysystem blob behind a given file hash exists.
+     * Used by the import flow to gate the user-visible Submit button on the
+     * upload pipeline (virus scan + flysystem move) being done.
+     */
+    public function isHashReady(string $hash): bool
+    {
+        try {
+            $fileInfo = $this->getFileInfo($hash);
+
+            return $this->defaultStorage->fileExists($fileInfo->getAbsolutePath());
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
     public function deleteLocalFile($localFilePath): void
     {
         $fs = new Filesystem();

@@ -74,6 +74,7 @@
             {{ "text.elementimport.fileupload"|trans }}
         </p>
         <form
+            id="elementImportForm"
             class="flow-root u-mb-0_75"
             action="{{ path('DemosPlan_element_import', {'procedureId':templateVars.procedure.id }) }}" method="post" enctype="multipart/form-data">
             {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
@@ -88,6 +89,7 @@
             }}
 
             <input
+                id="elementImportSubmit"
                 class="btn btn--primary u-mt-0_75 float-right"
                 data-cy="submitImport"
                 type="submit"
