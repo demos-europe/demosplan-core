@@ -40,6 +40,7 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToCopyFile;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -1248,10 +1249,25 @@ class FileService implements FileServiceInterface
                 sprintf('%s/%s', uniqid($hash, true), $hash ?? uniqid('', true))
             );
         }
-        // Move the file to local directory from flysystem
+        // Move the file to local directory from flysystem.
+        // Use readStream + stream_copy_to_stream so multi-GB files don't blow up
+        // PHP memory (read() loads the whole blob as a string).
         $fs = new Filesystem();
         if ($this->defaultStorage->fileExists($remotePath)) {
-            $fs->dumpFile($path, $this->defaultStorage->read($remotePath));
+            $fs->mkdir(dirname($path));
+            $remoteStream = $this->defaultStorage->readStream($remotePath);
+            $localHandle = fopen($path, 'wb');
+            if (false === $localHandle) {
+                throw new RuntimeException('Failed to open local file for writing: '.$path);
+            }
+            try {
+                stream_copy_to_stream($remoteStream, $localHandle);
+            } finally {
+                fclose($localHandle);
+                if (is_resource($remoteStream)) {
+                    fclose($remoteStream);
+                }
+            }
         }
 
         if (!$fs->exists($path)) {
