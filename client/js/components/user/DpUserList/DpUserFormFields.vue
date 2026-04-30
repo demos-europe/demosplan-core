@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div class="whitespace-nowrap p-4">
+  <div class="whitespace-nowrap py-4">
     <div class="inline-block w-1/2 pr-3">
       <dp-input
         :id="userId + ':firstName'"
