@@ -375,7 +375,7 @@ export default {
         },
       }
 
-      this.searchValue.split(' ').filter(Boolean).forEach((value, index) => {
+      searchTerms.forEach((value, index) => {
         userFilter[`firstnameFilter${index}`] = {
           condition: {
             path: 'firstname',
