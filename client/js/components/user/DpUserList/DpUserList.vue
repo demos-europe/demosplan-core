@@ -362,6 +362,11 @@ export default {
     },
 
     buildUserFilter () {
+      const searchTerms = this.searchValue.split(' ').filter(Boolean)
+      if (searchTerms.length === 0) {
+        return {}
+      }
+
       const userFilter = {
         name: {
           group: {
