@@ -257,10 +257,7 @@ export default {
     },
 
     tooltipContent () {
-      return '<h3 class="mt-4 text-on-dark">' + Translator.trans('search.options') + '</h3>' +
-        Translator.trans('search.options.description') +
-        '<h3 class="mt-4 text-on-dark">' + Translator.trans('search.special.characters') + '</h3>' +
-        Translator.trans('search.special.characters.description')
+      return `<h3 class="mt-4 text-on-dark">${Translator.trans('search.options')}</h3>${Translator.trans('search.options.description')}<h3 class="mt-4 text-on-dark">${Translator.trans('search.special.characters')}</h3>${Translator.trans('search.special.characters.description')}`
     },
   },
 
@@ -397,11 +394,11 @@ export default {
 
     async fetchAllUsersForSelectionMap () {
       const filter = this.buildUserFilter()
+      const params = Object.keys(filter).length > 0 ? { filter } : {}
+      const url = Routing.generate('api_resource_list', { resourceType: 'AdministratableUser' })
 
       // Store not used so we stay on selected page
-      const response = await dpApi.get('/api/2.0/AdministratableUser', {
-        filter,
-      })
+      const response = await dpApi.get(url, params)
 
       const users = response.data?.data || []
       this.selectedUsersMap = users.reduce((acc, user) => {
@@ -415,11 +412,11 @@ export default {
 
     async fetchAllUserIds () {
       const filter = this.buildUserFilter()
+      const params = Object.keys(filter).length > 0 ? { filter } : {}
+      const url = Routing.generate('api_resource_list', { resourceType: 'AdministratableUser' })
 
       // Direct API call instead of `userList`, so the store-backed current page is not replaced.
-      const response = await dpApi.get('/api/2.0/AdministratableUser', {
-        filter,
-      })
+      const response = await dpApi.get(url, params)
 
       return (response.data?.data || []).map(user => user.id)
     },
