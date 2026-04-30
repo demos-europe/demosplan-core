@@ -2812,9 +2812,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:0.18.0":
-  version: 0.18.0
-  resolution: "@demos-europe/demosplan-ui@npm:0.18.0"
+"@demos-europe/demosplan-ui@npm:0.19.0":
+  version: 0.19.0
+  resolution: "@demos-europe/demosplan-ui@npm:0.19.0"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.6.0"
@@ -2850,7 +2850,6 @@ __metadata:
     "@uppy/progress-bar": "npm:^4.2.1"
     "@uppy/tus": "npm:^4.2.2"
     "@vue/server-renderer": "npm:3.5.24"
-    "@vue/vue3-jest": "npm:^29.2.6"
     "@vueuse/components": "npm:^14.0.0"
     "@vueuse/integrations": "npm:^14.0.0"
     a11y-datepicker: "npm: ^0.9.0"
@@ -2868,7 +2867,7 @@ __metadata:
     vue-click-outside: "npm:^1.1.0"
     vue-multiselect: "npm:^3.1.0"
     vue-sliding-pagination: "npm:^v2.0.0-alpha-1"
-  checksum: 10c0/02549c570db73b3aee7cd67fcb48b85ddee54b99f9746246103e80ed84f6dc5827c9ab7a0850b02b63890a6c2a442d840fa62ea6c25933c03094775aaa455940
+  checksum: 10c0/3860e1ea497f8e85acf702eb9fa46eae5410f44a32f6e67883ef3b8079b4f7cb0f5f21536fa82eb48222a4dfe54599c1d3d5e975e2cafa9c245bb11cedcf08b0
   languageName: node
   linkType: hard
 
@@ -8091,7 +8090,7 @@ __metadata:
     "@carbon/icons-vue": "npm:10.99.1"
     "@carbon/vue": "npm:^3.0.27"
     "@cesium/engine": "npm:^20.0.1"
-    "@demos-europe/demosplan-ui": "npm:0.18.0"
+    "@demos-europe/demosplan-ui": "npm:0.19.0"
     "@demos-europe/dp-consent": "npm:^1.3"
     "@efrane/vuex-json-api": "npm:^0.1.3"
     "@eslint/js": "npm:^9.39.1"
