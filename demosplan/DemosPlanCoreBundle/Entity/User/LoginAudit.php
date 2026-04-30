@@ -26,6 +26,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Table(
  *     name="login_audit",
  *     indexes={
+ *
  *         @ORM\Index(name="IDX_LOGIN_AUDIT_USER_DATE", columns={"user_id","created_date"}),
  *         @ORM\Index(name="IDX_LOGIN_AUDIT_DATE", columns={"created_date"}),
  *         @ORM\Index(name="IDX_LOGIN_AUDIT_SESSION_AUTH", columns={"session_id_hash","authenticator"})
@@ -50,7 +51,8 @@ class LoginAudit implements EntityInterface
 
     /**
      * Stored as a plain UUID string instead of a ManyToOne association so that
-     * audit rows survive user deletion
+     * audit rows survive user deletion (compliance requirement) and so the
+     * column charset can stay on utf8mb4 (whereas `_user._u_id` is utf8mb3).
      *
      * @ORM\Column(name="user_id", type="string", length=36, nullable=true, options={"fixed":true})
      */
