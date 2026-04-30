@@ -280,35 +280,45 @@ export default {
       deleteAdministratableUser: 'delete',
     }),
 
-    async inviteItems () {
-      let ids
-      try {
-        ids = await this.resolveSelectedIds()
-      } catch (error) {
-        console.error('Failed to resolve selected user ids for invite:', error)
-        dplan.notify.notify('error', Translator.trans('error.api.generic'))
-        return
-      }
-      const form = this.$el.closest('form')
-      const currentPageIds = new Set(Object.keys(this.items))
+    addToSelection (id) {
+      this.toggledItems = [...this.toggledItems, id]
+      this.selectedUsersMap = { ...this.selectedUsersMap, [id]: this.items[id] }
+    },
 
-      // Add hidden inputs only for users not on the current page (those already have checkboxes)
-      ids.filter(id => !currentPageIds.has(id)).forEach(id => {
-        const input = document.createElement('input')
-        input.type = 'hidden'
-        input.name = 'elementsToAdminister[]'
-        input.value = id
-        form.appendChild(input)
+    buildUserFilter () {
+      const searchTerms = this.searchValue.split(' ').filter(Boolean)
+      if (searchTerms.length === 0) {
+        return {}
+      }
+
+      const userFilter = {
+        name: {
+          group: {
+            conjunction: 'OR',
+          },
+        },
+      }
+
+      searchTerms.forEach((value, index) => {
+        userFilter[`firstnameFilter${index}`] = {
+          condition: {
+            path: 'firstname',
+            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+            value,
+            memberOf: 'name',
+          },
+        }
+        userFilter[`lastnameFilter${index}`] = {
+          condition: {
+            path: 'lastname',
+            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+            value,
+            memberOf: 'name',
+          },
+        }
       })
 
-      // Add the action that the original submit button would have sent
-      const actionInput = document.createElement('input')
-      actionInput.type = 'hidden'
-      actionInput.name = 'manageUsers'
-      actionInput.value = 'inviteSelected'
-      form.appendChild(actionInput)
-
-      form.submit()
+      return userFilter
     },
 
     async deleteItems () {
@@ -361,40 +371,22 @@ export default {
       this.loadItems()
     },
 
-    buildUserFilter () {
-      const searchTerms = this.searchValue.split(' ').filter(Boolean)
-      if (searchTerms.length === 0) {
-        return {}
-      }
+    deselectUser (id) {
+      this.toggledItems = [...this.toggledItems, id]
+      this.selectedUsersMap = Object.fromEntries(
+        Object.entries(this.selectedUsersMap).filter(([key]) => key !== id),
+      )
+    },
 
-      const userFilter = {
-        name: {
-          group: {
-            conjunction: 'OR',
-          },
-        },
-      }
+    async fetchAllUserIds () {
+      const filter = this.buildUserFilter()
+      const params = Object.keys(filter).length > 0 ? { filter } : {}
+      const url = Routing.generate('api_resource_list', { resourceType: 'AdministratableUser' })
 
-      searchTerms.forEach((value, index) => {
-        userFilter[`firstnameFilter${index}`] = {
-          condition: {
-            path: 'firstname',
-            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-            value,
-            memberOf: 'name',
-          },
-        }
-        userFilter[`lastnameFilter${index}`] = {
-          condition: {
-            path: 'lastname',
-            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-            value,
-            memberOf: 'name',
-          },
-        }
-      })
+      // Direct API call instead of `userList`, so the store-backed current page is not replaced.
+      const response = await dpApi.get(url, params)
 
-      return userFilter
+      return (response.data?.data || []).map(user => user.id)
     },
 
     async fetchAllUsersForSelectionMap () {
@@ -413,17 +405,6 @@ export default {
         return acc
       }, {})
       this.allUsersFetched = true
-    },
-
-    async fetchAllUserIds () {
-      const filter = this.buildUserFilter()
-      const params = Object.keys(filter).length > 0 ? { filter } : {}
-      const url = Routing.generate('api_resource_list', { resourceType: 'AdministratableUser' })
-
-      // Direct API call instead of `userList`, so the store-backed current page is not replaced.
-      const response = await dpApi.get(url, params)
-
-      return (response.data?.data || []).map(user => user.id)
     },
 
     getFilteredItems: debounce(function () {
@@ -447,6 +428,85 @@ export default {
         })
     },
 
+    handleReset () {
+      this.searchValue = ''
+      this.resetSelection()
+      this.getFilteredItems()
+    },
+
+    handleSearch (term) {
+      this.searchValue = term
+      this.resetSelection()
+      this.getFilteredItems()
+    },
+
+    async inviteItems () {
+      let ids
+      try {
+        ids = await this.resolveSelectedIds()
+      } catch (error) {
+        console.error('Failed to resolve selected user ids for invite:', error)
+        dplan.notify.notify('error', Translator.trans('error.api.generic'))
+        return
+      }
+      const form = this.$el.closest('form')
+      const currentPageIds = new Set(Object.keys(this.items))
+
+      // Add hidden inputs only for users not on the current page (those already have checkboxes)
+      ids.filter(id => !currentPageIds.has(id)).forEach(id => {
+        const input = document.createElement('input')
+        input.type = 'hidden'
+        input.name = 'elementsToAdminister[]'
+        input.value = id
+        form.appendChild(input)
+      })
+
+      // Add the action that the original submit button would have sent
+      const actionInput = document.createElement('input')
+      actionInput.type = 'hidden'
+      actionInput.name = 'manageUsers'
+      actionInput.value = 'inviteSelected'
+      form.appendChild(actionInput)
+
+      form.submit()
+    },
+
+    loadItems () {
+      const arr = []
+      if (hasPermission('feature_organisation_user_list')) {
+        arr.push(this.organisationList({ include: ['departments', 'allowedRoles'].join() }))
+      } else {
+        arr.push(this.departmentList())
+        arr.push(this.roleList())
+      }
+      Promise.all(arr)
+        .then(() => {
+          this.getItemsByPage()
+        })
+    },
+
+    removeFromSelection (id) {
+      this.toggledItems = this.toggledItems.filter(item => item !== id)
+      this.selectedUsersMap = Object.fromEntries(
+        Object.entries(this.selectedUsersMap).filter(([key]) => key !== id),
+      )
+    },
+
+    reselectUser (id) {
+      this.toggledItems = this.toggledItems.filter(item => item !== id)
+      if (this.items[id]) {
+        this.selectedUsersMap = { ...this.selectedUsersMap, [id]: this.items[id] }
+      }
+    },
+
+    resetSelection () {
+      this.allUsersFetched = false
+      this.selectedUsersMap = {}
+      this.showSelectionList = false
+      this.trackDeselected = false
+      this.toggledItems = []
+    },
+
     async resolveSelectedIds () {
       if (!this.trackDeselected) {
         return [...this.toggledItems]
@@ -460,39 +520,11 @@ export default {
       return allIds.filter(id => !this.toggledItems.includes(id))
     },
 
-    handleSearch (term) {
-      this.searchValue = term
-      this.resetSelection()
-      this.getFilteredItems()
-    },
-
-    handleReset () {
-      this.searchValue = ''
-      this.resetSelection()
-      this.getFilteredItems()
-    },
-
-    resetSelection () {
-      this.allUsersFetched = false
-      this.selectedUsersMap = {}
-      this.showSelectionList = false
-      this.trackDeselected = false
-      this.toggledItems = []
-    },
-
     toggleAll (status) {
       this.allUsersFetched = false
       this.selectedUsersMap = {}
       this.trackDeselected = status
       this.toggledItems = []
-    },
-
-    toggleOne (id) {
-      if (this.trackDeselected) {
-        this.toggleInDeselectMode(id)
-      } else {
-        this.toggleInSelectMode(id)
-      }
     },
 
     toggleInDeselectMode (id) {
@@ -511,30 +543,12 @@ export default {
       }
     },
 
-    reselectUser (id) {
-      this.toggledItems = this.toggledItems.filter(item => item !== id)
-      if (this.items[id]) {
-        this.selectedUsersMap = { ...this.selectedUsersMap, [id]: this.items[id] }
+    toggleOne (id) {
+      if (this.trackDeselected) {
+        this.toggleInDeselectMode(id)
+      } else {
+        this.toggleInSelectMode(id)
       }
-    },
-
-    deselectUser (id) {
-      this.toggledItems = [...this.toggledItems, id]
-      this.selectedUsersMap = Object.fromEntries(
-        Object.entries(this.selectedUsersMap).filter(([key]) => key !== id),
-      )
-    },
-
-    addToSelection (id) {
-      this.toggledItems = [...this.toggledItems, id]
-      this.selectedUsersMap = { ...this.selectedUsersMap, [id]: this.items[id] }
-    },
-
-    removeFromSelection (id) {
-      this.toggledItems = this.toggledItems.filter(item => item !== id)
-      this.selectedUsersMap = Object.fromEntries(
-        Object.entries(this.selectedUsersMap).filter(([key]) => key !== id),
-      )
     },
 
     async toggleSelectionList () {
@@ -557,20 +571,6 @@ export default {
       } else {
         this.showSelectionList = !this.showSelectionList
       }
-    },
-
-    loadItems () {
-      const arr = []
-      if (hasPermission('feature_organisation_user_list')) {
-        arr.push(this.organisationList({ include: ['departments', 'allowedRoles'].join() }))
-      } else {
-        arr.push(this.departmentList())
-        arr.push(this.roleList())
-      }
-      Promise.all(arr)
-        .then(() => {
-          this.getItemsByPage()
-        })
     },
   },
 
