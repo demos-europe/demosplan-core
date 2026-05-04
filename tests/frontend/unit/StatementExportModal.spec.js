@@ -23,6 +23,7 @@ describe('StatementExportModal', () => {
   }
 
   const defaultPayload = {
+    customHeaderText: null,
     docxHeaders: defaultDocxHeaders,
     fileNameTemplate: null,
     isCitizenDataCensored: false,
@@ -158,6 +159,23 @@ describe('StatementExportModal', () => {
     expect(exportEvent).toEqual(payload)
   })
 
+  it('emits export event with customHeaderText when set', () => {
+    const customHeaderText = 'Custom header text'
+
+    wrapper.setData({ customHeaderText })
+    wrapper.vm.handleExport()
+    const exportEvent = wrapper.emitted('export')[0][0]
+    const payload = {
+      ...defaultPayload,
+      customHeaderText,
+      route: 'dplan_statement_segments_export',
+      shouldConfirm: true,
+    }
+
+    expect(exportEvent).toBeTruthy()
+    expect(exportEvent).toEqual(payload)
+  })
+
   it('emits export event with null docxHeaders for xlsx export type', () => {
     wrapper.setData({ active: 'xlsx_normal' })
     wrapper.vm.handleExport()
@@ -204,6 +222,7 @@ describe('StatementExportModal', () => {
     expect(exportEvent).toBeTruthy()
     expect(exportEvent).toEqual({
       route: 'dplan_statement_segments_export',
+      customHeaderText: null,
       docxHeaders: defaultDocxHeaders,
       fileNameTemplate: null,
       shouldConfirm: true,
@@ -226,6 +245,7 @@ describe('StatementExportModal', () => {
     expect(exportEvent).toBeTruthy()
     expect(exportEvent).toEqual({
       route: 'dplan_statement_segments_export',
+      customHeaderText: null,
       docxHeaders: defaultDocxHeaders,
       fileNameTemplate: null,
       shouldConfirm: true,
