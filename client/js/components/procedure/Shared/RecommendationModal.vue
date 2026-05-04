@@ -25,10 +25,11 @@ All rights reserved
       />
       <dp-tooltip
         v-if="activeId === 'oracleRec'"
+        class="ml-auto self-start"
+        placement="bottom-end"
         :text="Translator.trans('segment.oracle.beta.tooltip')"
       >
         <dp-badge
-          class="absolute right-4"
           size="smaller"
           :text="Translator.trans('segment.oracle.beta')"
         />
