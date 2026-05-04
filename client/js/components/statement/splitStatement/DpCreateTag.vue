@@ -24,7 +24,7 @@
     <dp-label
       :text="Translator.trans('topic')"
       for="newTagTopic"
-      class="u-mt-0_25"
+      class="mt-2 mb-0.5"
       required
     />
     <!-- topic select -->
