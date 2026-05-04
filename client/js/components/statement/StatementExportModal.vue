@@ -213,17 +213,29 @@
         class="mt-2"
       >
         <legend
-          class="font-semibold text-base"
+          id="customHeaderTextLegend"
+          class="font-semibold text-base float-left mr-1"
           v-text="Translator.trans('docx.export.header.custom')"
+        />
+        <dp-contextual-help
+          aria-labelledby="customHeaderTextLegend"
+          :text="Translator.trans('docx.export.header.custom.hint')"
         />
         <dp-input
           id="customHeaderText"
           v-model="customHeaderText"
           data-cy="exportModal:customHeaderText"
           class="mt-1"
-          :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
+          :maxlength="customHeaderMaxLength"
+          :placeholder="customHeaderPlaceholder"
           type="text"
         />
+        <div
+          v-if="customHeaderText.length > 0"
+          class="text-sm mt-1 color-text-muted"
+        >
+          {{ customHeaderText.length }} / {{ customHeaderMaxLength }}
+        </div>
       </fieldset>
 
       <dp-button-row
@@ -347,6 +359,7 @@ export default {
       },
       fileName: '',
       customHeaderText: '',
+      customHeaderMaxLength: 200,
       filter: {
         comparisonOperator: 'ARRAY_CONTAINS_VALUE',
         grouping: {
