@@ -19,7 +19,7 @@
     <dp-modal
       ref="exportModalInner"
       content-classes="w-11/12 sm:w-10/12 md:w-10/12 lg:w-8/12 xl:w-7/12 h-fit"
-      content-body-classes="flex flex-col h-14"
+      content-body-classes="flex flex-col h-16"
       @modal:toggled="onModalToggle"
     >
       <h2 class="mb-5">
