@@ -28,7 +28,7 @@
 
       <fieldset v-if="!isSingleStatementExport">
         <legend
-          class="o-form__label text-base"
+          class="font-semibold text-base"
           v-text="Translator.trans('export.type')"
         />
         <div class="grid grid-cols-3 mt-2 mb-3 gap-x-2 gap-y-5">
@@ -106,7 +106,7 @@
       <fieldset v-if="['docx_normal', 'zip_normal'].includes(active)">
         <legend
           id="docxColumnTitles"
-          class="o-form__label text-base float-left mr-1"
+          class="font-semibold text-base float-left mr-1"
           v-text="Translator.trans('docx.export.column.title')"
         />
         <dp-contextual-help
@@ -127,7 +127,7 @@
         <fieldset v-if="active === 'zip' || isSingleStatementExport">
           <legend
             id="docxFileName"
-            class="o-form__label text-base float-left mr-1"
+            class="font-semibold text-base float-left mr-1"
             v-text="Translator.trans('docx.export.file_name')"
           />
           <dp-contextual-help
@@ -142,27 +142,13 @@
             :placeholder="Translator.trans('docx.export.file_name.placeholder')"
             type="text"
           />
-          <div class="font-size-small mt-2">
+          <div class="text-sm mt-2">
             <span
-              class="weight--bold"
+              class="font-bold"
               v-text="Translator.trans('docx.export.example_file_name')"
             />
             <span v-text="exampleFileName" />
           </div>
-        </fieldset>
-        <fieldset v-if="active === 'docx_normal' && !isSingleStatementExport && hasPermissionAdjustPreamble">
-          <legend
-            class="o-form__label text-base"
-            v-text="Translator.trans('docx.export.header.custom')"
-          />
-          <dp-input
-            id="customHeaderText"
-            v-model="customHeaderText"
-            data-cy="exportModal:customHeaderText"
-            class="mt-1"
-            :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
-            type="text"
-          />
         </fieldset>
       </fieldset>
 
@@ -184,7 +170,7 @@
       <fieldset v-if="!isSingleStatementExport">
         <legend
           id="tagsFilter"
-          class="o-form__label text-base mb-1"
+          class="font-semibold text-base mb-1"
           v-text="Translator.trans('segments.export.filter.tags.only')"
         />
         <filter-flyout
@@ -221,6 +207,23 @@
             <span>{{ tag.label }}</span>
           </li>
         </ul>
+      </fieldset>
+      <fieldset
+        v-if="active === 'docx_normal' && !isSingleStatementExport && hasPermissionAdjustPreamble"
+        class="mt-2"
+      >
+        <legend
+          class="font-semibold text-base"
+          v-text="Translator.trans('docx.export.header.custom')"
+        />
+        <dp-input
+          id="customHeaderText"
+          v-model="customHeaderText"
+          data-cy="exportModal:customHeaderText"
+          class="mt-1"
+          :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
+          type="text"
+        />
       </fieldset>
 
       <dp-button-row
