@@ -293,17 +293,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         try {
             return $this->getTransactionService()->executeAndFlushInTransaction(
                 function () use ($entityData): ModifiedEntity {
-                    $attributes = $entityData->getAttributes();
-
-                    /*
-                      * For CUSTOMER source the sourceEntityId is always the current
-                      * customer. Server-side override removes that responsibility from
-                      * the frontend and prevents cross-customer creation.
-                      */
-
-                    if (CustomFieldSupportedEntity::customer->value === $attributes['sourceEntity']) {
-                        $attributes['sourceEntityId'] = $this->customerService->getCurrentCustomer()->getId();
-                    }
+                    $attributes = $this->resolveAttributes($entityData->getAttributes());
 
                     $customField = $this->customFieldCreator->createCustomField($attributes);
 
@@ -331,5 +321,21 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     public function deleteEntity(string $entityIdentifier): void
     {
         $this->customFieldDeleter->deleteCustomField($entityIdentifier);
+    }
+
+    /**
+     * @param array<non-empty-string, mixed> $attributes
+     *
+     * @return array<non-empty-string, mixed>
+     */
+    private function resolveAttributes(array $attributes): array
+    {
+        if (CustomFieldSupportedEntity::customer->value !== $attributes['sourceEntity']) {
+            return $attributes;
+        }
+
+        $attributes['sourceEntityId'] = $this->customerService->getCurrentCustomer()->getId();
+
+        return $attributes;
     }
 }
