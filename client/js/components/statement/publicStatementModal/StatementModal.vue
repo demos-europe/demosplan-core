@@ -169,13 +169,15 @@
           :show-empty="true"
           mode="editable"
           resource-type="DraftStatement"
+          source-entity="PROCEDURE"
+          target-entity="STATEMENT"
           @loaded="handleCustomFieldsListLoaded"
           @update:value="handleCustomFieldValueUpdateFromList"
         />
 
         <!-- New statement OR draft with localStorage: individual fields with own fieldset -->
         <fieldset
-          v-else-if="hasPermission('feature_statements_custom_fields')"
+          v-else-if="hasPermission('feature_statements_custom_fields') && selectableCustomFields.length > 0"
           :class="prefixClass('mb-2 pb-0')"
         >
           <legend :class="prefixClass('mb-2 text-[1em] font-[500]')">
@@ -1120,6 +1122,7 @@ export default {
       continueWriting: false,
       draftStatementId: '',
       editDraftDataInPublicDetail: true,
+      fieldIdsWithServerValues: [],
       formFields: [...this.statementFormFields, ...this.personalDataFormFields, ...this.feedbackFormFields],
       hasPlanningDocuments: this.initHasPlanningDocuments,
       isLoading: false,
@@ -1284,6 +1287,8 @@ export default {
       // Clear readonly display custom fields
       this.statementCustomFields = []
 
+      this.fieldIdsWithServerValues = []
+
       // Clear formData.customFields
       if (this.formData.customFields && this.formData.customFields.length > 0) {
         this.setStatementData({ customFields: [] })
@@ -1332,10 +1337,22 @@ export default {
             ].join(),
           },
           filter: {
+            sourceEntity: {
+              condition: {
+                path: 'sourceEntity',
+                value: 'PROCEDURE',
+              },
+            },
             sourceEntityId: {
               condition: {
                 path: 'sourceEntityId',
                 value: this.procedureId,
+              },
+            },
+            targetEntity: {
+              condition: {
+                path: 'targetEntity',
+                value: 'STATEMENT',
               },
             },
           },
@@ -1399,6 +1416,10 @@ export default {
         const existingData = JSON.parse(existingDataString)
 
         this.setStatementData(existingData)
+
+        this.fieldIdsWithServerValues = (existingData.customFields || [])
+          .filter(customField => customField.value != null)
+          .map(customField => customField.id)
 
         // Always restore custom field selections (for both new and draft statements)
         this.$nextTick(() => {
@@ -1776,7 +1797,8 @@ export default {
        * Empty arrays are included intentionally to allow clearing multiselect fields on the server.
        */
       const customFieldValues = (this.formData.customFields || [])
-        .filter(field => field.id && field.value !== null && field.value !== undefined)
+        .filter(field => field.id && field.value !== undefined &&
+          (field.value !== null || this.fieldIdsWithServerValues.includes(field.id)))
         .map(field => ({
           id: field.id,
           value: field.value,
@@ -1801,6 +1823,10 @@ export default {
     },
 
     handleCustomFieldsListLoaded (serverValues) {
+      this.fieldIdsWithServerValues = serverValues
+        .filter(serverField => serverField.value != null)
+        .map(serverField => serverField.id)
+
       this.selectableCustomFields = this.selectableCustomFields.map(def => {
         const serverField = serverValues.find(v => v.id === def.id)
         return serverField ? { ...def, value: serverField.value } : def

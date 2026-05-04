@@ -72,7 +72,7 @@
       alignment="left"
       primary
       secondary
-      variant="outline"
+      primary-btn-variant="outline"
       @primary-action="dpValidateAction('createTag', save, false)"
       @secondary-action="closeForm"
     />

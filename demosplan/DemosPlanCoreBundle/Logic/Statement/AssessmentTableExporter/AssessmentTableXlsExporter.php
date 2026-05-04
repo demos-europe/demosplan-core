@@ -368,6 +368,12 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             'field_statement_recommendation',
             'recommendation'
         );
+        $this->addColumnDefinition(
+            $columnsDefinition,
+            'recommendationVersionCount',
+            'feature_enable_recommendation_versions',
+            'recommendation.version.count'
+        );
         $this->addColumnDefinition($columnsDefinition, 'countyNames', 'field_statement_county', 'county');
 
         $this->addColumnDefinition($columnsDefinition, 'tagNames', 'field_statement_tags_and_topics_export', 'tag');
