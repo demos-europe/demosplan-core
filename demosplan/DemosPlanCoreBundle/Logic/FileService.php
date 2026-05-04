@@ -920,7 +920,9 @@ class FileService implements FileServiceInterface
     protected function virusCheck(\Symfony\Component\HttpFoundation\File\File $file): void
     {
         try {
+            $this->logger->info('Start virus check for file', ['filePath' => $file->getPathname()]);
             $hasVirus = $this->virusChecker->hasVirus($file);
+            $this->logger->info('Finished virus check for file', ['filePath' => $file->getPathname(), 'hasVirus' => $hasVirus]);
             if ($hasVirus) {
                 $this->removeRequestFiles();
 
