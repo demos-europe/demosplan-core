@@ -42,9 +42,24 @@ class VirusCheckSocket implements VirusCheckInterface
     public function hasVirus(File $file): bool
     {
         try {
+            $this->logger->info('Start virus scan via socket');
             $response = $this->scanFile($file->getRealPath());
+            $this->logger->info('Finished virus scan via socket');
             if ($this->noVirusResponse === $response) {
                 return false;
+            }
+
+            // Only treat as infection when clamd explicitly says FOUND. Empty
+            // or unexpected responses indicate a scan error (e.g. clamd hit
+            // its 2GB INSTREAM cap or dropped the connection) and must not
+            // be misreported as a virus.
+            if (!str_contains($response, 'FOUND')) {
+                $this->logger->error('clamd returned non-OK/non-FOUND response, treating as scan error', [
+                    'response' => $response,
+                    'file'     => $file->getFilename(),
+                    'size'     => @filesize($file->getRealPath()),
+                ]);
+                throw new RuntimeException('Virus scan failed: '.($response === '' ? 'empty response from clamd' : $response));
             }
 
             $this->logger->warning('Virus found', [$response, $file->getRealPath(), $file->getFilename()]);
@@ -72,11 +87,17 @@ class VirusCheckSocket implements VirusCheckInterface
             throw new InvalidArgumentException("File not found or not readable: $filePath");
         }
 
-        // Open a connection to the ClamAV daemon
+        // Open a connection to the ClamAV daemon. avscan_timeout is the
+        // connect timeout for fsockopen; once connected, PHP otherwise falls
+        // back to default_socket_timeout (60s) for reads/writes, which is too
+        // short for multi-100MB streams. Apply the parameter to the socket
+        // explicitly so large scans don't hit a silent fgets() timeout that
+        // looks like an empty clamd response.
         $socket = fsockopen($this->avscanHost, $this->avscanPort, $errno, $errstr, $this->avscanTimeout);
         if (!$socket) {
             throw new RuntimeException("Could not connect to ClamAV daemon: [$errno] $errstr");
         }
+        stream_set_timeout($socket, $this->avscanTimeout);
 
         // Send the zINSTREAM command (note the terminating null byte)
         $command = "zINSTREAM\0";
@@ -98,13 +119,18 @@ class VirusCheckSocket implements VirusCheckInterface
             }
             // Send the chunk length in network (big-endian) order
             $size = pack('N', strlen($chunk));
-            fwrite($socket, $size);
-            // Send the actual chunk data
-            fwrite($socket, $chunk);
+            $wroteSize = @fwrite($socket, $size);
+            $wroteChunk = @fwrite($socket, $chunk);
+            // clamd silently closes the socket once StreamMaxLength / its
+            // internal 2GB cap is reached, so abort the write loop instead
+            // of looping forever on a half-broken pipe.
+            if (false === $wroteSize || false === $wroteChunk || $wroteChunk < strlen($chunk)) {
+                break;
+            }
         }
 
         // Send a zero-length chunk to mark the end of the stream
-        fwrite($socket, pack('N', 0));
+        @fwrite($socket, pack('N', 0));
 
         // Read the response from ClamAV
         $response = '';
