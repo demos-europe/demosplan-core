@@ -51,6 +51,7 @@
         data-cy="listStatements:export"
         :has-permission-adjust-preamble="hasPermission('feature_adjust_preamble_export_file')"
         :procedure-id="procedureId"
+        :procedure-name="procedureName"
         @export="showHintAndDoExport"
       />
       <div
@@ -391,6 +392,12 @@ export default {
     procedureId: {
       required: true,
       type: String,
+    },
+
+    procedureName: {
+      required: false,
+      type: String,
+      default: '',
     },
 
     submitTypeOptions: {

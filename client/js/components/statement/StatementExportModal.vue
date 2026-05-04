@@ -293,6 +293,11 @@ export default {
       required: true,
       type: String,
     },
+    procedureName: {
+      required: false,
+      type: String,
+      default: '',
+    },
   },
 
   emits: [
@@ -367,6 +372,14 @@ export default {
     ...mapGetters('FilterFlyout', [
       'getIsExpandedByCategoryId',
     ]),
+
+    customHeaderPlaceholder () {
+      const key = this.selectedTagIds.length > 0 ?
+        'docx.export.header.custom.placeholder.partial' :
+        'docx.export.header.custom.placeholder.full'
+
+      return Translator.trans(key, { procedureName: this.procedureName })
+    },
 
     exportModalTitle () {
       return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
