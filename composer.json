@@ -24,6 +24,7 @@
     "ext-simplexml": "*",
     "ext-soap": "*",
     "ext-sockets": "*",
+    "ext-sodium": "*",
     "ext-tokenizer": "*",
     "ext-xml": "*",
     "ext-xmlreader": "*",
