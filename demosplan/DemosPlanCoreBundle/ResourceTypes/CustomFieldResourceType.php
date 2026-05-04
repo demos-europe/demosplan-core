@@ -97,16 +97,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     protected function getAccessConditions(): array
     {
-        $currentCustomer = $this->customerService->getCurrentCustomer();
-
-        /*
-         * Defensive: if no current customer is in scope (which should not happen
-         * for routes that pass our permission gates), return an always-false
-         * condition rather than leak data.
-         */
-        if (null === $currentCustomer) {
-            return [$this->conditionFactory->false()];
-        }
+        $customerId = $this->customerService->getCurrentCustomer()->getId();
 
         /*
          * For CUSTOMER source the row must belong to the current customer.
@@ -125,7 +116,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
                         $this->sourceEntityClass
                     ),
                     $this->conditionFactory->propertyHasValue(
-                        $currentCustomer->getId(),
+                        $customerId,
                         $this->sourceEntityId
                     )
                 )
