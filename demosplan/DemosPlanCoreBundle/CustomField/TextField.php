@@ -14,12 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 
 class TextField extends AbstractCustomField
 {
-    protected string $id = '';
-
     protected string $fieldType = 'text';
-
-    protected string $description = '';
-
     protected bool $isRequired = false;
 
     public function getFieldType(): string
