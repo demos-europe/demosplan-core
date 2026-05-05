@@ -396,6 +396,32 @@ parameters:
     # https://login.microsoftonline.com/<tenant>/oauth2/v2.0/logout
     oauth_azure_logout_route: ''
 
+    # When enabled, KeyCloak is only used for initial login and logout.
+    # Token refresh and expiry enforcement are skipped — the PHP session governs the session lifetime (default 6 hours).
+    # The FE logout countdown reflects the PHP session lifetime, not the KeyCloak token TTL.
+    # When disabled (false), full token management is active: tokens are refreshed in the background
+    # and the FE countdown reflects the refresh token TTL.
+    # Set to false in parameters_default_project.yml to enable full token management.
+    oauth_keycloak_login_only: true
+
+    # Timezone used for all OAuth token expiry calculations and pending request timestamps.
+    # Must match the DB server timezone to avoid DST drift in token comparisons.
+    # Default: Europe/Berlin. Override via OAUTH_TOKEN_TIMEZONE env var if needed.
+    oauth_token_timezone: '%env(default:oauth_token_timezone_default:OAUTH_TOKEN_TIMEZONE)%'
+    oauth_token_timezone_default: 'Europe/Berlin'
+
+    # Interval in seconds between blocking OAuth token checks (fast-path threshold).
+    # Within this window the kernel.controller listener skips DB queries entirely.
+    # The interval is capped at the token's remaining lifetime, so it never skips past actual expiry.
+    # Default: 180 seconds (3 minutes). Must be less than the access token lifetime (300 s = 5 min).
+    oauth_token_fast_path_interval_seconds: 180
+
+    # Buffer in minutes before access token expiry at which proactive background refresh is triggered.
+    # Must be smaller than oauth_token_fast_path_interval_seconds / 60 — otherwise the fast-path
+    # session threshold would skip the check window and the proactive refresh would never fire.
+    # Default: 2 minutes. Access token lifetime is 5 minutes, fast-path interval is 3 minutes.
+    oauth_token_refresh_buffer_minutes: 2
+
     # Set users with permissions to alter Database
     database_install_user: ""
     database_install_password: ""
