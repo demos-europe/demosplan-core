@@ -363,6 +363,12 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 'treeOrder', 'userToggleVisibility', 'projectionLabel', 'projectionValue',
             ]));
 
+            // Must be set together — setting one without the other leaves copies with a
+            // mismatched label/value pair, mirroring the guard in updateGisFromHash().
+            if (!isset($updates['projectionLabel'], $updates['projectionValue'])) {
+                unset($updates['projectionLabel'], $updates['projectionValue']);
+            }
+
             if (!empty($updates)) {
                 $qb = $this->getEntityManager()->createQueryBuilder()
                     ->update(GisLayer::class, 'g')
