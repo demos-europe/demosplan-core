@@ -37,7 +37,6 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  */
 final class GisLayerFactory extends PersistentProxyObjectFactory
 {
-
     protected function defaults(): array
     {
         return [
