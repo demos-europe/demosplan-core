@@ -116,20 +116,22 @@ abstract class SegmentsExporter
             $this->styles['documentTitleFont'],
             $this->styles['documentTitleParagraph']
         );
-        $currentDate = new DateTime();
-        $translationKey = [] !== $exportFilteredByTagsWithTopics ?
-            'segments.export.statement.export.date.filtered' : 'segments.export.statement.export.date';
-        $translationParameter = ['date' => $currentDate->format('d.m.Y')];
-        if ($this->currentUser->hasPermission('feature_adjust_preamble_export_file')) {
+        if ('' === $customHeaderText) {
+            $currentDate = new DateTime();
             $translationKey = [] !== $exportFilteredByTagsWithTopics ?
-                'segments.export.statement.export.filtered' : 'segments.export.statement.export';
-            $translationParameter = ['procedureName'  => $procedure->getName()];
+                'segments.export.statement.export.date.filtered' : 'segments.export.statement.export.date';
+            $translationParameter = ['date' => $currentDate->format('d.m.Y')];
+            if ($this->currentUser->hasPermission('feature_adjust_preamble_export_file')) {
+                    $translationKey = [] !== $exportFilteredByTagsWithTopics ?
+                    'segments.export.statement.export.filtered' : 'segments.export.statement.export';
+                    $translationParameter = ['procedureName' => $procedure->getName()];
+            }
+            $header->addText(
+                $this->translator->trans($translationKey, $translationParameter),
+                $this->styles['currentDateFont'],
+                $this->styles['currentDateParagraph']
+            );
         }
-        $header->addText(
-            $this->translator->trans($translationKey, $translationParameter),
-            $this->styles['currentDateFont'],
-            $this->styles['currentDateParagraph']
-        );
     }
 
     /**
