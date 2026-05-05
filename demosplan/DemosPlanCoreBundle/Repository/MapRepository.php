@@ -328,11 +328,6 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     /**
      * Updates all gisLayers, which are use the given gisLayer as globalLayer.
      *
-     * @param GisLayer $item
-     * @param array    $data
-     *
-     * @return GisLayer
-     *
      * @throws Exception
      */
     private function updateRelatedGis(GisLayer $item, array $data): GisLayer
