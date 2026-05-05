@@ -123,7 +123,7 @@ export default {
   },
 
   methods: {
-    // null signals the backend to clear the stored value
+    // Null signals the backend to clear the stored value
     handleUpdate (newValue) {
       this.$emit('update:value', {
         id: this.field.id,
