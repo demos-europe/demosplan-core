@@ -353,15 +353,19 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 $data['isMiniMap'] ??= $data['isMinimap'];
             }
 
-            // Scalar properties safe to bulk-update on all procedure copies.
-            // Excluded: procedureId/globalGisId/ident (identifiers), categoryId (each copy
-            // belongs to its own procedure root category), contextualHelpText (side-effects).
-            $updates = array_intersect_key($data, array_flip([
-                'name', 'type', 'url', 'isMiniMap', 'layers', 'layerVersion', 'legend',
-                'opacity', 'print', 'capabilities', 'defaultVisibility', 'tileMatrixSet',
-                'scope', 'serviceType', 'order', 'enabled', 'deleted', 'bplan', 'xplan',
-                'treeOrder', 'userToggleVisibility', 'projectionLabel', 'projectionValue',
-            ]));
+            // Derive propagatable fields from Doctrine metadata so new GisLayer columns
+            // automatically propagate to copies without requiring a manual whitelist update.
+            // Excluded fields must never be overwritten on copies: each copy owns its own
+            // identity (ident), procedure membership (procedureId), pointer to the global
+            // master (gId), and auto-managed timestamps (createDate/modifyDate/deleteDate).
+            $allMappedFields = $this->getEntityManager()
+                ->getClassMetadata(GisLayer::class)
+                ->getFieldNames();
+            $neverPropagate = ['ident', 'gId', 'procedureId', 'createDate', 'modifyDate', 'deleteDate'];
+            $updates = array_intersect_key(
+                $data,
+                array_flip(array_diff($allMappedFields, $neverPropagate))
+            );
 
             // Must be set together — setting one without the other leaves copies with a
             // mismatched label/value pair, mirroring the guard in updateGisFromHash().
