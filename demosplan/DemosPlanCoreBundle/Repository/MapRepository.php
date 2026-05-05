@@ -331,9 +331,11 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
      * @param GisLayer $item
      * @param array    $data
      *
+     * @return GisLayer
+     *
      * @throws Exception
      */
-    private function updateRelatedGis($item, $data): GisLayer
+    private function updateRelatedGis(GisLayer $item, array $data): GisLayer
     {
         try {
             // Translate legacy aliases to canonical property names, canonical key wins if both present
