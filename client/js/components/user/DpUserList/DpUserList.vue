@@ -16,7 +16,7 @@
 <template>
   <div class="mt-4">
     <!-- search -->
-    <div class="flex mt-4">
+    <div class="mt-4">
       <dp-search-field
         data-cy="search:currentSearchTerm"
         :placeholder="Translator.trans('searchterm')"
@@ -30,7 +30,7 @@
       class="ml-4 mt-4"
     />
     <!-- List of all items -->
-    <div v-if="false === isLoading">
+    <div v-if="!isLoading">
       <div
         v-if="isUserSelected"
         class="shadow-sm rounded-lg mt-2 py-4 px-6"
@@ -41,7 +41,6 @@
             :disabled="trackDeselected && toggledItems.length === 0"
             :icon="showSelectionList ? 'caret-up' : 'caret-down'"
             :text="Translator.trans('selection.show')"
-            type="button"
             variant="subtle"
             @click="toggleSelectionList"
           />
@@ -52,9 +51,9 @@
               v-if="isLoadingSelectionList"
               class="mt-1"
             />
+            <template v-else>
             <div
               v-for="user in selectedUsersForDropdown"
-              v-else
               :key="user.id"
               class="grid grid-cols-[1fr_2fr_auto] gap-4 items-center border-b border-neutral py-2 my-2"
             >
@@ -73,6 +72,7 @@
                 @click="toggleOne(user.id)"
               />
             </div>
+            </template>
           </div>
         </dp-transition-expand>
         <!--Button row -->
@@ -89,7 +89,6 @@
             class="p-1"
             color="warning"
             data-cy="deleteSelectedItems"
-            type="button"
             variant="outline"
             :disabled="!isUserSelected"
             :text="Translator.trans('delete') + ` (${selectedItemsCount})`"
@@ -99,7 +98,6 @@
             class="p-1"
             color="primary"
             data-cy="userList:manageUsers"
-            type="button"
             :disabled="!isUserSelected"
             :text="Translator.trans('invite') + ` (${selectedItemsCount})`"
             @click="inviteItems"
@@ -126,7 +124,7 @@
       </div>
     </div>
     <template
-      v-if="false === isLoading"
+      v-if="!isLoading"
     >
       <ul
         class="o-list space-y-2 mb-4"
@@ -235,9 +233,12 @@ export default {
 
     currentPageSelections () {
       const toggledSet = new Set(this.toggledItems)
+
       return Object.keys(this.items).reduce((acc, id) => {
         const isInToggled = toggledSet.has(id)
+
         acc[id] = this.trackDeselected ? !isInToggled : isInToggled
+
         return acc
       }, {})
     },
@@ -287,6 +288,7 @@ export default {
 
     buildUserFilter () {
       const searchTerms = this.searchValue.split(' ').filter(Boolean)
+
       if (searchTerms.length === 0) {
         return {}
       }
@@ -422,7 +424,7 @@ export default {
         filter: this.buildUserFilter(),
         include: ['roles', 'orga', 'department', 'orga.allowedRoles'].join(),
       })
-        .then((response) => {
+        .then(response => {
           this.allItemsCount = response.meta.pagination.total
           this.isLoading = false
         })
@@ -447,6 +449,7 @@ export default {
       } catch (error) {
         console.error('Failed to resolve selected user ids for invite:', error)
         dplan.notify.notify('error', Translator.trans('error.api.generic'))
+
         return
       }
       const form = this.$el.closest('form')

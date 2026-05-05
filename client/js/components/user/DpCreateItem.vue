@@ -352,6 +352,7 @@ export default {
 
     toggleForm () {
       this.isFormOpen = !this.isFormOpen
+
       if (this.isFormOpen) {
         this.showHeaderBottomBorder = false
       }
