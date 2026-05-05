@@ -114,17 +114,25 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
         $configBuilder->id->setReadableByPath();
         $configBuilder->name->setReadableByPath(DefaultField::YES)->addPathCreationBehavior()->addPathUpdateBehavior();
-        $configBuilder->isRequired->setReadableByPath()->addPathCreationBehavior(OptionalField::YES)->addPathUpdateBehavior();
+        $configBuilder->isRequired
+            ->setReadableByCallable(
+                static fn (CustomFieldInterface $customField): bool => $customField->getRequired()
+            )
+            ->addPathCreationBehavior(OptionalField::YES)
+            ->addPathUpdateBehavior();
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->options
             ->setReadableByCallable(
-                static fn (CustomFieldInterface $customField): array => array_map(static fn (CustomFieldOption $option) => $option->toJson(), $customField->getOptions())
+                static fn (CustomFieldInterface $customField): array => array_map(
+                    static fn (CustomFieldOption $option) => $option->toJson(),
+                    $customField->getOptions()
+                )
             )
             ->addPathCreationBehavior()
             ->addPathUpdateBehavior();
         $configBuilder->description->setReadableByPath()->addPathCreationBehavior()->addPathUpdateBehavior();
-        $configBuilder->targetEntity->addPathCreationBehavior()->setReadableByPath();
-        $configBuilder->sourceEntity->addPathCreationBehavior();
+        $configBuilder->targetEntity->setAliasedPath(['targetEntityClass'])->addPathCreationBehavior()->setReadableByPath()->setFilterable();
+        $configBuilder->sourceEntity->setAliasedPath(['sourceEntityClass'])->addPathCreationBehavior()->setReadableByPath()->setFilterable();
         $configBuilder->sourceEntityId->addPathCreationBehavior()->setFilterable();
 
         return $configBuilder->build();

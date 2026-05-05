@@ -246,6 +246,19 @@ export default {
     }
   },
 
+  computed: {
+    hasUnsavedChanges () {
+      if (!this.localAttachments || !this.initialAttachments) {
+        return false
+      }
+
+      const initialAttributes = this.initialAttachments
+      const currentAttributes = this.localAttachments
+
+      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+    },
+  },
+
   watch: {
     editable: {
       handler (newVal) {
@@ -497,7 +510,7 @@ export default {
         })
       }
 
-      Promise.allSettled(promises)
+      return Promise.allSettled(promises)
         .then(() => {
           if (this.genericAttachmentsMarkedForDeletion.length > 0) {
             this.genericAttachmentsMarkedForDeletion = []

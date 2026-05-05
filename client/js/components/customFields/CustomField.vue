@@ -51,6 +51,7 @@ All rights reserved
           <component
             :is="getComponentForType(resolvedDefinition.attributes.fieldType)"
             :field="editingField"
+            :show-label="showLabel"
             mode="editable"
             @update:value="handleEditingValueUpdate"
           />
@@ -85,6 +86,7 @@ All rights reserved
       v-else-if="mergedField"
       :field="mergedField"
       :mode="mode"
+      :show-label="showLabel"
       @update:value="handleValueUpdate"
     >
       <template
@@ -166,6 +168,24 @@ export default {
     },
 
     resourceType: {
+      type: [String, null],
+      required: false,
+      default: null,
+    },
+
+    showLabel: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+
+    sourceEntity: {
+      type: [String, null],
+      required: false,
+      default: null,
+    },
+
+    targetEntity: {
       type: [String, null],
       required: false,
       default: null,
@@ -274,9 +294,9 @@ export default {
 
       this.isLoading = true
 
-      fetchCustomFields(this.definitionSourceId)
+      fetchCustomFields(this.definitionSourceId, { sourceEntity: this.sourceEntity, targetEntity: this.targetEntity })
         .then(definitions => {
-          this.resolvedDefinition = definitions.find(d => d.id === this.fieldData.id)
+          this.resolvedDefinition = definitions.find(definition => definition.id === this.fieldData.id)
 
           if (!this.resolvedDefinition) {
             console.warn(`Custom field definition not found for ID: ${this.fieldData.id}`)
