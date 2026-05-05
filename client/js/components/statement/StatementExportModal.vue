@@ -296,15 +296,18 @@ export default {
       type: Boolean,
       default: false,
     },
+
     hasPermissionAdjustPreamble: {
       required: false,
       type: Boolean,
       default: false,
     },
+
     procedureId: {
       required: true,
       type: String,
     },
+
     procedureName: {
       required: false,
       type: String,
