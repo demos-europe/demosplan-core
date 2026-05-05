@@ -374,7 +374,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 $qb = $this->getEntityManager()->createQueryBuilder()
                     ->update(GisLayer::class, 'g')
                     ->where('g.gId = :globalId')
-                    ->setParameter('globalId', $item->getIdent());
+                    ->setParameter('globalId', $item->getId());
 
                 foreach ($updates as $property => $value) {
                     $qb->set('g.'.$property, ':p_'.$property)
@@ -382,11 +382,18 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 }
 
                 $qb->getQuery()->execute();
-            }
 
-            // DQL bulk UPDATE bypasses Doctrine's identity map; refresh only the global
-            // layer so procedure copies' in-memory state doesn't affect other managed entities.
-            $this->getEntityManager()->refresh($item);
+                // DQL UPDATE bypasses Doctrine's identity map. Re-select copies with
+                // HINT_REFRESH so any copies already loaded in this request reflect
+                // the new DB values instead of stale in-memory state.
+                $this->getEntityManager()
+                    ->createQuery('SELECT g FROM '.GisLayer::class.' g WHERE g.gId = :gid')
+                    ->setParameter('gid', $item->getId())
+                    ->setHint(\Doctrine\ORM\Query::HINT_REFRESH, true)
+                    ->getResult();
+
+                $this->getEntityManager()->refresh($item);
+            }
 
             return $item;
         } catch (Exception $e) {
