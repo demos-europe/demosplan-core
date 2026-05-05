@@ -52,26 +52,26 @@
               class="mt-1"
             />
             <template v-else>
-            <div
-              v-for="user in selectedUsersForDropdown"
-              :key="user.id"
-              class="grid grid-cols-[1fr_2fr_auto] gap-4 items-center border-b border-neutral py-2 my-2"
-            >
-              <div class="font-semibold">
-                {{ user.attributes.firstname }} {{ user.attributes.lastname }}
+              <div
+                v-for="user in selectedUsersForDropdown"
+                :key="user.id"
+                class="grid grid-cols-[1fr_2fr_auto] gap-4 items-center border-b border-neutral py-2 my-2"
+              >
+                <div class="font-semibold">
+                  {{ user.attributes.firstname }} {{ user.attributes.lastname }}
+                </div>
+                <div>
+                  {{ user.attributes.email }}
+                </div>
+                <dp-button
+                  variant="subtle"
+                  icon="x"
+                  icon-weight="bold"
+                  :text="Translator.trans('remove')"
+                  hide-text
+                  @click="toggleOne(user.id)"
+                />
               </div>
-              <div>
-                {{ user.attributes.email }}
-              </div>
-              <dp-button
-                variant="subtle"
-                icon="x"
-                icon-weight="bold"
-                :text="Translator.trans('remove')"
-                hide-text
-                @click="toggleOne(user.id)"
-              />
-            </div>
             </template>
           </div>
         </dp-transition-expand>
