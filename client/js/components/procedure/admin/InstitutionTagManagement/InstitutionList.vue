@@ -256,12 +256,22 @@ export default {
       const institutionField = {
         field: 'name',
         label: Translator.trans('institution'),
+        colWidth: '180px',
+        initialMinWidth: 180,
       }
 
-      const categoryFields = this.categoryFieldsAvailable.filter(headerField => this.currentlySelectedColumns.includes(headerField.field))
+      const categoryFields = this.categoryFieldsAvailable
+        .filter(headerField => this.currentlySelectedColumns.includes(headerField.field))
+        .map(headerField => ({
+          ...headerField,
+          colWidth: '180px',
+          initialMinWidth: 180,
+        }))
 
       const actionField = {
         field: 'action',
+        colWidth: '40px',
+        initialMinWidth: 40,
       }
 
       return [institutionField, ...categoryFields, actionField]
