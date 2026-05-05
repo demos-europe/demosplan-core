@@ -377,11 +377,11 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 $qb->getQuery()->execute();
             }
 
-            // DQL bulk UPDATE bypasses Doctrine's identity map. Clear it so the caller
-            // and any subsequent loads return the updated state from the database.
-            $this->getEntityManager()->clear();
+            // DQL bulk UPDATE bypasses Doctrine's identity map; refresh only the global
+            // layer so procedure copies' in-memory state doesn't affect other managed entities.
+            $this->getEntityManager()->refresh($item);
 
-            return $this->get($item->getIdent());
+            return $item;
         } catch (Exception $e) {
             $this->logger->warning('Related gisLayer of global gisLayer could not be updated. ', [$e]);
             throw $e;
