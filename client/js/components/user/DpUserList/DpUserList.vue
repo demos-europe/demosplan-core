@@ -16,14 +16,17 @@
 <template>
   <div class="mt-4">
     <!-- search -->
-    <div class="mt-4">
+    <div class="mt-4 inline-flex items-center">
       <dp-search-field
         data-cy="search:currentSearchTerm"
         :placeholder="Translator.trans('searchterm')"
         @search="handleSearch"
         @reset="handleReset"
       />
-      <dp-contextual-help :text="tooltipContent" />
+      <dp-contextual-help
+        class="ml-1"
+        :text="tooltipContent"
+      />
     </div>
     <dp-loading
       v-if="isLoading"
@@ -104,24 +107,14 @@
           />
         </div>
       </div>
-      <div class="mt-4 flex items-center justify-between">
-        <!-- 'Select all'-Checkbox -->
-        <div>
-          <label
-            for="select_all"
-            class="cursor-pointer font-semibold text-interactive inline-block"
-          >
-            <input
-              id="select_all"
-              type="checkbox"
-              data-cy="allSelected"
-              :checked="allOnPageSelected"
-              @change="toggleAll(!allOnPageSelected)"
-            >
-            {{ Translator.trans('select.all') }}
-          </label>
-        </div>
-      </div>
+      <dp-checkbox
+        id="select_all"
+        class="my-4 ml-2"
+        data-cy="allSelected"
+        :checked="allOnPageSelected"
+        :label="{ text: Translator.trans('select.all') }"
+        @change="toggleAll"
+      />
     </div>
     <template
       v-if="!isLoading"
@@ -157,6 +150,7 @@ import {
   debounce,
   dpApi,
   DpButton,
+  DpCheckbox,
   DpContextualHelp,
   DpLoading,
   DpSearchField,
@@ -170,6 +164,7 @@ export default {
 
   components: {
     DpButton,
+    DpCheckbox,
     DpContextualHelp,
     DpLoading,
     DpSearchField,
