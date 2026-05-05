@@ -28,9 +28,10 @@
         {{ Translator.trans(itemTitle) }}
       </h3>
       <dp-button
-        variant="subtle"
+        :hide-text="hideButtonText"
         :icon-after="isFormOpen ? 'caret-up' : 'caret-down'"
         :text="Translator.trans('add')"
+        variant="subtle"
         @click="toggleForm"
       />
     </div>
@@ -204,6 +205,7 @@ export default {
           updateEvent: 'user:update',
         },
       },
+      hideButtonText: false,
       isFormOpen: false,
       item: {},
       shouldResetForm: false,
@@ -354,12 +356,14 @@ export default {
       this.isFormOpen = !this.isFormOpen
 
       if (this.isFormOpen) {
+        this.hideButtonText = true
         this.showHeaderBottomBorder = false
       }
     },
 
     onFormTransitionEnd (e) {
       if (e.propertyName === 'height' && this.isFormOpen === false) {
+        this.hideButtonText = false
         this.showHeaderBottomBorder = true
       }
     },
