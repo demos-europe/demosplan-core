@@ -61,7 +61,9 @@ RUN mkdir -p /opt/uploads && \
 
 USER www-data
 WORKDIR /srv/www
-# Install composer and yarn before copying the project files to make use of the docker cache
+# Install composer and yarn before copying the project files to make use of the docker cache.
+# No --link: would rebase /srv/www to root:root and break the prior chown to www-data, so the
+# yarn install in the next RUN cannot mkdir /srv/www/node_modules.
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
 # do not use --no-scripts, as we do not need all the aws stuff
 RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
@@ -77,6 +79,8 @@ RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=loc
     rm -rf /srv/www/.cache/*
 
 USER root
+# No --link: must preserve www-data ownership of /srv/www set above so subsequent www-data RUN
+# steps can write into it.
 COPY . /srv/www
 
 # Remove app_dev.php in production mode
@@ -100,8 +104,10 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
     chown -R www-data /srv/www/client/css/generated && \
 # define doctrine in memory database for the asset build \
     mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
-COPY --link doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
-COPY --link parameters_build.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
+# No --link: writes into /srv/www subpaths; --link would rebase /srv/www metadata and break
+# www-data write access needed by the asset-build RUN below (e.g. rm -rf /srv/www/node_modules).
+COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
+COPY parameters_build.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
 
 USER www-data
 # mount .env.local as a secret to ensure that addons can be installed while keeping the layer clean.
@@ -124,7 +130,9 @@ RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
 
 USER root
 RUN mv /tmp/doctrine.yaml /srv/www/config/packages/doctrine.yaml
-COPY --link projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/parameters.yml
+# No --link: keep consistent with other COPY-into-prepared-dirs in this stage; /opt/config was
+# chown'd to www-data above and --link would flip it back to root:root.
+COPY projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/parameters.yml
 
 RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     ln -s /opt/config/parameters.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
