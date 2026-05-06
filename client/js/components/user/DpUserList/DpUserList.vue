@@ -32,16 +32,16 @@
       v-if="isLoading"
       class="ml-4 mt-4"
     />
-    <!-- List of all items -->
+    <!-- List of all users -->
     <div v-if="!isLoading">
       <div
         v-if="isUserSelected"
         class="shadow-sm rounded-lg mt-2 py-4 px-6"
       >
         <div class="flex items-center justify-between border-b border-neutral py-2">
-          <span>{{ Translator.trans('users.selected', { count: selectedItemsCount }) }}</span>
+          <span>{{ Translator.trans('users.selected', { count: selectedUsersCount }) }}</span>
           <dp-button
-            :disabled="trackDeselected && toggledItems.length === 0"
+            :disabled="trackDeselected && toggledUsers.length === 0"
             :icon="showSelectionList ? 'caret-up' : 'caret-down'"
             :text="Translator.trans('selection.show')"
             variant="subtle"
@@ -94,16 +94,16 @@
             data-cy="deleteSelectedItems"
             variant="outline"
             :disabled="!isUserSelected"
-            :text="Translator.trans('delete') + ` (${selectedItemsCount})`"
-            @click="deleteItems"
+            :text="Translator.trans('delete') + ` (${selectedUsersCount})`"
+            @click="deleteUsers"
           />
           <dp-button
             class="p-1"
             color="primary"
             data-cy="userList:manageUsers"
             :disabled="!isUserSelected"
-            :text="Translator.trans('invite') + ` (${selectedItemsCount})`"
-            @click="inviteItems"
+            :text="Translator.trans('invite') + ` (${selectedUsersCount})`"
+            @click="inviteUsers"
           />
         </div>
       </div>
@@ -124,11 +124,11 @@
         data-cy="userList:userListWrapper"
       >
         <dp-user-list-item
-          v-for="(item, idx, index) in items"
+          v-for="(user, idx, index) in users"
           :key="idx"
           class="o-list__item bg-surface border border-neutral"
-          :selected="currentPageSelections[item.id] || false"
-          :user="item"
+          :selected="currentPageSelections[user.id] || false"
+          :user="user"
           :data-cy="`userList:userListBlk:${index}`"
           :project-name="projectName"
           @item:selected="toggleOne"
@@ -139,7 +139,7 @@
         :current="currentPage"
         :total="totalPages"
         :non-sliding-size="10"
-        @page-change="getItemsByPage"
+        @page-change="getUsersByPage"
       />
     </template>
   </div>
@@ -203,34 +203,34 @@ export default {
 
   data () {
     return {
-      allItemsCount: 0,
+      allUsersCount: 0,
       allUsersFetched: false,
       isLoading: true,
       isLoadingSelectionList: false,
       searchValue: '',
       selectedUsersMap: {},
       showSelectionList: false,
-      toggledItems: [],
+      toggledUsers: [],
       trackDeselected: false,
     }
   },
 
   computed: {
     ...mapState('AdministratableUser', {
-      items: 'items',
+      users: 'items',
       currentPage: 'currentPage',
       totalPages: 'totalPages',
     }),
 
     allOnPageSelected () {
-      const itemIds = Object.keys(this.items)
-      return itemIds.length > 0 && itemIds.every(id => this.currentPageSelections[id])
+      const userIds = Object.keys(this.users)
+      return userIds.length > 0 && userIds.every(id => this.currentPageSelections[id])
     },
 
     currentPageSelections () {
-      const toggledSet = new Set(this.toggledItems)
+      const toggledSet = new Set(this.toggledUsers)
 
-      return Object.keys(this.items).reduce((acc, id) => {
+      return Object.keys(this.users).reduce((acc, id) => {
         const isInToggled = toggledSet.has(id)
 
         acc[id] = this.trackDeselected ? !isInToggled : isInToggled
@@ -240,13 +240,13 @@ export default {
     },
 
     isUserSelected () {
-      return this.selectedItemsCount > 0
+      return this.selectedUsersCount > 0
     },
 
-    selectedItemsCount () {
+    selectedUsersCount () {
       return this.trackDeselected ?
-        this.allItemsCount - this.toggledItems.length :
-        this.toggledItems.length
+        this.allUsersCount - this.toggledUsers.length :
+        this.toggledUsers.length
     },
 
     selectedUsersForDropdown () {
@@ -278,8 +278,8 @@ export default {
     }),
 
     addToSelection (id) {
-      this.toggledItems = [...this.toggledItems, id]
-      this.selectedUsersMap = { ...this.selectedUsersMap, [id]: this.items[id] }
+      this.toggledUsers = [...this.toggledUsers, id]
+      this.selectedUsersMap = { ...this.selectedUsersMap, [id]: this.users[id] }
     },
 
     buildUserFilter () {
@@ -319,13 +319,13 @@ export default {
       return userFilter
     },
 
-    async deleteItems () {
-      if (!this.selectedItemsCount) {
+    async deleteUsers () {
+      if (!this.selectedUsersCount) {
         return dplan.notify.notify('warning', Translator.trans('warning.select.entries'))
       }
 
       const isConfirmed = window.dpconfirm(
-        Translator.trans('check.user.delete', { count: this.selectedItemsCount }),
+        Translator.trans('check.user.delete', { count: this.selectedUsersCount }),
       )
 
       if (!isConfirmed) return
@@ -366,11 +366,11 @@ export default {
       }
 
       this.resetSelection()
-      this.loadItems()
+      this.loadUsers()
     },
 
     deselectUser (id) {
-      this.toggledItems = [...this.toggledItems, id]
+      this.toggledUsers = [...this.toggledUsers, id]
       this.selectedUsersMap = Object.fromEntries(
         Object.entries(this.selectedUsersMap).filter(([key]) => key !== id),
       )
@@ -397,7 +397,7 @@ export default {
 
       const users = response.data?.data || []
       this.selectedUsersMap = users.reduce((acc, user) => {
-        if (!this.toggledItems.includes(user.id)) {
+        if (!this.toggledUsers.includes(user.id)) {
           acc[user.id] = user
         }
         return acc
@@ -405,11 +405,11 @@ export default {
       this.allUsersFetched = true
     },
 
-    getFilteredItems: debounce(function () {
-      this.getItemsByPage(1)
+    getFilteredUsers: debounce(function () {
+      this.getUsersByPage(1)
     }, 500),
 
-    getItemsByPage (page) {
+    getUsersByPage (page) {
       this.isLoading = true
       page = page || this.currentPage
 
@@ -421,7 +421,7 @@ export default {
         include: ['roles', 'orga', 'department', 'orga.allowedRoles'].join(),
       })
         .then(response => {
-          this.allItemsCount = response.meta.pagination.total
+          this.allUsersCount = response.meta.pagination.total
           this.isLoading = false
         })
     },
@@ -429,16 +429,16 @@ export default {
     handleReset () {
       this.searchValue = ''
       this.resetSelection()
-      this.getFilteredItems()
+      this.getFilteredUsers()
     },
 
     handleSearch (term) {
       this.searchValue = term
       this.resetSelection()
-      this.getFilteredItems()
+      this.getFilteredUsers()
     },
 
-    async inviteItems () {
+    async inviteUsers () {
       let ids
       try {
         ids = await this.resolveSelectedIds()
@@ -449,7 +449,7 @@ export default {
         return
       }
       const form = this.$el.closest('form')
-      const currentPageIds = new Set(Object.keys(this.items))
+      const currentPageIds = new Set(Object.keys(this.users))
 
       // Add hidden inputs only for users not on the current page (those already have checkboxes)
       ids.filter(id => !currentPageIds.has(id)).forEach(id => {
@@ -462,7 +462,7 @@ export default {
       form.submit()
     },
 
-    loadItems () {
+    loadUsers () {
       const arr = []
       if (hasPermission('feature_organisation_user_list')) {
         arr.push(this.organisationList({ include: ['departments', 'allowedRoles'].join() }))
@@ -472,21 +472,21 @@ export default {
       }
       Promise.all(arr)
         .then(() => {
-          this.getItemsByPage()
+          this.getUsersByPage()
         })
     },
 
     removeFromSelection (id) {
-      this.toggledItems = this.toggledItems.filter(item => item !== id)
+      this.toggledUsers = this.toggledUsers.filter(user => user !== id)
       this.selectedUsersMap = Object.fromEntries(
         Object.entries(this.selectedUsersMap).filter(([key]) => key !== id),
       )
     },
 
     reselectUser (id) {
-      this.toggledItems = this.toggledItems.filter(item => item !== id)
-      if (this.items[id]) {
-        this.selectedUsersMap = { ...this.selectedUsersMap, [id]: this.items[id] }
+      this.toggledUsers = this.toggledUsers.filter(user => user !== id)
+      if (this.users[id]) {
+        this.selectedUsersMap = { ...this.selectedUsersMap, [id]: this.users[id] }
       }
     },
 
@@ -495,12 +495,12 @@ export default {
       this.selectedUsersMap = {}
       this.showSelectionList = false
       this.trackDeselected = false
-      this.toggledItems = []
+      this.toggledUsers = []
     },
 
     async resolveSelectedIds () {
       if (!this.trackDeselected) {
-        return [...this.toggledItems]
+        return [...this.toggledUsers]
       }
 
       if (this.allUsersFetched) {
@@ -508,18 +508,18 @@ export default {
       }
 
       const allIds = await this.fetchAllUserIds()
-      return allIds.filter(id => !this.toggledItems.includes(id))
+      return allIds.filter(id => !this.toggledUsers.includes(id))
     },
 
     toggleAll (status) {
       this.allUsersFetched = false
       this.selectedUsersMap = {}
       this.trackDeselected = status
-      this.toggledItems = []
+      this.toggledUsers = []
     },
 
     toggleInDeselectMode (id) {
-      if (this.toggledItems.includes(id)) {
+      if (this.toggledUsers.includes(id)) {
         this.reselectUser(id)
       } else {
         this.deselectUser(id)
@@ -527,7 +527,7 @@ export default {
     },
 
     toggleInSelectMode (id) {
-      if (this.toggledItems.includes(id)) {
+      if (this.toggledUsers.includes(id)) {
         this.removeFromSelection(id)
       } else {
         this.addToSelection(id)
@@ -566,7 +566,7 @@ export default {
   },
 
   mounted () {
-    this.loadItems()
+    this.loadUsers()
     this.fetchOrgaSuggestions()
   },
 }
