@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\CustomField;
 
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
-use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use Symfony\Component\HttpFoundation\Response;
@@ -85,7 +85,7 @@ class CustomFieldResourceTypeSecurityTest extends JsonApiTest
         );
 
         // sourceEntityId is not exposed in the JSON:API response — verify the stored record
-        $createdId    = $response['data']['id'];
+        $createdId = $response['data']['id'];
         $storedConfig = $this->getContainer()
             ->get(CustomFieldConfigurationRepository::class)
             ->find($createdId);
