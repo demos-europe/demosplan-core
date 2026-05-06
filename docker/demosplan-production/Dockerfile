@@ -77,7 +77,7 @@ RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=loc
     rm -rf /srv/www/.cache/*
 
 USER root
-COPY --link . /srv/www
+COPY . /srv/www
 
 # Remove app_dev.php in production mode
 RUN if [ "$BUILD_MODE" = "prod" ]; then \
