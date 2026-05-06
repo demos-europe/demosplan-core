@@ -80,6 +80,11 @@ class ProcedurePhaseDefinitionRepository extends CoreRepository
         return $this->findOneBy(['audience' => $audience, 'customer' => null], ['orderInAudience' => 'ASC']);
     }
 
+    public function findByNameAndAudienceAndCustomer(string $name, string $audience, CustomerInterface $customer): ?ProcedurePhaseDefinition
+    {
+        return $this->findOneBy(['name' => $name, 'audience' => $audience, 'customer' => $customer]);
+    }
+
     /**
      * @throws NonUniqueResultException
      * @throws NoResultException

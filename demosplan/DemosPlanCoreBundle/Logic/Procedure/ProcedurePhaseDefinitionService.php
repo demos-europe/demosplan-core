@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedurePhaseDefinitionServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -50,12 +51,17 @@ readonly class ProcedurePhaseDefinitionService implements ProcedurePhaseDefiniti
         return $this->procedurePhaseDefinitionRepository->find($id);
     }
 
+    public function findByNameAndAudienceAndCustomer(string $name, string $audience, CustomerInterface $customer): ?ProcedurePhaseDefinition
+    {
+        return $this->procedurePhaseDefinitionRepository->findByNameAndAudienceAndCustomer($name, $audience, $customer);
+    }
+
     public function findInitialDefinition(string $audience, ?Customer $customer): ?ProcedurePhaseDefinition
     {
         return $this->procedurePhaseDefinitionRepository->findInitialDefinition($audience, $customer);
     }
 
-    public function findEvaluatingDefinition(string $audience, ?Customer $customer): ?ProcedurePhaseDefinition
+    public function findEvaluatingDefinition(string $audience, ?CustomerInterface $customer): ?ProcedurePhaseDefinition
     {
         return $this->procedurePhaseDefinitionRepository->findEvaluatingDefinition($audience, $customer);
     }
