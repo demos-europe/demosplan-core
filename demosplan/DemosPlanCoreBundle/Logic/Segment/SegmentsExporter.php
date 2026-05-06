@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
 use DateTime;
+use DateTimeZone;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -26,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
 use PhpOffice\PhpWord\Element\Footer;
-use PhpOffice\PhpWord\Element\Header;
 use PhpOffice\PhpWord\Element\Row;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
@@ -115,9 +115,6 @@ abstract class SegmentsExporter
             $this->styles['documentTitleFont'],
             $this->styles['documentTitleParagraph']
         );
-
-        $this->addPreambleIfFirstHeader($header, $headerType, $exportFilteredByTagsWithTopics);
-
         $currentDate = new DateTime();
         $translationKey = [] !== $exportFilteredByTagsWithTopics ?
             'segments.export.statement.export.date.filtered' : 'segments.export.statement.export.date';
@@ -134,21 +131,27 @@ abstract class SegmentsExporter
         );
     }
 
-    protected function addPreambleIfFirstHeader(Header $header, ?string $headerType, array $exportTagTitles = []): void
+    /**
+     * This function adds a metadata sheet as the first page in the docx export, including the name of the initiator of the export, tags and tag topics if a filter was being used.
+     */
+    protected function addMetaDataSheet(PhpWord $phpWord, Procedure $procedure, array $exportTagTitles = []): void
     {
-        if (Footer::FIRST === $headerType
-            && [] !== $exportTagTitles
+        $section = $phpWord->addSection($this->styles['globalSection']);
+        $this->addHeader($section, $procedure, Footer::FIRST, $exportTagTitles);
+        $this->addHeader($section, $procedure, null, $exportTagTitles);
+        $exportDate = (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('d.m.Y');
+        $userName = $this->currentUser->getUser()->getFullName();
+        $pageInfoText = $this->translator->trans('export.user').': '.$userName.' am '.$exportDate.'<br>';
+
+        if ([] !== $exportTagTitles
             && $this->currentUser->hasPermission('feature_adjust_preamble_export_file')) {
-            $filteredExportPreamble = $this->translator->trans('docx.export.filtered');
+            $pageInfoText .= $this->translator->trans('docx.export.filtered');
             foreach ($exportTagTitles as $tagTopicContainer) {
-                $appendToVariable = 'Schlagwort: '.$tagTopicContainer[0].' [Thema: '.$tagTopicContainer[1].'], ';
-                $filteredExportPreamble .= $appendToVariable;
+                $pageInfoText .= '- '.$tagTopicContainer[0].' [Thema: '.$tagTopicContainer[1].'] <br>';
             }
-            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($filteredExportPreamble), false, false);
-        } else {
-            $preamble = $this->translator->trans('docx.export.preamble');
-            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
         }
+        $pageInfoText .= '<br>'.$this->translator->trans('layout.info');
+        Html::addHtml($section, $this->htmlHelper->getHtmlValidText($pageInfoText), false, false);
     }
 
     private function getSimilarStatementSubmitters(Statement $statement): string
@@ -397,6 +400,7 @@ abstract class SegmentsExporter
         bool $obscure,
         array $exportFilteredByTagsWithTopics = [],
     ): WriterInterface {
+        $this->addMetaDataSheet($phpWord, $procedure, $exportFilteredByTagsWithTopics);
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTagsWithTopics);
         $this->addHeader($section, $procedure, null, $exportFilteredByTagsWithTopics);
