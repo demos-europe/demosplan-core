@@ -152,6 +152,21 @@
         </fieldset>
       </fieldset>
 
+      <fieldset v-if="active === 'docx_normal' && !isSingleStatementExport && hasPermissionAdjustPreamble">
+        <legend
+          class="o-form__label text-base"
+          v-text="Translator.trans('docx.export.header.custom')"
+        />
+        <dp-input
+          id="customHeaderText"
+          v-model="customHeaderText"
+          data-cy="exportModal:customHeaderText"
+          class="mt-1"
+          :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
+          type="text"
+        />
+      </fieldset>
+
       <fieldset v-if="!isSingleStatementExport">
         <legend
           id="tagsFilter"
@@ -241,6 +256,12 @@ export default {
   mixins: [sessionStorageMixin],
 
   props: {
+    hasPermissionAdjustPreamble: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
+
     isSingleStatementExport: {
       required: false,
       type: Boolean,
@@ -260,6 +281,7 @@ export default {
   data () {
     return {
       active: 'docx_normal',
+      customHeaderText: '',
       docxColumns: {
         col1: {
           dataCy: 'exportModal:input:col1',
@@ -515,6 +537,7 @@ export default {
       })
 
       this.$emit('export', {
+        customHeaderText: this.customHeaderText || null,
         docxHeaders: ['docx_normal', 'zip_normal'].includes(this.active) ? columnTitles : null,
         fileNameTemplate: this.fileName || null,
         isCitizenDataCensored: this.isCitizenDataCensored,
@@ -630,6 +653,7 @@ export default {
 
     resetExportModalState () {
       this.active = 'docx_normal'
+      this.customHeaderText = ''
       this.isCitizenDataCensored = false
       this.isInstitutionDataCensored = false
       this.isObscure = false
