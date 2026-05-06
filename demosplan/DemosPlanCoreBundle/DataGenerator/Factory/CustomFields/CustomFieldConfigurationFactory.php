@@ -88,7 +88,7 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
         bool $isRequired = false,
     ): self {
         return $this->with([
-            'configuration' => TextFieldFactory::new([
+            'configuration' => TextFieldObjectFactory::new([
                 'name'        => $name,
                 'description' => $description,
                 'fieldType'   => 'text',

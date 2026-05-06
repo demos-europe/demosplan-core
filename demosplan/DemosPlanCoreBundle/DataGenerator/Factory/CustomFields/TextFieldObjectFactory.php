@@ -16,7 +16,7 @@ use Zenstruck\Foundry\ObjectFactory;
 /**
  * @extends ObjectFactory<TextField>
  */
-final class TextFieldFactory extends ObjectFactory
+final class TextFieldObjectFactory extends ObjectFactory
 {
     public static function class(): string
     {
