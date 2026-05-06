@@ -81,6 +81,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Grouping\EntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
@@ -258,6 +259,7 @@ class StatementService implements StatementServiceInterface
         protected ParagraphService $paragraphService,
         PermissionsInterface $permissions,
         PriorityAreaService $priorityAreaService,
+        private readonly ProcedurePhaseDefinitionResolver $procedurePhaseDefinitionResolver,
         private readonly ProcedureRepository $procedureRepository,
         ProcedureService $procedureService,
         private readonly ReportService $reportService,
@@ -2693,15 +2695,12 @@ class StatementService implements StatementServiceInterface
      */
     public function getProcedurePhaseNameFromArray(array $statement): string
     {
-        $statementObject = $this->getStatement($statement['id']);
-
-        if (!$statementObject instanceof Statement) {
-            $this->logger->error('Statement with id '.$statement['id'].' not found.');
-
+        $phaseDefinitionId = $statement['phaseDefinitionId'] ?? null;
+        if (null === $phaseDefinitionId) {
             return '';
         }
 
-        return $statementObject->getPhaseDefinition()->getName();
+        return $this->procedurePhaseDefinitionResolver->getNameById($phaseDefinitionId);
     }
 
     /**

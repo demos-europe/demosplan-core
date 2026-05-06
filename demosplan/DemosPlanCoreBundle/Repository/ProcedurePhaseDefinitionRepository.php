@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 
@@ -33,7 +33,7 @@ class ProcedurePhaseDefinitionRepository extends CoreRepository
      *
      * @return ProcedurePhaseDefinition[]
      */
-    public function findByCustomerOrderedByAudience(Customer $customer): array
+    public function findByCustomerOrderedByAudience(CustomerInterface $customer): array
     {
         $results = $this->findBy(['customer' => $customer], ['audience' => 'ASC', 'orderInAudience' => 'ASC']);
 
@@ -49,7 +49,7 @@ class ProcedurePhaseDefinitionRepository extends CoreRepository
      * for the given customer and audience. Falls back to global (customer=null) definitions.
      * When multiple matches exist, returns the one with the lowest orderInAudience.
      */
-    public function findEvaluatingDefinition(string $audience, ?Customer $customer): ?ProcedurePhaseDefinition
+    public function findEvaluatingDefinition(string $audience, ?CustomerInterface $customer): ?ProcedurePhaseDefinition
     {
         $criteria = ['audience' => $audience, 'permissionSet' => 'read', 'participationState' => 'finished'];
         $orderBy = ['orderInAudience' => 'ASC'];
@@ -68,7 +68,7 @@ class ProcedurePhaseDefinitionRepository extends CoreRepository
      * Finds the first phase definition (lowest orderInAudience) for the given audience and customer.
      * Falls back to global (customer=null) definitions.
      */
-    public function findInitialDefinition(string $audience, ?Customer $customer): ?ProcedurePhaseDefinition
+    public function findInitialDefinition(string $audience, ?CustomerInterface $customer): ?ProcedurePhaseDefinition
     {
         if (null !== $customer) {
             $result = $this->findOneBy(['audience' => $audience, 'customer' => $customer], ['orderInAudience' => 'ASC']);
