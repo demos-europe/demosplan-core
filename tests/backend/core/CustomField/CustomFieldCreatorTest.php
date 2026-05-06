@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Base\UnitTestCase;
+use Throwable;
 
 class CustomFieldCreatorTest extends UnitTestCase
 {
@@ -203,7 +204,7 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'name'         => self::TEST_FIELD_NAME,
                     'description'  => self::TEST_DESCRIPTION,
                 ],
-                'expectedErrorMessage' => 'The target entity "SEGMENT" does not match the expected target entity "ORGA" for source entity "CUSTOMER".',
+                'expectedErrorMessage' => 'The target entity "SEGMENT" is not valid for source entity "CUSTOMER". Allowed targets: ORGA.',
             ],
         ];
     }
@@ -279,5 +280,65 @@ class CustomFieldCreatorTest extends UnitTestCase
 
         // Act
         $this->sut->createCustomField($this->attributes);
+    }
+
+    public static function fromJsonProvider(): array
+    {
+        return [
+            'TextField complete' => [
+                TextField::class,
+                ['fieldType' => 'text', 'name' => 'Notes', 'description' => 'Enter text', 'isRequired' => false],
+            ],
+            'MultiSelectField complete' => [
+                MultiSelectField::class,
+                ['fieldType' => 'multiSelect', 'name' => 'Priority', 'description' => 'Pick one', 'isRequired' => true, 'options' => []],
+            ],
+            'RadioButtonField complete' => [
+                RadioButtonField::class,
+                ['fieldType' => 'singleSelect', 'name' => 'Status', 'description' => 'Pick status', 'options' => []],
+            ],
+        ];
+    }
+
+    #[DataProvider('fromJsonProvider')]
+    public function testFromJsonPopulatesFields(string $fieldClass, array $json): void
+    {
+        $field = new $fieldClass();
+        $field->fromJson($json);
+
+        static::assertSame($json['name'], $field->getName());
+        static::assertSame($json['fieldType'], $field->getFieldType());
+        static::assertSame($json['description'], $field->getDescription());
+    }
+
+    public static function fromJsonMissingKeyProvider(): array
+    {
+        $fullTextField = ['fieldType' => 'text', 'name' => 'N', 'description' => 'D', 'isRequired' => false];
+        $fullMultiSelectField = ['fieldType' => 'multiSelect', 'name' => 'N', 'description' => 'D', 'isRequired' => false, 'options' => []];
+        $fullRadioButtonField = ['fieldType' => 'singleSelect', 'name' => 'N', 'description' => 'D', 'options' => []];
+
+        return [
+            'TextField missing fieldType'          => [TextField::class,       array_diff_key($fullTextField, ['fieldType' => ''])],
+            'TextField missing name'               => [TextField::class,       array_diff_key($fullTextField, ['name' => ''])],
+            'TextField missing description'        => [TextField::class,       array_diff_key($fullTextField, ['description' => ''])],
+            'TextField missing isRequired'         => [TextField::class,       array_diff_key($fullTextField, ['isRequired' => ''])],
+            'MultiSelectField missing fieldType'   => [MultiSelectField::class, array_diff_key($fullMultiSelectField, ['fieldType' => ''])],
+            'MultiSelectField missing name'        => [MultiSelectField::class, array_diff_key($fullMultiSelectField, ['name' => ''])],
+            'MultiSelectField missing description' => [MultiSelectField::class, array_diff_key($fullMultiSelectField, ['description' => ''])],
+            'MultiSelectField missing isRequired'  => [MultiSelectField::class, array_diff_key($fullMultiSelectField, ['isRequired' => ''])],
+            'MultiSelectField missing options'     => [MultiSelectField::class, array_diff_key($fullMultiSelectField, ['options' => ''])],
+            'RadioButtonField missing fieldType'   => [RadioButtonField::class, array_diff_key($fullRadioButtonField, ['fieldType' => ''])],
+            'RadioButtonField missing name'        => [RadioButtonField::class, array_diff_key($fullRadioButtonField, ['name' => ''])],
+            'RadioButtonField missing description' => [RadioButtonField::class, array_diff_key($fullRadioButtonField, ['description' => ''])],
+            'RadioButtonField missing options'     => [RadioButtonField::class, array_diff_key($fullRadioButtonField, ['options' => ''])],
+        ];
+    }
+
+    #[DataProvider('fromJsonMissingKeyProvider')]
+    public function testFromJsonThrowsOnMissingRequiredKey(string $fieldClass, array $json): void
+    {
+        $field = new $fieldClass();
+        $this->expectException(Throwable::class);
+        $field->fromJson($json);
     }
 }

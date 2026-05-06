@@ -201,7 +201,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isCreateAllowed(): bool
     {
-        return $this->currentUser->hasPermission('area_admin_custom_fields');
+        return $this->currentUser->hasAnyPermissions('area_admin_custom_fields', 'feature_organisations_custom_fields');
     }
 
     public function isDeleteAllowed(): bool
@@ -211,7 +211,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isGetAllowed(): bool
     {
-        return $this->currentUser->hasPermission('area_admin_custom_fields');
+        return $this->currentUser->hasAnyPermissions('area_admin_custom_fields', 'feature_organisations_custom_fields');
     }
 
     public function addCreationErrorMessage(array $parameters): void
@@ -266,12 +266,12 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isListAllowed(): bool
     {
-        return $this->currentUser->hasAnyPermissions('area_admin_custom_fields', 'feature_statements_custom_fields');
+        return $this->currentUser->hasAnyPermissions('area_admin_custom_fields', 'feature_statements_custom_fields', 'feature_organisations_custom_fields');
     }
 
     public function isUpdateAllowed(): bool
     {
-        return $this->currentUser->hasPermission('area_admin_custom_fields');
+        return $this->currentUser->hasAnyPermissions('area_admin_custom_fields', 'feature_organisations_custom_fields');
     }
 
     public function getUpdatability(): ResourceUpdatability
