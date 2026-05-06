@@ -204,7 +204,7 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'name'         => self::TEST_FIELD_NAME,
                     'description'  => self::TEST_DESCRIPTION,
                 ],
-                'expectedErrorMessage' => 'The target entity "SEGMENT" does not match the expected target entity "ORGA" for source entity "CUSTOMER".',
+                'expectedErrorMessage' => 'The target entity "SEGMENT" is not valid for source entity "CUSTOMER". Allowed targets: ORGA.',
             ],
         ];
     }
