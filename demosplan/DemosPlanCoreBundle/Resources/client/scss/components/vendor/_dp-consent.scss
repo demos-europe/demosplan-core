@@ -1,0 +1,14 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS plan GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Cookie consent banner styles. Loaded statically here so the banner is styled
+// even when dp-consent's runtime <style> injection from JS does not take effect
+// (DS-492). Tailwind 4 branches do this in client/css/tailwind.css instead —
+// see DPLAN-16591.
+@import '~@demos-europe/dp-consent/src/css/style.css';

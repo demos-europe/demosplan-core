@@ -59,6 +59,7 @@ class Config {
           /multiselect.*/,
           /c-sliding-pagination.*/,
           /a1-.+/,
+          /^dp-consent-/,
           /data-enhance-url-field/,
           /ol-.+/,
           /plyr.+/,
