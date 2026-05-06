@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Base\UnitTestCase;
+use Throwable;
 
 class CustomFieldCreatorTest extends UnitTestCase
 {
@@ -312,7 +313,7 @@ class CustomFieldCreatorTest extends UnitTestCase
 
     public static function fromJsonMissingKeyProvider(): array
     {
-        $fullTextField        = ['fieldType' => 'text', 'name' => 'N', 'description' => 'D', 'isRequired' => false];
+        $fullTextField = ['fieldType' => 'text', 'name' => 'N', 'description' => 'D', 'isRequired' => false];
         $fullMultiSelectField = ['fieldType' => 'multiSelect', 'name' => 'N', 'description' => 'D', 'isRequired' => false, 'options' => []];
         $fullRadioButtonField = ['fieldType' => 'singleSelect', 'name' => 'N', 'description' => 'D', 'options' => []];
 
@@ -337,7 +338,7 @@ class CustomFieldCreatorTest extends UnitTestCase
     public function testFromJsonThrowsOnMissingRequiredKey(string $fieldClass, array $json): void
     {
         $field = new $fieldClass();
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $field->fromJson($json);
     }
 }
