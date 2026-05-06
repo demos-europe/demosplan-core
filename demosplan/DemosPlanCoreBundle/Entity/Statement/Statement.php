@@ -1099,6 +1099,25 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         $this->recommendationVersions = new ArrayCollection();
     }
 
+    /**
+     * Reset collections to fresh empty ones without triggering inverse-side
+     * collection initialization. Used after `clone` for placeholder creation,
+     * where the cloned entity is not yet present in any inverse collection
+     * and the per-element setter -> remove* -> inverse-contains() chain would
+     * needlessly hydrate large mappedBy collections (counties, municipalities,
+     * priorityAreas) on each related join entity.
+     */
+    public function resetCollectionsForPlaceholder(): void
+    {
+        $this->fragments = new ArrayCollection();
+        $this->votes = new ArrayCollection();
+        $this->tags = new ArrayCollection();
+        $this->counties = new ArrayCollection();
+        $this->municipalities = new ArrayCollection();
+        $this->priorityAreas = new ArrayCollection();
+        $this->files = [];
+    }
+
     public function getId(): ?string
     {
         return $this->id;
