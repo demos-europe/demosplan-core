@@ -376,20 +376,12 @@ export default {
       )
     },
 
-    async fetchAllUserIds () {
+    async fetchAllUsers () {
       const filter = this.buildUserFilter()
-      const params = Object.keys(filter).length > 0 ? { filter } : {}
-      const url = Routing.generate('api_resource_list', { resourceType: 'AdministratableUser' })
-
-      // Direct API call instead of `userList`, so the store-backed current page is not replaced.
-      const response = await dpApi.get(url, params)
-
-      return (response.data?.data || []).map(user => user.id)
-    },
-
-    async fetchAllUsersForSelectionMap () {
-      const filter = this.buildUserFilter()
-      const params = Object.keys(filter).length > 0 ? { filter } : {}
+      const params = {
+        ...(Object.keys(filter).length > 0 ? { filter } : {}),
+        'fields[AdministratableUser]': 'firstname,lastname,email',
+      }
       const url = Routing.generate('api_resource_list', { resourceType: 'AdministratableUser' })
 
       // Store not used so we stay on selected page
@@ -453,7 +445,7 @@ export default {
 
       // Add hidden inputs only for users not on the current page (those already have checkboxes)
       ids.filter(id => !currentPageIds.has(id)).forEach(id => {
-        addFormHiddenField(form, 'elementsToAdminister', id)
+        addFormHiddenField(form, 'elementsToAdminister[]', id)
       })
 
       // Add the action that the original submit button would have sent
@@ -503,12 +495,11 @@ export default {
         return [...this.toggledUsers]
       }
 
-      if (this.allUsersFetched) {
-        return Object.keys(this.selectedUsersMap)
+      if (!this.allUsersFetched) {
+        await this.fetchAllUsers()
       }
 
-      const allIds = await this.fetchAllUserIds()
-      return allIds.filter(id => !this.toggledUsers.includes(id))
+      return Object.keys(this.selectedUsersMap)
     },
 
     toggleAll (status) {
@@ -551,7 +542,7 @@ export default {
         this.showSelectionList = true
         this.isLoadingSelectionList = true
         try {
-          await this.fetchAllUsersForSelectionMap()
+          await this.fetchAllUsers()
         } catch (error) {
           console.error('Failed to load selected users:', error)
           dplan.notify.notify('error', Translator.trans('error.api.generic'))
