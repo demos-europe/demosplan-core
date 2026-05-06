@@ -157,8 +157,8 @@ import {
   DpTransitionExpand,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import { defineAsyncComponent } from 'vue'
 import { addFormHiddenField } from '@DpJs/lib/core/libs/FormActions'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'DpUserList',
