@@ -7,6 +7,7 @@
 ## UNRELEASED
 
 ### Added
+- Add text custom field definition to institution tag management dialog
 - Track recommendation versions for statements and segments with full text snapshots, exposed via API and XLSX export (permission: `feature_enable_recommendation_versions`)
 - Support multiple custom field types and target contexts per project
 - Full OAuth2 token lifecycle management with Keycloak: tokens (access, refresh, ID) are now stored encrypted (via `SecretEncryptor` / XSalsa20-Poly1305) in a new `oauth_tokens` table and refreshed transparently in the background before expiry
