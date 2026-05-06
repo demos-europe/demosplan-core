@@ -53,6 +53,7 @@ use Elastica\Index;
  * @property-read PlaceResourceType $place
  * @property-read SegmentCommentResourceType $comments
  * @property-read End $customFields
+ * @property-read RecommendationVersionResourceType $recommendationVersions
  */
 final class StatementSegmentResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface, StatementSegmentResourceTypeInterface
 {
@@ -202,7 +203,14 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
             $polygon->updatable();
         }
         if ($this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
-            $recommendation->updatable();
+            // Uses a callback instead of the default path-based updater to ensure
+            // setRecommendation() is called. The default uses reflection which bypasses
+            // the setter and its recommendation version recording hook.
+            $recommendation->updatable([], static function (Segment $segment, string $value): array {
+                $segment->setRecommendation($value);
+
+                return [];
+            });
         }
 
         if ($this->currentUser->hasPermission('field_segments_custom_fields')) {
@@ -227,6 +235,12 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
                         OptionalField::YES
                     )
                 );
+        }
+
+        if ($this->currentUser->hasPermission('feature_enable_recommendation_versions')) {
+            $properties[] = $this->createToManyRelationship($this->recommendationVersions)
+                ->setRelationshipType($this->resourceTypeStore->getRecommendationVersionResourceType())
+                ->readable(true, static fn (Segment $segment): array => $segment->getRecommendationVersions()->toArray(), true);
         }
 
         return array_map(

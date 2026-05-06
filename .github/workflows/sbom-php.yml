@@ -40,15 +40,25 @@ jobs:
 
       - name: Generate PHP SBOM
         run: |
+          mkdir -p sbom
           composer CycloneDX:make-sbom \
             --output-format=JSON \
-            --output-file=sbom-php.cdx.json \
+            --output-file=sbom/sbom-php.cdx.json \
             --spec-version=1.5 \
             --output-reproducible \
             --validate
 
-      - name: Upload SBOM
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
         with:
-          name: sbom-php
-          path: sbom-php.cdx.json
+          add-paths: sbom/sbom-php.cdx.json
+          base: main
+          branch: chore/sbom-php
+          delete-branch: true
+          commit-message: 'chore: update PHP SBOM'
+          title: 'chore: update PHP SBOM'
+          body: |
+            Auto-generated CycloneDX SBOM for PHP/composer dependencies.
+
+            Triggered by: `${{ github.event_name }}`
+          labels: devops, dependencies:composer

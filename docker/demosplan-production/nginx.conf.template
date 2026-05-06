@@ -40,7 +40,7 @@ server
     # listen 443 ssl http2 default_server;
     # listen [::]:443 ssl http2 default_server ipv6only=on;
     # Configure HTTP/2 at the reverse proxy/load balancer level for best performance
-    
+
     server_name _;
 
     if (!-d /srv/www/public) {
@@ -104,6 +104,27 @@ server
             expires 1y;
             add_header Cache-Control "public, immutable";
         }
+    }
+
+    # php-fpm health endpoints (pool metrics + simple ping). Restricted to loopback so
+    # only k8s probes and in-pod sidecars can query. The paths themselves are served by
+    # php-fpm directly (see pm.status_path / ping.path in php-fpm_www.conf) — no PHP file
+    # is executed.
+    location = /fpm-status {
+        allow 127.0.0.1;
+        deny all;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $fastcgi_script_name;
+        fastcgi_param SCRIPT_NAME     $fastcgi_script_name;
+        fastcgi_pass $PHP_FPM_BETEILIGUNG_SERVICE:9000;
+    }
+    location = /fpm-ping {
+        allow 127.0.0.1;
+        deny all;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $fastcgi_script_name;
+        fastcgi_param SCRIPT_NAME     $fastcgi_script_name;
+        fastcgi_pass $PHP_FPM_BETEILIGUNG_SERVICE:9000;
     }
 
     # Try all locations and relay to index.php as a fallback.
