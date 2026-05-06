@@ -158,6 +158,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
+import { addFormHiddenField } from '@DpJs/lib/core/libs/FormActions'
 
 export default {
   name: 'DpUserList',
@@ -452,19 +453,11 @@ export default {
 
       // Add hidden inputs only for users not on the current page (those already have checkboxes)
       ids.filter(id => !currentPageIds.has(id)).forEach(id => {
-        const input = document.createElement('input')
-        input.type = 'hidden'
-        input.name = 'elementsToAdminister[]'
-        input.value = id
-        form.appendChild(input)
+        addFormHiddenField(form, 'elementsToAdminister', id)
       })
 
       // Add the action that the original submit button would have sent
-      const actionInput = document.createElement('input')
-      actionInput.type = 'hidden'
-      actionInput.name = 'manageUsers'
-      actionInput.value = 'inviteSelected'
-      form.appendChild(actionInput)
+      addFormHiddenField(form, 'manageUsers', 'inviteSelected')
 
       form.submit()
     },
