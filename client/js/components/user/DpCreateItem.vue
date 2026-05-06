@@ -53,22 +53,15 @@
           />
 
           <!-- Save/Abort buttons   -->
-          <div
-            class="text-right space-x-2 mt-4"
-          >
-            <dp-button
-              color="secondary"
-              data-cy="createItem:abortButton"
-              variant="outline"
-              :text="Translator.trans('abort')"
-              @click="reset"
-            />
-            <dp-button
-              data-cy="createItem:saveButton"
-              :text="Translator.trans('save')"
-              @click="dpValidateAction(customComponent[entity].formName, save)"
-            />
-          </div>
+          <dp-button-row
+            class="mt-4"
+            data-cy="createItem"
+            primary
+            secondary
+            secondary-btn-variant="outline"
+            @primary-action="dpValidateAction(customComponent[entity].formName, save)"
+            @secondary-action="reset"
+          />
         </div>
       </div>
     </dp-transition-expand>
