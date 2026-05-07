@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Entities\CoreEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use Doctrine\ORM\Mapping as ORM;
