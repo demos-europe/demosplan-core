@@ -169,6 +169,7 @@
             is-resizable
             is-selectable
             :items="items"
+            :lock-checkbox-by="'isPlaceLocked'"
             :multi-page-all-selected="allSelectedVisually"
             :multi-page-selection-items-total="allItemsCount"
             :multi-page-selection-items-toggled="toggledItems.length"
@@ -611,6 +612,10 @@ export default {
 
     items () {
       return Object.values(this.segmentsObject)
+        .map(segment => ({
+          ...segment,
+          isPlaceLocked: !!this.placesObject[segment.relationships?.place?.data?.id]?.attributes?.locked,
+        }))
         // This is not working! better pass createdDate into segmentsObject
         .sort((a, b) => (b.attributes.externId.substring(1) - a.attributes.externId.substring(1)))
     },
@@ -625,6 +630,7 @@ export default {
           .map(place => ({
             name: place.attributes.name,
             id: place.id,
+            locked: place.attributes.locked,
           })) :
         []
     },
@@ -1199,7 +1205,14 @@ export default {
     }
     this.applyQuery(this.pagination.currentPage)
 
-    this.fetchPlaces()
+    this.fetchPlaces({
+      fields: {
+        Place: [
+          'name',
+          'locked',
+        ].join(),
+      },
+    })
     this.fetchAssignableUsers()
   },
 }
