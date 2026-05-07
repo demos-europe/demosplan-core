@@ -250,9 +250,13 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
                 ? $this->formatDate($procedure->getEndDate())
                 : null);
             $properties[] = $this->createAttribute($this->externalPhaseDefinitionName)
-                ->readable(false, fn (Procedure $procedure): string => $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName());
+                ->readable(false, fn (Procedure $procedure): ?string => $external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                    ? $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName()
+                    : null);
             $properties[] = $this->createAttribute($this->internalPhaseDefinitionName)
-                ->readable(false, fn (Procedure $procedure): string => $procedure->getPhaseObject()->getPhaseDefinition()->getName());
+                ->readable(false, fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                    ? $procedure->getPhaseObject()->getPhaseDefinition()->getName()
+                    : null);
             $properties[] = $this->createAttribute($this->owningOrganisationName)->readable()->aliasedPath($this->orga->name);
 
             // T18749
