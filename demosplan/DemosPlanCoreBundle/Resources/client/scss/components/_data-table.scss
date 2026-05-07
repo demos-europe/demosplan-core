@@ -40,12 +40,13 @@
     }
 
     &__resize-handle {
-        visibility: hidden;
+        opacity: 0;
         width: 30px;
         display: inline-block;
         position: absolute;
         top: $data-table-padding-cell;
         right: 0;
+        z-index: $dp-z-above-zero + 2 !important;
         cursor: move; // Fallback if grab cursor is not supported
         cursor: grab;
         text-align: center;
@@ -59,7 +60,7 @@
 
         &.is-active {
             display: inline !important;
-            visibility: visible;
+            opacity: 1;
         }
     }
 
@@ -101,7 +102,7 @@
                 border-right-color: $dp-color-interactive-default !important;
 
                 .c-data-table__resize-handle {
-                    visibility: visible;
+                    opacity: 1;
                 }
             }
         }
@@ -170,8 +171,8 @@
         position: sticky;
         top: 0;
 
-        /* Ensure sticky header renders above regular cells but below flyout/expand columns */
-        z-index: $dp-z-above-zero + 1;
+        /* Stacking within table: header (12) > sticky side cells (11) > resize handle (10) */
+        z-index: $dp-z-above-zero + 2;
         background-color: $dp-color-white;
     }
 
@@ -181,16 +182,11 @@
      * regular data columns in resizable-only tables (e.g. InstitutionList) are never affected.
      */
 
-    // Allow mouse events to pass through the flyout header cell so the last column's resize handle remains accessible
-    th.c-data-table__col--flyout {
-        pointer-events: none;
-    }
-
     td.c-data-table__col--flyout,
     th.c-data-table__col--flyout {
         position: sticky;
         right: 0;
-        z-index: $dp-z-above-zero;
+        z-index: $dp-z-above-zero + 1;
         background-color: $dp-color-white;
         text-align: center;
 
@@ -216,7 +212,7 @@
     th.c-data-table__col--expand {
         position: sticky;
         right: 0;
-        z-index: $dp-z-above-zero;
+        z-index: $dp-z-above-zero + 1;
         background-color: $dp-color-white;
         text-align: center;
 

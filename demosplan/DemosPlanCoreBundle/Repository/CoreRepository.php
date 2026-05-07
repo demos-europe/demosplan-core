@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
+use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
@@ -43,6 +44,8 @@ abstract class CoreRepository extends FluentRepository
      */
     protected $validator;
 
+    protected HTMLSanitizer $htmlSanitizer;
+
     protected $obscureTag = 'dp-obscure';
 
     /**
@@ -54,6 +57,19 @@ abstract class CoreRepository extends FluentRepository
     public function setValidator(ValidatorInterface $validator)
     {
         $this->validator = $validator;
+
+        return $this;
+    }
+
+    /**
+     * Please don't use `@required` for DI. It should only be used in base classes like this one.
+     *
+     * @return $this
+     */
+    #[Required]
+    public function setHtmlSanitizer(HTMLSanitizer $htmlSanitizer)
+    {
+        $this->htmlSanitizer = $htmlSanitizer;
 
         return $this;
     }
@@ -401,7 +417,6 @@ abstract class CoreRepository extends FluentRepository
 
     /**
      * Removes not all HTML-Tags, except the allowed Tags and the additionalAllowedTags.
-     * Allowed Tags are defined in the used function: wysiwygFilter().
      *
      * @param string $stringToSanitize
      * @param array  $additionalAllowedTags
@@ -410,54 +425,7 @@ abstract class CoreRepository extends FluentRepository
      */
     protected function sanitize($stringToSanitize, $additionalAllowedTags = [])
     {
-        return $this->wysiwygFilter($stringToSanitize, $additionalAllowedTags);
-    }
-
-    /**
-     * HTML-Filter fuer Eingaben aus dem WYSIWYG-Editor.
-     *
-     * @param string $text
-     * @param array  $additionalAllowedTags
-     *
-     * @return string
-     */
-    public function wysiwygFilter($text, $additionalAllowedTags = [])
-    {
-        // sort alphabetically:
-        $allowedTags = collect(
-            [
-                'a',
-                'abbr',
-                'b',
-                'br',
-                'del',
-                'em',
-                'i',
-                'img',
-                'ins',
-                'li',
-                'mark',
-                'ol',
-                'p',
-                's',
-                'span',
-                'strike',
-                'strong',
-                'sup',
-                'table',
-                'td',
-                'th',
-                'thead',
-                'tr',
-                'u',
-                'ul',
-            ]
-        )->merge($additionalAllowedTags)
-            ->flatMap(
-                fn ($tagName) => ["<{$tagName}>", "</{$tagName}>"]
-            )->implode('');
-
-        return strip_tags($text, $allowedTags);
+        return $this->htmlSanitizer->wysiwygFilter($stringToSanitize, $additionalAllowedTags);
     }
 
     /**

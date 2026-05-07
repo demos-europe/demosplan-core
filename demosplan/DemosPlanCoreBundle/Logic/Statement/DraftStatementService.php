@@ -50,6 +50,7 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldDisplayResolver;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldPropertyName;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
@@ -154,6 +155,7 @@ class DraftStatementService
         private readonly ManagerRegistry $doctrine,
         private readonly ProfilerService $profilerService,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
+        private readonly CustomFieldDisplayResolver $customFieldDisplayResolver,
     ) {
         $this->currentUser = $currentUser;
         $this->elementsService = $elementsService;
@@ -870,9 +872,9 @@ class DraftStatementService
 
                 $filenameSuffix = $this->translator->trans('export.filenames.statement.single.suffix');
                 // Die Stellungnahme kann nicht übergeben werden, rufe sie ab
-                $templateVars['statement'] = $this->getSingleDraftStatement(
-                    $itemsToExport[0]
-                );
+                $statement = $this->getSingleDraftStatement($itemsToExport[0]);
+                $statement = $this->attachResolvedCustomFields($statement, $procedureId);
+                $templateVars['statement'] = $statement;
                 $itemsToExport = null;
                 break;
             case 'list_final_group_citizen':
@@ -2157,8 +2159,26 @@ class DraftStatementService
                 $statementArray['documentlist'] = $this->paragraphService
                     ->getParaDocumentObjectList($procedureId, $statementArray['elementId']);
 
+                $statementArray = $this->attachResolvedCustomFields($statementArray, $procedureId);
+
                 return $this->checkMapScreenshotFile($statementArray, $procedureId);
             }
         );
+    }
+
+    private function attachResolvedCustomFields(array $statement, string $procedureId): array
+    {
+        if ($this->currentUser->hasPermission('feature_statements_custom_fields')
+            && $statement['customFields'] instanceof CustomFieldValuesList
+        ) {
+            $statement['resolvedCustomFields'] = $this->customFieldDisplayResolver->resolveForDisplay(
+                $statement['customFields'],
+                CustomFieldSupportedEntity::procedure,
+                $procedureId,
+                CustomFieldSupportedEntity::statement
+            );
+        }
+
+        return $statement;
     }
 }
