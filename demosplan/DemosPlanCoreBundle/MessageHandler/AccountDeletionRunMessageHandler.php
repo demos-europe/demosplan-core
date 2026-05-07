@@ -273,7 +273,11 @@ final class AccountDeletionRunMessageHandler
 
         $url = str_replace('${subdomain}', $subdomain, $template);
 
-        return "\n\nSie erreichen unsere Plattform unter:\n$url";
+        // Wrap the URL in an <a> tag so it renders as a clickable link in the HTML
+        // mail variant. MailService runs nl2br() on the content for the HTML body
+        // and falls back to a markdown-stripped plain-text variant; both keep the
+        // URL intact and most plain-text clients auto-linkify bare URLs anyway.
+        return sprintf("\n\nSie erreichen unsere Plattform unter:\n<a href=\"%s\">%s</a>", $url, $url);
     }
 
     /**

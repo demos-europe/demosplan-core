@@ -124,8 +124,8 @@ class LoadMailTemplateData extends ProdFixture
             [ // row #17
                 'label'    => 'account_deletion_warning_second',
                 'language' => 'de_DE',
-                'title'    => 'Letzte Erinnerung: Ihr Konto wird in einem Monat gelöscht',
-                'content'  => "Sehr geehrte/r \${firstname} \${lastname},\r\n\r\nVor einem Monat haben wir Sie informiert, dass Ihr Konto wegen Inaktivität gelöscht wird. Bisher haben wir keine erneute Anmeldung registriert.\r\n\r\nIhr Konto wird am \${deletion_date} gelöscht, sofern Sie sich bis dahin nicht anmelden.\${link_section}\r\n\r\nMit freundlichen Grüßen\r\nIhr support Team",
+                'title'    => 'Letzte Erinnerung: Ihr Konto wird am ${deletion_date} gelöscht',
+                'content'  => "Sehr geehrte/r \${firstname} \${lastname},\r\n\r\nwir hatten Sie bereits darauf hingewiesen, dass Ihr Konto wegen Inaktivität gelöscht wird. Bisher haben wir keine erneute Anmeldung registriert.\r\n\r\nIhr Konto wird am \${deletion_date} gelöscht, sofern Sie sich bis dahin nicht anmelden.\${link_section}\r\n\r\nMit freundlichen Grüßen\r\nIhr support Team",
             ],
             [ // row #18
                 'label'    => 'account_deletion_completed',
