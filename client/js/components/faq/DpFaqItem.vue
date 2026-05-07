@@ -174,7 +174,7 @@ export default {
           type,
           attributes: {
             ...attributes,
-            enabled: isEnabled,
+            enabled: isEnabled
           },
           ...(relationships && { relationships })
         }
@@ -217,7 +217,7 @@ export default {
         type,
         attributes: {
           ...attributes,
-          ...newSelection,
+          ...newSelection
         },
         ...(relationships && { relationships })
       }
