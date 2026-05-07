@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 /**
@@ -13,12 +12,7 @@ use demosplan\DemosPlanCoreBundle\Application\FrontController;
 
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
-if (isset($_ENV['ACTIVE_PROJECT'])) {
-    $_SERVER['ACTIVE_PROJECT'] = $_ENV['ACTIVE_PROJECT'];
-}
+$_SERVER['APP_DEBUG'] = '1';
+$_SERVER['APP_ENV'] = 'dev';
 
-if (!array_key_exists('ACTIVE_PROJECT', $_SERVER)) {
-    $_SERVER['ACTIVE_PROJECT'] = 'core';
-}
-
-return FrontController::consoleRuntime();
+return FrontController::webRuntime();

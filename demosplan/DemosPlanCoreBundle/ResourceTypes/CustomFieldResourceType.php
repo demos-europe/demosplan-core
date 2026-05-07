@@ -20,6 +20,7 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterfa
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\AllAttributesTransformer;
@@ -27,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldDeleter;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldUpdater;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
@@ -61,6 +63,8 @@ use Pagerfanta\Pagerfanta;
  * @property-read End $description
  * @property-read End $targetEntity
  * @property-read End $sourceEntity
+ * @property-read End $sourceEntityClass
+ * @property-read End $sourceEntityId
  * @property-read End $options
  *
  * @method bool isNullSafe(int $index)
@@ -76,7 +80,8 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         private readonly CustomFieldUpdater $customFieldUpdater,
         private readonly CustomFieldDeleter $customFieldDeleter,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
-        private readonly CurrentUserInterface $currentUser)
+        private readonly CurrentUserInterface $currentUser,
+        private readonly CustomerService $customerService, )
     {
     }
 
@@ -92,7 +97,31 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     protected function getAccessConditions(): array
     {
-        return [];
+        $customerId = $this->customerService->getCurrentCustomer()->getId();
+
+        /*
+         * For CUSTOMER source the row must belong to the current customer.
+         * Non-CUSTOMER sources (PROCEDURE etc.) keep their existing behaviour
+         * — their sourceEntityId is still supplied by the caller as a filter.
+         */
+        return [
+            $this->conditionFactory->anyConditionApplies(
+                $this->conditionFactory->propertyHasNotValue(
+                    CustomFieldSupportedEntity::customer->value,
+                    $this->sourceEntityClass
+                ),
+                $this->conditionFactory->allConditionsApply(
+                    $this->conditionFactory->propertyHasValue(
+                        CustomFieldSupportedEntity::customer->value,
+                        $this->sourceEntityClass
+                    ),
+                    $this->conditionFactory->propertyHasValue(
+                        $customerId,
+                        $this->sourceEntityId
+                    )
+                )
+            ),
+        ];
     }
 
     protected function getInstantiability(): ResourceInstantiability
@@ -133,7 +162,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         $configBuilder->description->setReadableByPath()->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->targetEntity->setAliasedPath(['targetEntityClass'])->addPathCreationBehavior()->setReadableByPath()->setFilterable();
         $configBuilder->sourceEntity->setAliasedPath(['sourceEntityClass'])->addPathCreationBehavior()->setReadableByPath()->setFilterable();
-        $configBuilder->sourceEntityId->addPathCreationBehavior()->setFilterable();
+        $configBuilder->sourceEntityId->addPathCreationBehavior(OptionalField::YES)->setFilterable();
 
         return $configBuilder->build();
     }
@@ -172,7 +201,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isCreateAllowed(): bool
     {
-        return $this->currentUser->hasPermission('area_admin_custom_fields');
+        return $this->currentUser->hasAnyPermissions('area_admin_custom_fields', 'feature_organisations_custom_fields');
     }
 
     public function isDeleteAllowed(): bool
@@ -182,7 +211,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isGetAllowed(): bool
     {
-        return $this->currentUser->hasPermission('area_admin_custom_fields');
+        return $this->currentUser->hasAnyPermissions('area_admin_custom_fields', 'feature_organisations_custom_fields');
     }
 
     public function addCreationErrorMessage(array $parameters): void
@@ -237,12 +266,12 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isListAllowed(): bool
     {
-        return $this->currentUser->hasAnyPermissions('area_admin_custom_fields', 'feature_statements_custom_fields');
+        return $this->currentUser->hasAnyPermissions('area_admin_custom_fields', 'feature_statements_custom_fields', 'feature_organisations_custom_fields');
     }
 
     public function isUpdateAllowed(): bool
     {
-        return $this->currentUser->hasPermission('area_admin_custom_fields');
+        return $this->currentUser->hasAnyPermissions('area_admin_custom_fields', 'feature_organisations_custom_fields');
     }
 
     public function getUpdatability(): ResourceUpdatability
@@ -255,7 +284,8 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         try {
             return $this->getTransactionService()->executeAndFlushInTransaction(
                 function () use ($entityData): ModifiedEntity {
-                    $attributes = $entityData->getAttributes();
+                    $attributes = $this->resolveAttributes($entityData->getAttributes());
+
                     $customField = $this->customFieldCreator->createCustomField($attributes);
 
                     // Using AllAttributesTransformer which always returns all attributes
@@ -282,5 +312,21 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     public function deleteEntity(string $entityIdentifier): void
     {
         $this->customFieldDeleter->deleteCustomField($entityIdentifier);
+    }
+
+    /**
+     * @param array<non-empty-string, mixed> $attributes
+     *
+     * @return array<non-empty-string, mixed>
+     */
+    private function resolveAttributes(array $attributes): array
+    {
+        if (CustomFieldSupportedEntity::customer->value !== $attributes['sourceEntity']) {
+            return $attributes;
+        }
+
+        $attributes['sourceEntityId'] = $this->customerService->getCurrentCustomer()->getId();
+
+        return $attributes;
     }
 }
