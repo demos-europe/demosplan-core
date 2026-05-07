@@ -21,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Constraint\ExclusiveProcedureOrProcedureTypeCo
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\JoinColumn;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
@@ -76,7 +75,6 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      *
      *
      */
-    #[JoinColumn(referencedColumnName: '_p_id')]
     #[ORM\OneToOne(targetEntity: Procedure::class, mappedBy: 'procedureBehaviorDefinition')]
     private $procedure;
 
@@ -89,7 +87,6 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      *
      *
      */
-    #[JoinColumn]
     #[ORM\OneToOne(targetEntity: ProcedureType::class, mappedBy: 'procedureBehaviorDefinition')]
     private $procedureType;
 

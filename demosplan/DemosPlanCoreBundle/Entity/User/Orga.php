@@ -27,10 +27,12 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SlugInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Entity\SluggedEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -43,7 +45,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: '_orga')]
 #[ORM\UniqueConstraint(name: '_o_gw_id', columns: ['_o_gw_id'])]
 #[ORM\Entity(repositoryClass: OrgaRepository::class)]
-#[ORM\AssociationOverrides([new ORM\AssociationOverride(name: 'slugs', joinColumns: [new ORM\JoinColumn(name: 'o_id', referencedColumnName: '_o_id')], inverseJoinColumns: [new ORM\JoinColumn(name: 's_id', referencedColumnName: 'id')], joinTable: new ORM\JoinTable())])]
 class Orga extends SluggedEntity implements OrgaInterface, Stringable
 {
     /**
@@ -58,6 +59,17 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
+
+    /**
+     * @var Collection<int, SlugInterface>
+     */
+    #[ORM\JoinTable(
+        name: 'orga_slug',
+        joinColumns: [new ORM\JoinColumn(name: 'o_id', referencedColumnName: '_o_id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 's_id', referencedColumnName: 'id')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Slug::class, cascade: ['persist'])]
+    protected $slugs;
     /**
      * @var string|null
      */

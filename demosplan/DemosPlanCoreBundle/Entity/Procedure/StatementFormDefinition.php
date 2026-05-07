@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeExc
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\JoinColumn;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
@@ -88,7 +87,6 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      *
      *
      */
-    #[JoinColumn(referencedColumnName: '_p_id')]
     #[ORM\OneToOne(targetEntity: Procedure::class, mappedBy: 'statementFormDefinition')]
     private $procedure;
 
@@ -101,7 +99,6 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      *
      *
      */
-    #[JoinColumn]
     #[ORM\OneToOne(targetEntity: ProcedureType::class, mappedBy: 'statementFormDefinition')]
     private $procedureType;
 

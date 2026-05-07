@@ -124,6 +124,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      */
     #[Assert\IsNull(groups: [StatementInterface::BASE_STATEMENT_CLASS_VALIDATION])]
+    #[Assert\NotNull(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT])]
+    #[Assert\Type(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT], type: Statement::class)]
     #[ORM\JoinColumn(name: 'segment_statement_fk', referencedColumnName: '_st_id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'segmentsOfStatement', cascade: ['persist'])]
     protected $parentStatementOfSegment;
@@ -870,7 +872,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      *
      */
-    #[ORM\OneToMany(targetEntity: Statement::class, mappedBy: 'headStatement', cascade: ['merge'])]
+    #[ORM\OneToMany(targetEntity: Statement::class, mappedBy: 'headStatement')]
     #[ORM\OrderBy(['externId' => 'ASC'])]
     protected $cluster;
 

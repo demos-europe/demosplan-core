@@ -41,6 +41,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\File;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SlugInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Entity\SluggedEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -70,7 +71,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 #[ORM\Table(name: '_procedure')]
 #[ORM\Entity(repositoryClass: ProcedureRepository::class)]
-#[ORM\AssociationOverrides([new ORM\AssociationOverride(name: 'slugs', joinColumns: [new ORM\JoinColumn(name: 'p_id', referencedColumnName: '_p_id')], inverseJoinColumns: [new ORM\JoinColumn(name: 's_id', referencedColumnName: 'id')], joinTable: new ORM\JoinTable())])]
 class Procedure extends SluggedEntity implements ProcedureInterface
 {
     /**
@@ -87,6 +87,17 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: NCNameGenerator::class)]
     protected $id;
+
+    /**
+     * @var Collection<int, SlugInterface>
+     */
+    #[ORM\JoinTable(
+        name: 'procedure_slug',
+        joinColumns: [new ORM\JoinColumn(name: 'p_id', referencedColumnName: '_p_id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 's_id', referencedColumnName: 'id')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Slug::class, cascade: ['persist'])]
+    protected $slugs;
 
     /**
      * @var string

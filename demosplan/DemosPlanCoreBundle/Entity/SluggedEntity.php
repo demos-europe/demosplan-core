@@ -29,19 +29,6 @@ abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface, 
     #[ORM\OneToOne(targetEntity: Slug::class)]
     protected $currentSlug;
 
-    /**
-     * @var Collection SlugInterface[]
-     *
-     *
-     */
-    #[ORM\JoinTable(
-        name: 'entity_slugs_doctrine',
-        joinColumns: [new ORM\JoinColumn(name: 'entity_id', referencedColumnName: '_entity_id', onDelete: 'RESTRICT')],
-        inverseJoinColumns: [new ORM\JoinColumn(name: 's_id', referencedColumnName: 'id', onDelete: 'RESTRICT')]
-    )]
-    #[ORM\ManyToMany(targetEntity: Slug::class, cascade: ['persist'])]
-    protected $slugs;
-
     public function getSlugs(): Collection
     {
         return $this->slugs;

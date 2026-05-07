@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+    TODO DPLAN-17129: REVERT stopOnError="false" back to "true" before merging this branch.
+    Temporarily flipped to "false" so the full test suite reports every failure during the
+    doctrine/orm v3 upgrade work, instead of stopping at the first one. Once the suite is
+    fully green, restore the original "true" value.
+-->
 <phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
     bootstrap="tests/backend/bootstrap.php"
     beStrictAboutOutputDuringTests="true"
     colors="true"
-    stopOnError="true"
+    stopOnError="false"
     displayDetailsOnTestsThatTriggerDeprecations="true"
     displayDetailsOnTestsThatTriggerErrors="true"
     displayDetailsOnTestsThatTriggerNotices="true"

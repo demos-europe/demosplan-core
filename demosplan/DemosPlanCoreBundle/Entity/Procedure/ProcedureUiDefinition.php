@@ -21,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Constraint\ExclusiveProcedureOrProcedureTypeCo
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\JoinColumn;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -77,7 +76,6 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
      *
      *
      */
-    #[JoinColumn(referencedColumnName: '_p_id')]
     #[ORM\OneToOne(targetEntity: Procedure::class, mappedBy: 'procedureUiDefinition')]
     private $procedure;
 
@@ -90,7 +88,6 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
      *
      *
      */
-    #[JoinColumn]
     #[ORM\OneToOne(targetEntity: ProcedureType::class, mappedBy: 'procedureUiDefinition')]
     private $procedureType;
 

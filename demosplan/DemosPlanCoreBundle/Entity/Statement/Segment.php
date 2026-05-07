@@ -26,17 +26,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Segment extends Statement implements SegmentInterface
 {
     /**
-     * @var StatementInterface
-     *
-     *
-     */
-    #[Assert\NotNull(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT])]
-    #[Assert\Type(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT], type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Statement')]
-    #[ORM\JoinColumn(name: 'segment_statement_fk', referencedColumnName: '_st_id', nullable: true)]
-    #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'segmentsOfStatement', cascade: ['persist'])]
-    protected $parentStatementOfSegment;
-
-    /**
      * @var Collection<int, SegmentCommentInterface>
      */
     #[ORM\OneToMany(targetEntity: SegmentComment::class, mappedBy: 'segment', orphanRemoval: true, cascade: ['remove'])]
