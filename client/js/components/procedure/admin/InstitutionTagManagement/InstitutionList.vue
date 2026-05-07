@@ -254,10 +254,10 @@ export default {
 
     headerFields () {
       const institutionField = {
-        field: 'name',
-        label: Translator.trans('institution'),
         colWidth: '180px',
+        field: 'name',
         initialMinWidth: 180,
+        label: Translator.trans('institution'),
       }
 
       const categoryFields = this.categoryFieldsAvailable
@@ -269,8 +269,8 @@ export default {
         }))
 
       const actionField = {
-        field: 'action',
         colWidth: '40px',
+        field: 'action',
         initialMinWidth: 40,
       }
 
