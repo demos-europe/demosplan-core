@@ -45,7 +45,6 @@ server
 
     if (-d /srv/www/public) {
         set $project_server_root /srv/www/public;
-        set $is_mono_repo true;
     }
 
     root $project_server_root;
