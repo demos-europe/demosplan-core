@@ -234,20 +234,19 @@ LABEL org.opencontainers.image.source="https://github.com/demos-europe/demosplan
 ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung \
     BUILD_MODE=$BUILD_MODE
 
-# Copy nginx config templates to a build-time staging dir.
-# Do NOT copy into /tmp: COPY --link rebases the parent directory's metadata to root:root 0755,
-# which strips the sticky world-writable bit (1777) the unprivileged nginx image needs at
-# runtime. The default config in nginxinc/nginx-unprivileged sets proxy_temp_path /tmp/proxy_temp,
-# so a root-owned /tmp causes "mkdir() \"/tmp/proxy_temp\" failed (13: Permission denied)".
-COPY --link nginx.conf.template /etc/nginx/templates-src/nginx.conf.template
-COPY --link nginx.conf.template-dev /etc/nginx/templates-src/nginx.conf.template-dev
+# Copy nginx config templates to context. No --link: COPY --link rebases /tmp metadata to
+# root:root 0755 and strips the 1777 sticky bit the unprivileged nginx image needs at runtime
+# (its default proxy_temp_path is /tmp/proxy_temp), causing
+# "mkdir() \"/tmp/proxy_temp\" failed (13: Permission denied)" on container start.
+COPY nginx.conf.template /tmp/nginx.conf.template
+COPY nginx.conf.template-dev /tmp/nginx.conf.template-dev
 
 # Use appropriate template based on build mode
 RUN mkdir -p /etc/nginx/templates && \
-    if [ "$BUILD_MODE" = "dev" ] && [ -f /etc/nginx/templates-src/nginx.conf.template-dev ]; then \
-      cp /etc/nginx/templates-src/nginx.conf.template-dev /etc/nginx/templates/default.conf.template; \
+    if [ "$BUILD_MODE" = "dev" ] && [ -f /tmp/nginx.conf.template-dev ]; then \
+      cp /tmp/nginx.conf.template-dev /etc/nginx/templates/default.conf.template; \
     else \
-      cp /etc/nginx/templates-src/nginx.conf.template /etc/nginx/templates/default.conf.template; \
+      cp /tmp/nginx.conf.template /etc/nginx/templates/default.conf.template; \
     fi
 
 WORKDIR /srv/www
