@@ -13,6 +13,8 @@ namespace Tests\Core\User\Unit;
 use DateTimeImmutable;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\LastLoginActivityChecker;
+use Psr\Log\NullLogger;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Tests\Base\UnitTestCase;
 
 class LastLoginActivityCheckerTest extends UnitTestCase
@@ -22,7 +24,7 @@ class LastLoginActivityCheckerTest extends UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sut = new LastLoginActivityChecker(30);
+        $this->sut = new LastLoginActivityChecker(new ParameterBag(), new NullLogger(), 30);
     }
 
     public function testIsUserActiveReturnsTrueWhenUserLoggedInWithinThreshold(): void
@@ -107,7 +109,7 @@ class LastLoginActivityCheckerTest extends UnitTestCase
     public function testGetActivityDescriptionWithCustomThreshold(): void
     {
         // Arrange
-        $checker = new LastLoginActivityChecker(60);
+        $checker = new LastLoginActivityChecker(new ParameterBag(), new NullLogger(), 60);
 
         // Act
         $description = $checker->getActivityDescription();
@@ -168,7 +170,7 @@ class LastLoginActivityCheckerTest extends UnitTestCase
     public function testIsUserActiveWithOneDayThreshold(): void
     {
         // Arrange
-        $checker = new LastLoginActivityChecker(1);
+        $checker = new LastLoginActivityChecker(new ParameterBag(), new NullLogger(), 1);
         $user = $this->createMock(UserInterface::class);
         // Login from yesterday should be active with 1-day threshold
         $yesterdayLogin = new DateTimeImmutable('-12 hours');
@@ -184,7 +186,7 @@ class LastLoginActivityCheckerTest extends UnitTestCase
     public function testIsUserActiveWithVeryLargeDayThreshold(): void
     {
         // Arrange
-        $checker = new LastLoginActivityChecker(3650); // ~10 years
+        $checker = new LastLoginActivityChecker(new ParameterBag(), new NullLogger(), 3650); // ~10 years
         $user = $this->createMock(UserInterface::class);
         $veryOldLogin = new DateTimeImmutable('-5 years');
         $user->method('getLastLogin')->willReturn($veryOldLogin);

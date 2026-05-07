@@ -13,11 +13,18 @@ namespace demosplan\DemosPlanCoreBundle\Logic\User;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\AccountDeletionTracking;
+use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class LastLoginActivityChecker implements UserActivityInterface
 {
-    public function __construct(private int $dayThreshold = 180)
-    {
+    public function __construct(
+        private readonly ParameterBagInterface $parameterBag,
+        private readonly LoggerInterface $logger,
+        private int $dayThreshold = 180,
+    ) {
     }
 
     public function isUserActive(UserInterface $user): bool
@@ -36,27 +43,17 @@ class LastLoginActivityChecker implements UserActivityInterface
 
     private function hasUserEverBeenActive(UserInterface $user): bool
     {
-        // If user is no longer marked as "new", they have completed initial setup
-        if (!$user->isNewUser()) {
+        // Any of these flags indicates the user got past initial setup.
+        if (
+            !$user->isNewUser()
+            || $user->isProfileCompleted()
+            || $user->isAccessConfirmed()
+        ) {
             return true;
         }
 
-        // If profile is completed, user has done some work
-        if ($user->isProfileCompleted()) {
-            return true;
-        }
-
-        // If access is confirmed, user has been administratively activated
-        if ($user->isAccessConfirmed()) {
-            return true;
-        }
-
-        // If the user record has been modified since creation, there has been some activity
-        $createdDate = $user->getCreatedDate();
-        $modifiedDate = $user->getModifiedDate();
-
-        // User appears to be completely inactive - never logged in and no signs of activity
-        return $createdDate && $modifiedDate && $createdDate != $modifiedDate;
+        // Fallback: the user record was modified after creation.
+        return $user->getCreatedDate() != $user->getModifiedDate();
     }
 
     public function getActivityDescription(): string
@@ -77,5 +74,128 @@ class LastLoginActivityChecker implements UserActivityInterface
     public function setDayThreshold(int $dayThreshold): void
     {
         $this->dayThreshold = $dayThreshold;
+    }
+
+    /**
+     * Returns the deletion-workflow steps the cron should perform for this user on this
+     * run. Empty list means no action; multiple entries may fire in order (rollout-era
+     * catch-up where the first-warning, second-warning, and deletion thresholds are all
+     * crossed at once).
+     *
+     * Returns an empty list when the feature isn't configured
+     * (`account_deletion.first_warning_days` unset), so this is a safe no-op for projects
+     * that haven't opted in. Progression gates on whether a MailSend FK is non-null on the
+     * tracking row, NOT on its delivery status — a daily cron with an async mailer would
+     * otherwise stall on mails stuck at 'queued'/'new'.
+     *
+     * @return list<AccountDeletionStep>
+     */
+    public function evaluateInactivitySteps(UserInterface $user, ?AccountDeletionTracking $tracking): array
+    {
+        $firstWarningDays = $this->readIntParam('account_deletion.first_warning_days');
+
+        if (null === $firstWarningDays) {
+            return [];
+        }
+
+        if ($this->isProtectedSystemUser($user)) {
+            return [];
+        }
+
+        $steps = $this->evaluateAgainstThresholds($user, $tracking, $firstWarningDays);
+        $this->logIdentifiedSteps($user, $steps);
+
+        return $steps;
+    }
+
+    /**
+     * @return list<AccountDeletionStep>
+     */
+    private function evaluateAgainstThresholds(
+        UserInterface $user,
+        ?AccountDeletionTracking $tracking,
+        int $firstWarningDays,
+    ): array {
+        $stepDays = $this->readIntParam('account_deletion.warning_step_days') ?? 30;
+        $secondWarningDays = $firstWarningDays + $stepDays;
+        $deletionAfterDays = $firstWarningDays + 2 * $stepDays;
+
+        $lastLogin = $user->getLastLogin();
+
+        if (!$lastLogin instanceof DateTimeInterface) {
+            return $this->daysSince($user->getCreatedDate()) >= $deletionAfterDays
+                ? [AccountDeletionStep::DeleteWithoutWarnings]
+                : [];
+        }
+
+        $daysInactive = $this->daysSince($lastLogin);
+        $firstWarningSent = null !== $tracking?->getFirstWarningMail();
+        $secondWarningSent = null !== $tracking?->getSecondWarningMail();
+
+        $steps = [];
+
+        if (!$firstWarningSent && $daysInactive >= $firstWarningDays) {
+            $steps[] = AccountDeletionStep::SendFirstWarning;
+        }
+
+        if (!$secondWarningSent && $daysInactive >= $secondWarningDays) {
+            $steps[] = AccountDeletionStep::SendSecondWarning;
+        }
+
+        if ($daysInactive >= $deletionAfterDays) {
+            $steps[] = AccountDeletionStep::Delete;
+        }
+
+        return $steps;
+    }
+
+    private function isProtectedSystemUser(UserInterface $user): bool
+    {
+        if ($user->getId() === UserInterface::ANONYMOUS_USER_ID) {
+            return true;
+        }
+
+        if ($user->getLogin() === AiApiUser::AI_API_USER_LOGIN) {
+            return true;
+        }
+
+        $additionalIds = (array) $this->parameterBag->get('account_deletion.additional_protected_user_ids');
+
+        return in_array($user->getId(), $additionalIds, true);
+    }
+
+    private function readIntParam(string $name): ?int
+    {
+        if (!$this->parameterBag->has($name)) {
+            return null;
+        }
+
+        $value = $this->parameterBag->get($name);
+
+        return null === $value ? null : (int) $value;
+    }
+
+    private function daysSince(DateTimeInterface $point): int
+    {
+        return (int) $point->diff(new DateTimeImmutable())->days;
+    }
+
+    /**
+     * @param list<AccountDeletionStep> $steps
+     */
+    private function logIdentifiedSteps(UserInterface $user, array $steps): void
+    {
+        if ([] === $steps) {
+            return;
+        }
+
+        $this->logger->info(
+            'Account deletion: identified steps for user',
+            [
+                'userId' => $user->getId(),
+                'login'  => $user->getLogin(),
+                'steps'  => array_map(static fn (AccountDeletionStep $step) => $step->value, $steps),
+            ]
+        );
     }
 }

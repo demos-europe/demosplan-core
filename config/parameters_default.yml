@@ -55,6 +55,22 @@ parameters:
     user_activity_last_login_threshold_days: 180
     user_activity_claimed_statements_threshold_days: 180
 
+    # Inactivity-based account deletion workflow.
+    # Leave first_warning_days unset (~) to keep the feature disabled per project.
+    # When set, the cron sends a first warning at that day count, a second warning
+    # warning_step_days later, and soft-deletes the user another warning_step_days
+    # after that.
+    account_deletion.first_warning_days: ~
+    account_deletion.warning_step_days: 30
+    account_deletion.additional_protected_user_ids: []
+    # Optional homepage URL template for the warning mail link.
+    # The placeholder ${subdomain} (if present) is substituted with the user's
+    # customer subdomain at send time. Single-customer projects can configure a
+    # fixed URL with no placeholder. Leave unset to omit the link entirely.
+    # Per-instance override via the ACCOUNT_DELETION_HOMEPAGE_URL_TEMPLATE env var
+    # (set in .env.local or deployment config).
+    account_deletion.homepage_url_template: '%env(default::ACCOUNT_DELETION_HOMEPAGE_URL_TEMPLATE)%'
+
     # Route and parameters for the public index page
     #
     # - Using the controller forward notation here will result in an internal forward
