@@ -129,7 +129,7 @@ class SettingRepository extends CoreRepository implements ArrayInterface, Object
     public function setProperties($setting, $properties)
     {
         if (!$setting instanceof Setting) {
-            $setting = $this->_em->getReference(Setting::class, $setting);
+            $setting = $this->getEntityManager()->getReference(Setting::class, $setting);
         }
 
         if (array_key_exists('content', $properties)) {
