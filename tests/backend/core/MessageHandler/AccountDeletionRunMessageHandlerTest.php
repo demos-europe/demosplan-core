@@ -32,6 +32,8 @@ use Tests\Base\UnitTestCase;
 
 class AccountDeletionRunMessageHandlerTest extends UnitTestCase
 {
+    private const TEST_EMAIL = 'test@example.com';
+
     private $permissions;
     private $trackingRepository;
     private $activityChecker;
@@ -104,7 +106,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
             ->with(
                 AccountDeletionRunMessageHandler::TEMPLATE_FIRST_WARNING,
                 'de_DE',
-                'test@example.com',
+                self::TEST_EMAIL,
                 $this->anything(),
                 $this->anything(),
                 $this->anything(),
@@ -142,7 +144,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
             ->with(
                 AccountDeletionRunMessageHandler::TEMPLATE_SECOND_WARNING,
                 'de_DE',
-                'test@example.com',
+                self::TEST_EMAIL,
                 $this->anything(),
                 $this->anything(),
                 $this->anything(),
@@ -179,7 +181,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
             ->with(
                 AccountDeletionRunMessageHandler::TEMPLATE_FINAL_NOTIFICATION,
                 'de_DE',
-                'test@example.com',
+                self::TEST_EMAIL,
                 $this->anything(),
                 $this->anything(),
                 $this->anything(),
@@ -229,7 +231,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
     /**
      * @return User&MockObject
      */
-    private function buildUserMock(string $email = 'test@example.com', string $id = 'test-user-id'): User
+    private function buildUserMock(string $email = self::TEST_EMAIL, string $id = 'test-user-id'): User
     {
         $user = $this->createMock(User::class);
         $user->method('getId')->willReturn($id);
