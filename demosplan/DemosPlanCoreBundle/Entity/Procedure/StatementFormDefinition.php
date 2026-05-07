@@ -102,6 +102,14 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
     #[ORM\OneToOne(targetEntity: ProcedureType::class, mappedBy: 'statementFormDefinition')]
     private $procedureType;
 
+    /**
+     * Back-reference to the owning Procedure's id, populated when this definition is copied
+     * from a master template during procedure creation. Has a UNIQUE index but no FK constraint;
+     * the relational link is owned by Procedure::$statementFormDefinition.
+     */
+    #[ORM\Column(name: 'procedure_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
+    private ?string $procedureId = null;
+
     public function __construct()
     {
         $fieldDefinitionsNames = [
@@ -198,6 +206,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
                 A StatementFormDefinition can not be set to a Procedure and to a ProcedureType');
         }
         $this->procedure = $procedure;
+        $this->procedureId = $procedure->getId();
     }
 
     public function getProcedureType(): ?ProcedureType
@@ -215,6 +224,16 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
                 A StatementFormDefinition can not be set to a Procedure and to a ProcedureType');
         }
         $this->procedureType = $procedureType;
+    }
+
+    public function getProcedureId(): ?string
+    {
+        return $this->procedureId;
+    }
+
+    public function setProcedureId(?string $procedureId): void
+    {
+        $this->procedureId = $procedureId;
     }
 
     public function getCreationDate(): DateTime
