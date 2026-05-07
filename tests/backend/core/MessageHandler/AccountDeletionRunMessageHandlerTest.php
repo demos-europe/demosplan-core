@@ -62,7 +62,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
         $this->parameterBag->method('get')->willReturnCallback(
             static fn (string $name) => match ($name) {
                 'account_deletion.first_warning_days' => 30,
-                default => null,
+                default                               => null,
             }
         );
 

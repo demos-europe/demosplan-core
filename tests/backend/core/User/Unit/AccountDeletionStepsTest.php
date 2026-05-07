@@ -44,8 +44,8 @@ class AccountDeletionStepsTest extends UnitTestCase
         parent::setUp();
         $this->sut = new LastLoginActivityChecker(
             new ParameterBag([
-                'account_deletion.first_warning_days'           => 30,
-                'account_deletion.warning_step_days'            => 30,
+                'account_deletion.first_warning_days'            => 30,
+                'account_deletion.warning_step_days'             => 30,
                 'account_deletion.additional_protected_user_ids' => [],
             ]),
             new NullLogger(),
@@ -171,8 +171,8 @@ class AccountDeletionStepsTest extends UnitTestCase
         $protectedId = '11111111-1111-1111-1111-111111111111';
         $sut = new LastLoginActivityChecker(
             new ParameterBag([
-                'account_deletion.first_warning_days'           => 30,
-                'account_deletion.warning_step_days'            => 30,
+                'account_deletion.first_warning_days'            => 30,
+                'account_deletion.warning_step_days'             => 30,
                 'account_deletion.additional_protected_user_ids' => [$protectedId],
             ]),
             new NullLogger(),

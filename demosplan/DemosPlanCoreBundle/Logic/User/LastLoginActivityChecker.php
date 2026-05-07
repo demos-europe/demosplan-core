@@ -151,11 +151,11 @@ class LastLoginActivityChecker implements UserActivityInterface
 
     private function isProtectedSystemUser(UserInterface $user): bool
     {
-        if ($user->getId() === UserInterface::ANONYMOUS_USER_ID) {
+        if (UserInterface::ANONYMOUS_USER_ID === $user->getId()) {
             return true;
         }
 
-        if ($user->getLogin() === AiApiUser::AI_API_USER_LOGIN) {
+        if (AiApiUser::AI_API_USER_LOGIN === $user->getLogin()) {
             return true;
         }
 

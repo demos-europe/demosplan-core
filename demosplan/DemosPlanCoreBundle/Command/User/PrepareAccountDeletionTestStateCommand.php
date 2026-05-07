@@ -176,11 +176,7 @@ final class PrepareAccountDeletionTestStateCommand extends Command
                 'cascade'   => $this->prepareCascade($user, $deletionAfterDays, $output),
                 'abandoned' => $this->prepareAbandoned($user, $deletionAfterDays, $output),
                 'restore'   => $this->prepareRestore($user, $output),
-                default     => throw new InvalidArgumentException(sprintf(
-                    'Unknown state "%s". Allowed: %s',
-                    $state,
-                    implode(', ', array_keys(self::STATE_LABELS))
-                )),
+                default     => throw new InvalidArgumentException(sprintf('Unknown state "%s". Allowed: %s', $state, implode(', ', array_keys(self::STATE_LABELS)))),
             };
         } catch (Exception $exception) {
             $output->writeln('<error>'.$exception->getMessage().'</error>');
@@ -300,9 +296,7 @@ final class PrepareAccountDeletionTestStateCommand extends Command
             ->findOneBy([], ['id' => 'DESC']);
 
         if (!$mailSend instanceof MailSend) {
-            throw new InvalidArgumentException(
-                'No MailSend rows in DB. Send any mail (e.g. trigger a registration) so the test command has a row to attach.'
-            );
+            throw new InvalidArgumentException('No MailSend rows in DB. Send any mail (e.g. trigger a registration) so the test command has a row to attach.');
         }
 
         return $mailSend;
