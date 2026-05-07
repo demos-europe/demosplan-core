@@ -325,7 +325,7 @@ class FileService implements FileServiceInterface
         $finder = new Finder();
         // local file only, no need for flysystem
         $fs = new Filesystem();
-        $finder->files()->in(DemosPlanPath::getProjectPath('web/uploads/files'));
+        $finder->files()->in(DemosPlanPath::getPublicPath('uploads/files'));
 
         $filesDeleted = 0;
         foreach ($finder as $file) {
@@ -387,6 +387,69 @@ class FileService implements FileServiceInterface
         }
 
         return $this->handleLocalFileStorage($symfonyFile, $virencheck, $dplanFile, $filePath);
+    }
+
+    /**
+     * Same as {@link saveTemporaryLocalFile} but persists the File entity *before* the
+     * potentially long-running virus scan and flysystem move. The caller-supplied
+     * $afterPersist hook is invoked synchronously with the new entity, allowing the
+     * caller to record the freshly minted file id elsewhere (e.g. in the tus cache,
+     * so retries from a client whose connection died mid-PATCH can still recover the
+     * id). On any error after persistence, the partially created entity is removed.
+     */
+    public function persistAndStoreLocalFile(
+        string $filePath,
+        string $fileName,
+        ?string $userId,
+        ?string $procedureId,
+        string $virencheck,
+        string $hash,
+        callable $afterPersist,
+    ): File {
+        $symfonyFile = new \Symfony\Component\HttpFoundation\File\File($filePath);
+
+        // Reject by mimetype before touching the DB.
+        $this->checkMimeTypeAllowed($symfonyFile->getMimeType(), $symfonyFile->getPathname());
+
+        $path = date('Y').'/'.date('m');
+
+        $dplanFile = new File();
+        $dplanFile->setMimetype($symfonyFile->getMimeType());
+        $dplanFile->setFilename($fileName);
+        $dplanFile->setName($fileName);
+        $dplanFile->setAuthor($userId);
+        $dplanFile->setHash($hash);
+        $dplanFile->setSize($symfonyFile->getSize());
+        $dplanFile->setPath($path);
+        if (null !== $procedureId) {
+            try {
+                $dplanFile->setProcedure($this->entityManager->getReference(Procedure::class, $procedureId));
+            } catch (Throwable) {
+                // Procedure does not exist
+            }
+        }
+
+        $this->addFile($dplanFile);
+
+        try {
+            $afterPersist($dplanFile);
+        } catch (Throwable $hookError) {
+            $this->logger->warning('persistAndStoreLocalFile afterPersist hook failed', [$hookError]);
+        }
+
+        try {
+            if (self::VIRUSCHECK_NONE !== $virencheck && $this->globalConfig->isAvscanEnabled()) {
+                $this->virusCheck($symfonyFile);
+            }
+            $this->moveLocalFile($symfonyFile, $path, $hash);
+        } catch (Throwable $e) {
+            $this->deleteFile($hash);
+            throw $e;
+        }
+
+        (new Filesystem())->remove($filePath);
+
+        return $dplanFile;
     }
 
     /**
@@ -857,7 +920,9 @@ class FileService implements FileServiceInterface
     protected function virusCheck(\Symfony\Component\HttpFoundation\File\File $file): void
     {
         try {
+            $this->logger->info('Start virus check for file', ['filePath' => $file->getPathname()]);
             $hasVirus = $this->virusChecker->hasVirus($file);
+            $this->logger->info('Finished virus check for file', ['filePath' => $file->getPathname(), 'hasVirus' => $hasVirus]);
             if ($hasVirus) {
                 $this->removeRequestFiles();
 
@@ -1106,7 +1171,7 @@ class FileService implements FileServiceInterface
         try {
             $globalConfig = $this->globalConfig;
             $fileDirectoryFreeSpace = disk_free_space($globalConfig->getFileServiceFilePath());
-            $uploadDirectoryFreeSpace = disk_free_space(DemosPlanPath::getProjectPath('web/uploads/files'));
+            $uploadDirectoryFreeSpace = disk_free_space(DemosPlanPath::getPublicPath('uploads/files'));
             $smallerValue = $uploadDirectoryFreeSpace < $fileDirectoryFreeSpace ? $uploadDirectoryFreeSpace : $fileDirectoryFreeSpace;
         } catch (Exception $e) {
             $this->logger->error('Error on getRemainingDiskSpace(): ', [$e]);

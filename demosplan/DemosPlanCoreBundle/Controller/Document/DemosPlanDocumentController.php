@@ -758,7 +758,7 @@ class DemosPlanDocumentController extends BaseController
         $session->remove('element_import_list');
         $fs = new DemosFilesystem();
 
-        $path = DemosPlanPath::getProjectPath('web/uploads/files');
+        $path = DemosPlanPath::getPublicPath('uploads/files');
 
         // Lösche das alte Statusfile zum Importstatus
         $statusHash = md5($session->getId().$procedureId);

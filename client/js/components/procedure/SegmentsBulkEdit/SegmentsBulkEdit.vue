@@ -142,6 +142,14 @@
                 :procedure-id="procedureId"
                 @insert="text => modalProps.handleInsertText(text)"
               />
+              <recommendation-modal
+                ref="recommendationModal"
+                :segment-id="segments[0]"
+                :procedure-id="procedureId"
+                :segment-data-loaded="segmentDataLoaded"
+                @addons:loaded="hasRecommendationTabs = true"
+                @recommendation:insert="closeRecommendationModalAfterInsert"
+              />
             </template>
             <template v-slot:button>
               <button
@@ -154,6 +162,22 @@
               >
                 <i :class="prefixClass('fa fa-puzzle-piece')" />
               </button>
+              <dp-tooltip
+                v-if="hasRecommendationTabs"
+                :text="isSingleSegmentSelected
+                  ? Translator.trans('segment.recommendation.insert.similar')
+                  : Translator.trans('segment.recommendation.bulk.single.only')"
+              >
+                <button
+                  :class="[prefixClass('menubar__button'), !isSingleSegmentSelected ? 'opacity-50 pointer-events-none' : '']"
+                  :disabled="!isSingleSegmentSelected"
+                  data-cy="segmentEditor:similarRecommendation"
+                  type="button"
+                  @click.stop="toggleRecommendationModal"
+                >
+                  <i :class="prefixClass('fa fa-lightbulb-o')" />
+                </button>
+              </dp-tooltip>
             </template>
           </dp-editor>
         </action-stepper-action>
@@ -194,11 +218,11 @@
 
         <div
           v-if="hasPermission('feature_statement_assignment') && assignSegmentCheckedAndSelected"
-          class="u-mt u-pb-0_5"
+          class="mt-4 pb-1"
         >
-          <label class="u-mb-0_25 weight--normal">
+          <p class="mb-1 weight--normal">
             {{ Translator.trans('segments.assign.other.confirmation') }}
-          </label>
+          </p>
           <p>
             {{ actions.assignSegment.selected.name }}
           </p>
@@ -206,7 +230,7 @@
 
         <div
           v-if="assignPlaceCheckedAndSelected"
-          class="u-pv"
+          class="py-4"
         >
           <p v-html="Translator.trans('segments.bulk.edit.place.assigned.description')" />
           <p v-cleanhtml="actions.assignPlace.selected.name" />
@@ -214,7 +238,7 @@
 
         <div
           v-if="addTagsCheckedAndSelected"
-          class="u-pv"
+          class="py-4"
         >
           <p v-html="Translator.trans('segments.bulk.edit.tags.add.description', { count: segments.length })" />
           <selected-tags-list :selected-tags="actions.addTags.selected" />
@@ -222,7 +246,7 @@
 
         <div
           v-if="deleteTagsCheckedAndSelected"
-          class="u-pv"
+          class="py-4"
         >
           <p v-html="Translator.trans('segments.bulk.edit.tags.delete.description', { count: segments.length })" />
           <selected-tags-list :selected-tags="actions.deleteTags.selected" />
@@ -230,7 +254,7 @@
 
         <div
           v-if="addRecommendationsChecked && actions.addRecommendations.text !== ''"
-          class="u-pv"
+          class="py-4"
         >
           <p v-html="addOrReplaceRecommendationMessage" />
           <p v-html="actions.addRecommendations.text" />
@@ -239,7 +263,7 @@
         <div
           v-for="customField in customFieldsCheckedAndSelected"
           :key="`customField:${customField.id}`"
-          class="u-pv"
+          class="py-4"
         >
           <p v-html="Translator.trans('segments.bulk.edit.customFields.description', { label: customField.label })" />
           <selected-tags-list :selected-tags="[{ title: customField.selected, id: customField.id }]" />
@@ -264,7 +288,7 @@
       >
         <p
           v-cleanhtml="actions.assignPlace.selected.name"
-          class="u-mt-0_5"
+          class="mt-2"
         />
       </action-stepper-response>
 
@@ -293,7 +317,7 @@
         :description-success="addRecommendationsSuccess"
       >
         <p
-          class="u-mt-0_5"
+          class="mt-2"
           v-html="actions.addRecommendations.text"
         />
       </action-stepper-response>
@@ -318,16 +342,18 @@ import {
   DpMultiselect,
   DpRadio,
   dpRpc,
+  DpTooltip,
   hasOwnProp,
   prefixClassMixin,
 } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 import { mapActions, mapState } from 'vuex'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
-import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import lscache from 'lscache'
+import RecommendationModal from '../Shared/RecommendationModal'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
 
 export default {
@@ -338,16 +364,18 @@ export default {
     ActionStepperAction,
     ActionStepperResponse,
     DpBoilerPlateModal,
+    DpEditor: defineAsyncComponent(async () => {
+      const { DpEditor } = await import('@demos-europe/demosplan-ui')
+      return DpEditor
+    }),
     DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
     }),
     DpMultiselect,
     DpRadio,
-    DpEditor: defineAsyncComponent(async () => {
-      const { DpEditor } = await import('@demos-europe/demosplan-ui')
-      return DpEditor
-    }),
+    DpTooltip,
+    RecommendationModal,
     SelectedTagsList,
   },
 
@@ -356,6 +384,12 @@ export default {
   },
 
   mixins: [prefixClassMixin],
+
+  provide () {
+    return {
+      recommendationProcedureIds: [this.procedureId],
+    }
+  },
 
   props: {
     procedureId: {
@@ -399,11 +433,13 @@ export default {
       },
       assignableUsers: [],
       busy: false,
+      hasRecommendationTabs: false,
       isLoading: true,
-      returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedureId }),
-      step: 1,
       places: [],
+      returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedureId }),
+      segmentDataLoaded: false,
       segments: [],
+      step: 1,
     }
   },
 
@@ -521,6 +557,10 @@ export default {
       return this.segments.length > 0
     },
 
+    isSingleSegmentSelected () {
+      return this.segments.length === 1
+    },
+
     tags () {
       return Object.values(this.tagsItems).sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, 'de', { sensitivity: 'base' }))
     },
@@ -533,6 +573,10 @@ export default {
   methods: {
     ...mapActions('AdminProcedure', {
       getAdminProcedureWithFields: 'get',
+    }),
+
+    ...mapActions('StatementSegment', {
+      getSegment: 'get',
     }),
 
     ...mapActions('Tag', {
@@ -688,10 +732,19 @@ export default {
       return hasOwnProp(response, 0) && response[0]?.result === 'ok'
     },
 
+    closeRecommendationModalAfterInsert (recommendation) {
+      this.actions.addRecommendations.text = recommendation
+      dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
+    },
+
     openBoilerPlate () {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
       }
+    },
+
+    toggleRecommendationModal () {
+      this.$refs.recommendationModal.toggle()
     },
 
     /**
@@ -757,6 +810,12 @@ export default {
       .then(() => {
         this.isLoading = false
       })
+    if (this.segments.length === 1) {
+      this.getSegment({ id: this.segments[0], include: 'tags' })
+        .then(() => {
+          this.segmentDataLoaded = true
+        })
+    }
   },
 }
 </script>
