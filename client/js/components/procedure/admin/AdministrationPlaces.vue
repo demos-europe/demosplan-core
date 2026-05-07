@@ -392,6 +392,11 @@ export default {
           solved: this.newPlace.solved,
         },
       }
+
+      if (hasPermission('feature_administrate_segment_lock')) {
+        payload.attributes.locked = this.newPlace.solved
+      }
+
       dpApi.post(Routing.generate('api_resource_create', { resourceType: 'Place' }), {}, { data: payload })
         .then(response => {
           /**
@@ -454,6 +459,10 @@ export default {
             solved: this.newRowData.solved,
           },
         },
+      }
+
+      if (hasPermission('feature_administrate_segment_lock')) {
+        payload.data.attributes.locked = this.newRowData.solved
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Place', resourceId: rowData.id }), {}, payload)
