@@ -37,6 +37,10 @@ framework:
         formats:
             jsonapi: [ 'application/vnd.api+json' ]
 
+when@prod:
+    framework:
+        http_cache: true
+
 when@test:
     framework:
         test: true
