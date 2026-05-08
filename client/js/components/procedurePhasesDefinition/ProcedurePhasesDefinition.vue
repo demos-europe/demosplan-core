@@ -102,27 +102,22 @@ All rights reserved
         is-open
       >
         <div class="overflow-x-auto pb-3">
-          <addon-wrapper
-            :addon-props="{
-              phaseDefinitions: internalPhaseDefinitions,
-              headerFields,
-              audience: 'internal',
-            }"
-            hook-name="phases.table.with.codes"
-            @addons:loaded="handleAddonsLoaded"
-          />
-
-          <dp-loading v-if="!addonsResolved" />
-
           <dp-data-table
-            v-else-if="!isAddonActive"
             :header-fields="headerFields"
             :items="internalPhaseDefinitions"
             density="spacious"
             track-by="id"
             has-borders
             is-resizable
-          />
+          >
+
+            <template v-slot:phaseCode="phase">
+              <addon-wrapper
+                :addon-props="{ phaseId: phase.id }"
+                hook-name="phase.list.fields"
+              />
+            </template>
+          </dp-data-table>
         </div>
       </dp-accordion>
 
@@ -132,27 +127,22 @@ All rights reserved
         is-open
       >
         <div class="overflow-x-auto pb-3">
-          <addon-wrapper
-            :addon-props="{
-              phaseDefinitions: externalPhaseDefinitions,
-              headerFields,
-              audience: 'external',
-            }"
-            hook-name="phases.table.with.codes"
-            @addons:loaded="handleAddonsLoaded"
-          />
-
-          <dp-loading v-if="!addonsResolved" />
-
           <dp-data-table
-            v-else-if="!isAddonActive"
             :header-fields="headerFields"
             :items="externalPhaseDefinitions"
             density="spacious"
             track-by="id"
             has-borders
             is-resizable
-          />
+          >
+
+            <template v-slot:phaseCode="phase">
+              <addon-wrapper
+                :addon-props="{ phaseId: phase.id }"
+                hook-name="phase.list.fields"
+              />
+            </template>
+          </dp-data-table>
         </div>
       </dp-accordion>
 
@@ -175,6 +165,7 @@ import {
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 
 export default {
   name: 'ProcedurePhasesDefinition',
@@ -201,7 +192,6 @@ export default {
         resourceType: '',
         value: '',
       },
-      addonsResolved: false,
       hasAttemptedSubmit: false,
       isAddonActive: false,
       isCreating: false,
@@ -376,9 +366,11 @@ export default {
         })
     },
 
-    handleAddonsLoaded (addonNames) {
-      this.isAddonActive = addonNames.length > 0
-      this.addonsResolved = true
+    detectPhaseListAddon () {
+      loadAddonComponents('phase.list.fields')
+        .then(addons => {
+          this.isAddonActive = addons.length > 0
+        })
     },
 
     mapPhaseForDisplay (phase) {
@@ -432,6 +424,7 @@ export default {
 
   mounted () {
     this.fetchPhaseDefinitions()
+    this.detectPhaseListAddon()
   },
 }
 </script>
