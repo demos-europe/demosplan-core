@@ -242,8 +242,8 @@ parameters:
     # Regex that need to match to send Mails directly from user email
     # instead of system email. email_use_system_mail_as_sender needs to be false
     email_from_domain_valid_regex: ''
-    # Delete any sent emails after this timespan in days from email sent queue. Default 5 Years
-    email_delete_after_days: 1780
+    # Delete any sent emails after this timespan in days from email sent queue. Default 90 days
+    email_delete_after_days: 90
 
     master_procedure_phase: configuration #the default phase for new procedures, see procedurephases.yml
 
