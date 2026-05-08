@@ -458,6 +458,23 @@ class EntityContentChangeService
      * No-op when old and new place are equally (un)locked, since there is no
      * state change to record. The caller passes the *original* place (as
      * read from the UnitOfWork change set or equivalent) and the *new* one.
+     *
+     * Persists the new entry without flushing. Two callers, two reasons:
+     *  - JSON:API PATCH via {{ @see SegmentLockEnforcementSubscriber }} —
+     *    flushing here would commit the segment's pending `place` change
+     *    before {{ @see StatementSegmentEventSubscriber::saveChangeHistory }}
+     *    runs at a lower priority and tries to diff it against the
+     *    original entity data, losing the place-change row from the
+     *    Versionsverlauf.
+     *  - Bulk RPC via {{ @see SegmentBulkEditorService::updateSegments }},
+     *    wrapped in {{ @see TransactionService::executeAndFlushInTransaction }}
+     *    — flushing mid-iteration breaks the all-or-nothing semantics of
+     *    the surrounding transaction (a later throw could no longer roll
+     *    back already-emitted entries).
+     *
+     * In both cases the surrounding flush (EDT request-end, or
+     * TransactionService end-of-callback) commits this entry alongside
+     * the segment update.
      */
     public function createSegmentLockedChangeEntryOnPlaceChange(
         Segment $segment,
@@ -485,7 +502,15 @@ class EntityContentChangeService
             return;
         }
 
-        $this->addEntityContentChangeEntries($segment, ['locked' => $contentChange]);
+        $entry = $this->createEntityContentChangeEntity(
+            $segment,
+            'locked',
+            $contentChange,
+            $this->determineChanger(false),
+            $this->doctrine->getManager()->getClassMetadata(Segment::class)->getName(),
+            new DateTime(),
+        );
+        $this->entityContentChangeRepository->persistEntities([$entry]);
     }
 
     /**
@@ -494,11 +519,16 @@ class EntityContentChangeService
      *
      * Loads all affected segments through the ORM and creates one
      * EntityContentChange per segment via
-     * {{ @see EntityContentChangeService::createEntityContentChangeEntity }},
-     * then persists the batch through the repository — same code path as
-     * {{ @see EntityContentChangeService::addEntityContentChangeEntries }}.
-     * Keeps the writes inside the Doctrine UnitOfWork so the surrounding
-     * transaction can roll them back atomically if anything downstream fails.
+     * {{ @see EntityContentChangeService::createEntityContentChangeEntity }}.
+     *
+     * Persists the new entries without flushing. The current caller is the
+     * {{ @see PlaceResourceType }} update callback for `locked`, which has
+     * the place's `locked` field change pending in the UoW — flushing
+     * here would commit that change mid-callback before EDT's end-of-
+     * pipeline flush, breaking rollback atomicity if anything downstream
+     * throws. Same shape applies to any future caller that emits inside
+     * a wrapping transaction. The surrounding flush commits these entries
+     * alongside the place update.
      *
      * No-op when old and new are identical (no real toggle).
      *
@@ -548,7 +578,7 @@ class EntityContentChangeService
             );
         }
 
-        $this->entityContentChangeRepository->persistAndDelete($entries, []);
+        $this->entityContentChangeRepository->persistEntities($entries);
     }
 
     /**

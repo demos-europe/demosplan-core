@@ -139,13 +139,110 @@ class SegmentLockContentChangeEmissionTest extends FunctionalTestCase
         self::assertSame($before, $this->countLockEntriesFor($segment));
     }
 
+    public function testAutoDiffProducesAuditRowsForAssigneeAndPlaceWhenBothChangeWithoutLockCrossing(): void
+    {
+        // The user-reported scenario WITHOUT lock crossing: change place + assignee
+        // together where both places are unlocked. Our lock-emission method
+        // short-circuits, so trackChanges (auto-diff) is the sole audit path.
+        // Both `place` and `assignee` rows must appear.
+        $procedure = ProcedureFactory::createOne()->_real();
+        $placeA = PlaceFactory::createOne(['procedure' => $procedure, 'locked' => false])->_real();
+        $placeB = PlaceFactory::createOne(['procedure' => $procedure, 'locked' => false])->_real();
+        $userA = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
+        $userB = $this->getUserReference(LoadUserData::TEST_USER_2_PLANNER_ADMIN);
+
+        $segment = SegmentFactory::createOne([
+            'procedure' => $procedure,
+            'place'     => $placeA,
+            'assignee'  => $userA,
+        ])->_real();
+        $this->getEntityManager()->flush();
+
+        $beforePlace = $this->countEntriesFor($segment, 'place');
+        $beforeAssignee = $this->countEntriesFor($segment, 'assignee');
+
+        $segment->setPlace($placeB);
+        $segment->setAssignee($userB);
+
+        $this->sut->trackChanges($segment, Segment::class);
+        $this->getEntityManager()->flush();
+
+        self::assertSame(
+            $beforePlace + 1,
+            $this->countEntriesFor($segment, 'place'),
+            'Place change must produce one `place` row (auto-diff)',
+        );
+        self::assertSame(
+            $beforeAssignee + 1,
+            $this->countEntriesFor($segment, 'assignee'),
+            'Assignee change must produce one `assignee` row (auto-diff)',
+        );
+    }
+
+    public function testMultiFieldUpdateProducesAuditRowsForEachChangedFieldWhenLockBoundaryCrossed(): void
+    {
+        // Regression for the bug where a flush inside the lock-emission path
+        // committed the segment's pending UoW changes too early, leaving the
+        // subsequent auto-diff with no diff to record. After the fix
+        // (persistEntities, no flush) the auto-diff still sees the original
+        // snapshot and emits a row per changed field.
+        $procedure = ProcedureFactory::createOne()->_real();
+        $unlockedPlace = PlaceFactory::createOne(['procedure' => $procedure, 'locked' => false])->_real();
+        $lockedPlace = PlaceFactory::createOne(['procedure' => $procedure, 'locked' => true])->_real();
+        $userA = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
+        $userB = $this->getUserReference(LoadUserData::TEST_USER_2_PLANNER_ADMIN);
+
+        $segment = SegmentFactory::createOne([
+            'procedure' => $procedure,
+            'place'     => $unlockedPlace,
+            'assignee'  => $userA,
+        ])->_real();
+        $this->getEntityManager()->flush();
+
+        $beforeLocked = $this->countEntriesFor($segment, 'locked');
+        $beforePlace = $this->countEntriesFor($segment, 'place');
+        $beforeAssignee = $this->countEntriesFor($segment, 'assignee');
+
+        // Mimic the JSON:API PATCH flow: mutate the entity in-memory,
+        // then run the lock-emission method (priority 100 subscriber path)
+        // followed by trackChanges (priority 0 audit-history path).
+        $segment->setPlace($lockedPlace);
+        $segment->setAssignee($userB);
+
+        $this->sut->createSegmentLockedChangeEntryOnPlaceChange($segment, $unlockedPlace, $lockedPlace);
+        $this->sut->trackChanges($segment, Segment::class);
+
+        $this->getEntityManager()->flush();
+
+        self::assertSame(
+            $beforeLocked + 1,
+            $this->countEntriesFor($segment, 'locked'),
+            'Lock change must produce one `locked` row',
+        );
+        self::assertSame(
+            $beforePlace + 1,
+            $this->countEntriesFor($segment, 'place'),
+            'Place change must produce one `place` row (auto-diff)',
+        );
+        self::assertSame(
+            $beforeAssignee + 1,
+            $this->countEntriesFor($segment, 'assignee'),
+            'Assignee change must produce one `assignee` row (auto-diff)',
+        );
+    }
+
     private function countLockEntriesFor(Segment $segment): int
+    {
+        return $this->countEntriesFor($segment, 'locked');
+    }
+
+    private function countEntriesFor(Segment $segment, string $entityField): int
     {
         return (int) $this->getEntityManager()
             ->getConnection()
             ->executeQuery(
-                "SELECT COUNT(*) FROM entity_content_change WHERE entity_id = :id AND entity_field = 'locked'",
-                ['id' => $segment->getId()],
+                'SELECT COUNT(*) FROM entity_content_change WHERE entity_id = :id AND entity_field = :field',
+                ['id' => $segment->getId(), 'field' => $entityField],
             )
             ->fetchOne();
     }
