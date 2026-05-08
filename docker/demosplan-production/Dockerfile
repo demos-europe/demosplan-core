@@ -150,12 +150,14 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
 FROM debian:bookworm-20260406-slim AS fpm
 
 ARG PROJECT_NAME
+ARG BUILD_MODE=prod
 
 LABEL org.opencontainers.image.source="https://github.com/demos-europe/demosplan-core"
 
 ENV PROJECT_PREFIX=$PROJECT_NAME \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
     EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de \
+    APP_ENV=$BUILD_MODE \
     TZ=Europe/Berlin
 
 # Install only runtime dependencies (no npm, no composer, no build tools)
