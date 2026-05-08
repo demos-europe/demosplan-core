@@ -158,13 +158,14 @@
             ref="dataTable"
             class="min-h-12"
             :class="{ 'px-2': isFullscreen, 'scrollbar-none': !isFullscreen }"
+            column-storage-key="segmentsList"
+            column-width-storage-key="segmentsListColumnWidths"
             data-cy="segmentsList"
             density="spacious"
             has-flyout
             has-borders
             has-sticky-header
             :header-fields="availableHeaderFields"
-            column-storage-key="segmentsList"
             is-columns-draggable
             is-resizable
             is-selectable
