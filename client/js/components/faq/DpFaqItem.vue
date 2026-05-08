@@ -168,15 +168,18 @@ export default {
 
     handleToggle (isEnabled) {
       if (isEnabled !== this.isFaqEnabled) {
+        const { id, type, attributes, relationships } = this.faqItem
         const faqCopy = {
-          ...this.faqItem,
+          id,
+          type,
           attributes: {
-            ...this.faqItem.attributes,
+            ...attributes,
             enabled: isEnabled
-          }
+          },
+          ...(relationships && { relationships })
         }
 
-        this.updateFaq({ ...faqCopy, id: faqCopy.id })
+        this.updateFaq(faqCopy)
 
         const saveAction = () => {
           return this.saveFaq(this.faqItem.id)
@@ -208,8 +211,16 @@ export default {
 
       newSelection = { ...newSelection, ...selectedGroups }
 
-      const faqCpy = JSON.parse(JSON.stringify(this.faqItem))
-      faqCpy.attributes = { ...faqCpy.attributes, ...newSelection }
+      const { id, type, attributes, relationships } = this.faqItem
+      const faqCpy = {
+        id,
+        type,
+        attributes: {
+          ...attributes,
+          ...newSelection
+        },
+        ...(relationships && { relationships })
+      }
 
       /**
        * Weirdly the input event seems to be fired on initial load of the vue multiselect.
@@ -221,7 +232,7 @@ export default {
         return this.faqItem.attributes[key] !== value
       }).length !== 0
       if (hasChangedAttributes === true) {
-        this.updateFaq({ ...faqCpy, id: faqCpy.id })
+        this.updateFaq(faqCpy)
         const saveAction = () => {
           return this.saveFaq(this.faqItem.id)
             .then(() => {
