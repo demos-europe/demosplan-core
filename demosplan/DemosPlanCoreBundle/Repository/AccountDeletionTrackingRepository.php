@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AccountDeletionTracking;
+use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 
 /**
@@ -29,10 +30,10 @@ class AccountDeletionTrackingRepository extends CoreRepository
 
     /**
      * Returns active users whose effective inactivity reference (`lastLogin` if set,
-     * else `createdDate`) is at or before the cutoff. Excludes deleted users and the
-     * given protected IDs (typically the anonymous-user constant plus any project-
-     * specific protected accounts). The AI API user is excluded by login at the
-     * policy level rather than here, since its row ID is random per project.
+     * else `createdDate`) is at or before the cutoff. Excludes deleted users, the
+     * AI API user (by login — its row ID is random per project), and any further
+     * protected IDs supplied by the caller (typically the anonymous-user constant
+     * plus project-specific protected accounts).
      *
      * @param list<string> $protectedUserIds
      *
@@ -47,7 +48,9 @@ class AccountDeletionTrackingRepository extends CoreRepository
             ->from(User::class, 'u')
             ->where('u.deleted = false')
             ->andWhere('COALESCE(u.lastLogin, u.createdDate) <= :cutoff')
-            ->setParameter('cutoff', $cutoff);
+            ->andWhere('u.login != :aiApiUserLogin')
+            ->setParameter('cutoff', $cutoff)
+            ->setParameter('aiApiUserLogin', AiApiUser::AI_API_USER_LOGIN);
 
         if ([] !== $protectedUserIds) {
             $queryBuilder
