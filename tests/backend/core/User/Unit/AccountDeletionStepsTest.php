@@ -16,9 +16,9 @@ use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\User\AccountDeletionTracking;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logger\PiiAwareLogger;
 use demosplan\DemosPlanCoreBundle\Logic\User\AccountDeletionStep;
 use demosplan\DemosPlanCoreBundle\Logic\User\LastLoginActivityChecker;
-use Psr\Log\NullLogger;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Tests\Base\UnitTestCase;
 
@@ -38,17 +38,19 @@ class AccountDeletionStepsTest extends UnitTestCase
     private const DAYS_LONG_INACTIVE = '-365 days';
 
     protected $sut;
+    protected $piiLogger;
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->piiLogger = $this->createMock(PiiAwareLogger::class);
         $this->sut = new LastLoginActivityChecker(
             new ParameterBag([
                 'account_deletion.first_warning_days'            => 30,
                 'account_deletion.warning_step_days'             => 30,
                 'account_deletion.additional_protected_user_ids' => [],
             ]),
-            new NullLogger(),
+            $this->piiLogger,
             180
         );
     }
@@ -175,7 +177,7 @@ class AccountDeletionStepsTest extends UnitTestCase
                 'account_deletion.warning_step_days'             => 30,
                 'account_deletion.additional_protected_user_ids' => [$protectedId],
             ]),
-            new NullLogger(),
+            $this->piiLogger,
             180
         );
 
@@ -193,7 +195,7 @@ class AccountDeletionStepsTest extends UnitTestCase
                 // first_warning_days intentionally not set — feature disabled
                 'account_deletion.warning_step_days' => 30,
             ]),
-            new NullLogger(),
+            $this->piiLogger,
             180
         );
 

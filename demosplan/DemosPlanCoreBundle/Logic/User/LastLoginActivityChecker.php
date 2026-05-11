@@ -15,14 +15,14 @@ use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AccountDeletionTracking;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
-use Psr\Log\LoggerInterface;
+use demosplan\DemosPlanCoreBundle\Logger\PiiAwareLogger;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class LastLoginActivityChecker implements UserActivityInterface
 {
     public function __construct(
         private readonly ParameterBagInterface $parameterBag,
-        private readonly LoggerInterface $logger,
+        private readonly PiiAwareLogger $piiLogger,
         private int $dayThreshold = 180,
     ) {
     }
@@ -189,11 +189,14 @@ class LastLoginActivityChecker implements UserActivityInterface
             return;
         }
 
-        $this->logger->info(
+        $this->piiLogger->info(
             'Account deletion: identified steps for user',
             [
-                'userId' => $user->getId(),
-                'login'  => $user->getLogin(),
+                'pii' => [
+                    'userId' => $user->getId(),
+                    'login'  => $user->getLogin(),
+                ],
+                'orgaId' => $user->getOrganisationId(),
                 'steps'  => array_map(static fn (AccountDeletionStep $step) => $step->value, $steps),
             ]
         );

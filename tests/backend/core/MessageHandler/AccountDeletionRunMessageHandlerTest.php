@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\User\AccountDeletionTracking;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logger\PiiAwareLogger;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\User\AccountDeletionStep;
 use demosplan\DemosPlanCoreBundle\Logic\User\LastLoginActivityChecker;
@@ -43,6 +44,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
     private $entityManager;
     private $parameterBag;
     private $logger;
+    private $piiLogger;
     private $twig;
     private $translator;
     private $globalConfig;
@@ -59,6 +61,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->parameterBag = $this->createMock(ParameterBagInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
+        $this->piiLogger = $this->createMock(PiiAwareLogger::class);
         $this->translator = $this->createMock(TranslatorInterface::class);
         $this->globalConfig = $this->createMock(GlobalConfigInterface::class);
 
@@ -89,6 +92,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
             $this->entityManager,
             $this->parameterBag,
             $this->logger,
+            $this->piiLogger,
             $this->twig,
             $this->translator,
             $this->globalConfig
@@ -235,15 +239,16 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
                 $secondMail
             );
 
-        // queueMail's Throwable catch logs the failing user; the outer per-candidate
-        // try/catch is no longer reached because the inner catch swallows the exception
-        // and returns null (callers treat that as "warning not yet attempted" so the
-        // FK stays unset on the tracking row and the next cron run retries the stage).
-        $this->logger->expects($this->once())
+        // queueMail's Throwable catch routes the failing user through piiLogger
+        // (userId is PII); the outer per-candidate try/catch is no longer reached
+        // because the inner catch swallows the exception and returns null
+        // (callers treat that as "warning not yet attempted" so the FK stays unset
+        // on the tracking row and the next cron run retries the stage).
+        $this->piiLogger->expects($this->once())
             ->method('error')
             ->with(
                 'Account deletion: failed to render or queue notification mail',
-                $this->callback(fn (array $context) => 'user1-id' === ($context['userId'] ?? null))
+                $this->callback(fn (array $context) => 'user1-id' === ($context['pii']['userId'] ?? null))
             );
 
         ($this->sut)(new AccountDeletionRunMessage());

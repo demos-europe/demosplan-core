@@ -20,6 +20,7 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\User\AccountDeletionTracking;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logger\PiiAwareLogger;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\User\AccountDeletionStep;
@@ -58,6 +59,7 @@ final class AccountDeletionRunMessageHandler
         private readonly EntityManagerInterface $entityManager,
         private readonly ParameterBagInterface $parameterBag,
         private readonly LoggerInterface $logger,
+        private readonly PiiAwareLogger $piiLogger,
         private readonly Environment $twig,
         private readonly TranslatorInterface $translator,
         private readonly GlobalConfigInterface $globalConfig,
@@ -84,9 +86,13 @@ final class AccountDeletionRunMessageHandler
                 try {
                     $this->processCandidate($user);
                 } catch (Exception $exception) {
-                    $this->logger->error(
+                    $this->piiLogger->error(
                         'Account deletion: failed to process candidate',
-                        ['userId' => $user->getId(), 'exception' => $exception->getMessage()]
+                        [
+                            'pii'       => ['userId' => $user->getId()],
+                            'orgaId'    => $user->getOrganisationId(),
+                            'exception' => $exception->getMessage(),
+                        ]
                     );
                 }
             }
@@ -173,9 +179,15 @@ final class AccountDeletionRunMessageHandler
             $this->entityManager->remove($tracking);
         }
 
-        $this->logger->info(
+        $this->piiLogger->info(
             'Account deletion: user soft-deleted after warning cascade',
-            ['userId' => $user->getId(), 'login' => $user->getLogin()]
+            [
+                'pii' => [
+                    'userId' => $user->getId(),
+                    'login'  => $user->getLogin(),
+                ],
+                'orgaId' => $user->getOrganisationId(),
+            ]
         );
 
         return null;
@@ -197,9 +209,15 @@ final class AccountDeletionRunMessageHandler
             $this->entityManager->remove($tracking);
         }
 
-        $this->logger->info(
+        $this->piiLogger->info(
             'Account deletion: user soft-deleted silently (legacy / never-logged-in)',
-            ['userId' => $user->getId(), 'login' => $user->getLogin()]
+            [
+                'pii' => [
+                    'userId' => $user->getId(),
+                    'login'  => $user->getLogin(),
+                ],
+                'orgaId' => $user->getOrganisationId(),
+            ]
         );
 
         return null;
@@ -271,10 +289,11 @@ final class AccountDeletionRunMessageHandler
                 ],
             );
         } catch (Throwable $exception) {
-            $this->logger->error(
+            $this->piiLogger->error(
                 'Account deletion: failed to render or queue notification mail',
                 [
-                    'userId'       => $user->getId(),
+                    'pii'          => ['userId' => $user->getId()],
+                    'orgaId'       => $user->getOrganisationId(),
                     'bodyTemplate' => $bodyTemplate,
                     'subjectKey'   => $subjectKey,
                     'exception'    => $exception->getMessage(),
@@ -307,11 +326,14 @@ final class AccountDeletionRunMessageHandler
 
             return $cutoff->format('d.m.Y');
         } catch (Exception $exception) {
-            $this->logger->warning(
+            $this->piiLogger->warning(
                 'Account deletion: failed to compute deletion date',
                 [
-                    'userId'    => $user->getId(),
-                    'lastLogin' => $lastLogin->format('Y-m-d H:i:s'),
+                    'pii' => [
+                        'userId'    => $user->getId(),
+                        'lastLogin' => $lastLogin->format('Y-m-d H:i:s'),
+                    ],
+                    'orgaId'    => $user->getOrganisationId(),
                     'totalDays' => $totalDays,
                     'exception' => $exception->getMessage(),
                 ]
