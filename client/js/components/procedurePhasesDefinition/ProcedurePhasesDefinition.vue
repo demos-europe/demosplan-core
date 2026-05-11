@@ -41,6 +41,7 @@ All rights reserved
         />
 
         <addon-wrapper
+          :addon-props="{ hasAttemptedSubmit }"
           hook-name="phase.create.form"
           @change="updateAddonPayload"
         />
@@ -352,9 +353,9 @@ export default {
         })
         .then(() => {
           if (codeFailed) {
-            dplan.notify.error(Translator.trans('phase.created.code.failed'))
+            dplan.notify.error(Translator.trans('phase.create.code.failed'))
           } else {
-            dplan.notify.confirm(Translator.trans('phase.created.success'))
+            dplan.notify.confirm(Translator.trans('phase.create.success'))
           }
 
           this.fetchPhaseDefinitions()
@@ -434,6 +435,12 @@ export default {
 
       if (draftPayload.value === initialPayload.value && draftPayload.resourceId === initialPayload.resourceId) {
         this.editingRowId = null
+
+        return
+      }
+
+      if (draftPayload.isDuplicate) {
+        dplan.notify.error(Translator.trans('procedure.phase.code.duplicate'))
 
         return
       }
@@ -584,6 +591,12 @@ export default {
 
       if (this.isDuplicateName) {
         dplan.notify.error(Translator.trans('error.name.unique'))
+
+        return
+      }
+
+      if (this.newPhaseAddonPayload.isDuplicate) {
+        dplan.notify.error(Translator.trans('procedure.phase.code.duplicate'))
 
         return
       }
