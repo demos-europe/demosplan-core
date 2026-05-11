@@ -193,35 +193,20 @@
           </li>
         </ul>
       </fieldset>
-      <fieldset
+      <dp-input
         v-if="active === 'docx_normal' && !isSingleStatementExport && hasPermissionAdjustPreamble"
-        class="mt-2"
-      >
-        <legend
-          id="customHeaderTextLegend"
-          class="font-semibold text-base float-left mr-1"
-          v-text="Translator.trans('docx.export.header.custom')"
-        />
-        <dp-contextual-help
-          aria-labelledby="customHeaderTextLegend"
-          :text="Translator.trans('docx.export.header.custom.hint')"
-        />
-        <dp-input
-          id="customHeaderText"
-          v-model="customHeaderText"
-          data-cy="exportModal:customHeaderText"
-          class="mt-1"
-          :maxlength="customHeaderMaxLength"
-          :placeholder="customHeaderPlaceholder"
-          type="text"
-        />
-        <div
-          v-if="customHeaderText.length > 0"
-          class="text-sm mt-1 color-text-muted"
-        >
-          {{ customHeaderText.length }} / {{ customHeaderMaxLength }}
-        </div>
-      </fieldset>
+        id="customHeaderText"
+        v-model="customHeaderText"
+        :label="{
+          text: Translator.trans('docx.export.header.custom'),
+          tooltip: Translator.trans('docx.export.header.custom.hint')
+        }"
+        :maxlength="customHeaderMaxLength"
+        :placeholder="customHeaderPlaceholder"
+        class="mt-2 mb-4"
+        data-cy="exportModal:customHeaderText"
+        type="text"
+      />
 
       <dp-button-row
         class="text-right mt-auto"
