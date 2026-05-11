@@ -396,6 +396,13 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             $em = $this->getEntityManager();
 
             $draftStatement = $this->get($entityId);
+            if (null === $draftStatement) {
+                // ORM v3 raises TypeError (extends Error, not Exception) from
+                // persist(null) below, which bypasses the catch and breaks the
+                // service-layer contract that turns repo exceptions into a
+                // `false` return.
+                throw new Exception(sprintf('DraftStatement not found: %s', $entityId));
+            }
             $draftStatement = $this->generateObjectValues($draftStatement, $data);
 
             $em->persist($draftStatement);

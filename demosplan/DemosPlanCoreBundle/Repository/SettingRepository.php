@@ -250,6 +250,12 @@ class SettingRepository extends CoreRepository implements ArrayInterface, Object
     public function delete($entityId)
     {
         $toDelete = $this->find($entityId);
+        if (null === $toDelete) {
+            // ORM v3 raises TypeError (extends Error, not Exception) from
+            // remove(null), which bypasses the service-layer catch (Exception)
+            // that callers and tests expect to see.
+            throw new Exception(sprintf('Setting not found: %s', $entityId));
+        }
         $this->getEntityManager()->remove($toDelete);
         $this->getEntityManager()->flush();
 
