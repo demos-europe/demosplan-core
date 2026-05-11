@@ -353,11 +353,10 @@ export default {
     ]),
 
     customHeaderPlaceholder () {
-      const key = this.selectedTagIds.length > 0 ?
-        'docx.export.header.custom.placeholder.partial' :
-        'docx.export.header.custom.placeholder.full'
-
-      return Translator.trans(key, { procedureName: this.procedureName })
+      return Translator.trans('docx.export.header.custom.placeholder', {
+        isPartialExport: this.selectedTagIds.length > 0,
+        procedureName: this.procedureName,
+      })
     },
 
     exportModalTitle () {
