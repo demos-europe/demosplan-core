@@ -103,6 +103,7 @@ All rights reserved
       >
         <div class="overflow-x-auto pb-3">
           <dp-data-table
+            :has-flyout="isAddonActive"
             :header-fields="headerFields"
             :items="internalPhaseDefinitions"
             density="spacious"
@@ -113,9 +114,59 @@ All rights reserved
 
             <template v-slot:phaseCode="phase">
               <addon-wrapper
-                :addon-props="{ phaseId: phase.id }"
+                :addon-props="{
+                  isEditing: editingRowId === phase.id,
+                  phaseId: phase.id,
+                  savedRowPayload: savedRowPayloads[phase.id] || null,
+                }"
                 hook-name="phase.list.fields"
+                @edit-change="handleEditChange"
+                @edit-start="handleEditStart"
               />
+            </template>
+
+            <template v-slot:flyout="rowData">
+              <div class="flex float-right">
+                <button
+                  v-if="editingRowId !== rowData.id"
+                  :aria-label="Translator.trans('item.edit')"
+                  :title="Translator.trans('edit')"
+                  class="btn--blank o-link--default"
+                  @click="startEdit(rowData)"
+                >
+                  <dp-icon
+                    aria-hidden="true"
+                    icon="edit"
+                  />
+                </button>
+
+                <template v-else>
+                  <button
+                    :aria-label="Translator.trans('save')"
+                    :disabled="isSaving"
+                    :title="Translator.trans('save')"
+                    class="btn--blank o-link--default mr-1"
+                    @click="handleSaveEditClick"
+                  >
+                    <dp-icon
+                      aria-hidden="true"
+                      icon="check"
+                    />
+                  </button>
+
+                  <button
+                    :aria-label="Translator.trans('abort')"
+                    :title="Translator.trans('abort')"
+                    class="btn--blank o-link--default"
+                    @click="cancelEdit"
+                  >
+                    <dp-icon
+                      aria-hidden="true"
+                      icon="xmark"
+                    />
+                  </button>
+                </template>
+              </div>
             </template>
           </dp-data-table>
         </div>
@@ -128,6 +179,7 @@ All rights reserved
       >
         <div class="overflow-x-auto pb-3">
           <dp-data-table
+            :has-flyout="isAddonActive"
             :header-fields="headerFields"
             :items="externalPhaseDefinitions"
             density="spacious"
@@ -138,9 +190,59 @@ All rights reserved
 
             <template v-slot:phaseCode="phase">
               <addon-wrapper
-                :addon-props="{ phaseId: phase.id }"
+                :addon-props="{
+                  isEditing: editingRowId === phase.id,
+                  phaseId: phase.id,
+                  savedRowPayload: savedRowPayloads[phase.id] || null,
+                }"
                 hook-name="phase.list.fields"
+                @edit-change="handleEditChange"
+                @edit-start="handleEditStart"
               />
+            </template>
+
+            <template v-slot:flyout="rowData">
+              <div class="flex float-right">
+                <button
+                  v-if="editingRowId !== rowData.id"
+                  :aria-label="Translator.trans('item.edit')"
+                  :title="Translator.trans('edit')"
+                  class="btn--blank o-link--default"
+                  @click="startEdit(rowData)"
+                >
+                  <dp-icon
+                    aria-hidden="true"
+                    icon="edit"
+                  />
+                </button>
+
+                <template v-else>
+                  <button
+                    :aria-label="Translator.trans('save')"
+                    :disabled="isSaving"
+                    :title="Translator.trans('save')"
+                    class="btn--blank o-link--default mr-1"
+                    @click="handleSaveEditClick"
+                  >
+                    <dp-icon
+                      aria-hidden="true"
+                      icon="check"
+                    />
+                  </button>
+
+                  <button
+                    :aria-label="Translator.trans('abort')"
+                    :title="Translator.trans('abort')"
+                    class="btn--blank o-link--default"
+                    @click="cancelEdit"
+                  >
+                    <dp-icon
+                      aria-hidden="true"
+                      icon="xmark"
+                    />
+                  </button>
+                </template>
+              </div>
             </template>
           </dp-data-table>
         </div>
@@ -158,6 +260,7 @@ import {
   DpButton,
   DpButtonRow,
   DpDataTable,
+  DpIcon,
   DpInput,
   DpLoading,
   DpRadio,
@@ -176,6 +279,7 @@ export default {
     DpButton,
     DpButtonRow,
     DpDataTable,
+    DpIcon,
     DpInput,
     DpLoading,
     DpRadio,
@@ -186,24 +290,29 @@ export default {
 
   data () {
     return {
-      addonPayload: {
-        attributes: null,
-        parentRelationshipName: '',
-        resourceType: '',
-        value: '',
-      },
+      draftRowPayloads: {},
+      editingRowId: null,
       hasAttemptedSubmit: false,
+      initialRowPayloads: {},
       isAddonActive: false,
       isCreating: false,
       isInitiallyLoading: true,
       isLoading: false,
+      isSaving: false,
       newPhase: {
         audience: '',
         name: '',
         participationState: null,
         permissionSet: '',
       },
+      newPhaseAddonPayload: {
+        attributes: null,
+        parentRelationshipName: '',
+        resourceType: '',
+        value: '',
+      },
       phaseDefinitions: [],
+      savedRowPayloads: {},
     }
   },
 
@@ -263,8 +372,8 @@ export default {
   },
 
   methods: {
-    createAddonPayload (parentId) {
-      const { attributes, parentRelationshipName, resourceType } = this.addonPayload
+    buildNewPhaseAddonRequest (parentId) {
+      const { attributes, parentRelationshipName, resourceType } = this.newPhaseAddonPayload
 
       return {
         type: resourceType,
@@ -278,6 +387,10 @@ export default {
           },
         },
       }
+    },
+
+    cancelEdit () {
+      this.editingRowId = null
     },
 
     createPhase () {
@@ -298,14 +411,14 @@ export default {
         .then(response => {
           const newPhaseId = response.data.data.id
 
-          if (!this.addonPayload.value) {
+          if (!this.newPhaseAddonPayload.value) {
             return null
           }
 
           return dpApi.post(
-            Routing.generate('api_resource_create', { resourceType: this.addonPayload.resourceType }),
+            Routing.generate('api_resource_create', { resourceType: this.newPhaseAddonPayload.resourceType }),
             {},
-            { data: this.createAddonPayload(newPhaseId) },
+            { data: this.buildNewPhaseAddonRequest(newPhaseId) },
           )
             .catch(codeErr => {
               console.error(codeErr)
@@ -328,6 +441,13 @@ export default {
         })
         .finally(() => {
           this.isLoading = false
+        })
+    },
+
+    detectPhaseListAddon () {
+      loadAddonComponents('phase.list.fields')
+        .then(addons => {
+          this.isAddonActive = addons.length > 0
         })
     },
 
@@ -366,10 +486,62 @@ export default {
         })
     },
 
-    detectPhaseListAddon () {
-      loadAddonComponents('phase.list.fields')
-        .then(addons => {
-          this.isAddonActive = addons.length > 0
+    handleEditChange (payload) {
+      this.draftRowPayloads[payload.phaseId] = payload
+    },
+
+    handleEditStart (payload) {
+      this.draftRowPayloads[payload.phaseId] = payload
+      // Clone so the snapshot can't change if `payload` is ever mutated later.
+      this.initialRowPayloads[payload.phaseId] = structuredClone(payload)
+    },
+
+    handleSaveEditClick () {
+      const id = this.editingRowId
+      const draftPayload = this.draftRowPayloads[id]
+      const initialPayload = this.initialRowPayloads[id]
+
+      if (!draftPayload || !initialPayload) {
+        this.editingRowId = null
+
+        return
+      }
+
+      if (draftPayload.value === initialPayload.value && draftPayload.resourceId === initialPayload.resourceId) {
+        this.editingRowId = null
+
+        return
+      }
+
+      const request = this.sendSaveEditRequest(draftPayload)
+
+      if (request === null) {
+        this.editingRowId = null
+
+        return
+      }
+
+      this.isSaving = true
+
+      request
+        .then(({ code, resourceId }) => {
+          this.savedRowPayloads = {
+            ...this.savedRowPayloads,
+            [id]: {
+              code,
+              resourceId,
+            },
+          }
+          this.editingRowId = null
+          dplan.notify.confirm(Translator.trans('procedure.phase.code.edit.success'))
+          this.fetchPhaseDefinitions()
+        })
+        .catch(err => {
+          console.error(err)
+          dplan.notify.error(Translator.trans('error.api.generic'))
+        })
+        .finally(() => {
+          this.isSaving = false
         })
     },
 
@@ -386,7 +558,7 @@ export default {
     resetForm () {
       this.isCreating = false
       this.hasAttemptedSubmit = false
-      this.addonPayload = {
+      this.newPhaseAddonPayload = {
         attributes: null,
         parentRelationshipName: '',
         resourceType: '',
@@ -400,8 +572,86 @@ export default {
       }
     },
 
+    /*
+     * Picks the right HTTP request on edit based on the row's draft payload:
+     *   - empty value, no record yet  → skip (edit opened on a blank row, saved without typing)
+     *   - empty value, record exists  → DELETE
+     *   - new value, no record yet    → POST
+     *   - new value, record exists    → PATCH
+     * Resolves to { code, resourceId } — the new state core stores in
+     * `savedRowPayloads` so the cell can re-render without a refetch.
+     *
+     * The PATCH body intentionally omits the parent relationship — the
+     * backend only accepts that field on create, not on update.
+     */
+    sendSaveEditRequest (draftPayload) {
+      const { attributes, parentRelationshipName, resourceId, resourceType, value } = draftPayload
+
+      if (value === '' && resourceId === null) {
+        return null
+      }
+
+      if (value === '' && resourceId !== null) {
+        return dpApi.delete(
+          Routing.generate('api_resource_delete', {
+            resourceType,
+            resourceId,
+          }),
+        ).then(() => ({
+          code: '',
+          resourceId: null,
+        }))
+      }
+
+      if (value !== '' && resourceId === null) {
+        return dpApi.post(
+          Routing.generate('api_resource_create', { resourceType }),
+          {},
+          {
+            data: {
+              type: resourceType,
+              attributes,
+              relationships: {
+                [parentRelationshipName]: {
+                  data: {
+                    type: 'ProcedurePhaseDefinition',
+                    id: this.editingRowId,
+                  },
+                },
+              },
+            },
+          },
+        ).then(response => ({
+          code: value,
+          resourceId: response.data.data.id,
+        }))
+      }
+
+      return dpApi.patch(
+        Routing.generate('api_resource_update', {
+          resourceType,
+          resourceId,
+        }),
+        {},
+        {
+          data: {
+            type: resourceType,
+            id: resourceId,
+            attributes,
+          },
+        },
+      ).then(() => ({
+        code: value,
+        resourceId,
+      }))
+    },
+
     setParticipationState (value) {
       this.newPhase.participationState = value
+    },
+
+    startEdit (rowData) {
+      this.editingRowId = rowData.id
     },
 
     submitForm () {
@@ -418,7 +668,7 @@ export default {
     },
 
     updateAddonPayload (payload) {
-      this.addonPayload = payload
+      this.newPhaseAddonPayload = payload
     },
   },
 
