@@ -53,7 +53,7 @@ jobs:
       - name: Commit fixes
         run: |
           git pull
-          if ! git diff --exit-code; then
+          if ! git diff --exit-code -- '*.js' '*.vue' '*.ts'; then
             git add -A '*.js' '*.vue' '*.ts'
             git commit -m "style: Apply eslint --fix"
             git push
