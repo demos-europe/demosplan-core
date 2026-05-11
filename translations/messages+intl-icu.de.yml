@@ -859,6 +859,7 @@ custom.field.delete.message.warning: "Das Feld wird automatisch überall gelösc
 custom.field.target: "Zielkontext"
 custom.field.type.multiSelect: "Mehrfachauswahl"
 custom.field.type.singleSelect: "Einzelauswahl"
+custom.field.type.text: "Freitext"
 customer: |
     {count, plural,
         =0 {Bundesland}
@@ -2084,6 +2085,10 @@ initial_extent.not.set: 'Sie haben noch keinen Startkartenausschnitt festgesetzt
 input.text.maxlength: "Der eingegebene Text kann bis zu {maxlength} Zeichen lang sein. Es sind noch <input class=\"o-char-count\" disabled value=\"{maxlength}\" id=\"{id}\"> Zeichen verfügbar."
 insert: "Einfügen"
 institution: "Institution"
+institution.customFields: "Freitextfelder"
+institution.customFields.define: "Freitextfelder definieren"
+institution.customFields.fields: "Institutionsfelder"
+institution.customFields.new: "Neues Textfeld"
 institution.name: "Name der Institution"
 institution.represents: "vertretene Institution"
 institution.tags.management: "Institutionen verschlagworten"
