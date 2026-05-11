@@ -371,4 +371,46 @@ describe('StatementExportModal', () => {
 
     expect(radioButtons.length).toBe(0)
   })
+
+  it('renders customHeaderText input only when docx_normal, not single export, and permission granted', async () => {
+    const selector = '[datacy="exportModal:customHeaderText"]'
+
+    expect(wrapper.find(selector).exists()).toBe(false)
+
+    await wrapper.setProps({ hasPermissionAdjustPreamble: true })
+    expect(wrapper.find(selector).exists()).toBe(true)
+
+    await wrapper.setData({ active: 'xlsx_normal' })
+    expect(wrapper.find(selector).exists()).toBe(false)
+
+    await wrapper.setData({ active: 'docx_normal' })
+    await wrapper.setProps({ isSingleStatementExport: true })
+    expect(wrapper.find(selector).exists()).toBe(false)
+  })
+
+  it('requests the full-export placeholder when no tag filters are selected', () => {
+    const transSpy = jest.spyOn(global.Translator, 'trans')
+    transSpy.mockClear()
+
+    // Trigger recomputation by reading the computed property
+    void wrapper.vm.customHeaderPlaceholder
+
+    expect(transSpy).toHaveBeenCalledWith(
+      'docx.export.header.custom.placeholder',
+      expect.objectContaining({ isPartialExport: false }),
+    )
+  })
+
+  it('requests the partial-export placeholder when tag filters are selected', async () => {
+    const transSpy = jest.spyOn(global.Translator, 'trans')
+    await wrapper.setData({ selectedTagIds: ['tagID1'] })
+    transSpy.mockClear()
+
+    void wrapper.vm.customHeaderPlaceholder
+
+    expect(transSpy).toHaveBeenCalledWith(
+      'docx.export.header.custom.placeholder',
+      expect.objectContaining({ isPartialExport: true }),
+    )
+  })
 })
