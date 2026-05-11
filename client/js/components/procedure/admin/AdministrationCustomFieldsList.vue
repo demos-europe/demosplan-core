@@ -558,6 +558,7 @@ export default {
     },
 
     isDefinitionActionDisabled () {
+      // For the moment editing and deleting of customer context fields is disabled, feature is added in the next step
       return this.isCustomerContext || (this.isActiveTabStatementContext && this.procedureReceivedStatements)
     },
 
