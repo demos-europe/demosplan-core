@@ -131,6 +131,30 @@ export default {
           doc: parsedContent,
           plugins: rangePlugin.plugins,
         }),
+        markViews: {
+          link: (mark) => {
+            const className = mark.attrs.class || ''
+            const anchor = document.createElement('a')
+            anchor.setAttribute('href', mark.attrs.href)
+            if (className) {
+              anchor.setAttribute('class', className)
+            }
+
+            if (!className.split(/\s+/).includes('pdf_importer_image')) {
+              return { dom: anchor, contentDOM: anchor }
+            }
+
+            const img = document.createElement('img')
+            img.setAttribute('src', mark.attrs.href)
+            img.setAttribute('alt', '')
+            img.setAttribute('loading', 'lazy')
+            const label = document.createElement('span')
+            label.hidden = true
+            anchor.appendChild(img)
+            anchor.appendChild(label)
+            return { dom: anchor, contentDOM: label }
+          },
+        },
       })
 
       const transformedSegments = this.transformSegments(this.segments.filter(segment => segment.charEnd <= this.maxRange))
