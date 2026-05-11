@@ -96,157 +96,84 @@ All rights reserved
         />
       </div>
 
-      <dp-accordion
-        v-if="!isInitiallyLoading"
-        :title="Translator.trans('audience.internal')"
-        is-open
-      >
-        <div class="overflow-x-auto pb-3">
-          <dp-data-table
-            :has-flyout="isAddonActive"
-            :header-fields="headerFields"
-            :items="internalPhaseDefinitions"
-            density="spacious"
-            track-by="id"
-            has-borders
-            is-resizable
-          >
+      <template v-if="!isInitiallyLoading">
+        <dp-accordion
+          v-for="section in audienceSections"
+          :key="section.audience"
+          :title="section.title"
+          is-open
+        >
+          <div class="overflow-x-auto pb-3">
+            <dp-data-table
+              :has-flyout="isAddonActive"
+              :header-fields="headerFields"
+              :items="section.audiencePhases"
+              density="spacious"
+              track-by="id"
+              has-borders
+              is-resizable
+            >
 
-            <template v-slot:phaseCode="phase">
-              <addon-wrapper
-                :addon-props="{
-                  isEditing: editingRowId === phase.id,
-                  phaseId: phase.id,
-                  savedRowPayload: savedRowPayloads[phase.id] || null,
-                }"
-                hook-name="phase.list.fields"
-                @edit-change="handleEditChange"
-                @edit-start="handleEditStart"
-              />
-            </template>
+              <template v-slot:phaseCode="phase">
+                <addon-wrapper
+                  :addon-props="{
+                    isEditing: editingRowId === phase.id,
+                    phaseId: phase.id,
+                    savedRowPayload: savedRowPayloads[phase.id] || null,
+                  }"
+                  hook-name="phase.list.fields"
+                  @edit-change="handleEditChange"
+                  @edit-start="handleEditStart"
+                />
+              </template>
 
-            <template v-slot:flyout="rowData">
-              <div class="flex float-right">
-                <button
-                  v-if="editingRowId !== rowData.id"
-                  :aria-label="Translator.trans('item.edit')"
-                  :title="Translator.trans('edit')"
-                  class="btn--blank o-link--default"
-                  @click="startEdit(rowData)"
-                >
-                  <dp-icon
-                    aria-hidden="true"
-                    icon="edit"
-                  />
-                </button>
-
-                <template v-else>
+              <template v-slot:flyout="rowData">
+                <div class="flex float-right">
                   <button
-                    :aria-label="Translator.trans('save')"
-                    :disabled="isSaving"
-                    :title="Translator.trans('save')"
-                    class="btn--blank o-link--default mr-1"
-                    @click="handleSaveEditClick"
-                  >
-                    <dp-icon
-                      aria-hidden="true"
-                      icon="check"
-                    />
-                  </button>
-
-                  <button
-                    :aria-label="Translator.trans('abort')"
-                    :title="Translator.trans('abort')"
+                    v-if="editingRowId !== rowData.id"
+                    :aria-label="Translator.trans('item.edit')"
+                    :title="Translator.trans('edit')"
                     class="btn--blank o-link--default"
-                    @click="cancelEdit"
+                    @click="startEdit(rowData)"
                   >
                     <dp-icon
                       aria-hidden="true"
-                      icon="xmark"
-                    />
-                  </button>
-                </template>
-              </div>
-            </template>
-          </dp-data-table>
-        </div>
-      </dp-accordion>
-
-      <dp-accordion
-        v-if="!isInitiallyLoading"
-        :title="Translator.trans('audience.external')"
-        is-open
-      >
-        <div class="overflow-x-auto pb-3">
-          <dp-data-table
-            :has-flyout="isAddonActive"
-            :header-fields="headerFields"
-            :items="externalPhaseDefinitions"
-            density="spacious"
-            track-by="id"
-            has-borders
-            is-resizable
-          >
-
-            <template v-slot:phaseCode="phase">
-              <addon-wrapper
-                :addon-props="{
-                  isEditing: editingRowId === phase.id,
-                  phaseId: phase.id,
-                  savedRowPayload: savedRowPayloads[phase.id] || null,
-                }"
-                hook-name="phase.list.fields"
-                @edit-change="handleEditChange"
-                @edit-start="handleEditStart"
-              />
-            </template>
-
-            <template v-slot:flyout="rowData">
-              <div class="flex float-right">
-                <button
-                  v-if="editingRowId !== rowData.id"
-                  :aria-label="Translator.trans('item.edit')"
-                  :title="Translator.trans('edit')"
-                  class="btn--blank o-link--default"
-                  @click="startEdit(rowData)"
-                >
-                  <dp-icon
-                    aria-hidden="true"
-                    icon="edit"
-                  />
-                </button>
-
-                <template v-else>
-                  <button
-                    :aria-label="Translator.trans('save')"
-                    :disabled="isSaving"
-                    :title="Translator.trans('save')"
-                    class="btn--blank o-link--default mr-1"
-                    @click="handleSaveEditClick"
-                  >
-                    <dp-icon
-                      aria-hidden="true"
-                      icon="check"
+                      icon="edit"
                     />
                   </button>
 
-                  <button
-                    :aria-label="Translator.trans('abort')"
-                    :title="Translator.trans('abort')"
-                    class="btn--blank o-link--default"
-                    @click="cancelEdit"
-                  >
-                    <dp-icon
-                      aria-hidden="true"
-                      icon="xmark"
-                    />
-                  </button>
-                </template>
-              </div>
-            </template>
-          </dp-data-table>
-        </div>
-      </dp-accordion>
+                  <template v-else>
+                    <button
+                      :aria-label="Translator.trans('save')"
+                      :disabled="isSaving"
+                      :title="Translator.trans('save')"
+                      class="btn--blank o-link--default mr-1"
+                      @click="handleSaveEditClick"
+                    >
+                      <dp-icon
+                        aria-hidden="true"
+                        icon="check"
+                      />
+                    </button>
+
+                    <button
+                      :aria-label="Translator.trans('abort')"
+                      :title="Translator.trans('abort')"
+                      class="btn--blank o-link--default"
+                      @click="cancelEdit"
+                    >
+                      <dp-icon
+                        aria-hidden="true"
+                        icon="xmark"
+                      />
+                    </button>
+                  </template>
+                </div>
+              </template>
+            </dp-data-table>
+          </div>
+        </dp-accordion>
+      </template>
 
       <dp-loading v-if="isInitiallyLoading" />
     </div>
@@ -324,10 +251,14 @@ export default {
       ]
     },
 
-    externalPhaseDefinitions () {
-      return this.phaseDefinitions
-        .filter(phase => phase.audience === 'external')
-        .map(phase => this.mapPhaseForDisplay(phase))
+    audienceSections () {
+      return ['internal', 'external'].map(audience => ({
+        audience,
+        audiencePhases: this.phaseDefinitions
+          .filter(phase => phase.audience === audience)
+          .map(phase => this.mapPhaseForDisplay(phase)),
+        title: Translator.trans(`audience.${audience}`),
+      }))
     },
 
     headerFields () {
@@ -337,12 +268,6 @@ export default {
         { field: 'participationStateLabel', label: Translator.trans('participation.state.finished'), colWidth: '160px', initialMinWidth: 160 },
         ...(this.isAddonActive ? [{ field: 'phaseCode', label: Translator.trans('procedure.phase.code'), colWidth: '160px', initialMinWidth: 160 }] : []),
       ]
-    },
-
-    internalPhaseDefinitions () {
-      return this.phaseDefinitions
-        .filter(phase => phase.audience === 'internal')
-        .map(phase => this.mapPhaseForDisplay(phase))
     },
 
     isDuplicateName () {
