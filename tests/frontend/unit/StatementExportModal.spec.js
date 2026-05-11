@@ -389,12 +389,10 @@ describe('StatementExportModal', () => {
   })
 
   it('requests the full-export placeholder when no tag filters are selected', () => {
-    const transSpy = jest.spyOn(global.Translator, 'trans')
+    const transSpy = jest.spyOn(globalThis.Translator, 'trans')
     transSpy.mockClear()
 
-    // Trigger recomputation by reading the computed property
-    void wrapper.vm.customHeaderPlaceholder
-
+    expect(wrapper.vm.customHeaderPlaceholder).toBe('docx.export.header.custom.placeholder')
     expect(transSpy).toHaveBeenCalledWith(
       'docx.export.header.custom.placeholder',
       expect.objectContaining({ isPartialExport: false }),
@@ -402,12 +400,11 @@ describe('StatementExportModal', () => {
   })
 
   it('requests the partial-export placeholder when tag filters are selected', async () => {
-    const transSpy = jest.spyOn(global.Translator, 'trans')
+    const transSpy = jest.spyOn(globalThis.Translator, 'trans')
     await wrapper.setData({ selectedTagIds: ['tagID1'] })
     transSpy.mockClear()
 
-    void wrapper.vm.customHeaderPlaceholder
-
+    expect(wrapper.vm.customHeaderPlaceholder).toBe('docx.export.header.custom.placeholder')
     expect(transSpy).toHaveBeenCalledWith(
       'docx.export.header.custom.placeholder',
       expect.objectContaining({ isPartialExport: true }),
