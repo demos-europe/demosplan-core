@@ -17,6 +17,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\RateLimiter\Storage\InMemoryStorage;
 
@@ -85,43 +86,70 @@ class RatelimitRequestSubscriberTest extends TestCase
         $subscriber = $this->createSubscriber(limit: 5);
         $event = $this->createRequestEvent(self::VALID_TOKEN);
 
-        for ($i = 0; $i < 5; ++$i) {
+        for ($i = 0; $i < 5; $i++) {
             $subscriber->onKernelRequest($event);
         }
 
         $this->addToAssertionCount(1);
     }
 
-    /**
-     * @todo Re-enable when rate limiting is re-enabled in RatelimitRequestSubscriber
-     */
     public function testRateLimitExceededThrowsWhenEnabled(): void
     {
-        $this->markTestSkipped('Rate limiting is temporarily disabled in RatelimitRequestSubscriber.');
+        $subscriber = $this->createSubscriber(limit: 1, rateLimitEnabled: true);
+        $event = $this->createRequestEvent(self::VALID_TOKEN);
+
+        $subscriber->onKernelRequest($event);
+
+        $this->expectException(TooManyRequestsHttpException::class);
+        $subscriber->onKernelRequest($event);
     }
 
-    /**
-     * @todo Re-enable when rate limiting is re-enabled in RatelimitRequestSubscriber
-     */
     public function testRateLimitExceededLogsWarningWhenDisabled(): void
     {
-        $this->markTestSkipped('Rate limiting is temporarily disabled in RatelimitRequestSubscriber.');
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with('Rate limiting for api is disabled but would have been active now.');
+
+        $subscriber = $this->createSubscriber(limit: 1, rateLimitEnabled: false, logger: $logger);
+        $event = $this->createRequestEvent(self::VALID_TOKEN);
+
+        $subscriber->onKernelRequest($event);
+
+        // Second request exceeds limit but should NOT throw — only log a warning
+        $subscriber->onKernelRequest($event);
     }
 
-    /**
-     * @todo Re-enable when rate limiting is re-enabled in RatelimitRequestSubscriber
-     */
     public function testRateLimitDisabledWithStringFalse(): void
     {
-        $this->markTestSkipped('Rate limiting is temporarily disabled in RatelimitRequestSubscriber.');
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with('Rate limiting for api is disabled but would have been active now.');
+
+        // Env vars are typically strings — 'false' must also disable rate limiting
+        $subscriber = $this->createSubscriber(limit: 1, rateLimitEnabled: 'false', logger: $logger);
+        $event = $this->createRequestEvent(self::VALID_TOKEN);
+
+        $subscriber->onKernelRequest($event);
+
+        // Should NOT throw 429 when parameter is the string 'false'
+        $subscriber->onKernelRequest($event);
     }
 
-    /**
-     * @todo Re-enable when rate limiting is re-enabled in RatelimitRequestSubscriber
-     */
     public function testMaliciousHeaderInjectionSharesBucketWithCleanToken(): void
     {
-        $this->markTestSkipped('Rate limiting is temporarily disabled in RatelimitRequestSubscriber.');
+        $subscriber = $this->createSubscriber(limit: 1, rateLimitEnabled: true);
+
+        // "Bearer validToken123\r\nX-Malicious: exploit" sanitizes to "Bearer validToken123"
+        // so both tokens share the same rate limiter bucket
+        $maliciousEvent = $this->createRequestEvent(self::MALICIOUS_TOKEN);
+        $validEvent = $this->createRequestEvent(self::VALID_TOKEN);
+
+        $subscriber->onKernelRequest($maliciousEvent);
+
+        $this->expectException(TooManyRequestsHttpException::class);
+        $subscriber->onKernelRequest($validEvent);
     }
 
     public function testScriptTagsInHeaderAreSanitized(): void

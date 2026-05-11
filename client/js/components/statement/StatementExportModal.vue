@@ -152,21 +152,6 @@
         </fieldset>
       </fieldset>
 
-      <fieldset v-if="active === 'docx_normal' && !isSingleStatementExport && hasPermissionAdjustPreamble">
-        <legend
-          class="o-form__label text-base"
-          v-text="Translator.trans('docx.export.header.custom')"
-        />
-        <dp-input
-          id="customHeaderText"
-          v-model="customHeaderText"
-          data-cy="exportModal:customHeaderText"
-          class="mt-1"
-          :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
-          type="text"
-        />
-      </fieldset>
-
       <fieldset v-if="!isSingleStatementExport">
         <legend
           id="tagsFilter"
@@ -297,12 +282,6 @@ export default {
       default: false,
     },
 
-    hasPermissionAdjustPreamble: {
-      required: false,
-      type: Boolean,
-      default: false,
-    },
-
     procedureId: {
       required: true,
       type: String,
@@ -322,7 +301,6 @@ export default {
   data () {
     return {
       active: 'docx_normal',
-      customHeaderText: '',
       docxColumns: {
         col1: {
           dataCy: 'exportModal:input:col1',
@@ -710,7 +688,6 @@ export default {
       this.isObscure = false
       this.selectedTagIds = []
       this.selectedTags = []
-      this.customHeaderText = ''
     },
 
     scrollModalToBottom () {

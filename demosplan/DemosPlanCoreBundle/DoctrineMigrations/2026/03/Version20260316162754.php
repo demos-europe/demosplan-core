@@ -17,11 +17,11 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-class Version20260312150000 extends AbstractMigration
+class Version20260316162754 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Add default_organisation_id to customer_oauth_config for Azure user auto-provisioning';
+        return 'Ensure FK constraint on customer_oauth_config.default_organisation_id exists with correct table reference';
     }
 
     /**
@@ -31,9 +31,15 @@ class Version20260312150000 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $columnExists = $this->connection->fetchOne("SHOW COLUMNS FROM customer_oauth_config LIKE 'default_organisation_id'");
-        if (false === $columnExists) {
-            $this->addSql('ALTER TABLE customer_oauth_config ADD default_organisation_id CHAR(36) DEFAULT NULL');
+        $tableExists = $this->connection->fetchOne("SHOW TABLES LIKE 'customer_oauth_config'");
+        if (false === $tableExists) {
+            return;
+        }
+
+        $fkExists = $this->connection->fetchOne(
+            "SELECT CONSTRAINT_NAME FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'customer_oauth_config' AND CONSTRAINT_NAME = 'FK_customer_oauth_default_org'"
+        );
+        if (false === $fkExists) {
             $this->addSql('ALTER TABLE customer_oauth_config ADD CONSTRAINT FK_customer_oauth_default_org FOREIGN KEY (default_organisation_id) REFERENCES _orga (_o_id) ON DELETE SET NULL');
         }
     }
@@ -46,7 +52,6 @@ class Version20260312150000 extends AbstractMigration
         $this->abortIfNotMysql();
 
         $this->addSql('ALTER TABLE customer_oauth_config DROP FOREIGN KEY FK_customer_oauth_default_org');
-        $this->addSql('ALTER TABLE customer_oauth_config DROP COLUMN default_organisation_id');
     }
 
     /**
