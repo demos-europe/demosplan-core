@@ -115,24 +115,6 @@ class LoadMailTemplateData extends ProdFixture
                 'title'    => 'Abgelehnte Freischaltung als ${orga_type} für das Bundesland ${customer} auf bauleitplanung-online.de',
                 'content'  => "Sehr geehrte/r \${firstname} \${lastname},\r\n\r\nSie haben vor kurzer Zeit eine Freischaltung Ihrer Organisation, \${orga_name}, als \${orga_type} für das Bundesland \${customer} beantragt. Ihre Anfrage wurde durch die dort zuständige Stelle geprüft und abgelehnt.\r\n\r\nSollten Sie vermuten, dass hier ein Fehler vorliegt, wenden Sie sich bitte an den Support (support@bauleitplanung-online.de).\r\n\r\nViele Grüße,\r\n\r\nIhr Team von bauleitplanung-online.de\r\n",
             ],
-            [ // row #16
-                'label'    => 'account_deletion_warning_first',
-                'language' => 'de_DE',
-                'title'    => 'Hinweis zur Inaktivität Ihres Kontos',
-                'content'  => "Sehr geehrte/r \${firstname} \${lastname},\r\n\r\nIhr Konto ist seit längerer Zeit inaktiv. Aus datenschutzrechtlichen Gründen wird Ihr Konto am \${deletion_date} gelöscht, sofern Sie sich bis dahin nicht erneut anmelden.\r\n\r\nUm Ihr Konto zu erhalten, melden Sie sich bitte erneut an.\${link_section}\r\n\r\nMit freundlichen Grüßen\r\nIhr support Team",
-            ],
-            [ // row #17
-                'label'    => 'account_deletion_warning_second',
-                'language' => 'de_DE',
-                'title'    => 'Letzte Erinnerung: Ihr Konto wird am ${deletion_date} gelöscht',
-                'content'  => "Sehr geehrte/r \${firstname} \${lastname},\r\n\r\nwir hatten Sie bereits darauf hingewiesen, dass Ihr Konto wegen Inaktivität gelöscht wird. Bisher haben wir keine erneute Anmeldung registriert.\r\n\r\nIhr Konto wird am \${deletion_date} gelöscht, sofern Sie sich bis dahin nicht anmelden.\${link_section}\r\n\r\nMit freundlichen Grüßen\r\nIhr support Team",
-            ],
-            [ // row #18
-                'label'    => 'account_deletion_completed',
-                'language' => 'de_DE',
-                'title'    => 'Ihr Konto wurde gelöscht',
-                'content'  => "Sehr geehrte/r \${firstname} \${lastname},\r\n\r\nIhr Konto wurde aufgrund von Inaktivität gemäß den geltenden Datenschutzrichtlinien gelöscht.\r\n\r\nMit freundlichen Grüßen\r\nIhr support Team",
-            ],
         ];
 
         foreach ($mailTemplates as $mailTemplateData) {

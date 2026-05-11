@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\MessageHandler;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\User\AccountDeletionTracking;
@@ -28,6 +29,7 @@ use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\UnitTestCase;
 
 class AccountDeletionRunMessageHandlerTest extends UnitTestCase
@@ -41,6 +43,9 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
     private $entityManager;
     private $parameterBag;
     private $logger;
+    private $twig;
+    private $translator;
+    private $globalConfig;
     private $sut;
 
     protected function setUp(): void
@@ -54,6 +59,13 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->parameterBag = $this->createMock(ParameterBagInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
+        $this->translator = $this->createMock(TranslatorInterface::class);
+        $this->globalConfig = $this->createMock(GlobalConfigInterface::class);
+
+        // Real twig from the kernel container — TemplateWrapper is final and
+        // can't be mocked, and a real renderer also gives us a smoke check
+        // that the production templates load and render without errors.
+        $this->twig = self::getContainer()->get('twig');
 
         // Feature enabled with a 30-day first-warning threshold.
         $this->parameterBag->method('has')->willReturnCallback(
@@ -66,6 +78,9 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
             }
         );
 
+        $this->translator->method('trans')->willReturnArgument(0);
+        $this->globalConfig->method('getProjectName')->willReturn('TestProject');
+
         $this->sut = new AccountDeletionRunMessageHandler(
             $this->permissions,
             $this->trackingRepository,
@@ -73,7 +88,10 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
             $this->mailService,
             $this->entityManager,
             $this->parameterBag,
-            $this->logger
+            $this->logger,
+            $this->twig,
+            $this->translator,
+            $this->globalConfig
         );
     }
 
@@ -104,17 +122,17 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
         $this->mailService->expects($this->once())
             ->method('sendMail')
             ->with(
-                AccountDeletionRunMessageHandler::TEMPLATE_FIRST_WARNING,
+                'dm_stellungnahme',
                 'de_DE',
                 self::TEST_EMAIL,
                 $this->anything(),
                 $this->anything(),
                 $this->anything(),
                 MailSend::MAIL_SCOPE_EXTERN,
-                $this->callback(fn (array $vars) => 'Test' === ($vars['firstname'] ?? null)
-                    && 'User' === ($vars['lastname'] ?? null)
-                    && array_key_exists('deletion_date', $vars)
-                    && array_key_exists('link_section', $vars))
+                $this->callback(fn (array $mail) => 'email.subject.account_deletion.warning_first' === ($mail['mailsubject'] ?? null)
+                    && str_contains($mail['mailbody'] ?? '', 'Test')
+                    && str_contains($mail['mailbody'] ?? '', 'User')
+                    && str_contains($mail['mailbody'] ?? '', 'Support-Team'))
             )
             ->willReturn($mailSend);
 
@@ -142,14 +160,14 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
         $this->mailService->expects($this->once())
             ->method('sendMail')
             ->with(
-                AccountDeletionRunMessageHandler::TEMPLATE_SECOND_WARNING,
+                'dm_stellungnahme',
                 'de_DE',
                 self::TEST_EMAIL,
                 $this->anything(),
                 $this->anything(),
                 $this->anything(),
                 MailSend::MAIL_SCOPE_EXTERN,
-                $this->anything()
+                $this->callback(fn (array $mail) => 'email.subject.account_deletion.warning_second' === ($mail['mailsubject'] ?? null))
             )
             ->willReturn($secondMail);
 
@@ -179,14 +197,14 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
         $this->mailService->expects($this->once())
             ->method('sendMail')
             ->with(
-                AccountDeletionRunMessageHandler::TEMPLATE_FINAL_NOTIFICATION,
+                'dm_stellungnahme',
                 'de_DE',
                 self::TEST_EMAIL,
                 $this->anything(),
                 $this->anything(),
                 $this->anything(),
                 MailSend::MAIL_SCOPE_EXTERN,
-                $this->anything()
+                $this->callback(fn (array $mail) => 'email.subject.account_deletion.completed' === ($mail['mailsubject'] ?? null))
             )
             ->willReturn($finalMail);
 
@@ -217,11 +235,14 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
                 $secondMail
             );
 
-        // Inner per-candidate try/catch: error log fires once for the failing user.
-        $this->logger->expects($this->atLeastOnce())
+        // queueMail's Throwable catch logs the failing user; the outer per-candidate
+        // try/catch is no longer reached because the inner catch swallows the exception
+        // and returns null (callers treat that as "warning not yet attempted" so the
+        // FK stays unset on the tracking row and the next cron run retries the stage).
+        $this->logger->expects($this->once())
             ->method('error')
             ->with(
-                'Account deletion: failed to process candidate',
+                'Account deletion: failed to render or queue notification mail',
                 $this->callback(fn (array $context) => 'user1-id' === ($context['userId'] ?? null))
             );
 
@@ -237,7 +258,6 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
         $user->method('getId')->willReturn($id);
         $user->method('getLogin')->willReturn($email);
         $user->method('getEmail')->willReturn($email);
-        $user->method('getLanguage')->willReturn('de_DE');
         $user->method('getFirstname')->willReturn('Test');
         $user->method('getLastname')->willReturn('User');
         $user->method('getCustomers')->willReturn([]);

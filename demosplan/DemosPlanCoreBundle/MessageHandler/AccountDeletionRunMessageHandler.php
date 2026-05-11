@@ -14,11 +14,13 @@ namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
 use DateTime;
 use DateTimeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\User\AccountDeletionTracking;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\User\AccountDeletionStep;
 use demosplan\DemosPlanCoreBundle\Logic\User\LastLoginActivityChecker;
@@ -31,15 +33,22 @@ use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
+use Twig\Environment;
 
 #[AsMessageHandler]
 final class AccountDeletionRunMessageHandler
 {
     use InitializesAnonymousUserPermissionsTrait;
 
-    public const TEMPLATE_FIRST_WARNING = 'account_deletion_warning_first';
-    public const TEMPLATE_SECOND_WARNING = 'account_deletion_warning_second';
-    public const TEMPLATE_FINAL_NOTIFICATION = 'account_deletion_completed';
+    private const BODY_TEMPLATE_FIRST_WARNING = '@DemosPlanCore/DemosPlanUser/email_account_deletion_warning_first.html.twig';
+    private const BODY_TEMPLATE_SECOND_WARNING = '@DemosPlanCore/DemosPlanUser/email_account_deletion_warning_second.html.twig';
+    private const BODY_TEMPLATE_COMPLETED = '@DemosPlanCore/DemosPlanUser/email_account_deletion_completed.html.twig';
+
+    private const SUBJECT_KEY_FIRST_WARNING = 'email.subject.account_deletion.warning_first';
+    private const SUBJECT_KEY_SECOND_WARNING = 'email.subject.account_deletion.warning_second';
+    private const SUBJECT_KEY_COMPLETED = 'email.subject.account_deletion.completed';
 
     public function __construct(
         private readonly PermissionsInterface $permissions,
@@ -49,6 +58,9 @@ final class AccountDeletionRunMessageHandler
         private readonly EntityManagerInterface $entityManager,
         private readonly ParameterBagInterface $parameterBag,
         private readonly LoggerInterface $logger,
+        private readonly Environment $twig,
+        private readonly TranslatorInterface $translator,
+        private readonly GlobalConfigInterface $globalConfig,
     ) {
     }
 
@@ -110,10 +122,18 @@ final class AccountDeletionRunMessageHandler
     private function dispatchFirstWarning(UserInterface $user, ?AccountDeletionTracking $tracking): AccountDeletionTracking
     {
         $tracking = $this->ensureTracking($user, $tracking);
-        $tracking->setFirstWarningMail($this->queueMail($user, self::TEMPLATE_FIRST_WARNING, [
-            'deletion_date' => $this->computeDeletionDate($user),
-            'link_section'  => $this->computeLinkSection($user),
-        ]));
+        $mail = $this->queueMail(
+            $user,
+            self::BODY_TEMPLATE_FIRST_WARNING,
+            self::SUBJECT_KEY_FIRST_WARNING,
+            [
+                'deletion_date' => $this->computeDeletionDate($user),
+                'link_section'  => $this->computeLinkSection($user),
+            ],
+        );
+        if (null !== $mail) {
+            $tracking->setFirstWarningMail($mail);
+        }
 
         return $tracking;
     }
@@ -121,17 +141,29 @@ final class AccountDeletionRunMessageHandler
     private function dispatchSecondWarning(UserInterface $user, ?AccountDeletionTracking $tracking): AccountDeletionTracking
     {
         $tracking = $this->ensureTracking($user, $tracking);
-        $tracking->setSecondWarningMail($this->queueMail($user, self::TEMPLATE_SECOND_WARNING, [
-            'deletion_date' => $this->computeDeletionDate($user),
-            'link_section'  => $this->computeLinkSection($user),
-        ]));
+        $mail = $this->queueMail(
+            $user,
+            self::BODY_TEMPLATE_SECOND_WARNING,
+            self::SUBJECT_KEY_SECOND_WARNING,
+            [
+                'deletion_date' => $this->computeDeletionDate($user),
+                'link_section'  => $this->computeLinkSection($user),
+            ],
+        );
+        if (null !== $mail) {
+            $tracking->setSecondWarningMail($mail);
+        }
 
         return $tracking;
     }
 
     private function finalizeDeletion(UserInterface $user, ?AccountDeletionTracking $tracking): null
     {
-        $this->queueMail($user, self::TEMPLATE_FINAL_NOTIFICATION);
+        $this->queueMail(
+            $user,
+            self::BODY_TEMPLATE_COMPLETED,
+            self::SUBJECT_KEY_COMPLETED,
+        );
 
         if ($user instanceof User) {
             $user->setDeleted(true);
@@ -190,26 +222,67 @@ final class AccountDeletionRunMessageHandler
     }
 
     /**
-     * @param array<string, scalar> $extraVars
+     * Renders body + subject ourselves and hands them to the generic `dm_stellungnahme`
+     * carrier template (placeholders `${mailbody}` / `${mailsubject}`). The MailTemplate
+     * entity is deprecated for new content; this is the same pattern as the existing
+     * assigned-tasks digest in {@see EntityContentChangeService::sendUserAssignedTasksNotificationMail}.
+     *
+     * Returns null on any rendering or send failure; callers in {@see self::dispatchFirstWarning}
+     * and {@see self::dispatchSecondWarning} treat that as "warning not yet attempted"
+     * (no MailSend FK on the tracking row) so the next cron run retries the same stage.
+     *
+     * @param array<string, scalar> $vars values used for both the twig body
+     *                                    (under `templateVars`) and any ICU subject
+     *                                    parameters; unknown keys are ignored by trans()
      */
-    private function queueMail(UserInterface $user, string $template, array $extraVars = []): MailSend
-    {
-        return $this->mailService->sendMail(
-            $template,
-            $user->getLanguage(),
-            $user->getEmail(),
-            '',
-            '',
-            '',
-            MailSend::MAIL_SCOPE_EXTERN,
-            array_merge(
+    private function queueMail(
+        UserInterface $user,
+        string $bodyTemplate,
+        string $subjectKey,
+        array $vars = [],
+    ): ?MailSend {
+        try {
+            $body = $this->twig->load($bodyTemplate)->renderBlock(
+                'body_plain',
                 [
-                    'firstname' => $user->getFirstname(),
-                    'lastname'  => $user->getLastname(),
+                    'templateVars' => array_merge(
+                        [
+                            'firstname' => $user->getFirstname(),
+                            'lastname'  => $user->getLastname(),
+                        ],
+                        $vars,
+                    ),
+                    'projectName'  => $this->globalConfig->getProjectName(),
                 ],
-                $extraVars,
-            ),
-        );
+            );
+            $subject = $this->translator->trans($subjectKey, $vars);
+
+            return $this->mailService->sendMail(
+                'dm_stellungnahme',
+                'de_DE',
+                $user->getEmail(),
+                '',
+                '',
+                '',
+                MailSend::MAIL_SCOPE_EXTERN,
+                [
+                    'mailsubject' => $subject,
+                    'mailbody'    => $body,
+                ],
+            );
+        } catch (Throwable $exception) {
+            $this->logger->error(
+                'Account deletion: failed to render or queue notification mail',
+                [
+                    'userId'       => $user->getId(),
+                    'bodyTemplate' => $bodyTemplate,
+                    'subjectKey'   => $subjectKey,
+                    'exception'    => $exception->getMessage(),
+                ]
+            );
+
+            return null;
+        }
     }
 
     /**
