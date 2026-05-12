@@ -8135,6 +8135,7 @@ __metadata:
     d3-transition: "npm:^3.0.1"
     dayjs: "npm:^1.11.19"
     deep-object-diff: "npm:^1.1.9"
+    dompurify: "npm:^3.4.0"
     eslint: "npm:^9.39.2"
     eslint-import-resolver-alias: "npm:^1.1.2"
     eslint-plugin-import: "npm:^2.32.0"
@@ -8285,7 +8286,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.0.0, dompurify@npm:^3.0.2":
+"dompurify@npm:^3.0.0, dompurify@npm:^3.0.2, dompurify@npm:^3.4.0":
   version: 3.4.2
   resolution: "dompurify@npm:3.4.2"
   dependencies:
