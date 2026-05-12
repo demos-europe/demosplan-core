@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\OrgaResourceTypeInterface;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -25,13 +24,9 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use Doctrine\Common\Collections\Collection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\PathBuilding\End;
-use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use Illuminate\Support\Collection as IlluminateCollection;
 
 /**
@@ -77,7 +72,6 @@ use Illuminate\Support\Collection as IlluminateCollection;
  * @property-read RoleResourceType                 $allowedRoles
  * @property-read InstitutionTagResourceType       $ownInstitutionTags
  * @property-read End                              $canCreateProcedures
- * @property-read End                              $customFields
  */
 final class OrgaResourceType extends DplanResourceType implements OrgaResourceTypeInterface
 {
@@ -96,11 +90,8 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
      */
     private const REGISTRATION_STATUSES_SUBDOMAIN = 'subdomain';
 
-    public function __construct(
-        private readonly RoleService $roleService,
-        protected readonly AccessControlService $accessControlPermissionService,
-        private readonly CustomFieldValueCreator $customFieldValueCreator,
-    ) {
+    public function __construct(private readonly RoleService $roleService, protected readonly AccessControlService $accessControlPermissionService)
+    {
     }
 
     public function getEntityClass(): string
@@ -163,21 +154,6 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
     public function isAvailable(): bool
     {
         return true;
-    }
-
-    /**
-     * Updates on Orga resources are only ever for customFields.
-     *
-     * Two guarantees stacked:
-     *  1. This gate requires `feature_organisations_custom_fields`.
-     *  2. Only the `customFields` attribute in {@see self::getProperties()} declares
-     *     `addUpdateBehavior(...)`. EDT rejects any other attribute sent in a PATCH
-     *     payload as not-updatable. Do NOT call `->updatable()` on any other
-     *     attribute here without revisiting this gate.
-     */
-    public function isUpdateAllowed(): bool
-    {
-        return $this->currentUser->hasPermission('feature_organisations_custom_fields');
     }
 
     protected function getProperties(): array
@@ -246,35 +222,6 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
         if ($this->currentUser->hasPermission('area_manage_users')) {
             $properties[] = $this->createToManyRelationship($this->allowedRoles)
                 ->readable(false, $this->getAllowedRoles(...));
-        }
-
-        // Only updatable attribute — the gate in isUpdateAllowed() is tied to the
-        // same permission. Adding `.updatable()` to any other attribute below would
-        // silently broaden what PATCH /Orga can write.
-        if ($this->currentUser->hasPermission('feature_organisations_custom_fields')) {
-            $properties[] = $this->createAttribute($this->customFields)
-                ->setReadableByCallable(
-                    static fn (Orga $orga): ?array => $orga->getCustomFields()?->toJson()
-                )
-                ->addUpdateBehavior(
-                    new CallbackAttributeSetBehaviorFactory(
-                        [],
-                        function (Orga $orga, array $customFields): array {
-                            $customFieldList = $orga->getCustomFields() ?? new CustomFieldValuesList();
-                            $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
-                                $customFieldList,
-                                $customFields,
-                                $this->currentCustomerService->getCurrentCustomer()->getId(),
-                                CustomFieldSupportedEntity::customer->value,
-                                CustomFieldSupportedEntity::orga->value,
-                            );
-                            $orga->setCustomFields($customFieldList);
-
-                            return [];
-                        },
-                        OptionalField::YES,
-                    )
-                );
         }
 
         if ($this->currentUser->hasPermission('feature_manage_procedure_creation_permission')) {
