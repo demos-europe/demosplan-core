@@ -40,6 +40,7 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToCopyFile;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -386,6 +387,69 @@ class FileService implements FileServiceInterface
         }
 
         return $this->handleLocalFileStorage($symfonyFile, $virencheck, $dplanFile, $filePath);
+    }
+
+    /**
+     * Same as {@link saveTemporaryLocalFile} but persists the File entity *before* the
+     * potentially long-running virus scan and flysystem move. The caller-supplied
+     * $afterPersist hook is invoked synchronously with the new entity, allowing the
+     * caller to record the freshly minted file id elsewhere (e.g. in the tus cache,
+     * so retries from a client whose connection died mid-PATCH can still recover the
+     * id). On any error after persistence, the partially created entity is removed.
+     */
+    public function persistAndStoreLocalFile(
+        string $filePath,
+        string $fileName,
+        ?string $userId,
+        ?string $procedureId,
+        string $virencheck,
+        string $hash,
+        callable $afterPersist,
+    ): File {
+        $symfonyFile = new \Symfony\Component\HttpFoundation\File\File($filePath);
+
+        // Reject by mimetype before touching the DB.
+        $this->checkMimeTypeAllowed($symfonyFile->getMimeType(), $symfonyFile->getPathname());
+
+        $path = date('Y').'/'.date('m');
+
+        $dplanFile = new File();
+        $dplanFile->setMimetype($symfonyFile->getMimeType());
+        $dplanFile->setFilename($fileName);
+        $dplanFile->setName($fileName);
+        $dplanFile->setAuthor($userId);
+        $dplanFile->setHash($hash);
+        $dplanFile->setSize($symfonyFile->getSize());
+        $dplanFile->setPath($path);
+        if (null !== $procedureId) {
+            try {
+                $dplanFile->setProcedure($this->entityManager->getReference(Procedure::class, $procedureId));
+            } catch (Throwable) {
+                // Procedure does not exist
+            }
+        }
+
+        $this->addFile($dplanFile);
+
+        try {
+            $afterPersist($dplanFile);
+        } catch (Throwable $hookError) {
+            $this->logger->warning('persistAndStoreLocalFile afterPersist hook failed', [$hookError]);
+        }
+
+        try {
+            if (self::VIRUSCHECK_NONE !== $virencheck && $this->globalConfig->isAvscanEnabled()) {
+                $this->virusCheck($symfonyFile);
+            }
+            $this->moveLocalFile($symfonyFile, $path, $hash);
+        } catch (Throwable $e) {
+            $this->deleteFile($hash);
+            throw $e;
+        }
+
+        (new Filesystem())->remove($filePath);
+
+        return $dplanFile;
     }
 
     /**
@@ -1185,10 +1249,25 @@ class FileService implements FileServiceInterface
                 sprintf('%s/%s', uniqid($hash, true), $hash ?? uniqid('', true))
             );
         }
-        // Move the file to local directory from flysystem
+        // Move the file to local directory from flysystem.
+        // Use readStream + stream_copy_to_stream so multi-GB files don't blow up
+        // PHP memory (read() loads the whole blob as a string).
         $fs = new Filesystem();
         if ($this->defaultStorage->fileExists($remotePath)) {
-            $fs->dumpFile($path, $this->defaultStorage->read($remotePath));
+            $fs->mkdir(dirname($path));
+            $remoteStream = $this->defaultStorage->readStream($remotePath);
+            $localHandle = fopen($path, 'wb');
+            if (false === $localHandle) {
+                throw new RuntimeException('Failed to open local file for writing: '.$path);
+            }
+            try {
+                stream_copy_to_stream($remoteStream, $localHandle);
+            } finally {
+                fclose($localHandle);
+                if (is_resource($remoteStream)) {
+                    fclose($remoteStream);
+                }
+            }
         }
 
         if (!$fs->exists($path)) {
@@ -1196,6 +1275,22 @@ class FileService implements FileServiceInterface
         }
 
         return $path;
+    }
+
+    /**
+     * Lightweight check that the flysystem blob behind a given file hash exists.
+     * Used by the import flow to gate the user-visible Submit button on the
+     * upload pipeline (virus scan + flysystem move) being done.
+     */
+    public function isHashReady(string $hash): bool
+    {
+        try {
+            $fileInfo = $this->getFileInfo($hash);
+
+            return $this->defaultStorage->fileExists($fileInfo->getAbsolutePath());
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     public function deleteLocalFile($localFilePath): void
