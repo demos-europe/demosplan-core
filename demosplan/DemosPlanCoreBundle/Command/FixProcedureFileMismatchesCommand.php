@@ -39,7 +39,7 @@ class FixProcedureFileMismatchesCommand extends CoreCommand
         private readonly EntityManagerInterface $entityManager,
         private readonly FileService $fileService,
         private readonly LoggerInterface $logger,
-        string $name = null,
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -77,14 +77,14 @@ class FixProcedureFileMismatchesCommand extends CoreCommand
     {
         $io = new SymfonyStyle($input, $output);
 
-        $apply          = (bool) $input->getOption('apply');
-        $procedureId    = $input->getOption('procedure');
+        $apply = (bool) $input->getOption('apply');
+        $procedureId = $input->getOption('procedure');
         $includeDeleted = (bool) $input->getOption('include-deleted-owners');
-        $limit          = null !== $input->getOption('limit') ? (int) $input->getOption('limit') : null;
+        $limit = null !== $input->getOption('limit') ? (int) $input->getOption('limit') : null;
 
         $io->title('HDDP-18 — procedure/file mismatch '.($apply ? 'fix' : 'audit (dry-run)'));
 
-        $elementIds   = $this->findMismatchedElementIds($procedureId, $includeDeleted, $limit);
+        $elementIds = $this->findMismatchedElementIds($procedureId, $includeDeleted, $limit);
         $singleDocIds = $this->findMismatchedSingleDocIds($procedureId, $includeDeleted, $limit);
 
         $io->section('Discovery');
@@ -124,7 +124,7 @@ class FixProcedureFileMismatchesCommand extends CoreCommand
         }
 
         $io->section('Applying fixes');
-        $elementsResult   = $this->fixElements($io, $elementIds);
+        $elementsResult = $this->fixElements($io, $elementIds);
         $singleDocsResult = $this->fixSingleDocs($io, $singleDocIds);
 
         $io->section('Summary');
@@ -214,18 +214,18 @@ class FixProcedureFileMismatchesCommand extends CoreCommand
     private function reportByOwningProcedure(SymfonyStyle $io, array $elementIds, array $singleDocIds): void
     {
         $unionParts = [];
-        $params     = [];
-        $types      = [];
+        $params = [];
+        $types = [];
 
         if ([] !== $elementIds) {
-            $unionParts[]   = 'SELECT _p_id, COUNT(*) AS cnt FROM _elements WHERE _e_id IN (:eids) GROUP BY _p_id';
+            $unionParts[] = 'SELECT _p_id, COUNT(*) AS cnt FROM _elements WHERE _e_id IN (:eids) GROUP BY _p_id';
             $params['eids'] = $elementIds;
-            $types['eids']  = ArrayParameterType::STRING;
+            $types['eids'] = ArrayParameterType::STRING;
         }
         if ([] !== $singleDocIds) {
-            $unionParts[]    = 'SELECT _p_id, COUNT(*) AS cnt FROM _single_doc WHERE _sd_id IN (:sdids) GROUP BY _p_id';
+            $unionParts[] = 'SELECT _p_id, COUNT(*) AS cnt FROM _single_doc WHERE _sd_id IN (:sdids) GROUP BY _p_id';
             $params['sdids'] = $singleDocIds;
-            $types['sdids']  = ArrayParameterType::STRING;
+            $types['sdids'] = ArrayParameterType::STRING;
         }
         if ([] === $unionParts) {
             return;

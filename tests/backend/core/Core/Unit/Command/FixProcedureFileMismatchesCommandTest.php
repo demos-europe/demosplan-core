@@ -32,7 +32,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class FixProcedureFileMismatchesCommandTest extends TestCase
 {
-    private const ELEMENT_DISCOVERY_SQL_FRAGMENT   = 'FROM _elements e';
+    private const ELEMENT_DISCOVERY_SQL_FRAGMENT = 'FROM _elements e';
     private const SINGLE_DOC_DISCOVERY_SQL_FRAGMENT = 'FROM _single_doc sd';
 
     private Connection&MockObject $connection;
@@ -45,11 +45,11 @@ class FixProcedureFileMismatchesCommandTest extends TestCase
     {
         parent::setUp();
 
-        $this->connection    = $this->createMock(Connection::class);
+        $this->connection = $this->createMock(Connection::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->fileService   = $this->createMock(FileService::class);
-        $this->logger        = $this->createMock(LoggerInterface::class);
-        $this->parameterBag  = $this->createMock(ParameterBagInterface::class);
+        $this->fileService = $this->createMock(FileService::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->parameterBag = $this->createMock(ParameterBagInterface::class);
     }
 
     public function testDryRunReportsNothingToFixWhenDiscoveryEmpty(): void
