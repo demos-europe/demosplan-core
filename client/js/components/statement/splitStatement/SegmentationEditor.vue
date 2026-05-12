@@ -149,7 +149,7 @@ export default {
             img.setAttribute('alt', '')
             img.setAttribute('loading', 'lazy')
             const label = document.createElement('span')
-            label.hidden = true
+            label.className = 'sr-only'
             anchor.appendChild(img)
             anchor.appendChild(label)
             return { dom: anchor, contentDOM: label }
