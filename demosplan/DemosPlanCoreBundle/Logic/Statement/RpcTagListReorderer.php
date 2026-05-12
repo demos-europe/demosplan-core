@@ -128,17 +128,8 @@ final class RpcTagListReorderer implements RpcMethodSolverInterface
         $sameTopic = $previousTopic->getId() === $newTopic->getId();
         $previousIndex = $tag->getSortIndex();
 
-        $targetSiblings = array_values(array_filter(
-            $this->getSortedTags($newTopic),
-            static fn (Tag $t): bool => $t->getId() !== $tag->getId()
-        ));
-
-        if (null === $newIndex || $newIndex > count($targetSiblings)) {
-            $newIndex = count($targetSiblings);
-        }
-        if ($newIndex < 0) {
-            $newIndex = 0;
-        }
+        $targetSiblings = $this->siblingsWithout($newTopic, $tag);
+        $newIndex = $this->clampIndex($newIndex, count($targetSiblings));
 
         if ($sameTopic && $previousIndex === $newIndex) {
             return [];
@@ -147,40 +138,54 @@ final class RpcTagListReorderer implements RpcMethodSolverInterface
         $changed = [];
 
         if (!$sameTopic) {
-            // remove from old topic and re-index its remaining tags
             $previousTopic->removeTag($tag);
-            $remaining = array_values(array_filter(
-                $this->getSortedTagsByTopicEntity($previousTopic),
-                static fn (Tag $t): bool => $t->getId() !== $tag->getId()
-            ));
-            foreach ($remaining as $i => $sibling) {
-                if ($sibling->getSortIndex() !== $i) {
-                    $sibling->setSortIndex($i);
-                    $changed[$sibling->getId()] = $sibling;
-                }
-            }
-
+            $this->reindexAndCollect($this->siblingsWithout($previousTopic, $tag), $changed);
             $tag->setTopic($newTopic);
         }
 
-        // insert into new topic at $newIndex
         array_splice($targetSiblings, $newIndex, 0, [$tag]);
-        foreach ($targetSiblings as $i => $sibling) {
-            if ($sibling->getSortIndex() !== $i || ($sibling === $tag && !$sameTopic)) {
-                $sibling->setSortIndex($i);
-                $changed[$sibling->getId()] = $sibling;
-            }
-        }
+        $this->reindexAndCollect($targetSiblings, $changed, $sameTopic ? null : $tag);
 
         return array_values($changed);
+    }
+
+    private function clampIndex(?int $newIndex, int $count): int
+    {
+        if (null === $newIndex || $newIndex > $count) {
+            return $count;
+        }
+
+        return max(0, $newIndex);
     }
 
     /**
      * @return list<Tag>
      */
-    private function getSortedTags(TagTopic $topic): array
+    private function siblingsWithout(TagTopicInterface $topic, Tag $excluding): array
     {
-        return $this->getSortedTagsByTopicEntity($topic);
+        return array_values(array_filter(
+            $this->getSortedTagsByTopicEntity($topic),
+            static fn (Tag $t): bool => $t->getId() !== $excluding->getId()
+        ));
+    }
+
+    /**
+     * Assigns a contiguous sortIndex to each tag in $tags and adds the affected
+     * tags to $changed. If $forceInclude is given, that tag is added unconditionally
+     * (used when a tag changed topic — its sortIndex may not have changed but the
+     * caller still needs to surface the move).
+     *
+     * @param list<Tag>          $tags
+     * @param array<string, Tag> $changed
+     */
+    private function reindexAndCollect(array $tags, array &$changed, ?Tag $forceInclude = null): void
+    {
+        foreach ($tags as $i => $sibling) {
+            if ($sibling->getSortIndex() !== $i || $sibling === $forceInclude) {
+                $sibling->setSortIndex($i);
+                $changed[$sibling->getId()] = $sibling;
+            }
+        }
     }
 
     /**
