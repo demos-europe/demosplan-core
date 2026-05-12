@@ -17,7 +17,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     php8.4-sqlite3 php8.4-xml php8.4-zip unzip -y \
     && update-alternatives --set php /usr/bin/php8.4 \
     && mkdir -p /opt/uploads
-COPY --link zzz-dplan-cli.ini /etc/php/8.4/cli/conf.d/zzz-dplan-cli.ini
+COPY zzz-dplan-cli.ini /etc/php/8.4/cli/conf.d/zzz-dplan-cli.ini
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
@@ -32,9 +32,9 @@ ENV PROJECT_PREFIX=$PROJECT_NAME \
 
 # Setup timezone
 RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
-COPY --link zzz-dplan.ini /etc/php/8.4/fpm/conf.d/zzz-dplan.ini
-COPY --link zzz-dplan-cli.ini /etc/php/8.4/cli/conf.d/zzz-dplan-cli.ini
-COPY --link php-fpm_www.conf /etc/php/8.4/fpm/pool.d/zzz-www.conf
+COPY zzz-dplan.ini /etc/php/8.4/fpm/conf.d/zzz-dplan.ini
+COPY zzz-dplan-cli.ini /etc/php/8.4/cli/conf.d/zzz-dplan-cli.ini
+COPY php-fpm_www.conf /etc/php/8.4/fpm/pool.d/zzz-www.conf
 
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,sharing=locked \
@@ -62,8 +62,6 @@ RUN mkdir -p /opt/uploads && \
 USER www-data
 WORKDIR /srv/www
 # Install composer and yarn before copying the project files to make use of the docker cache.
-# No --link: would rebase /srv/www to root:root and break the prior chown to www-data, so the
-# yarn install in the next RUN cannot mkdir /srv/www/node_modules.
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
 # do not use --no-scripts, as we do not need all the aws stuff
 RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
@@ -79,8 +77,6 @@ RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=loc
     rm -rf /srv/www/.cache/*
 
 USER root
-# No --link: must preserve www-data ownership of /srv/www set above so subsequent www-data RUN
-# steps can write into it.
 COPY . /srv/www
 
 # Remove app_dev.php in production mode
@@ -104,8 +100,6 @@ RUN mkdir -p /srv/www/public/js && \
     chown -R www-data /srv/www/client/css/generated && \
 # define doctrine in memory database for the asset build \
     mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
-# No --link: writes into /srv/www subpaths; --link would rebase /srv/www metadata and break
-# www-data write access needed by the asset-build RUN below (e.g. rm -rf /srv/www/node_modules).
 COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
 COPY parameters_build.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
 
@@ -130,8 +124,6 @@ RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
 
 USER root
 RUN mv /tmp/doctrine.yaml /srv/www/config/packages/doctrine.yaml
-# No --link: keep consistent with other COPY-into-prepared-dirs in this stage; /opt/config was
-# chown'd to www-data above and --link would flip it back to root:root.
 COPY projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/parameters.yml
 
 RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
@@ -180,18 +172,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && mkdir -p /opt/uploads \
     && ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
 
-# Copy PHP configuration. --link lets these layers stay independent from each other so
-# touching one ini file doesn't invalidate the rest.
-COPY --link zzz-dplan.ini /etc/php/8.4/fpm/conf.d/zzz-dplan.ini
-COPY --link zzz-dplan-cli.ini /etc/php/8.4/cli/conf.d/zzz-dplan-cli.ini
-COPY --link php-fpm_www.conf /etc/php/8.4/fpm/pool.d/zzz-www.conf
-COPY --link php-fpm.conf /etc/php/8.4/fpm/php-fpm.conf
+COPY zzz-dplan.ini /etc/php/8.4/fpm/conf.d/zzz-dplan.ini
+COPY zzz-dplan-cli.ini /etc/php/8.4/cli/conf.d/zzz-dplan-cli.ini
+COPY php-fpm_www.conf /etc/php/8.4/fpm/pool.d/zzz-www.conf
+COPY php-fpm.conf /etc/php/8.4/fpm/php-fpm.conf
 
 WORKDIR /srv/www
 
 # Copy only built artifacts from build stage (no build tools, no node_modules history)
-COPY --link --from=build /srv/www /srv/www
-COPY --link --from=build /opt/config/parameters.yml /opt/config/parameters.yml
+COPY --from=build /srv/www /srv/www
+COPY --from=build /opt/config/parameters.yml /opt/config/parameters.yml
 
 # Setup directories and permissions
 RUN rm -rf /srv/www/var/cache/* && \
@@ -236,10 +226,6 @@ LABEL org.opencontainers.image.source="https://github.com/demos-europe/demosplan
 ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung \
     BUILD_MODE=$BUILD_MODE
 
-# Copy nginx config templates to context. No --link: COPY --link rebases /tmp metadata to
-# root:root 0755 and strips the 1777 sticky bit the unprivileged nginx image needs at runtime
-# (its default proxy_temp_path is /tmp/proxy_temp), causing
-# "mkdir() \"/tmp/proxy_temp\" failed (13: Permission denied)" on container start.
 COPY nginx.conf.template /tmp/nginx.conf.template
 COPY nginx.conf.template-dev /tmp/nginx.conf.template-dev
 
@@ -253,7 +239,7 @@ RUN mkdir -p /etc/nginx/templates && \
 
 WORKDIR /srv/www
 # only webfolder with frontcontroller and static files is needed for nginx
-COPY --link --from=build /srv/www/public /srv/www/public
+COPY --from=build /srv/www/public /srv/www/public
 
 # Ensure text/csv is defined in mime.types
 RUN sed -i '/^}/i\    text/csv csv;' /etc/nginx/mime.types
