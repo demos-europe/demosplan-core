@@ -22,6 +22,7 @@ parameters:
     tex2pdf_url: "http://pdflatex_api_nginx:8080"
     docx_importer_route: "http://docx_importer_nginx:8080"
     avscan_url: "http://avscan_api:3000"
+    languagetool_url: "http://languagetool:8010"
 
     gateway_url: '/app_dev.php/dplan/login'
     pipeline.ai.link.pattern: '/(http:\/\/dpp_endpoint_pdfimporter[:\/\-\w.?=&]+png)/'
