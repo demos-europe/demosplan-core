@@ -971,8 +971,13 @@ docx.export.file_name: "Dateinamen einzelner DOCX-Dateien"
 docx.export.file_name.hint: "Um den Dateinamen dynamisch zu erstellen, verwenden Sie folgende Platzhalter:<br>'{ID}' - die ID der Stellungnahme in EWM<br>'{NAME}' - der Name der einreichenden Person oder Organisation<br>'{EINGANGSNR}' - die vergebene Eingangsnummer<br>Wenn Sie weder '{ID}', '{NAME}' noch '{EINGANGSNR}' verwenden, wird dem Dateinamen eine einzigartige Nummer angehängt."
 docx.export.file_name.placeholder: "'{ID}'_'{NAME}'_'{EINGANGSNR}'"
 docx.export.filtered: "<p>Angewendete Schlagwortfilter: </p> <br>"
-docx.export.header.custom: "Individueller Kopfzeilentext"
-docx.export.header.custom.placeholder: "Bitte geben Sie hier Ihren individuellen Titel ein"
+docx.export.header.custom: "Kopfzeile anpassen"
+docx.export.header.custom.hint: "Der individuelle Kopfzeilentext erscheint in der DOCX-Datei. Um die Kopfzeile auf den Ursprungswert zurückzusetzen, entfernen Sie den Eintrag im Textfeld."
+docx.export.header.custom.placeholder: |
+  {isPartialExport, select,
+      true {Teilexport Synopse {procedureName}}
+      other {Export Synopse {procedureName}}
+  }
 docx.export.landscape: "Docx Exp. (Querformat)"
 docx: "DOCX"
 done: "erledigt"
