@@ -25,7 +25,7 @@ parameters:
     languagetool_url: "http://languagetool:8010"
 
     gateway_url: '/app_dev.php/dplan/login'
-    pipeline.ai.link.pattern: '/(http:\/\/dpp_endpoint_pdfimporter[:\/\-\w.?=&]+png)/'
+    pipeline.ai.link.pattern: '/(http:\/\/demospipes-api[:\/\-\w.?=&;]+png)/'
 
     # Client ID for static Keycloak testing - must match resource_access key in test data
     oauth_keycloak_client_id: 'dplan-test'
