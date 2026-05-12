@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedurePhaseDefinitionServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
@@ -56,7 +55,7 @@ readonly class ProcedurePhaseDefinitionService implements ProcedurePhaseDefiniti
         return $this->procedurePhaseDefinitionRepository->findByNameAndAudienceAndCustomer($name, $audience, $customer);
     }
 
-    public function findInitialDefinition(string $audience, ?Customer $customer): ?ProcedurePhaseDefinition
+    public function findInitialDefinition(string $audience, ?CustomerInterface $customer): ?ProcedurePhaseDefinition
     {
         return $this->procedurePhaseDefinitionRepository->findInitialDefinition($audience, $customer);
     }
