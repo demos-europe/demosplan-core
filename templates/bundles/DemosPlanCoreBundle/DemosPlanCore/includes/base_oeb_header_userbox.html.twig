@@ -234,6 +234,20 @@
     {% else %}
 
         {# loggedout state of userbox #}
+        {% if idpLogoutUrl is defined and idpLogoutUrl is not null %}
+            {# IDP session exists but dplan auth failed - show logout to terminate IDP session #}
+            <div class="{{ 'c-nav__flyout c-flyout float-right text-right'|prefixClass }}">
+                <a
+                    class="{{ 'c-flyout__trigger'|prefixClass }}"
+                    href="{{ idpLogoutUrl }}"
+                    data-cy="headerNav:logout">
+                    <span class="{{ 'c-flyout__trigger-inner'|prefixClass }}">
+                        <i class="{{ 'fa fa-sign-out'|prefixClass }}" aria-hidden="true"></i>
+                        {{ "logout"|trans }}
+                    </span>
+                </a>
+            </div>
+        {% else %}
         <div class="{{ 'c-nav__flyout c-flyout float-right text-right'|prefixClass }}" {%  if projectType == 'gateway' and loggedout_simple is not defined and hasPermission('area_login_dialog') %}data-actionmenu{% endif %}>
             {% if projectType == 'gateway' %}
 
@@ -288,5 +302,6 @@
 
             {% endif %}
         </div>
+        {% endif %}
 
     {% endif %}

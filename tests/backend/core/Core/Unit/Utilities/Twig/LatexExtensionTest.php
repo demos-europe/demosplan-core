@@ -82,7 +82,7 @@ class LatexExtensionTest extends UnitTestCase
             ['<p>,</p>', ',\\\\'],
             ['<p>|</p>', '|\\\\'],
             ['<p>!</p>', '!\\\\'],
-            ['<p>"</p>', '\dq \\\\'],
+            ['<p>"</p>', '\textquotedbl \\\\'],
             ['<p>/</p>', '/\\\\'],
             ['<p>(</p>', '(\\\\'],
             ['<p>)</p>', ')\\\\'],
@@ -107,7 +107,36 @@ class LatexExtensionTest extends UnitTestCase
             ['<p>https://de.wikipedia.org/wiki/Technische_Anleitung_zum_Schutz_gegen_L%C3%A4rm</p>', '\footnote{\protect\url{https://de.wikipedia.org/wiki/Technische_Anleitung_zum_Schutz_gegen_L\%C3\%A4rm}}\\\\'],
             ['<p>http://ad.ad.berlin.demos-europe.eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/</p><p>http://ad.ad.berlin.demos-europe.eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/ad-ad-berlin-demos-europe-eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/</p>',
                 '\footnote{\protect\url{http://ad.ad.berlin.demos-europe.eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/}}\\\\\footnote{\protect\url{http://ad.ad.berlin.demos-europe.eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/ad-ad-berlin-demos-europe-eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/}}\\\\', ],
+            // Typographic ligatures are NFKC-decomposed to plain ASCII so the old
+            // inputenc setup in the TeX renderer does not trip over them.
+            ['<p>Pﬂanzenschutz</p>', 'Pflanzenschutz\\\\'],
+            ['<p>ﬀﬁﬂﬃﬄ</p>', 'fffiflffiffl\\\\'],
+            // Narrow/thin whitespace collapses to a regular space.
+            ['<p>a'."\u{2009}".'b</p>', 'a b\\\\'],
+            ['<p>a'."\u{202F}".'b</p>', 'a b\\\\'],
+            // Zero-width characters disappear entirely.
+            ['<p>a'."\u{200B}".'b'."\u{FEFF}".'c</p>', 'abc\\\\'],
+            // Arrows become math-mode so we don't depend on textcomp glyphs.
+            ['<p>A '."\u{2192}".' B</p>', 'A $\rightarrow$ B\\\\'],
         ];
+    }
+
+    public function testNormalizeUnicodeLigatures(): void
+    {
+        self::assertSame('fi fl ff ffi ffl', $this->sut->normalizeUnicode('ﬁ ﬂ ﬀ ﬃ ﬄ'));
+    }
+
+    public function testNormalizeUnicodeStripsZeroWidth(): void
+    {
+        self::assertSame('abc', $this->sut->normalizeUnicode("a\u{200B}b\u{FEFF}c"));
+    }
+
+    public function testNormalizeUnicodeMapsArrows(): void
+    {
+        self::assertSame(
+            'A $\rightarrow$ B $\leftarrow$ C',
+            $this->sut->normalizeUnicode("A \u{2192} B \u{2190} C")
+        );
     }
 
     public function testNewlineEliminationNewline()

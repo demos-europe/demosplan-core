@@ -325,6 +325,10 @@
             background: $multiselect-color-hover;
             outline: none;
             color: $dp-color-white;
+
+            input[type='checkbox']:checked {
+                border-color: $multiselect-checkbox-border-color;
+            }
         }
 
         // Dark variant used in TagSelect.vue
