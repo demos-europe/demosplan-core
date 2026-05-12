@@ -245,13 +245,29 @@ export default {
         return false
       }
 
-      const initialAttributes = this.deepCloneSerializable(this.statement.attributes)
-      initialAttributes.authoredDate = this.getFormattedDate(initialAttributes.authoredDate)
-      initialAttributes.submitDate = this.getFormattedDate(initialAttributes.submitDate)
-
+      const initialAttributes = this.statement.attributes
       const currentAttributes = this.localStatement.attributes
 
-      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+      if (this.getFormattedDate(currentAttributes.authoredDate) !== this.getFormattedDate(initialAttributes.authoredDate)) {
+        return true
+      }
+      if (this.getFormattedDate(currentAttributes.submitDate) !== this.getFormattedDate(initialAttributes.submitDate)) {
+        return true
+      }
+      if ((currentAttributes.submitType ?? '') !== (initialAttributes.submitType ?? '')) {
+        return true
+      }
+      if ((currentAttributes.internId ?? '') !== (initialAttributes.internId ?? '')) {
+        return true
+      }
+      if (hasPermission('field_statement_phase') && (currentAttributes.procedurePhase?.key ?? '') !== (initialAttributes.procedurePhase?.key ?? '')) {
+        return true
+      }
+      if (hasPermission('field_statement_memo') && (currentAttributes.memo ?? '') !== (initialAttributes.memo ?? '')) {
+        return true
+      }
+
+      return false
     },
 
     isStatementManual () {

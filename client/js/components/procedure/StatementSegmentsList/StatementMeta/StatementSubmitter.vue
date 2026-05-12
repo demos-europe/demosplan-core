@@ -244,7 +244,23 @@ export default {
       const initialAttributes = this.statement.attributes
       const currentAttributes = this.localStatement.attributes
 
-      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+      const stringFields = [
+        'initialOrganisationDepartmentName',
+        'initialOrganisationName',
+        'authorName',
+        'submitName',
+        'submitterEmailAddress',
+        'initialOrganisationStreet',
+        'initialOrganisationHouseNumber',
+        'initialOrganisationPostalCode',
+        'initialOrganisationCity',
+      ]
+
+      if (stringFields.some(field => (currentAttributes[field] ?? '') !== (initialAttributes[field] ?? ''))) {
+        return true
+      }
+
+      return Boolean(currentAttributes.representationChecked) !== Boolean(initialAttributes.representationChecked)
     },
 
     isStatementManual () {
