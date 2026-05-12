@@ -265,7 +265,7 @@ export default {
 
       this.listTagTopics({
         fields: {
-          Tag: ['boilerplate', 'title'].join(),
+          Tag: ['boilerplate', 'sortIndex', 'title'].join(),
           TagTopic: topicAttributes.join(),
           Boilerplate: [
             'title',
@@ -276,31 +276,6 @@ export default {
       }).then(() => {
         this.dataIsRequested = false
       })
-    },
-
-    /*
-     * MOCK: remove once backend DPLAN-17223-BE is ready
-     * Fakes the tag.reorder RPC — only updates displayOrder in the local Tag store
-     */
-    mockTagReorder ({ elementId, newIndex, parentId }) {
-      const topic = this.TagTopic[parentId]
-      if (!topic) {
-        return Promise.resolve()
-      }
-
-      topic.relationships.tags.data.forEach((tagRef, idx) => {
-        const tag = this.Tag[tagRef.id]
-        if (tag) {
-          this.updateTag({
-            ...tag,
-            attributes: {
-              ...tag.attributes,
-              displayOrder: idx,
-            },
-          })
-        }
-      })
-      return Promise.resolve()
     },
 
     removeTagFromOldTopic (oldParent, tagId) {
@@ -347,8 +322,21 @@ export default {
         },
       })
 
-      this.mockTagReorder({ elementId: tagId, newIndex, parentId })
-        .then(() => dplan.notify.confirm(Translator.trans('confirm.saved')))
+      dpRpc( 'tagList.reorder', { tagId, topicId: parentId, newIndex })
+        .then((response) => {
+          console.log('data:', response.data)
+          const result = response.data[0].result
+          Object.entries(result).forEach(([id, { sortIndex }]) => {
+            const tag = this.Tag[id]
+            if (tag) {
+              this.updateTag({
+                ...tag,
+                attributes: { ...tag.attributes, sortIndex }
+              })
+            }
+          })
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+        })
         .catch(error => {
           console.error(error)
           // Rollback
