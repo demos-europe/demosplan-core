@@ -40,9 +40,12 @@ All rights reserved
           required
         />
 
+        <dp-loading v-if="isCreateFormAddonLoading" />
+
         <addon-wrapper
           :addon-props="{ hasAttemptedSubmit }"
           hook-name="phase.create.form"
+          @addons:loaded="isCreateFormAddonLoading = false"
           @change="updateAddonPayload"
         />
 
@@ -97,7 +100,9 @@ All rights reserved
         />
       </div>
 
-      <template v-if="!isInitiallyLoading">
+      <dp-loading v-if="isInitiallyLoading" />
+
+      <template v-else>
         <dp-accordion
           v-for="section in audienceSections"
           :key="section.audience"
@@ -129,7 +134,7 @@ All rights reserved
               </template>
 
               <template v-slot:flyout="rowData">
-                <div class="flex float-right">
+                <div class="flex float-right py-[15px]">
                   <button
                     v-if="editingRowId !== rowData.id"
                     :aria-label="Translator.trans('item.edit')"
@@ -175,8 +180,6 @@ All rights reserved
           </div>
         </dp-accordion>
       </template>
-
-      <dp-loading v-if="isInitiallyLoading" />
     </div>
   </div>
 </template>
@@ -223,6 +226,7 @@ export default {
       hasAttemptedSubmit: false,
       initialRowPayloads: {},
       isAddonActive: false,
+      isCreateFormAddonLoading: true,
       isCreating: false,
       isInitiallyLoading: true,
       isLoading: false,
