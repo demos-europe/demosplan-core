@@ -2701,6 +2701,11 @@ field_organisation_phone:
     label: 'Telefon des Verfahrensträger'
     loginRequired: false
     parent: field_organisation
+field_organisations_custom_fields:
+    expose: true
+    label: 'Anzeige der eigenen Werte für Custom Fields der Organisation'
+    loginRequired: false
+    parent: field_organisation
 field_paragraph_lock_statement:
     description: 'Block the possibility to submit statements to chosen paragraph.'
     label: 'Statements can be locked for some paragraphs'
