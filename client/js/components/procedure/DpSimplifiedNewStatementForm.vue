@@ -356,6 +356,7 @@
         :aria-label="Translator.trans('statement.text.short')"
         :procedure-id="procedureId"
         :toolbar-items="{ linkButton: true, imageButton: true }"
+        :tus-endpoint="dplan.paths.tusEndpoint"
         required
         hidden-input="r_text"
       />
