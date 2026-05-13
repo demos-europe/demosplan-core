@@ -278,12 +278,12 @@ export default {
       dpRpc('tagList.reorder', { tagId, topicId: targetTopicId, newIndex })
         .then((response) => {
           const result = response.data[0].result
-          Object.entries(result).forEach(([id, { sortIndex }]) => {
+          for (const [id, { sortIndex }] of Object.entries(result)) {
             const tag = this.Tag[id]
             if (tag) {
               this.updateTag({ ...tag, attributes: { ...tag.attributes, sortIndex } })
             }
-          })
+          }
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(error => {
@@ -383,20 +383,18 @@ export default {
         },
       })
 
-      dpRpc( 'tagList.reorder', { tagId, topicId: parentId, newIndex })
+      dpRpc('tagList.reorder', { tagId, topicId: parentId, newIndex })
         .then((response) => {
-          console.log('data:', response.data)
-          console.log('reaching notify')
           const result = response.data[0].result
-          Object.entries(result).forEach(([id, { sortIndex }]) => {
+          for (const [id, { sortIndex }] of Object.entries(result)) {
             const tag = this.Tag[id]
             if (tag) {
               this.updateTag({
                 ...tag,
-                attributes: { ...tag.attributes, sortIndex }
+                attributes: { ...tag.attributes, sortIndex },
               })
             }
-          })
+          }
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(error => {
