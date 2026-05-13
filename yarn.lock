@@ -8286,19 +8286,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.0.0, dompurify@npm:^3.0.2":
-  version: 3.2.4
-  resolution: "dompurify@npm:3.2.4"
-  dependencies:
-    "@types/trusted-types": "npm:^2.0.7"
-  dependenciesMeta:
-    "@types/trusted-types":
-      optional: true
-  checksum: 10c0/6be56810fb7ad2776155c8fc2967af5056783c030094362c7d0cf1ad13f2129cf922d8eefab528a34bdebfb98e2f44b306a983ab93aefb9d6f24c18a3d027a05
-  languageName: node
-  linkType: hard
-
-"dompurify@npm:^3.4.0":
+"dompurify@npm:^3.0.0, dompurify@npm:^3.0.2, dompurify@npm:^3.4.0":
   version: 3.4.2
   resolution: "dompurify@npm:3.4.2"
   dependencies:
