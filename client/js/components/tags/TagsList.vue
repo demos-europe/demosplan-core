@@ -121,8 +121,10 @@ export default {
     return {
       dataIsRequested: false,
       isInEditState: '',
-      // Latest @draggable:change payload — used as reliable source for cross-cat at @end
-      // (since @end's own item/parentId are unreliable on cross-cat in DpTreeList)
+      /*
+       * Latest @draggable:change payload — used as reliable source for cross-cat at @end
+       * (since @end's own item/parentId are unreliable on cross-cat in DpTreeList)
+       */
       lastChange: null,
     }
   },
@@ -214,8 +216,10 @@ export default {
       this.saveTagTopic(parentTopic.id)
     },
 
-    // Track latest payload — @end's own values are unreliable on cross-cat,
-    // so we read the last @draggable:change snapshot when @end fires.
+    /*
+     * Track latest payload — @end's own values are unreliable on cross-cat,
+     * so we read the last @draggable:change snapshot when @end fires.
+     */
     handleTopicChange (payload) {
       this.lastChange = payload
     },
@@ -249,7 +253,7 @@ export default {
         return
       }
       const oldParent = Object.values(this.TagTopic).find(topic =>
-        topic.relationships?.tags.data.find(tag => tag.id === tagId)
+        topic.relationships?.tags.data.find(tag => tag.id === tagId),
       )
       if (!oldParent) {
         return
