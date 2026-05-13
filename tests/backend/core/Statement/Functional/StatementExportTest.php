@@ -153,18 +153,22 @@ class StatementExportTest extends FunctionalTestCase
     public function testPrepareDataForExcelExportWithSimpleStatement(): void
     {
         $statements = [$this->createComplexTestStatementData()];
-        $attributesToExport = $this->getComplexStatementAttributes();
 
-        $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
-            $statements,
-            false,
-            $attributesToExport
-        );
+        $result = $this->exportPrepared($statements, $this->getComplexStatementAttributes());
 
         $expected = $this->getExpectedComplexStatementResult();
 
         self::assertCount(1, $result);
         self::assertEquals($expected, $result[0]);
+    }
+
+    private function exportPrepared(array $statements, array $requestedAttributes, bool $anonymous = false): array
+    {
+        return $this->assessmentTableXlsExporter->prepareDataForExcelExport(
+            $statements,
+            $anonymous,
+            $requestedAttributes
+        );
     }
 
     private function createComplexTestStatementData(): array
@@ -266,11 +270,7 @@ class StatementExportTest extends FunctionalTestCase
             ],
         ];
 
-        $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
-            $statements,
-            false,
-            ['id', 'text', 'priorityAreaKeys']
-        );
+        $result = $this->exportPrepared($statements, ['id', 'text', 'priorityAreaKeys']);
 
         // Should create 3 rows (one for each priority area)
         self::assertCount(3, $result);
@@ -301,11 +301,7 @@ class StatementExportTest extends FunctionalTestCase
             ],
         ];
 
-        $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
-            $statements,
-            false,
-            ['id', 'text', 'tagNames']
-        );
+        $result = $this->exportPrepared($statements, ['id', 'text', 'tagNames']);
 
         // Should create 1 row with 2 tags
         self::assertCount(1, $result);
@@ -328,11 +324,7 @@ class StatementExportTest extends FunctionalTestCase
         ];
 
         // Test with anonymous = true
-        $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
-            $statements,
-            true,
-            ['id', 'text', 'authorName']
-        );
+        $result = $this->exportPrepared($statements, ['id', 'text', 'authorName'], true);
 
         self::assertCount(1, $result);
         self::assertEquals('123', $result[0]['id']);
@@ -356,11 +348,7 @@ class StatementExportTest extends FunctionalTestCase
             ],
         ];
 
-        $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
-            $statements,
-            false,
-            ['id', 'text', 'priorityAreaKeys', 'tagNames']
-        );
+        $result = $this->exportPrepared($statements, ['id', 'text', 'priorityAreaKeys', 'tagNames']);
 
         // Should create only 1 row since arrays are empty
         self::assertCount(1, $result);
@@ -380,11 +368,7 @@ class StatementExportTest extends FunctionalTestCase
             ],
         ];
 
-        $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
-            $statements,
-            false,
-            ['id', 'text', 'authorName'] // requesting non-existent 'authorName'
-        );
+        $result = $this->exportPrepared($statements, ['id', 'text', 'authorName']); // requesting non-existent 'authorName'
 
         self::assertCount(1, $result);
         self::assertEquals('123', $result[0]['id']);
@@ -415,11 +399,7 @@ class StatementExportTest extends FunctionalTestCase
             ],
         ];
 
-        $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
-            $statements,
-            false,
-            ['id', 'text', 'priorityAreaKeys', 'tagNames']
-        );
+        $result = $this->exportPrepared($statements, ['id', 'text', 'priorityAreaKeys', 'tagNames']);
 
         // Should create 4 rows total:
         // - 2 rows for first statement (2 priority areas)
@@ -454,11 +434,7 @@ class StatementExportTest extends FunctionalTestCase
             ],
         ];
 
-        $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
-            $statements,
-            false,
-            ['id', 'text', 'user.name'] // dot notation should be handled differently
-        );
+        $result = $this->exportPrepared($statements, ['id', 'text', 'user.name']); // dot notation should be handled differently
 
         self::assertCount(1, $result);
         self::assertEquals('123', $result[0]['id']);
