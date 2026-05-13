@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Doctrine\Type;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
+use demosplan\DemosPlanCoreBundle\CustomField\TextField;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
@@ -27,6 +28,7 @@ class CustomFieldType extends JsonType
     private const TYPE_CLASSES = [
         RadioButtonField::class,
         MultiSelectField::class,
+        TextField::class,
     ];
 
     public function loadFromJson(
@@ -54,6 +56,9 @@ class CustomFieldType extends JsonType
                             break;
                         case MultiSelectField::class:
                             $field = new MultiSelectField();
+                            break;
+                        case TextField::class:
+                            $field = new TextField();
                             break;
                         default:
                             throw new ConversionException("Unhandled custom field class: {$fieldType}");

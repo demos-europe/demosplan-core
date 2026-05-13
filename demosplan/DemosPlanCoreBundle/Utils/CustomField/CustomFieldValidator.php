@@ -16,6 +16,8 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Constraint\ProcedureWithStatementsCustomFieldConstraint;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,6 +26,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 abstract class CustomFieldValidator implements FieldTypeValidatorInterface
 {
     protected const COMMON_CLASS_NAME_TO_CLASS_PATH_MAP = [
+        'CUSTOMER'           => Customer::class,
+        'ORGA'               => Orga::class,
         'PROCEDURE'          => Procedure::class,
         'PROCEDURE_TEMPLATE' => Procedure::class,
         'SEGMENT'            => Segment::class,

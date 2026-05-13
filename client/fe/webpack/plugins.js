@@ -34,56 +34,77 @@ const webpackDefaultPlugins = [
       // Core videos, images and fonts
       {
         from: resolveDir('demosplan/DemosPlanCoreBundle/Resources/public/video'),
-        to: `${config.projectRoot}/web/video`,
+        to: `${config.publicPath}/video`,
       },
       {
         from: resolveDir('demosplan/DemosPlanCoreBundle/Resources/public/img'),
-        to: `${config.projectRoot}/web/img`,
+        to: `${config.publicPath}/img`,
       },
       {
         from: resolveDir('demosplan/DemosPlanCoreBundle/Resources/public/fonts'),
-        to: `${config.projectRoot}/web/fonts`,
+        to: `${config.publicPath}/fonts`,
       },
       {
         from: resolveDir('demosplan/DemosPlanCoreBundle/Resources/public/files'),
-        to: `${config.projectRoot}/web/files`,
+        to: `${config.publicPath}/files`,
       },
       // Project specific videos, images, fonts and pdfs, may not exist
       {
         from: `${config.projectRoot}/app/Resources/DemosPlanCoreBundle/public/video`,
-        to: `${config.projectRoot}/web/video`,
+        to: `${config.publicPath}/video`,
         noErrorOnMissing: true,
       },
       {
         from: `${config.projectRoot}/app/Resources/DemosPlanCoreBundle/public/img`,
-        to: `${config.projectRoot}/web/img`,
+        to: `${config.publicPath}/img`,
         noErrorOnMissing: true,
       },
       {
         from: `${config.projectRoot}/app/Resources/DemosPlanCoreBundle/public/fonts`,
-        to: `${config.projectRoot}/web/fonts`,
+        to: `${config.publicPath}/fonts`,
         noErrorOnMissing: true,
       },
       {
         from: `${config.projectRoot}/app/Resources/DemosPlanCoreBundle/public/files`,
-        to: `${config.projectRoot}/web/files`,
+        to: `${config.publicPath}/files`,
         noErrorOnMissing: true,
       },
       {
         from: `${config.projectRoot}/app/Resources/DemosPlanCoreBundle/public/pdf`,
-        to: `${config.projectRoot}/web/pdf`,
+        to: `${config.publicPath}/pdf`,
+        noErrorOnMissing: true,
+      },
+      // Per-project root-level static files (favicon, manifest, robots), may not exist
+      {
+        from: `${config.projectRoot}/app/Resources/DemosPlanCoreBundle/public/favicon.ico`,
+        to: `${config.publicPath}/favicon.ico`,
+        noErrorOnMissing: true,
+      },
+      {
+        from: `${config.projectRoot}/app/Resources/DemosPlanCoreBundle/public/favicon-16x16.png`,
+        to: `${config.publicPath}/favicon-16x16.png`,
+        noErrorOnMissing: true,
+      },
+      {
+        from: `${config.projectRoot}/app/Resources/DemosPlanCoreBundle/public/manifest.json`,
+        to: `${config.publicPath}/manifest.json`,
+        noErrorOnMissing: true,
+      },
+      {
+        from: `${config.projectRoot}/app/Resources/DemosPlanCoreBundle/public/robots.txt`,
+        to: `${config.publicPath}/robots.txt`,
         noErrorOnMissing: true,
       },
       // Addon files, may not exist
       {
         from: 'addons/vendor/demos-europe/**/public/files/*',
-        to: `${config.projectRoot}/web/files/[name][ext]`,
+        to: `${config.publicPath}/files/[name][ext]`,
         force: true, // Overwrite existing files
         noErrorOnMissing: true,
       },
       {
         from: resolveDir('node_modules/@demos-europe/demosplan-ui/dist'),
-        to: `${config.projectRoot}/web/js/bundles`,
+        to: `${config.publicPath}/js/bundles`,
       },
     ],
   }),
