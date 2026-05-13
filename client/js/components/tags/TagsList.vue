@@ -121,6 +121,9 @@ export default {
     return {
       dataIsRequested: false,
       isInEditState: '',
+      // Latest @draggable:change payload — used as reliable source for cross-cat at @end
+      // (since @end's own item/parentId are unreliable on cross-cat in DpTreeList)
+      lastChange: null,
     }
   },
 
@@ -211,36 +214,94 @@ export default {
       this.saveTagTopic(parentTopic.id)
     },
 
-    // Cross-topic moves: kept on the original @draggable:change listener (byte-identical to main)
-    handleTopicChange ({ elementId, parentId }) {
-      if (!parentId) {
-        return
-      }
-
-      const hasNewParent = !this.TagTopic[parentId].relationships?.tags.data.find(tag => tag.id === elementId)
-
-      if (hasNewParent) {
-        const parentTopic = { ...this.TagTopic[parentId] }
-        const oldParent = Object.values(this.TagTopic).find(topic => topic.relationships?.tags.data.find(tag => tag.id === elementId))
-
-        this.addTagToNewTopic(parentTopic, elementId)
-        this.removeTagFromOldTopic(oldParent, elementId)
-      }
+    // Track latest payload — @end's own values are unreliable on cross-cat,
+    // so we read the last @draggable:change snapshot when @end fires.
+    handleTopicChange (payload) {
+      this.lastChange = payload
     },
 
-    // Intra-topic reorder via @end (fires once per drop, ideal for persistence)
+    // Single drop handler — branches on cross-cat vs intra-sort
     handleIntraSort (event, item, parentId) {
-      // Skip cross-cat moves — handled by handleTopicChange via @draggable:change
-      if (event.from !== event.to) {
+      // No-Op for intra-sort dropped at same position
+      if (event.oldIndex === event.newIndex && event.from === event.to) {
         return
       }
 
-      // No-Op: dropped at same position
-      if (event.oldIndex === event.newIndex) {
+      const isCrossCat = event.from !== event.to
+
+      if (isCrossCat) {
+        if (!this.lastChange) {
+          return
+        }
+        const { elementId, newIndex, parentId: targetTopicId } = this.lastChange
+        this.crossCatReorder(elementId, newIndex, targetTopicId)
+      } else {
+        this.reorderTagInTopic(parentId, item.id, event.newIndex)
+      }
+
+      this.lastChange = null
+    },
+
+    // Persist cross-cat move via tagList.reorder RPC — optimistic update on both topics + rollback
+    crossCatReorder (tagId, newIndex, targetTopicId) {
+      const newParent = this.TagTopic[targetTopicId]
+      if (!newParent) {
+        return
+      }
+      const oldParent = Object.values(this.TagTopic).find(topic =>
+        topic.relationships?.tags.data.find(tag => tag.id === tagId)
+      )
+      if (!oldParent) {
         return
       }
 
-      this.reorderTagInTopic(parentId, item.id, event.newIndex)
+      const oldSourceData = [...oldParent.relationships.tags.data]
+      const oldTargetData = [...(newParent.relationships?.tags?.data || [])]
+
+      const newSourceData = oldSourceData.filter(t => t.id !== tagId)
+      const newTargetData = [...oldTargetData]
+      newTargetData.splice(newIndex, 0, { type: 'Tag', id: tagId })
+
+      this.updateTagTopic({
+        id: oldParent.id,
+        type: 'TagTopic',
+        attributes: oldParent.attributes,
+        relationships: { ...oldParent.relationships, tags: { data: newSourceData } },
+      })
+      this.updateTagTopic({
+        id: newParent.id,
+        type: 'TagTopic',
+        attributes: newParent.attributes,
+        relationships: { ...newParent.relationships, tags: { data: newTargetData } },
+      })
+
+      dpRpc('tagList.reorder', { tagId, topicId: targetTopicId, newIndex })
+        .then((response) => {
+          const result = response.data[0].result
+          Object.entries(result).forEach(([id, { sortIndex }]) => {
+            const tag = this.Tag[id]
+            if (tag) {
+              this.updateTag({ ...tag, attributes: { ...tag.attributes, sortIndex } })
+            }
+          })
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+        })
+        .catch(error => {
+          console.error(error)
+          this.updateTagTopic({
+            id: oldParent.id,
+            type: 'TagTopic',
+            attributes: oldParent.attributes,
+            relationships: { ...oldParent.relationships, tags: { data: oldSourceData } },
+          })
+          this.updateTagTopic({
+            id: newParent.id,
+            type: 'TagTopic',
+            attributes: newParent.attributes,
+            relationships: { ...newParent.relationships, tags: { data: oldTargetData } },
+          })
+          dplan.notify.error(Translator.trans('error.changes.not.saved'))
+        })
     },
 
     deleteItem (item) {
@@ -325,6 +386,7 @@ export default {
       dpRpc( 'tagList.reorder', { tagId, topicId: parentId, newIndex })
         .then((response) => {
           console.log('data:', response.data)
+          console.log('reaching notify')
           const result = response.data[0].result
           Object.entries(result).forEach(([id, { sortIndex }]) => {
             const tag = this.Tag[id]
