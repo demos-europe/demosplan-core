@@ -23,7 +23,6 @@
         }
       }"
       :branch-identifier="isBranch"
-      @draggable:change="handleTopicChange"
       @end="handleIntraSort"
     >
       <template v-slot:header>
@@ -121,11 +120,6 @@ export default {
     return {
       dataIsRequested: false,
       isInEditState: '',
-      /*
-       * Latest @draggable:change payload — used as reliable source for cross-cat at @end
-       * (since @end's own item/parentId are unreliable on cross-cat in DpTreeList)
-       */
-      lastChange: null,
     }
   },
 
@@ -216,14 +210,6 @@ export default {
       this.saveTagTopic(parentTopic.id)
     },
 
-    /*
-     * Track latest payload — @end's own values are unreliable on cross-cat,
-     * so we read the last @draggable:change snapshot when @end fires.
-     */
-    handleTopicChange (payload) {
-      this.lastChange = payload
-    },
-
     // Single drop handler — branches on cross-cat vs intra-sort
     handleIntraSort (event, item, parentId) {
       // No-Op for intra-sort dropped at same position
@@ -234,16 +220,10 @@ export default {
       const isCrossCat = event.from !== event.to
 
       if (isCrossCat) {
-        if (!this.lastChange) {
-          return
-        }
-        const { elementId, newIndex, parentId: targetTopicId } = this.lastChange
-        this.crossCatReorder(elementId, newIndex, targetTopicId)
+        this.crossCatReorder(item.id, event.newIndex, event.to.id)
       } else {
         this.reorderTagInTopic(parentId, item.id, event.newIndex)
       }
-
-      this.lastChange = null
     },
 
     // Persist cross-cat move via tagList.reorder RPC — optimistic update on both topics + rollback
