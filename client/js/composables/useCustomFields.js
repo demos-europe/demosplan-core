@@ -124,7 +124,7 @@ function fetchBatchValues (resourceType, definitionSourceId, cacheKey, filterPat
       [resourceType]: ['customFields'].join(),
     },
     filter: {
-      procedureId: {
+      sourceEntityId: {
         condition: {
           path: filterPath,
           value: definitionSourceId,

@@ -106,6 +106,7 @@ All rights reserved
 import { DpButton, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import MultiselectCustomField from './MultiselectCustomField'
 import SingleselectCustomField from './SingleselectCustomField'
+import TextCustomField from './TextCustomField'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
@@ -116,6 +117,7 @@ export default {
     DpLoading,
     MultiselectCustomField,
     SingleselectCustomField,
+    TextCustomField,
   },
 
   mixins: [prefixClassMixin],
@@ -206,6 +208,7 @@ export default {
       componentMap: {
         multiSelect: 'multiselect-custom-field',
         singleSelect: 'singleselect-custom-field',
+        text: 'text-custom-field',
       },
       editingValue: null,
       isEditing: false,

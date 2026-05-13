@@ -6,9 +6,17 @@
 
 ## UNRELEASED
 
+## v4.39.0 (2026-05-06)
+
+## v4.38.0 (2026-05-06)
+
 ### Added
+- Add text custom field definition to institution tag management dialog
 - Track recommendation versions for statements and segments with full text snapshots, exposed via API and XLSX export (permission: `feature_enable_recommendation_versions`)
 - Support multiple custom field types and target contexts per project
+- Spellcheck in the Tiptap editor highlights spelling errors and suggests corrections while writing statements
+- Confirmation modal when leaving a page with unsaved changes (statement detail page and "Erwiderung verfassen")
+- Custom fields are included in PDF exports of draft statements
 - Full OAuth2 token lifecycle management with Keycloak: tokens (access, refresh, ID) are now stored encrypted (via `SecretEncryptor` / XSalsa20-Poly1305) in a new `oauth_tokens` table and refreshed transparently in the background before expiry
 - Request buffering during re-authentication: when tokens expire mid-request, the pending request (including POST body) is preserved encrypted in the database and the user is redirected back to the original page after re-authenticating (a review page for replaying buffered POST data is planned but not yet implemented)
 - Organisation-aware re-authentication for multi-org users: the selected organisation is persisted through the re-auth flow; users are shown the org-selection page and redirected back to their original page if the same org is chosen
@@ -17,10 +25,17 @@
 - Translation `confirm.session.renewed` shown as flash message after seamless re-authentication
 
 ### Changed
+- Statement detail view now shows the institution before the department (corrected order)
 - Replaced `KeycloakAuthenticationSuccessTrait` with `AbstractOzgKeycloakAuthenticator` base class shared by both real and static (test) authenticators
 - `ExpirationTimestampRequestListener` now checks actual OAuth token expiry instead of only PHP session lifetime; includes a configurable fast-path interval to avoid DB queries on every request
 - `OzgKeycloakSessionManager` (renamed from `OzgKeycloakLogoutManager`) now also handles per-customer OAuth config lookup and session sync
 - `LogoutSubscriber` uses `getEffectiveLogoutRoute()` for per-customer Keycloak config
+
+### Fixed
+- Creating a tag/topic directly while splitting a statement works again
+- Label spacing on the imprint page
+- Large file uploads no longer fail when a chunk PATCH response is lost — upload resumes via recovered FILE_ID/HASH headers
+- LaTeX PDF exports rendered more reliably (ligature and babel-related gaps)
 
 ### Deployment notes
 - **Migration**: creates `oauth_tokens` table with FK to `_user` and `_orga` — run `doctrine:migrations:migrate`
