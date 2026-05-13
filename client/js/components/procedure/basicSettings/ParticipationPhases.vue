@@ -160,7 +160,7 @@ export default {
     },
 
     isInParticipation () {
-      return this.phaseOptions.find(option => option.value === this.selectedPhase)?.permissionset === 'write'
+      return this.phaseOptions.some(option => option.value === this.selectedPhase && option.permissionset === 'write')
     },
   },
 }
