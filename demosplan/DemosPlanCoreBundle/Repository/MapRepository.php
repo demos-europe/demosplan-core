@@ -444,7 +444,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
 
             $columns = array_merge(
                 ['_g_id', '_g_global_id', '_p_id', 'category_id',
-                 '_g_create_date', '_g_modify_date', '_g_delete_date'],
+                    '_g_create_date', '_g_modify_date', '_g_delete_date'],
                 array_keys($copyableValues),
             );
             $now = (new DateTime())->format('Y-m-d H:i:s');
