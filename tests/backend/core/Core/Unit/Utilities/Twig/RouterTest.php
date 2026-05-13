@@ -15,7 +15,6 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Router;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
-use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 use Tests\Base\FunctionalTestCase;
@@ -23,8 +22,6 @@ use Tests\Base\MockMethodDefinition;
 
 class RouterTest extends FunctionalTestCase
 {
-    use ProphecyTrait;
-
     protected $urlPrefixProcedure = '/verfahren/';
     protected $urlSuffixProcedure = '/public/detail';
     protected $urlPrefixReport = '/report/view/';
@@ -239,25 +236,18 @@ class RouterTest extends FunctionalTestCase
         ?Procedure $procedure = null,
         array $params = [],
     ): Router {
-        $mock = $this->prophesize(RouterInterface::class);
-        $mock->generate('dummyNameInputViaMock', $params, RouterInterface::ABSOLUTE_PATH)
-            ->willReturn($generatedUrl);
-        $mock->generate('dummyNameInputViaMock', $params, RouterInterface::NETWORK_PATH)
-            ->willReturn($generatedUrl);
-        $mock->generate('dummyNameInputViaMock', $params, RouterInterface::ABSOLUTE_URL)
-            ->willReturn($generatedUrl);
-        $mockGlobalConfig = $this->prophesize(GlobalConfigInterface::class);
-        $mockGlobalConfig->getUrlScheme()
-            ->willReturn($urlScheme);
-        $mockGlobalConfig->getUrlPathPrefix()
-            ->willReturn($pathPrefix);
+        $mock = $this->createMock(RouterInterface::class);
+        $mock->method('generate')->willReturn($generatedUrl);
+        $mockGlobalConfig = $this->createMock(GlobalConfigInterface::class);
+        $mockGlobalConfig->method('getUrlScheme')->willReturn($urlScheme);
+        $mockGlobalConfig->method('getUrlPathPrefix')->willReturn($pathPrefix);
         $mockMethods = [
             new MockMethodDefinition('find', $procedure),
             new MockMethodDefinition('getProcedureBySlug', $procedure),
         ];
         $mockProcedureRepository = $this->getMock(ProcedureRepository::class, $mockMethods);
 
-        return new Router($mockGlobalConfig->reveal(), $mockProcedureRepository, $mock->reveal());
+        return new Router($mockGlobalConfig, $mockProcedureRepository, $mock);
     }
 
     private function getDataArrayMatch(Procedure $testProcedure): array

@@ -43,6 +43,8 @@ parameters:
     procedure_public_list_default_sort_key: "publicParticipationEndDate"
     # Purge procedures if deleted
     purge_deleted_procedures: false
+    # Days to keep deleted procedures after deletion to be able to restore them in case of an emergency
+    purge_deleted_retention_period_days: 60
 
     # Defines whether access to procedure is granted by owning organisation (false)
     # or whether it is possible to define specific users withing the organisation
@@ -177,6 +179,7 @@ parameters:
     ratelimit_anonymous_statement_limit: '%env(int:RATELIMIT_ANONYMOUS_STATEMENT_LIMIT)%'
     ratelimit_anonymous_statement_rate_interval: '%env(RATELIMIT_ANONYMOUS_STATEMENT_RATE_INTERVAL)%'
     ratelimit_anonymous_statement_rate_amount: '%env(int:RATELIMIT_ANONYMOUS_STATEMENT_RATE_AMOUNT)%'
+    password_history_max_entries: '%env(int:PASSWORD_HISTORY_MAX_ENTRIES)%'
 
     # GitHub token may be used to download addons directly from github
     github_token: '%env(GITHUB_TOKEN)%'
@@ -239,8 +242,8 @@ parameters:
     # Regex that need to match to send Mails directly from user email
     # instead of system email. email_use_system_mail_as_sender needs to be false
     email_from_domain_valid_regex: ''
-    # Delete any sent emails after this timespan in days from email sent queue. Default 5 Years
-    email_delete_after_days: 1780
+    # Delete any sent emails after this timespan in days from email sent queue. Default 90 days
+    email_delete_after_days: 90
 
     master_procedure_phase: configuration #the default phase for new procedures, see procedurephases.yml
 
@@ -393,6 +396,32 @@ parameters:
     # https://login.microsoftonline.com/<tenant>/oauth2/v2.0/logout
     oauth_azure_logout_route: ''
 
+    # When enabled, KeyCloak is only used for initial login and logout.
+    # Token refresh and expiry enforcement are skipped — the PHP session governs the session lifetime (default 6 hours).
+    # The FE logout countdown reflects the PHP session lifetime, not the KeyCloak token TTL.
+    # When disabled (false), full token management is active: tokens are refreshed in the background
+    # and the FE countdown reflects the refresh token TTL.
+    # Set to false in parameters_default_project.yml to enable full token management.
+    oauth_keycloak_login_only: true
+
+    # Timezone used for all OAuth token expiry calculations and pending request timestamps.
+    # Must match the DB server timezone to avoid DST drift in token comparisons.
+    # Default: Europe/Berlin. Override via OAUTH_TOKEN_TIMEZONE env var if needed.
+    oauth_token_timezone: '%env(default:oauth_token_timezone_default:OAUTH_TOKEN_TIMEZONE)%'
+    oauth_token_timezone_default: 'Europe/Berlin'
+
+    # Interval in seconds between blocking OAuth token checks (fast-path threshold).
+    # Within this window the kernel.controller listener skips DB queries entirely.
+    # The interval is capped at the token's remaining lifetime, so it never skips past actual expiry.
+    # Default: 180 seconds (3 minutes). Must be less than the access token lifetime (300 s = 5 min).
+    oauth_token_fast_path_interval_seconds: 180
+
+    # Buffer in minutes before access token expiry at which proactive background refresh is triggered.
+    # Must be smaller than oauth_token_fast_path_interval_seconds / 60 — otherwise the fast-path
+    # session threshold would skip the check window and the proactive refresh would never fire.
+    # Default: 2 minutes. Access token lifetime is 5 minutes, fast-path interval is 3 minutes.
+    oauth_token_refresh_buffer_minutes: 2
+
     # Set users with permissions to alter Database
     database_install_user: ""
     database_install_password: ""
@@ -530,6 +559,8 @@ parameters:
 
     ai_service_salt: ""
     ai_service_post_url: ""
+
+    languagetool_url: ''
 
     # #refactor: used only once, could be constant
     drafts_info_schema_path: "%kernel.project_dir%/config/json-schema/drafts-info-schema.json"

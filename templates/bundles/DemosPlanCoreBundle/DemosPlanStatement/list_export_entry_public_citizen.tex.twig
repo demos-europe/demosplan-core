@@ -86,6 +86,12 @@
                 \\
             {% endif %}
             {% block categories %}{% endblock %}
+            {# custom fields #}
+            {% if hasPermission('feature_statements_custom_fields') and statement.resolvedCustomFields is defined %}
+                {% for field in statement.resolvedCustomFields %}
+                    {{ field.name|latex|raw }}: & {{ field.value|latex|raw }}\\
+                {% endfor %}
+            {% endif %}
         \hline
     \end{longtable}
 \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}17cm{{ '}' }}{{ '{' }}0cm{{ '}' }}
