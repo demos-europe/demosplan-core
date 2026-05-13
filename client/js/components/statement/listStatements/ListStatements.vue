@@ -341,6 +341,7 @@ import {
 import { mapActions, mapMutations, mapState } from 'vuex'
 import CustomSearchStatements from './CustomSearchStatements'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import { inlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
@@ -575,9 +576,7 @@ export default {
         return ''
       }
 
-      return attributes.isFulltextDisplayed ?
-        attributes.fullText :
-        attributes.text
+      return inlineImageAnchors(attributes.isFulltextDisplayed ? attributes.fullText : attributes.text)
     },
 
     getAssignee (statement) {

@@ -2,6 +2,7 @@
 import { h, resolveComponent } from 'vue'
 import DomPurify from 'dompurify'
 import { DpLoading } from '@demos-europe/demosplan-ui'
+import { inlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 
 export default {
   name: 'TextContentRenderer',
@@ -45,7 +46,7 @@ export default {
    * @return {*}
    */
   render () {
-    const sanitizedText = DomPurify.sanitize(this.text, { ADD_TAGS: ['dp-obscure'] })
+    const sanitizedText = DomPurify.sanitize(inlineImageAnchors(this.text), { ADD_TAGS: ['dp-obscure'] })
 
     const immediateComponent = {
       template: `<div class='text-wrapper w-fit' data-cy='textWrapper'>${sanitizedText}</div>`,
