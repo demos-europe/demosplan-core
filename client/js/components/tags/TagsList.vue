@@ -272,6 +272,7 @@ export default {
         attributes: oldParent.attributes,
         relationships: { ...oldParent.relationships, tags: { data: newSourceData } },
       })
+
       this.updateTagTopic({
         id: newParent.id,
         type: 'TagTopic',
@@ -280,12 +281,15 @@ export default {
       })
 
       dpRpc('tagList.reorder', { tagId, topicId: targetTopicId, newIndex })
-        .then((response) => {
+        .then(response => {
           const result = response.data[0].result
           for (const [id, { sortIndex }] of Object.entries(result)) {
             const tag = this.Tag[id]
             if (tag) {
-              this.updateTag({ ...tag, attributes: { ...tag.attributes, sortIndex } })
+              this.updateTag({
+                ...tag,
+                attributes: { ...tag.attributes, sortIndex },
+              })
             }
           }
           dplan.notify.confirm(Translator.trans('confirm.saved'))
