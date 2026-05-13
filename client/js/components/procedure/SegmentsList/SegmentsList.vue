@@ -170,6 +170,7 @@
             is-selectable
             :items="items"
             :lock-checkbox-by="'isPlaceLocked'"
+            :lock-checkbox-hint="lockCheckboxHint"
             :multi-page-all-selected="allSelectedVisually"
             :multi-page-selection-items-total="allItemsCount"
             :multi-page-selection-items-toggled="toggledItems.length"
@@ -618,6 +619,12 @@ export default {
         }))
         // This is not working! better pass createdDate into segmentsObject
         .sort((a, b) => (b.attributes.externId.substring(1) - a.attributes.externId.substring(1)))
+    },
+
+    lockCheckboxHint () {
+      return hasPermission('feature_administrate_segment_lock') ?
+        Translator.trans('segment.lock.hint.admin') :
+        Translator.trans('segment.lock.hint')
     },
 
     noQuery () {
