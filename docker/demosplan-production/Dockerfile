@@ -12,12 +12,12 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && echo "deb https://packages.sury.org/php/ bookworm main" > /etc/apt/sources.list.d/deb.sury.org.list \
     && apt-get update -y \
     && apt-get --no-install-recommends install acl bind9-host ca-certificates composer curl  \
-    gettext-base npm php8.3 php8.3-apcu php8.3-bcmath php8.3-bz2 php8.3-cli  \
-    php8.3-common php8.3-curl php8.3-excimer php8.3-fpm php8.3-gd php8.3-intl php8.3-mbstring php8.3-mysqli php8.3-soap  \
-    php8.3-sqlite3 php8.3-xml php8.3-zip unzip -y \
-    && update-alternatives --set php /usr/bin/php8.3 \
+    gettext-base npm php8.4 php8.4-apcu php8.4-bcmath php8.4-bz2 php8.4-cli  \
+    php8.4-common php8.4-curl php8.4-excimer php8.4-fpm php8.4-gd php8.4-intl php8.4-mbstring php8.4-mysqli php8.4-soap  \
+    php8.4-sqlite3 php8.4-xml php8.4-zip unzip -y \
+    && update-alternatives --set php /usr/bin/php8.4 \
     && mkdir -p /opt/uploads
-COPY --link zzz-dplan-cli.ini /etc/php/8.3/cli/conf.d/zzz-dplan-cli.ini
+COPY --link zzz-dplan-cli.ini /etc/php/8.4/cli/conf.d/zzz-dplan-cli.ini
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
@@ -32,9 +32,9 @@ ENV PROJECT_PREFIX=$PROJECT_NAME \
 
 # Setup timezone
 RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
-COPY --link zzz-dplan.ini /etc/php/8.3/fpm/conf.d/zzz-dplan.ini
-COPY --link zzz-dplan-cli.ini /etc/php/8.3/cli/conf.d/zzz-dplan-cli.ini
-COPY --link php-fpm_www.conf /etc/php/8.3/fpm/pool.d/zzz-www.conf
+COPY --link zzz-dplan.ini /etc/php/8.4/fpm/conf.d/zzz-dplan.ini
+COPY --link zzz-dplan-cli.ini /etc/php/8.4/cli/conf.d/zzz-dplan-cli.ini
+COPY --link php-fpm_www.conf /etc/php/8.4/fpm/pool.d/zzz-www.conf
 
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,sharing=locked \
@@ -144,18 +144,20 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     chown -R root:root /srv/www/public && \
     chown -R www-data /opt/uploads && \
     chown -R www-data /srv/www/public/uploads && \
-    touch /var/log/php8.3-fpm.log && chown www-data:www-data /var/log/php8.3-fpm.log
+    touch /var/log/php8.4-fpm.log && chown www-data:www-data /var/log/php8.4-fpm.log
 
 # Runtime stage - starts fresh WITHOUT build tools (Node.js, npm, composer)
 FROM debian:bookworm-20260406-slim AS fpm
 
 ARG PROJECT_NAME
+ARG BUILD_MODE=prod
 
 LABEL org.opencontainers.image.source="https://github.com/demos-europe/demosplan-core"
 
 ENV PROJECT_PREFIX=$PROJECT_NAME \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
     EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de \
+    APP_ENV=$BUILD_MODE \
     TZ=Europe/Berlin
 
 # Install only runtime dependencies (no npm, no composer, no build tools)
@@ -169,21 +171,21 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && echo "deb https://packages.sury.org/php/ bookworm main" > /etc/apt/sources.list.d/deb.sury.org.list \
     && apt-get update -y \
     && apt-get --no-install-recommends install acl bind9-host ca-certificates curl \
-       default-mysql-client gettext-base libfcgi-bin lnav php8.3 php8.3-apcu php8.3-bcmath php8.3-bz2 php8.3-cli \
-       php8.3-common php8.3-curl php8.3-excimer php8.3-fpm php8.3-gd php8.3-intl php8.3-mbstring \
-       php8.3-mysqli php8.3-soap php8.3-sqlite3 php8.3-xml php8.3-zip unzip vim-tiny -y \
+       default-mysql-client gettext-base libfcgi-bin lnav php8.4 php8.4-apcu php8.4-bcmath php8.4-bz2 php8.4-cli \
+       php8.4-common php8.4-curl php8.4-excimer php8.4-fpm php8.4-gd php8.4-intl php8.4-mbstring \
+       php8.4-mysqli php8.4-soap php8.4-sqlite3 php8.4-xml php8.4-zip unzip vim-tiny -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && update-alternatives --set php /usr/bin/php8.3 \
+    && update-alternatives --set php /usr/bin/php8.4 \
     && mkdir -p /opt/uploads \
     && ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
 
 # Copy PHP configuration. --link lets these layers stay independent from each other so
 # touching one ini file doesn't invalidate the rest.
-COPY --link zzz-dplan.ini /etc/php/8.3/fpm/conf.d/zzz-dplan.ini
-COPY --link zzz-dplan-cli.ini /etc/php/8.3/cli/conf.d/zzz-dplan-cli.ini
-COPY --link php-fpm_www.conf /etc/php/8.3/fpm/pool.d/zzz-www.conf
-COPY --link php-fpm.conf /etc/php/8.3/fpm/php-fpm.conf
+COPY --link zzz-dplan.ini /etc/php/8.4/fpm/conf.d/zzz-dplan.ini
+COPY --link zzz-dplan-cli.ini /etc/php/8.4/cli/conf.d/zzz-dplan-cli.ini
+COPY --link php-fpm_www.conf /etc/php/8.4/fpm/pool.d/zzz-www.conf
+COPY --link php-fpm.conf /etc/php/8.4/fpm/php-fpm.conf
 
 WORKDIR /srv/www
 
@@ -206,9 +208,9 @@ RUN rm -rf /srv/www/var/cache/* && \
     touch /srv/www/var/certs/ca.crt && \
     ln -s /srv/www/var/certs/ca.crt /usr/local/share/ca-certificates/ca.crt && \
     # avoid conflict with the default www.conf \
-    rm -f /etc/php/8.3/fpm/pool.d/www.conf && \
+    rm -f /etc/php/8.4/fpm/pool.d/www.conf && \
     # create php-fpm log file \
-    touch /var/log/php8.3-fpm.log && chown www-data:www-data /var/log/php8.3-fpm.log
+    touch /var/log/php8.4-fpm.log && chown www-data:www-data /var/log/php8.4-fpm.log
 
 # Strip setuid/setgid bits — defense-in-depth against privilege escalation from a compromised
 # runtime.
@@ -222,7 +224,7 @@ LABEL de.demos.project.revision=$COMMIT_SHA_PROJECT
 
 # run as rootless container
 USER www-data
-CMD ["/usr/sbin/php-fpm8.3", "-F"]
+CMD ["/usr/sbin/php-fpm8.4", "-F"]
 
 FROM nginxinc/nginx-unprivileged:alpine3.23-slim AS nginx
 
@@ -234,20 +236,19 @@ LABEL org.opencontainers.image.source="https://github.com/demos-europe/demosplan
 ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung \
     BUILD_MODE=$BUILD_MODE
 
-# Copy nginx config templates to a build-time staging dir.
-# Do NOT copy into /tmp: COPY --link rebases the parent directory's metadata to root:root 0755,
-# which strips the sticky world-writable bit (1777) the unprivileged nginx image needs at
-# runtime. The default config in nginxinc/nginx-unprivileged sets proxy_temp_path /tmp/proxy_temp,
-# so a root-owned /tmp causes "mkdir() \"/tmp/proxy_temp\" failed (13: Permission denied)".
-COPY --link nginx.conf.template /etc/nginx/templates-src/nginx.conf.template
-COPY --link nginx.conf.template-dev /etc/nginx/templates-src/nginx.conf.template-dev
+# Copy nginx config templates to context. No --link: COPY --link rebases /tmp metadata to
+# root:root 0755 and strips the 1777 sticky bit the unprivileged nginx image needs at runtime
+# (its default proxy_temp_path is /tmp/proxy_temp), causing
+# "mkdir() \"/tmp/proxy_temp\" failed (13: Permission denied)" on container start.
+COPY nginx.conf.template /tmp/nginx.conf.template
+COPY nginx.conf.template-dev /tmp/nginx.conf.template-dev
 
 # Use appropriate template based on build mode
 RUN mkdir -p /etc/nginx/templates && \
-    if [ "$BUILD_MODE" = "dev" ] && [ -f /etc/nginx/templates-src/nginx.conf.template-dev ]; then \
-      cp /etc/nginx/templates-src/nginx.conf.template-dev /etc/nginx/templates/default.conf.template; \
+    if [ "$BUILD_MODE" = "dev" ] && [ -f /tmp/nginx.conf.template-dev ]; then \
+      cp /tmp/nginx.conf.template-dev /etc/nginx/templates/default.conf.template; \
     else \
-      cp /etc/nginx/templates-src/nginx.conf.template /etc/nginx/templates/default.conf.template; \
+      cp /tmp/nginx.conf.template /etc/nginx/templates/default.conf.template; \
     fi
 
 WORKDIR /srv/www
