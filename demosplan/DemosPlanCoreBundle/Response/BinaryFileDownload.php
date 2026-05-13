@@ -16,13 +16,11 @@ use Symfony\Component\String\UnicodeString;
 
 class BinaryFileDownload extends BinaryFileResponse
 {
-    protected $deleteFileAfterSend = false;
-
-    public function __construct($filePath, $fileName)
+    public function __construct($filePath, $fileName, $deleteFileAfterSend = false)
     {
         parent::__construct($filePath, 200);
         self::trustXSendfileTypeHeader();
-        $this->deleteFileAfterSend(true);
+        $this->deleteFileAfterSend($deleteFileAfterSend);
 
         $fileNameFallback = (new UnicodeString($fileName))->ascii()->toString();
 
