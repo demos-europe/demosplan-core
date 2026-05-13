@@ -679,8 +679,8 @@ feature_admin_new_procedure:
     label: 'Create a new procedure'
     loginRequired: true
     parent: feature_admin
-feature_adjust_export_file_name:
-    expose: false
+feature_adjust_preamble_export_file:
+    expose: true
     label: 'alters the preamble header of an exported doc to include the procedure name instead of the export-date'
     loginRequired: true
 feature_allow_update_on_non_manual_statements:
@@ -2268,6 +2268,11 @@ feature_statement_search_type_of_submission:
     description: 'Search for submission type in Assessment Table'
     expose: true
     label: 'Search for submission type in Assessment Table'
+    loginRequired: true
+feature_statement_submitter_data_always_editable:
+    description: 'Allows editing submitter data fields (name, department, address, dates, phase, submit type) on all statements, not just manual ones. When disabled, these fields can only be edited on manual statements.'
+    expose: true
+    label: 'Allow editing submitter data on all statements'
     loginRequired: true
 feature_statement_text_history_delete:
     description: 'Allow deletion of entity conent chances of the text field of statements.'

@@ -84,9 +84,10 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         array $tableHeaders,
         Procedure $procedure,
         bool $obscure,
-        array $exportFilteredByTags = [],
+        array $exportFilteredByTagsWithTopics = [],
         bool $censorCitizenData = false,
         bool $censorInstitutionData = false,
+        string $customHeaderText = '',
         Statement ...$statements,
     ): WriterInterface {
         Settings::setOutputEscapingEnabled(true);
@@ -94,7 +95,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
 
         if ([] === $statements) {
-            return $this->exportEmptyStatements($phpWord, $procedure, $exportFilteredByTags);
+            return $this->exportEmptyStatements($phpWord, $procedure, $exportFilteredByTagsWithTopics, $customHeaderText);
         }
 
         return $this->exportStatements(
@@ -105,7 +106,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $censorCitizenData,
             $censorInstitutionData,
             $obscure,
-            $exportFilteredByTags
+            $exportFilteredByTagsWithTopics,
+            $customHeaderText
         );
     }
 
@@ -207,7 +209,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscureParameter,
-        array $exportFilteredByTags = [],
+        array $exportFilteredByTagsWithTopics = [],
     ): PhpWord {
         $censored = $this->needsToBeCensored(
             $statement,
@@ -217,8 +219,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTags);
-        $this->addHeader($section, $procedure, null, $exportFilteredByTags);
+        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTagsWithTopics);
+        $this->addHeader($section, $procedure, null, $exportFilteredByTagsWithTopics);
         $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscureParameter);
 
         return $phpWord;

@@ -17,7 +17,7 @@
     <administration-custom-fields-list
         :is-procedure-template="Boolean({{ templateVars.procedureTemplate|default(false) }})"
         :target-options='{{ targetOptions|json_encode }}'
-        procedure-id="{{ templateVars.procedureId }}">
+        definition-source-id="{{ templateVars.procedureId }}">
     </administration-custom-fields-list>
 {% endblock component_part %}
 

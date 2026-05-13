@@ -862,6 +862,7 @@ custom.field.delete.message.warning: "Das Feld wird automatisch überall gelösc
 custom.field.target: "Zielkontext"
 custom.field.type.multiSelect: "Mehrfachauswahl"
 custom.field.type.singleSelect: "Einzelauswahl"
+custom.field.type.text: "Freitext"
 customer: |
     {count, plural,
         =0 {Bundesland}
@@ -972,19 +973,15 @@ docx.export.example_file_name: "Vorschau mit Beispieldaten:"
 docx.export.file_name: "Dateinamen einzelner DOCX-Dateien"
 docx.export.file_name.hint: "Um den Dateinamen dynamisch zu erstellen, verwenden Sie folgende Platzhalter:<br>'{ID}' - die ID der Stellungnahme in EWM<br>'{NAME}' - der Name der einreichenden Person oder Organisation<br>'{EINGANGSNR}' - die vergebene Eingangsnummer<br>Wenn Sie weder '{ID}', '{NAME}' noch '{EINGANGSNR}' verwenden, wird dem Dateinamen eine einzigartige Nummer angehängt."
 docx.export.file_name.placeholder: "'{ID}'_'{NAME}'_'{EINGANGSNR}'"
-docx.export.filtered: "<p>Teilexport Synopse gefiltert nach folgenden Schlagworten: </p>"
+docx.export.filtered: "<p>Angewendete Schlagwortfilter: </p> <br>"
+docx.export.header.custom: "Kopfzeile anpassen"
+docx.export.header.custom.hint: "Der individuelle Kopfzeilentext erscheint in der DOCX-Datei. Um die Kopfzeile auf den Ursprungswert zurückzusetzen, entfernen Sie den Eintrag im Textfeld."
+docx.export.header.custom.placeholder: |
+  {isPartialExport, select,
+      true {Teilexport Synopse {procedureName}}
+      other {Export Synopse {procedureName}}
+  }
 docx.export.landscape: "Docx Exp. (Querformat)"
-docx.export.preamble: |
-    <p>Bitte beachten Sie, dass Darstellungen im Text referenziert und unter der jeweiligen Stellungnahme oder Einwendung angezeigt werden.</p>
-    <p>Die Verweise auf Darstellungen sind wie folgt strukturiert:</p>
-    <p>- In Erwiderungstexten:</p>
-    <p>    &lt;ID der Stellungnahme/Einwendung&gt;_Darstellung_Erw_&lt;laufende Nummer&gt;</p>
-    <p>- In Stellungnahme-/Einwendungstexten:</p>
-    <p>    &lt;ID der Stellungnahme/Einwendung&gt;_Darstellung_Stell_&lt;laufende Nummer&gt;</p>
-
-    <p>Beispiel:</p>
-    <p>- Für eine Abbildung in einem Erwiderungstext: &lt;M12_Darstellung_Erw_001&gt;</p>
-    <p>- Für eine Abbildung in einem Stellungnahmetext: &lt;M12_Darstellung_Stell_001&gt;</p>
 docx: "DOCX"
 done: "erledigt"
 done.capital: "Erledigt"
@@ -1806,7 +1803,6 @@ filter.phase.participation: "Beteiligung"
 filter.phase.potentialanalysis: "Bestands- und Potentialanalyse"
 filter.phase.heatplanningdraft: "Entwurf Wärmeplan"
 filter.reset: "Filterauswahl zurücksetzen"
-filter.reset.failed: "Die ausgewählten Filter konnten nicht angewandt werden und wurden zurückgesetzt."
 filter.publicCheck.no: "Nicht gewünscht"
 filter.savedFilterSet.delete.confirm: "Möchten Sie diese Filterkombination wirklich löschen?"
 filter.saveFilterSet.back: "Zurück zur Filterauswahl"
@@ -2087,6 +2083,10 @@ initial_extent.not.set: 'Sie haben noch keinen Startkartenausschnitt festgesetzt
 input.text.maxlength: "Der eingegebene Text kann bis zu {maxlength} Zeichen lang sein. Es sind noch <input class=\"o-char-count\" disabled value=\"{maxlength}\" id=\"{id}\"> Zeichen verfügbar."
 insert: "Einfügen"
 institution: "Institution"
+institution.customFields: "Freitextfelder"
+institution.customFields.define: "Freitextfelder definieren"
+institution.customFields.fields: "Institutionsfelder"
+institution.customFields.new: "Neues Textfeld"
 institution.name: "Name der Institution"
 institution.represents: "vertretene Institution"
 institution.tags.management: "Institutionen verschlagworten"
@@ -2183,6 +2183,7 @@ layer: "Kartenebene"
 # @TODO refactor everything to use "gislayer..." when referring to "Kartenebenen"
 # and "layer..." when referring to the layer inside of a getCapabilities response
 layers: "Layer"
+layout.info: 'Hinweis zu Darstellungen:<br>Darstellungen werden im Text referenziert und direkt unter der zugehörigen Stellungnahme oder Einwendung angezeigt. Der Verweis im Text enthält die jeweilige Stellungnahme-ID sowie den Typ: „Stel" (Stellungnahme/Einwendung) oder „Erw" (Erwiderung) und eine Nummerierung (z.B. M12_Darstellung_Erw_00). Mit einem Klick auf den Verweis können Sie direkt zur Darstellung springen.'
 legend: "Legende"
 legend.download: "Legende herunterladen"
 legend.not_available: "Legende nicht verfügbar"
