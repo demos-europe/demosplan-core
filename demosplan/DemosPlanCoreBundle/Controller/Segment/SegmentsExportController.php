@@ -43,6 +43,7 @@ class SegmentsExportController extends BaseController
     private const CITIZEN_CENSOR_PARAMETER = 'isCitizenDataCensored';
     private const INSTITUTION_CENSOR_PARAMETER = 'isInstitutionDataCensored';
     private const OBSCURE_PARAMETER = 'isObscured';
+    private const CUSTOM_HEADER_TEXT_PARAMETER = 'customHeaderText';
 
     public function __construct(
         private readonly NameGenerator $nameGenerator,
@@ -133,7 +134,8 @@ class SegmentsExportController extends BaseController
         $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
 
         $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
-        $filteredTagNames = $this->statementExportTagFilter->getTagNames();
+        $exportFilteredByTagsWithTopics = $this->statementExportTagFilter->getFilteredTagsWithTitles();
+        $customHeaderText = $this->requestStack->getCurrentRequest()->query->get(self::CUSTOM_HEADER_TEXT_PARAMETER) ?? '';
 
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
@@ -149,15 +151,17 @@ class SegmentsExportController extends BaseController
                 $censorCitizenData,
                 $censorInstitutionData,
                 $obscureParameter,
-                $filteredTagNames
+                $exportFilteredByTagsWithTopics,
+                $customHeaderText
             ) {
                 $exportedDoc = $exporter->exportAll(
                     $tableHeaders,
                     $procedure,
                     $obscureParameter,
-                    $filteredTagNames,
+                    $exportFilteredByTagsWithTopics,
                     $censorCitizenData,
                     $censorInstitutionData,
+                    $customHeaderText,
                     ...$statementEntities
                 );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
@@ -309,7 +313,7 @@ class SegmentsExportController extends BaseController
                             $censorCitizenData,
                             $censorInstitutionData,
                             $obscureParameter,
-                            $this->statementExportTagFilter->hasAnySupportedFilterSet()
+                            $this->statementExportTagFilter->getFilteredTagsWithTitles()
                         );
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(
