@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Map\GisLayerValidator;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use Exception;
@@ -19,8 +20,6 @@ use Psr\Log\LoggerInterface;
 
 class BaseLayerVisibilityValidator
 {
-    final public const BASE_LAYER_TYPE = 'base';
-
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly MapService $mapService,
@@ -44,7 +43,7 @@ class BaseLayerVisibilityValidator
 
     private function shouldDisableOtherBaseLayers(array $gisLayer)
     {
-        return isset($gisLayer['type']) && self::BASE_LAYER_TYPE === $gisLayer['type']
+        return isset($gisLayer['type']) && GisLayerInterface::TYPE_BASE === $gisLayer['type']
             && isset($gisLayer['defaultVisibility']) && true === $gisLayer['defaultVisibility'];
     }
 

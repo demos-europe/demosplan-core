@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
@@ -17,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
 use demosplan\DemosPlanCoreBundle\Exception\FunctionalLogicException;
 use demosplan\DemosPlanCoreBundle\Exception\GisLayerCategoryTreeTooDeepException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\Map\GisLayerValidator\BaseLayerVisibilityValidator;
 use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\ORM\EntityManagerInterface;
@@ -396,7 +396,7 @@ class MapHandler extends CoreHandler
             ->setParameter('false', false)
             ->setParameter('true', true)
             ->setParameter('procedureId', '')
-            ->setParameter('type', BaseLayerVisibilityValidator::BASE_LAYER_TYPE)
+            ->setParameter('type', GisLayerInterface::TYPE_BASE)
             ->setParameter('exceptId', $exceptLayerId)
             ->getQuery()
             ->execute();
