@@ -36,7 +36,6 @@ class StatementOnUpdateEventSubscriber extends BaseEventSubscriber
 
     public function saveChangeHistory(BeforeResourceUpdateFlushEvent $event): void
     {
-
         if (!$this->permissions->hasPermission('feature_statement_content_changes_save')) {
             return;
         }
