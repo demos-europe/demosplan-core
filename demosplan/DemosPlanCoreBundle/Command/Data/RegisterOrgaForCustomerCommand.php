@@ -65,9 +65,9 @@ class RegisterOrgaForCustomerCommand extends CoreCommand
             return Command::FAILURE;
         }
 
-        $orga = $this->askOrgaByEmail($input, $output);
+        $orga = $this->askOrgaById($input, $output);
         if (!$orga instanceof Orga) {
-            $output->writeln('<error>No Orga found for the given email.</error>');
+            $output->writeln('<error>No Orga found for the given ID.</error>');
 
             return Command::FAILURE;
         }
@@ -93,7 +93,7 @@ class RegisterOrgaForCustomerCommand extends CoreCommand
             return Command::FAILURE;
         }
 
-        $users = $orga->getAllUsersOfDepartments();
+        $users = $orga->getUsers();
         $userCount = $users->count();
 
         $output->writeln('');
@@ -154,10 +154,10 @@ class RegisterOrgaForCustomerCommand extends CoreCommand
         }
     }
 
-    private function askOrgaByEmail(InputInterface $input, OutputInterface $output): ?Orga
+    private function askOrgaById(InputInterface $input, OutputInterface $output): ?Orga
     {
-        $question = new Question('Please enter the participation email of the Orga to register: ');
-        $question->setValidator(fn ($answer) => $this->orgaRepository->findOneBy(['email2' => $answer]));
+        $question = new Question('Please enter the ID of the Orga to register: ');
+        $question->setValidator(fn ($answer) => $this->orgaRepository->find(trim((string) $answer)));
 
         return $this->helper->ask($input, $output, $question);
     }

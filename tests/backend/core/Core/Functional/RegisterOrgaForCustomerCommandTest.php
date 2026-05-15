@@ -12,136 +12,149 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
-use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaStatusInCustomerFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaTypeFactory;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Tests\Base\FunctionalTestCase;
 
 class RegisterOrgaForCustomerCommandTest extends FunctionalTestCase
 {
-    private const ORGA_EMAIL = 'fp-only-orga@example.test';
-
     public function testSuccessfulExecute(): void
     {
-        $this->prepareOrgaWithEmail();
-        /** @var Customer $source */
-        $source = $this->fixtures->getReference(LoadCustomerData::HINDSIGHT);
-        /** @var Customer $target */
-        $target = $this->fixtures->getReference(LoadCustomerData::BB);
+        // Arrange
+        $sourceCustomer = CustomerFactory::createOne(['subdomain' => 'source-'.uniqid()]);
+        $targetCustomer = CustomerFactory::createOne(['subdomain' => 'target-'.uniqid()]);
+        $orgaType = OrgaTypeFactory::createOne();
+        $orga = OrgaFactory::createOne();
+        // Persists the orga→source-customer registration row; not assigned because the command
+        // reads its state back from the DB after a fresh kernel boot.
+        OrgaStatusInCustomerFactory::createOne([
+            'orga'     => $orga,
+            'customer' => $sourceCustomer,
+            'orgaType' => $orgaType,
+        ]);
 
         $tester = $this->getCommandTester();
         $tester->setInputs([
-            $source->getSubdomain(),
-            $target->getSubdomain(),
-            self::ORGA_EMAIL,
+            $sourceCustomer->getSubdomain(),
+            $targetCustomer->getSubdomain(),
+            $orga->getId(),
             'y',
         ]);
 
+        // Act
         $tester->execute([]);
-        $tester->assertCommandIsSuccessful();
 
+        // Assert
+        $tester->assertCommandIsSuccessful();
         $output = $tester->getDisplay();
         self::assertStringContainsString('Orga successfully registered', $output);
-        self::assertStringContainsString($target->getSubdomain(), $output);
+        self::assertStringContainsString($targetCustomer->getSubdomain(), $output);
     }
 
-    public function testInvalidEmailExecute(): void
+    public function testInvalidOrgaIdExecute(): void
     {
-        /** @var Customer $source */
-        $source = $this->fixtures->getReference(LoadCustomerData::HINDSIGHT);
-        /** @var Customer $target */
-        $target = $this->fixtures->getReference(LoadCustomerData::BB);
+        // Arrange
+        $sourceCustomer = CustomerFactory::createOne(['subdomain' => 'source-'.uniqid()]);
+        $targetCustomer = CustomerFactory::createOne(['subdomain' => 'target-'.uniqid()]);
 
         $tester = $this->getCommandTester();
         $tester->setInputs([
-            $source->getSubdomain(),
-            $target->getSubdomain(),
-            'nonexistent@example.test',
+            $sourceCustomer->getSubdomain(),
+            $targetCustomer->getSubdomain(),
+            '00000000-0000-0000-0000-000000000000',
         ]);
 
+        // Act
         $tester->execute([]);
+
+        // Assert
         self::assertSame(1, $tester->getStatusCode());
-        self::assertStringContainsString('No Orga found for the given email', $tester->getDisplay());
+        self::assertStringContainsString('No Orga found for the given ID', $tester->getDisplay());
     }
 
     public function testSourceEqualsTargetExecute(): void
     {
-        /** @var Customer $source */
-        $source = $this->fixtures->getReference(LoadCustomerData::HINDSIGHT);
+        // Arrange
+        $customer = CustomerFactory::createOne(['subdomain' => 'same-'.uniqid()]);
 
         $tester = $this->getCommandTester();
         $tester->setInputs([
-            $source->getSubdomain(),
-            $source->getSubdomain(),
+            $customer->getSubdomain(),
+            $customer->getSubdomain(),
         ]);
 
+        // Act
         $tester->execute([]);
+
+        // Assert
         self::assertSame(1, $tester->getStatusCode());
         self::assertStringContainsString('Source and target customer must differ', $tester->getDisplay());
     }
 
     public function testOrgaNotInSourceExecute(): void
     {
-        $this->prepareOrgaWithEmail();
-        /** @var Customer $source */
-        $source = $this->fixtures->getReference(LoadCustomerData::BB);
-        /** @var Customer $target */
-        $target = $this->fixtures->getReference(LoadCustomerData::HINDSIGHT);
+        // Arrange — orga is registered in some unrelated customer, never in `sourceCustomer`
+        $unrelatedCustomer = CustomerFactory::createOne(['subdomain' => 'unrelated-'.uniqid()]);
+        $sourceCustomer = CustomerFactory::createOne(['subdomain' => 'source-'.uniqid()]);
+        $targetCustomer = CustomerFactory::createOne(['subdomain' => 'target-'.uniqid()]);
+        $orgaType = OrgaTypeFactory::createOne();
+        $orga = OrgaFactory::createOne();
+        OrgaStatusInCustomerFactory::createOne([
+            'orga'     => $orga,
+            'customer' => $unrelatedCustomer,
+            'orgaType' => $orgaType,
+        ]);
 
         $tester = $this->getCommandTester();
         $tester->setInputs([
-            $source->getSubdomain(),
-            $target->getSubdomain(),
-            self::ORGA_EMAIL,
+            $sourceCustomer->getSubdomain(),
+            $targetCustomer->getSubdomain(),
+            $orga->getId(),
         ]);
 
+        // Act
         $tester->execute([]);
+
+        // Assert
         self::assertSame(1, $tester->getStatusCode());
         self::assertStringContainsString('not registered in source customer', $tester->getDisplay());
     }
 
     public function testOrgaAlreadyInTargetExecute(): void
     {
-        $orga = $this->prepareOrgaWithEmail();
-        /** @var Customer $source */
-        $source = $this->fixtures->getReference(LoadCustomerData::HINDSIGHT);
-        /** @var Customer $target */
-        $target = $this->fixtures->getReference(LoadCustomerData::BB);
-
-        $sourceOrgaType = null;
-        foreach ($orga->getStatusInCustomers() as $status) {
-            if ($status->getCustomer()->getId() === $source->getId()) {
-                $sourceOrgaType = $status->getOrgaType();
-                break;
-            }
-        }
-        self::assertNotNull($sourceOrgaType, 'Fixture orga should have an OrgaType in the source customer.');
-
-        $orga->addCustomerAndOrgaType($target, $sourceOrgaType);
-        $this->getEntityManager()->flush();
+        // Arrange — orga is already registered in both source and target
+        $sourceCustomer = CustomerFactory::createOne(['subdomain' => 'source-'.uniqid()]);
+        $targetCustomer = CustomerFactory::createOne(['subdomain' => 'target-'.uniqid()]);
+        $orgaType = OrgaTypeFactory::createOne();
+        $orga = OrgaFactory::createOne();
+        OrgaStatusInCustomerFactory::createOne([
+            'orga'     => $orga,
+            'customer' => $sourceCustomer,
+            'orgaType' => $orgaType,
+        ]);
+        OrgaStatusInCustomerFactory::createOne([
+            'orga'     => $orga,
+            'customer' => $targetCustomer,
+            'orgaType' => $orgaType,
+        ]);
 
         $tester = $this->getCommandTester();
         $tester->setInputs([
-            $source->getSubdomain(),
-            $target->getSubdomain(),
-            self::ORGA_EMAIL,
+            $sourceCustomer->getSubdomain(),
+            $targetCustomer->getSubdomain(),
+            $orga->getId(),
         ]);
 
+        // Act
         $tester->execute([]);
+
+        // Assert
         self::assertSame(1, $tester->getStatusCode());
         self::assertStringContainsString('already registered in target customer', $tester->getDisplay());
-    }
-
-    private function prepareOrgaWithEmail(): Orga
-    {
-        /** @var Orga $orga */
-        $orga = $this->fixtures->getReference('testOrgaFPOnly');
-        $orga->setEmail2(self::ORGA_EMAIL);
-        $this->getEntityManager()->flush();
-
-        return $orga;
     }
 
     private function getCommandTester(): CommandTester
