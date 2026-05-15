@@ -180,6 +180,21 @@ export default {
       listTagTopics: 'list',
     }),
 
+    // Apply tagList.reorder RPC response — sync sortIndex in the Tag store for every changed tag
+    applyReorderResponse (response) {
+      const result = response.data[0].result
+      for (const [id, { sortIndex }] of Object.entries(result)) {
+        const tag = this.Tag[id]
+        if (tag) {
+          this.updateTag({
+            ...tag,
+            attributes: { ...tag.attributes, sortIndex },
+          })
+        }
+      }
+      dplan.notify.confirm(Translator.trans('confirm.saved'))
+    },
+
     closeEditForm () {
       this.isInEditState = ''
     },
@@ -219,19 +234,7 @@ export default {
       })
 
       dpRpc('tagList.reorder', { tagId, topicId: targetTopicId, newIndex })
-        .then((response) => {
-          const result = response.data[0].result
-          for (const [id, { sortIndex }] of Object.entries(result)) {
-            const tag = this.Tag[id]
-            if (tag) {
-              this.updateTag({
-                ...tag,
-                attributes: { ...tag.attributes, sortIndex },
-              })
-            }
-          }
-          dplan.notify.confirm(Translator.trans('confirm.saved'))
-        })
+        .then((response) => this.applyReorderResponse(response))
         .catch(error => {
           console.error(error)
           this.updateTagTopic({
@@ -325,19 +328,7 @@ export default {
       })
 
       dpRpc('tagList.reorder', { tagId, topicId: parentId, newIndex })
-        .then((response) => {
-          const result = response.data[0].result
-          for (const [id, { sortIndex }] of Object.entries(result)) {
-            const tag = this.Tag[id]
-            if (tag) {
-              this.updateTag({
-                ...tag,
-                attributes: { ...tag.attributes, sortIndex },
-              })
-            }
-          }
-          dplan.notify.confirm(Translator.trans('confirm.saved'))
-        })
+        .then((response) => this.applyReorderResponse(response))
         .catch(error => {
           console.error(error)
           // Rollback
