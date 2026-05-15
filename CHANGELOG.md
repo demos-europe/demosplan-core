@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Changed
+- Doctrine ORM upgraded from v2.20 to v3.6 and `doctrine/persistence` widened to `^2.0 || ^3.0`; entity mappings converted from annotations to PHP 8 attributes (preparation for the API Platform integration)
+
 ## v4.39.0 (2026-05-06)
 
 ## v4.38.0 (2026-05-06)
