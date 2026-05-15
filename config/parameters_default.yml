@@ -181,6 +181,10 @@ parameters:
     ratelimit_anonymous_statement_rate_amount: '%env(int:RATELIMIT_ANONYMOUS_STATEMENT_RATE_AMOUNT)%'
     password_history_max_entries: '%env(int:PASSWORD_HISTORY_MAX_ENTRIES)%'
 
+    # Retention period (in days) for login_audit rows. Cleanup is performed by
+    # `dplan:login-audit:cleanup` and should be wired to a recurring schedule.
+    login_audit_retention_days: '%env(int:LOGIN_AUDIT_RETENTION_DAYS)%'
+
     # GitHub token may be used to download addons directly from github
     github_token: '%env(GITHUB_TOKEN)%'
     # addon repository is used to install addons. A token needs to be acquired
@@ -242,8 +246,8 @@ parameters:
     # Regex that need to match to send Mails directly from user email
     # instead of system email. email_use_system_mail_as_sender needs to be false
     email_from_domain_valid_regex: ''
-    # Delete any sent emails after this timespan in days from email sent queue. Default 5 Years
-    email_delete_after_days: 1780
+    # Delete any sent emails after this timespan in days from email sent queue. Default 90 days
+    email_delete_after_days: 90
 
     master_procedure_phase: configuration #the default phase for new procedures, see procedurephases.yml
 

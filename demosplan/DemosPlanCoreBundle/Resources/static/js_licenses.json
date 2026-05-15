@@ -220,14 +220,54 @@
         "website": "https://github.com/webpack/css-minimizer-webpack-plugin"
     },
     {
-        "package": "d3",
+        "package": "d3-array",
         "license": "ISC",
-        "website": "https://github.com/d3/d3"
+        "website": "https://github.com/d3/d3-array"
+    },
+    {
+        "package": "d3-axis",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-axis"
+    },
+    {
+        "package": "d3-format",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-format"
+    },
+    {
+        "package": "d3-interpolate",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-interpolate"
     },
     {
         "package": "d3-sankey-diagram",
         "license": "MIT",
         "website": "https://github.com/ricklupton/d3-sankey-diagram"
+    },
+    {
+        "package": "d3-scale",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-scale"
+    },
+    {
+        "package": "d3-selection",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-selection"
+    },
+    {
+        "package": "d3-shape",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-shape"
+    },
+    {
+        "package": "d3-time-format",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-time-format"
+    },
+    {
+        "package": "d3-transition",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-transition"
     },
     {
         "package": "dayjs",

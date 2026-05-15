@@ -32,6 +32,7 @@ use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: 'customer')]
+#[ORM\UniqueConstraint(name: 'uniq_customer_subdomain', columns: ['_c_subdomain'])]
 #[ORM\Entity(repositoryClass: CustomerRepository::class)]
 class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterface, Stringable
 {
