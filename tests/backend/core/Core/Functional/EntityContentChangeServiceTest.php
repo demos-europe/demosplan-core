@@ -13,6 +13,7 @@ namespace Tests\Core\Core\Functional;
 use DateTime;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
@@ -28,6 +29,8 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentBulkEditorService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
 
@@ -308,6 +311,115 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
             $selectedOptionCustomField2Label,
             $newValuesOfHistoryOfSegment2
         );
+    }
+
+    /**
+     * Testing the history of multi-select custom field value changes on update of statements.
+     * Mirrors testEntityContentChangeEntryOnUpdateCustomFieldValue, but exercises the Statement
+     * audit path (StatementService::updateStatementFromObject) and uses multi-select customFields
+     * whose value is an array of option IDs.
+     */
+    public function testEntityContentChangeEntryOnUpdateStatementMultiSelectCustomFieldValue(): void
+    {
+        $procedure = ProcedureFactory::createOne();
+        $statements = StatementFactory::createMany(2, ['procedure' => $procedure]);
+        $customField1 = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->withRelatedTargetEntity(CustomFieldSupportedEntity::statement->value)
+            ->asMultiSelect('Topics1', options: ['Environment', 'Traffic', 'Housing'])
+            ->create();
+        $customField2 = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->withRelatedTargetEntity(CustomFieldSupportedEntity::statement->value)
+            ->asMultiSelect('Topics2', options: ['Open', 'In Review', 'Closed', 'Archived'])
+            ->create();
+
+        // Pick two options per multi-select customField — the audit's "new" value should join their labels.
+        $customField1OptionA = $customField1->getConfiguration()->getOptions()[0]; // 'Environment'
+        $customField1OptionB = $customField1->getConfiguration()->getOptions()[2]; // 'Housing'
+        $customField2OptionA = $customField2->getConfiguration()->getOptions()[1]; // 'In Review'
+        $customField2OptionB = $customField2->getConfiguration()->getOptions()[3]; // 'Archived'
+
+        $preUpdateContentChangeEntriesCount = $this->countEntries(EntityContentChange::class);
+
+        /** @var CustomFieldValueCreator $customFieldValueCreator */
+        $customFieldValueCreator = $this->getContainer()->get(CustomFieldValueCreator::class);
+        $procedureId = $procedure->_real()->getId();
+        $newCustomFieldValuesData = [
+            ['id' => $customField1->getId(), 'value' => [$customField1OptionA->getId(), $customField1OptionB->getId()]],
+            ['id' => $customField2->getId(), 'value' => [$customField2OptionA->getId(), $customField2OptionB->getId()]],
+        ];
+
+        $statements[0] = $statements[0]->_real();
+        $statements[1] = $statements[1]->_real();
+        /** @var Statement[] $statements */
+        foreach ($statements as $statement) {
+            // Mirrors StatementResourceType::configureProperties (customFields updatable callback):
+            // build the list via CustomFieldValueCreator and set it on the statement.
+            $values = $customFieldValueCreator->updateOrAddCustomFieldValues(
+                $statement->getCustomFields() ?? new CustomFieldValuesList(),
+                $newCustomFieldValuesData,
+                $procedureId,
+                CustomFieldSupportedEntity::procedure->value,
+                CustomFieldSupportedEntity::statement->value,
+            );
+            $statement->setCustomFields($values);
+            // ignoreAssignment=true mirrors testCreateEntityContentChangeEntryOnUpdateStatementObject;
+            // ignoreOriginal=true is required because StatementFactory creates "original" statements
+            // (no parent), which would otherwise be locked by updateStatement.
+            $this->statementService->updateStatementFromObject($statement, true, false, true);
+        }
+
+
+        // 2 statements × 2 customFields → 4 new audit rows
+        self::assertCount($preUpdateContentChangeEntriesCount + 4, $this->getEntries(EntityContentChange::class));
+
+        // For multi-select, formatValueForDisplay joins labels with ", " in selection order.
+        $expectedCustomField1Label = $customField1OptionA->getLabel().', '.$customField1OptionB->getLabel();
+        $expectedCustomField2Label = $customField2OptionA->getLabel().', '.$customField2OptionB->getLabel();
+
+        // check history of statement1
+        /** @var EntityContentChange[] $historyOfStatement1 */
+        $historyOfStatement1 = $this->getEntries(
+            EntityContentChange::class,
+            ['entityType' => Statement::class, 'entityId' => $statements[0]->getId()]
+        );
+        self::assertCount(2, $historyOfStatement1);
+        self::assertInstanceOf(EntityContentChange::class, $historyOfStatement1[0]);
+        self::assertInstanceOf(EntityContentChange::class, $historyOfStatement1[1]);
+
+        $newValuesOfHistoryOfStatement1 = [];
+        foreach ($historyOfStatement1 as $entityContentChange) {
+            // order of entries in the history is variable (sort by createdDate)
+            $newValuesOfHistoryOfStatement1[] = Json::decodeToArray($entityContentChange->getContentChange())[0][0]['new']['lines'][0];
+        }
+
+        self::assertEquals('', Json::decodeToArray($historyOfStatement1[0]->getContentChange())[0][0]['old']['lines'][0]);
+        self::assertContains($expectedCustomField1Label, $newValuesOfHistoryOfStatement1);
+
+        self::assertEquals('', Json::decodeToArray($historyOfStatement1[1]->getContentChange())[0][0]['old']['lines'][0]);
+        self::assertContains($expectedCustomField2Label, $newValuesOfHistoryOfStatement1);
+
+        // check history of statement2
+        /** @var EntityContentChange[] $historyOfStatement2 */
+        $historyOfStatement2 = $this->getEntries(
+            EntityContentChange::class,
+            ['entityType' => Statement::class, 'entityId' => $statements[1]->getId()]
+        );
+        self::assertCount(2, $historyOfStatement2);
+        self::assertInstanceOf(EntityContentChange::class, $historyOfStatement2[0]);
+        self::assertInstanceOf(EntityContentChange::class, $historyOfStatement2[1]);
+
+        $newValuesOfHistoryOfStatement2 = [];
+        foreach ($historyOfStatement2 as $entityContentChange) {
+            $newValuesOfHistoryOfStatement2[] = Json::decodeToArray($entityContentChange->getContentChange())[0][0]['new']['lines'][0];
+        }
+
+        self::assertEquals('', Json::decodeToArray($historyOfStatement2[0]->getContentChange())[0][0]['old']['lines'][0]);
+        self::assertContains($expectedCustomField1Label, $newValuesOfHistoryOfStatement2);
+
+        self::assertEquals('', Json::decodeToArray($historyOfStatement2[1]->getContentChange())[0][0]['old']['lines'][0]);
+        self::assertContains($expectedCustomField2Label, $newValuesOfHistoryOfStatement2);
     }
 
     /**
