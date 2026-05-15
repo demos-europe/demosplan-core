@@ -377,6 +377,9 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         $expectedCustomField1Label = $customField1OptionA->getLabel().', '.$customField1OptionB->getLabel();
         $expectedCustomField2Label = $customField2OptionA->getLabel().', '.$customField2OptionB->getLabel();
 
+        $customField1Name = $customField1->getConfiguration()->getName();
+        $customField2Name = $customField2->getConfiguration()->getName();
+
         // check history of statement1
         /** @var EntityContentChange[] $historyOfStatement1 */
         $historyOfStatement1 = $this->getEntries(
@@ -384,20 +387,17 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
             ['entityType' => Statement::class, 'entityId' => $statements[0]->getId()]
         );
         self::assertCount(2, $historyOfStatement1);
-        self::assertInstanceOf(EntityContentChange::class, $historyOfStatement1[0]);
-        self::assertInstanceOf(EntityContentChange::class, $historyOfStatement1[1]);
 
-        $newValuesOfHistoryOfStatement1 = [];
+        $changesByFieldStatement1 = [];
         foreach ($historyOfStatement1 as $entityContentChange) {
-            // order of entries in the history is variable (sort by createdDate)
-            $newValuesOfHistoryOfStatement1[] = Json::decodeToArray($entityContentChange->getContentChange())[0][0]['new']['lines'][0];
+            $changesByFieldStatement1[$entityContentChange->getEntityField()] = $entityContentChange->getContentChange();
         }
 
-        self::assertEquals('', Json::decodeToArray($historyOfStatement1[0]->getContentChange())[0][0]['old']['lines'][0]);
-        self::assertContains($expectedCustomField1Label, $newValuesOfHistoryOfStatement1);
+        self::assertSame('', $this->getPreUpdateValueOfContentChange($customField1Name, $changesByFieldStatement1));
+        self::assertSame($expectedCustomField1Label, $this->getPostUpdateValueOfContentChange($customField1Name, $changesByFieldStatement1));
 
-        self::assertEquals('', Json::decodeToArray($historyOfStatement1[1]->getContentChange())[0][0]['old']['lines'][0]);
-        self::assertContains($expectedCustomField2Label, $newValuesOfHistoryOfStatement1);
+        self::assertSame('', $this->getPreUpdateValueOfContentChange($customField2Name, $changesByFieldStatement1));
+        self::assertSame($expectedCustomField2Label, $this->getPostUpdateValueOfContentChange($customField2Name, $changesByFieldStatement1));
 
         // check history of statement2
         /** @var EntityContentChange[] $historyOfStatement2 */
@@ -406,19 +406,17 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
             ['entityType' => Statement::class, 'entityId' => $statements[1]->getId()]
         );
         self::assertCount(2, $historyOfStatement2);
-        self::assertInstanceOf(EntityContentChange::class, $historyOfStatement2[0]);
-        self::assertInstanceOf(EntityContentChange::class, $historyOfStatement2[1]);
 
-        $newValuesOfHistoryOfStatement2 = [];
+        $changesByFieldStatement2 = [];
         foreach ($historyOfStatement2 as $entityContentChange) {
-            $newValuesOfHistoryOfStatement2[] = Json::decodeToArray($entityContentChange->getContentChange())[0][0]['new']['lines'][0];
+            $changesByFieldStatement2[$entityContentChange->getEntityField()] = $entityContentChange->getContentChange();
         }
 
-        self::assertEquals('', Json::decodeToArray($historyOfStatement2[0]->getContentChange())[0][0]['old']['lines'][0]);
-        self::assertContains($expectedCustomField1Label, $newValuesOfHistoryOfStatement2);
+        self::assertSame('', $this->getPreUpdateValueOfContentChange($customField1Name, $changesByFieldStatement2));
+        self::assertSame($expectedCustomField1Label, $this->getPostUpdateValueOfContentChange($customField1Name, $changesByFieldStatement2));
 
-        self::assertEquals('', Json::decodeToArray($historyOfStatement2[1]->getContentChange())[0][0]['old']['lines'][0]);
-        self::assertContains($expectedCustomField2Label, $newValuesOfHistoryOfStatement2);
+        self::assertSame('', $this->getPreUpdateValueOfContentChange($customField2Name, $changesByFieldStatement2));
+        self::assertSame($expectedCustomField2Label, $this->getPostUpdateValueOfContentChange($customField2Name, $changesByFieldStatement2));
     }
 
     /**
