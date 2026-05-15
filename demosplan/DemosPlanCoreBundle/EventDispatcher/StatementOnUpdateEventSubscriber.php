@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\EventDispatcher;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceUpdateFlushEvent;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
@@ -20,7 +21,9 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 
 class StatementOnUpdateEventSubscriber extends BaseEventSubscriber
 {
-    public function __construct(private readonly EntityContentChangeService $entityContentChangeService)
+    public function __construct(
+        private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly PermissionsInterface $permissions)
     {
     }
 
@@ -33,6 +36,11 @@ class StatementOnUpdateEventSubscriber extends BaseEventSubscriber
 
     public function saveChangeHistory(BeforeResourceUpdateFlushEvent $event): void
     {
+
+        if (!$this->permissions->hasPermission('feature_statement_content_changes_save')) {
+            return;
+        }
+
         $targetResourceType = $event->getType();
         if (!$targetResourceType instanceof StatementResourceType) {
             return;
