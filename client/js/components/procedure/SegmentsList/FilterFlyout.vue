@@ -168,14 +168,12 @@
       </ul>
       <div class="flex justify-end gap-2 p-2 pt-0">
         <dp-button
-          class="float-right"
           color="secondary"
           :data-cy="`filter:abortFilter:${path}`"
           :text="Translator.trans('abort')"
           @click="close"
         />
         <dp-button
-          class="float-left"
           :data-cy="`filter:applyFilter:${path}`"
           :text="Translator.trans('apply')"
           @click="apply"
