@@ -178,36 +178,10 @@ export default {
     ...mapActions('TagTopic', {
       createTagTopic: 'create',
       listTagTopics: 'list',
-      saveTagTopic: 'save',
     }),
 
     closeEditForm () {
       this.isInEditState = ''
-    },
-
-    addTagToNewTopic (parentTopic, tagId) {
-      this.updateTagTopic({
-        id: parentTopic.id,
-        type: 'TagTopic',
-        attributes: parentTopic.attributes,
-        relationships: parentTopic.relationships ?
-          {
-            ...parentTopic.relationships,
-            tags: {
-              data: parentTopic.relationships.tags.data.concat({
-                type: 'Tag',
-                id: tagId,
-              }),
-            },
-          } :
-          {
-            tags: {
-              data: [{ type: 'Tag', id: tagId }],
-            },
-          },
-      })
-
-      this.saveTagTopic(parentTopic.id)
     },
 
     // Single drop handler — branches on cross-cat vs intra-sort
@@ -325,25 +299,6 @@ export default {
       }).then(() => {
         this.dataIsRequested = false
       })
-    },
-
-    removeTagFromOldTopic (oldParent, tagId) {
-      const oldParentTags = [...oldParent.relationships?.tags?.data || []]
-      const indexToBeRemoved = oldParentTags.findIndex(el => el.id === tagId)
-      oldParentTags.splice(indexToBeRemoved, 1)
-
-      this.updateTagTopic({
-        id: oldParent.id,
-        attributes: oldParent.attributes,
-        type: 'TagTopic',
-        relationships: {
-          tags: {
-            data: oldParentTags,
-          },
-        },
-      })
-
-      this.saveTagTopic(oldParent.id)
     },
 
     // Persist new tag order within a topic — optimistic update + rollback on failure
