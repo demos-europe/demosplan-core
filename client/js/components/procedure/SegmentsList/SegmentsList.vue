@@ -779,6 +779,7 @@ export default {
           ].join(),
           Place: [
             'name',
+            'locked',
           ].join(),
           SourceStatementAttachment: ['file'].join(),
           Statement: [
