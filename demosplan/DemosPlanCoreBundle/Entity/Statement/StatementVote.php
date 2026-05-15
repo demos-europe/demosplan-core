@@ -96,27 +96,24 @@ class StatementVote implements UuidEntityInterface, StatementVoteInterface
      * @var DateTime
      *
      * @ORM\Column(name="_st_v_created_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
      *
      * @ORM\Column(name="_st_v_modified_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="update")
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifiedDate;
 
     /**
      * @var DateTime
      *
      * @ORM\Column(name="_st_v_deleted_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="update")
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $deletedDate;
 
     /**

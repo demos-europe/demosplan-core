@@ -43,19 +43,19 @@ class PlatformFaqCategory extends CoreEntity implements FaqCategoryInterface
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="create")
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createDate;
 
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="update")
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifyDate;
 
     public function getId(): ?string

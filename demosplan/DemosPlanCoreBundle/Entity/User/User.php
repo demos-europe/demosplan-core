@@ -154,18 +154,16 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      * @var DateTime
      *
      * @ORM\Column(name="_u_created_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
      *
      * @ORM\Column(name="_u_modified_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="update")
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifiedDate;
 
     /**

@@ -77,9 +77,8 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      * @var DateTime
      *
      * @ORM\Column(name="_t_create_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createDate;
 
     /**

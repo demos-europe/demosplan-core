@@ -408,9 +408,8 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
      * @var DateTime
      *
      * @ORM\Column(name="_ds_created_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
@@ -424,9 +423,8 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
      * @var DateTime
      *
      * @ORM\Column(name="_ds_last_modified_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="update")
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $lastModifiedDate;
 
     /**

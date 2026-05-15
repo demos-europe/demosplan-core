@@ -85,9 +85,8 @@ class StatementVersionField implements UuidEntityInterface, StatementVersionFiel
      * @var DateTime
      *
      * @ORM\Column(name="_sv_created_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $created;
 
     /**

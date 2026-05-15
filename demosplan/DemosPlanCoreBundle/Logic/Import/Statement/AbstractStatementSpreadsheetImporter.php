@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Exception\ClusterStatementCopyNotImplementedException;
@@ -192,7 +193,7 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
 
         // Scan column by column, stop after consecutive empty columns
         while ($consecutiveEmptyColumns < $maxEmptyColumnsBeforeStop && $columnIndex <= $maxColumnIndex) {
-            $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($columnIndex);
+            $columnLetter = Coordinate::stringFromColumnIndex($columnIndex);
             $cell = $worksheet->getCell($columnLetter.'1');
             $value = $cell->getValue();
 

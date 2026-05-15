@@ -99,18 +99,17 @@ class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface, De
      * @var DateTime
      *
      * @ORM\Column(name="_pu_modified_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="update")
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifiedDate;
 
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="create")
      *
      * @ORM\Column(name="_pu_create_date", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createDate;
 
     public function getId(): ?string

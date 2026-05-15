@@ -153,9 +153,8 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
      * @var DateTime
      *
      * @ORM\Column(name="_sdv_version_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $versionDate;
 
     /**

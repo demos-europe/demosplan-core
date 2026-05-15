@@ -52,9 +52,8 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface, Boiler
      * @var DateTime
      *
      * @ORM\Column(type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createDate;
 
     /**

@@ -64,17 +64,15 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface, 
     protected $tags;
 
     /**
-     * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected DateTime $creationDate;
 
     /**
-     * @Gedmo\Timestampable(on="update")
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'update')]
     private DateTime $modificationDate;
 
     public function getId(): ?string

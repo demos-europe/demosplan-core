@@ -80,10 +80,10 @@ class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="create")
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $creationDate;
 
     /**

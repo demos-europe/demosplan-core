@@ -56,10 +56,9 @@ class PersonalDataLogEntry extends CoreEntity implements UuidEntityInterface
     protected ?string $id = null;
 
     /**
-     * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected DateTime $created;
 
     /**

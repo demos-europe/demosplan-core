@@ -134,18 +134,16 @@ class Address extends CoreEntity implements UuidEntityInterface, AddressInterfac
      * @var DateTime
      *
      * @ORM\Column(name="_a_created_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
      *
      * @ORM\Column(name="_a_modified_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="update")
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifiedDate;
 
     /**

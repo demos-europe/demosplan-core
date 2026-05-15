@@ -132,19 +132,19 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="create")
      *
      * @ORM\Column(name="created_date", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $created;
 
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="update")
      *
      * @ORM\Column(name="modified_date", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modified;
 
     /**
