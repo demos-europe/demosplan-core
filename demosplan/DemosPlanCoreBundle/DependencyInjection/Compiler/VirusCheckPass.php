@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler;
 
 use demosplan\DemosPlanCoreBundle\Tools\VirusCheckHttp;

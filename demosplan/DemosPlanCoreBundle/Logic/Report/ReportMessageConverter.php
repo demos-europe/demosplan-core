@@ -438,7 +438,7 @@ class ReportMessageConverter
         // only log recipients with email address
         $recipients = $entryData->getRecipients();
         foreach ($recipients as $recipient) {
-            if (isset($recipient['email2']) && (string) $recipient['email2'] !== '') {
+            if (isset($recipient['email2']) && '' !== (string) $recipient['email2']) {
                 $invitedOrga = [
                     'ident'     => $recipient['ident'],
                     'nameLegal' => $recipient['nameLegal'],

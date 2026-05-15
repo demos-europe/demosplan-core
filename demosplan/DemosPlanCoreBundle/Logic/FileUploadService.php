@@ -198,7 +198,7 @@ class FileUploadService implements FileUploadServiceInterface
                 // array if multiupload is active, otherwise string
                 $uploadedFiles = $request->request->all('uploadedFiles');
 
-                return array_key_exists($key, $uploadedFiles) && (string) $uploadedFiles[$key] !== '';
+                return array_key_exists($key, $uploadedFiles) && '' !== (string) $uploadedFiles[$key];
             } catch (BadRequestException) {
                 // just catch when uploadedFiles is a string
             }

@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;

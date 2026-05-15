@@ -446,7 +446,7 @@ class DraftStatementHandler extends CoreHandler
             $statement['represents'] = $data['r_represents'];
         }
 
-        if (array_key_exists('r_uploaddocument', $data) && ((is_string($data['r_uploaddocument']) && $data['r_uploaddocument'] !== '')
+        if (array_key_exists('r_uploaddocument', $data) && ((is_string($data['r_uploaddocument']) && '' !== $data['r_uploaddocument'])
             || (is_array($data['r_uploaddocument']) && [] !== $data['r_uploaddocument']))) {
             $statement['files'] = $data['r_uploaddocument'];
         }

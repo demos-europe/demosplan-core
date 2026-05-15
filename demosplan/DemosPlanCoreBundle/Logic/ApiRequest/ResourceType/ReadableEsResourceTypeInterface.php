@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType;
 
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet\FacetInterface;

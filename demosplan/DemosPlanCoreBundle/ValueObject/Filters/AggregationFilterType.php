@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\ValueObject\Filters;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
@@ -77,7 +78,7 @@ class AggregationFilterType extends ValueObject
         array $aggregationFilterGroups,
         int $missingResourcesSum,
         private readonly bool $itemToManyRelationship,
-        private readonly bool $missingResourcesSumVisible
+        private readonly bool $missingResourcesSumVisible,
     ) {
         $this->id = $id;
         $this->label = $label;

@@ -27,7 +27,7 @@ class VirusCheckRabbitmq implements VirusCheckInterface
 
     public function __construct(
         private readonly GlobalConfigInterface $globalConfig,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 

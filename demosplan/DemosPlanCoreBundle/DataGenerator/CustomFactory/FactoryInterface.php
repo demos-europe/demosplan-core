@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory;
 
 /**
@@ -25,8 +26,6 @@ interface FactoryInterface
 {
     /**
      * Create and persist entity instances.
-     *
-     * @return mixed
      */
     public function make(int $amount = 1, int $batchSize = 10);
 }

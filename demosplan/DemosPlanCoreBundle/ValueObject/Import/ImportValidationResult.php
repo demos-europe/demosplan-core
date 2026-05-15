@@ -44,7 +44,7 @@ class ImportValidationResult
 
     public function hasErrors(): bool
     {
-        return $this->errors !== [];
+        return [] !== $this->errors;
     }
 
     /**

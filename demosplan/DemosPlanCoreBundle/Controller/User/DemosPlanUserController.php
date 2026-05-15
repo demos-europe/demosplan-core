@@ -277,7 +277,7 @@ class DemosPlanUserController extends BaseController
     protected function checkProfileCompleted(): array
     {
         $templateVars = [];
-        if (!($this->currentUser->getUser() instanceof User)) {
+        if (!$this->currentUser->getUser() instanceof User) {
             throw new SessionUnavailableException('Session korrupt');
         }
         $templateVars['profileCompleted'] = filter_var($this->currentUser->getUser()->isProfileCompleted(), FILTER_VALIDATE_BOOLEAN);

@@ -13,11 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Import;
 
 use DateTime;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ImportJobNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ImportJobUserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -60,7 +60,7 @@ class ImportJobProcessor
             // Find pending jobs (limit 1 to avoid concurrent processing issues)
             $pendingJobs = $this->importJobRepository->findPendingJobs(1);
 
-            if ($pendingJobs === []) {
+            if ([] === $pendingJobs) {
                 $this->entityManager->commit();
 
                 return 0;

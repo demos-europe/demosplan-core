@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
 use Psr\Container\ContainerInterface;
@@ -33,12 +34,11 @@ class DatasheetNumberFormatExtension extends ExtensionBase
     {
         if (!is_numeric($number)) {
             return $number;
-        } else {
-            if (function_exists('twig_number_format_filter')) {
-                return twig_number_format_filter($this->twig, $number, $decimal, ',', '.');
-            }
-
-            return 0;
         }
+        if (function_exists('twig_number_format_filter')) {
+            return twig_number_format_filter($this->twig, $number, $decimal, ',', '.');
+        }
+
+        return 0;
     }
 }

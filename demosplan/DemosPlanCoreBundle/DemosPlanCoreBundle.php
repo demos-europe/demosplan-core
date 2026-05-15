@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;

@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Provider;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as AddonContractUserInterface;
@@ -45,9 +46,6 @@ class ApiUserProvider implements UserProviderInterface
         return $user;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function refreshUser(UserInterface $user): UserInterface
     {
         return $this->loadUserByIdentifier($user->getUserIdentifier());

@@ -189,7 +189,7 @@ class DemosPlanUserAPIController extends APIController
     public function create(UserHandler $userHandler): APIResponse
     {
         try {
-            if (!($this->requestData instanceof TopLevel)) {
+            if (!$this->requestData instanceof TopLevel) {
                 throw BadRequestException::normalizerFailed();
             }
 
@@ -250,7 +250,7 @@ class DemosPlanUserAPIController extends APIController
     #[Route(path: '/api/1.0/user/{id}', name: 'dplan_api_user_update', options: ['expose' => true], methods: ['PATCH'])]
     public function update(string $id, UserHandler $userHandler): APIResponse
     {
-        if (!($this->requestData instanceof TopLevel)) {
+        if (!$this->requestData instanceof TopLevel) {
             throw BadRequestException::normalizerFailed();
         }
 

@@ -35,7 +35,7 @@ class TagTopicAPIController extends APIController
         StatementHandler $statementHandler,
         TagTopicResourceType $tagTopicResourceType,
     ): APIResponse {
-        if (!($this->requestData instanceof TopLevel)) {
+        if (!$this->requestData instanceof TopLevel) {
             throw BadRequestException::normalizerFailed();
         }
         /** @var ResourceObject $tagResourceObject */

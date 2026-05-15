@@ -439,7 +439,7 @@ class DemosPlanMasterToebController extends BaseController
             $organisationId = $requestPost->get('r_orga');
             $masterToebId = $requestPost->get('r_orga_mastertoeb');
 
-            if (((string) $organisationId !== '') && ((string) $masterToebId !== '')) {
+            if (('' !== (string) $organisationId) && ('' !== (string) $masterToebId)) {
                 try {
                     $mergeResult = $masterToebListService->mergeOrganisations($organisationId, $masterToebId);
 

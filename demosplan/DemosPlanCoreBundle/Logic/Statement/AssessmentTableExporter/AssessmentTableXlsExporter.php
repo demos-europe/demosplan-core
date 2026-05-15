@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
@@ -32,6 +31,7 @@ use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -243,9 +243,9 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Adds the tag filter information to the info sheet.
      *
-     * @param Worksheet $infoSheet The info sheet
-     * @param StatementExportTagFilter                      $tagFilter The tag filter
-     * @param int                                           $row       Current row number (passed by reference)
+     * @param Worksheet                $infoSheet The info sheet
+     * @param StatementExportTagFilter $tagFilter The tag filter
+     * @param int                      $row       Current row number (passed by reference)
      */
     private function addTagFilterInfo($infoSheet, StatementExportTagFilter $tagFilter, int &$row): void
     {

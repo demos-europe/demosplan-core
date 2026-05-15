@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\Query;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
@@ -25,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query;
 use Exception;
 
 /**
@@ -371,7 +371,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 unset($updates['projectionLabel'], $updates['projectionValue']);
             }
 
-            if ($updates !== []) {
+            if ([] !== $updates) {
                 $qb = $this->getEntityManager()->createQueryBuilder()
                     ->update(GisLayer::class, 'g')
                     ->where('g.gId = :globalId')

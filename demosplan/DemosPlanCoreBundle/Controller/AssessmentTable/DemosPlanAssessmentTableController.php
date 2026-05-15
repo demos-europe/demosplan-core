@@ -62,7 +62,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use function array_key_exists;
 use function compact;
 use function nl2br;
-use function strlen;
 
 /**
  * Klasse fuer die Abwaegungstabelle.
@@ -1125,7 +1124,7 @@ class DemosPlanAssessmentTableController extends BaseController
         );
 
         // falls angegeben, gebe die eingetragenen E-Mail-Adressen im CC-Feld aus
-        $templateVars['emailsCC'] = isset($rParamsRequest['send_emailCC']) && (string) $rParamsRequest['send_emailCC'] !== ''
+        $templateVars['emailsCC'] = isset($rParamsRequest['send_emailCC']) && '' !== (string) $rParamsRequest['send_emailCC']
             ? $rParamsRequest['send_emailCC']
             : '';
         $templateVars['email2'] = '';
@@ -1139,7 +1138,7 @@ class DemosPlanAssessmentTableController extends BaseController
                 // normale TöB-Stellungnahme
                 $templateVars['email2'] = $orgaOfSubmitter->getEmail2();
             }
-        } elseif ((string) $templateVars['table']['statement']['meta']['orgaEmail'] !== '') {
+        } elseif ('' !== (string) $templateVars['table']['statement']['meta']['orgaEmail']) {
             // manuelle Stellungnahme
             $templateVars['email2'] = $templateVars['table']['statement']['meta']['orgaEmail'];
         }
@@ -1180,7 +1179,7 @@ class DemosPlanAssessmentTableController extends BaseController
         if ($this->permissions->hasPermission('feature_statements_fragment_consideration')) {
             $templateVars['table']['statement']['fragmentConsiderations'] = false;
             foreach ($templateVars['table']['statement']['fragments'] as $fragment) {
-                if ((string) $fragment->getConsideration() !== '') {
+                if ('' !== (string) $fragment->getConsideration()) {
                     $templateVars['table']['statement']['fragmentConsiderations'] = true;
                     break;
                 }

@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;

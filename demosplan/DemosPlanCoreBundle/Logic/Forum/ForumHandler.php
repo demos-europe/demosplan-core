@@ -278,14 +278,14 @@ class ForumHandler extends CoreHandler
             ];
         }
 
-        if (array_key_exists('r_title', $data) && (string) $data['r_title'] !== '') {
+        if (array_key_exists('r_title', $data) && '' !== (string) $data['r_title']) {
             $release['title'] = $data['r_title'];
         }
-        if (array_key_exists('r_phase', $data) && (string) $data['r_phase'] !== '') {
+        if (array_key_exists('r_phase', $data) && '' !== (string) $data['r_phase']) {
             $release['phase'] = $data['r_phase'];
         }
 
-        if (array_key_exists('r_description', $data) && (string) $data['r_description'] !== '') {
+        if (array_key_exists('r_description', $data) && '' !== (string) $data['r_description']) {
             $release['description'] = $data['r_description'];
         }
         if (array_key_exists('r_startdate', $data) && '' != $data['r_startdate']) {
@@ -333,14 +333,14 @@ class ForumHandler extends CoreHandler
             ];
         }
 
-        if (array_key_exists('r_title', $data) && (string) $data['r_title'] !== '') {
+        if (array_key_exists('r_title', $data) && '' !== (string) $data['r_title']) {
             $release['title'] = $data['r_title'];
         }
-        if (array_key_exists('r_phase', $data) && (string) $data['r_phase'] !== '') {
+        if (array_key_exists('r_phase', $data) && '' !== (string) $data['r_phase']) {
             $release['phase'] = $data['r_phase'];
         }
 
-        if (array_key_exists('r_description', $data) && (string) $data['r_description'] !== '') {
+        if (array_key_exists('r_description', $data) && '' !== (string) $data['r_description']) {
             $release['description'] = $data['r_description'];
         }
         if (array_key_exists('r_startdate', $data) && '' != $data['r_startdate']) {
@@ -470,11 +470,11 @@ class ForumHandler extends CoreHandler
             ];
         }
 
-        if (array_key_exists('r_title', $data) && (string) $data['r_title'] !== '') {
+        if (array_key_exists('r_title', $data) && '' !== (string) $data['r_title']) {
             $userStory['title'] = $data['r_title'];
         }
 
-        if (array_key_exists('r_description', $data) && (string) $data['r_description'] !== '') {
+        if (array_key_exists('r_description', $data) && '' !== (string) $data['r_description']) {
             $userStory['description'] = $data['r_description'];
         }
         if (array_key_exists('r_onlineVotes', $data)) {
@@ -513,11 +513,11 @@ class ForumHandler extends CoreHandler
             ];
         }
 
-        if (array_key_exists('r_title', $data) && (string) $data['r_title'] !== '') {
+        if (array_key_exists('r_title', $data) && '' !== (string) $data['r_title']) {
             $userStory['title'] = $data['r_title'];
         }
 
-        if (array_key_exists('r_description', $data) && (string) $data['r_description'] !== '') {
+        if (array_key_exists('r_description', $data) && '' !== (string) $data['r_description']) {
             $userStory['description'] = $data['r_description'];
         }
 
@@ -591,7 +591,7 @@ class ForumHandler extends CoreHandler
             // Generiere eine Teaser vom ersten Beitragstext
             // bereinige die Textvariable von Tags
             $entryTextNoTags = strip_tags((string) $firstEntry['text']);
-            if ($entryTextNoTags !== '') {
+            if ('' !== $entryTextNoTags) {
                 // Kürze den Text und speicher das Ergebnis in der MailVariable
                 $shortText = substr($entryTextNoTags, 0, 150).'...';
                 $data['firstEntryText'] = $shortText;
@@ -606,7 +606,7 @@ class ForumHandler extends CoreHandler
         // generiere eine Teaser vom Beitragstext
         // bereinige die Textvariable von Tags
         $entryTextNoTags = strip_tags((string) $data['text']);
-        if ($entryTextNoTags !== '') {
+        if ('' !== $entryTextNoTags) {
             // Kürze den Text und speicher das Ergebnis in der MailVariable
             $shortText = substr($entryTextNoTags, 0, 150).'...';
             $data['text'] = $shortText;

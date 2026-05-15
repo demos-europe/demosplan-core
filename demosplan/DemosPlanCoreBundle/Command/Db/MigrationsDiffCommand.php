@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\Command\Db;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;

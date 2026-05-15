@@ -37,7 +37,7 @@ class DepartmentMapper
         }
 
         // If no department in ozgKeycloak token, use default
-        if ($departmentNameInToken === '' || $departmentNameInToken === '0') {
+        if ('' === $departmentNameInToken || '0' === $departmentNameInToken) {
             $departmentToSet = $this->getDefaultDepartment($orga);
             $this->updateUserDeparment($user, $departmentToSet);
 
@@ -60,7 +60,7 @@ class DepartmentMapper
     public function findOrCreateDepartment(Orga $orga, string $departmentNameInToken): Department
     {
         // If no organisational unit is provided, use default department
-        if ($departmentNameInToken === '' || $departmentNameInToken === '0') {
+        if ('' === $departmentNameInToken || '0' === $departmentNameInToken) {
             return $this->getDefaultDepartment($orga);
         }
 

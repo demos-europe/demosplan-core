@@ -52,7 +52,6 @@ use function collect;
 use function http_build_query;
 use function is_array;
 use function str_replace;
-use function strlen;
 
 /**
  * Class DemosPlanAssessmentStatementFragmentController
@@ -485,7 +484,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
                     $item['consideration'])
                 ->filter(fn ($item) =>
                     // values should not be empty
-                    (string) $item !== '')
+                    '' !== (string) $item)
                 ->values()
                 ->toArray();
 
@@ -633,7 +632,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
                 $result = $this->statementHandler->updateStatementFragment($ident, $voteData, $isReviewer);
             }
 
-            if (!($result instanceof StatementFragment)) {
+            if (!$result instanceof StatementFragment) {
                 $this->getLogger()->error("Failed updating statement-fragment {$ident}");
                 continue;
             }

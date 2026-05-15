@@ -228,7 +228,7 @@ class XlsxSegmentImport
         }
 
         // Flush remaining statements
-        if ($statementBatch !== []) {
+        if ([] !== $statementBatch) {
             ++$batchNumber;
             $this->processBatch($statementBatch, $batchNumber, $processedStatements, $totalStatements);
         }
@@ -307,7 +307,7 @@ class XlsxSegmentImport
     private function batchCreateReportEntries(): void
     {
         try {
-            if ($this->statementsForReports === []) {
+            if ([] === $this->statementsForReports) {
                 $this->logger->warning('No statements collected for report generation');
 
                 return;
@@ -346,7 +346,7 @@ class XlsxSegmentImport
     private function bulkIndexSegments(): void
     {
         try {
-            if ($this->segmentIdsForIndexing === []) {
+            if ([] === $this->segmentIdsForIndexing) {
                 $this->logger->warning('No segment IDs collected for indexing');
 
                 return;

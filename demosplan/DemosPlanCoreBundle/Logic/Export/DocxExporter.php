@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 
-use PhpOffice\PhpWord\Element\Footer;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
@@ -44,6 +43,7 @@ use League\Flysystem\FilesystemOperator;
 use Monolog\Logger;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;
+use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\IOFactory;
@@ -341,7 +341,7 @@ class DocxExporter
 
                                     // Abteilung
                                     $orgaDepartmentName = $statementMeta->getOrgaDepartmentName();
-                                    if ((string) $orgaDepartmentName !== '') {
+                                    if ('' !== (string) $orgaDepartmentName) {
                                         $orgaName .= ', '.$orgaDepartmentName;
                                     }
 
@@ -771,11 +771,11 @@ class DocxExporter
                 $institutionData = $translator->trans('institution').': '.$orgaName;
 
                 // Abteilung
-                if ((string) $item['orgaDepartmentName'] !== '') {
+                if ('' !== (string) $item['orgaDepartmentName']) {
                     $institutionData .= ', '.$item['orgaDepartmentName'];
                 }
                 if (false === $anonymous) {
-                    $institutionData .= (string) $item['submitName'] !== '' ? ': '.$item['submitName'] : '';
+                    $institutionData .= '' !== (string) $item['submitName'] ? ': '.$item['submitName'] : '';
                 }
                 $metaInfoCell->addText(
                     $institutionData,
@@ -1653,7 +1653,7 @@ class DocxExporter
 
         // in Hamburg wird nur anonyme Ansicht verwendet, beim Bürger soll allerdings die Straße mit angegeben werden
         if ($this->permissions->hasPermission('feature_keep_street_on_anonymize')) {
-            if ((string) $statement->getMeta()->getOrgaStreet() !== '') {
+            if ('' !== (string) $statement->getMeta()->getOrgaStreet()) {
                 $result['orgaName'] .= ', '.$statement->getMeta()->getOrgaStreet().$houseNumber;
             }
             // @improve this special cases should not be mixed with this permission check

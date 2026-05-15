@@ -44,7 +44,7 @@ class SlugDraftApiController extends APIController
     {
         $slugDraftType = $slugDraftTransformer->getType();
 
-        if (!($this->requestData instanceof TopLevel)) {
+        if (!$this->requestData instanceof TopLevel) {
             throw BadRequestException::normalizerFailed();
         }
 
