@@ -23,7 +23,7 @@
         }
       }"
       :branch-identifier="isBranch"
-      @end="handleIntraSort"
+      @end="handleTagReorder"
     >
       <template v-slot:header>
         <div class="flex">
@@ -184,9 +184,7 @@ export default {
       this.isInEditState = ''
     },
 
-    // Single drop handler — branches on cross-cat vs intra-sort
-    handleIntraSort (event, item, parentId) {
-      // No-Op for intra-sort dropped at same position
+    handleTagReorder (event, item, parentId) {
       if (event.oldIndex === event.newIndex && event.from === event.to) {
         return
       }
