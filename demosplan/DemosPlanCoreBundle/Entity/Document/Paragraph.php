@@ -140,7 +140,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_pd_create_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -149,7 +148,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_pd_modify_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'update')]
@@ -157,7 +155,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_pd_delete_date", type="datetime", nullable=false)
      */
@@ -209,9 +206,9 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
     {
         if (null !== $this->children) {
             return $this->children->getValues();
-        } else {
-            return [];
         }
+
+        return [];
     }
 
     /**

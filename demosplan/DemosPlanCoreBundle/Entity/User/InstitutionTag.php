@@ -75,7 +75,6 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -83,7 +82,6 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(type="datetime", nullable=false)
      */

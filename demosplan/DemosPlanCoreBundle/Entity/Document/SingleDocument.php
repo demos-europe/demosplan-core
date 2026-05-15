@@ -151,7 +151,6 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface, Uuid
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_sd_create_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -160,7 +159,6 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface, Uuid
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_sd_modify_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'update')]
@@ -168,7 +166,6 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface, Uuid
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_sd_delete_date", type="datetime", nullable=false)
      */

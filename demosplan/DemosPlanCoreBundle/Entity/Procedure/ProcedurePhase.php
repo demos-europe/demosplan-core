@@ -73,7 +73,6 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'update')]

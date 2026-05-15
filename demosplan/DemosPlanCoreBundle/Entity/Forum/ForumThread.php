@@ -69,7 +69,6 @@ class ForumThread extends CoreEntity implements UuidEntityInterface, ForumThread
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_ft_create_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -77,7 +76,6 @@ class ForumThread extends CoreEntity implements UuidEntityInterface, ForumThread
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_ft_modified_date", type="datetime", nullable=false)
      */

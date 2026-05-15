@@ -61,7 +61,6 @@ class FileContainer extends CoreEntity implements UuidEntityInterface, FileConta
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="create_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -69,7 +68,6 @@ class FileContainer extends CoreEntity implements UuidEntityInterface, FileConta
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="modify_date", type="datetime", nullable=false)
      */

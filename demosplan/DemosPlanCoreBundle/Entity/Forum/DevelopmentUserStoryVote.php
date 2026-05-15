@@ -101,7 +101,6 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_puv_create_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]

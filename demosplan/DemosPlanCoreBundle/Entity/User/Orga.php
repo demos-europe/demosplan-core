@@ -97,14 +97,12 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_o_created_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_o_modified_date", type="datetime", nullable=false)
      */

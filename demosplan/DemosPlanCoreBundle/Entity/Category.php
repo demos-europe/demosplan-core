@@ -91,7 +91,6 @@ class Category extends CoreEntity implements UuidEntityInterface, CategoryInterf
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_c_create_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -100,7 +99,6 @@ class Category extends CoreEntity implements UuidEntityInterface, CategoryInterf
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_c_modify_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'update')]
@@ -108,7 +106,6 @@ class Category extends CoreEntity implements UuidEntityInterface, CategoryInterf
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_c_delete_date", type="datetime", nullable=false)
      */

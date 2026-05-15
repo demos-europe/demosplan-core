@@ -136,7 +136,6 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_pc_create_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -145,7 +144,6 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_pc_modify_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'update')]
@@ -153,7 +151,6 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_pc_delete_date", type="datetime", nullable=false)
      */

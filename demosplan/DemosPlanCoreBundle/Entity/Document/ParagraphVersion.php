@@ -137,7 +137,6 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface, Paragr
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_pdv_version_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -145,7 +144,6 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface, Paragr
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_pd_create_date", type="datetime", nullable=false)
      */
@@ -155,7 +153,6 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface, Paragr
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_pd_modify_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'update')]
@@ -163,7 +160,6 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface, Paragr
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_pd_delete_date", type="datetime", nullable=false)
      */

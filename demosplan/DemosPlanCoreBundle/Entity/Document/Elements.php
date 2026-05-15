@@ -145,7 +145,6 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_e_create_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -154,7 +153,6 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_e_modify_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'update')]
@@ -162,7 +160,6 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_e_delete_date", type="datetime", nullable=false)
      */

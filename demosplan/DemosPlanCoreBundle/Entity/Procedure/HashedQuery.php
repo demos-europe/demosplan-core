@@ -57,7 +57,6 @@ class HashedQuery extends CoreEntity implements UuidEntityInterface, HashedQuery
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -65,7 +64,6 @@ class HashedQuery extends CoreEntity implements UuidEntityInterface, HashedQuery
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(type="datetime", nullable=false)
      */

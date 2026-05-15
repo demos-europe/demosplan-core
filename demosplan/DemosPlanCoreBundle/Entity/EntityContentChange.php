@@ -39,7 +39,6 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface, Ent
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -47,7 +46,6 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface, Ent
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(type="datetime", nullable=false)
      */

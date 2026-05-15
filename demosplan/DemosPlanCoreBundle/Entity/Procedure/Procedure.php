@@ -307,7 +307,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_p_created_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]

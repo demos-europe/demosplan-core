@@ -51,7 +51,6 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -59,7 +58,6 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */

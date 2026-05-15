@@ -132,7 +132,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="created_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -140,7 +139,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="modified_date", type="datetime", nullable=false)
      */

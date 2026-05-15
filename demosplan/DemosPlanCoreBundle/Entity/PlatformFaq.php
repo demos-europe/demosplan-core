@@ -61,7 +61,6 @@ class PlatformFaq extends CoreEntity implements FaqInterface
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -69,7 +68,6 @@ class PlatformFaq extends CoreEntity implements FaqInterface
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(type="datetime", nullable=false)
      */

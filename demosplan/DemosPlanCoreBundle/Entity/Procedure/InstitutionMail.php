@@ -66,7 +66,6 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface, Institu
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_tm_created_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]

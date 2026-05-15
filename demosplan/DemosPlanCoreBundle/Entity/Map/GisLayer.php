@@ -229,7 +229,6 @@ class GisLayer extends CoreEntity implements GisLayerInterface
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_g_create_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -238,7 +237,6 @@ class GisLayer extends CoreEntity implements GisLayerInterface
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_g_modify_date",type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'update')]
@@ -246,7 +244,6 @@ class GisLayer extends CoreEntity implements GisLayerInterface
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_g_delete_date",type="datetime", nullable=false)
      */

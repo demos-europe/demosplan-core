@@ -321,7 +321,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_st_created_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -329,7 +328,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_st_modified_date", type="datetime", nullable=false)
      */

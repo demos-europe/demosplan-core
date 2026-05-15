@@ -123,7 +123,6 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_f_created", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -131,7 +130,6 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_f_modified", type="datetime", nullable=false)
      */

@@ -54,7 +54,6 @@ class ContextualHelp implements ContextualHelpInterface
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_pcsh_created", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -62,7 +61,6 @@ class ContextualHelp implements ContextualHelpInterface
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_pcsh_modified", type="datetime", nullable=false)
      */

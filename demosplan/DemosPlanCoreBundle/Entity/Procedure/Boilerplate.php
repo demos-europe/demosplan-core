@@ -107,7 +107,6 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_pt_create_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -115,7 +114,6 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_pt_modify_date",type="datetime", nullable=false)
      */

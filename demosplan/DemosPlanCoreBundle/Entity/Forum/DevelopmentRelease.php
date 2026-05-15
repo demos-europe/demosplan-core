@@ -63,7 +63,6 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface, Deve
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_pr_start_date", type="datetime", nullable=true)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -79,7 +78,6 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface, Deve
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_pr_modified_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'update')]
@@ -87,7 +85,6 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface, Deve
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_pr_create_date", type="datetime", nullable=false)
      */

@@ -108,7 +108,6 @@ class Setting extends CoreEntity implements UuidEntityInterface, SettingInterfac
      *
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_s_create_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -118,7 +117,6 @@ class Setting extends CoreEntity implements UuidEntityInterface, SettingInterfac
      * Date of last modifying.
      *
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_s_modified_date", type="datetime", nullable=false)
      */

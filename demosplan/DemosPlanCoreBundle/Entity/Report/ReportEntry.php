@@ -178,7 +178,6 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_re_created_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]

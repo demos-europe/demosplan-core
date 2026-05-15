@@ -85,7 +85,6 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface, ForumEntryIn
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_fe_create_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -93,7 +92,6 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface, ForumEntryIn
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(name="_fe_modified_date", type="datetime", nullable=false)
      */

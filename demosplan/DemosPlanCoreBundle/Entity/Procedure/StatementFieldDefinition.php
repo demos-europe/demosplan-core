@@ -50,7 +50,6 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -58,7 +57,6 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
@@ -87,7 +85,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
         /**
          * @ORM\Column(type="boolean", nullable=false, options={"default":true})
          */
-        private bool $required
+        private bool $required,
     ) {
     }
 

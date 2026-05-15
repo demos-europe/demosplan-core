@@ -54,7 +54,6 @@ class FaqCategory extends CoreEntity implements FaqCategoryInterface
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -62,7 +61,6 @@ class FaqCategory extends CoreEntity implements FaqCategoryInterface
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(type="datetime", nullable=false)
      */

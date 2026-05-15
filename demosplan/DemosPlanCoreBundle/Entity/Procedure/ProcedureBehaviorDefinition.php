@@ -50,7 +50,6 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -58,7 +57,6 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(type="datetime", nullable=false)
      */

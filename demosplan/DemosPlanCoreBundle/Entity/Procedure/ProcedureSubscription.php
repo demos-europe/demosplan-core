@@ -99,7 +99,6 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface, P
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_psu_modified_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'update')]
@@ -299,7 +298,6 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface, P
 
     /**
      * Get CreatedDate.
-     *
      *
      * @return DateTime
      */

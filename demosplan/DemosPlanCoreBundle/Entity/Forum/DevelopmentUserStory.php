@@ -106,7 +106,6 @@ class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface, De
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(name="_pu_create_date", type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]

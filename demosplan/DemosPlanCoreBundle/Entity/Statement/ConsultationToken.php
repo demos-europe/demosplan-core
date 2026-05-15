@@ -117,7 +117,6 @@ class ConsultationToken implements UuidEntityInterface, ConsultationTokenInterfa
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -125,7 +124,6 @@ class ConsultationToken implements UuidEntityInterface, ConsultationTokenInterfa
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
@@ -170,7 +168,7 @@ class ConsultationToken implements UuidEntityInterface, ConsultationTokenInterfa
          *
          * @ORM\Column(type="boolean", nullable=false, options={"default":false})
          */
-        private bool $manuallyCreated
+        private bool $manuallyCreated,
     ) {
         $this->originalStatement = $this->statement->getOriginal();
     }

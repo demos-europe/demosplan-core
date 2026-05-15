@@ -52,7 +52,6 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
     /**
      * @var DateTime
      *
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
     #[Gedmo\Timestampable(on: 'create')]
@@ -60,7 +59,6 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
 
     /**
      * @var DateTime
-     *
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
