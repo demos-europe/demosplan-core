@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Doctrine\ORM\Query;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
@@ -370,7 +371,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 unset($updates['projectionLabel'], $updates['projectionValue']);
             }
 
-            if (!empty($updates)) {
+            if ($updates !== []) {
                 $qb = $this->getEntityManager()->createQueryBuilder()
                     ->update(GisLayer::class, 'g')
                     ->where('g.gId = :globalId')
@@ -389,7 +390,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 $this->getEntityManager()
                     ->createQuery('SELECT g FROM '.GisLayer::class.' g WHERE g.gId = :gid')
                     ->setParameter('gid', $item->getId())
-                    ->setHint(\Doctrine\ORM\Query::HINT_REFRESH, true)
+                    ->setHint(Query::HINT_REFRESH, true)
                     ->getResult();
 
                 $this->getEntityManager()->refresh($item);

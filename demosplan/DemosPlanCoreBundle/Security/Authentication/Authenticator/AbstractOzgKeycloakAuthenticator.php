@@ -73,7 +73,7 @@ abstract class AbstractOzgKeycloakAuthenticator extends OAuth2Authenticator
         $isMultiOrgReauth = false;
         $pendingRequest = $this->readPendingRequest($userId);
 
-        if (null !== $pendingRequest) {
+        if ($pendingRequest instanceof PendingRequestData) {
             $isMultiOrgReauth = $this->shouldRouteToOrgaSelection($token, $pendingRequest);
             $hasBufferedRequest = null !== $pendingRequest->getRequestUrl();
             $hasPendingPageUrl = null !== $pendingRequest->getPageUrl();
@@ -85,7 +85,7 @@ abstract class AbstractOzgKeycloakAuthenticator extends OAuth2Authenticator
             // Not yet implemented: single-org with buffered POST — cache and redirect to pending request review page
         }
 
-        if (null !== $accessToken) {
+        if ($accessToken instanceof AccessToken) {
             if (!$this->ozgKeycloakSessionManager->isKeycloakLoginOnly()) {
                 $this->storeTokens($userId, $accessToken);
             }

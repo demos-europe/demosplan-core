@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
+use Symfony\Component\Validator\Constraints\Range;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use Carbon\Carbon;
 use DateTime;
 use DateTimeInterface;
@@ -378,19 +381,19 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             }
             $indexMap[$worksheetTitle] = $worksheet;
         }
-        if (null === $indexMap[self::PUBLIC] && null === $indexMap[self::INSTITUTION]) {
+        if (!$indexMap[self::PUBLIC] instanceof Worksheet && !$indexMap[self::INSTITUTION] instanceof Worksheet) {
             throw new MissingDataException('The Excel Statement import is missing mandatory worksheets');
         }
-        if (null !== $indexMap[self::PUBLIC]) {
+        if ($indexMap[self::PUBLIC] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::PUBLIC];
         }
-        if (null !== $indexMap[self::INSTITUTION]) {
+        if ($indexMap[self::INSTITUTION] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::INSTITUTION];
         }
-        if (null !== $indexMap[self::STATEMENT_PROCEDURE_PERSON_WORKSHEET]) {
+        if ($indexMap[self::STATEMENT_PROCEDURE_PERSON_WORKSHEET] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::STATEMENT_PROCEDURE_PERSON_WORKSHEET];
         }
-        if (null !== $indexMap[self::LEGENDE_WORKSHEET]) {
+        if ($indexMap[self::LEGENDE_WORKSHEET] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::LEGENDE_WORKSHEET];
         }
 
@@ -854,7 +857,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             }
             // Validate Excel serial date is in valid range (1 = 1900-01-01, 2958465 = 9999-12-31)
             $violations = $this->validator->validate($dateValue, [
-                new \Symfony\Component\Validator\Constraints\Range([
+                new Range([
                     'min'               => 1,
                     'max'               => 2958465,
                     'notInRangeMessage' => 'Das Excel-Datumsnummer "{{ value }}" ist ungültig. Gültige Werte: {{ min }} bis {{ max }}.',
@@ -909,7 +912,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         }
 
         $currentProcedure = $this->currentProcedureService->getProcedure();
-        if (null === $currentProcedure) {
+        if (!$currentProcedure instanceof Procedure) {
             throw new InvalidArgumentException('Current procedure is missing.');
         }
 
@@ -1131,7 +1134,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     /**
      * @throws DuplicatedTagTitleException
      * @throws PathException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     public function processSegmentTags(
         Statement $statement,
@@ -1208,7 +1211,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         foreach ($scheduledInsertions as $entity) {
             if ($entity instanceof Tag && mb_strtolower($entity->getTitle()) === $tagTitleLower) {
                 $topic = $entity->getTopic();
-                if (null !== $topic && $topic->getProcedure()?->getId() === $procedureId) {
+                if ($topic instanceof TagTopicInterface && $topic->getProcedure()?->getId() === $procedureId) {
                     return $entity;
                 }
             }

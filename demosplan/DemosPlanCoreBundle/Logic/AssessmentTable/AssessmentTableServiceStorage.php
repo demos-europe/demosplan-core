@@ -245,7 +245,7 @@ class AssessmentTableServiceStorage
             $statementArray['paragraphId'] = '';
         }
 
-        if (array_key_exists('element_new', $rParams['request']) && 0 < strlen((string) $rParams['request']['element_new'])) {
+        if (array_key_exists('element_new', $rParams['request']) && (string) $rParams['request']['element_new'] !== '') {
             $statementArray['elementId'] = $rParams['request']['element_new'];
 
             $statementArray = $this->updateFieldInStatementArray(

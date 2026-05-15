@@ -59,7 +59,7 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
          *
          * @ORM\Column(type="string", length=255, nullable=false)
          */
-        #[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
+        #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
         #[Assert\Length(min: 1, max: 255, normalizer: 'trim')]
         private string $name = '',
         /**

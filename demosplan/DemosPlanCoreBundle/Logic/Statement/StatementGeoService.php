@@ -365,16 +365,16 @@ class StatementGeoService
                 $priorityAreasXpath = $item->xpath('child::app:vorranggebiete');
                 $priorityAreas2Xpath = $item->xpath('child::app:potentialflaechen');
                 // viva SimpleXML
-                if (isset($municipalitiesXpath[0]) && strlen((string) $municipalitiesXpath[0]) > 0) {
+                if (isset($municipalitiesXpath[0]) && (string) $municipalitiesXpath[0] !== '') {
                     $geoResults['municipalities'] = $geoResults['municipalities']->merge(explode(';', (string) $municipalitiesXpath[0]));
                 }
-                if (isset($countiesXpath[0]) && strlen((string) $countiesXpath[0]) > 0) {
+                if (isset($countiesXpath[0]) && (string) $countiesXpath[0] !== '') {
                     $geoResults['counties'] = $geoResults['counties']->merge(explode(';', (string) $countiesXpath[0]));
                 }
-                if (isset($priorityAreasXpath[0]) && strlen((string) $priorityAreasXpath[0]) > 0) {
+                if (isset($priorityAreasXpath[0]) && (string) $priorityAreasXpath[0] !== '') {
                     $geoResults['priorityAreas'] = $geoResults['priorityAreas']->merge(explode(';', (string) $priorityAreasXpath[0]));
                 }
-                if (isset($priorityAreas2Xpath[0]) && strlen((string) $priorityAreas2Xpath[0]) > 0) {
+                if (isset($priorityAreas2Xpath[0]) && (string) $priorityAreas2Xpath[0] !== '') {
                     $geoResults['priorityAreas'] = $geoResults['priorityAreas']->merge(explode(';', (string) $priorityAreas2Xpath[0]));
                 }
             }

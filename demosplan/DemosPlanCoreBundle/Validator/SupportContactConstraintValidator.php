@@ -41,7 +41,7 @@ class SupportContactConstraintValidator extends ConstraintValidator
                 || SupportContact::SUPPORT_CONTACT_TYPE_PLATFORM !== $supportContact->getSupportType()
             )
         ) {
-            $this->context->buildViolation($constraint::NO_TITLE_MESSAGE)
+            $this->context->buildViolation(SupportContactConstraint::NO_TITLE_MESSAGE)
                 ->addViolation();
         }
 
@@ -49,7 +49,7 @@ class SupportContactConstraintValidator extends ConstraintValidator
         if ($supportContact->getCustomer() instanceof Customer
             && SupportContact::SUPPORT_CONTACT_TYPE_PLATFORM === $supportContact->getSupportType()
         ) {
-            $this->context->buildViolation($constraint::WRONG_SUPPORT_TYPE)
+            $this->context->buildViolation(SupportContactConstraint::WRONG_SUPPORT_TYPE)
                 ->addViolation();
         }
 
@@ -57,7 +57,7 @@ class SupportContactConstraintValidator extends ConstraintValidator
         $phoneNumber = $supportContact->getPhoneNumber() ?? '';
         $emailAddress = $supportContact->getEMailAddress() ?? '';
         if ('' === $phoneNumber && '' === $emailAddress->getFullAddress()) {
-            $this->context->buildViolation($constraint::MISSING_CONTACT_MESSAGE)
+            $this->context->buildViolation(SupportContactConstraint::MISSING_CONTACT_MESSAGE)
                 ->addViolation();
         }
     }

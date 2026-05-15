@@ -970,7 +970,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     public function getOrga(): ?OrgaInterface
     {
         // Return session-selected organisation if set (multi-responsibility support)
-        if (null !== $this->currentOrganisation) {
+        if ($this->currentOrganisation instanceof OrgaInterface) {
             return $this->currentOrganisation;
         }
 

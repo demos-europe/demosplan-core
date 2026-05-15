@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use Symfony\Component\HttpFoundation\Request;
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
@@ -1246,7 +1247,7 @@ class FileService implements FileServiceInterface
             // "Lock wait timeout exceeded" error if the scan takes longer than
             // innodb_lock_wait_timeout (default 50s).
             // In CLI/async contexts (e.g. message consumer) there is no HTTP session to save.
-            if (null !== $this->requestStack->getCurrentRequest()) {
+            if ($this->requestStack->getCurrentRequest() instanceof Request) {
                 $this->requestStack->getSession()->save();
             }
             $this->virusCheck($symfonyFile);

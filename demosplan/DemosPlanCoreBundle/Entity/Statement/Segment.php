@@ -34,7 +34,7 @@ class Segment extends Statement implements SegmentInterface
      * @ORM\JoinColumn(name="segment_statement_fk", referencedColumnName="_st_id", nullable=true)
      */
     #[Assert\NotNull(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT])]
-    #[Assert\Type(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT], type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Statement')]
+    #[Assert\Type(type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Statement', groups: [SegmentInterface::VALIDATION_GROUP_IMPORT])]
     protected $parentStatementOfSegment;
 
     /**

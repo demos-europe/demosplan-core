@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Transformers\Segment;
 
+use Doctrine\ORM\Id\AssignedGenerator;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -104,7 +105,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         // Temporarily change ID generator to AssignedGenerator so Doctrine handles manually-assigned IDs properly
         $segmentMetadata = $this->entityManager->getClassMetadata(Segment::class);
         $originalIdGenerator = $segmentMetadata->idGenerator;
-        $segmentMetadata->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
+        $segmentMetadata->setIdGenerator(new AssignedGenerator());
 
         $counter = 1;
         $internId = $this->segmentHandler->getNextSegmentOrderNumber($procedure->getId());

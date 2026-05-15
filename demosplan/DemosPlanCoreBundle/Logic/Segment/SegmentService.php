@@ -317,7 +317,7 @@ class SegmentService extends CoreService implements SegmentServiceInterface
                 $user,
                 $creationTime
             );
-            if (null !== $contentChange) {
+            if ($contentChange instanceof EntityContentChange) {
                 $contentChanges[] = $contentChange;
             }
         }

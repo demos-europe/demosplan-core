@@ -492,10 +492,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         $procedureSettingsToDelete = $entityManager->getRepository(ProcedureSettings::class)
             ->findBy(['procedure' => $procedureId]);
         foreach ($procedureSettingsToDelete as $procedureSetting) {
-            if (0 < strlen($procedureSetting->getPlanPDF())) {
+            if ((string) $procedureSetting->getPlanPDF() !== '') {
                 $filesToDelete[] = $procedureSetting->getPlanPDF();
             }
-            if (0 < strlen($procedureSetting->getPlanDrawPDF())) {
+            if ((string) $procedureSetting->getPlanDrawPDF() !== '') {
                 $filesToDelete[] = $procedureSetting->getPlanDrawPDF();
             }
         }
@@ -579,7 +579,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setDesc($data['desc']);
         }
         if (array_key_exists('endDate', $data)) {
-            if (is_string($data['endDate']) && 0 < strlen($data['endDate'])) {
+            if (is_string($data['endDate']) && $data['endDate'] !== '') {
                 $procedure->setEndDate($this->convertUserInputDate($data['endDate'], '23:59:59'));
             } elseif ($data['endDate'] instanceof DateTime) {
                 $procedure->setEndDate(
@@ -667,14 +667,14 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setPublicParticipationContact($data['publicParticipationContact']);
         }
         if (array_key_exists('publicParticipationStartDate', $data)) {
-            if (is_string($data['publicParticipationStartDate']) && 0 < strlen($data['publicParticipationStartDate'])) {
+            if (is_string($data['publicParticipationStartDate']) && $data['publicParticipationStartDate'] !== '') {
                 $procedure->setPublicParticipationStartDate($this->convertUserInputDate($data['publicParticipationStartDate']));
             } elseif ($data['publicParticipationStartDate'] instanceof DateTime) {
                 $procedure->setPublicParticipationStartDate($data['publicParticipationStartDate']);
             }
         }
         if (array_key_exists('publicParticipationEndDate', $data)) {
-            if (is_string($data['publicParticipationEndDate']) && 0 < strlen($data['publicParticipationEndDate'])) {
+            if (is_string($data['publicParticipationEndDate']) && $data['publicParticipationEndDate'] !== '') {
                 $procedure->setPublicParticipationEndDate($this->convertUserInputDate($data['publicParticipationEndDate'], '23:59:59'));
             } elseif ($data['publicParticipationEndDate'] instanceof DateTime) {
                 $procedure->setPublicParticipationEndDate(
@@ -689,7 +689,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setPublicParticipationPublicationEnabled($data['publicParticipationPublicationEnabled']);
         }
         if (array_key_exists('startDate', $data)) {
-            if (is_string($data['startDate']) && 0 < strlen($data['startDate'])) {
+            if (is_string($data['startDate']) && $data['startDate'] !== '') {
                 $procedure->setStartDate($this->convertUserInputDate($data['startDate']));
             } elseif ($data['startDate'] instanceof DateTime) {
                 $procedure->setStartDate($data['startDate']);

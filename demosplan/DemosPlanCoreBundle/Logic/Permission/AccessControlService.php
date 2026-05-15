@@ -187,7 +187,7 @@ class AccessControlService
                 $foundPermissions = $this->getEnabledPermissionNames($role, $orga, $customer, $permissionToCheck);
 
                 // If we found permissions for this role, return true immediately
-                if (!empty($foundPermissions)) {
+                if ($foundPermissions !== []) {
                     return true;
                 }
             }
