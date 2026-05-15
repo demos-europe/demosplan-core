@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -26,10 +26,6 @@ class OrgaType extends CoreEntity implements UuidEntityInterface, OrgaTypeInterf
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_ot_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]

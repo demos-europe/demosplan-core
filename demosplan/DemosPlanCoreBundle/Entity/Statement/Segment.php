@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentCommentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -50,8 +50,6 @@ class Segment extends Statement implements SegmentInterface
      * to `nullable=true`, even though it must never be `null` for a {@link SegmentInterface}.
      *
      * @var PlaceInterface
-     *
-     *
      */
     #[Assert\NotBlank(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, SegmentInterface::VALIDATION_GROUP_IMPORT])]
     #[ORM\JoinColumn(name: 'place_id', referencedColumnName: 'id', nullable: true)]

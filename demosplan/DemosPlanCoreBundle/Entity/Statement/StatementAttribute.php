@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttributeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: '_statement_attribute')]
@@ -25,10 +25,6 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface, Stat
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_sta_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -38,8 +34,6 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface, Stat
 
     /**
      * @var StatementInterface|null
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_sta_st_id', referencedColumnName: '_st_id', onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'statementAttributes')]
@@ -52,8 +46,6 @@ class StatementAttribute extends CoreEntity implements UuidEntityInterface, Stat
 
     /**
      * @var DraftStatementInterface|null
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_sta_ds_id', referencedColumnName: '_ds_id', onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: DraftStatement::class, inversedBy: 'statementAttributes')]

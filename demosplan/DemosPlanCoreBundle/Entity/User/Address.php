@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use demosplan\DemosPlanCoreBundle\Repository\AddressRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\AddressInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\AddressRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -27,10 +27,6 @@ class Address extends CoreEntity implements UuidEntityInterface, AddressInterfac
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_a_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -120,7 +116,6 @@ class Address extends CoreEntity implements UuidEntityInterface, AddressInterfac
     /**
      * @var DateTime
      *
-     *
      * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_a_created_date', type: 'datetime', nullable: false)]
@@ -128,7 +123,6 @@ class Address extends CoreEntity implements UuidEntityInterface, AddressInterfac
 
     /**
      * @var DateTime
-     *
      *
      * @Gedmo\Timestampable(on="update")
      */

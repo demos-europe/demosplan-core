@@ -8,7 +8,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": "^8.2 || ^8.3",
+    "php": "^8.2 || ^8.3 || ^8.4",
     "ext-ctype": "*",
     "ext-dom": "*",
     "ext-fileinfo": "*",
@@ -42,6 +42,7 @@
     "demos-europe/demosplan-addon": "dev-f-DPLAN-17129",
     "doctrine/annotations": "^2.0",
     "doctrine/common": "^3.2",
+    "doctrine/dbal": "^3",
     "doctrine/doctrine-bundle": "^2",
     "doctrine/doctrine-fixtures-bundle": "^3",
     "doctrine/doctrine-migrations-bundle": "^3.2",

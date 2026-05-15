@@ -10,16 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
-use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -34,8 +34,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * The other possibility is an Elements with category paragraph. Those Elements are linked to
  * paragraphs. Those can't hold files.
- *
- *
  */
 #[ORM\Table(name: '_single_doc')]
 #[ORM\Entity(repositoryClass: SingleDocumentRepository::class)]
@@ -43,10 +41,6 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface, Uuid
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_sd_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -56,8 +50,6 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface, Uuid
 
     /**
      * @var ProcedureInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class)]
@@ -168,8 +160,6 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface, Uuid
 
     /**
      * @var SingleDocumentVersionInterface[]
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_sd_id', referencedColumnName: '_sd_id')]
     #[ORM\OneToMany(targetEntity: SingleDocumentVersion::class, mappedBy: 'singleDocument')]

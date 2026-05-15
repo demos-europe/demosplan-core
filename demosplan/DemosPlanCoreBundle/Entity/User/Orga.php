@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -29,11 +27,13 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SlugInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Entity\SluggedEntity;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -49,10 +49,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_o_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -168,8 +164,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     protected $paperCopySpec;
     /**
      * @var Collection<int, AddressInterface>
-     *
-     *
      */
     #[Assert\All([new Assert\Type(type: 'demosplan\DemosPlanCoreBundle\Entity\User\Address')])]
     #[Assert\Type(type: Collection::class)]
@@ -215,7 +209,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/impressum/ Wiki: Impressum / Datenschutz
      *
-     *
      * @var string
      */
     #[ORM\Column(name: 'data_protection', type: 'text', length: 65535, nullable: false)]
@@ -224,7 +217,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      * Data privacy protection setting of the orga which is displayed as legal requirement on the website.
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/impressum/ Wiki: Impressum / Datenschutz
-     *
      *
      * @var string
      */
@@ -239,8 +231,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      * Fachlich ist es derzeit eine One-to-Many-Association.
      *
      * @var Collection<int, UserInterface>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: '_orga_users_doctrine',
@@ -254,8 +244,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      * Fachlich ist es derzeit eine One-to-Many-Association.
      *
      * @var Collection<int, DepartmentInterface>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: '_orga_departments_doctrine',
@@ -310,8 +298,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     protected $administratableProcedures;
     /**
      * @var Collection<int,InstitutionTagInterface>
-     *
-     *
      */
     #[ORM\JoinTable(
         joinColumns: [new ORM\JoinColumn(referencedColumnName: '_o_id', onDelete: 'CASCADE')],

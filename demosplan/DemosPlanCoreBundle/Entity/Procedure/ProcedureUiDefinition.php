@@ -10,16 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureUiDefinitionRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureUiDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureUiDefinitionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -27,8 +27,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * ProcedureUiDefinition - Defines the customizable parts of the Form/UI of a Procedure.
  * A ProcedureUiDefinition should never have an direct relationship to a Procedure and to a ProcedureType.
- *
- *
  *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
@@ -38,10 +36,6 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     #[ORM\Id]
@@ -73,8 +67,6 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
      * as well as a direct relation to a ProcedureType, indicates invalid data.
      *
      * @var Procedure|null
-     *
-     *
      */
     #[ORM\OneToOne(targetEntity: Procedure::class, mappedBy: 'procedureUiDefinition')]
     private $procedure;
@@ -85,8 +77,6 @@ class ProcedureUiDefinition extends CoreEntity implements UuidEntityInterface, P
      * Therefore a ProcedureUiDefinition without a ProcedureType will have a related Procedure.
      *
      * @var ProcedureType|null
-     *
-     *
      */
     #[ORM\OneToOne(targetEntity: ProcedureType::class, mappedBy: 'procedureUiDefinition')]
     private $procedureType;

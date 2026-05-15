@@ -10,16 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
-use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -32,10 +32,6 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_e_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -51,8 +47,6 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
 
     /**
      * @var ElementsInterface|null
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_e_p_id', referencedColumnName: '_e_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: Elements::class, inversedBy: 'children')]
@@ -69,8 +63,6 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
      * T4999 cascade={"persist"} needed because of doctrine fuckup when deleting procedures (!).
      *
      * @var Procedure
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class, inversedBy: 'elements', cascade: ['persist'])]
@@ -156,8 +148,6 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
 
     /**
      * @var Collection<int,SingleDocument>
-     *
-     *
      */
     #[ORM\OneToMany(targetEntity: SingleDocument::class, mappedBy: 'element')]
     #[ORM\OrderBy(['order' => 'ASC', 'createDate' => 'ASC'])]
@@ -165,8 +155,6 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
 
     /**
      * @var Collection<int,Elements>
-     *
-     *
      */
     #[ORM\OneToMany(targetEntity: Elements::class, mappedBy: 'parent')]
     #[ORM\OrderBy(['order' => 'ASC'])]
@@ -174,8 +162,6 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
 
     /**
      * @var Collection<int,Paragraph>
-     *
-     *
      */
     #[ORM\OneToMany(targetEntity: Paragraph::class, mappedBy: 'element')]
     #[ORM\OrderBy(['order' => 'ASC'])]
@@ -183,8 +169,6 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
 
     /**
      * @var Collection<int,Orga>|Orga[]
-     *
-     *
      */
     #[ORM\JoinTable(
         name: '_elements_orga_doctrine',

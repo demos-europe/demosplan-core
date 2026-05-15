@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use UnexpectedValueException;
@@ -24,10 +24,6 @@ class FaqCategory extends CoreEntity implements FaqCategoryInterface
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -67,8 +63,6 @@ class FaqCategory extends CoreEntity implements FaqCategoryInterface
 
     /**
      * @var Customer
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_c_id', onDelete: 'CASCADE', nullable: false)]
     #[ORM\ManyToOne(targetEntity: Customer::class)]

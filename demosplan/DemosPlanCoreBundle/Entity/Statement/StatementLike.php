@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementLikeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -26,10 +26,6 @@ class StatementLike implements UuidEntityInterface, StatementLikeInterface
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: 'id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -39,8 +35,6 @@ class StatementLike implements UuidEntityInterface, StatementLikeInterface
 
     /**
      * @var StatementInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'st_id', referencedColumnName: '_st_id', onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'likes')]
@@ -48,8 +42,6 @@ class StatementLike implements UuidEntityInterface, StatementLikeInterface
 
     /**
      * @var UserInterface|null
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', onDelete: 'RESTRICT', nullable: true)]
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -64,7 +56,6 @@ class StatementLike implements UuidEntityInterface, StatementLikeInterface
 
     /**
      * @var DateTime
-     *
      *
      * @Gedmo\Timestampable(on="create")
      */

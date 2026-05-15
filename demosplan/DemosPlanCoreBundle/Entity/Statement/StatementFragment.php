@@ -10,14 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\Department;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
-use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
@@ -34,7 +26,15 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
+use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\Department;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -49,8 +49,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Statement Fragments are part of the assessment process
  * and used to sort, search and filter the multiple arguments
  * contained in a statement into a more workable version.
- *
- *
  */
 #[ORM\Table(name: 'statement_fragment')]
 #[ORM\UniqueConstraint(name: 'statement_fragment_unique_sort_index', columns: ['statement_id', 'sort_index'])]
@@ -59,10 +57,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: 'sf_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -72,8 +66,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 
     /**
      * @var StatementInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'statement_id', referencedColumnName: '_st_id', onDelete: 'CASCADE', nullable: false)]
     #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'fragments')]
@@ -93,8 +85,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 
     /**
      * @var Collection<int, TagInterface>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: 'statement_fragment_tag',
@@ -106,8 +96,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 
     /**
      * @var ProcedureInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class)]
@@ -149,8 +137,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 
     /**
      * @var DepartmentInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_d_id', referencedColumnName: '_d_id', nullable: true, onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: Department::class)]
@@ -170,8 +156,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 
     /**
      * @var Collection<int, CountyInterface>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: '_statement_fragment_county',
@@ -183,8 +167,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 
     /**
      * @var Collection<int, PriorityAreaInterface>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: '_statement_fragment_priority_area',
@@ -196,8 +178,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 
     /**
      * @var Collection<int, MunicipalityInterface>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: '_statement_fragment_municipality',
@@ -209,8 +189,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 
     /**
      * @var DepartmentInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_archived_d_id', referencedColumnName: '_d_id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: Department::class)]
@@ -236,8 +214,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 
     /**
      * @var UserInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'assignee', referencedColumnName: '_u_id', nullable: true, onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -245,8 +221,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 
     /**
      * @var Collection<int,StatementFragmentVersionInterface>
-     *
-     *
      */
     #[ORM\OneToMany(targetEntity: StatementFragmentVersion::class, mappedBy: 'statementFragment')]
     #[ORM\OrderBy(['created' => 'DESC'])]
@@ -263,8 +237,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
      * User who triggered this Version.
      *
      * @var UserInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'modified_by_u_id', referencedColumnName: '_u_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -287,8 +259,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 
     /**
      * @var UserInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'last_claimed', referencedColumnName: '_u_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -319,8 +289,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 
     /**
      * @var ParagraphVersionInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'paragraph_id', referencedColumnName: '_pdv_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: ParagraphVersion::class, cascade: ['persist'])]
@@ -328,8 +296,6 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 
     /**
      * @var SingleDocumentVersionInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'document_id', referencedColumnName: '_sdv_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: SingleDocumentVersion::class, cascade: ['persist'])]

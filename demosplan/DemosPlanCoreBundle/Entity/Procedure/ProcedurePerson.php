@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\ProcedurePersonRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedurePersonRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,10 +29,6 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
 {
     /**
      * @var string|null `null` if this instance was created but not persisted yet
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -81,8 +77,6 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
      * However, the latter one is unknown and may or may not have been entered into the application.
      *
      * @var Collection<int, Statement>
-     *
-     *
      */
     #[ORM\ManyToMany(targetEntity: Statement::class, mappedBy: 'similarStatementSubmitters', cascade: ['persist'])]
     private Collection $similarForeignStatements;

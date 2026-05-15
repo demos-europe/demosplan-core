@@ -10,17 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\News;
 
-use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\NewsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\AllRolesInGroupPresentConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\DateInFutureConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler;
+use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -36,10 +36,6 @@ class News extends CoreEntity implements UuidEntityInterface, NewsInterface
 
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_n_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -142,8 +138,6 @@ class News extends CoreEntity implements UuidEntityInterface, NewsInterface
     /**
      * @var Collection<int, Role>
      *
-     *
-     *
      * @AllRolesInGroupPresentConstraint(groupCodes={Role::GLAUTH}, groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      */
     #[ORM\JoinTable(
@@ -156,7 +150,6 @@ class News extends CoreEntity implements UuidEntityInterface, NewsInterface
 
     /**
      * @var DateTime|null
-     *
      *
      * @DateInFutureConstraint(groups={News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP})
      */

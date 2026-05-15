@@ -10,14 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\InstitutionMailRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionMailInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Repository\InstitutionMailRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -27,10 +26,6 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface, Institu
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_tm_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -40,8 +35,6 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface, Institu
 
     /**
      * @var Procedure
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class)]
@@ -49,8 +42,6 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface, Institu
 
     /**
      * @var Orga
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', nullable: false, onDelete: 'cascade')]
     #[ORM\ManyToOne(targetEntity: Orga::class)]

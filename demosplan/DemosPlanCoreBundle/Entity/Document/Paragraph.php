@@ -10,16 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
-use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -31,10 +31,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_pd_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -44,8 +40,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
 
     /**
      * @var ProcedureInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class)]
@@ -58,8 +52,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
 
     /**
      * @var ParagraphInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_pd_parent_id', referencedColumnName: '_pd_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: Paragraph::class, inversedBy: 'children')]
@@ -67,8 +59,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
 
     /**
      * @var Collection<int, ParagraphInterface>
-     *
-     *
      */
     #[ORM\OneToMany(targetEntity: Paragraph::class, mappedBy: 'parent')]
     #[ORM\OrderBy(['order' => 'ASC'])]
@@ -156,8 +146,6 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
 
     /**
      * @var ParagraphVersionInterface[]
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_pd_id', referencedColumnName: '_pd_id')]
     #[ORM\OneToMany(targetEntity: ParagraphVersion::class, mappedBy: 'paragraph')]
@@ -199,9 +187,9 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
     {
         if (null !== $this->children) {
             return $this->children->getValues();
-        } else {
-            return [];
         }
+
+        return [];
     }
 
     /**

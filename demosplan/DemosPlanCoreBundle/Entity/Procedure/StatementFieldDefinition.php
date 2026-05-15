@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\StatementFieldDefinitionRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFieldDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\StatementFieldDefinitionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\UniqueConstraint;
@@ -25,8 +25,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * StatementFieldDefinition - A part of a StatementFormDefinition.
  * Defines the availability of a customizable fields on a statement (participation).
- *
- *
  */
 #[ORM\Table]
 #[UniqueConstraint(columns: ['statement_form_definition_id', 'name'])]
@@ -36,10 +34,6 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     #[ORM\Id]
@@ -74,7 +68,7 @@ class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface
         #[ORM\Column(type: 'boolean', nullable: false)]
         private bool $enabled,
         #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
-        private bool $required
+        private bool $required,
     ) {
     }
 

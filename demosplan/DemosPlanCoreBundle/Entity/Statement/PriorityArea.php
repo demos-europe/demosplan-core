@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\PriorityAreaRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\PriorityAreaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\PriorityAreaRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,10 +29,6 @@ class PriorityArea extends CoreEntity implements UuidEntityInterface, PriorityAr
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_pa_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     #[ORM\Id]
@@ -54,16 +50,12 @@ class PriorityArea extends CoreEntity implements UuidEntityInterface, PriorityAr
 
     /**
      * @var Collection<int, StatementInterface>
-     *
-     *
      */
     #[ORM\ManyToMany(targetEntity: Statement::class, mappedBy: 'priorityAreas')]
     protected $statements;
 
     /**
      * @var Collection<int, StatementFragmentInterface>
-     *
-     *
      */
     #[ORM\ManyToMany(targetEntity: StatementFragment::class, mappedBy: 'priorityAreas', cascade: ['persist'])]
     protected $statementFragments;

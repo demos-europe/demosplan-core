@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureTypeRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureBehaviorDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
@@ -19,9 +17,11 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureUiDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\FunctionalLogicException;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -37,10 +37,6 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     #[ORM\Id]
@@ -67,8 +63,6 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
     /**
      * @var Collection<int, ProcedureInterface>
      *                                          One procedureType has many procedures. This is the inverse side.
-     *
-     *
      */
     #[ORM\OneToMany(targetEntity: Procedure::class, mappedBy: 'procedureType', cascade: ['persist'])]
     #[ORM\OrderBy(['name' => 'ASC'])]
@@ -93,7 +87,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
         private ProcedureBehaviorDefinition $procedureBehaviorDefinition,
         #[ORM\JoinColumn(referencedColumnName: 'id', nullable: false)]
         #[ORM\OneToOne(targetEntity: ProcedureUiDefinition::class, inversedBy: 'procedureType', cascade: ['persist', 'remove'])]
-        private ProcedureUiDefinition $procedureUiDefinition
+        private ProcedureUiDefinition $procedureUiDefinition,
     ) {
         $statementFormDefinition->setProcedureType($this);
         $procedureBehaviorDefinition->setProcedureType($this);

@@ -14,6 +14,7 @@
 ## v4.38.0 (2026-05-06)
 
 ### Added
+- Add text custom field definition to institution tag management dialog
 - Track recommendation versions for statements and segments with full text snapshots, exposed via API and XLSX export (permission: `feature_enable_recommendation_versions`)
 - Support multiple custom field types and target contexts per project
 - Spellcheck in the Tiptap editor highlights spelling errors and suggests corrections while writing statements

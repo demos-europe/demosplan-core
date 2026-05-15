@@ -10,16 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\CountyRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use demosplan\DemosPlanCoreBundle\Entity\User\CustomerCounty;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerCountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\User\CustomerCounty;
 use demosplan\DemosPlanCoreBundle\EventListener\CountyEntityListener;
+use demosplan\DemosPlanCoreBundle\Repository\CountyRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -30,10 +30,6 @@ class County extends CoreEntity implements UuidEntityInterface, CountyInterface
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_c_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     #[ORM\Id]
@@ -65,16 +61,12 @@ class County extends CoreEntity implements UuidEntityInterface, CountyInterface
 
     /**
      * @var Collection<int, StatementInterface>
-     *
-     *
      */
     #[ORM\ManyToMany(targetEntity: Statement::class, mappedBy: 'counties')]
     protected $statements;
 
     /**
      * @var Collection<int, StatementFragmentInterface>
-     *
-     *
      */
     #[ORM\ManyToMany(targetEntity: StatementFragment::class, mappedBy: 'counties', cascade: ['persist'])]
     protected $statementFragments;

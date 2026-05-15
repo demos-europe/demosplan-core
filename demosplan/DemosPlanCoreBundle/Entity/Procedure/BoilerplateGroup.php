@@ -10,14 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateGroupInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,10 +29,6 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface, Boiler
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -49,7 +45,6 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface, Boiler
     /**
      * @var DateTime
      *
-     *
      * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(type: 'datetime', nullable: false)]
@@ -57,8 +52,6 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface, Boiler
 
     /**
      * @var ProcedureInterface
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class)]
@@ -66,8 +59,6 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface, Boiler
 
     /**
      * @var Collection<int, BoilerplateInterface>
-     *
-     *
      */
     #[ORM\OneToMany(targetEntity: Boilerplate::class, mappedBy: 'group')]
     #[ORM\OrderBy(['title' => 'ASC'])]

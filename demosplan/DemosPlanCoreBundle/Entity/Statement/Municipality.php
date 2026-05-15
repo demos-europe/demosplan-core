@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\MunicipalityRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\MunicipalityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\MunicipalityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -28,10 +28,6 @@ class Municipality extends CoreEntity implements UuidEntityInterface, Municipali
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_m_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     #[ORM\Id]
@@ -49,20 +45,16 @@ class Municipality extends CoreEntity implements UuidEntityInterface, Municipali
      * @var string
      */
     #[ORM\Column(type: 'string', nullable: true, options: ['fixed' => true, 'default' => null])]
-    protected $officialMunicipalityKey = null;
+    protected $officialMunicipalityKey;
 
     /**
      * @var Collection<int, StatementInterface>
-     *
-     *
      */
     #[ORM\ManyToMany(targetEntity: Statement::class, mappedBy: 'municipalities')]
     protected $statements;
 
     /**
      * @var Collection<int, StatementFragmentInterface>
-     *
-     *
      */
     #[ORM\ManyToMany(targetEntity: StatementFragment::class, mappedBy: 'municipalities', cascade: ['persist'])]
     protected $statementFragments;

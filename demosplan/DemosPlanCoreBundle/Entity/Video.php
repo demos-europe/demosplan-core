@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use demosplan\DemosPlanCoreBundle\Repository\VideoRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
@@ -21,8 +19,10 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\VideoInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\VideoFileConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\VideoRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -32,10 +32,6 @@ class Video implements UuidEntityInterface, VideoInterface
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: 'id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -54,7 +50,6 @@ class Video implements UuidEntityInterface, VideoInterface
     /**
      * @var DateTimeInterface
      *
-     *
      * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(type: 'datetime', nullable: false)]
@@ -70,23 +65,17 @@ class Video implements UuidEntityInterface, VideoInterface
          * Required and non-nullable on creation because currently videos can only be uploaded by
          * logged-in users. However, the property can still be `null` as  the referenced {@link UserInterface}
          * may be deleted.
-         *
-         *
          */
         #[ORM\JoinColumn(referencedColumnName: '_u_id', nullable: true, onDelete: 'SET NULL')]
         #[ORM\ManyToOne(targetEntity: User::class)]
         private User $uploader,
         /**
          * Identifies the customer/domain within which the video was uploaded.
-         *
-         *
          */
         #[Assert\NotNull] #[ORM\JoinColumn(referencedColumnName: '_c_id', nullable: false)] #[ORM\ManyToOne(targetEntity: Customer::class)]
         private Customer $customerContext,
         /**
          * The actual video file.
-         *
-         *
          *
          * @VideoFileConstraint()
          */
@@ -103,7 +92,7 @@ class Video implements UuidEntityInterface, VideoInterface
          */
         #[Assert\NotNull]
         #[Assert\Length(max: 65535, normalizer: 'trim')] #[ORM\Column(type: 'text', nullable: false)]
-        private $description = ''
+        private $description = '',
     ) {
     }
 

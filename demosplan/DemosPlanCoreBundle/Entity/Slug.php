@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use demosplan\DemosPlanCoreBundle\Repository\SlugRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SlugInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Repository\SlugRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Faker\Provider\Uuid;
@@ -27,10 +27,6 @@ class Slug extends CoreEntity implements UuidEntityInterface, SlugInterface
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]

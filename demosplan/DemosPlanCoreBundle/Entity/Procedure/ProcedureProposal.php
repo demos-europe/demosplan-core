@@ -10,14 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureProposalRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureProposalInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureProposalRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -25,8 +25,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Procedure proposal.
- *
- *
  */
 #[ORM\Table]
 #[ORM\Entity(repositoryClass: ProcedureProposalRepository::class)]
@@ -39,10 +37,6 @@ class ProcedureProposal extends CoreEntity implements UuidEntityInterface, Proce
 
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -65,7 +59,6 @@ class ProcedureProposal extends CoreEntity implements UuidEntityInterface, Proce
     /**
      * @var DateTime
      *
-     *
      * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(type: 'datetime', nullable: false)]
@@ -73,7 +66,6 @@ class ProcedureProposal extends CoreEntity implements UuidEntityInterface, Proce
 
     /**
      * @var DateTime
-     *
      *
      * @Gedmo\Timestampable(on="update")
      */
@@ -94,8 +86,6 @@ class ProcedureProposal extends CoreEntity implements UuidEntityInterface, Proce
 
     /**
      * @var User
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'user', referencedColumnName: '_u_id', nullable: true, onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -111,8 +101,6 @@ class ProcedureProposal extends CoreEntity implements UuidEntityInterface, Proce
 
     /**
      * @var Collection<int, File>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: 'procedureproposal_file_doctrine',

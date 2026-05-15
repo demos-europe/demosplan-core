@@ -123,7 +123,7 @@ class SettingRepository extends CoreRepository implements ArrayInterface, Object
     /**
      * Set the properties of a Setting.
      *
-     * @param setting|string $setting    ID|Object to be filled
+     * @param Setting|string $setting    ID|Object to be filled
      * @param array          $properties - Holds the values, which should be set as properties of the object
      */
     public function setProperties($setting, $properties)

@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
-use demosplan\DemosPlanCoreBundle\Repository\ForumThreadRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ForumThreadInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\ForumThreadRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\NonUniqueResultException;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -27,10 +27,6 @@ class ForumThread extends CoreEntity implements UuidEntityInterface, ForumThread
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_ft_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     #[ORM\Id]

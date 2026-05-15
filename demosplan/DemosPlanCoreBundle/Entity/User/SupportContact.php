@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SupportContactInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\SupportContactConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -68,7 +68,7 @@ class SupportContact extends CoreEntity implements UuidEntityInterface, SupportC
         #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'contacts')]
         private ?Customer $customer,
         #[ORM\Column(name: 'visible', type: 'boolean', options: ['default' => false])]
-        private bool $visible = false
+        private bool $visible = false,
     ) {
     }
 

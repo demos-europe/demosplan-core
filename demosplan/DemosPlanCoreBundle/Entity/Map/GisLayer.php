@@ -10,21 +10,19 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Map;
 
-use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ContextualHelpInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
+use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Class GisLayer.
- *
- *
  */
 #[ORM\Table(name: '_gis')]
 #[ORM\Index(name: '_g_global_id', columns: ['_g_global_id'])]
@@ -35,10 +33,6 @@ class GisLayer extends CoreEntity implements GisLayerInterface
      * Unique identification of the Gislayer entry.
      *
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_g_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     #[ORM\Id]
@@ -230,8 +224,6 @@ class GisLayer extends CoreEntity implements GisLayerInterface
 
     /**
      * @var ContextualHelpInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_g_pcsh_id', referencedColumnName: '_pcsh_id', onDelete: 'SET NULL')]
     #[ORM\OneToOne(targetEntity: ContextualHelp::class, cascade: ['remove'], fetch: 'EAGER')]
@@ -241,8 +233,6 @@ class GisLayer extends CoreEntity implements GisLayerInterface
      * @var GisLayerCategoryInterface
      *
      * Many GisLayers has one GisLayerCategory
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: GisLayerCategory::class, inversedBy: 'gisLayers', cascade: ['persist'])]

@@ -10,14 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use demosplan\DemosPlanCoreBundle\Repository\MasterToebVersionRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\MasterToebVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\MasterToebVersionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -27,10 +27,6 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface, Maste
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_mtv_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -40,8 +36,6 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface, Maste
 
     /**
      * @var MasterToeb
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_mt_id', referencedColumnName: '_mt_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: MasterToeb::class)]
@@ -66,8 +60,6 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface, Maste
 
     /**
      * @var Orga
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: Orga::class)]
@@ -79,8 +71,6 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface, Maste
 
     /**
      * @var Department
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_d_id', referencedColumnName: '_d_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: Department::class)]

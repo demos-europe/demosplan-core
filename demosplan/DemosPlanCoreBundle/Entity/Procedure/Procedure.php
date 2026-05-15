@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
@@ -28,6 +27,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureSettingsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureUiDefinitionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SlugInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
@@ -36,12 +36,12 @@ use demosplan\DemosPlanCoreBundle\Constraint\ProcedureAllowedSegmentsConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureMasterTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTypeConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\File;
-use DemosEurope\DemosplanAddon\Contracts\Entities\SlugInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Entity\SluggedEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -59,12 +59,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- *
- *
- *
  * @ProcedureTemplateConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE})
  *
  * @ProcedureTypeConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED})
+ *
  * @ProcedureMasterTemplateConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE})
  *
  * @ProcedureAllowedSegmentsConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE})
@@ -77,10 +75,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @var string|null
      *                  Generates a UUID in code that confirms to https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-NCName
      *                  to be able to be used as xs:ID type in XML messages
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_p_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -130,8 +124,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * Will be null on some ancient procedures.
      *
      * @var Orga
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', onDelete: 'RESTRICT')]
     #[ORM\ManyToOne(targetEntity: Orga::class, inversedBy: 'procedures')]
@@ -295,8 +287,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * Invited organisations.
      *
      * @var Collection<int, Orga>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: '_procedure_orga_doctrine',
@@ -317,8 +307,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * PlanningAgencies that are allowed to administrate procedure.
      *
      * @var Collection<int, Orga>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: 'procedure_planningoffices',
@@ -330,8 +318,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * @var Collection<int, Orga>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: 'procedure_orga_datainput',
@@ -361,8 +347,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * @var Collection<int,Elements>
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id')]
     #[ORM\OneToMany(targetEntity: Elements::class, mappedBy: 'procedure')]
@@ -372,8 +356,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * Custom list of Users, to access this Procedure, created by User.
      *
      * @var Collection<int, User>
-     *
-     *
      */
     #[ORM\JoinTable(
         joinColumns: [new ORM\JoinColumn(name: 'procedure_id', referencedColumnName: '_p_id', onDelete: 'CASCADE')],
@@ -395,8 +377,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * Email addresses to use as CC when sending an email to the agencyMainEmailAddress.
      *
      * @var Collection<int, EmailAddress>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: 'procedure_agency_extra_email_address',
@@ -410,8 +390,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * T15644:.
      *
      * @var Customer
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'customer', referencedColumnName: '_c_id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: Customer::class)]
@@ -419,8 +397,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * @var Collection<int, ProcedureCategory>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: 'procedure_procedure_category_doctrine',
@@ -443,8 +419,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * Many procedureTypes have one procedure. This is the owning side.
      * (In Doctrine Many have to be the owning side in a ManyToOne relationship.)
-     *
-     *
      */
     #[ORM\JoinColumn(nullable: true)]
     #[ORM\ManyToOne(targetEntity: ProcedureType::class, inversedBy: 'procedures')]
@@ -454,8 +428,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * Defined as nullable=true, because of Procedure-Blueprints will not have a related StatementFormDefinition.
      *
      * @var StatementFormDefinition|null
-     *
-     *
      */
     #[ORM\JoinColumn(nullable: true)]
     #[ORM\OneToOne(targetEntity: StatementFormDefinition::class, inversedBy: 'procedure', cascade: ['persist', 'remove'])]
@@ -465,8 +437,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * Defined as nullable=true, because of Procedure-Blueprints will not have a related ProcedureBehaviorDefinition.
      *
      * @var ProcedureBehaviorDefinition|null
-     *
-     *
      */
     #[ORM\JoinColumn(nullable: true)]
     #[ORM\OneToOne(targetEntity: ProcedureBehaviorDefinition::class, inversedBy: 'procedure', cascade: ['persist', 'remove'])]
@@ -476,8 +446,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * Defined as nullable=true, because of Procedure-Blueprints will not have a related ProcedureUiDefinition.
      *
      * @var ProcedureUiDefinition|null
-     *
-     *
      */
     #[ORM\JoinColumn(nullable: true)]
     #[ORM\OneToOne(targetEntity: ProcedureUiDefinition::class, inversedBy: 'procedure', cascade: ['persist', 'remove'])]
@@ -487,8 +455,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * Definition of Fields to be rendered/added in Export of this Procedure.
      *
      * @var Collection<int, ExportFieldsConfiguration>
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: 'id', nullable: false)]
     #[ORM\OneToMany(targetEntity: ExportFieldsConfiguration::class, mappedBy: 'procedure', cascade: ['persist', 'remove'])]

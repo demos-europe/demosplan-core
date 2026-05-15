@@ -19,9 +19,6 @@ class MailTemplate implements IntegerIdEntityInterface, MailTemplateInterface
 {
     /**
      * @var int|null
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_mt_id', type: 'integer')]
     #[ORM\Id]

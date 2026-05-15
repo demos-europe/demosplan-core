@@ -12,20 +12,18 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerCountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Links the Customer to their counties and vice-versa.
- *
- *
  */
 #[ORM\Table(name: 'customer_county')]
 #[ORM\UniqueConstraint(name: 'customer_county_unique_context', columns: ['customer_id', 'county_id'])]
@@ -34,10 +32,6 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface, Customer
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: 'cc_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -49,8 +43,6 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface, Customer
      * Foreign key, Customer object.
      *
      * @var CustomerInterface
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_c_id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'customerCounties', cascade: ['remove'])]
@@ -60,8 +52,6 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface, Customer
      * Foreign key, County object.
      *
      * @var CountyInterface
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_c_id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: County::class, inversedBy: 'customerCounties', cascade: ['remove'])]

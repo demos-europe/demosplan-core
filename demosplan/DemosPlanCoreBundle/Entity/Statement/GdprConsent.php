@@ -10,16 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\GdprConsentRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use \demosplan\DemosPlanCoreBundle\Entity\User\User;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GdprConsentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Repository\GdprConsentRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -39,8 +39,6 @@ use Doctrine\ORM\Mapping as ORM;
  * If the authors consent is needed as well not only needs the statement to hold multiple consents (resulting
  * in a one-to-many relationship -> crosstable) but the DraftStatements need to hold the consents as well which
  * results in an additional one-to-many relationship between DraftStatements and GdprConsent).
- *
- *
  */
 #[ORM\Table]
 #[ORM\Entity(repositoryClass: GdprConsentRepository::class)]
@@ -48,10 +46,6 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface, GdprConsent
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -65,8 +59,6 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface, GdprConsent
      * No onDelete="CASCADE" as this is already done by doctrine. See {@link StatementInterface::gdprConsent}.
      *
      * @var StatementInterface
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_st_id')]
     #[ORM\OneToOne(targetEntity: Statement::class, inversedBy: 'gdprConsent')]
@@ -116,8 +108,6 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface, GdprConsent
      * user deletes they account, as a person does not lose they right to revoke with the deletion.
      *
      * @var UserInterface|null
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_u_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: User::class)]

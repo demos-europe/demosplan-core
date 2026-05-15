@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use demosplan\DemosPlanCoreBundle\Repository\LocationRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\LocationInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Repository\LocationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'location')]
@@ -25,10 +25,6 @@ class Location extends CoreEntity implements UuidEntityInterface, LocationInterf
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]

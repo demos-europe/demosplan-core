@@ -10,15 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureSettingsRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureSettingsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureSettingsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -30,10 +30,6 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_ps_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -170,8 +166,6 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
 
     /**
      * @var ProcedureInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\OneToOne(targetEntity: Procedure::class, inversedBy: 'settings')]
@@ -251,8 +245,6 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      * be returned too *if* the user owns the {@link ProcedureInterface} or has at least been invited.
      *
      * @var Collection<int,ProcedureInterface>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: 'procedure_settings_allowed_segment_procedures',

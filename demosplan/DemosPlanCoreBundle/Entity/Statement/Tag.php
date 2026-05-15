@@ -10,9 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use \demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
@@ -20,8 +17,11 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
+use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -35,10 +35,6 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_t_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -48,8 +44,6 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
 
     /**
      * @var TagTopicInterface
-     *
-     *
      */
     #[Assert\NotNull(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, 'segments_import'])]
     #[Assert\Type(groups: ['segments_import'], type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic')]
@@ -67,7 +61,6 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     /**
      * @var DateTime
      *
-     *
      * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_t_create_date', type: 'datetime', nullable: false)]
@@ -75,16 +68,12 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
 
     /**
      * @var Collection<int,StatementInterface>
-     *
-     *
      */
     #[ORM\ManyToMany(targetEntity: Statement::class, mappedBy: 'tags', cascade: ['persist', 'refresh'])]
     protected $statements;
 
     /**
      * @var BoilerplateInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_pt_id', referencedColumnName: '_pt_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: Boilerplate::class, inversedBy: 'tags')]

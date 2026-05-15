@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
-use demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DevelopmentUserStoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -25,10 +25,6 @@ class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface, De
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_pu_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -38,8 +34,6 @@ class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface, De
 
     /**
      * @var DevelopmentRelease
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_pu_release_id', referencedColumnName: '_pr_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: DevelopmentRelease::class)]
@@ -54,8 +48,6 @@ class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface, De
      * @var ForumThread
      *
      * //todo: different states on dev/prod(nullable = false) vs suse(nullable = ture)!
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_pu_thread_id', referencedColumnName: '_ft_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: ForumThread::class, cascade: ['persist'])]
@@ -92,7 +84,6 @@ class DevelopmentUserStory extends CoreEntity implements UuidEntityInterface, De
 
     /**
      * @var DateTime
-     *
      *
      * @Gedmo\Timestampable(on="update")
      */

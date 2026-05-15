@@ -10,21 +10,21 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
+use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -37,10 +37,6 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_dsv_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -50,8 +46,6 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
 
     /**
      * @var DraftStatement
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_ds_id', referencedColumnName: '_ds_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: DraftStatement::class, inversedBy: 'versions')]
@@ -66,8 +60,6 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
 
     /**
      * @var Procedure
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class)]
@@ -98,8 +90,6 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
 
     /**
      * @var string
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_ds_paragraph_id', referencedColumnName: '_pdv_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: ParagraphVersion::class, cascade: ['persist'])]
@@ -114,8 +104,6 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
 
     /**
      * @var SingleDocumentVersion
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_ds_document_id', referencedColumnName: '_sdv_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: SingleDocumentVersion::class, cascade: ['persist'])]
@@ -180,8 +168,6 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
      * todo: potential improvement: options={"fixed":false},.
      *
      * @var Orga
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', nullable: false, onDelete: 'RESTRICT')]
     #[ORM\ManyToOne(targetEntity: Orga::class)]
@@ -224,8 +210,6 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
 
     /**
      * @var User
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', nullable: false, onDelete: 'RESTRICT')]
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -358,7 +342,6 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
 
     /**
      * @var DateTime
-     *
      *
      * @Gedmo\Timestampable(on="create")
      */

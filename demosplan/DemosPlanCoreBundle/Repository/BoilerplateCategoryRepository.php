@@ -148,9 +148,9 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
             $this->getEntityManager()->flush();
             if ($returnEntity) {
                 return $boilerplateCategory;
-            } else {
-                return true;
             }
+
+            return true;
         }
 
         return false;

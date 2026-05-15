@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Workflow;
 
-use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\SortableInterface;
+use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -53,10 +53,6 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
         private int $sortIndex = 0,
         /**
          * @var string|null `null` if this instance was not persisted yet
-         *
-         *
-         *
-         *
          */
         #[ORM\Id]
         #[ORM\GeneratedValue(strategy: 'CUSTOM')]

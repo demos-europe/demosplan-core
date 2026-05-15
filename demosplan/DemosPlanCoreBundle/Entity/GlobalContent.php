@@ -10,15 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use demosplan\DemosPlanCoreBundle\Repository\ContentRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GlobalContentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler;
+use demosplan\DemosPlanCoreBundle\Repository\ContentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,8 +27,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * GlobalContent (derzeit GlobalFaq und GlobalNews).
- *
- *
  */
 #[ORM\Table(name: '_platform_content')]
 #[ORM\Entity(repositoryClass: ContentRepository::class)]
@@ -42,10 +40,6 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
 
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_pc_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -55,7 +49,6 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
 
     /**
      * @var string
-     *
      *
      * @deprecated No longer required. Previously, FAQ and GlobalNews were stored in this table together and this string
      *             identified their type ("faq" or "news"). Now, FAQ were moved to their own tables, so this string
@@ -152,8 +145,6 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
 
     /**
      * @var Collection<int, Role>
-     *
-     *
      */
     #[Assert\Count(min: 1, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], minMessage: 'error.mandatoryfield.visibility')]
     #[ORM\JoinTable(
@@ -167,8 +158,6 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
     // todo: why is this a n:m relation?
     /**
      * @var Collection<int, Category>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: '_platform_content_categories',

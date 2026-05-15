@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use demosplan\DemosPlanCoreBundle\Repository\ExportFieldsConfigurationRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ExportFieldsConfigurationInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Repository\ExportFieldsConfigurationRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -27,10 +27,6 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -42,8 +38,6 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
      * This is the owning side.
      *
      * @var ProcedureInterface
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: Procedure::class, inversedBy: 'exportFieldsConfigurations', cascade: ['persist'])]

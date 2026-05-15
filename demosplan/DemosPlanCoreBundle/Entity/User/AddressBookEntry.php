@@ -10,15 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use demosplan\DemosPlanCoreBundle\Repository\AddressBookEntryRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\AddressBookEntryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\AddressBookEntryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -28,10 +28,6 @@ class AddressBookEntry extends CoreEntity implements UuidEntityInterface, Addres
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -50,8 +46,6 @@ class AddressBookEntry extends CoreEntity implements UuidEntityInterface, Addres
      *
      * Many address book entries have one organisation. This is the owning side.
      * (In Doctrine Many have to be the owning side in a ManyToOne relationship.)
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_o_id', onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Orga::class, inversedBy: 'addressBookEntries')]
@@ -66,7 +60,6 @@ class AddressBookEntry extends CoreEntity implements UuidEntityInterface, Addres
     /**
      * @var DateTime
      *
-     *
      * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(type: 'datetime', nullable: false)]
@@ -74,7 +67,6 @@ class AddressBookEntry extends CoreEntity implements UuidEntityInterface, Addres
 
     /**
      * @var DateTime
-     *
      *
      * @Gedmo\Timestampable(on="update")
      */

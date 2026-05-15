@@ -10,10 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use \demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateGroupInterface;
@@ -21,7 +17,10 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
+use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -35,10 +34,6 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      * Unique identification of the boilerplate entry.
      *
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_pt_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -48,8 +43,6 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
 
     /**
      * @var ProcedureInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class)]
@@ -60,8 +53,6 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      * Means in which area this Boilerplate will be used/loaded.
      *
      * @var Collection<int,BoilerplateCategoryInterface>
-     *
-     *
      */
     #[ORM\ManyToMany(targetEntity: BoilerplateCategory::class, mappedBy: 'boilerplates', cascade: ['persist'])]
     protected $categories;
@@ -72,8 +63,6 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      * @var BoilerplateGroupInterface
      *
      * This Class/Entity is the owning side
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: 'id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: BoilerplateGroup::class, inversedBy: 'boilerplates')]

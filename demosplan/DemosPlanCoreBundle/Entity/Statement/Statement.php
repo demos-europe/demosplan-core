@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
@@ -44,6 +42,7 @@ use demosplan\DemosPlanCoreBundle\Constraint\OriginalReferenceConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProcedureConstraint;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -62,6 +61,7 @@ use demosplan\DemosPlanCoreBundle\EventListener\RecommendationVersionEntityListe
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -72,11 +72,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
 
 /**
- *
- *
- *
- *
- *
  * @ClaimConstraint()
  *
  * @CorrectDateOrderConstraint(groups={StatementInterface::IMPORT_VALIDATION})
@@ -86,6 +81,7 @@ use UnexpectedValueException;
  * @FormDefinitionConstraint()
  *
  * @MatchingSubmitTypesConstraint(groups={StatementInterface::IMPORT_VALIDATION})
+ *
  * @OriginalReferenceConstraint()
  *
  * @PrePersistUniqueInternIdConstraint(groups={StatementInterface::IMPORT_VALIDATION})
@@ -104,10 +100,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * @var string|null
      *                  Generates a UUID in code that confirms to https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-NCName
      *                  to be able to be used as xs:ID type in XML messages
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_st_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -120,8 +112,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * build conditions for resource types. e.g. to filter out segments.
      *
      * @var StatementInterface
-     *
-     *
      */
     #[Assert\IsNull(groups: [StatementInterface::BASE_STATEMENT_CLASS_VALIDATION])]
     #[Assert\NotNull(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT])]
@@ -134,8 +124,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * Elternstellungnahme, von der diese kopiert wurde.
      *
      * @var Statement
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_st_p_id', referencedColumnName: '_st_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'children')]
@@ -165,8 +153,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * Needed (WIP) for delete statements on delete procedure.
      *
      * On update this one, the associated originalSTN will be also persisted. Needed in StatementCopier::copyStatementToProcedure()
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_st_o_id', referencedColumnName: '_st_id')]
     #[ORM\ManyToOne(targetEntity: Statement::class, cascade: ['persist'], inversedBy: 'statementsCreatedFromOriginal')]
@@ -219,8 +205,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var User
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', nullable: true, onDelete: 'RESTRICT')]
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -240,8 +224,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var Orga|null
-     *
-     *
      */
     #[Assert\Valid(groups: [Statement::IMPORT_VALIDATION])]
     #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', nullable: true, onDelete: 'RESTRICT')]
@@ -271,8 +253,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var Procedure
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class, cascade: ['persist'], inversedBy: 'statements')]
@@ -518,8 +498,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var ParagraphVersion
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_st_paragraph_id', referencedColumnName: '_pdv_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: ParagraphVersion::class, cascade: ['persist'])]
@@ -568,8 +546,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var SingleDocumentVersion
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_st_document_id', referencedColumnName: '_sdv_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: SingleDocumentVersion::class, cascade: ['persist'])]
@@ -626,8 +602,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var DraftStatement
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_ds_id', referencedColumnName: '_ds_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: DraftStatement::class)]
@@ -649,8 +623,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var StatementVersionField
-     *
-     *
      */
     #[ORM\OneToMany(targetEntity: StatementVersionField::class, mappedBy: 'statement')]
     #[ORM\OrderBy(['created' => 'DESC'])]
@@ -705,8 +677,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var Collection
-     *
-     *
      */
     #[ORM\JoinTable(
         name: '_statement_tag',
@@ -718,8 +688,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var Collection<int, County>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: '_statement_county',
@@ -731,8 +699,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var Collection<int, PriorityArea>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: '_statement_priority_area',
@@ -744,8 +710,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var Collection<int, Municipality>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: '_statement_municipality',
@@ -757,8 +721,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var Collection<int, StatementFragment>
-     *
-     *
      */
     #[ORM\OneToMany(targetEntity: StatementFragment::class, mappedBy: 'statement', cascade: ['remove'])]
     #[ORM\OrderBy(['sortIndex' => 'ASC'])]
@@ -840,8 +802,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var User
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'assignee', referencedColumnName: '_u_id', nullable: true, onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -857,8 +817,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * @var Statement
      *
      * This is the owning side
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'head_statement_id', referencedColumnName: '_st_id', nullable: true, onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'cluster')]
@@ -869,8 +827,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * This should not be persists automatic, because of checking the assignment in updateStatement()!
      * Doctrine-sited persists, would bypass this check!
-     *
-     *
      */
     #[ORM\OneToMany(targetEntity: Statement::class, mappedBy: 'headStatement')]
     #[ORM\OrderBy(['externId' => 'ASC'])]
@@ -895,8 +851,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * cascade={"remove"} means, that the associated placeholder will be deleted, in case of this moved statement will be deleted.
      *
      * @var Statement|null
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_st_id', nullable: true, onDelete: 'RESTRICT')]
     #[ORM\ManyToOne(targetEntity: self::class, cascade: ['remove'])]
@@ -909,8 +863,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * onDelete=Cascade means, that this placeholder will be deleted in case of the associated moved Statement will be deleted.
      *
      * @var Statement
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_st_id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: self::class)]
@@ -991,8 +943,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * to ensure related ProcedurePersons will be deleted in case of this Statement will be deleted.
      *
      * @var Collection<int, ProcedurePerson>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: 'similar_statement_submitter',

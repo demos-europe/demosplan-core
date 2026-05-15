@@ -10,16 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\StatementFormDefinitionRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
+use demosplan\DemosPlanCoreBundle\Repository\StatementFormDefinitionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -30,8 +30,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * to define the availability of customizable fields on a statement (participation).
  * A StatementFormDefinition should never have an direct relationship to a Procedure and to a ProcedureType.
  *
- *
- *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
 #[ORM\Table]
@@ -40,10 +38,6 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     #[ORM\Id]
@@ -69,8 +63,6 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
 
     /**
      * @var Collection<int, StatementFieldDefinition>
-     *
-     *
      */
     #[ORM\OneToMany(targetEntity: StatementFieldDefinition::class, mappedBy: 'statementFormDefinition', cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['orderNumber' => 'ASC'])]
@@ -84,8 +76,6 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      * as well as a direct relation to a ProcedureType, indicates invalid data.
      *
      * @var Procedure|null
-     *
-     *
      */
     #[ORM\OneToOne(targetEntity: Procedure::class, mappedBy: 'statementFormDefinition')]
     private $procedure;
@@ -96,8 +86,6 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      * Therefore a StatementFormDefinition without a ProcedureType will have a related Procedure.
      *
      * @var ProcedureType|null
-     *
-     *
      */
     #[ORM\OneToOne(targetEntity: ProcedureType::class, mappedBy: 'statementFormDefinition')]
     private $procedureType;

@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
 use demosplan\DemosPlanCoreBundle\Types\IdentityProviderType;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -25,8 +25,6 @@ use Doctrine\ORM\Mapping as ORM;
  * Per-customer Keycloak OAuth2 configuration.
  *
  * Customers without a record fall back to the global static keycloak_ozg client.
- *
- *
  */
 #[ORM\Table(name: 'customer_oauth_config')]
 #[ORM\Entity(repositoryClass: CustomerOAuthConfigRepository::class)]
@@ -70,8 +68,6 @@ class CustomerOAuthConfig extends CoreEntity implements UuidEntityInterface
     /**
      * Default organisation for auto-provisioning new users during Azure/Entra ID login.
      * When set, users who don't exist yet will be created and assigned to this organisation.
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'default_organisation_id', referencedColumnName: '_o_id', nullable: true, onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: Orga::class)]
