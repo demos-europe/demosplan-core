@@ -1140,7 +1140,9 @@ class EntityContentChangeService
 
     public function getCustomFieldValueName(string $customFieldId, mixed $customFieldValueId): string
     {
-        return $this->customFieldValueCreator->getCustomFieldConfigurationById($customFieldId)->getCustomOptionLabelById($customFieldValueId);
+        return $this->customFieldValueCreator
+            ->getCustomFieldConfigurationById($customFieldId)
+            ->formatValueForDisplay($customFieldValueId);
     }
 
     /**
@@ -1204,7 +1206,7 @@ class EntityContentChangeService
         $class = ClassUtils::getClass($preUpdateObject);
 
         foreach (array_keys($fieldsToTrack) as $propertyName) {
-            if ('customFields' === $propertyName) {
+            if ('customFields' === $propertyName && array_key_exists($propertyName, $incomingDataArray)) {
                 $changes['customFields'] = $this->diffCustomFields(
                     $preUpdateObject->getCustomFields(),
                     $incomingDataArray['customFields'] ?? null

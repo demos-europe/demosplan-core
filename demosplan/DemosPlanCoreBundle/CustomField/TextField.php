@@ -73,9 +73,4 @@ class TextField extends AbstractCustomField
     {
         // Text fields have no predefined options — nothing to validate here
     }
-
-    public function getCustomOptionLabelById(mixed $customFieldOptionValueId): ?string
-    {
-        // TODO: Implement getCustomOptionLabelById() method.
-    }
 }

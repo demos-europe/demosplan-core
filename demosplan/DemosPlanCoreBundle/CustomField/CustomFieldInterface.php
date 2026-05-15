@@ -58,8 +58,6 @@ interface CustomFieldInterface
 
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption;
 
-    public function getCustomOptionLabelById(mixed $customFieldOptionValueId): ?string;
-
     public function getApiAttributes(): array;
 
     /**

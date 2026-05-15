@@ -94,21 +94,6 @@ class MultiSelectField extends AbstractCustomField
         return null;
     }
 
-    public function getCustomOptionLabelById(mixed $customFieldOptionValueId): ?string
-    {
-        $optionNames = null;
-        foreach ($this->options as $option) {
-            $isOptionInArray = in_array($option->getId(), $customFieldOptionValueId, true);
-            if ($isOptionInArray) {
-                $optionNames = $optionNames.$option->getLabel().',';
-            }
-        }
-
-        $optionNames = rtrim($optionNames, ',');
-
-        return $optionNames;
-    }
-
     public function formatValueForDisplay(mixed $value): string
     {
         if (!is_array($value)) {
