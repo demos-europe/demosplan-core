@@ -21,7 +21,7 @@ class Version20260429192007 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Create login_audit table to record successful and failed authentication attempts. '
+        return 'refs: DPLAN-17727: Create login_audit table to record successful and failed authentication attempts. '
             .'Stores user id, result, authenticator, user agent, session id hash and timestamp.';
     }
 

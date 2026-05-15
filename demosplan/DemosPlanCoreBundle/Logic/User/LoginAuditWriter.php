@@ -48,7 +48,7 @@ class LoginAuditWriter
         ?string $failureReason = null,
     ): void {
         try {
-            $truncatedAuthenticator = $this->truncate($authenticator, 64);
+            $truncatedAuthenticator = $this->truncate($authenticator, 191);
             $sessionIdHash = $this->hashSessionId($request);
 
             // Deduplicate repeated success events within the same session — the

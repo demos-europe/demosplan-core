@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\LoginAudit;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\LoginAuditWriter;
+use Scheb\TwoFactorBundle\Security\Http\Authenticator\TwoFactorAuthenticator;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Event\TwoFactorAuthenticationEvent;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Event\TwoFactorAuthenticationEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -52,6 +53,13 @@ class LoginAuditSubscriber implements EventSubscriberInterface
         if ($this->isStatelessRequest($event->getRequest())) {
             return;
         }
+        // Scheb re-fires LoginSuccessEvent after 2FA validation with the
+        // TwoFactorAuthenticator wrapping the real token. Skip it — the
+        // TwoFactorAuthenticationEvents::COMPLETE event is the authoritative
+        // signal that the user is fully authenticated.
+        if ($event->getAuthenticator() instanceof TwoFactorAuthenticator) {
+            return;
+        }
 
         $user = $event->getUser();
 
@@ -66,6 +74,10 @@ class LoginAuditSubscriber implements EventSubscriberInterface
     public function onLoginFailure(LoginFailureEvent $event): void
     {
         if ($this->isStatelessRequest($event->getRequest())) {
+            return;
+        }
+        // 2FA failures are recorded via TwoFactorAuthenticationEvents::FAILURE.
+        if ($event->getAuthenticator() instanceof TwoFactorAuthenticator) {
             return;
         }
 
