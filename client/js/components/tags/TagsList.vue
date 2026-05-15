@@ -205,7 +205,7 @@ export default {
         return
       }
       const oldParent = Object.values(this.TagTopic).find(topic =>
-        topic.relationships?.tags.data.find(tag => tag.id === tagId),
+        topic.relationships?.tags.data.some(tag => tag.id === tagId),
       )
       if (!oldParent) {
         return
@@ -214,7 +214,7 @@ export default {
       const oldSourceData = [...oldParent.relationships.tags.data]
       const oldTargetData = [...(newParent.relationships?.tags?.data || [])]
 
-      const newSourceData = oldSourceData.filter(t => t.id !== tagId)
+      const newSourceData = oldSourceData.filter(tag => tag.id !== tagId)
       const newTargetData = [...oldTargetData]
       newTargetData.splice(newIndex, 0, { type: 'Tag', id: tagId })
 
@@ -233,7 +233,7 @@ export default {
       })
 
       dpRpc('tagList.reorder', { tagId, topicId: targetTopicId, newIndex })
-        .then(response => {
+        .then((response) => {
           const result = response.data[0].result
           for (const [id, { sortIndex }] of Object.entries(result)) {
             const tag = this.Tag[id]
@@ -308,7 +308,7 @@ export default {
       }
 
       const oldTagsData = [...(topic.relationships?.tags?.data || [])]
-      const newTagsData = oldTagsData.filter(t => t.id !== tagId)
+      const newTagsData = oldTagsData.filter(tag => tag.id !== tagId)
       newTagsData.splice(newIndex, 0, { type: 'Tag', id: tagId })
 
       // Optimistic UI update
