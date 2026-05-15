@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureSubscriptionRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureSubscriptionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureSubscriptionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -27,10 +27,6 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface, P
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_psu_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -40,8 +36,6 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface, P
 
     /**
      * @var User
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', onDelete: 'RESTRICT')]
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -85,7 +79,6 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface, P
     /**
      * @var DateTime
      *
-     *
      * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_psu_created_date', type: 'datetime', nullable: false)]
@@ -101,7 +94,6 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface, P
 
     /**
      * @var DateTime
-     *
      *
      * @Gedmo\Timestampable(on="update")
      */

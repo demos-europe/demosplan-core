@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\AddressInterface;
@@ -19,7 +17,9 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -32,10 +32,6 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_d_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -58,7 +54,6 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
     /**
      * @var DateTime
      *
-     *
      * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_d_created_date', type: 'datetime', nullable: false)]
@@ -66,7 +61,6 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
 
     /**
      * @var DateTime
-     *
      *
      * @Gedmo\Timestampable(on="update")
      */
@@ -103,8 +97,6 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
 
     /**
      * @var Collection<int, AddressInterface>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: '_department_addresses_doctrine',
@@ -119,8 +111,6 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
      * Fachlich ist es derzeit eine One-to-Many-Association.
      *
      * @var Collection<int, UserInterface>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: '_department_users_doctrine',

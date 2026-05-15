@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use demosplan\DemosPlanCoreBundle\Entity\File;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementFileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -25,10 +25,6 @@ class DraftStatementFile implements UuidEntityInterface, DraftStatementFileInter
 {
     /**
      * @var string
-     *
-     *
-     *
-     *
      */
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
@@ -40,8 +36,6 @@ class DraftStatementFile implements UuidEntityInterface, DraftStatementFileInter
      * Temporary null value required for orphan removal.
      *
      * @var DraftStatementInterface|null
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_ds_id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: DraftStatement::class, inversedBy: 'files')]
@@ -57,8 +51,6 @@ class DraftStatementFile implements UuidEntityInterface, DraftStatementFileInter
 
     /**
      * @var FileInterface
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_f_ident', nullable: false)]
     #[ORM\OneToOne(targetEntity: File::class, cascade: ['persist', 'remove'])]

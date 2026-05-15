@@ -10,16 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use demosplan\DemosPlanCoreBundle\Repository\OriginalStatementAnonymizationRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OriginalStatementAnonymizationInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\IsOriginalStatementConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\OriginalStatementAnonymizationRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -28,10 +28,6 @@ class OriginalStatementAnonymization implements OriginalStatementAnonymizationIn
 {
     /**
      * @var string
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -50,8 +46,6 @@ class OriginalStatementAnonymization implements OriginalStatementAnonymizationIn
     /**
      * @var StatementInterface
      *
-     *
-     *
      * @IsOriginalStatementConstraint()
      */
     #[ORM\JoinColumn(referencedColumnName: '_st_id', nullable: false)]
@@ -60,8 +54,6 @@ class OriginalStatementAnonymization implements OriginalStatementAnonymizationIn
 
     /**
      * @var UserInterface
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_u_id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: User::class)]

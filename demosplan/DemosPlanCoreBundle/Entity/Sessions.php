@@ -16,8 +16,6 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * This entity is only used to create the table for the session handler.
  * It is not actively used in the application.
- *
- *
  */
 #[ORM\Table(name: 'sessions')]
 #[ORM\Index(name: 'sessions_sess_lifetime_idx', columns: ['sess_lifetime'])]

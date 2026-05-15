@@ -12,16 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\SegmentCommentRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentCommentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentCommentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -31,10 +31,6 @@ class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -44,8 +40,6 @@ class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
 
     /**
      * @var SegmentInterface
-     *
-     *
      */
     #[Assert\NotNull]
     #[ORM\JoinColumn(referencedColumnName: '_st_id', nullable: false)]
@@ -56,8 +50,6 @@ class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
      * May be `null` if the {@link UserInterface} was deleted after this instance was created.
      *
      * @var UserInterface|null
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_u_id', nullable: true, onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -67,8 +59,6 @@ class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
      * May be `null` if the {@link PlaceInterface} was deleted after this instance was created.
      *
      * @var PlaceInterface|null
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: Place::class)]

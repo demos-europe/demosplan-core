@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use demosplan\DemosPlanCoreBundle\Repository\FaqRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Repository\FaqRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,10 +29,6 @@ class Faq extends CoreEntity implements FaqInterface
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -76,8 +72,6 @@ class Faq extends CoreEntity implements FaqInterface
 
     /**
      * @var Collection<int, Role>
-     *
-     *
      */
     #[ORM\JoinTable(
         joinColumns: [new ORM\JoinColumn(name: 'faq_id', referencedColumnName: 'id', onDelete: 'CASCADE')],
@@ -88,8 +82,6 @@ class Faq extends CoreEntity implements FaqInterface
 
     /**
      * @var FaqCategory
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: 'id', onDelete: 'CASCADE', nullable: false)]
     #[ORM\ManyToOne(targetEntity: FaqCategory::class)]

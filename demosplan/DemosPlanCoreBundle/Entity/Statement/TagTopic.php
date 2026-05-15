@@ -10,16 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use \demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
-use \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -32,10 +31,6 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_tt_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -51,8 +46,6 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
 
     /**
      * @var Collection<int, TagInterface>
-     *
-     *
      */
     #[ORM\OneToMany(targetEntity: Tag::class, mappedBy: 'topic', cascade: ['remove'])]
     #[ORM\OrderBy(['title' => 'ASC'])]

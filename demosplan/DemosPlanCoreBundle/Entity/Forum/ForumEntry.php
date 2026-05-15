@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
-use demosplan\DemosPlanCoreBundle\Repository\ForumEntryRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ForumEntryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\ForumEntryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -26,10 +26,6 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface, ForumEntryIn
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_fe_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -39,8 +35,6 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface, ForumEntryIn
 
     /**
      * @var ForumThread
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_f_thread_id', referencedColumnName: '_ft_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: ForumThread::class)]
@@ -53,8 +47,6 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface, ForumEntryIn
 
     /**
      * @var User
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', onDelete: 'RESTRICT')]
     #[ORM\ManyToOne(targetEntity: User::class)]

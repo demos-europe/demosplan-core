@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
-use demosplan\DemosPlanCoreBundle\Repository\ForumEntryFileRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ForumEntryFileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\ForumEntryFileRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -26,10 +26,6 @@ class ForumEntryFile extends CoreEntity implements UuidEntityInterface, ForumEnt
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_fef_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     #[ORM\Id]
@@ -45,8 +41,6 @@ class ForumEntryFile extends CoreEntity implements UuidEntityInterface, ForumEnt
 
     /**
      * @var ForumEntry
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_fef_entry_id', referencedColumnName: '_fe_id', onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: ForumEntry::class)]

@@ -10,17 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Help;
 
-use demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ContextualHelpInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Contextual Help.
- *
- *
  */
 #[ORM\Table(name: '_platform_context_sensitive_help')]
 #[ORM\Entity(repositoryClass: ContextualHelpRepository::class)]
@@ -28,10 +26,6 @@ class ContextualHelp implements ContextualHelpInterface
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_pcsh_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]

@@ -12,18 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Import;
 
-use demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- *
- *
  * @SuppressWarnings(PHPMD.TooManyMethods)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * Entities naturally have many methods due to standard getters/setters for each property.
@@ -40,10 +38,6 @@ class ImportJob extends CoreEntity
 
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Id]
     #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
@@ -53,8 +47,6 @@ class ImportJob extends CoreEntity
 
     /**
      * @var Procedure
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'procedure_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class)]
@@ -62,8 +54,6 @@ class ImportJob extends CoreEntity
 
     /**
      * @var User
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: '_u_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -72,8 +62,6 @@ class ImportJob extends CoreEntity
     /**
      * The organisation context when this job was created.
      * Used to restore organisation context during background processing.
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'organisation_id', referencedColumnName: '_o_id', nullable: true, onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: Orga::class)]

@@ -10,15 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Map;
 
-use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -26,8 +26,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Class GisLayerCategory.
- *
- *
  */
 #[ORM\Table]
 #[ORM\Entity(repositoryClass: GisLayerCategoryRepository::class)]
@@ -37,10 +35,6 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
      * Unique identification of the GisLayerCategory entry.
      *
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     #[ORM\Id]
@@ -50,8 +44,6 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
 
     /**
      * @var ProcedureInterface
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class, cascade: ['persist'])]
@@ -92,8 +84,6 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
      * Parent GisLayerCategory
      *
      * If this is null, we have arrived at the root category of a procedure
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: GisLayerCategory::class, inversedBy: 'children', cascade: ['persist'])]

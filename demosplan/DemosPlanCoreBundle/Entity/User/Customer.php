@@ -10,11 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Branding;
-use demosplan\DemosPlanCoreBundle\Entity\Video;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BrandingInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerCountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
@@ -24,7 +19,12 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\VideoInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Video;
+use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -38,10 +38,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_c_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -79,7 +75,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/impressum/ Wiki: Impressum / Datenschutz / Nutz.b.
      *
-     *
      * @var string
      */
     #[Assert\Length(max: 65000, groups: [CustomerInterface::GROUP_UPDATE])]
@@ -90,7 +85,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/impressum/ Wiki: Impressum / Datenschutz / Nutz.b.
      *
-     *
      * @var string
      */
     #[Assert\Length(max: 65000, groups: [CustomerInterface::GROUP_UPDATE])]
@@ -98,7 +92,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     protected $termsOfUse = '';
     /**
      * Information page about xplanning. Should possibly be moved someday to some kind of cms like system.
-     *
      *
      * @var string
      */
@@ -109,8 +102,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * T15644:.
      *
      * @var ProcedureInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_procedure', referencedColumnName: '_p_id', nullable: true)]
     #[ORM\OneToOne(targetEntity: Procedure::class, cascade: ['remove'])]
@@ -163,8 +154,6 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
      * Optional videos explaining the content and basic navigation of the website in sign language.
      *
      * @var Collection<int, VideoInterface>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: 'sign_language_overview_video',

@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ConsultationTokenInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ConsistentOriginalStatementConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\IsNotOriginalStatementConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\IsOriginalStatementConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
@@ -41,8 +41,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * information a manual statement is created automatically, for which the token will be
  * created.
  *
- *
- *
  * @ConsistentOriginalStatementConstraint
  */
 #[ORM\Table]
@@ -54,10 +52,6 @@ class ConsultationToken implements UuidEntityInterface, ConsultationTokenInterfa
      * The value of this property should be considered final.
      *
      * @var string|null `null` if this instance was not persisted yet
-     *
-     *
-     *
-     *
      */
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
@@ -92,8 +86,6 @@ class ConsultationToken implements UuidEntityInterface, ConsultationTokenInterfa
      *                original statements can not be deleted this property will never become `null`
      *
      * @IsOriginalStatementConstraint
-     *
-     *
      */
     #[Assert\NotBlank]
     #[ORM\JoinColumn(referencedColumnName: '_st_id', nullable: false)]
@@ -105,8 +97,6 @@ class ConsultationToken implements UuidEntityInterface, ConsultationTokenInterfa
      * knowledge).
      *
      * @var MailSend|null
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_ms_id', nullable: true)]
     #[ORM\OneToOne(targetEntity: MailSend::class)]
@@ -149,8 +139,6 @@ class ConsultationToken implements UuidEntityInterface, ConsultationTokenInterfa
          * @var Statement|null the source statement or `null` if the statement was deleted
          *
          * @IsNotOriginalStatementConstraint
-         *
-         *
          */
         #[ORM\JoinColumn(referencedColumnName: '_st_id', nullable: true)]
         #[ORM\OneToOne(targetEntity: Statement::class)]
@@ -163,7 +151,7 @@ class ConsultationToken implements UuidEntityInterface, ConsultationTokenInterfa
          * The value of this property should be considered final.
          */
         #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
-        private bool $manuallyCreated
+        private bool $manuallyCreated,
     ) {
         $this->originalStatement = $this->statement->getOriginal();
     }

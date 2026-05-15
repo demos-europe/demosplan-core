@@ -10,14 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use demosplan\DemosPlanCoreBundle\Repository\SettingRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SettingInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\SettingRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -28,10 +28,6 @@ class Setting extends CoreEntity implements UuidEntityInterface, SettingInterfac
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
@@ -41,8 +37,6 @@ class Setting extends CoreEntity implements UuidEntityInterface, SettingInterfac
 
     /**
      * @var Procedure
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_s_procedure_id', referencedColumnName: '_p_id', onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class)]
@@ -57,8 +51,6 @@ class Setting extends CoreEntity implements UuidEntityInterface, SettingInterfac
 
     /**
      * @var User
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_s_user_id', referencedColumnName: '_u_id', onDelete: 'RESTRICT')]
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -73,8 +65,6 @@ class Setting extends CoreEntity implements UuidEntityInterface, SettingInterfac
 
     /**
      * @var Orga
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_s_orga_id', referencedColumnName: '_o_id', onDelete: 'RESTRICT')]
     #[ORM\ManyToOne(targetEntity: Orga::class)]

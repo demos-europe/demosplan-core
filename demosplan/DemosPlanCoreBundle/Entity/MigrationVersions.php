@@ -15,8 +15,6 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * MigrationVersions Entity to be able to update.
- *
- *
  */
 #[ORM\Table(name: 'migration_versions')]
 #[ORM\Entity]
@@ -24,8 +22,6 @@ class MigrationVersions implements MigrationVersionsInterface
 {
     /**
      * @var string
-     *
-     *
      */
     #[ORM\Column(name: 'version', type: 'string', length: 255, nullable: false)]
     #[ORM\Id]

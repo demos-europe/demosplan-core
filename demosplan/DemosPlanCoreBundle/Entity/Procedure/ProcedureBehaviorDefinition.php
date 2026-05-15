@@ -10,24 +10,22 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureBehaviorDefinitionRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureBehaviorDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureBehaviorDefinitionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * ProcedureBehaviorDefinition - Defines the customizable parts of the behavior of a Procedure.
  * A ProcedureBehaviorDefinition should never have an direct relationship to a Procedure and to a ProcedureType.
- *
- *
  *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
@@ -37,10 +35,6 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     #[ORM\Id]
@@ -72,8 +66,6 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      * as well as a direct relation to a ProcedureType, indicates invalid data.
      *
      * @var ProcedureInterface|null
-     *
-     *
      */
     #[ORM\OneToOne(targetEntity: Procedure::class, mappedBy: 'procedureBehaviorDefinition')]
     private $procedure;
@@ -84,8 +76,6 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      * Therefore a ProcedureBehaviorDefinition without a ProcedureType will have a related Procedure.
      *
      * @var ProcedureTypeInterface|null
-     *
-     *
      */
     #[ORM\OneToOne(targetEntity: ProcedureType::class, mappedBy: 'procedureBehaviorDefinition')]
     private $procedureType;

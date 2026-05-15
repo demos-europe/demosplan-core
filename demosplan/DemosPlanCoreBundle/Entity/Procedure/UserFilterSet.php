@@ -10,18 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\UserFilterSetRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserFilterSetInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\UserFilterSetRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class UserFilterSet.
- *
- *
  */
 #[ORM\Table]
 #[ORM\Entity(repositoryClass: UserFilterSetRepository::class)]
@@ -31,10 +29,6 @@ class UserFilterSet extends CoreEntity implements UuidEntityInterface, UserFilte
      * Unique identification of the GisLayerCategory entry.
      *
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     #[ORM\Id]
@@ -44,8 +38,6 @@ class UserFilterSet extends CoreEntity implements UuidEntityInterface, UserFilte
 
     /**
      * @var User
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_u_id', nullable: false, onDelete: 'NO ACTION')]
     #[ORM\ManyToOne(targetEntity: User::class, cascade: ['persist'])]
@@ -59,8 +51,6 @@ class UserFilterSet extends CoreEntity implements UuidEntityInterface, UserFilte
 
     /**
      * @var HashedQuery
-     *
-     *
      */
     #[ORM\JoinColumn(nullable: false, onDelete: 'NO ACTION')]
     #[ORM\ManyToOne(targetEntity: HashedQuery::class)]
@@ -68,8 +58,6 @@ class UserFilterSet extends CoreEntity implements UuidEntityInterface, UserFilte
 
     /**
      * @var Procedure
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false, onDelete: 'NO ACTION')]
     #[ORM\ManyToOne(targetEntity: Procedure::class, cascade: ['persist'])]

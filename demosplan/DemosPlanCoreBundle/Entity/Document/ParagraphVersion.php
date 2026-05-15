@@ -10,16 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
-use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -29,10 +29,6 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface, Paragr
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_pdv_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -44,8 +40,6 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface, Paragr
      * Attention: This entity has to be persist, if the related paragraph is deleted. Thats the reasons, why this relation is moddeled with nullable=true and onDelete=SET NULL.
      *
      * @var ParagraphInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_pd_id', referencedColumnName: '_pd_id', nullable: true, onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: Paragraph::class, inversedBy: 'versions')]
@@ -60,8 +54,6 @@ class ParagraphVersion extends CoreEntity implements UuidEntityInterface, Paragr
 
     /**
      * @var ProcedureInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class)]

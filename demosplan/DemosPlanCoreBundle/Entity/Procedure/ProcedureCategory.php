@@ -10,17 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureCategoryRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureCategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Procedure category.
- *
- *
  */
 #[ORM\Table(name: 'procedure_category')]
 #[ORM\Entity(repositoryClass: ProcedureCategoryRepository::class)]
@@ -28,10 +26,6 @@ class ProcedureCategory extends CoreEntity implements UuidEntityInterface, Proce
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: 'procedure_category_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]

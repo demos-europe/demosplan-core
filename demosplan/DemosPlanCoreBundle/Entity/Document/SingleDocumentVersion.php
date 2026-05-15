@@ -10,16 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Document;
 
-use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -29,10 +29,6 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_sdv_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -44,8 +40,6 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
      * Attention: This entity has to be persist, if the related singleDocument is deleted. Thats the reasons, why this relation is moddeled with nullable=true and onDelete=SET NULL.
      *
      * @var SingleDocumentInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_sd_id', referencedColumnName: '_sd_id', nullable: true, onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: SingleDocument::class, inversedBy: 'versions')]
@@ -60,8 +54,6 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
 
     /**
      * @var ProcedureInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class)]
@@ -142,7 +134,6 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
 
     /**
      * @var DateTime
-     *
      *
      * @Gedmo\Timestampable(on="create")
      */

@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -23,8 +23,6 @@ use Stringable;
 
 /**
  * @see for Details https://yaits.demos-deutschland.de/w/demosplan/functions/permissions/user_roles/
- *
- *
  */
 #[ORM\Table(name: '_role')]
 #[ORM\Entity(repositoryClass: RoleRepository::class)]
@@ -32,10 +30,6 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_r_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]

@@ -10,22 +10,20 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Links the user, the role and the customer (currently only relevant for the CustomerMasterUser).
  *
  * @see for Details https://yaits.demos-deutschland.de/w/demosplan/functions/user_roles/
- *
- *
  */
 #[ORM\Table(name: 'relation_role_user_customer')]
 #[ORM\UniqueConstraint(name: 'role_customer_user_unique_constraint', columns: ['role', 'customer', 'user'])]
@@ -34,10 +32,6 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface, User
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: 'id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -49,8 +43,6 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface, User
      * Foreign key, User object.
      *
      * @var UserInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'user', referencedColumnName: '_u_id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'roleInCustomers')]
@@ -60,8 +52,6 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface, User
      * Foreign key, Role object.
      *
      * @var RoleInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'role', referencedColumnName: '_r_id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'userRoleInCustomers')]
@@ -73,8 +63,6 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface, User
      * @var CustomerInterface|null
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/permissions/
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'customer', referencedColumnName: '_c_id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'userRoles')]

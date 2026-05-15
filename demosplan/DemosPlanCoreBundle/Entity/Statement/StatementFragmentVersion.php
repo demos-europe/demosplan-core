@@ -10,13 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentVersionRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use \demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\User\Department;
-use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
@@ -26,7 +19,14 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\Department;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentVersionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -34,8 +34,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * StatementFragmentVersion - Represents a Version of a fragment of a statement.
  *
  * Statement Fragment Versions are part of the assessment process
- *
- *
  */
 #[ORM\Table(name: 'statement_fragment_version')]
 #[ORM\Entity(repositoryClass: StatementFragmentVersionRepository::class)]
@@ -43,10 +41,6 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: 'sfv_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -58,8 +52,6 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      * @var StatementFragmentInterface
      *
      * todo: should be nullable = false? will not working with onDelete="SET NULL"
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'statement_fragment_id', referencedColumnName: 'sf_id', nullable: true, onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: StatementFragment::class, inversedBy: 'versions')]
@@ -85,8 +77,6 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var ProcedureInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class)]
@@ -176,8 +166,6 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      * User who triggered this Version.
      *
      * @var UserInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'sfv_modified_by_u_id', referencedColumnName: '_u_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -208,8 +196,6 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var ParagraphVersionInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'paragraph_id', referencedColumnName: '_pdv_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: ParagraphVersion::class, cascade: ['persist'])]
@@ -217,8 +203,6 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var SingleDocumentVersionInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'document_id', referencedColumnName: '_sdv_id', onDelete: 'SET NULL')]
     #[ORM\ManyToOne(targetEntity: SingleDocumentVersion::class, cascade: ['persist'])]

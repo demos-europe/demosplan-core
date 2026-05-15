@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\MailSendInterface;
+use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -25,9 +25,6 @@ class MailSend implements IntegerIdEntityInterface, MailSendInterface
 
     /**
      * @var int|null
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_ms_id', type: 'integer')]
     #[ORM\Id]

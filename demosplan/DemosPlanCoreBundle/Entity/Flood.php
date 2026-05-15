@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use demosplan\DemosPlanCoreBundle\Repository\FloodRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FloodInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Repository\FloodRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -24,10 +24,6 @@ class Flood extends CoreEntity implements UuidEntityInterface, FloodInterface
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: 'fid', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -49,7 +45,6 @@ class Flood extends CoreEntity implements UuidEntityInterface, FloodInterface
 
     /**
      * @var DateTime
-     *
      *
      * @Gedmo\Timestampable(on="create")
      */

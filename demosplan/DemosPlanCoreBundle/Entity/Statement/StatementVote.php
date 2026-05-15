@@ -10,14 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementVoteInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -27,10 +27,6 @@ class StatementVote implements UuidEntityInterface, StatementVoteInterface
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_stv_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -41,8 +37,6 @@ class StatementVote implements UuidEntityInterface, StatementVoteInterface
     /**
      * @var StatementInterface
      *                         onDelete="CASCADE": Delete this Vote, in case of related Statement will be deleted
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_st_id', nullable: false, referencedColumnName: '_st_id', onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'votes')]
@@ -50,8 +44,6 @@ class StatementVote implements UuidEntityInterface, StatementVoteInterface
 
     /**
      * @var UserInterface|null
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_u_id', nullable: true, referencedColumnName: '_u_id', onDelete: 'RESTRICT')]
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -91,7 +83,6 @@ class StatementVote implements UuidEntityInterface, StatementVoteInterface
     /**
      * @var DateTime
      *
-     *
      * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_st_v_created_date', type: 'datetime', nullable: false)]
@@ -100,7 +91,6 @@ class StatementVote implements UuidEntityInterface, StatementVoteInterface
     /**
      * @var DateTime
      *
-     *
      * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(name: '_st_v_modified_date', type: 'datetime', nullable: false)]
@@ -108,7 +98,6 @@ class StatementVote implements UuidEntityInterface, StatementVoteInterface
 
     /**
      * @var DateTime
-     *
      *
      * @Gedmo\Timestampable(on="update")
      */

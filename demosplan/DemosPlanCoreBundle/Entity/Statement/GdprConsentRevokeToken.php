@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\GdprConsentRevokeTokenRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GdprConsentRevokeTokenInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
+use demosplan\DemosPlanCoreBundle\Repository\GdprConsentRevokeTokenRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -46,10 +46,6 @@ class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface, 
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: 'id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -78,8 +74,6 @@ class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface, 
      * Notice the unique=true, making this a OneToMany instead of a ManyToMany.
      *
      * @var Statement[]
-     *
-     *
      */
     #[ORM\JoinTable(
         name: 'gdpr_consent_revoke_token_statements',
@@ -106,8 +100,6 @@ class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface, 
      * This must be set to null when the token is used to anonymize corresponding statements to not
      * leave GDPR relevant data behind. As the creation of tokens without an email address makes no
      * sense this property can be used to check if the taken was already used.
-     *
-     *
      */
     #[ORM\JoinColumn(name: 'email_id', referencedColumnName: 'id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: EmailAddress::class, cascade: ['persist'])]

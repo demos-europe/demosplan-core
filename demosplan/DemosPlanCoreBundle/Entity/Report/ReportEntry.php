@@ -10,16 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Report;
 
-use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ReportEntryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Exception;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -74,10 +74,6 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
 
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_re_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -121,7 +117,6 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
     /**
      * @var string
      *
-     *
      * @deprecated this property doesn't seem to be in use anymore
      */
     #[ORM\Column(name: '_s_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
@@ -143,7 +138,6 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
 
     /**
      * @var string
-     *
      *
      * @deprecated this property doesn't seem to be in use anymore, {@link $message} is always JSON
      */
@@ -173,8 +167,6 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
 
     /**
      * @var Customer
-     *
-     *
      */
     #[Assert\NotBlank]
     #[ORM\JoinColumn(name: '_c_id', referencedColumnName: '_c_id', nullable: false)]

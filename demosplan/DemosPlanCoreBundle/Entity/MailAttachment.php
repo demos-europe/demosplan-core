@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\MailAttachmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: '_mail_attachment')]
@@ -21,10 +21,6 @@ class MailAttachment implements UuidEntityInterface, MailAttachmentInterface
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_ma_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -34,8 +30,6 @@ class MailAttachment implements UuidEntityInterface, MailAttachmentInterface
 
     /**
      * @var MailSend
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_ma_ms_id', referencedColumnName: '_ms_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: MailSend::class, inversedBy: 'attachments')]

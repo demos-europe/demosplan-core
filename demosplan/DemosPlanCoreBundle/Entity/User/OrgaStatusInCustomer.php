@@ -10,21 +10,19 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use demosplan\DemosPlanCoreBundle\Repository\OrgaStatusInCustomerRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaStatusInCustomerRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Links the user, the role and the customer (currently only relevant for the CustomerMasterUser).
- *
- *
  */
 #[ORM\Table(name: 'relation_customer_orga_orga_type')]
 #[ORM\UniqueConstraint(name: 'o_c_ot_unique', columns: ['_o_id', '_c_id', '_ot_id'])]
@@ -33,10 +31,6 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -126,7 +120,7 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
     {
         $this->status = match ($status) {
             OrgaStatusInCustomerInterface::STATUS_ACCEPTED, OrgaStatusInCustomerInterface::STATUS_REJECTED, OrgaStatusInCustomerInterface::STATUS_PENDING => $status,
-            default => throw new InvalidArgumentException("Invalid status {$status}"),
+            default                                                                                                                                       => throw new InvalidArgumentException("Invalid status {$status}"),
         };
     }
 }

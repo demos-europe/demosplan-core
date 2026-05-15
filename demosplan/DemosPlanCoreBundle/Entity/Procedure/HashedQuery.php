@@ -10,20 +10,18 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\HashedQueryRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\HashedQueryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\HashedQueryRepository;
 use demosplan\DemosPlanCoreBundle\StoredQuery\StoredQueryInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @see https://yaits.demos-deutschland.de/w/demosplan/functions/filterhash/ Wiki: Filterhash
- *
- *
  */
 #[ORM\Table]
 #[ORM\Index(name: 'hash_idx', columns: ['hash'])]
@@ -32,10 +30,6 @@ class HashedQuery extends CoreEntity implements UuidEntityInterface, HashedQuery
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     #[ORM\Id]
@@ -73,8 +67,6 @@ class HashedQuery extends CoreEntity implements UuidEntityInterface, HashedQuery
 
     /**
      * @var Procedure
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false, onDelete: 'NO ACTION')]
     #[ORM\ManyToOne(targetEntity: Procedure::class, cascade: ['persist'])]

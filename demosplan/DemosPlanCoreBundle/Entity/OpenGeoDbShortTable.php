@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
-use demosplan\DemosPlanCoreBundle\Repository\OpenGeoDbRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OpenGeoDbShortTableInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Repository\OpenGeoDbRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'geodb_short_table')]
@@ -23,10 +23,6 @@ class OpenGeoDbShortTable extends CoreEntity implements OpenGeoDbShortTableInter
      * Unique identification of the Location.
      *
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: 'id', type: 'string', length: 36)]
     #[ORM\Id]

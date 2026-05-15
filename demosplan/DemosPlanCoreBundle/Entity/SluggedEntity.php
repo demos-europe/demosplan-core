@@ -22,8 +22,6 @@ abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface, 
 {
     /**
      * @var SlugInterface
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: 'id', nullable: false)]
     #[ORM\OneToOne(targetEntity: Slug::class)]

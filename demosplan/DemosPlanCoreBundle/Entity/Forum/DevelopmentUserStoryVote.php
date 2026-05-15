@@ -10,14 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
-use demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryVoteRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DevelopmentUserStoryVoteInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryVoteRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -27,10 +27,6 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_puv_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -40,8 +36,6 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var Orga
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_puv_orga_id', referencedColumnName: '_o_id', nullable: false, onDelete: 'RESTRICT')]
     #[ORM\ManyToOne(targetEntity: Orga::class)]
@@ -54,8 +48,6 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var User
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_puv_user_id', referencedColumnName: '_u_id', nullable: false, onDelete: 'RESTRICT')]
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -68,8 +60,6 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DevelopmentUserStory
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_puv_userstroy_id', referencedColumnName: '_pu_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: DevelopmentUserStory::class)]
@@ -90,7 +80,6 @@ class DevelopmentUserStoryVote extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var DateTime
-     *
      *
      * @Gedmo\Timestampable(on="update")
      */

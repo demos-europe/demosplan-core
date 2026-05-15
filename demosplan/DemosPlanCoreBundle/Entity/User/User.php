@@ -10,9 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -29,6 +26,9 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as AddonUserInte
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\RoleAllowedConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\UserWithMatchingDepartmentInOrgaConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -44,8 +44,6 @@ use UnexpectedValueException;
 use function in_array;
 
 /**
- *
- *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
 #[ORM\Table(name: '_user')]
@@ -60,10 +58,6 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     public const CUSTOMER_MASTER_USER_ROLE = [RoleInterface::CUSTOMER_MASTER_USER];
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_u_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -143,7 +137,6 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     /**
      * @var DateTime
      *
-     *
      * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_u_created_date', type: 'datetime', nullable: false)]
@@ -151,7 +144,6 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
 
     /**
      * @var DateTime
-     *
      *
      * @Gedmo\Timestampable(on="update")
      */
@@ -280,8 +272,6 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
 
     /**
      * @var Collection<int,AddressInterface>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: '_user_address_doctrine',
@@ -309,8 +299,6 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      * this purpose.
      *
      * @var AddonUserInterface|null
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_u_id', nullable: true)]
     #[ORM\OneToOne(targetEntity: User::class, cascade: ['persist'])]

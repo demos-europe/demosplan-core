@@ -10,14 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Repository\StatementMetaRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementMetaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\PostcodeConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\StatementMetaRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -27,10 +27,6 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_stm_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -40,8 +36,6 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
 
     /**
      * @var StatementInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_st_id', referencedColumnName: '_st_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\OneToOne(targetEntity: Statement::class, inversedBy: 'meta', cascade: ['persist'])]
@@ -116,7 +110,6 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
     /**
      * @var string
      *             !This is also the postal code of the unregistered user, if he give this data on new statement
-     *
      *
      * @PostcodeConstraint(groups={Statement::IMPORT_VALIDATION})
      */

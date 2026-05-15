@@ -10,19 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 
-use demosplan\DemosPlanCoreBundle\Repository\DevelopmentReleaseRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DevelopmentReleaseInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\DevelopmentReleaseRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  *  DevelopmentRelease.
- *
- *
  */
 #[ORM\Table(name: '_progression_releases')]
 #[ORM\Entity(repositoryClass: DevelopmentReleaseRepository::class)]
@@ -30,10 +28,6 @@ class DevelopmentRelease extends CoreEntity implements UuidEntityInterface, Deve
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: '_pr_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]

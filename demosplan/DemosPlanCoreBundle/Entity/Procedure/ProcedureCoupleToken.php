@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureCoupleTokenInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureInCoupleAlreadyUsedConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -31,10 +31,6 @@ class ProcedureCoupleToken implements UuidEntityInterface, ProcedureCoupleTokenI
 
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -46,8 +42,6 @@ class ProcedureCoupleToken implements UuidEntityInterface, ProcedureCoupleTokenI
      * The procedure the {@link ProcedureCoupleToken::token} was generated for.
      *
      * @var Procedure
-     *
-     *
      */
     #[Assert\NotNull(message: 'procedureCoupleToken.sourceProceudre.not.null')]
     #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false, unique: true)]
@@ -59,8 +53,6 @@ class ProcedureCoupleToken implements UuidEntityInterface, ProcedureCoupleTokenI
      * {@link ProcedureCoupleToken::$sourceProcedure}.
      *
      * @var Procedure|null
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: true, unique: true)]
     #[ORM\OneToOne(targetEntity: Procedure::class)]

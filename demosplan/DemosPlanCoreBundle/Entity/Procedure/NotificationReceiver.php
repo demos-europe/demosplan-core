@@ -10,13 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\Entities\NotificationReceiverInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table]
@@ -25,10 +24,6 @@ class NotificationReceiver extends CoreEntity implements UuidEntityInterface, No
 {
     /**
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -44,8 +39,6 @@ class NotificationReceiver extends CoreEntity implements UuidEntityInterface, No
 
     /**
      * @var ProcedureInterface
-     *
-     *
      */
     #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: Procedure::class, inversedBy: 'notificationReceivers')]

@@ -10,15 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Repository\BoilerplateCategoryRepository;
-use \demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
-use \demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\BoilerplateCategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -32,10 +31,6 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface, Boi
      * Unique identification of the boilerplate entry.
      *
      * @var string|null
-     *
-     *
-     *
-     *
      */
     #[ORM\Column(name: 'ptc_id', type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -45,8 +40,6 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface, Boi
 
     /**
      * @var ProcedureInterface
-     *
-     *
      */
     #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Procedure::class)]
@@ -54,8 +47,6 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface, Boi
 
     /**
      * @var Collection<int, BoilerplateInterface>
-     *
-     *
      */
     #[ORM\JoinTable(
         name: 'predefined_texts_categories',
