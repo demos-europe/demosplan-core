@@ -184,20 +184,6 @@ export default {
       this.isInEditState = ''
     },
 
-    handleTagReorder (event, item, parentId) {
-      if (event.oldIndex === event.newIndex && event.from === event.to) {
-        return
-      }
-
-      const isCrossTopic = event.from !== event.to
-
-      if (isCrossTopic) {
-        this.crossTopicReorder(item.id, event.newIndex, event.to.id)
-      } else {
-        this.reorderTagInTopic(parentId, item.id, event.newIndex)
-      }
-    },
-
     // Persist cross-topic move via tagList.reorder RPC — optimistic update on both topics + rollback
     crossTopicReorder (tagId, newIndex, targetTopicId) {
       const newParent = this.TagTopic[targetTopicId]
@@ -269,6 +255,20 @@ export default {
         .then(() => {
           this.loadTagsAndTopics()
         })
+    },
+
+    handleTagReorder (event, item, parentId) {
+      if (event.oldIndex === event.newIndex && event.from === event.to) {
+        return
+      }
+
+      const isCrossTopic = event.from !== event.to
+
+      if (isCrossTopic) {
+        this.crossTopicReorder(item.id, event.newIndex, event.to.id)
+      } else {
+        this.reorderTagInTopic(parentId, item.id, event.newIndex)
+      }
     },
 
     isBranch ({ node }) {
