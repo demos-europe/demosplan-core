@@ -370,7 +370,6 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
             $this->statementService->updateStatementFromObject($statement, true, false, true);
         }
 
-
         // 2 statements × 2 customFields → 4 new audit rows
         self::assertCount($preUpdateContentChangeEntriesCount + 4, $this->getEntries(EntityContentChange::class));
 
