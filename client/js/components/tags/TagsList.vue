@@ -189,17 +189,17 @@ export default {
         return
       }
 
-      const isCrossCat = event.from !== event.to
+      const isCrossTopic = event.from !== event.to
 
-      if (isCrossCat) {
-        this.crossCatReorder(item.id, event.newIndex, event.to.id)
+      if (isCrossTopic) {
+        this.crossTopicReorder(item.id, event.newIndex, event.to.id)
       } else {
         this.reorderTagInTopic(parentId, item.id, event.newIndex)
       }
     },
 
-    // Persist cross-cat move via tagList.reorder RPC — optimistic update on both topics + rollback
-    crossCatReorder (tagId, newIndex, targetTopicId) {
+    // Persist cross-topic move via tagList.reorder RPC — optimistic update on both topics + rollback
+    crossTopicReorder (tagId, newIndex, targetTopicId) {
       const newParent = this.TagTopic[targetTopicId]
       if (!newParent) {
         return
