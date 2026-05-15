@@ -271,6 +271,7 @@ class SegmentsExportController extends BaseController
         // Apply tag filtering after JsonAPI filtering
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
         $statements = $this->statementExportTagFilter->filterStatementsByTags($statements, $tagsFilter);
+        $filteredTagNames = $this->statementExportTagFilter->getTagNames();
 
         $statements = $exporter->mapStatementsToPathInZip(
             $statements,
@@ -289,7 +290,8 @@ class SegmentsExportController extends BaseController
                 $tableHeaders,
                 $censorCitizenData,
                 $censorInstitutionData,
-                $obscureParameter
+                $obscureParameter,
+                $filteredTagNames
             ): void {
                 array_map(
                     function (Statement $statement, string $filePathInZip) use (
@@ -300,7 +302,8 @@ class SegmentsExportController extends BaseController
                         $tableHeaders,
                         $censorCitizenData,
                         $censorInstitutionData,
-                        $obscureParameter
+                        $obscureParameter,
+                        $filteredTagNames
                     ): void {
                         $docx = $exporter->exportStatementSegmentsInSeparateDocx(
                             $statement,
@@ -309,7 +312,7 @@ class SegmentsExportController extends BaseController
                             $censorCitizenData,
                             $censorInstitutionData,
                             $obscureParameter,
-                            $this->statementExportTagFilter->hasAnySupportedFilterSet()
+                            $filteredTagNames
                         );
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(
