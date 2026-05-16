@@ -182,6 +182,11 @@
      * regular data columns in resizable-only tables (e.g. InstitutionList) are never affected.
      */
 
+    // Allow mouse events to pass through the flyout header cell so the last column's resize handle remains accessible
+    th.c-data-table__col--flyout {
+        pointer-events: none;
+    }
+
     td.c-data-table__col--flyout,
     th.c-data-table__col--flyout {
         position: sticky;
