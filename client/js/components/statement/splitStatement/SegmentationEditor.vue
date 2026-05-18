@@ -96,7 +96,7 @@ export default {
             return ['a', { href, class: className }, 0]
           },
         },
-        segmentMark
+        segmentMark,
       },
       maxRange: 0,
     }
