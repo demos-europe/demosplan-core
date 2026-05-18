@@ -247,27 +247,19 @@ export default {
 
       const initialAttributes = this.statement.attributes
       const currentAttributes = this.localStatement.attributes
+      const isDifferent = (a, b) => (a ?? '') !== (b ?? '')
+      const isDifferentDate = (a, b) => this.getFormattedDate(a) !== this.getFormattedDate(b)
 
-      if (this.getFormattedDate(currentAttributes.authoredDate) !== this.getFormattedDate(initialAttributes.authoredDate)) {
-        return true
-      }
-      if (this.getFormattedDate(currentAttributes.submitDate) !== this.getFormattedDate(initialAttributes.submitDate)) {
-        return true
-      }
-      if ((currentAttributes.submitType ?? '') !== (initialAttributes.submitType ?? '')) {
-        return true
-      }
-      if ((currentAttributes.internId ?? '') !== (initialAttributes.internId ?? '')) {
-        return true
-      }
-      if (hasPermission('field_statement_phase') && (currentAttributes.procedurePhase?.key ?? '') !== (initialAttributes.procedurePhase?.key ?? '')) {
-        return true
-      }
-      if (hasPermission('field_statement_memo') && (currentAttributes.memo ?? '') !== (initialAttributes.memo ?? '')) {
-        return true
-      }
-
-      return false
+      return [
+        isDifferentDate(currentAttributes.authoredDate, initialAttributes.authoredDate),
+        isDifferentDate(currentAttributes.submitDate, initialAttributes.submitDate),
+        isDifferent(currentAttributes.submitType, initialAttributes.submitType),
+        isDifferent(currentAttributes.internId, initialAttributes.internId),
+        hasPermission('field_statement_phase') &&
+          isDifferent(currentAttributes.procedurePhase?.key, initialAttributes.procedurePhase?.key),
+        hasPermission('field_statement_memo') &&
+          isDifferent(currentAttributes.memo, initialAttributes.memo),
+      ].some(Boolean)
     },
 
     isStatementManual () {
