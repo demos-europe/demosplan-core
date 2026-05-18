@@ -355,6 +355,7 @@ import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import lscache from 'lscache'
 import RecommendationModal from '../Shared/RecommendationModal'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
   name: 'SegmentsBulkEdit',
@@ -433,6 +434,7 @@ export default {
       },
       assignableUsers: [],
       busy: false,
+      customFieldDefinitions: [],
       hasRecommendationTabs: false,
       isLoading: true,
       places: [],
@@ -444,10 +446,6 @@ export default {
   },
 
   computed: {
-    ...mapState('CustomField', {
-      customFieldItems: 'items',
-    }),
-
     ...mapState('Tag', {
       tagsItems: 'items',
     }),
@@ -571,10 +569,6 @@ export default {
   },
 
   methods: {
-    ...mapActions('AdminProcedure', {
-      getAdminProcedureWithFields: 'get',
-    }),
-
     ...mapActions('StatementSegment', {
       getSegment: 'get',
     }),
@@ -588,7 +582,7 @@ export default {
     }),
 
     addCustomFieldsToActions () {
-      Object.values(this.customFieldItems).forEach(customField => {
+      this.customFieldDefinitions.forEach(customField => {
         this.actions.customFields.push({
           checked: false,
           id: customField.id,
@@ -685,26 +679,15 @@ export default {
     },
 
     /**
-     * Fetch custom fields that are available either in the procedure or in the procedure template
+     * Fetch custom fields that are available either in the procedure or in the procedure template.
      */
-    fetchCustomFields () {
-      const payload = {
-        id: this.procedureId,
-        fields: {
-          AdminProcedure: [
-            'segmentCustomFields',
-          ].join(),
-          CustomField: [
-            'name',
-            'description',
-            'options',
-          ].join(),
-        },
-        include: ['segmentCustomFields'].join(),
-      }
-
-      return this.getAdminProcedureWithFields(payload)
-        .catch(err => console.error(err))
+    loadSegmentCustomFields () {
+      return useCustomFields().fetchCustomFields(this.procedureId, {
+        sourceEntity: 'PROCEDURE',
+        targetEntity: 'SEGMENT',
+      })
+        .then(definitions => { this.customFieldDefinitions = definitions })
+        .catch(() => { /* Notification already shown by useCustomFieldDefinitions */ })
     },
 
     fetchPlaces () {
@@ -798,7 +781,7 @@ export default {
     }
 
     if (hasPermission('field_segments_custom_fields')) {
-      promises.push(this.fetchCustomFields())
+      promises.push(this.loadSegmentCustomFields())
     }
 
     Promise.all(promises)
