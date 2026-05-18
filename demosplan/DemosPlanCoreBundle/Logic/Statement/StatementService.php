@@ -1327,18 +1327,18 @@ class StatementService implements StatementServiceInterface
         }
 
         return $statement instanceof Statement && (
-                $statement->getAuthorName() != $currentAuthorName
-                || $statement->getSubmitterName() != $currentSubmitterName
-                || $statement->getMeta()->getOrgaDepartmentName() != $currentDepartmentName
-                || $statement->getMeta()->getOrgaName() != $currentSubmitterType
-                || $statement->getSubmitterEmailAddress() != $currentSubmitterEmailAddress
-                || $statement->getOrgaPostalCode() != $currentOrgaPostalCode
-                || $statement->getOrgaCity() != $currentOrgaCity
-                || $statement->getOrgaStreet() != $currentOrgaStreet
-                || $statement->getOrgaEmail() != $currentOrgaEmail
-                || $statement->getAuthoredDate() != $currentAuthoredDateTimeStamp
-                || $statement->getSubmit() != $currentSubmittedDateTimeStamp
-            );
+            $statement->getAuthorName() != $currentAuthorName
+            || $statement->getSubmitterName() != $currentSubmitterName
+            || $statement->getMeta()->getOrgaDepartmentName() != $currentDepartmentName
+            || $statement->getMeta()->getOrgaName() != $currentSubmitterType
+            || $statement->getSubmitterEmailAddress() != $currentSubmitterEmailAddress
+            || $statement->getOrgaPostalCode() != $currentOrgaPostalCode
+            || $statement->getOrgaCity() != $currentOrgaCity
+            || $statement->getOrgaStreet() != $currentOrgaStreet
+            || $statement->getOrgaEmail() != $currentOrgaEmail
+            || $statement->getAuthoredDate() != $currentAuthoredDateTimeStamp
+            || $statement->getSubmit() != $currentSubmittedDateTimeStamp
+        );
     }
 
     /**
