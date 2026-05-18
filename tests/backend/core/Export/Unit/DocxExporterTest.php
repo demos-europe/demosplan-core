@@ -43,6 +43,30 @@ class DocxExporterTest extends UnitTestCase
         self::assertSame($kept, $this->sut->stripXmlIllegalChars($kept.$stripped));
     }
 
+    public function testStripXmlIllegalCharsRemovesVerticalTabAndFormFeed(): void
+    {
+        $input = "before\x0Bmid\x0Cafter";
+        $expected = 'beforemidafter';
+
+        self::assertSame($expected, $this->sut->stripXmlIllegalChars($input));
+    }
+
+    public function testStripXmlIllegalCharsKeepsDelByDesign(): void
+    {
+        // DEL (\x7F) is legal in XML 1.0 (#x20-#xD7FF) and is therefore kept.
+        $input = "before\x7Fafter";
+
+        self::assertSame($input, $this->sut->stripXmlIllegalChars($input));
+    }
+
+    public function testStripXmlIllegalCharsKeepsC1ControlsByDesign(): void
+    {
+        // C1 controls (U+0080-U+009F) are legal in XML 1.0 and must survive.
+        $input = "before\u{0080}mid\u{0085}end\u{009F}";
+
+        self::assertSame($input, $this->sut->stripXmlIllegalChars($input));
+    }
+
     public function testStripXmlIllegalCharsKeepsPrintableAsciiAndUmlauts(): void
     {
         $input = 'Grüße aus Köln – ÄÖÜß!';
@@ -63,6 +87,19 @@ class DocxExporterTest extends UnitTestCase
         $expected = 'beforemiddleafter';
 
         self::assertSame($expected, $this->sut->stripXmlIllegalChars($input));
+    }
+
+    public function testStripXmlIllegalCharsHandlesInvalidUtf8WithoutCrashing(): void
+    {
+        // "\xC3\x28" is a broken 2-byte UTF-8 sequence (continuation byte missing).
+        // Without mb_scrub, preg_replace would return null and trigger a TypeError.
+        $input = "valid\xC3\x28tail";
+
+        $result = $this->sut->stripXmlIllegalChars($input);
+
+        self::assertIsString($result);
+        self::assertStringContainsString('valid', $result);
+        self::assertStringContainsString('tail', $result);
     }
 
     public function testStripXmlIllegalCharsLeavesEmptyStringEmpty(): void
