@@ -703,8 +703,12 @@ export default {
 
     handleSegmentConfirmation (segmentId) {
       this.ignoreProsemirrorUpdates = true
-      const { id, charStart, charEnd } = this.segmentById(segmentId)
-      setRange(this.prosemirror.view)(charStart, charEnd, { segmentId: id, isConfirmed: true })
+      const { state } = this.prosemirror.view
+      const { rangeTrackerKey } = this.prosemirror.keyAccess
+      const range = rangeTrackerKey.getState(state)[segmentId]
+      const { id } = this.segmentById(segmentId)
+
+      setRange(this.prosemirror.view)(range.from, range.to, { segmentId: id, isConfirmed: true })
       this.acceptSegmentProposal()
       this.ignoreProsemirrorUpdates = false
     },
@@ -727,7 +731,7 @@ export default {
 
       const { rangeTrackerKey, editingDecorationsKey, editStateTrackerKey } = this.prosemirror.keyAccess
       setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(segment.id, true)
-      activateRangeEdit(this.prosemirror.view, rangeTrackerKey, editStateTrackerKey, segment.id, { active: segmentToCreate.to, fixed: segmentToCreate.from })
+      activateRangeEdit(this.prosemirror.view, rangeTrackerKey, editStateTrackerKey, segment.id)
       this.ignoreProsemirrorUpdates = false
     },
 
