@@ -39,6 +39,7 @@ class DocxExporterOdtTest extends UnitTestCase
             $this->createMock(\demosplan\DemosPlanCoreBundle\Logic\FileService::class),
             $this->createMock(\League\Flysystem\FilesystemOperator::class),
             $this->createMock(\DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface::class),
+            $this->createMock(\demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer::class),
             $this->createMock(\Psr\Log\LoggerInterface::class),
             $this->createMock(\demosplan\DemosPlanCoreBundle\Logic\Map\MapService::class),
             $odtHtmlProcessor,

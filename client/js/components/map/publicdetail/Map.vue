@@ -878,7 +878,7 @@ export default {
         overviewMapControlView = new View({
           center: [this.mapx, this.mapy],
           projection: this.mapprojection,
-          resolutions: this.resolutions,
+          resolution: this.resolutions[0],
         })
       }
 
@@ -1810,7 +1810,7 @@ export default {
       let label = ''
 
       if (hasOwnProp(this.procedureSettings, 'copyright') && this.procedureSettings.copyright !== '') {
-        label = this.procedureSettings.copyright.replace('{currentYear}', currentYear)
+        label = this.procedureSettings.copyright.replaceAll('{currentYear}', currentYear)
       } else {
         label = Translator.trans('map.attribution.default', {
           linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),

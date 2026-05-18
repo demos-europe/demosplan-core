@@ -44,6 +44,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidUserDataException;
 use demosplan\DemosPlanCoreBundle\Exception\LoginNameInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\PasswordAlreadyUsedException;
 use demosplan\DemosPlanCoreBundle\Exception\ReservedSystemNameException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
 use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
@@ -69,6 +70,7 @@ use Exception;
 use Illuminate\Support\Collection;
 use LogicException;
 use RuntimeException;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\Validator\Constraints\Email;
@@ -167,6 +169,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         private readonly UserSecurityHandler $userSecurityHandler,
         UserService $userService,
         ValidatorInterface $validator,
+        private readonly ParameterBagInterface $parameterBag,
     ) {
         parent::__construct($messageBag);
         $this->customerService = $customerService;
@@ -852,18 +855,17 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 );
 
                 return $userId; // Return the failed user ID to indicate failure
-            } else {
-                $result = $this->wipeUserData($userId);
-
-                if (!$result instanceof User) {
-                    $this->logger->error("Failed to delete user with id {$userId}");
-                    $this->getMessageBag()->add('error', 'error.delete.user');
-
-                    return $userId;
-                }
-
-                $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
             }
+            $result = $this->wipeUserData($userId);
+
+            if (!$result instanceof User) {
+                $this->logger->error("Failed to delete user with id {$userId}");
+                $this->getMessageBag()->add('error', 'error.delete.user');
+
+                return $userId;
+            }
+
+            $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
         }
 
         return null;
@@ -1510,6 +1512,9 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         try {
             $this->userService->changePassword($userId, $oldPassword, $newPassword);
             $this->getMessageBag()->add('confirm', 'confirm.password.changed');
+        } catch (PasswordAlreadyUsedException $e) {
+            $this->logger->warning('User password change rejected: password already used', [$e]);
+            $this->getMessageBag()->add('error', 'error.password.already.used', ['passwordHistoryMaxEntries' => $this->parameterBag->get('password_history_max_entries')]);
         } catch (Exception $e) {
             $this->logger->error('User password change exited with an error', [$e]);
             $this->getMessageBag()->add('error', 'error.password.change');
