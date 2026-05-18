@@ -107,6 +107,9 @@ import {
   DpSelect,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
+import { useCustomFieldTypes } from '@DpJs/composables/useCustomFieldTypes'
+
+const { getDefaultFieldTypeForTarget } = useCustomFieldTypes()
 
 export default {
   name: 'CreateCustomFieldForm',
@@ -176,12 +179,7 @@ export default {
 
   watch: {
     'customField.targetEntity' (targetEntity) {
-      const typeMap = {
-        STATEMENT: 'multiSelect',
-        SEGMENT: 'singleSelect',
-        ORGA: 'text',
-      }
-      this.customField.fieldType = typeMap[targetEntity] ?? ''
+      this.customField.fieldType = getDefaultFieldTypeForTarget(targetEntity)
     },
 
     handleSuccess: {
