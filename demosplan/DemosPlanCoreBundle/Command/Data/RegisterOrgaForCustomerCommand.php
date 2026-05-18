@@ -53,48 +53,13 @@ class RegisterOrgaForCustomerCommand extends CoreCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output->writeln('<info>Source customer:</info>');
-        $sourceCustomer = $this->helpers->askCustomer($input, $output);
-
-        $output->writeln('<info>Target customer:</info>');
-        $targetCustomer = $this->helpers->askCustomer($input, $output);
-
-        if ($sourceCustomer->getId() === $targetCustomer->getId()) {
-            $output->writeln('<error>Source and target customer must differ.</error>');
-
+        $context = $this->resolveRegistrationContext($input, $output);
+        if (null === $context) {
             return Command::FAILURE;
         }
 
-        $orga = $this->askOrgaById($input, $output);
-        if (!$orga instanceof Orga) {
-            $output->writeln('<error>No Orga found for the given ID.</error>');
-
-            return Command::FAILURE;
-        }
-
-        $sourceOrgaTypes = $this->collectOrgaTypesForCustomer($orga, $sourceCustomer);
-        if ([] === $sourceOrgaTypes) {
-            $output->writeln(sprintf(
-                '<error>Orga "%s" is not registered in source customer "%s".</error>',
-                $orga->getName(),
-                $sourceCustomer->getSubdomain()
-            ));
-
-            return Command::FAILURE;
-        }
-
-        if ([] !== $this->collectOrgaTypesForCustomer($orga, $targetCustomer)) {
-            $output->writeln(sprintf(
-                '<error>Orga "%s" is already registered in target customer "%s". Aborting.</error>',
-                $orga->getName(),
-                $targetCustomer->getSubdomain()
-            ));
-
-            return Command::FAILURE;
-        }
-
+        [$orga, $sourceCustomer, $targetCustomer, $sourceOrgaTypes] = $context;
         $users = $orga->getUsers();
-        $userCount = $users->count();
 
         $output->writeln('');
         $output->writeln(sprintf(
@@ -103,7 +68,7 @@ class RegisterOrgaForCustomerCommand extends CoreCommand
             $orga->getId(),
             $sourceCustomer->getSubdomain(),
             $targetCustomer->getSubdomain(),
-            $userCount
+            $users->count()
         ));
 
         $confirm = new ConfirmationQuestion('Proceed? (y/N) ', false);
@@ -145,13 +110,66 @@ class RegisterOrgaForCustomerCommand extends CoreCommand
                 $usersRegistered,
                 $usersSkipped
             );
-
-            return Command::SUCCESS;
         } catch (Exception $e) {
             $output->writeln('<error>Something went wrong: '.$e->getMessage().'</error>');
 
             return Command::FAILURE;
         }
+
+        return Command::SUCCESS;
+    }
+
+    /**
+     * Runs the four upfront validation guards and resolves the input into a
+     * registration context. Returns null and writes an error message to the
+     * output when any guard fails, so the caller can bail out with a single
+     * FAILURE return.
+     *
+     * @return array{0: Orga, 1: Customer, 2: Customer, 3: array<int, \demosplan\DemosPlanCoreBundle\Entity\User\OrgaType>}|null
+     */
+    private function resolveRegistrationContext(InputInterface $input, OutputInterface $output): ?array
+    {
+        $output->writeln('<info>Source customer:</info>');
+        $sourceCustomer = $this->helpers->askCustomer($input, $output);
+
+        $output->writeln('<info>Target customer:</info>');
+        $targetCustomer = $this->helpers->askCustomer($input, $output);
+
+        if ($sourceCustomer->getId() === $targetCustomer->getId()) {
+            $output->writeln('<error>Source and target customer must differ.</error>');
+
+            return null;
+        }
+
+        $orga = $this->askOrgaById($input, $output);
+        if (!$orga instanceof Orga) {
+            $output->writeln('<error>No Orga found for the given ID.</error>');
+
+            return null;
+        }
+
+        $sourceOrgaTypes = $this->collectOrgaTypesForCustomer($orga, $sourceCustomer);
+        if ([] === $sourceOrgaTypes) {
+            $output->writeln(sprintf(
+                '<error>Orga "%s" is not registered in source customer "%s".</error>',
+                $orga->getName(),
+                $sourceCustomer->getSubdomain()
+            ));
+
+            return null;
+        }
+
+        if ([] !== $this->collectOrgaTypesForCustomer($orga, $targetCustomer)) {
+            $output->writeln(sprintf(
+                '<error>Orga "%s" is already registered in target customer "%s". Aborting.</error>',
+                $orga->getName(),
+                $targetCustomer->getSubdomain()
+            ));
+
+            return null;
+        }
+
+        return [$orga, $sourceCustomer, $targetCustomer, $sourceOrgaTypes];
     }
 
     private function askOrgaById(InputInterface $input, OutputInterface $output): ?Orga
