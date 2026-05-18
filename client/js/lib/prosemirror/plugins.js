@@ -20,7 +20,7 @@ import {
 } from './utilities'
 import { genEditingDecorations, removeMarkByName, replaceMarkInRange, toggleRangeEdit } from './commands'
 import { Plugin, PluginKey } from 'prosemirror-state'
-import { rangeSelectionMark, segmentMark } from './marks'
+import { rangeSelectionMark } from './marks'
 import { Schema } from 'prosemirror-model'
 
 /**

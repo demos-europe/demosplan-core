@@ -647,7 +647,8 @@ export default {
      */
     handleMouseOver (event) {
       if (!this.editModeActive) {
-        let segmentId = event.target.getAttribute('data-segment-id') || event.target.closest('span[data-segment-id]')?.getAttribute('data-segment-id')
+        let segmentId = event.target.dataset.segmentId ||
+          event.target.closest('span[data-segment-id]')?.dataset.segmentId
 
         /**
          * If the target element doesn't have the attribute 'data-segment-id', it may be an html element inside the segment span,
@@ -657,7 +658,7 @@ export default {
          */
         if (!segmentId) {
           const closestParent = event.target.closest('span[data-segment-id]')
-          segmentId = closestParent ? closestParent.getAttribute('data-segment-id') : null
+          segmentId = closestParent ? closestParent.dataset.segmentId : null
         }
 
         if (segmentId) {

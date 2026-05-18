@@ -323,12 +323,7 @@ const toggleRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, decorationT
      * This code block is called whenever the user clicks a handle that is not already active. It moves the activation
      * state from the handle that is currently active to the handle which was just clicked.
      */
-    const nodes = flattenNode(state.doc)
-    const marks = getMarks(nodes, 'rangeselection', 'rangeType')
-    const { from, to } = marks.selection
-    const activationPosition = currentlyActivePosition === from ? to : from
-    const fixedPosition = currentlyActivePosition === from ? from : to
-    activateRangeEdit(view, rangeTrackerKey, editStateTrackerKey, rangeId, { active: activationPosition, fixed: fixedPosition })
+    activateRangeEdit(view, rangeTrackerKey, editStateTrackerKey, rangeId)
   }
 }
 
