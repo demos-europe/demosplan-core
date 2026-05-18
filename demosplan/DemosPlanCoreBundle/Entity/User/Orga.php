@@ -26,6 +26,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -350,6 +351,11 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      * )
      */
     protected $assignedTags;
+
+    /**
+     * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
+     */
+    private ?CustomFieldValuesList $customFields = null;
 
     public function __construct()
     {
@@ -1402,5 +1408,15 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
             $this->assignedTags->removeElement($tag);
             $tag->getTaggedInstitutions()->removeElement($this);
         }
+    }
+
+    public function getCustomFields(): ?CustomFieldValuesList
+    {
+        return $this->customFields;
+    }
+
+    public function setCustomFields(?CustomFieldValuesList $customFields): void
+    {
+        $this->customFields = $customFields;
     }
 }
