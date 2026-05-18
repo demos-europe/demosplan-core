@@ -40,12 +40,13 @@
     }
 
     &__resize-handle {
-        visibility: hidden;
+        opacity: 0;
         width: 30px;
         display: inline-block;
         position: absolute;
         top: $data-table-padding-cell;
         right: 0;
+        z-index: $dp-z-above-zero + 2 !important;
         cursor: move; // Fallback if grab cursor is not supported
         cursor: grab;
         text-align: center;
@@ -59,7 +60,7 @@
 
         &.is-active {
             display: inline !important;
-            visibility: visible;
+            opacity: 1;
         }
     }
 
@@ -97,10 +98,18 @@
             }
 
             &:hover {
+                border-right-width: 2px !important;
+                border-right-color: $dp-color-interactive-default !important;
+
                 .c-data-table__resize-handle {
-                    visibility: visible;
+                    opacity: 1;
                 }
             }
+        }
+
+        td.is-col-hovered {
+            border-right-width: 2px !important;
+            border-right-color: $dp-color-interactive-default !important;
         }
     }
 
@@ -130,6 +139,11 @@
         border-top: 1px solid $dp-color-neutral-light-2;
     }
 
+    // Use a lighter border when full borders (including vertical) are enabled.
+    &:has(.border-r) tr:not(.is-expanded-content) td {
+        border-top-color: $dp-color-neutral-light-3;
+    }
+
     tbody {
         tr:hover,
         tr:hover + tr.is-expanded-content,
@@ -157,6 +171,8 @@
         position: sticky;
         top: 0;
 
+        /* Stacking within table: header (12) > sticky side cells (11) > resize handle (10) */
+        z-index: $dp-z-above-zero + 2;
         background-color: $dp-color-white;
     }
 
@@ -170,7 +186,7 @@
     th.c-data-table__col--flyout {
         position: sticky;
         right: 0;
-        z-index: $dp-z-above-zero;
+        z-index: $dp-z-above-zero + 1;
         background-color: $dp-color-white;
         text-align: center;
 
@@ -196,7 +212,7 @@
     th.c-data-table__col--expand {
         position: sticky;
         right: 0;
-        z-index: $dp-z-above-zero;
+        z-index: $dp-z-above-zero + 1;
         background-color: $dp-color-white;
         text-align: center;
 

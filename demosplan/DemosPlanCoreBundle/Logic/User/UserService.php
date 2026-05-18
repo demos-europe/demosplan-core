@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Entity\User\UserPasswordHistory;
 use demosplan\DemosPlanCoreBundle\Exception\CouldNotDeleteAddressesOfDepartmentException;
 use demosplan\DemosPlanCoreBundle\Exception\CouldNotDeleteDraftStatementsOfDepartmentException;
 use demosplan\DemosPlanCoreBundle\Exception\CouldNotDetachMasterToebOfDepartmentException;
@@ -30,6 +31,7 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateGwIdException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
+use demosplan\DemosPlanCoreBundle\Exception\PasswordAlreadyUsedException;
 use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
@@ -41,6 +43,7 @@ use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserPasswordHistoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
@@ -59,6 +62,7 @@ use LSS\XML2Array;
 use Pagerfanta\Pagerfanta;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -72,7 +76,6 @@ class UserService implements UserServiceInterface
      * The hash function that is being used to generate password hashes.
      */
     private const PW_HASH = 'sha512';
-
     /**
      * @var ContentService
      */
@@ -123,10 +126,12 @@ class UserService implements UserServiceInterface
         private readonly StatementVoteRepository $statementVoteRepository,
         private readonly TranslatorInterface $translator,
         private readonly UserPasswordHasherInterface $userPasswordHasher,
+        private readonly UserPasswordHistoryRepository $userPasswordHistoryRepository,
         private readonly UserRepository $userRepository,
         private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository,
         private readonly LoggerInterface $logger,
         private readonly ManagerRegistry $doctrine,
+        private readonly ParameterBagInterface $parameterBag,
     ) {
         $this->addressService = $addressService;
         $this->contentService = $serviceContent;
@@ -999,15 +1004,28 @@ class UserService implements UserServiceInterface
             }
 
             if ($verifyOld && !$this->userPasswordHasher->isPasswordValid($user, $oldPassword)) {
-                throw new \InvalidArgumentException("This is either not the user's old password or the user does not exist");
+                throw new InvalidArgumentException("This is either not the user's old password or the user does not exist");
+            }
+            // check new password against stored history entries
+            $hasher = $this->passwordHasherFactory->getPasswordHasher($user);
+            foreach ($this->userPasswordHistoryRepository->findByUser($user) as $entry) {
+                if ($hasher->verify($entry->getHashedPassword(), $newPassword)) {
+                    throw new PasswordAlreadyUsedException('This password has already been used. Please choose a different one.');
+                }
+            }
+            // check new password against the current password
+            if (null !== $user->getPassword() && $this->userPasswordHasher->isPasswordValid($user, $newPassword)) {
+                throw new PasswordAlreadyUsedException('This password has already been used. Please choose a different one.');
             }
 
             $newPasswordHash = $this->userPasswordHasher->hashPassword($user, $newPassword);
+            $em = $this->doctrine->getManager();
+            $em->persist(new UserPasswordHistory($user, $newPasswordHash));
+            $this->userPasswordHistoryRepository->deleteExceedingEntries($user, $this->parameterBag->get('password_history_max_entries') - 1);
 
             $user->setPassword($newPasswordHash);
             $user->setAlternativeLoginPassword($newPasswordHash);
 
-            $em = $this->doctrine->getManager();
             $em->persist($user);
             $em->flush();
         } catch (RuntimeException $e) {

@@ -5,6 +5,7 @@
 @babel/plugin-transform-object-assign: MIT
 @babel/plugin-transform-runtime: MIT
 @babel/preset-env: MIT
+@babel/preset-typescript: MIT
 @babel/runtime: MIT
 @carbon/icons-vue: Apache-2.0
 @carbon/vue: Apache-2.0
@@ -41,8 +42,16 @@ core-js: MIT
 cross-env: MIT
 css-loader: MIT
 css-minimizer-webpack-plugin: MIT
-d3: ISC
+d3-array: ISC
+d3-axis: ISC
+d3-format: ISC
+d3-interpolate: ISC
 d3-sankey-diagram: MIT
+d3-scale: ISC
+d3-selection: ISC
+d3-shape: ISC
+d3-time-format: ISC
+d3-transition: ISC
 dayjs: MIT
 deep-object-diff: MIT
 dompurify: (MPL-2.0 OR Apache-2.0)
@@ -68,7 +77,6 @@ jsdom: MIT
 json-api-normalizer: MIT
 leaflet: BSD-2-Clause
 leaflet.markercluster: MIT
-license-checker: BSD-3-Clause
 lscache: Apache-2.0
 mini-css-extract-plugin: MIT
 ol: BSD-2-Clause
@@ -94,6 +102,7 @@ tailwindcss: MIT
 terser-webpack-plugin: MIT
 timers-browserify: MIT
 tippy.js: MIT
+typescript: Apache-2.0
 typescript-eslint: MIT
 uuid: MIT
 vue: MIT
@@ -110,4 +119,4 @@ webpack-bundle-analyzer: MIT
 webpack-manifest-plugin: MIT
 webpack-merge: MIT
 
-As of 09.02.2026 19:06
+As of 12.05.2026 07:55

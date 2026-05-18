@@ -180,7 +180,7 @@
       alignment="left"
       secondary
       primary
-      variant="outline"
+      primary-btn-variant="outline"
       @primary-action="save"
       @secondary-action="$emit('abort')"
     />

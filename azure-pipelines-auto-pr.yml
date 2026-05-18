@@ -19,12 +19,13 @@ steps:
       if [ -n "$PARAM_BRANCH" ]; then
         echo "##vso[task.setvariable variable=RESOLVED_BRANCH]$PARAM_BRANCH"
       else
-        echo "##vso[task.setvariable variable=RESOLVED_BRANCH]$BUILD_BRANCH"
+        BRANCH="${BUILD_BRANCH#refs/heads/}"
+        echo "##vso[task.setvariable variable=RESOLVED_BRANCH]$BRANCH"
       fi
     displayName: Resolve source branch
     env:
       PARAM_BRANCH: ${{ parameters.sourceBranch }}
-      BUILD_BRANCH: $(Build.SourceBranchName)
+      BUILD_BRANCH: $(Build.SourceBranch)
 
   - bash: |
       sleep 10

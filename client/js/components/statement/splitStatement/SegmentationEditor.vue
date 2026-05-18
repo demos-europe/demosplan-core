@@ -96,7 +96,7 @@ export default {
             return ['a', { href, class: className }, 0]
           },
         },
-        segmentMark
+        segmentMark,
       },
       maxRange: 0,
     }
@@ -131,6 +131,31 @@ export default {
           doc: parsedContent,
           plugins: rangePlugin.plugins,
         }),
+        markViews: {
+          link: (mark) => {
+            const className = mark.attrs.class || ''
+
+            if (!className.split(/\s+/).includes('pdf_importer_image')) {
+              const anchor = document.createElement('a')
+              anchor.setAttribute('href', mark.attrs.href)
+              if (className) {
+                anchor.setAttribute('class', className)
+              }
+              return { dom: anchor, contentDOM: anchor }
+            }
+
+            const wrapper = document.createElement('span')
+            const img = document.createElement('img')
+            img.setAttribute('src', mark.attrs.href)
+            img.setAttribute('alt', '')
+            img.setAttribute('loading', 'lazy')
+            const label = document.createElement('span')
+            label.className = 'sr-only'
+            wrapper.appendChild(img)
+            wrapper.appendChild(label)
+            return { dom: wrapper, contentDOM: label }
+          },
+        },
       })
 
       const getContent = (schema) => (state) => {

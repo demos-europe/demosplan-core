@@ -912,7 +912,7 @@ export default {
       /* Store the serialized HTML (with custom <segment-mark> annotations) in draftSegmentsList for future rehydration */
       this.setProperty({
         prop: 'initText',
-        val: textualReference
+        val: textualReference,
       })
     },
 
