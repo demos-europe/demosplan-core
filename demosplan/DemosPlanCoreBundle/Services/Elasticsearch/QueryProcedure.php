@@ -10,7 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services\Elasticsearch;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidElasticsearchQueryConfigurationException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Query Procedures.
@@ -23,6 +27,15 @@ class QueryProcedure extends AbstractQuery
      * @var string internal|external|planner
      */
     protected $scopes = ['external'];
+
+    public function __construct(
+        GlobalConfigInterface $globalConfig,
+        TranslatorInterface $translator,
+        CurrentUserInterface $currentUser,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
+    ) {
+        parent::__construct($globalConfig, $translator, $currentUser);
+    }
 
     /**
      * Keep orgaId as it is needed to build query.
@@ -62,11 +75,11 @@ class QueryProcedure extends AbstractQuery
         }
 
         if (
-            !array_key_exists('filter', $queryDefinition['procedure']) ||
-            !array_key_exists('search', $queryDefinition['procedure']) ||
-            !array_key_exists('sort', $queryDefinition['procedure']) ||
-            !array_key_exists('sort_default', $queryDefinition['procedure']) ||
-            !array_key_exists('internal', $queryDefinition['procedure']['sort_default'])
+            !array_key_exists('filter', $queryDefinition['procedure'])
+            || !array_key_exists('search', $queryDefinition['procedure'])
+            || !array_key_exists('sort', $queryDefinition['procedure'])
+            || !array_key_exists('sort_default', $queryDefinition['procedure'])
+            || !array_key_exists('internal', $queryDefinition['procedure']['sort_default'])
         ) {
             throw new InvalidElasticsearchQueryConfigurationException();
         }
@@ -74,9 +87,6 @@ class QueryProcedure extends AbstractQuery
         return true;
     }
 
-    /**
-     * @return string
-     */
     public function getOrgaId(): ?string
     {
         return $this->orgaId;
@@ -100,7 +110,7 @@ class QueryProcedure extends AbstractQuery
         if (self::SCOPE_PLANNER === $scope && $scopes->contains(self::SCOPE_EXTERNAL)) {
             // reset existing scopes without external scope
             $this->setScopes(
-                $scopes->filter(fn($value) => self::SCOPE_EXTERNAL !== $value)->toArray()
+                $scopes->filter(fn ($value) => self::SCOPE_EXTERNAL !== $value)->toArray()
             );
         }
 
@@ -120,13 +130,12 @@ class QueryProcedure extends AbstractQuery
             /** @var FilterDisplay $element */
             $values = $element->getValues();
             $translatedValues = [];
+            $isPhaseDefinitionFilter = in_array($element->getName(), ['phaseDefinitionId', 'publicParticipationPhaseDefinitionId']);
             foreach ($values as $value) {
-                if ('phase' === $element->getName()) {
-                    $name = $this->globalConfig->getPhaseNameWithPriorityInternal($value['value']);
-                    $value['label'] = $this->translator->trans($name);
-                } elseif ('publicParticipationPhase' === $element->getName()) {
-                    $name = $this->globalConfig->getPhaseNameWithPriorityExternal($value['value']);
-                    $value['label'] = $this->translator->trans($name);
+                if ($isPhaseDefinitionFilter) {
+                    $definition = $this->procedurePhaseDefinitionService->findById($value['value']);
+                    $value['label'] = null !== $definition ? $definition->getName() : $value['value'];
+                    $value['order'] = null !== $definition ? $definition->getOrderInAudience() : PHP_INT_MAX;
                 } elseif (in_array($element->getName(), ['phasePermissionset', 'publicParticipationPhasePermissionset'])) {
                     /*
                      * Possible values:
@@ -140,7 +149,9 @@ class QueryProcedure extends AbstractQuery
                 }
                 $translatedValues[] = $value;
             }
-            $translatedValues = collect($translatedValues)->sortBy('label')->values()->toArray();
+            $translatedValues = $isPhaseDefinitionFilter
+                ? collect($translatedValues)->sortBy('order')->values()->toArray()
+                : collect($translatedValues)->sortBy('label')->values()->toArray();
             $element->setValues($translatedValues);
         });
 

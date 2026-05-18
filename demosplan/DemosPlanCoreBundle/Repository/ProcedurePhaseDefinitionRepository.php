@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -26,6 +27,64 @@ use Doctrine\ORM\NoResultException;
  */
 class ProcedurePhaseDefinitionRepository extends CoreRepository
 {
+    /**
+     * Returns all phase definitions for the given customer, ordered by audience and orderInAudience.
+     * Falls back to global definitions (customer IS NULL) if no customer-specific definitions exist.
+     *
+     * @return ProcedurePhaseDefinition[]
+     */
+    public function findByCustomerOrderedByAudience(CustomerInterface $customer): array
+    {
+        $results = $this->findBy(['customer' => $customer], ['audience' => 'ASC', 'orderInAudience' => 'ASC']);
+
+        if ([] === $results) {
+            $results = $this->findBy(['customer' => null], ['audience' => 'ASC', 'orderInAudience' => 'ASC']);
+        }
+
+        return $results;
+    }
+
+    /**
+     * Finds the evaluating phase definition (permissionSet=read, participationState=finished)
+     * for the given customer and audience. Falls back to global (customer=null) definitions.
+     * When multiple matches exist, returns the one with the lowest orderInAudience.
+     */
+    public function findEvaluatingDefinition(string $audience, ?CustomerInterface $customer): ?ProcedurePhaseDefinition
+    {
+        $criteria = ['audience' => $audience, 'permissionSet' => 'read', 'participationState' => 'finished'];
+        $orderBy = ['orderInAudience' => 'ASC'];
+
+        if (null !== $customer) {
+            $result = $this->findOneBy(array_merge($criteria, ['customer' => $customer]), $orderBy);
+            if (null !== $result) {
+                return $result;
+            }
+        }
+
+        return $this->findOneBy(array_merge($criteria, ['customer' => null]), $orderBy);
+    }
+
+    /**
+     * Finds the first phase definition (lowest orderInAudience) for the given audience and customer.
+     * Falls back to global (customer=null) definitions.
+     */
+    public function findInitialDefinition(string $audience, ?CustomerInterface $customer): ?ProcedurePhaseDefinition
+    {
+        if (null !== $customer) {
+            $result = $this->findOneBy(['audience' => $audience, 'customer' => $customer], ['orderInAudience' => 'ASC']);
+            if (null !== $result) {
+                return $result;
+            }
+        }
+
+        return $this->findOneBy(['audience' => $audience, 'customer' => null], ['orderInAudience' => 'ASC']);
+    }
+
+    public function findByNameAndAudienceAndCustomer(string $name, string $audience, CustomerInterface $customer): ?ProcedurePhaseDefinition
+    {
+        return $this->findOneBy(['name' => $name, 'audience' => $audience, 'customer' => $customer]);
+    }
+
     /**
      * @throws NonUniqueResultException
      * @throws NoResultException

@@ -87,11 +87,9 @@
             class="line-clamp-3 c-styled-html"
           />
         </template>
-        <template v-slot:procedurePhase="{ procedurePhase }">
-          <span
-            v-if="procedurePhase.name"
-          >
-            {{ procedurePhase.name }}
+        <template v-slot:procedurePhase="{ id }">
+          <span>
+            {{ getProcedurePhaseName(id) }}
           </span>
         </template>
         <template
@@ -654,6 +652,13 @@ export default {
       return paragraph ? paragraph.attributes.title : '-'
     },
 
+    getProcedurePhaseName (originalStatementId) {
+      const originalStatement = this.originalStatements[originalStatementId]
+      const procedurePhase = originalStatement.relationships.procedurePhase?.data ? originalStatement.relationships.procedurePhase.get() : null
+
+      return procedurePhase ? procedurePhase.attributes.name : ''
+    },
+
     handleSizeChange (newSize) {
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
       this.pagination.perPage = newSize
@@ -708,6 +713,9 @@ export default {
           ParagraphVersion: [
             'title',
           ].join(),
+          ProcedurePhaseDefinition: [
+            'name',
+          ].join(),
           SourceStatementAttachment: [
             'file',
           ].join(),
@@ -723,6 +731,7 @@ export default {
           'genericAttachments.file',
           'meta',
           'paragraph',
+          'procedurePhase',
           'sourceAttachment',
           'sourceAttachment.file',
         ].join(),

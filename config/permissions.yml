@@ -765,6 +765,7 @@ feature_auto_switch_procedure_news:
     loginRequired: true
 feature_auto_switch_procedure_phase:
     description: 'Switch the procedure phase on chosen day.'
+    expose: true
     label: 'Automatically toggle the procedure phase'
     loginRequired: true
 feature_auto_switch_to_procedure_end_phase:

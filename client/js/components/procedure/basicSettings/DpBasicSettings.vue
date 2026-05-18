@@ -53,6 +53,12 @@ export default {
       default: () => [],
     },
 
+    externalPhaseOptions: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+
     initAgencies: {
       required: false,
       type: Array,
@@ -221,15 +227,10 @@ export default {
     },
 
     isPublicParticipationPhaseActive () {
-      const currentPhaseIsPublic = this.publicParticipationPhases.includes(this.state.selectedPublicPhase)
-      const autoSwitchPhaseIsPublic = this.addonCheckAutoSwitchEnabled &&
-        this.publicParticipationPhases.includes(this.addonCheckAutoSwitchPhase)
+      const isParticipationPhase = (id) => this.externalPhaseOptions.some(phase => phase.value === id && phase.permissionset === 'write')
 
-      return currentPhaseIsPublic || autoSwitchPhaseIsPublic
-    },
-
-    publicParticipationPhases () {
-      return ['earlyparticipation', 'participation', 'anotherparticipation']
+      return isParticipationPhase(this.state.selectedPublicPhase) ||
+        (this.addonCheckAutoSwitchEnabled && isParticipationPhase(this.addonCheckAutoSwitchPhase))
     },
 
     shouldShowInterfaceWarningModal () {

@@ -328,9 +328,9 @@ class ElasticsearchResultCreator
                 );
                 $query = $this->elasticSearchService->addEsMissingAggregation($query, 'dName.raw');
             }
-            // Verfahrensschritt - phase - phase
-            if ($addAllAggregations || \array_key_exists('phase', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'phase');
+            // Verfahrensschritt - phaseDefinitionId
+            if ($addAllAggregations || \array_key_exists('phaseDefinitionId', $userFilters)) {
+                $query = $this->elasticSearchService->addEsAggregation($query, 'phaseDefinitionId');
             }
             // Verschobene Stellungnahmen in dieses Verfahren - movedFromProcedureId - movedFromProcedureId
             if ($addAllAggregations || \array_key_exists('movedFromProcedureId', $userFilters)) {
@@ -749,11 +749,11 @@ class ElasticsearchResultCreator
                     $processedAggregation
                 );
             }
-            // Verfahrensschritt - phase - phase
-            if ($addAllAggregations || \array_key_exists('phase', $userFilters)) {
+            // Verfahrensschritt - phaseDefinitionId
+            if ($addAllAggregations || \array_key_exists('phaseDefinitionId', $userFilters)) {
                 $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
-                    'phase',
-                    'phase',
+                    'phaseDefinitionId',
+                    'phaseDefinitionId',
                     $esResultAggregations,
                     $processedAggregation
                 );

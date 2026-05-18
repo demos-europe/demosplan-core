@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -1185,6 +1186,9 @@ class DraftStatementService
         }
         $statementAttributes = $draftStatement->getStatementAttributes();
         $draftStatement = $this->entityHelper->toArray($draftStatement);
+        if ($draftStatement['phaseDefinition'] instanceof ProcedurePhaseDefinition) {
+            $draftStatement['phaseDefinition'] = $this->entityHelper->toArray($draftStatement['phaseDefinition']);
+        }
         if ($draftStatement['element'] instanceof Elements) {
             $draftStatement['element'] = $this->entityHelper->toArray($draftStatement['element']);
             if ($draftStatement['element']['documents'] instanceof Collection) {

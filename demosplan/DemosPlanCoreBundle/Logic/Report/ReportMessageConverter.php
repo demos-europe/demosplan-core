@@ -339,7 +339,6 @@ class ReportMessageConverter
             $message,
             $dateExtension,
             $this->translator,
-            $this->globalConfig,
             'oldDesignated',
             'newDesignated'
         );
@@ -456,8 +455,7 @@ class ReportMessageConverter
             $returnMessage[] = $this->getSubjectLine($mailSubject);
         }
 
-        // hole den Phasennamen
-        $returnMessage[] = $this->globalConfig->getPhaseNameWithPriorityInternal($entryData->getPhase());
+        $returnMessage[] = $entryData->getPhase();
         if ([] !== $invitedOrgas) {
             $returnMessage[] = $this->translator->trans('email.invitation.sent');
 
@@ -656,20 +654,6 @@ class ReportMessageConverter
     protected function alterPhaseEntry($message)
     {
         $translator = $this->translator;
-        // Es gibt derzeit leider keine geschicktere Stelle als hier, die Phasennamen zu ersetzen...
-        if (isset($message['newPhase'])) {
-            $message['oldPhase'] = $this->globalConfig->getPhaseNameWithPriorityInternal($message['oldPhase']);
-            $message['newPhase'] = $this->globalConfig->getPhaseNameWithPriorityInternal($message['newPhase']);
-        }
-        if (isset($message['newPublicPhase'])) {
-            $message['oldPublicPhase'] = $this->globalConfig->getPhaseNameWithPriorityExternal(
-                $message['oldPublicPhase']
-            );
-            $message['newPublicPhase'] = $this->globalConfig->getPhaseNameWithPriorityExternal(
-                $message['newPublicPhase']
-            );
-        }
-
         // Welche Dokumente waren zum Zeitpunkt der Phasenumstellung eingestellt?
         $publishedDocuments = [];
         if (isset($message['begruendung']) && true === $message['begruendung']) {

@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -375,11 +376,11 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
     protected $publicDraftStatement = DraftStatement::INTERNAL;
 
     /**
-     * @var string
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
      *
-     * @ORM\Column(name="_ds_phase", type="string", length=50, nullable=false)
+     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=true, onDelete="RESTRICT")
      */
-    protected $phase = '';
+    protected ?ProcedurePhaseDefinitionInterface $phaseDefinition = null;
 
     /**
      * @var DateTime
@@ -1345,28 +1346,14 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
         return $this->publicDraftStatement;
     }
 
-    /**
-     * Set phase.
-     *
-     * @param string $phase
-     *
-     * @return DraftStatementVersion
-     */
-    public function setPhase($phase)
+    public function getPhaseDefinition(): ?ProcedurePhaseDefinitionInterface
     {
-        $this->phase = $phase;
-
-        return $this;
+        return $this->phaseDefinition;
     }
 
-    /**
-     * Get phase.
-     *
-     * @return string
-     */
-    public function getPhase()
+    public function setPhaseDefinition(ProcedurePhaseDefinitionInterface $phaseDefinition): void
     {
-        return $this->phase;
+        $this->phaseDefinition = $phaseDefinition;
     }
 
     /**
