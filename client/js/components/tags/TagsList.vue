@@ -178,6 +178,7 @@ export default {
     ...mapActions('TagTopic', {
       createTagTopic: 'create',
       listTagTopics: 'list',
+      saveTagTopic: 'save',
     }),
 
     // Apply tagList.reorder RPC response — sync sortIndex in the Tag store for every changed tag
