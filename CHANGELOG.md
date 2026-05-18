@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Added
+- Add statement export via planner-uploaded DOCX layout template: planners upload a `.docx` via TUS, the backend validates `${…}` placeholders against a whitelist and renders the statement's segments in paragraph mode (`${segmentsAsParagraphs}` block, cloneBlock) or table mode (`${segmentsWithinTable}` row, cloneRow) (permission: `feature_statement_via_template_export`, EWM-only for v1; frontend modal integration pending)
+
 ## v4.39.0 (2026-05-06)
 
 ## v4.38.0 (2026-05-06)

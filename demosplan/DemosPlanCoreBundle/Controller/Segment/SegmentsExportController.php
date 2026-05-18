@@ -15,14 +15,17 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidStatementTemplateException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementViaTemplateExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
@@ -32,6 +35,8 @@ use Exception;
 use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use ZipStream\ZipStream;
 
@@ -44,6 +49,8 @@ class SegmentsExportController extends BaseController
     private const INSTITUTION_CENSOR_PARAMETER = 'isInstitutionDataCensored';
     private const OBSCURE_PARAMETER = 'isObscured';
     private const CUSTOM_HEADER_TEXT_PARAMETER = 'customHeaderText';
+    private const UPLOADED_TEMPLATE_HASH = 'uploadedDocxTemplate';
+    private const DOCX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
     public function __construct(
         private readonly NameGenerator $nameGenerator,
@@ -95,6 +102,76 @@ class SegmentsExportController extends BaseController
         );
 
         $this->setResponseHeaders($response, $fileNameGenerator->getFileName($statement, $fileNameTemplate).'.docx');
+
+        return $response;
+    }
+
+    /**
+     * Renders a planner-uploaded DOCX layout template against the segments of a
+     * single statement and streams the populated DOCX back. The template is
+     * resolved via TUS hash (`uploadedDocxTemplate` query parameter) and
+     * removed from local disk as soon as the response finishes (success or
+     * failure).
+     *
+     * @throws StatementNotFoundException
+     * @throws Exception
+     */
+    #[DplanPermissions('feature_statement_via_template_export')]
+    #[Route(
+        path: '/verfahren/{procedureId}/{statementId}/abschnitte/export/vorlage',
+        name: 'dplan_statement_via_template_export',
+        options: ['expose' => true],
+        methods: 'GET'
+    )]
+    public function exportViaTemplate(
+        FileService $fileService,
+        FileNameGenerator $fileNameGenerator,
+        StatementHandler $statementHandler,
+        StatementViaTemplateExporter $exporter,
+        string $procedureId,
+        string $statementId,
+    ): StreamedResponse {
+        $request = $this->requestStack->getCurrentRequest();
+        $uploadedTemplateHash = $request->query->get(self::UPLOADED_TEMPLATE_HASH);
+        if (null === $uploadedTemplateHash || '' === $uploadedTemplateHash) {
+            throw new BadRequestHttpException('Missing uploaded template hash.');
+        }
+
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        $statement = $statementHandler->getStatementWithCertainty($statementId);
+
+        if (self::DOCX_MIME_TYPE !== $fileService->getFileInfo($uploadedTemplateHash)->getContentType()) {
+            throw new BadRequestHttpException('Uploaded file is not a DOCX template.');
+        }
+
+        $absolutePath = $fileService->ensureLocalFileFromHash($uploadedTemplateHash);
+
+        try {
+            $templateProcessor = $exporter->export($procedure, $statement, $absolutePath);
+        } catch (Exception $exception) {
+            $fileService->deleteLocalFile($absolutePath);
+            if ($exception instanceof InvalidStatementTemplateException) {
+                throw new UnprocessableEntityHttpException($exception->getMessage(), $exception);
+            }
+            throw $exception;
+        }
+
+        $fileNameTemplate = $request->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '');
+
+        $response = new StreamedResponse(
+            static function () use ($fileService, $templateProcessor, $absolutePath): void {
+                try {
+                    $templateProcessor->saveAs(self::OUTPUT_DESTINATION);
+                } finally {
+                    $fileService->deleteLocalFile($absolutePath);
+                }
+            }
+        );
+
+        $this->setResponseHeaders(
+            $response,
+            $fileNameGenerator->getFileName($statement, $fileNameTemplate).'.docx'
+        );
 
         return $response;
     }
