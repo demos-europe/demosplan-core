@@ -35,8 +35,8 @@ class ProcedureHandlerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get('dplan.procedure');
-        $this->mapService = self::$container->get(MapService::class);
+        $this->sut = self::getContainer()->get('dplan.procedure');
+        $this->mapService = self::getContainer()->get(MapService::class);
         $this->testProcedure = $this->fixtures->getReference('testProcedure');
     }
 

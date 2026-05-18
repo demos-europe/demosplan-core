@@ -4,7 +4,8 @@
 
     <tags-create-form
       :is-master-procedure="isMasterProcedure"
-      :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+    />
 
     <dp-tree-list
       v-if="transformedCategories"
@@ -22,17 +23,19 @@
         }
       }"
       :branch-identifier="isBranch"
-      @draggable:change="changeTopic">
+      @draggable:change="changeTopic"
+    >
       <template v-slot:header>
         <div class="flex">
           <div class="ml-4 flex-1">
             {{ Translator.trans('topic.or.tag') }}
           </div>
+
+          <addon-wrapper hook-name="tag.extend.form" />
+
           <div class="ml-1 flex-0 w-9">
             {{ Translator.trans('boilerplates') }}
           </div>
-
-          <addon-wrapper hook-name="tag.extend.form" />
 
           <div class="ml-1 flex-0 w-8 text-right">
             {{ Translator.trans('actions') }}
@@ -49,7 +52,8 @@
           @abort="closeEditForm"
           @delete="deleteItem"
           @edit="setEditState"
-          @save="save" />
+          @save="save"
+        />
       </template>
       <template v-slot:leaf="{ nodeElement }">
         <tag-list-edit-form
@@ -60,7 +64,8 @@
           @abort="closeEditForm"
           @delete="deleteItem"
           @edit="setEditState"
-          @save="save" />
+          @save="save"
+        />
       </template>
     </dp-tree-list>
 
@@ -68,16 +73,16 @@
 
     <tags-import-form
       class="mb-1"
-      :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+    />
   </div>
 </template>
 
 <script>
 import {
-  checkResponse,
   DpLoading,
   dpRpc,
-  DpTreeList
+  DpTreeList,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
@@ -95,82 +100,89 @@ export default {
     TagsCreateForm,
     TagsImportForm,
     TagListEditForm,
-    TagsListHeader
+    TagsListHeader,
   },
 
   props: {
     isMasterProcedure: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       dataIsRequested: false,
-      isInEditState: ''
+      isInEditState: '',
     }
   },
 
   computed: {
     ...mapState('Tag', {
-      Tag: 'items'
+      Tag: 'items',
     }),
     ...mapState('TagTopic', {
-      TagTopic: 'items'
+      TagTopic: 'items',
     }),
 
     transformedCategories () {
-      return Object.values(this.TagTopic).map(category => {
-        const { attributes, id, relationships, type } = category
-        const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
+      // Sort topics naturally (handles numbers: "1, 2, 3, 11, 12" instead of "1, 11, 12, 2, 3")
+      return Object.values(this.TagTopic)
+        .sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' }))
+        .map(category => {
+          const { attributes, id, relationships, type } = category
+          const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
 
-        return {
-          id,
-          attributes,
-          children: Object.values(tags).map(tag => {
-            const { attributes, id, relationships, type } = tag
-            const boilerplate = relationships?.boilerplate?.get ? relationships.boilerplate.get() : null
+          // Sort tags naturally within each topic
+          const sortedTags = Object.values(tags)
+            .sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' }))
 
-            return {
-              attributes,
-              id,
-              relationships: { boilerplate },
-              type
-            }
-          }),
-          relationships,
-          type
-        }
-      })
-    }
+          return {
+            id,
+            attributes,
+            children: sortedTags.map(tag => {
+              const { attributes, id, relationships, type } = tag
+              const boilerplate = relationships?.boilerplate?.get ? relationships.boilerplate.get() : null
+
+              return {
+                attributes,
+                id,
+                relationships: { boilerplate },
+                type,
+              }
+            }),
+            relationships,
+            type,
+          }
+        })
+    },
   },
 
   methods: {
     ...mapMutations('Tag', {
-      updateTag: 'setItem'
+      updateTag: 'setItem',
     }),
 
     ...mapMutations('TagTopic', {
-      updateTagTopic: 'setItem'
+      updateTagTopic: 'setItem',
     }),
 
     ...mapActions('Tag', {
       createTag: 'create',
       listTags: 'list',
-      saveTag: 'save'
+      saveTag: 'save',
     }),
 
     ...mapActions('TagTopic', {
       createTagTopic: 'create',
       listTagTopics: 'list',
-      saveTagTopic: 'save'
+      saveTagTopic: 'save',
     }),
 
     closeEditForm () {
@@ -182,21 +194,21 @@ export default {
         id: parentTopic.id,
         type: 'TagTopic',
         attributes: parentTopic.attributes,
-        relationships: parentTopic.relationships
-          ? {
-              ...parentTopic.relationships,
-              tags: {
-                data: parentTopic.relationships.tags.data.concat({
-                  type: 'Tag',
-                  id: tagId
-                })
-              }
-            }
-          : {
-              tags: {
-                data: [{ type: 'Tag', id: tagId }]
-              }
-            }
+        relationships: parentTopic.relationships ?
+          {
+            ...parentTopic.relationships,
+            tags: {
+              data: parentTopic.relationships.tags.data.concat({
+                type: 'Tag',
+                id: tagId,
+              }),
+            },
+          } :
+          {
+            tags: {
+              data: [{ type: 'Tag', id: tagId }],
+            },
+          },
       })
 
       this.saveTagTopic(parentTopic.id)
@@ -224,7 +236,6 @@ export default {
 
     deleteItem (item) {
       dpRpc('bulk.delete.tags.and.topics', { ids: [item] })
-        .then(checkResponse)
         .then(() => {
           this.loadTagsAndTopics()
         })
@@ -240,7 +251,7 @@ export default {
       this.dataIsRequested = true
       const topicAttributes = [
         'title',
-        'tags'
+        'tags',
       ]
 
       this.listTagTopics({
@@ -248,11 +259,11 @@ export default {
           Tag: ['boilerplate', 'title'].join(),
           TagTopic: topicAttributes.join(),
           Boilerplate: [
-            'title'
-          ].join()
+            'title',
+          ].join(),
         },
         include: 'tags,tags.boilerplate',
-        sort: 'title'
+        sort: 'title',
       }).then(() => {
         this.dataIsRequested = false
       })
@@ -269,9 +280,9 @@ export default {
         type: 'TagTopic',
         relationships: {
           tags: {
-            data: oldParentTags
-          }
-        }
+            data: oldParentTags,
+          },
+        },
       })
 
       this.saveTagTopic(oldParent.id)
@@ -291,7 +302,7 @@ export default {
         attributes,
         id,
         relationships: this[type][id]?.relationships,
-        type
+        type,
       })
       this[saveMethod](id)
         .then(() => {
@@ -301,11 +312,11 @@ export default {
 
     setEditState ({ id }) {
       this.isInEditState = id
-    }
+    },
   },
 
   mounted () {
     this.loadTagsAndTopics()
-  }
+  },
 }
 </script>

@@ -26,7 +26,7 @@ class DraftStatementHandlerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(DraftStatementHandler::class);
+        $this->sut = self::getContainer()->get(DraftStatementHandler::class);
         $this->testDraftStatement = $this->fixtures->getReference('testDraftStatement');
     }
 

@@ -20,7 +20,7 @@ import UrlPreview from '@DpJs/lib/shared/UrlPreview'
 const components = {
   DpAccordion,
   DpEditor,
-  OrganisationDataForm
+  OrganisationDataForm,
 }
 
 initialize(components).then(() => {

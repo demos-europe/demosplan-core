@@ -26,7 +26,7 @@ class DocumentHandlerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(DocumentHandler::class);
+        $this->sut = self::getContainer()->get(DocumentHandler::class);
     }
 
     public function testHasProcedurePlanningDocuments()

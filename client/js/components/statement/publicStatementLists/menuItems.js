@@ -30,7 +30,15 @@ const targets = {
   draft: 'DemosPlan_statement_list_draft',
   released: 'DemosPlan_statement_list_released',
   released_group: 'DemosPlan_statement_list_released_group',
-  final_group: 'DemosPlan_statement_list_final_group'
+  final_group: 'DemosPlan_statement_list_final_group',
+}
+
+// Map target types to email routes (handles both GET and POST)
+const emailRoutes = {
+  draft: 'DemosPlan_statement_draft_send',
+  released: 'DemosPlan_statement_released_send',
+  released_group: 'DemosPlan_statement_released_group_send',
+  final_group: 'DemosPlan_statement_final_send',
 }
 
 const generateMenuItems = ({ fields, id, number, procedureId, target, isPublished }) => {
@@ -39,10 +47,10 @@ const generateMenuItems = ({ fields, id, number, procedureId, target, isPublishe
       name: 'email',
       type: 'link',
       attrs: {
-        'data-cy': 'emailSendAs'
+        'data-cy': 'emailSendAs',
       },
-      url: Routing.generate('DemosPlan_statement_send', { statementID: id, procedure: procedureId, target }),
-      text: Translator.trans('email.send.as')
+      url: Routing.generate(emailRoutes[target] || 'DemosPlan_statement_draft_send', { statementID: id, procedure: procedureId }),
+      text: Translator.trans('email.send.as'),
     },
 
     pdf: {
@@ -51,25 +59,25 @@ const generateMenuItems = ({ fields, id, number, procedureId, target, isPublishe
       attrs: {
         type: 'submit',
         'data-form-actions-pdf-single': id,
-        'aria-label': `${Translator.trans('statement.download.pdf', { id: number })}`
+        'aria-label': `${Translator.trans('statement.download.pdf', { id: number })}`,
       },
-      text: Translator.trans('pdf.download')
+      text: Translator.trans('pdf.download'),
     },
 
     edit: {
       name: 'edit',
       type: 'button',
       callback: (e, vue) => {
-        vue.$emit('open-statement-modal-from-list', id)
+        vue.$emit('openStatementModalFromList', id)
       },
 
       attrs: {
         type: 'button',
-        class: 'o-flyout-menu__item',
+        class: '',
         'data-cy': 'statementEdit',
-        'aria-label': Translator.trans('statement.edit.with.id', { id: number })
+        'aria-label': Translator.trans('statement.edit.with.id', { id: number }),
       },
-      text: Translator.trans('edit')
+      text: Translator.trans('edit'),
 
     },
 
@@ -80,9 +88,9 @@ const generateMenuItems = ({ fields, id, number, procedureId, target, isPublishe
       attrs: {
         'data-form-actions-confirm': Translator.trans('check.statement.delete'),
         'aria-label': Translator.trans('statement.delete', { id: number }),
-        'data-cy': 'deleteDraftedStatement'
+        'data-cy': 'deleteDraftedStatement',
       },
-      text: Translator.trans('delete')
+      text: Translator.trans('delete'),
     },
 
     reject: {
@@ -91,7 +99,7 @@ const generateMenuItems = ({ fields, id, number, procedureId, target, isPublishe
       callback: (e) => {
         reject(e, id)
       },
-      text: Translator.trans('reject')
+      text: Translator.trans('reject'),
     },
 
     publish: {
@@ -99,13 +107,13 @@ const generateMenuItems = ({ fields, id, number, procedureId, target, isPublishe
       type: 'link',
       url: Routing.generate((isPublished && 'DemosPlan_statement_unpublish') || 'DemosPlan_statement_publish', {
         statementID: id,
-        procedure: procedureId
+        procedure: procedureId,
       }),
       attrs: {
         'data-cy': 'statementPublishUnpublish',
-        'data-form-actions-confirm': Translator.trans((isPublished && 'check.statement.unpublish') || 'check.statement.publish')
+        'data-form-actions-confirm': Translator.trans((isPublished && 'check.statement.unpublish') || 'check.statement.publish'),
       },
-      text: Translator.trans((isPublished && 'statement.unpublish.invitable_institution') || 'statement.publish.invitable_institution')
+      text: Translator.trans((isPublished && 'statement.unpublish.invitable_institution') || 'statement.publish.invitable_institution'),
     },
 
     versions: {
@@ -113,10 +121,10 @@ const generateMenuItems = ({ fields, id, number, procedureId, target, isPublishe
       type: 'link',
       url: Routing.generate('DemosPlan_statement_versions', { statementID: id, procedure: procedureId }),
       attrs: {
-        'data-cy': 'showVersionsStatement'
+        'data-cy': 'showVersionsStatement',
       },
-      text: Translator.trans('versions')
-    }
+      text: Translator.trans('versions'),
+    },
   }
 
   return fields.map(f => menuItems[f])

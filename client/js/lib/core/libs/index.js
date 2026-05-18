@@ -28,5 +28,5 @@ export {
   Pager,
   ToggleAnything,
   ToggleSideMenu,
-  touchFriendlyUserbox
+  touchFriendlyUserbox,
 }

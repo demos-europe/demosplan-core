@@ -8,24 +8,24 @@
 </license>
 
 <script>
+import { h, resolveComponent } from 'vue'
 import { DpInlineNotification } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'AdministrationImportNone',
 
-  functional: true,
-
   components: {
-    DpInlineNotification
+    DpInlineNotification,
   },
 
-  render: function (createElement) {
-    return createElement(DpInlineNotification, {
+  render () {
+    const DpInlineNotification = resolveComponent('dp-inline-notification')
+    return () => h(DpInlineNotification, {
       props: {
         message: Translator.trans('import.options.none'),
-        type: 'warning'
-      }
+        type: 'warning',
+      },
     })
-  }
+  },
 }
 </script>

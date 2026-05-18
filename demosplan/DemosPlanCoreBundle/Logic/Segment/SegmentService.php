@@ -15,26 +15,28 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SegmentServiceInterface;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityNotFoundException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 
 class SegmentService extends CoreService implements SegmentServiceInterface
 {
     public function __construct(
         private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly RecommendationVersionService $recommendationVersionService,
         private readonly SegmentValidator $segmentValidator,
         private readonly SegmentRepository $segmentRepository,
-        private readonly TransactionService $transactionService
+        private readonly TransactionService $transactionService,
     ) {
     }
 
@@ -127,7 +129,7 @@ class SegmentService extends CoreService implements SegmentServiceInterface
         bool $attach,
         UserInterface $user,
         string $entityType,
-        DateTime $updateTime
+        DateTime $updateTime,
     ): void {
         // create and persist the content changes
         $contentChanges = $this->createRecommendationEditContentChangeEntries(
@@ -140,8 +142,14 @@ class SegmentService extends CoreService implements SegmentServiceInterface
         );
         $this->segmentRepository->persistEntities($contentChanges);
 
+        // Record recommendation versions before the DQL UPDATE runs.
+        // This method bypasses Statement::setRecommendation() (uses raw DQL for performance),
+        // so we must call recordVersion() explicitly here.
+        // @see Statement::setRecommendation() for the ORM-based hook that handles all other paths.
+        $this->recommendationVersionService->recordVersionsForBulkEdit($segments, $recommendationText, $attach);
+
         // do the actual change in the database
-        $segmentIds = array_map(static fn(Segment $segment): string => $segment->getId(), $segments);
+        $segmentIds = array_map(static fn (Segment $segment): string => $segment->getId(), $segments);
         $this->segmentRepository->editSegmentRecommendations($segmentIds, $procedureId, $recommendationText, $attach);
     }
 
@@ -157,7 +165,7 @@ class SegmentService extends CoreService implements SegmentServiceInterface
         $segmentChanges = $this->getSegmentChanges($segments);
 
         $contentChangeLists = array_map(
-            fn(Segment $segment): array => $this->entityContentChangeService->createEntityContentChangeEntries(
+            fn (Segment $segment): array => $this->entityContentChangeService->createEntityContentChangeEntries(
                 $segment,
                 $segmentChanges[$segment->getId()],
                 false,
@@ -252,8 +260,8 @@ class SegmentService extends CoreService implements SegmentServiceInterface
         bool $attach,
         string $entityType,
         UserInterface $changer,
-        DateTime $creationDate
-    ): EntityContentChange {
+        DateTime $creationDate,
+    ): ?EntityContentChange {
         $preUpdateValue = $segment->getRecommendation();
         $postUpdateValue = $attach
             ? $preUpdateValue.$recommendationText
@@ -264,6 +272,10 @@ class SegmentService extends CoreService implements SegmentServiceInterface
             SegmentInterface::RECOMMENDATION_FIELD_NAME,
             Segment::class
         );
+        if (null === $contentChange) {
+            // no diff in content registered or only white space differences - do not create an entry here
+            return null;
+        }
 
         $change = $this->entityContentChangeService->createEntityContentChangeEntity(
             $segment,
@@ -293,18 +305,35 @@ class SegmentService extends CoreService implements SegmentServiceInterface
         string $recommendationText,
         bool $attach,
         UserInterface $user,
-        DateTime $creationTime
+        DateTime $creationTime,
     ): array {
-        return array_map(
-            fn(Segment $segment): EntityContentChange => $this->createRecommendationContentChange(
+        $contentChanges = [];
+        foreach ($segments as $segment) {
+            $contentChange = $this->createRecommendationContentChange(
                 $segment,
                 $recommendationText,
                 $attach,
                 $entityType,
                 $user,
                 $creationTime
-            ),
-            $segments
-        );
+            );
+            if (null !== $contentChange) {
+                $contentChanges[] = $contentChange;
+            }
+        }
+
+        return $contentChanges;
+    }
+
+    /**
+     * Delete a segment from the database.
+     * All segment relevant child relations like SegmentComment are handled via cascade delete.
+     *
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function deleteSegment(Segment $segment): void
+    {
+        $this->segmentRepository->deleteSegmentObject($segment);
     }
 }

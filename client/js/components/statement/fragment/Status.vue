@@ -11,10 +11,11 @@
   <div>
     <!-- If component is used with :tooltip="false" -->
     <div
+      v-if="!tooltip"
       class="cursor-help"
       :class="{'c-at-item__badge': badge}"
       :title="voteString"
-      v-if="!tooltip">
+    >
       <slot name="title" />
 
       <i
@@ -24,14 +25,16 @@
           'fa-question': status === '',
           'fa-check': status !== ''
         }"
-        aria-hidden="true" />
+        aria-hidden="true"
+      />
     </div>
 
     <!-- If component is used without specifying `tooltip` prop (which defaults to true)... -->
     <v-popover
       v-else
       placement="top"
-      trigger="hover focus">
+      trigger="hover focus"
+    >
       <!-- Target/Trigger (for the events and position) -->
       <div>
         <slot name="title" />
@@ -42,7 +45,8 @@
             'fa-question': status === '',
             'fa-check': status !== ''
           }"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
       </div>
 
       <!-- Content -->
@@ -51,15 +55,18 @@
           <!-- fragment is assigned to reviewer, planners see this -->
           <div
             v-if="hasPermission('feature_statements_fragment_add_reviewer') && voteAdvicePending"
-            v-cleanhtml="voteAdvicePending" />
+            v-cleanhtml="voteAdvicePending"
+          />
           <!-- no process until now -->
           <div
             v-else-if="status === ''"
-            v-cleanhtml="Translator.trans(transNone)" />
+            v-cleanhtml="Translator.trans(transNone)"
+          />
           <!-- show state -->
           <div
             v-else
-            v-cleanhtml="voteSentence" />
+            v-cleanhtml="voteSentence"
+          />
         </div>
       </template>
     </v-popover>
@@ -73,37 +80,37 @@ export default {
   name: 'DpFragmentStatus',
 
   components: {
-    VPopover
+    VPopover,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     status: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     fragmentId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     //  If a reviewer reassigned a fragment, the reviewers orga/department is displayed with the given voteAdvice
     archivedOrgaName: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     archivedDepartmentName: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     /*
@@ -113,35 +120,35 @@ export default {
     voteAdvicePending: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     //  Layout property: display status inside a badge
     badge: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     //  Layout property: display a tooltip with further information about status
     tooltip: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     //  Translation keys
     transNone: {
       required: false,
       type: String,
-      default: 'fragment.voteAdvice.status.none'
+      default: 'fragment.voteAdvice.status.none',
     },
 
     transDone: {
       required: false,
       type: String,
-      default: 'fragment.voteAdvice.status.done'
-    }
+      default: 'fragment.voteAdvice.status.done',
+    },
   },
 
   computed: {
@@ -165,10 +172,10 @@ export default {
     voteSentence () {
       const transParams = {
         reviewer: this.archivedReviewerFullName,
-        vote: this.voteString
+        vote: this.voteString,
       }
       return Translator.trans(this.transDone, transParams)
-    }
-  }
+    },
+  },
 }
 </script>

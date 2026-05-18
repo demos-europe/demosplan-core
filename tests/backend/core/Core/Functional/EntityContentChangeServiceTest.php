@@ -11,14 +11,23 @@
 namespace Tests\Core\Core\Functional;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentBulkEditorService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use Monolog\Logger;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
 
@@ -29,6 +38,12 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
 
     /** @var StatementService */
     protected $statementService;
+
+    /** @var SegmentBulkEditorService */
+    protected $segmentBulkEditService;
+
+    /** @var SegmentHandler */
+    protected $segmentHandler;
 
     /**
      * @var Session
@@ -49,6 +64,8 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         parent::setUp();
 
         $this->sut = $this->getContainer()->get(EntityContentChangeService::class);
+        $this->segmentBulkEditService = $this->getContainer()->get(SegmentBulkEditorService::class);
+        $this->segmentHandler = $this->getContainer()->get(SegmentHandler::class);
         $this->statementService = $this->getContainer()->get(StatementService::class);
         $this->entityHelper = $this->getContainer()->get(EntityHelper::class);
 
@@ -65,13 +82,13 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
 
         $contentChangeDiff = $this->sut->calculateChanges($testStatement, Statement::class);
 
-        $result = $this->sut->maybeCreateEntityContentChangeEntry(
+        $entries = $this->sut->createEntityContentChangeEntries(
             $testStatement,
-            'text',
-            $contentChangeDiff['text'],
-            $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY),
+            $contentChangeDiff,
+            false,
             new DateTime()
         );
+        $result = $entries[0];
 
         // have to do, because of doctrine proxy object
         $expectedSimplifyClassName =
@@ -86,6 +103,7 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
 
     public function testGetHistoryOfEntity(): void
     {
+        // using AAA should erase the problem of amount of results are depending of the order of fixtures
         /** @var Statement $testStatement */
         $testStatement = $this->fixtures->getReference('testStatement');
 
@@ -187,61 +205,220 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
     }
 
     /**
-     * Testing if content changes are detected and working.
-     * Cases:
-     *  - object update with content change, using field memo → expect no change detected
-     *  - array update with content change, using field memo  → expect change detected.
-     *
-     * Also mock logger to check if logging is working.
-     * Always expect Statement instance as return value if it successfully updated the entry.
-     * Else it must be false.
+     * Testing the history of the custom field value change on bulk update of segments.
      */
-    public function testUpdateStatementWithContentChanges(): void
+    public function testEntityContentChangeEntryOnUpdateCustomFieldValue(): void
     {
-        self::markSkippedForCIIntervention();
-        // Need to implement this. But first unit tests have to work again.
+        $procedure = ProcedureFactory::createOne();
+        $segments = SegmentFactory::createMany(2, ['procedure' => $procedure, 'assignee' => $this->testUser]);
+        $customField1 = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->asRadioButton('Color1')->create();
+        $customField2 = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->asRadioButton('Color2')->create();
 
-        /** @var Statement $statement */
-        $statement = $this->getReference('testStatement');
-        $statementArray = $this->entityHelper->toArray($statement);
+        $customField1Option1 = $customField1->getConfiguration()->getOptions()[0];
+        $customField2Option3 = $customField2->getConfiguration()->getOptions()[2];
 
-        $this->assertArrayHasKey('ident', $statementArray);
-        $this->assertArrayHasKey('memo', $statementArray);
+        $preUpdateContentChangeEntriesCount = $this->countEntries(EntityContentChange::class);
 
-        $this->assertEquals($statement->getMemo(), $statementArray['memo']);
+        $segments[0] = $segments[0]->_real();
+        $segments[1] = $segments[1]->_real();
+        $resultSegments = [];
+        /** @var Segment[] $segments */
+        $segments = $this->segmentBulkEditService->updateSegments(
+            $segments,
+            [],
+            [],
+            $this->testUser,
+            null,
+            [
+                ['id' => $customField1->getId(), 'value' => $customField1Option1->getId()],
+                ['id' => $customField2->getId(), 'value' => $customField2Option3->getId()],
+            ]
+        );
 
-        $mockBuilder = $this->getMockBuilder(Logger::class);
-        $mockBuilder->disableOriginalConstructor();
+        $resultSegments = [...$resultSegments, ...$segments];
+        $methodCallTime = new DateTime();
+        $this->segmentHandler->updateObjects($resultSegments, $methodCallTime);
 
-        // Somehow need a way to check if this message has been logged
-        $logger = $mockBuilder->getMock();
-        $logger->method('info')->with('Could not determine content changes for statement because of object structure.');
+        self::assertCount($preUpdateContentChangeEntriesCount + 4, $this->getEntries(EntityContentChange::class));
 
-        // ->will(function($message) {
-//        $testCase::assertEquals('Could not determine content changes for statement because of object structure.', $message);
-//        });
+        // check history of segment1
+        /** @var EntityContentChange[] $historyOfSegment1 */
+        $historyOfSegment1 = $this->getEntries(
+            EntityContentChange::class,
+            ['entityType' => Segment::class, 'entityId' => $segments[0]->getId()]
+        );
+        self::assertCount(2, $historyOfSegment1);
+        self::assertInstanceOf(EntityContentChange::class, $historyOfSegment1[0]);
+        self::assertInstanceOf(EntityContentChange::class, $historyOfSegment1[1]);
 
-        $updatedStatementObject = null;
+        $newValuesOfHistoryOfSegment1 = [];
+        foreach ($historyOfSegment1 as $entityContentChange) {
+            // this is necessary because of the order of the entries in the history is variable (sort by createdDate)
+            $newValuesOfHistoryOfSegment1[] = Json::decodeToArray($entityContentChange->getContentChange())[0][0]['new']['lines'][0];
+        }
 
-        // update array. expect content change to be detected. checking by requesting entity contentChange.
-        $statementArray['memo'] = 'somethingElseThanBeforeInArrayStructure';
-        $updatedStatementObject = $this->statementService->updateStatement($statementArray);
-        $this->assertInstanceOf(Statement::class, $updatedStatementObject);
-        $this->assertEquals($updatedStatementObject->getMemo(), 'somethingElseThanBeforeInArrayStructure');
-        /** @var EntityContentChange[] $contentChange */
-        $contentChange = $this->sut->getChangesByEntityId($updatedStatementObject->getId());
-        $lastChange = $contentChange[count($contentChange) - 1];
-        $this->assertEquals($lastChange->getEntityField(), 'memo');
+        $selectedOptionCustomField1Id = $segments[0]->getCustomFields()->findById($customField1->getId())->getValue();
+        $selectedOptionCustomField1Label = $customField1->getConfiguration()->getCustomOptionValueById($selectedOptionCustomField1Id)->getLabel();
+        self::assertEquals('', Json::decodeToArray($historyOfSegment1[0]->getContentChange())[0][0]['old']['lines'][0]);
+        self::assertContains(
+            $selectedOptionCustomField1Label,
+            $newValuesOfHistoryOfSegment1
+        );
 
-        // Reset $updatedStatementObject
-        $updatedStatementObject = null;
+        $selectedOptionCustomField2Id = $segments[0]->getCustomFields()->findById($customField2->getId())->getValue();
+        $selectedOptionCustomField2Label = $customField2->getConfiguration()->getCustomOptionValueById($selectedOptionCustomField2Id)->getLabel();
+        self::assertEquals('', Json::decodeToArray($historyOfSegment1[1]->getContentChange())[0][0]['old']['lines'][0]);
+        self::assertContains(
+            $selectedOptionCustomField2Label,
+            $newValuesOfHistoryOfSegment1
+        );
 
-        // update object. set logger to expect no content change detected
-        $statement->setMemo('somethingElseThanBefore');
-        // set logger to check if we get log entry → see mock
-        $this->statementService->setLogger($logger);
-        $updatedStatementObject = $this->statementService->updateStatement($statement);
-        $this->assertInstanceOf(Statement::class, $updatedStatementObject);
-        $this->assertEquals($updatedStatementObject->getMemo(), 'somethingElseThanBefore');
+        // check history of segment1
+        /** @var EntityContentChange[] $historyOfSegment2 */
+        $historyOfSegment2 = $this->getEntries(
+            EntityContentChange::class,
+            ['entityType' => Segment::class, 'entityId' => $segments[1]->getId()]
+        );
+        self::assertCount(2, $historyOfSegment2);
+        self::assertInstanceOf(EntityContentChange::class, $historyOfSegment2[0]);
+        self::assertInstanceOf(EntityContentChange::class, $historyOfSegment2[1]);
+
+        $newValuesOfHistoryOfSegment2 = [];
+        foreach ($historyOfSegment2 as $entityContentChange) {
+            // this is necessary because of the order of the entries in the history is variable (sort by createdDate)
+            $newValuesOfHistoryOfSegment2[] = Json::decodeToArray($entityContentChange->getContentChange())[0][0]['new']['lines'][0];
+        }
+
+        $selectedOptionCustomField1Id = $segments[1]->getCustomFields()->findById($customField1->getId())->getValue();
+        $selectedOptionCustomField1Label = $customField1->getConfiguration()->getCustomOptionValueById($selectedOptionCustomField1Id)->getLabel();
+        self::assertEquals('', Json::decodeToArray($historyOfSegment2[0]->getContentChange())[0][0]['old']['lines'][0]);
+        self::assertContains(
+            $selectedOptionCustomField1Label,
+            $newValuesOfHistoryOfSegment2
+        );
+
+        $selectedOptionCustomField2Id = $segments[1]->getCustomFields()->findById($customField2->getId())->getValue();
+        $selectedOptionCustomField2Label = $customField2->getConfiguration()->getCustomOptionValueById($selectedOptionCustomField2Id)->getLabel();
+        self::assertEquals('', Json::decodeToArray($historyOfSegment2[1]->getContentChange())[0][0]['old']['lines'][0]);
+        self::assertContains(
+            $selectedOptionCustomField2Label,
+            $newValuesOfHistoryOfSegment2
+        );
+    }
+
+    /**
+     * @throws InvalidDataException
+     * @throws JsonException
+     */
+    public function testCalculateChangesWithEntity(): void
+    {
+        $originalText = 'Original text content';
+        $originalMemo = 'Original memo content';
+
+        /** @var Statement $testStatement */
+        $testStatement = StatementFactory::createOne([
+            'text' => $originalText,
+            'memo' => $originalMemo,
+        ])->_real();
+
+        $testStatement->setText('Updated text content');
+        $testStatement->setMemo('Updated memo content');
+
+        $changes = $this->sut->calculateChanges($testStatement, Statement::class);
+
+        static::assertIsArray($changes);
+
+        static::assertArrayHasKey('text', $changes);
+        $oldText = $this->getPreUpdateValueOfContentChange('text', $changes);
+        $newText = $this->getPostUpdateValueOfContentChange('text', $changes);
+
+        static::assertArrayHasKey('memo', $changes);
+        $oldMemo = $this->getPreUpdateValueOfContentChange('memo', $changes);
+        $newMemo = $this->getPostUpdateValueOfContentChange('memo', $changes);
+
+        static::assertStringContainsString($originalText, $oldText);
+        static::assertStringContainsString('Updated text content', $newText);
+        static::assertStringContainsString($originalMemo, $oldMemo);
+        static::assertStringContainsString('Updated memo content', $newMemo);
+    }
+
+    /**
+     * @throws InvalidDataException
+     * @throws JsonException
+     */
+    public function testCalculateChangesWithArray(): void
+    {
+        $originalText = 'Original text content for array test';
+        $originalMemo = 'Original memo content for array test';
+
+        /** @var Statement $testStatement */
+        $testStatement = StatementFactory::createOne([
+            'text' => $originalText,
+            'memo' => $originalMemo,
+        ])->_real();
+
+        $updateData = [
+            'ident' => $testStatement->getId(),
+            'text'  => 'Updated text via array',
+            'memo'  => 'Updated memo via array',
+        ];
+
+        $changes = $this->sut->calculateChanges($updateData, Statement::class);
+
+        static::assertIsArray($changes);
+        static::assertArrayHasKey('text', $changes);
+        static::assertArrayHasKey('memo', $changes);
+        static::assertIsString($changes['text']);
+        static::assertIsString($changes['memo']);
+
+        static::assertArrayHasKey('text', $changes);
+        $oldText = $this->getPreUpdateValueOfContentChange('text', $changes);
+        $newText = $this->getPostUpdateValueOfContentChange('text', $changes);
+
+        static::assertArrayHasKey('memo', $changes);
+        $oldMemo = $this->getPreUpdateValueOfContentChange('memo', $changes);
+        $newMemo = $this->getPostUpdateValueOfContentChange('memo', $changes);
+
+        static::assertStringContainsString($originalText, $oldText);
+        static::assertStringContainsString('Updated text via array', $newText);
+        static::assertStringContainsString($originalMemo, $oldMemo);
+        static::assertStringContainsString('Updated memo via array', $newMemo);
+    }
+
+    public function testCalculateChangesWithNoChanges(): void
+    {
+        /** @var Statement $testStatement */
+        $testStatement = $this->fixtures->getReference('testStatement');
+
+        $updateData = [
+            'ident' => $testStatement->getId(),
+            'text'  => $testStatement->getText(),
+            'memo'  => $testStatement->getMemo(),
+        ];
+
+        $changes = $this->sut->calculateChanges($updateData, Statement::class);
+
+        static::assertIsArray($changes);
+        static::assertEmpty($changes);
+    }
+
+    /**
+     * @throws JsonException
+     */
+    private function getPreUpdateValueOfContentChange(string $key, array $changes): string
+    {
+        return strip_tags(Json::decodeToArray($changes[$key])[0][0]['old']['lines'][0]);
+    }
+
+    /**
+     * @throws JsonException
+     */
+    private function getPostUpdateValueOfContentChange(string $key, array $changes): string
+    {
+        return strip_tags(Json::decodeToArray($changes[$key])[0][0]['new']['lines'][0]);
     }
 }

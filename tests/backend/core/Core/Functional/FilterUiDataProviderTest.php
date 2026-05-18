@@ -27,7 +27,7 @@ class FilterUiDataProviderTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(FilterUiDataProvider::class);
+        $this->sut = self::getContainer()->get(FilterUiDataProvider::class);
         $reflectionProperty = new ReflectionProperty($this->sut, 'relativeFilterNamesPath');
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($this->sut, '../tests/backend/core/Core/Functional/res/tagFilterNames.yaml');

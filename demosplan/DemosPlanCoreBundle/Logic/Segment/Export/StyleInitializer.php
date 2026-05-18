@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\SimpleType\Jc;
@@ -23,14 +24,19 @@ class StyleInitializer
      */
     private array $styles;
 
+    public function __construct(
+        private readonly DocumentWriterSelector $writerSelector,
+    ) {
+    }
+
     /**
      * @return array<string, mixed>
      */
-    public function initialize(): array
+    public function initialize(int $smallColumnWidth = 1550, int $wideColumnWidth = 6950): array
     {
         $this->initializeGlobalStyles();
         $this->initializeHeaderStyles();
-        $this->initializeSegmentStyles();
+        $this->initializeSegmentStyles($smallColumnWidth, $wideColumnWidth);
         $this->initializeFooterStyles();
 
         return $this->styles;
@@ -63,15 +69,16 @@ class StyleInitializer
         $this->styles['statementInfoEmptyCell'] = new CellExportStyle(6500);
     }
 
-    private function initializeSegmentStyles(): void
+    private function initializeSegmentStyles(int $smallColumnWidth, int $wideColumnWidth): void
     {
         $this->styles['noInfoMessageFont'] = ['size' => 12];
-        $wideColumnWidth = 6950;
-        $smallColumnWidth = 1550;
+
         $headerCellStyle = ['borderSize'  => 5, 'borderColor' => '000000', 'bold' => true];
+        $headerCellStyle = $this->writerSelector->getCellStyleForFormat($headerCellStyle);
         $headerPargraphStyle = ['spaceBefore' => Converter::cmToTwip(0.15), 'spaceAfter' => Converter::cmToTwip(0.15)];
         $headerFontStyle = ['bold' => true];
         $bodyCellStyle = ['borderSize'  => 5, 'borderColor' => '000000'];
+        $bodyCellStyle = $this->writerSelector->getCellStyleForFormat($bodyCellStyle);
         $bodyParagraphStyle = ['lineHeight'  => 1.2, 'spaceBefore' => Converter::cmToTwip(0.15), 'spaceAfter' => Converter::cmToTwip(0.15)];
 
         $this->styles['segmentsTable'] = [

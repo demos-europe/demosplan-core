@@ -13,49 +13,56 @@
     <dp-table-card-list-header
       :items="headerItems"
       class="u-pt"
+      search-placeholder="search.users"
+      searchable
+      selectable
       @reset-search="resetSearch"
       @select-all="val => dpToggleAll(val, users)"
       @search="val => handleSearch(val)"
-      search-placeholder="search.users"
-      searchable
-      selectable>
+    >
       <template
         v-if="hasPermission('feature_user_delete')"
-        v-slot:header-buttons>
+        v-slot:header-buttons
+      >
         <div class="layout__item u-1-of-2 text-right u-mb-0_5">
           <dp-button
             color="warning"
             data-cy="deleteSelectedItems"
             :text="deleteSelectedUserLabel"
-            @click.prevent="deleteUsers(selectedItems)" />
+            @click.prevent="deleteUsers(selectedItems)"
+          />
           <dp-button
             class="u-ml-0_25"
             color="secondary"
             data-cy="resetSelectedItems"
             :text="Translator.trans('unselect')"
-            @click="dpToggleAll(false, users)" />
+            @click="dpToggleAll(false, users)"
+          />
         </div>
       </template>
     </dp-table-card-list-header>
 
     <dp-loading
       v-if="isLoading"
-      class="u-ml u-mt" />
+      class="u-ml u-mt"
+    />
 
     <!-- card items -->
     <ul
       v-if="isLoading === false"
-      class="u-ml-0">
+      class="u-ml-0"
+    >
       <dp-user-list-extended-item
         v-for="(user, id) in users"
         :key="user.id"
         :all-organisations="organisations"
         :user="user"
-        @delete="deleteSingelUser(user.id)"
         :is-open="expandedCardId === id"
+        :selected="Object.hasOwn(itemSelections, user.id) && itemSelections[user.id] === true"
+        @delete="deleteSingelUser(user.id)"
         @card:toggle="setExpandedCardId(id)"
         @item:selected="dpToggleOne"
-        :selected="Object.hasOwn(itemSelections, user.id) && itemSelections[user.id] === true" />
+      />
     </ul>
 
     <!-- pager -->
@@ -64,7 +71,8 @@
       class="u-mr-0_25 u-ml-0_5 u-mt-0_5"
       :current="currentPage"
       :total="totalPages"
-      @page-change="getUsersByPage" />
+      @page-change="getUsersByPage"
+    />
   </div>
 </template>
 
@@ -73,9 +81,10 @@ import {
   debounce,
   dpApi, DpButton,
   DpLoading,
-  dpSelectAllMixin
+  dpSelectAllMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpTableCardListHeader from '@DpJs/components/user/DpTableCardList/DpTableCardListHeader'
 import DpUserListExtendedItem from './DpUserListExtendedItem'
 
@@ -85,12 +94,12 @@ export default {
   components: {
     DpButton,
     DpLoading,
-    DpSlidingPagination: async () => {
+    DpSlidingPagination: defineAsyncComponent(async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
       return DpSlidingPagination
-    },
+    }),
     DpTableCardListHeader,
-    DpUserListExtendedItem
+    DpUserListExtendedItem,
   },
 
   mixins: [dpSelectAllMixin],
@@ -102,23 +111,22 @@ export default {
       filterValue: '',
       headerItems: [
         { label: 'Name', width: 'u-1-of-4' },
-        { label: 'Login', width: 'u-1-of-4' },
-        { label: 'E-Mail', width: 'u-1-of-4' }
+        { label: 'E-Mail', width: 'u-1-of-4' },
       ],
       isFiltered: false,
       isLoading: true,
-      organisations: []
+      organisations: [],
     }
   },
 
   computed: {
     ...mapState('Role', {
-      roles: 'items'
+      roles: 'items',
     }),
     ...mapState('AdministratableUser', {
       users: 'items',
       currentPage: 'currentPage',
-      totalPages: 'totalPages'
+      totalPages: 'totalPages',
     }),
 
     deleteSelectedUserLabel () {
@@ -128,19 +136,19 @@ export default {
     selectedItems () {
       // The prop `itemSelections` and the method `dpToggleOne` are from `dpSelectAllMixin`
       return Object.keys(this.users).filter(id => this.itemSelections[id])
-    }
+    },
   },
 
   methods: {
     ...mapActions('Department', {
-      departmentList: 'list'
+      departmentList: 'list',
     }),
     ...mapActions('Role', {
-      roleList: 'list'
+      roleList: 'list',
     }),
     ...mapActions('AdministratableUser', {
       userList: 'list',
-      deleteUser: 'delete'
+      deleteUser: 'delete',
     }),
 
     deleteSingelUser (id) {
@@ -149,8 +157,19 @@ export default {
       }
 
       return this.deleteUser(id)
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+        .then((response) => {
+          // Check if the HTTP response indicates an error
+          if (response && (response.status >= 400 || response.ok === false)) {
+            // HTTP error status, show error message
+            dplan.notify.notify('error', Translator.trans('error.delete.user'))
+          } else {
+            // Successful deletion, show success message
+            dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to delete user:', error)
+          dplan.notify.notify('error', Translator.trans('error.delete.user'))
         })
     },
 
@@ -159,11 +178,30 @@ export default {
         return
       }
 
-      ids.map(id => {
+      let successCount = 0
+      let errorCount = 0
+
+      Promise.allSettled(ids.map(id => {
         return this.deleteUser(id)
-          .then(() => {
-            dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+          .then((response) => {
+            // Check if the HTTP response indicates an error
+            if (response && (response.status >= 400 || response.ok === false)) {
+              errorCount++
+            } else {
+              successCount++
+            }
           })
+          .catch((error) => {
+            console.error('Failed to delete user:', error)
+            errorCount++
+          })
+      })).then(() => {
+        if (successCount > 0) {
+          dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
+        }
+        if (errorCount > 0) {
+          dplan.notify.notify('error', Translator.trans('error.delete.user'))
+        }
       })
     },
 
@@ -176,8 +214,8 @@ export default {
       return dpApi.get(url, {
         include: ['departments', 'masterToeb'].join(),
         fields: {
-          Orga: ['departments', 'masterToeb', 'name'].join()
-        }
+          Orga: ['departments', 'masterToeb', 'name'].join(),
+        },
       })
         .then((response) => {
           this.organisations = response?.data?.data ?? {}
@@ -202,9 +240,9 @@ export default {
       const filter = {
         name: {
           group: {
-            conjunction: 'OR'
-          }
-        }
+            conjunction: 'OR',
+          },
+        },
       }
       this.filterValue.split(' ').forEach((subString, idx) => {
         filter[`firstname_${idx}`] = {
@@ -212,33 +250,33 @@ export default {
             path: 'firstname',
             value: subString,
             operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-            memberOf: 'name'
-          }
+            memberOf: 'name',
+          },
         }
         filter[`lastname_${idx}`] = {
           condition: {
             path: 'lastname',
             value: subString,
             operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-            memberOf: 'name'
-          }
+            memberOf: 'name',
+          },
         }
-        filter[`login_${idx}`] = {
+        filter[`email_${idx}`] = {
           condition: {
-            path: 'login',
+            path: 'email',
             value: subString,
             operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-            memberOf: 'name'
-          }
+            memberOf: 'name',
+          },
         }
       })
 
       this.userList({
         page: {
-          number: page ?? 1
+          number: page ?? 1,
         },
         filter: (this.filterValue !== '') ? filter : {},
-        include: ['roles', 'orga', 'department'].join()
+        include: ['roles', 'orga', 'department'].join(),
       })
         .then(() => {
           this.isLoading = false
@@ -271,11 +309,11 @@ export default {
      */
     setExpandedCardId (id) {
       this.expandedCardId = this.expandedCardId === id ? '' : id
-    }
+    },
   },
 
   mounted () {
     this.fetchResources()
-  }
+  },
 }
 </script>

@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\FileBag;
@@ -45,12 +46,15 @@ class FileUploadService implements FileUploadServiceInterface
             }
 
             if ($requestPost->has('uploadedFiles')) {
-                $uploadedFiles = $requestPost->get('uploadedFiles');
-                // array if multiupload is active, otherwise string
-                if (is_array($uploadedFiles)) {
+                // there is no way to find out beforehand whether uploadedFiles is an array or string
+                // therefore work with exceptions to be able to handle both types
+                try {
+                    // array if multiupload is active, otherwise string
+                    $uploadedFiles = $requestPost->all('uploadedFiles');
                     $savedFiles = $this->handleUploadedFiles($uploadedFiles, $field);
-                } elseif (0 < strlen((string) $uploadedFiles)) {
-                    // Falls kein Feld definiert ist, nutze einen nummeric key
+                } catch (BadRequestException) {
+                    $uploadedFiles = $requestPost->get('uploadedFiles');
+                    // in case no field is defined use a numeric key
                     $key = $field ?? 0;
                     $uploadedFiles = [$key => $uploadedFiles];
                     $savedFiles = $this->handleUploadedFiles($uploadedFiles, $field);
@@ -188,9 +192,15 @@ class FileUploadService implements FileUploadServiceInterface
         $fileBag = $request->files->all();
 
         if ($request->request->has('uploadedFiles')) {
-            $uploadedFiles = $request->request->get('uploadedFiles');
-            if (is_array($uploadedFiles)) {
+            // there is no way to find out beforehand whether uploadedFiles is an array or string
+            // therefore work with exceptions to be able to handle both types
+            try {
+                // array if multiupload is active, otherwise string
+                $uploadedFiles = $request->request->all('uploadedFiles');
+
                 return array_key_exists($key, $uploadedFiles) && 0 < strlen((string) $uploadedFiles[$key]);
+            } catch (BadRequestException) {
+                // just catch when uploadedFiles is a string
             }
 
             return true;

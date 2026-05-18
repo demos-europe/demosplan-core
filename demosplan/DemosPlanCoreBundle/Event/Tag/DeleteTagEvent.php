@@ -17,7 +17,7 @@ class DeleteTagEvent extends DPlanEvent implements DeleteTagEventInterface
 {
     private bool $handledSuccessfully = true;
 
-    public function __construct(private string $tagId)
+    public function __construct(private readonly string $tagId)
     {
     }
 

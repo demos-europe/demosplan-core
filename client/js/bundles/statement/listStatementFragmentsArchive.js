@@ -20,12 +20,12 @@ import ListStatementFragments from '@DpJs/lib/statement/ListStatementFragments'
 
 const components = {
   DpFragmentList,
-  DpFragmentListFilterModal
+  DpFragmentListFilterModal,
 }
 
 const stores = {
   assessmentTableStore,
-  fragmentStore
+  fragmentStore,
 }
 
 initialize(components, stores).then(() => {

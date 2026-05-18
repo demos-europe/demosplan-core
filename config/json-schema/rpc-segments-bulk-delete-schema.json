@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "segments.bulk.delete",
+  "type": "object",
+  "required": [
+    "jsonrpc",
+    "method",
+    "id",
+    "params"
+  ],
+  "properties": {
+    "jsonrpc": {
+      "enum": [
+        "2.0"
+      ]
+    },
+    "method": {
+      "enum": [
+        "segments.bulk.delete"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "params": {
+      "$id": "#/items/anyOf/0/properties/params",
+      "type": "object",
+      "properties": {
+        "segmentIds": {
+          "$id": "#segmentIds",
+          "type": "array",
+          "additionalItems": false,
+          "items": {
+            "$id": "segmentIds/items",
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "segmentIds"
+      ]
+    }
+  }
+}

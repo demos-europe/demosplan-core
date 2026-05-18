@@ -15,7 +15,7 @@ import { DpEditor, dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpEditor
+  DpEditor,
 }
 
 initialize(components).then(() => {

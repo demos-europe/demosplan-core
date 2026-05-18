@@ -19,11 +19,19 @@ import SegmentsList from '@DpJs/components/procedure/SegmentsList/SegmentsList'
 const components = {
   SegmentsList,
   DpSlidebar,
-  DpVersionHistory
+  DpVersionHistory,
 }
 const stores = {
-  FilterFlyout: FilterFlyoutStore
+  FilterFlyout: FilterFlyoutStore,
 }
-const apiStores = ['AssignableUser', 'Place', 'StatementSegment', 'Tag', 'TagTopic']
+const apiStores = [
+  'AssignableUser',
+  'AdminProcedure',
+  'CustomField',
+  'Place',
+  'StatementSegment',
+  'Tag',
+  'TagTopic',
+]
 
 initialize(components, stores, apiStores)

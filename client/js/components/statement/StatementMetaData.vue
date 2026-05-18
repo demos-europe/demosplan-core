@@ -18,7 +18,8 @@
       :memo="statement.attributes.memo || '-'"
       :submit-name="submitName"
       :submit-type="submitType"
-      :location="location" />
+      :location="location"
+    />
   </div>
 </template>
 
@@ -37,14 +38,14 @@ export default {
   props: {
     statement: {
       type: Object,
-      required: true
+      required: true,
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   computed: {
@@ -84,7 +85,7 @@ export default {
       }
       const option = this.submitTypeOptions.find(option => option.value === this.statement.attributes.submitType)
       return option ? Translator.trans(option.label) : ''
-    }
-  }
+    },
+  },
 }
 </script>

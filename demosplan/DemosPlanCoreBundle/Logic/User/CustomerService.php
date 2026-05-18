@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
@@ -19,18 +21,26 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class CustomerService
+class CustomerService implements CustomerServiceInterface
 {
     public function __construct(
         private readonly CustomerRepository $customerRepository,
         private readonly GlobalConfigInterface $globalConfig,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
-    public function findCustomerById(string $id): Customer
+    public function findCustomerById(string $id): CustomerInterface
     {
         return $this->customerRepository->findCustomerById($id);
+    }
+
+    /**
+     * @return list<Customer>
+     */
+    public function findAll(): array
+    {
+        return $this->customerRepository->findAll();
     }
 
     public function findCustomersByIds(array $ids): array
@@ -41,7 +51,7 @@ class CustomerService
     /**
      * @throws CustomerNotFoundException
      */
-    public function findCustomerBySubdomain(string $subdomain): Customer
+    public function findCustomerBySubdomain(string $subdomain): CustomerInterface
     {
         return $this->customerRepository->findCustomerBySubdomain($subdomain);
     }
@@ -49,7 +59,7 @@ class CustomerService
     /**
      * @throws CustomerNotFoundException
      */
-    public function getCurrentCustomer(): Customer
+    public function getCurrentCustomer(): CustomerInterface
     {
         $subdomain = $this->globalConfig->getSubdomain();
 
@@ -62,7 +72,7 @@ class CustomerService
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function updateCustomer(Customer $customer): Customer
+    public function updateCustomer(CustomerInterface $customer): CustomerInterface
     {
         return $this->customerRepository->updateObject($customer);
     }
@@ -71,7 +81,7 @@ class CustomerService
      * @throws ORMException
      * @throws ViolationsException
      */
-    public function createCustomer(string $name, string $subdomain): Customer
+    public function createCustomer(string $name, string $subdomain): CustomerInterface
     {
         $customer = new Customer($name, $subdomain);
         $violations = $this->validator->validate($customer);

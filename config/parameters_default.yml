@@ -9,6 +9,10 @@ parameters:
     logging_strategy: "rotating_file"
     # maximum number of log files to keep (aka days to keep)
     logging_max_files: 60
+    # logging path - use "php://stderr" for stream or file path for rotating_file
+    logging_path: "%kernel.logs_dir%/%demosplan_main_logfile%"
+    # logging formatter - use "monolog.formatter.json" for structured logs (recommended for stream)
+    logging_formatter: "monolog.formatter.line"
 
     # Projekttyp, mögliche Werte: portal, gateway
     # #refactor: this variable should be removed
@@ -25,10 +29,12 @@ parameters:
 
     # #refactor: used only once, perhaps there are better ways to achieve this
     # project_short_url_redirect_route, project_short_url_redirect_route_loggedin and procedure_entrypoint_route
-    # Bei Änderungen der Route muss in PlatformController->shortUrlAction() ggf. der Paramter angepasst werden
     project_short_url_redirect_route: "DemosPlan_procedure_public_detail"
     # Wohin soll ein angemeldeter Nutzer nach dem Benutzen einer ShortUrl umgeleitet werden?
     project_short_url_redirect_route_loggedin: "DemosPlan_procedure_public_detail"
+    # Parameter name for procedure ID in short URL redirect (default: "procedure")
+    project_short_url_redirect_param: "procedure"
+    project_short_url_redirect_param_loggedin: "procedure"
 
     # Set procedure entrypoint
     procedure_entrypoint_route: "DemosPlan_procedure_dashboard"
@@ -37,11 +43,17 @@ parameters:
     procedure_public_list_default_sort_key: "publicParticipationEndDate"
     # Purge procedures if deleted
     purge_deleted_procedures: false
+    # Days to keep deleted procedures after deletion to be able to restore them in case of an emergency
+    purge_deleted_retention_period_days: 60
 
     # Defines whether access to procedure is granted by owning organisation (false)
     # or whether it is possible to define specific users withing the organisation
     # who are granted access (true)
     procedure_user_restricted_access: false
+
+    # User activity checking thresholds (in days)
+    user_activity_last_login_threshold_days: 180
+    user_activity_claimed_statements_threshold_days: 180
 
     # Route and parameters for the public index page
     #
@@ -61,10 +73,14 @@ parameters:
     # Der Link muss mit abschließendem Slash angegeben werden.
     gateway_redirect_url: ""
 
+    # https://symfony.com/doc/6.4/http_client.html
     proxy_dsn: ""
+    proxy_no_proxy: ""
     # Comma separated string of trusted proxies. See https://symfony.com/doc/6.4/deployment/proxies.html
     # This value is used to fill symfony's trusted_proxies parameter
     proxy_trusted: ''
+    # Cafile for http_client if needed e.g. to support self signed certificates for proxies
+    cafile: ~
 
     # Das HTTP-Schema kann explizit angegeben werden, wenn es nicht dynamisch generiert werden soll
     # wie bspw. hinter einem LoadBalancer. Nur das Schema ist anzugeben z.B. 'http'
@@ -73,6 +89,8 @@ parameters:
     url_path_prefix: ""
     # only allow TLS connections
     https_only: true
+    # SameSite attribute for session cookie; none required for cross-site requests (e.g. keycloak)
+    cookie_samesite: lax
 
     # htaccess login data may be given e.g. to be added to callback urls from PI
     htaccess_user: ""
@@ -149,6 +167,24 @@ parameters:
     piwik_site_id: "1"
     matomo_token: ""
 
+    # Rate limiting for API access
+    ratelimit_api_enable: '%env(bool:RATELIMIT_API_ENABLE)%'
+    # JWT token rate limiting configuration (fixed_window policy)
+    ratelimit_jwt_token_limit: '%env(int:RATELIMIT_JWT_TOKEN_LIMIT)%'
+    ratelimit_jwt_token_interval: '%env(RATELIMIT_JWT_TOKEN_INTERVAL)%'
+
+    # Rate limiting for public statements
+    ratelimit_public_statement_enable: '%env(bool:RATELIMIT_PUBLIC_STATEMENT_ENABLE)%'
+    # Anonymous statement rate limiting configuration (token_bucket policy)
+    ratelimit_anonymous_statement_limit: '%env(int:RATELIMIT_ANONYMOUS_STATEMENT_LIMIT)%'
+    ratelimit_anonymous_statement_rate_interval: '%env(RATELIMIT_ANONYMOUS_STATEMENT_RATE_INTERVAL)%'
+    ratelimit_anonymous_statement_rate_amount: '%env(int:RATELIMIT_ANONYMOUS_STATEMENT_RATE_AMOUNT)%'
+    password_history_max_entries: '%env(int:PASSWORD_HISTORY_MAX_ENTRIES)%'
+
+    # Retention period (in days) for login_audit rows. Cleanup is performed by
+    # `dplan:login-audit:cleanup` and should be wired to a recurring schedule.
+    login_audit_retention_days: '%env(int:LOGIN_AUDIT_RETENTION_DAYS)%'
+
     # GitHub token may be used to download addons directly from github
     github_token: '%env(GITHUB_TOKEN)%'
     # addon repository is used to install addons. A token needs to be acquired
@@ -166,11 +202,19 @@ parameters:
     # route to tex2pdf service without trailing slash
     tex2pdf_url: ""
 
-    # virus scan service url without trailing slash
+    # enable virus scan
+    avscan_enable: true
+    # virus scan service url without trailing slash, used in VirusCheckHttp
     avscan_url: ""
+    # Implementation to use for virus scan. Currently VirusCheckHttp, VirusCheckRabbitmq or VirusCheckSocket
+    avscan_implementation: 'VirusCheckHttp'
+    # Variables to use for remote scan with VirusCheckSocket
+    avscan_host: "%env(string:AVSCAN_HOST)%"
+    avscan_port: "%env(int:AVSCAN_PORT)%"
+    avscan_timeout: "%env(int:AVSCAN_TIMEOUT)%"
 
     #RabbitMQ setting like amqp://:@localhost:5672/%2f
-    rabbitmq_dsn: "%env(string:RABBITMQ_DSN)%"
+    rabbitmq_dsn: "%env(default:rabbitmq_dsn:string:RABBITMQ_DSN)%"
     rabbitmq_routing_disabled: false
 
     # Route to docxImporter without trailing slash
@@ -185,7 +229,8 @@ parameters:
     email_test_from: "testMailSender@localhost.de"
     email_test_to: "testMailReceiver@localhost.de"
     email_system: "systememail@localhost.de"
-    procedure_metrics_receiver: "%env(string:PROCEDURE_METRICS_MAIL)%"
+    procedure_metrics_receiver_default: ""
+    procedure_metrics_receiver: "%env(default:procedure_metrics_receiver_default:string:PROCEDURE_METRICS_MAIL)%"
     email_bounce_check: false
     # #refactor: path and file could be used as one
     email_bouncefile_path: ""
@@ -201,8 +246,8 @@ parameters:
     # Regex that need to match to send Mails directly from user email
     # instead of system email. email_use_system_mail_as_sender needs to be false
     email_from_domain_valid_regex: ''
-    # Delete any sent emails after this timespan in days from email sent queue. Default 5 Years
-    email_delete_after_days: 1780
+    # Delete any sent emails after this timespan in days from email sent queue. Default 90 days
+    email_delete_after_days: 90
 
     master_procedure_phase: configuration #the default phase for new procedures, see procedurephases.yml
 
@@ -221,11 +266,24 @@ parameters:
     sentry_loglevel: "warning"
     # percentage of requests to trace performance. 0 = none, 1.0 = 100%
     sentry_traces_sample_rate: 0
+    sentry_profiles_sample_rate: 0
+
+    # OpenTelemetry OTLP endpoint for logs and traces
+    # Set to empty string to disable, or e.g. "http://otel-collector:4318" to enable
+    otel_exporter_endpoint: ""
+    otel_service_name: "demosplan"
+    otel_loglevel: "info"
+    # Tenant ID for multi-tenancy identification in traces/logs
+    otel_tenant_id: ""
 
     fileservice_filepath: "../../files"
 
-    elasticsearch_urls:
-        -   url: "http://localhost:9200"
+    elasticsearch_urls: ["http://localhost:9200"]
+    # elasticsearch client config, used to configure ssl
+    # https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/doc/cookbook/elastica-http-client-configuration.md#setting-ssl-options
+    elasticsearch_client_config: ~
+    elasticsearch_user: ""
+    elasticsearch_pass: ""
 
     # #refactor: deprecated, project_prefix used, could be deleted
     advancedsearchservice_index_name_prefix: "dplan"
@@ -243,6 +301,9 @@ parameters:
     pictogram_max_file_size: 5000000
     pictogram_min_width: 500
     pictogram_min_height: 300
+
+    # TUS resumable upload cache TTL in seconds (how long incomplete uploads are remembered)
+    tus_cache_ttl: 604800  # 1 week
 
     # Karten
 
@@ -317,18 +378,53 @@ parameters:
     # LocationUpdateService::repopulateDatabase()
     use_opengeodb: true
 
+    # should the azure Authentication be used?
+    azure_sso_enabled: false
+    # and if, which customers?
+    azure_sso_customers: []
     # knpu_oauth2_client settings
     # oath client referenced by knpu_oauth2_client when oauth is used
     oauth_client: ''
+    # OAuth client ID - used for authentication AND for extracting roles from resource_access claim in JWT token
     oauth_keycloak_client_id: ''
     oauth_keycloak_client_secret: ''
     oauth_keycloak_auth_server_url: ''
     oauth_keycloak_realm: ''
     # keycloak logout route like
-    # <url>/realms/<realm>/protocol/openid-connect/logout?post_logout_redirect_uri=<redirect_uri>&client_id=<client_id>
+    # <url>/realms/<realm>/protocol/openid-connect/logout?post_logout_redirect_uri=<redirect_uri>&client_id=<client_id>&id_token_hint=<token_id>
     oauth_keycloak_logout_route: ''
-    # roles may be granted via keycloak groups
+    # roles may be granted via keycloak groups (LEGACY - fallback only)
     keycloak_group_role_string: ''
+
+    # Azure AD logout route for Front-Channel logout like
+    # https://login.microsoftonline.com/<tenant>/oauth2/v2.0/logout
+    oauth_azure_logout_route: ''
+
+    # When enabled, KeyCloak is only used for initial login and logout.
+    # Token refresh and expiry enforcement are skipped — the PHP session governs the session lifetime (default 6 hours).
+    # The FE logout countdown reflects the PHP session lifetime, not the KeyCloak token TTL.
+    # When disabled (false), full token management is active: tokens are refreshed in the background
+    # and the FE countdown reflects the refresh token TTL.
+    # Set to false in parameters_default_project.yml to enable full token management.
+    oauth_keycloak_login_only: true
+
+    # Timezone used for all OAuth token expiry calculations and pending request timestamps.
+    # Must match the DB server timezone to avoid DST drift in token comparisons.
+    # Default: Europe/Berlin. Override via OAUTH_TOKEN_TIMEZONE env var if needed.
+    oauth_token_timezone: '%env(default:oauth_token_timezone_default:OAUTH_TOKEN_TIMEZONE)%'
+    oauth_token_timezone_default: 'Europe/Berlin'
+
+    # Interval in seconds between blocking OAuth token checks (fast-path threshold).
+    # Within this window the kernel.controller listener skips DB queries entirely.
+    # The interval is capped at the token's remaining lifetime, so it never skips past actual expiry.
+    # Default: 180 seconds (3 minutes). Must be less than the access token lifetime (300 s = 5 min).
+    oauth_token_fast_path_interval_seconds: 180
+
+    # Buffer in minutes before access token expiry at which proactive background refresh is triggered.
+    # Must be smaller than oauth_token_fast_path_interval_seconds / 60 — otherwise the fast-path
+    # session threshold would skip the check window and the proactive refresh would never fire.
+    # Default: 2 minutes. Access token lifetime is 5 minutes, fast-path interval is 3 minutes.
+    oauth_token_refresh_buffer_minutes: 2
 
     # Set users with permissions to alter Database
     database_install_user: ""
@@ -342,9 +438,6 @@ parameters:
     # Sollen zusätzliche Informationen von Geoservern geholt werden?
     use_fetch_additional_geodata: false
 
-    # enable virus scan
-    avscan_enable: true
-
     # should file table entries be checked regularly whether they are referenced in some other entities
     # and be fully deleted if no reference is found?
     delete_removed_files: true
@@ -355,6 +448,15 @@ parameters:
     honeypot_timeout: 2
     # Key, der für den Aufruf des Maintenancetasks z.B. per Cron mit übergeben werden muss
     maintenance_key: ""
+
+    # nelmio_security: clickjacking paths configuration.
+    # Maps URL patterns to X-Frame-Options values (DENY, SAMEORIGIN, ALLOW).
+    # Set to empty map {} to disable the header entirely (rely on CSP frame-ancestors instead).
+    demosplan_clickjacking_paths:
+        '^/.*': DENY
+    # nelmio_security: Cross-Origin-Resource-Policy header value.
+    # Set to same-origin, same-site, or cross-origin.
+    demosplan_corp_policy: 'same-origin'
 
     demosplan_csp_base_uri: ['self']
     demosplan_csp_font_src:
@@ -412,6 +514,11 @@ parameters:
     pdf_renderer_path: '%kernel.project_dir%/vendor/dompdf/dompdf'
     pdf_renderer_name: DomPDF
 
+   # uses the BKG address search for autosuggestions
+    geodatenzentrum_address_search_url: ''
+
+    # session lifetime in seconds used for automatic Keycloak logout
+    session_lifetime_seconds: ''
 
     #### project specific settings
 
@@ -457,26 +564,15 @@ parameters:
     ai_service_salt: ""
     ai_service_post_url: ""
 
+    languagetool_url: ''
+
     # #refactor: used only once, could be constant
     drafts_info_schema_path: "%kernel.project_dir%/config/json-schema/drafts-info-schema.json"
 
     public_css_class_prefix: ""
 
     # #refactor: used only once, could be constants
-    survey.statuses:
-        - configuration
-        - participation
-        - evaluation
-        - completed
-    survey.status.default: 'configuration'
-
-    # #refactor: used only once, could be constants
-    survey.schema_path_create: "%kernel.project_dir%/config/Survey/survey-schema-create.json"
-    survey.schema_path_update: "%kernel.project_dir%/config/Survey/survey-schema-update.json"
-    surveyvote.schema_path_create: "%kernel.project_dir%/config/Survey/surveyvote-schema-create.json"
-
-    # #refactor: used only once, could be constants
-    file.formats.doc: [doc, docx]
+    file.formats.doc: [doc, docx, odt]
     file.formats.pdf: [pdf]
     file.formats.xls: [xls, xlsx]
     file.formats.zip: [zip]

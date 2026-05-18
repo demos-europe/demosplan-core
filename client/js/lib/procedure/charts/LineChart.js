@@ -7,8 +7,9 @@
  * All rights reserved
  */
 
+import 'd3-transition'
 import { axisBottom, axisLeft } from 'd3-axis'
-import { scaleBand, scaleLinear } from 'd3'
+import { scaleBand, scaleLinear } from 'd3-scale'
 import Legend from './Legend'
 import { line } from 'd3-shape'
 import { max } from 'd3-array'
@@ -33,7 +34,7 @@ export default class LineChart {
         'legend-headline': '',
         'no-data-fallback': '',
         'data-names': '',
-        'data-name': ''
+        'data-name': '',
       },
       target: 'body',
       legendTarget: null,
@@ -48,8 +49,8 @@ export default class LineChart {
         top: 16,
         right: 24,
         bottom: 24,
-        left: 32
-      }
+        left: 32,
+      },
     }
 
     Object.assign(this, { ...defaults, ...options })
@@ -62,7 +63,7 @@ export default class LineChart {
       days: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
       shortDays: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
       months: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
-      shortMonths: ['Jan', 'Feb', 'Mrz', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
+      shortMonths: ['Jan', 'Feb', 'Mrz', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
     })
 
     const parseDate = locale.parse('%Y-%m')
@@ -73,7 +74,7 @@ export default class LineChart {
     chartData = this.data.map(el => {
       return {
         ...el,
-        x: formatDate(parseDate(el.x))
+        x: formatDate(parseDate(el.x)),
       }
     })
 
@@ -105,13 +106,13 @@ export default class LineChart {
             }
             res = {
               index: chunkIdx,
-              x: `${datePtOne}${datePtTwo}`
+              x: `${datePtOne}${datePtTwo}`,
             }
           }
 
           res = {
             ...res,
-            y: res.y ? res.y + item.y : item.y
+            y: res.y ? res.y + item.y : item.y,
           }
 
           return res
@@ -130,7 +131,7 @@ export default class LineChart {
         target: this.legendTarget,
         parentTarget: this.target,
         showPercentages: false,
-        texts: this.texts
+        texts: this.texts,
       })
     }
   }

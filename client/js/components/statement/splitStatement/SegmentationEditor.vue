@@ -8,8 +8,17 @@
 </license>
 
 <template>
-  <div class="segmentation-editor">
-    <div id="editor" />
+  <div
+    class="segmentation-editor"
+    @focus="event => $emit('focus', event)"
+    @focusout="$emit('focusout')"
+    @mouseleave="$emit('mouseleave')"
+    @mouseover="event => $emit('mouseover', event)"
+  >
+    <div
+      id="editor"
+      class="c-styled-html"
+    />
   </div>
 </template>
 
@@ -30,25 +39,34 @@ export default {
     editToggleCallback: {
       type: Function,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initStatementText: {
       type: String,
-      required: true
+      required: true,
     },
 
     segments: {
       type: Array,
-      required: true
+      required: true,
     },
 
     rangeChangeCallback: {
       type: Function,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
+
+  emits: [
+    'focus',
+    'focusout',
+    'mouseleave',
+    'mouseover',
+    'prosemirror:initialized',
+    'prosemirror:maxRange',
+  ],
 
   data () {
     return {
@@ -57,12 +75,12 @@ export default {
           parseDOM: [{ tag: 'u' }],
           toDOM () {
             return ['u']
-          }
+          },
         },
         link: {
           attrs: {
             href: {},
-            class: { default: null }
+            class: { default: null },
           },
           inclusive: false,
           parseDOM: [{
@@ -70,17 +88,17 @@ export default {
             getAttrs (dom) {
               return {
                 href: dom.getAttribute('href'),
-                class: dom.getAttribute('class')
+                class: dom.getAttribute('class'),
               }
-            }
+            },
           }],
           toDOM (node) {
             const { href, class: className } = node.attrs
             return ['a', { href, class: className }, 0]
-          }
-        }
+          },
+        },
       },
-      maxRange: 0
+      maxRange: 0,
     }
   },
 
@@ -98,7 +116,7 @@ export default {
     initialize () {
       const proseSchema = new Schema({
         nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
-        marks: this.getExtendedMarks()
+        marks: this.getExtendedMarks(),
       })
       const wrapper = document.createElement('div')
       wrapper.innerHTML = this.initStatementText ?? ''
@@ -111,8 +129,33 @@ export default {
         editable: () => false,
         state: EditorState.create({
           doc: parsedContent,
-          plugins: rangePlugin.plugins
-        })
+          plugins: rangePlugin.plugins,
+        }),
+        markViews: {
+          link: (mark) => {
+            const className = mark.attrs.class || ''
+
+            if (!className.split(/\s+/).includes('pdf_importer_image')) {
+              const anchor = document.createElement('a')
+              anchor.setAttribute('href', mark.attrs.href)
+              if (className) {
+                anchor.setAttribute('class', className)
+              }
+              return { dom: anchor, contentDOM: anchor }
+            }
+
+            const wrapper = document.createElement('span')
+            const img = document.createElement('img')
+            img.setAttribute('src', mark.attrs.href)
+            img.setAttribute('alt', '')
+            img.setAttribute('loading', 'lazy')
+            const label = document.createElement('span')
+            label.className = 'sr-only'
+            wrapper.appendChild(img)
+            wrapper.appendChild(label)
+            return { dom: wrapper, contentDOM: label }
+          },
+        },
       })
 
       const transformedSegments = this.transformSegments(this.segments.filter(segment => segment.charEnd <= this.maxRange))
@@ -127,7 +170,7 @@ export default {
       let prosemirrorStateWrapper = {
         view,
         keyAccess: rangePlugin.keys,
-        getContent: getContent(proseSchema)
+        getContent: getContent(proseSchema),
       }
 
       /**
@@ -136,8 +179,8 @@ export default {
        */
       prosemirrorStateWrapper = Object.freeze(prosemirrorStateWrapper)
 
-      this.$emit('prosemirror-max-range', this.maxRange)
-      this.$emit('prosemirror-initialized', prosemirrorStateWrapper)
+      this.$emit('prosemirror:maxRange', this.maxRange)
+      this.$emit('prosemirror:initialized', prosemirrorStateWrapper)
     },
 
     transformSegments (segments) {
@@ -147,17 +190,17 @@ export default {
           attributes: {
             rangeId: segment.id,
             isConfirmed: segment.status === 'confirmed',
-            pmId: uuid()
+            pmId: uuid(),
           },
           from: segment.charStart,
-          to: segment.charEnd
+          to: segment.charEnd,
         }
       })
-    }
+    },
   },
 
   mounted () {
     this.initialize()
-  }
+  },
 }
 </script>

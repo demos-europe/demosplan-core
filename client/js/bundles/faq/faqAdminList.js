@@ -15,7 +15,7 @@ import DpFaqList from '@DpJs/components/faq/DpFaqList'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpFaqList
+  DpFaqList,
 }
 
 const stores = {}

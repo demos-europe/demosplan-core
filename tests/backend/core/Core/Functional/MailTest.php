@@ -40,7 +40,7 @@ class MailTest extends FunctionalTestCase
         $this->testMailSend = $this->fixtures->getReference('testMailSend');
         $this->testMailTemplate = $this->fixtures->getReference('testMailTemplate');
 
-        $this->sut = self::$container->get(MailService::class);
+        $this->sut = self::getContainer()->get(MailService::class);
     }
 
     public function testGetSingleMail()
@@ -154,7 +154,7 @@ class MailTest extends FunctionalTestCase
 
         $mailListAfterInsert = $this->sut->getMailsToSend();
         $insertedMail = $mailListAfterInsert[0];
-        static::assertEquals(self::$container->getParameter('email_system'), $insertedMail->getFrom());
+        static::assertEquals(self::getContainer()->getParameter('email_system'), $insertedMail->getFrom());
     }
 
     public function testEmptyBcc()

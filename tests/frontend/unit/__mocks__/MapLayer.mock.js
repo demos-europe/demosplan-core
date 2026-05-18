@@ -18,16 +18,16 @@ export default function () {
           state: {
             procedureId: '',
             selectedElements: {},
-            statements: {}
+            statements: {},
           },
           actions: {
-            get: jest.fn()
+            get: jest.fn(),
           },
           getters: {
-            selectedElementsLength: jest.fn()
-          }
-        }
-      }
-    })
+            selectedElementsLength: jest.fn(),
+          },
+        },
+      },
+    }),
   }
 }

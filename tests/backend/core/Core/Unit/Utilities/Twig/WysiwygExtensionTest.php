@@ -33,7 +33,7 @@ class WysiwygExtensionTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->twigExtension = new WysiwygExtension(self::$container, self::$container->get(HTMLSanitizer::class));
+        $this->twigExtension = new WysiwygExtension(self::getContainer(), self::getContainer()->get(HTMLSanitizer::class));
     }
 
     public function testGetFilters()

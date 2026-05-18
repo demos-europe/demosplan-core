@@ -10,16 +10,18 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services\Queries;
 
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Exception;
+use Psr\Log\LoggerInterface;
 
-class SqlQueriesService extends CoreService
+class SqlQueriesService
 {
-    public function __construct(private readonly Connection $dbConnection)
-    {
+    public function __construct(
+        private readonly Connection $dbConnection,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     public function getConnection(): Connection
@@ -30,7 +32,11 @@ class SqlQueriesService extends CoreService
     /**
      * @throws Exception
      */
-    public function deleteFromTableByIdentifierArray(string $tableName, string $identifier, array $ids, bool $isDryRun): void
+    public function deleteFromTableByIdentifierArray(
+        string $tableName,
+        string $identifier,
+        array $ids,
+        bool $isDryRun): void
     {
         if (!$this->doesTableExist($tableName)) {
             $this->logger->warning("No table with the name $tableName exists in this database. Data could not be fetched.");
@@ -43,6 +49,37 @@ class SqlQueriesService extends CoreService
             ->delete($tableName)
             ->where($identifier.' IN (:idList)')
             ->setParameter('idList', $ids, ArrayParameterType::STRING);
+
+        if ($isDryRun) {
+            return;
+        }
+
+        $deletionQueryBuilder->executeStatement();
+    }
+
+    public function deleteFromTableByMultipleConditions(
+        string $tableName,
+        string $identifier,
+        array $ids,
+        array $conditions,
+        bool $isDryRun,
+    ): void {
+        if (!$this->doesTableExist($tableName)) {
+            $this->logger->warning("No table with the name $tableName exists in this database. Data could not be fetched.");
+
+            return;
+        }
+
+        $deletionQueryBuilder = $this->dbConnection->createQueryBuilder();
+        $deletionQueryBuilder
+            ->delete($tableName)
+            ->where($identifier.' IN (:idList)')
+            ->setParameter('idList', $ids, ArrayParameterType::STRING);
+
+        foreach ($conditions as $column => $value) {
+            $deletionQueryBuilder->andWhere("$column = :$column")
+                ->setParameter($column, $value);
+        }
 
         if ($isDryRun) {
             return;
@@ -134,11 +171,7 @@ class SqlQueriesService extends CoreService
 
         $tableColumns = $this->dbConnection->createSchemaManager()->listTableColumns($tableName);
 
-        if (in_array($columnName, $tableColumns)) {
-            return true;
-        }
-
-        return false;
+        return in_array($columnName, $tableColumns);
     }
 
     /**

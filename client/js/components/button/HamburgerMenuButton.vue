@@ -6,7 +6,8 @@
     aria-haspopup="true"
     aria-expanded="false"
     :aria-label="Translator.trans('menu.nav.toggle')"
-    data-responsive-menu-helper>
+    data-responsive-menu-helper
+  >
     <span class="nav-toggle">
       <span class="bar" />
       <span class="bar" />
@@ -18,7 +19,7 @@
 <script>
 
 export default {
-  name: 'HamburgerMenuButton'
+  name: 'HamburgerMenuButton',
 }
 
 </script>

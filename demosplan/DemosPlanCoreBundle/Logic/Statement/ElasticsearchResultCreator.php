@@ -18,10 +18,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
@@ -36,10 +36,11 @@ use Elastica\Query\BoolQuery;
 use Exception;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 
-class ElasticsearchResultCreator extends CoreService
+class ElasticsearchResultCreator
 {
     // Values that are === NULL instead of "" (empty string) if they are missing
     private const NULL_VALUES = [
@@ -65,43 +66,43 @@ class ElasticsearchResultCreator extends CoreService
         'tagNames',
     ];
     private const AVAILABLE_SEARCH_FIELDS = [
-        'text'                    => 'text.text',
+        'text'                    => 'text',
         'oName'                   => 'oName^0.2',
         'dName'                   => 'dName^0.2',
         'uName'                   => 'uName^0.2',
-        'elementTitle'            => 'elementTitle.text',
-        'documentTitle'           => 'documentTitle.text',
-        'paragraphTitle'          => 'paragraphTitle.text',
-        'recommendation'          => 'recommendation.text',
+        'elementTitle'            => 'elementTitle',
+        'documentTitle'           => 'documentTitle',
+        'paragraphTitle'          => 'paragraphTitle',
+        'recommendation'          => 'recommendation',
         'municipalityNames'       => 'municipalityNames',
         'internId'                => 'internId',
         'externId'                => 'externId',
         'priorityAreaKeys'        => 'priorityAreaKeys',
         'countyNames'             => 'countyNames.raw',
-        'tagNames'                => 'tagNames.text',
-        'topicNames'              => 'topicNames.text',
+        'tagNames'                => 'tagNames',
+        'topicNames'              => 'topicNames',
         'meta_submitLastName'     => 'meta.submitLastName^0.2',
         'meta_caseWorkerLastName' => 'meta.caseWorkerLastName^0.2',
         'cluster_externId'        => 'cluster.externId',
-        'clusterName'             => 'name.text',
+        'clusterName'             => 'name',
         'cluster_uName'           => 'cluster.uName^0.1',
-        'fragments.documentTitle.text',
-        'fragments.paragraphTitle.text',
+        'fragments.documentTitle',
+        'fragments.paragraphTitle',
         'votes.firstName'         => 'votes.firstName',
         'votes.lastName'          => 'votes.lastName',
         'votes.name'              => 'votes.name',
         'filename'                => 'files',
         // after refactoring in T20362:
         'authorName'              => 'uName^0.2',
-        'consideration'           => 'recommendation.text',
+        'consideration'           => 'recommendation',
         'department'              => 'dName^0.2',
         'orgaCity'                => 'meta.orgaCity',
         'organisationName'        => 'oName^0.2',
         'orgaPostalCode'          => 'meta.orgaPostalCode',
-        'planDocument'            => ['documentTitle.text', 'elementTitle.text', 'paragraphTitle.text'],
+        'planDocument'            => ['documentTitle', 'elementTitle', 'paragraphTitle'],
         'statementId'             => 'externId',
-        'statementText'           => 'text.text',
-        'topics'                  => 'topicNames.text',
+        'statementText'           => 'text',
+        'topics'                  => 'topicNames',
     ];
 
     public function __construct(
@@ -115,6 +116,8 @@ class ElasticsearchResultCreator extends CoreService
         private readonly ParagraphService $paragraphService,
         private readonly SingleDocumentRepository $singleDocumentRepository,
         private readonly DepartmentRepository $departmentRepository,
+        private readonly ProfilerService $profilerService,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -159,7 +162,7 @@ class ElasticsearchResultCreator extends CoreService
             $userFragmentFilters = $this->statementService->mapRequestFiltersToESFragmentFilters($userFilters);
             $fragmentEsResult = (new ElasticsearchResult())->lock();
 
-            if ((null !== $search && '' !== $search) || 0 < count($userFragmentFilters)) {
+            if ((null !== $search && '' !== $search) || [] !== $userFragmentFilters) {
                 $userFragmentFilters['procedureId'] = $procedureId;
                 $fragmentEsResult = $this->statementFragmentService->getElasticsearchStatementFragmentResult(
                     $userFragmentFilters,
@@ -181,15 +184,16 @@ class ElasticsearchResultCreator extends CoreService
                 } else {
                     $statementMustIds[] = 'not_existent';
                 }
-                $statementMustIds = \array_unique($statementMustIds);
+                // Re-index array after array_unique to prevent associative array JSON encoding
+                $statementMustIds = \array_values(\array_unique($statementMustIds));
                 $shouldQuery = new BoolQuery();
-                foreach ($statementMustIds as $statementMustId) {
-                    $shouldQuery->addShould(
-                        $this->elasticSearchService->getElasticaTermsInstance(
-                            'id',
-                            $statementMustId
-                        ));
-                }
+                // Use a single terms query with all IDs to avoid exceeding maxClauseCount
+                $shouldQuery->addShould(
+                    $this->elasticSearchService->getElasticaTermsInstance(
+                        'id',
+                        $statementMustIds
+                    )
+                );
                 // add search query as a should request as we already found statements
                 // that have the searchstring at their fragment
                 if ($searchQuery instanceof AbstractQuery) {
@@ -200,10 +204,8 @@ class ElasticsearchResultCreator extends CoreService
                     1
                 );
                 $boolMustFilter[] = $shouldQuery;
-            } else {
-                if ($searchQuery instanceof Query) {
-                    $boolMustFilter[] = $searchQuery;
-                }
+            } elseif ($searchQuery instanceof Query) {
+                $boolMustFilter[] = $searchQuery;
             }
 
             foreach ($userFilters as $filterName => $filterValues) {
@@ -211,7 +213,8 @@ class ElasticsearchResultCreator extends CoreService
                     continue;
                 }
 
-                $filterValues = \is_array($filterValues) ? \array_unique($filterValues) : $filterValues;
+                // Re-index array after array_unique to prevent associative array JSON encoding
+                $filterValues = \is_array($filterValues) ? \array_values(\array_unique($filterValues)) : $filterValues;
 
                 if (\is_array($filterValues) && 1 < count($filterValues)) {
                     // for each filter with multiple options we need a distinct should
@@ -219,6 +222,9 @@ class ElasticsearchResultCreator extends CoreService
                     $shouldQuery = new BoolQuery();
                     $shouldFilter = [];
                     $shouldNotFilter = [];
+                    $normalValues = [];
+
+                    // Collect all normal filter values to use in a single terms query
                     foreach ($filterValues as $filterValue) {
                         if ($filterValue === $this->elasticSearchService::KEINE_ZUORDNUNG
                             || null === $filterValue
@@ -228,17 +234,23 @@ class ElasticsearchResultCreator extends CoreService
                                 $filterName
                             );
                         } else {
-                            $filterName = $this->isRawFilteredTerm($filterName) ? $filterName.'.raw' : $filterName;
                             $value = $filterValue === $this->elasticSearchService::EMPTY_FIELD ? '' : $filterValue;
-                            $shouldFilter[] = $this->elasticSearchService->getElasticaTermsInstance(
-                                $filterName,
-                                $value
-                            );
+                            $normalValues[] = $value;
                         }
                     }
+
+                    // Create a single terms query with all normal values to avoid maxClauseCount
+                    if (count($normalValues) > 0) {
+                        $adjustedFilterName = $this->isRawFilteredTerm($filterName) ? $filterName.'.raw' : $filterName;
+                        $shouldFilter[] = $this->elasticSearchService->getElasticaTermsInstance(
+                            $adjustedFilterName,
+                            $normalValues
+                        );
+                    }
+
                     array_map($shouldQuery->addShould(...), $shouldFilter);
                     // user wants to see not existent query as well as some filter
-                    if (0 < count($shouldNotFilter)) {
+                    if ([] !== $shouldNotFilter) {
                         $shouldNotBool = new BoolQuery();
                         array_map($shouldNotBool->addMustNot(...), $boolMustNotFilter);
                         $shouldQuery->addShould($shouldNotBool);
@@ -432,7 +444,7 @@ class ElasticsearchResultCreator extends CoreService
                 $query = $this->elasticSearchService->addEsAggregation(
                     $query,
                     'elementId',
-                    '_term',
+                    '_key',
                     'asc',
                     'elementId'
                 );
@@ -658,7 +670,7 @@ class ElasticsearchResultCreator extends CoreService
             $paginator->setMaxPerPage((int) $limit);
             // try to paginate Result, check for validity
             try {
-                $paginator->setCurrentPage($page);
+                $paginator->setCurrentPage((int) $page);
             } catch (NotValidCurrentPageException $e) {
                 $this->logger->info('Received invalid Page for pagination', [$e]);
                 $paginator->setCurrentPage(1);
@@ -1289,10 +1301,10 @@ class ElasticsearchResultCreator extends CoreService
             }
             $useEsResult2 = isset($fragmentAggregations['departmentId']);
             $useAggregationResult2 = isset($esResultAggregations['fragments_reviewerName']);
-            if (true === $useEsResult2 || true === $useAggregationResult2) {
-                $countKey2 = true === $useEsResult2 ? 'count' : 'doc_count';
-                $valueKey2 = true === $useEsResult2 ? 'value' : 'key';
-                $listToUse2 = true === $useEsResult2 ?
+            if ($useEsResult2 || $useAggregationResult2) {
+                $countKey2 = $useEsResult2 ? 'count' : 'doc_count';
+                $valueKey2 = $useEsResult2 ? 'value' : 'key';
+                $listToUse2 = $useEsResult2 ?
                     $fragmentAggregations['departmentId'] : $esResultAggregations['fragments_reviewerName']['buckets'];
                 if ($useEsResult2) {
                     foreach ($listToUse2 as $agg) {
@@ -1314,7 +1326,7 @@ class ElasticsearchResultCreator extends CoreService
             $elasticsearchResultStatement->setPager($paginator);
             $elasticsearchResultStatement->setSearchFields($searchFields);
 
-            $this->profilerStop('ES');
+            $this->profilerService->profilerStop(ProfilerService::ELASTICSEARCH_PROFILER);
         } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementAggregation failed. ', [$e]);
 
@@ -1343,7 +1355,7 @@ class ElasticsearchResultCreator extends CoreService
         if (\is_array($searchFields) && 1 === count($searchFields) && '' === $searchFields[0]) {
             $searchFields = [];
         }
-        $this->profilerStart('ES');
+        $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
         //
         // if a Searchterm is set use it
         if (\is_string($search) && 0 < \strlen($search)) {
@@ -1358,7 +1370,7 @@ class ElasticsearchResultCreator extends CoreService
                 }
             }
             // do not create search query if only fragment fields are chosen
-            if (0 < count($usedSearchfields)) {
+            if ([] !== $usedSearchfields) {
                 $searchQuery = $this->elasticSearchService->createSearchQuery(
                     $search,
                     $usedSearchfields
@@ -1612,7 +1624,7 @@ class ElasticsearchResultCreator extends CoreService
      */
     private function getParagraphMap($bucket, $idKey = 'key'): array
     {
-        if (!\is_array($bucket) || 0 === count($bucket)) {
+        if (!\is_array($bucket) || [] === $bucket) {
             return [];
         }
         $ids = [];

@@ -46,7 +46,7 @@ class ReportSubscriber extends BaseEventSubscriber
         private readonly SingleDocumentReportEntryFactory $singleDocumentReportEntryFactory,
         private readonly ParagraphReportEntryFactory $paragraphReportEntryFactory,
         private readonly PlanDrawReportEntryFactory $planDrawReportEntryFactory,
-        ReportService $reportService
+        ReportService $reportService,
     ) {
         $this->reportService = $reportService;
     }
@@ -78,21 +78,22 @@ class ReportSubscriber extends BaseEventSubscriber
             /** @var User $user */
             $user = $event->getUser();
 
-            if (isset($inData['r_externalDesc'])) {
-                // speichere ggf. eine Änderung des Planungsanlasses im Report
-                $newExternalDesc = str_replace(["\r\n", "\r", "\n"], '<br />', (string) $inData['r_externalDesc']);
-                if ($currentProcedure['externalDesc'] !== $newExternalDesc) {
-                    $report = $this->procedureReportEntryFactory->createDescriptionUpdateEntry(
-                        $procedureId,
-                        $inData['r_externalDesc'],
-                        $user
-                    );
-                    $this->reportService->persistAndFlushReportEntries($report);
-                }
-            }
-
             $this->createPlanDrawReportOnDemand($event);
 
+            if (!isset($inData['r_externalDesc'])) {
+                return;
+            }
+
+            // speichere ggf. eine Änderung des Planungsanlasses im Report
+            $newExternalDesc = str_replace(["\r\n", "\r", "\n"], '<br />', (string) $inData['r_externalDesc']);
+            if ($currentProcedure['externalDesc'] !== $newExternalDesc) {
+                $report = $this->procedureReportEntryFactory->createDescriptionUpdateEntry(
+                    $procedureId,
+                    $inData['r_externalDesc'],
+                    $user
+                );
+                $this->reportService->persistAndFlushReportEntries($report);
+            }
         } catch (Exception $e) {
             $this->getLogger()->error('Add Report failed ', [$e]);
         }
@@ -105,16 +106,14 @@ class ReportSubscriber extends BaseEventSubscriber
      */
     private function createPlanDrawReportOnDemand(ProcedureEditedEvent $event): void
     {
-        $originPlanPDF = $event->getOriginalProcedureArray()['planPDF'] ?? null;
-        $originPlanDrawPDF = $event->getOriginalProcedureArray()['planDrawPDF'] ?? null;
+        $originPlanPDF = $event->getOriginalProcedureArray()[ProcedureEditedEvent::PLAN_PDF] ?? null;
+        $originPlanDrawPDF = $event->getOriginalProcedureArray()[ProcedureEditedEvent::PLAN_DRAW_PDF] ?? null;
 
-        $incomingPlanPDF = $event->getInData()['planPDF'] ?? null;
-        $incomingPlanDrawPDF = $event->getInData()['planDrawPDF'] ?? null;
-
+        $incomingPlanPDF = $event->getInData()[ProcedureEditedEvent::PLAN_PDF] ?? null;
+        $incomingPlanDrawPDF = $event->getInData()[ProcedureEditedEvent::PLAN_DRAW_PDF] ?? null;
 
         if ((null !== $originPlanPDF && null !== $incomingPlanPDF)
-            ||(null !== $originPlanDrawPDF && null !== $incomingPlanDrawPDF))
-        {
+            || (null !== $originPlanDrawPDF && null !== $incomingPlanDrawPDF)) {
             $report = $this->planDrawReportEntryFactory->createPlanDrawEntry(
                 $event->getProcedureId(),
                 $originPlanPDF,
@@ -149,12 +148,12 @@ class ReportSubscriber extends BaseEventSubscriber
     {
         $reportCategory = match (true) {
             $event instanceof AfterCreationEvent => ReportEntry::CATEGORY_ADD,
-            $event instanceof AfterUpdateEvent => ReportEntry::CATEGORY_UPDATE,
+            $event instanceof AfterUpdateEvent   => ReportEntry::CATEGORY_UPDATE,
             $event instanceof AfterDeletionEvent => ReportEntry::CATEGORY_DELETE,
-            default => 'unknown',
+            default                              => 'unknown',
         };
 
-        //not implemented yet:
+        // not implemented yet:
         // In case of AfterDeletionEvent there is no entity, only the entityIdentifier!
         if ('unknown' === $reportCategory || ReportEntry::CATEGORY_DELETE === $reportCategory) {
             return;
@@ -174,9 +173,9 @@ class ReportSubscriber extends BaseEventSubscriber
     private function dynamicCreateReportEntry(Elements|Paragraph|SingleDocument $entity, string $category): void
     {
         $date = match ($category) {
-            ReportEntry::CATEGORY_ADD => $entity->getCreateDate()->getTimestamp(),
+            ReportEntry::CATEGORY_ADD    => $entity->getCreateDate()->getTimestamp(),
             ReportEntry::CATEGORY_UPDATE => $entity->getModifyDate()->getTimestamp(),
-            default => Carbon::now()->getTimestamp(),
+            default                      => Carbon::now()->getTimestamp(),
         };
 
         $report = match (true) {

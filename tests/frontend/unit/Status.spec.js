@@ -7,6 +7,7 @@
  * All rights reserved
  */
 
+import { beforeEach, describe, expect, it } from '@jest/globals'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import Status from '@DpJs/components/statement/fragment/Status'
 
@@ -15,7 +16,7 @@ describe('Status', () => {
 
   beforeEach(() => {
     wrapper = shallowMountWithGlobalMocks(Status, {
-      propsData: {
+      props: {
         status: '',
         fragmentId: 'testId',
         archivedOrgaName: 'OrgaName',
@@ -24,8 +25,11 @@ describe('Status', () => {
         badge: false,
         tooltip: true,
         transNone: 'fragment.voteAdvice.status.none',
-        transDone: 'fragment.voteAdvice.status.done'
-      }
+        transDone: 'fragment.voteAdvice.status.done',
+      },
+      global: {
+        renderStubDefaultSlot: true,
+      },
     })
   })
 

@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToebVersion;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Report\MasterPublicAgencyReportEntryFactory;
@@ -27,9 +26,10 @@ use demosplan\DemosPlanCoreBundle\Repository\MasterToebVersionRepository;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class MasterToebService extends CoreService
+class MasterToebService
 {
     /**
      * @var UserService
@@ -45,7 +45,8 @@ class MasterToebService extends CoreService
         private readonly MasterToebRepository $masterToebRepository,
         private readonly MasterToebVersionRepository $masterToebVersionRepository,
         private readonly ReportService $reportService,
-        UserService $serviceUser
+        UserService $serviceUser,
+        private readonly LoggerInterface $logger,
     ) {
         $this->serviceUser = $serviceUser;
     }
@@ -93,8 +94,6 @@ class MasterToebService extends CoreService
      * Get Master toeb entry by ident.
      *
      * @param string $masterToebId
-     *
-     * @return mixed
      *
      * @throws Exception
      */
@@ -225,6 +224,7 @@ class MasterToebService extends CoreService
             $addedMasterToeb = $this->masterToebRepository
                 ->add($data);
             try {
+                $data['id'] = $addedMasterToeb->getId();
                 $this->addReportAddMasterToeb($data);
             } catch (Exception $e) {
                 $this->logger->warning('Add Report in addMasterToeb() failed Message: ', [$e]);
@@ -312,7 +312,7 @@ class MasterToebService extends CoreService
             if (isset($data['orgaName']) && !is_null($orga) && $data['orgaName'] != $orga->getName()) {
                 $orgaUpdate['name'] = $data['orgaName'];
             }
-            if (0 < count($orgaUpdate) && !is_null($orga)) {
+            if ([] !== $orgaUpdate && !is_null($orga)) {
                 $this->serviceUser->updateOrga($orga->getIdent(), $orgaUpdate, false);
             }
 
@@ -322,7 +322,7 @@ class MasterToebService extends CoreService
                 $this->serviceUser->updateDepartment($department->getId(), ['name' => $data['departmentName']]);
             }
         } catch (Exception $e) {
-            $this->getLogger()->error('Update der Orga nach Update der MasterTöbEntity nicht möglich. ', [$e]);
+            $this->logger->error('Update der Orga nach Update der MasterTöbEntity nicht möglich. ', [$e]);
         }
 
         try {
@@ -405,8 +405,6 @@ class MasterToebService extends CoreService
 
     /**
      * Get all organisations, which are not in the mastertoeblist.
-     *
-     * @return mixed
      */
     public function getOrganisations()
     {

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use EFrane\TusBundle\Controller\TusController;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
@@ -29,7 +30,7 @@ class AccessProcedureListener
 
     public function onKernelController(ControllerEvent $controllerEvent): void
     {
-        if (null === $this->currentProcedureService->getProcedure()) {
+        if (!$this->currentProcedureService->getProcedure() instanceof Procedure) {
             return;
         }
 

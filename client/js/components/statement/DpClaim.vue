@@ -42,24 +42,28 @@ the FB is ready with editing of fragments.
 <template>
   <!--data-assigned is needed for batch edit-->
   <button
+    v-tooltip="isLoading ? null : status.text"
     class="flex items-center space-inline-xs btn--blank o-link--default"
     :class="{'cursor-pointer' : false === isLoading}"
-    :data-assigned="isAssignedToMe /* needed for checking checked elements*/"
-    @click.prevent.stop="updateAssignment"
+    :data-assigned="isAssignedToMe ? 'true' : 'false'"
     data-cy="claimIcon"
     :aria-label="status.text"
-    v-tooltip="isLoading ? null : status.text">
+    @click.prevent.stop="updateAssignment"
+  >
     <dp-loading
       v-if="isLoading"
-      hide-label />
+      hide-label
+    />
     <i
       v-else
       class="fa"
       :class="status.icon"
-      aria-hidden="true" />
+      aria-hidden="true"
+    />
     <span
       v-if="label"
-      v-text="label" />
+      v-text="label"
+    />
   </button>
 </template>
 
@@ -69,61 +73,65 @@ import { DpLoading } from '@demos-europe/demosplan-ui'
 export default {
   name: 'DpClaim',
   components: {
-    DpLoading
+    DpLoading,
   },
 
   props: {
     assignedOrganisation: {
       type: String,
-      required: true
+      required: true,
     },
 
     assignedName: {
       type: String,
-      required: true
+      required: true,
     },
 
     assignedId: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentUserId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     currentUserName: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     entityType: {
       type: String,
       required: false,
-      default: 'statement'
+      default: 'statement',
     },
 
     isLoading: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     label: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     lastClaimedUserId: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
+
+  emits: [
+    'click',
+  ],
 
   computed: {
     isAssigned () {
@@ -199,11 +207,11 @@ export default {
         {
           name: this.assignedName,
           organisation: this.assignedOrganisation,
-          delegator: this.currentUserName
-        }
+          delegator: this.currentUserName,
+        },
       )
       return { text: status, icon }
-    }
+    },
   },
 
   methods: {
@@ -215,14 +223,14 @@ export default {
       // If the user want to 'steal' the entity from another user, ask if it's by purpose
       if (this.assignedId !== this.currentUserId && this.assignedId !== '') {
         let transkey
-        switch (this.entityType) {
-          case 'Statement':
+        switch (this.entityType.toLowerCase()) {
+          case 'statement':
             transkey = 'warning.statement.needLock.generic'
             break
-          case 'Fragment':
+          case 'fragment':
             transkey = 'warning.fragment.needLock.generic'
             break
-          case 'Segment':
+          case 'segment':
             transkey = 'warning.segment.needLock.generic'
             break
         }
@@ -232,7 +240,7 @@ export default {
       } else {
         this.$emit('click')
       }
-    }
-  }
+    },
+  },
 }
 </script>

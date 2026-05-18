@@ -12,192 +12,255 @@
     <dp-input
       id="r_name"
       v-model="name"
-      class="u-mb-0_5"
-      data-cy="newMapLayerName"
       :label="{
         text: Translator.trans('name')
       }"
+      class="u-mb-0_5"
+      data-cy="newMapLayerName"
       name="r_name"
-      required />
+      required
+    />
 
     <dp-input
       id="r_url"
       v-model="url"
-      class="u-mb-0_5"
-      data-cy="newMapLayerURL"
       :label="{
         text: Translator.trans('url')
       }"
+      class="u-mb-0_5"
+      data-cy="newMapLayerURL"
       name="r_url"
       required
       @blur="getLayerCapabilities"
-      @enter="getLayerCapabilities" />
+      @enter="getLayerCapabilities"
+    />
 
     <dp-select
       v-model="serviceType"
-      class="u-mb-0_5"
-      data-cy="layerSettings:serviceType"
       :label="{
         text: Translator.trans('type')
       }"
-      name="r_serviceType"
       :options="serviceTypeOptions"
-      required
-      @select="setServiceInUrl" />
-    <input
-      type="hidden"
+      class="u-mb-0_5"
+      data-cy="layerSettings:serviceType"
       name="r_serviceType"
-      v-model="serviceType">
+      required
+      @select="setServiceInUrl"
+    />
+
+    <input
+      v-model="serviceType"
+      name="r_serviceType"
+      type="hidden"
+    >
 
     <dp-checkbox
       v-if="hasPermission('feature_xplan_defaultlayers') && showXplanDefaultLayer"
       id="r_xplanDefaultlayers"
-      class="u-mb-0_5"
       :label="{
         text: Translator.trans('explanation.gislayer.xplan.default')
       }"
+      :title="Translator.trans('explanation.gislayer.default.defined') + ': ' + xplanDefaultLayer"
+      class="u-mb-0_5"
       name="r_xplanDefaultlayers"
       style="display: none;"
-      :title="Translator.trans('explanation.gislayer.default.defined') + ': ' + xplanDefaultLayer"
-      value="1" />
+      value="1"
+    />
 
     <dp-label
       :text="Translator.trans('layers')"
       for="r_layers"
-      required />
-    <dp-multiselect
-      @input="filterMatrixSetByLayers"
       required
-      track-by="label"
-      label="label"
-      multiple
+    />
+
+    <dp-multiselect
       id="r_layers"
       v-model="layers"
-      data-cy="newMapLayerLayers"
       :options="layersOptions"
-      class="u-mb-0_5" />
+      class="u-mb-0_5"
+      data-cy="newMapLayerLayers"
+      label="label"
+      track-by="label"
+      multiple
+      required
+      selection-controls
+      @input="filterMatrixSetByLayers"
+      @select-all="selectAllLayers"
+      @deselect-all="deselectAllLayers"
+    >
+      <template v-slot:tag="{ props }">
+        <span class="multiselect__tag">
+          {{ props.option.label }}
+          <dp-contextual-help
+            v-if="unavailableLayers.includes(props.option.label) || serviceError"
+            :class="prefixClass('ml-1 mb-0.5 text-message-severe')"
+            :text="serviceError ? Translator.trans('map.service.unreachable') : Translator.trans('layer.unavailable')"
+            icon="warning-circle"
+          />
+
+          <button
+            class="multiselect__tag-icon"
+            type="button"
+            @click="props.remove(props.option)"
+          />
+        </span>
+      </template>
+    </dp-multiselect>
 
     <input
-      type="hidden"
       :value="layersInputValue"
-      name="r_layers">
+      name="r_layers"
+      type="hidden"
+    >
+
+    <dp-ol-map
+      v-if="hasPermission('feature_map_layer_preview') && hasPreview"
+      :layers="previewLayers"
+      :procedure-id="procedureId"
+      small
+    />
+
     <dp-select
       v-if="hasPermission('feature_map_wmts') && serviceType === 'wmts'"
       id="r_tileMatrixSet"
       v-model="matrixSet"
-      class="u-mb-0_5"
-      data-cy="layerSettings:matrixSet"
       :disabled="disabledMatrixSelect"
       :label="{
         text: Translator.trans('map.tilematrixset')
       }"
-      name="r_tileMatrixSet"
       :options="matrixSetOptions"
-      required
-      @select="filterProjectionsByMatrixSet" />
-    <input
-      type="hidden"
+      class="u-mb-0_5"
+      data-cy="layerSettings:matrixSet"
       name="r_tileMatrixSet"
-      v-model="matrixSet">
+      required
+      @select="filterProjectionsByMatrixSet"
+    />
+
+    <input
+      v-model="matrixSet"
+      name="r_tileMatrixSet"
+      type="hidden"
+    >
 
     <dp-select
       id="r_layerProjection"
       v-model="projection"
-      class="u-mb-0_5"
       :disabled="disabledProjectionSelect"
       :label="{
         text: Translator.trans('projection')
       }"
-      name="r_layerProjection"
       :options="projectionOptions"
-      required />
-    <input
-      type="hidden"
+      class="u-mb-0_5"
       name="r_layerProjection"
-      v-model="projection">
+      required
+    />
 
     <input
+      v-model="projection"
+      name="r_layerProjection"
       type="hidden"
+    >
+
+    <input
+      v-model="version"
       name="r_layerVersion"
-      v-model="version">
+      type="hidden"
+    >
   </div>
 </template>
 
 <script>
-import { debounce, DpCheckbox, DpInput, DpLabel, DpMultiselect, DpSelect, externalApi } from '@demos-europe/demosplan-ui'
+import { debounce, DpCheckbox, DpContextualHelp, DpInput, DpLabel, DpMultiselect, DpSelect, externalApi, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { WMSCapabilities, WMTSCapabilities } from 'ol/format'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'LayerSettings',
 
   components: {
+    DpOlMap: defineAsyncComponent(() => import('../map/DpOlMap')),
     DpCheckbox,
+    DpContextualHelp,
     DpInput,
     DpLabel,
     DpMultiselect,
-    DpSelect
+    DpSelect,
   },
+
+  mixins: [prefixClassMixin],
 
   props: {
     availableProjections: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
+    },
+
+    hasPreview: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     initLayers: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initMatrixSet: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initName: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initProjection: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initServiceType: {
       type: String,
       required: false,
-      default: 'wms'
+      default: 'wms',
     },
 
     initUrl: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initVersion: {
       type: String,
       required: false,
-      default: ''
+      default: '',
+    },
+
+    procedureId: {
+      type: String,
+      required: false,
+      default: '',
     },
 
     showXplanDefaultLayer: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     xplanDefaultLayer: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   data () {
@@ -212,19 +275,21 @@ export default {
       initialLoad: true,
       isLoading: true,
       layersOptions: [],
-      layers: this.initLayers
-        ? this.initLayers
+      layers: this.initLayers ?
+        this.initLayers
           .split(',')
-          .map(el => ({ label: el.trim(), value: el.trim() }))
-        : [],
+          .map(el => ({ label: el.trim(), value: el.trim() })) :
+        [],
       matrixSet: this.initMatrixSet,
       matrixSetOptions: [],
       name: this.initName,
       projection: this.initProjection || window.dplan.defaultProjectionLabel,
       projectionOptions: this.availableProjections,
+      serviceError: false,
       serviceType: this.initServiceType || 'wms',
+      unavailableLayers: [],
       url: this.initUrl,
-      version: this.initVersion || '1.3.0'
+      version: this.initVersion || '1.3.0',
     }
   },
 
@@ -255,13 +320,23 @@ export default {
       return this.layers.map(el => el.label).join(',')
     },
 
+    previewLayers () {
+      return [{
+        name: `preview-layers-${this.layersInputValue}`, // Force component recreation on layer change (DpOlMapLayer)
+        url: this.url,
+        layers: this.layersInputValue,
+        mapOrder: 1,
+        layerType: 'overlay',
+      }]
+    },
+
     serviceTypeOptions () {
       const serviceTypeOptions = [{ value: 'wms', label: 'WMS' }]
       if (hasPermission('feature_map_wmts')) {
         serviceTypeOptions.push({ value: 'wmts', label: 'WMTS' })
       }
       return serviceTypeOptions
-    }
+    },
   },
 
   methods: {
@@ -294,7 +369,7 @@ export default {
         if (this.projectionOptions.length === 0) {
           dplan.notify.warning(Translator.trans('error.map.layer.projections.none', {
             projectionsFromSource: availableCRS.join(', '),
-            availableProjectionsFromSystem: this.availableProjections.join(', ')
+            availableProjectionsFromSystem: this.availableProjections.join(', '),
           }))
         } else if (this.findProjectionInOptions() === false) {
           this.projection = this.projectionOptions[0].value
@@ -302,6 +377,8 @@ export default {
       }
 
       this.resetLayerSelection()
+      this.validateSavedLayersAvailability()
+
       if (this.initialLoad) {
         this.initialLoad = false
       }
@@ -318,6 +395,8 @@ export default {
       this.filterMatrixSetByLayers()
       this.filterProjectionsByMatrixSet()
       this.resetLayerSelection()
+      this.validateSavedLayersAvailability()
+
       if (this.initialLoad) {
         this.initialLoad = false
       }
@@ -420,6 +499,7 @@ export default {
           return response.text()
         })
         .then(capabilities => {
+          this.serviceError = false
           this.serviceType = hasWMTSType ? 'wmts' : 'wms'
           parser = this.serviceType === 'wmts' ? new WMTSCapabilities() : new WMSCapabilities()
           this.currentCapabilities = parser.read(capabilities)
@@ -433,6 +513,7 @@ export default {
           dplan.notify.error(Translator.trans('maplayer.capabilities.fetch.error'))
           dplan.notify.notify('warning', Translator.trans('maplayer.capabilities.fetch.warning.cors.policy'))
           this.clearSelections()
+          this.serviceError = true
         })
         .finally(() => {
           this.isLoading = false
@@ -484,10 +565,19 @@ export default {
       }
     },
 
+    selectAllLayers () {
+      this.layers = [...this.layersOptions]
+    },
+
+    deselectAllLayers () {
+      this.layers = []
+    },
+
     setServiceInUrl () {
       const serviceKey = 'SERVICE='
       // Find existing Key
       const serviceParam = new RegExp(serviceKey + '(\\w*)', 'i')
+
       if (this.url.match(serviceParam).length > 0) {
         this.url = this.url.replace(serviceParam, `${serviceKey}${this.serviceType.toUpperCase()}`)
       } else {
@@ -496,11 +586,34 @@ export default {
       }
 
       this.getLayerCapabilities()
-    }
+    },
+
+    validateSavedLayersAvailability () {
+      if (this.layers.length === 0) {
+        return
+      }
+
+      const savedLayers = this.layers.map(layer => layer.label)
+
+      if (this.layersOptions.length === 0) {
+        this.unavailableLayers = savedLayers
+
+        return
+      }
+
+      const availableLayerOptions = this.layersOptions.map(option => option.label)
+      const outdatedLayers = savedLayers.filter(savedName => !availableLayerOptions.includes(savedName))
+
+      if (outdatedLayers.length > 0) {
+        this.unavailableLayers = outdatedLayers
+      } else {
+        this.unavailableLayers = []
+      }
+    },
   },
 
   mounted () {
     this.getLayerCapabilities()
-  }
+  },
 }
 </script>

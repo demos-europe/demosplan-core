@@ -14,24 +14,24 @@ export default {
   name: 'DpFragmentListFilterModal',
   components: {
     DpModal,
-    DpMultiselect
+    DpMultiselect,
   },
   props: {
     filters: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
     appliedFilters: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
     permissionFields: {
       type: Object,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
   data () {
     return {
@@ -44,8 +44,8 @@ export default {
         countyNames: [],
         tagNames: [],
         elementId: [],
-        paragraphId: []
-      }
+        paragraphId: [],
+      },
     }
   },
   computed: {
@@ -53,12 +53,12 @@ export default {
       const groups = {
         submissionFilters: {
           groupLabel: 'submission',
-          values: this.filters.filter(el => el.name !== 'elementId' && el.name !== 'paragraphId')
+          values: this.filters.filter(el => el.name !== 'elementId' && el.name !== 'paragraphId'),
         },
         documentFilters: {
           groupLabel: 'plandocument',
-          values: this.filters.filter(el => el.name === 'elementId' || el.name === 'paragraphId')
-        }
+          values: this.filters.filter(el => el.name === 'elementId' || el.name === 'paragraphId'),
+        },
       }
 
       // Set correct permissions for some filter fields
@@ -68,13 +68,13 @@ export default {
       }))
 
       return groups
-    }
+    },
   },
 
   methods: {
     stripRaw (string) {
       return string.split('.raw').join('')
-    }
+    },
   },
 
   mounted () {
@@ -95,6 +95,6 @@ export default {
         this.userSelection[this.stripRaw(filter.field)] = initialFilters
       }
     })
-  }
+  },
 }
 </script>

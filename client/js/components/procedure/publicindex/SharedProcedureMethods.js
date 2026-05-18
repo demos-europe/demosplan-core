@@ -60,7 +60,7 @@ const Methods = {
     } else if (internalPhaseTranslationKey) {
       return Translator.trans(internalPhaseTranslationKey)
     }
-  }
+  },
 }
 
 export default Methods

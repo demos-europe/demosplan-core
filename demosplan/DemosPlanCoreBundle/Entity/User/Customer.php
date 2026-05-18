@@ -27,7 +27,10 @@ use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Table(name="customer")
+ * @ORM\Table(
+ *     name="customer",
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="uniq_customer_subdomain", columns={"_c_subdomain"})}
+ * )
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomerRepository")
  */
@@ -305,11 +308,9 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         /** @var OrgaStatusInCustomerInterface $customerOrgaTypes */
         foreach ($this->getOrgaStatuses() as $customerOrgaTypes) {
             $orga = $customerOrgaTypes->getOrga();
-            if (!$orgas->contains($orga)) {
-                // filter by status
-                if ([] === $statuses || in_array($customerOrgaTypes->getStatus(), $statuses, true)) {
-                    $orgas->add($orga);
-                }
+            // filter by status
+            if (!$orgas->contains($orga) && ([] === $statuses || in_array($customerOrgaTypes->getStatus(), $statuses, true))) {
+                $orgas->add($orga);
             }
         }
 
@@ -402,12 +403,9 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         $this->xplanning = $xplanning;
     }
 
-    /**
-     * @return ProcedureInterface|null
-     */
-    public function getDefaultProcedureBlueprint()
+    public function getDefaultProcedureBlueprint(): ?ProcedureInterface
     {
-        return $this->defaultProcedureBlueprint;
+        return $this->defaultProcedureBlueprint?->isDeleted() ? null : $this->defaultProcedureBlueprint;
     }
 
     /**

@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRevokeTokenAlreadyUsedException;
@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class GdprConsentRevokeTokenController extends BaseController
 {
@@ -30,12 +30,11 @@ class GdprConsentRevokeTokenController extends BaseController
     private const POST_PARAM_KEY_GDPR_CONSENT_REVOKE_TOKEN = 'gdprConsentRevokeToken';
 
     /**
-     * @DplanPermissions("area_gdpr_consent_revoke_page")
-     *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_gdpr_consent_revoke_page')]
     #[Route(path: '/einwilligung-widerrufen', methods: ['POST'], name: 'DemosPlan_statement_revoke_gdpr_consent_post')]
-    public function revokeGdprConsentPostAction(GdprConsentRevokeTokenService $gdprConsentRevokeTokenService, Request $request): Response
+    public function revokeGdprConsentPost(GdprConsentRevokeTokenService $gdprConsentRevokeTokenService, Request $request): Response
     {
         try {
             $messageBag = $this->getMessageBag();
@@ -60,22 +59,21 @@ class GdprConsentRevokeTokenController extends BaseController
     }
 
     /**
-     * @DplanPermissions("area_demosplan")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/einwilligung-widerrufen', methods: ['GET'], name: 'DemosPlan_statement_revoke_gdpr_consent_get')]
-    public function revokeGdprConsentGetAction(PermissionsInterface $permissions): Response
+    public function revokeGdprConsentGet(PermissionsInterface $permissions): Response
     {
         if ($permissions->hasPermission('area_gdpr_consent_revoke_page')) {
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanCore/gdpr_consent_revoke.html.twig',
                 ['title' => 'gdpr.consent.revoke']
             );
         }
 
         if ($permissions->hasPermission('area_gdpr_consent_revoke_page_disabled')) {
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanCore/gdpr_consent_revoke_disabled.html.twig',
                 ['title' => 'gdpr.consent.revoke.disabled']
             );

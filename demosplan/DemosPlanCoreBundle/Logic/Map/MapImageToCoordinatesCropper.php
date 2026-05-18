@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\CoordinatesViewport;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Given a MapLayer and some coordinates defining a rectangle included in the MapLayer,
@@ -24,10 +23,6 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class MapImageToCoordinatesCropper
 {
-    public function __construct(private readonly Filesystem $filesystem)
-    {
-    }
-
     /**
      * Crops the received MapLayer to the size and coordinates defined in $minLayerCoordinates.
      *
@@ -35,7 +30,7 @@ class MapImageToCoordinatesCropper
      */
     public function crop(
         MapLayer $mapLayer,
-        array $minLayerCoordinates
+        array $minLayerCoordinates,
     ): MapLayer {
         $coordHeight = $minLayerCoordinates['top'] - $minLayerCoordinates['bottom'];
         $pixelHeight = (int) ($coordHeight / $mapLayer->getCpp());
@@ -52,7 +47,7 @@ class MapImageToCoordinatesCropper
         $image = $mapLayer->getImage();
         $image->crop($pixelWidth, $pixelHeight, $pixelOffsetLeft, $pixelOffsetTop);
 
-        $layerImage = new MapLayer(
+        return new MapLayer(
             new CoordinatesViewport(
                 $minLayerCoordinates['left'],
                 $minLayerCoordinates['bottom'],
@@ -62,8 +57,5 @@ class MapImageToCoordinatesCropper
             $image,
             ''
         );
-        $this->filesystem->remove($mapLayer->getImage()->basePath());
-
-        return $layerImage;
     }
 }

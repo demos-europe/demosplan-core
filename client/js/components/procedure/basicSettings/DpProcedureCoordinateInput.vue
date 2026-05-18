@@ -11,35 +11,40 @@
   <div class="block u-mb-0_5 u-pv-0_5 border--top flow-root">
     <label
       class="inline-block u-m-0"
-      for="customLatitude">
+      for="customLatitude"
+    >
       {{ Translator.trans('coordinate.right.value') }}
     </label>
     <input
+      id="customLatitude"
+      v-model="latitudeValue"
       type="text"
       pattern="[0-9]*[.|,]?[0-9]+"
       required
-      id="customLatitude"
-      v-model="latitudeValue"
-      class="c-ol-map__select w-9 u-mr">
+      class="c-ol-map__select w-9 u-mr"
+    >
 
     <label
       class="inline-block u-m-0"
-      for="customLongitude">
+      for="customLongitude"
+    >
       {{ Translator.trans('coordinate.top.value') }}
     </label>
     <input
+      id="customLongitude"
+      v-model="longitudeValue"
       type="text"
       pattern="[0-9]*[.|,]?[0-9]+"
       required
-      id="customLongitude"
-      v-model="longitudeValue"
-      class="c-ol-map__select w-9 u-mr">
+      class="c-ol-map__select w-9 u-mr"
+    >
 
     <button
-      @click.prevent="addMarker"
-      :disabled="!isCoordinatesValid"
       ref="myBtnCoordinates"
-      class="btn btn--primary float-right">
+      :disabled="!isCoordinatesValid"
+      class="btn btn--primary float-right"
+      @click.prevent="addMarker"
+    >
       {{ Translator.trans('coordinate.location.submite') }}
     </button>
   </div>
@@ -56,14 +61,18 @@ export default {
     coordinate: {
       required: false,
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
+
+  emits: [
+    'input',
+  ],
 
   data () {
     return {
       latitudeValue: '', // 568400.97
-      longitudeValue: '' // 5923963.03
+      longitudeValue: '', // 5923963.03
     }
   },
 
@@ -72,13 +81,16 @@ export default {
       const lat = this.convertToFloat(this.latitudeValue)
       const lon = this.convertToFloat(this.longitudeValue)
       return Number(lat) === lat && Number(lon) === lon
-    }
+    },
   },
 
   watch: {
-    coordinate (coordinates) {
-      this.updateCoordinates(coordinates)
-    }
+    coordinate: {
+      handler (coordinates) {
+        this.updateCoordinates(coordinates)
+      },
+      deep: true,
+    },
   },
 
   methods: {
@@ -87,8 +99,8 @@ export default {
       proj4.defs([
         [
           'EPSG:25832',
-          '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs'
-        ]
+          '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs',
+        ],
       ])
 
       this.$emit('input', proj4('EPSG:25832', window.dplan.defaultProjectionLabel, [this.convertToFloat(this.latitudeValue), this.convertToFloat(this.longitudeValue)]))
@@ -104,12 +116,12 @@ export default {
 
     convertToFloat (val) {
       return parseFloat((val + '').replace(',', '.'))
-    }
+    },
   },
 
   mounted () {
     //  Setup state + behavior
     this.updateCoordinates(this.coordinate)
-  }
+  },
 }
 </script>

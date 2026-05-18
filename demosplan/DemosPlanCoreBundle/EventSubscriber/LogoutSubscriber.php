@@ -12,14 +12,17 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
@@ -28,17 +31,31 @@ class LogoutSubscriber implements EventSubscriberInterface
     private array $allowedCookieNames = [PreviousRouteCookie::NAME];
 
     public function __construct(
-        private readonly CustomerService $customerService,
         private readonly LoggerInterface $logger,
+        private readonly OAuthTokenStorageService $oauthTokenStorageService,
         private readonly ParameterBagInterface $parameterBag,
         private readonly PermissionsInterface $permissions,
         private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
     ) {
     }
 
+    /**
+     * Set this listener with priority 1 to execute before Symfony's default LogoutListener:
+     *
+     * @see \Symfony\Component\Security\Http\EventListener\SessionLogoutListener
+     * This prevents the session from being invalidated prematurely,
+     * as we need the session to access the stored Keycloak ID token for logout.
+     * The token is detected on Keycloak side,
+     * enabling silent logout without Keycloak user confirmation dialog.
+     *
+     * @return array[]
+     */
     public static function getSubscribedEvents(): array
     {
-        return [LogoutEvent::class => 'onLogout'];
+        return [
+            LogoutEvent::class => ['onLogout', 1],
+        ];
     }
 
     public function onLogout(LogoutEvent $event): void
@@ -46,27 +63,44 @@ class LogoutSubscriber implements EventSubscriberInterface
         // get the current response, if it is already set by another listener
         $response = $event->getResponse();
 
-        if (null === $response) {
+        if (!$response instanceof Response) {
             $response = $this->redirectToRoute('core_home');
         }
 
-        // let oauth identity provider handle logout when defined
-        if ('' !== $this->parameterBag->get('oauth_keycloak_logout_route')) {
-            $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
-            $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
-            // add subdomain for redirect
+        // let oauth identity provider handle logout when defined and user was provided by identity provider
+        $user = $event->getToken()?->getUser();
+        if ($user instanceof UserInterface && $user->isProvidedByIdentityProvider()) {
+            // Delete stored OAuth tokens on logout to prevent stale encrypted data in the database
             try {
-                $currentCustomer = $this->customerService->getCurrentCustomer();
-                $logoutRoute = str_replace(
-                    'post_logout_redirect_uri=https://',
-                    'post_logout_redirect_uri=https://'.$currentCustomer->getSubdomain().'.',
-                    $logoutRoute
-                );
-                $this->logger->info('Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
+                $this->oauthTokenStorageService->deleteTokensUnlessPendingData($user->getId());
             } catch (Exception $e) {
-                $this->logger->error('Could not get current customer', [$e->getMessage()]);
+                $this->logger->warning('Failed to delete OAuth tokens on logout', ['error' => $e->getMessage()]);
             }
-            $response = $this->redirect($logoutRoute);
+
+            // Keycloak logout
+            $logoutRoute = $this->ozgKeycloakSessionManager->getEffectiveLogoutRoute();
+            if (null !== $logoutRoute) {
+                $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakSessionManager::KEYCLOAK_TOKEN);
+                $event->getRequest()->getSession()->invalidate();
+
+                $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
+
+                // add additional parameters to keycloak logout url for redirect
+                try {
+                    $logoutRoute = $this->ozgKeycloakSessionManager->getLogoutUrl($logoutRoute, $keycloakToken);
+                    $this->logger->info('Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
+                } catch (Exception $e) {
+                    $this->logger->error('Could not get current customer', [$e->getMessage()]);
+                }
+                $response = $this->redirect($logoutRoute);
+            }
+
+            // Azure AD logout (Front-Channel logout)
+            if ('' !== $this->parameterBag->get('oauth_azure_logout_route')) {
+                $logoutRoute = $this->parameterBag->get('oauth_azure_logout_route');
+                $this->logger->info('Redirecting to Azure AD for logout initial', [$logoutRoute]);
+                $response = $this->redirect($logoutRoute);
+            }
         }
 
         if ($this->permissions->hasPermission('feature_has_logout_landing_page')) {
@@ -77,6 +111,9 @@ class LogoutSubscriber implements EventSubscriberInterface
         foreach ($this->allowedCookieNames as $cookieName) {
             $response->headers->clearCookie($cookieName);
         }
+
+        // Clear browser prefetch and prerender caches on logout
+        $response->headers->set('Clear-Site-Data', '"prefetchCache", "prerenderCache"');
 
         $event->setResponse($response);
     }

@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Help;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
@@ -21,7 +21,7 @@ use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanHelpController extends BaseController
@@ -30,13 +30,12 @@ class DemosPlanHelpController extends BaseController
      * @return RedirectResponse|Response
      *
      * @throws Exception
-     *
-     * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[DplanPermissions('area_admin_contextual_help_edit')]
     #[Route(name: 'dplan_contextual_help_list', methods: 'GET|POST', path: '/contextualHelp')]
-    public function listAction(
+    public function list(
         Request $request,
-        HelpHandler $helpHandler
+        HelpHandler $helpHandler,
     ): Response {
         $templateVars = [];
         $requestPost = $request->request->all();
@@ -59,7 +58,7 @@ class DemosPlanHelpController extends BaseController
 
         $templateVars['contextualHelpList'] = $helpHandler->getHelpNonGisLayer();
 
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanHelp/help_admin_contextual_help_list.html.twig', [
+        return $this->render('@DemosPlanCore/DemosPlanHelp/help_admin_contextual_help_list.html.twig', [
             'templateVars' => $templateVars,
             'title'        => 'help.contextualHelp.list',
         ]);
@@ -69,22 +68,21 @@ class DemosPlanHelpController extends BaseController
      * @return RedirectResponse|Response
      *
      * @throws Exception
-     *
-     * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[DplanPermissions('area_admin_contextual_help_edit')]
     #[Route(name: 'dplan_contextual_help_new', methods: 'GET', path: '/contextualHelp/new')]
-    public function newAction(
+    public function new(
         Breadcrumb $breadcrumb,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ): Response {
         $breadcrumb->addItem(
             [
-                 'title' => $translator->trans('contextual.help'),
-                 'url'   => $this->generateUrl('dplan_contextual_help_list'),
-             ]
+                'title' => $translator->trans('contextual.help'),
+                'url'   => $this->generateUrl('dplan_contextual_help_list'),
+            ]
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanHelp/help_admin_contextual_help_edit.html.twig',
             [
                 'formAction'     => 'dplan_contextual_help_create',
@@ -99,13 +97,12 @@ class DemosPlanHelpController extends BaseController
      *
      * @throws MessageBagException
      * @throws Exception
-     *
-     * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[DplanPermissions('area_admin_contextual_help_edit')]
     #[Route(name: 'dplan_contextual_help_create', methods: 'POST', path: '/contextualHelp/create')]
-    public function createAction(
+    public function create(
         HelpHandler $helpHandler,
-        Request $request
+        Request $request,
     ): Response {
         try {
             $helpHandler->createContextualHelp($request->request->all());
@@ -125,15 +122,14 @@ class DemosPlanHelpController extends BaseController
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
-     *
-     * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[DplanPermissions('area_admin_contextual_help_edit')]
     #[Route(name: 'dplan_contextual_help_edit', methods: 'GET', path: '/contextualHelp/{contextualHelpId}')]
-    public function editAction(
+    public function edit(
         Breadcrumb $breadcrumb,
         HelpHandler $helpHandler,
         TranslatorInterface $translator,
-        $contextualHelpId = null
+        $contextualHelpId = null,
     ): Response {
         try {
             $breadcrumb->addItem([
@@ -141,7 +137,7 @@ class DemosPlanHelpController extends BaseController
                 'url'   => $this->generateUrl('dplan_contextual_help_list'),
             ]);
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanHelp/help_admin_contextual_help_edit.html.twig',
                 [
                     'formAction'     => 'dplan_contextual_help_edit',
@@ -164,14 +160,13 @@ class DemosPlanHelpController extends BaseController
      *
      * @throws MessageBagException
      * @throws Exception
-     *
-     * @DplanPermissions("area_admin_contextual_help_edit")
      */
+    #[DplanPermissions('area_admin_contextual_help_edit')]
     #[Route(name: 'dplan_contextual_help_update', methods: 'POST', path: '/contextualHelp/{contextualHelpId}')]
-    public function updateAction(
+    public function update(
         Request $request,
         HelpHandler $helpHandler,
-        string $contextualHelpId
+        string $contextualHelpId,
     ): Response {
         try {
             $helpHandler->updateContextualHelp($request->request->all());

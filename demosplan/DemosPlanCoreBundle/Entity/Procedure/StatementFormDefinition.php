@@ -173,15 +173,11 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
     public function isFieldDefinitionEnabled(string $name)
     {
         $fieldDefinition = $this->getFieldDefinitionByName($name);
-        if (null === $fieldDefinition) {
+        if (!$fieldDefinition instanceof StatementFieldDefinition) {
             return false;
         }
 
-        if (!$fieldDefinition->isEnabled()) {
-            return false;
-        }
-
-        return true;
+        return $fieldDefinition->isEnabled();
     }
 
     public function getId(): ?string

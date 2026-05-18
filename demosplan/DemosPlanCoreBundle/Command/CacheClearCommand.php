@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,12 +29,10 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * Update current project
  */
+#[AsCommand(name: 'dplan:cache:clear', description: 'Clear apcu and op caches')]
 class CacheClearCommand extends CoreCommand
 {
-    final public const APCU_CLEAR_SCHEDULE_FILE = 'web/uploads/scheduled-apcu-clear';
-
-    protected static $defaultName = 'dplan:cache:clear';
-    protected static $defaultDescription = 'Clear apcu and op caches';
+    final public const APCU_CLEAR_SCHEDULE_FILE = 'uploads/scheduled-apcu-clear';
 
     public function configure(): void
     {
@@ -99,12 +98,12 @@ class CacheClearCommand extends CoreCommand
         $output->comment('Schedule clearing of Web APCu');
 
         $fs = new DemosFilesystem();
-        $file = DemosPlanPath::getProjectPath(self::APCU_CLEAR_SCHEDULE_FILE);
+        $file = DemosPlanPath::getPublicPath(self::APCU_CLEAR_SCHEDULE_FILE);
 
         // in case of our dev servers the file would be put into src folder,
-        // but needs to be in the htdocs web/uploads folder
-        if (str_contains($file, 'src/projects')) {
-            $file = str_replace('src/projects', 'htdocs/projects', $file);
+        // but needs to be in the htdocs public/uploads folder
+        if (str_contains($file, 'src')) {
+            $file = str_replace('src', 'htdocs', $file);
             $output->writeln('Recognized dev server environment. Adjust path for scheduled file');
             $output->writeln('Filepath: '.$file);
         }

@@ -1,57 +1,60 @@
 <template>
   <dp-card
-    :heading="Translator.trans('tasks.my')">
+    :heading="Translator.trans('tasks.my')"
+  >
     <div class="u-mt">
       <span v-cleanhtml="Translator.trans('segments.assigned.now', { count: assignedSegmentCount })" />
     </div>
     <div
+      v-if="assignedSegmentCount !== 0"
       class="text-right u-mt"
-      v-if="assignedSegmentCount !== 0">
+    >
       <dp-button
         data-cy="dashboardTaskCard:tasksView"
         :href="userFilteredSegmentUrl"
-        :text="Translator.trans('tasks.view')" />
+        :text="Translator.trans('tasks.view')"
+      />
     </div>
   </dp-card>
 </template>
 
 <script>
-import { checkResponse, CleanHtml, dpApi, DpButton, DpCard } from '@demos-europe/demosplan-ui'
+import { CleanHtml, dpApi, DpButton, DpCard } from '@demos-europe/demosplan-ui'
 export default {
   name: 'DpDashboardTaskCard',
 
   components: {
     DpButton,
-    DpCard
+    DpCard,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     currentUserId: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       assignedSegmentCount: 0,
-      userHash: ''
+      userHash: '',
     }
   },
 
   computed: {
     userFilteredSegmentUrl () {
       return Routing.generate('dplan_segments_list', { procedureId: this.procedureId }) + '/' + this.userHash
-    }
+    },
   },
 
   mounted () {
@@ -60,22 +63,24 @@ export default {
       [this.currentUserId]: {
         condition: {
           path: 'assignee',
-          value: this.currentUserId
-        }
+          value: this.currentUserId,
+        },
       },
       sameProcedure: {
         condition: {
           path: 'parentStatement.procedure.id',
-          value: this.procedureId
-        }
-      }
+          value: this.procedureId,
+        },
+      },
     }
 
     // Get count of segments assigned to the current user
     const segmentUrl = Routing.generate('api_resource_list', { resourceType: 'StatementSegment' })
-    dpApi.get(segmentUrl, { filter: filterQuery }).then(response => {
-      this.assignedSegmentCount = response.data.data.length
-    })
+    dpApi.get(segmentUrl, { filter: filterQuery })
+      .then(response => {
+        this.assignedSegmentCount = response.data.data.length
+      })
+      .catch(e => console.error('Failed to fetch assigned segments count', e))
 
     /*
      * It is currently difficult to get the default filter hash but a filter hash is needed to retrieve an updated hash.
@@ -91,21 +96,21 @@ export default {
         const queryHash = splitUrl[splitUrl.length - 1]
         const filterData = {
           filter: {
-            ...filterQuery
+            ...filterQuery,
           },
-          searchPhrase: ''
+          searchPhrase: '',
         }
 
         // Get the actual filter hash
         const url = Routing.generate('dplan_rpc_segment_list_query_update', { queryHash })
-        dpApi.patch(url, {}, filterData)
-          .then(response => checkResponse(response))
-          .then(response => {
-            if (response) {
-              this.userHash = response
+        return dpApi.patch(url, {}, filterData)
+          .then(({ data }) => {
+            if (data) {
+              this.userHash = data
             }
           })
       })
-  }
+      .catch(e => console.error('Failed to fetch segment filter hash', e))
+  },
 }
 </script>

@@ -21,6 +21,28 @@ defaults:
     tabLabel: export.docx
     buttonLabel: export.docx
     buttonLabelSingle: export.trigger.docx
+  odt:
+    _defaults:
+      anonymous: false
+      exportType: 'statementsOnly'
+      sortType: 'default'
+      template: 'condensed'
+      numberStatements: false
+    obscure: true # can exports be generated obscured/unobscured? (depends on feature_latex_obscure)
+    anonymize: true # can exports be generated with/without anonymized author names
+    exportTypes: true # show export type options?
+    numberStatements: true # numbering of statements
+    templates: # templates have an identifier and a translation key and *optionally* an explanation translation key
+      condensed:
+        name: export.compact
+      landscape:
+        name: export.landscape
+        explanation: explanation.export.odt
+      portrait:
+        name: export.portrait
+    tabLabel: export.odt
+    buttonLabel: export.odt
+    buttonLabelSingle: export.trigger.odt
   pdf:
     _defaults:
       anonymous: false
@@ -60,6 +82,7 @@ defaults:
     buttonLabel: export.zip
 original_statements:
   docx:  false
+  odt: false
   pdf:
     _defaults:
         newPagePerStn: false
@@ -81,5 +104,7 @@ original_statements:
   xlsx: false
   zip:  false
 assessment_table:
+  odt: false
 fragment_list:
+  odt: true
   xlsx: false

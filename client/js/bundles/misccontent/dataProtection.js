@@ -14,7 +14,7 @@ import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 const components = {
   DpDataTable,
   DpIcon,
-  RegisterFlyout
+  RegisterFlyout,
 }
 
 initialize(components).then(() => {

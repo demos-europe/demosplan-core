@@ -141,8 +141,10 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             return;
         }
 
-        $highestColumn = $assessmentTable->getHighestColumn();
-        $headIterator = $head->getCellIterator('A', $highestColumn);
+        // Memory optimization: Use actual highest data column
+        $highestDataColumn = $this->getActualHighestDataColumn($assessmentTable);
+        $headIterator = $head->getCellIterator('A', $highestDataColumn);
+
         $currentProcedure = $this->currentProcedureService->getProcedure()
             ?? throw new MissingPostParameterException('Current procedure is missing.');
 
@@ -154,7 +156,7 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
         for (; $rows->valid(); $rows->next()) {
             $row = $rows->current();
             $zeroBasedStatementIndex = $row->getRowIndex() - 2;
-            $cells = iterator_to_array($row->getCellIterator('A', $highestColumn));
+            $cells = iterator_to_array($row->getCellIterator('A', $highestDataColumn));
 
             // fill builder with cells
             $violationLists = array_map(

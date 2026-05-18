@@ -17,6 +17,10 @@
         }
 
         $(function ($) {
+            if (!document.querySelector('#map')) {
+                return
+            }
+
             //Global default bounds
             var mapExtent = {{ map.publicExtent }};
 
@@ -60,6 +64,7 @@
             map = L.map('map', {
                 center: new L.LatLng(initialLat, initialLon),
                 zoom: initialZoom,
+                zoomSnap: 0.5,
                 layers: [publicBaselayer],
                 maxBounds: bbox,
                 attributionControl: false
@@ -185,5 +190,4 @@
                     :  map.setView(map.options.center, map.options.zoom)
             }
         });
-
     </script>

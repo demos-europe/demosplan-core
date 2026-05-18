@@ -16,7 +16,7 @@ use Symfony\Component\PasswordHasher\LegacyPasswordHasherInterface;
 
 abstract class BaseEncoder implements LegacyPasswordHasherInterface
 {
-    public function verify(string $hashedPassword, string $plainPassword, string $salt = null): bool
+    public function verify(string $hashedPassword, string $plainPassword, ?string $salt = null): bool
     {
         return !$this->isPasswordTooLong($plainPassword) && $this->comparePasswords($hashedPassword, $this->hash($plainPassword, $salt));
     }

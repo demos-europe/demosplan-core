@@ -15,7 +15,7 @@ import { DpUploadFiles } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpUploadFiles
+  DpUploadFiles,
 }
 
 initialize(components)

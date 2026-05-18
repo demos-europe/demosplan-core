@@ -18,7 +18,7 @@ import SetPassword from '@DpJs/components/user/portalUser/SetPassword'
 
 const components = {
   RegisterFlyout,
-  SetPassword
+  SetPassword,
 }
 
 initialize(components).then(() => {

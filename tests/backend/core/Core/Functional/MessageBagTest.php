@@ -29,7 +29,7 @@ class MessageBagTest extends FunctionalTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->sut = self::$container->get(MessageBagInterface::class);
+        $this->sut = self::getContainer()->get(MessageBagInterface::class);
     }
 
     public function testSetStringMessages()

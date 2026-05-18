@@ -12,15 +12,18 @@ All rights reserved
     class="multiselect--dark inline-block align-bottom cursor-pointer w-full"
     :class="{'has-selection': selected.length}"
     :placeholder="placeHolder"
+    :open-direction="dropdownDirection"
     :options="tagsByTopic"
     :close-on-select="false"
     :searchable="false"
+    multiple
     @input="(val) => updateTags(val)"
-    multiple>
+  >
     <template v-slot:option="{ props }">
       <input
         type="checkbox"
-        :checked="!!selected.find(tag => tag.id === props.option.id || tag.attributes.title === props.option.title)">
+        :checked="!!selected.find(tag => tag.id === props.option.id || tag.attributes.title === props.option.title)"
+      >
       <label>
         {{ props.option.attributes.title }}
       </label>
@@ -36,26 +39,32 @@ export default {
   name: 'TagSelect',
 
   components: {
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
+    dropdownDirection: {
+      type: String,
+      required: false,
+      default: '',
+    },
+
     entity: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     selected: {
       type: Array,
-      default: () => ([])
-    }
+      default: () => ([]),
+    },
   },
 
   computed: {
     ...mapGetters('SplitStatement', {
       tags: 'categorizedTags',
       editingSegment: 'editingSegment',
-      uncategorizedTags: 'uncategorizedTags'
+      uncategorizedTags: 'uncategorizedTags',
     }),
 
     placeHolder () {
@@ -76,12 +85,12 @@ export default {
           return returnValue
         })
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('SplitStatement', [
-      'updateCurrentTags'
+      'updateCurrentTags',
     ]),
 
     updateTags (val, isEditing = true) {
@@ -96,7 +105,7 @@ export default {
       }
 
       this.updateCurrentTags({ tagName: value.attributes.title, id: value.id })
-    }
-  }
+    },
+  },
 }
 </script>

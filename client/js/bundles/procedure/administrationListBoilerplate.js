@@ -19,4 +19,20 @@ const components = { DpFlyout, DpButton }
 
 initialize(components).then(() => {
   AnimateById()
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const deleteButton = document.querySelector('[data-cy="deleteSelectedBoilerplate"]')
+    const checkboxes = Array.from(document.querySelectorAll('input[data-checkable-item]'))
+
+    deleteButton.addEventListener('click', (event) => {
+      if (!checkboxes.some(checkbox => checkbox.checked)) {
+        event.preventDefault()
+        dplan.notify.error(Translator.trans('warning.select.one.entry'))
+      } else if (checkboxes.some(checkbox => checkbox.checked) &&
+        confirm(Translator.trans('check.entries.marked.delete'))
+      ) {
+        deleteButton.closest('form').submit()
+      }
+    })
+  })
 })

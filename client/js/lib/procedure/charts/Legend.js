@@ -7,6 +7,7 @@
  * All rights reserved
  */
 
+import 'd3-transition'
 import { format } from 'd3-format'
 import { hasOwnProp } from '@demos-europe/demosplan-ui'
 import { select } from 'd3-selection'
@@ -24,9 +25,9 @@ export default class Legend {
         'no-data-fallback': Translator.trans('fragments.not.submitted'),
         'legend-headline': Translator.trans('fragments'),
         'data-names': Translator.trans('fragments'),
-        'data-name': Translator.trans('fragment')
+        'data-name': Translator.trans('fragment'),
       },
-      transSpeed: 200
+      transSpeed: 200,
     }
 
     Object.assign(this, { ...defaults, ...options })

@@ -13,46 +13,40 @@ declare(strict_types=1);
  */
 
 use Rector\Config\RectorConfig;
-use Rector\Core\ValueObject\PhpVersion;
 use Rector\Doctrine\Set\DoctrineSetList;
-use Rector\Php80\Rector\FunctionLike\MixedTypeRector;
-use Rector\PHPUnit\Set\PHPUnitLevelSetList;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
 use Rector\Symfony\Set\SensiolabsSetList;
-use Rector\Symfony\Set\SymfonyLevelSetList;
-use Rector\Symfony\Set\TwigLevelSetList;
-use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector;
+use Rector\Symfony\Set\SymfonySetList;
+use Rector\Symfony\Set\TwigSetList;
+use Rector\ValueObject\PhpVersion;
 
-return static function (RectorConfig $rectorConfig): void {
-    // Define what rule sets will be applied
-    $rectorConfig->sets([
-//        SetList::CODE_QUALITY,
-//        SymfonyLevelSetList::UP_TO_SYMFONY_44,
+return RectorConfig::configure()
+    ->withSets([
+        // Define what rule sets will be applied
+        SetList::CODE_QUALITY,
+        SymfonySetList::SYMFONY_64,
         // SymfonyLevelSetList::UP_TO_SYMFONY_54,
-        // LevelSetList::UP_TO_PHP_53,
-//        LevelSetList::UP_TO_PHP_74,
-        LevelSetList::UP_TO_PHP_81,
-        // TwigLevelSetList::UP_TO_TWIG_240,
+        // LevelSetList::UP_TO_PHP_81,
+        // TwigSetList::TWIG_UNDERSCORE_TO_NAMESPACE,
         // SensiolabsSetList::ANNOTATIONS_TO_ATTRIBUTES,
+        // SensiolabsSetList::ANNOTATIONS_TO_ATTRIBUTES,
+        // SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
+        // DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
         // PHPUnitLevelSetList::UP_TO_PHPUNIT_90,
         // DoctrineSetList::DOCTRINE_DBAL_40,
-    ]);
-    $rectorConfig->skip([
-        TypedPropertyFromAssignsRector::class,
-        MixedTypeRector::class,
+    ])
+    ->withAttributesSets(symfony: true)
+    ->withSkip([
+        // TypedPropertyFromAssignsRector::class,
+        // MixedTypeRector::class,
         __DIR__.'/../../config/bundles.php',
-    ]);
-    // $rectorConfig->paths([__DIR__ . '/../../demosplan']);
-
-    $rectorConfig->phpVersion(PhpVersion::PHP_81);
-    $rectorConfig->symfonyContainerXml(
-        '/tmp/diplanbau/cache/dev/demosplan_DemosPlanCoreBundle_Application_DemosPlanKernelDevDebugContainer.xml'
-    );
-    $rectorConfig->autoloadPaths([__DIR__.'/../../vendor/autoload.php']);
-    $rectorConfig->importNames();
-    $rectorConfig->disableParallel();
-    // $rectorConfig->parallel(seconds: 180, jobSize: 10);
-    // Path to phpstan with extensions, that PHPSTan in Rector uses to determine types
-    $rectorConfig->phpstanConfig(__DIR__.'/../../vendor/phpstan/phpstan-symfony/extension.neon');
-};
+    ])
+    ->withPaths([__DIR__.'/../../demosplan'])
+    ->withPhpVersion(PhpVersion::PHP_81)
+    ->withSymfonyContainerXml(
+        '/srv/www/var/cache/dev/demosplan_DemosPlanCoreBundle_Application_DemosPlanKernelDevDebugContainer.xml'
+    )
+    ->withAutoloadPaths([__DIR__.'/../../vendor/autoload.php'])
+    ->withImportNames()
+    ->withParallel(timeoutSeconds: 180, jobSize: 10);

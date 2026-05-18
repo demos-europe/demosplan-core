@@ -5,7 +5,6 @@ nelmio_security:
         enforce:
             # see full description below
             level1_fallback: true
-            report-uri: "%router.request_context.base_url%/nelmio/csp/report"
             default-src: [ 'self' ]
             frame-src: '%demosplan_csp_frame_src%'
             # Backward compatible frame-src
@@ -31,8 +30,7 @@ nelmio_security:
 
         compat_headers: false #Disable compat_headers to avoid sending X-Content-Security-Policy (IE10, IE11, Firefox < 23). This will mean those browsers get no CSP instructions.
     clickjacking:
-        paths:
-            '^/.*': DENY
+        paths: '%demosplan_clickjacking_paths%'
         content_types: []
 
     content_type:
@@ -49,3 +47,32 @@ nelmio_security:
         policies:
             - 'no-referrer'
             - 'strict-origin-when-cross-origin'
+
+    cross_origin_isolation:
+        enabled: true
+        paths:
+            '^/.*':
+                corp: '%demosplan_corp_policy%'
+                coep: credentialless
+                coop: same-origin-allow-popups
+
+    permissions_policy:
+        enabled: true
+        policies:
+            camera: []
+            microphone: []
+            geolocation: []
+            payment: []
+            usb: []
+            magnetometer: []
+            gyroscope: []
+            accelerometer: []
+
+when@dev:
+    # Development-specific CSP overrides for webpack source maps
+    nelmio_security:
+        csp:
+            enforce:
+                # Allow webpack:// scheme for source maps in development
+                connect-src:
+                    - 'webpack:'

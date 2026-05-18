@@ -16,7 +16,8 @@
         'statement.anonymize.title.actions.choose',
         'statement.anonymize.title.actions.apply',
         'statement.anonymize.title.success'
-      ][currentStep - 1])" />
+      ][currentStep - 1])"
+    />
 
     <!-- Step 1 - selection of actions -->
     <template v-if="currentStep === 1">
@@ -28,13 +29,16 @@
         :label="{
           hint: Translator.trans('statement.anonymize.meta.hint'),
           text: Translator.trans('statement.anonymize.meta.label')
-        }" />
+        }"
+      />
       <ul
         v-show="actions.anonymizeStatementMeta"
-        class="o-list o-list--col-2 u-mb u-ml">
+        class="o-list o-list--col-2 u-mb u-ml"
+      >
         <li
           v-for="(item, key, index) in statementData"
-          :key="index">
+          :key="index"
+        >
           <strong>{{ Translator.trans(key) }}:</strong>
           <span :class="[item === '' && 'color--grey-light']">{{ item !== '' ? item : Translator.trans('not.specified') }}</span>
         </li>
@@ -49,7 +53,8 @@
         :label="{
           hint: Translator.trans('statement.anonymize.delete.history.hint'),
           text: Translator.trans('statement.anonymize.delete.history.label')
-        }" />
+        }"
+      />
 
       <dp-checkbox
         id="r_anonymize_statement_text"
@@ -59,20 +64,24 @@
         :label="{
           hint: Translator.trans('statement.anonymize.text.hint'),
           text: Translator.trans('statement.anonymize.text.label')
-        }" />
+        }"
+      />
       <div
         v-show="actions.anonymizeStatementText"
-        class="u-ml">
+        class="u-ml"
+      >
         <dp-contextual-help
           class="float-right"
-          :text="Translator.trans('statement.anonymize.text.editor.hint')" />
+          :text="Translator.trans('statement.anonymize.text.editor.hint')"
+        />
         <p class="weight--bold u-mb-0_25">
           {{ Translator.trans('statement.anonymize.text.editor.title') }}
         </p>
         <dp-anonymize-text
           class="u-mb u-p-0_25 overflow-y-auto max-h-13"
           :value="anonymizeText"
-          @change="text => anonymizeText = text" />
+          @change="text => anonymizeText = text"
+        />
       </div>
 
       <dp-checkbox
@@ -83,7 +92,8 @@
         :label="{
           hint: Translator.trans('statement.anonymize.delete.attachments.hint'),
           text: Translator.trans('statement.anonymize.delete.attachments.label')
-        }" />
+        }"
+      />
 
       <div class="flow-root">
         <dp-button
@@ -97,7 +107,8 @@
               procedureId: procedureId,
               filterHash: originalFilterHash
             })"
-          :text="Translator.trans('back.to.statements.original')" />
+          :text="Translator.trans('back.to.statements.original')"
+        />
 
         <dp-button
           class="float-right"
@@ -105,7 +116,8 @@
           :disabled="isInvalid()"
           icon-after="chevron-right"
           :text="Translator.trans('continue.confirm')"
-          @click="next" />
+          @click="next"
+        />
       </div>
     </template>
 
@@ -124,14 +136,17 @@
         <li v-if="actions.anonymizeStatementText">
           {{ Translator.trans('statement.anonymize.text.label') }}
           <div>
-            <template v-for="(snippet, idx) in anonymizedTextSnippets">
+            <template
+              v-for="(snippet, idx) in anonymizedTextSnippets"
+              :key="idx + 'snippet'"
+            >
+              <span v-if="idx !== 0">
+                ...
+              </span>
               <span
-                v-if="idx !== 0"
-                :key="idx + 'dots'"> ... </span>
-              <span
-                :key="idx + '_enonymized_segments'"
+                v-clean-html="snippet"
                 class="font-size-small u-mb-0_5 o-box bg-color--grey-light-2 u-pl-0_25 u-pr-0_25 u-mr-0_5"
-                v-clean-html="snippet" />
+              />
             </template>
           </div>
         </li>
@@ -151,14 +166,16 @@
           data-cy="statementAnonymize:back"
           icon="chevron-left"
           :text="Translator.trans('bulk.edit.actions.edit')"
-          @click="back" />
+          @click="back"
+        />
         <dp-button
           :busy="busy"
           class="float-right"
           data-cy="statementAnonymize:submit"
           icon-after="chevron-right"
           :text="Translator.trans('bulk.edit.actions.apply')"
-          @click="submit" />
+          @click="submit"
+        />
       </div>
     </template>
 
@@ -168,10 +185,12 @@
         <p
           v-if="actions.anonymizeStatementMeta"
           :class="{'u-mb-0_5': actions.deleteStatementTextHistory}"
-          class="flow-root">
+          class="flow-root"
+        >
           <i
             class="fa u-mt-0_125 u-mr-0_25 float-left fa-check"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.meta.success') }}
           </span>
@@ -179,30 +198,36 @@
 
         <p
           v-if="actions.deleteStatementTextHistory"
-          class="u-mb-0_25 flow-root">
+          class="u-mb-0_25 flow-root"
+        >
           <i
             class="fa u-mt-0_125 u-mr-0_25 float-left fa-check"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.delete.history.success') }}
           </span>
         </p>
         <p
           v-if="actions.deleteStatementAttachments"
-          class="u-mb-0_25 flow-root">
+          class="u-mb-0_25 flow-root"
+        >
           <i
             class="fa u-mt-0_125 u-mr-0_25 float-left fa-check"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.delete.attachments.success') }}
           </span>
         </p>
         <p
           v-if="actions.anonymizeStatementText"
-          class="u-mb-0_25 flow-root">
+          class="u-mb-0_25 flow-root"
+        >
           <i
             class="fa u-mt-0_125 u-mr-0_25 float-left fa-check"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.text.success') }}
           </span>
@@ -210,11 +235,13 @@
       </div>
       <div
         v-if="actions.anonymizeStatementText"
-        class="flash flash-warning u-mb">
+        class="flash flash-warning u-mb"
+      >
         <p class="flow-root">
           <i
             class="fa u-mt-0_125 u-mr-0_25 float-left fa-exclamation-triangle"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           <span class="u-ml block">
             {{ Translator.trans('statement.anonymize.text.children.not.affected') }}
           </span>
@@ -222,7 +249,8 @@
         <ul class="o-list--light u-ml">
           <li
             v-for="child in children"
-            :key="child.id">
+            :key="child.id"
+          >
             {{ Translator.trans('id') }} {{ child.externId }}
           </li>
         </ul>
@@ -243,7 +271,8 @@
               procedureId: procedureId,
               filterHash: originalFilterHash
             })"
-          :text="Translator.trans('back.to.statements.original')" />
+          :text="Translator.trans('back.to.statements.original')"
+        />
       </div>
     </template>
   </div>
@@ -251,13 +280,12 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   DpAnonymizeText,
   dpApi,
   DpButton,
   DpCheckbox,
-  DpContextualHelp
+  DpContextualHelp,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -267,51 +295,51 @@ export default {
     DpButton,
     DpCheckbox,
     DpAnonymizeText,
-    DpContextualHelp
+    DpContextualHelp,
   },
 
   directives: {
-    cleanHtml: CleanHtml
+    cleanHtml: CleanHtml,
   },
 
   props: {
     aTableLink: {
       required: true,
-      type: String
+      type: String,
     },
     /**
      * Needed to construct the route back to the original statements list.
      */
     originalFilterHash: {
       required: true,
-      type: String
+      type: String,
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     statementData: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statementText: {
       type: String,
-      required: true
+      required: true,
     },
 
     statementId: {
       required: true,
-      type: String
+      type: String,
     },
 
     children: {
       required: false,
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -320,12 +348,12 @@ export default {
         anonymizeStatementMeta: false,
         deleteStatementTextHistory: false,
         anonymizeStatementText: false,
-        deleteStatementAttachments: false
+        deleteStatementAttachments: false,
       },
       busy: false,
       currentStep: 1,
       totalSteps: 3,
-      anonymizeText: this.statementText
+      anonymizeText: this.statementText,
     }
   },
   computed: {
@@ -341,7 +369,7 @@ export default {
         anonymizedSnippets.push(result[2])
       }
       return anonymizedSnippets
-    }
+    },
   },
 
   methods: {
@@ -387,25 +415,24 @@ export default {
       const payload = {
         data: {
           data: {
-            statementId: this.statementId
+            statementId: this.statementId,
           },
           actions: {
             anonymizeStatementText: this.actions.anonymizeStatementText ? this.prepareTextForApiCall(this.anonymizeText) : null,
             deleteStatementAttachments: this.actions.deleteStatementAttachments,
             anonymizeStatementMeta: this.actions.anonymizeStatementMeta,
-            deleteStatementTextHistory: this.actions.deleteStatementTextHistory
-          }
-        }
+            deleteStatementTextHistory: this.actions.deleteStatementTextHistory,
+          },
+        },
       }
       return dpApi({
         method: 'POST',
         url: Routing.generate('dplan_rpc_statement_anonymize'),
         data: payload,
         headers: {
-          'Content-Type': 'application/json; charset=utf-8'
-        }
+          'Content-Type': 'application/json; charset=utf-8',
+        },
       })
-        .then(checkResponse)
         .then(() => {
           this.currentStep = 3
           this.busy = false
@@ -414,7 +441,7 @@ export default {
           this.busy = false
           dplan.notify.error(Translator.trans('error.api.generic'))
         })
-    }
-  }
+    },
+  },
 }
 </script>

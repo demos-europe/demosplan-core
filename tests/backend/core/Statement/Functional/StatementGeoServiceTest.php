@@ -39,10 +39,10 @@ class StatementGeoServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->serviceDraftStatement = self::$container->get(DraftStatementService::class);
-        $this->statementService = self::$container->get(StatementService::class);
+        $this->serviceDraftStatement = self::getContainer()->get(DraftStatementService::class);
+        $this->statementService = self::getContainer()->get(StatementService::class);
         $this->testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $this->sut = self::$container->get(StatementGeoService::class);
+        $this->sut = self::getContainer()->get(StatementGeoService::class);
     }
 
     public function testAddGeoMultiPointData()
@@ -117,7 +117,7 @@ class StatementGeoServiceTest extends FunctionalTestCase
         self::markSkippedForCIElasticsearchUnavailable();
 
         $data = [
-           'polygon' => '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[483013.7153814754,6072658.255889328]},"properties":null},{"type":"Feature","geometry":{"type":"Point","coordinates":[519526.28840662143,6064085.738744293]},"properties":null}]}',
+            'polygon' => '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[483013.7153814754,6072658.255889328]},"properties":null},{"type":"Feature","geometry":{"type":"Point","coordinates":[519526.28840662143,6064085.738744293]},"properties":null}]}',
         ];
         $data = $this->addDefaultData($data);
 

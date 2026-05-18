@@ -11,7 +11,7 @@ import DpSupportCard from '@DpJs/components/support/DpSupportCard'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpSupportCard
+  DpSupportCard,
 }
 
 initialize(components)

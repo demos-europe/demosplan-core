@@ -7,8 +7,8 @@
  * All rights reserved
  */
 
-import * as d3 from 'd3'
 import * as d3Sankey from 'd3-sankey-diagram'
+import { select } from 'd3-selection'
 
 /**
  *
@@ -19,10 +19,10 @@ export default class SankeyDiagram {
     const defaults = {
       data: {
         nodes: [],
-        links: []
+        links: [],
       },
       target: 'body',
-      dimensions: [400, 200]
+      dimensions: [400, 200],
     }
 
     Object.assign(this, { ...defaults, ...options })
@@ -41,7 +41,7 @@ export default class SankeyDiagram {
         return d.linkTitle
       })
     // Create the Diagram
-    d3.select(this.target).append('svg')
+    select(this.target).append('svg')
       .attr('class', 'sankey-diagram')
       .attr('width', '50%')
       .attr('height', '100%')

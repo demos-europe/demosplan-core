@@ -46,7 +46,7 @@
                                 {{ "tags"|trans }}
                             </label>
                             <dp-multiselect
-                                v-model="selectedTags"
+                                :value="selectedTags"
                                 class="o-form__control-wrapper"
                                 data-cy="statementDetail:Tags"
                                 :disabled="Boolean({{ readonly }})"
@@ -57,7 +57,7 @@
                                 multiple
                                 :options="tags"
                                 track-by="id"
-                                @input="sortSelected('Tags')"
+                                @input="handleTagsInput"
                                 @select="addTagBoilerplate">
                                 <template v-slot:option="{ props }">
                                     <span {% verbatim %}v-if="props.option.$isLabel"{% endverbatim %}>
@@ -109,7 +109,8 @@
                                 :toolbar-items="{
                                     linkButton: true
                                 }"
-                                v-model="currentRecommendation">
+                                :value="currentRecommendation"
+                                @input="updateCurrentRecommendation">
                                 <template v-slot:modal="modalProps">
                                     <dp-boiler-plate-modal
                                         v-if="hasPermission('area_admin_boilerplates')"

@@ -297,6 +297,14 @@ class GlobalConfig implements GlobalConfigInterface
      */
     protected $projectShortUrlRedirectRouteLoggedin;
     /**
+     * @var string
+     */
+    protected $projectShortUrlRedirectParam;
+    /**
+     * @var string
+     */
+    protected $projectShortUrlRedirectParamLoggedin;
+    /**
      * @var bool
      */
     protected $honeypotDisabled;
@@ -701,6 +709,8 @@ class GlobalConfig implements GlobalConfigInterface
         $this->contactEMail = $parameterBag->get('contact_recipient');
 
         $this->projectShortUrlRedirectRoute = $parameterBag->get('project_short_url_redirect_route');
+        $this->projectShortUrlRedirectParam = $parameterBag->get('project_short_url_redirect_param');
+        $this->projectShortUrlRedirectParamLoggedin = $parameterBag->get('project_short_url_redirect_param_loggedin');
         $this->projectShortUrlRedirectRouteLoggedin = $parameterBag->get(
             'project_short_url_redirect_route_loggedin'
         );
@@ -1215,7 +1225,7 @@ class GlobalConfig implements GlobalConfigInterface
      */
     public function getProxyHost(): string
     {
-        $parts = explode(':', $this->proxyDsn);
+        $parts = explode(':', $this->proxyDsn ?? '');
 
         return $parts[0] ?? '';
     }
@@ -1227,7 +1237,7 @@ class GlobalConfig implements GlobalConfigInterface
      */
     public function getProxyPort(): string
     {
-        $parts = explode(':', $this->proxyDsn);
+        $parts = explode(':', $this->proxyDsn ?? '');
 
         return $parts[1] ?? '';
     }
@@ -1250,6 +1260,16 @@ class GlobalConfig implements GlobalConfigInterface
     public function getProjectShortUrlRedirectRouteLoggedin(): string
     {
         return $this->projectShortUrlRedirectRouteLoggedin;
+    }
+
+    public function getProjectShortUrlRedirectParam(): string
+    {
+        return $this->projectShortUrlRedirectParam;
+    }
+
+    public function getProjectShortUrlRedirectParamLoggedin(): string
+    {
+        return $this->projectShortUrlRedirectParamLoggedin;
     }
 
     public function getGatewayRedirectURL(): string
@@ -1758,7 +1778,7 @@ class GlobalConfig implements GlobalConfigInterface
      */
     private function getValidatedExternalLinks(array $externalLinks): array
     {
-        if (empty($externalLinks)) {
+        if ([] === $externalLinks) {
             // Validation not needed
             return $externalLinks;
         }

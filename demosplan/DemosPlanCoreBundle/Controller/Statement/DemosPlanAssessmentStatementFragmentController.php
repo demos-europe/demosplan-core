@@ -13,7 +13,9 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
@@ -40,7 +42,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -66,28 +68,27 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Fragment Statement into multiple slices.
      *
-     * @DplanPermissions({"area_admin_assessmenttable", "feature_statements_fragment_add"})
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions(['area_admin_assessmenttable', 'feature_statements_fragment_add'])]
     #[Route(name: 'DemosPlan_statement_fragment', path: '/verfahren/{procedure}/fragment/{statementId}', options: ['expose' => true])]
-    public function fragmentStatementAction(
+    public function fragmentStatement(
         CountyService $countyService,
         MunicipalityService $municipalityService,
         PriorityAreaService $priorityAreaService,
         Request $request,
         StatementHandler $statementHandler,
         string $statementId,
-        string $procedure
+        string $procedure,
     ) {
         try {
             $templateVars = [];
             $procedureId = $procedure;
             $statement = $statementHandler->getStatement($statementId);
 
-            if (null === $statement) {
+            if (!$statement instanceof Statement) {
                 $this->getMessageBag()->add('error', 'error.statement.not.found');
 
                 return $this->redirectToRoute('dplan_assessmenttable_view_table', [
@@ -142,7 +143,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             $templateVars['filterHash'] = $request->getSession()->get('filterHash', null);
             $templateVars['procedure'] = $procedure;
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanStatement/fragment_statement.html.twig',
                 [
                     'templateVars' => $templateVars,
@@ -159,14 +160,13 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      * Return all data necessary to display a list that contains all
      * statement fragment versions related to a department.
      *
-     *  @DplanPermissions({"area_statement_fragments_department_archive","feature_statements_fragment_list"})
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions(['area_statement_fragments_department_archive', 'feature_statements_fragment_list'])]
     #[Route(name: 'DemosPlan_statement_fragment_list_fragment_archived_reviewer', path: '/datensatz/liste/archive')]
-    public function getStatementFragmentListArchiveAction(CurrentUserService $currentUser, Request $request, RouterInterface $router, TranslatorInterface $translator)
+    public function getStatementFragmentListArchive(CurrentUserService $currentUser, Request $request, RouterInterface $router, TranslatorInterface $translator)
     {
         $templateVars = [];
         $statementHandler = $this->statementHandler;
@@ -227,7 +227,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         $templateVars['filterSet']['activeFilters'] = $filterSet;
         // </temporaryHack>
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_statement_fragments_archive.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -240,22 +240,21 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      * Return all data necessary to display a list that contains all
      * statement fragments related to a department.
      *
-     *  @DplanPermissions({"area_statement_fragments_department","feature_statements_fragment_list"})
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      *
      * @internal param string $type
      */
+    #[DplanPermissions(['area_statement_fragments_department', 'feature_statements_fragment_list'])]
     #[Route(name: 'DemosPlan_statement_fragment_list_fragment_reviewer', path: '/datensatz/liste', options: ['expose' => true])]
-    public function getStatementFragmentListAction(
+    public function getStatementFragmentList(
         CountyService $countyService,
         CurrentUserService $currentUser,
         MunicipalityService $municipalityService,
         PriorityAreaService $priorityAreaService,
         Request $request,
-        RouterInterface $router
+        RouterInterface $router,
     ) {
         $pagerQuerystring = collect($request->query->all())->only(['r_limit', 'page'])->all();
         $templateVars = [];
@@ -327,7 +326,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         $templateVars['filterSet']['activeFilters'] = $filterSet;
         // </temporaryHack>
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_statement_fragments.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -339,18 +338,17 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Edit a single fragment.
      *
-     * @DplanPermissions("feature_statements_fragment_edit")
-     *
      * @return RedirectResponse|Response
      */
+    #[DplanPermissions('feature_statements_fragment_edit')]
     #[Route(name: 'DemosPlan_statement_fragment_edit_ajax', path: '/_ajax/procedure/{procedure}/fragment/{fragmentId}/edit', options: ['expose' => true])]
     #[Route(name: 'DemosPlan_statement_fragment_edit_reviewer_ajax', path: '/_ajax/fragment/{fragmentId}/reviewer/edit', defaults: ['isReviewer' => true], options: ['expose' => true])]
-    public function editStatementFragmentAjaxAction(
+    public function editStatementFragmentAjax(
         CurrentUserService $currentUser,
         Request $request,
         StatementFragmentService $statementFragmentService,
         string $fragmentId,
-        bool $isReviewer = false)
+        bool $isReviewer = false): JsonResponse
     {
         try {
             // Route is called from planner and reviewer
@@ -402,14 +400,13 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Delete a single fragment.
      *
-     *  @DplanPermissions({"area_admin_assessmenttable","feature_statements_fragment_edit"})
-     *
      * @param string $fragmentId
      *
      * @return RedirectResponse|Response
      */
+    #[DplanPermissions(['area_admin_assessmenttable', 'feature_statements_fragment_edit'])]
     #[Route(name: 'DemosPlan_statement_fragment_delete_ajax', path: '/_ajax/procedure/{procedureId}/statement/{statementId}/fragment/{fragmentId}/delete', methods: ['POST'], options: ['expose' => true])]
-    public function deleteFragmentStatementAjaxAction(Request $request, $fragmentId)
+    public function deleteFragmentStatementAjax($fragmentId): JsonResponse
     {
         try {
             // Save statementFragment values
@@ -450,16 +447,15 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Return fragment data as json.
      *
-     * @DplanPermissions("area_statements_fragment")
-     *
      * @param string $procedure
      * @param string $statementId
      * @param string $fragmentId
      *
      * @return JsonResponse
      */
+    #[DplanPermissions('area_statements_fragment')]
     #[Route(name: 'DemosPlan_statement_fragment_get_ajax', path: '/_ajax/procedure/{procedure}/statement/{statementId}/fragment/{fragmentId}', options: ['expose' => true])]
-    public function getFragmentAjaxAction(Request $request, $procedure, $statementId, $fragmentId)
+    public function getFragmentAjax($procedure, $statementId, $fragmentId)
     {
         try {
             $fragment = $this->statementHandler->getFragmentOfStatementES($statementId, $fragmentId);
@@ -473,14 +469,11 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Return all considerations of all fragments of a statement.
      *
-     *  @DplanPermissions({"area_admin_assessmenttable","area_statements_fragment"})
-     *
      * @param string $statementId
-     *
-     * @return JsonResponse
      */
+    #[DplanPermissions(['area_admin_assessmenttable', 'area_statements_fragment'])]
     #[Route(name: 'DemosPlan_statement_fragment_considerations_get_ajax', path: '/_ajax/procedure/{procedure}/statement/{statementId}/fragmentconsiderations', options: ['expose' => true])]
-    public function getFragmentConsiderationsAjaxAction($statementId)
+    public function getFragmentConsiderationsAjax($statementId): JsonResponse
     {
         try {
             $fragments = $this->statementHandler->getStatementFragmentsStatementES($statementId, []);
@@ -511,19 +504,18 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Fragment Statement into multiple slices.
      *
-     * @DplanPermissions({"area_statements_fragment", "feature_statements_fragment_add"})
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions(['area_statements_fragment', 'feature_statements_fragment_add'])]
     #[Route(name: 'DemosPlan_statement_fragment_add', path: '/verfahren/{procedure}/fragment/{statementId}/add')]
-    public function addFragmentStatementAction(
+    public function addFragmentStatement(
         CurrentUserInterface $currentUser,
         Request $request,
         StatementHandler $statementHandler,
         string $procedure,
-        string $statementId
+        string $statementId,
     ) {
         try {
             $postRequest = $request->request;
@@ -535,7 +527,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
 
             $statement = $statementHandler->getStatement($statementId);
 
-            if (null === $statement) {
+            if (!$statement instanceof Statement) {
                 $this->getMessageBag()->add('error', 'error.statement.not.found');
 
                 return $returnResponse($procedure, $statementId);
@@ -592,22 +584,21 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Set a vote or advice to a fragment statement.
      *
-     *  @DplanPermissions({"area_statements_fragment","feature_statements_fragment_edit"})
-     *
      * @param bool $isReviewer
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions(['area_statements_fragment', 'feature_statements_fragment_edit'])]
     #[Route(name: 'DemosPlan_statement_fragment_update_redirect_fragment_reviewer', path: '/datensatz/update/reviewer', defaults: ['isReviewer' => true])]
     #[Route(name: 'DemosPlan_statement_fragment_update_redirect', path: '/datensatz/update')]
-    public function updateStatementFragmentAction(
+    public function updateStatementFragment(
         CurrentUserService $currentUser,
         StatementFragmentService $statementFragmentService,
         Request $request,
-        $isReviewer = false
-    ) {
+        $isReviewer = false,
+    ): RedirectResponse {
         $data = $this->transformRequestVariables($request->request->all());
 
         $anchor = '';
@@ -678,11 +669,10 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     // @improve T14122
     /**
      * Returns fragment data for a statement on the assessment table.
-     *
-     * @DplanPermissions("area_admin_assessmenttable")
      */
+    #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(name: 'DemosPlan_assessment_statement_fragments_ajax', path: '/_ajax/assessment/{procedureId}/{statementId}', options: ['expose' => true])]
-    public function assessmentStatementFragmentsAjaxAction(
+    public function assessmentStatementFragmentsAjax(
         AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         HashedQueryService $filterSetService,
@@ -690,7 +680,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         StatementHandler $statementHandler,
         StatementService $statementService,
         string $procedureId,
-        string $statementId
+        string $statementId,
     ): JsonResponse {
         try {
             $rParams = $assessmentTableServiceOutput->getFormValues($request->request->all());
@@ -703,7 +693,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             $hashList = $request->getSession()->get('hashList');
             $hash = $hashList[$procedureId]['assessment']['hash'];
             $filterSet = $filterSetService->findHashedQueryWithHash($hash);
-            if (null === $filterSet) {
+            if (!$filterSet instanceof HashedQuery) {
                 $request->request->set('filters', []);
                 $request->request->set('search_fields', []);
                 $request->request->set('search_word', '');
@@ -737,6 +727,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
                 'fragments'         => $allFragments,
                 'filteredFragments' => $filteredFragments,
                 'statement'         => $allFragments[0]['statement'] ?? [],
+                'statementId'       => $statementId,
             ];
 
             return $this->renderJson($data);
@@ -748,21 +739,18 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     /**
      * Exports a subset of fragments from the fragmentList to PDF.
      *
-     * @DplanPermissions("area_statements_fragment")
-     *
      * @param Request $request ;
-     *
-     * @return Response
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_statements_fragment')]
     #[Route(name: 'DemosPlan_fragment_list_export', path: '/datensatz/liste/export', options: ['expose' => true])]
-    public function exportFragmentListAction(
+    public function exportFragmentList(
         CurrentUserService $currentUser,
         Request $request,
         NameGenerator $nameGenerator,
-        TranslatorInterface $translator
-    ) {
+        TranslatorInterface $translator,
+    ): Response {
         $vars = $request->request->all();
         $fragmentIds = [];
         if (array_key_exists('fragmentIds', $vars)) {
@@ -779,7 +767,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         $departmentId = $currentUser->getUser()->getDepartmentId();
         $pdf = $this->statementHandler->generateFragmentPdf($fragmentIds, null, $departmentId, $isArchive);
 
-        $response = new Response($pdf->getContent(), 200);
+        $response = new Response($pdf->getContent(), Response::HTTP_OK);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
         $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($translator->trans('fragments.export.pdf.file.name')));

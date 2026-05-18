@@ -11,7 +11,8 @@
   <div>
     <slot
       :boilerplate-group="boilerplateGroup"
-      :set-boilerplate-group="setBoilerplateGroup" />
+      :set-boilerplate-group="setBoilerplateGroup"
+    />
   </div>
 </template>
 
@@ -23,20 +24,20 @@ export default {
     selectedBoilerplateGroup: {
       required: false,
       type: [String, Object],
-      default: () => { return { id: '', title: '-' } }
-    }
+      default: () => { return { id: '', title: '-' } },
+    },
   },
 
   data () {
     return {
-      boilerplateGroup: this.selectedBoilerplateGroup
+      boilerplateGroup: this.selectedBoilerplateGroup,
     }
   },
 
   methods: {
     setBoilerplateGroup (val) {
       this.boilerplateGroup = val
-    }
-  }
+    },
+  },
 }
 </script>

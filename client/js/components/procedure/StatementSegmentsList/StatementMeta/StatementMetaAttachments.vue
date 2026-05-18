@@ -11,7 +11,8 @@
   <fieldset>
     <legend
       id="attachments"
-      class="mb-3 color-text-muted font-normal">
+      class="mb-3 color-text-muted font-normal"
+    >
       {{ Translator.trans('attachments') }}
     </legend>
     <div class="space-stack-m">
@@ -19,33 +20,41 @@
       <div>
         <p
           class="weight--bold u-m-0"
-          v-text="Translator.trans('attachment.original')" />
+          v-text="Translator.trans('attachment.original')"
+        />
         <div
           v-if="localAttachments.originalAttachment.hash"
-          class="flex mb-2">
+          class="flex mb-2"
+        >
           <statement-meta-attachments-link
             :attachment="localAttachments.originalAttachment"
             :aria-disabled="isSourceAttachmentMarkedForDeletion ? 'true' : 'false'"
             class="block mt-1 mb-1 text-ellipsis overflow-hidden whitespace-nowrap"
             :class="{ 'line-through text-muted pointer-events-none': isSourceAttachmentMarkedForDeletion }"
             :procedure-id="procedureId"
-            :tabindex="isSourceAttachmentMarkedForDeletion ? -1 : 0" />
-          <button
-            class="o-link--default"
-            :class="isSourceAttachmentMarkedForDeletion ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+            :tabindex="isSourceAttachmentMarkedForDeletion ? -1 : 0"
+          />
+          <dp-button
+            v-if="editable"
+            class="o-link--default ml-1"
             data-cy="statementMetaAttachments:removeSourceAttachment"
-            :disabled="isSourceAttachmentMarkedForDeletion"
+            hide-text
+            icon="delete"
+            icon-size="medium"
             type="button"
-            @click="fileIdSourceAttachment === localAttachments.originalAttachment.hash ? removeSourceAttachment() : markSourceAttachmentForDeletion()">
-            <dp-icon
-              class="ml-2"
-              icon="delete" />
-          </button>
+            variant="subtle"
+            :class="isSourceAttachmentMarkedForDeletion ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+            :disabled="isSourceAttachmentMarkedForDeletion"
+            :text="Translator.trans('delete')"
+            @click="fileIdSourceAttachment === localAttachments.originalAttachment.hash ? removeSourceAttachment() : markSourceAttachmentForDeletion()"
+          />
         </div>
 
         <p
           v-if="!localAttachments.originalAttachment.hash && !editable"
-          v-text="Translator.trans('none')" />
+          class="color-text-muted"
+          v-text="Translator.trans('none')"
+        />
 
         <template v-if="editable">
           <dp-upload
@@ -53,7 +62,6 @@
             id="uploadSourceStatementAttachment"
             ref="uploadSourceStatementAttachment"
             allowed-file-types="all"
-            :basic-auth="dplan.settings.basicAuth"
             :class="!editable ? 'pointer-events-none opacity-70' : 'mt-1 mb-3'"
             :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
             :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
@@ -61,7 +69,8 @@
             name="uploadSourceStatementAttachment"
             :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
             :tus-endpoint="dplan.paths.tusEndpoint"
-            @upload-success="handleSourceAttachmentUploadSuccess" />
+            @upload-success="handleSourceAttachmentUploadSuccess"
+          />
 
           <div class="text-right">
             <dp-button-row
@@ -71,7 +80,8 @@
               primary
               secondary
               @primary-action="saveSourceAttachment"
-              @secondary-action="handleResetSourceAttachment" />
+              @secondary-action="handleResetSourceAttachment"
+            />
           </div>
         </template>
       </div>
@@ -79,38 +89,48 @@
       <!-- Other attachments -->
       <div>
         <dp-label
+          class="mb-0.5"
           :text="Translator.trans('more.attachments')"
-          for="uploadStatementAttachment" />
+          for="uploadStatementAttachment"
+        />
 
         <!-- List of existing attachments -->
         <ul
           v-if="localAttachments.additionalAttachments.length > 0"
-          class="mb-3">
+          class="mb-3"
+        >
           <li
             v-for="attachment in localAttachments.additionalAttachments"
+            :key="attachment.hash"
             class="flex"
-            :key="attachment.hash">
+          >
             <statement-meta-attachments-link
               :attachment="attachment"
               class="block mt-1 text-ellipsis overflow-hidden whitespace-nowrap"
               :class="{ 'line-through text-muted pointer-events-none': genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) }"
-              :procedure-id="procedureId" />
-            <button
-              class="o-link--default mt-1"
-              :class="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+              :procedure-id="procedureId"
+            />
+            <dp-button
+              v-if="editable"
+              class="o-link--default ml-1"
               data-cy="statementMetaAttachments:removeGenericAttachment"
-              :disabled="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id )"
+              hide-text
+              icon="delete"
+              icon-size="medium"
               type="button"
-              @click="fileIds.includes(attachment.hash) ? removeGenericAttachment(attachment.hash) : markGenericAttachmentForDeletion(attachment.id)">
-              <dp-icon
-                class="ml-2"
-                icon="delete" />
-            </button>
+              variant="subtle"
+              :class="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+              :disabled="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id )"
+              :text="Translator.trans('delete')"
+              @click="fileIds.includes(attachment.hash) ? removeGenericAttachment(attachment.hash) : markGenericAttachmentForDeletion(attachment.id)"
+            />
           </li>
         </ul>
         <p
           v-if="localAttachments.additionalAttachments.length === 0 && !editable"
-          v-text="Translator.trans('none')" />
+          class="color-text-muted"
+          v-text="Translator.trans('none')"
+        />
 
         <!-- File upload -->
         <template v-if="editable">
@@ -118,7 +138,6 @@
             id="uploadStatementAttachment"
             ref="uploadStatementAttachment"
             allowed-file-types="all"
-            :basic-auth="dplan.settings.basicAuth"
             :class="editable ? 'mt-1 mb-3' : 'pointer-events-none opacity-70'"
             :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
             :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
@@ -126,7 +145,8 @@
             name="uploadStatementAttachment"
             :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
             :tus-endpoint="dplan.paths.tusEndpoint"
-            @upload-success="handleGenericAttachmentUploadSuccess" />
+            @upload-success="handleGenericAttachmentUploadSuccess"
+          />
 
           <div class="text-right">
             <dp-button-row
@@ -136,7 +156,8 @@
               primary
               secondary
               @primary-action="saveGenericAttachments"
-              @secondary-action="handleResetGenericAttachments" />
+              @secondary-action="handleResetGenericAttachments"
+            />
           </div>
         </template>
       </div>
@@ -146,24 +167,25 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
+  DpButton,
   DpButtonRow,
-  DpIcon,
   DpLabel,
-  DpUpload
+  DpUpload,
 } from '@demos-europe/demosplan-ui'
+import { buildDetailedStatementQuery } from '../../Shared/utils/statementQueryBuilder'
+import { mapActions } from 'vuex'
 import StatementMetaAttachmentsLink from './StatementMetaAttachmentsLink'
 
 export default {
   name: 'StatementMetaAttachments',
 
   components: {
+    DpButton,
     DpButtonRow,
-    DpIcon,
     DpLabel,
     DpUpload,
-    StatementMetaAttachmentsLink
+    StatementMetaAttachmentsLink,
   },
 
   props: {
@@ -172,7 +194,7 @@ export default {
       required: true,
       validator (value) {
         return Object.hasOwn(value, 'originalAttachment') && Object.hasOwn(value, 'additionalAttachments')
-      }
+      },
     },
 
     /**
@@ -182,18 +204,24 @@ export default {
     editable: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
+    },
+
+    isSourceAndCoupledProcedure: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     statementId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -214,8 +242,21 @@ export default {
       // Used for resetting the source attachment
       previousSourceAttachment: {},
       // Used for deleting the source attachment
-      sourceAttachmentMarkedForDeletion: {}
+      sourceAttachmentMarkedForDeletion: {},
     }
+  },
+
+  computed: {
+    hasUnsavedChanges () {
+      if (!this.localAttachments || !this.initialAttachments) {
+        return false
+      }
+
+      const initialAttributes = this.initialAttachments
+      const currentAttributes = this.localAttachments
+
+      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+    },
   },
 
   watch: {
@@ -230,24 +271,29 @@ export default {
           this.resetSourceAttachment()
           this.setLocalOriginalAttachment(this.initialAttachments.originalAttachment)
         }
-      }
+      },
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
     },
     'initialAttachments.additionalAttachments': {
       handler (newVal) {
         this.localAttachments.additionalAttachments = JSON.parse(JSON.stringify(newVal))
       },
-      deep: true
+      deep: true,
     },
 
     'initialAttachments.originalAttachment': {
       handler (newVal) {
         this.localAttachments.originalAttachment = JSON.parse(JSON.stringify(newVal))
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
+    ...mapActions('Statement', {
+      getStatementAction: 'get',
+    }),
+
     createSourceAttachment () {
       this.isProcessingSourceAttachment = true
 
@@ -255,11 +301,10 @@ export default {
       const url = Routing.generate('api_resource_create', { resourceType: 'SourceStatementAttachment' })
       const params = {}
       const data = {
-        data: resource
+        data: resource,
       }
 
       return dpApi.post(url, params, data)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.statement.source.attachment.created'))
           this.resetSourceAttachment()
@@ -277,7 +322,6 @@ export default {
       const attachmentToBeDeleted = { ...this.localAttachments.additionalAttachments.find(attachment => attachment.id === id) }
 
       return dpApi.delete(url)
-        .then(checkResponse)
         .then(() => {
           const genericAttachments = this.localAttachments.additionalAttachments.filter(attachment => attachment.id !== id)
 
@@ -288,7 +332,7 @@ export default {
           console.error(error)
           const restoredAttachments = [
             ...this.localAttachments.additionalAttachments,
-            attachmentToBeDeleted
+            attachmentToBeDeleted,
           ]
 
           this.setLocalGenericAttachments(restoredAttachments)
@@ -302,7 +346,6 @@ export default {
       const url = Routing.generate('api_resource_delete', { resourceType: 'SourceStatementAttachment', resourceId: this.initialAttachments.originalAttachment.id })
 
       return dpApi.delete(url)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.statement.source.attachment.deleted'))
           this.resetSourceAttachment()
@@ -322,16 +365,16 @@ export default {
             statement: {
               data: {
                 id: this.statementId,
-                type: 'Statement'
-              }
+                type: 'Statement',
+              },
             },
             file: {
               data: {
                 id: fileHash,
-                type: 'File'
-              }
-            }
-          }
+                type: 'File',
+              },
+            },
+          },
         }
       }
 
@@ -342,16 +385,16 @@ export default {
             statement: {
               data: {
                 id: this.statementId,
-                type: 'Statement'
-              }
+                type: 'Statement',
+              },
             },
             file: {
               data: {
                 id: fileHash,
-                type: 'File'
-              }
-            }
-          }
+                type: 'File',
+              },
+            },
+          },
         }
       }
     },
@@ -363,8 +406,8 @@ export default {
         ...this.localAttachments.additionalAttachments,
         {
           filename: file.name,
-          hash: file.fileId
-        }
+          hash: file.fileId,
+        },
       ]
 
       this.setLocalGenericAttachments(updatedGenericAttachments)
@@ -398,7 +441,7 @@ export default {
 
       this.setLocalOriginalAttachment({
         filename: file.name,
-        hash: file.fileId
+        hash: file.fileId,
       })
     },
 
@@ -460,14 +503,14 @@ export default {
           const url = Routing.generate('api_resource_create', { resourceType: 'GenericStatementAttachment' })
           const params = {}
           const data = {
-            data: resource
+            data: resource,
           }
 
           promises.push(dpApi.post(url, params, data))
         })
       }
 
-      Promise.allSettled(promises)
+      return Promise.allSettled(promises)
         .then(() => {
           if (this.genericAttachmentsMarkedForDeletion.length > 0) {
             this.genericAttachmentsMarkedForDeletion = []
@@ -505,8 +548,12 @@ export default {
     },
 
     triggerStatementRequest () {
-      this.$root.$emit('statement-attachments-added')
-    }
-  }
+      const params = buildDetailedStatementQuery(this.statementId, {
+        isSourceAndCoupledProcedure: this.isSourceAndCoupledProcedure,
+      })
+
+      return this.getStatementAction(params)
+    },
+  },
 }
 </script>

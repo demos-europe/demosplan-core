@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
+use Doctrine\DBAL\ArrayParameterType;
 
 /**
  * @template-extends CoreRepository<EmailAddress>
@@ -29,7 +30,16 @@ class EmailAddressRepository extends CoreRepository implements EmailAddressRepos
         $foundEmailAddressEntities = $this->findBy(['fullAddress' => $inputEmailAddressStrings]);
         $foundEmailAddressStrings = array_map(static fn (EmailAddress $emailAddress) => $emailAddress->getFullAddress(), $foundEmailAddressEntities);
 
-        $newEmailAddressStrings = array_diff($inputEmailAddressStrings, $foundEmailAddressStrings);
+        // Case-insensitive email address comparison
+        $lowercaseFoundEmails = array_map('strtolower', $foundEmailAddressStrings);
+        $newEmailAddressStrings = [];
+
+        foreach ($inputEmailAddressStrings as $emailString) {
+            if (!in_array(strtolower($emailString), $lowercaseFoundEmails, true)) {
+                $newEmailAddressStrings[] = $emailString;
+            }
+        }
+
         $newEmailAddressEntities = array_map(static function (string $emailAddressString) {
             $emailAddressEntity = new EmailAddress();
             $emailAddressEntity->setFullAddress($emailAddressString);
@@ -59,26 +69,19 @@ class EmailAddressRepository extends CoreRepository implements EmailAddressRepos
     {
         $connection = $this->getEntityManager()->getConnection();
 
-        $emailIdsCount = count($emailIds);
-        if (0 === $emailIdsCount) {
-            return $connection->exec(
-                'DELETE e'
-                .' FROM email_address AS e'
-                .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
-                .' WHERE p.procedure_id   IS NULL'
-            );
-        } else {
-            $emailIdsString = array_fill(0, $emailIdsCount, '?');
-            $emailIdsString = implode(',', $emailIdsString);
+        $baseSql = 'DELETE e FROM email_address AS e'
+            .' LEFT JOIN procedure_agency_extra_email_address AS p ON p.email_address_id = e.id'
+            .' WHERE p.procedure_id IS NULL';
 
-            return $connection->executeStatement(
-                'DELETE e'
-                .' FROM email_address AS e'
-                .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
-                .' WHERE p.procedure_id   IS NULL'
-                .' AND e.id NOT IN ('.$emailIdsString.')', $emailIds
-            );
+        if (empty($emailIds)) {
+            return $connection->executeStatement($baseSql);
         }
+
+        return $connection->executeStatement(
+            $baseSql.' AND e.id NOT IN (:emailIds)',
+            ['emailIds' => $emailIds],
+            ['emailIds' => ArrayParameterType::STRING]
+        );
     }
 
     /**
@@ -97,10 +100,15 @@ class EmailAddressRepository extends CoreRepository implements EmailAddressRepos
      */
     protected function sortByGivenArray(array $sortedStrings, array $unsortedEntities): array
     {
-        $sortedEmailAddresses = array_fill_keys($sortedStrings, null);
-        foreach ($unsortedEntities as $emailAddressEntity) {
-            $fullAddress = $emailAddressEntity->getFullAddress();
-            $sortedEmailAddresses[$fullAddress] = $emailAddressEntity;
+        $sortedEmailAddresses = [];
+        foreach ($sortedStrings as $sortedEmailAddressString) {
+            foreach ($unsortedEntities as $unsortedEmailAddressEntity) {
+                $fullAddress = $unsortedEmailAddressEntity->getFullAddress();
+                if (0 === strcasecmp($sortedEmailAddressString, $fullAddress)) {
+                    $sortedEmailAddresses[$sortedEmailAddressString] = $unsortedEmailAddressEntity;
+                    break;
+                }
+            }
         }
 
         return $sortedEmailAddresses;

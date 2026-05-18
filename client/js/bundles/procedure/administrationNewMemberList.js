@@ -11,12 +11,22 @@
  * This is the entrypoint for administration_new_member_list.html.twig
  */
 import DpAddOrganisationList from '@DpJs/components/procedure/admin/DpAddOrganisationList'
+import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpAddOrganisationList
+  DpAddOrganisationList,
 }
 
-const apiStores = ['InvitableToeb']
+const apiStores = [
+  'InvitableToeb',
+  'InstitutionTag',
+  'InstitutionTagCategory',
+  'InstitutionLocationContact',
+]
 
-initialize(components, {}, apiStores)
+const stores = {
+  FilterFlyout: FilterFlyoutStore,
+}
+
+initialize(components, stores, apiStores)

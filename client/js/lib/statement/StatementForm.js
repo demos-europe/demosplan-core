@@ -120,26 +120,26 @@ export default function StatementForm () {
         priorityAreaPopup: {
           headings: {
             negative: Translator.trans('priorityArea.rejected'),
-            positive: Translator.trans('priorityArea')
+            positive: Translator.trans('priorityArea'),
           },
-          buttons: Translator.trans('statement.new')
+          buttons: Translator.trans('statement.new'),
         },
         markLocationPopup: {
-          buttons: Translator.trans('statement.new')
+          buttons: Translator.trans('statement.new'),
         },
         saveStatementButton: {
           states: {
             visible: {
               button: Translator.trans('statement.map.draw_to_map'),
-              title: Translator.trans('statement.map.draw.no_drawing_warning')
+              title: Translator.trans('statement.map.draw.no_drawing_warning'),
             },
             active: {
               button: Translator.trans('statement.continue'),
-              title: Translator.trans('statement.map.draw.drawing_complete')
-            }
+              title: Translator.trans('statement.map.draw.drawing_complete'),
+            },
 
-          }
-        }
+          },
+        },
       }
 
       //  Assign functions to methods of 'statement' obj to be reusable by map scripts

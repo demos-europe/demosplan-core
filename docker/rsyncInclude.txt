@@ -3,6 +3,8 @@ CHANGELOG.md
 client
 config
 demosplan
+public/app_dev.php
+public/index.php
 templates
 translations
 .env
@@ -10,13 +12,11 @@ babel.config.js
 composer.json
 composer.lock
 config.webpack.js
-eslintrc.js
+eslint.config.js
 fe
 jest.config.js
 package.json
 stylelint.config.js
 symfony.lock
-tailwind.config.js
 yarn.lock
 .yarnrc.yml
-tailwind.preflight.config.js

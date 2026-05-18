@@ -16,26 +16,26 @@ const api1_0Routes = [
     action: 'update',
     url: '/1.0/organisation/{id}',
     parameters: [
-      'id'
-    ]
+      'id',
+    ],
   },
   {
     module: 'Orga',
     action: 'create',
-    url: '/1.0/organisation'
+    url: '/1.0/organisation',
   },
   {
     module: 'Orga',
     action: 'delete',
     url: '/1.0/organisation/{id}',
     parameters: [
-      'id'
-    ]
+      'id',
+    ],
   },
   {
     module: 'role',
     action: 'list',
-    url: '/1.0/role'
+    url: '/1.0/role',
   },
   {
     module: 'report',
@@ -43,57 +43,57 @@ const api1_0Routes = [
     url: '/1.0/reports/{procedureId}/{group}',
     parameters: [
       'procedureId',
-      'group'
-    ]
+      'group',
+    ],
   },
   {
     module: 'User',
     action: 'update',
     url: '/1.0/user/{id}',
     parameters: [
-      'id'
-    ]
+      'id',
+    ],
   },
   // WARNING: When using api 2.0 route, AdministratableUserResourceType must be used
   {
     module: 'User',
     action: 'list',
-    url: '/1.0/user'
+    url: '/1.0/user',
   },
   {
     module: 'User',
     action: 'create',
-    url: '/1.0/user'
+    url: '/1.0/user',
   },
   {
     module: 'User',
     action: 'delete',
     url: '/1.0/user/{id}',
     parameters: [
-      'id'
-    ]
+      'id',
+    ],
   },
   {
     module: 'Faq',
     action: 'delete',
     url: '/1.0/faq/{id}',
     parameters: [
-      'id'
-    ]
+      'id',
+    ],
   },
   {
     module: 'Faq',
     action: 'update',
     url: '/1.0/faq/{id}',
     parameters: [
-      'id'
-    ]
+      'id',
+    ],
   },
   {
     module: 'FaqCategory',
     action: 'list',
-    url: '/1.0/FaqCategory'
-  }
+    url: '/1.0/FaqCategory',
+  },
 ]
 
 const generateApi2_0Routes = (apiModules) => {
@@ -103,7 +103,7 @@ const generateApi2_0Routes = (apiModules) => {
     routes.push({
       module: typeName,
       action: 'list',
-      url: `/2.0/${typeName}`
+      url: `/2.0/${typeName}`,
     })
 
     routes.push({
@@ -111,8 +111,8 @@ const generateApi2_0Routes = (apiModules) => {
       action: 'get',
       url: `/2.0/${typeName}/{id}`,
       parameters: [
-        'id'
-      ]
+        'id',
+      ],
     })
 
     routes.push({
@@ -120,14 +120,14 @@ const generateApi2_0Routes = (apiModules) => {
       action: 'update',
       url: `/2.0/${typeName}/{id}`,
       parameters: [
-        'id'
-      ]
+        'id',
+      ],
     })
 
     routes.push({
       module: typeName,
       action: 'create',
-      url: `/2.0/${typeName}`
+      url: `/2.0/${typeName}`,
     })
 
     routes.push({
@@ -135,8 +135,8 @@ const generateApi2_0Routes = (apiModules) => {
       action: 'delete',
       url: `/2.0/${typeName}/{id}`,
       parameters: [
-        'id'
-      ]
+        'id',
+      ],
     })
   })
 

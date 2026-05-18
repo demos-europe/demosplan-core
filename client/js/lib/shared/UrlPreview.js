@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
+import { dpApi } from '@demos-europe/demosplan-ui'
 import { v4 as uuid } from 'uuid'
 
 /**
@@ -22,18 +22,18 @@ export default function UrlPreview () {
       const payload = {
         data: {
           attributes: {
-            originalValue: event.target.value
+            originalValue: event.target.value,
           },
           type: 'slug-draft',
-          id: uuid()
-        }
+          id: uuid(),
+        },
       }
 
       const organisationId = event.target.getAttribute('data-organisation-id')
       const orgaPreview = document.getElementById(organisationId + ':urlPreview')
 
       return dpApi.post(Routing.generate('dp_api_slug_draft_create'), {}, payload)
-        .then((response) => {
+        .then(response => {
           if (orgaPreview) {
             const shortUrl = orgaPreview.getAttribute('data-shorturl')
             orgaPreview.textContent = shortUrl + response.data.data.attributes.slugifiedValue
@@ -42,7 +42,6 @@ export default function UrlPreview () {
             shortUrlPreview.textContent = shortUrl + response.data.data.attributes.slugifiedValue
           }
         })
-        .catch(error => checkResponse(error.response))
     })
   }
 }

@@ -57,6 +57,7 @@ class AssessmentExportOptions implements JsonSerializable
      */
     final public const FORMATS = [
         'docx',
+        'odt',
         'pdf',
         'xlsx',
         'zip',
@@ -200,7 +201,7 @@ class AssessmentExportOptions implements JsonSerializable
      */
     public function validateOptionSet(array $options, $isOverrideConfig = false)
     {
-        if (count($options) > 0 && !array_key_exists('defaults', $options)) {
+        if ([] !== $options && !array_key_exists('defaults', $options)) {
             throw AssessmentExportOptionsException::noDefaultsException();
         }
 
@@ -208,7 +209,7 @@ class AssessmentExportOptions implements JsonSerializable
 
         foreach (self::SECTIONS as $section) {
             if (!isset($options[$section]) || is_null($options[$section])) {
-                array_push($missingSections, $section);
+                $missingSections[] = $section;
                 continue;
             }
 

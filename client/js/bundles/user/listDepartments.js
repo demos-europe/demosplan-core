@@ -13,7 +13,7 @@ import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpAccordion,
-  DpTableCard
+  DpTableCard,
 }
 
 initialize(components)

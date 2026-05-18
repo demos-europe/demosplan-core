@@ -47,6 +47,12 @@ area_admin_contextual_help_edit:
     label: 'Kontexthilfe verwalten'
     loginRequired: true
     parent: area_admin
+area_admin_custom_fields:
+    description: |-
+        Enables the use of custom fields for a procedure and procedure template.
+    label: 'Custom fields'
+    expose: true
+    loginRequired: true
 area_admin_dashboard:
     description: 'Displays a dashboard page with some metrics for a procedure'
     label: 'procedure dashboard page'
@@ -194,7 +200,7 @@ area_data_protection_text:
 area_demosplan:
     description: |-
         This is a global Feature which should always be true.
-        It should be used as `@DplanPermissions` value if there
+        It should be used as `DplanPermissions` value if there
         is no more concerete permission to apply.
     label: 'Global area which is always enabled.'
     loginRequired: false
@@ -300,6 +306,16 @@ area_manage_mastertoeblist:
 area_manage_orgadata:
     description: 'allows the user to edit the data for its own organisation'
     label: 'edit data for its own organisation'
+    loginRequired: true
+    parent: area_manage
+feature_orga_name_edit:
+    description: 'allows the user to edit the organisation name (requires area_manage_orgadata)'
+    label: 'edit organisation name'
+    loginRequired: true
+    parent: area_manage
+feature_orga_data_edit:
+    description: 'allows the user to edit organisation address, phone, postal code, city (requires area_manage_orgadata)'
+    label: 'edit organisation address data'
     loginRequired: true
     parent: area_manage
 area_manage_orgas:
@@ -540,18 +556,6 @@ area_subscriptions:
         There the user can find informations about new procedures
     label: 'subscriptions area'
     loginRequired: true
-area_survey:
-    description: |-
-        Surveys can be seen by some user groups (citizens, planners). It's the most basic permission required to use
-        surveys in any meaningful way, hence, it's also the overall activation permission.
-    expose: true
-    label: 'Activates the survey component and makes it visible to users'
-    loginRequired: false
-area_survey_management:
-    description: 'Surveys can be added to Procedures in order to see how much support a project has.'
-    expose: true
-    label: 'Allow crud operations on Procedures Surveys'
-    loginRequired: true
 area_terms_of_use:
     descriptions: 'Some projects need a separate terms of use page that should be rendered in the page footer'
     expose: true
@@ -649,15 +653,25 @@ feature_admin_export_procedure:
     label: 'Is export of procedures allowed in general.'
     loginRequired: true
     parent: feature_admin
+feature_admin_export_original_statement:
+    expose: true
+    label: 'Export Original Statements in any format'
+    description: 'Export Original Statements in the detail view of a procedure.'
+    loginRequired: true
+    parent: feature_admin
 feature_admin_export_procedure_in_detail_view:
-    label: 'Verfahren exportieren in der Detailseite'
+    label: 'Export procedure in the detail view'
     loginRequired: true
     parent: feature_admin, feature_admin_export_procedure
 feature_admin_new_procedure:
     expose: true
-    label: 'Neues Verfahren anlegen'
+    label: 'Create a new procedure'
     loginRequired: true
     parent: feature_admin
+feature_adjust_preamble_export_file:
+    expose: true
+    label: 'alters the preamble header of an exported doc to include the procedure name instead of the export-date'
+    loginRequired: true
 feature_allow_update_on_non_manual_statements:
     description: 'Allow to update non-manual statements'
     expose: false
@@ -718,6 +732,12 @@ feature_assign_system_roles:
     label: 'Vergebe Systemrollen wie Support, Redakteur etc. an User'
     loginRequired: true
     parent: feature_assign_roles
+feature_auto_logout_warning:
+    description: |
+        A notification is enabled, reminding the user of the log out that is going to happen automatically in time.
+    expose: true
+    label: 'Remind the user of the upcoming automatic log out'
+    loginRequired: true
 feature_auto_switch_element_state:
     description: |
         The FP can pick a date and time on which the state of the element will be switched.
@@ -896,11 +916,20 @@ feature_export_docx_elements_view_mode_only:
     label: 'always export elements view in docx export'
     loginRequired: true
     parent: area_admin_assessmenttable
+feature_export_odt_instead_of_docx:
+    description: 'When enabled, export with ODT format when no other format is specified in assessmenttable'
+    label: 'Export ODT instead of DOCX as default format'
+    loginRequired: true
+    parent: feature_admin
 feature_export_protocol:
     expose: true
     label: 'Exportieren des Verfahrensprotokolls'
     loginRequired: true
     parent: area_admin_protocol
+feature_feedback_on_statement_controllable:
+    description: 'Enables the user to control whether feedback on statements is enabled or not.'
+    label: 'Control feedback on statements'
+    loginRequired: true
 feature_forum_dev_release_edit:
     description: 'Enables an user to edit the release entries in the development forum, which is sort of an parent entry for user-story discussions'
     label: 'edit release entry in development forum section'
@@ -920,6 +949,11 @@ feature_gdpr_consent_revoke_by_token:
     description: 'When a statement is submitted the submitter may need to give his GDPR consent (depending feature_statement_gdpr_consent). When this permission is enabled a token is generated for statements submitted user with this permission enabled (if they have provided an email address). The token is send in the submission-confirm email address and can be used by anyone (if this permission is enabled) to open a site where they enters the token and their email address to revoke their GDPR consent which issues the anonymization of the statement. All statements copied from the original statement are affected too.'
     expose: false
     label: 'Allows sending and usage of tokens to revoke the GDPR consent given on statement submission.'
+    loginRequired: false
+feature_geocoder_address_search:
+    description: 'Enables the address search via external API call to Geocoder. Provides an auto-suggestion for addresses.'
+    expose: false
+    label: 'Enables Geocoder address search'
     loginRequired: false
 feature_has_logout_landing_page:
     label: 'Wird beim Logout auf eine Zwischenseite weitergeleitet die ausloggen im Gateway ermöglicht?'
@@ -976,6 +1010,7 @@ feature_institution_tag_read:
         given by the current organisation.
     label: 'allows to show the Tagged institutions'
     loginRequired: true
+    expose: true
 feature_institution_tag_update:
     descriptions: |-
         Within a procedure institutions can be tagged in order to
@@ -1211,6 +1246,13 @@ feature_map_layer_legend_file:
     label: 'Enables uploading/displaying of legend files for specific layers.'
     loginRequired: false
     parent: area_map_participation_area
+feature_map_layer_preview:
+    description: |-
+        Enable a preview for layer selection of external WMS services as an admin.
+    expose: true
+    label: 'Enables WMS layer preview during selection'
+    loginRequired: true
+    parent: area_map_participation_area
 feature_map_max_extent:
     description: |-
         Restrict the access to get the max extension of the public map (in the admin area)
@@ -1377,6 +1419,11 @@ feature_organisation_set_showlist:
     label: 'Anzeigen der Organisation in der Institutionen-Liste'
     loginRequired: true
     parent: [area_manage_orgas, area_manage_orgas_all]
+feature_organisations_custom_fields:
+    expose: true
+    label: 'Manage custom fields for organisations'
+    loginRequired: true
+    parent: [area_manage_orgas, area_manage_orgas_all]
 feature_organisation_own_users_list:
     description: 'used for organisation administration users to limit their access scope to their own organisation'
     expose: false
@@ -1442,6 +1489,7 @@ feature_procedure_agency_email_addresses:
         project specific behaviors. When possible the permission based approach should be preferred.
     label: 'Enables the general configuration and usage of agency email addresses within a procedure'
     loginRequired: false
+    expose: true
 feature_procedure_analytics:
     description: |-
         This permission is used for the whole display of procedure analytics.
@@ -1589,6 +1637,16 @@ feature_procedure_export_include_statement_released:
         "Stellungnahmen/Freigaben" directory in each procedure directory in the export.
     expose: false
     label: 'Procedure export with released statement group'
+    loginRequired: true
+feature_procedure_export_include_segments:
+    description: |-
+        The procedure export generates a ZIP archive. If this permission is enabled
+        a document "Abschnitte_Gruppiert.docx" containing all statement segments
+        grouped by statement will be included.
+        The document will be placed in the "Abschnitte" directory in each procedure directory.
+        Attachments for statements will be placed in the "Abschnitte/Anhang" directory.
+    expose: false
+    label: 'Procedure export with segments'
     loginRequired: true
 feature_procedure_external_desc_crop:
     description: 'Crop external procedure description'
@@ -1790,6 +1848,7 @@ feature_public_consultation:
     label: 'This features enables public consultation in general globally'
     loginRequired: false
 feature_public_index_map:
+    description: 'Shows map on the public index page and makes it possible to search and filter procedures that are shown on the map.'
     expose: true
     label: 'Hat public index eine Karte?'
     loginRequired: false
@@ -1802,11 +1861,6 @@ feature_public_index_map_fit_bounds:
     label: 'Improved default behavior of old public index map'
     loginRequired: false
     parent: feature_public_index_map
-feature_reply_statement:
-    description: 'This will be displayed as link in public area. In case the url is not an empty string, the statement will be marked as answered. Feature created for a specific project, to enable the user to jump directly from statement to the answer.'
-    expose: false
-    label: 'Enables setting a statement as replied, by defining a url/link to the answer of the statement.'
-    loginRequired: false
 feature_require_locality_confirmation:
     description: |-
         When an already safed draft statement is submitted as actual statement an additional
@@ -1870,6 +1924,15 @@ feature_segment_content_changes_view:
     expose: true
     label: 'Allows access to Segment`s change history.'
     loginRequired: true
+feature_enable_recommendation_versions:
+    description: |
+        When enabled, recommendation versions are exposed via API and included
+        in exports. Holds a versionCount and the recommendation text for that
+        specific version. Tracking itself always happens regardless of this
+        permission — this only controls visibility on both segments and statements.
+    expose: true
+    label: 'Enables recommendation version display and export.'
+    loginRequired: true
 feature_segment_polygon_read:
     description: |-
         Allows read-access to the statementSegment polygon property via StatementSegmentResourceType
@@ -1897,7 +1960,7 @@ feature_segments_import_excel:
     expose: true
     label: 'Generate segments (with corresponding statements) from uploaded excel file'
     loginRequired: true
-    parent: area_statement_segmentation
+    parent: area_statement_segmentation, area_admin_import
 feature_segments_of_statement_list:
     description: |-
         The list will contain segments of a specific statement only. Additional
@@ -2194,6 +2257,11 @@ feature_statement_search_type_of_submission:
     expose: true
     label: 'Search for submission type in Assessment Table'
     loginRequired: true
+feature_statement_submitter_data_always_editable:
+    description: 'Allows editing submitter data fields (name, department, address, dates, phase, submit type) on all statements, not just manual ones. When disabled, these fields can only be edited on manual statements.'
+    expose: true
+    label: 'Allow editing submitter data on all statements'
+    loginRequired: true
 feature_statement_text_history_delete:
     description: 'Allow deletion of entity conent chances of the text field of statements.'
     expose: true
@@ -2204,6 +2272,11 @@ feature_statement_to_entire_document:
     label: 'Neue Stellungnahme zu gesamten Planungsdokument'
     loginRequired: false
     parent: feature_statement
+feature_statements_custom_fields:
+    description: 'Allow statement fields in public view'
+    expose: true
+    label: 'Allow statement fields in public view'
+    loginRequired: false
 feature_statements_draft_delete:
     expose: true
     label: 'Stell. Entwuerfe Loeschen'
@@ -2311,7 +2384,7 @@ feature_statements_import_excel:
     expose: true
     label: 'Generate statements from uploaded excel file'
     loginRequired: true
-    parent: area_statements
+    parent: area_statements, area_admin_import
 feature_statements_participation_import_excel:
     description: |-
         Allows the user to upload a spreadsheet workbook file (e.g. an Excel-file) containing statements.
@@ -2460,11 +2533,11 @@ feature_statements_vote_may_vote:
     label: 'Stellungnahme anderer mitzeichnen (Aktion ausführen)'
     loginRequired: true
     parent: feature_statement
-feature_surveyvote_may_vote:
-    description: 'Only registered users can vote in a Survey'
+feature_spellcheck:
+    description: 'Enables the spellcheck proxy to a self-hosted LanguageTool instance. Requires languagetool_url parameter to be configured.'
     expose: true
-    label: 'Activates the capability to vote in a Survey'
-    loginRequired: true
+    label: 'Enables spellcheck via LanguageTool'
+    loginRequired: false
 feature_switchorga:
     label: 'Organisation Fachplanung und Institution wechseln'
     loginRequired: true
@@ -2536,6 +2609,11 @@ field_data_protection_text_customized_edit_orga:
     label: 'Edit customized data protection text for orga'
     expose: true
     parent: feature_data_protection_text_customized_view
+field_expand_procedure_description:
+    description: 'Expand full procedure description on page load'
+    expose: true
+    label: 'Expand procedure description'
+    loginRequired: true
 field_fragment_status:
     description: 'Set and show the status of fragment (new, assigned, editing etc).'
     expose: true
@@ -2690,6 +2768,10 @@ field_procedure_phase_filter:
     parent: field_procedure
 field_procedure_pictogram:
     label: Verfahrenspiktogramm
+    loginRequired: true
+    parent: field_procedure
+field_procedure_pictogram_view:
+    label: Verfahrenspiktogramm anzeigen
     loginRequired: false
     parent: field_procedure
 feature_procedure_pictogram_resolution_restriction:
@@ -2717,6 +2799,16 @@ field_required_procedure_end_date:
 field_segment_assignee_filter:
     description: 'Allow assignee facet search in segments of current procedure.'
     label: 'Filter segment list by assignee'
+    loginRequired: true
+field_segments_custom_fields:
+    description: 'Allow to add and edit custom fields to segments'
+    label: 'Custom fields for segments'
+    expose: true
+    loginRequired: true
+field_statements_custom_fields:
+    description: 'Allow to add and edit custom fields to statements'
+    label: 'Custom fields for statements'
+    expose: true
     loginRequired: true
 field_send_final_email:
     label: 'Schlussmitteilung versenden'
@@ -2847,6 +2939,12 @@ field_statement_phase:
     label: 'Procedure phase (Verfahrensschritt) of statement'
     loginRequired: true
     parent: field_statement
+field_statement_tags_and_topics_export:
+    description: 'Controls whether tags (Schlagwort) and topics (Kategorie) are exported in XLSX/DOCX exports. This permission is independent from feature_statements_tag and only affects exports, not the UI.'
+    expose: true
+    label: 'Export Tags and Topics in Statement Exports'
+    loginRequired: true
+    parent: field_statement
 field_statement_polygon:
     description: 'Enable drawing as a map reference for statement.'
     expose: true
@@ -2941,6 +3039,11 @@ field_statement_votes:
     label: 'Vote for statement (as a citizen)'
     loginRequired: true
     parent: field_statement
+field_submit_anonymous_statements:
+    description: 'Allow anonymous statements to be submitted in the public view.'
+    label: 'Allow anonymous statements'
+    loginRequired: true
+    expose: true
 field_vote_advice_docx:
     description: 'Show Abwägungsvorschlag (vote advice) in all docx exports'
     label: 'Show the vote advice (the short, predefined text, not the editable one) in the Docx exports'
@@ -2965,4 +3068,3 @@ feature_auto_delete_original_statement:
     expose: false
     loginRequired: true
     parent: feature_statement_delete
-

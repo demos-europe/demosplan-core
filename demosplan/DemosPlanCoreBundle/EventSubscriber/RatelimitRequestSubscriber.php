@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use demosplan\DemosPlanCoreBundle\Logic\HeaderSanitizerService;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
@@ -18,19 +21,31 @@ use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 class RatelimitRequestSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly RateLimiterFactory $jwtTokenLimiter)
-    {
+    public function __construct(
+        private readonly HeaderSanitizerService $headerSanitizer,
+        private readonly LoggerInterface $logger,
+        private readonly ParameterBagInterface $parameterBag,
+        private readonly RateLimiterFactory $jwtTokenLimiter,
+    ) {
     }
 
     public function onKernelRequest(RequestEvent $event): void
     {
         if ($event->getRequest()->headers->has('X-JWT-Authorization')) {
-            $limiter = $this->jwtTokenLimiter->create(md5($event->getRequest()->headers->get('X-JWT-Authorization')));
+            // Sanitize header values to prevent header injection
+            $authHeader = $this->headerSanitizer->sanitizeAuthHeader(
+                $event->getRequest()->headers->get('X-JWT-Authorization')
+            );
+
+            $limiter = $this->jwtTokenLimiter->create(md5($authHeader));
 
             // avoid brute force attacks with captured JWT tokens
             // token is reset on every request
             if (false === $limiter->consume(1)->isAccepted()) {
-                throw new TooManyRequestsHttpException();
+                if (true === filter_var($this->parameterBag->get('ratelimit_api_enable'), FILTER_VALIDATE_BOOLEAN)) {
+                    throw new TooManyRequestsHttpException();
+                }
+                $this->logger->warning('Rate limiting for api is disabled but would have been active now.');
             }
         }
     }

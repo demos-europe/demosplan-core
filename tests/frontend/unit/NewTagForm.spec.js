@@ -6,8 +6,6 @@
  *
  * All rights reserved
  */
-
-import { createLocalVue } from '@vue/test-utils'
 import NewTagForm from '@DpJs/components/procedure/admin/InstitutionTagManagement/NewTagForm'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
@@ -15,18 +13,16 @@ describe('NewTagForm', () => {
   let wrapper
 
   beforeEach(() => {
-    const localVue = createLocalVue()
     wrapper = shallowMountWithGlobalMocks(NewTagForm, {
-      localVue,
-      propsData: {
+      props: {
         tagCategories: [
           {
             id: 1,
             name: 'Category 1',
-            children: [{ name: 'Existing Tag' }]
-          }
-        ]
-      }
+            children: [{ name: 'Existing Tag' }],
+          },
+        ],
+      },
     })
   })
 
@@ -47,7 +43,7 @@ describe('NewTagForm', () => {
 
   it('resets the form and emits close event when resetNewTagForm is called', () => {
     wrapper.setData({
-      newTag: { name: 'Test Tag', category: 1 }
+      newTag: { name: 'Test Tag', category: 1 },
     })
     wrapper.vm.resetNewTagForm()
     expect(wrapper.vm.newTag).toEqual({})

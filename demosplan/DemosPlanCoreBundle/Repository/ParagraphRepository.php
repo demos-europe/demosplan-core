@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -362,7 +363,7 @@ class ParagraphRepository extends FluentRepository implements ArrayInterface, Ob
     protected function getParentParagraph(Paragraph $paragraph, array $parentMapping)
     {
         $parentParagraph = $paragraph->getParent();
-        if (null !== $parentParagraph && isset($parentMapping[$parentParagraph->getId()])) {
+        if ($parentParagraph instanceof ParagraphInterface && isset($parentMapping[$parentParagraph->getId()])) {
             return $parentMapping[$parentParagraph->getId()];
         }
 
@@ -489,6 +490,7 @@ class ParagraphRepository extends FluentRepository implements ArrayInterface, Ob
     {
         $paragraphIdMapping = [];
         $paragraphsToCopy = $this->getParagraphOfElement($elementToCopy);
+        $copiedParagraphs = [];
         foreach ($paragraphsToCopy as $paragraphToCopy) {
             $copiedParagraph = new Paragraph();
             $copiedParagraph->setCategory($paragraphToCopy->getCategory());
@@ -507,23 +509,17 @@ class ParagraphRepository extends FluentRepository implements ArrayInterface, Ob
             $copiedParagraph->setProcedure($copiedElement->getProcedure());
 
             $this->getEntityManager()->persist($copiedParagraph);
-            $paragraphIdMapping[$paragraphToCopy->getId()] = $copiedParagraph->getId();
+            $paragraphIdMapping[$paragraphToCopy->getId()] = $copiedParagraph;
+            $copiedParagraphs[] = $copiedParagraph;
         }
-        $this->getEntityManager()->persist($copiedElement);
-        $this->getEntityManager()->flush();
 
-        $copiedParagraphs = $this->getParagraphOfElement($copiedElement);
         foreach ($copiedParagraphs as $copiedParagraph) {
             if ($copiedParagraph->getParent() instanceof Paragraph) {
                 $oldParentId = $copiedParagraph->getParent()->getId();
-                $relatedCopiedParagraph = $this->getEntityManager()->getReference(
-                    Paragraph::class, $paragraphIdMapping[$oldParentId]
-                );
+                $relatedCopiedParagraph = $paragraphIdMapping[$oldParentId];
                 $copiedParagraph->setParent($relatedCopiedParagraph);
             }
-            $this->getEntityManager()->persist($copiedParagraph);
         }
-        $this->getEntityManager()->flush();
     }
 
     /**

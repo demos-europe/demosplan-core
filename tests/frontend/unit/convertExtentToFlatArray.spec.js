@@ -4,7 +4,7 @@ describe('convertExtentToFlatArray', () => {
   it('returns a flat array for an extent object with start and end properties', () => {
     const extent = {
       start: { latitude: 1, longitude: 2 },
-      end: { latitude: 3, longitude: 4 }
+      end: { latitude: 3, longitude: 4 },
     }
 
     const result = convertExtentToFlatArray(extent)

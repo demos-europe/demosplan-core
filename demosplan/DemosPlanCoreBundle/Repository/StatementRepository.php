@@ -68,6 +68,7 @@ use Illuminate\Support\Collection;
 use Pagerfanta\Pagerfanta;
 use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Webmozart\Assert\Assert;
 
 use function array_combine;
 
@@ -162,7 +163,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             }
 
             // only if there statements left to generate a cluster, create the headStatement
-            if (0 < count($statements)) {
+            if ([] !== $statements) {
                 $headStatement = $this->addObject($headStatement);
                 $headStatement->setCluster($statements);
                 $manager->persist($headStatement);
@@ -259,6 +260,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             $statement->setPublicStatement($draftStatement->getPublicDraftStatement());
             // In der Regel müssen Stellungnahmen nicht überprüft werden
             $statement->setPublicVerified(Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED);
+            $statement->setCustomFields($draftStatement->getCustomFields());
             // Hinweis für den Fachplaner, dass die SN überprüft werden muss
             if ($draftStatement->isPublicAllowed()) {
                 $statement->setPublicVerified(Statement::PUBLICATION_PENDING);
@@ -818,9 +820,6 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             $statement->setParagraph(null);
         }
 
-        if (array_key_exists('phase', $data)) {
-            $statement->setPhase($data['phase']);
-        }
         if (array_key_exists('pId', $data) && 36 === strlen((string) $data['pId'])) {
             $statement->setProcedure($em->getReference(Procedure::class, $data['pId']));
         }
@@ -992,6 +991,10 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
 
         if (array_key_exists('phase', $data)) {
             $statement->setPhase($data['phase']);
+        } else {
+            // Set default phase if not provided to prevent NOT NULL constraint violation
+            $procedure = $statement->getProcedure();
+            $statement->setPhase($procedure->getPhase());
         }
 
         if (array_key_exists('replied', $data)) {
@@ -1155,11 +1158,13 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     }
 
     /**
+     * Gets statements created or imported by the procedure-owning organisation
+     * including statements created on behalf of a specified organisation by the owning organisation.
+     *
      * @return array<int, Statement>
      */
     public function getStatementsOfProcedureAndOrganisation(string $procedureId, string $organisationId): array
     {
-        // get all original statements from statements
         return $this->getEntityManager()->createQueryBuilder()
             ->select('original.id, original.created, original.externId')
             ->from(Statement::class, 'statement')
@@ -1178,6 +1183,39 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->orderBy('original.created', 'DESC')
             ->getQuery()
             ->getArrayResult();
+    }
+
+    /**
+     * Counts statements submitted by an organisation via the draft-to-statement workflow.
+     * This method counts statements where the organisation is set directly on the statement
+     * (indicating they were submitted via the draft-to-statement workflow) rather than through statement.meta.
+     *
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     * @throws InvalidArgumentException
+     */
+    public function countDraftToStatementSubmissionsByOrganisation(string $procedureId, string $organisationId): int
+    {
+        $singleScalarResult = $this->getEntityManager()->createQueryBuilder()
+            ->select('COUNT(original.id)')
+            ->from(Statement::class, 'statement')
+            ->leftJoin('statement.original', 'original')
+            ->andWhere('original.original IS NULL')
+            ->andWhere('statement.deleted = false')
+            ->andWhere('original.deleted = false')
+            ->andWhere('statement.movedStatement IS NULL') // isPlaceholder === false
+            ->andWhere('statement.procedure = :procedureId')
+            ->andWhere('original.procedure = :procedureId')
+            ->setParameter('procedureId', $procedureId)
+            ->andWhere('statement.original IS NOT NULL')
+            ->andWhere('original.organisation = :orgaId')
+            ->setParameter('orgaId', $organisationId)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        Assert::integer($singleScalarResult);
+
+        return $singleScalarResult;
     }
 
     /**
@@ -1297,7 +1335,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         foreach ($statementArrays as $entityArray) {
             $externId = $entityArray['externId'];
             if (false === is_numeric($externId)) {
-                preg_match('/([0-9]).*/', (string) $externId, $matches);
+                preg_match('/(\d).*/', (string) $externId, $matches);
                 $externId = array_key_exists(0, $matches) ? $matches[0] : 0;
             }
             // with is_numeric we exclude external ids from segments which have a
@@ -1800,14 +1838,14 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             throw new InvalidArgumentException('Given Statement is not an OriginalStatement.');
         }
 
-        if (null !== $gdprConsentToSet && null !== $gdprConsentToSet->getStatement()) {
+        if ($gdprConsentToSet instanceof GdprConsent && null !== $gdprConsentToSet->getStatement()) {
             throw new InvalidArgumentException('Given GdprConsent is already in use.');
         }
 
         $newOriginalStatement = clone $originalToCopy;
 
         // create new gdprConsent for copied original statement
-        if (null === $gdprConsentToSet && null !== $originalToCopy->getGdprConsent()) {
+        if (!$gdprConsentToSet instanceof GdprConsent && null !== $originalToCopy->getGdprConsent()) {
             $gdprConsentToSet = clone $originalToCopy->getGdprConsent();
             $gdprConsentToSet->setStatement($newOriginalStatement);
         }
@@ -2088,5 +2126,62 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     private function getFileRepository(): FileRepository
     {
         return $this->getEntityManager()->getRepository(File::class);
+    }
+
+    /**
+     * Get segmentation processing statistics for a procedure using a single DQL query
+     * instead of loading all statements and their segments into memory.
+     *
+     * A non-original statement is:
+     * - 'new' if it has no segments
+     * - 'completed' if all its segments have place.solved = true
+     * - 'processing' otherwise
+     *
+     * @return array{new: int, processing: int, completed: int}
+     */
+    public function getSegmentationStatistics(string $procedureId): array
+    {
+        $em = $this->getEntityManager();
+
+        // Step 1: Count total non-original statements in this procedure
+        $totalDql = 'SELECT COUNT(s.id) FROM '.Statement::class.' s
+            WHERE s.procedure = :procedureId
+              AND s.original IS NOT NULL
+              AND s INSTANCE OF '.Statement::class;
+
+        $total = (int) $em->createQuery($totalDql)
+            ->setParameter('procedureId', $procedureId)
+            ->getSingleScalarResult();
+
+        // Step 2: For each non-original statement, get segment count and solved count
+        // We use a subquery approach: first get statements that have segments,
+        // then among those, find which are completed (all segments solved)
+        $segmentStatsDql = 'SELECT IDENTITY(seg.parentStatementOfSegment) AS stmtId,
+                COUNT(seg.id) AS segmentCount,
+                SUM(CASE WHEN p.solved = true THEN 1 ELSE 0 END) AS solvedCount
+            FROM '.Segment::class.' seg
+            JOIN seg.place p
+            JOIN seg.parentStatementOfSegment stmt
+            WHERE stmt.procedure = :procedureId
+              AND stmt.original IS NOT NULL
+            GROUP BY seg.parentStatementOfSegment';
+
+        $rows = $em->createQuery($segmentStatsDql)
+            ->setParameter('procedureId', $procedureId)
+            ->getArrayResult();
+
+        $statementsWithSegments = count($rows);
+        $completed = 0;
+        foreach ($rows as $row) {
+            if ((int) $row['solvedCount'] === (int) $row['segmentCount']) {
+                ++$completed;
+            }
+        }
+
+        return [
+            'new'        => $total - $statementsWithSegments,
+            'processing' => $statementsWithSegments - $completed,
+            'completed'  => $completed,
+        ];
     }
 }

@@ -19,7 +19,7 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
-class OriginalStatementAnonymizationService extends CoreService
+class OriginalStatementAnonymizationService
 {
     public function __construct(private readonly OriginalStatementAnonymizationRepository $originalStatementAnonymizationRepository, private readonly UserRepository $userRepository)
     {
@@ -34,7 +34,7 @@ class OriginalStatementAnonymizationService extends CoreService
         bool $attachmentsDeleted,
         bool $textPassagesAnonymized,
         bool $textVersionHistoryDeleted,
-        bool $submitterAndAuthorAnonymized
+        bool $submitterAndAuthorAnonymized,
     ): OriginalStatementAnonymization {
         $entity = new OriginalStatementAnonymization();
         $entity->setAttachmentsDeleted($attachmentsDeleted);

@@ -21,8 +21,6 @@ use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\Report\ParagraphReportEntryFactory;
-use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
@@ -36,14 +34,19 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use ZipArchive;
 
 /**
  * Import von Planunterlagen-Absaetzen.
  */
 class ServiceImporter implements ServiceImporterInterface
 {
+    private const ODT_EXTENSION = '.odt';
+    private const ODT_MIME_TYPE = 'application/vnd.oasis.opendocument.text';
+
     /**
      * @var FileService
      */
@@ -71,6 +74,7 @@ class ServiceImporter implements ServiceImporterInterface
 
     public function __construct(
         private readonly DocxImporterInterface $docxImporter,
+        private readonly OdtImporter $odtImporter,
         FileService $fileService,
         private readonly FilesystemOperator $defaultStorage,
         GlobalConfigInterface $globalConfig,
@@ -79,6 +83,7 @@ class ServiceImporter implements ServiceImporterInterface
         private readonly ParagraphRepository $paragraphRepository,
         ParagraphService $paragraphService,
         private readonly PdfCreatorInterface $pdfCreator,
+        private readonly RequestStack $requestStack,
         private readonly RouterInterface $router,
         RpcClient $client,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -93,8 +98,9 @@ class ServiceImporter implements ServiceImporterInterface
     {
         // This should probably be in a configuration section
         $allowedMimetypes = [
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/zip',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
+            'application/vnd.oasis.opendocument.text', // ODT
+            'application/zip', // Can be ODT or DOCX
             'application/msword',
             'application/octet-stream',
         ];
@@ -119,6 +125,13 @@ class ServiceImporter implements ServiceImporterInterface
      */
     public function exportPdfWithRabbitMQ($content, $pictures = [])
     {
+        // Release the database session row lock before the blocking RabbitMQ call (up to 600s).
+        // Without this, concurrent requests from the same browser hit a lock wait timeout.
+        // In CLI/async contexts (e.g. message consumer) there is no HTTP session to save.
+        if (null !== $this->requestStack->getCurrentRequest()) {
+            $this->requestStack->getSession()->save();
+        }
+
         return $this->pdfCreator->createPdf($content, $pictures);
     }
 
@@ -135,6 +148,13 @@ class ServiceImporter implements ServiceImporterInterface
      */
     public function importDocxWithRabbitMQ(File $file, $elementId, $procedure, $category)
     {
+        // Release the MySQL session row lock before the blocking RabbitMQ call (up to 300s).
+        // Without this, concurrent requests from the same browser hit a lock wait timeout.
+        // In CLI/async contexts (e.g. message consumer) there is no HTTP session to save.
+        if (null !== $this->requestStack->getCurrentRequest()) {
+            $this->requestStack->getSession()->save();
+        }
+
         return $this->docxImporter->importDocx(
             $file,
             $elementId,
@@ -268,8 +288,6 @@ class ServiceImporter implements ServiceImporterInterface
                 $reportEntryEvent = new CreateReportEntryEvent($response, ReportEntry::CATEGORY_ADD);
                 $this->eventDispatcher->dispatch($reportEntryEvent);
 
-                $this->getLogger()->debug('Paragraph:'.serialize($response));
-
                 // save paragraph as current one in nesting level
                 $parentParagraphs[$paragraph['nestingLevel']] = $response->getId();
             } catch (Exception $e) {
@@ -277,7 +295,7 @@ class ServiceImporter implements ServiceImporterInterface
             }
         }
         $this->getLogger()->debug('Anzahl Paragraphs: '.$order);
-        if (0 < (is_countable($exception->getErrorParagraphs()) ? count($exception->getErrorParagraphs()) : 0)) {
+        if (0 < count($exception->getErrorParagraphs())) {
             throw $exception;
         }
     }
@@ -308,12 +326,23 @@ class ServiceImporter implements ServiceImporterInterface
             $fs->dumpFile($temporaryPath, $this->defaultStorage->read($fileInfo->getAbsolutePath()));
             $file = new File($temporaryPath);
             $this->checkFileIsValidToImport($fileInfo);
-            $importResult = $this->importDocxWithRabbitMQ(
-                $file,
-                $elementId,
-                $procedureId,
-                'paragraph'
-            );
+
+            // Detect file type and use appropriate importer
+            if ($this->isOdtFile($fileInfo, $file)) {
+                $importResult = $this->importOdtFile(
+                    $file,
+                    $elementId,
+                    $procedureId,
+                    'paragraph'
+                );
+            } else {
+                $importResult = $this->importDocxWithRabbitMQ(
+                    $file,
+                    $elementId,
+                    $procedureId,
+                    'paragraph'
+                );
+            }
             // cleanup temporary file
             $fs->remove($temporaryPath);
             $this->createParagraphsFromImportResult($importResult, $procedureId);
@@ -348,7 +377,65 @@ class ServiceImporter implements ServiceImporterInterface
     }
 
     /**
-     * @return Logger
+     * Detect if file is ODT based on file extension and content.
+     */
+    private function isOdtFile(FileInfo $fileInfo, File $file): bool
+    {
+        $contentType = $fileInfo->getContentType();
+        $fileName = $fileInfo->getFileName();
+
+        // Check if file has ODT extension or correct MIME type
+        $hasOdtExtension = str_ends_with(strtolower($fileName), self::ODT_EXTENSION);
+        $hasOdtMimeType = self::ODT_MIME_TYPE === $contentType;
+
+        if (!$hasOdtExtension && !$hasOdtMimeType) {
+            return false;
+        }
+
+        // Content-based validation: check if file is a ZIP archive and contains correct mimetype
+        $filePath = $file->getRealPath();
+        if ($filePath && file_exists($filePath)) {
+            return $this->validateOdtStructure($filePath);
+        }
+
+        return false;
+    }
+
+    /**
+     * Validate ODT file structure by checking if it's a valid ZIP with correct mimetype.
+     */
+    private function validateOdtStructure(string $filePath): bool
+    {
+        // Check if file can be opened as ZIP
+        $zip = new ZipArchive();
+        // RDONLY requires libzip >= 1.0.0 and php > 7.4.3, fallback to default read mode if not available
+        $flags = defined('ZipArchive::RDONLY') ? ZipArchive::RDONLY : 0;
+        if (true !== $zip->open($filePath, $flags)) {
+            return false;
+        }
+
+        // Check if mimetype file exists and has correct content
+        $mimetypeContent = $zip->getFromName('mimetype');
+        $zip->close();
+
+        if (false === $mimetypeContent) {
+            return false;
+        }
+
+        // Verify mimetype content matches ODT specification
+        return self::ODT_MIME_TYPE === trim($mimetypeContent);
+    }
+
+    /**
+     * Import ODT file and convert to paragraph structure.
+     */
+    public function importOdtFile(File $file, string $elementId, string $procedure, string $category): array
+    {
+        return $this->odtImporter->importOdt($file, $elementId, $procedure, $category);
+    }
+
+    /**
+     * @return LoggerInterface
      */
     protected function getLogger()
     {
@@ -388,7 +475,7 @@ class ServiceImporter implements ServiceImporterInterface
         // as the tag is generated by the importer we can rely on a specific format
         if (str_contains($text, "width='0'")) {
             preg_match_all(sprintf("|<img src='%s' width='0' height='0'>|", $stringToReplace), $text, $matches);
-            foreach ($matches[0] as $key => $match) {
+            foreach (array_keys($matches[0]) as $key) {
                 try {
                     $fileInfo = $this->fileService->getFileInfo($hash);
                     if ($this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {

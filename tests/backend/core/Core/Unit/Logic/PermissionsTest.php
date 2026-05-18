@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection;
@@ -86,7 +87,7 @@ class PermissionsTest extends FunctionalTestCase
 
         $this->procedure = $procedure;
 
-        self::$rolesAllowed = self::$container->get(GlobalConfigInterface::class)->getRolesAllowed();
+        self::$rolesAllowed = self::getContainer()->get(GlobalConfigInterface::class)->getRolesAllowed();
     }
 
     /**
@@ -124,16 +125,17 @@ class PermissionsTest extends FunctionalTestCase
 
         // generiere ein Stub vom GlobalConfig
         /** @var MockObject|GlobalConfigInterface $globalConfig */
-        $globalConfig = self::$container->get(GlobalConfigInterface::class);
-        $corePermissions = self::$container->get(CachingYamlPermissionCollection::class);
-        $permissionsResolver = self::$container->get(PermissionResolver::class);
-        $validator = self::$container->get(ValidatorInterface::class);
+        $globalConfig = self::getContainer()->get(GlobalConfigInterface::class);
+        $corePermissions = self::getContainer()->get(CachingYamlPermissionCollection::class);
+        $permissionsResolver = self::getContainer()->get(PermissionResolver::class);
+        $validator = self::getContainer()->get(ValidatorInterface::class);
         $procedureRepository = $this->getProcedureRepositoryMock();
         $permissionsClass = $this->getPermissionsClass();
-        $accessControlService = self::$container->get(AccessControlService::class);
+        $accessControlService = self::getContainer()->get(AccessControlService::class);
+        $userAccessControlService = self::getContainer()->get(UserAccessControlService::class);
 
-        $customerService = static::$container->get(CustomerService::class);
-        $addonRegistry = static::$container->get(AddonRegistry::class);
+        $customerService = self::getContainer()->get(CustomerService::class);
+        $addonRegistry = self::getContainer()->get(AddonRegistry::class);
 
         $tokenMockMethods = [
             new MockMethodDefinition('isOwningProcedure', $ownsProcedure),
@@ -152,7 +154,8 @@ class PermissionsTest extends FunctionalTestCase
                 $procedureAccessEvaluator,
                 $procedureRepository,
                 $validator,
-                $accessControlService
+                $accessControlService,
+                $userAccessControlService
             );
 
         return $permissions;
@@ -271,7 +274,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_institution_tag_read',
                     'feature_institution_tag_update',
                     'feature_show_free_disk_space',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                 ],
             ],
@@ -332,7 +334,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements',
                     'area_statements_public_published',
-                    'area_survey_management',
                     'area_use_mastertoeblist',
                     'feature_admin_assessmenttable_export_docx_condensed',
                     'feature_admin_element_edit',
@@ -406,7 +407,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_to_entire_document',
                     'feature_statements_tag',
                     'feature_statements_vote_may_vote',
-                    'feature_surveyvote_may_vote',
                     'feature_switchorga',
                     'feature_toggle_public_participation_publication',
                     'feature_user_add',
@@ -420,6 +420,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_organisation_email_reviewer_admin',
                     'field_procedure_linkbox',
                     'field_procedure_pictogram',
+                    'field_procedure_pictogram_view',
                     'field_required_procedure_end_date',
                     'field_statement_county',
                     'field_statement_intern_id',
@@ -466,7 +467,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
                     'area_statements',
-                    'area_survey_management',
                     'feature_admin_element_edit',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
@@ -503,7 +503,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_publish_name',
                     'feature_statement_to_entire_document',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -540,7 +539,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
                     'area_statements',
-                    'area_survey_management',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -569,7 +567,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent',
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_to_entire_document',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -605,7 +602,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements',
                     'area_statements_public_published',
-                    'area_survey_management',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -633,7 +629,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_publish_name',
                     'feature_statement_to_entire_document',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -671,7 +666,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
                     'area_statements',
-                    'area_survey_management',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -698,7 +692,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_data_input_orga',
                     'feature_statement_gdpr_consent',
                     'feature_statement_gdpr_consent_submit',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -733,7 +726,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
                     'area_statements',
-                    'area_survey_management',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -758,7 +750,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_send_email_on_procedure_ending_phase',
                     'feature_statement_gdpr_consent',
                     'feature_statement_gdpr_consent_submit',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -806,7 +797,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements',
                     'area_statements_public_published',
-                    'area_survey_management',
                     'feature_admin_assessmenttable_export_docx',
                     'feature_admin_delete_procedure',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
@@ -856,7 +846,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_publish_name',
                     'feature_statement_to_entire_document',
                     'feature_statements_vote_may_vote',
-                    'feature_surveyvote_may_vote',
                     'feature_user_edit',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
@@ -904,7 +893,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
                     'area_statements',
-                    'area_survey_management',
                     'feature_assign_procedure_fachplaner_roles',
                     'feature_assign_procedure_invitable_institution_roles',
                     'feature_assign_system_roles',
@@ -930,7 +918,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_send_email_on_procedure_ending_phase',
                     'feature_statement_gdpr_consent',
                     'feature_statement_gdpr_consent_submit',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -1021,7 +1008,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements',
                     'area_statements_public_published',
-                    'area_survey_management',
                     'feature_admin_element_edit',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_auto_switch_element_state',
@@ -1059,7 +1045,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_publish_name',
                     'feature_statement_to_entire_document',
                     'feature_statements_vote_may_vote',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_county',
@@ -1100,7 +1085,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
                     'area_statements',
-                    'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
@@ -1131,7 +1115,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_data_input_orga',
                     'feature_statement_gdpr_consent',
                     'feature_statement_gdpr_consent_submit',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_county',
@@ -1173,7 +1156,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
                     'area_statements',
-                    'area_survey_management',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -1201,7 +1183,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent',
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_to_entire_document',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_county',
@@ -1243,7 +1224,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
                     'area_statements',
-                    'area_survey_management',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -1270,7 +1250,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent',
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_to_entire_document',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_county',
@@ -1316,7 +1295,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements',
                     'area_statements_public_published',
-                    'area_survey_management',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -1344,7 +1322,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent',
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_to_entire_document',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_county',
@@ -1397,7 +1374,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements',
                     'area_statements_public_published',
-                    'area_survey_management',
                     'feature_admin_element_edit',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_auto_switch_element_state',
@@ -1440,7 +1416,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_to_entire_document',
                     'feature_statements_vote_may_vote',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -1478,7 +1453,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
                     'area_statements',
-                    'area_survey_management',
                     'feature_admin_element_edit',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -1506,7 +1480,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent',
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_to_entire_document',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -1542,7 +1515,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_procedure_send_submitter_email',
                     'area_search_submitter_in_procedures',
                     'area_statements',
-                    'area_survey_management',
                     'feature_admin_assessmenttable_export_docx',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_auto_switch_element_state',
@@ -1572,7 +1544,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent',
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_to_entire_document',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -1613,7 +1584,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements',
                     'area_statements_public_published',
-                    'area_survey_management',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
                     'feature_citizen_registration',
@@ -1643,7 +1613,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_data_input_orga',
                     'feature_statement_gdpr_consent',
                     'feature_statement_gdpr_consent_submit',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -1693,7 +1662,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statements',
                     'area_statements_public',
                     'area_statements_public_published',
-                    'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
@@ -1734,7 +1702,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statements_participation_area_always_citizen',
                     'feature_statements_represent_orga',
                     'feature_statements_vote_may_vote',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_organisation_agreement_showname',
                     'field_required_procedure_end_date',
@@ -1796,7 +1763,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_send_email_on_procedure_ending_phase',
                     'feature_statement_gdpr_consent',
                     'feature_statement_gdpr_consent_submit',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -1836,7 +1802,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_procedure_send_submitter_email',
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
-                    'area_survey_management',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -1861,7 +1826,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_public_allowed_needs_verification',
                     'feature_statement_to_entire_document',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -1914,7 +1878,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
                     'area_statements_public_published',
-                    'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
@@ -1954,7 +1917,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_to_entire_document',
                     'feature_statements_participation_area_always_citizen',
                     'feature_statements_vote_may_vote',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -1995,7 +1957,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements',
                     'area_statements_released_group',
-                    'area_survey_management',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -2020,7 +1981,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_publish_name',
                     'feature_statements_public',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -2060,7 +2020,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
                     'area_statements_released_group',
-                    'area_survey_management',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -2085,7 +2044,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_publish_name',
                     'feature_statement_to_entire_document',
                     'feature_statements_public',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -2130,7 +2088,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements_public_published',
                     'area_statements_released_group',
-                    'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
@@ -2158,7 +2115,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_to_entire_document',
                     'feature_statements_public',
                     'feature_statements_vote_may_vote',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -2213,7 +2169,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_data_input_orga',
                     'area_statement_segmentation',
                     'area_statements',
-                    'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_admin_export_procedure',
                     'feature_auto_switch_element_state',
@@ -2265,7 +2220,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statements_like_may_like',
                     'feature_statements_represent_orga',
                     'feature_statements_vote_may_vote',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_file',
@@ -2322,7 +2276,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
                     'area_subscriptions',
-                    'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -2362,7 +2315,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent',
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_publish_name',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -2412,7 +2364,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements',
                     'area_statements_final',
-                    'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_auto_switch_procedure_news',
                     'feature_auto_switch_to_procedure_end_phase',
@@ -2441,7 +2392,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_publish_name',
                     'feature_statement_to_entire_document',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -2490,7 +2440,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements_released',
                     'area_statements_released_group',
-                    'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_admin_new_procedure',
                     'feature_auto_switch_procedure_news',
@@ -2516,7 +2465,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_publish_name',
                     'feature_statement_to_entire_document',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -2562,7 +2510,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements_released',
                     'area_statements_released_group',
-                    'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_admin_new_procedure',
                     'feature_auto_switch_procedure_news',
@@ -2590,7 +2537,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent',
                     'feature_statement_gdpr_consent_submit',
                     'feature_statements_draft_relocate',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -2634,7 +2580,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_procedure_send_submitter_email',
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
-                    'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_assign_procedure_fachplaner_roles',
                     'feature_assign_procedure_invitable_institution_roles',
@@ -2672,7 +2617,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_to_entire_document',
                     'feature_statements_vote_may_vote',
-                    'feature_surveyvote_may_vote',
                     'feature_user_edit',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
@@ -2713,7 +2657,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
                     'area_statements_released',
-                    'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
@@ -2740,7 +2683,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_publish_name',
                     'feature_statements_vote_may_vote',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
@@ -2782,7 +2724,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_search_submitter_in_procedures',
                     'area_statement_data_input_orga',
                     'area_statement_segmentation',
-                    'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
@@ -2809,7 +2750,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_publish_name',
                     'feature_statement_to_entire_document',
                     'feature_statements_vote_may_vote',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_required_procedure_end_date',
                     'field_statement_county',
@@ -2852,7 +2792,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_procedure_send_submitter_email',
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
-                    'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
@@ -2879,7 +2818,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_publish_name',
                     'feature_statements_tag',
                     'feature_statements_vote_may_vote',
-                    'feature_surveyvote_may_vote',
                     'feature_use_data_input_orga',
                     'field_customer_accessibility_explanation_edit',
                     'field_procedure_recommendation_version',
@@ -2924,7 +2862,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_procedure_send_submitter_email',
                     'area_search_submitter_in_procedures',
                     'area_statement_segmentation',
-                    'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_auto_switch_element_state',
                     'feature_auto_switch_procedure_news',
@@ -2949,7 +2886,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_to_entire_document',
                     'feature_statements_tag',
-                    'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_procedure_recommendation_version',
                     'field_required_procedure_end_date',
@@ -3011,7 +2947,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_statement_segmentation',
                     'area_statements_released',
                     'area_statements_released_group',
-                    'area_survey_management',
                     'feature_admin_element_invitable_institution_or_public_authorisations',
                     'feature_admin_new_procedure',
                     'feature_citizen_registration',
@@ -3028,7 +2963,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_gdpr_consent_submit',
                     'feature_statement_publish_name',
                     'feature_statement_to_entire_document',
-                    'feature_surveyvote_may_vote',
                     'field_statement_submitter_email_address',
                     'role_participant',
                 ],
@@ -3099,7 +3033,7 @@ class PermissionsTest extends FunctionalTestCase
         if (__CLASS__ !== static::class) {
             foreach ($roles as $role) {
                 if (!in_array($role, self::$rolesAllowed, true)) {
-                    $this->addWarning('Project does not support role '.$role.'. Testcase may be deleted');
+                    self::fail('Project does not support role '.$role.'. Testcase may be deleted');
                 }
                 self::$testedRoles[] = $role;
             }

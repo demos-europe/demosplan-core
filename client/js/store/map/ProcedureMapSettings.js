@@ -1,5 +1,5 @@
-import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
 import convertExtentToFlatArray from '@DpJs/components/map/map/utils/convertExtentToFlatArray'
+import { dpApi } from '@demos-europe/demosplan-ui'
 
 export default {
   namespaced: true,
@@ -7,17 +7,17 @@ export default {
   name: 'ProcedureMapSettings',
 
   state: {
-    procedureMapSettings: {}
+    procedureMapSettings: {},
   },
 
   mutations: {
     setItem (state, { key, value }) {
       state[key] = value
-    }
+    },
   },
 
   actions: {
-    fetchLayers ({ commit }, procedureId) {
+    fetchLayers () {
       const url = Routing.generate('api_resource_list', { resourceType: 'GisLayer' })
 
       const params = {
@@ -30,13 +30,12 @@ export default {
             'opacity',
             'hasDefaultVisibility',
             'layers',
-            'projectionValue'
-          ].join()
-        }
+            'projectionValue',
+          ].join(),
+        },
       }
 
       return dpApi.get(url, params)
-        .then(response => checkResponse(response))
     },
 
     fetchProcedureMapSettings ({ commit }, { procedureId, isMaster = false }) {
@@ -49,7 +48,7 @@ export default {
           'boundingBox',
           'defaultBoundingBox',
           'defaultMapExtent',
-          'scales'
+          'scales',
         ]
         if (hasPermission('area_procedure_adjustments_general_location')) {
           procedureMapSettingFields.push('coordinate')
@@ -79,17 +78,16 @@ export default {
         const params = {
           fields: {
             [resourceType]: [
-              'mapSetting'
+              'mapSetting',
             ].join(),
-            ProcedureMapSetting: procedureMapSettingFields.join()
+            ProcedureMapSetting: procedureMapSettingFields.join(),
           },
-          include: 'mapSetting'
+          include: 'mapSetting',
         }
 
         return dpApi.get(url, params)
-          .then(response => checkResponse(response))
           .then(response => {
-            const data = response.included[0].attributes
+            const data = response.data.included[0].attributes
             const defaultBoundingBox = convertExtentToFlatArray(data.defaultBoundingBox) ?? []
             const defaultMapExtent = convertExtentToFlatArray(data.defaultMapExtent) ?? []
 
@@ -106,10 +104,10 @@ export default {
                 mapExtent: convertExtentToFlatArray(data.mapExtent) ?? defaultMapExtent, // Maximum extent of the map
                 boundingBox: convertExtentToFlatArray(data.boundingBox) ?? defaultBoundingBox, // Extent on load of the map
                 scales: data.scales?.map(scale => ({ label: `1:${scale.toLocaleString()}`, value: scale })) ?? [],
-                territory: data.territory ?? {}
+                territory: data.territory ?? {},
               },
-              id: response.included[0].id,
-              type: 'ProcedureMapSetting'
+              id: response.data.included[0].id,
+              type: 'ProcedureMapSetting',
             }
 
             commit('setItem', { key: 'procedureMapSettings', value: procedureMapSettings })
@@ -122,6 +120,6 @@ export default {
       } catch (e) {
         console.error(e)
       }
-    }
-  }
+    },
+  },
 }

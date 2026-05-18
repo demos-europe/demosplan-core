@@ -19,7 +19,7 @@ import TagsList from '@DpJs/components/tags/TagsList'
 const components = {
   DpContextualHelp,
   DpUploadFiles,
-  TagsList
+  TagsList,
 }
 
 const apiStores = ['Tag', 'TagTopic']

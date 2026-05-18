@@ -16,7 +16,7 @@ import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpAccordion,
-  VPopover
+  VPopover,
 }
 
 initialize(components)

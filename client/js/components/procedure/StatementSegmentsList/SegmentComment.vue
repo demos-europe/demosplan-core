@@ -32,29 +32,29 @@ export default {
   name: 'SegmentComment',
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     comment: {
       type: Object,
-      required: true
+      required: true,
     },
 
     currentUser: {
       type: Object,
-      required: true
+      required: true,
     },
 
     segmentId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
     ...mapState('StatementSegment', {
-      segments: 'items'
+      segments: 'items',
     }),
 
     place () {
@@ -89,7 +89,7 @@ export default {
         }
       }
       return Translator.trans('user.deleted')
-    }
+    },
   },
 
   methods: {
@@ -99,7 +99,7 @@ export default {
 
     createdDateTimeItem (date) {
       return `${formatDate(date, 'long')}`
-    }
-  }
+    },
+  },
 }
 </script>

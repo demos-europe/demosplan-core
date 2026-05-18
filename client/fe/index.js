@@ -11,7 +11,6 @@ const { Command } = require('commander')
 const runWebpack = require('./webpack/runWebpack')
 const FE = new Command()
 
-// eslint-disable-next-line new-cap
 FE.storeOptionsAsProperties(true)
   .version('always-never-done')
   .description('demosplan frontend')

@@ -13,7 +13,6 @@
  *
  * @returns url {Array<base, params>}
  */
-/* eslint-disable camelcase */
 function changeUrlforPager ({ count, current_page }) {
   const url = window.location.href.split('?')
 

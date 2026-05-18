@@ -16,7 +16,7 @@ import GisLayerEdit from '@DpJs/lib/map/GisLayerEdit'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpUploadFiles
+  DpUploadFiles,
 }
 
 initialize(components).then(() => {

@@ -17,19 +17,22 @@
 
     <div
       v-else
-      class="flex">
+      class="flex"
+    >
       <dp-input
         id="postalcode"
+        v-model="locationPostalCode"
         data-cy="procedureCoordinate:postalCode"
         :disabled="readonly"
         :label="{
           text: Translator.trans('postalcode')
         }"
         name="r_locationPostCode"
-        :value="locationPostalCode"
-        width="w-9" />
+        width="w-9"
+      />
       <dp-input
         id="locationName"
+        v-model="locationName"
         class="u-ml-0_25"
         data-cy="procedureCoordinate:city"
         :disabled="readonly"
@@ -37,10 +40,11 @@
           text: Translator.trans('city')
         }"
         name="r_locationName"
-        :value="locationName"
-        width="w-9" />
+        width="w-9"
+      />
       <dp-input
         id="municipalCode"
+        v-model="municipalCode"
         class="u-ml-0_25"
         data-cy="procedureCoordinate:municipalCode"
         :disabled="readonly"
@@ -48,10 +52,11 @@
           text: Translator.trans('municipal_code')
         }"
         name="r_municipalCode"
-        :value="municipalCode"
-        width="w-10" />
+        width="w-10"
+      />
       <dp-input
         id="ars"
+        v-model="ars"
         class="u-ml-0_25"
         data-cy="procedureCoordinate:regionKey"
         :disabled="readonly"
@@ -59,19 +64,19 @@
           text: Translator.trans('ars')
         }"
         name="r_ars"
-        :value="ars"
-        width="w-10" />
+        width="w-10"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import { checkResponse, DpInput, DpLoading, dpRpc } from '@demos-europe/demosplan-ui'
+import { DpInput, DpLoading, dpRpc } from '@demos-europe/demosplan-ui'
 
 const LookupStatus = {
   NONE: 0,
   LOADING: 1,
-  DONE: 2
+  DONE: 2,
 }
 
 export default {
@@ -79,21 +84,21 @@ export default {
 
   components: {
     DpInput,
-    DpLoading
+    DpLoading,
   },
 
   props: {
     coordinate: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     location: {
       required: false,
       type: Object,
-      default: () => { return {} }
-    }
+      default: () => { return {} },
+    },
   },
 
   data () {
@@ -104,7 +109,7 @@ export default {
       longitude: null,
       locationPostalCode: '',
       lookupStatus: LookupStatus.NONE,
-      municipalCode: ''
+      municipalCode: '',
     }
   },
 
@@ -115,18 +120,22 @@ export default {
 
     readonly () {
       return LookupStatus.NONE === this.lookupStatus
-    }
+    },
   },
 
   watch: {
-    coordinate (coordinates) {
-      if (coordinates.length === 2) {
-        this.latitude = coordinates[0]
-        this.longitude = coordinates[1]
+    coordinate: {
+      handler (coordinates) {
+        if (coordinates.length === 2) {
+          this.latitude = coordinates[0]
+          this.longitude = coordinates[1]
 
-        this.queryLocation()
-      }
-    }
+          this.queryLocation()
+        }
+      },
+      deep: true,
+
+    },
   },
 
   methods: {
@@ -135,24 +144,22 @@ export default {
 
       dpRpc('procedure.locate', {
         latitude: this.latitude,
-        longitude: this.longitude
+        longitude: this.longitude,
       })
-        .then(checkResponse)
-        .then(response => {
-          this.lookupStatus = LookupStatus.DONE
-
-          if (response.error) {
+        .then(({ data }) => {
+          if (data.error) {
             return
           }
 
-          this.ars = response[0].result.ars
-          this.locationName = response[0].result.locationName
-          this.locationPostalCode = response[0].result.locationPostalCode
-          this.municipalCode = response[0].result.municipalCode
-        }).catch(() => {
+          this.ars = data[0].result.ars
+          this.locationName = data[0].result.locationName
+          this.locationPostalCode = data[0].result.locationPostalCode
+          this.municipalCode = data[0].result.municipalCode
+        })
+        .finally(() => {
           this.lookupStatus = LookupStatus.DONE
         })
-    }
+    },
   },
 
   mounted () {
@@ -162,6 +169,6 @@ export default {
       this.locationPostalCode = this.location.locationPostalCode
       this.municipalCode = this.location.municipalCode
     }
-  }
+  },
 }
 </script>

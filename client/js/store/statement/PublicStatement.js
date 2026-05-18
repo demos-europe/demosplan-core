@@ -11,6 +11,7 @@ import { hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const statementStructure = {
   action: 'statementpublicnew',
+  customFields: [],
   delete_file: [],
   location_is_set: '',
   r_city: '',
@@ -51,7 +52,7 @@ const statementStructure = {
   r_userPosition: '',
   r_userState: '',
   url: '',
-  uploadedFiles: ''
+  uploadedFiles: '',
 }
 
 const PublicStatementStore = {
@@ -64,7 +65,7 @@ const PublicStatementStore = {
     activeTab: '',
     highlighted: {
       location: false,
-      documents: false
+      documents: false,
     },
     initDraftStatements: {},
     initForm: '',
@@ -74,7 +75,7 @@ const PublicStatementStore = {
     showMapHint: false,
     statement: statementStructure,
     draftStatements: {},
-    unsavedDrafts: []
+    unsavedDrafts: [],
   },
 
   mutations: {
@@ -84,6 +85,10 @@ const PublicStatementStore = {
         state.unsavedDrafts.push(id)
         localStorage.setItem(`unsavedDrafts:${state.userId}:${state.procedureId}`, JSON.stringify(state.unsavedDrafts))
       }
+    },
+
+    resetStatementIdentifier (state) {
+      state.statement.r_ident = ''
     },
 
     initialiseStore (state, data) {
@@ -179,6 +184,11 @@ const PublicStatementStore = {
       }
     },
 
+    applyInitialDefaults (state, data) {
+      state.statement = { ...state.statement, ...data }
+      state.initForm = JSON.stringify(state.statement)
+    },
+
     removeStatementProp (state, propKey) {
       delete state.statement[propKey]
     },
@@ -201,14 +211,14 @@ const PublicStatementStore = {
       }
       state.statement = JSON.parse(state.initForm)
       localStorage.removeItem(state.localStorageName)
-    }
+    },
   },
 
   actions: {
   },
 
   getters: {
-  }
+  },
 }
 
 export default PublicStatementStore

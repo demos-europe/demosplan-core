@@ -83,7 +83,7 @@
         {% set chartColorSchemeIndexPublic = [3, 6, 8, 15]|reduce((acc, val) => (val - phases)|abs <= (acc - phases)|abs ? val : acc, 1) %}
 
         {% if hasPermission('feature_procedure_report_public_phase') %}
-            <div class="layout shadow u-pv flow-root u-m u-mt-2">
+            <div class="layout shadow-sm u-pv flow-root u-m u-mt-2">
                 <div class="u-pl u-pr text-center">
                     <h2 class="u-mb-2 text-left">
                         {{ 'procedures.phase.overview'|trans }}
@@ -162,7 +162,7 @@
             }
         ] %}
 
-        <div class="layout shadow u-pv flow-root u-m u-mt-2">
+        <div class="layout shadow-sm u-pv flow-root u-m u-mt-2">
             <div class="u-pl u-pr text-center">
                 <h2 class="{{ statementsAmountTotal > 0 ? 'u-mb-2' : 'u-mb' }} text-left">
                     {{ 'statements.submitted.heading'|trans }}

@@ -10,27 +10,37 @@
 <template>
   <div
     class="c-publicindex__drawer absolute u-top-0 z-above-zero shadow-md"
-    :class="{ 'is-open': isDrawerOpened }">
+    :class="{ 'is-open': isDrawerOpened }"
+  >
+    <div
+      aria-live="polite"
+      class="sr-only"
+    >
+      {{ screenReaderAnnouncement }}
+    </div>
     <div class="bg-color--grey-light-2 u-p-0_5">
       <dp-search
-        @procedure-search-focused="openDrawer"
-        :show-suggestions="false" />
+        :show-suggestions="false"
+        @procedure-search:focused="openDrawer"
+      />
       <template v-if="!isLoading">
         <dp-handle
           data-cy="drawerToggle"
           :is-open="isDrawerOpened"
-          @input="val => setProperty({ prop: 'isDrawerOpened', val: val })" />
+          @input="val => setProperty({ prop: 'isDrawerOpened', val: val })"
+        />
         <div class="c-publicindex__drawer-nav">
           <strong
             v-if="currentView !== 'DpDetailView'"
-            aria-live="assertive"
             class="inline-block"
-            data-cy="participationProcedures">
+            data-cy="participationProcedures"
+          >
             {{ procedureCount }} {{ Translator.trans('participation.procedures') }}
           </strong>
           <dp-content-toggle
             v-else
-            @input="val => setProperty({ prop: 'currentView', val: val })" />
+            @input="val => setProperty({ prop: 'currentView', val: val })"
+          />
         </div>
       </template>
     </div>
@@ -38,9 +48,10 @@
     <div class="bg-color--white u-p-0_5">
       <dp-loading v-if="isLoading" />
       <component
-        v-else
         :is="currentView"
-        :procedure="procedureInDetailView" />
+        v-else
+        :procedure="procedureInDetailView"
+      />
     </div>
   </div>
 </template>
@@ -63,7 +74,7 @@ export default {
     DpHandle,
     DpList,
     DpLoading,
-    DpDetailView
+    DpDetailView,
   },
 
   computed: {
@@ -71,11 +82,11 @@ export default {
       'currentProcedureId',
       'currentView',
       'isDrawerOpened',
-      'isLoading'
+      'isLoading',
     ]),
 
     ...mapState('Procedure', [
-      'procedures'
+      'procedures',
     ]),
 
     procedureCount () {
@@ -88,12 +99,19 @@ export default {
       }
       const curr = this.procedures.find(el => el.id === this.currentProcedureId)
       return curr || null
-    }
+    },
+
+    screenReaderAnnouncement () {
+      if (this.currentView === 'DpDetailView') {
+        return ''
+      }
+      return `${this.procedureCount} ${Translator.trans('participation.procedures')}`
+    },
   },
 
   methods: {
     ...mapMutations('Procedure', [
-      'setProperty'
+      'setProperty',
     ]),
 
     openDrawer () {
@@ -103,7 +121,7 @@ export default {
     toggleList () {
       const val = this.currentView !== 'DpList' ? 'DpList' : ''
       this.setProperty({ prop: 'currentView', val })
-    }
+    },
   },
 
   created () {
@@ -113,6 +131,6 @@ export default {
     if (currentBreakpoint === 'palm') {
       this.setProperty({ prop: 'isDrawerOpened', val: false })
     }
-  }
+  },
 }
 </script>

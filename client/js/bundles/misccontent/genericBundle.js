@@ -12,7 +12,7 @@ import { initialize } from '@DpJs/InitVue'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 
 const components = {
-  RegisterFlyout
+  RegisterFlyout,
 }
 
 initialize(components)

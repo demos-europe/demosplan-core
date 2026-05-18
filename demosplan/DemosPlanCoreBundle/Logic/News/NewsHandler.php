@@ -58,7 +58,7 @@ class NewsHandler extends CoreHandler
         MessageBagInterface $messageBag,
         PermissionsInterface $permissions,
         ProcedureNewsService $procedureNewsService,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         parent::__construct($messageBag);
         $this->contentService = $contentService;
@@ -254,7 +254,7 @@ class NewsHandler extends CoreHandler
 
         $errors = $this->validateNews($data);
 
-        if (0 < count($errors)) {
+        if ([] !== $errors) {
             $this->flashMessageHandler->setFlashMessages($errors);
 
             return [
@@ -300,7 +300,7 @@ class NewsHandler extends CoreHandler
 
         $errors = $this->validateNews($data);
 
-        if (0 < count($errors)) {
+        if ([] !== $errors) {
             $this->flashMessageHandler->setFlashMessages($errors);
 
             return [

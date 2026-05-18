@@ -44,6 +44,10 @@
 
             text-decoration: underline;
         }
+
+        @include media-query('palm') {
+            display: inline-block;
+        }
     }
 
     &__title {

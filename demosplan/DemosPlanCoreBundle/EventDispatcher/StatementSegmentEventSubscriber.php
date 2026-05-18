@@ -40,6 +40,6 @@ class StatementSegmentEventSubscriber extends BaseEventSubscriber
 
         /** @var Segment $segment */
         $segment = $event->getEntity();
-        $this->entityContentChangeService->saveEntityChanges($segment, Segment::class);
+        $this->entityContentChangeService->trackChanges($segment, Segment::class);
     }
 }

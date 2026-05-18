@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceCreateFlushEvent;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -20,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
+use EDT\PathBuilding\End;
 use EDT\Wrapping\Contracts\ContentField;
 use EDT\Wrapping\CreationDataInterface;
 use Exception;
@@ -30,6 +32,7 @@ use Webmozart\Assert\Assert;
  *
  * @property-read FileResourceType      $file
  * @property-read StatementResourceType $statement
+ * @property-read End $attachmentType
  */
 final class SourceStatementAttachmentResourceType extends DplanResourceType
 {
@@ -80,6 +83,8 @@ final class SourceStatementAttachmentResourceType extends DplanResourceType
     {
         $properties = [
             $this->createIdentifier()->readable()->sortable()->filterable(),
+            $this->createAttribute($this->attachmentType)
+                ->setReadableByCallable(fn (StatementAttachment $attachment): string => StatementAttachmentInterface::SOURCE_STATEMENT),
         ];
 
         if ($this->currentUser->hasPermission('feature_read_source_statement_via_api')) {

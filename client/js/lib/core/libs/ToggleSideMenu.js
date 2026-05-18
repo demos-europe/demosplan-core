@@ -26,7 +26,7 @@ class ToggleSideMenu {
       iconMenuOpen: 'fa-chevron-right',
       iconMenuClosed: 'fa-chevron-left',
       hide: 'hidden',
-      isExpanded: 'is-expanded'
+      isExpanded: 'is-expanded',
     }
 
     this.trigger = document.querySelector('[data-toggle-sidebar-menu-trigger]')

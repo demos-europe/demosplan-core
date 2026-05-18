@@ -11,21 +11,20 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DemosPlanInvitableToebAPIController extends APIController
 {
     /**
      * @return JsonResponse
-     *
-     * @DplanPermissions({"area_main_procedures","area_admin_invitable_institution"})
      */
+    #[DplanPermissions(['area_main_procedures', 'area_admin_invitable_institution'])]
     #[Route(path: '/api/1.0/procedure/{procedureId}/InvitableToeb', methods: ['GET'], name: 'dplan_api_invitable_toeb_list')]
-    public function listAction(OrgaService $orgaService)
+    public function list(OrgaService $orgaService)
     {
         $orgaList = $orgaService->getInvitablePublicAgencies();
         $collection = $this->resourceService->makeCollectionOfResources($orgaList, InvitablePublicAgencyResourceType::getName());

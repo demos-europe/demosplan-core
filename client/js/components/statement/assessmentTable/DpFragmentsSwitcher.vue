@@ -22,37 +22,43 @@ statements and fragments is now in DpAssessmentTableCard.vue
   <div>
     <div class="o-switcher">
       <input
-        type="checkbox"
         :id="'switcher' + statementId"
-        @change="toggle">
+        type="checkbox"
+        @change="toggle"
+      >
       <label :for="'switcher' + statementId">
         <span
           class="o-switcher__option float-left"
-          :class="{'o-switcher__option--checked': statementTabVisible}">
+          :class="{'o-switcher__option--checked': statementTabVisible}"
+        >
           {{ Translator.trans('statement') }}
         </span>
         <span
           class="o-switcher__option float-right"
           :class="{'o-switcher__option--checked': !statementTabVisible}"
-          data-cy="fragmentTab">
+          data-cy="fragmentTab"
+        >
           {{ fragmentsButtonText }}
         </span>
       </label>
     </div>
     <div
       v-if="isFiltered && showFragmentResults"
-      class="inline-block align-top u-pv-0_25 float-right">
+      class="inline-block align-top u-pv-0_25 float-right"
+    >
       <p class="inline-block u-mb-0 u-mr">
         {{ Translator.trans('found.fragments', {hits: filteredFragmentsLength, sum: totalFragmentsLength}) }}
       </p>
       <label
         :for="'show-all-fragments' + statementId"
-        class="inline-block u-mb-0">
+        class="inline-block u-mb-0"
+      >
         <input
+          :id="'show-all-fragments' + statementId"
           type="checkbox"
           name="show-all-fragments"
-          :id="'show-all-fragments' + statementId"
-          @click="showAllFragments">
+          @click="showAllFragments"
+        >
         {{ Translator.trans('show.all.fragments', { sum: totalFragmentsLength }) }}
       </label>
     </div>
@@ -68,37 +74,42 @@ export default {
   props: {
     statementId: {
       required: true,
-      type: String
+      type: String,
     },
 
     statementFragmentsTotal: {
       required: false,
       type: Number,
-      default: 0
+      default: 0,
     },
 
     statementFragmentsLength: {
       required: false,
       type: Number,
-      default: 0
+      default: 0,
     },
 
     isFiltered: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     statementTabVisible: { // Shows if tab === 'statement' in tableCard.vue
       required: false,
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
+
+  emits: [
+    'fragments:showall',
+    'toggletabs',
+  ],
 
   data () {
     return {
-      allFragmentsShown: false
+      allFragmentsShown: false,
     }
   },
 
@@ -159,7 +170,7 @@ export default {
       }
 
       return 0
-    }
+    },
   },
 
   methods: {
@@ -174,7 +185,7 @@ export default {
 
     toggle () {
       this.$emit('toggletabs', (this.statementTabVisible === false))
-    }
-  }
+    },
+  },
 }
 </script>

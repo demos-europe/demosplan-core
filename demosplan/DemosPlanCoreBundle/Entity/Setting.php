@@ -319,7 +319,7 @@ class Setting extends CoreEntity implements UuidEntityInterface, SettingInterfac
     {
         // boolean values are saved as string. smells a bit
         if (is_bool($content)) {
-            $content = true === $content ? 'true' : 'false';
+            $content = $content ? 'true' : 'false';
         }
         $this->content = $content;
 
