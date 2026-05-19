@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\LastLoginActivityChecker;
 use demosplan\DemosPlanCoreBundle\Message\AccountDeletionRunMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\AccountDeletionRunMessageHandler;
 use demosplan\DemosPlanCoreBundle\Repository\AccountDeletionTrackingRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -39,6 +40,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
 
     private $permissions;
     private $trackingRepository;
+    private $userRepository;
     private $activityChecker;
     private $mailService;
     private $entityManager;
@@ -56,6 +58,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
 
         $this->permissions = $this->createMock(PermissionsInterface::class);
         $this->trackingRepository = $this->createMock(AccountDeletionTrackingRepository::class);
+        $this->userRepository = $this->createMock(UserRepository::class);
         $this->activityChecker = $this->createMock(LastLoginActivityChecker::class);
         $this->mailService = $this->createMock(MailService::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
@@ -87,6 +90,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
         $this->sut = new AccountDeletionRunMessageHandler(
             $this->permissions,
             $this->trackingRepository,
+            $this->userRepository,
             $this->activityChecker,
             $this->mailService,
             $this->entityManager,
@@ -101,7 +105,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
 
     public function testEmptyCandidateSetDoesNothing(): void
     {
-        $this->trackingRepository
+        $this->userRepository
             ->method('findInactivityDeletionCandidates')
             ->willReturn([]);
 
@@ -116,7 +120,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
     {
         $user = $this->buildUserMock();
 
-        $this->trackingRepository->method('findInactivityDeletionCandidates')->willReturn([$user]);
+        $this->userRepository->method('findInactivityDeletionCandidates')->willReturn([$user]);
         $this->trackingRepository->method('findOneByUser')->with($user)->willReturn(null);
         $this->activityChecker->method('evaluateInactivityStep')
             ->with($user, null)
@@ -154,7 +158,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
         $existingTracking = new AccountDeletionTracking($user);
         $existingTracking->setFirstWarningMail($this->createMock(MailSend::class));
 
-        $this->trackingRepository->method('findInactivityDeletionCandidates')->willReturn([$user]);
+        $this->userRepository->method('findInactivityDeletionCandidates')->willReturn([$user]);
         $this->trackingRepository->method('findOneByUser')->with($user)->willReturn($existingTracking);
         $this->activityChecker->method('evaluateInactivityStep')
             ->with($user, $existingTracking)
@@ -191,7 +195,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
         $tracking->setFirstWarningMail($this->createMock(MailSend::class));
         $tracking->setSecondWarningMail($this->createMock(MailSend::class));
 
-        $this->trackingRepository->method('findInactivityDeletionCandidates')->willReturn([$user]);
+        $this->userRepository->method('findInactivityDeletionCandidates')->willReturn([$user]);
         $this->trackingRepository->method('findOneByUser')->with($user)->willReturn($tracking);
         $this->activityChecker->method('evaluateInactivityStep')
             ->with($user, $tracking)
@@ -224,7 +228,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
         $user1 = $this->buildUserMock('user1@example.com', 'user1-id');
         $user2 = $this->buildUserMock('user2@example.com', 'user2-id');
 
-        $this->trackingRepository->method('findInactivityDeletionCandidates')
+        $this->userRepository->method('findInactivityDeletionCandidates')
             ->willReturn([$user1, $user2]);
         $this->trackingRepository->method('findOneByUser')->willReturn(null);
         $this->activityChecker->method('evaluateInactivityStep')

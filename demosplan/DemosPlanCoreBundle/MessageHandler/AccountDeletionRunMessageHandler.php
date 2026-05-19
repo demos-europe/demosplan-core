@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\AccountDeletionStep;
 use demosplan\DemosPlanCoreBundle\Logic\User\LastLoginActivityChecker;
 use demosplan\DemosPlanCoreBundle\Message\AccountDeletionRunMessage;
 use demosplan\DemosPlanCoreBundle\Repository\AccountDeletionTrackingRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Traits\InitializesAnonymousUserPermissionsTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -54,6 +55,7 @@ final class AccountDeletionRunMessageHandler
     public function __construct(
         private readonly PermissionsInterface $permissions,
         private readonly AccountDeletionTrackingRepository $trackingRepository,
+        private readonly UserRepository $userRepository,
         private readonly LastLoginActivityChecker $activityChecker,
         private readonly MailService $mailService,
         private readonly EntityManagerInterface $entityManager,
@@ -77,7 +79,7 @@ final class AccountDeletionRunMessageHandler
                 return;
             }
 
-            $candidates = $this->trackingRepository->findInactivityDeletionCandidates(
+            $candidates = $this->userRepository->findInactivityDeletionCandidates(
                 new DateTime(sprintf('-%d days', $firstWarningDays)),
                 $this->getProtectedUserIds(),
             );
