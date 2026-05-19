@@ -61,18 +61,16 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
      * @var DateTime
      *
      * @ORM\Column(name="_d_created_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
      *
      * @ORM\Column(name="_d_modified_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="update")
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifiedDate;
 
     /**

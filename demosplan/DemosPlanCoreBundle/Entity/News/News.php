@@ -129,28 +129,25 @@ class News extends CoreEntity implements UuidEntityInterface, NewsInterface
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(name="_n_create_date", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createDate;
 
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="update")
-     *
      * @ORM\Column(name="_n_modify_date", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifyDate;
 
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(name="_n_delete_date", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $deleteDate;
 
     /**

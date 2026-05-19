@@ -66,18 +66,16 @@ class ProcedureProposal extends CoreEntity implements UuidEntityInterface, Proce
      * @var DateTime
      *
      * @ORM\Column(type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
      *
      * @ORM\Column(type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="update")
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifiedDate;
 
     /**

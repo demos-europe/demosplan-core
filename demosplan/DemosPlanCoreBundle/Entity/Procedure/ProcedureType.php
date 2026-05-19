@@ -50,19 +50,17 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
      */
+    #[Gedmo\Timestampable(on: 'create')]
     private $creationDate;
 
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="update")
-     *
      * @ORM\Column(type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
      */
+    #[Gedmo\Timestampable(on: 'update')]
     private $modificationDate;
 
     /**
@@ -107,7 +105,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
          *
          * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
          */
-        private ProcedureUiDefinition $procedureUiDefinition
+        private ProcedureUiDefinition $procedureUiDefinition,
     ) {
         $statementFormDefinition->setProcedureType($this);
         $procedureBehaviorDefinition->setProcedureType($this);

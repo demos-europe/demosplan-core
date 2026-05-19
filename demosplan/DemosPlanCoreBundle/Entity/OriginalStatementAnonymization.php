@@ -40,10 +40,9 @@ class OriginalStatementAnonymization implements OriginalStatementAnonymizationIn
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $created;
 
     /**

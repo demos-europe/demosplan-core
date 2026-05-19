@@ -69,19 +69,17 @@ class ForumThread extends CoreEntity implements UuidEntityInterface, ForumThread
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(name="_ft_create_date", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createDate;
 
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="update")
-     *
      * @ORM\Column(name="_ft_modified_date", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifyDate;
 
     /**

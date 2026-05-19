@@ -321,19 +321,17 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(name="_st_created_date", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $created;
 
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="update")
-     *
      * @ORM\Column(name="_st_modified_date", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modified;
 
     /**

@@ -46,19 +46,17 @@ class Video implements UuidEntityInterface, VideoInterface
     /**
      * @var DateTimeInterface
      *
-     * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     private $creationDate;
 
     /**
      * @var DateTimeInterface
      *
      * @ORM\Column(type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="update")
      */
+    #[Gedmo\Timestampable(on: 'update')]
     private $modificationDate;
 
     /**
@@ -112,7 +110,7 @@ class Video implements UuidEntityInterface, VideoInterface
          */
         #[Assert\NotNull]
         #[Assert\Length(max: 65535, normalizer: 'trim')]
-        private $description = ''
+        private $description = '',
     ) {
     }
 

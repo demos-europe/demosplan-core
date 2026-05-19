@@ -58,17 +58,15 @@ class CustomFieldConfiguration extends CoreEntity
     protected CustomFieldInterface $configuration;
 
     /**
-     * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected DateTime $createDate;
 
     /**
-     * @Gedmo\Timestampable(on="update")
-     *
      * @ORM\Column(type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected DateTime $modifyDate;
 
     public function getConfiguration(): CustomFieldInterface

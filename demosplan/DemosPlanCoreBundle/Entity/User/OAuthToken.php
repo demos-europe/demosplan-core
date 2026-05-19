@@ -144,16 +144,14 @@ class OAuthToken implements EntityInterface
 
     /**
      * @ORM\Column(name="created_at", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[Gedmo\Timestampable(on: 'create')]
     private ?DateTime $createdAt = null;
 
     /**
      * @ORM\Column(name="updated_at", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="update")
      */
+    #[Gedmo\Timestampable(on: 'update')]
     private ?DateTime $updatedAt = null;
 
     // ===== GETTERS & SETTERS =====

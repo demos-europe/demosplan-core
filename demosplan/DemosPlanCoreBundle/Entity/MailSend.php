@@ -108,19 +108,17 @@ class MailSend implements IntegerIdEntityInterface, MailSendInterface
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(name="_ms_created_date", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(name="_ms_send_date", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $sendDate;
 
     /**
@@ -161,10 +159,9 @@ class MailSend implements IntegerIdEntityInterface, MailSendInterface
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="update")
-     *
      * @ORM\Column(name="_ms_last_status_date", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $lastStatusDate;
 
     /**

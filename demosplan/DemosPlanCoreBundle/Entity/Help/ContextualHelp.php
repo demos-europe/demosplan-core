@@ -54,19 +54,17 @@ class ContextualHelp implements ContextualHelpInterface
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(name="_pcsh_created", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createDate;
 
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="update")     *
-     *
      * @ORM\Column(name="_pcsh_modified", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifyDate;
 
     /**

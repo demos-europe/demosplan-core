@@ -780,22 +780,19 @@
         "version": "v5.3.4"
     },
     "symfony/framework-bundle": {
-        "version": "5.4",
+        "version": "6.4",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
-            "version": "5.4",
-            "ref": "3cd216a4d007b78d8554d44a5b1c0a446dab24fb"
+            "version": "6.4",
+            "ref": "24e94e53cd17933ccaa90d9e3a0136c81a2da8da"
         },
         "files": [
             "config/packages/cache.yaml",
             "config/packages/framework.yaml",
             "config/preload.php",
             "config/routes/framework.yaml",
-            "config/services.yaml",
-            "public/index.php",
-            "demosplan/Controller/.gitignore",
-            "demosplan/Kernel.php"
+            "public/index.php"
         ]
     },
     "symfony/http-client": {

@@ -123,28 +123,25 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="create")
-     *
      * @ORM\Column(name="_f_created", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $created;
 
     /**
      * @var DateTime
      *
-     * @Gedmo\Timestampable(on="update")
-     *
      * @ORM\Column(name="_f_modified", type="datetime", nullable=false)
      */
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modified;
 
     /**
      * @var DateTime
      *
      * @ORM\Column(name="_f_valid_until", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $validUntil;
 
     /**
@@ -172,9 +169,8 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
      * @var DateTime
      *
      * @ORM\Column(name="_f_last_v_scan", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $lastVScan;
 
     /**

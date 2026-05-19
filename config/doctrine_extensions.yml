@@ -15,10 +15,12 @@ services:
 #            - { name: kernel.event_listener, event: console.command, method: onConsoleCommand, priority: -10 }
 
 
+    Gedmo\Mapping\Driver\AttributeReader: ~
+
     # Doctrine Extension listeners to handle behaviors
-     gedmo.listener.timestampable:
+    gedmo.listener.timestampable:
         class: Gedmo\Timestampable\TimestampableListener
         tags:
             - { name: doctrine.event_subscriber }
         calls:
-            - [ setAnnotationReader, [ "@annotation_reader" ] ]
+            - [ setAnnotationReader, [ "@Gedmo\\Mapping\\Driver\\AttributeReader" ] ]

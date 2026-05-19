@@ -54,9 +54,8 @@ class Flood extends CoreEntity implements UuidEntityInterface, FloodInterface
      * @var DateTime
      *
      * @ORM\Column(name="created", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[Gedmo\Timestampable(on: 'create')]
     protected $created;
 
     /**
