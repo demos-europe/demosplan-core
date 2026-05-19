@@ -682,7 +682,9 @@ export default {
      * Fetch custom fields that are available either in the procedure or in the procedure template.
      */
     loadSegmentCustomFields () {
-      return useCustomFields().fetchCustomFields(this.procedureId, {
+      const { fetchCustomFields } = useCustomFields()
+
+      return fetchCustomFields(this.procedureId, {
         sourceEntity: 'PROCEDURE',
         targetEntity: 'SEGMENT',
       })
