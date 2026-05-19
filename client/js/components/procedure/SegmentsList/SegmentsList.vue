@@ -848,7 +848,7 @@ export default {
       return definition?.attributes.options.find(option => option.id === customFieldOptionId)?.label || ''
     },
 
-    getCustomFields () {
+    loadSegmentCustomFields () {
       const { fetchCustomFields } = useCustomFields()
       fetchCustomFields(this.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'SEGMENT' })
         .then(definitions => {
@@ -1175,7 +1175,7 @@ export default {
     }
     this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {
-      this.getCustomFields()
+      this.loadSegmentCustomFields()
     }
     this.applyQuery(this.pagination.currentPage)
 
