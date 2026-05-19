@@ -43,8 +43,8 @@ use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
-use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Throwable;
 
 use function in_array;
@@ -300,7 +300,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     #[DplanPermissions('area_demosplan')]
     #[Route(name: 'DemosPlan_user_login_alternative', path: '/dplan/login', options: ['expose' => true])]
     public function alternativeLogin(
-        CacheInterface $cache,
+        TagAwareCacheInterface $cache,
         CurrentUserInterface $currentUser,
         CustomerService $customerService,
         CustomerOAuthConfigRepository $customerOAuthConfigRepository,
@@ -308,7 +308,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         ParameterBagInterface $parameterBag,
         Request $request,
     ) {
-        if (!($currentUser->getUser() instanceof AnonymousUser)) {
+        if (!$currentUser->getUser() instanceof AnonymousUser) {
             return $this->redirectToRoute('core_home_loggedin');
         }
 
@@ -330,6 +330,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             $users = $cache->get('login_testuser_list'.$customerKey,
                 function (ItemInterface $item) use ($parameterBag) {
                     $item->expiresAfter(UserRepository::LOGIN_LIST_CACHE_DURATION);
+                    $item->tag([UserRepository::LOGIN_LIST_CACHE_TAG]);
 
                     $testPassword = $parameterBag->get('alternative_login_testuser_defaultpass');
 
@@ -345,6 +346,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         if (true === $parameterBag->get('alternative_login_use_testuser_osi')) {
             $usersOsi = $cache->get('login_testuser_list_osi'.$customerKey, function (ItemInterface $item) {
                 $item->expiresAfter(UserRepository::LOGIN_LIST_CACHE_DURATION);
+                $item->tag([UserRepository::LOGIN_LIST_CACHE_TAG]);
 
                 return $this->userService->getTestUsersOsi($this->globalConfig->getProjectFolder());
             });
