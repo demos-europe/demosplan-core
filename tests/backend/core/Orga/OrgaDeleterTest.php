@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Tests\Base\FunctionalTestCase;
-use Zenstruck\Foundry\Proxy;
+use Zenstruck\Foundry\Persistence\Proxy;
 
 class OrgaDeleterTest extends FunctionalTestCase
 {
