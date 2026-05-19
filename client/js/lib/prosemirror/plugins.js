@@ -16,7 +16,6 @@ import {
   isSuperset,
   range,
   rangesEqual,
-  serializeRange,
 } from './utilities'
 import { genEditingDecorations, removeMarkByName, replaceMarkInRange, toggleRangeEdit } from './commands'
 import { Plugin, PluginKey } from 'prosemirror-state'
@@ -272,26 +271,6 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
         }
 
         if (!equal) {
-          /**
-           * We extract the text from each range and add it as a property so that range text can be handled separately
-           * from the whole document. For example, this allows us to create segments from ranges later on. Prosemirror
-           * will handle correct serialization for us and it will make sure that we get valid HTML, even if a selected
-           * range cuts through nodes.
-           *
-           * However, for the serialization part, we first remove our range and rangeselection marks from the schema
-           * that we use for parsing because we don't want those to appear in the text that we extract.
-           * Under schema.spec.marks we will find an OrderedMap of marks in the current schema (https://github.com/marijnh/orderedmap#readme),
-           * the OrderedMap lets us remove entries by calling its subtract method with the keys that we'd like to remove.
-           */
-          const rangeMarksRemoved = schema.spec.marks.subtract({ rangeselection: null, segmentMark: null })
-          const reducedSchema = new Schema({
-            nodes: schema.spec.nodes,
-            marks: rangeMarksRemoved,
-          })
-          Object.entries(ranges).forEach(([id, range]) => {
-            ranges[id].text = serializeRange(range, newState, reducedSchema)
-          })
-
           /**
            * In case prosemirror updates are triggered inside the callback we want to avoid triggering the callback again.
            * This does not allow the calling code to react to changes made by their own callback but it removes

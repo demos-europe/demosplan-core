@@ -221,7 +221,6 @@ const mergeRangesAndSegments = (segmentMarks, segments) => {
     }
 
     mergedSegment.status = mark.isConfirmed ? 'confirmed' : false
-    mergedSegment.text = mark.text
     mergedSegments.push(mergedSegment)
   })
 
@@ -719,7 +718,6 @@ export default {
         tags: [],
         hasProsemirrorIndex: true,
         status: 'confirmed',
-        text: segmentToCreate.text,
       }
       this.setProperty({ prop: 'editingSegment', val: segment })
       this.setProperty({ prop: 'editModeActive', val: true })
@@ -829,16 +827,8 @@ export default {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
           try {
-            // Set data with html not only charStart and charEnd
             const ranges = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
-            const segmentsWithText = this.segments
-              .filter(segment => !!ranges[segment.id])
-              .map(segment => {
-                return {
-                  ...segment,
-                  text: ranges[segment.id].text,
-                }
-              })
+            const segmentsWithText = this.segments.filter(segment => !!ranges[segment.id])
             this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
             const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
             this.setProperty({ prop: 'statementText', val: currentStatementText })

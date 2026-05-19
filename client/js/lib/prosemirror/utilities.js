@@ -7,7 +7,6 @@
  * All rights reserved
  */
 
-import { DOMSerializer } from 'prosemirror-model'
 import { setRange } from './commands'
 import { TextSelection } from 'prosemirror-state'
 import tippy from 'tippy.js'
@@ -105,34 +104,6 @@ const rangesEqual = (ranges, cmpRanges) => {
   }
 
   return true
-}
-
-/**
- * Used to extract HTML content of a prosemirror fragment.
- *
- * @param {prosemirror-fragment} fragment
- * @param {prosemirror-schema} schema
- * @returns {String}
- *
- */
-const serializeFragment = (fragment, schema) => {
-  const container = document.createElement('div')
-  return DOMSerializer.fromSchema(schema).serializeFragment(fragment, { document: window.document }, container)
-}
-
-/**
- * Extracts the HTML content of a from - to range ({ from: <int>, to: <int> }) from the given prosemirror state.
- *
- * @param {Object} range
- * @param {prosemirror-state} state
- * @param {prosemirror-schema} schema
- * @returns {String}
- *
- */
-const serializeRange = (range, state, schema) => {
-  const { doc } = state
-  const { content } = doc.slice(range.from, range.to)
-  return serializeFragment(content, schema).innerHTML
 }
 
 /**
@@ -299,7 +270,6 @@ export {
   getMinMax,
   rangesEqual,
   splitsExistingRange,
-  serializeRange,
   range,
   isSuperset,
   createCreatorMenu,
