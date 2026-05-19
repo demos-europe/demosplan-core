@@ -30,11 +30,11 @@ use Tests\Base\UnitTestCase;
  */
 class AccountDeletionStepsTest extends UnitTestCase
 {
-    /** Past the deletion threshold (90 days) but close enough that only the
-     *  first deletion step is expected. */
+    /** Past the deletion threshold (90 days). */
     private const DAYS_PAST_DELETION_THRESHOLD = '-91 days';
 
-    /** Far enough in the past that all three steps fire in a single cascade. */
+    /** Far enough in the past for any inactivity threshold; used by tests that
+     *  only care whether protected/system users are excluded. */
     private const DAYS_LONG_INACTIVE = '-365 days';
 
     protected $sut;
@@ -55,21 +55,21 @@ class AccountDeletionStepsTest extends UnitTestCase
         );
     }
 
-    public function testActiveUserReturnsEmpty(): void
+    public function testActiveUserReturnsNull(): void
     {
         $user = $this->createMock(UserInterface::class);
         $user->method('getLastLogin')->willReturn(new DateTimeImmutable('-10 days'));
 
-        $this->assertSame([], $this->sut->evaluateInactivitySteps($user, null));
+        $this->assertNull($this->sut->evaluateInactivityStep($user, null));
     }
 
-    public function testNullLastLoginRecentlyCreatedReturnsEmpty(): void
+    public function testNullLastLoginRecentlyCreatedReturnsNull(): void
     {
         $user = $this->createMock(UserInterface::class);
         $user->method('getLastLogin')->willReturn(null);
         $user->method('getCreatedDate')->willReturn(new DateTimeImmutable('-10 days'));
 
-        $this->assertSame([], $this->sut->evaluateInactivitySteps($user, null));
+        $this->assertNull($this->sut->evaluateInactivityStep($user, null));
     }
 
     public function testNullLastLoginPastDeletionWindowReturnsDeleteWithoutWarnings(): void
@@ -79,8 +79,8 @@ class AccountDeletionStepsTest extends UnitTestCase
         $user->method('getCreatedDate')->willReturn(new DateTimeImmutable(self::DAYS_PAST_DELETION_THRESHOLD));
 
         $this->assertSame(
-            [AccountDeletionStep::DeleteWithoutWarnings],
-            $this->sut->evaluateInactivitySteps($user, null)
+            AccountDeletionStep::DeleteWithoutWarnings,
+            $this->sut->evaluateInactivityStep($user, null)
         );
     }
 
@@ -90,8 +90,8 @@ class AccountDeletionStepsTest extends UnitTestCase
         $user->method('getLastLogin')->willReturn(new DateTimeImmutable('-31 days'));
 
         $this->assertSame(
-            [AccountDeletionStep::SendFirstWarning],
-            $this->sut->evaluateInactivitySteps($user, null)
+            AccountDeletionStep::SendFirstWarning,
+            $this->sut->evaluateInactivityStep($user, null)
         );
     }
 
@@ -104,20 +104,38 @@ class AccountDeletionStepsTest extends UnitTestCase
         $tracking->setFirstWarningMail($this->createMock(MailSend::class));
 
         $this->assertSame(
-            [AccountDeletionStep::SendSecondWarning],
-            $this->sut->evaluateInactivitySteps($user, $tracking)
+            AccountDeletionStep::SendSecondWarning,
+            $this->sut->evaluateInactivityStep($user, $tracking)
         );
     }
 
-    public function testCompressionAtSecondWindowWithoutTrackingReturnsBothWarnings(): void
+    public function testJumpsStraightToSecondWarningWhenPastSecondWindowWithoutTracking(): void
     {
+        // Rollout-era user inactive past W2 with no prior tracking row: emits
+        // SendSecondWarning only (W1 is skipped — the user already missed that
+        // window, sending W1 today alongside W2 would be confusing).
         $user = $this->createMock(UserInterface::class);
         $user->method('getLastLogin')->willReturn(new DateTimeImmutable('-61 days'));
 
         $this->assertSame(
-            [AccountDeletionStep::SendFirstWarning, AccountDeletionStep::SendSecondWarning],
-            $this->sut->evaluateInactivitySteps($user, null)
+            AccountDeletionStep::SendSecondWarning,
+            $this->sut->evaluateInactivityStep($user, null)
         );
+    }
+
+    public function testDoesNotRegressToFirstWarningAfterSecondWarningWasSentDirectly(): void
+    {
+        // Reproduces the day-66 scenario: on day 65 we jumped straight to W2
+        // (no prior tracking), setting secondWarningMail. On day 66 we must NOT
+        // fall back to W1 just because firstWarningMail is still null —
+        // the user has already passed that stage.
+        $user = $this->createMock(UserInterface::class);
+        $user->method('getLastLogin')->willReturn(new DateTimeImmutable('-66 days'));
+
+        $tracking = new AccountDeletionTracking($this->createMock(User::class));
+        $tracking->setSecondWarningMail($this->createMock(MailSend::class));
+
+        $this->assertNull($this->sut->evaluateInactivityStep($user, $tracking));
     }
 
     public function testDeleteFiresWhenBothMailsAttached(): void
@@ -130,45 +148,44 @@ class AccountDeletionStepsTest extends UnitTestCase
         $tracking->setSecondWarningMail($this->createMock(MailSend::class));
 
         $this->assertSame(
-            [AccountDeletionStep::Delete],
-            $this->sut->evaluateInactivitySteps($user, $tracking)
+            AccountDeletionStep::Delete,
+            $this->sut->evaluateInactivityStep($user, $tracking)
         );
     }
 
-    public function testFullCascadeCompressionWithoutTrackingReturnsAllThreeSteps(): void
+    public function testJumpsStraightToDeleteWhenPastDeletionWindowWithoutTracking(): void
     {
+        // Rollout-era user already past D with no prior tracking: emits
+        // Delete only (no W1, no W2 — the user can't act on a warning that
+        // says "you'll be deleted on the same day you receive this mail").
         $user = $this->createMock(UserInterface::class);
         $user->method('getLastLogin')->willReturn(new DateTimeImmutable(self::DAYS_PAST_DELETION_THRESHOLD));
 
         $this->assertSame(
-            [
-                AccountDeletionStep::SendFirstWarning,
-                AccountDeletionStep::SendSecondWarning,
-                AccountDeletionStep::Delete,
-            ],
-            $this->sut->evaluateInactivitySteps($user, null)
+            AccountDeletionStep::Delete,
+            $this->sut->evaluateInactivityStep($user, null)
         );
     }
 
-    public function testAnonymousUserReturnsEmpty(): void
+    public function testAnonymousUserReturnsNull(): void
     {
         $user = $this->createMock(UserInterface::class);
         $user->method('getId')->willReturn(UserInterface::ANONYMOUS_USER_ID);
         $user->method('getLastLogin')->willReturn(new DateTimeImmutable(self::DAYS_LONG_INACTIVE));
 
-        $this->assertSame([], $this->sut->evaluateInactivitySteps($user, null));
+        $this->assertNull($this->sut->evaluateInactivityStep($user, null));
     }
 
-    public function testAiApiUserReturnsEmpty(): void
+    public function testAiApiUserReturnsNull(): void
     {
         $user = $this->createMock(UserInterface::class);
         $user->method('getLogin')->willReturn(AiApiUser::AI_API_USER_LOGIN);
         $user->method('getLastLogin')->willReturn(new DateTimeImmutable(self::DAYS_LONG_INACTIVE));
 
-        $this->assertSame([], $this->sut->evaluateInactivitySteps($user, null));
+        $this->assertNull($this->sut->evaluateInactivityStep($user, null));
     }
 
-    public function testAdditionalProtectedUserIdReturnsEmpty(): void
+    public function testAdditionalProtectedUserIdReturnsNull(): void
     {
         $protectedId = '11111111-1111-1111-1111-111111111111';
         $sut = new LastLoginActivityChecker(
@@ -185,10 +202,10 @@ class AccountDeletionStepsTest extends UnitTestCase
         $user->method('getId')->willReturn($protectedId);
         $user->method('getLastLogin')->willReturn(new DateTimeImmutable(self::DAYS_LONG_INACTIVE));
 
-        $this->assertSame([], $sut->evaluateInactivitySteps($user, null));
+        $this->assertNull($sut->evaluateInactivityStep($user, null));
     }
 
-    public function testFeatureDisabledReturnsEmpty(): void
+    public function testFeatureDisabledReturnsNull(): void
     {
         $sut = new LastLoginActivityChecker(
             new ParameterBag([
@@ -202,6 +219,6 @@ class AccountDeletionStepsTest extends UnitTestCase
         $user = $this->createMock(UserInterface::class);
         $user->method('getLastLogin')->willReturn(new DateTimeImmutable(self::DAYS_LONG_INACTIVE));
 
-        $this->assertSame([], $sut->evaluateInactivitySteps($user, null));
+        $this->assertNull($sut->evaluateInactivityStep($user, null));
     }
 }

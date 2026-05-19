@@ -107,25 +107,23 @@ final class AccountDeletionRunMessageHandler
     private function processCandidate(UserInterface $user): void
     {
         $tracking = $this->trackingRepository->findOneByUser($user);
-        $steps = $this->activityChecker->evaluateInactivitySteps($user, $tracking);
+        $step = $this->activityChecker->evaluateInactivityStep($user, $tracking);
 
-        if ([] === $steps) {
+        if (null === $step) {
             return;
         }
 
-        foreach ($steps as $step) {
-            $tracking = match ($step) {
-                AccountDeletionStep::SendFirstWarning       => $this->dispatchFirstWarning($user, $tracking),
-                AccountDeletionStep::SendSecondWarning      => $this->dispatchSecondWarning($user, $tracking),
-                AccountDeletionStep::Delete                 => $this->finalizeDeletion($user, $tracking),
-                AccountDeletionStep::DeleteWithoutWarnings  => $this->silentDeletion($user, $tracking),
-            };
-        }
+        match ($step) {
+            AccountDeletionStep::SendFirstWarning       => $this->dispatchFirstWarning($user, $tracking),
+            AccountDeletionStep::SendSecondWarning      => $this->dispatchSecondWarning($user, $tracking),
+            AccountDeletionStep::Delete                 => $this->finalizeDeletion($user, $tracking),
+            AccountDeletionStep::DeleteWithoutWarnings  => $this->silentDeletion($user, $tracking),
+        };
 
         $this->entityManager->flush();
     }
 
-    private function dispatchFirstWarning(UserInterface $user, ?AccountDeletionTracking $tracking): AccountDeletionTracking
+    private function dispatchFirstWarning(UserInterface $user, ?AccountDeletionTracking $tracking): void
     {
         $tracking = $this->ensureTracking($user, $tracking);
         $mail = $this->queueMail(
@@ -140,11 +138,9 @@ final class AccountDeletionRunMessageHandler
         if (null !== $mail) {
             $tracking->setFirstWarningMail($mail);
         }
-
-        return $tracking;
     }
 
-    private function dispatchSecondWarning(UserInterface $user, ?AccountDeletionTracking $tracking): AccountDeletionTracking
+    private function dispatchSecondWarning(UserInterface $user, ?AccountDeletionTracking $tracking): void
     {
         $tracking = $this->ensureTracking($user, $tracking);
         $mail = $this->queueMail(
@@ -159,11 +155,9 @@ final class AccountDeletionRunMessageHandler
         if (null !== $mail) {
             $tracking->setSecondWarningMail($mail);
         }
-
-        return $tracking;
     }
 
-    private function finalizeDeletion(UserInterface $user, ?AccountDeletionTracking $tracking): null
+    private function finalizeDeletion(UserInterface $user, ?AccountDeletionTracking $tracking): void
     {
         $this->queueMail(
             $user,
@@ -189,8 +183,6 @@ final class AccountDeletionRunMessageHandler
                 'orgaId' => $user->getOrganisationId(),
             ]
         );
-
-        return null;
     }
 
     /**
@@ -199,7 +191,7 @@ final class AccountDeletionRunMessageHandler
      * those mailboxes are by definition unmonitored and a notification would
      * generate support questions rather than provide value.
      */
-    private function silentDeletion(UserInterface $user, ?AccountDeletionTracking $tracking): null
+    private function silentDeletion(UserInterface $user, ?AccountDeletionTracking $tracking): void
     {
         if ($user instanceof User) {
             $user->setDeleted(true);
@@ -219,8 +211,6 @@ final class AccountDeletionRunMessageHandler
                 'orgaId' => $user->getOrganisationId(),
             ]
         );
-
-        return null;
     }
 
     private function ensureTracking(UserInterface $user, ?AccountDeletionTracking $tracking): AccountDeletionTracking

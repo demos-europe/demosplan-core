@@ -77,45 +77,37 @@ class LastLoginActivityChecker implements UserActivityInterface
     }
 
     /**
-     * Returns the deletion-workflow steps the cron should perform for this user on this
-     * run. Empty list means no action; multiple entries may fire in order (rollout-era
-     * catch-up where the first-warning, second-warning, and deletion thresholds are all
-     * crossed at once).
+     * Returns the single deletion-workflow step the cron should perform for this user
+     * on this run, or `null` if no action is due. "Latest applicable step wins": for a
+     * rollout-era user whose lastLogin is already past the deletion threshold, this
+     * returns `Delete` straight away (not a cascade of three emails in one run);
+     * a user crossing W2 without ever having seen W1 gets `SendSecondWarning` only.
      *
-     * Returns an empty list when the feature isn't configured
+     * Returns `null` when the feature isn't configured
      * (`account_deletion.first_warning_days` unset), so this is a safe no-op for projects
      * that haven't opted in. Progression gates on whether a MailSend FK is non-null on the
      * tracking row, NOT on its delivery status — a daily cron with an async mailer would
      * otherwise stall on mails stuck at 'queued'/'new'.
-     *
-     * @return list<AccountDeletionStep>
      */
-    public function evaluateInactivitySteps(UserInterface $user, ?AccountDeletionTracking $tracking): array
+    public function evaluateInactivityStep(UserInterface $user, ?AccountDeletionTracking $tracking): ?AccountDeletionStep
     {
         $firstWarningDays = $this->readIntParam('account_deletion.first_warning_days');
 
-        if (null === $firstWarningDays) {
-            return [];
+        if (null === $firstWarningDays || $this->isProtectedSystemUser($user)) {
+            return null;
         }
 
-        if ($this->isProtectedSystemUser($user)) {
-            return [];
-        }
+        $step = $this->evaluateAgainstThresholds($user, $tracking, $firstWarningDays);
+        $this->logIdentifiedStep($user, $step);
 
-        $steps = $this->evaluateAgainstThresholds($user, $tracking, $firstWarningDays);
-        $this->logIdentifiedSteps($user, $steps);
-
-        return $steps;
+        return $step;
     }
 
-    /**
-     * @return list<AccountDeletionStep>
-     */
     private function evaluateAgainstThresholds(
         UserInterface $user,
         ?AccountDeletionTracking $tracking,
         int $firstWarningDays,
-    ): array {
+    ): ?AccountDeletionStep {
         $stepDays = $this->readIntParam('account_deletion.warning_step_days') ?? 30;
         $secondWarningDays = $firstWarningDays + $stepDays;
         $deletionAfterDays = $firstWarningDays + 2 * $stepDays;
@@ -124,29 +116,29 @@ class LastLoginActivityChecker implements UserActivityInterface
 
         if (!$lastLogin instanceof DateTimeInterface) {
             return $this->daysSince($user->getCreatedDate()) >= $deletionAfterDays
-                ? [AccountDeletionStep::DeleteWithoutWarnings]
-                : [];
+                ? AccountDeletionStep::DeleteWithoutWarnings
+                : null;
         }
 
         $daysInactive = $this->daysSince($lastLogin);
         $firstWarningSent = null !== $tracking?->getFirstWarningMail();
         $secondWarningSent = null !== $tracking?->getSecondWarningMail();
 
-        $steps = [];
-
-        if (!$firstWarningSent && $daysInactive >= $firstWarningDays) {
-            $steps[] = AccountDeletionStep::SendFirstWarning;
+        // Plain ifs in weakest-to-strongest order — the latest assignment wins.
+        // The `!secondWarningSent` guard on the W1 branch prevents a user who jumped
+        // straight to W2 (no prior tracking) from regressing to W1 on the next cron run.
+        $step = null;
+        if ($daysInactive >= $firstWarningDays && !$firstWarningSent && !$secondWarningSent) {
+            $step = AccountDeletionStep::SendFirstWarning;
         }
-
-        if (!$secondWarningSent && $daysInactive >= $secondWarningDays) {
-            $steps[] = AccountDeletionStep::SendSecondWarning;
+        if ($daysInactive >= $secondWarningDays && !$secondWarningSent) {
+            $step = AccountDeletionStep::SendSecondWarning;
         }
-
         if ($daysInactive >= $deletionAfterDays) {
-            $steps[] = AccountDeletionStep::Delete;
+            $step = AccountDeletionStep::Delete;
         }
 
-        return $steps;
+        return $step;
     }
 
     private function isProtectedSystemUser(UserInterface $user): bool
@@ -180,24 +172,21 @@ class LastLoginActivityChecker implements UserActivityInterface
         return (int) $point->diff(new DateTimeImmutable())->days;
     }
 
-    /**
-     * @param list<AccountDeletionStep> $steps
-     */
-    private function logIdentifiedSteps(UserInterface $user, array $steps): void
+    private function logIdentifiedStep(UserInterface $user, ?AccountDeletionStep $step): void
     {
-        if ([] === $steps) {
+        if (null === $step) {
             return;
         }
 
         $this->piiLogger->info(
-            'Account deletion: identified steps for user',
+            'Account deletion: identified step for user',
             [
                 'pii' => [
                     'userId' => $user->getId(),
                     'login'  => $user->getLogin(),
                 ],
                 'orgaId' => $user->getOrganisationId(),
-                'steps'  => array_map(static fn (AccountDeletionStep $step) => $step->value, $steps),
+                'step'   => $step->value,
             ]
         );
     }

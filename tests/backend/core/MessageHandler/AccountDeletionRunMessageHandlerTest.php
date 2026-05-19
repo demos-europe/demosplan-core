@@ -118,9 +118,9 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
 
         $this->trackingRepository->method('findInactivityDeletionCandidates')->willReturn([$user]);
         $this->trackingRepository->method('findOneByUser')->with($user)->willReturn(null);
-        $this->activityChecker->method('evaluateInactivitySteps')
+        $this->activityChecker->method('evaluateInactivityStep')
             ->with($user, null)
-            ->willReturn([AccountDeletionStep::SendFirstWarning]);
+            ->willReturn(AccountDeletionStep::SendFirstWarning);
 
         $mailSend = $this->createMock(MailSend::class);
         $this->mailService->expects($this->once())
@@ -156,9 +156,9 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
 
         $this->trackingRepository->method('findInactivityDeletionCandidates')->willReturn([$user]);
         $this->trackingRepository->method('findOneByUser')->with($user)->willReturn($existingTracking);
-        $this->activityChecker->method('evaluateInactivitySteps')
+        $this->activityChecker->method('evaluateInactivityStep')
             ->with($user, $existingTracking)
-            ->willReturn([AccountDeletionStep::SendSecondWarning]);
+            ->willReturn(AccountDeletionStep::SendSecondWarning);
 
         $secondMail = $this->createMock(MailSend::class);
         $this->mailService->expects($this->once())
@@ -193,9 +193,9 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
 
         $this->trackingRepository->method('findInactivityDeletionCandidates')->willReturn([$user]);
         $this->trackingRepository->method('findOneByUser')->with($user)->willReturn($tracking);
-        $this->activityChecker->method('evaluateInactivitySteps')
+        $this->activityChecker->method('evaluateInactivityStep')
             ->with($user, $tracking)
-            ->willReturn([AccountDeletionStep::Delete]);
+            ->willReturn(AccountDeletionStep::Delete);
 
         $finalMail = $this->createMock(MailSend::class);
         $this->mailService->expects($this->once())
@@ -227,8 +227,8 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
         $this->trackingRepository->method('findInactivityDeletionCandidates')
             ->willReturn([$user1, $user2]);
         $this->trackingRepository->method('findOneByUser')->willReturn(null);
-        $this->activityChecker->method('evaluateInactivitySteps')
-            ->willReturn([AccountDeletionStep::SendFirstWarning]);
+        $this->activityChecker->method('evaluateInactivityStep')
+            ->willReturn(AccountDeletionStep::SendFirstWarning);
 
         // First call throws, second call succeeds.
         $secondMail = $this->createMock(MailSend::class);
