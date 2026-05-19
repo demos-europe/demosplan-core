@@ -148,7 +148,7 @@ class FileController extends BaseController
             $response = $this->getStreamedResponse($file);
         } catch (Exception) {
             // return default image
-            $response = new BinaryFileDownload($fileService->getNotFoundImagePath(), '');
+            $response = new BinaryFileDownload($fileService->getNotFoundImagePath(), '', deleteFileAfterSend: false);
         }
 
         $response->setPublic(); // make sure the response is public/cacheable

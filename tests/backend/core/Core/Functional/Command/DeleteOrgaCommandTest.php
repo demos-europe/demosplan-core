@@ -20,7 +20,7 @@ use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Tests\Base\FunctionalTestCase;
-use Zenstruck\Foundry\Proxy;
+use Zenstruck\Foundry\Persistence\Proxy;
 
 class DeleteOrgaCommandTest extends FunctionalTestCase
 {

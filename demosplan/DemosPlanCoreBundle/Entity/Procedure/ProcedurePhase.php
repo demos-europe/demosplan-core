@@ -175,10 +175,6 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     public function getStartDate(): DateTime
     {
-        if (!isset($this->startDate)) {
-            $this->startDate = new DateTime();
-        }
-
         return $this->startDate;
     }
 
@@ -189,10 +185,6 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     public function getEndDate(): DateTime
     {
-        if (!isset($this->endDate)) {
-            $this->endDate = new DateTime();
-        }
-
         return $this->endDate;
     }
 
