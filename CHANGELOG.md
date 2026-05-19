@@ -6,6 +6,13 @@
 
 ## UNRELEASED
 
+## v4.33.2 (2026-05-19)
+
+### Fixed
+- Per-statement DOCX export failed with an error
+- Excel export of statements failed with an error
+- Option to create tags directly when splitting a statement was missing
+
 ## v4.33.0 (2026-04-02)
 
 ### Added
