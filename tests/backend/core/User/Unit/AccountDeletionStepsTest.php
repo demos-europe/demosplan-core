@@ -153,16 +153,17 @@ class AccountDeletionStepsTest extends UnitTestCase
         );
     }
 
-    public function testJumpsStraightToDeleteWhenPastDeletionWindowWithoutTracking(): void
+    public function testRolloutUserPastDeletionWindowGetsSilentDeletion(): void
     {
-        // Rollout-era user already past D with no prior tracking: emits
-        // Delete only (no W1, no W2 — the user can't act on a warning that
-        // says "you'll be deleted on the same day you receive this mail").
+        // Rollout-era user already past D with no prior tracking — they
+        // never received a warning, so we silently soft-delete them rather
+        // than sending a confusing "your account has been deleted"
+        // notification out of nowhere.
         $user = $this->createMock(UserInterface::class);
         $user->method('getLastLogin')->willReturn(new DateTimeImmutable(self::DAYS_PAST_DELETION_THRESHOLD));
 
         $this->assertSame(
-            AccountDeletionStep::Delete,
+            AccountDeletionStep::DeleteWithoutWarnings,
             $this->sut->evaluateInactivityStep($user, null)
         );
     }

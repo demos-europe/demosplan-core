@@ -135,7 +135,14 @@ class LastLoginActivityChecker implements UserActivityInterface
             $step = AccountDeletionStep::SendSecondWarning;
         }
         if ($daysInactive >= $deletionAfterDays) {
-            $step = AccountDeletionStep::Delete;
+            // Users who reached D without ever having a warning mail attached
+            // (rollout-era catch-up, or both warning mails failed to send) are
+            // silently deleted — sending the "your account has been deleted"
+            // notification out of nowhere would be confusing. Only users who
+            // actually got at least one warning receive the courtesy notification.
+            $step = !$firstWarningSent && !$secondWarningSent
+                ? AccountDeletionStep::DeleteWithoutWarnings
+                : AccountDeletionStep::Delete;
         }
 
         return $step;
