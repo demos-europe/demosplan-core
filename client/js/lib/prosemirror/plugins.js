@@ -7,6 +7,20 @@
  * All rights reserved
  */
 
+/**
+ * "range" - Character position spans (from/to) in the document.
+ *           Examples: replaceRange(state, from, to, attrs), rangeTracker plugin
+ *           Used when working with positions, not the marks themselves.
+ *
+ * "segmentMark" - ProseMirror mark type for confirmed segments.
+ *                 Renders as: <span data-segment-id="..." data-range-confirmed="true">
+ *                 Mark type name in schema: 'segmentMark'
+ *
+ * "rangeselection" - Temporary mark shown during segment boundary adjustment.
+ *                    Renders as: <span data-range-type="selection">
+ *                    Mark type name in schema: 'rangeselection'
+ */
+
 import {
   createCreatorMenu,
   flattenNode,

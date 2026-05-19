@@ -200,16 +200,16 @@ import StatementMeta from '@DpJs/components/procedure/StatementSegmentsList/Stat
 import StatementMetaTooltip from '../StatementMetaTooltip'
 import { v4 as uuid } from 'uuid'
 /**
- * This function merges segment-marks with their corresponding segments.
- * Ranges are used to represent range shaped information in prosemirror.
- * Their attributes do not perfectly match segment attributes.
- * Thus, range attributes are mapped to their corresponding segment attributes and an Array of updated segments is returned.
+ * Merges ProseMirror segmentMark data with segment metadata from the store.
  *
- * @param {Array} ranges
- * @param {Array} segments
- * @return {undefined|Array}
+ * SegmentMarks are ProseMirror marks that track segment positions and confirmation status in the editor.
+ * This function synchronizes that state with the segment metadata (tags, place, assignee) stored in Vuex.
+ *
+ * @param {Array} segmentMarks - Array of segmentMark objects from ProseMirror with {segmentId, isConfirmed}
+ * @param {Array} segments - Array of segment metadata objects from Vuex store
+ * @return {Array} Array of merged segment objects with updated status
  */
-const mergeRangesAndSegments = (segmentMarks, segments) => {
+const mergeSegmentMarksAndSegments = (segmentMarks, segments) => {
   const mergedSegments = []
   segmentMarks.forEach(mark => {
     const segment = segments.find(seg => seg.id === mark.segmentId)
@@ -517,7 +517,7 @@ export default {
      * @returns {string}
      *  Serialized HTML including `<segment-mark data-segment-id="...">…</segment-mark>`
      */
-    extractHtmlWithRangeMarks () {
+    extractHtmlWithSegmentMarks () {
       const state = this.prosemirror.view.state
       const { schema } = state
       const serializer = DOMSerializer.fromSchema(schema)
@@ -799,16 +799,16 @@ export default {
     },
 
     /**
-     * After prosemirror was initialized we need to perform a few tasks:
-     * 1. Making prosemirror and the pluginstates available in this component by assigning it to this.prosemirror.
-     * 2. Update segments because prosemirror might have made non-conforming range positions conformant.
-     * 3. Set this.ignoreProsemirrorUpdates to true in order to listen to prosemirror changes.
+     * Post-initialization tasks after ProseMirror editor is ready:
+     * 1. Store prosemirror instance and plugin states for component access
+     * 2. Synchronize segment metadata with segmentMarks parsed from HTML
+     * 3. Enable prosemirror change listeners by setting ignoreProsemirrorUpdates to false
      */
     runPostInitTasks (prosemirrorState) {
       this.prosemirror = prosemirrorState
       const { state } = this.prosemirror.view
-      const ranges = Object.values(this.prosemirror.keyAccess.rangeTrackerKey.getState(state))
-      const updatedSegments = mergeRangesAndSegments(ranges, this.segments)
+      const segmentMarks = Object.values(this.prosemirror.keyAccess.rangeTrackerKey.getState(state))
+      const updatedSegments = mergeSegmentMarksAndSegments(segmentMarks, this.segments)
       this.locallyUpdateSegments(updatedSegments)
       this.ignoreProsemirrorUpdates = false
     },
@@ -827,8 +827,8 @@ export default {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
           try {
-            const ranges = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
-            const segmentsWithText = this.segments.filter(segment => !!ranges[segment.id])
+            const segmentMarks = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
+            const segmentsWithText = this.segments.filter(segment => !!segmentMarks[segment.id])
             this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
             const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
             this.setProperty({ prop: 'statementText', val: currentStatementText })
@@ -847,9 +847,9 @@ export default {
     },
 
     /**
-     * This function will apply all changes from the changed selection. It will generate new ranges/range boundaries.
-     * The range changes are handled by handleSegmentChanges (as a callback). After handleSegmentChanges has persisted
-     * the range changes locally, saveSegmentsDrafts will save the new json to our API.
+     * Applies changes from the current selection to create or modify a segmentMark.
+     * Updates are handled by handleSegmentChanges callback, which persists changes locally.
+     * Finally, saveSegmentsDrafts saves the updated segments and textualReference to the API.
      */
     save () {
       const validSegment = applySelectionChange(this.prosemirror.view, this.prosemirror.keyAccess.editStateTrackerKey, this.prosemirror.keyAccess.rangeTrackerKey)
@@ -897,7 +897,7 @@ export default {
     },
 
     updateTextualReference () {
-      const textualReference = this.extractHtmlWithRangeMarks()
+      const textualReference = this.extractHtmlWithSegmentMarks()
 
       /* Store the serialized HTML (with custom <segment-mark> annotations) in draftSegmentsList for future rehydration */
       this.setProperty({
@@ -907,7 +907,7 @@ export default {
     },
 
     updateSegments (updatedSegments) {
-      const newSegments = mergeRangesAndSegments(updatedSegments, this.segments)
+      const newSegments = mergeSegmentMarksAndSegments(updatedSegments, this.segments)
       this.locallyUpdateSegments(newSegments)
     },
   },
