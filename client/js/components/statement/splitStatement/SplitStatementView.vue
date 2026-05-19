@@ -647,7 +647,8 @@ export default {
      */
     handleMouseOver (event) {
       if (!this.editModeActive) {
-        let segmentId = event.target.getAttribute('data-segment-id') || event.target.closest('span[data-segment-id]')?.getAttribute('data-segment-id')
+        let segmentId = event.target.dataset.segmentId ||
+          event.target.closest('span[data-segment-id]')?.dataset.segmentId
 
         /**
          * If the target element doesn't have the attribute 'data-segment-id', it may be an html element inside the segment span,
@@ -657,7 +658,7 @@ export default {
          */
         if (!segmentId) {
           const closestParent = event.target.closest('span[data-segment-id]')
-          segmentId = closestParent ? closestParent.getAttribute('data-segment-id') : null
+          segmentId = closestParent ? closestParent.dataset.segmentId : null
         }
 
         if (segmentId) {
@@ -702,8 +703,12 @@ export default {
 
     handleSegmentConfirmation (segmentId) {
       this.ignoreProsemirrorUpdates = true
-      const { id, charStart, charEnd } = this.segmentById(segmentId)
-      setRange(this.prosemirror.view)(charStart, charEnd, { segmentId: id, isConfirmed: true })
+      const { state } = this.prosemirror.view
+      const { rangeTrackerKey } = this.prosemirror.keyAccess
+      const range = rangeTrackerKey.getState(state)[segmentId]
+      const { id } = this.segmentById(segmentId)
+
+      setRange(this.prosemirror.view)(range.from, range.to, { segmentId: id, isConfirmed: true })
       this.acceptSegmentProposal()
       this.ignoreProsemirrorUpdates = false
     },
@@ -726,7 +731,7 @@ export default {
 
       const { rangeTrackerKey, editingDecorationsKey, editStateTrackerKey } = this.prosemirror.keyAccess
       setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(segment.id, true)
-      activateRangeEdit(this.prosemirror.view, rangeTrackerKey, editStateTrackerKey, segment.id, { active: segmentToCreate.to, fixed: segmentToCreate.from })
+      activateRangeEdit(this.prosemirror.view, rangeTrackerKey, editStateTrackerKey, segment.id)
       this.ignoreProsemirrorUpdates = false
     },
 
@@ -907,7 +912,7 @@ export default {
       /* Store the serialized HTML (with custom <segment-mark> annotations) in draftSegmentsList for future rehydration */
       this.setProperty({
         prop: 'initText',
-        val: textualReference
+        val: textualReference,
       })
     },
 

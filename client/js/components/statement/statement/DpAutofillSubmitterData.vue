@@ -128,6 +128,13 @@
       />
     </div>
 
+    <!-- Hidden field to pass the selected institution's organisation ID -->
+    <input
+      type="hidden"
+      name="r_oId"
+      :value="selectedOrgaId"
+    >
+
     <!-- User fields that are specific to institutions: orga, department. These fields shall not be changeable in Bob-HH, but visible and present to submit their values when filled by autoFill function -->
     <template
       v-if="hasPermission('feature_institution_participation') && currentRole === '1' && (hasPermission('field_statement_meta_orga_name') || hasPermission('field_statement_meta_orga_department_name')) && participationGuestOnly === false"
@@ -396,6 +403,11 @@ export default {
       }
 
       return Translator.trans(label)
+    },
+
+    //  Returns the orgaId of the currently selected submitter, if available
+    selectedOrgaId () {
+      return this.submitter?.orgaId || ''
     },
 
     //  Returns true if currently filtered list is empty

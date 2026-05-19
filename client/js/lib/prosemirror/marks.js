@@ -23,11 +23,11 @@ const segmentMark = {
     tag: 'segment-mark',
     getAttrs (dom) {
       return {
-        isActive: dom.getAttribute('data-range-active'),
-        isMoving: dom.getAttribute('data-range-moving'),
-        isConfirmed: dom.getAttribute('data-range-confirmed'),
-        pmId: dom.getAttribute('data-pm-id'),
-        segmentId: dom.getAttribute('data-segment-id'),
+        isActive: dom.dataset.rangeActive,
+        isMoving: dom.dataset.rangeMoving,
+        isConfirmed: dom.dataset.rangeConfirmed,
+        pmId: dom.dataset.pmId,
+        segmentId: dom.dataset.segmentId,
       }
     },
   }],
@@ -56,7 +56,7 @@ const rangeSelectionMark = {
   parseDOM: [{
     tag: 'span[data-range-selected]',
     getAttrs (dom) {
-      return { active: dom.getAttribute('data-range-selected'), pmId: dom.getAttribute('data-pm-id'), rangeType: dom.getAttribute('data-range-type') }
+      return { active: dom.dataset.rangeSelected, pmId: dom.dataset.pmId, rangeType: dom.dataset.rangeType }
     },
   }],
   toDOM (node) {

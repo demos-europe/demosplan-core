@@ -7,6 +7,7 @@
  * All rights reserved
  */
 
+import 'd3-transition'
 import { arc, pie } from 'd3-shape'
 import { axisBottom, axisLeft } from 'd3-axis'
 import { max, sum } from 'd3-array'

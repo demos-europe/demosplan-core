@@ -601,10 +601,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $segment->setExternId($statement->getExternId().'-'.$counter);
         $segment->setPhase('participation');
         $segment->setPublicVerified(Statement::PUBLICATION_PENDING);
-        $segmentText = $this->htmlSanitizerService->escapeDisallowedTags($segmentData['Einwand']);
-        $segment->setText($segmentText ?? '');
-        $segmentReply = $this->htmlSanitizerService->escapeDisallowedTags($segmentData['Erwiderung']);
-        $segment->setRecommendation($segmentReply ?? '');
+        $segment->setText($this->htmlSanitizerService->escapeDisallowedTags($segmentData['Einwand']));
+        $segment->setRecommendation($this->htmlSanitizerService->escapeDisallowedTags($segmentData['Erwiderung']));
 
         // Use cached workflow place to avoid repeated database queries
         $procedureId = $procedure->getId();
