@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Message\CleanupFilesMessage;
 use demosplan\DemosPlanCoreBundle\Message\CreateUnsubmittedDraftEmailsMessage;
 use demosplan\DemosPlanCoreBundle\Message\DailyMaintenanceEventMessage;
 use demosplan\DemosPlanCoreBundle\Message\DeleteOrphanEmailAddressesMessage;
+use demosplan\DemosPlanCoreBundle\Message\LoginAuditCleanupMessage;
 use demosplan\DemosPlanCoreBundle\Message\PurgeSentEmailsMessage;
 use demosplan\DemosPlanCoreBundle\Message\SendAssignedTaskNotificationEmailsMessage;
 use demosplan\DemosPlanCoreBundle\Message\SendDeadlineNotificationsMessage;
@@ -64,6 +65,7 @@ class DailyMaintenanceScheduler implements ScheduleProviderInterface
             ->add(RecurringMessage::cron('30 0 * * *', new DeleteOrphanEmailAddressesMessage()))
             ->add(RecurringMessage::cron('35 0 * * *', new PurgeSentEmailsMessage()))
             ->add(RecurringMessage::cron('40 0 * * *', new CleanupFilesMessage()))
+            ->add(RecurringMessage::cron('45 0 * * *', new LoginAuditCleanupMessage()))
             ->lock($this->lockFactory->createLock('demosplan_daily_maintenance_scheduler_lock'))
         ;
     }

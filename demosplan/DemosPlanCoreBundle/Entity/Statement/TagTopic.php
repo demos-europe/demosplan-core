@@ -61,7 +61,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
      *
      * @ORM\OneToMany(targetEntity = "\demosplan\DemosPlanCoreBundle\Entity\Statement\Tag", mappedBy = "topic", cascade={"remove"})
      *
-     * @ORM\OrderBy({"title" = "ASC"})
+     * @ORM\OrderBy({"sortIndex" = "ASC"})
      */
     protected Collection $tags;
 
