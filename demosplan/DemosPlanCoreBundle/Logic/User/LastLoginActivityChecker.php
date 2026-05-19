@@ -143,17 +143,11 @@ class LastLoginActivityChecker implements UserActivityInterface
 
     private function isProtectedSystemUser(UserInterface $user): bool
     {
-        if (UserInterface::ANONYMOUS_USER_ID === $user->getId()) {
-            return true;
-        }
-
-        if (AiApiUser::AI_API_USER_LOGIN === $user->getLogin()) {
-            return true;
-        }
-
         $additionalIds = (array) $this->parameterBag->get('account_deletion.additional_protected_user_ids');
 
-        return in_array($user->getId(), $additionalIds, true);
+        return $user->isDefaultGuestUser()
+            || AiApiUser::AI_API_USER_LOGIN === $user->getLogin()
+            || in_array($user->getId(), $additionalIds, true);
     }
 
     private function readIntParam(string $name): ?int

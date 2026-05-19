@@ -170,7 +170,7 @@ class AccountDeletionStepsTest extends UnitTestCase
     public function testAnonymousUserReturnsNull(): void
     {
         $user = $this->createMock(UserInterface::class);
-        $user->method('getId')->willReturn(UserInterface::ANONYMOUS_USER_ID);
+        $user->method('isDefaultGuestUser')->willReturn(true);
         $user->method('getLastLogin')->willReturn(new DateTimeImmutable(self::DAYS_LONG_INACTIVE));
 
         $this->assertNull($this->sut->evaluateInactivityStep($user, null));
