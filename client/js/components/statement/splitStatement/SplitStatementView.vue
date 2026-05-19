@@ -735,7 +735,7 @@ export default {
 
     handleSegmentDeletions (segments) {
       const idsToDelete = segments.map(segment => segment.segmentId)
-      this.locallyDeleteSegments(IdsToDelete)
+      this.locallyDeleteSegments(idsToDelete)
     },
 
     handleSegmentHighlighting (segmentId, highlight) {
