@@ -850,10 +850,12 @@ export default {
 
     loadSegmentCustomFields () {
       const { fetchCustomFields } = useCustomFields()
-      fetchCustomFields(this.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'SEGMENT' })
+
+      return fetchCustomFields(this.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'SEGMENT' })
         .then(definitions => {
           this.customFieldDefinitions = definitions
         })
+        .catch(() => { /* Notification already shown by useCustomFieldDefinitions */ })
     },
 
     getTagsBySegment (id) {
