@@ -304,6 +304,18 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $representationCheck = false;
 
     /**
+     * Must have one of a set of predefined values which differs in projects, see respective configuration file.
+     *
+     * @var string
+     *
+     * @deprecated Will be removed once all consumers are migrated to phaseDefinition.
+     *             Kept on the entity to avoid data loss; value is synced from phaseDefinition->getName().
+     *
+     * @ORM\Column(name="_st_phase", type="string", length=50, nullable=false)
+     */
+    protected $phase;
+
+    /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
      *
      * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=false, onDelete="RESTRICT")
@@ -1660,6 +1672,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function setPhaseDefinition(ProcedurePhaseDefinitionInterface $phaseDefinition): void
     {
         $this->phaseDefinition = $phaseDefinition;
+        // @deprecated $phase will be removed once all consumers are migrated to phaseDefinition
+        $this->phase = $phaseDefinition->getName();
     }
 
     /**

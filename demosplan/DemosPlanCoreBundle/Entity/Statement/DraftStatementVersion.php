@@ -376,6 +376,16 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
     protected $publicDraftStatement = DraftStatement::INTERNAL;
 
     /**
+     * @var string
+     *
+     * @deprecated Will be removed once all consumers are migrated to phaseDefinition.
+     *             Kept on the entity to avoid data loss; value is synced from phaseDefinition->getName().
+     *
+     * @ORM\Column(name="_ds_phase", type="string", length=50, nullable=false)
+     */
+    protected $phase = '';
+
+    /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
      *
      * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=true, onDelete="RESTRICT")
@@ -1354,6 +1364,8 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
     public function setPhaseDefinition(ProcedurePhaseDefinitionInterface $phaseDefinition): void
     {
         $this->phaseDefinition = $phaseDefinition;
+        // @deprecated $phase will be removed once all consumers are migrated to phaseDefinition
+        $this->phase = $phaseDefinition->getName();
     }
 
     /**
