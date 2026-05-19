@@ -7,6 +7,7 @@
 ## UNRELEASED
 
 ### Changed
+- Segment transformer extracts segment IDs and text from `<segment-mark>` elements in textualReference instead of charStart/charEnd positions
 - Column widths in the segment list now persist across browser sessions
 - "column reset" in the segment list now also resets column widths to defaults
 

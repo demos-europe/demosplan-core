@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\DraftsInfoHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\SegmentMarkParser;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
@@ -51,6 +52,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         private readonly MessageBagInterface $messageBag,
         private readonly PlaceService $placeService,
         private readonly SegmentHandler $segmentHandler,
+        private readonly SegmentMarkParser $segmentMarkParser,
         private readonly StatementHandler $statementHandler,
         private readonly StatementService $statementService,
         private readonly TagService $tagService,
@@ -96,36 +98,43 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
     {
         $segments = [];
         $procedure = $statement->getProcedure();
-        $draftsList = $this->draftsInfoHandler->extractDraftsList($draftsInfoArray);
-        // The segments are received potentially unsorted. Hence sort them by their position
-        // in the text so their $externId is set in the correct order afterwards.
-        usort($draftsList, static fn (array $draft1, array $draft2) => $draft1['charEnd'] < $draft2['charEnd'] ? -1 : 1);
+
+        // Parse segment text from <segment-mark> elements in textualReference
+        $textualReference = $draftsInfoArray['data']['attributes']['textualReference'];
+        $parsedMarks = $this->segmentMarkParser->parse($textualReference);
+
+        // Index segment metadata (tags, assignee, place) by ID for lookup
+        $metadataById = [];
+        foreach ($draftsInfoArray['data']['attributes']['segments'] as $segmentMetaData) {
+            $metadataById[$segmentMetaData['id']] = $segmentMetaData;
+        }
 
         // Temporarily change ID generator to AssignedGenerator so Doctrine handles manually-assigned IDs properly
-        $segmentMetadata = $this->entityManager->getClassMetadata(Segment::class);
-        $originalIdGenerator = $segmentMetadata->idGenerator;
-        $segmentMetadata->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
+        $classMetadata = $this->entityManager->getClassMetadata(Segment::class);
+        $originalIdGenerator = $classMetadata->idGenerator;
+        $classMetadata->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
 
         $counter = 1;
         $internId = $this->segmentHandler->getNextSegmentOrderNumber($procedure->getId());
-        foreach ($draftsList as $draft) {
+        foreach ($parsedMarks as $segmentMark) {
+            $metadata = $metadataById[$segmentMark['segmentId']] ?? [];
+
             $segment = new Segment();
-            $segment->setId($draft['id']);
+            $segment->setId($segmentMark['segmentId']);
             $segment->setParentStatementOfSegment($statement);
-            $segment->setText($draft['text']);
-            $externId = $statement->getExternId().'-'.$counter;
-            $segment->setExternId($externId);
+            $segment->setText($segmentMark['text']);
+            $segment->setExternId($statement->getExternId().'-'.$counter);
             $segment->setOrderInProcedure($internId);
             $segment->setPhase('analysis');
-            $segment->setProcedure($statement->getProcedure());
+            $segment->setProcedure($procedure);
 
             /** @var Segment $segment */
             $segment = $this->statementService->setPublicVerified(
                 $segment,
                 Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED
             );
-            $segment = $this->setAssigneeIfGiven($segment, $draft);
-            $segment = $this->setPlace($segment, $draft);
+            $segment = $this->setAssigneeIfGiven($segment, $metadata);
+            $segment = $this->setPlace($segment, $metadata);
 
             $this->entityManager->persist($segment);
 
@@ -135,43 +144,41 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         }
 
         // Restore the original ID generator (done with manually-assigned segment IDs)
-        $segmentMetadata->setIdGenerator($originalIdGenerator);
+        $classMetadata->setIdGenerator($originalIdGenerator);
 
-        // Set tags (junction table entries will be flushed by controller)
-        array_map(
-            function (Segment $segment, array $draft) use ($procedure): void {
-                $tags = $this->getTags($draft['tags'], $procedure);
-                $segment->setTags($tags);
-            },
-            $segments,
-            $draftsList
-        );
+        // Set tags after persist (junction table entries will be flushed by controller)
+        foreach ($segments as $index => $segment) {
+            $segmentMark = $parsedMarks[$index];
+            $metadata = $metadataById[$segmentMark['segmentId']] ?? [];
+            $tags = $this->getTags($metadata['tags'] ?? [], $procedure);
+            $segment->setTags($tags);
+        }
 
         return $segments;
     }
 
     /**
-     * @param array<string, string> $draft
+     * @param array<string, string> $metadata
      *
      * @throws NoResultException
      */
-    private function setAssigneeIfGiven(Segment $segment, array $draft): Segment
+    private function setAssigneeIfGiven(Segment $segment, array $metadata): Segment
     {
-        if (null !== data_get($draft, 'assigneeId')) {
-            $segment->setAssignee($this->userService->findWithCertainty($draft['assigneeId']));
+        if (null !== data_get($metadata, 'assigneeId')) {
+            $segment->setAssignee($this->userService->findWithCertainty($metadata['assigneeId']));
         }
 
         return $segment;
     }
 
     /**
-     * @param array<string, string> $draft
+     * @param array<string, string> $metadata
      *
      * @throws NoResultException
      */
-    private function setPlace(Segment $segment, array $draft): Segment
+    private function setPlace(Segment $segment, array $metadata): Segment
     {
-        $placeId = $draft['place']['id'] ?? null;
+        $placeId = $metadata['place']['id'] ?? null;
         $place = null !== $placeId && '' !== $placeId
             ? $this->placeService->findWithCertainty($placeId)
             : $this->placeService->findFirstOrderedBySortIndex($segment->getProcedure()->getId());
