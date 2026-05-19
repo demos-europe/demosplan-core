@@ -678,9 +678,6 @@ export default {
         })
     },
 
-    /**
-     * Fetch custom fields that are available either in the procedure or in the procedure template.
-     */
     loadSegmentCustomFields () {
       const { fetchCustomFields } = useCustomFields()
 
