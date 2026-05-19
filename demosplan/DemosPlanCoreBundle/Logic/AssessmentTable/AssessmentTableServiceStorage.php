@@ -245,7 +245,7 @@ class AssessmentTableServiceStorage
             $statementArray['paragraphId'] = '';
         }
 
-        if (array_key_exists('element_new', $rParams['request']) && 0 < strlen((string) $rParams['request']['element_new'])) {
+        if (array_key_exists('element_new', $rParams['request']) && '' !== (string) $rParams['request']['element_new']) {
             $statementArray['elementId'] = $rParams['request']['element_new'];
 
             $statementArray = $this->updateFieldInStatementArray(
@@ -663,7 +663,7 @@ class AssessmentTableServiceStorage
             $statementHandler = $this->statementHandler;
             foreach ($items as $item) {
                 $statement = $statementHandler->getStatement($item);
-                if (!($statement instanceof Statement)) {
+                if (!$statement instanceof Statement) {
                     // statement with ID of $item not found
                     ++$notfound;
                     continue;

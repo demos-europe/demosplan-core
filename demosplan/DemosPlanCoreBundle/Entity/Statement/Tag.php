@@ -62,7 +62,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      * @ORM\JoinColumn(name="_tt_id", referencedColumnName="_tt_id", nullable = false)
      */
     #[Assert\NotNull(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, 'segments_import'])]
-    #[Assert\Type(groups: ['segments_import'], type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic')]
+    #[Assert\Type(type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic', groups: ['segments_import'])]
     protected $topic;
 
     /**
@@ -70,7 +70,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      *
      * @ORM\Column(name="_t_title", type="string", length=255, nullable=false)
      */
-    #[Assert\NotBlank(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, 'segments_import'], message: 'Tag title may not be empty.')]
+    #[Assert\NotBlank(message: 'Tag title may not be empty.', groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, 'segments_import'])]
     protected $title = '';
 
     /**

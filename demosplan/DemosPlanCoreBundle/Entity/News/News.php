@@ -61,7 +61,7 @@ class News extends CoreEntity implements UuidEntityInterface, NewsInterface
      *
      * @ORM\Column(name="_n_title", type="string", length=255, nullable=false)
      */
-    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.heading')]
+    #[Assert\NotBlank(message: 'error.mandatoryfield.heading', allowNull: false, normalizer: 'trim', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
     protected $title = '';
 
     /**
@@ -69,7 +69,7 @@ class News extends CoreEntity implements UuidEntityInterface, NewsInterface
      *
      * @ORM\Column(name="_n_description", type="text", length=65535, nullable=false)
      */
-    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.teaser')]
+    #[Assert\NotBlank(message: 'error.mandatoryfield.teaser', allowNull: false, normalizer: 'trim', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
     #[Assert\Type('string', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
     #[Assert\Length(max: NewsHandler::NEWS_DESCRIPTION_MAX_LENGTH, maxMessage: 'error.news.description.toolong', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
     protected $description = '';
@@ -116,7 +116,7 @@ class News extends CoreEntity implements UuidEntityInterface, NewsInterface
      *
      * @ORM\Column(name="_n_enabled", type="boolean", nullable=false)
      */
-    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.status')]
+    #[Assert\NotBlank(message: 'error.mandatoryfield.status', allowNull: false, normalizer: 'trim', groups: [News::NEW_PROCEDURE_NEWS_VALIDATION_GROUP])]
     protected $enabled = false;
 
     /**

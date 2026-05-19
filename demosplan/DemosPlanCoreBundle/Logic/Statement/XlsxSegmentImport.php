@@ -128,7 +128,7 @@ class XlsxSegmentImport
         $fileInfo = new SplFileInfo($file->getAbsolutePath(), '', $file->getHash());
 
         $validationResult = $this->runValidationPass($fileInfo, $startTime);
-        if (null !== $validationResult) {
+        if ($validationResult instanceof SegmentExcelImportResult) {
             return $validationResult;
         }
 
@@ -228,7 +228,7 @@ class XlsxSegmentImport
         }
 
         // Flush remaining statements
-        if (!empty($statementBatch)) {
+        if ([] !== $statementBatch) {
             ++$batchNumber;
             $this->processBatch($statementBatch, $batchNumber, $processedStatements, $totalStatements);
         }
@@ -307,7 +307,7 @@ class XlsxSegmentImport
     private function batchCreateReportEntries(): void
     {
         try {
-            if (empty($this->statementsForReports)) {
+            if ([] === $this->statementsForReports) {
                 $this->logger->warning('No statements collected for report generation');
 
                 return;
@@ -346,7 +346,7 @@ class XlsxSegmentImport
     private function bulkIndexSegments(): void
     {
         try {
-            if (empty($this->segmentIdsForIndexing)) {
+            if ([] === $this->segmentIdsForIndexing) {
                 $this->logger->warning('No segment IDs collected for indexing');
 
                 return;

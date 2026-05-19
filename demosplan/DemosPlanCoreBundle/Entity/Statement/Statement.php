@@ -355,8 +355,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @ORM\Column(name="_st_submit_date", type="datetime", nullable=false)
      */
-    #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitDateBlank')]
-    #[Assert\Type('DateTime', groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitDateType')]
+    #[Assert\NotBlank(message: 'statement.import.invalidSubmitDateBlank', groups: [Statement::IMPORT_VALIDATION])]
+    #[Assert\Type('DateTime', message: 'statement.import.invalidSubmitDateType', groups: [Statement::IMPORT_VALIDATION])]
     protected $submit;
 
     /**
@@ -851,7 +851,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @ORM\Column(name="_st_submit_type", type="string", nullable=false)
      */
-    #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitTypeBlank')]
+    #[Assert\NotBlank(message: 'statement.import.invalidSubmitTypeBlank', groups: [Statement::IMPORT_VALIDATION])]
     #[Assert\Choice(
         choices: StatementInterface::SUBMIT_TYPES,
         message: 'statement.invalid.submit.type',

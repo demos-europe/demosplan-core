@@ -190,7 +190,7 @@ class StatementEmailSender
         /** @var User $user */
 
         // Participation email address is found on Statement details view > Grundeinstellungen > Intern section > E-Mail Verfahrensträger
-        if (0 < strlen((string) $user->getOrga()->getParticipationEmail())) {
+        if ('' !== (string) $user->getOrga()->getParticipationEmail()) {
             $recipients[] = $user->getOrga()->getParticipationEmail();
         }
 

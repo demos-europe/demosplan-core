@@ -18,6 +18,7 @@ use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleSegmentsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistTagsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
@@ -59,6 +60,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\Import\StatementProcessingContext;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use InvalidArgumentException;
@@ -70,6 +72,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -378,19 +381,19 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             }
             $indexMap[$worksheetTitle] = $worksheet;
         }
-        if (null === $indexMap[self::PUBLIC] && null === $indexMap[self::INSTITUTION]) {
+        if (!$indexMap[self::PUBLIC] instanceof Worksheet && !$indexMap[self::INSTITUTION] instanceof Worksheet) {
             throw new MissingDataException('The Excel Statement import is missing mandatory worksheets');
         }
-        if (null !== $indexMap[self::PUBLIC]) {
+        if ($indexMap[self::PUBLIC] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::PUBLIC];
         }
-        if (null !== $indexMap[self::INSTITUTION]) {
+        if ($indexMap[self::INSTITUTION] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::INSTITUTION];
         }
-        if (null !== $indexMap[self::STATEMENT_PROCEDURE_PERSON_WORKSHEET]) {
+        if ($indexMap[self::STATEMENT_PROCEDURE_PERSON_WORKSHEET] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::STATEMENT_PROCEDURE_PERSON_WORKSHEET];
         }
-        if (null !== $indexMap[self::LEGENDE_WORKSHEET]) {
+        if ($indexMap[self::LEGENDE_WORKSHEET] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::LEGENDE_WORKSHEET];
         }
 
@@ -854,7 +857,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             }
             // Validate Excel serial date is in valid range (1 = 1900-01-01, 2958465 = 9999-12-31)
             $violations = $this->validator->validate($dateValue, [
-                new \Symfony\Component\Validator\Constraints\Range([
+                new Range([
                     'min'               => 1,
                     'max'               => 2958465,
                     'notInRangeMessage' => 'Das Excel-Datumsnummer "{{ value }}" ist ungültig. Gültige Werte: {{ min }} bis {{ max }}.',
@@ -909,7 +912,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         }
 
         $currentProcedure = $this->currentProcedureService->getProcedure();
-        if (null === $currentProcedure) {
+        if (!$currentProcedure instanceof Procedure) {
             throw new InvalidArgumentException('Current procedure is missing.');
         }
 
@@ -1131,7 +1134,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     /**
      * @throws DuplicatedTagTitleException
      * @throws PathException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     public function processSegmentTags(
         Statement $statement,
@@ -1208,7 +1211,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         foreach ($scheduledInsertions as $entity) {
             if ($entity instanceof Tag && mb_strtolower($entity->getTitle()) === $tagTitleLower) {
                 $topic = $entity->getTopic();
-                if (null !== $topic && $topic->getProcedure()?->getId() === $procedureId) {
+                if ($topic instanceof TagTopicInterface && $topic->getProcedure()?->getId() === $procedureId) {
                     return $entity;
                 }
             }

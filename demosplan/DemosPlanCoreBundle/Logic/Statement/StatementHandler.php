@@ -939,20 +939,18 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // in 3 Fällen wird r_location == point übergeben: Ortsbezug, Vorranggebietsauswahl und Ortseinzeichung
         if (array_key_exists('r_location', $data) && 'point' === $data['r_location']) {
             // Punkteinzeichnung
-            if (array_key_exists('r_location_geometry', $data) && 0 < strlen((string) $data['r_location_geometry'])) {
+            if (array_key_exists('r_location_geometry', $data) && '' !== (string) $data['r_location_geometry']) {
                 $statement['polygon'] = $data['r_location_geometry'];
             }
 
             // Vorranggebiet
-            if (array_key_exists('r_location_priority_area_key', $data) && 0 < strlen(
-                (string) $data['r_location_priority_area_key']
-            )
+            if (array_key_exists('r_location_priority_area_key', $data) && '' !== (string) $data['r_location_priority_area_key']
             ) {
                 $statement['statementAttributes']['priorityAreaKey'] = $data['r_location_priority_area_key'];
             }
 
             // Ortsbezug
-            if (array_key_exists('r_location_point', $data) && 0 < strlen((string) $data['r_location_point'])) {
+            if (array_key_exists('r_location_point', $data) && '' !== (string) $data['r_location_point']) {
                 try {
                     // wandle die Punktkoordinate in ein valides GeoJson um
                     $statement['polygon'] = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":['.$data['r_location_point'].']},"properties":null}]}';
@@ -962,7 +960,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
         }
 
-        if (array_key_exists('r_county', $data) && 0 < strlen((string) $data['r_county'])) {
+        if (array_key_exists('r_county', $data) && '' !== (string) $data['r_county']) {
             $statement['statementAttributes']['county'] = $data['r_county'];
         } elseif (array_key_exists('r_county', $data)) {
             $statement['statementAttributes']['county'] = '';
@@ -1245,7 +1243,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $formOptions = $this->getDemosplanConfig()->getFormOptions();
         /** @var array $fragment */
         foreach ($fragments as $fragment) {
-            if (0 < strlen((string) $fragment['voteAdvice'])) {
+            if ('' !== (string) $fragment['voteAdvice']) {
                 $voteAdviceLabel =
                     array_key_exists('statement_fragment_advice_values', $formOptions)
                     && array_key_exists($fragment['voteAdvice'], $formOptions['statement_fragment_advice_values'])
@@ -2088,10 +2086,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // update field consideration as planners only use this field
         $statementFragmentData['consideration'] = $statementFragmentData['considerationAdvice'];
         // if VoteAdvice is set
-        if (array_key_exists('r_departmentName', $data) && 0 < strlen((string) $data['r_departmentName'])) {
+        if (array_key_exists('r_departmentName', $data) && '' !== (string) $data['r_departmentName']) {
             $statementFragmentData['archivedDepartmentName'] = $data['r_departmentName'];
         }
-        if (array_key_exists('r_orgaName', $data) && 0 < strlen((string) $data['r_orgaName'])) {
+        if (array_key_exists('r_orgaName', $data) && '' !== (string) $data['r_orgaName']) {
             $statementFragmentData['archivedOrgaName'] = $data['r_orgaName'];
         }
 
