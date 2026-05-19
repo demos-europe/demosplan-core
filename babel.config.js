@@ -23,15 +23,6 @@ const config = {
     '@babel/proposal-object-rest-spread',
     '@babel/syntax-dynamic-import',
   ],
-  overrides: [{
-    plugins: [
-      '@babel/transform-runtime',
-      '@babel/proposal-object-rest-spread',
-      '@babel/syntax-dynamic-import',
-      '@babel/transform-object-assign',
-      '@babel/transform-modules-commonjs',
-    ],
-  }],
 }
 
 module.exports = config

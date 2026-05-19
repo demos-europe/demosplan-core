@@ -16,7 +16,7 @@
     "paths": {
       "@DpJs/*": ["./client/js/*"]
     },
-    "types": ["jest"]
+    "types": ["vitest/globals"]
   },
   "include": [
     "client/js/**/*.ts",
