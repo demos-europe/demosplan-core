@@ -18,11 +18,15 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository")
+ *
+ * @ORM\Table(name="custom_field_configuration", indexes={
+ *
+ *     @ORM\Index(name="idx_custom_field_source_target", columns={"source_entity_id", "source_entity_class", "target_entity_class"})
+ * })
  */
 class CustomFieldConfiguration extends CoreEntity
 {
     /**
-     *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
      * @ORM\Id
@@ -34,31 +38,26 @@ class CustomFieldConfiguration extends CoreEntity
     protected string $id;
 
     /**
-     *
      * @ORM\Column(name="source_entity_id", type="string", length=36, nullable=false)
      */
     protected string $sourceEntityId;
 
     /**
-     *
      * @ORM\Column(name="source_entity_class", type="string", nullable=false)
      */
     protected string $sourceEntityClass;
 
     /**
-     *
      * @ORM\Column(name="target_entity_class", type="string", nullable=false)
      */
     protected string $targetEntityClass;
 
     /**
-     *
      * @ORM\Column(type="dplan.custom_field_configuration", nullable=true)
      */
     protected CustomFieldInterface $configuration;
 
     /**
-     *
      * @Gedmo\Timestampable(on="create")
      *
      * @ORM\Column(type="datetime", nullable=false)
@@ -66,7 +65,6 @@ class CustomFieldConfiguration extends CoreEntity
     protected DateTime $createDate;
 
     /**
-     *
      * @Gedmo\Timestampable(on="update")
      *
      * @ORM\Column(type="datetime", nullable=false)
@@ -112,7 +110,7 @@ class CustomFieldConfiguration extends CoreEntity
     {
         $this->targetEntityClass = $targetEntityClass;
     }
-    
+
     public function setId($id): void
     {
         $this->id = $id;
@@ -123,7 +121,6 @@ class CustomFieldConfiguration extends CoreEntity
         $this->createDate = $createDate;
     }
 
-
     public function setModifyDate($modifyDate): void
     {
         $this->modifyDate = $modifyDate;
@@ -133,6 +130,4 @@ class CustomFieldConfiguration extends CoreEntity
     {
         return $this->id;
     }
-
-
 }

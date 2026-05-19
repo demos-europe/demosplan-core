@@ -262,11 +262,25 @@
         class="c-styled-html"
       />
     </div>
+    <custom-fields-list
+      v-if="hasPermission('feature_statements_custom_fields')"
+      :class="prefixClass('w-full mt-4')"
+      :definition-source-id="procedureId"
+      :list-title="Translator.trans('statement.data')"
+      :resource-id="id"
+      :show-empty="true"
+      mode="readonly"
+      resource-type="DraftStatement"
+      source-entity="PROCEDURE"
+      target-entity="STATEMENT"
+      expandable
+    />
   </dp-table-card>
 </template>
 
 <script>
-import { CleanHtml, DpFlyout, DpInlineNotification } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpFlyout, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import DomPurify from 'dompurify'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
@@ -275,12 +289,15 @@ export default {
   name: 'DpPublicStatement',
 
   components: {
+    CustomFieldsList,
     DpFlyout,
     DpInlineNotification,
     DpTableCard,
   },
 
   directives: { cleanhtml: CleanHtml },
+
+  mixins: [prefixClassMixin],
 
   props: {
     attachments: {
@@ -411,6 +428,7 @@ export default {
 
   emits: [
     'openMapModal',
+    'openStatementModalFromList',
   ],
 
   data () {

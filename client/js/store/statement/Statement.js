@@ -167,7 +167,6 @@ function transformStatementStructure ({ el, includes, meta }) {
   statement.isFiltered = meta.isFiltered || false
   statement.orgaDepartmentName = statement.organisationDepartmentName
   statement.orgaName = statement.organisationName
-  statement.phase = Translator.trans(statement.phase)
   statement.sourceAttachment = statement.sourceAttachment || ''
 
   if (hasOwnProp(el, 'relationships')) {
@@ -359,7 +358,7 @@ export default {
     },
 
     updatePagination (state, value) {
-      state.pagination = Object.assign(state.pagination, value)
+      state.pagination = { ...state.pagination, ...value }
     },
 
     updatePersistStatementSelection (state, value) {
@@ -490,8 +489,10 @@ export default {
         'paragraph',
         'document',
         'assignee',
+        'procedurePhase',
         'sourceAttachment',
         'sourceAttachment.file',
+        'genericAttachments',
         'genericAttachments.file',
       ]
 
@@ -528,6 +529,10 @@ export default {
         includes.push('tags')
         statementFields.push('tags')
         fields.Tag = 'title'
+      }
+
+      if (hasPermission('feature_statements_custom_fields')) {
+        statementFields.push('customFields')
       }
 
       return dpApi({
@@ -575,10 +580,10 @@ export default {
               'paragraph',
               'paragraphParentId',
               'parentId',
-              'phase',
               'polygon',
               'priority',
               'procedureId',
+              'procedurePhase',
               'publicVerified',
               'publicVerifiedTranslation',
               'recommendation',
@@ -617,6 +622,12 @@ export default {
             SourceStatementAttachment: [
               'file',
               'attachmentType',
+            ].join(),
+            GenericStatementAttachment: [
+              'file',
+            ].join(),
+            ProcedurePhaseDefinition: [
+              'name',
             ].join(),
           },
           include: includes.join(','),

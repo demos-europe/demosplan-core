@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Validator;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\UserWithMatchingDepartmentInOrgaConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Psr\Log\LoggerInterface;
@@ -31,7 +32,7 @@ class UserWithMatchingDepartmentInOrgaConstraintValidator extends ConstraintVali
     {
         $department = $user->getDepartment();
         $orga = $user->getOrga();
-        if (null !== $orga && null !== $department) {
+        if ($orga instanceof OrgaInterface && null !== $department) {
             $departmentOrga = $department->getOrga();
             if ($departmentOrga !== $orga) {
                 $this->logger->warning($constraint->message, [

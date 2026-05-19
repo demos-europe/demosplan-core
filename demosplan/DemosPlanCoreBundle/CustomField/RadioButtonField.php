@@ -27,7 +27,7 @@ class RadioButtonField extends AbstractCustomField
 
     protected string $description = '';
 
-    public function getFormat(): string
+    public function getFieldType(): string
     {
         return 'singleSelect';
     }
@@ -47,9 +47,7 @@ class RadioButtonField extends AbstractCustomField
 
     public function toJson(): array
     {
-        $options = array_map(static function ($customField) {
-            return $customField->toJson();
-        }, $this->options);
+        $options = array_map(static fn ($customField) => $customField->toJson(), $this->options);
 
         return [
             'fieldType'     => $this->fieldType,
@@ -57,16 +55,6 @@ class RadioButtonField extends AbstractCustomField
             'description'   => $this->description,
             'options'       => $options,
         ];
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
     }
 
     public function getOptions(): array
@@ -79,52 +67,6 @@ class RadioButtonField extends AbstractCustomField
         $this->options = $options;
     }
 
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $description): void
-    {
-        $this->description = $description;
-    }
-
-    public function getCustomFieldsList(): ?array
-    {
-        return [];
-    }
-
-    public function setFieldType(string $type): void
-    {
-        $this->fieldType = $type;
-    }
-
-    public function getType(): string
-    {
-        return 'singleSelect';
-    }
-
-    public function isValueValid(?string $value): bool
-    {
-        if (null === $value) {
-            return true;
-        }
-
-        return collect($this->options)->contains(function ($option) use ($value) {
-            return $option->getId() === $value;
-        });
-    }
-
-    public function setId($id): void
-    {
-        $this->id = $id;
-    }
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption
     {
         foreach ($this->options as $option) {
@@ -134,6 +76,15 @@ class RadioButtonField extends AbstractCustomField
         }
 
         return null;
+    }
+
+    public function formatValueForDisplay(mixed $value): string
+    {
+        if (!is_string($value) || '' === $value) {
+            return '';
+        }
+
+        return $this->getCustomOptionValueById($value)?->getLabel() ?? '';
     }
 
     protected function validateFieldSpecific(array $options): void

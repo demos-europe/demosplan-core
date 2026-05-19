@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
@@ -58,7 +59,7 @@ final class ClusterStatementResourceType extends AbstractStatementResourceType
     public function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 

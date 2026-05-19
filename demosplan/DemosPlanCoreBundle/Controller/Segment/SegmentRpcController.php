@@ -11,22 +11,22 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
+use demosplan\DemosPlanCoreBundle\StoredQuery\StoredQueryInterface;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class SegmentRpcController extends APIController
 {
-    /**
-     * @DplanPermissions("area_statement_segmentation")
-     */
+    #[DplanPermissions('area_statement_segmentation')]
     #[Route(path: '/rpc/1.0/statementListQuery/update/{queryHash}', name: 'dplan_rpc_segment_list_query_update', options: ['expose' => true], methods: ['PATCH'])]
-    public function updateSegmentListQueryAction(CurrentProcedureService $currentProcedureService, string $queryHash, DrupalFilterParser $filterParser, HashedQueryService $filterSetService): Response
+    public function updateSegmentListQuery(CurrentProcedureService $currentProcedureService, string $queryHash, DrupalFilterParser $filterParser, HashedQueryService $filterSetService): Response
     {
         $procedureId = $currentProcedureService->getProcedureIdWithCertainty();
         /** @var array $filterArray */
@@ -36,8 +36,8 @@ class SegmentRpcController extends APIController
         $filterArray = $filterParser->validateFilter($filterArray);
         $filterParser->parseFilter($filterArray);
         $filterSet = $filterSetService->findHashedQueryWithHash($queryHash);
-        $segmentListQuery = null === $filterSet ? null : $filterSet->getStoredQuery();
-        if (null === $segmentListQuery) {
+        $segmentListQuery = $filterSet instanceof HashedQuery ? $filterSet->getStoredQuery() : null;
+        if (!$segmentListQuery instanceof StoredQueryInterface) {
             throw BadRequestException::unknownQueryHash($queryHash);
         }
         if ($procedureId !== $segmentListQuery->getProcedureId()) {

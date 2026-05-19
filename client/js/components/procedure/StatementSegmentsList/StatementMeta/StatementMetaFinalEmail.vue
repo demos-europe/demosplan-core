@@ -49,7 +49,7 @@ All rights reserved
           text: Translator.trans('email.recipient')
         }"
         read-only
-        :value="email2InputValue"
+        :model-value="email2InputValue"
       />
       <dp-input
         v-if="ccEmail2"
@@ -60,7 +60,7 @@ All rights reserved
           text: Translator.trans('recipients.additional')
         }"
         read-only
-        :value="ccEmail2"
+        :model-value="ccEmail2"
       />
       <dp-input
         id="emailCC"
@@ -101,7 +101,6 @@ All rights reserved
           id="uploadEmailAttachments"
           ref="uploadEmailAttachments"
           allowed-file-types="all"
-          :basic-auth="dplan.settings.basicAuth"
           :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           :max-file-size="10 * 1024 * 1024 * 1024/* 2 GiB */"
           :max-number-of-files="20"

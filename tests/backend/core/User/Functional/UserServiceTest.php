@@ -223,6 +223,61 @@ class UserServiceTest extends FunctionalTestCase
         $user = $this->sut->addUser($data);
     }
 
+    public function testFindDistinctUserByEmailOrLoginFindsUserByExactLogin(): void
+    {
+        $data = [
+            'email'     => 'find-test@example.de',
+            'firstname' => 'FindTest',
+            'lastname'  => 'User',
+            'login'     => 'findTestLogin',
+            'password'  => md5('password'),
+        ];
+        $createdUser = $this->sut->addUser($data);
+
+        $foundUser = $this->sut->findDistinctUserByEmailOrLogin('findTestLogin');
+        static::assertInstanceOf(User::class, $foundUser);
+        static::assertEquals($createdUser->getId(), $foundUser->getId());
+    }
+
+    public function testFindDistinctUserByEmailOrLoginFindsUserByLoginCaseInsensitive(): void
+    {
+        $data = [
+            'email'     => 'case-login-test@example.de',
+            'firstname' => 'CaseTest',
+            'lastname'  => 'User',
+            'login'     => 'caseLoginTest',
+            'password'  => md5('password'),
+        ];
+        $createdUser = $this->sut->addUser($data);
+
+        $foundUser = $this->sut->findDistinctUserByEmailOrLogin('CASELOGINTEST');
+        static::assertInstanceOf(User::class, $foundUser);
+        static::assertEquals($createdUser->getId(), $foundUser->getId());
+    }
+
+    public function testFindDistinctUserByEmailOrLoginFindsUserByEmailCaseInsensitive(): void
+    {
+        $data = [
+            'email'     => 'Case.Email@Example.DE',
+            'firstname' => 'EmailCase',
+            'lastname'  => 'User',
+            'login'     => 'emailCaseUniqueLogin',
+            'password'  => md5('password'),
+        ];
+        $createdUser = $this->sut->addUser($data);
+
+        // Search by email with different casing (login won't match)
+        $foundUser = $this->sut->findDistinctUserByEmailOrLogin('case.email@example.de');
+        static::assertInstanceOf(User::class, $foundUser);
+        static::assertEquals($createdUser->getId(), $foundUser->getId());
+    }
+
+    public function testFindDistinctUserByEmailOrLoginReturnsFalseForNonExistentUser(): void
+    {
+        $result = $this->sut->findDistinctUserByEmailOrLogin('nonexistent-user-' . uniqid() . '@example.de');
+        static::assertFalse($result);
+    }
+
     public function testAddUserWithAddress()
     {
         $data = [

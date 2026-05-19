@@ -1544,11 +1544,8 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
             if ($this->getStatement()->isDeleted()) {
                 return false;
             }
-            if ($this->getProcedure()->isDeleted()) {
-                return false;
-            }
 
-            return true;
+            return !$this->getProcedure()->isDeleted();
         } catch (Exception) {
             return false;
         }

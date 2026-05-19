@@ -24,8 +24,9 @@ class StyleInitializer
      */
     private array $styles;
 
-    public function __construct(private readonly DocumentWriterSelector $writerSelector)
-    {
+    public function __construct(
+        private readonly DocumentWriterSelector $writerSelector,
+    ) {
     }
 
     /**
@@ -71,6 +72,7 @@ class StyleInitializer
     private function initializeSegmentStyles(int $smallColumnWidth, int $wideColumnWidth): void
     {
         $this->styles['noInfoMessageFont'] = ['size' => 12];
+
         $headerCellStyle = ['borderSize'  => 5, 'borderColor' => '000000', 'bold' => true];
         $headerCellStyle = $this->writerSelector->getCellStyleForFormat($headerCellStyle);
         $headerPargraphStyle = ['spaceBefore' => Converter::cmToTwip(0.15), 'spaceAfter' => Converter::cmToTwip(0.15)];

@@ -339,7 +339,6 @@ class ReportMessageConverter
             $message,
             $dateExtension,
             $this->translator,
-            $this->globalConfig,
             'oldDesignated',
             'newDesignated'
         );
@@ -423,7 +422,7 @@ class ReportMessageConverter
         }
 
         // Fallback for really old report entries
-        if (0 === count($returnMessage)) {
+        if ([] === $returnMessage) {
             $returnMessage[] = $this->translator->trans('text.protocol.procedure.changed.generic');
         }
 
@@ -456,9 +455,8 @@ class ReportMessageConverter
             $returnMessage[] = $this->getSubjectLine($mailSubject);
         }
 
-        // hole den Phasennamen
-        $returnMessage[] = $this->globalConfig->getPhaseNameWithPriorityInternal($entryData->getPhase());
-        if (0 !== count($invitedOrgas)) {
+        $returnMessage[] = $entryData->getPhase();
+        if ([] !== $invitedOrgas) {
             $returnMessage[] = $this->translator->trans('email.invitation.sent');
 
             foreach ($invitedOrgas as $orga) {
@@ -515,6 +513,13 @@ class ReportMessageConverter
         $translator = $this->translator;
         $message = $this->alterPhaseEntry($message);
         $createdBySystem = $message['createdBySystem'] ?? false;
+
+        if ($createdBySystem && isset($message['autoSwitchExecutedAt'])) {
+            $returnMessage[] = $translator->trans('text.protocol.phase.autoswitch.executed', [
+                'date' => $this->dateExtension->dateFilter($message['autoSwitchExecutedAt']),
+                'time' => $this->dateExtension->dateFilter($message['autoSwitchExecutedAt'], 'H:i'),
+            ]);
+        }
 
         // phase changed
         if (array_key_exists('oldPhase', $message) && array_key_exists('newPhase', $message)) {
@@ -632,7 +637,7 @@ class ReportMessageConverter
             }
         }
 
-        if (0 === count($documents)) {
+        if ([] === $documents) {
             $documents[] = $translator->trans('none');
         }
 
@@ -649,20 +654,6 @@ class ReportMessageConverter
     protected function alterPhaseEntry($message)
     {
         $translator = $this->translator;
-        // Es gibt derzeit leider keine geschicktere Stelle als hier, die Phasennamen zu ersetzen...
-        if (isset($message['newPhase'])) {
-            $message['oldPhase'] = $this->globalConfig->getPhaseNameWithPriorityInternal($message['oldPhase']);
-            $message['newPhase'] = $this->globalConfig->getPhaseNameWithPriorityInternal($message['newPhase']);
-        }
-        if (isset($message['newPublicPhase'])) {
-            $message['oldPublicPhase'] = $this->globalConfig->getPhaseNameWithPriorityExternal(
-                $message['oldPublicPhase']
-            );
-            $message['newPublicPhase'] = $this->globalConfig->getPhaseNameWithPriorityExternal(
-                $message['newPublicPhase']
-            );
-        }
-
         // Welche Dokumente waren zum Zeitpunkt der Phasenumstellung eingestellt?
         $publishedDocuments = [];
         if (isset($message['begruendung']) && true === $message['begruendung']) {
@@ -687,7 +678,7 @@ class ReportMessageConverter
             $publishedDocuments[] = $translator->trans('pdf.public.drawing');
         }
 
-        if (0 < count($publishedDocuments)) {
+        if ([] !== $publishedDocuments) {
             $message['publishedDocuments'] = $publishedDocuments;
         }
 
@@ -760,13 +751,13 @@ class ReportMessageConverter
                 if (array_key_exists('hasParagraphs', $element)) {
                     $category['existingParagraphs'][] = $this->translator->trans('file.as.paragraphs');
                 }
-                if (0 < count($category['existingParagraphs'])) {
+                if ([] !== $category['existingParagraphs']) {
                     $categories[] = $category;
                 }
             }
         }
 
-        if (0 < count($categories)) {
+        if ([] !== $categories) {
             $message['categories'] = $categories;
         }
 

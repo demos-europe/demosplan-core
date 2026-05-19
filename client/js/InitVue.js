@@ -34,8 +34,9 @@ import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import SessionTimer from '@DpJs/components/shared/SessionTimer'
+import UnsavedChangesDialog from '@DpJs/components/shared/UnsavedChangesDialog'
 
-function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
+function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}, modifyApp = () => {}) {
   bootstrap()
 
   return initStore(storeModules, apiStoreModules, presetStoreModules).then(store => {
@@ -96,6 +97,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     // Register components that are used globally
     app.component('BackToTopButton', BackToTopButton)
     app.component('DpObscure', DpObscure)
+    app.component('UnsavedChangesDialog', UnsavedChangesDialog)
     app.component('NotifyContainer', NotifyContainer)
     app.component('DpAccordion', DpAccordion)
     app.component('DpFlyout', DpFlyout)
@@ -114,6 +116,8 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
         console.log(`${components[comp]} is undefined}`, components)
       }
     })
+
+    modifyApp(app)
 
     app.mount('#app')
 

@@ -62,7 +62,7 @@ final class FrontendAssetProvider
                     $assetContents[$entry] = file_get_contents($entryFilePath);
                 }
 
-                if (0 === count($assetContents)) {
+                if ([] === $assetContents) {
                     return [];
                 }
             } catch (AddonException) {
@@ -73,7 +73,7 @@ final class FrontendAssetProvider
         }, $this->registry->getAddonInfos());
 
         // avoid exposing addon information unnecessarily
-        return array_filter($assetList, fn (array $assetInfo) => 0 !== count($assetInfo));
+        return array_filter($assetList, fn (array $assetInfo) => [] !== $assetInfo);
     }
 
     /**

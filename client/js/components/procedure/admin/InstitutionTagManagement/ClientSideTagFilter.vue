@@ -26,9 +26,9 @@ All rights reserved
           </span>
         </template>
         <!-- 'More filters' flyout -->
-        <div>
+        <div class="min-w-12 my-1">
           <button
-            class="btn--blank o-link--default ml-auto"
+            class="btn--blank o-link--default ml-auto mb-1"
             data-cy="clientSideTagFilter:toggleFilterCategories"
             @click="toggleAllCategories"
             v-text="Translator.trans('toggle_all')"
@@ -57,11 +57,13 @@ All rights reserved
       ref="filterFlyout"
       :category="{ id: category.id, label: category.label }"
       class="inline-block mt-1"
+      align="left"
       :data-cy="`ClientSideTagFilter:${category.label}`"
       :initial-query-ids="queryIds"
       :member-of="category.memberOf"
       :operator="category.comparisonOperator"
       :path="category.rootPath"
+      variant="dark"
       @filter-apply="(filtersToBeApplied) => applyFilter(filtersToBeApplied, category.id)"
       @filter-options:request="(params) => createFilterOptions({ ...params, categoryId: category.id})"
     />

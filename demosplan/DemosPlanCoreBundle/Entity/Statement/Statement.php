@@ -22,6 +22,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\PriorityAreaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
@@ -41,6 +42,7 @@ use demosplan\DemosPlanCoreBundle\Constraint\MatchingSubmitTypesConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\OriginalReferenceConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProcedureConstraint;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -55,8 +57,10 @@ use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EventListener\DoctrineStatementListener;
+use demosplan\DemosPlanCoreBundle\EventListener\RecommendationVersionEntityListener;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -300,13 +304,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $representationCheck = false;
 
     /**
-     * Must have one of a set of predefined values which differs in projects, see respective configuration file.
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
      *
-     * @var string
-     *
-     * @ORM\Column(name="_st_phase", type="string", length=50, nullable=false)
+     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=false, onDelete="RESTRICT")
      */
-    protected $phase;
+    protected ProcedurePhaseDefinitionInterface $phaseDefinition;
 
     /**
      * @var string
@@ -685,6 +687,31 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $version;
 
     /**
+     * @var Collection<int, RecommendationVersion>
+     *
+     * Recommendation versions are created automatically when {@see setRecommendation()}
+     * is called. Do not call setRecommendation() more than once per request.
+     *
+     * Do NOT add a setter for this collection. The getter applies explicit sorting
+     * (to handle in-memory additions within the same request) and prepends a virtual
+     * "current" version. A setter would bypass both and cause incorrect state.
+     *
+     * @see getRecommendationVersions()
+     * @see addRecommendationVersion() internal use only — called by RecommendationVersionService
+     *
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\RecommendationVersion", mappedBy="statement", cascade={"remove"})
+     *
+     * @ORM\OrderBy({"versionNumber" = "DESC"})
+     */
+    protected $recommendationVersions;
+
+    /**
+     * Injected via {@see RecommendationVersionEntityListener} on postLoad.
+     * Null for newly created entities (not loaded from DB).
+     */
+    private ?RecommendationVersionService $recommendationVersionService = null;
+
+    /**
      * @var StatementAttribute[]
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute", mappedBy="statement", cascade={"remove"})
@@ -849,7 +876,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *                        is not possible atm, because primary keys are named differently across entities
      *                        Files have to be get via Repository
      */
-    protected $files;
+    protected $files = [];
 
     /**
      * @var User
@@ -895,7 +922,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var bool
      *
-     * @ORM\Column(type="boolean", nullable = false, options={"default":false})
+     * @ORM\Column(name="`manual`", type="boolean", nullable = false, options={"default":false})
      */
     protected $manual = false;
 
@@ -999,7 +1026,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @ORM\Column(type="smallint", options={"default": "0"})
      */
-    private $segmentationPiRetries;
+    private $segmentationPiRetries = 0;
 
     /**
      * @var string|null
@@ -1041,6 +1068,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     private $anonymous = false;
 
+    /**
+     * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
+     */
+    private ?CustomFieldValuesList $customFields = null;
+
     public function __construct()
     {
         $this->deletedDate = DateTime::createFromFormat('d.m.Y', '2.1.1970');
@@ -1056,15 +1088,33 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         $this->priorityAreas = new ArrayCollection();
         $this->municipalities = new ArrayCollection();
         $this->fragments = new ArrayCollection();
-        $this->files = [];
         $this->cluster = new ArrayCollection();
         $this->children = new ArrayCollection();
         $this->segmentsOfStatement = new ArrayCollection();
         $this->anonymizations = new ArrayCollection();
         $this->attachments = new ArrayCollection();
         $this->similarStatementSubmitters = new ArrayCollection();
-        $this->segmentationPiRetries = 0;
         $this->statementsCreatedFromOriginal = new ArrayCollection();
+        $this->recommendationVersions = new ArrayCollection();
+    }
+
+    /**
+     * Reset collections to fresh empty ones without triggering inverse-side
+     * collection initialization. Used after `clone` for placeholder creation,
+     * where the cloned entity is not yet present in any inverse collection
+     * and the per-element setter -> remove* -> inverse-contains() chain would
+     * needlessly hydrate large mappedBy collections (counties, municipalities,
+     * priorityAreas) on each related join entity.
+     */
+    public function resetCollectionsForPlaceholder(): void
+    {
+        $this->fragments = new ArrayCollection();
+        $this->votes = new ArrayCollection();
+        $this->tags = new ArrayCollection();
+        $this->counties = new ArrayCollection();
+        $this->municipalities = new ArrayCollection();
+        $this->priorityAreas = new ArrayCollection();
+        $this->files = [];
     }
 
     public function getId(): ?string
@@ -1596,29 +1646,20 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->pId;
     }
 
-    /**
-     * Set phase.
-     *
-     * @param string $phase
-     */
-    public function setPhase($phase): Statement
+    public function getPhaseDefinition(): ProcedurePhaseDefinitionInterface
     {
-        if ('' === $phase) {
-            $message = 'Tried to set empty string as statement phase, please choose a valid value.';
-            throw new UnexpectedValueException($message);
-        }
-
-        $this->phase = $phase;
-
-        return $this;
+        return $this->phaseDefinition;
     }
 
-    /**
-     * Get phase.
-     */
-    public function getPhase(): string
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPhaseDefinitionId(): ?string
     {
-        return $this->phase;
+        return $this->phaseDefinition->getId();
+    }
+
+    public function setPhaseDefinition(ProcedurePhaseDefinitionInterface $phaseDefinition): void
+    {
+        $this->phaseDefinition = $phaseDefinition;
     }
 
     /**
@@ -2089,11 +2130,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
             if ($this->isDeleted()) {
                 return false;
             }
-            if ($this->getProcedure()->isDeleted()) {
-                return false;
-            }
 
-            return true;
+            return !$this->getProcedure()->isDeleted();
         } catch (Exception) {
             return false;
         }
@@ -2308,12 +2346,29 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
+     * @see RecommendationVersionEntityListener::postLoad()
+     */
+    public function setRecommendationVersionService(RecommendationVersionService $service): void
+    {
+        $this->recommendationVersionService = $service;
+    }
+
+    /**
      * Set recommendation.
+     *
+     * Before overwriting the value, records the old recommendation as a version
+     * via {@see RecommendationVersionService::recordVersion()} if the service is
+     * available (injected via {@see RecommendationVersionEntityListener} on postLoad).
+     *
+     * WARNING: Do not call this method more than once per request on the same entity.
+     * Each call with a changed value creates a new recommendation version entry.
      *
      * @param string $recommendation
      */
     public function setRecommendation($recommendation): Statement
     {
+        $this->recommendationVersionService?->recordVersion($this, $this->recommendation, $recommendation);
+
         $this->recommendation = $recommendation;
 
         return $this;
@@ -2873,6 +2928,62 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
+     * Returns all recommendation versions including a virtual "current" version.
+     *
+     * Stored versions represent OLD recommendation texts (the state before each update).
+     * The virtual version represents the current live recommendation on the entity and
+     * has versionNumber = max stored version + 1 (or 1 if no stored versions exist).
+     *
+     * The explicit sort is necessary because new versions may be added to the
+     * Doctrine PersistentCollection via {@see addRecommendationVersion()} within
+     * the same request (e.g. when setRecommendation() triggers version recording).
+     * Doctrine's ORM OrderBy only applies when loading from the database, so
+     * added items end up at the end regardless of their versionNumber. Sorting
+     * here ensures correct DESC order even when the in-memory collection has
+     * been modified.
+     *
+     * We return a new ArrayCollection to avoid exposing the managed
+     * PersistentCollection with the virtual version mixed in.
+     *
+     * Do NOT introduce a setRecommendationVersions() method — it would replace
+     * the Doctrine-managed PersistentCollection and bypass the sorting and
+     * virtual version logic, causing incorrect state and potential persistence issues.
+     *
+     * @return Collection<int, RecommendationVersion>
+     */
+    public function getRecommendationVersions(): Collection
+    {
+        $versions = $this->recommendationVersions->toArray();
+        usort($versions, static fn (RecommendationVersion $a, RecommendationVersion $b): int => $b->getVersionNumber() <=> $a->getVersionNumber());
+
+        if ('' !== $this->recommendation) {
+            $maxVersionNumber = [] === $versions ? 0 : $versions[0]->getVersionNumber();
+
+            $virtualVersion = new RecommendationVersion();
+            $virtualVersion->setId('virtual-'.$this->getId());
+            $virtualVersion->setStatement($this);
+            $virtualVersion->setVersionNumber($maxVersionNumber + 1);
+            $virtualVersion->setRecommendationText($this->recommendation);
+
+            return new ArrayCollection([$virtualVersion, ...$versions]);
+        }
+
+        return new ArrayCollection($versions);
+    }
+
+    /**
+     * Adds a version to the Doctrine-managed PersistentCollection.
+     *
+     * Internal use only — called by {@see RecommendationVersionService}.
+     * Do not call directly from other code; use {@see setRecommendation()}
+     * which triggers version recording automatically.
+     */
+    public function addRecommendationVersion(RecommendationVersion $version): void
+    {
+        $this->recommendationVersions->add($version);
+    }
+
+    /**
      * @param StatementVersionFieldInterface $version
      */
     public function setVersion($version)
@@ -3371,7 +3482,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     public function getAuthoredDateString()
     {
-        if (null === $this->getMeta()) {
+        if (!$this->getMeta() instanceof StatementMeta) {
             return '';
         }
 
@@ -3573,7 +3684,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     public function setOrgaEmail(string $emailAddress): self
     {
-        if (null === $this->getMeta()) {
+        if (!$this->getMeta() instanceof StatementMeta) {
             throw new InvalidArgumentException('Can\'t set email address, statement has no meta.');
         }
 
@@ -4190,5 +4301,15 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function getStatementsCreatedFromOriginal(): ArrayCollection|Collection
     {
         return $this->statementsCreatedFromOriginal;
+    }
+
+    public function getCustomFields(): ?CustomFieldValuesList
+    {
+        return $this->customFields;
+    }
+
+    public function setCustomFields(?CustomFieldValuesList $customFields): void
+    {
+        $this->customFields = $customFields;
     }
 }

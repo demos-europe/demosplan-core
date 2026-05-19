@@ -25,7 +25,7 @@ for (const alias in aliases) {
 module.exports = {
   // Verbose: true, // enable to see result of each test case
   testEnvironment: 'jsdom',
-  testRegex: '/tests/.*(test|spec)\\.js?$',
+  testRegex: '/tests/.*(test|spec)\\.(js|ts)?$',
   rootDir: config.absoluteRoot,
   roots: [
     'tests/frontend/',
@@ -35,6 +35,7 @@ module.exports = {
   ],
   moduleFileExtensions: [
     'js',
+    'ts',
     'json',
     'vue',
   ],
@@ -46,11 +47,18 @@ module.exports = {
     '<rootDir>',
   ],
   transform: {
-    '^.+\\.js$': '<rootDir>/node_modules/babel-jest',
+    '^.+\\.(js|ts|mjs)$': '<rootDir>/node_modules/babel-jest',
     '.*\\.(vue)$': '<rootDir>/node_modules/@vue/vue3-jest',
   },
   transformIgnorePatterns: [
-    '/node_modules/demosplan-ui',
+    /*
+     * Transform ESM packages (demosplan-ui and its ESM dependencies).
+     * Jest requires CommonJS, so we must transform:
+     * - @demos-europe/demosplan-ui (ESM-only since v0.7.0)
+     * - External dependencies: Packages that are externalized in demosplan-ui's
+     *   vite.config.mjs but imported as ESM by consuming code
+     */
+    String.raw`node_modules/(?!(@demos-europe/demosplan-ui|demosplan-ui|uuid|@uppy|nanoid|preact|dayjs|tippy\.js|v-tooltip|vue-multiselect|vuedraggable|dompurify|@braintree))`,
   ],
   // Send a notification when tests fail or once when they pass
   notifyMode: 'failure-success',
@@ -65,11 +73,4 @@ module.exports = {
       },
     ],
   ],
-  globals: {
-    '@vue/vue3-jest': {
-      babelConfig: {
-        plugins: ['dynamic-import-node'],
-      },
-    },
-  },
 }

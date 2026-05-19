@@ -19,6 +19,7 @@
         <input
           v-if="editable && selectable"
           :id="`selected` + organisation.id"
+          :aria-label="Translator.trans('organisation.select', { name: `${ organisation.attributes.name}` })"
           type="checkbox"
           :checked="selected"
           data-cy="organisationItemSelect"
@@ -239,7 +240,7 @@ export default {
     save () {
       if (this.dpValidate.organisationForm) {
         this.isOpen = !this.isOpen
-        const addonExists = Boolean(window.dplan.loadedAddons['addon.additional.field'])
+        const addonExists = Boolean(window.dplan.loadedAddons['interface.fields.to.transmit'])
         const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
 
         if (addonExists && addonHasValue) {

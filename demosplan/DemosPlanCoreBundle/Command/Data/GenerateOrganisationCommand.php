@@ -27,14 +27,14 @@ use Doctrine\Persistence\ObjectManager;
 use Exception;
 use Faker\Factory;
 use Faker\Generator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:data:generate:organisation', description: 'Generate a (number of) Organisation(s)')]
 class GenerateOrganisationCommand extends DataProviderCommand
 {
-    protected static $defaultName = 'dplan:data:generate:organisation';
-    protected static $defaultDescription = 'Generate a (number of) Organisation(s)';
     /**
      * @var ManagerRegistry
      */
@@ -88,7 +88,7 @@ class GenerateOrganisationCommand extends DataProviderCommand
         ManagerRegistry $registry,
         private readonly CustomerHandler $customerHandler,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
         $this->em = $registry->getManager();

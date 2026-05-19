@@ -241,12 +241,8 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface, GdprConsent
         }
 
         // submitted by Institution Sachbearbeiter
-        if ($this->getStatement()->hasBeenAuthoredByInstitutionSachbearbeiterAndSubmittedByInstitutionKoordinator()) {
-            return true;
-        }
-
         // all other cases
-        return false;
+        return (bool) $this->getStatement()->hasBeenAuthoredByInstitutionSachbearbeiterAndSubmittedByInstitutionKoordinator();
     }
 
     /**
@@ -265,11 +261,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface, GdprConsent
         }
 
         // submitted by Institution Koordinator
-        if ($this->getStatement()->hasBeenSubmittedAndAuthoredByInvitableInstitutionKoordinator()) {
-            return true;
-        }
-
         // all other cases
-        return false;
+        return (bool) $this->getStatement()->hasBeenSubmittedAndAuthoredByInvitableInstitutionKoordinator();
     }
 }

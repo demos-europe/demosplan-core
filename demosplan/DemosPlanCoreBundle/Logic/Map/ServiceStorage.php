@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\Services\MapServiceStorageInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MapValidationException;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
+use demosplan\DemosPlanCoreBundle\Logic\Map\GisLayerValidator\BaseLayerVisibilityValidator;
 use demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -47,6 +48,7 @@ class ServiceStorage implements MapServiceStorageInterface
         private readonly LoggerInterface $logger,
         private readonly MapHandler $handler,
         MapService $service,
+        private readonly BaseLayerVisibilityValidator $baseLayerVisibilityValidator,
         private readonly TranslatorInterface $translator,
     ) {
         $this->serviceGetFeatureInfo = $getFeatureInfo;
@@ -154,7 +156,7 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             $this->legacyFlashMessageCreator->setFlashMessages($mandatoryErrors);
 
             return [
@@ -190,20 +192,16 @@ class ServiceStorage implements MapServiceStorageInterface
         }
         $gislayer['isMinimap'] = false;
         // Wenn die Defaultlayer genutzt werden sollen, speichere sie als Layer ab
-        if (array_key_exists('r_xplanDefaultlayers', $data)) {
-            if ('1' == $data['r_xplanDefaultlayers']) {
-                // Wenn eigene Layer angegeben wurden, trenne sie mit Komma von den Standardlayern
-                if (0 < strlen((string) $gislayer['layers'])) {
-                    $gislayer['layers'] .= ',';
-                }
-                $gislayer['layers'] .= $this->globalConfig->getMapXplanDefaultlayers();
+        if (array_key_exists('r_xplanDefaultlayers', $data) && '1' == $data['r_xplanDefaultlayers']) {
+            // Wenn eigene Layer angegeben wurden, trenne sie mit Komma von den Standardlayern
+            if (0 < strlen((string) $gislayer['layers'])) {
+                $gislayer['layers'] .= ',';
             }
+            $gislayer['layers'] .= $this->globalConfig->getMapXplanDefaultlayers();
         }
         // Wenn es ein XPlanlayer ist, speichere die Info
-        if (array_key_exists('r_xplan', $data)) {
-            if ('on' === $data['r_xplan']) {
-                $gislayer['xplan'] = true;
-            }
+        if (array_key_exists('r_xplan', $data) && 'on' === $data['r_xplan']) {
+            $gislayer['xplan'] = true;
         }
         // Eliminiere alle Leerzeichen zwischen Komma und Layername
         if (isset($gislayer['layers'])) {
@@ -239,42 +237,27 @@ class ServiceStorage implements MapServiceStorageInterface
         }
 
         if (array_key_exists('r_print', $data)) {
-            if ('1' == $data['r_print']) {
-                $gislayer['print'] = true;
-            } else {
-                $gislayer['print'] = false;
-            }
+            $gislayer['print'] = '1' == $data['r_print'];
         }
 
-        if (array_key_exists('r_bplan', $data)) {
-            if ('1' == $data['r_bplan']) {
-                $gislayer['bplan'] = true;
-            } else {
-                $gislayer['bplan'] = false;
-            }
-        } else {
-            $gislayer['bplan'] = false;
-        }
+        $gislayer['bplan'] = array_key_exists('r_bplan', $data) ? '1' == $data['r_bplan'] : false;
 
-        if (array_key_exists('r_scope', $data)) {
-            if ('1' == $data['r_scope']) {
-                $gislayer['scope'] = true;
-            } else {
-                $gislayer['scope'] = false;
-            }
-        } else {
-            $gislayer['scope'] = false;
-        }
+        $gislayer['scope'] = array_key_exists('r_scope', $data) ? '1' == $data['r_scope'] : false;
 
         if (array_key_exists('r_contextualHelpText', $data)) {
             $gislayer['contextualHelpText'] = $data['r_contextualHelpText'];
         }
 
         // Legende
-        if (array_key_exists('r_legend', $data)) {
-            if (null != $data['r_legend']) {
-                $gislayer['legend'] = $data['r_legend'];
-            }
+        if (array_key_exists('r_legend', $data) && null != $data['r_legend']) {
+            $gislayer['legend'] = $data['r_legend'];
+        }
+
+        if (array_key_exists('r_layerProjection', $data)) {
+            $projectionLabel = $data['r_layerProjection'];
+            $gislayer['projectionLabel'] = $projectionLabel;
+
+            $gislayer['projectionValue'] = $this->getProjectionValueByServiceType($gislayer, $data, $projectionLabel);
         }
 
         if (array_key_exists('r_layerProjection', $data)) {
@@ -291,7 +274,11 @@ class ServiceStorage implements MapServiceStorageInterface
 
         $this->validateGisLayer($gislayer);
 
-        return $this->service->addGis($gislayer);
+        $addedGisLayer = $this->service->addGis($gislayer);
+
+        $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($procedure, $addedGisLayer);
+
+        return $addedGisLayer;
     }
 
     /**
@@ -411,7 +398,7 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             $this->legacyFlashMessageCreator->setFlashMessages($mandatoryErrors);
 
             return [
@@ -487,35 +474,15 @@ class ServiceStorage implements MapServiceStorageInterface
             $gislayer['print'] = false;
         }
 
-        if (array_key_exists('r_bplan', $data)) {
-            if ('1' == $data['r_bplan']) {
-                $gislayer['bplan'] = true;
-            } else {
-                $gislayer['bplan'] = false;
-            }
-        } else {
-            $gislayer['bplan'] = false;
-        }
+        $gislayer['bplan'] = array_key_exists('r_bplan', $data) ? '1' == $data['r_bplan'] : false;
 
         if (array_key_exists('r_contextualHelpText', $data)) {
             $gislayer['contextualHelpText'] = $data['r_contextualHelpText'];
         }
 
-        if (array_key_exists('r_scope', $data)) {
-            if ('1' == $data['r_scope']) {
-                $gislayer['scope'] = true;
-            } else {
-                $gislayer['scope'] = false;
-            }
-        } else {
-            $gislayer['scope'] = false;
-        }
+        $gislayer['scope'] = array_key_exists('r_scope', $data) ? '1' == $data['r_scope'] : false;
 
-        if (array_key_exists('r_xplan', $data)) {
-            $gislayer['xplan'] = true;
-        } else {
-            $gislayer['xplan'] = false;
-        }
+        $gislayer['xplan'] = array_key_exists('r_xplan', $data);
 
         // Legende
         if (array_key_exists('delete_legend', $data)) {
@@ -535,7 +502,71 @@ class ServiceStorage implements MapServiceStorageInterface
 
         $this->validateGisLayer($gislayer);
 
-        return $this->handler->updateGis($gislayer);
+        $updatedGisLayer = $this->handler->updateGis($gislayer);
+
+        $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($procedure, $updatedGisLayer);
+
+        return $updatedGisLayer;
+    }
+
+    private function isOaf(array $data): bool
+    {
+        return array_key_exists('r_serviceType', $data) && 'oaf' === strtolower(trim((string) $data['r_serviceType']));
+    }
+
+    private function validateOafUrlFormat(array $data): array
+    {
+        $url = trim((string) $data['r_url']);
+        $lowerUrl = strtolower($url);
+        $collectionsPattern = '/collections/';
+        $collectionsIndex = strpos($lowerUrl, $collectionsPattern);
+
+        // Check if URL contains /collections/ (case-insensitive)
+        if (false === $collectionsIndex) {
+            return [
+                'type'    => 'error',
+                'message' => $this->translator->trans('error.map.layer.oaf.missing.collections'),
+            ];
+        }
+
+        // Check if /collections/ is not at the end (there must be content after it)
+        $afterCollections = substr($url, $collectionsIndex + strlen($collectionsPattern));
+        $afterCollectionsTrimmed = trim($afterCollections, '/ ');
+        if ('' === $afterCollectionsTrimmed) {
+            return [
+                'type'    => 'error',
+                'message' => $this->translator->trans('error.map.layer.oaf.collections.end'),
+            ];
+        }
+
+        return [];
+    }
+
+    private function validateWmsWmtsUrlFormat(array $data): array
+    {
+        $url = trim((string) $data['r_url']);
+        $upperUrl = strtoupper($url);
+
+        // Check if URL contains SERVICE parameter (case-insensitive)
+        if (false === strpos($upperUrl, 'SERVICE=')) {
+            return [
+                'type'    => 'error',
+                'message' => $this->translator->trans('error.map.layer.missing.service'),
+            ];
+        }
+
+        return [];
+    }
+
+    private function getProjectionValueByServiceType(array $gislayer, array $data, string $projectionLabel): string
+    {
+        // Determine projection value based on service type
+        if (isset($gislayer['serviceType']) && 'oaf' === strtolower($gislayer['serviceType'])) {
+            return $data['r_layerProjectionOgcUri'];
+        }
+
+        // WMS/WMTS: convert label to proj4 string
+        return $this->getProjectionAsValue($projectionLabel);
     }
 
     private function isOaf(array $data): bool

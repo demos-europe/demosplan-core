@@ -25,8 +25,9 @@
                 maxlength="78"
                 name="r_email_subject"
                 required
-                :value="Translator.trans('customer.settings.update.mail.default.subject')"
-            />
+                :model-value="Translator.trans('customer.settings.update.mail.default.subject')"
+            >
+            </dp-input>
 
             <div class="{{ 'u-mb-0_75'|prefixClass }}">
                 <dp-label

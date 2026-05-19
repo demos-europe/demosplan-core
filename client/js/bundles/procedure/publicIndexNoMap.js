@@ -13,24 +13,30 @@
  */
 import { initialize } from '@DpJs/InitVue'
 
-/*
- *  Values for combined filters
- *  all in participation
+/**
+ * Returns the count of visible procedure list elements matching any of the given phase ids.
  */
-const allInParticipationExternal = ' participation externalphase2 externalphase3 externalphase4'
-const allInParticipationInternal = ' participation internalphase2 internalphase3 internalphase4'
-//  All in participation and preparation
-const allInParticipationPreparationExternal = ' participation externalphase2 externalphase3 externalphase4 preparation'
-const allInParticipationPreparationInternal = ' participation internalphase2 internalphase3 internalphase4 preparation'
+const countMatchingProcedures = function (phaseIds) {
+  const listElements = document.getElementsByClassName('c-procedurelist__item')
+  let count = 0
+  for (const listElement of listElements) {
+    const phaseSpan = listElement.getElementsByClassName('phase')[0]
+    const phaseExtSpan = listElement.getElementsByClassName('phaseExt')[0]
+    const phaseValue = phaseSpan ? phaseSpan.innerHTML.trim() : ''
+    const phaseExtValue = phaseExtSpan ? phaseExtSpan.innerHTML.trim() : ''
+    if (phaseIds.includes(phaseValue) || phaseIds.includes(phaseExtValue)) {
+      count++
+    }
+  }
+  return count
+}
 
-/*
- *  Results for combined filters
- *  all in participation
+/**
+ * Splits a space-separated option value into individual phase ids.
  */
-const externalParticipationPhases = document.querySelectorAll('[data-phase-key="participation"], [data-phase-key="externalphase2"], [data-phase-key="externalphase3"]')
-const internalParticipationPhases = document.querySelectorAll('[data-phase-key="participation"], [data-phase-key="internalphase2"], [data-phase-key="internalphase3"]')
-//  Results for preparation
-const preparationPhase = document.querySelectorAll('[data-phase-key="preparation"]')
+const splitOptionValue = function (value) {
+  return value.split(/\s+/).filter(v => v.trim().length > 0)
+}
 
 /**
  * Sets 'all in participation and preparation' as default selected option. When javascript is disabled, 'all' option is selected instead
@@ -48,31 +54,18 @@ const setSelectedOption = function () {
     return
   }
 
-  //  If there are results for any of the filters in the 'all in participation and preparation' option
-  if ((combinedParticipationPreparation.value === allInParticipationPreparationInternal &&
-    (internalParticipationPhases.length !== 0 || preparationPhase.length !== 0)) ||
-    (combinedParticipationPreparation.value === allInParticipationPreparationExternal &&
-      (externalParticipationPhases.length !== 0 || preparationPhase.length !== 0))) {
-    //  Select 'all in participation and preparation'
+  const participationPreparationIds = splitOptionValue(combinedParticipationPreparation.value)
+  const participationIds = splitOptionValue(combinedFilterOption.value)
+
+  if (participationPreparationIds.length > 0 && countMatchingProcedures(participationPreparationIds) > 0) {
     combinedParticipationPreparation.selected = true
-    //  Unselect 'all'
     allOption.selected = false
     filterProceduresByPhase()
-  } else if ((combinedFilterOption.value === allInParticipationInternal && internalParticipationPhases.length !== 0) ||
-    (combinedFilterOption.value === allInParticipationExternal && externalParticipationPhases.length !== 0)) {
-    /*
-     *  If there are results for any of the filters in the 'all in participation' option
-     *  Select 'all in participation'
-     */
+  } else if (participationIds.length > 0 && countMatchingProcedures(participationIds) > 0) {
     combinedFilterOption.selected = true
-    //  Unselect 'all'
     allOption.selected = false
     filterProceduresByPhase()
   } else {
-    /*
-     *  If both 'all in participation and preparation' and 'all in participation' have no results, select 'all'
-     *  select all
-     */
     allOption.selected = true
     filterProceduresByPhase()
   }
@@ -86,9 +79,7 @@ const filterProceduresByPhase = function () {
   // Get selected filter option
   const filterPhasesSelectEl = document.getElementById('filterPhases')
   if (filterPhasesSelectEl !== null) {
-    const selectedPhasesToFilter = filterPhasesSelectEl.value.split(/(\s+)/).filter(function (e) {
-      return e.trim().length > 0
-    })
+    const selectedPhasesToFilter = splitOptionValue(filterPhasesSelectEl.value)
     // Get list elements in procedurelist
     const listElements = document.getElementsByClassName('c-procedurelist__item')
 
@@ -97,36 +88,36 @@ const filterProceduresByPhase = function () {
     const allOptionValue = document.getElementById('all-option').value
 
     // Loop over them
-    for (let i = 0; i < listElements.length; i++) {
+    for (const listElement of listElements) {
       // Get phase of procedure in procedurelist
-      const phase = listElements[i].getElementsByClassName('phase')[0]
+      const phase = listElement.getElementsByClassName('phase')[0]
       let phaseExt
-      if (listElements[i].getElementsByClassName('phaseExt')[0] !== null) {
-        phaseExt = listElements[i].getElementsByClassName('phaseExt')[0]
+      if (listElement.getElementsByClassName('phaseExt')[0] !== null) {
+        phaseExt = listElement.getElementsByClassName('phaseExt')[0]
       }
 
       // Check if phase of procedure matches selected filter option
       let showElement = selectedPhasesToFilter[0] === allOptionValue
       for (let j = 0; j < selectedPhasesToFilter.length && showElement === false; j++) {
-        showElement = phase.innerHTML === selectedPhasesToFilter[j]
+        showElement = phase.innerHTML.trim() === selectedPhasesToFilter[j]
         if (typeof phaseExt !== 'undefined') {
-          showElement = phase.innerHTML === selectedPhasesToFilter[j] || phaseExt.innerHTML === selectedPhasesToFilter[j]
+          showElement = phase.innerHTML.trim() === selectedPhasesToFilter[j] || phaseExt.innerHTML.trim() === selectedPhasesToFilter[j]
         }
       }
 
       // If phase of procedure matches selected filter option, show it
       if (showElement) {
-        if (listElements[i].classList.contains('hidden')) {
-          listElements[i].classList.remove('hidden')
-          listElements[i].classList.add('block')
+        if (listElement.classList.contains('hidden')) {
+          listElement.classList.remove('hidden')
+          listElement.classList.add('block')
         }
         visibleElementsCount++
       } else if (showElement === false) {
         // If phase of procedure does not match selected filter option, hide it
-        if (listElements[i].classList.contains('block')) {
-          listElements[i].classList.remove('block')
+        if (listElement.classList.contains('block')) {
+          listElement.classList.remove('block')
         }
-        listElements[i].classList.add('hidden')
+        listElement.classList.add('hidden')
       }
     }
 
@@ -135,8 +126,9 @@ const filterProceduresByPhase = function () {
 
     //  If there are no results
     if (visibleElementsCount === 0) {
-      //  If 'all in participation' is selected, show 'all' instead
-      if (selectedPhasesToFilter.length === 3) {
+      //  If a combined filter is selected, show 'all' instead
+      const selectedOptionId = filterPhasesSelectEl.selectedOptions[0]?.id
+      if (selectedOptionId === 'combinedFilter' || selectedOptionId === 'combinedParticipationPreparation') {
         filterPhasesSelectEl.value = ['all']
       } else {
         noResults.style.display = 'block'
@@ -150,36 +142,12 @@ const filterProceduresByPhase = function () {
     //  Hide options without results
     const options = filterPhasesSelectEl.getElementsByTagName('option')
 
-    for (let i = 0; i < options.length; i++) {
+    for (const option of options) {
       //  For all options except 'all'
-      if (options[i].value !== 'all') {
-        //  Check if there are results for the option
-
-        //  if 'all in participation' for external users
-        if (options[i].value === allInParticipationExternal) {
-          if (externalParticipationPhases.length === 0) {
-            options[i].style.display = 'none'
-          }
-        } else if (options[i].value === allInParticipationInternal) {
-          //  If 'all in participation' for internal users
-          if (internalParticipationPhases.length === 0) {
-            options[i].style.display = 'none'
-          }
-        } else if (options[i].value === allInParticipationPreparationExternal) {
-          //  If 'all in participation and preparation' for external users
-          if (externalParticipationPhases.length === 0 && document.querySelectorAll('[data-phase-key="preparation"]').length === 0) {
-            options[i].style.display = 'none'
-          }
-        } else if (options[i].value === allInParticipationPreparationInternal) {
-          //  If 'all in participation and preparation' for internal users
-          if (internalParticipationPhases.length === 0 && document.querySelectorAll('[data-phase-key="preparation"]').length === 0) {
-            options[i].style.display = 'none'
-          }
-        } else {
-          //  If any other option value
-          if (document.querySelectorAll('[data-phase-key="' + options[i].value + '"]').length === 0) {
-            options[i].style.display = 'none'
-          }
+      if (option.value !== 'all') {
+        const phaseIds = splitOptionValue(option.value)
+        if (countMatchingProcedures(phaseIds) === 0) {
+          option.style.display = 'none'
         }
       }
     }

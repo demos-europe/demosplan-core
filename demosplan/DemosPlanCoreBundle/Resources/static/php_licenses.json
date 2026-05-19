@@ -30,9 +30,9 @@
         "website": "https://github.com/composer/composer"
     },
     {
-        "license": "MIT",
-        "package": "composer/package-versions-deprecated",
-        "website": "https://github.com/composer/package-versions-deprecated"
+        "license": "Apache-2.0",
+        "package": "cyclonedx/cyclonedx-php-composer",
+        "website": "https://github.com/CycloneDX/cyclonedx-php-composer"
     },
     {
         "license": "MIT",
@@ -81,6 +81,11 @@
     },
     {
         "license": "MIT",
+        "package": "dragonmantank/cron-expression",
+        "website": "https://github.com/dragonmantank/cron-expression"
+    },
+    {
+        "license": "MIT",
         "package": "efrane/console-additions",
         "website": "https://github.com/eFrane/ConsoleAdditions"
     },
@@ -116,11 +121,6 @@
     },
     {
         "license": "MIT",
-        "package": "escapestudios/symfony2-coding-standard",
-        "website": "https://github.com/djoos/Symfony-coding-standard"
-    },
-    {
-        "license": "MIT",
         "package": "exercise/htmlpurifier-bundle",
         "website": "https://github.com/Exercise/HTMLPurifierBundle"
     },
@@ -151,16 +151,6 @@
     },
     {
         "license": "MIT",
-        "package": "goetas-webservices/xsd2php",
-        "website": "https://github.com/goetas-webservices/xsd2php"
-    },
-    {
-        "license": "MIT",
-        "package": "goetas-webservices/xsd2php-runtime",
-        "website": "https://github.com/goetas-webservices/xsd2php-runtime"
-    },
-    {
-        "license": "MIT",
         "package": "guzzlehttp/guzzle",
         "website": "https://github.com/guzzle/guzzle"
     },
@@ -188,11 +178,6 @@
         "license": "MIT",
         "package": "jms/serializer-bundle",
         "website": "https://github.com/schmittjoh/JMSSerializerBundle"
-    },
-    {
-        "license": "MIT",
-        "package": "khanamiryan/qrcode-detector-decoder",
-        "website": "https://github.com/khanamiryan/php-qrcode-detector-decoder"
     },
     {
         "license": "MIT",
@@ -261,11 +246,6 @@
     },
     {
         "license": "MIT",
-        "package": "myclabs/php-enum",
-        "website": "https://github.com/myclabs/php-enum"
-    },
-    {
-        "license": "MIT",
         "package": "nelmio/security-bundle",
         "website": "https://github.com/nelmio/NelmioSecurityBundle"
     },
@@ -273,6 +253,16 @@
         "license": "MIT",
         "package": "nesbot/carbon",
         "website": "https://github.com/CarbonPHP/carbon"
+    },
+    {
+        "license": "Apache-2.0",
+        "package": "open-telemetry/exporter-otlp",
+        "website": "https://github.com/opentelemetry-php/exporter-otlp"
+    },
+    {
+        "license": "Apache-2.0",
+        "package": "open-telemetry/sdk",
+        "website": "https://github.com/opentelemetry-php/sdk"
     },
     {
         "license": "Apache-2.0",
@@ -300,19 +290,9 @@
         "website": "https://github.com/PHPOffice/PhpSpreadsheet"
     },
     {
-        "license": "LGPL-3.0",
+        "license": "LGPL-3.0-only",
         "package": "phpoffice/phpword",
         "website": "https://github.com/PHPOffice/PHPWord"
-    },
-    {
-        "license": "MIT",
-        "package": "phpspec/prophecy",
-        "website": "https://github.com/phpspec/prophecy"
-    },
-    {
-        "license": "MIT",
-        "package": "phpspec/prophecy-phpunit",
-        "website": "https://github.com/phpspec/prophecy-phpunit"
     },
     {
         "license": "MIT",
@@ -328,6 +308,11 @@
         "license": "BSD-3-Clause",
         "package": "phpunit/phpunit",
         "website": "https://github.com/sebastianbergmann/phpunit"
+    },
+    {
+        "license": "MIT",
+        "package": "predis/predis",
+        "website": "https://github.com/predis/predis"
     },
     {
         "license": "LGPL-2.1",
@@ -378,11 +363,6 @@
         "license": "MIT",
         "package": "sentry/sentry-symfony",
         "website": "https://github.com/getsentry/sentry-symfony"
-    },
-    {
-        "license": "BSD-3-Clause",
-        "package": "squizlabs/php_codesniffer",
-        "website": "https://github.com/PHPCSStandards/PHP_CodeSniffer"
     },
     {
         "license": "MIT",
@@ -496,6 +476,11 @@
     },
     {
         "license": "MIT",
+        "package": "symfony/messenger",
+        "website": "https://github.com/symfony/messenger"
+    },
+    {
+        "license": "MIT",
         "package": "symfony/mime",
         "website": "https://github.com/symfony/mime"
     },
@@ -531,11 +516,6 @@
     },
     {
         "license": "MIT",
-        "package": "symfony/polyfill-php80",
-        "website": "https://github.com/symfony/polyfill-php80"
-    },
-    {
-        "license": "MIT",
         "package": "symfony/process",
         "website": "https://github.com/symfony/process"
     },
@@ -561,6 +541,16 @@
     },
     {
         "license": "MIT",
+        "package": "symfony/runtime",
+        "website": "https://github.com/symfony/runtime"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/scheduler",
+        "website": "https://github.com/symfony/scheduler"
+    },
+    {
+        "license": "MIT",
         "package": "symfony/security-bundle",
         "website": "https://github.com/symfony/security-bundle"
     },
@@ -583,11 +573,6 @@
         "license": "MIT",
         "package": "symfony/string",
         "website": "https://github.com/symfony/string"
-    },
-    {
-        "license": "MIT",
-        "package": "symfony/templating",
-        "website": "https://github.com/symfony/templating"
     },
     {
         "license": "MIT",
@@ -631,6 +616,11 @@
     },
     {
         "license": "MIT",
+        "package": "thenetworg/oauth2-azure",
+        "website": "https://github.com/TheNetworg/oauth2-azure"
+    },
+    {
+        "license": "MIT",
         "package": "timeweb/phpstan-enum",
         "website": "https://github.com/timeweb/phpstan-enum"
     },
@@ -658,16 +648,6 @@
         "license": "MIT",
         "package": "willdurand/js-translation-bundle",
         "website": "https://github.com/willdurand/BazingaJsTranslationBundle"
-    },
-    {
-        "license": "MIT",
-        "package": "wrep/daemonizable-command",
-        "website": "https://github.com/mac-cain13/daemonizable-command"
-    },
-    {
-        "license": "MIT",
-        "package": "wsdltophp/packagegenerator",
-        "website": "https://github.com/WsdlToPhp/PackageGenerator"
     },
     {
         "license": "MIT",

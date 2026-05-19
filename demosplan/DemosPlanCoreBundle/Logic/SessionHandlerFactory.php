@@ -26,17 +26,14 @@ use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler
  */
 class SessionHandlerFactory
 {
-    private ParameterBagInterface $parameterBag;
-
-    public function __construct(ParameterBagInterface $parameterBag)
+    public function __construct(private readonly ParameterBagInterface $parameterBag)
     {
-        $this->parameterBag = $parameterBag;
     }
 
     // called via framework.yaml
     public function createSessionHandler(string $sessionHandler): SessionHandlerInterface
     {
-        if (empty($sessionHandler)) {
+        if ('' === $sessionHandler || '0' === $sessionHandler) {
             throw new InvalidArgumentException('SESSION_HANDLER cannot be empty');
         }
 

@@ -12,18 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\Querying\Contracts\PathsBasedInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\AttributeReadabilityInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
 use InvalidArgumentException;
+use League\Fractal\ParamBag;
 use League\Fractal\Scope;
 use Psr\Log\LoggerInterface;
-
-use function in_array;
-
-use const ARRAY_FILTER_USE_KEY;
 
 /**
  * A custom transformer that always returns all attributes in the response,
@@ -41,7 +39,6 @@ use const ARRAY_FILTER_USE_KEY;
 class AllAttributesTransformer extends DynamicTransformer
 {
     /**
-     * /**
      * @param non-empty-string                                   $typeName
      * @param class-string<TEntity>                              $entityClass
      * @param ResourceReadability<TCondition, TSorting, TEntity> $readability
@@ -59,22 +56,29 @@ class AllAttributesTransformer extends DynamicTransformer
     }
 
     /**
-     * Override the parent method to return all attributes regardless of
-     * their default status, unless specific fields were requested.
+     * Determines which attributes to include in the API response.
+     * If specific fields were requested via fieldset, uses parent behavior.
+     * Otherwise, gets attributes from the CustomField instance or returns all available attributes.
      *
      * @return array<non-empty-string, AttributeReadabilityInterface<TEntity>>
      */
     protected function getEffectiveAttributeReadabilities(Scope $scope): array
     {
         $fieldsetBag = $scope->getManager()->getFieldset($this->typeName);
-        if (null === $fieldsetBag) {
-            // If no fieldset was requested, return ALL attribute fields
-            // Get attributes from the ResourceReadability which is accessible in this class
-            return $this->readability->getAttributes();
+        if (!$fieldsetBag instanceof ParamBag) {
+            $fieldInstance = $scope->getResource()->getData();
+            // Check if it's already a CustomField instance
+            if ($fieldInstance instanceof CustomFieldInterface) {
+                $fieldset = $fieldInstance->getApiAttributes();
+            } else {
+                // If no fieldset was requested, return ALL attribute fields
+                // Get attributes from the ResourceReadability which is accessible in this class
+                return $this->readability->getAttributes();
+            }
+        } else {
+            // If specific fields were requested, handle them as normal
+            $fieldset = iterator_to_array($fieldsetBag);
         }
-
-        // If specific fields were requested, handle them as normal
-        $fieldset = iterator_to_array($fieldsetBag);
 
         return array_filter(
             $this->readability->getAttributes(),

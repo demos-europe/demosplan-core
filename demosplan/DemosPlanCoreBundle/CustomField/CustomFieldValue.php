@@ -16,7 +16,7 @@ class CustomFieldValue
 {
     protected string $id = '';
 
-    protected ?string $value = null;
+    protected mixed $value = null;
 
     public function fromJson(array $json): void
     {
@@ -42,12 +42,12 @@ class CustomFieldValue
         return $this->id;
     }
 
-    public function setValue(string $value): void
+    public function setValue(mixed $value): void
     {
         $this->value = $value;
     }
 
-    public function getValue(): ?string
+    public function getValue(): mixed
     {
         return $this->value;
     }

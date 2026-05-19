@@ -58,6 +58,7 @@
       <dp-button
         v-if="hasPermission('feature_admin_delete_procedure')"
         data-cy="deleteProcedure"
+        :disabled="!isProcedureSelected"
         icon="delete"
         name="deleteProcedure"
         :text="Translator.trans('delete')"
@@ -69,6 +70,7 @@
       <dp-button
         v-if="hasPermission('feature_admin_export_procedure')"
         data-cy="ExportProcedure"
+        :disabled="!isProcedureSelected"
         icon="download"
         name="exportProcedure"
         :text="Translator.trans('print.and.export')"
@@ -261,6 +263,10 @@ export default {
 
       return fields.filter(field => field.isVisible)
     },
+
+    isProcedureSelected () {
+      return this.selectedItems.length > 0
+    },
   },
 
   methods: {
@@ -303,11 +309,10 @@ export default {
             'externalName',
             'externalStartDate',
             'externalEndDate',
-            'externalPhaseTranslationKey',
+            'externalPhaseDefinitionName',
             'internalStartDate',
             'internalEndDate',
-            'internalPhaseIdentifier',
-            'internalPhaseTranslationKey',
+            'internalPhaseDefinitionName',
             'originalStatementsCount',
             'statementsCount',
           ].join(),
@@ -333,11 +338,11 @@ export default {
             name: el.attributes.name,
             externalName: el.attributes.externalName,
             externalEndDate: formatDate(el.attributes.externalEndDate),
-            externalPhase: el.attributes.externalPhaseTranslationKey,
+            externalPhase: el.attributes.externalPhaseDefinitionName,
             externalStartDate: formatDate(el.attributes.externalStartDate),
             id: el.id,
             internalEndDate: formatDate(el.attributes.internalEndDate),
-            internalPhase: el.attributes.internalPhaseTranslationKey,
+            internalPhase: el.attributes.internalPhaseDefinitionName,
             internalStartDate: formatDate(el.attributes.internalStartDate),
             originalStatementsCount: el.attributes.originalStatementsCount,
             statementsCount: el.attributes.statementsCount,

@@ -131,10 +131,8 @@
                         "id": {
                           "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/tags/items/properties/id",
                           "type": "string",
-                          "minLength": 36,
-                          "maxLength": 36,
                           "title": "The id Schema",
-                          "description": "Tag id as stored by PI and Dev backend."
+                          "description": "Tag id as stored by PI and Dev backend. When no dplan tag could be found it may be empty."
                         }
                       }
                     }

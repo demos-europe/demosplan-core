@@ -112,6 +112,7 @@ paragraph.reason: Begründung
 paragraph.reason.edit: Begründung bearbeiten
 paragraph.reason.export: Begruendung
 
+phases.definition: Verfahrensschritte definieren
 
 procedure: Verfahren
 procedure.public: Verfahren
@@ -120,7 +121,7 @@ procedure.admin.list: Verfahren verwalten
 procedure.analysis: Auswertung
 procedure.boilerplates: Textbausteine
 procedure.boilerplate.edit: Textbaustein bearbeiten
-procedure.boilerplateGroup.edit: Textbausteingruppe bearbetien
+procedure.boilerplateGroup.edit: Textbausteingruppe bearbeiten
 procedure.list: Beteiligung
 procedure.mail.submitters.send: E-Mail an alle Einreichenden verfassen
 procedure.mail.submitters.send.confirm: E-Mail an alle Einreichenden versenden
@@ -130,6 +131,7 @@ procedure.master.admin: Blaupausen
 procedure.master.new: Blaupause anlegen
 procedure.new: Verfahren anlegen
 procedure.notifications: Benachrichtigungen
+procedure.places: Bearbeitungsschritte
 procedure.proposal.create: Verfahren vorschlagen
 procedure.proposal.detail: Verfahrensvorschlag
 procedure.proposal.list: Liste der Verfahrensvorschläge

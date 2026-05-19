@@ -31,104 +31,122 @@ All rights reserved
       />
 
       <!-- authoredDate: if not manual statement -->
-      <div
+      <dp-datepicker
         v-else
-        class="mb-2"
-      >
-        <dp-label
-          :text="Translator.trans('statement.date.authored')"
-          for="authoredDateDatepicker"
-        />
-        <dp-datepicker
-          id="authoredDateDatepicker"
-          class="o-form__control-wrapper"
-          data-cy="statementEntry:authoredDate"
-          :max-date="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : currentDate"
-          :value="localStatement.attributes.authoredDate"
-          @input="val => setDate(val, 'authoredDate')"
-        />
-      </div>
-
-      <!-- submitDate: if manual statement -->
-      <dp-input
-        v-if="isStatementManual ? true : !editable"
-        id="statementSubmitDate"
-        class="o-form__group-item"
-        data-cy="statementEntry:submitDate"
-        :disabled="true"
+        id="authoredDateDatepicker"
+        class="o-form__control-wrapper"
+        data-cy="statementEntry:authoredDate"
         :label="{
-          text: Translator.trans('statement.date.submitted')
+          text: Translator.trans('statement.date.authored')
         }"
-        :model-value="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : '-'"
+        :max-date="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : currentDate"
+        :value="localStatement.attributes.authoredDate"
+        @input="val => setDate(val, 'authoredDate')"
       />
-
-      <!-- submitDate: if not manual statement -->
-      <div v-else>
-        <dp-label
-          :text="Translator.trans('statement.date.submitted')"
-          for="submitDateDatepicker"
-        />
-        <dp-datepicker
-          id="submitDateDatepicker"
-          class="o-form__control-wrapper"
-          data-cy="statementEntry:submitDate"
-          :max-date="currentDate"
-          :min-date="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : ''"
-          :value="getFormattedDate(localStatement.attributes.submitDate)"
-          @input="val => setDate(val, 'submitDate')"
-        />
-      </div>
-
-      <dp-select
-        id="statementSubmitType"
-        v-model="localStatement.attributes.submitType"
-        class="mb-2"
-        data-cy="statementEntry:submitType"
-        :disabled="!editable"
-        :label="{
-          text: Translator.trans('submit.type')
-        }"
-        :options="submitTypeOptions"
-      />
-
-      <dp-input
-        v-if="editable"
-        id="statementInternId"
-        v-model="localStatement.attributes.internId"
-        class="mb-2"
-        data-cy="statementEntry:internId"
-        :disabled="!editable"
-        :label="{
-          text: Translator.trans('internId')
-        }"
-      />
-
-      <dp-input
-        v-else
-        id="statementInternId"
-        class="mb-2"
-        :model-value="localStatement.attributes.internId || '-'"
-        data-cy="statementEntry:internId"
-        disabled
-        :label="{
-          text: Translator.trans('internId')
-        }"
-      />
-
-      <template v-if="hasPermission('field_statement_phase')">
-        <dp-select
-          id="statementProcedurePhase"
-          v-model="localStatement.attributes.procedurePhase.key"
-          class="mb-3"
-          data-cy="statementEntry:procedurePhase"
-          :disabled="!editable || !isStatementManual"
-          :label="{
-            text: Translator.trans('procedure.public.phase')
-          }"
-          :options="availableProcedurePhases"
-        />
-      </template>
     </div>
+
+    <!-- submitDate: if manual statement -->
+    <dp-input
+      v-if="isStatementManual ? true : !editable"
+      id="statementSubmitDate"
+      class="o-form__group-item mb-2"
+      data-cy="statementEntry:submitDate"
+      :disabled="true"
+      :label="{
+        text: Translator.trans('statement.date.submitted')
+      }"
+      :model-value="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : '-'"
+    />
+
+    <!-- submitDate: if not manual statement -->
+    <dp-datepicker
+      v-else
+      id="submitDateDatepicker"
+      class="o-form__control-wrapper"
+      data-cy="statementEntry:submitDate"
+      :label="{
+        text: Translator.trans('statement.date.submitted')
+      }"
+      :max-date="currentDate"
+      :min-date="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : ''"
+      :value="getFormattedDate(localStatement.attributes.submitDate)"
+      @input="val => setDate(val, 'submitDate')"
+    />
+
+    <dp-select
+      v-if="editable"
+      id="statementSubmitType"
+      v-model="localStatement.attributes.submitType"
+      class="space-y-0.5 mb-2"
+      data-cy="statementEntry:submitType"
+      :label="{
+        text: Translator.trans('submit.type')
+      }"
+      :options="submitTypeOptions"
+    />
+    <dl
+      v-else
+      class="u-mb-0_5"
+    >
+      <dt class="font-semibold u-mb-0_25">
+        {{ Translator.trans('submit.type') }}
+      </dt>
+      <dd class="text-muted">
+        {{ submitTypeOptions.find(opt => opt.value === localStatement.attributes.submitType)?.label || '-' }}
+      </dd>
+    </dl>
+
+    <dp-input
+      v-if="editable"
+      id="statementInternId"
+      v-model="localStatement.attributes.internId"
+      class="mb-2"
+      data-cy="statementEntry:internId"
+      :disabled="!editable"
+      :label="{
+        text: Translator.trans('internId')
+      }"
+    />
+
+    <dp-input
+      v-else
+      id="statementInternId"
+      class="mb-2"
+      :model-value="localStatement.attributes.internId || '-'"
+      data-cy="statementEntry:internId"
+      disabled
+      :label="{
+        text: Translator.trans('internId')
+      }"
+    />
+
+    <template v-if="hasPermission('field_statement_phase')">
+      <dp-select
+        v-if="availableProcedurePhases.length > 1"
+        id="statementProcedurePhase"
+        :disabled="!editable || !isStatementManual"
+        :label="{
+          text: Translator.trans('procedure.public.phase')
+        }"
+        :options="availableProcedurePhases"
+        :selected="localStatement.relationships?.procedurePhase?.data?.id"
+        class="mb-3"
+        data-cy="statementEntry:procedurePhase"
+        @select="id => localStatement.relationships.procedurePhase.data = { id, type: 'ProcedurePhaseDefinition' }"
+      />
+      <dl
+        v-else
+        class="mb-3"
+      >
+        <dt class="font-semibold u-mb-0_25">
+          {{ Translator.trans('procedure.public.phase') }}
+        </dt>
+        <dd class="text-muted">
+          {{ currentPhaseName }}
+        </dd>
+      </dl>
+    </template>
+
     <dp-text-area
       v-if="hasPermission('field_statement_memo')"
       id="r_memo"
@@ -156,12 +174,11 @@ import {
   DpButtonRow,
   DpDatepicker,
   DpInput,
-  DpLabel,
   DpSelect,
   DpTextArea,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
-import { mapState } from 'vuex'
+
 export default {
   name: 'StatementEntry',
 
@@ -169,7 +186,6 @@ export default {
     DpButtonRow,
     DpDatepicker,
     DpInput,
-    DpLabel,
     DpSelect,
     DpTextArea,
   },
@@ -206,16 +222,12 @@ export default {
   },
 
   computed: {
-    ...mapState('Statement', {
-      statements: 'items',
-    }),
-
     availableProcedurePhases () {
       const phases = this.statement.attributes?.availableProcedurePhases || []
 
       return phases.map(phase => ({
         label: phase.name,
-        value: phase.key,
+        value: phase.id,
       }))
     },
 
@@ -229,12 +241,42 @@ export default {
       return today
     },
 
+    currentPhaseName () {
+      const id = this.localStatement.relationships?.procedurePhase?.data?.id
+
+      return this.$store.state.ProcedurePhaseDefinition?.items?.[id]?.attributes?.name || '-'
+    },
+
+    hasUnsavedChanges () {
+      if (!this.localStatement || !this.statement) {
+        return false
+      }
+
+      const initialAttributes = this.deepCloneSerializable(this.statement.attributes)
+      initialAttributes.authoredDate = this.getFormattedDate(initialAttributes.authoredDate)
+      initialAttributes.submitDate = this.getFormattedDate(initialAttributes.submitDate)
+
+      const currentAttributes = this.localStatement.attributes
+
+      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+    },
+
     isStatementManual () {
       return this.localStatement.attributes.isManual
     },
   },
 
   methods: {
+    /**
+     * Deep clone via JSON serialization.
+     *
+     * `structuredClone()` may fail on Vuex store objects containing functions/methods.
+     */
+    deepCloneSerializable (obj) {
+      // eslint-disable-next-line unicorn/prefer-structured-clone
+      return JSON.parse(JSON.stringify(obj))
+    },
+
     getFormattedDate (date) {
       if (!date) {
         return ''
@@ -255,30 +297,27 @@ export default {
     },
 
     save () {
-      // If authorName has been changed, change submitName as well, see https://yaits.demos-deutschland.de/T20363#479858
-      if (this.localStatement.attributes.authorName !== this.statement.attributes.authorName) {
-        this.syncAuthorAndSubmitter()
-      }
-
-      // Get current statement from store (includes any relationship changes from other components)
-      const currentStatement = this.statements[this.statement.id]
-
-      const updatedStatement = {
-        ...currentStatement,
+      const attrs = this.localStatement.attributes
+      const changes = {
         attributes: {
-          ...currentStatement.attributes,
-          authoredDate: this.localStatement.attributes.authoredDate,
-          submitDate: this.localStatement.attributes.submitDate,
-          submitType: this.localStatement.attributes.submitType,
-          internId: this.localStatement.attributes.internId,
-          procedurePhase: this.localStatement.attributes.procedurePhase,
-          memo: this.localStatement.attributes.memo,
-          authorName: this.localStatement.attributes.authorName,
-          submitName: this.localStatement.attributes.submitName,
+          authoredDate: attrs.authoredDate,
+          submitDate: attrs.submitDate,
+          submitType: attrs.submitType,
+          internId: attrs.internId,
         },
       }
 
-      this.$emit('save', updatedStatement)
+      if (hasPermission('field_statement_phase')) {
+        changes.relationships = {
+          procedurePhase: this.localStatement.relationships.procedurePhase,
+        }
+      }
+
+      if (hasPermission('field_statement_memo')) {
+        changes.attributes.memo = attrs.memo
+      }
+
+      this.$emit('save', changes)
     },
 
     setDate (val, field) {
@@ -286,13 +325,17 @@ export default {
     },
 
     setInitValues () {
-      this.localStatement = JSON.parse(JSON.stringify(this.statement))
+      this.localStatement = this.deepCloneSerializable(this.statement)
       this.localStatement.attributes.authoredDate = this.getFormattedDate(this.localStatement.attributes.authoredDate)
       this.localStatement.attributes.submitDate = this.getFormattedDate(this.localStatement.attributes.submitDate)
-    },
 
-    syncAuthorAndSubmitter () {
-      this.localStatement.attributes.submitName = this.localStatement.attributes.authorName
+      if (!this.localStatement.relationships) {
+        this.localStatement.relationships = {}
+      }
+
+      if (!this.localStatement.relationships.procedurePhase) {
+        this.localStatement.relationships.procedurePhase = { data: null }
+      }
     },
   },
 

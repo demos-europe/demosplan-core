@@ -53,7 +53,8 @@
           ref="annotatedPdfForm"
           :allow-file-upload="false"
           :csrf-token="csrfToken"
-          :current-procedure-phase="currentProcedurePhase"
+          :current-external-phase-definition-id="currentExternalPhaseDefinitionId"
+          :current-internal-phase-definition-id="currentInternalPhaseDefinitionId"
           :document-id="documentId"
           :expand-all="false"
           fields-full-width
@@ -104,10 +105,16 @@ export default {
       required: true,
     },
 
-    currentProcedurePhase: {
+    currentExternalPhaseDefinitionId: {
       type: String,
       required: false,
-      default: 'analysis',
+      default: '',
+    },
+
+    currentInternalPhaseDefinitionId: {
+      type: String,
+      required: false,
+      default: '',
     },
 
     documentId: {

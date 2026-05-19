@@ -81,6 +81,10 @@ export default {
     },
   },
 
+  compatConfig: {
+    WATCH_ARRAY: false,
+  },
+
   emits: [
     'saved',
   ],

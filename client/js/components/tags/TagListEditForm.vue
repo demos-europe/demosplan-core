@@ -4,12 +4,17 @@
       v-if="isInEditState === nodeElement.id"
       :id="`edit-${type}-${nodeElement.id}`"
       v-model="unsavedItem.title"
+      aria-labelledby="categoryOrTagLabel"
       class="flex-1"
     />
     <div
       v-else
       class="flex-1 break-words"
       v-text="nodeElement.attributes.title"
+    />
+    <addon-wrapper
+      :addon-props="{ tag: nodeElement }"
+      hook-name="tag.edit.form"
     />
     <div class="text-center w-9">
       <dp-contextual-help
@@ -18,10 +23,6 @@
         :text="nodeElement.relationships.boilerplate.attributes.title"
       />
     </div>
-    <addon-wrapper
-      :addon-props="{ tag: nodeElement }"
-      hook-name="tag.edit.form"
-    />
     <div class="flex-0 justify-center w-8 flex">
       <button
         v-if="isInEditState !== nodeElement.id && nodeElement.type !== 'Tag'"

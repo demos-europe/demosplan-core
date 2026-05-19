@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,6 +26,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
+#[AsCommand(name: 'dplan:vendorlist:update', description: 'Update the list of external dependencies')]
 class VendorlistUpdateCommand extends CoreCommand
 {
     /**
@@ -42,9 +44,6 @@ class VendorlistUpdateCommand extends CoreCommand
      * @const string[] Elements should be given as `vendor/package`
      */
     private const PHP_PACKAGE_DENYLIST = [];
-
-    protected static $defaultName = 'dplan:vendorlist:update';
-    protected static $defaultDescription = 'Update the list of external dependencies';
 
     final public const JS_PATH_JSON = 'demosplan/DemosPlanCoreBundle/Resources/static/js_licenses.json';
     final public const JS_PATH_TEXT = 'licenses/js_licenses.txt';
@@ -115,7 +114,7 @@ class VendorlistUpdateCommand extends CoreCommand
 
                         $progressBar->advance();
 
-                        return compact('license', 'package', 'website');
+                        return ['license' => $license, 'package' => $package, 'website' => $website];
                     }
                 )
                 ->filter(static fn ($packageInfo): bool =>
@@ -171,12 +170,12 @@ class VendorlistUpdateCommand extends CoreCommand
         $this->io->writeln('Updating the js vendor list');
 
         try {
-            $yarn = new Process(['yarn', 'licenses', 'list', '--no-progress', '--json']);
-            $yarn->setWorkingDirectory(DemosPlanPath::getRootPath());
-            $yarn->run();
+            $licenseChecker = new Process(['npx', 'license-checker', '--json', '--direct']);
+            $licenseChecker->setWorkingDirectory(DemosPlanPath::getRootPath());
+            $licenseChecker->setTimeout(120);
+            $licenseChecker->mustRun();
 
-            $json = collect(explode("\n", trim($yarn->getOutput())))->last();
-            $dependencies = Json::decodeToArray($json)['data']['body'];
+            $dependencies = Json::decodeToArray($licenseChecker->getOutput());
 
             // uses local file, no need for flysystem
             $packageJson = Json::decodeToArray(
@@ -188,17 +187,22 @@ class VendorlistUpdateCommand extends CoreCommand
                 ->merge(\array_keys($packageJson['devDependencies']))
                 ->flip();
 
-            $progressBar = new ProgressBar($this->io, is_countable($dependencies) ? count($dependencies) : 0);
+            $progressBar = new ProgressBar($this->io, count($dependencies));
             $progressBar->start();
 
             $jsLicenses = collect($dependencies)
                 ->map(
-                    static function ($info) use ($progressBar): array {
-                        [$package, $version, $license, $_, $website] = $info;
+                    static function (array $info, string $key) use ($progressBar): array {
+                        // key format is "package@version", extract package name
+                        $package = preg_replace('/@[^@]+$/', '', $key);
 
                         $progressBar->advance();
 
-                        return compact('package', 'license', 'website');
+                        return [
+                            'package' => $package,
+                            'license' => $info['licenses'] ?? null,
+                            'website' => $info['repository'] ?? '',
+                        ];
                     }
                 )
                 ->filter(

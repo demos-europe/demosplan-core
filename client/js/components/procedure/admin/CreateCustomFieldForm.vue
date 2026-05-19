@@ -5,8 +5,8 @@
       class="text-right mb-4"
     >
       <dp-button
+        :text="addButtonText ?? Translator.trans('add')"
         data-cy="customFields:addField"
-        :text="Translator.trans('add')"
         @click="open"
       />
     </div>
@@ -44,6 +44,44 @@
           maxlength="250"
         />
 
+        <dp-select
+          id="newFieldTarget"
+          v-model="customField.targetEntity"
+          :label="{
+            text: Translator.trans('custom.field.target'),
+            tooltip: Translator.trans('explanation.field.target'),
+          }"
+          :options="targetEntityOptions"
+          class="w-[calc(100%-26px)]"
+          data-cy="customFields:targetEntity"
+          required
+        />
+
+        <dp-select
+          id="newFieldType"
+          v-model="customField.fieldType"
+          :disabled="!!customField.targetEntity"
+          :label="{
+            text: Translator.trans('type'),
+            tooltip: Translator.trans('explanation.field.type')
+          }"
+          :options="typeOptions"
+          class="w-[calc(100%-26px)]"
+          data-cy="customFields:newFieldType"
+          required
+        />
+
+        <dp-checkbox
+          v-if="customField.targetEntity === 'STATEMENT'"
+          id="requiredCheckbox"
+          v-model="customField.isRequired"
+          :label="{
+            text: Translator.trans('statements.fields.configurable.required')
+          }"
+          class="mb-2"
+          data-cy="customFields:isRequired"
+        />
+
         <slot />
 
         <dp-button-row
@@ -63,8 +101,10 @@
 import {
   DpButton,
   DpButtonRow,
+  DpCheckbox,
   DpInput,
   DpLoading,
+  DpSelect,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 
@@ -74,13 +114,20 @@ export default {
   components: {
     DpButton,
     DpButtonRow,
+    DpCheckbox,
     DpInput,
     DpLoading,
+    DpSelect,
   },
 
   mixins: [dpValidateMixin],
 
   props: {
+    addButtonText: {
+      type: String,
+      default: null,
+    },
+
     handleSuccess: {
       type: Boolean,
       default: false,
@@ -89,6 +136,16 @@ export default {
     isLoading: {
       type: Boolean,
       default: false,
+    },
+
+    targetOptions: {
+      type: Object,
+      required: true,
+    },
+
+    typeOptions: {
+      type: Array,
+      required: true,
     },
   },
 
@@ -101,14 +158,32 @@ export default {
   data () {
     return {
       customField: {
-        name: '',
         description: '',
+        fieldType: '',
+        isRequired: false,
+        name: '',
+        targetEntity: '',
       },
       isOpen: false,
     }
   },
 
+  computed: {
+    targetEntityOptions () {
+      return Object.entries(this.targetOptions).map(([value, label]) => ({ value, label }))
+    },
+  },
+
   watch: {
+    'customField.targetEntity' (targetEntity) {
+      const typeMap = {
+        STATEMENT: 'multiSelect',
+        SEGMENT: 'singleSelect',
+        ORGA: 'text',
+      }
+      this.customField.fieldType = typeMap[targetEntity] ?? ''
+    },
+
     handleSuccess: {
       handler (newVal) {
         if (newVal) {
@@ -144,8 +219,11 @@ export default {
     },
 
     reset () {
-      this.customField.name = ''
       this.customField.description = ''
+      this.customField.fieldType = ''
+      this.customField.isRequired = false
+      this.customField.name = ''
+      this.customField.targetEntity = ''
     },
   },
 }

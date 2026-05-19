@@ -1,0 +1,119 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace Tests\Core\MessageHandler;
+
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Message\PurgeDeletedProceduresMessage;
+use demosplan\DemosPlanCoreBundle\MessageHandler\PurgeDeletedProceduresMessageHandler;
+use Exception;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Tests\Base\UnitTestCase;
+
+class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
+{
+    use LoggerTestTrait;
+
+    private const PURGE_DELETED_PROCEDURES = 'Purge deleted procedures... ';
+    private const RETENTION_DAYS = 60;
+    private ?ProcedureHandler $procedureHandler = null;
+    private ?GlobalConfigInterface $globalConfig = null;
+    private ?ParameterBagInterface $parameterBag = null;
+    private ?PermissionsInterface $permissions = null;
+    private ?PurgeDeletedProceduresMessageHandler $sut = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->procedureHandler = $this->createMock(ProcedureHandler::class);
+        $this->globalConfig = $this->createMock(GlobalConfigInterface::class);
+        $this->parameterBag = $this->createMock(ParameterBagInterface::class);
+        $this->parameterBag->method('get')
+            ->with('purge_deleted_retention_period_days')
+            ->willReturn(self::RETENTION_DAYS);
+        $this->permissions = $this->createMock(PermissionsInterface::class);
+    }
+
+    public function testInvokeLogsDisabledWhenFeatureDisabled(): void
+    {
+        // Arrange
+        $this->globalConfig->expects($this->once())
+            ->method('getUsePurgeDeletedProcedures')
+            ->willReturn(false);
+
+        $this->procedureHandler->expects($this->never())
+            ->method('purgeDeletedProcedures');
+
+        $logger = $this->createLoggerMockWithCapture(2);
+        $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $this->parameterBag, $this->permissions, $logger);
+
+        // Act
+        ($this->sut)(new PurgeDeletedProceduresMessage());
+
+        // Assert
+        $this->assertSame([self::PURGE_DELETED_PROCEDURES, 'Purge deleted procedures is disabled.'], $this->getCapturedLoggerCalls());
+    }
+
+    public function testInvokePurgesProceduresWhenEnabled(): void
+    {
+        $logger = $this->createLoggerMockWithCapture(3);
+        $this->setupEnabledPurgeAndInvoke(3, $logger);
+
+        $this->assertSame([self::PURGE_DELETED_PROCEDURES, 'PurgeDeletedProcedures', 'Purged procedures: 3'], $this->getCapturedLoggerCalls());
+    }
+
+    public function testInvokeDoesNotLogWhenNoProceduresPurged(): void
+    {
+        $logger = $this->createLoggerMockWithCapture(2);
+        $this->setupEnabledPurgeAndInvoke(0, $logger);
+
+        $this->assertSame([self::PURGE_DELETED_PROCEDURES, 'PurgeDeletedProcedures'], $this->getCapturedLoggerCalls());
+    }
+
+    public function testInvokeLogsErrorOnException(): void
+    {
+        // Arrange
+        $exception = new Exception('Purge failed');
+
+        $this->globalConfig->expects($this->once())
+            ->method('getUsePurgeDeletedProcedures')
+            ->willReturn(true);
+
+        $this->procedureHandler->expects($this->once())
+            ->method('purgeDeletedProcedures')
+            ->willThrowException($exception);
+
+        $logger = $this->createLoggerMockForError('Purge Procedures failed', $exception);
+        $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $this->parameterBag, $this->permissions, $logger);
+
+        // Act
+        ($this->sut)(new PurgeDeletedProceduresMessage());
+    }
+
+    private function setupEnabledPurgeAndInvoke(int $purgeReturnValue, LoggerInterface $logger): void
+    {
+        $this->globalConfig->expects($this->once())
+            ->method('getUsePurgeDeletedProcedures')
+            ->willReturn(true);
+
+        $this->procedureHandler->expects($this->once())
+            ->method('purgeDeletedProcedures')
+            ->with(5, self::RETENTION_DAYS)
+            ->willReturn($purgeReturnValue);
+
+        $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $this->parameterBag, $this->permissions, $logger);
+        ($this->sut)(new PurgeDeletedProceduresMessage());
+    }
+}

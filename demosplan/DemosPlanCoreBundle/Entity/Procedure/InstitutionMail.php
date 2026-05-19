@@ -57,11 +57,11 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface, Institu
     protected $organisation;
 
     /**
-     * @var string
+     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
      *
-     * @ORM\Column(name="_p_phase", type="string", length=50)
+     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=false, onDelete="RESTRICT")
      */
-    protected $procedurePhase;
+    protected ProcedurePhaseDefinition $phaseDefinition;
 
     /**
      * @var DateTime
@@ -134,26 +134,6 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface, Institu
     }
 
     /**
-     * @return string
-     */
-    public function getProcedurePhase()
-    {
-        return $this->procedurePhase;
-    }
-
-    /**
-     * @param string $procedurePhase
-     *
-     * @return InstitutionMail
-     */
-    public function setProcedurePhase($procedurePhase)
-    {
-        $this->procedurePhase = $procedurePhase;
-
-        return $this;
-    }
-
-    /**
      * @return DateTime
      */
     public function getCreatedDate()
@@ -169,6 +149,18 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface, Institu
     public function setCreatedDate($createdDate)
     {
         $this->createdDate = $createdDate;
+
+        return $this;
+    }
+
+    public function getPhaseDefinition(): ProcedurePhaseDefinition
+    {
+        return $this->phaseDefinition;
+    }
+
+    public function setPhaseDefinition(ProcedurePhaseDefinition $phaseDefinition): self
+    {
+        $this->phaseDefinition = $phaseDefinition;
 
         return $this;
     }

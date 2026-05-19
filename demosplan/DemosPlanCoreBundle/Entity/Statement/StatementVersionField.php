@@ -282,11 +282,9 @@ class StatementVersionField implements UuidEntityInterface, StatementVersionFiel
     /**
      * Set st.
      *
-     * @param StatementInterface $statement
-     *
      * @return StatementVersionFieldInterface
      */
-    public function setStatement(StatementInterface $statement = null)
+    public function setStatement(?StatementInterface $statement = null)
     {
         $this->statement = $statement;
 

@@ -101,7 +101,6 @@ export default {
     initClusterList: {
       required: true,
       type: Array,
-      default: () => [],
     },
 
     // String with cluster id

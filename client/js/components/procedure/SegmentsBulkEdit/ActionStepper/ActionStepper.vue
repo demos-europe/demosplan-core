@@ -19,9 +19,10 @@
 
       <div class="u-mt flow-root">
         <dp-button
-          color="secondary"
           :href="sanitizedReturnLink"
-          :text="Translator.trans('bulk.edit.actions.back.to.list')"
+          :text="Translator.trans('back.to.segments.list')"
+          color="secondary"
+          icon="chevron-left"
         />
         <dp-button
           class="float-right"
@@ -59,7 +60,7 @@
       <div class="u-mt">
         <dp-button
           :href="sanitizedReturnLink"
-          :text="Translator.trans('bulk.edit.actions.back.to.list')"
+          :text="Translator.trans('back.to.segments.list')"
         />
       </div>
     </template>

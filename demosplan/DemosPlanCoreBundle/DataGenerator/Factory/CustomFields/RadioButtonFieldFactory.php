@@ -11,12 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields;
 
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\ObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
- * @extends PersistentProxyObjectFactory<RadioButtonField>
+ * @extends ObjectFactory<RadioButtonField>
  *
  * @method        RadioButtonField|Proxy                    create(array|callable $attributes = [])
  * @method static RadioButtonField|Proxy                    createOne(array $attributes = [])
@@ -34,7 +34,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static RadioButtonField[]|Proxy[]                randomRange(int $min, int $max, array $attributes = [])
  * @method static RadioButtonField[]|Proxy[]                randomSet(int $number, array $attributes = [])
  */
-final class RadioButtonFieldFactory extends PersistentProxyObjectFactory
+final class RadioButtonFieldFactory extends ObjectFactory
 {
     public static function class(): string
     {

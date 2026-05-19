@@ -29,9 +29,6 @@
     "beberlei/doctrineextensions": {
         "version": "v1.3.0"
     },
-    "behat/transliterator": {
-        "version": "v1.3.0"
-    },
     "brick/math": {
         "version": "0.9.3"
     },
@@ -46,9 +43,6 @@
     },
     "composer/ca-bundle": {
         "version": "1.2.10"
-    },
-    "composer/package-versions-deprecated": {
-        "version": "1.11.99.2"
     },
     "composer/pcre": {
         "version": "1.0.1"
@@ -207,9 +201,6 @@
     "erusev/parsedown": {
         "version": "1.7.4"
     },
-    "escapestudios/symfony2-coding-standard": {
-        "version": "3.12.0"
-    },
     "exercise/htmlpurifier-bundle": {
         "version": "3.0",
         "recipe": {
@@ -284,15 +275,6 @@
     },
     "geocoder-php/plugin": {
         "version": "1.3.0"
-    },
-    "goetas-webservices/xsd-reader": {
-        "version": "0.3.9"
-    },
-    "goetas-webservices/xsd2php": {
-        "version": "0.4.3"
-    },
-    "goetas-webservices/xsd2php-runtime": {
-        "version": "v0.2.15"
     },
     "guzzlehttp/guzzle": {
         "version": "7.3.0"
@@ -503,12 +485,6 @@
     "php-http/promise": {
         "version": "1.1.0"
     },
-    "php-parallel-lint/php-console-color": {
-        "version": "v0.3"
-    },
-    "php-parallel-lint/php-console-highlighter": {
-        "version": "v0.5"
-    },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
     },
@@ -701,18 +677,6 @@
             "config/packages/sentry.yaml"
         ]
     },
-    "squizlabs/php_codesniffer": {
-        "version": "3.6",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "3.6",
-            "ref": "1019e5c08d4821cb9b77f4891f8e9c31ff20ac6f"
-        },
-        "files": [
-            "phpcs.xml.dist"
-        ]
-    },
     "stof/doctrine-extensions-bundle": {
         "version": "1.7",
         "recipe": {
@@ -882,6 +846,18 @@
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
     },
+    "symfony/messenger": {
+        "version": "6.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "6.0",
+            "ref": "d8936e2e2230637ef97e5eecc0eea074eecae58b"
+        },
+        "files": [
+            "config/packages/messenger.yaml"
+        ]
+    },
     "symfony/mime": {
         "version": "v5.3.4"
     },
@@ -1024,9 +1000,6 @@
     "symfony/string": {
         "version": "v5.4.2"
     },
-    "symfony/templating": {
-        "version": "v5.3.4"
-    },
     "symfony/translation": {
         "version": "5.4",
         "recipe": {
@@ -1140,9 +1113,6 @@
     },
     "willdurand/jsonp-callback-validator": {
         "version": "v1.1.0"
-    },
-    "wrep/daemonizable-command": {
-        "version": "3.1.0"
     },
     "zenstruck/foundry": {
         "version": "1.33",

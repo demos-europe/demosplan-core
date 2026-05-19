@@ -11,6 +11,7 @@ import { hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const statementStructure = {
   action: 'statementpublicnew',
+  customFields: [],
   delete_file: [],
   location_is_set: '',
   r_city: '',
@@ -85,6 +86,10 @@ const PublicStatementStore = {
         state.unsavedDrafts.push(id)
         localStorage.setItem(`unsavedDrafts:${state.userId}:${state.procedureId}`, JSON.stringify(state.unsavedDrafts))
       }
+    },
+
+    resetStatementIdentifier (state) {
+      state.statement.r_ident = ''
     },
 
     initialiseStore (state, data) {
@@ -180,6 +185,11 @@ const PublicStatementStore = {
         state.draftStatements[draftStatementId] = state.statement
         localStorage.setItem(`${state.localStorageName}`, state.initDraftStatements[draftStatementId])
       }
+    },
+
+    applyInitialDefaults (state, data) {
+      state.statement = { ...state.statement, ...data }
+      state.initForm = JSON.stringify(state.statement)
     },
 
     removeStatementProp (state, propKey) {

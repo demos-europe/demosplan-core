@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -66,6 +67,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         Environment $twig,
         private readonly FileService $fileService,
         private readonly FilesystemOperator $defaultStorage,
+        private readonly GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         private readonly MapService $mapService,
         private readonly PermissionsInterface $permissions,
@@ -166,7 +168,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             $statements = $outputResult->getStatements();
 
             // add attachments to Elasticsearch statement arrays
-            $statements = $this->statementHandler->addSourceStatementAttachments($statements);
+            $statements = $this->statementHandler->addStatementAttachments($statements, true);
 
             // here, handling view_mode could be implemented in the future.
             // We can ignore this at them moment, because view_mode permission is currently just enabled in bobhh
@@ -217,7 +219,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                             }
 
                             if (isset($item['cluster']) && is_array($item['cluster'])
-                                && 0 < count($item['cluster'])) {
+                                && [] !== $item['cluster']) {
                                 if (false === $anonymous) {
                                     $departments = $this
                                         ->assessmentTableOutput
@@ -236,6 +238,24 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 }
             }
             $statements = $this->createExternIds($statements);
+
+            // Add translated votePla text to statements if permission is granted
+            if ($this->permissions->hasPermission('field_statement_vote_pla')) {
+                $statementAdviceValues = $this->globalConfig->getFormOptions()['statement_fragment_advice_values'] ?? [];
+                foreach ($statements as $key => $statement) {
+                    if (isset($statement['votePla']) && '' !== $statement['votePla']) {
+                        try {
+                            $translationKey = $statementAdviceValues[$statement['votePla']] ?? null;
+                            if (null !== $translationKey) {
+                                $statements[$key]['voteText'] = $this->translator->trans($translationKey);
+                            }
+                        } catch (Exception $e) {
+                            $this->logger->warning('statement with invalid \'votePla\' value given to PDF export', [$e]);
+                        }
+                    }
+                }
+            }
+
             $changedOutputResult['entries']['statements'] = $statements;
             $changedOutputResult['entries']['total'] = $outputResult->getTotal();
 
@@ -356,7 +376,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
     {
         $filterSetReferenceSorting = [];
 
-        if (true !== $original) {
+        if (!$original) {
             $filterSetStatements = $this->statementHandler->getResultsByFilterSetHash(
                 $filterSetHash,
                 $procedureId
@@ -382,7 +402,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 $item = $this->assessmentTableOutput->formatStatementArray($statement);
                 $items->push($item);
             } else {
-                if (true === $original) {
+                if ($original) {
                     $warning = 'Attempted to export statement fragments while exporting original statements.'.
                         ' This doesn\'t make sense from a business logic perspective.';
                     throw new LogicException($warning);
@@ -529,7 +549,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
      */
     protected function filterForSelectedStatementFragments(array $statementFragments, array $selectedFragmentIds = []): array
     {
-        if (0 < count($selectedFragmentIds)) {
+        if ([] !== $selectedFragmentIds) {
             // filter if there are selected ids
             $unorderedList = [];
             foreach ($statementFragments as $fragment) {

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
+use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakDataMapper\RoleMapper;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use Psr\Log\LoggerInterface;
 use Stringable;
@@ -21,7 +22,11 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  */
 class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInterface, Stringable
 {
+    private const RESOURCE_ACCESS = 'resource_access';
+    private const GROUPS = 'groups';
     private readonly string $keycloakGroupRoleString;
+    private readonly string $defaultKeycloakClientId;
+    private string $keycloakClientId;
     private const COMPANY_STREET_ADDRESS = 'UnternehmensanschriftStrasse';
     private const COMPANY_ADDRESS_EXTENSION = 'UnternehmensanschriftAdressergaenzung';
     private const COMPANY_HOUSE_NUMBER = 'UnternehmensanschriftHausnummer';
@@ -29,26 +34,72 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const COMPANY_CITY_ADDRESS = 'UnternehmensanschriftOrt';
     private const COMPANY_DEPARTMENT = 'Organisationseinheit';
     private const COMPANY_DEPARTMENT_EN = 'organisationUnit';
+    private const IS_PRIVATE_PERSON = 'isPrivatePerson';
+    private const RESPONSIBILITIES = 'fachbezug';
+    private const ORGANISATION_AFFILIATIONS = 'organisation';
 
     protected string $addressExtension = '';
     protected string $city = '';
     protected string $companyDepartment = '';
+    protected bool $isPrivatePerson = false;
+
+    /**
+     * Array of affiliations (organisational units) from Keycloak token.
+     * Parsed from the 'organisation' array field in the token.
+     *
+     * @var array<int, array{id: string, name: string}>
+     */
+    protected array $affiliations = [];
+
+    /**
+     * Array of responsibilities (functional areas) from Keycloak token.
+     * Each entry contains 'id' and 'name'.
+     *
+     * @var array<int, array{id: string, name: string}>
+     */
+    protected array $responsibilities = [];
 
     public function __construct(
         private readonly LoggerInterface $logger,
         ParameterBagInterface $parameterBag,
+        private readonly RoleMapper $roleMapper,
     ) {
         $this->keycloakGroupRoleString = $parameterBag->get('keycloak_group_role_string');
+        $this->defaultKeycloakClientId = $parameterBag->get('oauth_keycloak_client_id');
+        $this->keycloakClientId = $this->defaultKeycloakClientId;
     }
 
-    public function fill(ResourceOwnerInterface $resourceOwner): void
-    {
+    public function fill(
+        ResourceOwnerInterface $resourceOwner,
+        ?string $customerSubdomain = null,
+        ?string $keycloakClientId = null,
+    ): void {
+        // Always reset to global default, then override if a per-customer ID is provided.
+        // This prevents stale state from a previous request in long-running processes.
+        $this->keycloakClientId = $keycloakClientId ?? $this->defaultKeycloakClientId;
+
         $userInformation = $resourceOwner->toArray();
 
-        if (array_key_exists('groups', $userInformation)
-            && is_array($userInformation['groups'])
-        ) {
-            $this->mapCustomerRoles($userInformation['groups']);
+        // Try to extract roles from resource_access claim first (preferred method)
+        // Requires customerSubdomain parameter since resource_access can contain multiple clients
+        if (null !== $customerSubdomain
+            && array_key_exists(self::RESOURCE_ACCESS, $userInformation)
+            && is_array($userInformation[self::RESOURCE_ACCESS])) {
+            $mappedRoles = $this->roleMapper->mapResourceAccessRoles(
+                $userInformation[self::RESOURCE_ACCESS],
+                $this->keycloakClientId,
+                $customerSubdomain
+            );
+
+            if ([] !== $mappedRoles) {
+                $this->customerRoleRelations = $mappedRoles;
+            }
+        }
+
+        // FALLBACK: If no roles were extracted from resource_access, use group-based extraction for backward compatibility
+        if ([] === $this->customerRoleRelations && array_key_exists(self::GROUPS, $userInformation) && is_array($userInformation[self::GROUPS])) {
+            $this->logger->info('No roles found in resource_access, falling back to group-based role extraction');
+            $this->mapCustomerRoles($userInformation[self::GROUPS]);
         }
 
         $this->userId = $userInformation['sub'] ?? '';
@@ -66,12 +117,93 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         $this->city = $userInformation[self::COMPANY_CITY_ADDRESS] ?? '';
         $this->companyDepartment = $userInformation[self::COMPANY_DEPARTMENT] ?? $userInformation[self::COMPANY_DEPARTMENT_EN] ?? '';
 
+        // Extract isPrivatePerson attribute from token
+        $this->isPrivatePerson = isset($userInformation[self::IS_PRIVATE_PERSON])
+            && ('true' === $userInformation[self::IS_PRIVATE_PERSON] || true === $userInformation[self::IS_PRIVATE_PERSON]);
+
+        // Extract affiliations and responsibilities from token (multi-organisation support)
+        $this->parseAffiliations($userInformation);
+        $this->parseResponsibilities($userInformation);
+
+        // Fallback: if neither affiliations nor responsibilities arrays are present,
+        // convert single organisationId into an affiliation
+        if ([] === $this->affiliations && [] === $this->responsibilities && '' !== $this->organisationId) {
+            $this->affiliations[] = [
+                'id'   => $this->organisationId,
+                'name' => '' !== $this->organisationName ? $this->organisationName : $this->organisationId,
+            ];
+        }
+
         $this->lock();
         $this->checkMandatoryValuesExist();
     }
 
     /**
-     * Mapping of roles of customer based on string-comparison.
+     * Parse affiliations (organisational units) from the 'organisation' field in the token.
+     *
+     * @param array<string, mixed> $userInformation
+     */
+    private function parseAffiliations(array $userInformation): void
+    {
+        if (!array_key_exists(self::ORGANISATION_AFFILIATIONS, $userInformation)
+            || !is_array($userInformation[self::ORGANISATION_AFFILIATIONS])) {
+            return;
+        }
+
+        foreach ($userInformation[self::ORGANISATION_AFFILIATIONS] as $data) {
+            // Decode JSON string first
+            $affiliationData = is_string($data) ? json_decode($data, true) : $data;
+
+            if (is_array($affiliationData) && isset($affiliationData['id'])) {
+                $this->affiliations[] = [
+                    'id'   => (string) $affiliationData['id'],
+                    'name' => (string) ($affiliationData['name'] ?? $affiliationData['id']),
+                ];
+            }
+        }
+
+        if ([] !== $this->affiliations) {
+            $this->logger->info('Parsed affiliations from token', [
+                'count'        => count($this->affiliations),
+                'affiliations' => array_column($this->affiliations, 'id'),
+            ]);
+        }
+    }
+
+    /**
+     * Parse responsibilities (functional areas) from the 'fachbezug' field in the token.
+     *
+     * @param array<string, mixed> $userInformation
+     */
+    private function parseResponsibilities(array $userInformation): void
+    {
+        if (!array_key_exists(self::RESPONSIBILITIES, $userInformation)
+            || !is_array($userInformation[self::RESPONSIBILITIES])) {
+            return;
+        }
+
+        foreach ($userInformation[self::RESPONSIBILITIES] as $data) {
+            // Decode JSON string first
+            $responsibilitiesData = is_string($data) ? json_decode($data, true) : $data;
+
+            if (is_array($responsibilitiesData) && isset($responsibilitiesData['id'])) {
+                $this->responsibilities[] = [
+                    'id'   => (string) $responsibilitiesData['id'],
+                    'name' => (string) ($responsibilitiesData['name'] ?? $responsibilitiesData['id']),
+                ];
+            }
+        }
+
+        if ([] !== $this->responsibilities) {
+            $this->logger->info('Parsed responsibilities from token', [
+                'count'            => count($this->responsibilities),
+                'responsibilities' => array_column($this->responsibilities, 'id'),
+            ]);
+        }
+    }
+
+    /**
+     * Mapping of roles of customer based on string-comparison (LEGACY fallback method).
      * Example of data structure of $groups:
      * [
      *      "/Beteiligung-Organisation/OrgaName1",
@@ -97,13 +229,121 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         }
     }
 
+    public function isPrivatePerson(): bool
+    {
+        return $this->isPrivatePerson;
+    }
+
+    /**
+     * Get all affiliations (organisational units) from the token.
+     *
+     * @return array<int, array{id: string, name: string}>
+     */
+    public function getAffiliations(): array
+    {
+        return $this->affiliations;
+    }
+
+    /**
+     * Check if affiliations are present in the token.
+     */
+    public function hasAffiliations(): bool
+    {
+        return [] !== $this->affiliations;
+    }
+
+    /**
+     * Get all responsibilities (functional areas) from the token.
+     *
+     * @return array<int, array{id: string, name: string}>
+     */
+    public function getResponsibilities(): array
+    {
+        return $this->responsibilities;
+    }
+
+    /**
+     * Check if the cartesian product of affiliations × responsibilities yields more than one organisation.
+     * Organisation (affiliations) is always >= 1, responsibilities is 0..n.
+     */
+    public function hasMultipleOrganisations(): bool
+    {
+        $affiliationCount = count($this->affiliations);
+        $responsibilityCount = count($this->responsibilities);
+
+        if ($responsibilityCount > 0) {
+            return ($affiliationCount * $responsibilityCount) > 1;
+        }
+
+        return $affiliationCount > 1;
+    }
+
+    /**
+     * Override parent method to support multi-organisation tokens and private persons.
+     */
+    public function checkMandatoryValuesExist(): void
+    {
+        $missingValues = $this->checkUserIdentityFields();
+
+        // Private persons: skip roles and organization validation
+        if ($this->isPrivatePerson) {
+            $this->throwIfMandatoryValuesMissing($missingValues);
+
+            return;
+        }
+
+        // Multi-organisation: organisationId optional if affiliations or responsibilities present, but roles required
+        if ([] !== $this->affiliations || [] !== $this->responsibilities) {
+            if ([] === $this->customerRoleRelations) {
+                $missingValues[] = 'roles';
+            }
+            $this->throwIfMandatoryValuesMissing($missingValues);
+
+            return;
+        }
+
+        // Single-org: use standard validation
+        parent::checkMandatoryValuesExist();
+    }
+
+    /**
+     * Check common user identity fields (userId, userName, email, name).
+     *
+     * @return array<int, string> Missing field names
+     */
+    private function checkUserIdentityFields(): array
+    {
+        $missing = [];
+
+        if ('' === $this->userId) {
+            $missing[] = 'userId';
+        }
+        if ('' === $this->userName) {
+            $missing[] = 'userName';
+        }
+        if ('' === $this->emailAddress) {
+            $missing[] = 'emailAddress';
+        }
+        if ('' === $this->firstName && '' === $this->lastName) {
+            $missing[] = 'name';
+        }
+
+        return $missing;
+    }
+
     public function __toString(): string
     {
         $parentString = parent::__toString();
 
+        $affiliationsString = implode(', ', array_column($this->affiliations, 'id'));
+        $responsibilitiesString = implode(', ', array_column($this->responsibilities, 'id'));
+
         return $parentString.
             ', addressExtension: '.$this->addressExtension.
             ', city: '.$this->city.
-            ', company department: '.$this->companyDepartment;
+            ', company department: '.$this->companyDepartment.
+            ', isPrivatePerson: '.($this->isPrivatePerson ? 'true' : 'false').
+            ', affiliations: ['.$affiliationsString.']'.
+            ', responsibilities: ['.$responsibilitiesString.']';
     }
 }

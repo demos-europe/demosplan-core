@@ -10,16 +10,13 @@
 // babel.config.js
 const config = {
   presets: [
-    [
-      '@babel/preset-env',
-      {
-        modules: false,
-        debug: false,
-        corejs: '3.9',
-        useBuiltIns: 'usage',
-      },
-      '@babel/preset-flow',
-    ],
+    ['@babel/preset-env', {
+      modules: false,
+      debug: false,
+      corejs: '3.9',
+      useBuiltIns: 'usage',
+    }],
+    '@babel/preset-typescript',
   ],
   plugins: [
     '@babel/transform-runtime',
@@ -35,11 +32,6 @@ const config = {
       '@babel/transform-modules-commonjs',
     ],
   }],
-}
-
-if (process.NODE_ENV === 'testing') {
-  // This only enables dynamic imports for testing in js files, vue is configured in jest config
-  config.plugins.push(['dynamic-import-node', { noInterop: true }])
 }
 
 module.exports = config

@@ -102,7 +102,7 @@ trait ElasticsearchQueryTrait
             $boolQuery = $this->modifyBoolMustNotFilter($boolQuery, $esQuery);
 
             // if a Searchterm is set use it
-            if (null !== $esQuery->getSearch() && 0 < strlen($esQuery->getSearch()->getSearchTerm())) {
+            if (null !== $esQuery->getSearch() && 0 < strlen((string) $esQuery->getSearch()->getSearchTerm())) {
                 $baseQuery = new QueryString();
                 $baseQuery->setQuery($esQuery->getSearch()->getSearchTerm());
                 $baseQuery->setFields($esQuery->getSearch()->getFieldsArray());
@@ -130,7 +130,7 @@ trait ElasticsearchQueryTrait
                     $esSortFields[$sortField->getName()] = $sortField->getDirection();
                 }
             }
-            if (0 < count($esSortFields)) {
+            if ([] !== $esSortFields) {
                 $query->addSort($esSortFields);
             }
 
@@ -153,7 +153,7 @@ trait ElasticsearchQueryTrait
 
             // try to paginate Result, check for validity
             try {
-                $paginator->setCurrentPage((int)$page);
+                $paginator->setCurrentPage((int) $page);
             } catch (NotValidCurrentPageException $e) {
                 $paginator->setCurrentPage(1);
             }
@@ -244,7 +244,7 @@ trait ElasticsearchQueryTrait
     protected function addUserFilterTerms($key, $userFilters, $boolMustFilter)
     {
         if (isset($userFilters[$key])) {
-            $value = is_array($userFilters[$key]) ? $userFilters[$key] : [$userFilters[$key]];
+            $value = is_array($userFilters[$key]) ? \array_values($userFilters[$key]) : [$userFilters[$key]];
             $boolMustFilter[] = new Terms($key, $value);
         }
 
@@ -260,7 +260,7 @@ trait ElasticsearchQueryTrait
      */
     protected function getTermsQuery($filter)
     {
-        $value = is_array($filter->getValue()) ? $filter->getValue() : [$filter->getValue()];
+        $value = is_array($filter->getValue()) ? \array_values($filter->getValue()) : [$filter->getValue()];
 
         return new Terms($filter->getField(), $value);
     }
@@ -437,7 +437,7 @@ trait ElasticsearchQueryTrait
     protected function generateFilterArrayFromEsBucket($bucket, $labelMap = [], $labelKey = 'key', $valueKey = 'key', $countKey = 'doc_count')
     {
         $filter = [];
-        if ((!is_array($bucket) || 0 === count($bucket)) && 0 === count($labelMap)) {
+        if ((!is_array($bucket) || [] === $bucket) && 0 === count($labelMap)) {
             return $filter;
         }
 

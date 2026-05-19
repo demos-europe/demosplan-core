@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
@@ -71,7 +72,7 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
         $invitedOrgaIds = $procedure->getOrganisation()->map(
@@ -146,7 +147,7 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
     private function getOriginalStatementsCountForOrga(string $orgaId): int
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return 0;
         }
 
@@ -178,7 +179,7 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
 
             $invitationEmailList = $this->procedureService->getInstitutionMailList(
                 $procedure->getId(),
-                $procedure->getPhase()
+                $procedure->getPhaseObject()->getPhaseDefinition()
             );
 
             $hasValidResultFormat = is_array($invitationEmailList['result']);
@@ -189,7 +190,7 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
                 [
                     'orgaId'      => $orgaId,
                     'procedureId' => $procedure->getId(),
-                    'phase'       => $procedure->getPhase(),
+                    'phase'       => $procedure->getPhaseObject()->getPhaseDefinition()->getName(),
                     'exception'   => $e,
                 ]
             );

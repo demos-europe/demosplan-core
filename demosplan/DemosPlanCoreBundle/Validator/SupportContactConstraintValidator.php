@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Validator;
 
 use demosplan\DemosPlanCoreBundle\Constraint\SupportContactConstraint;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\SupportContact;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -36,7 +37,7 @@ class SupportContactConstraintValidator extends ConstraintValidator
          */
         $titleMissing = (null === $supportContact->getTitle() || '' === $supportContact->getTitle());
         if ($titleMissing
-            && (null !== $supportContact->getCustomer()
+            && ($supportContact->getCustomer() instanceof Customer
                 || SupportContact::SUPPORT_CONTACT_TYPE_PLATFORM !== $supportContact->getSupportType()
             )
         ) {
@@ -45,7 +46,7 @@ class SupportContactConstraintValidator extends ConstraintValidator
         }
 
         // if a customer is set - the supportType can not be of type platform
-        if (null !== $supportContact->getCustomer()
+        if ($supportContact->getCustomer() instanceof Customer
             && SupportContact::SUPPORT_CONTACT_TYPE_PLATFORM === $supportContact->getSupportType()
         ) {
             $this->context->buildViolation($constraint::WRONG_SUPPORT_TYPE)

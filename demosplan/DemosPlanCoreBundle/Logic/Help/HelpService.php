@@ -109,7 +109,7 @@ class HelpService
             }
         } catch (NoResultException $e) {
             $this->logger->error('UpdateSingleContextualHelp failed, Ident: '.$id.' ExceptionMessage: ', [$e]);
-            throw new InvalidArgumentException();
+            throw new InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
         } catch (Exception $e) {
             $type = $e::class;
             $this->logger->error('UpdateSingleContextualHelp failed Ident: '.$id.', ExceptionClass: '.$type.' ExceptionMessage: ', [$e]);

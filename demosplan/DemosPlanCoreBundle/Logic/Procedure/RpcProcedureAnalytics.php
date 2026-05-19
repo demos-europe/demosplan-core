@@ -64,7 +64,7 @@ class RpcProcedureAnalytics implements RpcMethodSolverInterface
             try {
                 $this->validateRpcRequest($rpcRequest);
                 $procedureId = $rpcRequest->params->procedureId;
-                if (null === $procedure || $procedure->getId() !== $procedureId) {
+                if (!$procedure instanceof ProcedureInterface || $procedure->getId() !== $procedureId) {
                     throw new \demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException('Given procedure ID must match the procedure the user was authorized for.');
                 }
 

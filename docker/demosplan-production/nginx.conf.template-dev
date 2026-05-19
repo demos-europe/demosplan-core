@@ -1,7 +1,33 @@
+# Optimized Gzip Compression Settings
 gzip on;
-gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript font/woff2;
-gzip_proxied any;
 gzip_vary on;
+gzip_proxied any;
+gzip_comp_level 6;
+gzip_buffers 16 8k;
+gzip_http_version 1.1;
+gzip_min_length 256;
+gzip_types
+    application/atom+xml
+    application/font-woff2
+    application/javascript
+    application/json
+    application/ld+json
+    application/manifest+json
+    application/rss+xml
+    application/vnd.api+json
+    application/x-javascript
+    application/xhtml+xml
+    application/xml
+    application/xml+rss
+    font/eot
+    font/otf
+    font/ttf
+    image/svg+xml
+    text/cache-manifest
+    text/css
+    text/javascript
+    text/plain
+    text/xml;
 
 large_client_header_buffers 4 32k;
 server_tokens off;
@@ -19,7 +45,6 @@ server
 
     if (-d /srv/www/public) {
         set $project_server_root /srv/www/public;
-        set $is_mono_repo true;
     }
 
     root $project_server_root;
@@ -30,6 +55,13 @@ server
     index app_dev.php;
 
     default_type text/html;
+
+    # Custom error pages to avoid leaking nginx version information
+    error_page 502 503 504 /custom_error.html;
+    location = /custom_error.html {
+        internal;
+        return 503 '<!DOCTYPE html><html><head><title>Service Temporarily Unavailable</title></head><body><h1>503 Service Temporarily Unavailable</h1></body></html>';
+    }
 
     #https://www.vagrantup.com/docs/synced-folders/virtualbox.html
     sendfile off;
@@ -43,6 +75,48 @@ server
     fastcgi_send_timeout 1800s;
     keepalive_timeout  1800s;
 
+    # Handle requests to static files directly by Nginx with caching
+    location ~* ^/(css|files|fonts|img|js) {
+        try_files $uri $uri/ =404;
+
+        # Set MIME types
+        location ~* \.woff2$ {
+            add_header Content-Type application/font-woff2;
+        }
+        location ~* \.js$ {
+            add_header Content-Type application/javascript;
+        }
+
+        # Cache images privately for 1 year
+        location ~* \.(jpg|jpeg|png|gif|ico|webp|avif)$ {
+            expires 1y;
+            add_header Cache-Control "private, immutable";
+        }
+
+        # Cache other static assets publicly for 1 year
+        location ~* \.(css|woff2?|ttf|eot|otf|svg)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+    }
+
+    # php-fpm health endpoints (pool metrics + simple ping). Restricted to loopback.
+    location = /fpm-status {
+        allow 127.0.0.1;
+        deny all;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $fastcgi_script_name;
+        fastcgi_param SCRIPT_NAME     $fastcgi_script_name;
+        fastcgi_pass $PHP_FPM_BETEILIGUNG_SERVICE:9000;
+    }
+    location = /fpm-ping {
+        allow 127.0.0.1;
+        deny all;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $fastcgi_script_name;
+        fastcgi_param SCRIPT_NAME     $fastcgi_script_name;
+        fastcgi_pass $PHP_FPM_BETEILIGUNG_SERVICE:9000;
+    }
 
     # Try all locations and relay to app_dev.php as a fallback.
     location /

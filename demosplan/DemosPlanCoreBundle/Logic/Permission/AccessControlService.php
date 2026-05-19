@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
@@ -87,7 +88,7 @@ class AccessControlService
 
             $role = $this->roleHandler->getRoleByCode($roleName);
 
-            if (null === $role) {
+            if (!$role instanceof RoleInterface) {
                 continue;
             }
 
@@ -107,15 +108,15 @@ class AccessControlService
 
         $criteria = [];
 
-        if (null !== $role) {
+        if ($role instanceof RoleInterface) {
             $criteria['role'] = [$role];
         }
 
-        if (null !== $orga) {
+        if ($orga instanceof OrgaInterface) {
             $criteria['organisation'] = [$orga];
         }
 
-        if (null !== $customer) {
+        if ($customer instanceof CustomerInterface) {
             $criteria['customer'] = [$customer];
         }
 
@@ -183,20 +184,28 @@ class AccessControlService
             foreach ($roleCodes as $roleName) {
                 // Try to find an existing permission with the given parameters
                 $role = $this->roleHandler->getUserRolesByCodes([$roleName])[0];
-                $permissions = $this->getEnabledPermissionNames($role, $orga, $customer, $permissionToCheck);
+                $foundPermissions = $this->getEnabledPermissionNames($role, $orga, $customer, $permissionToCheck);
+
+                // If we found permissions for this role, return true immediately
+                if (!empty($foundPermissions)) {
+                    return true;
+                }
             }
+
+            // No permissions found for any of the provided roles
+            return false;
         } else {
             $permissions = $this->getEnabledPermissionNames(null, $orga, $customer, $permissionToCheck);
         }
 
-        return !empty($permissions);
+        return [] !== $permissions;
     }
 
     public function addPermissionToGivenRole(OrgaInterface $orga, CustomerInterface $customer, string $roleName): void
     {
         $role = $this->roleHandler->getRoleByCode($roleName);
 
-        if (null === $role) {
+        if (!$role instanceof RoleInterface) {
             return;
         }
 
@@ -207,7 +216,7 @@ class AccessControlService
     {
         $role = $this->roleHandler->getRoleByCode($roleName);
 
-        if (null === $role) {
+        if (!$role instanceof RoleInterface) {
             return;
         }
 
@@ -222,7 +231,7 @@ class AccessControlService
 
         foreach ($organizationsToProcess as $orgaToProcess) {
             // If permission is already stored, skip it
-            if (true === $this->permissionExist($permissionToEnable, $orgaToProcess, $customer, [$role->getCode()])) {
+            if ($this->permissionExist($permissionToEnable, $orgaToProcess, $customer, [$role->getCode()])) {
                 continue;
             }
 
@@ -233,7 +242,7 @@ class AccessControlService
 
             $updatedOrga = $this->addPermissionBasedOnOrgaType($permissionToEnable, $role, $orgaToProcess, $customer, $dryRun);
 
-            if (null !== $updatedOrga) {
+            if ($updatedOrga instanceof OrgaInterface) {
                 $updatedOrgas[] = $updatedOrga;
             }
         }
@@ -346,7 +355,7 @@ class AccessControlService
     {
         $specificOrga = $this->orgaService->getOrga($orgaId);
 
-        if (null === $specificOrga) {
+        if (!$specificOrga instanceof Orga) {
             throw new InvalidArgumentException(sprintf('Organization with ID "%s" not found', $orgaId));
         }
 

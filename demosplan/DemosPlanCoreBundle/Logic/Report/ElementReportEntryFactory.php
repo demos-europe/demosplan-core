@@ -34,18 +34,15 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
             'parentTitle'           => $element->getParent()?->getTitle(), // eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
             'enabled'               => $element->getEnabled(),
             'organisations'         => $element->getOrganisationNames(true),
-            'keyOfInternalPhase'    => $element->getProcedure()->getPhase(),
-            'keyOfEternalPhase'     => $element->getProcedure()->getPublicParticipationPhase(),
-            //The translation of the time the report is created is the important one, not the key
-            'nameOfInternalPhase'   => $element->getProcedure()->getPhaseName(),
-            'nameOfExternalPhase'   => $element->getProcedure()->getPublicParticipationPhaseName(),
+            'nameOfInternalPhase'   => $element->getProcedure()->getPhaseObject()->getPhaseDefinition()->getName(),
+            'nameOfExternalPhase'   => $element->getProcedure()->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName(),
         ];
     }
 
-    public function createElementEntry(Elements $element, string $reportCategory, int $date = null): ReportEntry
+    public function createElementEntry(Elements $element, string $reportCategory, ?int $date = null): ReportEntry
     {
         $data = $this->createMessageData($element);
-        $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;
+        $data['date'] = $date ?? Carbon::now()->getTimestamp();
         $reportEntry = $this->createReportEntry();
         $reportEntry->setUser($this->getCurrentUser());
         $reportEntry->setGroup(ReportEntry::GROUP_ELEMENT);

@@ -131,13 +131,13 @@
               <div>
                 <dp-button
                   :busy="isSaving"
-                  class="w-11 u-mb-0_25"
+                  class="w-11 u-mb-0_25 justify-center"
                   :disabled="documentLengthTotal === 0"
                   :text="buttonText"
                   @click="save"
                 />
                 <dp-button
-                  class="w-11"
+                  class="w-11 justify-center"
                   color="secondary"
                   :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })"
                   :text="Translator.trans('abort')"

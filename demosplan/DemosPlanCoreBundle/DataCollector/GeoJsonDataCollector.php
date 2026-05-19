@@ -30,7 +30,7 @@ class GeoJsonDataCollector extends DataCollector
     /**
      * @throws UserNotFoundException
      */
-    public function collect(Request $request, Response $response, Throwable $exception = null): void
+    public function collect(Request $request, Response $response, ?Throwable $exception = null): void
     {
         $currentRoute = $request->get('_route');
         if ('DemosPlan_statement_list_draft' === $currentRoute) {
@@ -50,7 +50,7 @@ class GeoJsonDataCollector extends DataCollector
                 }
             }
 
-            if (!empty($geoJsonInfo)) {
+            if ([] !== $geoJsonInfo) {
                 $this->data['geo_json_info'] = $geoJsonInfo;
             }
         }
