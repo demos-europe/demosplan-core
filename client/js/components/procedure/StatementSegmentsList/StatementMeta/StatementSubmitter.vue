@@ -243,6 +243,7 @@ export default {
 
       const initialAttributes = this.statement.attributes
       const currentAttributes = this.localStatement.attributes
+      const isDifferent = (a, b) => (a ?? '') !== (b ?? '')
 
       const stringFields = [
         'initialOrganisationDepartmentName',
@@ -256,11 +257,10 @@ export default {
         'initialOrganisationCity',
       ]
 
-      if (stringFields.some(field => (currentAttributes[field] ?? '') !== (initialAttributes[field] ?? ''))) {
-        return true
-      }
-
-      return Boolean(currentAttributes.representationChecked) !== Boolean(initialAttributes.representationChecked)
+      return [
+        ...stringFields.map(field => isDifferent(currentAttributes[field], initialAttributes[field])),
+        Boolean(currentAttributes.representationChecked) !== Boolean(initialAttributes.representationChecked),
+      ].some(Boolean)
     },
 
     isStatementManual () {
