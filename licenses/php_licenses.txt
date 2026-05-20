@@ -130,4 +130,4 @@ willdurand/geocoder-bundle: MIT
 willdurand/js-translation-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 12.05.2026 07:55
+As of 20.05.2026 08:08
