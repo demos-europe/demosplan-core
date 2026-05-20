@@ -23,9 +23,9 @@ const segmentMark = {
     tag: 'segment-mark',
     getAttrs (dom) {
       return {
-        isActive: dom.dataset.rangeActive,
-        isMoving: dom.dataset.rangeMoving,
-        isConfirmed: dom.dataset.rangeConfirmed,
+        isActive: dom.dataset.rangeActive === 'true',
+        isMoving: dom.dataset.rangeMoving === 'true',
+        isConfirmed: dom.dataset.rangeConfirmed === 'true',
         pmId: dom.dataset.pmId,
         segmentId: dom.dataset.segmentId,
       }
