@@ -17,12 +17,11 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentLockEnforcementService;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
  * Pure unit test for the decision logic in SegmentLockEnforcementService.
- * Collaborators (CurrentUserInterface, ParameterBagInterface) are mocked so
- * each of the four truth-table rows can be exercised independently.
+ * The sole collaborator (CurrentUserInterface) is mocked so each of the four
+ * truth-table rows can be exercised independently.
  */
 class SegmentLockEnforcementServiceTest extends TestCase
 {
@@ -71,7 +70,7 @@ class SegmentLockEnforcementServiceTest extends TestCase
         );
     }
 
-    public function testIsFeatureEnabledMirrorsConfigParameter(): void
+    public function testIsFeatureEnabledMirrorsFeaturePermission(): void
     {
         self::assertTrue($this->buildSut(featureEnabled: true, hasPermission: false)->isFeatureEnabled());
         self::assertFalse($this->buildSut(featureEnabled: false, hasPermission: false)->isFeatureEnabled());
@@ -87,17 +86,14 @@ class SegmentLockEnforcementServiceTest extends TestCase
 
     private function buildSut(bool $featureEnabled, bool $hasPermission): SegmentLockEnforcementService
     {
-        $parameterBag = $this->createMock(ParameterBagInterface::class);
-        $parameterBag->method('get')
-            ->with(SegmentLockEnforcementService::CONFIG_PARAM_FEATURE_ENABLED)
-            ->willReturn($featureEnabled);
-
         $currentUser = $this->createMock(CurrentUserInterface::class);
         $currentUser->method('hasPermission')
-            ->with(SegmentLockEnforcementService::PERMISSION_ADMINISTRATE)
-            ->willReturn($hasPermission);
+            ->willReturnMap([
+                [SegmentLockEnforcementService::PERMISSION_FEATURE_ENABLED, $featureEnabled],
+                [SegmentLockEnforcementService::PERMISSION_ADMINISTRATE, $hasPermission],
+            ]);
 
-        return new SegmentLockEnforcementService($currentUser, $parameterBag);
+        return new SegmentLockEnforcementService($currentUser);
     }
 
     private function place(bool $locked): Place

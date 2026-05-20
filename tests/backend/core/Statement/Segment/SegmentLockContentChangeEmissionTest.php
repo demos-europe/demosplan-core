@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentLockEnforcementService;
-use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use Tests\Base\FunctionalTestCase;
 
 /**
@@ -30,31 +29,36 @@ use Tests\Base\FunctionalTestCase;
  * Doctrine wiring are exercised end-to-end) and verifies rows land in
  * entity_content_change with the expected shape via the repository.
  *
- * Requires parameters_test.yml to set `segment_lock_by_workflow_place: true`
- * — otherwise both methods short-circuit on the feature flag.
+ * Grants `feature_segment_lock_by_workflow_place` to the logged-in test user
+ * in setUp — otherwise both emission methods short-circuit on the feature
+ * flag and the assertions silently pass by doing nothing. Scope of the grant
+ * is one test class.
  */
 class SegmentLockContentChangeEmissionTest extends FunctionalTestCase
 {
     protected ?EntityContentChangeService $sut = null;
-    private ?EntityContentChangeRepository $entityContentChangeRepository = null;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->sut = $this->getContainer()->get(EntityContentChangeService::class);
-        $this->entityContentChangeRepository = $this->getContainer()->get(EntityContentChangeRepository::class);
 
         // determineChanger() reads the current user — log in a test user so
         // the service can attribute the audit entries.
         $this->logIn($this->getUserReference(LoadUserData::TEST_USER_2_PLANNER_ADMIN));
 
-        // Sanity check: the test env must have the feature enabled, otherwise
-        // every emission method short-circuits and the tests silently pass
-        // by doing nothing.
+        // The feature flag is a permission since the conversion away from the
+        // `segment_lock_by_workflow_place` config param. Grant it here so the
+        // real SegmentLockEnforcementService::isFeatureEnabled() returns true.
+        $this->enablePermissions([SegmentLockEnforcementService::PERMISSION_FEATURE_ENABLED]);
+
+        // Sanity check.
+        /** @var SegmentLockEnforcementService|null $segmentLockEnforcementService */
+        $segmentLockEnforcementService = $this->getContainer()->get(SegmentLockEnforcementService::class);
         self::assertTrue(
-            $this->getContainer()->get(SegmentLockEnforcementService::class)->isFeatureEnabled(),
-            'parameters_test.yml must set `segment_lock_by_workflow_place: true` for these tests',
+            $segmentLockEnforcementService?->isFeatureEnabled(),
+            'Failed to grant `feature_segment_lock_by_workflow_place` to the test user',
         );
     }
 
