@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Exception\SettingNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -254,7 +255,7 @@ class SettingRepository extends CoreRepository implements ArrayInterface, Object
             // ORM v3 raises TypeError (extends Error, not Exception) from
             // remove(null), which bypasses the service-layer catch (Exception)
             // that callers and tests expect to see.
-            throw new Exception(sprintf('Setting not found: %s', $entityId));
+            throw SettingNotFoundException::createFromId($entityId);
         }
         $this->getEntityManager()->remove($toDelete);
         $this->getEntityManager()->flush();

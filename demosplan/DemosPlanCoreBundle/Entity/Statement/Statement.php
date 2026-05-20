@@ -96,6 +96,8 @@ use UnexpectedValueException;
 #[ORM\Entity(repositoryClass: StatementRepository::class)]
 class Statement extends CoreEntity implements UuidEntityInterface, StatementInterface
 {
+    private const ON_DELETE_SET_NULL = 'SET NULL';
+
     /**
      * @var string|null
      *                  Generates a UUID in code that confirms to https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-NCName
@@ -125,7 +127,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @var Statement
      */
-    #[ORM\JoinColumn(name: '_st_p_id', referencedColumnName: '_st_id', onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: '_st_p_id', referencedColumnName: '_st_id', onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'children')]
     protected $parent;
 
@@ -499,7 +501,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var ParagraphVersion
      */
-    #[ORM\JoinColumn(name: '_st_paragraph_id', referencedColumnName: '_pdv_id', onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: '_st_paragraph_id', referencedColumnName: '_pdv_id', onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: ParagraphVersion::class, cascade: ['persist'])]
     protected $paragraph;
 
@@ -547,7 +549,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var SingleDocumentVersion
      */
-    #[ORM\JoinColumn(name: '_st_document_id', referencedColumnName: '_sdv_id', onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: '_st_document_id', referencedColumnName: '_sdv_id', onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: SingleDocumentVersion::class, cascade: ['persist'])]
     protected $document;
 
@@ -590,7 +592,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      *
      **/
-    #[ORM\JoinColumn(name: '_st_element_id', referencedColumnName: '_e_id', onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: '_st_element_id', referencedColumnName: '_e_id', onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: Elements::class, cascade: ['persist'])]
     protected $element;
 
@@ -603,7 +605,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var DraftStatement
      */
-    #[ORM\JoinColumn(name: '_ds_id', referencedColumnName: '_ds_id', onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: '_ds_id', referencedColumnName: '_ds_id', onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: DraftStatement::class)]
     protected $draftStatement;
 
@@ -803,7 +805,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var User
      */
-    #[ORM\JoinColumn(name: 'assignee', referencedColumnName: '_u_id', nullable: true, onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: 'assignee', referencedColumnName: '_u_id', nullable: true, onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: User::class)]
     protected $assignee;
 
@@ -818,7 +820,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * This is the owning side
      */
-    #[ORM\JoinColumn(name: 'head_statement_id', referencedColumnName: '_st_id', nullable: true, onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: 'head_statement_id', referencedColumnName: '_st_id', nullable: true, onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'cluster')]
     protected $headStatement;
 

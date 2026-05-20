@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementFile;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion;
+use demosplan\DemosPlanCoreBundle\Exception\DraftStatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -401,7 +402,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
                 // persist(null) below, which bypasses the catch and breaks the
                 // service-layer contract that turns repo exceptions into a
                 // `false` return.
-                throw new Exception(sprintf('DraftStatement not found: %s', $entityId));
+                throw DraftStatementNotFoundException::createFromId($entityId);
             }
             $draftStatement = $this->generateObjectValues($draftStatement, $data);
 

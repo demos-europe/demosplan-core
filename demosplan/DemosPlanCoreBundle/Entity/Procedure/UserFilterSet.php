@@ -25,6 +25,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: UserFilterSetRepository::class)]
 class UserFilterSet extends CoreEntity implements UuidEntityInterface, UserFilterSetInterface
 {
+    private const ON_DELETE_NO_ACTION = 'NO ACTION';
+
     /**
      * Unique identification of the GisLayerCategory entry.
      *
@@ -39,7 +41,7 @@ class UserFilterSet extends CoreEntity implements UuidEntityInterface, UserFilte
     /**
      * @var User
      */
-    #[ORM\JoinColumn(referencedColumnName: '_u_id', nullable: false, onDelete: 'NO ACTION')]
+    #[ORM\JoinColumn(referencedColumnName: '_u_id', nullable: false, onDelete: self::ON_DELETE_NO_ACTION)]
     #[ORM\ManyToOne(targetEntity: User::class, cascade: ['persist'])]
     protected $user;
 
@@ -52,14 +54,14 @@ class UserFilterSet extends CoreEntity implements UuidEntityInterface, UserFilte
     /**
      * @var HashedQuery
      */
-    #[ORM\JoinColumn(nullable: false, onDelete: 'NO ACTION')]
+    #[ORM\JoinColumn(nullable: false, onDelete: self::ON_DELETE_NO_ACTION)]
     #[ORM\ManyToOne(targetEntity: HashedQuery::class)]
     protected $filterSet;
 
     /**
      * @var Procedure
      */
-    #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false, onDelete: 'NO ACTION')]
+    #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false, onDelete: self::ON_DELETE_NO_ACTION)]
     #[ORM\ManyToOne(targetEntity: Procedure::class, cascade: ['persist'])]
     protected $procedure;
 

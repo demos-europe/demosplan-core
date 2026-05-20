@@ -47,6 +47,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[ORM\Entity(repositoryClass: DraftStatementRepository::class)]
 class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftStatementInterface
 {
+    private const ON_DELETE_SET_NULL = 'SET NULL';
+
     /**
      * @var string|null
      */
@@ -97,7 +99,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     /**
      * @var ParagraphVersionInterface
      */
-    #[ORM\JoinColumn(name: '_ds_paragraph_id', referencedColumnName: '_pdv_id', onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: '_ds_paragraph_id', referencedColumnName: '_pdv_id', onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: ParagraphVersion::class, cascade: ['all'])]
     protected $paragraph;
 
@@ -111,7 +113,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     /**
      * @var SingleDocumentVersionInterface
      */
-    #[ORM\JoinColumn(name: '_ds_document_id', referencedColumnName: '_sdv_id', onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: '_ds_document_id', referencedColumnName: '_sdv_id', onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: SingleDocumentVersion::class, cascade: ['persist'])]
     protected $document;
 
@@ -145,7 +147,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
      *
      *
      **/
-    #[ORM\JoinColumn(name: '_ds_element_id', referencedColumnName: '_e_id', onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: '_ds_element_id', referencedColumnName: '_e_id', onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: Elements::class, cascade: ['persist'])]
     protected $element;
 

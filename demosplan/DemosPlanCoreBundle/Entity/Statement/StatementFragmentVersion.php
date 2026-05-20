@@ -39,6 +39,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[ORM\Entity(repositoryClass: StatementFragmentVersionRepository::class)]
 class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface, StatementFragmentVersionInterface
 {
+    private const ON_DELETE_SET_NULL = 'SET NULL';
+
     /**
      * @var string|null
      */
@@ -51,9 +53,9 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     /**
      * @var StatementFragmentInterface
      *
-     * todo: should be nullable = false? will not working with onDelete="SET NULL"
+     * todo: should be nullable = false? will not working with onDelete: SET NULL
      */
-    #[ORM\JoinColumn(name: 'statement_fragment_id', referencedColumnName: 'sf_id', nullable: true, onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: 'statement_fragment_id', referencedColumnName: 'sf_id', nullable: true, onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: StatementFragment::class, inversedBy: 'versions')]
     protected $statementFragment;
 
@@ -167,7 +169,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      *
      * @var UserInterface
      */
-    #[ORM\JoinColumn(name: 'sfv_modified_by_u_id', referencedColumnName: '_u_id', onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: 'sfv_modified_by_u_id', referencedColumnName: '_u_id', onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: User::class)]
     protected $modifiedByUser;
 
@@ -178,7 +180,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      *
      *
      **/
-    #[ORM\JoinColumn(name: 'sfv_modified_by_d_id', referencedColumnName: '_d_id', onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: 'sfv_modified_by_d_id', referencedColumnName: '_d_id', onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: Department::class)]
     protected $modifiedByDepartment;
 
@@ -197,14 +199,14 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     /**
      * @var ParagraphVersionInterface
      */
-    #[ORM\JoinColumn(name: 'paragraph_id', referencedColumnName: '_pdv_id', onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: 'paragraph_id', referencedColumnName: '_pdv_id', onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: ParagraphVersion::class, cascade: ['persist'])]
     protected $paragraph;
 
     /**
      * @var SingleDocumentVersionInterface
      */
-    #[ORM\JoinColumn(name: 'document_id', referencedColumnName: '_sdv_id', onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(name: 'document_id', referencedColumnName: '_sdv_id', onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: SingleDocumentVersion::class, cascade: ['persist'])]
     protected $document;
 
