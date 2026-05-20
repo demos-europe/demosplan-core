@@ -121,6 +121,20 @@ class SegmentHandler implements SegmentHandlerInterface
     }
 
     /**
+     * Returns the subset of given IDs that belong to `$procedureId` AND
+     * whose current workflow place has `locked = true`. Delegates to
+     * {{ @see SegmentService::findLockedByIds }}.
+     *
+     * @param list<string> $ids
+     *
+     * @return list<Segment>
+     */
+    public function findLockedByIds(array $ids, string $procedureId): array
+    {
+        return $this->segmentService->findLockedByIds($ids, $procedureId);
+    }
+
+    /**
      * Given a Procedure Id, returns the next integer to be used in the sorting field for a new
      * segment (if none so far 0, otherwise maximum existing till the moment + 1).
      */
