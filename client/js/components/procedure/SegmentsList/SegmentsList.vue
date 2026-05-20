@@ -176,9 +176,9 @@
             is-columns-draggable
             is-resizable
             is-selectable
+            :lock-checkbox-by="canUnlock ? false : 'isPlaceLocked'"
+            :lock-checkbox-hint="Translator.trans('segment.lock.hint')"
             @items-toggled="handleToggleItem"
-            :lock-checkbox-by="'isPlaceLocked'"
-            :lock-checkbox-hint="lockCheckboxHint"
             @select-all="handleSelectAll"
           >
             <template v-slot:header-tags>
@@ -609,6 +609,24 @@ export default {
       ]
     },
 
+    canUnlock () {
+      return hasPermission('feature_administrate_segment_lock')
+    },
+
+    // Overrides tableSelectAllItems mixin to exclude locked segments from selection for users without unlock permission
+    currentlySelectedItems () {
+      const toggledIds = new Set(this.toggledItems.map(item => item.id))
+      let selected
+      if (this.trackDeselected === false) {
+        selected = this.toggledItems
+      } else {
+        selected = this.toggledItems.length === 0 ?
+          this.items.filter(item => this.canUnlock || !item.isPlaceLocked) :
+          this.items.filter(item => (this.canUnlock || !item.isPlaceLocked) && !toggledIds.has(item.id))
+      }
+      return selected.reduce((acc, el) => ({ ...acc, [el.id]: true }), {})
+    },
+
     headerFields () {
       return this.headerFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
     },
@@ -621,12 +639,6 @@ export default {
         }))
         // This is not working! better pass createdDate into segmentsObject
         .sort((a, b) => (b.attributes.externId.substring(1) - a.attributes.externId.substring(1)))
-    },
-
-    lockCheckboxHint () {
-      return hasPermission('feature_administrate_segment_lock') ?
-        Translator.trans('segment.lock.hint.admin') :
-        Translator.trans('segment.lock.hint')
     },
 
     noQuery () {
@@ -781,7 +793,7 @@ export default {
           ].join(),
           Place: [
             'name',
-            'locked',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
           ].join(),
           SourceStatementAttachment: ['file'].join(),
           Statement: [
@@ -827,9 +839,22 @@ export default {
           this.allItemsCount = data.meta.pagination.total
           this.updatePagination(data.meta.pagination)
 
-          // Get all segments (without pagination) to save them in localStorage for bulk editing
+          /*
+           * Get all segments (without pagination) to save them in localStorage for bulk editing.
+           * If 'feature_segment_lock_by_workflow_place' is active, users without `feature_administrate_segment_lock`
+           * must not be able to bulk-edit segments whose workflow place is locked, so exclude them from the ID set.
+           */
+          const idsFilter = { ...filter }
+          if (hasPermission('feature_segment_lock_by_workflow_place') && !this.canUnlock) {
+            idsFilter.placeNotLocked = {
+              condition: {
+                path: 'place.locked',
+                value: false,
+              },
+            }
+          }
           this.fetchSegmentIds({
-            filter,
+            filter: idsFilter,
             search: payload.search,
           })
         })
@@ -1225,7 +1250,7 @@ export default {
       fields: {
         Place: [
           'name',
-          'locked',
+          ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
         ].join(),
       },
     })
