@@ -36,10 +36,21 @@ jobs:
       - run: YARN_ENABLE_SCRIPTS=false yarn install --immutable
 
       - name: Generate JS SBOM
-        run: npx @cyclonedx/cdxgen -t yarn -o sbom-js.cdx.json --spec-version 1.5 --validate
+        run: |
+          mkdir -p sbom
+          npx @cyclonedx/cdxgen -t yarn -o sbom/sbom-js.cdx.json --spec-version 1.5 --validate --output-reproducible
 
-      - name: Upload SBOM
-        uses: actions/upload-artifact@v7
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
         with:
-          name: sbom-js
-          path: sbom-js.cdx.json
+          add-paths: sbom/sbom-js.cdx.json
+          base: main
+          branch: chore/sbom-js
+          delete-branch: true
+          commit-message: 'chore: update JS SBOM'
+          title: 'chore: update JS SBOM'
+          body: |
+            Auto-generated CycloneDX SBOM for JS/yarn dependencies.
+
+            Triggered by: `${{ github.event_name }}`
+          labels: devops, dependencies:yarn

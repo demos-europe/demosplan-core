@@ -24,20 +24,128 @@ All rights reserved
         <slot
           v-else
           :definition-source-id="definitionSourceId"
+          :definitions="definitions"
           :enable-toggle="enableToggle"
           :fields="fieldsToRender"
+          :fields-with-definitions="fieldsWithDefinitions"
           :mode="mode"
           :resource-id="resourceId"
           :resource-type="resourceType"
         >
           <div :class="layoutClasses">
-            <custom-field
-              v-for="field in fieldsToRender"
+            <div
+              v-for="{ field, definition } in fieldsWithDefinitions"
               :key="field.id"
-              :definition="definitions.find(d => d.id === field.id) || null"
+              :class="showFieldBorders ? prefixClass('border-l-4 border-neutral pl-3') : null"
+            >
+              <custom-field
+                :definition="definition"
+                :enable-toggle="enableToggle"
+                :field-data="{ id: field.id, value: field.value }"
+                :is-active-edit="getIsActiveEdit(field.id)"
+                :mode="mode"
+                :resource-id="resourceId"
+                :resource-type="resourceType"
+                @edit:cancel="handleEditEnd(field.id)"
+                @edit:save="handleEditEnd(field.id)"
+                @edit:start="handleEditStart(field.id)"
+                @save:error="handleSaveError"
+                @save:success="handleSaveSuccess"
+                @update:value="newValue => handleValueUpdate(field.id, newValue)"
+              >
+                <!-- Forward readonly-display slot if parent provided it -->
+                <template
+                  v-if="$slots['readonly-display']"
+                  v-slot:readonly-display="slotProps"
+                >
+                  <slot
+                    v-bind="slotProps"
+                    name="readonly-display"
+                  />
+                </template>
+              </custom-field>
+            </div>
+          </div>
+        </slot>
+      </dp-details>
+      <dp-contextual-help
+        v-if="titleInfoText"
+        :class="prefixClass('self-start')"
+        :text="titleInfoText"
+        icon="info"
+        size="medium"
+      />
+    </div>
+
+    <!-- Non-expandable: spinner at top level -->
+    <dp-loading
+      v-else-if="isLoading"
+      :overlay="false"
+    />
+
+    <!-- Non-expandable: fieldset (editable) or div (readonly) -->
+    <component
+      :is="isEditable ? 'fieldset' : 'div'"
+      v-else
+      :class="isEditable ? prefixClass('pb-0') : null"
+    >
+      <!-- Editable header: legend + contextual-help as separate siblings (legend must be direct child of fieldset) -->
+      <template v-if="isEditable">
+        <legend
+          v-if="showTitle"
+          :class="prefixClass('mb-2 text-[1em] font-[500]')"
+        >
+          {{ listTitle }}
+        </legend>
+        <dp-contextual-help
+          v-if="titleInfoText"
+          :text="titleInfoText"
+          icon="info"
+          size="medium"
+        />
+      </template>
+
+      <!-- Readonly header: title + contextual-help in flex wrapper -->
+      <div
+        v-else
+        :class="[prefixClass('flex items-center gap-1'), effectiveTitleClass]"
+      >
+        <component
+          :is="effectiveTitleTag"
+          v-if="showTitle"
+          class="m-0"
+        >
+          {{ listTitle }}
+        </component>
+        <dp-contextual-help
+          v-if="titleInfoText"
+          :text="titleInfoText"
+          icon="info"
+          size="medium"
+        />
+      </div>
+
+      <slot
+        :definition-source-id="definitionSourceId"
+        :definitions="definitions"
+        :enable-toggle="enableToggle"
+        :fields="fieldsToRender"
+        :fields-with-definitions="fieldsWithDefinitions"
+        :mode="mode"
+        :resource-id="resourceId"
+        :resource-type="resourceType"
+      >
+        <div :class="layoutClasses">
+          <div
+            v-for="{ field, definition } in fieldsWithDefinitions"
+            :key="field.id"
+            :class="showFieldBorders ? prefixClass('border-l-4 border-neutral pl-3') : null"
+          >
+            <custom-field
+              :definition="definition"
               :enable-toggle="enableToggle"
               :field-data="{ id: field.id, value: field.value }"
-              :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
+              :is-active-edit="getIsActiveEdit(field.id)"
               :mode="mode"
               :resource-id="resourceId"
               :resource-type="resourceType"
@@ -60,138 +168,9 @@ All rights reserved
               </template>
             </custom-field>
           </div>
-        </slot>
-      </dp-details>
-      <dp-contextual-help
-        v-if="titleInfoText"
-        :class="prefixClass('self-start')"
-        :text="titleInfoText"
-        icon="info"
-        size="medium"
-      />
-    </div>
-
-    <!-- Non-expandable: spinner at top level -->
-    <dp-loading
-      v-else-if="isLoading"
-      :overlay="false"
-    />
-
-    <!-- Editable (non-expandable): fieldset with legend for accessibility -->
-    <fieldset
-      v-else-if="mode === 'editable'"
-      :class="prefixClass('pb-0')"
-    >
-      <legend
-        v-if="showTitle"
-        :class="prefixClass('mb-2 text-[1em] font-[500]')"
-      >
-        {{ listTitle }}
-      </legend>
-      <dp-contextual-help
-        v-if="titleInfoText"
-        :text="titleInfoText"
-        icon="info"
-        size="medium"
-      />
-      <slot
-        :definition-source-id="definitionSourceId"
-        :enable-toggle="enableToggle"
-        :fields="fieldsToRender"
-        :mode="mode"
-        :resource-id="resourceId"
-        :resource-type="resourceType"
-      >
-        <div :class="layoutClasses">
-          <custom-field
-            v-for="field in fieldsToRender"
-            :key="field.id"
-            :definition="definitions.find(d => d.id === field.id) || null"
-            :enable-toggle="enableToggle"
-            :field-data="{ id: field.id, value: field.value }"
-            :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
-            :mode="mode"
-            :resource-id="resourceId"
-            :resource-type="resourceType"
-            @edit:cancel="handleEditEnd(field.id)"
-            @edit:save="handleEditEnd(field.id)"
-            @edit:start="handleEditStart(field.id)"
-            @save:error="handleSaveError"
-            @save:success="handleSaveSuccess"
-            @update:value="newValue => handleValueUpdate(field.id, newValue)"
-          >
-            <!-- Forward readonly-display slot if parent provided it -->
-            <template
-              v-if="$slots['readonly-display']"
-              v-slot:readonly-display="slotProps"
-            >
-              <slot
-                v-bind="slotProps"
-                name="readonly-display"
-              />
-            </template>
-          </custom-field>
         </div>
       </slot>
-    </fieldset>
-
-    <!-- Readonly non-expandable: optional title (tag configurable via titleTag prop) -->
-    <div v-else>
-      <div :class="[prefixClass('flex items-center gap-1'), effectiveTitleClass]">
-        <component
-          :is="effectiveTitleTag"
-          v-if="showTitle"
-          class="m-0"
-        >
-          {{ listTitle }}
-        </component>
-        <dp-contextual-help
-          v-if="titleInfoText"
-          :text="titleInfoText"
-          icon="info"
-          size="medium"
-        />
-      </div>
-      <slot
-        :definition-source-id="definitionSourceId"
-        :enable-toggle="enableToggle"
-        :fields="fieldsToRender"
-        :mode="mode"
-        :resource-id="resourceId"
-        :resource-type="resourceType"
-      >
-        <div :class="layoutClasses">
-          <custom-field
-            v-for="field in fieldsToRender"
-            :key="field.id"
-            :definition="definitions.find(d => d.id === field.id) || null"
-            :enable-toggle="enableToggle"
-            :field-data="{ id: field.id, value: field.value }"
-            :is-active-edit="enableToggle ? (activeEditFieldId === null || activeEditFieldId === field.id) : null"
-            :mode="mode"
-            :resource-id="resourceId"
-            :resource-type="resourceType"
-            @edit:cancel="handleEditEnd(field.id)"
-            @edit:save="handleEditEnd(field.id)"
-            @edit:start="handleEditStart(field.id)"
-            @save:error="handleSaveError"
-            @save:success="handleSaveSuccess"
-            @update:value="newValue => handleValueUpdate(field.id, newValue)"
-          >
-            <!-- Forward readonly-display slot if parent provided it -->
-            <template
-              v-if="$slots['readonly-display']"
-              v-slot:readonly-display="slotProps"
-            >
-              <slot
-                v-bind="slotProps"
-                name="readonly-display"
-              />
-            </template>
-          </custom-field>
-        </div>
-      </slot>
-    </div>
+    </component>
   </div>
 </template>
 
@@ -278,6 +257,24 @@ export default {
       default: false,
     },
 
+    showFieldBorders: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
+    sourceEntity: {
+      type: [String, null],
+      required: false,
+      default: null,
+    },
+
+    targetEntity: {
+      type: [String, null],
+      required: false,
+      default: null,
+    },
+
     titleClass: {
       type: [String, Array, Object],
       required: false,
@@ -331,13 +328,14 @@ export default {
      * Match definitions with values and filter based on showEmpty prop.
      * Definitions without a matching value are included with value: null
      * to also show empty custom fields in edit or toggle mode.
+     * Filtering by targetEntity happens server-side via fetchCustomFields options.
      */
     fieldsToRender () {
-      const allFields = this.definitions.map(def => {
-        const valueObj = this.values.find(v => v.id === def.id)
+      const allFields = this.definitions.map(definition => {
+        const matchingValue = this.values.find(value => value.id === definition.id)
         return {
-          id: def.id,
-          value: valueObj?.value ?? null,
+          id: definition.id,
+          value: matchingValue?.value ?? null,
         }
       })
 
@@ -353,8 +351,19 @@ export default {
       )
     },
 
+    fieldsWithDefinitions () {
+      return this.fieldsToRender.map(field => ({
+        definition: this.definitions.find(definition => definition.id === field.id) || null,
+        field,
+      }))
+    },
+
     hasFieldsToRender () {
       return !this.isLoading && !this.error && this.fieldsToRender.length > 0
+    },
+
+    isEditable () {
+      return this.mode === 'editable'
     },
 
     /*
@@ -406,7 +415,7 @@ export default {
     fetchCustomFieldsData () {
       const { fetchCustomFields, fetchCustomFieldValues, getCustomFieldsDefinitions, hasCachedValues } = useCustomFields()
 
-      const areDefinitionsCached = !!getCustomFieldsDefinitions(this.definitionSourceId)
+      const areDefinitionsCached = !!getCustomFieldsDefinitions(this.definitionSourceId, { sourceEntity: this.sourceEntity, targetEntity: this.targetEntity })
       const areValuesCached = this.batchFilterPath === null &&
         hasCachedValues(this.resourceType, this.resourceId)
 
@@ -416,7 +425,7 @@ export default {
       this.error = null
 
       // 1. Fetch definitions (gets array of field definitions with IDs)
-      fetchCustomFields(this.definitionSourceId)
+      fetchCustomFields(this.definitionSourceId, { sourceEntity: this.sourceEntity, targetEntity: this.targetEntity })
         .then(defs => {
           this.definitions = defs
 
@@ -438,6 +447,10 @@ export default {
             this.$emit('hasContent', this.hasFieldsToRender)
           })
         })
+    },
+
+    getIsActiveEdit (fieldId) {
+      return this.enableToggle ? (this.activeEditFieldId === null || this.activeEditFieldId === fieldId) : null
     },
 
     handleDetailsOpen () {
@@ -466,7 +479,7 @@ export default {
     },
 
     handleValueUpdate (fieldId, newValue) {
-      const valueIndex = this.values.findIndex(v => v.id === fieldId)
+      const valueIndex = this.values.findIndex(valueEntry => valueEntry.id === fieldId)
       if (valueIndex === -1) {
         this.values = [...this.values, { id: fieldId, value: newValue }]
       } else {
