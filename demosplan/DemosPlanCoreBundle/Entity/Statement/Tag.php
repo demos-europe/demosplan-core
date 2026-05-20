@@ -79,9 +79,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     #[ORM\ManyToOne(targetEntity: Boilerplate::class, inversedBy: 'tags')]
     protected $boilerplate;
 
-    /**
-     * @ORM\Column(name="_t_sort_index", type="integer", nullable=false, options={"default": 0})
-     */
+    #[ORM\Column(name: '_t_sort_index', type: 'integer', nullable: false, options: ['default' => 0])]
     protected int $sortIndex = 0;
 
     /**
