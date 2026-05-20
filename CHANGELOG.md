@@ -6,8 +6,14 @@
 
 ## UNRELEASED
 
-### Added
+### Added 
+- Tags can be reordered within and between TagTopics via drag and drop in tag administration
 - Add statement export via planner-uploaded DOCX layout template: planners upload a `.docx` via TUS, the backend validates `${…}` placeholders against a whitelist and renders the statement's segments in paragraph mode (`${segmentsAsParagraphs}` block, cloneBlock) or table mode (`${segmentsWithinTable}` row, cloneRow) (permission: `feature_statement_via_template_export`, EWM-only for v1; frontend modal integration pending)
+
+### Changed
+- Column widths in the segment list now persist across browser sessions
+- "column reset" in the segment list now also resets column widths to defaults
+- Doctrine ORM upgraded from v2.20 to v3.6 and `doctrine/persistence` widened to `^2.0 || ^3.0`; entity mappings converted from annotations to PHP 8 attributes (preparation for the API Platform integration)
 
 ## v4.39.0 (2026-05-06)
 
