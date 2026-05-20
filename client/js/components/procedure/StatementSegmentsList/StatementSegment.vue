@@ -12,7 +12,7 @@
     :id="`segment_${segment.id}`"
     ref="statementSegment"
     class="segment-list-row"
-    :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
+    :class="{'segment-list-row--assigned': isAssignedToMe && !isLocked, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
   >
@@ -184,7 +184,7 @@
           </template>
         </dp-editor>
       </div>
-      <div v-if="isAssignedToMe">
+      <div v-if="isAssignedToMe && !isLocked">
         <dp-checkbox
           :id="'showWorkflowActions_' + segment.id"
           v-model="showWorkflowActions"
@@ -328,7 +328,7 @@
         </button>
 
         <button
-          v-if="isAssignedToMe"
+          v-if="isAssignedToMe && !isLocked"
           v-tooltip="{
             container: `#segment_${segment.id}`,
             content: Translator.trans('edit')
