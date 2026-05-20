@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
  * Central enforcement point for the segment-lock feature.
@@ -24,18 +23,19 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  * two-step "is this user blocked from writing this segment?" check, used by
  * every write surface that could touch a segment on a locked workflow place.
  *
- * The feature itself is gated per project by the `segment_lock_by_workflow_place`
- * config parameter; when false this service returns false for every input and
- * the rest of the enforcement chain becomes a no-op.
+ * The feature itself is gated per project by the
+ * `feature_segment_lock_by_workflow_place` permission; when the current user
+ * does not hold it this service returns false for every input and the rest of
+ * the enforcement chain becomes a no-op. Granting the permission to every role
+ * that has `area_statement_segmentation` is the project-level "on" switch.
  */
 class SegmentLockEnforcementService
 {
-    public const CONFIG_PARAM_FEATURE_ENABLED = 'segment_lock_by_workflow_place';
+    public const PERMISSION_FEATURE_ENABLED = 'feature_segment_lock_by_workflow_place';
     public const PERMISSION_ADMINISTRATE = 'feature_administrate_segment_lock';
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
-        private readonly ParameterBagInterface $parameterBag,
     ) {
     }
 
@@ -78,6 +78,6 @@ class SegmentLockEnforcementService
 
     public function isFeatureEnabled(): bool
     {
-        return (bool) $this->parameterBag->get(self::CONFIG_PARAM_FEATURE_ENABLED);
+        return $this->currentUser->hasPermission(self::PERMISSION_FEATURE_ENABLED);
     }
 }
