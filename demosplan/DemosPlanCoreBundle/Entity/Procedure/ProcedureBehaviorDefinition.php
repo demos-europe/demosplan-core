@@ -16,53 +16,46 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureBehaviorDefinitionRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\JoinColumn;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * ProcedureBehaviorDefinition - Defines the customizable parts of the behavior of a Procedure.
  * A ProcedureBehaviorDefinition should never have an direct relationship to a Procedure and to a ProcedureType.
  *
- * @ORM\Table
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureBehaviorDefinitionRepository")
- *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: ProcedureBehaviorDefinitionRepository::class)]
 class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterface, ProcedureBehaviorDefinitionInterface
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private $id;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private $creationDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private $modificationDate;
 
     /**
@@ -73,11 +66,8 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      * as well as a direct relation to a ProcedureType, indicates invalid data.
      *
      * @var ProcedureInterface|null
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="procedureBehaviorDefinition")
-     *
-     * @JoinColumn(referencedColumnName="_p_id")
      */
+    #[ORM\OneToOne(targetEntity: Procedure::class, mappedBy: 'procedureBehaviorDefinition')]
     private $procedure;
 
     /**
@@ -86,25 +76,28 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      * Therefore a ProcedureBehaviorDefinition without a ProcedureType will have a related Procedure.
      *
      * @var ProcedureTypeInterface|null
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType", mappedBy="procedureBehaviorDefinition")
-     *
-     * @JoinColumn() // Without this, Doctrine doesn't add the column to table, so please don't delete.
      */
+    #[ORM\OneToOne(targetEntity: ProcedureType::class, mappedBy: 'procedureBehaviorDefinition')]
     private $procedureType;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
+     * Back-reference to the owning Procedure's id, populated when this definition is copied
+     * from a master template during procedure creation. Has a UNIQUE index but no FK constraint;
+     * the relational link is owned by Procedure::$procedureBehaviorDefinition.
      */
+    #[ORM\Column(name: 'procedure_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
+    private ?string $procedureId = null;
+
+    /**
+     * @var bool
+     */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private $allowedToEnableMap = true;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     private $hasPriorityArea = false;
 
     /**
@@ -112,9 +105,8 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
      * planners.
      *
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     private $participationGuestOnly = false;
 
     public function getId(): ?string
@@ -142,6 +134,7 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
                 A ProcedureBehaviorDefinition can not be set to a Procedure and to a ProcedureType');
         }
         $this->procedure = $procedure;
+        $this->procedureId = $procedure->getId();
     }
 
     public function getProcedureType(): ?ProcedureTypeInterface
@@ -159,6 +152,16 @@ class ProcedureBehaviorDefinition extends CoreEntity implements UuidEntityInterf
                 A ProcedureBehaviorDefinition can not be set to a Procedure and to a ProcedureType');
         }
         $this->procedureType = $procedureType;
+    }
+
+    public function getProcedureId(): ?string
+    {
+        return $this->procedureId;
+    }
+
+    public function setProcedureId(?string $procedureId): void
+    {
+        $this->procedureId = $procedureId;
     }
 
     public function isAllowedToEnableMap(): bool

@@ -17,96 +17,69 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
+use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Table(
- *     name="_tag",
- *     uniqueConstraints={
- *
- *         @ORM\UniqueConstraint(
- *             name="tag_unique_title",
- *             columns={"_tt_id", "_t_title"}
- *         )
- *     }
- * )
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\TagRepository")
- */
+#[ORM\Table(name: '_tag')]
+#[ORM\UniqueConstraint(name: 'tag_unique_title', columns: ['_tt_id', '_t_title'])]
+#[ORM\Entity(repositoryClass: TagRepository::class)]
 class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_t_id", type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_t_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var TagTopicInterface
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic", inversedBy="tags", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(name="_tt_id", referencedColumnName="_tt_id", nullable = false)
      */
     #[Assert\NotNull(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, 'segments_import'])]
     #[Assert\Type(groups: ['segments_import'], type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic')]
+    #[ORM\JoinColumn(name: '_tt_id', referencedColumnName: '_tt_id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: TagTopic::class, inversedBy: 'tags', cascade: ['persist'])]
     protected $topic;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_t_title", type="string", length=255, nullable=false)
      */
     #[Assert\NotBlank(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, 'segments_import'], message: 'Tag title may not be empty.')]
+    #[ORM\Column(name: '_t_title', type: 'string', length: 255, nullable: false)]
     protected $title = '';
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_t_create_date", type="datetime", nullable=false)
-     *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: '_t_create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var Collection<int,StatementInterface>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="tags", cascade={"persist", "refresh"})
-     *
-     * @ORM\JoinTable(
-     *     name="_statement_tag",
-     *     joinColumns={@ORM\JoinColumn(name="_t_id", referencedColumnName="_t_id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id")}
-     * )
      */
+    #[ORM\ManyToMany(targetEntity: Statement::class, mappedBy: 'tags', cascade: ['persist', 'refresh'])]
     protected $statements;
 
     /**
      * @var BoilerplateInterface
-     *
-     * @ORM\JoinColumn(name="_pt_id", referencedColumnName="_pt_id", onDelete="SET NULL")
-     *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate", inversedBy="tags")
      */
+    #[ORM\JoinColumn(name: '_pt_id', referencedColumnName: '_pt_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: Boilerplate::class, inversedBy: 'tags')]
     protected $boilerplate;
 
-    /**
-     * @ORM\Column(name="_t_sort_index", type="integer", nullable=false, options={"default": 0})
-     */
+    #[ORM\Column(name: '_t_sort_index', type: 'integer', nullable: false, options: ['default' => 0])]
     protected int $sortIndex = 0;
 
     /**
