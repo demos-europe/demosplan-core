@@ -393,7 +393,7 @@ export default {
         },
       }
 
-      if (hasPermission('feature_administrate_segment_lock')) {
+      if (hasPermission('feature_segment_lock_by_workflow_place') && hasPermission('feature_administrate_segment_lock')) {
         payload.attributes.locked = this.newPlace.solved
       }
 
@@ -461,7 +461,7 @@ export default {
         },
       }
 
-      if (hasPermission('feature_administrate_segment_lock')) {
+      if (hasPermission('feature_segment_lock_by_workflow_place') && hasPermission('feature_administrate_segment_lock')) {
         payload.data.attributes.locked = this.newRowData.solved
       }
 
