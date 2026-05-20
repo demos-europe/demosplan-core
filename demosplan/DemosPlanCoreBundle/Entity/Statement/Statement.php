@@ -894,7 +894,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @ORM\Column(name="deadline_date", type="date", nullable=true)
-     * @var DatetimeInterface|null
+     *
+     * @var DateTimeInterface|null
      */
     protected $deadline;
 
