@@ -87,6 +87,7 @@
 import { dpApi, DpButton, DpLoading } from '@demos-europe/demosplan-ui'
 import DpSendBeacon from './DpSendBeacon'
 import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'
+import { inlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 
 export default {
   name: 'DpConvertAnnotatedPdf',
@@ -225,7 +226,7 @@ export default {
       this.formValues = {
         ...this.formValues,
         quickSave: this.document.attributes.quickSave,
-        text: this.document.attributes.quickSave ?? this.document.attributes.text,
+        text: inlineImageAnchors(this.document.attributes.quickSave ?? this.document.attributes.text),
       }
       this.pages = documentResponse.data.included.filter(el => el.type === 'AnnotatedStatementPdfPage')
       this.isLoading = false

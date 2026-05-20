@@ -37,7 +37,7 @@
         required
         :aria-label="Translator.trans('search.assessment.table')"
         @enter="submit"
-        @input="emptySearchErrorVisible = false"
+        @update:model-value="emptySearchErrorVisible = false"
       />
     </label>
 
@@ -85,7 +85,9 @@
           :key="index"
           :summary="explanation.title"
         >
+          <!-- eslint-disable vue/no-v-html -->
           <span v-html="explanation.description" />
+          <!-- eslint-enable vue/no-v-html -->
         </dp-details>
       </div>
 

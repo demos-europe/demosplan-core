@@ -319,16 +319,14 @@
             document.bpform.action = oldAction;
         }
 
-        if (document.querySelector('[data-export-form]')) {
-            document.querySelector('[data-export-form]').addEventListener('click', function (event) {
+        document.addEventListener('click', function (event) {
+            if (event.target.closest('[data-export-form]')) {
                 submitForm(event, 'export')
-            })
-        }
+            }
 
-        if (document.querySelector('[data-send-form]')) {
-            document.querySelector('[data-send-form]').addEventListener('click', function (event) {
+            if (event.target.closest('[data-send-form]')) {
                 submitForm(event, 'send')
-            })
-        }
+            }
+        })
     </script>
 {% endblock javascripts %}

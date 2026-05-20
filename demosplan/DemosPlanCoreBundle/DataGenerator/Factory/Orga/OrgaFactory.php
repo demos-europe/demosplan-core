@@ -45,7 +45,7 @@ final class OrgaFactory extends PersistentProxyObjectFactory
 
     protected function defaults(): array
     {
-        $slug = SlugFactory::createOne()->object();
+        $slug = SlugFactory::createOne()->_real();
 
         return [
             'createdDate'    => self::faker()->dateTime(),
@@ -63,7 +63,7 @@ final class OrgaFactory extends PersistentProxyObjectFactory
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
      */
-    protected function initialize(): self
+    protected function initialize(): static
     {
         return $this;
     }

@@ -355,7 +355,8 @@
         v-model="values.text"
         :aria-label="Translator.trans('statement.text.short')"
         :procedure-id="procedureId"
-        :toolbar-items="{ linkButton: true }"
+        :toolbar-items="{ linkButton: true, imageButton: true }"
+        :tus-endpoint="dplan.paths.tusEndpoint"
         required
         hidden-input="r_text"
       />
@@ -376,7 +377,6 @@
           :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           name="r_attachment_original"
           allowed-file-types="all"
-          :basic-auth="dplan.settings.basicAuth"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
           :max-number-of-files="1"
           needs-hidden-input
@@ -394,7 +394,6 @@
         id="r_upload"
         name="r_upload"
         allowed-file-types="all"
-        :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
         :max-number-of-files="1000"

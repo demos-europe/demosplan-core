@@ -365,7 +365,7 @@ class StatementCopier
                 if ($file instanceof File) {
                     $this->fileService->addStatementFileContainer(
                         $copiedStatement->getId(),
-                        $file->getHash(),
+                        $file->getId(),
                         $file->getFileString()
                     );
                 }

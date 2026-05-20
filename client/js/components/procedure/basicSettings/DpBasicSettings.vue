@@ -234,6 +234,11 @@ export default {
 
     shouldShowInterfaceWarningModal () {
       const checkbox = document.getElementById('interfaceFieldsToTransmit-checkbox')
+
+      if (!checkbox) {
+        return false
+      }
+
       const isInterfaceCheckboxEnabled = !checkbox?.checked
 
       return this.isAddonLoaded &&
@@ -315,12 +320,12 @@ export default {
 
     // Needed for the addon-modal on submit
     activateInterface (formElement) {
-        const checkbox = document.getElementById('interfaceFieldsToTransmit-checkbox')
+      const checkbox = document.getElementById('interfaceFieldsToTransmit-checkbox')
 
-        if (checkbox && !checkbox.disabled && !checkbox.checked) {
-          checkbox.click()
-          dplan.notify.notify('confirm', Translator.trans('interface.activation.success'))
-        }
+      if (checkbox && !checkbox.disabled && !checkbox.checked) {
+        checkbox.click()
+        dplan.notify.notify('confirm', Translator.trans('interface.activation.success'))
+      }
 
       this.interfaceWarningModalRef?.toggle()
       this.submit(formElement)

@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Message\PurgeDeletedProceduresMessage;
 use demosplan\DemosPlanCoreBundle\Traits\InitializesAnonymousUserPermissionsTrait;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -27,6 +28,7 @@ final class PurgeDeletedProceduresMessageHandler
     public function __construct(
         private readonly ProcedureHandler $procedureHandler,
         private readonly GlobalConfigInterface $globalConfig,
+        private readonly ParameterBagInterface $parameterBag,
         private readonly PermissionsInterface $permissions,
         private readonly LoggerInterface $logger,
     ) {
@@ -40,8 +42,9 @@ final class PurgeDeletedProceduresMessageHandler
         $purgedProcedures = 0;
         try {
             if (true === $this->globalConfig->getUsePurgeDeletedProcedures()) {
+                $retentionDays = (int) $this->parameterBag->get('purge_deleted_retention_period_days');
                 $this->logger->info('PurgeDeletedProcedures', [spl_object_id($message)]);
-                $purgedProcedures = $this->procedureHandler->purgeDeletedProcedures(5);
+                $purgedProcedures = $this->procedureHandler->purgeDeletedProcedures(5, $retentionDays);
             } else {
                 $this->logger->info('Purge deleted procedures is disabled.');
             }

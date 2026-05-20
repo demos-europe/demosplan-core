@@ -177,7 +177,7 @@ import {
   DpTextArea,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
-import { mapState } from 'vuex'
+
 export default {
   name: 'StatementEntry',
 
@@ -221,10 +221,6 @@ export default {
   },
 
   computed: {
-    ...mapState('Statement', {
-      statements: 'items',
-    }),
-
     availableProcedurePhases () {
       const phases = this.statement.attributes?.availableProcedurePhases || []
 
@@ -244,12 +240,36 @@ export default {
       return today
     },
 
+    hasUnsavedChanges () {
+      if (!this.localStatement || !this.statement) {
+        return false
+      }
+
+      const initialAttributes = this.deepCloneSerializable(this.statement.attributes)
+      initialAttributes.authoredDate = this.getFormattedDate(initialAttributes.authoredDate)
+      initialAttributes.submitDate = this.getFormattedDate(initialAttributes.submitDate)
+
+      const currentAttributes = this.localStatement.attributes
+
+      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+    },
+
     isStatementManual () {
       return this.localStatement.attributes.isManual
     },
   },
 
   methods: {
+    /**
+     * Deep clone via JSON serialization.
+     *
+     * `structuredClone()` may fail on Vuex store objects containing functions/methods.
+     */
+    deepCloneSerializable (obj) {
+      // eslint-disable-next-line unicorn/prefer-structured-clone
+      return JSON.parse(JSON.stringify(obj))
+    },
+
     getFormattedDate (date) {
       if (!date) {
         return ''
@@ -270,30 +290,22 @@ export default {
     },
 
     save () {
-      // If authorName has been changed, change submitName as well, see https://yaits.demos-deutschland.de/T20363#479858
-      if (this.localStatement.attributes.authorName !== this.statement.attributes.authorName) {
-        this.syncAuthorAndSubmitter()
-      }
-
-      // Get current statement from store (includes any relationship changes from other components)
-      const currentStatement = this.statements[this.statement.id]
-
-      const updatedStatement = {
-        ...currentStatement,
+      const attrs = this.localStatement.attributes
+      const changes = {
         attributes: {
-          ...currentStatement.attributes,
-          authoredDate: this.localStatement.attributes.authoredDate,
-          submitDate: this.localStatement.attributes.submitDate,
-          submitType: this.localStatement.attributes.submitType,
-          internId: this.localStatement.attributes.internId,
-          procedurePhase: this.localStatement.attributes.procedurePhase,
-          memo: this.localStatement.attributes.memo,
-          authorName: this.localStatement.attributes.authorName,
-          submitName: this.localStatement.attributes.submitName,
+          authoredDate: attrs.authoredDate,
+          submitDate: attrs.submitDate,
+          submitType: attrs.submitType,
+          internId: attrs.internId,
         },
       }
-
-      this.$emit('save', updatedStatement)
+      if (hasPermission('field_statement_phase')) {
+        changes.attributes.procedurePhase = attrs.procedurePhase
+      }
+      if (hasPermission('field_statement_memo')) {
+        changes.attributes.memo = attrs.memo
+      }
+      this.$emit('save', changes)
     },
 
     setDate (val, field) {
@@ -301,13 +313,9 @@ export default {
     },
 
     setInitValues () {
-      this.localStatement = JSON.parse(JSON.stringify(this.statement))
+      this.localStatement = this.deepCloneSerializable(this.statement)
       this.localStatement.attributes.authoredDate = this.getFormattedDate(this.localStatement.attributes.authoredDate)
       this.localStatement.attributes.submitDate = this.getFormattedDate(this.localStatement.attributes.submitDate)
-    },
-
-    syncAuthorAndSubmitter () {
-      this.localStatement.attributes.submitName = this.localStatement.attributes.authorName
     },
   },
 

@@ -23,7 +23,5 @@ parameters:
 #        - %rootDir%/../../../vendor/twig/twig/src/Extension/CoreExtension.php
 
     excludePaths:
-        - %rootDir%/../../../demosplan/vendor
         - %rootDir%/../../../vendor
-        - %rootDir%/../../../demosplan/plugins
     level: 1

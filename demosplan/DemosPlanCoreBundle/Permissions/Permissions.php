@@ -652,6 +652,10 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             return false;
         }
 
+        if (null === $this->procedure) {
+            return false;
+        }
+
         return $this->procedureAccessEvaluator->isOwningProcedure(
             $this->user,
             $this->procedure

@@ -244,7 +244,7 @@ trait ElasticsearchQueryTrait
     protected function addUserFilterTerms($key, $userFilters, $boolMustFilter)
     {
         if (isset($userFilters[$key])) {
-            $value = is_array($userFilters[$key]) ? $userFilters[$key] : [$userFilters[$key]];
+            $value = is_array($userFilters[$key]) ? \array_values($userFilters[$key]) : [$userFilters[$key]];
             $boolMustFilter[] = new Terms($key, $value);
         }
 
@@ -260,7 +260,7 @@ trait ElasticsearchQueryTrait
      */
     protected function getTermsQuery($filter)
     {
-        $value = is_array($filter->getValue()) ? $filter->getValue() : [$filter->getValue()];
+        $value = is_array($filter->getValue()) ? \array_values($filter->getValue()) : [$filter->getValue()];
 
         return new Terms($filter->getField(), $value);
     }

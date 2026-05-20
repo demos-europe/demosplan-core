@@ -22,7 +22,7 @@
     name="r_email"
     type="email"
     width="u-1-of-2"
-    @input="val => setStatementData({r_email: val})"
+    @update:model-value="val => setStatementData({r_email: val})"
   />
 </template>
 

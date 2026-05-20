@@ -206,7 +206,11 @@ class DemosPlanProcedureController extends BaseController
                 ? $this->globalConfig->getProjectShortUrlRedirectRouteLoggedin()
                 : $this->globalConfig->getProjectShortUrlRedirectRoute();
 
-            return $this->redirectToRoute($redirectRoute, ['procedure' => $procedure->getId()]);
+            $redirectParamName = $currentUser->getUser()->isLoggedIn()
+                ? $this->globalConfig->getProjectShortUrlRedirectParamLoggedin()
+                : $this->globalConfig->getProjectShortUrlRedirectParam();
+
+            return $this->redirectToRoute($redirectRoute, [$redirectParamName => $procedure->getId()]);
         } catch (NoResultException) {
             $this->getMessageBag()->add('error', 'warning.shorturl.no.procedure');
 
@@ -1372,7 +1376,7 @@ class DemosPlanProcedureController extends BaseController
             $agencies = $procedureServiceOutput->getPlanningOffices($customerService->getCurrentCustomer());
             $templateVars['agencies'] = $agencies;
 
-            $dataInputOrgas = $procedureServiceOutput->getDataInputOrgas();
+            $dataInputOrgas = $procedureServiceOutput->getDataInputOrgas($customerService->getCurrentCustomer());
             $templateVars['dataInputOrgas'] = $dataInputOrgas;
             // get current shortUrlPath
             $templateVars['shortUrlPath'] = $this->generateUrl(
@@ -1441,8 +1445,7 @@ class DemosPlanProcedureController extends BaseController
             }
 
             $templateVars['isCustomerMasterBlueprint'] = $procedureObject->isCustomerMasterBlueprint();
-            $templateVars['isCustomerMasterBlueprintExisting'] =
-                $procedureService->isCustomerMasterBlueprintExisting($customerService->getCurrentCustomer()->getId());
+            $templateVars['customerMasterBlueprint'] = $customerService->getCurrentCustomer()->getDefaultProcedureBlueprint();
 
             $templateVars['sourceProcedureCoupleToken'] = $coupleTokenService->getTokenForSourceProcedure($procedureObject);
             $templateVars['targetProcedureCoupleToken'] = $coupleTokenService->getTokenForTargetProcedure($procedureObject);
@@ -2156,66 +2159,65 @@ class DemosPlanProcedureController extends BaseController
                 );
 
                 return $this->redirectBack($request);
-            } else {
-                $helperServices = [
-                    'serviceMail'      => $mailService,
-                    'serviceDemosPlan' => $statementService,
-                ];
-                $this->procedureHandler->setHelperServices($helperServices);
+            }
+            $helperServices = [
+                'serviceMail'      => $mailService,
+                'serviceDemosPlan' => $statementService,
+            ];
+            $this->procedureHandler->setHelperServices($helperServices);
 
-                // verfasse und verschicke die Einladungs-E-Mail
-                try {
-                    $storageResult = $this->procedureHandler->sendInvitationEmails(
-                        $procedureAsArray,
-                        $this->prepareIncomingData($request, 'emailEdit')
-                    );
+            // verfasse und verschicke die Einladungs-E-Mail
+            try {
+                $storageResult = $this->procedureHandler->sendInvitationEmails(
+                    $procedureAsArray,
+                    $this->prepareIncomingData($request, 'emailEdit')
+                );
 
-                    // generiere eine Erfolgsmeldung für die eingeladenen TöB
-                    $this->getMessageBag()->add(
-                        'confirm',
-                        'confirm.invitation.sent',
-                        ['variable' => implode(', ', $storageResult->getOrgasInvited())]
-                    );
-                    // generiere eine Fehlermeldung für die nicht eingeladenen TöB
-                    if ([] !== $storageResult->getOrgasNotInvited()) {
-                        $this->getMessageBag()->add(
-                            'error',
-                            'error.email.invitation.send.no.email',
-                            ['variable' => implode(', ', $storageResult->getOrgasNotInvited())]
-                        );
-                    }
-
-                    return new RedirectResponse(
-                        $this->generateUrl(
-                            'DemosPlan_procedure_member_index',
-                            ['procedure' => $procedure]
-                        )
-                    );
-                } catch (NoRecipientsWithEmailException) {
-                    // generiere eine Fehlermeldung, wenn nur Empfänger ohne Email ausgesucht wurden.
+                // generiere eine Erfolgsmeldung für die eingeladenen TöB
+                $this->getMessageBag()->add(
+                    'confirm',
+                    'confirm.invitation.sent',
+                    ['variable' => implode(', ', $storageResult->getOrgasInvited())]
+                );
+                // generiere eine Fehlermeldung für die nicht eingeladenen TöB
+                if ([] !== $storageResult->getOrgasNotInvited()) {
                     $this->getMessageBag()->add(
                         'error',
-                        'error.email.invitation.no.recipients.with.mail',
-                        ['variable' => '']
+                        'error.email.invitation.send.no.email',
+                        ['variable' => implode(', ', $storageResult->getOrgasNotInvited())]
                     );
-
-                    return $this->redirectBack($request);
-                } catch (MissingDataException) {
-                    $this->getMessageBag()->add(
-                        'error',
-                        'error.missing.subject.or.text'
-                    );
-
-                    return $this->redirectBack($request);
-                } catch (Exception) {
-                    $this->getMessageBag()->add(
-                        'error',
-                        'error.email.invitation.send',
-                        ['variable' => '']
-                    );
-
-                    return $this->redirectBack($request);
                 }
+
+                return new RedirectResponse(
+                    $this->generateUrl(
+                        'DemosPlan_procedure_member_index',
+                        ['procedure' => $procedure]
+                    )
+                );
+            } catch (NoRecipientsWithEmailException) {
+                // generiere eine Fehlermeldung, wenn nur Empfänger ohne Email ausgesucht wurden.
+                $this->getMessageBag()->add(
+                    'error',
+                    'error.email.invitation.no.recipients.with.mail',
+                    ['variable' => '']
+                );
+
+                return $this->redirectBack($request);
+            } catch (MissingDataException) {
+                $this->getMessageBag()->add(
+                    'error',
+                    'error.missing.subject.or.text'
+                );
+
+                return $this->redirectBack($request);
+            } catch (Exception) {
+                $this->getMessageBag()->add(
+                    'error',
+                    'error.email.invitation.send',
+                    ['variable' => '']
+                );
+
+                return $this->redirectBack($request);
             }
         }
 

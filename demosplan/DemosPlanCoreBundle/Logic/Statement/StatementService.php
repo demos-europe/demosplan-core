@@ -134,6 +134,7 @@ use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Exception;
+use FOS\ElasticaBundle\Index\IndexManager;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -252,6 +253,7 @@ class StatementService implements StatementServiceInterface
         private readonly FileService $fileService,
         private readonly GlobalConfigInterface $globalConfig,
         HashedQueryService $filterSetService,
+        private readonly IndexManager $indexManager,
         JsonApiPaginationParser $paginationParser,
         private readonly MessageBagInterface $messageBag,
         protected ParagraphService $paragraphService,
@@ -1151,6 +1153,16 @@ class StatementService implements StatementServiceInterface
                 $this->logger->warning('Trying to update a locked by assignment statement.');
             }
 
+            // there are fields, which are only allowed to modify on a manual statement?
+            $hasManualStatementUpdateFields = $this->hasManualStatementUpdateFields($updatedStatement, $currentStatementObject);
+            $updateForbidden = ($hasManualStatementUpdateFields
+                && !$currentStatementObject->isManual())
+                && !$this->permissions->hasPermission('feature_statement_submitter_data_always_editable');
+            if ($updateForbidden) {
+                $this->messageBag->add('warning', 'warning.deny.update.manual.statement');
+                $this->logger->warning('Trying to update manualStatementUpdateFields on a normal statement.');
+            }
+
             // is a original statement?
             $lockedByOriginal = false;
             $isOriginal = $currentStatementObject->isOriginal();
@@ -1168,6 +1180,7 @@ class StatementService implements StatementServiceInterface
             if (!$lockedByAssignment
                 && !$lockedByAssignmentOfHeadStatement
                 && !$lockedByCluster
+                && !$updateForbidden
                 && !$lockedByOriginal
                 && !$currentStatementObject->isPlaceholder()) {
                 $preUpdatedStatement = clone $currentStatementObject;
@@ -1267,6 +1280,71 @@ class StatementService implements StatementServiceInterface
         }
 
         return $fileHashToFileContainerMapping;
+    }
+
+    /**
+     * Determines if one of the fields which only can be modified on a manual statement, should be updated.
+     *
+     * @param Statement|array $statement        - Statement as array or object
+     * @param Statement       $currentStatement - current unmodified statement object, to compare with incoming update data
+     *
+     * @return bool - true if one of the 'critical' fields should be updated, otherwise false
+     */
+    private function hasManualStatementUpdateFields($statement, Statement $currentStatement): bool
+    {
+        $currentAuthorName = $currentStatement->getAuthorName();
+        $currentSubmitterName = $currentStatement->getSubmitterName();
+        $currentSubmitterEmailAddress = $currentStatement->getSubmitterEmailAddress();
+        $currentDepartmentName = $currentStatement->getMeta()->getOrgaDepartmentName();
+        // orgaName is submitterType:
+        $currentSubmitterType = $currentStatement->getMeta()->getOrgaName();
+        $currentOrgaPostalCode = $currentStatement->getOrgaPostalCode();
+        $currentOrgaCity = $currentStatement->getOrgaCity();
+        $currentOrgaStreet = $currentStatement->getOrgaStreet();
+        $currentOrgaEmail = $currentStatement->getOrgaEmail();
+        $currentAuthoredDateString = $currentStatement->getAuthoredDateString();
+        $currentAuthoredDateTimeStamp = $currentStatement->getAuthoredDate();
+        $currentSubmittedDateString = $currentStatement->getSubmitDateString();
+        $currentSubmittedDateTimeStamp = $currentStatement->getSubmit();
+
+        if (\is_array($statement)) {
+            $statement = \collect($statement);
+            if (
+                ($statement->has('author_name') && $statement->get('author_name') != $currentAuthorName)
+                || ($statement->has('submit_name') && $statement->get('submit_name') != $currentSubmitterName)
+                || ($statement->has('submitterEmailAddress') && $statement->get('submitterEmailAddress') != $currentSubmitterEmailAddress)
+                || ($statement->has('departmentName') && $statement->get('departmentName') != $currentDepartmentName)
+                || ($statement->has('submitterType') && $statement->get('submitterType') != $currentSubmitterType)
+                || ($statement->has('orga_postalcode') && $statement->get('orga_postalcode') != $currentOrgaPostalCode)
+                || ($statement->has('orga_city') && $statement->get('orga_city') != $currentOrgaCity)
+                || ($statement->has('orga_street') && $statement->get('orga_street') != $currentOrgaStreet)
+                || ($statement->has('orga_email') && $statement->get('orga_email') != $currentOrgaEmail)
+                || ($statement->has('authoredDate') && $statement->get('authoredDate') != $currentAuthoredDateString)
+                || ($statement->has('submittedDate') && $statement->get('submittedDate') != $currentSubmittedDateString)
+            ) {
+                return true;
+            }
+        }
+
+        if ($statement instanceof Statement) {
+            if (
+                $statement->getAuthorName() != $currentAuthorName
+                || $statement->getSubmitterName() != $currentSubmitterName
+                || $statement->getMeta()->getOrgaDepartmentName() != $currentDepartmentName
+                || $statement->getMeta()->getOrgaName() != $currentSubmitterType
+                || $statement->getSubmitterEmailAddress() != $currentSubmitterEmailAddress
+                || $statement->getOrgaPostalCode() != $currentOrgaPostalCode
+                || $statement->getOrgaCity() != $currentOrgaCity
+                || $statement->getOrgaStreet() != $currentOrgaStreet
+                || $statement->getOrgaEmail() != $currentOrgaEmail
+                || $statement->getAuthoredDate() != $currentAuthoredDateTimeStamp
+                || $statement->getSubmit() != $currentSubmittedDateTimeStamp
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -1644,15 +1722,22 @@ class StatementService implements StatementServiceInterface
      *
      * @throws Exception
      */
-    public function addSourceStatementAttachments(array $statements): array
+    public function addStatementAttachments(array $statements, bool $includeAdditionalAttachments = false): array
     {
         $entities = $this->elasticsearchStatementsToObjects($statements);
 
-        return \array_map(static function (array $statement) use ($entities): array {
+        return \array_map(static function (array $statement) use ($entities, $includeAdditionalAttachments): array {
+            // Add SOURCE_STATEMENT attachment
             $statement['attachments'] = array_filter(
                 $entities[$statement['id']]->getAttachments()->getValues(),
                 static fn (StatementAttachment $attachment) => StatementAttachment::SOURCE_STATEMENT === $attachment->getType()
             );
+
+            // Add additional attachments
+            if ($includeAdditionalAttachments) {
+                $files = $entities[$statement['id']]->getFiles();
+                $statement['files'] = $files;
+            }
 
             return $statement;
         }, $statements);
@@ -1698,6 +1783,9 @@ class StatementService implements StatementServiceInterface
             $statement->setVotes($existingVotes->toArray());
 
             $this->statementRepository->updateObject($statement);
+
+            // Refresh ES index to ensure the vote is immediately visible after redirect
+            $this->indexManager->getIndex('statements')->refresh();
 
             $this->messageBag->add('confirm', 'confirm.statement.marked.voted');
 
@@ -2252,9 +2340,9 @@ class StatementService implements StatementServiceInterface
             static function ($value, string $key) {
                 if ('r_submitterEmailAddress' === $key) {
                     return str_starts_with($key, 'r_') && (\is_string($value) || (\is_array($value) && [] !== $value));
-                } else {
-                    return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && [] !== $value));
                 }
+
+                return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && [] !== $value));
             }
         )->mapWithKeys(
             static function ($stringOrArrayValue, string $key) {
@@ -2686,10 +2774,33 @@ class StatementService implements StatementServiceInterface
      */
     public function getProcedurePhaseNameFromArray(array $statement): string
     {
-        $statementObject = $this->getStatement($statement['id']);
+        // Fast path: large exports feed thousands of statement arrays through here,
+        // so avoid the per-statement getStatement() round-trip when publicStatement
+        // is already present on the array (ES- and JSON-sourced statements have it).
+        if (isset($statement['publicStatement'])) {
+            return $this->getProcedurePhaseName(
+                $statement['phase'] ?? '',
+                StatementInterface::EXTERNAL === $statement['publicStatement']
+            );
+        }
+
+        $statementId = $statement['id'] ?? null;
+        $statementObject = null !== $statementId ? $this->getStatement($statementId) : null;
+
+        if (!$statementObject instanceof Statement) {
+            $this->logger->warning('Statement with id '.($statementId ?? '').' not found.');
+
+            return '';
+        }
+
+        if (!$statementObject instanceof Statement) {
+            $this->logger->error('Statement with id '.$statement['id'].' not found.');
+
+            return '';
+        }
 
         return $this->getProcedurePhaseName(
-            $statement['phase'],
+            $statement['phase'] ?? '',
             $statementObject->isSubmittedByCitizen()
         );
     }
@@ -2705,7 +2816,10 @@ class StatementService implements StatementServiceInterface
                 throw new UndefinedPhaseException($phaseKey);
             }
         } catch (UndefinedPhaseException $e) {
-            $this->logger->error($e->getMessage());
+            // warning, not error: legacy statements can carry phase keys no longer
+            // defined in the phase config, which floods the error channel on large
+            // exports/listings without representing an actionable runtime fault.
+            $this->logger->warning($e->getMessage());
         }
 
         return $phaseName;
@@ -3023,6 +3137,10 @@ class StatementService implements StatementServiceInterface
             $statement['feedback'] = $data['r_feedback'];
             // save that user wants some kind of feedback
             $statement['author_feedback'] = true;
+        }
+
+        if (\array_key_exists('r_oId', $data) && 36 === \strlen((string) $data['r_oId'])) {
+            $statement['oId'] = $data['r_oId'];
         }
 
         if (\array_key_exists('r_orga_name', $data)) {
@@ -3348,19 +3466,7 @@ class StatementService implements StatementServiceInterface
 
     public function getStatisticsOfProcedure(ProcedureInterface $procedure)
     {
-        /** @var StatementInterface $statementsOfProcedure */
-        $statementsOfProcedure = $procedure->getStatements();
-        $statistics = [
-            self::STATEMENT_STATUS_NEW         => 0,
-            self::STATEMENT_STATUS_PROCESSING  => 0,
-            self::STATEMENT_STATUS_COMPLETED   => 0,
-        ];
-        foreach ($statementsOfProcedure as $statement) {
-            /** @var StatementInterface $statement */
-            if (!$statement->isOriginal()) {
-                ++$statistics[$this->getProcessingStatus($statement)];
-            }
-        }
+        $statistics = $this->statementRepository->getSegmentationStatistics($procedure->getId());
 
         return new PercentageDistribution(
             $statistics[self::STATEMENT_STATUS_NEW] +

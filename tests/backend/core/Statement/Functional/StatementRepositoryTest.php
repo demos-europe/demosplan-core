@@ -12,6 +12,11 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Functional;
 
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -237,5 +242,121 @@ class StatementRepositoryTest extends FunctionalTestCase
         $actualStatements = $query->getEntities();
 
         self::assertNotContains($unexpectedId, $actualStatements);
+    }
+
+    public function testGetSegmentationStatisticsWithFixtures(): void
+    {
+        $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
+
+        $statistics = $this->sut->getSegmentationStatistics($procedure->getId());
+
+        // Matches the existing testGetStatisticsOfProcedure expectations:
+        // 25 non-original statements, 1 has segments (processing), 24 have none (new), 0 completed
+        self::assertSame(24, $statistics['new']);
+        self::assertSame(1, $statistics['processing']);
+        self::assertSame(0, $statistics['completed']);
+    }
+
+    public function testGetSegmentationStatisticsAllCategories(): void
+    {
+        $procedure = ProcedureFactory::createOne();
+        $solvedPlace = PlaceFactory::createOne(['procedure' => $procedure, 'solved' => true]);
+        $unsolvedPlace = PlaceFactory::createOne(['procedure' => $procedure, 'solved' => false]);
+
+        // Create an original statement (original = null means it IS an original)
+        $originalStatement = StatementFactory::createOne(['procedure' => $procedure]);
+
+        // "New" statement: non-original, no segments
+        StatementFactory::createOne([
+            'procedure' => $procedure,
+            'original'  => $originalStatement,
+        ]);
+
+        // "Completed" statement: non-original, all segments have solved place
+        $completedStatement = StatementFactory::createOne([
+            'procedure' => $procedure,
+            'original'  => $originalStatement,
+        ]);
+        SegmentFactory::createOne([
+            'procedure'                => $procedure,
+            'parentStatementOfSegment' => $completedStatement,
+            'place'                    => $solvedPlace,
+        ]);
+        SegmentFactory::createOne([
+            'procedure'                => $procedure,
+            'parentStatementOfSegment' => $completedStatement,
+            'place'                    => $solvedPlace,
+        ]);
+
+        // "Processing" statement: non-original, some segments unsolved
+        $processingStatement = StatementFactory::createOne([
+            'procedure' => $procedure,
+            'original'  => $originalStatement,
+        ]);
+        SegmentFactory::createOne([
+            'procedure'                => $procedure,
+            'parentStatementOfSegment' => $processingStatement,
+            'place'                    => $solvedPlace,
+        ]);
+        SegmentFactory::createOne([
+            'procedure'                => $procedure,
+            'parentStatementOfSegment' => $processingStatement,
+            'place'                    => $unsolvedPlace,
+        ]);
+
+        $statistics = $this->sut->getSegmentationStatistics($procedure->getId());
+
+        self::assertSame(1, $statistics['new']);
+        self::assertSame(1, $statistics['processing']);
+        self::assertSame(1, $statistics['completed']);
+    }
+
+    public function testGetSegmentationStatisticsEmptyProcedure(): void
+    {
+        $procedure = ProcedureFactory::createOne();
+
+        $statistics = $this->sut->getSegmentationStatistics($procedure->getId());
+
+        self::assertSame(0, $statistics['new']);
+        self::assertSame(0, $statistics['processing']);
+        self::assertSame(0, $statistics['completed']);
+    }
+
+    public function testGetSegmentationStatisticsIgnoresOriginalStatements(): void
+    {
+        $procedure = ProcedureFactory::createOne();
+
+        // Create only original statements (no 'original' set) — these should be excluded
+        StatementFactory::createOne(['procedure' => $procedure]);
+        StatementFactory::createOne(['procedure' => $procedure]);
+
+        $statistics = $this->sut->getSegmentationStatistics($procedure->getId());
+
+        self::assertSame(0, $statistics['new']);
+        self::assertSame(0, $statistics['processing']);
+        self::assertSame(0, $statistics['completed']);
+    }
+
+    public function testGetSegmentationStatisticsAllSegmentsSolved(): void
+    {
+        $procedure = ProcedureFactory::createOne();
+        $solvedPlace = PlaceFactory::createOne(['procedure' => $procedure, 'solved' => true]);
+        $originalStatement = StatementFactory::createOne(['procedure' => $procedure]);
+
+        $statement = StatementFactory::createOne([
+            'procedure' => $procedure,
+            'original'  => $originalStatement,
+        ]);
+        SegmentFactory::createOne([
+            'procedure'                => $procedure,
+            'parentStatementOfSegment' => $statement,
+            'place'                    => $solvedPlace,
+        ]);
+
+        $statistics = $this->sut->getSegmentationStatistics($procedure->getId());
+
+        self::assertSame(0, $statistics['new']);
+        self::assertSame(0, $statistics['processing']);
+        self::assertSame(1, $statistics['completed']);
     }
 }

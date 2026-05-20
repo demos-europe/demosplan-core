@@ -20,6 +20,7 @@
         enctype="multipart/form-data">
 
         <input type="hidden" value="{{ gislayer.ident|default() }}" name="r_ident">
+        <input type="hidden" name="r_enabled" value="1">
         <input type="hidden" name="r_visible" value="1">
         <input type="hidden" name="r_user_toggle_visibility" value="1">
         {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}

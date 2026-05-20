@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use Carbon\Carbon;
 use DateTime;
+use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
@@ -562,14 +563,24 @@ class ProcedureService implements ProcedureServiceInterface
      *
      * @param int $limit
      *
-     * @return Procedure[]|null
+     * @return Procedure[]
      *
      * @throws Exception
      */
-    public function getDeletedProcedures($limit = 100_000_000)
+    public function getDeletedProcedures($limit = 100_000_000, ?DateTimeInterface $deletedBefore = null): array
     {
         try {
-            return $this->procedureRepository->findBy(['deleted' => true], null, $limit);
+            if (null === $deletedBefore) {
+                return $this->procedureRepository->findBy(['deleted' => true], null, $limit);
+            }
+
+            return $this->procedureRepository->createQueryBuilder('p')
+                ->where('p.deleted = true')
+                ->andWhere('p.deletedDate <= :deletedBefore')
+                ->setParameter('deletedBefore', $deletedBefore)
+                ->setMaxResults($limit)
+                ->getQuery()
+                ->getResult();
         } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf der getProcedureDeleted: ', [$e]);
             throw $e;
@@ -865,7 +876,7 @@ class ProcedureService implements ProcedureServiceInterface
 
             if ($setProcedureAsDefaultCustomerBlueprint) {
                 $customer = $data['customer'];
-                if ($this->isCustomerMasterBlueprintExisting($customer->getId())) {
+                if ($customer->getDefaultProcedureBlueprint() instanceof Procedure) {
                     $this->messageBag->add(
                         'warning',
                         'customer.master.blueprint.changed',
@@ -2534,7 +2545,7 @@ class ProcedureService implements ProcedureServiceInterface
     /**
      * The purpose of the copy is to be able to create a diff for report entries.
      */
-    private function cloneProcedure(Procedure $procedure): Procedure
+    public function cloneProcedure(Procedure $procedure): Procedure
     {
         $procedureClone = clone $procedure;
 
@@ -2820,6 +2831,7 @@ class ProcedureService implements ProcedureServiceInterface
                 $sourcePlace->getSortIndex()
             );
             $newPlace->setDescription($sourcePlace->getDescription());
+            $newPlace->setSolved($sourcePlace->getSolved());
             $violations = $this->validator->validate($newPlace);
             if (0 !== $violations->count()) {
                 throw ViolationsException::fromConstraintViolationList($violations);

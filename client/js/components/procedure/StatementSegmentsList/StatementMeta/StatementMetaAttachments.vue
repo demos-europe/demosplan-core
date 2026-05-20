@@ -62,7 +62,6 @@
             id="uploadSourceStatementAttachment"
             ref="uploadSourceStatementAttachment"
             allowed-file-types="all"
-            :basic-auth="dplan.settings.basicAuth"
             :class="!editable ? 'pointer-events-none opacity-70' : 'mt-1 mb-3'"
             :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
             :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
@@ -139,7 +138,6 @@
             id="uploadStatementAttachment"
             ref="uploadStatementAttachment"
             allowed-file-types="all"
-            :basic-auth="dplan.settings.basicAuth"
             :class="editable ? 'mt-1 mb-3' : 'pointer-events-none opacity-70'"
             :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
             :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
@@ -246,6 +244,19 @@ export default {
       // Used for deleting the source attachment
       sourceAttachmentMarkedForDeletion: {},
     }
+  },
+
+  computed: {
+    hasUnsavedChanges () {
+      if (!this.localAttachments || !this.initialAttachments) {
+        return false
+      }
+
+      const initialAttributes = this.initialAttachments
+      const currentAttributes = this.localAttachments
+
+      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+    },
   },
 
   watch: {
@@ -499,7 +510,7 @@ export default {
         })
       }
 
-      Promise.allSettled(promises)
+      return Promise.allSettled(promises)
         .then(() => {
           if (this.genericAttachmentsMarkedForDeletion.length > 0) {
             this.genericAttachmentsMarkedForDeletion = []

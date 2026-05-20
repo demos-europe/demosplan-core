@@ -11,30 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields;
 
 use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
-use Zenstruck\Foundry\Persistence\Proxy;
-use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
+use Zenstruck\Foundry\ObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<MultiSelectField>
- *
- * @method        MultiSelectField|Proxy                    create(array|callable $attributes = [])
- * @method static MultiSelectField|Proxy                    createOne(array $attributes = [])
- * @method static MultiSelectField|Proxy                    find(object|array|mixed $criteria)
- * @method static MultiSelectField|Proxy                    findOrCreate(array $attributes)
- * @method static MultiSelectField|Proxy                    first(string $sortedField = 'id')
- * @method static MultiSelectField|Proxy                    last(string $sortedField = 'id')
- * @method static MultiSelectField|Proxy                    random(array $attributes = [])
- * @method static MultiSelectField|Proxy                    randomOrCreate(array $attributes = [])
- * @method static MultiSelectField|ProxyRepositoryDecorator repository()
- * @method static MultiSelectField[]|Proxy[]                all()
- * @method static MultiSelectField[]|Proxy[]                createMany(int $number, array|callable $attributes = [])
- * @method static MultiSelectField[]|Proxy[]                createSequence(iterable|callable $sequence)
- * @method static MultiSelectField[]|Proxy[]                findBy(array $attributes)
- * @method static MultiSelectField[]|Proxy[]                randomRange(int $min, int $max, array $attributes = [])
- * @method static MultiSelectField[]|Proxy[]                randomSet(int $number, array $attributes = [])
+ * @extends ObjectFactory<MultiSelectField>
  */
-final class MultiSelectFieldFactory extends PersistentProxyObjectFactory
+final class MultiSelectFieldFactory extends ObjectFactory
 {
     public static function class(): string
     {

@@ -20,8 +20,12 @@ exports[`SearchModal renders the correct markup with deactivated feature_stateme
     </label><!-- search hint -->
     <p class="lbl__hint u-pt-0 u-mt-0 u-pb-0_5">assessmenttable.searchfield.characters</p><!-- Search options and special characters -->
     <div class="space-stack-s">
-      <dp-details-stub datacy="element" summary="search.options"><span>search.options.description</span></dp-details-stub>
-      <dp-details-stub datacy="element" summary="search.special.characters"><span>search.special.characters.description</span></dp-details-stub>
+      <dp-details-stub datacy="element" summary="search.options">
+        <!-- eslint-disable vue/no-v-html --><span>search.options.description</span><!-- eslint-enable vue/no-v-html -->
+      </dp-details-stub>
+      <dp-details-stub datacy="element" summary="search.special.characters">
+        <!-- eslint-disable vue/no-v-html --><span>search.special.characters.description</span><!-- eslint-enable vue/no-v-html -->
+      </dp-details-stub>
     </div><!-- Checkboxes -->
     <h3 class="u-mt-0_25">search.in</h3>
     <div class="max-h-12 w-full align-top overflow-auto u-mb">

@@ -1,0 +1,175 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Entity\User;
+
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
+use demosplan\DemosPlanCoreBundle\Types\IdentityProviderType;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * Per-customer Keycloak OAuth2 configuration.
+ *
+ * Customers without a record fall back to the global static keycloak_ozg client.
+ */
+#[ORM\Table(name: 'customer_oauth_config')]
+#[ORM\Entity(repositoryClass: CustomerOAuthConfigRepository::class)]
+class CustomerOAuthConfig extends CoreEntity implements UuidEntityInterface
+{
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
+    protected string $id;
+
+    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: '_c_id', nullable: false, onDelete: 'CASCADE', unique: true)]
+    #[ORM\OneToOne(targetEntity: Customer::class)]
+    private CustomerInterface $customer;
+
+    #[ORM\Column(name: 'keycloak_client_id', type: 'string', length: 255, nullable: false)]
+    private string $keycloakClientId;
+
+    #[ORM\Column(name: 'keycloak_client_secret', type: 'dplan.encrypted_string', length: 512, nullable: false)]
+    private string $keycloakClientSecret;
+
+    #[ORM\Column(name: 'keycloak_auth_server_url', type: 'string', length: 500, nullable: false)]
+    private string $keycloakAuthServerUrl;
+
+    #[ORM\Column(name: 'keycloak_realm', type: 'string', length: 255, nullable: false)]
+    private string $keycloakRealm;
+
+    /**
+     * Template for the Keycloak logout URL (e.g. with post_logout_redirect_uri and id_token_hint placeholders).
+     * When null, falls back to the global oauth_keycloak_logout_route parameter.
+     */
+    #[ORM\Column(name: 'keycloak_logout_route', type: 'string', length: 1000, nullable: true)]
+    private ?string $keycloakLogoutRoute = null;
+
+    #[ORM\Column(name: 'identity_provider_type', type: 'string', length: 30, nullable: false, options: ['default' => 'keycloak'])]
+    private string $identityProviderType = IdentityProviderType::KEYCLOAK->value;
+
+    #[ORM\Column(name: 'auto_provision_users', type: 'boolean', nullable: false, options: ['default' => false])]
+    private bool $autoProvisionUsers = false;
+
+    /**
+     * Default organisation for auto-provisioning new users during Azure/Entra ID login.
+     * When set, users who don't exist yet will be created and assigned to this organisation.
+     */
+    #[ORM\JoinColumn(name: 'default_organisation_id', referencedColumnName: '_o_id', nullable: true, onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: Orga::class)]
+    private ?OrgaInterface $defaultOrganisation = null;
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function getCustomer(): CustomerInterface
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer(CustomerInterface $customer): void
+    {
+        $this->customer = $customer;
+    }
+
+    public function getKeycloakClientId(): string
+    {
+        return $this->keycloakClientId;
+    }
+
+    public function setKeycloakClientId(string $keycloakClientId): void
+    {
+        $this->keycloakClientId = $keycloakClientId;
+    }
+
+    public function getKeycloakClientSecret(): string
+    {
+        return $this->keycloakClientSecret;
+    }
+
+    public function setKeycloakClientSecret(string $keycloakClientSecret): void
+    {
+        $this->keycloakClientSecret = $keycloakClientSecret;
+    }
+
+    public function getKeycloakAuthServerUrl(): string
+    {
+        return $this->keycloakAuthServerUrl;
+    }
+
+    public function setKeycloakAuthServerUrl(string $keycloakAuthServerUrl): void
+    {
+        $this->keycloakAuthServerUrl = $keycloakAuthServerUrl;
+    }
+
+    public function getKeycloakRealm(): string
+    {
+        return $this->keycloakRealm;
+    }
+
+    public function setKeycloakRealm(string $keycloakRealm): void
+    {
+        $this->keycloakRealm = $keycloakRealm;
+    }
+
+    public function getKeycloakLogoutRoute(): ?string
+    {
+        return $this->keycloakLogoutRoute;
+    }
+
+    public function setKeycloakLogoutRoute(?string $keycloakLogoutRoute): void
+    {
+        $this->keycloakLogoutRoute = $keycloakLogoutRoute;
+    }
+
+    public function getIdentityProviderType(): IdentityProviderType
+    {
+        return IdentityProviderType::from($this->identityProviderType);
+    }
+
+    public function setIdentityProviderType(IdentityProviderType $identityProviderType): void
+    {
+        $this->identityProviderType = $identityProviderType->value;
+    }
+
+    public function isAzureEntraId(): bool
+    {
+        return IdentityProviderType::AZURE_ENTRA_ID === $this->getIdentityProviderType();
+    }
+
+    public function isAutoProvisionUsers(): bool
+    {
+        return $this->autoProvisionUsers;
+    }
+
+    public function setAutoProvisionUsers(bool $autoProvisionUsers): void
+    {
+        $this->autoProvisionUsers = $autoProvisionUsers;
+    }
+
+    public function getDefaultOrganisation(): ?OrgaInterface
+    {
+        return $this->defaultOrganisation;
+    }
+
+    public function setDefaultOrganisation(?OrgaInterface $defaultOrganisation): void
+    {
+        $this->defaultOrganisation = $defaultOrganisation;
+    }
+}

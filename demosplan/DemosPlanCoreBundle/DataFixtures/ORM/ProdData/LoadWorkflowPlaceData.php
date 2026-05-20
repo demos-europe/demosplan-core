@@ -47,6 +47,7 @@ class LoadWorkflowPlaceData extends ProdFixture implements DependentFixtureInter
         $this->setReference(self::PLACE_EDITORIAL, $editorial);
 
         $completed = new Place($procedure, 'Abgeschlossen', 4);
+        $completed->setSolved(true);
         $manager->persist($completed);
         $this->setReference(self::PLACE_COMPLETED, $completed);
 

@@ -24,6 +24,12 @@
             {% endif %}
   			{{ "file"|trans|latex|raw }}: & {% if statement.files|default([])|length > 0 %}{% for file in statement.files %}{{ file|getFile('name')|latex|raw }} {% endfor %}{% else %} {{ "notspecified"|trans|latex|raw }} {% endif %}\\
             {% if hasPermission('field_statement_public_allowed') %}{{ "publish.on.platform"|trans|latex|raw }}:& {% if statement.publicAllowed %}{{ "yes"|trans }}{% else %}{{ "no"|trans }}{% endif %} \\{% endif %}
+            {# custom fields #}
+            {% if hasPermission('feature_statements_custom_fields') and statement.resolvedCustomFields is defined %}
+                {% for field in statement.resolvedCustomFields %}
+                    {{ field.name|latex|raw }}: & {{ field.value|latex|raw }}\\
+                {% endfor %}
+            {% endif %}
   		\hline
 	\end{longtable}
 \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}17cm{{ '}' }}{{ '{' }}0cm{{ '}' }}

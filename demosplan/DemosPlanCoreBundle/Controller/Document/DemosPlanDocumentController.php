@@ -758,7 +758,7 @@ class DemosPlanDocumentController extends BaseController
         $session->remove('element_import_list');
         $fs = new DemosFilesystem();
 
-        $path = DemosPlanPath::getProjectPath('web/uploads/files');
+        $path = DemosPlanPath::getPublicPath('uploads/files');
 
         // Lösche das alte Statusfile zum Importstatus
         $statusHash = md5($session->getId().$procedureId);
@@ -1089,11 +1089,10 @@ class DemosPlanDocumentController extends BaseController
                     }
 
                     return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
-                } else {
-                    $storageResult = $elementHandler->administrationElementEditHandler($procedure, $inData);
-                    if (array_key_exists('ident', $storageResult) && !array_key_exists('mandatoryfieldwarning', $storageResult)) {
-                        $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.saved');
-                    }
+                }
+                $storageResult = $elementHandler->administrationElementEditHandler($procedure, $inData);
+                if (array_key_exists('ident', $storageResult) && !array_key_exists('mandatoryfieldwarning', $storageResult)) {
+                    $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.saved');
                 }
             }
         }
@@ -1323,6 +1322,16 @@ class DemosPlanDocumentController extends BaseController
         unset($procedure);
 
         $elementService = $this->elementsService;
+
+        $element = $elementService->getElementObject($elementId);
+        if (!$element instanceof Elements) {
+            $this->getMessageBag()->add('error', 'category.not.found');
+
+            return $this->redirectToRoute('DemosPlan_procedure_public_detail', [
+                'procedure' => $procedureId,
+            ]);
+        }
+
         $documentList = [];
 
         try {

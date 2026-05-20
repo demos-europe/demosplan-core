@@ -49,7 +49,9 @@
       </dp-bulk-edit-header>
       <statement-export-modal
         data-cy="listStatements:export"
+        :has-permission-adjust-preamble="hasPermission('feature_adjust_preamble_export_file')"
         :procedure-id="procedureId"
+        :procedure-name="procedureName"
         @export="showHintAndDoExport"
       />
       <div
@@ -294,7 +296,7 @@
           <!-- Statement text -->
           <div class="u-pt-0_5 c-styled-html">
             <strong>{{ Translator.trans('statement.text.short') }}:</strong>
-            <p v-cleanhtml="displayedText(id)"></p>
+            <p v-cleanhtml="displayedText(id)" />
             <a
               v-if="statementsObject[id].attributes.textIsTruncated"
               class="cursor-pointer"
@@ -339,6 +341,7 @@ import {
 import { mapActions, mapMutations, mapState } from 'vuex'
 import CustomSearchStatements from './CustomSearchStatements'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import { inlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
@@ -390,6 +393,12 @@ export default {
     procedureId: {
       required: true,
       type: String,
+    },
+
+    procedureName: {
+      required: false,
+      type: String,
+      default: '',
     },
 
     submitTypeOptions: {
@@ -473,7 +482,7 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds) => {
+      return (exportRoute, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText) => {
         const parameters = {
           filter: {
             procedureId: {
@@ -507,6 +516,10 @@ export default {
 
         if (fileNameTemplate) {
           parameters.fileNameTemplate = fileNameTemplate
+        }
+
+        if (customHeaderText) {
+          parameters.customHeaderText = customHeaderText
         }
 
         return Routing.generate(exportRoute, parameters)
@@ -563,9 +576,7 @@ export default {
         return ''
       }
 
-      return attributes.isFulltextDisplayed
-        ? attributes.fullText
-        : attributes.text
+      return inlineImageAnchors(attributes.isFulltextDisplayed ? attributes.fullText : attributes.text)
     },
 
     getAssignee (statement) {
@@ -996,8 +1007,8 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds }) {
-      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds)
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText }) {
+      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText)
       if (!shouldConfirm || window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = url
       }

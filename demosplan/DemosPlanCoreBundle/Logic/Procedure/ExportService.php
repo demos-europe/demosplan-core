@@ -817,9 +817,10 @@ class ExportService
             $exportResult = $this->segmentsByStatementsExporter->exportAll(
                 $tableHeaders,
                 $this->procedureService->getProcedure($procedureId),
-                false, // obscure = false
-                false, // censorCitizenData = false
-                false, // censorInstitutionData = false
+                false, // obscure
+                [],    // exportFilteredByTags
+                false, // censorCitizenData
+                false, // censorInstitutionData
                 ...$statementEntities
             );
 
@@ -881,7 +882,6 @@ class ExportService
      */
     protected function attachStatementFilesToZip(array $statements, string $folder, ZipStream $zip): void
     {
-        $fs = new DemosFilesystem();
         foreach ($statements as $statement) {
             if ($statement instanceof Statement) {
                 $fileNamePrefix = $statement->getExternId().'_';
@@ -895,7 +895,7 @@ class ExportService
                 $this->addSourceStatementAttachments($folder, $zip, $fileNamePrefix, $statement->getAttachments());
                 $this->addStatementFileContainers($folder, $zip, $fileNamePrefix, $statement);
             }
-            $this->zipExportService->addFiles($fileNamePrefix, $fs, $folder, $zip, ...($statement->getFiles() ?? []));
+            $this->zipExportService->addFiles($fileNamePrefix, $folder, $zip, ...($statement->getFiles() ?? []));
         }
     }
 

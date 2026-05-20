@@ -114,15 +114,15 @@ class ServiceOutput
     }
 
     /**
-     * Get all Datainput orgs.
+     * Get all Datainput orgs for a specific customer.
      *
      * @return array Orga[]
      *
      * @throws Exception
      */
-    public function getDataInputOrgas()
+    public function getDataInputOrgas(Customer $customer)
     {
-        return $this->orgaService->getDataInputOrgaList();
+        return $this->orgaService->getDataInputOrgaList($customer);
     }
 
     /**
@@ -509,10 +509,8 @@ class ServiceOutput
         );
         $templateVars['list'] = $masterListResult;
 
-        $templateVars['isCustomerMasterBlueprintExisting'] =
-            $this->service->isCustomerMasterBlueprintExisting(
-                $this->customerService->getCurrentCustomer()->getId()
-            );
+        $customerMasterBlueprint = $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint();
+        $templateVars['customerMasterBlueprint'] = $customerMasterBlueprint;
 
         return $templateVars;
     }
