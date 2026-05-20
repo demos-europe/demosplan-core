@@ -12,59 +12,43 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
+use demosplan\DemosPlanCoreBundle\Repository\AccountDeletionTrackingRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\AccountDeletionTrackingRepository")
- */
+#[ORM\Entity(repositoryClass: AccountDeletionTrackingRepository::class)]
 class AccountDeletionTracking implements UuidEntityInterface
 {
-    /**
-     * @ORM\Id
-     *
-     * @ORM\Column(type="string", length=36)
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
-     */
+    #[ORM\Column(type: 'string', length: 36)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private ?string $id = null;
 
-    /**
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=false, onDelete="CASCADE", unique=true)
-     */
+    #[ORM\JoinColumn(referencedColumnName: '_u_id', nullable: false, onDelete: 'CASCADE', unique: true)]
+    #[ORM\OneToOne(targetEntity: User::class)]
     private User $user;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\MailSend")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_ms_id", nullable=true, onDelete="SET NULL")
-     */
+    #[ORM\JoinColumn(referencedColumnName: '_ms_id', nullable: true, onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: MailSend::class)]
     private ?MailSend $firstWarningMail = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\MailSend")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_ms_id", nullable=true, onDelete="SET NULL")
-     */
+    #[ORM\JoinColumn(referencedColumnName: '_ms_id', nullable: true, onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: MailSend::class)]
     private ?MailSend $secondWarningMail = null;
 
     /**
-     * @ORM\Column(type="datetime")
-     *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(type: 'datetime')]
     private DateTime $createdAt;
 
     /**
-     * @ORM\Column(type="datetime")
-     *
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(type: 'datetime')]
     private DateTime $updatedAt;
 
     public function __construct(User $user)
