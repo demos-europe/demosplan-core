@@ -17,9 +17,15 @@ class DoctrineSegmentListener
 {
     public function preUpdate(Segment $segment, PreUpdateEventArgs $args): void
     {
-        if ($args->hasChangedField('place')) {
-            $args->setNewValue('deadline', null);
+        if (!$args->hasChangedField('place')) {
+            return;
         }
+
+        if (null === $segment->getDeadline()) {
+            return;
+        }
+
+        $args->setNewValue('deadline', null);
     }
 }
 
