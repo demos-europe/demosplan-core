@@ -245,13 +245,21 @@ export default {
         return false
       }
 
-      const initialAttributes = this.deepCloneSerializable(this.statement.attributes)
-      initialAttributes.authoredDate = this.getFormattedDate(initialAttributes.authoredDate)
-      initialAttributes.submitDate = this.getFormattedDate(initialAttributes.submitDate)
-
+      const initialAttributes = this.statement.attributes
       const currentAttributes = this.localStatement.attributes
+      const isDifferent = (a, b) => (a ?? '') !== (b ?? '')
+      const isDifferentDate = (a, b) => this.getFormattedDate(a) !== this.getFormattedDate(b)
 
-      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+      return [
+        isDifferentDate(currentAttributes.authoredDate, initialAttributes.authoredDate),
+        isDifferentDate(currentAttributes.submitDate, initialAttributes.submitDate),
+        isDifferent(currentAttributes.submitType, initialAttributes.submitType),
+        isDifferent(currentAttributes.internId, initialAttributes.internId),
+        hasPermission('field_statement_phase') &&
+          isDifferent(currentAttributes.procedurePhase?.key, initialAttributes.procedurePhase?.key),
+        hasPermission('field_statement_memo') &&
+          isDifferent(currentAttributes.memo, initialAttributes.memo),
+      ].some(Boolean)
     },
 
     isStatementManual () {
