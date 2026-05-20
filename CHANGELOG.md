@@ -6,11 +6,19 @@
 
 ## UNRELEASED
 
+### Added 
+- Tags can be reordered within and between TagTopics via drag and drop in tag administration
+
+### Changed
+- Column widths in the segment list now persist across browser sessions
+- "column reset" in the segment list now also resets column widths to defaults
+
 ## v4.39.0 (2026-05-06)
 
 ## v4.38.0 (2026-05-06)
 
 ### Added
+- Add text custom field definition to institution tag management dialog
 - Inactivity-based account-deletion workflow: a daily cron sends two warning mails and then soft-deletes accounts that stay inactive past configurable thresholds; the next successful login resets the cascade. Disabled by default — enable per project by setting `account_deletion.first_warning_days` in `parameters_default_project.yml`. Includes the `dplan:account-deletion:prepare-test` console command for QA scenarios.
 - Track recommendation versions for statements and segments with full text snapshots, exposed via API and XLSX export (permission: `feature_enable_recommendation_versions`)
 - Support multiple custom field types and target contexts per project

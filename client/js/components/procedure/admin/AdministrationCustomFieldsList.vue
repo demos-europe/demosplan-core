@@ -12,12 +12,14 @@
 
     <create-custom-field-form
       v-if="canCreateCustomFields"
+      :add-button-text="addButtonText"
       :handle-success="isSuccess"
       :is-loading="isLoading"
       :target-options="createTargetOptions"
+      :type-options="typeOptions"
       @save="saveNewField"
     >
-      <div>
+      <div v-if="hasOptionsBasedFieldTypes">
         <dp-label
           :text="Translator.trans('options')"
           class="mb-1"
@@ -181,7 +183,7 @@
             </template>
 
             <template v-slot:fieldType="rowData">
-              <div class="mt-1">
+              <div class="mt-1 mb-1">
                 <dp-badge
                   :text="fieldTypeText(rowData.fieldType)"
                   color="default"
@@ -208,7 +210,7 @@
                 <button
                   v-if="!rowData.edit"
                   :aria-label="Translator.trans('item.edit')"
-                  :disabled="isActiveTabStatementContext && procedureReceivedStatements"
+                  :disabled="isDefinitionActionDisabled"
                   :title="Translator.trans('edit')"
                   class="btn--blank o-link--default mr-1"
                   data-cy="customFields:editField"
@@ -223,7 +225,7 @@
                 <button
                   v-if="!rowData.edit"
                   :aria-label="Translator.trans('item.delete')"
-                  :disabled="isActiveTabStatementContext && procedureReceivedStatements"
+                  :disabled="isDefinitionActionDisabled"
                   :title="Translator.trans('delete')"
                   class="btn--blank o-link--default mr-1"
                   data-cy="customFields:deleteField"
@@ -364,14 +366,36 @@ export default {
       default: false,
     },
 
-    procedureId: {
-      type: String,
-      required: true,
+    definitionSourceId: {
+      type: [String, null],
+      required: false,
+      default: null,
+    },
+
+    sourceEntity: {
+      type: [String, null],
+      required: false,
+      default: null,
     },
 
     targetOptions: {
       type: Object,
       required: true,
+    },
+
+    typeOptions: {
+      type: Array,
+      required: false,
+      default: () => [
+        {
+          value: 'multiSelect',
+          label: Translator.trans('custom.field.type.multiSelect'),
+        },
+        {
+          value: 'singleSelect',
+          label: Translator.trans('custom.field.type.singleSelect'),
+        },
+      ],
     },
   },
 
@@ -409,6 +433,14 @@ export default {
   },
 
   computed: {
+    addButtonText () {
+      if (this.sourceEntity === 'CUSTOMER') {
+        return Translator.trans('institution.customFields.new')
+      }
+
+      return Translator.trans('add')
+    },
+
     additionalOptions () {
       return this.newFieldOptions.filter((option, index) => index > 1)
     },
@@ -458,6 +490,7 @@ export default {
       const fieldTypeMap = {
         'multiSelect': 'custom.field.type.multiSelect',
         'singleSelect': 'custom.field.type.singleSelect',
+        'text': 'custom.field.type.text',
       }
 
       return (fieldType) => {
@@ -467,6 +500,10 @@ export default {
       }
     },
 
+    hasOptionsBasedFieldTypes () {
+      return this.typeOptions.some(option => ['multiSelect', 'singleSelect'].includes(option.value))
+    },
+
     headerFields () {
       const fields = [
         {
@@ -474,11 +511,17 @@ export default {
           label: Object.keys(this.newRowData).length > 0 ? `${Translator.trans('name')}*` : Translator.trans('name'),
           colClass: 'u-3-of-12',
         },
-        {
+      ]
+
+      if (this.hasOptionsBasedFieldTypes) {
+        fields.push({
           field: 'options',
           label: Object.keys(this.newRowData).length > 0 ? `${Translator.trans('options')}*` : Translator.trans('options'),
           colClass: 'u-4-of-12',
-        },
+        })
+      }
+
+      fields.push(
         {
           field: 'description',
           label: Translator.trans('description'),
@@ -489,7 +532,7 @@ export default {
           label: Translator.trans('type'),
           colClass: 'u-6-of-12',
         },
-      ]
+      )
 
       if (this.isActiveTabStatementContext) {
         fields.push({
@@ -510,12 +553,25 @@ export default {
       return 'customFieldsHint'
     },
 
+    isCustomerContext () {
+      return this.resolvedSourceEntity === 'CUSTOMER'
+    },
+
+    isDefinitionActionDisabled () {
+      // For the moment editing and deleting of customer context fields is disabled, feature is added in the next step
+      return this.isCustomerContext || (this.isActiveTabStatementContext && this.procedureReceivedStatements)
+    },
+
     isActiveTabStatementContext () {
       return this.activeTabId === 'STATEMENT'
     },
 
     procedureReceivedStatements () {
       return this.statementsCount > 0
+    },
+
+    resolvedSourceEntity () {
+      return this.sourceEntity ?? (this.isProcedureTemplate ? 'PROCEDURE_TEMPLATE' : 'PROCEDURE')
     },
   },
 
@@ -623,9 +679,9 @@ export default {
     fetchCustomFields () {
       this.isLoadingFields = true
 
-      return fetchCustomFieldsFromComposable(this.procedureId, {
+      return fetchCustomFieldsFromComposable(this.definitionSourceId, {
         targetEntity: this.activeTabId,
-        sourceEntity: this.isProcedureTemplate ? 'PROCEDURE_TEMPLATE' : 'PROCEDURE',
+        sourceEntity: this.resolvedSourceEntity,
       })
         .then(definitions => {
           this.currentTabDefinitions = definitions
@@ -643,13 +699,13 @@ export default {
      * Cached in statementsCount after first fetch to avoid repeated requests.
      */
     fetchStatementsCount () {
-      if (this.isProcedureTemplate || this.statementsCount > 0) {
+      if (!this.definitionSourceId || this.isProcedureTemplate || this.statementsCount > 0) {
         return
       }
 
       const url = Routing.generate('api_resource_get', {
         resourceType: 'AdminProcedure',
-        resourceId: this.procedureId,
+        resourceId: this.definitionSourceId,
       })
 
       dpApi.get(url, { fields: { AdminProcedure: 'statementsCount' } })
@@ -696,7 +752,7 @@ export default {
           const removedIndex = this.customFieldItems.findIndex(item => item.id === rowData.id)
           const removedItem = this.customFieldItems.splice(removedIndex, 1)[0]
 
-          deleteCustomFieldDefinition(rowData.id, this.procedureId)
+          deleteCustomFieldDefinition(rowData.id, this.definitionSourceId)
             .then(() => {
               this.currentTabDefinitions = this.currentTabDefinitions.filter(definition => definition.id !== rowData.id)
               dplan.notify.confirm(Translator.trans('confirm.deleted'))
@@ -813,7 +869,7 @@ export default {
             ),
           }
 
-          updateCustomFieldDefinition(this.newRowData.id, updatedPayload, this.procedureId)
+          updateCustomFieldDefinition(this.newRowData.id, updatedPayload, this.definitionSourceId)
             .then(() => {
               const idx = this.customFieldItems.findIndex(item => item.id === sourceDefinition.id)
               this.customFieldItems[idx] = { ...this.newRowData }
@@ -855,12 +911,16 @@ export default {
         name,
         options,
         ...(targetEntity === 'STATEMENT' && { isRequired }),
-        sourceEntity: this.isProcedureTemplate ? 'PROCEDURE_TEMPLATE' : 'PROCEDURE',
-        sourceEntityId: this.procedureId,
+        sourceEntity: this.resolvedSourceEntity,
+        /*
+         * For CUSTOMER source the BE derives sourceEntityId from the current
+         * customer; sending it from the FE would be redundant and ignored.
+         */
+        ...(this.resolvedSourceEntity !== 'CUSTOMER' && { sourceEntityId: this.definitionSourceId }),
         targetEntity,
       }
 
-      createCustomFieldDefinition(customFieldAttributes, this.procedureId)
+      createCustomFieldDefinition(customFieldAttributes, this.definitionSourceId)
         .then(() => {
           this.isSuccess = true
           this.activeTabId = targetEntity

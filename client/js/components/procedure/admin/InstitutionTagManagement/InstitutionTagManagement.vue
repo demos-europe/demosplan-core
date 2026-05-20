@@ -32,6 +32,20 @@
           @tag-is-removed="institutionListReset"
         />
       </dp-tab>
+      <dp-tab
+        v-if="hasPermission('feature_organisations_custom_fields')"
+        id="organisationCustomFields"
+        :is-active="activeTabId === 'organisationCustomFields'"
+        :label="Translator.trans('institution.customFields.define')"
+      >
+        <administration-custom-fields-list
+          v-if="activeTabId === 'organisationCustomFields'"
+          :target-options="organisationCustomFieldTargets"
+          :type-options="organisationCustomFieldTypes"
+          class="mt-4"
+          source-entity="CUSTOMER"
+        />
+      </dp-tab>
     </slot>
   </dp-tabs>
 </template>
@@ -41,6 +55,7 @@ import {
   DpTab,
   DpTabs,
 } from '@demos-europe/demosplan-ui'
+import AdministrationCustomFieldsList from '@DpJs/components/procedure/admin/AdministrationCustomFieldsList'
 import InstitutionList from './InstitutionList'
 import { mapActions } from 'vuex'
 import TagList from './TagList'
@@ -49,6 +64,7 @@ export default {
   name: 'InstitutionTagManagement',
 
   components: {
+    AdministrationCustomFieldsList,
     DpTabs,
     DpTab,
     TagList,
@@ -59,6 +75,15 @@ export default {
     return {
       activeTabId: 'institutionList',
       needToReset: false,
+      organisationCustomFieldTargets: {
+        ORGA: Translator.trans('institution.customFields.fields'),
+      },
+      organisationCustomFieldTypes: [
+        {
+          value: 'text',
+          label: Translator.trans('custom.field.type.text'),
+        },
+      ],
     }
   },
 

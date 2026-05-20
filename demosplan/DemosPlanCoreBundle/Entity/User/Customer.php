@@ -27,7 +27,10 @@ use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Table(name="customer")
+ * @ORM\Table(
+ *     name="customer",
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="uniq_customer_subdomain", columns={"_c_subdomain"})}
+ * )
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomerRepository")
  */
