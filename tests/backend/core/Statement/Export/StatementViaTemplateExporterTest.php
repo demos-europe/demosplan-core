@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Export;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidStatementTemplateException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementTemplateDataBuilder;
@@ -81,9 +81,9 @@ class StatementViaTemplateExporterTest extends UnitTestCase
         ]);
         $this->validator->method('validate')->with($templatePath)->willReturn(null);
         $this->dataBuilder->method('build')->willReturn($this->buildData([
-            'submitterName' => 'Maria Mustermann',
+            'submitterName'     => 'Maria Mustermann',
             'statementExternId' => 'E0042',
-            'todayDate' => '18.05.2026',
+            'todayDate'         => '18.05.2026',
         ]));
 
         $resultPath = $this->renderToFile($templatePath);
@@ -156,7 +156,7 @@ class StatementViaTemplateExporterTest extends UnitTestCase
         ]);
         $this->validator->method('validate')->willReturn(null);
         $this->dataBuilder->method('build')->willReturn($this->buildData([
-            'submitterName' => 'Maria Mustermann',
+            'submitterName'  => 'Maria Mustermann',
             'submitterEmail' => null,
         ]));
 
@@ -188,19 +188,19 @@ class StatementViaTemplateExporterTest extends UnitTestCase
     private function buildData(array $simpleValues = [], array $segments = []): StatementTemplateData
     {
         $defaults = [
-            'submitterName' => '',
-            'submitterOrgaName' => '',
-            'submitterStreet' => '',
+            'submitterName'       => '',
+            'submitterOrgaName'   => '',
+            'submitterStreet'     => '',
             'submitterPostalCode' => '',
-            'submitterCity' => '',
-            'submitterEmail' => '',
-            'statementExternId' => '',
+            'submitterCity'       => '',
+            'submitterEmail'      => '',
+            'statementExternId'   => '',
             'statementSubmitDate' => '',
-            'procedureName' => '',
-            'procedureExternId' => '',
-            'todayDate' => '',
-            'planningAgencyName' => '',
-            'planner' => '',
+            'procedureName'       => '',
+            'procedureExternId'   => '',
+            'todayDate'           => '',
+            'planningAgencyName'  => '',
+            'planner'             => '',
         ];
         $values = array_merge($defaults, $simpleValues);
 

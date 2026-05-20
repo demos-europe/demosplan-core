@@ -135,11 +135,7 @@ class StatementTemplateValidator
         try {
             return new TemplateProcessor($absolutePath);
         } catch (Throwable $exception) {
-            throw new InvalidStatementTemplateException(
-                $this->trans('docx.export.via_template.error.malformed_docx'),
-                0,
-                $exception
-            );
+            throw new InvalidStatementTemplateException($this->trans('docx.export.via_template.error.malformed_docx'), 0, $exception);
         }
     }
 
@@ -154,12 +150,7 @@ class StatementTemplateValidator
         if ([] === $unknown) {
             return;
         }
-        throw new InvalidStatementTemplateException(
-            $this->trans(
-                'docx.export.via_template.error.unknown_placeholder',
-                ['placeholders' => implode(', ', $unknown)]
-            )
-        );
+        throw new InvalidStatementTemplateException($this->trans('docx.export.via_template.error.unknown_placeholder', ['placeholders' => implode(', ', $unknown)]));
     }
 
     /**
@@ -174,9 +165,7 @@ class StatementTemplateValidator
         if ($hasOpen === $hasClose) {
             return;
         }
-        throw new InvalidStatementTemplateException(
-            $this->trans('docx.export.via_template.error.as_paragraphs_marker_incomplete')
-        );
+        throw new InvalidStatementTemplateException($this->trans('docx.export.via_template.error.as_paragraphs_marker_incomplete'));
     }
 
     /**
@@ -191,9 +180,7 @@ class StatementTemplateValidator
         if (!$hasParagraphs || !$hasTable) {
             return;
         }
-        throw new InvalidStatementTemplateException(
-            $this->trans('docx.export.via_template.error.both_modes_present')
-        );
+        throw new InvalidStatementTemplateException($this->trans('docx.export.via_template.error.both_modes_present'));
     }
 
     /**
@@ -212,9 +199,7 @@ class StatementTemplateValidator
         if ($hasMode) {
             return;
         }
-        throw new InvalidStatementTemplateException(
-            $this->trans('docx.export.via_template.error.segment_data_without_mode')
-        );
+        throw new InvalidStatementTemplateException($this->trans('docx.export.via_template.error.segment_data_without_mode'));
     }
 
     /**
@@ -226,9 +211,7 @@ class StatementTemplateValidator
         if (null !== $documentXml && $this->everyMarkerOccurrenceIsInATable($documentXml)) {
             return;
         }
-        throw new InvalidStatementTemplateException(
-            $this->trans('docx.export.via_template.error.within_table_not_in_table')
-        );
+        throw new InvalidStatementTemplateException($this->trans('docx.export.via_template.error.within_table_not_in_table'));
     }
 
     private function readDocumentXml(string $absolutePath): ?string
