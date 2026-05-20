@@ -56,6 +56,8 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      */
     final public const LOGIN_LIST_CACHE_DURATION = 43200;
 
+    private const WHERE_NOT_DELETED = 'u.deleted = false';
+
     public function __construct(
         private readonly CacheInterface $cache,
         DqlConditionFactory $dqlConditionFactory,
@@ -636,7 +638,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
         $qb = $this->createQueryBuilder('u')
             ->setFirstResult($startIndex - 1)
             ->setMaxResults($count)
-            ->where('u.deleted = false')
+            ->where(self::WHERE_NOT_DELETED)
             ->orderBy($sort, $sortDir);
 
         // Apply criteria filters
@@ -647,7 +649,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
         // Get total count for pagination
         $totalCountQb = $this->createQueryBuilder('u')
             ->select('COUNT(u.id)')
-            ->where('u.deleted = false');
+            ->where(self::WHERE_NOT_DELETED);
 
         // Apply criteria filters
         $totalCountQb = $this->applyCriteriaFilters($criteria, $totalCountQb);
@@ -778,7 +780,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
         $queryBuilder = $this->getEntityManager()->createQueryBuilder()
             ->select('u')
             ->from(User::class, 'u')
-            ->where('u.deleted = false')
+            ->where(self::WHERE_NOT_DELETED)
             ->andWhere('COALESCE(u.lastLogin, u.createdDate) <= :cutoff')
             ->andWhere('u.login != :aiApiUserLogin')
             ->setParameter('cutoff', $cutoff)
