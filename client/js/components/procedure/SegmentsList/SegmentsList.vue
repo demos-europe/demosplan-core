@@ -205,6 +205,12 @@
                   />
                 </template>
               </v-popover>
+              <dp-icon
+                v-if="canUnlock && rowData.isPlaceLocked"
+                class="text-interactive"
+                icon="prohibit"
+                weight="fill"
+              />
             </template>
             <template v-slot:statementStatus="rowData">
               <status-badge
@@ -396,6 +402,7 @@ import {
   DpColumnSelector,
   DpDataTable,
   DpFlyout,
+  DpIcon,
   DpInlineNotification,
   DpLoading,
   DpPager,
@@ -430,6 +437,7 @@ export default {
     DpColumnSelector,
     DpDataTable,
     DpFlyout,
+    DpIcon,
     DpInlineNotification,
     DpLoading,
     DpPager,
