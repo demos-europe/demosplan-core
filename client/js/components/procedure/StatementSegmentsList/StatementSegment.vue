@@ -12,7 +12,7 @@
     :id="`segment_${segment.id}`"
     ref="statementSegment"
     class="segment-list-row"
-    :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
+    :class="{'segment-list-row--assigned': isAssignedToMe && !isLocked, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
   >
@@ -72,7 +72,32 @@
         </template>
       </v-popover>
 
+      <div
+        v-if="isLocked"
+        class="flex space-x-1 mt-1 mr-2"
+      >
+        <dp-icon
+          class="text-interactive"
+          icon="prohibit"
+          weight="fill"
+        />
+        <dp-badge
+          color="info"
+          size="small"
+          :is-button="hasPermission('feature_administrate_segment_lock')"
+          :text="Translator.trans('segment.locked')"
+          @click="toggleUnlockModal"
+        />
+        <segment-unlock-modal
+          v-if="hasPermission('feature_administrate_segment_lock')"
+          ref="unlockModal"
+          :assignable-users="assignableUsers"
+          :places="places"
+          :segment="segment"
+        />
+      </div>
       <dp-claim
+        v-else
         entity-type="segment"
         :assigned-id="assignee.id || ''"
         :assigned-name="assignee.name || ''"
@@ -184,7 +209,7 @@
           </template>
         </dp-editor>
       </div>
-      <div v-if="isAssignedToMe">
+      <div v-if="isAssignedToMe && !isLocked">
         <dp-checkbox
           :id="'showWorkflowActions_' + segment.id"
           v-model="showWorkflowActions"
@@ -328,7 +353,7 @@
         </button>
 
         <button
-          v-if="isAssignedToMe"
+          v-if="isAssignedToMe && !isLocked"
           v-tooltip="{
             container: `#segment_${segment.id}`,
             content: Translator.trans('edit')
@@ -415,6 +440,7 @@
 import {
   CleanHtml,
   dpApi,
+  DpBadge,
   DpButtonRow,
   DpCheckbox,
   DpContextualHelp,
@@ -433,6 +459,7 @@ import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import RecommendationModal from '../Shared/RecommendationModal'
+import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
@@ -446,6 +473,7 @@ export default {
     CustomField,
     CustomFieldsList,
     DpBoilerPlateModal,
+    DpBadge,
     DpButtonRow,
     DpCheckbox,
     DpContextualHelp,
@@ -459,6 +487,7 @@ export default {
     DpMultiselect,
     ImageModal,
     RecommendationModal,
+    SegmentUnlockModal,
     TextContentRenderer,
     VPopover,
   },
@@ -589,6 +618,11 @@ export default {
 
     isAssignedToMe () {
       return this.assignee.id === this.currentUserId
+    },
+
+    isLocked () {
+      const placeId = this.segment.relationships?.place?.data?.id
+      return !!this.placeItems[placeId]?.attributes?.locked
     },
 
     places () {
@@ -796,6 +830,7 @@ export default {
             'description',
             'name',
             'solved',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
             'sortIndex',
           ].join(),
         },
@@ -1024,6 +1059,10 @@ export default {
 
     toggleRecommendationModal () {
       this.$refs.recommendationModal.toggle()
+    },
+
+    toggleUnlockModal () {
+      this.$refs.unlockModal.toggle()
     },
 
     unclaimSegment () {

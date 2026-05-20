@@ -176,6 +176,8 @@
             is-columns-draggable
             is-resizable
             is-selectable
+            :lock-checkbox-by="canUnlock ? false : 'isPlaceLocked'"
+            :lock-checkbox-hint="Translator.trans('segment.lock.hint')"
             @items-toggled="handleToggleItem"
             @select-all="handleSelectAll"
           >
@@ -203,6 +205,12 @@
                   />
                 </template>
               </v-popover>
+              <dp-icon
+                v-if="canUnlock && rowData.isPlaceLocked"
+                class="text-interactive"
+                icon="prohibit"
+                weight="fill"
+              />
             </template>
             <template v-slot:statementStatus="rowData">
               <status-badge
@@ -394,6 +402,7 @@ import {
   DpColumnSelector,
   DpDataTable,
   DpFlyout,
+  DpIcon,
   DpInlineNotification,
   DpLoading,
   DpPager,
@@ -428,6 +437,7 @@ export default {
     DpColumnSelector,
     DpDataTable,
     DpFlyout,
+    DpIcon,
     DpInlineNotification,
     DpLoading,
     DpPager,
@@ -607,12 +617,34 @@ export default {
       ]
     },
 
+    canUnlock () {
+      return hasPermission('feature_administrate_segment_lock')
+    },
+
+    // Overrides tableSelectAllItems mixin to exclude locked segments from selection for users without unlock permission
+    currentlySelectedItems () {
+      const toggledIds = new Set(this.toggledItems.map(item => item.id))
+      let selected
+      if (this.trackDeselected === false) {
+        selected = this.toggledItems
+      } else {
+        selected = this.toggledItems.length === 0 ?
+          this.items.filter(item => this.canUnlock || !item.isPlaceLocked) :
+          this.items.filter(item => (this.canUnlock || !item.isPlaceLocked) && !toggledIds.has(item.id))
+      }
+      return selected.reduce((acc, el) => ({ ...acc, [el.id]: true }), {})
+    },
+
     headerFields () {
       return this.headerFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
     },
 
     items () {
       return Object.values(this.segmentsObject)
+        .map(segment => ({
+          ...segment,
+          isPlaceLocked: !!this.placesObject[segment.relationships?.place?.data?.id]?.attributes?.locked,
+        }))
         // This is not working! better pass createdDate into segmentsObject
         .sort((a, b) => (b.attributes.externId.substring(1) - a.attributes.externId.substring(1)))
     },
@@ -627,6 +659,7 @@ export default {
           .map(place => ({
             name: place.attributes.name,
             id: place.id,
+            locked: place.attributes.locked,
           })) :
         []
     },
@@ -768,6 +801,7 @@ export default {
           ].join(),
           Place: [
             'name',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
           ].join(),
           SourceStatementAttachment: ['file'].join(),
           Statement: [
@@ -813,9 +847,22 @@ export default {
           this.allItemsCount = data.meta.pagination.total
           this.updatePagination(data.meta.pagination)
 
-          // Get all segments (without pagination) to save them in localStorage for bulk editing
+          /*
+           * Get all segments (without pagination) to save them in localStorage for bulk editing.
+           * If 'feature_segment_lock_by_workflow_place' is active, users without `feature_administrate_segment_lock`
+           * must not be able to bulk-edit segments whose workflow place is locked, so exclude them from the ID set.
+           */
+          const idsFilter = { ...filter }
+          if (hasPermission('feature_segment_lock_by_workflow_place') && !this.canUnlock) {
+            idsFilter.placeNotLocked = {
+              condition: {
+                path: 'place.locked',
+                value: false,
+              },
+            }
+          }
           this.fetchSegmentIds({
-            filter,
+            filter: idsFilter,
             search: payload.search,
           })
         })
@@ -1207,7 +1254,14 @@ export default {
     }
     this.applyQuery(this.pagination.currentPage)
 
-    this.fetchPlaces()
+    this.fetchPlaces({
+      fields: {
+        Place: [
+          'name',
+          ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+        ].join(),
+      },
+    })
     this.fetchAssignableUsers()
   },
 }
