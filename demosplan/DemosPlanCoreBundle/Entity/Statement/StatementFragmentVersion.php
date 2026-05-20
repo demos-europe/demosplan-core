@@ -52,9 +52,9 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var StatementFragmentInterface
-     *
-     * todo: should be nullable = false? will not working with onDelete: SET NULL
      */
+    // Must stay nullable: `onDelete: SET NULL` writes NULL into this column when
+    // the parent fragment is deleted, which a NOT NULL constraint would forbid.
     #[ORM\JoinColumn(name: 'statement_fragment_id', referencedColumnName: 'sf_id', nullable: true, onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: StatementFragment::class, inversedBy: 'versions')]
     protected $statementFragment;
