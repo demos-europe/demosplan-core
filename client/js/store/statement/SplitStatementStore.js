@@ -227,7 +227,6 @@ const SplitStatementStore = {
         },
       }))
         .then(({ data }) => {
-          console.log('data: ', data)
           if (!hasOwnProp(data.data.attributes.segmentDraftList, 'data')) {
             return []
           }
