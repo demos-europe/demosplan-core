@@ -36,7 +36,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
-use demosplan\DemosPlanCoreBundle\EventListener\DoctrineUserListener;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
@@ -120,13 +119,11 @@ class FunctionalTestCase extends WebTestCase
         // find() also fires the Doctrine entity listener (DoctrineUserListener::postLoad)
         // which populates the transient rolesAllowed / currentCustomer fields needed
         // by User::getDplanroles() under ORM v3.
-        $listener = $container->get(DoctrineUserListener::class);
         foreach ($this->fixtures->getReferences() as $name => $object) {
             if ($object instanceof User) {
                 $managed = $this->entityManager->find(User::class, $object->getId());
                 if (null !== $managed) {
                     $this->fixtures->setReference($name, $managed);
-                    $listener->postLoad($managed);
                 }
             }
         }

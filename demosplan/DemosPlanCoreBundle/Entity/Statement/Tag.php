@@ -80,6 +80,11 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     protected $boilerplate;
 
     /**
+     * @ORM\Column(name="_t_sort_index", type="integer", nullable=false, options={"default": 0})
+     */
+    protected int $sortIndex = 0;
+
+    /**
      * Create a Tag-Entity.
      *
      * @param string $title
@@ -255,5 +260,17 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     public function setCreateDate($date)
     {
         $this->createDate = $date;
+    }
+
+    public function getSortIndex(): int
+    {
+        return $this->sortIndex;
+    }
+
+    public function setSortIndex(int $sortIndex): self
+    {
+        $this->sortIndex = $sortIndex;
+
+        return $this;
     }
 }

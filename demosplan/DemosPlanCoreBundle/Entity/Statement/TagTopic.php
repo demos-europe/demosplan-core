@@ -48,7 +48,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
      * @var Collection<int, TagInterface>
      */
     #[ORM\OneToMany(targetEntity: Tag::class, mappedBy: 'topic', cascade: ['remove'])]
-    #[ORM\OrderBy(['title' => 'ASC'])]
+    #[ORM\OrderBy(['sortIndex' => 'ASC'])]
     protected Collection $tags;
 
     /**
