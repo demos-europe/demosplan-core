@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
@@ -808,6 +809,13 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     #[ORM\JoinColumn(name: 'assignee', referencedColumnName: '_u_id', nullable: true, onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: User::class)]
     protected $assignee;
+
+    /**
+     * @ORM\Column(name="deadline_date", type="date", nullable=true)
+     *
+     * @var DateTimeInterface|null
+     */
+    protected $deadline;
 
     /**
      * The representative Statement defines the cluster.
@@ -3202,6 +3210,18 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function setAssignee($assignee)
     {
         $this->assignee = $assignee;
+    }
+
+    public function getDeadline(): ?DateTime
+    {
+        return $this->deadline;
+    }
+
+    public function setDeadline(?DateTime $deadline): self
+    {
+        $this->deadline = $deadline;
+
+        return $this;
     }
 
     /**
