@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
@@ -893,6 +894,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @ORM\Column(name="deadline_date", type="date", nullable=true)
+     * @var DatetimeInterface|null
      */
     protected $deadline;
 
