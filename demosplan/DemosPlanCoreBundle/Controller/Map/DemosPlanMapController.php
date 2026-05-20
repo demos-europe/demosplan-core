@@ -629,6 +629,7 @@ class DemosPlanMapController extends BaseController
 
             // Template Variable aus Storage Ergebnis erstellen(Output)
             $templateVars['gislayer'] = $mapService->gislayerAdminGetGlobalLayer($gislayerID);
+            $templateVars['availableProjections'] = $this->globalConfig->getMapAvailableProjections();
 
             return $this->render(
                 '@DemosPlanCore/DemosPlanMap/map_admin_gislayer_global_edit.html.twig',
