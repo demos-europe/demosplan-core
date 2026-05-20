@@ -12,66 +12,57 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserFilterSetInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\UserFilterSetRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class UserFilterSet.
- *
- * @ORM\Table
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\UserFilterSetRepository")
  */
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: UserFilterSetRepository::class)]
 class UserFilterSet extends CoreEntity implements UuidEntityInterface, UserFilterSetInterface
 {
+    private const ON_DELETE_NO_ACTION = 'NO ACTION';
+
     /**
      * Unique identification of the GisLayerCategory entry.
      *
      * @var string|null
-     *
-     * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var User
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=false, onDelete="NO ACTION")
      */
+    #[ORM\JoinColumn(referencedColumnName: '_u_id', nullable: false, onDelete: self::ON_DELETE_NO_ACTION)]
+    #[ORM\ManyToOne(targetEntity: User::class, cascade: ['persist'])]
     protected $user;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=false)
      */
+    #[ORM\Column(type: 'string', nullable: false)]
     protected $name;
 
     /**
      * @var HashedQuery
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery")
-     *
-     * @ORM\JoinColumn(nullable=false, onDelete="NO ACTION")
      */
+    #[ORM\JoinColumn(nullable: false, onDelete: self::ON_DELETE_NO_ACTION)]
+    #[ORM\ManyToOne(targetEntity: HashedQuery::class)]
     protected $filterSet;
 
     /**
      * @var Procedure
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false, onDelete="NO ACTION")
      */
+    #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false, onDelete: self::ON_DELETE_NO_ACTION)]
+    #[ORM\ManyToOne(targetEntity: Procedure::class, cascade: ['persist'])]
     protected $procedure;
 
     public function getId(): ?string

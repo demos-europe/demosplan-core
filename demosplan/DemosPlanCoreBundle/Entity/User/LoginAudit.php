@@ -14,82 +14,61 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Repository\LoginAuditRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Audit record of an authentication attempt (success or failure), including 2FA outcomes.
  * Rows are written by LoginAuditSubscriber via LoginAuditWriter.
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\LoginAuditRepository")
- *
- * @ORM\Table(
- *     name="login_audit",
- *     indexes={
- *
- *         @ORM\Index(name="IDX_LOGIN_AUDIT_USER_DATE", columns={"user_id","created_date"}),
- *         @ORM\Index(name="IDX_LOGIN_AUDIT_DATE", columns={"created_date"}),
- *         @ORM\Index(name="IDX_LOGIN_AUDIT_SESSION_AUTH", columns={"session_id_hash","authenticator"})
- *     }
- * )
  */
+#[ORM\Table(name: 'login_audit')]
+#[ORM\Index(name: 'IDX_LOGIN_AUDIT_USER_DATE', columns: ['user_id', 'created_date'])]
+#[ORM\Index(name: 'IDX_LOGIN_AUDIT_DATE', columns: ['created_date'])]
+#[ORM\Index(name: 'IDX_LOGIN_AUDIT_SESSION_AUTH', columns: ['session_id_hash', 'authenticator'])]
+#[ORM\Entity(repositoryClass: LoginAuditRepository::class)]
 class LoginAudit implements EntityInterface
 {
     public const RESULT_SUCCESS = 'success';
     public const RESULT_FAILURE = 'failure';
 
-    /**
-     * @ORM\Id
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private string $id;
 
     /**
      * Stored as a plain UUID string instead of a ManyToOne association so that
      * audit rows survive user deletion.
-     *
-     * @ORM\Column(name="user_id", type="string", length=36, nullable=true, options={"fixed":true})
      */
+    #[ORM\Column(name: 'user_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     private ?string $userId = null;
 
-    /**
-     * @ORM\Column(type="string", length=16)
-     */
+    #[ORM\Column(type: 'string', length: 16)]
     private string $result;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $failureReason = null;
 
     /**
      * Stored as the authenticator's fully-qualified class name (FQN) to avoid
      * collisions between core and addon authenticators that share a short name.
-     *
-     * @ORM\Column(type="string", length=191)
      */
+    #[ORM\Column(type: 'string', length: 191)]
     private string $authenticator;
 
-    /**
-     * @ORM\Column(type="string", length=512, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 512, nullable: true)]
     private ?string $userAgent = null;
 
-    /**
-     * @ORM\Column(type="string", length=64, nullable=true, options={"fixed":true})
-     */
+    #[ORM\Column(type: 'string', length: 64, nullable: true, options: ['fixed' => true])]
     private ?string $sessionIdHash = null;
 
     /**
-     * @ORM\Column(type="datetime")
-     *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(type: 'datetime')]
     private DateTime $createdDate;
 
     public function __construct(string $result, string $authenticator)
