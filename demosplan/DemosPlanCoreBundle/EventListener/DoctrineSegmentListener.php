@@ -28,4 +28,3 @@ class DoctrineSegmentListener
         $args->setNewValue('deadline', null);
     }
 }
-
