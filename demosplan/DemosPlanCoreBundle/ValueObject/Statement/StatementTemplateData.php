@@ -1,0 +1,83 @@
+<?php
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\ValueObject\Statement;
+
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
+
+/**
+ * Mapping placeholder-name → value for {@see \demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementViaTemplateExporter}.
+ *
+ * Simple fields are nullable so the builder can express "we don't have this for
+ * this statement"; the exporter normalises null to an empty string when calling
+ * {@see \PhpOffice\PhpWord\TemplateProcessor::setValue()}, so a missing value
+ * yields an empty render rather than a stray ${placeholder} in the output.
+ *
+ * @method string|null getSubmitterName()
+ * @method string|null getSubmitterOrgaName()
+ * @method string|null getSubmitterStreet()
+ * @method string|null getSubmitterPostalCode()
+ * @method string|null getSubmitterCity()
+ * @method string|null getSubmitterEmail()
+ * @method string|null getStatementExternId()
+ * @method string|null getStatementSubmitDate()
+ * @method string|null getProcedureName()
+ * @method string|null getProcedureExternId()
+ * @method string|null getTodayDate()
+ * @method string|null getPlanningAgencyName()
+ * @method string|null getPlanner()
+ * @method Segment[]   getSegments()
+ * @method void        setSubmitterName(?string $submitterName)
+ * @method void        setSubmitterOrgaName(?string $submitterOrgaName)
+ * @method void        setSubmitterStreet(?string $submitterStreet)
+ * @method void        setSubmitterPostalCode(?string $submitterPostalCode)
+ * @method void        setSubmitterCity(?string $submitterCity)
+ * @method void        setSubmitterEmail(?string $submitterEmail)
+ * @method void        setStatementExternId(?string $statementExternId)
+ * @method void        setStatementSubmitDate(?string $statementSubmitDate)
+ * @method void        setProcedureName(?string $procedureName)
+ * @method void        setProcedureExternId(?string $procedureExternId)
+ * @method void        setTodayDate(?string $todayDate)
+ * @method void        setPlanningAgencyName(?string $planningAgencyName)
+ * @method void        setPlanner(?string $planner)
+ * @method void        setSegments(Segment[] $segments)
+ */
+class StatementTemplateData extends ValueObject
+{
+    /** @var string|null */
+    protected $submitterName;
+    /** @var string|null */
+    protected $submitterOrgaName;
+    /** @var string|null */
+    protected $submitterStreet;
+    /** @var string|null */
+    protected $submitterPostalCode;
+    /** @var string|null */
+    protected $submitterCity;
+    /** @var string|null */
+    protected $submitterEmail;
+    /** @var string|null */
+    protected $statementExternId;
+    /** @var string|null */
+    protected $statementSubmitDate;
+    /** @var string|null */
+    protected $procedureName;
+    /** @var string|null */
+    protected $procedureExternId;
+    /** @var string|null */
+    protected $todayDate;
+    /** @var string|null */
+    protected $planningAgencyName;
+    /** @var string|null */
+    protected $planner;
+    /** @var Segment[] */
+    protected $segments = [];
+}
