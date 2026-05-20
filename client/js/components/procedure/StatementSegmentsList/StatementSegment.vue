@@ -72,6 +72,22 @@
         </template>
       </v-popover>
 
+      <div
+        v-if="isLocked"
+        class="flex space-x-1 mt-1 mr-2"
+      >
+        <dp-icon
+          class="text-interactive"
+          icon="prohibit"
+          weight="fill"
+        />
+        <dp-badge
+          color="info"
+          size="small"
+          :is-button="hasPermission('feature_administrate_segment_lock')"
+          :text="Translator.trans('segment.locked')"
+        />
+      </div>
       <dp-claim
         entity-type="segment"
         :assigned-id="assignee.id || ''"
@@ -415,6 +431,7 @@
 import {
   CleanHtml,
   dpApi,
+  DpBadge,
   DpButtonRow,
   DpCheckbox,
   DpContextualHelp,
@@ -446,6 +463,7 @@ export default {
     CustomField,
     CustomFieldsList,
     DpBoilerPlateModal,
+    DpBadge,
     DpButtonRow,
     DpCheckbox,
     DpContextualHelp,
@@ -589,6 +607,11 @@ export default {
 
     isAssignedToMe () {
       return this.assignee.id === this.currentUserId
+    },
+
+    isLocked () {
+      const placeId = this.segment.relationships?.place?.data?.id
+      return !!this.placeItems[placeId]?.attributes?.locked
     },
 
     places () {
@@ -796,6 +819,7 @@ export default {
             'description',
             'name',
             'solved',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
             'sortIndex',
           ].join(),
         },
