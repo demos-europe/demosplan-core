@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Added 
+- Tags can be reordered within and between TagTopics via drag and drop in tag administration
+
 ### Changed
 - Segment transformer extracts segment IDs and text from `<segment-mark>` elements in textualReference instead of charStart/charEnd positions
 - Column widths in the segment list now persist across browser sessions
