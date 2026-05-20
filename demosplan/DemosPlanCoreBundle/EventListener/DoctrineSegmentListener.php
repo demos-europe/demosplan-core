@@ -21,6 +21,10 @@ class DoctrineSegmentListener
             return;
         }
 
+        if ($args->hasChangedField('deadline')) {
+            return;
+        }
+
         if (null === $segment->getDeadline()) {
             return;
         }
