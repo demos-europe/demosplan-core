@@ -280,6 +280,7 @@ export default {
         'orderInProcedure',
         'polygon',
         'recommendation',
+        'recommendationVersions',
       ]
 
       if (hasPermission('field_segments_custom_fields')) {
@@ -329,6 +330,7 @@ export default {
 
       const response = await this.listSegments({
         include: [
+          'recommendationVersions',
           'assignee',
           'comments',
           'comments.place',
@@ -343,6 +345,11 @@ export default {
             'text',
             'submitter',
             'place',
+          ].join(),
+          RecommendationVersion: [
+            'versionNumber',
+            'recommendationText',
+            'createdAt',
           ].join(),
         },
         page: {
