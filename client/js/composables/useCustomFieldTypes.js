@@ -59,11 +59,24 @@ function fieldTypeSupportsOptions (fieldType) {
 }
 
 function getComponentForFieldType (fieldType) {
-  return FIELD_TYPE_REGISTRY[fieldType]?.component ?? SingleselectCustomField
+  const component = FIELD_TYPE_REGISTRY[fieldType]?.component
+
+  if (!component) {
+    console.warn(`Unknown custom field type "${fieldType}"; falling back to singleSelect renderer.`)
+    return SingleselectCustomField
+  }
+
+  return component
 }
 
 function getDefaultFieldTypeForTarget (targetEntity) {
-  return TARGET_ENTITY_DEFAULT_TYPE[targetEntity] ?? ''
+  const fieldType = TARGET_ENTITY_DEFAULT_TYPE[targetEntity]
+
+  if (!fieldType) {
+    console.warn(`Unknown target entity "${targetEntity}"; no default field type available.`)
+  }
+
+  return fieldType ?? ''
 }
 
 function getFieldTypeLabel (fieldType) {
