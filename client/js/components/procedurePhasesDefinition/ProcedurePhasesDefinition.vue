@@ -9,7 +9,7 @@ All rights reserved
 
 <template>
   <div>
-    <h1>{{ Translator.trans('phases.currently.defined') }}</h1>
+    <h1>{{ Translator.trans('procedure.phases.currently.defined') }}</h1>
 
     <div class="space-stack-m mt-4">
       <div
@@ -17,7 +17,7 @@ All rights reserved
         class="text-right"
       >
         <dp-button
-          :text="Translator.trans('phase.create')"
+          :text="Translator.trans('procedure.phase.create')"
           @click="isCreating = true"
         />
       </div>
@@ -36,7 +36,7 @@ All rights reserved
           id="phaseName"
           v-model="newPhase.name"
           :class="{ '[&_input]:border-status-failed': showErrorInputStyle }"
-          :label="{ text: Translator.trans('phase.name') }"
+          :label="{ text: Translator.trans('procedure.phase.name') }"
           required
         />
 
@@ -275,7 +275,7 @@ export default {
     )
 
     const headerFields = computed(() => [
-      { field: 'name', label: Translator.trans('phase.name'), colWidth: '270px', initialMinWidth: 270 },
+      { field: 'name', label: Translator.trans('procedure.phase.name'), colWidth: '270px', initialMinWidth: 270 },
       { field: 'permissionSetLabel', label: Translator.trans('permissionset.label'), colWidth: '270px', initialMinWidth: 270 },
       { field: 'participationStateLabel', label: Translator.trans('participation.state.finished'), colWidth: '160px', initialMinWidth: 160 },
       ...(isAddonActive.value ? [{ field: 'phaseCode', label: Translator.trans('procedure.phase.code'), colWidth: '160px', initialMinWidth: 160 }] : []),
@@ -383,9 +383,9 @@ export default {
         })
         .then(() => {
           if (codeFailed) {
-            dplan.notify.error(Translator.trans('phase.create.code.failed'))
+            dplan.notify.error(Translator.trans('procedure.phase.code.create.failed'))
           } else {
-            dplan.notify.confirm(Translator.trans('phase.create.success'))
+            dplan.notify.confirm(Translator.trans('procedure.phase.create.success'))
           }
 
           fetchPhaseDefinitions()
