@@ -141,7 +141,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
 
         // Create sort methods for tags (items) and tag topics (groups)
         $tagsSortMethod = $this->sortMethodFactory->propertyAscending(
-            $this->tagResourceType->title
+            $this->tagResourceType->sortIndex
         );
         $topicsSortMethod = $this->sortMethodFactory->propertyAscending(
             $this->tagTopicResourceType->title

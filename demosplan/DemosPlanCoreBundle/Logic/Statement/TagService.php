@@ -100,6 +100,7 @@ class TagService implements TagServiceInterface
         }
 
         $toCreate = new Tag($title, $topic);
+        $toCreate->setSortIndex($this->tagRepository->getNextSortIndex($topic->getId()));
 
         if ($persistAndFlush) {
             $this->tagRepository->addObject($toCreate);
