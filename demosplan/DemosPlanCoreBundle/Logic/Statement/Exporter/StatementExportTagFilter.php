@@ -38,6 +38,7 @@ class StatementExportTagFilter
     private array $tagsFilter = [];
     private array $tagNamesFound = [];
     private array $topicNamesFound = [];
+    private array $filteredTagsWithTitle = [];
 
     /**
      * Filters statements and their segments based on tag criteria.
@@ -84,14 +85,6 @@ class StatementExportTagFilter
         return $this->applyTagFilter($statements, $tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles);
     }
 
-    public function hasAnySupportedFilterSet(): bool
-    {
-        return $this->isTagIdFilterActive()
-            || $this->isTagTitleFilterActive()
-            || $this->isTagTopicIdFilterActive()
-            || $this->isTagTopicTitleFilterActive();
-    }
-
     public function isTagIdFilterActive(): bool
     {
         return !empty($this->tagsFilter[self::TAG_IDS_FILTER_KEY] ?? []);
@@ -110,46 +103,6 @@ class StatementExportTagFilter
     public function isTagTopicTitleFilterActive(): bool
     {
         return !empty($this->tagsFilter[self::TAG_TOPIC_TITLES_FILTER_KEY] ?? []);
-    }
-
-    public function getTagIds(): array
-    {
-        return $this->tagsFilter[self::TAG_IDS_FILTER_KEY] ?? [];
-    }
-
-    public function getTagTitles(): array
-    {
-        return $this->tagsFilter[self::TAG_TITLES_FILTER_KEY] ?? [];
-    }
-
-    public function getTagTopicIds(): array
-    {
-        return $this->tagsFilter[self::TAG_TOPIC_IDS_FILTER_KEY] ?? [];
-    }
-
-    public function getTagTopicTitles(): array
-    {
-        return $this->tagsFilter[self::TAG_TOPIC_TITLES_FILTER_KEY] ?? [];
-    }
-
-    /**
-     * Checks if any tag filters were applied and matched segments during filtering.
-     *
-     * @return bool True if tag filters were applied and matched, false otherwise
-     */
-    public function hasTagFiltersApplied(): bool
-    {
-        return !empty($this->tagNamesFound);
-    }
-
-    /**
-     * Checks if any topic filters were applied and matched segments during filtering.
-     *
-     * @return bool True if topic filters were applied and matched, false otherwise
-     */
-    public function hasTopicFiltersApplied(): bool
-    {
-        return !empty($this->topicNamesFound);
     }
 
     /**
@@ -182,9 +135,9 @@ class StatementExportTagFilter
         return $this->translator->trans('export.filter.topics.names', ['names' => implode(', ', $this->topicNamesFound)]);
     }
 
-    public function getTagNames(): array
+    public function getFilteredTagsWithTitles(): array
     {
-        return $this->tagNamesFound;
+        return $this->filteredTagsWithTitle;
     }
 
     /**
@@ -266,6 +219,7 @@ class StatementExportTagFilter
         $matchByTag = $matchByTagId || $matchByTagTitle;
         if ($matchByTag) {
             $this->tagNamesFound[$tag->getId()] = $tag->getTitle();
+            $this->filteredTagsWithTitle[$tag->getId()] = [$tag->getTitle(), $tag->getTopic()->getTitle()];
         }
 
         return $matchByTag;

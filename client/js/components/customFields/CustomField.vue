@@ -51,6 +51,7 @@ All rights reserved
           <component
             :is="getComponentForType(resolvedDefinition.attributes.fieldType)"
             :field="editingField"
+            :show-label="showLabel"
             mode="editable"
             @update:value="handleEditingValueUpdate"
           />
@@ -85,6 +86,7 @@ All rights reserved
       v-else-if="mergedField"
       :field="mergedField"
       :mode="mode"
+      :show-label="showLabel"
       @update:value="handleValueUpdate"
     >
       <template
@@ -104,6 +106,7 @@ All rights reserved
 import { DpButton, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import MultiselectCustomField from './MultiselectCustomField'
 import SingleselectCustomField from './SingleselectCustomField'
+import TextCustomField from './TextCustomField'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
@@ -114,6 +117,7 @@ export default {
     DpLoading,
     MultiselectCustomField,
     SingleselectCustomField,
+    TextCustomField,
   },
 
   mixins: [prefixClassMixin],
@@ -170,6 +174,24 @@ export default {
       required: false,
       default: null,
     },
+
+    showLabel: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+
+    sourceEntity: {
+      type: [String, null],
+      required: false,
+      default: null,
+    },
+
+    targetEntity: {
+      type: [String, null],
+      required: false,
+      default: null,
+    },
   },
 
   emits: [
@@ -186,6 +208,7 @@ export default {
       componentMap: {
         multiSelect: 'multiselect-custom-field',
         singleSelect: 'singleselect-custom-field',
+        text: 'text-custom-field',
       },
       editingValue: null,
       isEditing: false,
@@ -274,9 +297,9 @@ export default {
 
       this.isLoading = true
 
-      fetchCustomFields(this.definitionSourceId)
+      fetchCustomFields(this.definitionSourceId, { sourceEntity: this.sourceEntity, targetEntity: this.targetEntity })
         .then(definitions => {
-          this.resolvedDefinition = definitions.find(d => d.id === this.fieldData.id)
+          this.resolvedDefinition = definitions.find(definition => definition.id === this.fieldData.id)
 
           if (!this.resolvedDefinition) {
             console.warn(`Custom field definition not found for ID: ${this.fieldData.id}`)

@@ -156,28 +156,30 @@
         >
           <dp-data-table
             ref="dataTable"
-            class="min-h-12"
+            :key="columnSelectorKey"
             :class="{ 'px-2': isFullscreen, 'scrollbar-none': !isFullscreen }"
+            :header-fields="availableHeaderFields"
+            :items="items"
+            :multi-page-all-selected="allSelectedVisually"
+            :multi-page-selection-items-toggled="toggledItems.length"
+            :multi-page-selection-items-total="allItemsCount"
+            :should-be-selected-items="currentlySelectedItems"
+            class="min-h-12"
+            column-storage-key="segmentsList"
+            column-width-storage-key="segmentsListColumnWidths"
             data-cy="segmentsList"
             density="spacious"
-            has-flyout
+            track-by="id"
             has-borders
+            has-flyout
             has-sticky-header
-            :header-fields="availableHeaderFields"
-            column-storage-key="segmentsList"
             is-columns-draggable
             is-resizable
             is-selectable
-            :items="items"
+            @items-toggled="handleToggleItem"
             :lock-checkbox-by="'isPlaceLocked'"
             :lock-checkbox-hint="lockCheckboxHint"
-            :multi-page-all-selected="allSelectedVisually"
-            :multi-page-selection-items-total="allItemsCount"
-            :multi-page-selection-items-toggled="toggledItems.length"
-            :should-be-selected-items="currentlySelectedItems"
-            track-by="id"
             @select-all="handleSelectAll"
-            @items-toggled="handleToggleItem"
           >
             <template v-slot:header-tags>
               <span class="inline-flex items-center">
@@ -942,6 +944,12 @@ export default {
     resetColumnSelection () {
       localStorage.removeItem('segmentList')
       this.setCurrentSelection([...this.defaultColumnSelection])
+
+      // Clear persisted column widths
+      Object.keys(localStorage)
+        .filter(key => key.startsWith('dpDataTable:colWidth:segmentsListColumnWidths:'))
+        .forEach(key => localStorage.removeItem(key))
+
       this.columnSelectorKey++
     },
 
