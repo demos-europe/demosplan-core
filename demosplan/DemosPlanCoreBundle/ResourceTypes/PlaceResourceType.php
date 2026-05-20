@@ -104,7 +104,9 @@ final class PlaceResourceType extends DplanResourceType
             ->readable()
             ->updatable();
         if ($this->segmentLockEnforcementService->isFeatureEnabled()) {
-            $configBuilder->locked->readable();
+            $configBuilder->locked
+                ->readable()
+                ->filterable();
         }
         $configBuilder->sortIndex
             ->readable(true)
