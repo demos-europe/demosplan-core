@@ -69,7 +69,7 @@ class AccessControlServiceTest extends UnitTestCase
 
         $this->testOrga = OrgaFactory::createOne();
         $this->testCustomer = CustomerFactory::createOne();
-        $this->testCustomer->setSubdomain('bb');
+        $this->testCustomer->setSubdomain('access-control-test-customer');
         $this->testCustomer->_save();
 
         $this->testOrgaStatusInCustomer = OrgaStatusInCustomerFactory::createOne();
