@@ -8,6 +8,7 @@
 
 ### Added 
 - Tags can be reordered within and between TagTopics via drag and drop in tag administration
+- Cross-procedure submitter search API (`StatementSearchResourceType`) for locating statements by author or submitter name across all procedures the user can administer, scoped to the current customer (permission: `feature_json_api_statement_cross_procedures_search`)
 
 ### Changed
 - Column widths in the segment list now persist across browser sessions
