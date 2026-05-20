@@ -14,7 +14,9 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFieldDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\StatementFieldDefinitionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\UniqueConstraint;
@@ -23,71 +25,50 @@ use Gedmo\Mapping\Annotation as Gedmo;
 /**
  * StatementFieldDefinition - A part of a StatementFormDefinition.
  * Defines the availability of a customizable fields on a statement (participation).
- *
- * @ORM\Table(uniqueConstraints={
- *
- *     @UniqueConstraint(columns={"statement_form_definition_id", "name"}),
- *     @UniqueConstraint(columns={"statement_form_definition_id", "order_number"})
- * })
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFieldDefinitionRepository")
  */
+#[ORM\Table]
+#[UniqueConstraint(columns: ['statement_form_definition_id', 'name'])]
+#[UniqueConstraint(columns: ['statement_form_definition_id', 'order_number'])]
+#[ORM\Entity(repositoryClass: StatementFieldDefinitionRepository::class)]
 class StatementFieldDefinition extends CoreEntity implements UuidEntityInterface, StatementFieldDefinitionInterface
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private $id;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
+    #[ORM\Column(type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
     private $creationDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
+    #[ORM\Column(type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
     private $modificationDate;
 
     public function __construct(
-        /**
-         * @ORM\Column(type="string", nullable=false)
-         */
+        #[ORM\Column(type: 'string', nullable: false)]
         private string $name,
-        /**
-         * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition", inversedBy="fieldDefinitions")
-         *
-         * @JoinColumn(referencedColumnName="id", nullable=false)
-         */
+        #[JoinColumn(referencedColumnName: 'id', nullable: false)]
+        #[ORM\ManyToOne(targetEntity: StatementFormDefinition::class, inversedBy: 'fieldDefinitions')]
         private StatementFormDefinition $statementFormDefinition,
-        /**
-         * @ORM\Column(type="smallint", nullable=false, options={"default":0})
-         */
+        #[ORM\Column(type: 'smallint', nullable: false, options: ['default' => 0])]
         private int $orderNumber,
-        /**
-         * @ORM\Column(type="boolean", nullable=false)
-         */
+        #[ORM\Column(type: 'boolean', nullable: false)]
         private bool $enabled,
-        /**
-         * @ORM\Column(type="boolean", nullable=false, options={"default":true})
-         */
-        private bool $required
+        #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
+        private bool $required,
     ) {
     }
 
