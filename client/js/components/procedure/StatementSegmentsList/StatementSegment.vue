@@ -86,9 +86,18 @@
           size="small"
           :is-button="hasPermission('feature_administrate_segment_lock')"
           :text="Translator.trans('segment.locked')"
+          @click="toggleUnlockModal"
+        />
+        <segment-unlock-modal
+          v-if="hasPermission('feature_administrate_segment_lock')"
+          ref="unlockModal"
+          :assignable-users="assignableUsers"
+          :places="places"
+          :segment="segment"
         />
       </div>
       <dp-claim
+        v-else
         entity-type="segment"
         :assigned-id="assignee.id || ''"
         :assigned-name="assignee.name || ''"
@@ -450,6 +459,7 @@ import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import RecommendationModal from '../Shared/RecommendationModal'
+import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
@@ -477,6 +487,7 @@ export default {
     DpMultiselect,
     ImageModal,
     RecommendationModal,
+    SegmentUnlockModal,
     TextContentRenderer,
     VPopover,
   },
@@ -1048,6 +1059,10 @@ export default {
 
     toggleRecommendationModal () {
       this.$refs.recommendationModal.toggle()
+    },
+
+    toggleUnlockModal () {
+      this.$refs.unlockModal.toggle()
     },
 
     unclaimSegment () {
