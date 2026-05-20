@@ -308,6 +308,7 @@ export default {
         fields: {
           Place: [
             'description',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
             'name',
             'solved',
             'sortIndex',
@@ -343,6 +344,13 @@ export default {
             'text',
             'submitter',
             'place',
+          ].join(),
+          Place: [
+            'description',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+            'name',
+            'solved',
+            'sortIndex',
           ].join(),
         },
         page: {
