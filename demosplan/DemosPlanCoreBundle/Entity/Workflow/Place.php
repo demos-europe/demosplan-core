@@ -39,9 +39,7 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
     private $description = '';
     #[ORM\Column(name: 'solved', type: 'boolean', nullable: false, options: ['default' => false, 'fixed' => true])]
     private bool $solved = false;
-    /**
-     * @ORM\Column(name="locked", type="boolean", nullable=false, options={"default":false, "fixed":true})
-     */
+    #[ORM\Column(name: 'locked', type: 'boolean', nullable: false, options: ['default' => false, 'fixed' => true])]
     private bool $locked = false;
 
     public function __construct(
