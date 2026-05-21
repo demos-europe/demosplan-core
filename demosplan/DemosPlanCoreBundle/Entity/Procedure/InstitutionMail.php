@@ -57,6 +57,16 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface, Institu
     protected $organisation;
 
     /**
+     * @var string
+     *
+     * @deprecated Will be removed once all consumers are migrated to phaseDefinition.
+     *             Kept on the entity to avoid data loss; value is synced from phaseDefinition->getName().
+     *
+     * @ORM\Column(name="_p_phase", type="string", length=50)
+     */
+    protected $procedurePhase;
+
+    /**
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
      *
      * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=false, onDelete="RESTRICT")
@@ -161,6 +171,8 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface, Institu
     public function setPhaseDefinition(ProcedurePhaseDefinition $phaseDefinition): self
     {
         $this->phaseDefinition = $phaseDefinition;
+        // @deprecated $procedurePhase will be removed once all consumers are migrated to phaseDefinition
+        $this->procedurePhase = $phaseDefinition->getName();
 
         return $this;
     }
