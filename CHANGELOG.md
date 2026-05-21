@@ -6,7 +6,9 @@
 
 ## UNRELEASED
 
-### Added 
+## v4.40.0 (2026-05-20)
+
+### Added
 - Tags can be reordered within and between TagTopics via drag and drop in tag administration
 
 ### Changed
