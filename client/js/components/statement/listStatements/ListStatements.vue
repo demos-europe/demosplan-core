@@ -334,6 +334,7 @@
       />
     </template>
   </div>
+  <statement-group-form :procedure-id="procedureId"></statement-group-form>
 </template>
 
 <script>
@@ -361,6 +362,7 @@ import { inlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
+import StatementGroupForm from '@DpJs/components/statement/StatementGroupForm'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
 
@@ -380,6 +382,7 @@ export default {
     DpSelect,
     DpStickyElement,
     StatementExportModal,
+    StatementGroupForm,
     StatementMetaData,
     StatusBadge,
   },
