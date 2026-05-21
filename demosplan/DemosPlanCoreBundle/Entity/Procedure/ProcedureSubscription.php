@@ -284,7 +284,6 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface, P
     /**
      * Get CreatedDate.
      *
-     *
      * @return DateTime
      */
     public function getCreatedDate()
