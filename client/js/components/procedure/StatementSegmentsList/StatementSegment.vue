@@ -184,6 +184,9 @@
           </template>
         </dp-editor>
       </div>
+      <div v-if="hasPermission('feature_enable_recommendation_versions') && recommendationVersionNumber" class="mb-2">
+        <span class="text-neutral-dark-1 mb-2">{{ `${Translator.trans('version')}:${recommendationVersionNumber}` }}</span>
+      </div>
       <div v-if="isAssignedToMe">
         <dp-checkbox
           :id="'showWorkflowActions_' + segment.id"
@@ -544,6 +547,10 @@ export default {
       placeItems: 'items',
     }),
 
+    ...mapState('RecommendationVersion', {
+      recommendationVersions: 'items',
+    }),
+
     assignableUsers () {
       const assigneeOptions = Object.values({ ...this.assignableUserItems })
         .map(assignableUser => {
@@ -839,6 +846,18 @@ export default {
       }
     },
 
+    recommendationVersionNumber () {
+      const lastVersionId = this.segment.relationships?.recommendationVersions?.data?.[0]?.id
+
+      if (!lastVersionId) {
+        return ''
+      }
+
+      const versionNumber = this.recommendationVersions?.[lastVersionId]?.attributes?.versionNumber ?? ''
+
+      return String(versionNumber).padStart(3, '0')
+    },
+
     /**
      * Remove non-updatable comments from segments relationships for update request
      * @param relations {Object}
@@ -1112,7 +1131,6 @@ export default {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
       this.setSegment({ ...updated, id: this.segment.id })
     },
-
   },
 
   mounted () {
