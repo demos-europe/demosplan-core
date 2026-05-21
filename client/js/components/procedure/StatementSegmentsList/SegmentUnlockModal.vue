@@ -23,6 +23,7 @@
     />
     <dp-multiselect
       id="segmentUnlockPlace"
+      v-model="localPlace"
       class="mb-2"
       :allow-empty="false"
       label="name"
@@ -39,7 +40,9 @@
     />
     <dp-multiselect
       id="segmentUnlockAssignee"
+      v-model="localAssignee"
       class="mb-6"
+      :allow-empty="false"
       label="name"
       :options="assignableUsers"
       track-by="id"
@@ -48,6 +51,8 @@
     <dp-button-row
       primary
       secondary
+      @primary-action="save"
+      @secondary-action="toggle"
     />
   </dp-modal>
 </template>
@@ -56,7 +61,7 @@
 import { ref } from 'vue'
 import { DpButtonRow, DpLabel, DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
 
-const { assignableUsers, places } = defineProps({
+defineProps({
   assignableUsers: {
     type: Object,
     required: true,
@@ -66,18 +71,21 @@ const { assignableUsers, places } = defineProps({
     type: Object,
     required: true,
   },
-
-  segment: {
-    type: Object,
-    required: true,
-  },
 })
 
+const emit = defineEmits(['unlock'])
+
+defineExpose({ toggle })
+
+const localPlace = ref(null)
+const localAssignee = ref(null)
 const unlockModal = ref()
 
-defineExpose({
-  toggle: () => unlockModal.value.toggle(),
-})
+const save = () => {
+  emit('unlock', { assignee: localAssignee.value, place: localPlace.value })
+  toggle()
+}
+function toggle () { unlockModal.value.toggle() }
 
 </script>
 
