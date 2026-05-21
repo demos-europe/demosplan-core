@@ -3,7 +3,7 @@ framework:
     assets: ~
     #esi: true
     secret: '%env(APP_SECRET)%'
-    # Enable once all @ORM\* annotations are migrated to #[ORM\*] attributes.
+    # Enable once the remaining custom @*Constraint validator docblocks are migrated to #[*Constraint] attributes.
     #annotations: false
     handle_all_throwables: true
     form: ~
