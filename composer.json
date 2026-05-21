@@ -42,7 +42,7 @@
     "doctrine/common": "^3.2",
     "doctrine/dbal": "^3",
     "doctrine/doctrine-bundle": "^2",
-    "doctrine/doctrine-fixtures-bundle": "^3",
+    "doctrine/doctrine-fixtures-bundle": "^4",
     "doctrine/doctrine-migrations-bundle": "^3.2",
     "doctrine/orm": "^3.3",
     "doctrine/persistence": "^2.0 || ^3.0",
