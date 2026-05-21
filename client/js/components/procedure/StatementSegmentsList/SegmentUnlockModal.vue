@@ -1,21 +1,29 @@
 <template>
   <dp-modal
     ref="unlockModal"
-    content-classes="w-1/4 px-4 pb-4"
+    content-classes="w-1/4 px-2 pb-4"
   >
-    <template v-slot:header>
-      <span>{{ Translator.trans('segment.unlock') }}</span>
-    </template>
+    <h3
+      class="font-semibold mb-4 mt-2"
+    >
+      {{ Translator.trans('segment.unlock') }}
+    </h3>
+    <p class="mb-2">
+      {{ Translator.trans('segment.lock.hint.admin') }}
+    </p>
+    <p class="mb-2">
+      {{ Translator.trans('field.required.asterisk') }}
+    </p>
     <dp-label
-      class="mb-0"
-      :text="'Bearbeitungsschritt'"
-      :hint="'Berbeitungsschritt festlegen'"
+      class="mb-0 mt-4"
+      :text="Translator.trans('place')"
+      :hint="Translator.trans('place.set')"
       :bold="false"
       for="segmentUnlockPlace"
     />
     <dp-multiselect
       id="segmentUnlockPlace"
-      class="mb-1"
+      class="mb-2"
       :allow-empty="false"
       label="name"
       :options="places"
@@ -23,27 +31,32 @@
       required
     />
     <dp-label
-      class="mb-0"
-      :text="'Bearbeiter*in'"
-      :hint="'Bearbeiter*in zuweisen'"
+      class="mb-0 mt-4"
+      :text="Translator.trans('assignee')"
+      :hint="Translator.trans('assignee.assign')"
       :bold="false"
       for="segmentUnlockAssignee"
     />
     <dp-multiselect
       id="segmentUnlockAssignee"
+      class="mb-6"
       label="name"
       :options="assignableUsers"
       track-by="id"
       required
+    />
+    <dp-button-row
+      primary
+      secondary
     />
   </dp-modal>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { DpLabel, DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { DpButtonRow, DpLabel, DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
 
-const props = defineProps({
+const { assignableUsers, places } = defineProps({
   assignableUsers: {
     type: Object,
     required: true,
