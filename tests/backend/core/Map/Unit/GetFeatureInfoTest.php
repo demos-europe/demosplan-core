@@ -33,6 +33,8 @@ class GetFeatureInfoTest extends TestCase
     /** @var HttpCall&MockObject */
     private HttpCall $httpCall;
 
+    private ?string $capturedRequestMethod = null;
+    private ?string $capturedRequestPath = null;
     /**
      * @var array<string, string>|null captured `$data` argument from the last HttpCall::request() call
      */
@@ -50,6 +52,8 @@ class GetFeatureInfoTest extends TestCase
         $this->httpCall = $this->createMock(HttpCall::class);
         $this->httpCall->method('request')->willReturnCallback(
             function (string $method, string $path, array $data): array {
+                $this->capturedRequestMethod = $method;
+                $this->capturedRequestPath = $path;
                 $this->capturedRequestData = $data;
 
                 return ['body' => ''];
@@ -80,6 +84,8 @@ class GetFeatureInfoTest extends TestCase
             'params'  => 'BBOX=100,200,300,400&X=1&Y=2',
         ]);
 
+        self::assertSame('GET', $this->capturedRequestMethod);
+        self::assertSame('https://wms.example/path', $this->capturedRequestPath);
         self::assertNotNull($this->capturedRequestData);
         self::assertSame('xplan', $this->capturedRequestData['LAYERS'] ?? null);
         self::assertSame('xplan', $this->capturedRequestData['QUERY_LAYERS'] ?? null);
