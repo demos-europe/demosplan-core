@@ -416,6 +416,7 @@ import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaToolti
 import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
   name: 'SegmentsList',
@@ -503,6 +504,7 @@ export default {
       columnSelectorKey: 0,
       defaultColumnSelection: [],
       currentSelection: [],
+      customFieldDefinitions: [],
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -542,10 +544,6 @@ export default {
 
     ...mapState('AssignableUser', {
       assignableUsersObject: 'items',
-    }),
-
-    ...mapState('CustomField', {
-      customFields: 'items',
     }),
 
     ...mapState('Orga', {
@@ -590,12 +588,11 @@ export default {
         ]
       }
 
-      const customFields = Object.values(this.customFields)
-      const selectedCustomFields = customFields
-        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
-        .map(customField => ({
-          field: `customField_${customField.id}`,
-          label: customField.attributes.name,
+      const selectedCustomFields = this.customFieldDefinitions
+        .filter(definition => this.currentSelection.includes(`customField_${definition.id}`))
+        .map(definition => ({
+          field: `customField_${definition.id}`,
+          label: definition.attributes.name,
           colWidth: '180px',
           initialMinWidth: 180,
         }))
@@ -660,7 +657,7 @@ export default {
         return staticColumns
       }
 
-      const customFields = Object.values(this.customFields).map(customField => ([`customField_${customField.id}`, customField.attributes.name]))
+      const customFields = this.customFieldDefinitions.map(definition => ([`customField_${definition.id}`, definition.attributes.name]))
 
       return [
         ...staticColumns,
@@ -673,14 +670,12 @@ export default {
         return []
       }
 
-      return Object.values(this.customFields)
-        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
-        .map(customField => {
-          return {
-            field: `customField_${customField.id}`,
-            fieldId: customField.id,
-          }
-        })
+      return this.customFieldDefinitions
+        .filter(definition => this.currentSelection.includes(`customField_${definition.id}`))
+        .map(definition => ({
+          field: `customField_${definition.id}`,
+          fieldId: definition.id,
+        }))
     },
 
     storageKeyPagination () {
@@ -691,10 +686,6 @@ export default {
   methods: {
     ...mapActions('AssignableUser', {
       fetchAssignableUsers: 'list',
-    }),
-
-    ...mapActions('AdminProcedure', {
-      getCustomFieldsForProcedure: 'get',
     }),
 
     ...mapActions('FilterFlyout', [
@@ -854,28 +845,19 @@ export default {
         return ''
       }
 
-      return this.customFields[fieldId].attributes.options.find(option => option.id === customFieldOptionId)?.label || ''
+      const definition = this.customFieldDefinitions.find(customField => customField.id === fieldId)
+
+      return definition?.attributes.options.find(option => option.id === customFieldOptionId)?.label || ''
     },
 
-    getCustomFields () {
-      const payload = {
-        id: this.procedureId,
-        fields: {
-          AdminProcedure: [
-            'segmentCustomFields',
-          ].join(),
-          CustomField: [
-            'name',
-            'description',
-            'options',
-          ].join(),
-        },
-        include: [
-          'segmentCustomFields',
-        ].join(),
-      }
+    loadSegmentCustomFields () {
+      const { fetchCustomFields } = useCustomFields()
 
-      this.getCustomFieldsForProcedure(payload)
+      return fetchCustomFields(this.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'SEGMENT' })
+        .then(definitions => {
+          this.customFieldDefinitions = definitions
+        })
+        .catch(() => { /* Notification already shown by useCustomFieldDefinitions */ })
     },
 
     getTagsBySegment (id) {
@@ -1203,7 +1185,7 @@ export default {
     }
     this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {
-      this.getCustomFields()
+      this.loadSegmentCustomFields()
     }
     this.applyQuery(this.pagination.currentPage)
 
