@@ -47,6 +47,21 @@
           @click.prevent="handleBulkShare"
         />
       </dp-bulk-edit-header>
+
+      <!--Todo: add permission-->
+      <dp-bulk-edit-header
+        v-if="selectedItemsCount > 0"
+        class="layout__item u-12-of-12 u-mt-0_5"
+        :selected-items-text="Translator.trans('statements.selected', { count: selectedItemsCount })"
+        @reset-selection="resetSelection"
+      >
+        <dp-button
+          data-cy="statementsBulkShare"
+          :text="Translator.trans('selection.group')"
+          variant="outline"
+          @click.prevent="handleBulkGroup"
+        />
+      </dp-bulk-edit-header>
       <statement-export-modal
         data-cy="listStatements:export"
         :has-permission-adjust-preamble="hasPermission('feature_adjust_preamble_export_file')"
@@ -93,14 +108,15 @@
     />
 
     <template v-else>
+      <!-- Todo: add Permission and swap with is-selectable  :is-selectable="isSourceAndCoupledProcedure && hasPermission('feature_statements_sync_to_procedure')"-->
       <dp-data-table
         v-if="items.length > 0"
         data-cy="listStatements"
         :class="{ 'px-2 overflow-y-scroll grow': isFullscreen }"
         has-flyout
-        :is-selectable="isSourceAndCoupledProcedure && hasPermission('feature_statements_sync_to_procedure')"
         :header-fields="headerFields"
         is-expandable
+        is-selectable
         :items="items"
         lock-checkbox-by="synchronized"
         :multi-page-all-selected="allSelectedVisually"
@@ -605,6 +621,10 @@ export default {
         name: '',
         orgaName: '',
       }
+    },
+
+    handleBulkGroup () {
+      alert("handleBulkGroup: los gehts!")
     },
 
     handleFullTextAction (statementId) {
