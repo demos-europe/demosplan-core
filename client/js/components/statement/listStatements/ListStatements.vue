@@ -433,6 +433,11 @@ export default {
         perPage: 10,
       },
       isFullscreen: false,
+      lsKey: {
+        // LocalStorage keys
+        toggledStatements: `${this.procedureId}:toggledStatements`,
+      },
+
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'status', label: Translator.trans('status') },
@@ -624,6 +629,9 @@ export default {
     },
 
     handleBulkGroup () {
+      console.log('toggledItems:', this.toggledItems)
+      this.storeToggledStatements()
+      // Todo: Routing to tbd
       alert("handleBulkGroup: los gehts!")
     },
 
@@ -745,6 +753,11 @@ export default {
       } else {
         this.unclaimStatement(statementId)
       }
+    },
+
+    storeToggledStatements () {
+      console.log('Saving:', this.lsKey.toggledStatements, this.toggledItems)
+      lscache.set(this.lsKey.toggledStatements, this.toggledItems)
     },
 
     unclaimStatement (statementId) {
