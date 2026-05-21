@@ -227,16 +227,19 @@ class GetFeatureInfo
         // Baue den Hostnamen auf
         $path = parse_url($featureInfoUrl, PHP_URL_SCHEME).'://'.
             parse_url($featureInfoUrl, PHP_URL_HOST).parse_url($featureInfoUrl, PHP_URL_PATH);
-        // Hole die Paramter aus der eingegebenen URL und merge sie mit den
-        // übergebenen Koordinationsdaten
+        // Hole die Parameter aus der eingegebenen URL und merge sie mit den
+        // übergebenen Koordinationsdaten. parse_str() leert das Ziel-Array vor
+        // dem Schreiben, daher müssen URL- und Client-Parameter getrennt
+        // geparst werden, sonst überschreiben Client-Parameter (BBOX, X, Y …)
+        // die in der konfigurierten URL hinterlegten LAYERS/QUERY_LAYERS.
         $queryString = parse_url($featureInfoUrl, PHP_URL_QUERY);
-        parse_str($queryString, $query);
-        // if a get parameter params is given, add its contents
+        parse_str($queryString ?? '', $urlParams);
+        $clientParams = [];
         if (array_key_exists('params', $queryData)) {
-            parse_str((string) $queryData['params'], $query);
+            parse_str((string) $queryData['params'], $clientParams);
             unset($queryData['params']);
         }
-        $data = array_merge($queryData, $query);
+        $data = array_merge($queryData, $urlParams, $clientParams);
         $this->getLogger()->info('Sending Request', ['path' => $path, 'data' => $data]);
         $response = $this->sendGetFeatureInfoRequest($path, $data);
         $this->getLogger()->info('Got Response', [$response]);
