@@ -322,8 +322,9 @@
       </div>
       <dp-button-row
         v-if="isAssignedToMe && (isEditing || showWorkflowActions)"
-        align="left"
+        :busy="isSaving"
         class="mt-3"
+        :disabled="isSaving"
         primary
         secondary
         @primary-action="save"
@@ -554,6 +555,8 @@ export default {
       isEditing: false,
       isFullscreen: false,
       isHover: false,
+      isSaving: false,
+      lockedBeforeSave: false,
       selectedAssignee: {},
       selectedPlace: { id: '', type: 'Place' },
       showWorkflowActions: false,
@@ -621,6 +624,9 @@ export default {
     },
 
     isLocked () {
+      if (this.isSaving) {
+        return this.lockedBeforeSave
+      }
       const placeId = this.segment.relationships?.place?.data?.id
       return !!this.placeItems[placeId]?.attributes?.locked
     },
@@ -917,6 +923,9 @@ export default {
 
       this.removeComments(updatedSegment.relationships)
 
+      this.lockedBeforeSave = this.isLocked
+      this.isSaving = true
+
       this.setSegment({
         ...updatedSegment,
         id: this.segment.id,
@@ -961,7 +970,11 @@ export default {
             })
         })
         .catch(() => {
+          this.restoreSegmentAction(this.segment.id)
           this.finalizeSave(comments)
+        })
+        .finally(() => {
+          this.isSaving = false
         })
     },
 
