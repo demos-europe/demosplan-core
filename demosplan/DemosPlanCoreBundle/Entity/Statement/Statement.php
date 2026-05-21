@@ -42,6 +42,7 @@ use demosplan\DemosPlanCoreBundle\Constraint\OriginalReferenceConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProcedureConstraint;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -60,6 +61,7 @@ use demosplan\DemosPlanCoreBundle\EventListener\RecommendationVersionEntityListe
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -70,16 +72,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
 
 /**
- * @ORM\Table(name="_statement", uniqueConstraints={@ORM\UniqueConstraint(name="internId_procedure", columns={"_st_intern_id", "_p_id"})})
- *
- * @ORM\InheritanceType("SINGLE_TABLE")
- *
- * @ORM\DiscriminatorColumn(name="entity_type", type="string")
- *
- * @ORM\DiscriminatorMap({"Statement"="Statement", "Segment" = "demosplan\DemosPlanCoreBundle\Entity\Statement\Segment"})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementRepository")
- *
  * @ClaimConstraint()
  *
  * @CorrectDateOrderConstraint(groups={StatementInterface::IMPORT_VALIDATION})
@@ -96,21 +88,25 @@ use UnexpectedValueException;
  *
  * @SimilarStatementSubmittersSameProcedureConstraint(groups={"Default", "manual_create"})
  */
+#[ORM\Table(name: '_statement')]
+#[ORM\UniqueConstraint(name: 'internId_procedure', columns: ['_st_intern_id', '_p_id'])]
+#[ORM\InheritanceType('SINGLE_TABLE')]
+#[ORM\DiscriminatorColumn(name: 'entity_type', type: 'string')]
+#[ORM\DiscriminatorMap(['Statement' => 'Statement', 'Segment' => 'demosplan\DemosPlanCoreBundle\Entity\Statement\Segment'])]
+#[ORM\Entity(repositoryClass: StatementRepository::class)]
 class Statement extends CoreEntity implements UuidEntityInterface, StatementInterface
 {
+    private const ON_DELETE_SET_NULL = 'SET NULL';
+
     /**
      * @var string|null
      *                  Generates a UUID in code that confirms to https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-NCName
      *                  to be able to be used as xs:ID type in XML messages
-     *
-     * @ORM\Column(name="_st_id", type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator")
      */
+    #[ORM\Column(name: '_st_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: NCNameGenerator::class)]
     protected $id;
 
     /**
@@ -118,23 +114,21 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * build conditions for resource types. e.g. to filter out segments.
      *
      * @var StatementInterface
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="segmentsOfStatement", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(name="segment_statement_fk", referencedColumnName="_st_id", nullable=true)
      */
     #[Assert\IsNull(groups: [StatementInterface::BASE_STATEMENT_CLASS_VALIDATION])]
+    #[Assert\NotNull(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT])]
+    #[Assert\Type(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT], type: Statement::class)]
+    #[ORM\JoinColumn(name: 'segment_statement_fk', referencedColumnName: '_st_id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'segmentsOfStatement', cascade: ['persist'])]
     protected $parentStatementOfSegment;
 
     /**
      * Elternstellungnahme, von der diese kopiert wurde.
      *
      * @var Statement
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="children")
-     *
-     * @ORM\JoinColumn(name="_st_p_id", referencedColumnName="_st_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_st_p_id', referencedColumnName: '_st_id', onDelete: self::ON_DELETE_SET_NULL)]
+    #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'children')]
     protected $parent;
 
     /**
@@ -150,9 +144,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * do not delete cascade children in case of delete this one (parent), because children can be existing without parent (copies)
      *
      * @var Collection<int, Statement>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="parent")
      */
+    #[ORM\OneToMany(targetEntity: Statement::class, mappedBy: 'parent')]
     protected $children;
 
     /**
@@ -162,11 +155,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * Needed (WIP) for delete statements on delete procedure.
      *
      * On update this one, the associated originalSTN will be also persisted. Needed in StatementCopier::copyStatementToProcedure()
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", cascade={"persist"}, inversedBy="statementsCreatedFromOriginal")
-     *
-     * @ORM\JoinColumn(name="_st_o_id", referencedColumnName="_st_id")
      */
+    #[ORM\JoinColumn(name: '_st_o_id', referencedColumnName: '_st_id')]
+    #[ORM\ManyToOne(targetEntity: Statement::class, cascade: ['persist'], inversedBy: 'statementsCreatedFromOriginal')]
     protected $original;
 
     /**
@@ -175,9 +166,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * statement, then this list should be empty.
      *
      * @var Collection<int, Statement>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="original")
      */
+    #[ORM\OneToMany(targetEntity: Statement::class, mappedBy: 'original')]
     protected $statementsCreatedFromOriginal;
 
     /**
@@ -189,9 +179,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_st_priority", type="string", length=10, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_st_priority', type: 'string', length: 10, nullable: false, options: ['fixed' => true])]
     protected $priority = '';
 
     /**
@@ -199,9 +188,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * submitting in the UI and as Email).
      *
      * @var string
-     *
-     * @ORM\Column(name="_st_extern_id", type="string", length=25, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_st_extern_id', type: 'string', length: 25, nullable: false, options: ['fixed' => true])]
     protected $externId = '';
 
     /**
@@ -212,19 +200,16 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * while multiple `null`s are considered different, multiple empty strings are not.
      *
      * @var string|null
-     *
-     * @ORM\Column(name="_st_intern_id", type="string", length=255, nullable=true, options={"fixed":true, "comment":"manuelle Eingangsnummer"})
      */
     #[Assert\Length(max: 255)]
+    #[ORM\Column(name: '_st_intern_id', type: 'string', length: 255, nullable: true, options: ['fixed' => true, 'comment' => 'manuelle Eingangsnummer'])]
     protected $internId;
 
     /**
      * @var User
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
-     *
-     * @ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", nullable=true, onDelete="RESTRICT")
      */
+    #[ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', nullable: true, onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $user;
 
     /**
@@ -241,12 +226,10 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var Orga|null
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
-     *
-     * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=true, onDelete="RESTRICT")
      */
     #[Assert\Valid(groups: [Statement::IMPORT_VALIDATION])]
+    #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', nullable: true, onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: Orga::class)]
     protected $organisation;
 
     /**
@@ -272,11 +255,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var Procedure
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", cascade={"persist"}, inversedBy="statements")
-     *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class, cascade: ['persist'], inversedBy: 'statements')]
     protected $procedure;
 
     /**
@@ -288,103 +269,90 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * "Eingereicht im Namen von".
      *
      * @var string
-     *
-     * @ORM\Column(name="_st_represents", type="string", length=256, nullable=true, options={"default":""})
      */
+    #[ORM\Column(name: '_st_represents', type: 'string', length: 256, nullable: true, options: ['default' => ''])]
     protected $represents = '';
 
     /**
      * Rechtmäßigkeit der Vertretung überprüft.
      *
      * @var bool
-     *
-     * @ORM\Column(name="_st_representation_check", type="boolean", nullable=true, options={"default":false})
      */
+    #[ORM\Column(name: '_st_representation_check', type: 'boolean', nullable: true, options: ['default' => false])]
     protected $representationCheck = false;
 
     /**
      * Must have one of a set of predefined values which differs in projects, see respective configuration file.
      *
      * @var string
-     *
-     * @ORM\Column(name="_st_phase", type="string", length=50, nullable=false)
      */
+    #[ORM\Column(name: '_st_phase', type: 'string', length: 50, nullable: false)]
     protected $phase;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_st_status", type="string", length=50, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_st_status', type: 'string', length: 50, nullable: false, options: ['fixed' => true])]
     protected $status = 'new';
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_st_created_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_st_created_date', type: 'datetime', nullable: false)]
     protected $created;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_st_modified_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_st_modified_date', type: 'datetime', nullable: false)]
     protected $modified;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_st_send_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_st_send_date', type: 'datetime', nullable: false)]
     protected $send;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_st_sent_assessment_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_st_sent_assessment_date', type: 'datetime', nullable: false)]
     protected $sentAssessmentDate;
 
     /**
      * @var DateTime *
-     *
-     * @ORM\Column(name="_st_submit_date", type="datetime", nullable=false)
      */
     #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitDateBlank')]
     #[Assert\Type('DateTime', groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitDateType')]
+    #[ORM\Column(name: '_st_submit_date', type: 'datetime', nullable: false)]
     protected $submit;
 
     /**
      * @var DateTime *
-     *
-     * @ORM\Column(name="_st_deleted_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_st_deleted_date', type: 'datetime', nullable: false)]
     protected $deletedDate;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_st_deleted", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_st_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted = false;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_st_negativ_statement", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_st_negativ_statement', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $negativeStatement = 0;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_st_sent_assessment", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_st_sent_assessment', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $sentAssessment = 0;
 
     /**
@@ -392,9 +360,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * did the Author wants to be anonymised?
      * Not used - use $this->anonymous instead
-     *
-     * @ORM\Column(name="_st_public_use_name", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_st_public_use_name', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $publicUseName = false;
 
     /**
@@ -403,16 +370,14 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * See $this->publicVerifiedMapping for source of truth.
      *
      * @var string
-     *
-     * @ORM\Column(name="_st_public_verified", type="string", length=30, nullable=false)
      */
+    #[ORM\Column(name: '_st_public_verified', type: 'string', length: 30, nullable: false)]
     protected $publicVerified;
 
     /**
      * @var Collection<int, OriginalStatementAnonymization>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\OriginalStatementAnonymization", mappedBy="statement")
      */
+    #[ORM\OneToMany(targetEntity: OriginalStatementAnonymization::class, mappedBy: 'statement')]
     protected $anonymizations;
 
     /**
@@ -446,23 +411,20 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_st_public_statement", type="string", length=20, nullable=false)
      */
+    #[ORM\Column(name: '_st_public_statement', type: 'string', length: 20, nullable: false)]
     protected $publicStatement = StatementInterface::INTERNAL;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_st_to_send_per_mail", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_st_to_send_per_mail', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $toSendPerMail = false;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_st_title", type="string", length=4096, nullable=false)
      */
+    #[ORM\Column(name: '_st_title', type: 'string', length: 4096, nullable: false)]
     protected $title = '';
 
     /**
@@ -470,9 +432,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * Allowed values: May not be empty (https://demosdeutschland.slack.com/archives/C03AD7Z2Y/p1576674603017800).
      *
      * @var string
-     *
-     * @ORM\Column(name="_st_text", type="text", nullable=false, length=15000000)
      */
+    #[ORM\Column(name: '_st_text', type: 'text', nullable: false, length: 15000000)]
     protected $text = '';
 
     /**
@@ -484,9 +445,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_st_recommendation", type="text", nullable=false, length=15000000)
      */
+    #[ORM\Column(name: '_st_recommendation', type: 'text', nullable: false, length: 15000000)]
     protected $recommendation = '';
 
     /**
@@ -498,60 +458,51 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_st_memo", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_st_memo', type: 'text', length: 65535, nullable: false)]
     protected $memo = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_st_feedback", type="string", length=10, nullable=false)
      */
+    #[ORM\Column(name: '_st_feedback', type: 'string', length: 10, nullable: false)]
     protected $feedback = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_st_reason_paragraph", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_st_reason_paragraph', type: 'text', length: 65535, nullable: false)]
     protected $reasonParagraph = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_st_planning_document", type="string", length=4096, nullable=false)
      */
+    #[ORM\Column(name: '_st_planning_document', type: 'string', length: 4096, nullable: false)]
     protected $planningDocument = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_st_file", type="string", length=255, nullable=false, options={"fixed":true}))
      */
+    #[ORM\Column(name: '_st_file', type: 'string', length: 255, nullable: false, options: ['fixed' => true])]
     protected $file = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_st_map_file", type="string", length=255, nullable=true, options={"fixed":true})
      */
+    #[ORM\Column(name: '_st_map_file', type: 'string', length: 255, nullable: true, options: ['fixed' => true])]
     protected $mapFile = '';
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_st_county_notified", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_st_county_notified', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $countyNotified = false;
 
     /**
      * @var ParagraphVersion
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(name="_st_paragraph_id", referencedColumnName="_pdv_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_st_paragraph_id', referencedColumnName: '_pdv_id', onDelete: self::ON_DELETE_SET_NULL)]
+    #[ORM\ManyToOne(targetEntity: ParagraphVersion::class, cascade: ['persist'])]
     protected $paragraph;
 
     /**
@@ -597,11 +548,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var SingleDocumentVersion
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(name="_st_document_id", referencedColumnName="_sdv_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_st_document_id', referencedColumnName: '_sdv_id', onDelete: self::ON_DELETE_SET_NULL)]
+    #[ORM\ManyToOne(targetEntity: SingleDocumentVersion::class, cascade: ['persist'])]
     protected $document;
 
     /**
@@ -640,27 +589,24 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var Elements
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", cascade={"persist"})
      *
-     * @ORM\JoinColumn(name="_st_element_id", referencedColumnName="_e_id", onDelete="SET NULL")
      *
      **/
+    #[ORM\JoinColumn(name: '_st_element_id', referencedColumnName: '_e_id', onDelete: self::ON_DELETE_SET_NULL)]
+    #[ORM\ManyToOne(targetEntity: Elements::class, cascade: ['persist'])]
     protected $element;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_st_polygon", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_st_polygon', type: 'text', length: 65535, nullable: false)]
     protected $polygon = '';
 
     /**
      * @var DraftStatement
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement")
-     *
-     * @ORM\JoinColumn(name="_ds_id", referencedColumnName="_ds_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_ds_id', referencedColumnName: '_ds_id', onDelete: self::ON_DELETE_SET_NULL)]
+    #[ORM\ManyToOne(targetEntity: DraftStatement::class)]
     protected $draftStatement;
 
     /**
@@ -672,19 +618,16 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var StatementMeta
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta", mappedBy="statement", cascade={"persist", "remove"})
      */
     #[Assert\Valid(groups: [Statement::IMPORT_VALIDATION])]
+    #[ORM\OneToOne(targetEntity: StatementMeta::class, mappedBy: 'statement', cascade: ['persist', 'remove'])]
     protected $meta;
 
     /**
      * @var StatementVersionField
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField", mappedBy="statement")
-     *
-     * @ORM\OrderBy({"created" = "DESC"})
      */
+    #[ORM\OneToMany(targetEntity: StatementVersionField::class, mappedBy: 'statement')]
+    #[ORM\OrderBy(['created' => 'DESC'])]
     protected $version;
 
     /**
@@ -699,11 +642,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @see getRecommendationVersions()
      * @see addRecommendationVersion() internal use only — called by RecommendationVersionService
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\RecommendationVersion", mappedBy="statement", cascade={"remove"})
-     *
-     * @ORM\OrderBy({"versionNumber" = "DESC"})
      */
+    #[ORM\OneToMany(targetEntity: RecommendationVersion::class, mappedBy: 'statement', cascade: ['remove'])]
+    #[ORM\OrderBy(['versionNumber' => 'DESC'])]
     protected $recommendationVersions;
 
     /**
@@ -714,91 +655,77 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var StatementAttribute[]
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute", mappedBy="statement", cascade={"remove"})
      */
+    #[ORM\OneToMany(targetEntity: StatementAttribute::class, mappedBy: 'statement', cascade: ['remove'])]
     protected $statementAttributes;
 
     /**
      * @var Collection<int,StatementVote>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote", mappedBy="statement", cascade={"persist", "refresh"})
      */
+    #[ORM\OneToMany(targetEntity: StatementVote::class, mappedBy: 'statement', cascade: ['persist', 'refresh'])]
     protected $votes;
 
     /**
      * @var int
-     *
-     * @ORM\Column(type="integer", nullable=false, options={"unsigned"=true, "default":0})
      */
+    #[ORM\Column(type: 'integer', nullable: false, options: ['unsigned' => true, 'default' => 0])]
     protected $numberOfAnonymVotes = 0;
 
     /**
      * @var StatementLike[]
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementLike", mappedBy="statement")
      */
+    #[ORM\OneToMany(targetEntity: StatementLike::class, mappedBy: 'statement')]
     protected $likes;
 
     /**
      * @var Collection
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Tag", inversedBy="statements", cascade={"persist", "refresh"})
-     *
-     * @ORM\JoinTable(
-     *     name="_statement_tag",
-     *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_t_id", referencedColumnName="_t_id", onDelete="CASCADE")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: '_statement_tag',
+        joinColumns: [new ORM\JoinColumn(name: '_st_id', referencedColumnName: '_st_id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_t_id', referencedColumnName: '_t_id', onDelete: 'CASCADE')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'statements', cascade: ['persist', 'refresh'])]
     protected $tags;
 
     /**
      * @var Collection<int, County>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\County", inversedBy="statements")
-     *
-     * @ORM\JoinTable(
-     *     name="_statement_county",
-     *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", onDelete="cascade")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id", onDelete="cascade")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: '_statement_county',
+        joinColumns: [new ORM\JoinColumn(name: '_st_id', referencedColumnName: '_st_id', onDelete: 'cascade')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_c_id', referencedColumnName: '_c_id', onDelete: 'cascade')]
+    )]
+    #[ORM\ManyToMany(targetEntity: County::class, inversedBy: 'statements')]
     protected $counties;
 
     /**
      * @var Collection<int, PriorityArea>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea", inversedBy="statements")
-     *
-     * @ORM\JoinTable(
-     *     name="_statement_priority_area",
-     *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", onDelete="cascade")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_pa_id", referencedColumnName="_pa_id", onDelete="cascade")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: '_statement_priority_area',
+        joinColumns: [new ORM\JoinColumn(name: '_st_id', referencedColumnName: '_st_id', onDelete: 'cascade')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_pa_id', referencedColumnName: '_pa_id', onDelete: 'cascade')]
+    )]
+    #[ORM\ManyToMany(targetEntity: PriorityArea::class, inversedBy: 'statements')]
     protected $priorityAreas;
 
     /**
      * @var Collection<int, Municipality>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality", inversedBy="statements")
-     *
-     * @ORM\JoinTable(
-     *     name="_statement_municipality",
-     *     joinColumns={@ORM\JoinColumn(name="_st_id", referencedColumnName="_st_id", onDelete="cascade")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_m_id", referencedColumnName="_m_id", onDelete="cascade")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: '_statement_municipality',
+        joinColumns: [new ORM\JoinColumn(name: '_st_id', referencedColumnName: '_st_id', onDelete: 'cascade')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_m_id', referencedColumnName: '_m_id', onDelete: 'cascade')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Municipality::class, inversedBy: 'statements')]
     protected $municipalities;
 
     /**
      * @var Collection<int, StatementFragment>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", mappedBy="statement", cascade={"remove"})
-     *
-     * @ORM\OrderBy({"sortIndex" = "ASC"})
      */
+    #[ORM\OneToMany(targetEntity: StatementFragment::class, mappedBy: 'statement', cascade: ['remove'])]
+    #[ORM\OrderBy(['sortIndex' => 'ASC'])]
     protected $fragments;
 
     /**
@@ -811,9 +738,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * Concrete vote of this statement.
      *
      * @var string
-     *
-     * @ORM\Column(name="_st_vote_stk", type="string", length=16, nullable=true, options={"fixed":true})
      */
+    #[ORM\Column(name: '_st_vote_stk', type: 'string', length: 16, nullable: true, options: ['fixed' => true])]
     protected $voteStk;
 
     /**
@@ -821,9 +747,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * Kind of vote advice.
      *
      * @var string
-     *
-     * @ORM\Column(name="_st_vote_pla", type="string", length=16, nullable=true, options={"fixed":true})
      */
+    #[ORM\Column(name: '_st_vote_pla', type: 'string', length: 16, nullable: true, options: ['fixed' => true])]
     protected $votePla;
 
     /**
@@ -841,15 +766,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * These is the inversed site
      *
      * @var GdprConsent|null
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent", mappedBy="statement", cascade={"persist", "remove"})
      */
+    #[ORM\OneToOne(targetEntity: GdprConsent::class, mappedBy: 'statement', cascade: ['persist', 'remove'])]
     protected $gdprConsent;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_st_submit_type", type="string", nullable=false)
      */
     #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitTypeBlank')]
     #[Assert\Choice(
@@ -857,6 +779,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         message: 'statement.invalid.submit.type',
         groups: ['Default', StatementInterface::IMPORT_VALIDATION]
     )]
+    #[ORM\Column(name: '_st_submit_type', type: 'string', nullable: false)]
     protected $submitType = StatementInterface::SUBMIT_TYPE_SYSTEM;
 
     /**
@@ -881,14 +804,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var User
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
-     *
-     * @ORM\JoinColumn(name="assignee", referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
-     *
-     * This is the user that is currently assigned to this statement. Assigned users are
-     * exclusively permitted to change statements
      */
+    #[ORM\JoinColumn(name: 'assignee', referencedColumnName: '_u_id', nullable: true, onDelete: self::ON_DELETE_SET_NULL)]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $assignee;
 
     /**
@@ -901,11 +819,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * @var Statement
      *
      * This is the owning side
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="cluster")
-     *
-     * @ORM\JoinColumn(name="head_statement_id", referencedColumnName="_st_id", nullable = true, onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: 'head_statement_id', referencedColumnName: '_st_id', nullable: true, onDelete: self::ON_DELETE_SET_NULL)]
+    #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'cluster')]
     protected $headStatement;
 
     /**
@@ -913,25 +829,21 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * This should not be persists automatic, because of checking the assignment in updateStatement()!
      * Doctrine-sited persists, would bypass this check!
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="headStatement", cascade={"merge"})
-     *
-     * @ORM\OrderBy({"externId" = "ASC"})
      */
+    #[ORM\OneToMany(targetEntity: Statement::class, mappedBy: 'headStatement')]
+    #[ORM\OrderBy(['externId' => 'ASC'])]
     protected $cluster;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="`manual`", type="boolean", nullable = false, options={"default":false})
      */
+    #[ORM\Column(name: '`manual`', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $manual = false;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable = false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     protected $clusterStatement = false;
 
     /**
@@ -941,11 +853,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * cascade={"remove"} means, that the associated placeholder will be deleted, in case of this moved statement will be deleted.
      *
      * @var Statement|null
-     *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", cascade={"remove"})
-     *
-     * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=true, onDelete="RESTRICT")
      */
+    #[ORM\JoinColumn(referencedColumnName: '_st_id', nullable: true, onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: self::class, cascade: ['remove'])]
     protected $placeholderStatement;
 
     /**
@@ -955,27 +865,23 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * onDelete=Cascade means, that this placeholder will be deleted in case of the associated moved Statement will be deleted.
      *
      * @var Statement
-     *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=true)
      */
+    #[ORM\JoinColumn(referencedColumnName: '_st_id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: self::class)]
     protected $movedStatement;
 
     /**
      * Enable name (cluster-)statements.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     protected $name;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     protected $replied = false;
 
     /**
@@ -984,16 +890,14 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * The default needs to be null instead of empty string, as in MySQL 5.7
      * {@link https://dev.mysql.com/doc/refman/5.7/en/blob.html "TEXT columns cannot have DEFAULT values."}
      * and the empty string (now null) value is handled in a special way outside of this class.
-     *
-     * @ORM\Column(name="drafts_info_json", type="string", length=15000000, nullable=true)
      */
+    #[ORM\Column(name: 'drafts_info_json', type: 'string', length: 15000000, nullable: true)]
     protected $draftsListJson;
 
     /**
      * @var Collection<int, Segment>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Segment", mappedBy="parentStatementOfSegment", cascade={"persist", "remove"})
      */
+    #[ORM\OneToMany(targetEntity: Segment::class, mappedBy: 'parentStatementOfSegment', cascade: ['persist', 'remove'])]
     protected $segmentsOfStatement;
 
     /**
@@ -1017,23 +921,20 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var Collection<int,StatementAttachment>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\StatementAttachment", mappedBy="statement", cascade={"persist"})
      */
+    #[ORM\OneToMany(targetEntity: StatementAttachment::class, mappedBy: 'statement', cascade: ['persist'])]
     protected $attachments;
 
     /**
      * @var int
-     *
-     * @ORM\Column(type="smallint", options={"default": "0"})
      */
+    #[ORM\Column(type: 'smallint', options: ['default' => '0'])]
     private $segmentationPiRetries = 0;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="pi_segments_proposal_resource_url", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: 'pi_segments_proposal_resource_url', type: 'string', length: 255, nullable: true)]
     private $piSegmentsProposalResourceUrl;
 
     /**
@@ -1044,19 +945,13 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * to ensure related ProcedurePersons will be deleted in case of this Statement will be deleted.
      *
      * @var Collection<int, ProcedurePerson>
-     *
-     * @ORM\ManyToMany(
-     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson",
-     *     inversedBy="similarForeignStatements",
-     *     cascade={"persist", "remove"},
-     *     orphanRemoval = true
-     * )
-     *
-     * @ORM\JoinTable(name="similar_statement_submitter",
-     *      joinColumns={@ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="submitter_id", referencedColumnName="id")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: 'similar_statement_submitter',
+        joinColumns: [new ORM\JoinColumn(name: 'statement_id', referencedColumnName: '_st_id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'submitter_id', referencedColumnName: 'id')]
+    )]
+    #[ORM\ManyToMany(targetEntity: ProcedurePerson::class, inversedBy: 'similarForeignStatements', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $similarStatementSubmitters;
 
     /**
@@ -1064,14 +959,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * (This is currently only possible as unregistered guest user in public detail).
      *
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable = false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     private $anonymous = false;
 
-    /**
-     * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
-     */
+    #[ORM\Column(type: 'dplan.custom_fields_value', nullable: true)]
     private ?CustomFieldValuesList $customFields = null;
 
     public function __construct()

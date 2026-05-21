@@ -16,45 +16,26 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\SegmentRepository")
- */
+#[ORM\Entity(repositoryClass: SegmentRepository::class)]
 class Segment extends Statement implements SegmentInterface
 {
     /**
-     * @var StatementInterface
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="segmentsOfStatement", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(name="segment_statement_fk", referencedColumnName="_st_id", nullable=true)
-     */
-    #[Assert\NotNull(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT])]
-    #[Assert\Type(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT], type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Statement')]
-    protected $parentStatementOfSegment;
-
-    /**
      * @var Collection<int, SegmentCommentInterface>
-     *
-     * @ORM\OneToMany(
-     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\SegmentComment",
-     *     mappedBy="segment",
-     *     orphanRemoval=true,
-     *     cascade={"remove"}
-     * )
      */
+    #[ORM\OneToMany(targetEntity: SegmentComment::class, mappedBy: 'segment', orphanRemoval: true, cascade: ['remove'])]
     protected $comments;
 
     /**
      * @var int
-     *
-     * @ORM\Column(type="integer", nullable=true)
      */
     #[Assert\NotNull(groups: [SegmentInterface::VALIDATION_GROUP_SEGMENT_MANDATORY])]
+    #[ORM\Column(type: 'integer', nullable: true)]
     private $orderInProcedure;
 
     /**
@@ -69,12 +50,10 @@ class Segment extends Statement implements SegmentInterface
      * to `nullable=true`, even though it must never be `null` for a {@link SegmentInterface}.
      *
      * @var PlaceInterface
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Workflow\Place")
-     *
-     * @ORM\JoinColumn(name="place_id", referencedColumnName="id", nullable=true)
      */
     #[Assert\NotBlank(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, SegmentInterface::VALIDATION_GROUP_IMPORT])]
+    #[ORM\JoinColumn(name: 'place_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: Place::class)]
     private $place;
 
     public function __construct()
