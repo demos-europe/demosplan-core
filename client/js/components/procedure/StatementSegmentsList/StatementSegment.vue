@@ -605,6 +605,18 @@ export default {
         []
     },
 
+    recommendationVersionNumber () {
+      const lastVersionId = this.segment.relationships?.recommendationVersions?.data?.[0]?.id
+
+      if (!lastVersionId) {
+        return ''
+      }
+
+      const versionNumber = this.recommendationVersions?.[lastVersionId]?.attributes?.versionNumber ?? ''
+
+      return String(versionNumber).padStart(3, '0')
+    },
+
     segmentPlace () {
       return this.segment.relationships.place ?
         this.places.find(place => place.id === this.segment.relationships.place.data.id) :
@@ -663,6 +675,10 @@ export default {
     ...mapMutations('StatementSegment', {
       updateSegment: 'update',
       setSegment: 'setItem',
+    }),
+
+    ...mapActions('RecommendationVersion', {
+      recommendationVersionList: 'list',
     }),
 
     abort () {
@@ -846,18 +862,6 @@ export default {
       }
     },
 
-    recommendationVersionNumber () {
-      const lastVersionId = this.segment.relationships?.recommendationVersions?.data?.[0]?.id
-
-      if (!lastVersionId) {
-        return ''
-      }
-
-      const versionNumber = this.recommendationVersions?.[lastVersionId]?.attributes?.versionNumber ?? ''
-
-      return String(versionNumber).padStart(3, '0')
-    },
-
     /**
      * Remove non-updatable comments from segments relationships for update request
      * @param relations {Object}
@@ -908,6 +912,43 @@ export default {
 
       return this.saveSegmentAction({ id: this.segment.id })
         .then(() => {
+          // Fetch the updated RecommendationVersion after save
+          const fetchRecommendationVersion = hasPermission('feature_enable_recommendation_versions') ?
+            this.recommendationVersionList({
+              filter: {
+                statement: {
+                  condition: {
+                    path: 'statement.id',
+                    value: this.segment.id,
+                  },
+                },
+              },
+              fields: {
+                RecommendationVersion: 'versionNumber,recommendationText,createdAt',
+              },
+              sort: '-createdAt',
+            }).then((response) => {
+              // Update the segment's recommendationVersions relationship with the fetched data
+              if (response && response.data && response.data.length > 0) {
+                console.log('response.data', response.data)
+                const updatedSegment = {
+                  ...this.segment,
+                  relationships: {
+                    ...this.segment.relationships,
+                    recommendationVersions: {
+                      data: response.data.map(version => ({
+                        type: 'RecommendationVersion',
+                        id: version.id,
+                      })),
+                    },
+                  },
+                }
+                this.setSegment({ ...updatedSegment, id: this.segment.id })
+              }
+              return response
+            }) :
+            Promise.resolve()
+
           /*
            * Custom fields are saved via a separate PATCH using the composable's updateCustomFields,
            * which bypasses the vuex-json-api diff mechanism (unreliable for array attributes)
@@ -919,7 +960,7 @@ export default {
             }) :
             Promise.resolve()
 
-          return saveCustomFields
+          return Promise.all([fetchRecommendationVersion, saveCustomFields])
             .then(() => {
               dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
               this.isFullscreen = false
