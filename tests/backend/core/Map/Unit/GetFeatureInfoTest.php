@@ -34,7 +34,7 @@ class GetFeatureInfoTest extends TestCase
     private HttpCall $httpCall;
 
     /**
-     * @var array<string, string>|null Captured `$data` argument from the last HttpCall::request() call.
+     * @var array<string, string>|null captured `$data` argument from the last HttpCall::request() call
      */
     private ?array $capturedRequestData = null;
 

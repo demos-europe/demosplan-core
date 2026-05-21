@@ -78,7 +78,7 @@ class GetFeatureInfo
         private readonly DatasheetService $datasheetService,
         GlobalConfigInterface $config,
         HttpCall $httpCall,
-        private readonly StatementGeoService $statementGeoService
+        private readonly StatementGeoService $statementGeoService,
     ) {
         $this->globalConfig = $config;
 
