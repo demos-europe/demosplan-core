@@ -5,8 +5,12 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.42.0 (2026-05-21)
+## v4.40.1 (2026-05-21)
 
-### Added 
+## v4.40.0 (2026-05-20)
+
+### Added
 - Tags can be reordered within and between TagTopics via drag and drop in tag administration
 
 ### Changed
