@@ -9,6 +9,9 @@
 
 <template>
   <div>
+    <p class="u-mb-0_25">
+      {{ Translator.trans('bulk.edit.stepper.progress', { step, total: totalSteps }) }}
+    </p>
     <h3
       class="u-mb-0_5"
       v-text="stepTitle"
@@ -104,6 +107,12 @@ export default {
       type: Number,
       default: 1,
     },
+
+    totalSteps: {
+      type: Number,
+      required: false,
+      default: 2,
+    }
   },
 
   emits: [

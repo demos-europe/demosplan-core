@@ -1,0 +1,69 @@
+<license>
+(c) 2010-present DEMOS plan GmbH.
+
+This file is part of the package demosplan,
+for more information see the license file.
+
+All rights reserved
+</license>
+
+<template>
+  <div>
+    Helloooooooo
+
+    <action-stepper
+      :step="step"
+      :selected-elements="selectedElementsCount"
+      total-steps="3"
+      :valid="isValid"
+      :busy="isBusy"
+      :return-link="returnLink"
+      @confirm="step = 2"
+      @edit="step = 1"
+      @apply="handleApply"
+    >
+      <template v-slot:step-1></template>
+      <template v-slot:step-2></template>
+      <template v-slot:step-3></template>
+    </action-stepper>
+  </div>
+</template>
+
+<script setup>
+import {computed, ref, onMounted} from 'vue'
+import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
+import lscache from 'lscache'
+
+const props = defineProps({
+  procedureId: {
+    type: String,
+    required: true
+  },
+})
+
+const statements = ref([])
+const step = ref(1)
+const isBusy = ref(false)
+const returnLink = ref('#')
+
+const isValid = computed(() => statements.value.length > 0)
+const selectedElementsCount = computed(() => statements.value.length)
+function handleApply () {
+  console.log('apply clicked, statements:', statements.value)
+}
+
+function setStatements () {
+  const stored = lscache.get(`${props.procedureId}:toggledStatements`)
+  console.log("stored from lscache:", stored)
+
+  if (stored) {
+    statements.value = stored
+  }
+}
+
+onMounted(() => {
+  setStatements()
+})
+
+</script>
+
