@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
+use Symfony\Component\Validator\Constraints\Range;
+use Doctrine\ORM\NonUniqueResultException;
 use Carbon\Carbon;
 use DateTime;
 use DateTimeInterface;
@@ -854,7 +856,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             }
             // Validate Excel serial date is in valid range (1 = 1900-01-01, 2958465 = 9999-12-31)
             $violations = $this->validator->validate($dateValue, [
-                new \Symfony\Component\Validator\Constraints\Range([
+                new Range([
                     'min'               => 1,
                     'max'               => 2958465,
                     'notInRangeMessage' => 'Das Excel-Datumsnummer "{{ value }}" ist ungültig. Gültige Werte: {{ min }} bis {{ max }}.',
@@ -1131,7 +1133,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     /**
      * @throws DuplicatedTagTitleException
      * @throws PathException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     public function processSegmentTags(
         Statement $statement,

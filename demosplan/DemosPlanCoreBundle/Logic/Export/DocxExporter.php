@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 
+use PhpOffice\PhpWord\Element\Footer;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
@@ -2130,7 +2131,7 @@ class DocxExporter
      * For DOCX: uses PreserveText with {PAGE}/{NUMPAGES} placeholder.
      * For ODT: uses separate Field elements since ODT doesn't parse PreserveText placeholders.
      *
-     * @param \PhpOffice\PhpWord\Element\Footer $footer
+     * @param Footer $footer
      */
     private function addPageNumbers($footer): void
     {

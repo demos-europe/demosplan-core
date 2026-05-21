@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
@@ -242,7 +243,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Adds the tag filter information to the info sheet.
      *
-     * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $infoSheet The info sheet
+     * @param Worksheet $infoSheet The info sheet
      * @param StatementExportTagFilter                      $tagFilter The tag filter
      * @param int                                           $row       Current row number (passed by reference)
      */

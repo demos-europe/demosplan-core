@@ -56,18 +56,15 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     #[ORM\Column(type: 'datetime', nullable: false)]
     protected DateTime $endDate;
 
-    /**
-     * @Gedmo\Timestampable(on="create")
-     */
     #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     private DateTime $creationDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     private $modificationDate;
 
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
