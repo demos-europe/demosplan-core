@@ -357,6 +357,7 @@ bulk.edit.actions.apply: "Aktionen anwenden"
 bulk.edit.actions.edit: "Aktionen bearbeiten"
 bulk.edit.actions.back.to.list: "Zurück zur Liste"
 bulk.edit.info.assigned: "Änderungen an Abschnitten, die in diesem Moment von anderen Nutzenden bearbeitet werden, können von diesen möglicherweise überschrieben werden."
+bulk.edit.stepper.progress: "Schritt {step} von {total}"
 bulk.edit.title.actions.apply: |
     {count, plural,
         =1 { Aktion(en) auf ein Element anwenden }
@@ -3355,6 +3356,7 @@ items.selected.multi.page: |
     }
 select.all: "Alle auswählen"
 select.all.on.page: "Alle auf dieser Seite auswählen"
+selection.group: "Auswahl gruppieren"
 selection.no: "Keine Auswahl"
 selection.show: "Auswahl anzeigen"
 selection.tags.discard: "Textauswahl und Schlagworte verwerfen"
