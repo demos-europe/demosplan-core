@@ -236,6 +236,7 @@ export default {
     evaluatingPhaseName () {
       const finishedPhase = Object.values(this.availableProcedurePhases)
         .find(phase => phase.participationState === 'finished')
+
       return finishedPhase?.label ?? ''
     },
 

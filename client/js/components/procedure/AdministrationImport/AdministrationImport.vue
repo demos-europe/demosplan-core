@@ -66,8 +66,8 @@ export default {
 
   provide () {
     return {
-      currentInternalPhaseDefinitionId: this.currentInternalPhaseDefinitionId,
       currentExternalPhaseDefinitionId: this.currentExternalPhaseDefinitionId,
+      currentInternalPhaseDefinitionId: this.currentInternalPhaseDefinitionId,
       currentUserId: this.currentUserId,
       newestInternId: this.newestInternId,
       procedureId: this.procedureId,
