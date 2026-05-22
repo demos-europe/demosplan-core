@@ -12,7 +12,7 @@
       {{ Translator.trans('segment.lock.hint.admin') }}
     </p>
     <p class="mb-2">
-      {{ Translator.trans('field.required.asterisk') }}
+      {{ '* ' + Translator.trans('field.required') }}
     </p>
     <dp-label
       class="mb-0 mt-4"

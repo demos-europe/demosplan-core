@@ -86,7 +86,7 @@
             color="info"
             size="small"
             :is-button="hasPermission('feature_administrate_segment_lock')"
-            :text="Translator.trans('segment.locked')"
+            :text="Translator.trans('segment.lock.state.locked')"
             @click="toggleUnlockModal"
           />
         </dp-tooltip>
