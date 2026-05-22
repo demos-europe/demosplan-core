@@ -580,7 +580,7 @@ export default {
     },
 
     saveInstitutionEdit (id) {
-      const previousCustomFieldValues = { ...(this.customFieldValuesByInstitutionId[id] || {}) }
+      const previousCustomFieldValues = { ...this.customFieldValuesByInstitutionId[id] }
       const institutionTagsArray = Object.values(this.editingInstitutionTags).flatMap(category => Object.values(category))
       const tagPayload = institutionTagsArray.map(el => ({
         id: el.id,
