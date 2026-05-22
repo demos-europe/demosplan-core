@@ -14,7 +14,7 @@ All rights reserved
     <action-stepper
       :step="step"
       :selected-elements="selectedElementsCount"
-      total-steps="3"
+      :total-steps="3"
       :valid="isValid"
       :busy="isBusy"
       :return-link="returnLink"
@@ -38,7 +38,7 @@ All rights reserved
 import {computed, ref, onMounted} from 'vue'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import lscache from 'lscache'
-import {DpRadio} from '@demos-europe/demosplan-ui'
+import {dpApi, DpRadio} from '@demos-europe/demosplan-ui'
 
 const props = defineProps({
   procedureId: {
@@ -69,6 +69,43 @@ function handleApply () {
   console.log('apply clicked, statements:', statements.value)
 }
 
+async function fetchStatements () {
+  const ids = statements.value.map(s => s.id)
+  if (ids.length === 0) return
+
+  // Filter mit OR-Gruppe aufbauen
+  const filter = {
+    statementFilterGroup: {
+      group: { conjunction: 'OR' },
+    },
+  }
+  ids.forEach((id, idx) => {
+    filter['statement_' + idx] = {
+      condition: {
+        path: 'id',
+        value: id,
+        memberOf: 'statementFilterGroup',
+      },
+    }
+  })
+
+  const params = {
+    filter,
+    fields: {
+      Statement: 'externId,authorName,initialOrganisationName, isSubmitterCitizen',
+    },
+  }
+
+  const response = await dpApi.get(
+    Routing.generate('api_resource_list', { resourceType: 'Statement' }),
+    params
+  )
+
+  // Response-Daten in statements.value schreiben (ersetzt die )
+  statements.value = response.data.data
+  console.log(statements.value)
+}
+
 function setStatements () {
   const stored = lscache.get(`${props.procedureId}:toggledStatements`)
   console.log("stored from lscache:", stored)
@@ -78,8 +115,9 @@ function setStatements () {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   setStatements()
+  await fetchStatements()
 })
 
 </script>
