@@ -613,6 +613,7 @@ export default {
       }
 
       const versionNumber = this.recommendationVersions?.[lastVersionId]?.attributes?.versionNumber ?? ''
+      console.log('', this.segment.id, this.recommendationVersions?.[lastVersionId]?.attributes)
 
       return String(versionNumber).padStart(3, '0')
     },
@@ -670,15 +671,12 @@ export default {
     ...mapActions('StatementSegment', {
       restoreSegmentAction: 'restoreFromInitial',
       saveSegmentAction: 'save',
+      getStatementSegmentAction: 'get',
     }),
 
     ...mapMutations('StatementSegment', {
       updateSegment: 'update',
       setSegment: 'setItem',
-    }),
-
-    ...mapActions('RecommendationVersion', {
-      recommendationVersionList: 'list',
     }),
 
     abort () {
@@ -873,6 +871,13 @@ export default {
       }
     },
 
+    removeRecommendationVersion (relations) {
+      if (relations.recommendationVersions) {
+        this.setProperty({ prop: 'isLoading', val: true })
+        delete relations.recommendationVersions
+      }
+    },
+
     restoreComments (comments) {
       if (comments) {
         const segmentWithComments = {
@@ -904,48 +909,55 @@ export default {
       }
 
       this.removeComments(updatedSegment.relationships)
+      this.removeRecommendationVersion(updatedSegment.relationships)
 
-      this.setSegment({
+     /* this.setSegment({
         ...updatedSegment,
         id: this.segment.id,
-      })
+      })*/
 
       return this.saveSegmentAction({ id: this.segment.id })
         .then(() => {
-          // Fetch the updated RecommendationVersion after save
-          const fetchRecommendationVersion = hasPermission('feature_enable_recommendation_versions') ?
-            this.recommendationVersionList({
-              filter: {
-                statement: {
-                  condition: {
-                    path: 'statement.id',
-                    value: this.segment.id,
-                  },
-                },
-              },
+          // Refetch the segment with recommendationVersions included to get the updated version
+          const statementSegmentFields = [
+            'tags',
+            'text',
+            'assignee',
+            'place',
+            'comments',
+            'externId',
+            'internId',
+            'orderInProcedure',
+            'polygon',
+            'recommendation',
+            'recommendationVersions',
+          ]
+          const fetchUpdatedSegment = hasPermission('feature_enable_recommendation_versions') ?
+            this.getStatementSegmentAction({
+              id: this.segment.id,
+              include: [
+                'recommendationVersions',
+                'assignee',
+                'comments',
+                'comments.place',
+                'comments.submitter',
+                'place',
+                'tags',
+              ].join(),
               fields: {
-                RecommendationVersion: 'versionNumber,recommendationText,createdAt',
+                StatementSegment: statementSegmentFields.join(),
+                SegmentComment: [
+                  'creationDate',
+                  'text',
+                  'submitter',
+                  'place',
+                ].join(),
+                RecommendationVersion: [
+                  'versionNumber',
+                  'recommendationText',
+                  'createdAt',
+                ].join(),
               },
-              sort: '-createdAt',
-            }).then((response) => {
-              // Update the segment's recommendationVersions relationship with the fetched data
-              if (response && response.data && response.data.length > 0) {
-                console.log('response.data', response.data)
-                const updatedSegment = {
-                  ...this.segment,
-                  relationships: {
-                    ...this.segment.relationships,
-                    recommendationVersions: {
-                      data: response.data.map(version => ({
-                        type: 'RecommendationVersion',
-                        id: version.id,
-                      })),
-                    },
-                  },
-                }
-                this.setSegment({ ...updatedSegment, id: this.segment.id })
-              }
-              return response
             }) :
             Promise.resolve()
 
@@ -960,7 +972,7 @@ export default {
             }) :
             Promise.resolve()
 
-          return Promise.all([fetchRecommendationVersion, saveCustomFields])
+          return Promise.all([fetchUpdatedSegment, saveCustomFields])
             .then(() => {
               dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
               this.isFullscreen = false
