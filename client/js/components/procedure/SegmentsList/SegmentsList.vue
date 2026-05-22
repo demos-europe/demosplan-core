@@ -631,6 +631,7 @@ export default {
     currentlySelectedItems () {
       const toggledIds = new Set(this.toggledItems.map(item => item.id))
       let selected
+
       if (this.trackDeselected === false) {
         selected = this.toggledItems
       } else {
@@ -638,6 +639,7 @@ export default {
           this.items.filter(item => this.canUnlock || !item.isPlaceLocked) :
           this.items.filter(item => (this.canUnlock || !item.isPlaceLocked) && !toggledIds.has(item.id))
       }
+
       return selected.reduce((acc, el) => ({ ...acc, [el.id]: true }), {})
     },
 
@@ -875,6 +877,7 @@ export default {
            * must not be able to bulk-edit segments whose workflow place is locked, so exclude them from the ID set.
            */
           const idsFilter = { ...filter }
+
           if (hasPermission('feature_segment_lock_by_workflow_place') && !this.canUnlock) {
             idsFilter.placeNotLocked = {
               condition: {
