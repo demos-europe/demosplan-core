@@ -944,7 +944,7 @@ export default {
       }
     },
 
-    saveCustomFieldsIfNeeded () {
+    saveCustomFields () {
       /*
        * Custom fields are saved via a separate PATCH using the composable's updateCustomFields,
        * which bypasses the vuex-json-api diff mechanism (unreliable for array attributes)
@@ -991,7 +991,7 @@ export default {
         .then(() => {
           return Promise.all([
             this.fetchUpdatedSegment(),
-            this.saveCustomFieldsIfNeeded(),
+            this.saveCustomFields(),
           ])
         })
         .then(() => {
