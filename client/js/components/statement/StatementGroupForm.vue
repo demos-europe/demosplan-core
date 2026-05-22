@@ -58,6 +58,11 @@ const translations = computed(() => ({
   back: Translator.trans('statement.list.back'),
   confirm: Translator.trans('continue.to.edit'),
   apply: Translator.trans('group.new'),
+  stepTitles: [
+    Translator.trans('bulk.edit.title.actions.choose', { count: selectedElementsCount.value }),
+    Translator.trans('statement.cluster.create'),
+    Translator.trans('confirm.saved.plural'),
+  ],
 }))
 
 function handleApply () {
