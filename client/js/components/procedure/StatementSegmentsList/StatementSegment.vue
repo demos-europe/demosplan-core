@@ -81,13 +81,15 @@
           icon="prohibit"
           weight="fill"
         />
-        <dp-badge
-          color="info"
-          size="small"
-          :is-button="hasPermission('feature_administrate_segment_lock')"
-          :text="Translator.trans('segment.locked')"
-          @click="toggleUnlockModal"
-        />
+        <dp-tooltip :text="badgeTooltipText">
+          <dp-badge
+            color="info"
+            size="small"
+            :is-button="hasPermission('feature_administrate_segment_lock')"
+            :text="Translator.trans('segment.locked')"
+            @click="toggleUnlockModal"
+          />
+        </dp-tooltip>
         <segment-unlock-modal
           v-if="hasPermission('feature_administrate_segment_lock')"
           ref="unlockModal"
@@ -448,6 +450,7 @@ import {
   DpIcon,
   DpLabel,
   DpMultiselect,
+  DpTooltip,
   prefixClassMixin,
   Tooltip,
   VPopover,
@@ -486,6 +489,7 @@ export default {
     DpIcon,
     DpLabel,
     DpMultiselect,
+    DpTooltip,
     ImageModal,
     RecommendationModal,
     SegmentUnlockModal,
@@ -629,6 +633,12 @@ export default {
       }
       const placeId = this.segment.relationships?.place?.data?.id
       return !!this.placeItems[placeId]?.attributes?.locked
+    },
+
+    badgeTooltipText () {
+      return hasPermission('feature_administrate_segment_lock') ?
+        Translator.trans('segment.unlock.click.hint') :
+        Translator.trans('segment.lock.hint')
     },
 
     places () {
