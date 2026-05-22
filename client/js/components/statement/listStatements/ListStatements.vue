@@ -899,7 +899,7 @@ export default {
      * 3. Only selected items
      * We can group filters, so multiple conditions are applied.
      * You can find more on how to use filters in the documentation here
-     * {@link https://dplan-documentation.demos-europe.eu/development/application-architecture/web-api/jsonapi/filter.html#background}.
+     * {@link https://demoseurope.youtrack.cloud/articles/TECH-A-105}.
      *
      * @param {boolean} [isDry=false] If set to true, the call will be executed as dry run - no actions will be applied.
      *
