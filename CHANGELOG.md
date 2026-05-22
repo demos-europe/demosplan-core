@@ -5,6 +5,10 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+### Added
+- Add text custom field definition editing
+
 ## v4.42.0 (2026-05-21)
 ## v4.40.1 (2026-05-21)
 
@@ -17,9 +21,6 @@
 - Column widths in the segment list now persist across browser sessions
 - "column reset" in the segment list now also resets column widths to defaults
 - Doctrine ORM upgraded from v2.20 to v3.6 and `doctrine/persistence` widened to `^2.0 || ^3.0`; entity mappings converted from annotations to PHP 8 attributes (preparation for the API Platform integration)
-
-### Added
-- Add text custom field definition editing
 
 ## v4.39.0 (2026-05-06)
 
