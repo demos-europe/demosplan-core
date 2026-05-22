@@ -149,7 +149,7 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadUserData::class,

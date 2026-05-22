@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\DraftStatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -396,6 +397,13 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             $em = $this->getEntityManager();
 
             $draftStatement = $this->get($entityId);
+            if (null === $draftStatement) {
+                // ORM v3 raises TypeError (extends Error, not Exception) from
+                // persist(null) below, which bypasses the catch and breaks the
+                // service-layer contract that turns repo exceptions into a
+                // `false` return.
+                throw DraftStatementNotFoundException::createFromId($entityId);
+            }
             $draftStatement = $this->generateObjectValues($draftStatement, $data);
 
             $em->persist($draftStatement);

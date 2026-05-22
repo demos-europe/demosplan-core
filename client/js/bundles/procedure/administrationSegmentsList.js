@@ -26,8 +26,6 @@ const stores = {
 }
 const apiStores = [
   'AssignableUser',
-  'AdminProcedure',
-  'CustomField',
   'Place',
   'StatementSegment',
   'Tag',
