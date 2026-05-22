@@ -127,18 +127,21 @@ export default {
     'edit',
   ],
 
-  data () {
-    return {
-      defaultTranslations: {
+  computed: {
+    defaultTranslations () {
+      return {
         back: Translator.trans('back.to.segments.list'),
         confirm: Translator.trans('continue.confirm'),
         apply: Translator.trans('bulk.edit.actions.apply'),
         edit: Translator.trans('bulk.edit.actions.edit'),
-      },
-    }
-  },
+        stepTitles: [
+          Translator.trans('bulk.edit.title.actions.choose', { count: this.selectedElements }),
+          Translator.trans('bulk.edit.title.actions.apply', { count: this.selectedElements }),
+          Translator.trans('confirm.saved.plural'),
+        ],
+      }
+    },
 
-  computed: {
     mergedTranslations () {
       return { ...this.defaultTranslations, ...this.translations }
     },
@@ -151,11 +154,7 @@ export default {
       if (this.selectedElements === 0) {
         return Translator.trans('warning.entries.no.selected')
       } else {
-        return Translator.trans([
-          'bulk.edit.title.actions.choose',
-          'bulk.edit.title.actions.apply',
-          'confirm.saved.plural',
-        ][this.step - 1], { count: this.selectedElements })
+        return this.mergedTranslations.stepTitles[this.step - 1] || ''
       }
     },
   },
