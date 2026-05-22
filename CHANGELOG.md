@@ -5,6 +5,10 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+### Added
+- Add text custom field definition editing
+
 ## v4.42.0 (2026-05-21)
 ## v4.40.1 (2026-05-21)
 
