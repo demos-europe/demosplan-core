@@ -184,7 +184,10 @@
           </template>
         </dp-editor>
       </div>
-      <div v-if="hasPermission('feature_enable_recommendation_versions') && recommendationVersionNumber" class="mb-2">
+      <div
+        v-if="hasPermission('feature_enable_recommendation_versions') && recommendationVersionNumber"
+        class="mb-2"
+      >
         <span class="text-neutral-dark-1 mb-2">
           {{ `${Translator.trans('version')}: ${recommendationVersionNumber}` }}
         </span>
@@ -537,10 +540,6 @@ export default {
   },
 
   computed: {
-    ...mapState('SegmentSlidebar', [
-      'slidebar',
-    ]),
-
     ...mapState('AssignableUser', {
       assignableUserItems: 'items',
     }),
@@ -552,6 +551,10 @@ export default {
     ...mapState('RecommendationVersion', {
       recommendationVersions: 'items',
     }),
+
+    ...mapState('SegmentSlidebar', [
+      'slidebar',
+    ]),
 
     assignableUsers () {
       const assigneeOptions = Object.values({ ...this.assignableUserItems })
@@ -615,7 +618,6 @@ export default {
       }
 
       const versionNumber = this.recommendationVersions?.[lastVersionId]?.attributes?.versionNumber ?? ''
-      console.log('', this.segment.id, this.recommendationVersions?.[lastVersionId]?.attributes)
 
       return String(versionNumber).padStart(3, '0')
     },
@@ -671,9 +673,9 @@ export default {
     ]),
 
     ...mapActions('StatementSegment', {
+      getStatementSegmentAction: 'get',
       restoreSegmentAction: 'restoreFromInitial',
       saveSegmentAction: 'save',
-      getStatementSegmentAction: 'get',
     }),
 
     ...mapMutations('StatementSegment', {
@@ -765,6 +767,55 @@ export default {
       const entry = this.customFieldValues.find(valueEntry => valueEntry.id === fieldId)
 
       return entry?.value ?? null
+    },
+
+    fetchUpdatedSegment () {
+      if (!hasPermission('feature_enable_recommendation_versions')) {
+        return Promise.resolve()
+      }
+
+      const include = [
+        'recommendationVersions',
+        'assignee',
+        'comments',
+        'comments.place',
+        'comments.submitter',
+        'place',
+        'tags',
+      ]
+
+      const statementSegmentFields = [
+        'tags',
+        'text',
+        'assignee',
+        'place',
+        'comments',
+        'externId',
+        'internId',
+        'orderInProcedure',
+        'polygon',
+        'recommendation',
+        'recommendationVersions',
+      ]
+
+      return this.getStatementSegmentAction({
+        id: this.segment.id,
+        include: include.join(','),
+        fields: {
+          StatementSegment: statementSegmentFields.join(','),
+          SegmentComment: [
+            'creationDate',
+            'text',
+            'submitter',
+            'place',
+          ].join(','),
+          RecommendationVersion: [
+            'versionNumber',
+            'recommendationText',
+            'createdAt',
+          ].join(','),
+        },
+      })
     },
 
     finalizeSave (comments) {
@@ -866,14 +917,14 @@ export default {
      * Remove non-updatable comments from segments relationships for update request
      * @param relations {Object}
      */
-    removeComments (relations) {
+    excludeComments (relations) {
       if (relations.comments) {
         this.setProperty({ prop: 'isLoading', val: true })
         delete relations.comments
       }
     },
 
-    removeRecommendationVersion (relations) {
+    excludeRecommendationVersion (relations) {
       if (relations.recommendationVersions) {
         this.setProperty({ prop: 'isLoading', val: true })
         delete relations.recommendationVersions
@@ -891,55 +942,6 @@ export default {
         }
         this.setSegment({ ...segmentWithComments, id: this.segment.id })
       }
-    },
-
-    fetchUpdatedSegment() {
-      if (!hasPermission('feature_enable_recommendation_versions')) {
-        return Promise.resolve()
-      }
-
-      const include = [
-        'recommendationVersions',
-        'assignee',
-        'comments',
-        'comments.place',
-        'comments.submitter',
-        'place',
-        'tags',
-      ]
-
-      const statementSegmentFields = [
-        'tags',
-        'text',
-        'assignee',
-        'place',
-        'comments',
-        'externId',
-        'internId',
-        'orderInProcedure',
-        'polygon',
-        'recommendation',
-        'recommendationVersions',
-      ]
-
-      return this.getStatementSegmentAction({
-        id: this.segment.id,
-        include: include.join(','),
-        fields: {
-          StatementSegment: statementSegmentFields.join(','),
-          SegmentComment: [
-            'creationDate',
-            'text',
-            'submitter',
-            'place',
-          ].join(','),
-          RecommendationVersion: [
-            'versionNumber',
-            'recommendationText',
-            'createdAt',
-          ].join(','),
-        },
-      })
     },
 
     saveCustomFieldsIfNeeded () {
@@ -975,15 +977,15 @@ export default {
         ? { ...this.segment.relationships.comments }
         : null
 
-      // Update relationships (assignee/place) and remove non-updatable fields
-      this.updateRelationships()
+      // Update relationships (assignee/place)
+      const relations = this.updateRelationships()
 
       /**
        *  Comments and recommendationVersions need to be removed from the PATCH payload
        *  as updating them is technically not supported
        */
-      this.removeComments(relations)
-      this.removeRecommendationVersion(relations)
+      this.excludeComments(relations)
+      this.excludeRecommendationVersion(relations)
 
       return this.saveSegmentAction({ id: this.segment.id })
         .then(() => {
