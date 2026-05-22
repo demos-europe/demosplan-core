@@ -23,7 +23,7 @@
       <div class="u-mt flow-root">
         <dp-button
           :href="sanitizedReturnLink"
-          :text="Translator.trans('back.to.segments.list')"
+          :text="mergedTranslations.back"
           color="secondary"
           icon="chevron-left"
         />
@@ -31,7 +31,7 @@
           class="float-right"
           :disabled="!valid"
           icon-after="chevron-right"
-          :text="Translator.trans('continue.confirm')"
+          :text="mergedTranslations.confirm"
           @click="$emit('confirm')"
         />
       </div>
@@ -44,14 +44,14 @@
         <dp-button
           color="secondary"
           icon="chevron-left"
-          :text="Translator.trans('bulk.edit.actions.edit')"
+          :text="mergedTranslations.edit"
           @click="$emit('edit')"
         />
         <dp-button
           class="float-right"
           :busy="busy"
           icon-after="chevron-right"
-          :text="Translator.trans('bulk.edit.actions.apply')"
+          :text="mergedTranslations.apply"
           @click="$emit('apply')"
         />
       </div>
@@ -87,11 +87,6 @@ export default {
       required: true,
     },
 
-    valid: {
-      type: Boolean,
-      required: true,
-    },
-
     returnLink: {
       required: true,
       type: String,
@@ -111,8 +106,19 @@ export default {
     totalSteps: {
       type: Number,
       required: false,
-      default: 2,
-    }
+      default: 3,
+    },
+
+    translations: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
+
+    valid: {
+      type: Boolean,
+      required: true,
+    },
   },
 
   emits: [
@@ -121,7 +127,22 @@ export default {
     'edit',
   ],
 
+  data () {
+    return {
+      defaultTranslations: {
+        back: Translator.trans('back.to.segments.list'),
+        confirm: Translator.trans('continue.confirm'),
+        apply: Translator.trans('bulk.edit.actions.apply'),
+        edit: Translator.trans('bulk.edit.actions.edit'),
+      },
+    }
+  },
+
   computed: {
+    mergedTranslations () {
+      return { ...this.defaultTranslations, ...this.translations }
+    },
+
     sanitizedReturnLink () {
       return sanitizeUrl(this.returnLink)
     },
