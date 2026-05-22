@@ -14,6 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\EmailAddressInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -29,22 +31,17 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * Make sure to extend {@link EmailAddressRepository::deleteOrphanEmailAddresses} so that orphan
  * email addresses are removed to not keep personal data in the database without need.
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository")
  */
+#[ORM\Entity(repositoryClass: EmailAddressRepository::class)]
 class EmailAddress extends CoreEntity implements UuidEntityInterface, EmailAddressInterface
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
@@ -52,11 +49,10 @@ class EmailAddress extends CoreEntity implements UuidEntityInterface, EmailAddre
      * Not the so-called display name.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", length=254, nullable=false, unique=true)
      */
     #[Assert\NotBlank(allowNull: false)]
     #[Assert\Email(mode: 'strict')]
+    #[ORM\Column(type: 'string', length: 254, nullable: false, unique: true)]
     protected $fullAddress;
 
     public function getId(): ?string
