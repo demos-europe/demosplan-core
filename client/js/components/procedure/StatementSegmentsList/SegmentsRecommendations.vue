@@ -280,8 +280,21 @@ export default {
         'orderInProcedure',
         'polygon',
         'recommendation',
-        'recommendationVersions',
       ]
+
+      const statementSegmentInclude = [
+        'assignee',
+        'comments',
+        'comments.place',
+        'comments.submitter',
+        'place',
+        'tags',
+      ]
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        statementSegmentInclude.push('recommendationVersions')
+        statementSegmentFields.push('recommendationVersions')
+      }
 
       if (hasPermission('field_segments_custom_fields')) {
         statementSegmentFields.push('customFields')
@@ -328,30 +341,27 @@ export default {
         sort: 'lastname',
       })
 
-      const response = await this.listSegments({
-        include: [
-          'recommendationVersions',
-          'assignee',
-          'comments',
-          'comments.place',
-          'comments.submitter',
+      const fields = {
+        StatementSegment: statementSegmentFields.join(),
+        SegmentComment: [
+          'creationDate',
+          'text',
+          'submitter',
           'place',
-          'tags',
         ].join(),
-        fields: {
-          StatementSegment: statementSegmentFields.join(),
-          SegmentComment: [
-            'creationDate',
-            'text',
-            'submitter',
-            'place',
-          ].join(),
-          RecommendationVersion: [
-            'versionNumber',
-            'recommendationText',
-            'createdAt',
-          ].join(),
-        },
+      }
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        fields.RecommendationVersion = [
+          'versionNumber',
+          'recommendationText',
+          'createdAt',
+        ].join()
+      }
+
+      const response = await this.listSegments({
+        include: statementSegmentInclude.join(),
+        fields,
         page: {
           number: page,
           size: this.pagination?.perPage || this.defaultPagination.perPage,

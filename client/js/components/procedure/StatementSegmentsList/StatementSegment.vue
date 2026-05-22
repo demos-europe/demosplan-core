@@ -185,7 +185,9 @@
         </dp-editor>
       </div>
       <div v-if="hasPermission('feature_enable_recommendation_versions') && recommendationVersionNumber" class="mb-2">
-        <span class="text-neutral-dark-1 mb-2">{{ `${Translator.trans('version')}:${recommendationVersionNumber}` }}</span>
+        <span class="text-neutral-dark-1 mb-2">
+          {{ `${Translator.trans('version')}: ${recommendationVersionNumber}` }}
+        </span>
       </div>
       <div v-if="isAssignedToMe">
         <dp-checkbox
@@ -891,113 +893,121 @@ export default {
       }
     },
 
-    save () {
-      const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
-      const { assignee, place } = this.updateRelationships()
-
-      const updatedSegment = {
-        id: this.segment.id,
-        type: 'StatementSegment',
-        attributes: {
-          ...this.segment.attributes,
-        },
-        relationships: {
-          ...this.segment.relationships,
-          assignee,
-          place,
-        },
+    fetchUpdatedSegment() {
+      if (!hasPermission('feature_enable_recommendation_versions')) {
+        return Promise.resolve()
       }
 
-      this.removeComments(updatedSegment.relationships)
-      this.removeRecommendationVersion(updatedSegment.relationships)
+      const include = [
+        'recommendationVersions',
+        'assignee',
+        'comments',
+        'comments.place',
+        'comments.submitter',
+        'place',
+        'tags',
+      ]
 
-     /* this.setSegment({
-        ...updatedSegment,
+      const statementSegmentFields = [
+        'tags',
+        'text',
+        'assignee',
+        'place',
+        'comments',
+        'externId',
+        'internId',
+        'orderInProcedure',
+        'polygon',
+        'recommendation',
+        'recommendationVersions',
+      ]
+
+      return this.getStatementSegmentAction({
         id: this.segment.id,
-      })*/
+        include: include.join(','),
+        fields: {
+          StatementSegment: statementSegmentFields.join(','),
+          SegmentComment: [
+            'creationDate',
+            'text',
+            'submitter',
+            'place',
+          ].join(','),
+          RecommendationVersion: [
+            'versionNumber',
+            'recommendationText',
+            'createdAt',
+          ].join(','),
+        },
+      })
+    },
+
+    saveCustomFieldsIfNeeded () {
+      /*
+       * Custom fields are saved via a separate PATCH using the composable's updateCustomFields,
+       * which bypasses the vuex-json-api diff mechanism (unreliable for array attributes)
+       * and properly invalidates the composable's value cache.
+       */
+      if (!this.customFieldsChanged || !hasPermission('field_segments_custom_fields')) {
+        return Promise.resolve()
+      }
+
+      return useCustomFields()
+        .updateCustomFields('StatementSegment', this.segment.id, this.customFieldValues)
+        .then(() => {
+          this.customFieldsChanged = false
+        })
+        .catch(() => {
+          const { getCustomFieldsDefinitions } = useCustomFields()
+          const definitions = getCustomFieldsDefinitions(this.procedureId, {
+            targetEntity: 'SEGMENT',
+            sourceEntity: 'PROCEDURE',
+          }) || []
+
+          const errorMessage = this.customFieldsSaveError(definitions)
+          dplan.notify.error(errorMessage)
+          throw new Error(errorMessage)
+        })
+    },
+
+    save () {
+      const comments = this.segment.relationships.comments
+        ? { ...this.segment.relationships.comments }
+        : null
+
+      // Update relationships (assignee/place) and remove non-updatable fields
+      this.updateRelationships()
+
+      /**
+       *  Comments and recommendationVersions need to be removed from the PATCH payload
+       *  as updating them is technically not supported
+       */
+      this.removeComments(relations)
+      this.removeRecommendationVersion(relations)
 
       return this.saveSegmentAction({ id: this.segment.id })
         .then(() => {
-          // Refetch the segment with recommendationVersions included to get the updated version
-          const statementSegmentFields = [
-            'tags',
-            'text',
-            'assignee',
-            'place',
-            'comments',
-            'externId',
-            'internId',
-            'orderInProcedure',
-            'polygon',
-            'recommendation',
-            'recommendationVersions',
-          ]
-          const fetchUpdatedSegment = hasPermission('feature_enable_recommendation_versions') ?
-            this.getStatementSegmentAction({
-              id: this.segment.id,
-              include: [
-                'recommendationVersions',
-                'assignee',
-                'comments',
-                'comments.place',
-                'comments.submitter',
-                'place',
-                'tags',
-              ].join(),
-              fields: {
-                StatementSegment: statementSegmentFields.join(),
-                SegmentComment: [
-                  'creationDate',
-                  'text',
-                  'submitter',
-                  'place',
-                ].join(),
-                RecommendationVersion: [
-                  'versionNumber',
-                  'recommendationText',
-                  'createdAt',
-                ].join(),
-              },
-            }) :
-            Promise.resolve()
-
-          /*
-           * Custom fields are saved via a separate PATCH using the composable's updateCustomFields,
-           * which bypasses the vuex-json-api diff mechanism (unreliable for array attributes)
-           * and properly invalidates the composable's value cache.
-           */
-          const saveCustomFields = this.customFieldsChanged && hasPermission('field_segments_custom_fields') ?
-            useCustomFields().updateCustomFields('StatementSegment', this.segment.id, this.customFieldValues).then(() => {
-              this.customFieldsChanged = false
-            }) :
-            Promise.resolve()
-
-          return Promise.all([fetchUpdatedSegment, saveCustomFields])
-            .then(() => {
-              dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-              this.isFullscreen = false
-
-              this.finalizeSave(comments)
-
-              this.toggleAssignableUsersSelect()
-              this.$nextTick(() => {
-                if (this.$refs.recommendationContainer) {
-                  this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
-                }
-              })
-            })
-            .catch(() => {
-              const { getCustomFieldsDefinitions } = useCustomFields()
-              const definitions = getCustomFieldsDefinitions(this.procedureId, {
-                targetEntity: 'SEGMENT',
-                sourceEntity: 'PROCEDURE',
-              }) || []
-
-              dplan.notify.error(this.customFieldsSaveError(definitions))
-              this.finalizeSave(comments)
-            })
+          return Promise.all([
+            this.fetchUpdatedSegment(),
+            this.saveCustomFieldsIfNeeded(),
+          ])
         })
-        .catch(() => {
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+
+          this.isFullscreen = false
+
+          this.toggleAssignableUsersSelect()
+
+          this.$nextTick(() => {
+            if (this.$refs.recommendationContainer) {
+              this.$refs.imageModal.addClickListener(
+                this.$refs.recommendationContainer.querySelectorAll('img')
+              )
+            }
+          })
+        })
+        .finally(() => {
           this.finalizeSave(comments)
         })
     },
@@ -1133,12 +1143,6 @@ export default {
 
     updateRelationships () {
       let relations = { ...this.segment.relationships }
-
-      /**
-       *  Comments need to be removed as updating them is technically not supported
-       *  After completing the request, they are added again to the store to be able to display them
-       */
-      this.removeComments(relations)
 
       if (this.showWorkflowActions) {
         let assignee = { assignee: { data: null } }
