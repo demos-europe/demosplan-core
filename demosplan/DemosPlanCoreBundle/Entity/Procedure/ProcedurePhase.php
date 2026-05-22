@@ -122,6 +122,20 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     #[Assert\Positive]
     protected int $iteration = 1;
 
+    /**
+     * @ORM\Column(type="string", length=25, nullable=false, options={"default":""})
+     *
+     * @deprecated phase keys will be removed; kept on the entity to avoid data loss
+     */
+    protected string $step = '';
+
+    /**
+     * @ORM\Column(name="phase_key", type="string", nullable=false)
+     *
+     * @deprecated phase keys will be removed; kept on the entity to avoid data loss
+     */
+    protected string $key = 'configuration';
+
     public function __construct(ProcedurePhaseDefinitionInterface $phaseDefinition)
     {
         $this->phaseDefinition = $phaseDefinition;
