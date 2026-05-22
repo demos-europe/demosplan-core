@@ -205,12 +205,16 @@
                   />
                 </template>
               </v-popover>
-              <dp-icon
+              <dp-tooltip
                 v-if="canUnlock && rowData.isPlaceLocked"
-                class="text-interactive"
-                icon="prohibit"
-                weight="fill"
-              />
+                :text="Translator.trans('segment.lock.hint.admin.change.view')"
+              >
+                <dp-icon
+                  class="text-interactive"
+                  icon="prohibit"
+                  weight="fill"
+                />
+              </dp-tooltip>
             </template>
             <template v-slot:statementStatus="rowData">
               <status-badge
@@ -408,6 +412,7 @@ import {
   DpPager,
   dpRpc,
   DpStickyElement,
+  DpTooltip,
   hasOwnProp,
   tableSelectAllItems,
   VPopover,
@@ -442,6 +447,7 @@ export default {
     DpLoading,
     DpPager,
     DpStickyElement,
+    DpTooltip,
     FilterFlyout,
     ImageModal,
     StatementMetaTooltip,
