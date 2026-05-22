@@ -79,9 +79,9 @@ class StatementViaTemplateExporterTest extends UnitTestCase
             'Datum: ${Datum}',
         ]);
         $this->dataBuilder->method('build')->willReturn($this->buildData([
-            'submitterName' => 'Maria Mustermann',
+            'submitterName'     => 'Maria Mustermann',
             'statementExternId' => 'M42',
-            'todayDate' => '18.05.2026',
+            'todayDate'         => '18.05.2026',
         ]));
 
         $resultPath = $this->renderToFile($templatePath);
@@ -122,7 +122,7 @@ class StatementViaTemplateExporterTest extends UnitTestCase
             'Hausnummer: ${Hausnummer}',
         ]);
         $this->dataBuilder->method('build')->willReturn($this->buildData([
-            'submitterName' => 'Maria Mustermann',
+            'submitterName'        => 'Maria Mustermann',
             'submitterHouseNumber' => null,
         ]));
 
@@ -154,16 +154,16 @@ class StatementViaTemplateExporterTest extends UnitTestCase
     private function buildData(array $simpleValues = [], array $segments = []): StatementTemplateData
     {
         $defaults = [
-            'submitterName' => '',
-            'submitterOrgaName' => '',
-            'submitterStreet' => '',
+            'submitterName'        => '',
+            'submitterOrgaName'    => '',
+            'submitterStreet'      => '',
             'submitterHouseNumber' => '',
-            'submitterPostalCode' => '',
-            'submitterCity' => '',
-            'statementExternId' => '',
-            'statementInternId' => '',
-            'procedureName' => '',
-            'todayDate' => '',
+            'submitterPostalCode'  => '',
+            'submitterCity'        => '',
+            'statementExternId'    => '',
+            'statementInternId'    => '',
+            'procedureName'        => '',
+            'todayDate'            => '',
         ];
         $values = array_merge($defaults, $simpleValues);
 
