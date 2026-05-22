@@ -596,6 +596,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $this->elements = new ArrayCollection();
         $this->topics = new ArrayCollection();
         $this->deletedDate = new DateTime();
+        $this->closedDate = new DateTime();
         $this->dataInputOrganisations = new ArrayCollection();
         $this->authorizedUsers = new ArrayCollection();
         $this->agencyExtraEmailAddresses = new ArrayCollection();
