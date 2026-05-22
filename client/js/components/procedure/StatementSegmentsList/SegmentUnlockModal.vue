@@ -20,6 +20,7 @@
       :hint="Translator.trans('place.set')"
       :bold="false"
       for="segmentUnlockPlace"
+      required
     />
     <dp-multiselect
       id="segmentUnlockPlace"
@@ -37,6 +38,7 @@
       :hint="Translator.trans('assignee.assign')"
       :bold="false"
       for="segmentUnlockAssignee"
+      required
     />
     <dp-multiselect
       id="segmentUnlockAssignee"
