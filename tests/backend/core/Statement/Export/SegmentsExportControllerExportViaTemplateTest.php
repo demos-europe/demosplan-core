@@ -46,8 +46,7 @@ use Tests\Base\UnitTestCase;
 class SegmentsExportControllerExportViaTemplateTest extends UnitTestCase
 {
     private const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-    private const FIXTURE_PARAGRAPHS = __DIR__.'/res/statement_template_example_paragraphs.docx';
-    private const FIXTURE_TABLE = __DIR__.'/res/statement_template_example_table.docx';
+    private const FIXTURE = __DIR__.'/res/statement_template_example.docx';
 
     protected ?SegmentsExportController $sut = null;
 
@@ -100,12 +99,9 @@ class SegmentsExportControllerExportViaTemplateTest extends UnitTestCase
         parent::tearDown();
     }
 
-    /**
-     * @dataProvider exampleTemplateProvider
-     */
-    public function testReturnsStreamedDocxResponseAndDeletesLocalCopyOnSuccess(string $fixturePath): void
+    public function testReturnsStreamedDocxResponseAndDeletesLocalCopyOnSuccess(): void
     {
-        $copiedTemplatePath = $this->copyFixtureTemplate($fixturePath);
+        $copiedTemplatePath = $this->copyFixtureTemplate();
         $this->pushRequestWithHash('hash-success');
         $this->givenFileServiceResolves('hash-success', self::DOCX_MIME, $copiedTemplatePath);
         $this->fileService->expects(self::once())->method('deleteLocalFile')->with($copiedTemplatePath);
@@ -233,26 +229,15 @@ class SegmentsExportControllerExportViaTemplateTest extends UnitTestCase
         );
     }
 
-    private function copyFixtureTemplate(string $sourcePath = self::FIXTURE_PARAGRAPHS): string
+    private function copyFixtureTemplate(): string
     {
-        self::assertFileExists($sourcePath);
+        self::assertFileExists(self::FIXTURE);
 
         $destination = tempnam(sys_get_temp_dir(), 'segments_controller_').'.docx';
-        copy($sourcePath, $destination);
+        copy(self::FIXTURE, $destination);
         $this->temporaryFiles ??= [];
         $this->temporaryFiles[] = $destination;
 
         return $destination;
-    }
-
-    /**
-     * @return array<string, array{0: string}>
-     */
-    public static function exampleTemplateProvider(): array
-    {
-        return [
-            'paragraphs mode' => [self::FIXTURE_PARAGRAPHS],
-            'table mode'      => [self::FIXTURE_TABLE],
-        ];
     }
 }

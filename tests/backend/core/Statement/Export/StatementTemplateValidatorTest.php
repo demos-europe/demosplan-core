@@ -62,50 +62,35 @@ class StatementTemplateValidatorTest extends UnitTestCase
         parent::tearDown();
     }
 
-    public function testReturnsNullWhenTemplateUsesNoSegmentPlaceholders(): void
+    public function testAcceptsTemplateWithoutSegmentPlaceholders(): void
     {
         $path = $this->createDocxWithParagraphs([
-            '${submitterName}',
-            '${todayDate}',
+            '${Name}',
+            '${Datum}',
         ]);
 
-        self::assertNull($this->sut->validate($path));
+        $this->expectNotToPerformAssertions();
+        $this->sut->validate($path);
     }
 
-    public function testReturnsAsParagraphsModeForValidParagraphBlock(): void
+    public function testAcceptsValidSegmentBlock(): void
     {
         $path = $this->createDocxWithParagraphs([
-            '${submitterName}',
-            '${segmentsAsParagraphs}',
-            '${segmentExternId}',
-            '${segmentText}',
-            '${/segmentsAsParagraphs}',
+            '${Name}',
+            '${AbschnitteAlsAbsätze}',
+            '${Abschnitts-ID}',
+            '${Abschnittstext}',
+            '${/AbschnitteAlsAbsätze}',
         ]);
 
-        self::assertSame(
-            StatementTemplateValidator::MODE_AS_PARAGRAPHS,
-            $this->sut->validate($path)
-        );
-    }
-
-    public function testReturnsWithinTableModeForMarkerInsideATableCell(): void
-    {
-        $path = $this->createDocxWithTableCells([
-            '${segmentsWithinTable}${segmentExternId}',
-            '${segmentText}',
-            '${segmentRecommendation}',
-        ]);
-
-        self::assertSame(
-            StatementTemplateValidator::MODE_WITHIN_TABLE,
-            $this->sut->validate($path)
-        );
+        $this->expectNotToPerformAssertions();
+        $this->sut->validate($path);
     }
 
     public function testThrowsForUnknownPlaceholder(): void
     {
         $path = $this->createDocxWithParagraphs([
-            '${submitterName}',
+            '${Name}',
             '${notAPlaceholderWeAllow}',
         ]);
 
@@ -116,59 +101,29 @@ class StatementTemplateValidatorTest extends UnitTestCase
         $this->sut->validate($path);
     }
 
-    public function testThrowsForIncompleteAsParagraphsPair(): void
+    public function testThrowsForIncompleteSegmentMarkerPair(): void
     {
         $path = $this->createDocxWithParagraphs([
-            '${segmentsAsParagraphs}',
-            '${segmentExternId}',
+            '${AbschnitteAlsAbsätze}',
+            '${Abschnitts-ID}',
             // Closing marker intentionally omitted.
         ]);
 
         $this->expectException(InvalidStatementTemplateException::class);
-        $this->expectExceptionMessageMatches('/as_paragraphs_marker_incomplete/');
+        $this->expectExceptionMessageMatches('/segments_marker_incomplete/');
 
         $this->sut->validate($path);
     }
 
-    public function testThrowsWhenBothModeMarkersArePresent(): void
-    {
-        $path = $this->createDocxWithMixedLayout(
-            [
-                '${segmentsAsParagraphs}',
-                '${segmentExternId}',
-                '${/segmentsAsParagraphs}',
-            ],
-            ['${segmentsWithinTable}', '${segmentText}']
-        );
-
-        $this->expectException(InvalidStatementTemplateException::class);
-        $this->expectExceptionMessageMatches('/both_modes_present/');
-
-        $this->sut->validate($path);
-    }
-
-    public function testThrowsWhenSegmentDataIsPresentWithoutAnyModeMarker(): void
+    public function testThrowsWhenSegmentDataIsPresentWithoutTheBlock(): void
     {
         $path = $this->createDocxWithParagraphs([
-            '${submitterName}',
-            '${segmentExternId}',
+            '${Name}',
+            '${Abschnitts-ID}',
         ]);
 
         $this->expectException(InvalidStatementTemplateException::class);
-        $this->expectExceptionMessageMatches('/segment_data_without_mode/');
-
-        $this->sut->validate($path);
-    }
-
-    public function testThrowsWhenWithinTableMarkerLivesOutsideATable(): void
-    {
-        $path = $this->createDocxWithParagraphs([
-            '${segmentsWithinTable}',
-            '${segmentExternId}',
-        ]);
-
-        $this->expectException(InvalidStatementTemplateException::class);
-        $this->expectExceptionMessageMatches('/within_table_not_in_table/');
+        $this->expectExceptionMessageMatches('/segment_data_without_block/');
 
         $this->sut->validate($path);
     }
@@ -183,20 +138,10 @@ class StatementTemplateValidatorTest extends UnitTestCase
         $this->sut->validate($path);
     }
 
-    public function testAcceptsCommittedParagraphsExample(): void
+    public function testAcceptsCommittedExample(): void
     {
-        self::assertSame(
-            StatementTemplateValidator::MODE_AS_PARAGRAPHS,
-            $this->sut->validate(__DIR__.'/res/statement_template_example_paragraphs.docx')
-        );
-    }
-
-    public function testAcceptsCommittedTableExample(): void
-    {
-        self::assertSame(
-            StatementTemplateValidator::MODE_WITHIN_TABLE,
-            $this->sut->validate(__DIR__.'/res/statement_template_example_table.docx')
-        );
+        $this->expectNotToPerformAssertions();
+        $this->sut->validate(__DIR__.'/res/statement_template_example.docx');
     }
 
     /**
@@ -208,42 +153,6 @@ class StatementTemplateValidatorTest extends UnitTestCase
         $section = $phpWord->addSection();
         foreach ($paragraphTexts as $text) {
             $section->addText($text);
-        }
-
-        return $this->saveDocx($phpWord);
-    }
-
-    /**
-     * @param list<string> $cellTexts
-     */
-    private function createDocxWithTableCells(array $cellTexts): string
-    {
-        $phpWord = new PhpWord();
-        $section = $phpWord->addSection();
-        $table = $section->addTable();
-        $row = $table->addRow();
-        foreach ($cellTexts as $text) {
-            $row->addCell()->addText($text);
-        }
-
-        return $this->saveDocx($phpWord);
-    }
-
-    /**
-     * @param list<string> $paragraphTexts
-     * @param list<string> $cellTexts
-     */
-    private function createDocxWithMixedLayout(array $paragraphTexts, array $cellTexts): string
-    {
-        $phpWord = new PhpWord();
-        $section = $phpWord->addSection();
-        foreach ($paragraphTexts as $text) {
-            $section->addText($text);
-        }
-        $table = $section->addTable();
-        $row = $table->addRow();
-        foreach ($cellTexts as $text) {
-            $row->addCell()->addText($text);
         }
 
         return $this->saveDocx($phpWord);

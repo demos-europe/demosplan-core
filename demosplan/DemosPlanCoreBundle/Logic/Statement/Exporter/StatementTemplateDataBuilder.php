@@ -13,26 +13,20 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter;
 
 use DateTimeImmutable;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementTemplateData;
 
 /**
- * Builds the {@see StatementTemplateData} mapping from a Procedure + Statement
- * + the current user, without any PHPWord coupling. Kept pure so the
- * placeholder → value contract is unit-testable in isolation from the DOCX
- * renderer in {@see StatementViaTemplateExporter}.
+ * Builds the {@see StatementTemplateData} mapping from a Procedure + Statement,
+ * without any PHPWord coupling. Kept pure so the placeholder → value contract
+ * is unit-testable in isolation from the DOCX renderer in
+ * {@see StatementViaTemplateExporter}.
  */
 class StatementTemplateDataBuilder
 {
     private const DATE_FORMAT = 'd.m.Y';
-
-    public function __construct(
-        private readonly CurrentUserInterface $currentUser,
-    ) {
-    }
 
     public function build(Procedure $procedure, Statement $statement): StatementTemplateData
     {
@@ -42,16 +36,14 @@ class StatementTemplateDataBuilder
         $data->setSubmitterName($meta->getAuthorName());
         $data->setSubmitterOrgaName($meta->getOrgaName());
         $data->setSubmitterStreet($meta->getOrgaStreet());
+        $data->setSubmitterHouseNumber($meta->getHouseNumber());
         $data->setSubmitterPostalCode($meta->getOrgaPostalCode());
         $data->setSubmitterCity($meta->getOrgaCity());
-        $data->setSubmitterEmail($meta->getOrgaEmail());
         $data->setStatementExternId($statement->getExternId());
+        $data->setStatementInternId($statement->getInternId());
         $data->setStatementSubmitDate($statement->getSubmitDateString());
         $data->setProcedureName($procedure->getName());
-        $data->setProcedureExternId($procedure->getExternId());
         $data->setTodayDate((new DateTimeImmutable())->format(self::DATE_FORMAT));
-        $data->setPlanningAgencyName($procedure->getOrga()?->getName());
-        $data->setPlanner($this->currentUser->getUser()->getName());
         $data->setSegments($this->orderedSegments($statement));
         $data->lock();
 

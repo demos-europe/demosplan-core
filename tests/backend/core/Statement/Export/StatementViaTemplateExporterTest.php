@@ -15,7 +15,6 @@ namespace Tests\Core\Statement\Export;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidStatementTemplateException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementTemplateDataBuilder;
@@ -75,15 +74,14 @@ class StatementViaTemplateExporterTest extends UnitTestCase
     public function testRendersSimplePlaceholdersWhenTemplateHasNoSegments(): void
     {
         $templatePath = $this->createTemplateWithParagraphs([
-            'Sehr geehrte/r ${submitterName}',
-            'Ihre Einwendung: ${statementExternId}',
-            'Datum: ${todayDate}',
+            'Sehr geehrte/r ${Name}',
+            'Ihre Stellungnahme: ${Stellungnahme-ID}',
+            'Datum: ${Datum}',
         ]);
-        $this->validator->method('validate')->with($templatePath)->willReturn(null);
         $this->dataBuilder->method('build')->willReturn($this->buildData([
-            'submitterName'     => 'Maria Mustermann',
-            'statementExternId' => 'E0042',
-            'todayDate'         => '18.05.2026',
+            'submitterName' => 'Maria Mustermann',
+            'statementExternId' => 'M42',
+            'todayDate' => '18.05.2026',
         ]));
 
         $resultPath = $this->renderToFile($templatePath);
@@ -91,25 +89,18 @@ class StatementViaTemplateExporterTest extends UnitTestCase
         self::assertSame([], $this->getRemainingVariables($resultPath));
         $bodyText = $this->extractBodyText($resultPath);
         self::assertStringContainsString('Maria Mustermann', $bodyText);
-        self::assertStringContainsString('E0042', $bodyText);
+        self::assertStringContainsString('M42', $bodyText);
         self::assertStringContainsString('18.05.2026', $bodyText);
     }
 
-    public function testRendersAsParagraphsModeWithMultipleSegments(): void
+    public function testRendersSegmentBlockWithMultipleSegments(): void
     {
-        $templatePath = $this->createParagraphsModeTemplate();
-        $this->validator->method('validate')->with($templatePath)
-            ->willReturn(StatementTemplateValidator::MODE_AS_PARAGRAPHS);
+        $templatePath = $this->createSegmentBlockTemplate();
         $this->dataBuilder->method('build')->willReturn($this->buildData(
             ['submitterName' => 'Maria Mustermann'],
             [
-                $this->makeSegment(
-                    'M12-1',
-                    'Sektion A',
-                    '<p>Erstes Vorbringen</p>',
-                    '<p>Erste Erwiderung</p><p>Mit zweiter Zeile.</p>'
-                ),
-                $this->makeSegment('M12-2', 'Sektion B', '<p>Zweites Vorbringen</p>', '<p>Zweite Erwiderung</p>'),
+                $this->makeSegment('M42-1', '<p>Erstes Vorbringen</p>', '<p>Erste Erwiderung</p><p>Mit zweiter Zeile.</p>'),
+                $this->makeSegment('M42-2', '<p>Zweites Vorbringen</p>', '<p>Zweite Erwiderung</p>'),
             ]
         ));
 
@@ -118,46 +109,21 @@ class StatementViaTemplateExporterTest extends UnitTestCase
         self::assertSame([], $this->getRemainingVariables($resultPath));
         $bodyText = $this->extractBodyText($resultPath);
         self::assertStringContainsString('Maria Mustermann', $bodyText);
-        self::assertStringContainsString('M12-1', $bodyText);
-        self::assertStringContainsString('M12-2', $bodyText);
+        self::assertStringContainsString('M42-1', $bodyText);
+        self::assertStringContainsString('M42-2', $bodyText);
         self::assertStringContainsString('Erstes Vorbringen', $bodyText);
-        self::assertStringContainsString('Zweite Erwiderung', $bodyText);
-    }
-
-    public function testRendersWithinTableModeWithMultipleSegments(): void
-    {
-        $templatePath = $this->createWithinTableModeTemplate();
-        $this->validator->method('validate')->with($templatePath)
-            ->willReturn(StatementTemplateValidator::MODE_WITHIN_TABLE);
-        $this->dataBuilder->method('build')->willReturn($this->buildData(
-            ['submitterName' => 'Maria Mustermann'],
-            [
-                $this->makeSegment('M12-1', 'Sektion A', 'Erstes Vorbringen', 'Erste Erwiderung'),
-                $this->makeSegment('M12-2', 'Sektion B', 'Zweites Vorbringen', 'Zweite Erwiderung'),
-            ]
-        ));
-
-        $resultPath = $this->renderToFile($templatePath);
-
-        self::assertSame([], $this->getRemainingVariables($resultPath));
-        $bodyText = $this->extractBodyText($resultPath);
-        self::assertStringContainsString('M12-1', $bodyText);
-        self::assertStringContainsString('M12-2', $bodyText);
-        self::assertStringContainsString('Erstes Vorbringen', $bodyText);
-        self::assertStringContainsString('Zweite Erwiderung', $bodyText);
-        self::assertStringNotContainsString('segmentsWithinTable', $bodyText);
+        self::assertStringContainsString('Mit zweiter Zeile.', $bodyText);
     }
 
     public function testReplacesNullSimpleFieldsWithEmptyStrings(): void
     {
         $templatePath = $this->createTemplateWithParagraphs([
-            'Name: ${submitterName}',
-            'E-Mail: ${submitterEmail}',
+            'Name: ${Name}',
+            'Hausnummer: ${Hausnummer}',
         ]);
-        $this->validator->method('validate')->willReturn(null);
         $this->dataBuilder->method('build')->willReturn($this->buildData([
-            'submitterName'  => 'Maria Mustermann',
-            'submitterEmail' => null,
+            'submitterName' => 'Maria Mustermann',
+            'submitterHouseNumber' => null,
         ]));
 
         $resultPath = $this->renderToFile($templatePath);
@@ -165,12 +131,12 @@ class StatementViaTemplateExporterTest extends UnitTestCase
         self::assertSame([], $this->getRemainingVariables($resultPath));
         $bodyText = $this->extractBodyText($resultPath);
         self::assertStringContainsString('Maria Mustermann', $bodyText);
-        self::assertStringContainsString('E-Mail: ', $bodyText);
+        self::assertStringContainsString('Hausnummer: ', $bodyText);
     }
 
     public function testPropagatesValidatorExceptionWithoutTouchingTheTemplate(): void
     {
-        $templatePath = $this->createTemplateWithParagraphs(['${submitterName}']);
+        $templatePath = $this->createTemplateWithParagraphs(['${Name}']);
         $this->validator->method('validate')->with($templatePath)
             ->willThrowException(new InvalidStatementTemplateException('whatever the validator says'));
         $this->dataBuilder->expects(self::never())->method('build');
@@ -188,19 +154,16 @@ class StatementViaTemplateExporterTest extends UnitTestCase
     private function buildData(array $simpleValues = [], array $segments = []): StatementTemplateData
     {
         $defaults = [
-            'submitterName'       => '',
-            'submitterOrgaName'   => '',
-            'submitterStreet'     => '',
+            'submitterName' => '',
+            'submitterOrgaName' => '',
+            'submitterStreet' => '',
+            'submitterHouseNumber' => '',
             'submitterPostalCode' => '',
-            'submitterCity'       => '',
-            'submitterEmail'      => '',
-            'statementExternId'   => '',
-            'statementSubmitDate' => '',
-            'procedureName'       => '',
-            'procedureExternId'   => '',
-            'todayDate'           => '',
-            'planningAgencyName'  => '',
-            'planner'             => '',
+            'submitterCity' => '',
+            'statementExternId' => '',
+            'statementInternId' => '',
+            'procedureName' => '',
+            'todayDate' => '',
         ];
         $values = array_merge($defaults, $simpleValues);
 
@@ -208,30 +171,23 @@ class StatementViaTemplateExporterTest extends UnitTestCase
         $data->setSubmitterName($values['submitterName']);
         $data->setSubmitterOrgaName($values['submitterOrgaName']);
         $data->setSubmitterStreet($values['submitterStreet']);
+        $data->setSubmitterHouseNumber($values['submitterHouseNumber']);
         $data->setSubmitterPostalCode($values['submitterPostalCode']);
         $data->setSubmitterCity($values['submitterCity']);
-        $data->setSubmitterEmail($values['submitterEmail']);
         $data->setStatementExternId($values['statementExternId']);
-        $data->setStatementSubmitDate($values['statementSubmitDate']);
+        $data->setStatementInternId($values['statementInternId']);
         $data->setProcedureName($values['procedureName']);
-        $data->setProcedureExternId($values['procedureExternId']);
         $data->setTodayDate($values['todayDate']);
-        $data->setPlanningAgencyName($values['planningAgencyName']);
-        $data->setPlanner($values['planner']);
         $data->setSegments($segments);
         $data->lock();
 
         return $data;
     }
 
-    private function makeSegment(string $externId, string $placeName, string $text, string $recommendation): Segment&MockObject
+    private function makeSegment(string $externId, string $text, string $recommendation): Segment&MockObject
     {
-        $place = $this->createMock(Place::class);
-        $place->method('getName')->willReturn($placeName);
-
         $segment = $this->createMock(Segment::class);
         $segment->method('getExternId')->willReturn($externId);
-        $segment->method('getPlace')->willReturn($place);
         $segment->method('getText')->willReturn($text);
         $segment->method('getRecommendation')->willReturn($recommendation);
 
@@ -289,30 +245,16 @@ class StatementViaTemplateExporterTest extends UnitTestCase
         return $this->saveDocx($phpWord);
     }
 
-    private function createParagraphsModeTemplate(): string
+    private function createSegmentBlockTemplate(): string
     {
         return $this->createTemplateWithParagraphs([
-            'Sehr geehrte/r ${submitterName}',
-            '${segmentsAsParagraphs}',
-            'Punkt ${segmentExternId} — ${segmentPlace}',
-            '${segmentText}',
-            '${segmentRecommendation}',
-            '${/segmentsAsParagraphs}',
+            'Sehr geehrte/r ${Name}',
+            '${AbschnitteAlsAbsätze}',
+            'Punkt ${Abschnitts-ID}',
+            '${Abschnittstext}',
+            '${Erwiderung}',
+            '${/AbschnitteAlsAbsätze}',
         ]);
-    }
-
-    private function createWithinTableModeTemplate(): string
-    {
-        $phpWord = new PhpWord();
-        $section = $phpWord->addSection();
-        $section->addText('Sehr geehrte/r ${submitterName}');
-        $table = $section->addTable();
-        $row = $table->addRow();
-        $row->addCell()->addText('${segmentsWithinTable}${segmentExternId} — ${segmentPlace}');
-        $row->addCell()->addText('${segmentText}');
-        $row->addCell()->addText('${segmentRecommendation}');
-
-        return $this->saveDocx($phpWord);
     }
 
     private function saveDocx(PhpWord $phpWord): string

@@ -24,30 +24,26 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
  * @method string|null getSubmitterName()
  * @method string|null getSubmitterOrgaName()
  * @method string|null getSubmitterStreet()
+ * @method string|null getSubmitterHouseNumber()
  * @method string|null getSubmitterPostalCode()
  * @method string|null getSubmitterCity()
- * @method string|null getSubmitterEmail()
  * @method string|null getStatementExternId()
+ * @method string|null getStatementInternId()
  * @method string|null getStatementSubmitDate()
  * @method string|null getProcedureName()
- * @method string|null getProcedureExternId()
  * @method string|null getTodayDate()
- * @method string|null getPlanningAgencyName()
- * @method string|null getPlanner()
  * @method Segment[]   getSegments()
  * @method void        setSubmitterName(?string $submitterName)
  * @method void        setSubmitterOrgaName(?string $submitterOrgaName)
  * @method void        setSubmitterStreet(?string $submitterStreet)
+ * @method void        setSubmitterHouseNumber(?string $submitterHouseNumber)
  * @method void        setSubmitterPostalCode(?string $submitterPostalCode)
  * @method void        setSubmitterCity(?string $submitterCity)
- * @method void        setSubmitterEmail(?string $submitterEmail)
  * @method void        setStatementExternId(?string $statementExternId)
+ * @method void        setStatementInternId(?string $statementInternId)
  * @method void        setStatementSubmitDate(?string $statementSubmitDate)
  * @method void        setProcedureName(?string $procedureName)
- * @method void        setProcedureExternId(?string $procedureExternId)
  * @method void        setTodayDate(?string $todayDate)
- * @method void        setPlanningAgencyName(?string $planningAgencyName)
- * @method void        setPlanner(?string $planner)
  * @method void        setSegments(Segment[] $segments)
  */
 class StatementTemplateData extends ValueObject
@@ -59,25 +55,21 @@ class StatementTemplateData extends ValueObject
     /** @var string|null */
     protected $submitterStreet;
     /** @var string|null */
+    protected $submitterHouseNumber;
+    /** @var string|null */
     protected $submitterPostalCode;
     /** @var string|null */
     protected $submitterCity;
     /** @var string|null */
-    protected $submitterEmail;
-    /** @var string|null */
     protected $statementExternId;
+    /** @var string|null */
+    protected $statementInternId;
     /** @var string|null */
     protected $statementSubmitDate;
     /** @var string|null */
     protected $procedureName;
     /** @var string|null */
-    protected $procedureExternId;
-    /** @var string|null */
     protected $todayDate;
-    /** @var string|null */
-    protected $planningAgencyName;
-    /** @var string|null */
-    protected $planner;
     /** @var Segment[] */
     protected $segments = [];
 }

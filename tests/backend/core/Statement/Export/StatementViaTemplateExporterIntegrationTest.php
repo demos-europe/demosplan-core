@@ -15,7 +15,6 @@ namespace Tests\Core\Statement\Export;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementTemplateDataBuilder;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementTemplateValidator;
@@ -29,23 +28,21 @@ use ZipArchive;
 
 /**
  * End-to-end test of the via-template export against the committed example
- * fixtures. The earlier unit tests mock either the validator, the data
- * builder, or both — this one wires up the REAL validator + REAL exporter +
- * REAL HtmlHelper against the REAL fixture DOCX files, with segment HTML
- * that mirrors what the rich-text editor actually produces (`<p>`-wrapped
- * paragraphs). Only the data builder stays mocked so we don't need DB /
- * Foundry setup.
+ * fixture. The unit tests mock either the validator or the data builder —
+ * this one wires up the REAL validator + REAL exporter + REAL HtmlHelper
+ * against the REAL fixture DOCX, with segment HTML that mirrors what the
+ * rich-text editor actually produces (`<p>`-wrapped paragraphs). Only the
+ * data builder stays mocked so we don't need DB / Foundry setup.
  *
- * Catches the regression classes that slipped past the mock-heavy unit
- * tests during DPLAN-17476's smoke test:
- *   - illegal placeholders in the committed example DOCXs;
+ * Catches regression classes that slipped past the mock-heavy unit tests
+ * during DPLAN-17476's smoke test:
+ *   - illegal placeholders in the committed example DOCX;
  *   - PhpWord "Cannot add TextRun in TextRun" when segments contain
  *     paragraph-level HTML.
  */
 class StatementViaTemplateExporterIntegrationTest extends UnitTestCase
 {
-    private const FIXTURE_PARAGRAPHS = __DIR__.'/res/statement_template_example_paragraphs.docx';
-    private const FIXTURE_TABLE = __DIR__.'/res/statement_template_example_table.docx';
+    private const FIXTURE = __DIR__.'/res/statement_template_example.docx';
 
     protected ?StatementViaTemplateExporter $sut = null;
 
@@ -85,48 +82,25 @@ class StatementViaTemplateExporterIntegrationTest extends UnitTestCase
         parent::tearDown();
     }
 
-    public function testRendersCommittedParagraphsFixtureWithHtmlSegments(): void
+    public function testRendersCommittedFixtureWithHtmlSegments(): void
     {
         $this->dataBuilder->method('build')->willReturn($this->buildData([
             $this->makeSegment(
-                'M12-1',
-                'Sektion A',
+                'M42-1',
                 '<p>Erstes Vorbringen mit <strong>fettem</strong> Text.</p><p>Mit zweiter Zeile.</p>',
                 '<p>Erste Erwiderung.</p>'
             ),
-            $this->makeSegment('M12-2', 'Sektion B', '<p>Zweites Vorbringen.</p>', '<p>Zweite Erwiderung.</p>'),
+            $this->makeSegment('M42-2', '<p>Zweites Vorbringen.</p>', '<p>Zweite Erwiderung.</p>'),
         ]));
 
-        $resultPath = $this->renderToFile(self::FIXTURE_PARAGRAPHS);
+        $resultPath = $this->renderToFile();
 
         self::assertSame([], $this->getRemainingVariables($resultPath));
         $bodyText = $this->extractBodyText($resultPath);
         self::assertStringContainsString('Erstes Vorbringen mit', $bodyText);
         self::assertStringContainsString('Mit zweiter Zeile.', $bodyText);
-        self::assertStringContainsString('M12-2', $bodyText);
+        self::assertStringContainsString('M42-2', $bodyText);
         self::assertStringContainsString('Zweite Erwiderung.', $bodyText);
-    }
-
-    public function testRendersCommittedTableFixtureWithHtmlSegments(): void
-    {
-        $this->dataBuilder->method('build')->willReturn($this->buildData([
-            $this->makeSegment(
-                'M12-1',
-                'Sektion A',
-                '<p>Erstes Vorbringen.</p>',
-                '<p>Erste Erwiderung mit <em>kursiv</em>.</p>'
-            ),
-            $this->makeSegment('M12-2', 'Sektion B', '<p>Zweites Vorbringen.</p>', '<p>Zweite Erwiderung.</p>'),
-        ]));
-
-        $resultPath = $this->renderToFile(self::FIXTURE_TABLE);
-
-        self::assertSame([], $this->getRemainingVariables($resultPath));
-        $bodyText = $this->extractBodyText($resultPath);
-        self::assertStringContainsString('M12-1', $bodyText);
-        self::assertStringContainsString('M12-2', $bodyText);
-        self::assertStringContainsString('Zweite Erwiderung.', $bodyText);
-        self::assertStringNotContainsString('segmentsWithinTable', $bodyText);
     }
 
     /**
@@ -137,40 +111,33 @@ class StatementViaTemplateExporterIntegrationTest extends UnitTestCase
         $data = new StatementTemplateData();
         $data->setSubmitterName('Maria Mustermann');
         $data->setSubmitterOrgaName('Musterfirma GmbH');
-        $data->setSubmitterStreet('Musterstraße 1');
+        $data->setSubmitterStreet('Musterstraße');
+        $data->setSubmitterHouseNumber('1');
         $data->setSubmitterPostalCode('12345');
         $data->setSubmitterCity('Musterstadt');
-        $data->setSubmitterEmail('maria@example.test');
-        $data->setStatementExternId('E0042');
-        $data->setStatementSubmitDate('15.05.2026');
+        $data->setStatementExternId('M42');
+        $data->setStatementInternId('E0042');
         $data->setProcedureName('Testverfahren');
-        $data->setProcedureExternId('V-2026-01');
         $data->setTodayDate('18.05.2026');
-        $data->setPlanningAgencyName('DEMOS Musterbehörde');
-        $data->setPlanner('Max Planer');
         $data->setSegments($segments);
         $data->lock();
 
         return $data;
     }
 
-    private function makeSegment(string $externId, string $placeName, string $text, string $recommendation): Segment&MockObject
+    private function makeSegment(string $externId, string $text, string $recommendation): Segment&MockObject
     {
-        $place = $this->createMock(Place::class);
-        $place->method('getName')->willReturn($placeName);
-
         $segment = $this->createMock(Segment::class);
         $segment->method('getExternId')->willReturn($externId);
-        $segment->method('getPlace')->willReturn($place);
         $segment->method('getText')->willReturn($text);
         $segment->method('getRecommendation')->willReturn($recommendation);
 
         return $segment;
     }
 
-    private function renderToFile(string $fixturePath): string
+    private function renderToFile(): string
     {
-        $copiedPath = $this->copyFixture($fixturePath);
+        $copiedPath = $this->copyFixture(self::FIXTURE);
         $templateProcessor = $this->sut->export(
             $this->createMock(Procedure::class),
             $this->createMock(Statement::class),
