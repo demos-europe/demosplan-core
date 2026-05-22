@@ -58,8 +58,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { DpButtonRow, DpLabel, DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { ref } from 'vue'
 
 defineProps({
   assignableUsers: {
@@ -77,8 +77,8 @@ const emit = defineEmits(['unlock'])
 
 defineExpose({ toggle })
 
-const localPlace = ref(null)
 const localAssignee = ref(null)
+const localPlace = ref(null)
 const unlockModal = ref()
 
 const save = () => {

@@ -608,6 +608,12 @@ export default {
       }
     },
 
+    badgeTooltipText () {
+      return hasPermission('feature_administrate_segment_lock') ?
+        Translator.trans('segment.unlock.click.hint') :
+        Translator.trans('segment.lock.hint')
+    },
+
     commentCount () {
       return this.segment.relationships.comments?.data?.length || 0
     },
@@ -633,12 +639,6 @@ export default {
       }
       const placeId = this.segment.relationships?.place?.data?.id
       return !!this.placeItems[placeId]?.attributes?.locked
-    },
-
-    badgeTooltipText () {
-      return hasPermission('feature_administrate_segment_lock') ?
-        Translator.trans('segment.unlock.click.hint') :
-        Translator.trans('segment.lock.hint')
     },
 
     places () {

@@ -255,12 +255,6 @@ export default {
       placeItems: 'items',
     }),
 
-    lockTooltip () {
-      return hasPermission('feature_administrate_segment_lock') ?
-        Translator.trans('segment.lock.hint.admin.change.view') :
-        Translator.trans('segment.lock.hint')
-    },
-
     assigneeBySegment () {
       return segmentId => {
         const segment = this.segments[segmentId]
@@ -287,6 +281,12 @@ export default {
 
     hasSegments () {
       return Object.keys(this.segments).length > 0 && hasPermission('area_statement_segmentation')
+    },
+
+    lockTooltip () {
+      return hasPermission('feature_administrate_segment_lock') ?
+        Translator.trans('segment.lock.hint.admin.change.view') :
+        Translator.trans('segment.lock.hint')
     },
 
     statement () {

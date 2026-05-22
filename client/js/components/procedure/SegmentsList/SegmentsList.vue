@@ -627,22 +627,6 @@ export default {
       return hasPermission('feature_administrate_segment_lock')
     },
 
-    /*
-     * Count of locked segments in the current selection (loaded items only).
-     * Only relevant for users who can unlock — others cannot select locked segments.
-     * Used to flag the bulk-edit flow to restrict actions to place/assignee only.
-     */
-    lockedInSelectionCount () {
-      if (!this.canUnlock) {
-        return 0
-      }
-      return this.items.filter(item => item.isPlaceLocked && this.currentlySelectedItems[item.id]).length
-    },
-
-    hasLockedInSelection () {
-      return this.lockedInSelectionCount > 0
-    },
-
     // Overrides tableSelectAllItems mixin to exclude locked segments from selection for users without unlock permission
     currentlySelectedItems () {
       const toggledIds = new Set(this.toggledItems.map(item => item.id))
@@ -657,6 +641,10 @@ export default {
       return selected.reduce((acc, el) => ({ ...acc, [el.id]: true }), {})
     },
 
+    hasLockedInSelection () {
+      return this.lockedInSelectionCount > 0
+    },
+
     headerFields () {
       return this.headerFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
     },
@@ -669,6 +657,18 @@ export default {
         }))
         // This is not working! better pass createdDate into segmentsObject
         .sort((a, b) => (b.attributes.externId.substring(1) - a.attributes.externId.substring(1)))
+    },
+
+    /*
+     * Count of locked segments in the current selection (loaded items only).
+     * Only relevant for users who can unlock — others cannot select locked segments.
+     * Used to flag the bulk-edit flow to restrict actions to place/assignee only.
+     */
+    lockedInSelectionCount () {
+      if (!this.canUnlock) {
+        return 0
+      }
+      return this.items.filter(item => item.isPlaceLocked && this.currentlySelectedItems[item.id]).length
     },
 
     noQuery () {
