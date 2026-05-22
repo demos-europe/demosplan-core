@@ -340,7 +340,7 @@ export default {
 
     const createPhase = () => {
       isLoading.value = true
-      let codeFailed = false
+      let phaseCodeFailed = false
 
       dpApi.post(Routing.generate('api_resource_create', { resourceType: 'ProcedurePhaseDefinition' }), {}, {
         data: {
@@ -366,23 +366,23 @@ export default {
             {},
             { data: buildNewPhaseAddonRequest(newPhaseId) },
           )
-            .then(codeResponse => {
+            .then(phaseCodeResponse => {
               // Push the new code into savedRowPayloads so the row's addon cell renders the value without waiting for cache refetch
               savedRowPayloads.value = {
                 ...savedRowPayloads.value,
                 [newPhaseId]: {
                   code: phaseCode,
-                  resourceId: codeResponse.data.data.id,
+                  resourceId: phaseCodeResponse.data.data.id,
                 },
               }
             })
-            .catch(codeErr => {
-              console.error(codeErr)
-              codeFailed = true
+            .catch(phaseCodeErr => {
+              console.error(phaseCodeErr)
+              phaseCodeFailed = true
             })
         })
         .then(() => {
-          if (codeFailed) {
+          if (phaseCodeFailed) {
             dplan.notify.error(Translator.trans('procedure.phase.code.create.failed'))
           } else {
             dplan.notify.confirm(Translator.trans('procedure.phase.create.success'))
