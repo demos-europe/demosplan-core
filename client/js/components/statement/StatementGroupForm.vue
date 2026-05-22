@@ -18,11 +18,16 @@ All rights reserved
       :valid="isValid"
       :busy="isBusy"
       :return-link="returnLink"
+      :translations="translations"
       @confirm="step = 2"
       @edit="step = 1"
       @apply="handleApply"
     >
-      <template v-slot:step-1></template>
+      <template v-slot:step-1>
+        <dp-radio>
+
+        </dp-radio>
+      </template>
       <template v-slot:step-2></template>
       <template v-slot:step-3></template>
     </action-stepper>
@@ -33,6 +38,7 @@ All rights reserved
 import {computed, ref, onMounted} from 'vue'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import lscache from 'lscache'
+import {DpRadio} from '@demos-europe/demosplan-ui'
 
 const props = defineProps({
   procedureId: {
@@ -48,6 +54,12 @@ const returnLink = ref('#')
 
 const isValid = computed(() => statements.value.length > 0)
 const selectedElementsCount = computed(() => statements.value.length)
+const translations = computed(() => ({
+  back: Translator.trans('statement.list.back'),
+  confirm: Translator.trans('continue.to.edit'),
+  apply: Translator.trans('group.new'),
+}))
+
 function handleApply () {
   console.log('apply clicked, statements:', statements.value)
 }
