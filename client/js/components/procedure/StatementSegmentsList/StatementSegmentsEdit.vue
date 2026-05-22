@@ -38,7 +38,18 @@
         class="px-1 hover:bg-interactive-secondary-subtle-hover"
       >
         <div class="inline-block w-[5%]">
+          <dp-tooltip
+            v-if="isSegmentLocked(segment)"
+            :text="lockTooltip"
+          >
+            <dp-icon
+              class="text-interactive"
+              icon="prohibit"
+              weight="fill"
+            />
+          </dp-tooltip>
           <dp-claim
+            v-else
             class="c-at-item__row-icon inline-block"
             :assigned-id="assigneeBySegment(segment.id).id"
             :assigned-name="assigneeBySegment(segment.id).name"
@@ -145,9 +156,11 @@ import {
   CleanHtml,
   dpApi,
   DpButtonRow,
+  DpIcon,
   DpInlineNotification,
   DpLoading,
   DpPager,
+  DpTooltip,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -166,8 +179,10 @@ export default {
     DpButtonRow,
     DpClaim,
     DpEditField,
+    DpIcon,
     DpLoading,
     DpPager,
+    DpTooltip,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
@@ -235,6 +250,16 @@ export default {
     ...mapState('Statement', {
       statements: 'items',
     }),
+
+    ...mapState('Place', {
+      placeItems: 'items',
+    }),
+
+    lockTooltip () {
+      return hasPermission('feature_administrate_segment_lock') ?
+        Translator.trans('segment.lock.hint.admin.change.view') :
+        Translator.trans('segment.lock.hint')
+    },
 
     assigneeBySegment () {
       return segmentId => {
@@ -354,7 +379,18 @@ export default {
     },
 
     isAssigneeEditable (segment) {
+      if (this.isSegmentLocked(segment)) {
+        return false
+      }
       return segment?.relationships?.assignee?.data?.id === this.currentUser.id
+    },
+
+    isSegmentLocked (segment) {
+      if (!hasPermission('feature_segment_lock_by_workflow_place')) {
+        return false
+      }
+      const placeId = segment?.relationships?.place?.data?.id
+      return !!this.placeItems[placeId]?.attributes?.locked
     },
 
     reset (segmentId) {
@@ -545,7 +581,11 @@ export default {
         include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
         sort: 'orderInProcedure',
         fields: {
-          Place: ['name', 'sortIndex'].join(),
+          Place: [
+            'name',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+            'sortIndex',
+          ].join(),
           SegmentComment: ['creationDate', 'place', 'submitter', 'text'].join(),
           StatementSegment: statementSegmentFields.join(),
           User: ['lastname', 'firstname', 'orga'].join(),
