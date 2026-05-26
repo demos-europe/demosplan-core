@@ -656,7 +656,7 @@ export default {
       const originalStatement = this.originalStatements[originalStatementId]
       const procedurePhase = originalStatement.relationships.procedurePhase?.data ? originalStatement.relationships.procedurePhase.get() : null
 
-      return procedurePhase ? procedurePhase.attributes.name : ''
+      return procedurePhase?.attributes.name ?? ''
     },
 
     handleSizeChange (newSize) {

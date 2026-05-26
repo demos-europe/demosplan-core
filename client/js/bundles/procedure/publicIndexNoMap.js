@@ -22,8 +22,8 @@ const countMatchingProcedures = function (phaseIds) {
   for (const listElement of listElements) {
     const phaseSpan = listElement.getElementsByClassName('phase')[0]
     const phaseExtSpan = listElement.getElementsByClassName('phaseExt')[0]
-    const phaseValue = phaseSpan ? phaseSpan.innerHTML.trim() : ''
-    const phaseExtValue = phaseExtSpan ? phaseExtSpan.innerHTML.trim() : ''
+    const phaseValue = phaseSpan?.innerHTML.trim() ?? ''
+    const phaseExtValue = phaseExtSpan?.innerHTML.trim() ?? ''
     if (phaseIds.includes(phaseValue) || phaseIds.includes(phaseExtValue)) {
       count++
     }
@@ -35,7 +35,7 @@ const countMatchingProcedures = function (phaseIds) {
  * Splits a space-separated option value into individual phase ids.
  */
 const splitOptionValue = function (value) {
-  return value.split(/\s+/).filter(v => v.trim().length > 0)
+  return value.split(/\s+/).filter(phaseId => phaseId.trim().length > 0)
 }
 
 /**
