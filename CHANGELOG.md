@@ -6,7 +6,18 @@
 
 ## UNRELEASED
 
-### Added 
+### Added
+- Add text custom field definition editing
+
+### Fixed
+- `dplan:procedure:delete` now also removes the two associated `procedure_phase` rows; previous runs left orphan rows behind, which are cleaned up by a one-shot migration
+
+## v4.42.0 (2026-05-21)
+## v4.40.1 (2026-05-21)
+
+## v4.40.0 (2026-05-20)
+
+### Added
 - Tags can be reordered within and between TagTopics via drag and drop in tag administration
 - Add statement export via planner-uploaded DOCX layout template: planners upload a `.docx` via TUS, the backend validates `${…}` placeholders against a whitelist and clones the `${AbschnitteAlsAbsätze}` … `${/AbschnitteAlsAbsätze}` block per segment to render the response letter (permission: `feature_statement_via_template_export`, EWM-only for v1; frontend modal integration pending)
 

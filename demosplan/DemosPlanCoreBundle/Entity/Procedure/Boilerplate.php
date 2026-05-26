@@ -88,18 +88,16 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_pt_create_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(name: '_pt_modify_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifyDate;
 
     public function __construct()

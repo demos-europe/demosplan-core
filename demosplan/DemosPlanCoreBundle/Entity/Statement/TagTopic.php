@@ -38,10 +38,8 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
     #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
-    /**
-     * @Gedmo\Timestampable(on="create")
-     */
     #[ORM\Column(name: '_tt_create_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected DateTime $createDate;
 
     /**
