@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFacto
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhase;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use League\Flysystem\FilesystemOperator;
@@ -115,6 +116,42 @@ class ProcedureDeleterTest extends FunctionalTestCase
         }
 
         return $customFieldsCount;
+    }
+
+    public function testDeleteProcedureRemovesProcedurePhases(): void
+    {
+        // Arrange
+        $procedureIds = $this->extractTestProcedureIds($this->testProcedures);
+        $phasesBefore = $this->countEntries(ProcedurePhase::class);
+
+        // Act
+        $this->sut->deleteProcedures($procedureIds, false);
+
+        // Assert
+        // Each procedure owns two procedure_phase rows (phase + publicParticipationPhase).
+        $expectedPhasesAfter = $phasesBefore - (2 * count($procedureIds));
+        static::assertSame(
+            $expectedPhasesAfter,
+            $this->countEntries(ProcedurePhase::class),
+            'Both procedure_phase rows per deleted procedure should be removed'
+        );
+    }
+
+    public function testDeleteProcedureDryRunKeepsProcedurePhases(): void
+    {
+        // Arrange
+        $procedureIds = $this->extractTestProcedureIds($this->testProcedures);
+        $phasesBefore = $this->countEntries(ProcedurePhase::class);
+
+        // Act
+        $this->sut->deleteProcedures($procedureIds, true);
+
+        // Assert
+        static::assertSame(
+            $phasesBefore,
+            $this->countEntries(ProcedurePhase::class),
+            'Dry run must not delete procedure_phase rows'
+        );
     }
 
     public function testDeleteProcedureRemovesFilesFromStorage(): void
