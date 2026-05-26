@@ -188,7 +188,7 @@
         v-if="hasPermission('feature_enable_recommendation_versions') && recommendationVersionNumber"
         class="mb-2"
       >
-        <span class="text-neutral-dark-1 mb-2">
+        <span class="text-neutral-dark-1">
           {{ `${Translator.trans('version')}: ${recommendationVersionNumber}` }}
         </span>
       </div>

@@ -271,7 +271,16 @@
               />
             </template>
             <template v-slot:recommendation="rowData">
-              <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
+              <div class="flex flex-col">
+                <div v-cleanhtml="rowData.attributes.recommendation || '-'" />
+                <span
+                  v-if="hasPermission('feature_enable_recommendation_versions') && getRecommendationVersionNumber(rowData)"
+                  class="text-neutral-base"
+                >
+                {{ Translator.trans('version') }}:
+                {{ getRecommendationVersionNumber(rowData) }}
+              </span>
+              </div>
             </template>
             <template v-slot:tags="rowData">
               <addon-wrapper
@@ -535,11 +544,6 @@ export default {
   },
 
   computed: {
-    ...mapGetters('FilterFlyout', [
-      'getFilterQuery',
-      'getIsExpandedByCategoryId',
-    ]),
-
     ...mapState('AssignableUser', {
       assignableUsersObject: 'items',
     }),
@@ -548,24 +552,33 @@ export default {
       customFields: 'items',
     }),
 
+    ...mapGetters('FilterFlyout', [
+      'getFilterQuery',
+      'getIsExpandedByCategoryId',
+    ]),
+
     ...mapState('Orga', {
       orgaObject: 'items',
     }),
 
-    ...mapState('StatementSegment', {
-      segmentsObject: 'items',
+    ...mapState('Place', {
+      placesObject: 'items',
+    }),
+
+    ...mapState('RecommendationVersion', {
+      recommendationVersions: 'items',
     }),
 
     ...mapState('Statement', {
       statementsObject: 'items',
     }),
 
-    ...mapState('Tag', {
-      tagsObject: 'items',
+    ...mapState('StatementSegment', {
+      segmentsObject: 'items',
     }),
 
-    ...mapState('Place', {
-      placesObject: 'items',
+    ...mapState('Tag', {
+      tagsObject: 'items',
     }),
 
     assignableUsers () {
@@ -741,18 +754,25 @@ export default {
         'recommendation',
       ]
 
+      const statementSegmentInclude = [
+        'assignee',
+        'place',
+        'tags',
+        'parentStatement.genericAttachments.file',
+        'parentStatement.sourceAttachment.file',
+      ]
+
       if (hasPermission('field_segments_custom_fields')) {
         statementSegmentFields.push('customFields')
       }
 
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        statementSegmentFields.push('recommendationVersions')
+        statementSegmentInclude.push('recommendationVersions')
+      }
+
       const payload = {
-        include: [
-          'assignee',
-          'place',
-          'tags',
-          'parentStatement.genericAttachments.file',
-          'parentStatement.sourceAttachment.file',
-        ].join(),
+        include: statementSegmentInclude.join(),
         page: {
           number: page,
           size: this.pagination.perPage,
@@ -795,6 +815,15 @@ export default {
           ].join(),
         },
       }
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        payload.fields.RecommendationVersion = [
+          'versionNumber',
+          'recommendationText',
+          'createdAt',
+        ].join()
+      }
+
       if (this.searchTerm !== '') {
         payload.search = {
           value: this.searchTerm,
@@ -876,6 +905,20 @@ export default {
       }
 
       this.getCustomFieldsForProcedure(payload)
+    },
+
+    getRecommendationVersionNumber (segment) {
+      const recommendationVersionId = segment.relationships?.recommendationVersions?.data?.[0]?.id
+
+      if (!recommendationVersionId) {
+        return ''
+      }
+
+      const versionNumber = this.recommendationVersions[recommendationVersionId]?.attributes?.versionNumber
+
+      return versionNumber != null
+        ? String(versionNumber).padStart(3, '0')
+        : ''
     },
 
     getTagsBySegment (id) {
