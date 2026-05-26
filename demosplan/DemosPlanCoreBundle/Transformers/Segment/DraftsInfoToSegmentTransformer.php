@@ -145,7 +145,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         }
 
         // Restore the original ID generator (done with manually-assigned segment IDs)
-        $classMetadata->setIdGenerator($originalIdGenerator);
+        $segmentMetadata->setIdGenerator($originalIdGenerator);
 
         // Set tags after persist (junction table entries will be flushed by controller)
         foreach ($segments as $index => $segment) {
