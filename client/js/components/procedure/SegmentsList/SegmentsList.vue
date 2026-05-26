@@ -902,7 +902,7 @@ export default {
 
       const versionNumber = this.recommendationVersions[currentVersionId]?.attributes?.versionNumber
 
-      return versionNumber != null ?
+      return versionNumber ?
         String(versionNumber).padStart(3, '0') :
         ''
     },
