@@ -117,7 +117,7 @@
           :key="`list_${group.id}`"
           :class="['m-0 p-0 list-none leading-[1.6]', { 'border-b border-neutral mb-2': index < searchedGroupedOptions.length - 1 }]"
         >
-          <li class="font-semibold text-sm mb-1">
+          <li class="font-semibold text-sm mb-2">
             {{ group.label }}
           </li>
           <filter-flyout-checkbox
@@ -166,19 +166,17 @@
           @change="updateQuery"
         />
       </ul>
-      <div class="flow-root p-2 pt-0">
+      <div class="flex justify-end gap-2 p-2 pt-0">
         <dp-button
-          class="float-left"
-          :data-cy="`filter:applyFilter:${path}`"
-          :text="Translator.trans('apply')"
-          @click="apply"
-        />
-        <dp-button
-          class="float-right"
           color="secondary"
           :data-cy="`filter:abortFilter:${path}`"
           :text="Translator.trans('abort')"
           @click="close"
+        />
+        <dp-button
+          :data-cy="`filter:applyFilter:${path}`"
+          :text="Translator.trans('apply')"
+          @click="apply"
         />
       </div>
     </div>

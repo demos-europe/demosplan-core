@@ -53,7 +53,7 @@ const Methods = {
 
   phaseName () {
     const { internalPhaseDefinitionName, externalPhaseDefinitionName } = this.procedure
-    if (!!internalPhaseDefinitionName && !!externalPhaseDefinitionName) {
+    if (internalPhaseDefinitionName && externalPhaseDefinitionName) {
       return `${internalPhaseDefinitionName} / ${externalPhaseDefinitionName}`
     } else if (externalPhaseDefinitionName) {
       return externalPhaseDefinitionName

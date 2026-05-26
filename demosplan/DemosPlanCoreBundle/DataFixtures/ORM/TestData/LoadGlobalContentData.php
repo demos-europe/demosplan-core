@@ -126,7 +126,7 @@ class LoadGlobalContentData extends TestFixture implements DependentFixtureInter
         $this->setReference('testGlobalNews2', $globalContent4);
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadUserData::class,
