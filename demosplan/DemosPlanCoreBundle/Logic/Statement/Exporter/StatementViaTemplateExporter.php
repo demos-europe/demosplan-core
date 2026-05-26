@@ -68,17 +68,17 @@ class StatementViaTemplateExporter
 
     private function fillSimplePlaceholders(TemplateProcessor $templateProcessor, StatementTemplateData $data): void
     {
-        $templateProcessor->setValue('Name', $data->getSubmitterName() ?? '');
-        $templateProcessor->setValue('Institution', $data->getSubmitterOrgaName() ?? '');
-        $templateProcessor->setValue('Straße', $data->getSubmitterStreet() ?? '');
-        $templateProcessor->setValue('Hausnummer', $data->getSubmitterHouseNumber() ?? '');
-        $templateProcessor->setValue('Postleitzahl', $data->getSubmitterPostalCode() ?? '');
-        $templateProcessor->setValue('Ort', $data->getSubmitterCity() ?? '');
-        $templateProcessor->setValue('Stellungnahme-ID', $data->getStatementExternId() ?? '');
-        $templateProcessor->setValue('Eingangsnummer', $data->getStatementInternId() ?? '');
-        $templateProcessor->setValue('Einreichungsdatum', $data->getStatementSubmitDate() ?? '');
-        $templateProcessor->setValue('Verfahrensname', $data->getProcedureName() ?? '');
-        $templateProcessor->setValue('Datum', $data->getTodayDate() ?? '');
+        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_NAME, $data->getSubmitterName() ?? '');
+        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_INSTITUTION, $data->getSubmitterOrgaName() ?? '');
+        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_STREET, $data->getSubmitterStreet() ?? '');
+        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_HOUSE_NUMBER, $data->getSubmitterHouseNumber() ?? '');
+        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_POSTAL_CODE, $data->getSubmitterPostalCode() ?? '');
+        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_CITY, $data->getSubmitterCity() ?? '');
+        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_STATEMENT_EXTERN_ID, $data->getStatementExternId() ?? '');
+        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_STATEMENT_INTERN_ID, $data->getStatementInternId() ?? '');
+        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_STATEMENT_SUBMIT_DATE, $data->getStatementSubmitDate() ?? '');
+        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_PROCEDURE_NAME, $data->getProcedureName() ?? '');
+        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_TODAY_DATE, $data->getTodayDate() ?? '');
     }
 
     /**
@@ -101,13 +101,13 @@ class StatementViaTemplateExporter
 
     private function fillSegmentPlaceholders(TemplateProcessor $templateProcessor, Segment $segment, int $index): void
     {
-        $templateProcessor->setValue('Abschnitts-ID#'.$index, $segment->getExternId());
+        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_SEGMENT_EXTERN_ID.'#'.$index, $segment->getExternId());
         $templateProcessor->setComplexBlock(
-            'Abschnittstext#'.$index,
+            StatementTemplateValidator::PLACEHOLDER_SEGMENT_TEXT.'#'.$index,
             $this->buildRichTextFromHtml($segment->getText() ?? '')
         );
         $templateProcessor->setComplexBlock(
-            'Erwiderung#'.$index,
+            StatementTemplateValidator::PLACEHOLDER_SEGMENT_RECOMMENDATION.'#'.$index,
             $this->buildRichTextFromHtml($segment->getRecommendation() ?? '')
         );
     }

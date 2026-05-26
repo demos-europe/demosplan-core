@@ -34,6 +34,26 @@ class StatementTemplateValidator
     public const MARKER_SEGMENTS_OPEN = 'AbschnitteAlsAbsätze';
     public const MARKER_SEGMENTS_CLOSE = '/AbschnitteAlsAbsätze';
 
+    // Submitter address block
+    public const PLACEHOLDER_NAME = 'Name';
+    public const PLACEHOLDER_INSTITUTION = 'Institution';
+    public const PLACEHOLDER_STREET = 'Straße';
+    public const PLACEHOLDER_HOUSE_NUMBER = 'Hausnummer';
+    public const PLACEHOLDER_POSTAL_CODE = 'Postleitzahl';
+    public const PLACEHOLDER_CITY = 'Ort';
+
+    // Statement / procedure / sender metadata
+    public const PLACEHOLDER_STATEMENT_EXTERN_ID = 'Stellungnahme-ID';
+    public const PLACEHOLDER_STATEMENT_INTERN_ID = 'Eingangsnummer';
+    public const PLACEHOLDER_STATEMENT_SUBMIT_DATE = 'Einreichungsdatum';
+    public const PLACEHOLDER_PROCEDURE_NAME = 'Verfahrensname';
+    public const PLACEHOLDER_TODAY_DATE = 'Datum';
+
+    // Per-segment data
+    public const PLACEHOLDER_SEGMENT_EXTERN_ID = 'Abschnitts-ID';
+    public const PLACEHOLDER_SEGMENT_TEXT = 'Abschnittstext';
+    public const PLACEHOLDER_SEGMENT_RECOMMENDATION = 'Erwiderung';
+
     /**
      * Per-segment data placeholders. If any of these appears in the template,
      * the `${AbschnitteAlsAbsätze}` … `${/AbschnitteAlsAbsätze}` block must
@@ -42,9 +62,9 @@ class StatementTemplateValidator
      * @var list<string>
      */
     private const SEGMENT_DATA_PLACEHOLDERS = [
-        'Abschnitts-ID',
-        'Abschnittstext',
-        'Erwiderung',
+        self::PLACEHOLDER_SEGMENT_EXTERN_ID,
+        self::PLACEHOLDER_SEGMENT_TEXT,
+        self::PLACEHOLDER_SEGMENT_RECOMMENDATION,
     ];
 
     /**
@@ -55,25 +75,25 @@ class StatementTemplateValidator
      */
     private const WHITELIST = [
         // Submitter address block
-        'Name',
-        'Institution',
-        'Straße',
-        'Hausnummer',
-        'Postleitzahl',
-        'Ort',
+        self::PLACEHOLDER_NAME,
+        self::PLACEHOLDER_INSTITUTION,
+        self::PLACEHOLDER_STREET,
+        self::PLACEHOLDER_HOUSE_NUMBER,
+        self::PLACEHOLDER_POSTAL_CODE,
+        self::PLACEHOLDER_CITY,
         // Statement / procedure / sender metadata
-        'Stellungnahme-ID',
-        'Eingangsnummer',
-        'Einreichungsdatum',
-        'Verfahrensname',
-        'Datum',
+        self::PLACEHOLDER_STATEMENT_EXTERN_ID,
+        self::PLACEHOLDER_STATEMENT_INTERN_ID,
+        self::PLACEHOLDER_STATEMENT_SUBMIT_DATE,
+        self::PLACEHOLDER_PROCEDURE_NAME,
+        self::PLACEHOLDER_TODAY_DATE,
         // Per-segment data
-        'Abschnitts-ID',
-        'Abschnittstext',
-        'Erwiderung',
+        self::PLACEHOLDER_SEGMENT_EXTERN_ID,
+        self::PLACEHOLDER_SEGMENT_TEXT,
+        self::PLACEHOLDER_SEGMENT_RECOMMENDATION,
         // Segment-block markers
-        'AbschnitteAlsAbsätze',
-        '/AbschnitteAlsAbsätze',
+        self::MARKER_SEGMENTS_OPEN,
+        self::MARKER_SEGMENTS_CLOSE,
     ];
 
     public function __construct(

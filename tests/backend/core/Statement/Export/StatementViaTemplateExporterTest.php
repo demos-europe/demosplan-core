@@ -74,9 +74,9 @@ class StatementViaTemplateExporterTest extends UnitTestCase
     public function testRendersSimplePlaceholdersWhenTemplateHasNoSegments(): void
     {
         $templatePath = $this->createTemplateWithParagraphs([
-            'Sehr geehrte/r ${Name}',
-            'Ihre Stellungnahme: ${Stellungnahme-ID}',
-            'Datum: ${Datum}',
+            'Sehr geehrte/r ${'.StatementTemplateValidator::PLACEHOLDER_NAME.'}',
+            'Ihre Stellungnahme: ${'.StatementTemplateValidator::PLACEHOLDER_STATEMENT_EXTERN_ID.'}',
+            'Datum: ${'.StatementTemplateValidator::PLACEHOLDER_TODAY_DATE.'}',
         ]);
         $this->dataBuilder->method('build')->willReturn($this->buildData([
             'submitterName'     => 'Maria Mustermann',
@@ -118,8 +118,8 @@ class StatementViaTemplateExporterTest extends UnitTestCase
     public function testReplacesNullSimpleFieldsWithEmptyStrings(): void
     {
         $templatePath = $this->createTemplateWithParagraphs([
-            'Name: ${Name}',
-            'Hausnummer: ${Hausnummer}',
+            'Name: ${'.StatementTemplateValidator::PLACEHOLDER_NAME.'}',
+            'Hausnummer: ${'.StatementTemplateValidator::PLACEHOLDER_HOUSE_NUMBER.'}',
         ]);
         $this->dataBuilder->method('build')->willReturn($this->buildData([
             'submitterName'        => 'Maria Mustermann',
@@ -136,7 +136,7 @@ class StatementViaTemplateExporterTest extends UnitTestCase
 
     public function testPropagatesValidatorExceptionWithoutTouchingTheTemplate(): void
     {
-        $templatePath = $this->createTemplateWithParagraphs(['${Name}']);
+        $templatePath = $this->createTemplateWithParagraphs(['${'.StatementTemplateValidator::PLACEHOLDER_NAME.'}']);
         $this->validator->method('validate')->with($templatePath)
             ->willThrowException(new InvalidStatementTemplateException('whatever the validator says'));
         $this->dataBuilder->expects(self::never())->method('build');
@@ -248,12 +248,12 @@ class StatementViaTemplateExporterTest extends UnitTestCase
     private function createSegmentBlockTemplate(): string
     {
         return $this->createTemplateWithParagraphs([
-            'Sehr geehrte/r ${Name}',
-            '${AbschnitteAlsAbsätze}',
-            'Punkt ${Abschnitts-ID}',
-            '${Abschnittstext}',
-            '${Erwiderung}',
-            '${/AbschnitteAlsAbsätze}',
+            'Sehr geehrte/r ${'.StatementTemplateValidator::PLACEHOLDER_NAME.'}',
+            '${'.StatementTemplateValidator::MARKER_SEGMENTS_OPEN.'}',
+            'Punkt ${'.StatementTemplateValidator::PLACEHOLDER_SEGMENT_EXTERN_ID.'}',
+            '${'.StatementTemplateValidator::PLACEHOLDER_SEGMENT_TEXT.'}',
+            '${'.StatementTemplateValidator::PLACEHOLDER_SEGMENT_RECOMMENDATION.'}',
+            '${'.StatementTemplateValidator::MARKER_SEGMENTS_CLOSE.'}',
         ]);
     }
 

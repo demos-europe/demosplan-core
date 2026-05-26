@@ -65,8 +65,8 @@ class StatementTemplateValidatorTest extends UnitTestCase
     public function testAcceptsTemplateWithoutSegmentPlaceholders(): void
     {
         $path = $this->createDocxWithParagraphs([
-            '${Name}',
-            '${Datum}',
+            '${'.StatementTemplateValidator::PLACEHOLDER_NAME.'}',
+            '${'.StatementTemplateValidator::PLACEHOLDER_TODAY_DATE.'}',
         ]);
 
         $this->expectNotToPerformAssertions();
@@ -76,11 +76,11 @@ class StatementTemplateValidatorTest extends UnitTestCase
     public function testAcceptsValidSegmentBlock(): void
     {
         $path = $this->createDocxWithParagraphs([
-            '${Name}',
-            '${AbschnitteAlsAbsätze}',
-            '${Abschnitts-ID}',
-            '${Abschnittstext}',
-            '${/AbschnitteAlsAbsätze}',
+            '${'.StatementTemplateValidator::PLACEHOLDER_NAME.'}',
+            '${'.StatementTemplateValidator::MARKER_SEGMENTS_OPEN.'}',
+            '${'.StatementTemplateValidator::PLACEHOLDER_SEGMENT_EXTERN_ID.'}',
+            '${'.StatementTemplateValidator::PLACEHOLDER_SEGMENT_TEXT.'}',
+            '${'.StatementTemplateValidator::MARKER_SEGMENTS_CLOSE.'}',
         ]);
 
         $this->expectNotToPerformAssertions();
@@ -90,7 +90,7 @@ class StatementTemplateValidatorTest extends UnitTestCase
     public function testThrowsForUnknownPlaceholder(): void
     {
         $path = $this->createDocxWithParagraphs([
-            '${Name}',
+            '${'.StatementTemplateValidator::PLACEHOLDER_NAME.'}',
             '${notAPlaceholderWeAllow}',
         ]);
 
@@ -104,8 +104,8 @@ class StatementTemplateValidatorTest extends UnitTestCase
     public function testThrowsForIncompleteSegmentMarkerPair(): void
     {
         $path = $this->createDocxWithParagraphs([
-            '${AbschnitteAlsAbsätze}',
-            '${Abschnitts-ID}',
+            '${'.StatementTemplateValidator::MARKER_SEGMENTS_OPEN.'}',
+            '${'.StatementTemplateValidator::PLACEHOLDER_SEGMENT_EXTERN_ID.'}',
             // Closing marker intentionally omitted.
         ]);
 
@@ -118,8 +118,8 @@ class StatementTemplateValidatorTest extends UnitTestCase
     public function testThrowsWhenSegmentDataIsPresentWithoutTheBlock(): void
     {
         $path = $this->createDocxWithParagraphs([
-            '${Name}',
-            '${Abschnitts-ID}',
+            '${'.StatementTemplateValidator::PLACEHOLDER_NAME.'}',
+            '${'.StatementTemplateValidator::PLACEHOLDER_SEGMENT_EXTERN_ID.'}',
         ]);
 
         $this->expectException(InvalidStatementTemplateException::class);
