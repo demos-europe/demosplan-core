@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
-use Exception;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementTemplateValidator;
+use Exception;
 
 /**
  * Thrown by {@see StatementTemplateValidator}
