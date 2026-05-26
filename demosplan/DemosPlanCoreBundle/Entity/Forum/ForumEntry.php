@@ -13,38 +13,31 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Forum;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ForumEntryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\ForumEntryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_forum_entries")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ForumEntryRepository")
- */
+#[ORM\Table(name: '_forum_entries')]
+#[ORM\Entity(repositoryClass: ForumEntryRepository::class)]
 class ForumEntry extends CoreEntity implements UuidEntityInterface, ForumEntryInterface
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_fe_id", type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_fe_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $ident;
 
     /**
      * @var ForumThread
-     *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread")
-     *
-     * @ORM\JoinColumn(name="_f_thread_id", referencedColumnName="_ft_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_f_thread_id', referencedColumnName: '_ft_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: ForumThread::class)]
     protected $thread;
 
     /**
@@ -54,50 +47,43 @@ class ForumEntry extends CoreEntity implements UuidEntityInterface, ForumEntryIn
 
     /**
      * @var User
-     *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
-     *
-     * @ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", onDelete="RESTRICT")
      */
+    #[ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $user;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_fe_user_roles", type="string",  length=255, nullable=true, options={"default":NULL})
      */
+    #[ORM\Column(name: '_fe_user_roles', type: 'string', length: 255, nullable: true, options: ['default' => null])]
     protected $userRoles;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_fe_text", type="text", length=16777215, nullable=false)
      */
+    #[ORM\Column(name: '_fe_text', type: 'text', length: 16777215, nullable: false)]
     protected $text;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_fe_initial_entry", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_fe_initial_entry', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $initialEntry = false;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_fe_create_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_fe_create_date', type: 'datetime', nullable: false)]
     protected $createDate;
 
     /**
      * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_fe_modified_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_fe_modified_date', type: 'datetime', nullable: false)]
     protected $modifyDate;
 
     /**

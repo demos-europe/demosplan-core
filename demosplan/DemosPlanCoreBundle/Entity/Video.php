@@ -19,46 +19,40 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\VideoInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\VideoFileConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\VideoRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\VideoRepository")
- */
+#[ORM\Entity(repositoryClass: VideoRepository::class)]
 class Video implements UuidEntityInterface, VideoInterface
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: 'id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private $id;
 
     /**
      * @var DateTimeInterface
      *
      * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private $creationDate;
 
     /**
      * @var DateTimeInterface
      *
-     * @ORM\Column(type="datetime", nullable=false)
-     *
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private $modificationDate;
 
     /**
@@ -71,48 +65,34 @@ class Video implements UuidEntityInterface, VideoInterface
          * Required and non-nullable on creation because currently videos can only be uploaded by
          * logged-in users. However, the property can still be `null` as  the referenced {@link UserInterface}
          * may be deleted.
-         *
-         * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
-         *
-         * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true, onDelete="SET NULL")
          */
+        #[ORM\JoinColumn(referencedColumnName: '_u_id', nullable: true, onDelete: 'SET NULL')]
+        #[ORM\ManyToOne(targetEntity: User::class)]
         private User $uploader,
         /**
          * Identifies the customer/domain within which the video was uploaded.
-         *
-         * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
-         *
-         * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false)
          */
-        #[Assert\NotNull]
+        #[Assert\NotNull] #[ORM\JoinColumn(referencedColumnName: '_c_id', nullable: false)] #[ORM\ManyToOne(targetEntity: Customer::class)]
         private Customer $customerContext,
         /**
          * The actual video file.
          *
-         * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File", cascade={"persist"})
-         *
-         * @ORM\JoinColumn(referencedColumnName="_f_ident", nullable=false)
-         *
          * @VideoFileConstraint()
          */
-        #[Assert\NotNull]
+        #[Assert\NotNull] #[ORM\JoinColumn(referencedColumnName: '_f_ident', nullable: false)] #[ORM\OneToOne(targetEntity: File::class, cascade: ['persist'])]
         private File $file,
         /**
          * The title shown for the video.
-         *
-         * @ORM\Column(type="string", length=255, nullable=false)
          */
         #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
-        #[Assert\Length(min: 1, max: 255, normalizer: 'trim')]
+        #[Assert\Length(min: 1, max: 255, normalizer: 'trim')] #[ORM\Column(type: 'string', length: 255, nullable: false)]
         private string $title = '',
         /**
          * The description shown for the video.
-         *
-         * @ORM\Column(type="text", nullable=false)
          */
         #[Assert\NotNull]
-        #[Assert\Length(max: 65535, normalizer: 'trim')]
-        private $description = ''
+        #[Assert\Length(max: 65535, normalizer: 'trim')] #[ORM\Column(type: 'text', nullable: false)]
+        private $description = '',
     ) {
     }
 
