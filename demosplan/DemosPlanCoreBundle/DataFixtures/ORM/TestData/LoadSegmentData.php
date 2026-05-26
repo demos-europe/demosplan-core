@@ -80,7 +80,7 @@ class LoadSegmentData extends TestFixture implements DependentFixtureInterface
         return $segment;
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadStatementData::class,
