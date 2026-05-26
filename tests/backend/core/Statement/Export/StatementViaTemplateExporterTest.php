@@ -30,6 +30,8 @@ use ZipArchive;
 
 class StatementViaTemplateExporterTest extends UnitTestCase
 {
+    private const SUBMITTER_NAME = 'Maria Mustermann';
+
     protected ?StatementViaTemplateExporter $sut = null;
 
     private (StatementTemplateValidator&MockObject)|null $validator = null;
@@ -79,7 +81,7 @@ class StatementViaTemplateExporterTest extends UnitTestCase
             'Datum: ${'.StatementTemplateValidator::PLACEHOLDER_TODAY_DATE.'}',
         ]);
         $this->dataBuilder->method('build')->willReturn($this->buildData([
-            'submitterName'     => 'Maria Mustermann',
+            'submitterName'     => self::SUBMITTER_NAME,
             'statementExternId' => 'M42',
             'todayDate'         => '18.05.2026',
         ]));
@@ -88,7 +90,7 @@ class StatementViaTemplateExporterTest extends UnitTestCase
 
         self::assertSame([], $this->getRemainingVariables($resultPath));
         $bodyText = $this->extractBodyText($resultPath);
-        self::assertStringContainsString('Maria Mustermann', $bodyText);
+        self::assertStringContainsString(self::SUBMITTER_NAME, $bodyText);
         self::assertStringContainsString('M42', $bodyText);
         self::assertStringContainsString('18.05.2026', $bodyText);
     }
@@ -97,7 +99,7 @@ class StatementViaTemplateExporterTest extends UnitTestCase
     {
         $templatePath = $this->createSegmentBlockTemplate();
         $this->dataBuilder->method('build')->willReturn($this->buildData(
-            ['submitterName' => 'Maria Mustermann'],
+            ['submitterName' => self::SUBMITTER_NAME],
             [
                 $this->makeSegment('M42-1', '<p>Erstes Vorbringen</p>', '<p>Erste Erwiderung</p><p>Mit zweiter Zeile.</p>'),
                 $this->makeSegment('M42-2', '<p>Zweites Vorbringen</p>', '<p>Zweite Erwiderung</p>'),
@@ -108,7 +110,7 @@ class StatementViaTemplateExporterTest extends UnitTestCase
 
         self::assertSame([], $this->getRemainingVariables($resultPath));
         $bodyText = $this->extractBodyText($resultPath);
-        self::assertStringContainsString('Maria Mustermann', $bodyText);
+        self::assertStringContainsString(self::SUBMITTER_NAME, $bodyText);
         self::assertStringContainsString('M42-1', $bodyText);
         self::assertStringContainsString('M42-2', $bodyText);
         self::assertStringContainsString('Erstes Vorbringen', $bodyText);
@@ -122,7 +124,7 @@ class StatementViaTemplateExporterTest extends UnitTestCase
             'Hausnummer: ${'.StatementTemplateValidator::PLACEHOLDER_HOUSE_NUMBER.'}',
         ]);
         $this->dataBuilder->method('build')->willReturn($this->buildData([
-            'submitterName'        => 'Maria Mustermann',
+            'submitterName'        => self::SUBMITTER_NAME,
             'submitterHouseNumber' => null,
         ]));
 
@@ -130,7 +132,7 @@ class StatementViaTemplateExporterTest extends UnitTestCase
 
         self::assertSame([], $this->getRemainingVariables($resultPath));
         $bodyText = $this->extractBodyText($resultPath);
-        self::assertStringContainsString('Maria Mustermann', $bodyText);
+        self::assertStringContainsString(self::SUBMITTER_NAME, $bodyText);
         self::assertStringContainsString('Hausnummer: ', $bodyText);
     }
 
