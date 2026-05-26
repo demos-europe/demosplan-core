@@ -56,7 +56,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NoTargetsException;
-use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownIdsException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -82,6 +81,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Grouping\EntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
@@ -259,6 +259,7 @@ class StatementService implements StatementServiceInterface
         protected ParagraphService $paragraphService,
         PermissionsInterface $permissions,
         PriorityAreaService $priorityAreaService,
+        private readonly ProcedurePhaseDefinitionResolver $procedurePhaseDefinitionResolver,
         private readonly ProcedureRepository $procedureRepository,
         ProcedureService $procedureService,
         private readonly ReportService $reportService,
@@ -288,7 +289,6 @@ class StatementService implements StatementServiceInterface
         private readonly UserRepository $userRepository,
         UserService $userService,
         private readonly StatementDeleter $statementDeleter,
-        private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
         private readonly LoggerInterface $logger,
         private readonly ManagerRegistry $doctrine,
         private readonly ProfilerService $profilerService,
@@ -1153,6 +1153,16 @@ class StatementService implements StatementServiceInterface
                 $this->logger->warning('Trying to update a locked by assignment statement.');
             }
 
+            // there are fields, which are only allowed to modify on a manual statement?
+            $hasManualStatementUpdateFields = $this->hasManualStatementUpdateFields($updatedStatement, $currentStatementObject);
+            $updateForbidden = ($hasManualStatementUpdateFields
+                && !$currentStatementObject->isManual())
+                && !$this->permissions->hasPermission('feature_statement_submitter_data_always_editable');
+            if ($updateForbidden) {
+                $this->messageBag->add('warning', 'warning.deny.update.manual.statement');
+                $this->logger->warning('Trying to update manualStatementUpdateFields on a normal statement.');
+            }
+
             // is a original statement?
             $lockedByOriginal = false;
             $isOriginal = $currentStatementObject->isOriginal();
@@ -1170,6 +1180,7 @@ class StatementService implements StatementServiceInterface
             if (!$lockedByAssignment
                 && !$lockedByAssignmentOfHeadStatement
                 && !$lockedByCluster
+                && !$updateForbidden
                 && !$lockedByOriginal
                 && !$currentStatementObject->isPlaceholder()) {
                 $preUpdatedStatement = clone $currentStatementObject;
@@ -1269,6 +1280,71 @@ class StatementService implements StatementServiceInterface
         }
 
         return $fileHashToFileContainerMapping;
+    }
+
+    /**
+     * Determines if one of the fields which only can be modified on a manual statement, should be updated.
+     *
+     * @param Statement|array $statement        - Statement as array or object
+     * @param Statement       $currentStatement - current unmodified statement object, to compare with incoming update data
+     *
+     * @return bool - true if one of the 'critical' fields should be updated, otherwise false
+     */
+    private function hasManualStatementUpdateFields($statement, Statement $currentStatement): bool
+    {
+        $currentAuthorName = $currentStatement->getAuthorName();
+        $currentSubmitterName = $currentStatement->getSubmitterName();
+        $currentSubmitterEmailAddress = $currentStatement->getSubmitterEmailAddress();
+        $currentDepartmentName = $currentStatement->getMeta()->getOrgaDepartmentName();
+        // orgaName is submitterType:
+        $currentSubmitterType = $currentStatement->getMeta()->getOrgaName();
+        $currentOrgaPostalCode = $currentStatement->getOrgaPostalCode();
+        $currentOrgaCity = $currentStatement->getOrgaCity();
+        $currentOrgaStreet = $currentStatement->getOrgaStreet();
+        $currentOrgaEmail = $currentStatement->getOrgaEmail();
+        $currentAuthoredDateString = $currentStatement->getAuthoredDateString();
+        $currentAuthoredDateTimeStamp = $currentStatement->getAuthoredDate();
+        $currentSubmittedDateString = $currentStatement->getSubmitDateString();
+        $currentSubmittedDateTimeStamp = $currentStatement->getSubmit();
+
+        if (\is_array($statement)) {
+            $statement = \collect($statement);
+            if (
+                ($statement->has('author_name') && $statement->get('author_name') != $currentAuthorName)
+                || ($statement->has('submit_name') && $statement->get('submit_name') != $currentSubmitterName)
+                || ($statement->has('submitterEmailAddress') && $statement->get('submitterEmailAddress') != $currentSubmitterEmailAddress)
+                || ($statement->has('departmentName') && $statement->get('departmentName') != $currentDepartmentName)
+                || ($statement->has('submitterType') && $statement->get('submitterType') != $currentSubmitterType)
+                || ($statement->has('orga_postalcode') && $statement->get('orga_postalcode') != $currentOrgaPostalCode)
+                || ($statement->has('orga_city') && $statement->get('orga_city') != $currentOrgaCity)
+                || ($statement->has('orga_street') && $statement->get('orga_street') != $currentOrgaStreet)
+                || ($statement->has('orga_email') && $statement->get('orga_email') != $currentOrgaEmail)
+                || ($statement->has('authoredDate') && $statement->get('authoredDate') != $currentAuthoredDateString)
+                || ($statement->has('submittedDate') && $statement->get('submittedDate') != $currentSubmittedDateString)
+            ) {
+                return true;
+            }
+        }
+
+        if ($statement instanceof Statement) {
+            if (
+                $statement->getAuthorName() != $currentAuthorName
+                || $statement->getSubmitterName() != $currentSubmitterName
+                || $statement->getMeta()->getOrgaDepartmentName() != $currentDepartmentName
+                || $statement->getMeta()->getOrgaName() != $currentSubmitterType
+                || $statement->getSubmitterEmailAddress() != $currentSubmitterEmailAddress
+                || $statement->getOrgaPostalCode() != $currentOrgaPostalCode
+                || $statement->getOrgaCity() != $currentOrgaCity
+                || $statement->getOrgaStreet() != $currentOrgaStreet
+                || $statement->getOrgaEmail() != $currentOrgaEmail
+                || $statement->getAuthoredDate() != $currentAuthoredDateTimeStamp
+                || $statement->getSubmit() != $currentSubmittedDateTimeStamp
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -2687,46 +2763,20 @@ class StatementService implements StatementServiceInterface
     }
 
     /**
-     * Gets the internal or external phase of the given statement depending on
-     * the value set for the 'publicStatement' field.
+     * Gets the phase name of the given statement from its phase definition.
      *
      * @param array $statement The statement entity as array
      *
-     * @return string the internal or external phase of the given statement
-     *
-     * @deprecated use {@link getProcedurePhaseName} instead
+     * @return string the phase name of the given statement
      */
     public function getProcedurePhaseNameFromArray(array $statement): string
     {
-        $statementObject = $this->getStatement($statement['id']);
-
-        if (!$statementObject instanceof Statement) {
-            $this->logger->error('Statement with id '.$statement['id'].' not found.');
-
+        $phaseDefinitionId = $statement['phaseDefinitionId'] ?? null;
+        if (null === $phaseDefinitionId) {
             return '';
         }
 
-        return $this->getProcedurePhaseName(
-            $statement['phase'],
-            $statementObject->isSubmittedByCitizen()
-        );
-    }
-
-    public function getProcedurePhaseName(string $phaseKey, bool $isSubmittedByCitizen): string
-    {
-        $phaseName = '';
-        try {
-            $phaseVO = $this->statementProcedurePhaseResolver->getProcedurePhaseVO($phaseKey, $isSubmittedByCitizen);
-            $phaseName = $phaseVO->getName();
-
-            if ('' === $phaseName) {
-                throw new UndefinedPhaseException($phaseKey);
-            }
-        } catch (UndefinedPhaseException $e) {
-            $this->logger->error($e->getMessage());
-        }
-
-        return $phaseName;
+        return $this->procedurePhaseDefinitionResolver->getNameById($phaseDefinitionId);
     }
 
     /**
@@ -3063,8 +3113,8 @@ class StatementService implements StatementServiceInterface
             $statement['memo'] = $data['r_memo'];
         }
 
-        if (\array_key_exists('r_phase', $data)) {
-            $statement['phase'] = $data['r_phase'];
+        if (\array_key_exists('r_phaseDefinitionId', $data) && '' !== $data['r_phaseDefinitionId']) {
+            $statement['phaseDefinitionId'] = $data['r_phaseDefinitionId'];
         }
 
         if (\array_key_exists('r_created_date', $data)) {

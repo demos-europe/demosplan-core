@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
@@ -52,10 +53,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
@@ -989,12 +990,13 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             $statement->getMeta()->setOrgaDepartmentName($data['departmentName']);
         }
 
-        if (array_key_exists('phase', $data)) {
-            $statement->setPhase($data['phase']);
+        if (array_key_exists('phaseDefinitionId', $data)) {
+            /** @var ProcedurePhaseDefinition $phaseDefinition */
+            $phaseDefinition = $em->getReference(ProcedurePhaseDefinition::class, $data['phaseDefinitionId']);
+            $statement->setPhaseDefinition($phaseDefinition);
         } else {
-            // Set default phase if not provided to prevent NOT NULL constraint violation
             $procedure = $statement->getProcedure();
-            $statement->setPhase($procedure->getPhase());
+            $statement->setPhaseDefinition($procedure->getPhaseObject()->getPhaseDefinition());
         }
 
         if (array_key_exists('replied', $data)) {

@@ -76,7 +76,7 @@
             </td>
             <td v-cleanhtml="element" />
             <td>
-              {{ statement.phase }}
+              {{ statement.procedurePhase?.name }}
             </td>
             <td class="text-right">
               <dp-flyout v-if="hasPermission('area_statement_anonymize')">
@@ -122,6 +122,8 @@
           class="px-4 mb-4"
           mode="readonly"
           resource-type="OriginalStatement"
+          source-entity="PROCEDURE"
+          target-entity="STATEMENT"
           expandable
         >
           <template v-slot:readonly-display="{ field }">

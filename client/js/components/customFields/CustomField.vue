@@ -51,6 +51,7 @@ All rights reserved
           <component
             :is="getComponentForType(resolvedDefinition.attributes.fieldType)"
             :field="editingField"
+            :show-label="showLabel"
             mode="editable"
             @update:value="handleEditingValueUpdate"
           />
@@ -85,6 +86,7 @@ All rights reserved
       v-else-if="mergedField"
       :field="mergedField"
       :mode="mode"
+      :show-label="showLabel"
       @update:value="handleValueUpdate"
     >
       <template
@@ -102,9 +104,10 @@ All rights reserved
 
 <script>
 import { DpButton, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import MultiselectCustomField from './MultiselectCustomField'
-import SingleselectCustomField from './SingleselectCustomField'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
+import { useCustomFieldTypes } from '@DpJs/composables/useCustomFieldTypes'
+
+const { enrichFieldValue, getComponentForFieldType } = useCustomFieldTypes()
 
 export default {
   name: 'CustomField',
@@ -112,8 +115,6 @@ export default {
   components: {
     DpButton,
     DpLoading,
-    MultiselectCustomField,
-    SingleselectCustomField,
   },
 
   mixins: [prefixClassMixin],
@@ -170,6 +171,24 @@ export default {
       required: false,
       default: null,
     },
+
+    showLabel: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+
+    sourceEntity: {
+      type: [String, null],
+      required: false,
+      default: null,
+    },
+
+    targetEntity: {
+      type: [String, null],
+      required: false,
+      default: null,
+    },
   },
 
   emits: [
@@ -183,10 +202,6 @@ export default {
 
   data () {
     return {
-      componentMap: {
-        multiSelect: 'multiselect-custom-field',
-        singleSelect: 'singleselect-custom-field',
-      },
       editingValue: null,
       isEditing: false,
       isLoading: false,
@@ -274,9 +289,9 @@ export default {
 
       this.isLoading = true
 
-      fetchCustomFields(this.definitionSourceId)
+      fetchCustomFields(this.definitionSourceId, { sourceEntity: this.sourceEntity, targetEntity: this.targetEntity })
         .then(definitions => {
-          this.resolvedDefinition = definitions.find(d => d.id === this.fieldData.id)
+          this.resolvedDefinition = definitions.find(definition => definition.id === this.fieldData.id)
 
           if (!this.resolvedDefinition) {
             console.warn(`Custom field definition not found for ID: ${this.fieldData.id}`)
@@ -289,12 +304,7 @@ export default {
         })
     },
 
-    /**
-     * Get the component name for a given field type
-     */
-    getComponentForType (fieldType) {
-      return this.componentMap[fieldType] || 'singleselect-custom-field'
-    },
+    getComponentForType: getComponentForFieldType,
 
     /**
      * Handle value updates during editing (toggle mode)
@@ -395,37 +405,15 @@ export default {
       this.$emit('edit:start')
     },
 
-    /**
-     * Transform raw backend value to renderer format
-     * Generic transformation with type-specific enrichments
-     * Backend format: depends on field type (array, string, number, etc.)
-     * Renderer format: { id, value, ...type-specific properties }
-     */
     transformValueForRenderer (rawValue) {
       const fieldType = this.resolvedDefinition?.attributes?.fieldType
+      const options = this.resolvedDefinition?.attributes?.options ?? []
 
-      // Base structure (generic for all types)
-      const transformed = {
+      return {
         id: this.fieldData.id,
-        value: rawValue || null,  // The raw backend value
+        value: rawValue ?? null,
+        ...enrichFieldValue(fieldType, rawValue, options),
       }
-
-      if (fieldType === 'multiSelect' || fieldType === 'singleSelect') {
-        // For select types: match IDs to full option objects
-        let optionIds = []
-        if (rawValue) {
-          optionIds = Array.isArray(rawValue) ? rawValue : [rawValue]
-        }
-
-        const allOptions = this.resolvedDefinition?.attributes?.options || []
-        const selectedOptions = optionIds
-          .map(optionId => allOptions.find(opt => opt?.id === optionId))
-          .filter(opt => opt != null)
-
-        transformed.selectedOptions = selectedOptions
-      }
-
-      return transformed
     },
   },
 

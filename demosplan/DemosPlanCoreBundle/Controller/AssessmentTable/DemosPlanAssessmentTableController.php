@@ -30,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
@@ -74,8 +75,18 @@ class DemosPlanAssessmentTableController extends BaseController
     private const HASH_TYPE_ASSESSMENT = 'assessment';
     private const HASH_TYPE_ORIGINAL = 'original';
 
-    public function __construct(private readonly Breadcrumb $breadcrumb, private readonly CountyService $countyService, private readonly IndexManager $indexManager, private readonly MunicipalityService $municipalityService, private readonly PermissionsInterface $permissions, private readonly PriorityAreaService $priorityAreaService, private readonly ProcedureService $procedureService, private readonly StatementHandler $statementHandler, private readonly UserService $userService)
-    {
+    public function __construct(
+        private readonly Breadcrumb $breadcrumb,
+        private readonly CountyService $countyService,
+        private readonly IndexManager $indexManager,
+        private readonly MunicipalityService $municipalityService,
+        private readonly PermissionsInterface $permissions,
+        private readonly PriorityAreaService $priorityAreaService,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
+        private readonly ProcedureService $procedureService,
+        private readonly StatementHandler $statementHandler,
+        private readonly UserService $userService,
+    ) {
     }
 
     /**
@@ -510,10 +521,6 @@ class DemosPlanAssessmentTableController extends BaseController
         if ($this->permissions->hasPermission('field_fragment_status')) {
             $baseData['fragmentStatus'] = $this->getFormParameter('fragment_status');
         }
-
-        // Verfahrensschritte
-        $baseData['internalPhases'] = $this->globalConfig->getInternalPhases();
-        $baseData['externalPhases'] = $this->globalConfig->getExternalPhases();
 
         $resElements = $statementHandler->getElementBlock($procedureId);
         $baseData['elements'] = $resElements['elements'] ?? [];
@@ -1048,8 +1055,10 @@ class DemosPlanAssessmentTableController extends BaseController
         $templateVars['filterHash'] = $filterHash;
 
         // Verfahrensschritte
-        $templateVars['internalPhases'] = $this->globalConfig->getInternalPhases();
-        $templateVars['externalPhases'] = $this->globalConfig->getExternalPhases();
+        $templateVars['internalPhaseDefinitions'] =
+            $this->procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer();
+        $templateVars['externalPhaseDefinitions'] =
+            $this->procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer();
 
         $resElements = $this->statementHandler->getElementBlock($procedureId);
         if (isset($resElements['paragraph'])) {
@@ -1108,10 +1117,6 @@ class DemosPlanAssessmentTableController extends BaseController
         if ($this->permissions->hasPermission('feature_statements_tag')) {
             $templateVars['topics'] = $this->procedureService->getTopics($procedureId);
         }
-
-        // Ersetze die Phase, in der die SN eingegangen ist
-        $templateVars['table']['statement']['phase'] =
-            $statementService->getProcedurePhaseNameFromArray($statementAsArray);
 
         // hole Infos zu den Mitzeichnern
         foreach ($templateVars['table']['statement']['votes'] as $key => $vote) {

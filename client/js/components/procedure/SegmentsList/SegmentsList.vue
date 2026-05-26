@@ -113,6 +113,7 @@
             @click="resetColumnSelection"
           />
           <dp-column-selector
+            :key="columnSelectorKey"
             appearance="subtle"
             data-cy="segmentsList:selectableColumns"
             has-select-all-option
@@ -149,29 +150,34 @@
           data-cy="segment:imgModal"
         />
         <div
+          id="segmentsListScrollContainer"
           ref="scrollContainer"
-          class="overflow-x-auto scrollbar-none"
+          class="overflow-x-auto scrollbar-none isolate"
         >
           <dp-data-table
             ref="dataTable"
-            class="min-h-12"
+            :key="columnSelectorKey"
             :class="{ 'px-2': isFullscreen, 'scrollbar-none': !isFullscreen }"
-            data-cy="segmentsList"
-            density="spacious"
-            has-flyout
-            has-borders
-            has-sticky-header
             :header-fields="availableHeaderFields"
-            is-resizable
-            is-selectable
             :items="items"
             :multi-page-all-selected="allSelectedVisually"
-            :multi-page-selection-items-total="allItemsCount"
             :multi-page-selection-items-toggled="toggledItems.length"
+            :multi-page-selection-items-total="allItemsCount"
             :should-be-selected-items="currentlySelectedItems"
+            class="min-h-12"
+            column-storage-key="segmentsList"
+            column-width-storage-key="segmentsListColumnWidths"
+            data-cy="segmentsList"
+            density="spacious"
             track-by="id"
-            @select-all="handleSelectAll"
+            has-borders
+            has-flyout
+            has-sticky-header
+            is-columns-draggable
+            is-resizable
+            is-selectable
             @items-toggled="handleToggleItem"
+            @select-all="handleSelectAll"
           >
             <template v-slot:header-tags>
               <span class="inline-flex items-center">
@@ -313,7 +319,7 @@
                 <a
                   class="block leading-[2] whitespace-nowrap"
                   :href="Routing.generate('dplan_statement_segments_list', {
-                    action: 'editText',
+                    action: 'details',
                     procedureId: procedureId,
                     segment: rowData.id,
                     statementId: rowData.relationships.parentStatement.data.id
@@ -351,10 +357,20 @@
         <div
           v-show="scrollbarVisible"
           ref="scrollBar"
-          class="h-3 overflow-x-scroll overflow-y-hidden z-[11] scrollbar-interactive bg-white pt-1"
-          :class="isFullscreen ? 'fixed bottom-3 left-0 right-0' : 'sticky bottom-0 left-0 right-0'"
+          class="h-[16px] z-[11] relative bg-neutral-light-4 mt-[10px]"
+          :class="isFullscreen ? 'fixed bottom-3 left-0 right-0 mx-2' : 'sticky bottom-0 left-0 right-0'"
         >
-          <div :style="scrollbarInnerStyle" />
+          <div
+            :aria-valuenow="scrollPercent"
+            :style="thumbStyle"
+            aria-controls="segmentsListScrollContainer"
+            aria-valuemax="100"
+            aria-valuemin="0"
+            class="absolute inset-y-[2px] rounded-full bg-neutral-light-2 cursor-pointer hover:bg-interactive active:bg-interactive-hover"
+            role="scrollbar"
+            tabindex="0"
+            @mousedown="onThumbMousedown"
+          />
         </div>
       </template>
 
@@ -400,6 +416,7 @@ import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaToolti
 import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
   name: 'SegmentsList',
@@ -484,8 +501,10 @@ export default {
     return {
       appliedFilterQuery: this.initialFilter,
       currentQueryHash: '',
-      defaultColumnSelection: ['text', 'tags'],
-      currentSelection: ['text', 'tags'],
+      columnSelectorKey: 0,
+      defaultColumnSelection: [],
+      currentSelection: [],
+      customFieldDefinitions: [],
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -494,7 +513,7 @@ export default {
       demosplanUi,
       hasStyledTopicalTags: false,
       headerFieldsAvailable: [
-        { field: 'externId', label: Translator.trans('id'), colWidth: '120px', initialMinWidth: 120 },
+        { field: 'externId', label: Translator.trans('id'), colWidth: '120px', initialMinWidth: 120, fixed: true },
         { field: 'statementStatus', label: Translator.trans('statement.status'), colWidth: '180px', initialMinWidth: 180 },
         { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '120px', initialMinWidth: 120 },
         { field: 'submitter', label: Translator.trans('submitter'), colWidth: '180px', initialMinWidth: 180 },
@@ -525,10 +544,6 @@ export default {
 
     ...mapState('AssignableUser', {
       assignableUsersObject: 'items',
-    }),
-
-    ...mapState('CustomField', {
-      customFields: 'items',
     }),
 
     ...mapState('Orga', {
@@ -563,21 +578,28 @@ export default {
 
     // Passed as headerFields to DpDataTable
     availableHeaderFields () {
+      const externIdField = this.headerFieldsAvailable.find(el => el.field === 'externId')
+      const userHeaderFields = this.headerFields.filter(el => el.field !== 'externId')
+
       if (!hasPermission('field_segments_custom_fields')) {
-        return this.headerFields
+        return [
+          externIdField, // Always include externId and make it the first element
+          ...userHeaderFields, // Columns selected by the user
+        ]
       }
 
-      const customFields = Object.values(this.customFields)
-      const selectedCustomFields = customFields
-        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
-        .map(customField => ({
-          field: `customField_${customField.id}`,
-          label: customField.attributes.name,
+      const selectedCustomFields = this.customFieldDefinitions
+        .filter(definition => this.currentSelection.includes(`customField_${definition.id}`))
+        .map(definition => ({
+          field: `customField_${definition.id}`,
+          label: definition.attributes.name,
+          colWidth: '180px',
+          initialMinWidth: 180,
         }))
 
       return [
-        this.headerFieldsAvailable.find(el => el.field === 'externId'), // Always include externId and make it the first element
-        ...this.headerFields.filter(el => el.field !== 'externId'), // Columns selected by the user
+        externIdField, // Always include externId and make it the first element
+        ...userHeaderFields, // Columns selected by the user
         ...selectedCustomFields, // Custom field columns selected by the user
       ]
     },
@@ -635,7 +657,7 @@ export default {
         return staticColumns
       }
 
-      const customFields = Object.values(this.customFields).map(customField => ([`customField_${customField.id}`, customField.attributes.name]))
+      const customFields = this.customFieldDefinitions.map(definition => ([`customField_${definition.id}`, definition.attributes.name]))
 
       return [
         ...staticColumns,
@@ -648,14 +670,12 @@ export default {
         return []
       }
 
-      return Object.values(this.customFields)
-        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
-        .map(customField => {
-          return {
-            field: `customField_${customField.id}`,
-            fieldId: customField.id,
-          }
-        })
+      return this.customFieldDefinitions
+        .filter(definition => this.currentSelection.includes(`customField_${definition.id}`))
+        .map(definition => ({
+          field: `customField_${definition.id}`,
+          fieldId: definition.id,
+        }))
     },
 
     storageKeyPagination () {
@@ -666,10 +686,6 @@ export default {
   methods: {
     ...mapActions('AssignableUser', {
       fetchAssignableUsers: 'list',
-    }),
-
-    ...mapActions('AdminProcedure', {
-      getCustomFieldsForProcedure: 'get',
     }),
 
     ...mapActions('FilterFlyout', [
@@ -829,28 +845,19 @@ export default {
         return ''
       }
 
-      return this.customFields[fieldId].attributes.options.find(option => option.id === customFieldOptionId)?.label || ''
+      const definition = this.customFieldDefinitions.find(customField => customField.id === fieldId)
+
+      return definition?.attributes.options.find(option => option.id === customFieldOptionId)?.label || ''
     },
 
-    getCustomFields () {
-      const payload = {
-        id: this.procedureId,
-        fields: {
-          AdminProcedure: [
-            'segmentCustomFields',
-          ].join(),
-          CustomField: [
-            'name',
-            'description',
-            'options',
-          ].join(),
-        },
-        include: [
-          'segmentCustomFields',
-        ].join(),
-      }
+    loadSegmentCustomFields () {
+      const { fetchCustomFields } = useCustomFields()
 
-      this.getCustomFieldsForProcedure(payload)
+      return fetchCustomFields(this.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'SEGMENT' })
+        .then(definitions => {
+          this.customFieldDefinitions = definitions
+        })
+        .catch(() => { /* Notification already shown by useCustomFieldDefinitions */ })
     },
 
     getTagsBySegment (id) {
@@ -905,7 +912,13 @@ export default {
     resetColumnSelection () {
       localStorage.removeItem('segmentList')
       this.setCurrentSelection([...this.defaultColumnSelection])
-      this.$refs.columnSelector.initializeColumnSelection()
+
+      // Clear persisted column widths
+      Object.keys(localStorage)
+        .filter(key => key.startsWith('dpDataTable:colWidth:segmentsListColumnWidths:'))
+        .forEach(key => localStorage.removeItem(key))
+
+      this.columnSelectorKey++
     },
 
     resetQuery () {
@@ -937,6 +950,39 @@ export default {
      */
     sendFilterOptionsRequest (params) {
       const { additionalQueryParams, category, currentQuery, filter, isInitialWithQuery, path } = params
+      const isUnusedTag = (filterPath, count, selected) => filterPath === 'tags' && count === 0 && !selected
+
+      const buildGroupOptions = (resource, resultIncluded, currentQuery, filterPath) => {
+        const filterOptionsIds = resource.relationships.aggregationFilterItems?.data.length > 0 ? resource.relationships.aggregationFilterItems.data.map(item => item.id) : []
+        const options = filterOptionsIds.map(id => {
+          const option = resultIncluded.find(item => item.id === id)
+
+          if (option) {
+            const { attributes, id } = option
+            const { count, description, label } = attributes
+
+            return {
+              count,
+              description,
+              id,
+              label,
+              selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
+            }
+          }
+
+          return null
+        }).filter(option => option !== null && !isUnusedTag(filterPath, option.count, option.selected))
+
+        if (options.length === 0) {
+          return null
+        }
+
+        return {
+          id: resource.id,
+          label: resource.attributes.label,
+          options,
+        }
+      }
       const requestParams = {
         ...additionalQueryParams,
         filter: {
@@ -961,67 +1007,25 @@ export default {
           const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ? data[0].result : null
 
           if (result) {
-            const groupedOptions = []
-            const ungroupedOptions = []
+            const filter = result.data.find(type => type.attributes.path === path)
+            const groupIds = new Set(filter.relationships.aggregationFilterGroups?.data.map(group => group.id) ?? [])
+            const itemIds = new Set(filter.relationships.aggregationFilterItems?.data.map(item => item.id) ?? [])
 
-            result.included?.forEach(resource => {
-              const filter = result.data.find(type => type.attributes.path === path)
-              const resourceIsGroup = resource.type === 'AggregationFilterGroup'
-              const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0
-              const groupBelongsToFilterType = resourceIsGroup && filterHasGroups ? !!filter.relationships.aggregationFilterGroups.data.find(group => group.id === resource.id) : false
-              const resourceIsFilterOption = resource.type === 'AggregationFilterItem'
-              const filterHasFilterOptions = filter.relationships.aggregationFilterItems?.data.length > 0
-              const filterOptionBelongsToFilterType = resourceIsFilterOption && filterHasFilterOptions ? !!filter.relationships.aggregationFilterItems.data.find(option => option.id === resource.id) : false
+            const groupedOptions = (result.included ?? [])
+              .filter(resource => resource.type === 'AggregationFilterGroup' && groupIds.has(resource.id))
+              .map(group => buildGroupOptions(group, result.included, currentQuery, path))
+              .filter(Boolean)
 
-              if (resourceIsGroup && groupBelongsToFilterType) {
-                const filterOptionsIds = resource.relationships.aggregationFilterItems?.data.length > 0 ? resource.relationships.aggregationFilterItems.data.map(item => item.id) : []
-                const filterOptions = filterOptionsIds.map(id => {
-                  const option = result.included.find(item => item.id === id)
-
-                  if (option) {
-                    const { attributes, id } = option
-                    const { count, description, label } = attributes
-
-                    return {
-                      count,
-                      description,
-                      id,
-                      label,
-                      selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
-                    }
-                  }
-
-                  return null
-                }).filter(option => option !== null)
-
-                if (filterOptions.length > 0) {
-                  const { id, attributes } = resource
-                  const { label } = attributes
-                  const group = {
-                    id,
-                    label,
-                    options: filterOptions,
-                  }
-
-                  groupedOptions.push(group)
-                }
-              }
-
-              // Ungrouped filter options
-              if (resourceIsFilterOption && filterOptionBelongsToFilterType) {
+            const ungroupedOptions = (result.included ?? [])
+              .filter(resource => resource.type === 'AggregationFilterItem' && itemIds.has(resource.id))
+              .map(resource => {
                 const { id, attributes } = resource
                 const { count, description, label } = attributes
+                const selected = currentQuery?.length ? currentQuery.includes(id) : attributes.selected
 
-                ungroupedOptions.push({
-                  id,
-                  count,
-                  description,
-                  label,
-                  selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
-                  ungrouped: true,
-                })
-              }
-            })
+                return { id, count, description, label, selected, ungrouped: true }
+              })
+              .filter(option => !isUnusedTag(path, option.count, option.selected))
 
             // Needs to be added to ungroupedOptions
             if (result.data[0].attributes.path === 'assignee') {
@@ -1181,7 +1185,7 @@ export default {
     }
     this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {
-      this.getCustomFields()
+      this.loadSegmentCustomFields()
     }
     this.applyQuery(this.pagination.currentPage)
 

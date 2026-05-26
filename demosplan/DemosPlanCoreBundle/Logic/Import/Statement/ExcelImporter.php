@@ -59,6 +59,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\Import\StatementProcessingContext;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use InvalidArgumentException;
@@ -70,6 +71,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -599,12 +601,10 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $segment->setParentStatementOfSegment($statement);
         $segment->setProcedure($procedure);
         $segment->setExternId($statement->getExternId().'-'.$counter);
-        $segment->setPhase('participation');
+        $segment->setPhaseDefinition($statement->getPhaseDefinition());
         $segment->setPublicVerified(Statement::PUBLICATION_PENDING);
-        $segmentText = $this->htmlSanitizerService->escapeDisallowedTags($segmentData['Einwand']);
-        $segment->setText($segmentText ?? '');
-        $segmentReply = $this->htmlSanitizerService->escapeDisallowedTags($segmentData['Erwiderung']);
-        $segment->setRecommendation($segmentReply ?? '');
+        $segment->setText($this->htmlSanitizerService->escapeDisallowedTags($segmentData['Einwand']));
+        $segment->setRecommendation($this->htmlSanitizerService->escapeDisallowedTags($segmentData['Erwiderung']));
 
         // Use cached workflow place to avoid repeated database queries
         $procedureId = $procedure->getId();
@@ -732,7 +732,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         // always use standard statementElement for now:
         $statementElement = $this->elementsService->getStatementElement($currentProcedure->getId());
         $newOriginalStatement->setElement($statementElement);
-        $newOriginalStatement->setPhase($newOriginalStatement->getProcedure()->getPhase());
+        $newOriginalStatement->setPhaseDefinition($newOriginalStatement->getProcedure()->getPhaseObject()->getPhaseDefinition());
 
         // not supported:
         // county, priorityArea, municipalities, tags, voters, headstatement, recommendation, housenumber,
@@ -856,7 +856,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             }
             // Validate Excel serial date is in valid range (1 = 1900-01-01, 2958465 = 9999-12-31)
             $violations = $this->validator->validate($dateValue, [
-                new \Symfony\Component\Validator\Constraints\Range([
+                new Range([
                     'min'               => 1,
                     'max'               => 2958465,
                     'notInRangeMessage' => 'Das Excel-Datumsnummer "{{ value }}" ist ungültig. Gültige Werte: {{ min }} bis {{ max }}.',
@@ -1133,7 +1133,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     /**
      * @throws DuplicatedTagTitleException
      * @throws PathException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      */
     public function processSegmentTags(
         Statement $statement,

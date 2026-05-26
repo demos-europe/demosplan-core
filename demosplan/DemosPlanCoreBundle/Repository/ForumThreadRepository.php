@@ -142,7 +142,8 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
             ->from(ForumEntry::class, 'entry')
             ->where('entry.thread = :threadId')
             ->andWhere('entry.initialEntry = :initial')
-            ->setParameters(['threadId' => $threadId, 'initial' => $initial])
+            ->setParameter('threadId', $threadId)
+            ->setParameter('initial', $initial)
             ->setMaxResults(2)
             ->getQuery();
 

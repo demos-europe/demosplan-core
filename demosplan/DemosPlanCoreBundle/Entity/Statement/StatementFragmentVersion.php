@@ -19,7 +19,14 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFragmentVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\Department;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentVersionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -27,169 +34,142 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * StatementFragmentVersion - Represents a Version of a fragment of a statement.
  *
  * Statement Fragment Versions are part of the assessment process
- *
- * @ORM\Table(name="statement_fragment_version")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFragmentVersionRepository")
  */
+#[ORM\Table(name: 'statement_fragment_version')]
+#[ORM\Entity(repositoryClass: StatementFragmentVersionRepository::class)]
 class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface, StatementFragmentVersionInterface
 {
+    private const ON_DELETE_SET_NULL = 'SET NULL';
+
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="sfv_id", type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: 'sfv_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var StatementFragmentInterface
-     *
-     * todo: should be nullable = false? will not working with onDelete="SET NULL"
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment", inversedBy="versions")
-     *
-     * @ORM\JoinColumn(name="statement_fragment_id", referencedColumnName="sf_id", nullable=true, onDelete="SET NULL")
      */
+    // Must stay nullable: `onDelete: SET NULL` writes NULL into this column when
+    // the parent fragment is deleted, which a NOT NULL constraint would forbid.
+    #[ORM\JoinColumn(name: 'statement_fragment_id', referencedColumnName: 'sf_id', nullable: true, onDelete: self::ON_DELETE_SET_NULL)]
+    #[ORM\ManyToOne(targetEntity: StatementFragment::class, inversedBy: 'versions')]
     protected $statementFragment;
 
     /**
      * @var int // unsigned int auto_increment
-     *
-     * @ORM\Column(name="display_id", type="integer", options={"unsigned":true})
      */
+    #[ORM\Column(name: 'display_id', type: 'integer', options: ['unsigned' => true])]
     protected $displayId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_text", type="text", nullable=false)
      */
+    #[ORM\Column(name: 'sfv_text', type: 'text', nullable: false)]
     protected $text;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_statement_fragment_version_tag", type="text", nullable=false)
      */
+    #[ORM\Column(name: 'sfv_statement_fragment_version_tag', type: 'text', nullable: false)]
     protected $tagAndTopicNames;
 
     /**
      * @var ProcedureInterface
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
-     *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class)]
     protected $procedure;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_vote_advice", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sfv_vote_advice', type: 'text', nullable: true)]
     protected $voteAdvice;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_vote", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sfv_vote', type: 'text', nullable: true)]
     protected $vote;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="created_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: 'created_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $created;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_department_name", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sfv_department_name', type: 'text', nullable: true)]
     protected $departmentName;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_orga_name", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sfv_orga_name', type: 'text', nullable: true)]
     protected $orgaName;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_consideration_advice", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sfv_consideration_advice', type: 'text', nullable: true)]
     protected $considerationAdvice;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_consideration", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sfv_consideration', type: 'text', nullable: true)]
     protected $consideration;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_county_name", type="text", nullable=false)
      */
+    #[ORM\Column(name: 'sfv_county_name', type: 'text', nullable: false)]
     protected $countyNames;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_priority_area_name", type="text", nullable=false)
      */
+    #[ORM\Column(name: 'sfv_priority_area_name', type: 'text', nullable: false)]
     protected $priorityAreaKeys;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_municipality_name", type="text", nullable=false)
      */
+    #[ORM\Column(name: 'sfv_municipality_name', type: 'text', nullable: false)]
     protected $municipalityNames;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_archived_orga_name", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sfv_archived_orga_name', type: 'text', nullable: true)]
     protected $archivedOrgaName;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_archived_department_name", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sfv_archived_department_name', type: 'text', nullable: true)]
     protected $archivedDepartmentName;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_archived_vote_user_name", type="text", nullable=true)
      */
+    #[ORM\Column(name: 'sfv_archived_vote_user_name', type: 'text', nullable: true)]
     protected $archivedVoteUserName;
 
     /**
      * User who triggered this Version.
      *
      * @var UserInterface
-     *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\User")
-     *
-     * @ORM\JoinColumn(name="sfv_modified_by_u_id", referencedColumnName="_u_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: 'sfv_modified_by_u_id', referencedColumnName: '_u_id', onDelete: self::ON_DELETE_SET_NULL)]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected $modifiedByUser;
 
     /**
@@ -197,42 +177,36 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      *
      * @var DepartmentInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department")
      *
-     * @ORM\JoinColumn(name="sfv_modified_by_d_id", referencedColumnName="_d_id", onDelete="SET NULL")
      **/
+    #[ORM\JoinColumn(name: 'sfv_modified_by_d_id', referencedColumnName: '_d_id', onDelete: self::ON_DELETE_SET_NULL)]
+    #[ORM\ManyToOne(targetEntity: Department::class)]
     protected $modifiedByDepartment;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_element_title", type="text", nullable=true, length=2500)
      */
+    #[ORM\Column(name: 'sfv_element_title', type: 'text', nullable: true, length: 2500)]
     protected $elementTitle;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="sfv_element_category", type="text", nullable=true, length=256)
      */
+    #[ORM\Column(name: 'sfv_element_category', type: 'text', nullable: true, length: 256)]
     protected $elementCategory;
 
     /**
      * @var ParagraphVersionInterface
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(name="paragraph_id", referencedColumnName="_pdv_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: 'paragraph_id', referencedColumnName: '_pdv_id', onDelete: self::ON_DELETE_SET_NULL)]
+    #[ORM\ManyToOne(targetEntity: ParagraphVersion::class, cascade: ['persist'])]
     protected $paragraph;
 
     /**
      * @var SingleDocumentVersionInterface
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(name="document_id", referencedColumnName="_sdv_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: 'document_id', referencedColumnName: '_sdv_id', onDelete: self::ON_DELETE_SET_NULL)]
+    #[ORM\ManyToOne(targetEntity: SingleDocumentVersion::class, cascade: ['persist'])]
     protected $document;
 
     public function __construct(StatementFragment $fragmentToCreateVersionFrom)

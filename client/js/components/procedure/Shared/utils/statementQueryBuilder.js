@@ -56,7 +56,6 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
     'paragraphVersion',
     'polygon',
     'priorityAreas',
-    'procedurePhase',
     'publicVerified',
     'publicVerifiedTranslation',
     'recommendation',
@@ -76,7 +75,7 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
 
   // Add permission-based fields
   if (hasPermission('field_statement_phase')) {
-    statementFields.push('availableProcedurePhases')
+    statementFields.push('availableProcedurePhases', 'procedurePhase')
   }
 
   if (hasPermission('area_statement_segmentation')) {
@@ -115,6 +114,9 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
     ].join(),
     ParagraphVersion: [
       'title',
+    ].join(),
+    ProcedurePhaseDefinition: [
+      'name',
     ].join(),
     SingleDocument: [
       'title',
@@ -164,6 +166,7 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
     'genericAttachments.file',
     'paragraph',
     'paragraphVersion.paragraph',
+    'procedurePhase',
     'sourceAttachment',
     'sourceAttachment.file',
   ]

@@ -180,7 +180,7 @@
       alignment="left"
       secondary
       primary
-      variant="outline"
+      primary-btn-variant="outline"
       @primary-action="save"
       @secondary-action="$emit('abort')"
     />
@@ -288,8 +288,8 @@ export default {
     },
 
     initialPlace () {
-      if (this.currentSegment && hasOwnProp(this.currentSegment, 'placeId')) {
-        return this.getPlaceById(this.currentSegment.placeId)
+      if (this.currentSegment?.place?.id) {
+        return this.getPlaceById(this.currentSegment.place.id)
       }
 
       return this.availablePlaces.length > 0 ? this.availablePlaces[0] : null
@@ -300,9 +300,9 @@ export default {
     },
 
     placeNeedsUpdate () {
-      const hasPlaceIdProp = this.currentSegment && hasOwnProp(this.currentSegment, 'placeId')
+      const hasPlace = this.currentSegment?.place?.id
 
-      return !hasPlaceIdProp ||
+      return !hasPlace ||
           this.selectedPlace.id !== this.initialPlace.id ||
           this.editingSegment === null
     },
@@ -335,8 +335,8 @@ export default {
       return this.assignableUsers.find(user => user.id === id)
     },
 
-    getPlaceById () {
-      return this.availablePlaces.find(place => place.id === this.currentSegment.placeId)
+    getPlaceById (placeId) {
+      return this.availablePlaces.find(place => place.id === placeId)
     },
 
     hasOwnProp (obj, prop) {
@@ -394,7 +394,6 @@ export default {
       if (this.placeNeedsUpdate) {
         // Place can't be empty
         if (this.selectedPlace?.id) {
-          segment.placeId = this.selectedPlace.id
           const place = this.availablePlaces.find(aPlace => aPlace.id === this.selectedPlace.id)
           segment.place = place ? { id: place.id, name: place.name } : { id: this.availablePlaces[0].id, name: this.availablePlaces[0].name }
         }

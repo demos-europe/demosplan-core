@@ -179,6 +179,17 @@ area_admin_invitable_institution:
 area_combined_participation_area:
     label: 'Nutze die Beteiligungsebene auch für Institutionen'
     loginRequired: false
+area_customer_procedure_phase_definitions:
+    description: 'Allows to view and manage procedure phase definitions for the current customer.'
+    label: 'Manage customer procedure phase definitions'
+    loginRequired: true
+    parent: area_customer_settings
+area_customer_procedure_phase_participation_token:
+    description: 'Allows to use "participate with token" as a participation state option in procedure phase definition.'
+    expose: 'true'
+    label: 'Enable participation state "participate with token" in procedure phase definition'
+    loginRequired: true
+    parent: area_customer_settings
 area_customer_send_mail_to_users:
     description: 'See parent for longer description.'
     label: 'Allows to send an E-Mail with free editable html body to all users of the customer.'
@@ -668,8 +679,8 @@ feature_admin_new_procedure:
     label: 'Create a new procedure'
     loginRequired: true
     parent: feature_admin
-feature_adjust_export_file_name:
-    expose: false
+feature_adjust_preamble_export_file:
+    expose: true
     label: 'alters the preamble header of an exported doc to include the procedure name instead of the export-date'
     loginRequired: true
 feature_allow_update_on_non_manual_statements:
@@ -754,6 +765,7 @@ feature_auto_switch_procedure_news:
     loginRequired: true
 feature_auto_switch_procedure_phase:
     description: 'Switch the procedure phase on chosen day.'
+    expose: true
     label: 'Automatically toggle the procedure phase'
     loginRequired: true
 feature_auto_switch_to_procedure_end_phase:
@@ -1419,6 +1431,11 @@ feature_organisation_set_showlist:
     label: 'Anzeigen der Organisation in der Institutionen-Liste'
     loginRequired: true
     parent: [area_manage_orgas, area_manage_orgas_all]
+feature_organisations_custom_fields:
+    expose: true
+    label: 'Manage custom fields for organisations'
+    loginRequired: true
+    parent: [area_manage_orgas, area_manage_orgas_all]
 feature_organisation_own_users_list:
     description: 'used for organisation administration users to limit their access scope to their own organisation'
     expose: false
@@ -1919,6 +1936,15 @@ feature_segment_content_changes_view:
     expose: true
     label: 'Allows access to Segment`s change history.'
     loginRequired: true
+feature_enable_recommendation_versions:
+    description: |
+        When enabled, recommendation versions are exposed via API and included
+        in exports. Holds a versionCount and the recommendation text for that
+        specific version. Tracking itself always happens regardless of this
+        permission — this only controls visibility on both segments and statements.
+    expose: true
+    label: 'Enables recommendation version display and export.'
+    loginRequired: true
 feature_segment_polygon_read:
     description: |-
         Allows read-access to the statementSegment polygon property via StatementSegmentResourceType
@@ -2243,6 +2269,11 @@ feature_statement_search_type_of_submission:
     expose: true
     label: 'Search for submission type in Assessment Table'
     loginRequired: true
+feature_statement_submitter_data_always_editable:
+    description: 'Allows editing submitter data fields (name, department, address, dates, phase, submit type) on all statements, not just manual ones. When disabled, these fields can only be edited on manual statements.'
+    expose: true
+    label: 'Allow editing submitter data on all statements'
+    loginRequired: true
 feature_statement_text_history_delete:
     description: 'Allow deletion of entity conent chances of the text field of statements.'
     expose: true
@@ -2514,6 +2545,11 @@ feature_statements_vote_may_vote:
     label: 'Stellungnahme anderer mitzeichnen (Aktion ausführen)'
     loginRequired: true
     parent: feature_statement
+feature_spellcheck:
+    description: 'Enables the spellcheck proxy to a self-hosted LanguageTool instance. Requires languagetool_url parameter to be configured.'
+    expose: true
+    label: 'Enables spellcheck via LanguageTool'
+    loginRequired: false
 feature_switchorga:
     label: 'Organisation Fachplanung und Institution wechseln'
     loginRequired: true

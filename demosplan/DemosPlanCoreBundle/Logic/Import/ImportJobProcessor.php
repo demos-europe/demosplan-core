@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
@@ -134,7 +135,7 @@ class ImportJobProcessor
                 [
                     'status' => ImportJob::STATUS_FAILED,
                     'error'  => $errorMessage,
-                    'now'    => (new \DateTime())->format('Y-m-d H:i:s'),
+                    'now'    => (new DateTime())->format('Y-m-d H:i:s'),
                     'id'     => $jobId,
                 ]
             );

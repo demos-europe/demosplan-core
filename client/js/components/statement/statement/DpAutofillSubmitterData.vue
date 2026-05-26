@@ -132,7 +132,8 @@
     <input
       type="hidden"
       name="r_oId"
-      :value="selectedOrgaId">
+      :value="selectedOrgaId"
+    >
 
     <!-- User fields that are specific to institutions: orga, department. These fields shall not be changeable in Bob-HH, but visible and present to submit their values when filled by autoFill function -->
     <template
