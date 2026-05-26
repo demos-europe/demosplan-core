@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter;
 
 use DateTimeImmutable;
+use DateTimeZone;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -27,10 +28,19 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementTemplateData;
 class StatementTemplateDataBuilder
 {
     private const DATE_FORMAT = 'd.m.Y';
+    private const DEFAULT_TIMEZONE = 'Europe/Berlin';
 
     public function build(Procedure $procedure, Statement $statement): StatementTemplateData
     {
         $meta = $statement->getMeta();
+        try {
+            $todayDate = (new DateTimeImmutable('now', new DateTimeZone(self::DEFAULT_TIMEZONE)))
+                ->format(self::DATE_FORMAT);
+        } catch (\Exception) {
+            // Unreachable: hardcoded valid zone + 'now' cannot throw at runtime.
+            // Empty fallback keeps the type system happy without a misleading default value.
+            $todayDate = '';
+        }
 
         $data = new StatementTemplateData();
         $data->setSubmitterName($meta->getAuthorName());
@@ -43,7 +53,7 @@ class StatementTemplateDataBuilder
         $data->setStatementInternId($statement->getInternId());
         $data->setStatementSubmitDate($statement->getSubmitDateString());
         $data->setProcedureName($procedure->getName());
-        $data->setTodayDate((new DateTimeImmutable())->format(self::DATE_FORMAT));
+        $data->setTodayDate($todayDate);
         $data->setSegments($this->orderedSegments($statement));
         $data->lock();
 

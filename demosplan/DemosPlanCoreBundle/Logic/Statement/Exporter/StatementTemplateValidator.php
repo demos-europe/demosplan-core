@@ -140,7 +140,12 @@ class StatementTemplateValidator
         if ([] === $unknown) {
             return;
         }
-        throw new InvalidStatementTemplateException($this->trans('docx.export.via_template.error.unknown_placeholder', ['placeholders' => implode(', ', $unknown)]));
+        throw new InvalidStatementTemplateException(
+            $this->trans(
+                'docx.export.via_template.error.unknown_placeholder',
+                ['placeholders' => implode(', ', $unknown)]
+            )
+        );
     }
 
     /**
@@ -152,10 +157,13 @@ class StatementTemplateValidator
     {
         $hasOpen = in_array(self::MARKER_SEGMENTS_OPEN, $variables, true);
         $hasClose = in_array(self::MARKER_SEGMENTS_CLOSE, $variables, true);
+        // either both exist or none exist
         if ($hasOpen === $hasClose) {
             return;
         }
-        throw new InvalidStatementTemplateException($this->trans('docx.export.via_template.error.segments_marker_incomplete'));
+        throw new InvalidStatementTemplateException(
+            $this->trans('docx.export.via_template.error.segments_marker_incomplete')
+        );
     }
 
     /**
@@ -174,7 +182,9 @@ class StatementTemplateValidator
         if ($hasMarkers) {
             return;
         }
-        throw new InvalidStatementTemplateException($this->trans('docx.export.via_template.error.segment_data_without_block'));
+        throw new InvalidStatementTemplateException(
+            $this->trans('docx.export.via_template.error.segment_data_without_block')
+        );
     }
 
     /**

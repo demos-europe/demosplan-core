@@ -16,11 +16,17 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidStatementTemplateException;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementTemplateData;
+use Exception;
 use PhpOffice\PhpWord\Element\TextRun;
+use PhpOffice\PhpWord\Exception\CopyFileException;
+use PhpOffice\PhpWord\Exception\CreateTemporaryFileException;
 use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\TemplateProcessor;
+use Psr\Log\LoggerInterface;
 
 /**
  * Renders a planner-uploaded DOCX template against a single Statement.
@@ -40,14 +46,15 @@ class StatementViaTemplateExporter
 {
     public function __construct(
         private readonly StatementTemplateValidator $validator,
-        private readonly StatementTemplateDataBuilder $dataBuilder,
+        private readonly StatementTemplateDataBuilder $exportTemplateValueObjectBuilder,
         private readonly HtmlHelper $htmlHelper,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
     /**
      * @param string $absolutePath local-disk path of the uploaded template,
-     *                             obtained from {@see \demosplan\DemosPlanCoreBundle\Logic\FileService::ensureLocalFileFromHash()}
+     *                             obtained from {@see FileService::ensureLocalFileFromHash()}
      *
      * @throws InvalidStatementTemplateException
      */
@@ -57,28 +64,67 @@ class StatementViaTemplateExporter
         string $absolutePath,
     ): TemplateProcessor {
         $this->validator->validate($absolutePath);
-        $data = $this->dataBuilder->build($procedure, $statement);
+        $allPlaceholdersData = $this->exportTemplateValueObjectBuilder->build($procedure, $statement);
 
-        $templateProcessor = new TemplateProcessor($absolutePath);
-        $this->fillSimplePlaceholders($templateProcessor, $data);
-        $this->renderSegments($templateProcessor, $data->getSegments());
+        try {
+            $templateProcessor = new TemplateProcessor($absolutePath);
+        } catch (CreateTemporaryFileException|CopyFileException|Exception $exception) {
+            $this->logger->error(
+                'Failed to open uploaded DOCX template for export',
+                ['absolutePath' => $absolutePath, 'exception' => $exception]
+            );
+            throw new InvalidStatementTemplateException('docx.export.via_template.error.malformed_docx', 0, $exception);
+        }
+        $this->fillSimplePlaceholders($templateProcessor, $allPlaceholdersData);
+        $this->renderSegments($templateProcessor, $allPlaceholdersData->getSegments());
 
         return $templateProcessor;
     }
 
     private function fillSimplePlaceholders(TemplateProcessor $templateProcessor, StatementTemplateData $data): void
     {
-        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_NAME, $data->getSubmitterName() ?? '');
-        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_INSTITUTION, $data->getSubmitterOrgaName() ?? '');
-        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_STREET, $data->getSubmitterStreet() ?? '');
-        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_HOUSE_NUMBER, $data->getSubmitterHouseNumber() ?? '');
-        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_POSTAL_CODE, $data->getSubmitterPostalCode() ?? '');
-        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_CITY, $data->getSubmitterCity() ?? '');
-        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_STATEMENT_EXTERN_ID, $data->getStatementExternId() ?? '');
-        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_STATEMENT_INTERN_ID, $data->getStatementInternId() ?? '');
-        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_STATEMENT_SUBMIT_DATE, $data->getStatementSubmitDate() ?? '');
-        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_PROCEDURE_NAME, $data->getProcedureName() ?? '');
-        $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_TODAY_DATE, $data->getTodayDate() ?? '');
+        $templateProcessor->setValue(
+            StatementTemplateValidator::PLACEHOLDER_NAME,
+            $data->getSubmitterName() ?? ''
+        );
+        $templateProcessor->setValue(
+            StatementTemplateValidator::PLACEHOLDER_INSTITUTION,
+            $data->getSubmitterOrgaName() ?? ''
+        );
+        $templateProcessor->setValue(
+            StatementTemplateValidator::PLACEHOLDER_STREET,
+            $data->getSubmitterStreet() ?? ''
+        );
+        $templateProcessor->setValue(
+            StatementTemplateValidator::PLACEHOLDER_HOUSE_NUMBER,
+            $data->getSubmitterHouseNumber() ?? '');
+        $templateProcessor->setValue(
+            StatementTemplateValidator::PLACEHOLDER_POSTAL_CODE,
+            $data->getSubmitterPostalCode() ?? ''
+        );
+        $templateProcessor->setValue(
+            StatementTemplateValidator::PLACEHOLDER_CITY,
+            $data->getSubmitterCity() ?? ''
+        );
+        $templateProcessor->setValue(
+            StatementTemplateValidator::PLACEHOLDER_STATEMENT_EXTERN_ID,
+            $data->getStatementExternId() ?? ''
+        );
+        $templateProcessor->setValue(
+            StatementTemplateValidator::PLACEHOLDER_STATEMENT_INTERN_ID,
+            $data->getStatementInternId() ?? ''
+        );
+        $templateProcessor->setValue(
+            StatementTemplateValidator::PLACEHOLDER_STATEMENT_SUBMIT_DATE,
+            $data->getStatementSubmitDate() ?? ''
+        );
+        $templateProcessor->setValue(
+            StatementTemplateValidator::PLACEHOLDER_PROCEDURE_NAME,
+            $data->getProcedureName() ?? '');
+        $templateProcessor->setValue(
+            StatementTemplateValidator::PLACEHOLDER_TODAY_DATE,
+            $data->getTodayDate() ?? ''
+        );
     }
 
     /**
@@ -115,7 +161,7 @@ class StatementViaTemplateExporter
     /**
      * Builds a {@see TextRun} from a segment HTML string, mirroring the
      * sanitize-then-{@see Html::addHtml} sequence used in
-     * {@see \demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter::addSegmentHtmlCell()}.
+     * {@see SegmentsExporter::addSegmentHtmlCell()}.
      *
      * `<p>` tags are flattened to `<br/>` line breaks before handoff to
      * {@see Html::addHtml()} because a {@see TextRun} is itself a paragraph

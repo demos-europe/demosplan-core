@@ -25,6 +25,7 @@ use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\TemplateProcessor;
 use PHPUnit\Framework\MockObject\MockObject;
+use Psr\Log\LoggerInterface;
 use Tests\Base\UnitTestCase;
 use ZipArchive;
 
@@ -57,7 +58,8 @@ class StatementViaTemplateExporterTest extends UnitTestCase
         $this->sut = new StatementViaTemplateExporter(
             $this->validator,
             $this->dataBuilder,
-            $htmlHelper
+            $htmlHelper,
+            $this->createMock(LoggerInterface::class)
         );
     }
 

@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementViaTemplateE
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementTemplateData;
 use PhpOffice\PhpWord\TemplateProcessor;
 use PHPUnit\Framework\MockObject\MockObject;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\UnitTestCase;
 use ZipArchive;
@@ -67,7 +68,7 @@ class StatementViaTemplateExporterIntegrationTest extends UnitTestCase
 
         $this->dataBuilder = $this->createMock(StatementTemplateDataBuilder::class);
 
-        $this->sut = new StatementViaTemplateExporter($validator, $this->dataBuilder, $htmlHelper);
+        $this->sut = new StatementViaTemplateExporter($validator, $this->dataBuilder, $htmlHelper, $this->createMock(LoggerInterface::class));
     }
 
     protected function tearDown(): void

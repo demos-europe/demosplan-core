@@ -13,13 +13,13 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
 use Exception;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementTemplateValidator;
 
 /**
- * Thrown by {@see \demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementTemplateValidator}
- * when a planner-uploaded DOCX template fails validation — typically an unknown
+ * Thrown by {@see StatementTemplateValidator}
+ * when an uploaded DOCX template fails validation — typically an unknown
  * placeholder, a missing or duplicated segment-rendering mode marker, or a
- * malformed DOCX. The validator composes the user-facing message itself; the
- * controller surfaces $exception->getMessage() in the 422 response body.
+ * malformed DOCX. The controller surfaces $exception->getMessage() in the 422 response body.
  */
 class InvalidStatementTemplateException extends Exception
 {

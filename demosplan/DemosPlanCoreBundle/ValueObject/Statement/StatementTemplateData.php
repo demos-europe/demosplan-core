@@ -11,14 +11,16 @@
 namespace demosplan\DemosPlanCoreBundle\ValueObject\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementViaTemplateExporter;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
+use PhpOffice\PhpWord\TemplateProcessor;
 
 /**
- * Mapping placeholder-name → value for {@see \demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementViaTemplateExporter}.
+ * Mapping placeholder-name → value for {@see StatementViaTemplateExporter}.
  *
  * Simple fields are nullable so the builder can express "we don't have this for
  * this statement"; the exporter normalises null to an empty string when calling
- * {@see \PhpOffice\PhpWord\TemplateProcessor::setValue()}, so a missing value
+ * {@see TemplateProcessor::setValue()}, so a missing value
  * yields an empty render rather than a stray ${placeholder} in the output.
  *
  * @method string|null getSubmitterName()

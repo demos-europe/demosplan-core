@@ -169,10 +169,8 @@ class SegmentsExportController extends BaseController
             }
         );
 
-        $this->setResponseHeaders(
-            $response,
-            $fileNameGenerator->getFileName($statement, $fileNameTemplate).self::DOCX_EXTENSION
-        );
+        $fileName = $fileNameGenerator->getFileName($statement, $fileNameTemplate).self::DOCX_EXTENSION;
+        $this->setResponseHeaders($response, $fileName);
 
         return $response;
     }
