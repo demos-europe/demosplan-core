@@ -68,9 +68,6 @@
             "demosplan/DemosPlanCoreBundle/Resources/config/routes/annotations.yaml"
         ]
     },
-    "doctrine/cache": {
-        "version": "1.12.1"
-    },
     "doctrine/collections": {
         "version": "1.6.8"
     },
@@ -923,9 +920,6 @@
     },
     "symfony/polyfill-php56": {
         "version": "v1.20.0"
-    },
-    "symfony/polyfill-php72": {
-        "version": "v1.23.0"
     },
     "symfony/polyfill-php73": {
         "version": "v1.23.0"
