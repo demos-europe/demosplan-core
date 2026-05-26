@@ -16,51 +16,39 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Stores a customer-specific procedure phase definition (Verfahrensschritt).
  * Each customer can define their own set of procedure phases for internal and external audiences.
- *
- * @ORM\Table(
- *     name="procedure_phase_definition",
- *     uniqueConstraints={
- *
- *         @ORM\UniqueConstraint(name="uniq_name_customer_audience", columns={"name", "customer_id", "audience"})
- *     }
- * )
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository")
  */
+#[ORM\Table(name: 'procedure_phase_definition')]
+#[ORM\UniqueConstraint(name: 'uniq_name_customer_audience', columns: ['name', 'customer_id', 'audience'])]
+#[ORM\Entity(repositoryClass: ProcedurePhaseDefinitionRepository::class)]
 class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface, ProcedurePhaseDefinitionInterface
 {
-    /**
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
-     */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected ?string $id = null;
 
     /**
      * The display name of this procedure phase definition.
-     *
-     * @ORM\Column(type="string", length=255, nullable=false)
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     protected string $name = '';
 
     /**
      * The audience this phase belongs to.
      * Values: 'internal' (Institutionsbeteiligung) | 'external' (Öffentlichkeitsbeteiligung).
-     *
-     * @ORM\Column(type="string", length=25, nullable=false)
      */
+    #[ORM\Column(type: 'string', length: 25, nullable: false)]
     protected string $audience = '';
 
     /**
@@ -78,53 +66,40 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
      * * `'write'`: guests and citizens can see the procedure and its planning documents and can participate
      *
      * Note: planners always have 'write' access for procedures they own, regardless of this value.
-     *
-     * @ORM\Column(type="string", length=10, nullable=false)
      */
+    #[ORM\Column(type: 'string', length: 10, nullable: false)]
     protected string $permissionSet = 'hidden';
 
     /**
      * Optional participation state for this phase.
      * Values: null | 'finished' | 'participateWithToken'.
-     *
-     * @ORM\Column(type="string", length=50, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
     protected ?string $participationState = null;
 
     /**
      * Whether entering this phase marks the procedure as closed (archived).
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     protected bool $closingPhase = false;
 
     /**
      * Sort order within the audience.
      * The order is independent per audience: both internal and external phases start at 0.
-     *
-     * @ORM\Column(type="integer", nullable=false, options={"unsigned":true, "default":0})
      */
+    #[ORM\Column(type: 'integer', nullable: false, options: ['unsigned' => true, 'default' => 0])]
     protected int $orderInAudience = 0;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
-     *
-     * @ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id", nullable=true, onDelete="CASCADE")
-     */
+    #[ORM\ManyToOne(targetEntity: Customer::class)]
+    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: '_c_id', nullable: true, onDelete: 'CASCADE')]
     protected ?CustomerInterface $customer = null;
 
-    /**
-     * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
-     */
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     private DateTime $creationDate;
 
-    /**
-     * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
-     */
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     private DateTime $modificationDate;
 
     public function getId(): ?string
