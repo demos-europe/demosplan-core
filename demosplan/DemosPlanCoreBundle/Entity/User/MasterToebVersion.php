@@ -215,10 +215,9 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface, Maste
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_mtv_version_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $versionDate;
 
     public function __construct()

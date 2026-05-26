@@ -99,16 +99,12 @@ class OAuthToken implements EntityInterface
     #[ORM\Column(name: 'provider', type: 'string', length: 50, nullable: false, options: ['default' => 'keycloak_ozg'])]
     private string $provider = 'keycloak_ozg';
 
-    /**
-     * @Gedmo\Timestampable(on="create")
-     */
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     private ?DateTime $createdAt = null;
 
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     private ?DateTime $updatedAt = null;
 
     // ===== GETTERS & SETTERS =====

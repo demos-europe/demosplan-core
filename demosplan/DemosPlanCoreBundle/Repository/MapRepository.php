@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query;
 use Exception;
 
 /**
@@ -389,7 +390,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 $this->getEntityManager()
                     ->createQuery('SELECT g FROM '.GisLayer::class.' g WHERE g.gId = :gid')
                     ->setParameter('gid', $item->getId())
-                    ->setHint(\Doctrine\ORM\Query::HINT_REFRESH, true)
+                    ->setHint(Query::HINT_REFRESH, true)
                     ->getResult();
 
                 $this->getEntityManager()->refresh($item);
