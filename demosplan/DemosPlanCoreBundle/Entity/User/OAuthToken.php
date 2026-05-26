@@ -14,146 +14,101 @@ namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Repository\OAuthTokenRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Stores OAuth tokens for KeyCloak authentication and pending requests during token refresh.
- *
- * @ORM\Table(
- *     name="oauth_tokens",
- *     uniqueConstraints={@ORM\UniqueConstraint(name="unique_user_id", columns={"user_id"})},
- *     indexes={
- *
- *         @ORM\Index(name="idx_access_expires", columns={"access_token_expires_at"}),
- *         @ORM\Index(name="idx_pending_timestamp", columns={"pending_request_timestamp"})
- *     }
- * )
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OAuthTokenRepository")
  */
+#[ORM\Table(name: 'oauth_tokens')]
+#[ORM\UniqueConstraint(name: 'unique_user_id', columns: ['user_id'])]
+#[ORM\Index(name: 'idx_access_expires', columns: ['access_token_expires_at'])]
+#[ORM\Index(name: 'idx_pending_timestamp', columns: ['pending_request_timestamp'])]
+#[ORM\Entity(repositoryClass: OAuthTokenRepository::class)]
 class OAuthToken implements EntityInterface
 {
-    /**
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
-     */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private ?string $id = null;
 
-    /**
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
-     *
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="_u_id", nullable=false, onDelete="CASCADE")
-     */
+    #[ORM\OneToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: '_u_id', nullable: false, onDelete: 'CASCADE')]
     private User $user;
 
     // ===== OAUTH TOKENS (When authenticated) =====
 
-    /**
-     * @ORM\Column(name="access_token", type="text", nullable=true)
-     */
+    #[ORM\Column(name: 'access_token', type: 'text', nullable: true)]
     private ?string $accessToken = null;
 
-    /**
-     * @ORM\Column(name="refresh_token", type="text", nullable=true)
-     */
+    #[ORM\Column(name: 'refresh_token', type: 'text', nullable: true)]
     private ?string $refreshToken = null;
 
-    /**
-     * @ORM\Column(name="id_token", type="text", nullable=true)
-     */
+    #[ORM\Column(name: 'id_token', type: 'text', nullable: true)]
     private ?string $idToken = null;
 
-    /**
-     * @ORM\Column(name="access_token_expires_at", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'access_token_expires_at', type: 'datetime', nullable: true)]
     private ?DateTime $accessTokenExpiresAt = null;
 
-    /**
-     * @ORM\Column(name="refresh_token_expires_at", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'refresh_token_expires_at', type: 'datetime', nullable: true)]
     private ?DateTime $refreshTokenExpiresAt = null;
 
     // ===== PENDING REQUEST (When awaiting re-auth) =====
 
-    /**
-     * @ORM\Column(name="pending_page_url", type="text", nullable=true)
-     */
     #[Assert\Regex(pattern: '/^\/[^\/]/', message: 'Pending page URL must be an internal path starting with / (protocol-relative URLs rejected)')]
+    #[ORM\Column(name: 'pending_page_url', type: 'text', nullable: true)]
     private ?string $pendingPageUrl = null;
 
-    /**
-     * @ORM\Column(name="pending_request_url", type="text", nullable=true)
-     */
     #[Assert\Regex(pattern: '/^\/[^\/]/', message: 'Pending request URL must be an internal path starting with / (protocol-relative URLs rejected)')]
+    #[ORM\Column(name: 'pending_request_url', type: 'text', nullable: true)]
     private ?string $pendingRequestUrl = null;
 
-    /**
-     * @ORM\Column(name="pending_request_method", type="string", length=10, nullable=true)
-     */
     #[Assert\Choice(choices: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'], message: 'HTTP method must be one of: {{ choices }}')]
+    #[ORM\Column(name: 'pending_request_method', type: 'string', length: 10, nullable: true)]
     private ?string $pendingRequestMethod = null;
 
-    /**
-     * @ORM\Column(name="pending_request_body", type="text", nullable=true)
-     */
+    #[ORM\Column(name: 'pending_request_body', type: 'text', nullable: true)]
     private ?string $pendingRequestBody = null;
 
-    /**
-     * @ORM\Column(name="pending_request_content_type", type="string", length=100, nullable=true)
-     */
+    #[ORM\Column(name: 'pending_request_content_type', type: 'string', length: 100, nullable: true)]
     private ?string $pendingRequestContentType = null;
 
-    /**
-     * @ORM\Column(name="pending_request_has_files", type="boolean", options={"default": false})
-     */
+    #[ORM\Column(name: 'pending_request_has_files', type: 'boolean', options: ['default' => false])]
     private bool $pendingRequestHasFiles = false;
 
-    /**
-     * @ORM\Column(name="pending_request_files_metadata", type="json", nullable=true)
-     */
+    #[ORM\Column(name: 'pending_request_files_metadata', type: 'json', nullable: true)]
     private ?array $pendingRequestFilesMetadata = null;
 
-    /**
-     * @ORM\Column(name="pending_request_timestamp", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'pending_request_timestamp', type: 'datetime', nullable: true)]
     private ?DateTime $pendingRequestTimestamp = null;
 
     /**
      * Organisation the user was operating in when their tokens expired.
      * Stored so it can be restored after re-authentication (org selection flow).
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
-     *
-     * @ORM\JoinColumn(name="selected_organisation_id", referencedColumnName="_o_id", nullable=true, onDelete="SET NULL")
      */
+    #[ORM\ManyToOne(targetEntity: Orga::class)]
+    #[ORM\JoinColumn(name: 'selected_organisation_id', referencedColumnName: '_o_id', nullable: true, onDelete: 'SET NULL')]
     private ?Orga $selectedOrganisation = null;
 
     // ===== PROVIDER & TIMESTAMPS =====
 
-    /**
-     * @ORM\Column(name="provider", type="string", length=50, nullable=false, options={"default": "keycloak_ozg"})
-     */
+    #[ORM\Column(name: 'provider', type: 'string', length: 50, nullable: false, options: ['default' => 'keycloak_ozg'])]
     private string $provider = 'keycloak_ozg';
 
     /**
-     * @ORM\Column(name="created_at", type="datetime", nullable=false)
-     *
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
     private ?DateTime $createdAt = null;
 
     /**
-     * @ORM\Column(name="updated_at", type="datetime", nullable=false)
-     *
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: false)]
     private ?DateTime $updatedAt = null;
 
     // ===== GETTERS & SETTERS =====

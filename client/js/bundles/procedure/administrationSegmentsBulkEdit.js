@@ -23,8 +23,4 @@ if (hasPermission('area_admin_boilerplates')) {
   stores.boilerplates = BoilerplatesStore
 }
 
-if (hasPermission('field_segments_custom_fields')) {
-  apiStores = [...apiStores, 'AdminProcedure', 'CustomField']
-}
-
 initialize(components, stores, apiStores)
