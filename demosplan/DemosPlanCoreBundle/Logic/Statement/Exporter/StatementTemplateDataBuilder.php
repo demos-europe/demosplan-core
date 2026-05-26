@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementTemplateData;
+use Exception;
 
 /**
  * Builds the {@see StatementTemplateData} mapping from a Procedure + Statement,
@@ -36,7 +37,7 @@ class StatementTemplateDataBuilder
         try {
             $todayDate = (new DateTimeImmutable('now', new DateTimeZone(self::DEFAULT_TIMEZONE)))
                 ->format(self::DATE_FORMAT);
-        } catch (\Exception) {
+        } catch (Exception) {
             // Unreachable: hardcoded valid zone + 'now' cannot throw at runtime.
             // Empty fallback keeps the type system happy without a misleading default value.
             $todayDate = '';
