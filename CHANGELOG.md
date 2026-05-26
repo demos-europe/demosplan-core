@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Added
+- Add text custom field value editing to institution tag management dialog
+
 ## v4.39.0 (2026-05-06)
 
 ## v4.38.0 (2026-05-06)
