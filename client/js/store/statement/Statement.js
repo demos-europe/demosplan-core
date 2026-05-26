@@ -167,7 +167,6 @@ function transformStatementStructure ({ el, includes, meta }) {
   statement.isFiltered = meta.isFiltered || false
   statement.orgaDepartmentName = statement.organisationDepartmentName
   statement.orgaName = statement.organisationName
-  statement.phase = Translator.trans(statement.phase)
   statement.sourceAttachment = statement.sourceAttachment || ''
 
   if (hasOwnProp(el, 'relationships')) {
@@ -490,6 +489,7 @@ export default {
         'paragraph',
         'document',
         'assignee',
+        'procedurePhase',
         'sourceAttachment',
         'sourceAttachment.file',
         'genericAttachments',
@@ -580,10 +580,10 @@ export default {
               'paragraph',
               'paragraphParentId',
               'parentId',
-              'phase',
               'polygon',
               'priority',
               'procedureId',
+              'procedurePhase',
               'publicVerified',
               'publicVerifiedTranslation',
               'recommendation',
@@ -625,6 +625,9 @@ export default {
             ].join(),
             GenericStatementAttachment: [
               'file',
+            ].join(),
+            ProcedurePhaseDefinition: [
+              'name',
             ].join(),
           },
           include: includes.join(','),

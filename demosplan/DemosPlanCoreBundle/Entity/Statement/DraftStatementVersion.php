@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -338,9 +339,19 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
 
     /**
      * @var string
+     *
+     * @deprecated Will be removed once all consumers are migrated to phaseDefinition.
+     *             Kept on the entity to avoid data loss; value is synced from phaseDefinition->getName().
      */
     #[ORM\Column(name: '_ds_phase', type: 'string', length: 50, nullable: false)]
     protected $phase = '';
+
+    /**
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
+     *
+     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=true, onDelete="RESTRICT")
+     */
+    protected ?ProcedurePhaseDefinitionInterface $phaseDefinition = null;
 
     /**
      * @var DateTime
@@ -1298,28 +1309,16 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
         return $this->publicDraftStatement;
     }
 
-    /**
-     * Set phase.
-     *
-     * @param string $phase
-     *
-     * @return DraftStatementVersion
-     */
-    public function setPhase($phase)
+    public function getPhaseDefinition(): ?ProcedurePhaseDefinitionInterface
     {
-        $this->phase = $phase;
-
-        return $this;
+        return $this->phaseDefinition;
     }
 
-    /**
-     * Get phase.
-     *
-     * @return string
-     */
-    public function getPhase()
+    public function setPhaseDefinition(ProcedurePhaseDefinitionInterface $phaseDefinition): void
     {
-        return $this->phase;
+        $this->phaseDefinition = $phaseDefinition;
+        // @deprecated $phase will be removed once all consumers are migrated to phaseDefinition
+        $this->phase = $phaseDefinition->getName();
     }
 
     /**

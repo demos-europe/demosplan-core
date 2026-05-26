@@ -500,11 +500,11 @@ class DemosPlanProcedureAPIController extends APIController
                 $procedureResourceType->externalName,
                 $procedureResourceType->externalStartDate,
                 $procedureResourceType->externalEndDate,
-                $procedureResourceType->externalPhaseTranslationKey,
+                $procedureResourceType->externalPhaseDefinitionName,
                 $procedureResourceType->name,
                 $procedureResourceType->internalStartDate,
                 $procedureResourceType->internalEndDate,
-                $procedureResourceType->internalPhaseTranslationKey,
+                $procedureResourceType->internalPhaseDefinitionName,
                 $procedureResourceType->daysLeft,
                 $procedureResourceType->internalPhasePermissionset,
                 $procedureResourceType->externalPhasePermissionset

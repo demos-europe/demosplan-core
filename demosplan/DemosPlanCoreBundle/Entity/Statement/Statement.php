@@ -22,6 +22,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\PriorityAreaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
@@ -285,9 +286,19 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * Must have one of a set of predefined values which differs in projects, see respective configuration file.
      *
      * @var string
+     *
+     * @deprecated Will be removed once all consumers are migrated to phaseDefinition.
+     *             Kept on the entity to avoid data loss; value is synced from phaseDefinition->getName().
      */
     #[ORM\Column(name: '_st_phase', type: 'string', length: 50, nullable: false)]
     protected $phase;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
+     *
+     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=false, onDelete="RESTRICT")
+     */
+    protected ProcedurePhaseDefinitionInterface $phaseDefinition;
 
     /**
      * @var string
@@ -1537,29 +1548,22 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->pId;
     }
 
-    /**
-     * Set phase.
-     *
-     * @param string $phase
-     */
-    public function setPhase($phase): Statement
+    public function getPhaseDefinition(): ProcedurePhaseDefinitionInterface
     {
-        if ('' === $phase) {
-            $message = 'Tried to set empty string as statement phase, please choose a valid value.';
-            throw new UnexpectedValueException($message);
-        }
-
-        $this->phase = $phase;
-
-        return $this;
+        return $this->phaseDefinition;
     }
 
-    /**
-     * Get phase.
-     */
-    public function getPhase(): string
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPhaseDefinitionId(): ?string
     {
-        return $this->phase;
+        return $this->phaseDefinition->getId();
+    }
+
+    public function setPhaseDefinition(ProcedurePhaseDefinitionInterface $phaseDefinition): void
+    {
+        $this->phaseDefinition = $phaseDefinition;
+        // @deprecated $phase will be removed once all consumers are migrated to phaseDefinition
+        $this->phase = $phaseDefinition->getName();
     }
 
     /**

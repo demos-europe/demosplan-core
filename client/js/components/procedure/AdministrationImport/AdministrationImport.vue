@@ -66,6 +66,8 @@ export default {
 
   provide () {
     return {
+      currentExternalPhaseDefinitionId: this.currentExternalPhaseDefinitionId,
+      currentInternalPhaseDefinitionId: this.currentInternalPhaseDefinitionId,
       currentUserId: this.currentUserId,
       newestInternId: this.newestInternId,
       procedureId: this.procedureId,
@@ -79,6 +81,18 @@ export default {
     csrfToken: {
       type: String,
       required: true,
+    },
+
+    currentExternalPhaseDefinitionId: {
+      type: String,
+      required: false,
+      default: '',
+    },
+
+    currentInternalPhaseDefinitionId: {
+      type: String,
+      required: false,
+      default: '',
     },
 
     currentUserId: {

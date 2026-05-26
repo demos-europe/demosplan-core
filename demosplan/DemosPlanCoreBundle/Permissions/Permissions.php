@@ -38,8 +38,6 @@ use Exception;
 use InvalidArgumentException;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
-use RecursiveArrayIterator;
-use RecursiveIteratorIterator;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -785,43 +783,29 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         // hole dir die Phasendefinitionen der Rolle
         switch ($scope) {
             case self::PROCEDURE_PERMISSION_SCOPE_INTERNAL:
-                $phase = $this->procedure->getPhase() ?? '';
-                $phaseConfig = $this->globalConfig->getInternalPhases();
+                $phaseDefinition = $this->procedure->getPhaseObject()->getPhaseDefinition();
                 break;
             case self::PROCEDURE_PERMISSION_SCOPE_EXTERNAL:
-                $phase = $this->procedure->getPublicParticipationPhase() ?? '';
-                $phaseConfig = $this->globalConfig->getExternalPhases();
+                $phaseDefinition = $this->procedure->getPublicParticipationPhaseObject()->getPhaseDefinition();
                 break;
             default:
                 $this->logger->debug('Permissionset: Hidden');
 
                 return self::PROCEDURE_PERMISSIONSET_HIDDEN;
         }
-        $this->logger->debug('Phase: '.$phase.' Config: '.DemosPlanTools::varExport($phaseConfig, true));
 
-        // welche Phase ist derzeit aktiv?
-        $arrIt = new RecursiveIteratorIterator(new RecursiveArrayIterator($phaseConfig));
-        foreach ($arrIt as $sub) {
-            $subArray = $arrIt->getSubIterator();
-            if ($subArray['key'] === $phase) {
-                $outputArray = \iterator_to_array($subArray);
-                $permissionset = $outputArray['permissionset'];
-                $this->logger->debug('Initial Permissionset: ', [$permissionset]);
-                // during Procedure::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN user may participate
-                // in read permissionset phase, when ConsultationToken is correctly provided
-                if ($this->userInvitedInProcedure && (Procedure::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN === ($outputArray[Procedure::PARTICIPATIONSTATE_KEY] ?? ''))) {
-                    $permissionset = self::PROCEDURE_PERMISSIONSET_WRITE;
-                }
-                // gib das Permissionset der aktiven Phase aus
-                $this->logger->debug('Active Permissionset: ', [$permissionset]);
+        $permissionset = $phaseDefinition->getPermissionSet();
+        $this->logger->debug('Initial Permissionset: ', [$permissionset]);
 
-                return $permissionset;
-            }
+        // during Procedure::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN user may participate
+        // in read permissionset phase, when ConsultationToken is correctly provided
+        if ($this->userInvitedInProcedure && Procedure::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN === $phaseDefinition->getParticipationState()) {
+            $permissionset = self::PROCEDURE_PERMISSIONSET_WRITE;
         }
 
-        $this->logger->debug('Permissionset: '.self::PROCEDURE_PERMISSIONSET_HIDDEN);
+        $this->logger->debug('Active Permissionset: ', [$permissionset]);
 
-        return self::PROCEDURE_PERMISSIONSET_HIDDEN;
+        return $permissionset;
     }
 
     /**
