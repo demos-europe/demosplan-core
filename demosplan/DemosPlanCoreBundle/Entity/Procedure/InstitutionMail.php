@@ -56,11 +56,8 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface, Institu
     #[ORM\Column(name: '_p_phase', type: 'string', length: 50)]
     protected $procedurePhase;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
-     *
-     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=false, onDelete="RESTRICT")
-     */
+    #[ORM\ManyToOne(targetEntity: ProcedurePhaseDefinition::class)]
+    #[ORM\JoinColumn(name: 'phase_definition_id', referencedColumnName: 'id', nullable: false, onDelete: 'RESTRICT')]
     protected ProcedurePhaseDefinition $phaseDefinition;
 
     /**

@@ -54,6 +54,7 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\OriginalStatementAnonymization;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -293,11 +294,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     #[ORM\Column(name: '_st_phase', type: 'string', length: 50, nullable: false)]
     protected $phase;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
-     *
-     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=false, onDelete="RESTRICT")
-     */
+    #[ORM\ManyToOne(targetEntity: ProcedurePhaseDefinition::class)]
+    #[ORM\JoinColumn(name: 'phase_definition_id', referencedColumnName: 'id', nullable: false, onDelete: 'RESTRICT')]
     protected ProcedurePhaseDefinitionInterface $phaseDefinition;
 
     /**

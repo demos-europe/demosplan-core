@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -346,11 +347,8 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
     #[ORM\Column(name: '_ds_phase', type: 'string', length: 50, nullable: false)]
     protected $phase = '';
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
-     *
-     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=true, onDelete="RESTRICT")
-     */
+    #[ORM\ManyToOne(targetEntity: ProcedurePhaseDefinition::class)]
+    #[ORM\JoinColumn(name: 'phase_definition_id', referencedColumnName: 'id', nullable: true, onDelete: 'RESTRICT')]
     protected ?ProcedurePhaseDefinitionInterface $phaseDefinition = null;
 
     /**

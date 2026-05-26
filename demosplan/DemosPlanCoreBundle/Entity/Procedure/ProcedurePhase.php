@@ -59,18 +59,12 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
     protected ?string $designatedPhase = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
-     *
-     * @ORM\JoinColumn(name="phase_definition_id", referencedColumnName="id", nullable=false, onDelete="RESTRICT")
-     */
+    #[ORM\ManyToOne(targetEntity: ProcedurePhaseDefinition::class)]
+    #[ORM\JoinColumn(name: 'phase_definition_id', referencedColumnName: 'id', nullable: false, onDelete: 'RESTRICT')]
     protected ProcedurePhaseDefinitionInterface $phaseDefinition;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition")
-     *
-     * @ORM\JoinColumn(name="designated_phase_definition_id", referencedColumnName="id", nullable=true, onDelete="RESTRICT")
-     */
+    #[ORM\ManyToOne(targetEntity: ProcedurePhaseDefinition::class)]
+    #[ORM\JoinColumn(name: 'designated_phase_definition_id', referencedColumnName: 'id', nullable: true, onDelete: 'RESTRICT')]
     protected ?ProcedurePhaseDefinitionInterface $designatedPhaseDefinition = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
