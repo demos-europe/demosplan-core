@@ -22,6 +22,7 @@
 - Add statement export via planner-uploaded DOCX layout template: planners upload a `.docx` via TUS, the backend validates `${…}` placeholders against a whitelist and clones the `${AbschnitteAlsAbsätze}` … `${/AbschnitteAlsAbsätze}` block per segment to render the response letter (permission: `feature_statement_via_template_export`, EWM-only for v1; frontend modal integration pending)
 
 ### Changed
+- Segment transformer extracts segment IDs and text from `<segment-mark>` elements in textualReference instead of charStart/charEnd positions
 - Column widths in the segment list now persist across browser sessions
 - "column reset" in the segment list now also resets column widths to defaults
 - Doctrine ORM upgraded from v2.20 to v3.6 and `doctrine/persistence` widened to `^2.0 || ^3.0`; entity mappings converted from annotations to PHP 8 attributes (preparation for the API Platform integration)
