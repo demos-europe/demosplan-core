@@ -9,6 +9,9 @@
 ### Added
 - Add text custom field definition editing
 
+### Fixed
+- `dplan:procedure:delete` now also removes the two associated `procedure_phase` rows; previous runs left orphan rows behind, which are cleaned up by a one-shot migration
+
 ## v4.42.0 (2026-05-21)
 ## v4.40.1 (2026-05-21)
 
