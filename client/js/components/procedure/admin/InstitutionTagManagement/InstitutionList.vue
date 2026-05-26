@@ -89,8 +89,8 @@
               :data-cy="`institutionList:tags${category.attributes.name}`"
               :options="getCategoryTags(category.id)"
               label="name"
-              multiple
               track-by="id"
+              multiple
             />
             <div
               v-else
@@ -108,9 +108,9 @@
               :definition="definition"
               :field-data="{
                 id: definition.id,
-                value: institution.edit
-                  ? editingInstitutionCustomFields[definition.id]
-                  : (institution.customFields[definition.id] || null),
+                value: institution.edit ?
+                  editingInstitutionCustomFields[definition.id] :
+                  (institution.customFields[definition.id] || null),
               }"
               :mode="institution.edit ? 'editable' : 'readonly'"
               :show-label="false"
@@ -207,9 +207,9 @@ export default {
     DpColumnSelector,
     DpDataTable,
     DpIcon,
-    DpMultiselect,
     DpInlineNotification,
     DpLoading,
+    DpMultiselect,
     DpSearchField,
     DpSlidingPagination,
   },
@@ -314,9 +314,9 @@ export default {
           initialMinWidth: 180,
         }))
 
-      const customFieldsFields = this.customFieldsAvailable.filter(headerField => this.currentlySelectedColumns.includes(headerField.field))
+      const selectedCustomFieldColumns = this.customFieldsAvailable.filter(headerField => this.currentlySelectedColumns.includes(headerField.field))
 
-      return [institutionField, ...categoryFields, ...customFieldsFields]
+      return [institutionField, ...categoryFields, ...selectedCustomFieldColumns]
     },
 
     institutionList () {
