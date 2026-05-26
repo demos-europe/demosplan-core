@@ -51,6 +51,7 @@ class SegmentsExportController extends BaseController
     private const CUSTOM_HEADER_TEXT_PARAMETER = 'customHeaderText';
     private const UPLOADED_TEMPLATE_HASH = 'uploadedDocxTemplate';
     private const DOCX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    private const DOCX_EXTENSION = '.docx';
 
     public function __construct(
         private readonly NameGenerator $nameGenerator,
@@ -101,7 +102,7 @@ class SegmentsExportController extends BaseController
             }
         );
 
-        $this->setResponseHeaders($response, $fileNameGenerator->getFileName($statement, $fileNameTemplate).'.docx');
+        $this->setResponseHeaders($response, $fileNameGenerator->getFileName($statement, $fileNameTemplate).self::DOCX_EXTENSION);
 
         return $response;
     }
@@ -170,7 +171,7 @@ class SegmentsExportController extends BaseController
 
         $this->setResponseHeaders(
             $response,
-            $fileNameGenerator->getFileName($statement, $fileNameTemplate).'.docx'
+            $fileNameGenerator->getFileName($statement, $fileNameTemplate).self::DOCX_EXTENSION
         );
 
         return $response;
@@ -398,7 +399,7 @@ class SegmentsExportController extends BaseController
                             $filePathInZip,
                             $zipStream,
                             'statement_segments_zip_export',
-                            '.docx'
+                            self::DOCX_EXTENSION
                         );
                     },
                     $statements,
