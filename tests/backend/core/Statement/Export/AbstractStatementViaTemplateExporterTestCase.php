@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Export;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use PhpOffice\PhpWord\TemplateProcessor;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Base\UnitTestCase;
@@ -27,15 +28,26 @@ use ZipArchive;
  */
 abstract class AbstractStatementViaTemplateExporterTestCase extends UnitTestCase
 {
+    private const EXAMPLE_TEMPLATE_SUBPATH = 'demosplan/DemosPlanCoreBundle/Resources/public/files/statement_template_example_export.docx';
+
     /**
      * @var list<string>|null
      */
     protected ?array $temporaryFiles = null;
 
+    /**
+     * Per-test working copy of the public example DOCX. Tests must never
+     * mutate the public source — this temp copy is regenerated for every
+     * test and cleaned up in tearDown along with the other temporary files.
+     */
+    protected ?string $exampleTemplate = null;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->temporaryFiles = [];
+        $this->exampleTemplate = $this->reservePath('.docx');
+        copy(DemosPlanPath::getRootPath(self::EXAMPLE_TEMPLATE_SUBPATH), $this->exampleTemplate);
     }
 
     protected function tearDown(): void
@@ -46,6 +58,7 @@ abstract class AbstractStatementViaTemplateExporterTestCase extends UnitTestCase
             }
         }
         $this->temporaryFiles = null;
+        $this->exampleTemplate = null;
 
         parent::tearDown();
     }

@@ -32,21 +32,20 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use Tests\Base\UnitTestCase;
 
 /**
  * Tests {@see SegmentsExportController::exportViaTemplate()} — the controller
  * action that resolves a TUS-uploaded DOCX template, runs it through
  * {@see StatementViaTemplateExporter}, and streams the result back.
  *
- * Each test copies the fixture template in `res/` to a tempfile and points
- * the mocked {@see FileService} at it, so the controller runs against a real
- * DOCX without DB/Foundry setup.
+ * Each test points the mocked {@see FileService} at the per-test working copy
+ * of the public example DOCX (set up by
+ * {@see AbstractStatementViaTemplateExporterTestCase}), so the controller runs
+ * against a real DOCX without DB/Foundry setup.
  */
-class SegmentsExportControllerExportViaTemplateTest extends UnitTestCase
+class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementViaTemplateExporterTestCase
 {
     private const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-    private const FIXTURE = __DIR__.'/res/statement_template_example.docx';
 
     protected ?SegmentsExportController $sut = null;
 
@@ -57,15 +56,9 @@ class SegmentsExportControllerExportViaTemplateTest extends UnitTestCase
     private (StatementViaTemplateExporter&MockObject)|null $exporter = null;
     private (ProcedureHandler&MockObject)|null $procedureHandler = null;
 
-    /**
-     * @var list<string>|null
-     */
-    private ?array $temporaryFiles = null;
-
     protected function setUp(): void
     {
         parent::setUp();
-        $this->temporaryFiles = [];
 
         $this->requestStack = new RequestStack();
         $this->procedureHandler = $this->createMock(ProcedureHandler::class);
@@ -87,21 +80,14 @@ class SegmentsExportControllerExportViaTemplateTest extends UnitTestCase
         );
     }
 
-    protected function tearDown(): void
+    protected function tempFilePrefix(): string
     {
-        foreach ($this->temporaryFiles ?? [] as $path) {
-            if (file_exists($path)) {
-                @unlink($path);
-            }
-        }
-        $this->temporaryFiles = null;
-
-        parent::tearDown();
+        return 'segments_controller_';
     }
 
     public function testReturnsStreamedDocxResponseAndDeletesLocalCopyOnSuccess(): void
     {
-        $copiedTemplatePath = $this->copyFixtureTemplate();
+        $copiedTemplatePath = $this->exampleTemplate;
         $this->pushRequestWithHash('hash-success');
         $this->givenFileServiceResolves('hash-success', self::DOCX_MIME, $copiedTemplatePath);
         $this->fileService->expects(self::once())->method('deleteLocalFile')->with($copiedTemplatePath);
@@ -153,7 +139,7 @@ class SegmentsExportControllerExportViaTemplateTest extends UnitTestCase
 
     public function testReturnsUnprocessableEntityAndDeletesTemplateOnValidatorFailure(): void
     {
-        $copiedTemplatePath = $this->copyFixtureTemplate();
+        $copiedTemplatePath = $this->exampleTemplate;
         $this->pushRequestWithHash('hash-bad');
         $this->givenFileServiceResolves('hash-bad', self::DOCX_MIME, $copiedTemplatePath);
         $this->fileService->expects(self::once())->method('deleteLocalFile')->with($copiedTemplatePath);
@@ -174,7 +160,7 @@ class SegmentsExportControllerExportViaTemplateTest extends UnitTestCase
 
     public function testRethrowsAndDeletesTemplateOnGenericException(): void
     {
-        $copiedTemplatePath = $this->copyFixtureTemplate();
+        $copiedTemplatePath = $this->exampleTemplate;
         $this->pushRequestWithHash('hash-boom');
         $this->givenFileServiceResolves('hash-boom', self::DOCX_MIME, $copiedTemplatePath);
         $this->fileService->expects(self::once())->method('deleteLocalFile')->with($copiedTemplatePath);
@@ -229,15 +215,4 @@ class SegmentsExportControllerExportViaTemplateTest extends UnitTestCase
         );
     }
 
-    private function copyFixtureTemplate(): string
-    {
-        self::assertFileExists(self::FIXTURE);
-
-        $destination = tempnam(sys_get_temp_dir(), 'segments_controller_').'.docx';
-        copy(self::FIXTURE, $destination);
-        $this->temporaryFiles ??= [];
-        $this->temporaryFiles[] = $destination;
-
-        return $destination;
-    }
 }

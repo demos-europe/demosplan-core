@@ -40,8 +40,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class StatementViaTemplateExporterIntegrationTest extends AbstractStatementViaTemplateExporterTestCase
 {
-    private const FIXTURE = __DIR__.'/res/statement_template_example.docx';
-
     protected ?StatementViaTemplateExporter $sut = null;
 
     private (StatementTemplateDataBuilder&MockObject)|null $dataBuilder = null;
@@ -112,24 +110,14 @@ class StatementViaTemplateExporterIntegrationTest extends AbstractStatementViaTe
 
     private function renderToFile(): string
     {
-        $copiedPath = $this->copyFixture(self::FIXTURE);
         $templateProcessor = $this->sut->export(
             $this->createMock(Procedure::class),
             $this->createMock(Statement::class),
-            $copiedPath
+            $this->exampleTemplate
         );
         $resultPath = $this->reservePath('.docx');
         $templateProcessor->saveAs($resultPath);
 
         return $resultPath;
-    }
-
-    private function copyFixture(string $sourcePath): string
-    {
-        self::assertFileExists($sourcePath);
-        $destination = $this->reservePath('.docx');
-        copy($sourcePath, $destination);
-
-        return $destination;
     }
 }

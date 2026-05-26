@@ -17,21 +17,14 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementTemplateVali
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tests\Base\UnitTestCase;
 
-class StatementTemplateValidatorTest extends UnitTestCase
+class StatementTemplateValidatorTest extends AbstractStatementViaTemplateExporterTestCase
 {
     protected ?StatementTemplateValidator $sut = null;
-
-    /**
-     * @var list<string>|null
-     */
-    private ?array $temporaryFiles = null;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->temporaryFiles = [];
 
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')
@@ -50,16 +43,9 @@ class StatementTemplateValidatorTest extends UnitTestCase
         $this->sut = new StatementTemplateValidator($translator);
     }
 
-    protected function tearDown(): void
+    protected function tempFilePrefix(): string
     {
-        foreach ($this->temporaryFiles ?? [] as $path) {
-            if (file_exists($path)) {
-                @unlink($path);
-            }
-        }
-        $this->temporaryFiles = null;
-
-        parent::tearDown();
+        return 'tpl_validator_';
     }
 
     public function testAcceptsTemplateWithoutSegmentPlaceholders(): void
@@ -141,7 +127,7 @@ class StatementTemplateValidatorTest extends UnitTestCase
     public function testAcceptsCommittedExample(): void
     {
         $this->expectNotToPerformAssertions();
-        $this->sut->validate(__DIR__.'/res/statement_template_example.docx');
+        $this->sut->validate($this->exampleTemplate);
     }
 
     /**
@@ -170,15 +156,6 @@ class StatementTemplateValidatorTest extends UnitTestCase
     {
         $path = $this->reservePath('.bin');
         file_put_contents($path, $contents);
-
-        return $path;
-    }
-
-    private function reservePath(string $extension): string
-    {
-        $path = tempnam(sys_get_temp_dir(), 'tpl_validator_').$extension;
-        $this->temporaryFiles ??= [];
-        $this->temporaryFiles[] = $path;
 
         return $path;
     }
