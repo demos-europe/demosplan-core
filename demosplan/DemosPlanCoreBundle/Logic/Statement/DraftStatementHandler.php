@@ -731,13 +731,11 @@ class DraftStatementHandler extends CoreHandler
     public function createEMailsForUnsubmittedDraftStatementsOfProcedureOfUser(int $exactlyDaysToGo, bool $internal): int
     {
         if ($internal) {
-            $internalWritePhaseKeys = $this->getDemosplanConfig()->getInternalPhaseKeys('write');
             $soonEndingProcedureIds = $this->getProcedureHandler()
-                ->getAllProceduresWithSoonEndingPhases($internalWritePhaseKeys, $exactlyDaysToGo, true);
+                ->getAllProceduresWithSoonEndingPhases($exactlyDaysToGo, true);
         } else {
-            $externalWritePhaseKeys = $this->getDemosplanConfig()->getExternalPhaseKeys('write');
             $soonEndingProcedureIds = $this->getProcedureHandler()
-                ->getAllProceduresWithSoonEndingPhases($externalWritePhaseKeys, $exactlyDaysToGo, true, false);
+                ->getAllProceduresWithSoonEndingPhases($exactlyDaysToGo, true, false);
         }
 
         $draftStatements = $this->draftStatementService

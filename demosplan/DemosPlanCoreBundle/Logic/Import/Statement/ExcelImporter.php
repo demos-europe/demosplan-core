@@ -601,7 +601,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $segment->setParentStatementOfSegment($statement);
         $segment->setProcedure($procedure);
         $segment->setExternId($statement->getExternId().'-'.$counter);
-        $segment->setPhase('participation');
+        $segment->setPhaseDefinition($statement->getPhaseDefinition());
         $segment->setPublicVerified(Statement::PUBLICATION_PENDING);
         $segment->setText($this->htmlSanitizerService->escapeDisallowedTags($segmentData['Einwand']));
         $segment->setRecommendation($this->htmlSanitizerService->escapeDisallowedTags($segmentData['Erwiderung']));
@@ -732,7 +732,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         // always use standard statementElement for now:
         $statementElement = $this->elementsService->getStatementElement($currentProcedure->getId());
         $newOriginalStatement->setElement($statementElement);
-        $newOriginalStatement->setPhase($newOriginalStatement->getProcedure()->getPhase());
+        $newOriginalStatement->setPhaseDefinition($newOriginalStatement->getProcedure()->getPhaseObject()->getPhaseDefinition());
 
         // not supported:
         // county, priorityArea, municipalities, tags, voters, headstatement, recommendation, housenumber,

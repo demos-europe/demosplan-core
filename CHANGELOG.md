@@ -43,6 +43,7 @@
 - Scheduled cleanup of expired OAuth tokens via Symfony Messenger
 - Parameter `oauth_keycloak_login_only` (default: `true`) to control whether full token management is active; set to `false` in `parameters_default_project.yml` per project to enable token refresh
 - Translation `confirm.session.renewed` shown as flash message after seamless re-authentication
+- Add customer admin interface for managing procedure phases - displaying and creating new phases
 
 ### Changed
 - Statement detail view now shows the institution before the department (corrected order)

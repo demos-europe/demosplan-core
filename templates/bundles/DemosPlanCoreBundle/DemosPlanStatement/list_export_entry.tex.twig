@@ -4,7 +4,7 @@
 			% Caption-Zeile - der doppelte Backslah setzt das Ende der Tabellenzeile, das & trennt die Spalten auf, \textbf setzt den Text in den geschweiften Klammern Bold (=<b></b> oder <strong></strong>)
 			\textbf{{ '{' }}{{ "nr"|trans }}: {% if statement.number is defined %}{{ statement.number }}{% endif %}{{ '}' }} & \multicolumn{2}{l|}{{ '{' }}\textbf{{ '{' }}{{ "statement.specification"|trans }}{{ '}' }}{{ '}' }}\\
 		\hline
-		     & {{ "procedure.public.phase"|trans|latex|raw }}: & {{ statement.phase|default("notspecified")|trans|latex|raw }}\\
+		     & {{ "procedure.public.phase"|trans|latex|raw }}: & {{ statement.phaseDefinition.name|default("notspecified"|trans)|latex|raw }}\\
             {{ "date.created"|trans|latex|raw }}:& {{ "author"|trans|latex|raw }} & {% if statement.uName is defined %}{{ statement.uName|latex|raw }}{% endif %}\\
 			{% if statement.createdDate is defined %}{{ statement.createdDate|default()|dplanDate }}{% else %} {{ "notspecified"|trans|latex|raw }} {% endif %} & {{ "invitable_institution"|trans|latex|raw }}: & \textbf{{ '{' }}{% if statement.oName is defined and statement.oName != '' %}{{ statement.oName|latex|raw }}{% else %} {{ "notspecified"|trans|latex|raw }} {% endif %}{{ '}' }}\\
 			{% if statement.submitted %}{{ "date.submitted"|trans|latex|raw }}:{% endif %} & {{ "department"|trans|latex|raw }}: & {% if statement.dName is defined and statement.dName != '' %}{{ statement.dName|latex|raw }}{% else %} {{ "notspecified"|trans|latex|raw }} {% endif %}\\

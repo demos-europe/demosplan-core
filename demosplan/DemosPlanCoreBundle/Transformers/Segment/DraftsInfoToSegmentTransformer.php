@@ -126,7 +126,8 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             $segment->setText($segmentMark['text']);
             $segment->setExternId($statement->getExternId().'-'.$counter);
             $segment->setOrderInProcedure($internId);
-            $segment->setPhase('analysis');
+            // @todo DPLAN-16766 Is it necessary to determine the audience from the statement (isCreatedByCitizen vs isCreatedByInvitableInstitution) to use the public participation phase object instead?
+            $segment->setPhaseDefinition($procedure->getPhaseObject()->getPhaseDefinition());
             $segment->setProcedure($procedure);
 
             /** @var Segment $segment */
