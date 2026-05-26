@@ -30,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
 use demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Id\AssignedGenerator;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
@@ -110,9 +111,9 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         }
 
         // Temporarily change ID generator to AssignedGenerator so Doctrine handles manually-assigned IDs properly
-        $classMetadata = $this->entityManager->getClassMetadata(Segment::class);
-        $originalIdGenerator = $classMetadata->idGenerator;
-        $classMetadata->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
+        $segmentMetadata = $this->entityManager->getClassMetadata(Segment::class);
+        $originalIdGenerator = $segmentMetadata->idGenerator;
+        $segmentMetadata->setIdGenerator(new AssignedGenerator());
 
         $counter = 1;
         $internId = $this->segmentHandler->getNextSegmentOrderNumber($procedure->getId());

@@ -890,7 +890,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $this->manager->persist($procedureSettings);
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadProcedureBehaviorDefinitionData::class,

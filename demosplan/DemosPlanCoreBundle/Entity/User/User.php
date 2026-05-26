@@ -26,6 +26,9 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as AddonUserInte
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\RoleAllowedConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\UserWithMatchingDepartmentInOrgaConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -41,16 +44,12 @@ use UnexpectedValueException;
 use function in_array;
 
 /**
- * @ORM\Table(
- *     name="_user",
- *     uniqueConstraints={@ORM\UniqueConstraint(name="_u_gw_id", columns={"_u_gw_id"}),
- *
- *     @ORM\UniqueConstraint(name="_u_login", columns={"_u_login"})})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\UserRepository")
- *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
+#[ORM\Table(name: '_user')]
+#[ORM\UniqueConstraint(name: '_u_gw_id', columns: ['_u_gw_id'])]
+#[ORM\UniqueConstraint(name: '_u_login', columns: ['_u_login'])]
+#[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactorInterface
 {
     public const HEARING_AUTHORITY_ROLES = [RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER];
@@ -59,71 +58,59 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     public const CUSTOMER_MASTER_USER_ROLE = [RoleInterface::CUSTOMER_MASTER_USER];
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_u_id", type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_u_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_u_dm_id", type="integer", nullable=true)
      */
+    #[ORM\Column(name: '_u_dm_id', type: 'integer', nullable: true)]
     protected $dmId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_gender", type="string", length=6, nullable=true, options={"fixed":true})
      */
+    #[ORM\Column(name: '_u_gender', type: 'string', length: 6, nullable: true, options: ['fixed' => true])]
     protected $gender;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_title", type="string", length=45, nullable=true)
      */
+    #[ORM\Column(name: '_u_title', type: 'string', length: 45, nullable: true)]
     protected $title;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_firstname", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_u_firstname', type: 'string', length: 255, nullable: true)]
     protected $firstname;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_lastname", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_u_lastname', type: 'string', length: 255, nullable: true)]
     protected $lastname;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_email", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_u_email', type: 'string', length: 255, nullable: true)]
     protected $email;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_login", type="string", length=255, nullable=true, options={"fixed":true})
      */
+    #[ORM\Column(name: '_u_login', type: 'string', length: 255, nullable: true, options: ['fixed' => true])]
     protected $login;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_u_password", type="string", length=255, nullable=true, options={"fixed":true})
      */
+    #[ORM\Column(name: '_u_password', type: 'string', length: 255, nullable: true, options: ['fixed' => true])]
     protected $password;
 
     /**
@@ -131,62 +118,52 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      * under which circumstances the $password field is cleared.
      *
      * @var string|null
-     *
-     * @ORM\Column(type="string", length=255, nullable=true, options={"fixed":true})
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: true, options: ['fixed' => true])]
     protected $alternativeLoginPassword;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_u_salt", type="string", length=255, nullable=true, options={"fixed":true})
      */
+    #[ORM\Column(name: '_u_salt', type: 'string', length: 255, nullable: true, options: ['fixed' => true])]
     protected $salt;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_language", type="string", length=6, nullable=true, options={"fixed":true})
      */
+    #[ORM\Column(name: '_u_language', type: 'string', length: 6, nullable: true, options: ['fixed' => true])]
     protected $language = 'de_DE';
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_u_created_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: '_u_created_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_u_modified_date", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(name: '_u_modified_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifiedDate;
 
     /**
      * @var DateTime|null
-     *
-     * @ORM\Column(type="datetime", nullable=true)
      */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected $lastLogin;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_u_deleted", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_u_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted = false;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_u_gw_id", type="string", length=36, options={"fixed":true}, nullable=true)
      */
+    #[ORM\Column(name: '_u_gw_id', type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
     protected $gwId;
 
     /**
@@ -196,9 +173,8 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
 
     /**
      * @var array
-     *
-     * @ORM\Column(type="array", nullable=false)
      */
+    #[ORM\Column(type: 'array', nullable: false)]
     protected $flags = [];
 
     /**
@@ -256,9 +232,8 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      * $orga enthält die einzelne Organisation.
      *
      * @var Collection<int,OrgaInterface>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="users", cascade={"persist"})
      */
+    #[ORM\ManyToMany(targetEntity: Orga::class, mappedBy: 'users', cascade: ['persist'])]
     protected $orga;
 
     /**
@@ -274,9 +249,8 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      * $department enthält die einzelne Abteilung.
      *
      * @var Collection<int, DepartmentInterface>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department", mappedBy="users")
      */
+    #[ORM\ManyToMany(targetEntity: Department::class, mappedBy: 'users')]
     protected $departments;
 
     /**
@@ -288,24 +262,21 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
 
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
      */
     #[Assert\All([new Assert\NotNull(), new RoleAllowedConstraint()])]
     #[Assert\NotNull]
+    #[ORM\OneToMany(targetEntity: UserRoleInCustomer::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     protected $roleInCustomers;
 
     /**
      * @var Collection<int,AddressInterface>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Address", cascade={"persist"})
-     *
-     * @ORM\JoinTable(
-     *     name="_user_address_doctrine",
-     *     joinColumns={@ORM\JoinColumn(name="_u_id", referencedColumnName="_u_id", onDelete="RESTRICT")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_a_id", referencedColumnName="_a_id", onDelete="RESTRICT")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: '_user_address_doctrine',
+        joinColumns: [new ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', onDelete: 'RESTRICT')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_a_id', referencedColumnName: '_a_id', onDelete: 'RESTRICT')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Address::class, cascade: ['persist'])]
     protected $addresses;
 
     /** @var CustomerInterface */
@@ -326,20 +297,17 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      * this purpose.
      *
      * @var AddonUserInterface|null
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(referencedColumnName="_u_id", nullable=true)
      */
+    #[ORM\JoinColumn(referencedColumnName: '_u_id', nullable: true)]
+    #[ORM\OneToOne(targetEntity: User::class, cascade: ['persist'])]
     protected $twinUser;
 
     /**
      * The {@link ProcedureInterface} entities this user was manually authorized for.
      *
      * @var Collection<int, ProcedureInterface>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="authorizedUsers")
      */
+    #[ORM\ManyToMany(targetEntity: Procedure::class, mappedBy: 'authorizedUsers')]
     protected $authorizedProcedures;
 
     /**
@@ -349,34 +317,26 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
 
     /**
      * @var bool
-     *
-     * @ORM\Column(type="boolean", nullable=false,
-     *      options={"comment":"Determines if this user is identified by external provider", "default": false})
      */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['comment' => 'Determines if this user is identified by external provider', 'default' => false])]
     private $providedByIdentityProvider = false;
 
     /**
      * Value used for two factor authentication via totp.
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
+    #[ORM\Column(type: 'string', nullable: true)]
     private ?string $totpSecret = null;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false, options={"default": false})
-     */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     private bool $totpEnabled = false;
 
     /**
      * Value used for two factor authentication via email.
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
+    #[ORM\Column(type: 'string', nullable: true)]
     private ?string $authCode = null;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false, options={"default": false})
-     */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     private bool $authCodeEmailEnabled = false;
 
     public function __construct()
