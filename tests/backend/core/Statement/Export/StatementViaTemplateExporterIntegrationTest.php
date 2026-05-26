@@ -20,12 +20,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementTemplateData
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementTemplateValidator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementViaTemplateExporter;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementTemplateData;
-use PhpOffice\PhpWord\TemplateProcessor;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tests\Base\UnitTestCase;
-use ZipArchive;
 
 /**
  * End-to-end test of the via-template export against the committed example
@@ -41,7 +38,7 @@ use ZipArchive;
  *   - PhpWord "Cannot add TextRun in TextRun" when segments contain
  *     paragraph-level HTML.
  */
-class StatementViaTemplateExporterIntegrationTest extends UnitTestCase
+class StatementViaTemplateExporterIntegrationTest extends AbstractStatementViaTemplateExporterTestCase
 {
     private const FIXTURE = __DIR__.'/res/statement_template_example.docx';
 
@@ -49,15 +46,9 @@ class StatementViaTemplateExporterIntegrationTest extends UnitTestCase
 
     private (StatementTemplateDataBuilder&MockObject)|null $dataBuilder = null;
 
-    /**
-     * @var list<string>|null
-     */
-    private ?array $temporaryFiles = null;
-
     protected function setUp(): void
     {
         parent::setUp();
-        $this->temporaryFiles = [];
 
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')
@@ -71,16 +62,9 @@ class StatementViaTemplateExporterIntegrationTest extends UnitTestCase
         $this->sut = new StatementViaTemplateExporter($validator, $this->dataBuilder, $htmlHelper, $this->createMock(LoggerInterface::class));
     }
 
-    protected function tearDown(): void
+    protected function tempFilePrefix(): string
     {
-        foreach ($this->temporaryFiles ?? [] as $path) {
-            if (file_exists($path)) {
-                @unlink($path);
-            }
-        }
-        $this->temporaryFiles = null;
-
-        parent::tearDown();
+        return 'tpl_integration_';
     }
 
     public function testRendersCommittedFixtureWithHtmlSegments(): void
@@ -126,16 +110,6 @@ class StatementViaTemplateExporterIntegrationTest extends UnitTestCase
         return $data;
     }
 
-    private function makeSegment(string $externId, string $text, string $recommendation): Segment&MockObject
-    {
-        $segment = $this->createMock(Segment::class);
-        $segment->method('getExternId')->willReturn($externId);
-        $segment->method('getText')->willReturn($text);
-        $segment->method('getRecommendation')->willReturn($recommendation);
-
-        return $segment;
-    }
-
     private function renderToFile(): string
     {
         $copiedPath = $this->copyFixture(self::FIXTURE);
@@ -150,30 +124,6 @@ class StatementViaTemplateExporterIntegrationTest extends UnitTestCase
         return $resultPath;
     }
 
-    /**
-     * @return list<string>
-     */
-    private function getRemainingVariables(string $absolutePath): array
-    {
-        $templateProcessor = new TemplateProcessor($absolutePath);
-
-        return array_values($templateProcessor->getVariables());
-    }
-
-    private function extractBodyText(string $absolutePath): string
-    {
-        $zip = new ZipArchive();
-        self::assertSame(true, $zip->open($absolutePath));
-        $xml = $zip->getFromName('word/document.xml');
-        $zip->close();
-        self::assertNotFalse($xml);
-        if (false === preg_match_all('/<w:t[^>]*>([^<]*)<\/w:t>/', $xml, $matches)) {
-            return '';
-        }
-
-        return implode("\n", $matches[1]);
-    }
-
     private function copyFixture(string $sourcePath): string
     {
         self::assertFileExists($sourcePath);
@@ -181,14 +131,5 @@ class StatementViaTemplateExporterIntegrationTest extends UnitTestCase
         copy($sourcePath, $destination);
 
         return $destination;
-    }
-
-    private function reservePath(string $extension): string
-    {
-        $path = tempnam(sys_get_temp_dir(), 'tpl_integration_').$extension;
-        $this->temporaryFiles ??= [];
-        $this->temporaryFiles[] = $path;
-
-        return $path;
     }
 }

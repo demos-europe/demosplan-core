@@ -23,13 +23,10 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementViaTemplateE
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementTemplateData;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\TemplateProcessor;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
-use Tests\Base\UnitTestCase;
-use ZipArchive;
 
-class StatementViaTemplateExporterTest extends UnitTestCase
+class StatementViaTemplateExporterTest extends AbstractStatementViaTemplateExporterTestCase
 {
     private const SUBMITTER_NAME = 'Maria Mustermann';
 
@@ -38,15 +35,9 @@ class StatementViaTemplateExporterTest extends UnitTestCase
     private (StatementTemplateValidator&MockObject)|null $validator = null;
     private (StatementTemplateDataBuilder&MockObject)|null $dataBuilder = null;
 
-    /**
-     * @var list<string>|null
-     */
-    private ?array $temporaryFiles = null;
-
     protected function setUp(): void
     {
         parent::setUp();
-        $this->temporaryFiles = [];
 
         $this->validator = $this->createMock(StatementTemplateValidator::class);
         $this->dataBuilder = $this->createMock(StatementTemplateDataBuilder::class);
@@ -63,16 +54,9 @@ class StatementViaTemplateExporterTest extends UnitTestCase
         );
     }
 
-    protected function tearDown(): void
+    protected function tempFilePrefix(): string
     {
-        foreach ($this->temporaryFiles ?? [] as $path) {
-            if (file_exists($path)) {
-                @unlink($path);
-            }
-        }
-        $this->temporaryFiles = null;
-
-        parent::tearDown();
+        return 'tpl_exporter_';
     }
 
     public function testRendersSimplePlaceholdersWhenTemplateHasNoSegments(): void
@@ -188,16 +172,6 @@ class StatementViaTemplateExporterTest extends UnitTestCase
         return $data;
     }
 
-    private function makeSegment(string $externId, string $text, string $recommendation): Segment&MockObject
-    {
-        $segment = $this->createMock(Segment::class);
-        $segment->method('getExternId')->willReturn($externId);
-        $segment->method('getText')->willReturn($text);
-        $segment->method('getRecommendation')->willReturn($recommendation);
-
-        return $segment;
-    }
-
     private function renderToFile(string $templatePath): string
     {
         $templateProcessor = $this->sut->export(
@@ -209,30 +183,6 @@ class StatementViaTemplateExporterTest extends UnitTestCase
         $templateProcessor->saveAs($resultPath);
 
         return $resultPath;
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getRemainingVariables(string $absolutePath): array
-    {
-        $templateProcessor = new TemplateProcessor($absolutePath);
-
-        return array_values($templateProcessor->getVariables());
-    }
-
-    private function extractBodyText(string $absolutePath): string
-    {
-        $zip = new ZipArchive();
-        self::assertSame(true, $zip->open($absolutePath));
-        $xml = $zip->getFromName('word/document.xml');
-        $zip->close();
-        self::assertNotFalse($xml);
-        if (false === preg_match_all('/<w:t[^>]*>([^<]*)<\/w:t>/', $xml, $matches)) {
-            return '';
-        }
-
-        return implode("\n", $matches[1]);
     }
 
     /**
@@ -265,15 +215,6 @@ class StatementViaTemplateExporterTest extends UnitTestCase
     {
         $path = $this->reservePath('.docx');
         IOFactory::createWriter($phpWord, 'Word2007')->save($path);
-
-        return $path;
-    }
-
-    private function reservePath(string $extension): string
-    {
-        $path = tempnam(sys_get_temp_dir(), 'tpl_exporter_').$extension;
-        $this->temporaryFiles ??= [];
-        $this->temporaryFiles[] = $path;
 
         return $path;
     }
