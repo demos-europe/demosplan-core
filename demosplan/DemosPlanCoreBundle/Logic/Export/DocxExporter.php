@@ -43,6 +43,7 @@ use League\Flysystem\FilesystemOperator;
 use Monolog\Logger;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;
+use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\IOFactory;
@@ -2130,7 +2131,7 @@ class DocxExporter
      * For DOCX: uses PreserveText with {PAGE}/{NUMPAGES} placeholder.
      * For ODT: uses separate Field elements since ODT doesn't parse PreserveText placeholders.
      *
-     * @param \PhpOffice\PhpWord\Element\Footer $footer
+     * @param Footer $footer
      */
     private function addPageNumbers($footer): void
     {

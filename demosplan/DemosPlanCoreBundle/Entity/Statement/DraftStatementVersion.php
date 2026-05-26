@@ -344,10 +344,9 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_ds_version_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $versionDate;
 
     /**

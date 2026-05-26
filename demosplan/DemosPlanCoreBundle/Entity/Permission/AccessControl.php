@@ -43,16 +43,12 @@ class AccessControl extends CoreEntity implements UuidEntityInterface
     #[ORM\Column(name: 'permission', type: 'string', nullable: false)]
     protected string $permission = '';
 
-    /**
-     * @Gedmo\Timestampable(on="create")
-     */
     #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     private DateTime $creationDate;
 
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
     #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     private DateTime $modificationDate;
 
     #[ORM\JoinColumn(name: 'orga_id', referencedColumnName: '_o_id', nullable: false, onDelete: 'CASCADE')]
