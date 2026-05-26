@@ -894,13 +894,13 @@ export default {
     },
 
     getRecommendationVersionNumber (segment) {
-      const recommendationVersionId = segment.relationships?.recommendationVersions?.data?.[0]?.id
+      const currentVersionId = segment.relationships?.recommendationVersions?.data?.[0]?.id
 
-      if (!recommendationVersionId) {
+      if (!currentVersionId) {
         return ''
       }
 
-      const versionNumber = this.recommendationVersions[recommendationVersionId]?.attributes?.versionNumber
+      const versionNumber = this.recommendationVersions[currentVersionId]?.attributes?.versionNumber
 
       return versionNumber != null
         ? String(versionNumber).padStart(3, '0')

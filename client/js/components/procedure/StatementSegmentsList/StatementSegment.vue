@@ -611,15 +611,17 @@ export default {
     },
 
     recommendationVersionNumber () {
-      const lastVersionId = this.segment.relationships?.recommendationVersions?.data?.[0]?.id
+      const currentVersionId = this.segment.relationships.recommendationVersions?.data?.[0]?.id
 
-      if (!lastVersionId) {
+      if (!currentVersionId) {
         return ''
       }
 
-      const versionNumber = this.recommendationVersions?.[lastVersionId]?.attributes?.versionNumber ?? ''
+      const versionNumber = this.recommendationVersions[currentVersionId]?.attributes?.versionNumber
 
-      return String(versionNumber).padStart(3, '0')
+      return versionNumber != null
+        ? String(versionNumber).padStart(3, '0')
+        : ''
     },
 
     segmentPlace () {
