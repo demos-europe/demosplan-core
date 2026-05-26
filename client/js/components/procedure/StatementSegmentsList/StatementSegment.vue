@@ -619,9 +619,9 @@ export default {
 
       const versionNumber = this.recommendationVersions[currentVersionId]?.attributes?.versionNumber
 
-      return versionNumber != null
-        ? String(versionNumber).padStart(3, '0')
-        : ''
+      return versionNumber != null ?
+        String(versionNumber).padStart(3, '0') :
+        ''
     },
 
     segmentPlace () {
@@ -926,9 +926,12 @@ export default {
       }
     },
 
+    /**
+     * Remove non-updatable recommendationVersions from segments relationships for update request
+     * @param relations {Object}
+     */
     excludeRecommendationVersion (relations) {
       if (relations.recommendationVersions) {
-        this.setProperty({ prop: 'isLoading', val: true })
         delete relations.recommendationVersions
       }
     },
@@ -975,9 +978,9 @@ export default {
     },
 
     save () {
-      const comments = this.segment.relationships.comments
-        ? { ...this.segment.relationships.comments }
-        : null
+      const comments = this.segment.relationships.comments ?
+        { ...this.segment.relationships.comments } :
+        null
 
       // Update relationships (assignee/place)
       const relations = this.updateRelationships()
@@ -1006,7 +1009,7 @@ export default {
           this.$nextTick(() => {
             if (this.$refs.recommendationContainer) {
               this.$refs.imageModal.addClickListener(
-                this.$refs.recommendationContainer.querySelectorAll('img')
+                this.$refs.recommendationContainer.querySelectorAll('img'),
               )
             }
           })

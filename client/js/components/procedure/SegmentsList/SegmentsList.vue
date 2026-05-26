@@ -277,9 +277,9 @@
                   v-if="hasPermission('feature_enable_recommendation_versions') && getRecommendationVersionNumber(rowData)"
                   class="text-neutral-base"
                 >
-                {{ Translator.trans('version') }}:
-                {{ getRecommendationVersionNumber(rowData) }}
-              </span>
+                  {{ Translator.trans('version') }}:
+                  {{ getRecommendationVersionNumber(rowData) }}
+                </span>
               </div>
             </template>
             <template v-slot:tags="rowData">
@@ -902,9 +902,9 @@ export default {
 
       const versionNumber = this.recommendationVersions[currentVersionId]?.attributes?.versionNumber
 
-      return versionNumber != null
-        ? String(versionNumber).padStart(3, '0')
-        : ''
+      return versionNumber != null ?
+        String(versionNumber).padStart(3, '0') :
+        ''
     },
 
     getTagsBySegment (id) {
