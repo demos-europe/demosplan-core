@@ -1501,7 +1501,7 @@ class ProcedureService implements ProcedureServiceInterface
 
             return $boilerplateCategory instanceof BoilerplateCategory ? $boilerplateCategory->getBoilerplates()->toArray() : [];
         } catch (Exception $e) {
-            throw new HttpException($e->getCode(), $e->getCode(), $e);
+            throw new HttpException($e->getCode(), $e->getMessage(), $e);
         }
     }
 
