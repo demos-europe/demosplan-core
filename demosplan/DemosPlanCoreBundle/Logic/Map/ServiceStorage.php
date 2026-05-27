@@ -568,66 +568,6 @@ class ServiceStorage implements MapServiceStorageInterface
         return $this->getProjectionAsValue($projectionLabel);
     }
 
-    private function isOaf(array $data): bool
-    {
-        return array_key_exists('r_serviceType', $data) && 'oaf' === strtolower(trim((string) $data['r_serviceType']));
-    }
-
-    private function validateOafUrlFormat(array $data): array
-    {
-        $url = trim((string) $data['r_url']);
-        $lowerUrl = strtolower($url);
-        $collectionsPattern = '/collections/';
-        $collectionsIndex = strpos($lowerUrl, $collectionsPattern);
-
-        // Check if URL contains /collections/ (case-insensitive)
-        if (false === $collectionsIndex) {
-            return [
-                'type'    => 'error',
-                'message' => $this->translator->trans('error.map.layer.oaf.missing.collections'),
-            ];
-        }
-
-        // Check if /collections/ is not at the end (there must be content after it)
-        $afterCollections = substr($url, $collectionsIndex + strlen($collectionsPattern));
-        $afterCollectionsTrimmed = trim($afterCollections, '/ ');
-        if ('' === $afterCollectionsTrimmed) {
-            return [
-                'type'    => 'error',
-                'message' => $this->translator->trans('error.map.layer.oaf.collections.end'),
-            ];
-        }
-
-        return [];
-    }
-
-    private function validateWmsWmtsUrlFormat(array $data): array
-    {
-        $url = trim((string) $data['r_url']);
-        $upperUrl = strtoupper($url);
-
-        // Check if URL contains SERVICE parameter (case-insensitive)
-        if (false === strpos($upperUrl, 'SERVICE=')) {
-            return [
-                'type'    => 'error',
-                'message' => $this->translator->trans('error.map.layer.missing.service'),
-            ];
-        }
-
-        return [];
-    }
-
-    private function getProjectionValueByServiceType(array $gislayer, array $data, string $projectionLabel): string
-    {
-        // Determine projection value based on service type
-        if (isset($gislayer['serviceType']) && 'oaf' === strtolower($gislayer['serviceType'])) {
-            return $data['r_layerProjectionOgcUri'];
-        }
-
-        // WMS/WMTS: convert label to proj4 string
-        return $this->getProjectionAsValue($projectionLabel);
-    }
-
     /**
      * Speichere die Settings zur globalen Sachdatenabfrage.
      *
