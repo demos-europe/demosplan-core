@@ -228,6 +228,7 @@ export default {
 
   data () {
     return {
+      customFieldDefinitions: [],
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -580,6 +581,16 @@ export default {
     const promises = [
       this.getInstitutionTagCategories(true),
     ]
+
+    if (hasPermission('feature_organisations_custom_fields')) {
+      promises.push(
+        this.fetchCustomFields(null, { sourceEntity: 'CUSTOMER', targetEntity: 'ORGA' })
+          .then(definitions => {
+            this.customFieldDefinitions = definitions || []
+          })
+          .catch(err => console.error(err)),
+      )
+    }
 
     Promise.allSettled(promises)
       .then(() => {
