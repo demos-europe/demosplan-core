@@ -167,44 +167,30 @@ All rights reserved
             </dl>
           </div>
 
-          <template v-if="hasPermission('feature_organisations_custom_fields') && customFieldDefinitions.length > 0">
-            <custom-fields-list
-              :definition-source-id="null"
-              :resource-id="id"
-              :show-title="false"
-              mode="readonly"
-              resource-type="InvitableInstitution"
-              source-entity="CUSTOMER"
-              target-entity="ORGA"
-            >
-              <template v-slot:default="{ fieldsWithDefinitions }">
-                <template v-if="fieldsWithDefinitions.length > 0">
-                  <p class="weight--bold mt-4 pb-2">
-                    {{ Translator.trans('institution.internal.information') }}
-                  </p>
-                  <div class="columns-1 lg:columns-2">
-                    <dl
-                      v-for="{ field, definition } in sortFields(fieldsWithDefinitions)"
-                      :key="field.id"
-                      class="mb-2 break-inside-avoid"
-                    >
-                      <dt class="color--grey flex items-center gap-1">
-                        <span>{{ definition.attributes.name }}</span>
-                        <dp-contextual-help
-                          v-if="definition.attributes.description"
-                          :text="definition.attributes.description"
-                          icon="question"
-                          size="medium"
-                        />
-                      </dt>
-                      <dd class="ml-0 whitespace-pre-line">
-                        {{ field.value }}
-                      </dd>
-                    </dl>
-                  </div>
-                </template>
-              </template>
-            </custom-fields-list>
+          <template v-if="hasPermission('feature_organisations_custom_fields') && getCustomFieldsForInstitution(id).length > 0">
+            <p class="weight--bold mt-4 pb-2">
+              {{ Translator.trans('institution.internal.information') }}
+            </p>
+            <div class="columns-1 lg:columns-2">
+              <dl
+                v-for="{ field, definition } in sortFields(getCustomFieldsForInstitution(id))"
+                :key="field.id"
+                class="mb-2 break-inside-avoid"
+              >
+                <dt class="color--grey flex items-center gap-1">
+                  <span>{{ definition.attributes.name }}</span>
+                  <dp-contextual-help
+                    v-if="definition.attributes.description"
+                    :text="definition.attributes.description"
+                    icon="question"
+                    size="medium"
+                  />
+                </dt>
+                <dd class="ml-0 whitespace-pre-line">
+                  {{ field.value }}
+                </dd>
+              </dl>
+            </div>
           </template>
         </div>
       </template>
@@ -222,7 +208,6 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
-import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
@@ -231,7 +216,6 @@ export default {
 
   components: {
     ClientSideTagFilter,
-    CustomFieldsList,
     DpContextualHelp,
     DpDataTable,
     DpLoading,
@@ -272,6 +256,7 @@ export default {
   data () {
     return {
       customFieldDefinitions: [],
+      customFieldValuesByInstitutionId: {},
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -527,6 +512,7 @@ export default {
           .then(data => {
             this.setLocalStorage(data.meta.pagination)
             this.updatePagination(data.meta.pagination)
+            this.extractCustomFieldValues()
           })
       }
 
@@ -534,6 +520,7 @@ export default {
         .then(data => {
           this.setLocalStorage(data.meta.pagination)
           this.updatePagination(data.meta.pagination)
+          this.extractCustomFieldValues()
         })
     },
 
