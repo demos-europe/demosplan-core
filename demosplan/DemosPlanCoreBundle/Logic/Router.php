@@ -43,7 +43,7 @@ class Router implements RouterInterface, WarmableInterface
 
         $generatedRoute = $this->router->generate($route, $parameters, $referenceType);
         // add pathprefix between host and path if needed
-        if (0 < strlen($this->globalConfig->getUrlPathPrefix())) {
+        if ($this->globalConfig->getUrlPathPrefix() !== '') {
             $generatedRoute = $this->injectUrlPathPrefix($generatedRoute);
         }
         // replace scheme

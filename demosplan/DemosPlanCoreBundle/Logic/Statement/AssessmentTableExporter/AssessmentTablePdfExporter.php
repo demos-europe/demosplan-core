@@ -465,10 +465,10 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 }
 
                 $mapFile = $statement['mapFile'];
-                if (('' === $mapFile || null === $mapFile) && 0 < strlen((string) $statement['polygon'])) {
+                if (('' === $mapFile || null === $mapFile) && (string) $statement['polygon'] !== '') {
                     $mapFile = $this->mapService->createMapScreenshot($procedureId, $statement['ident']);
                 }
-                if (null !== $mapFile && 0 < strlen((string) $mapFile) && Statement::MAP_FILE_EMPTY_DASHED !== $mapFile) {
+                if (null !== $mapFile && (string) $mapFile !== '' && Statement::MAP_FILE_EMPTY_DASHED !== $mapFile) {
                     $fileInfo = $this->fileService->getFileInfoFromFileString($mapFile);
                     if ($this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
                         $fileContent = $this->defaultStorage->read($fileInfo->getAbsolutePath());

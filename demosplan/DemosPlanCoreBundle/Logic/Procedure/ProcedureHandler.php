@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -481,7 +482,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // fill cc field:
         $cc = $data['r_emailCc'];
         $cc[] = $from;
-        if (0 < strlen($userEmail)) {
+        if ((string) $userEmail !== '') {
             $cc[] = $userEmail;
         }
         $cc = array_unique($cc);
@@ -871,7 +872,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 
                 $data = ['id' => $endedInternalProcedure->getId(), 'customer' => $endedInternalProcedure->getCustomer()];
                 $internalEvaluatingDefinition = $this->procedurePhaseDefinitionService->findEvaluatingDefinition('internal', $endedInternalProcedure->getCustomer());
-                if (null !== $internalEvaluatingDefinition) {
+                if ($internalEvaluatingDefinition instanceof ProcedurePhaseDefinition) {
                     $data['phaseDefinition'] = $internalEvaluatingDefinition;
                 }
                 $this->procedureService->updateProcedure($data, isSystem: true);
@@ -902,7 +903,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 
                 $data = ['id' => $endedExternalProcedure->getId(), 'customer' => $endedExternalProcedure->getCustomer()];
                 $externalEvaluatingDefinition = $this->procedurePhaseDefinitionService->findEvaluatingDefinition('external', $endedExternalProcedure->getCustomer());
-                if (null !== $externalEvaluatingDefinition) {
+                if ($externalEvaluatingDefinition instanceof ProcedurePhaseDefinition) {
                     $data['publicParticipationPhaseDefinition'] = $externalEvaluatingDefinition;
                 }
                 $this->procedureService->updateProcedure($data, isSystem: true);
@@ -922,7 +923,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         }
 
         // persist phase change report entries
-        $reportEntries = array_filter($reportEntries, static fn (?ReportEntry $e): bool => null !== $e);
+        $reportEntries = array_filter($reportEntries, static fn (?ReportEntry $e): bool => $e instanceof ReportEntry);
         foreach ($reportEntries as $reportEntry) {
             $this->entityManager->persist($reportEntry);
         }
@@ -975,14 +976,14 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         /** @var Orga $orgaData */
         foreach ($orgas as $orgaData) {
             if (in_array($orgaData->getId(), $orgaSelected, true)) {
-                if (0 < strlen(trim((string) $orgaData->getEmail2()))) {
+                if (trim((string) $orgaData->getEmail2()) !== '') {
                     $recipientOrga = [
                         'ident'     => $orgaData->getId(),
                         'nameLegal' => $orgaData->getName(),
                         'email2'    => $orgaData->getEmail2(),
                     ];
                     // Füge eventuelle CC-Email für Beteiligung hinzu
-                    if (0 < strlen(trim((string) $orgaData->getCcEmail2()))) {
+                    if (trim((string) $orgaData->getCcEmail2()) !== '') {
                         $ccEmailAdresses = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', (string) $orgaData->getCcEmail2());
                         $recipientOrga['ccEmails'] = $ccEmailAdresses;
                     }

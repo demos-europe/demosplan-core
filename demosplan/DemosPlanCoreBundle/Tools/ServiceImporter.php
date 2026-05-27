@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Tools;
 
+use Symfony\Component\HttpFoundation\Request;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface;
@@ -128,7 +129,7 @@ class ServiceImporter implements ServiceImporterInterface
         // Release the database session row lock before the blocking RabbitMQ call (up to 600s).
         // Without this, concurrent requests from the same browser hit a lock wait timeout.
         // In CLI/async contexts (e.g. message consumer) there is no HTTP session to save.
-        if (null !== $this->requestStack->getCurrentRequest()) {
+        if ($this->requestStack->getCurrentRequest() instanceof Request) {
             $this->requestStack->getSession()->save();
         }
 
@@ -151,7 +152,7 @@ class ServiceImporter implements ServiceImporterInterface
         // Release the MySQL session row lock before the blocking RabbitMQ call (up to 300s).
         // Without this, concurrent requests from the same browser hit a lock wait timeout.
         // In CLI/async contexts (e.g. message consumer) there is no HTTP session to save.
-        if (null !== $this->requestStack->getCurrentRequest()) {
+        if ($this->requestStack->getCurrentRequest() instanceof Request) {
             $this->requestStack->getSession()->save();
         }
 

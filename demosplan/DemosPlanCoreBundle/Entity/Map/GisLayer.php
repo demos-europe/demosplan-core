@@ -104,7 +104,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
     /**
      * @var string
      */
-    #[ORM\Column(name: '_p_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_p_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $procedureId = '';
 
     /**
@@ -174,7 +174,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
      *
      * @var string
      */
-    #[ORM\Column(name: '_g_global_id', type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
+    #[ORM\Column(name: '_g_global_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected $gId;
 
     /**
@@ -232,7 +232,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
      * Many GisLayers has one GisLayerCategory
      */
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: GisLayerCategory::class, inversedBy: 'gisLayers', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: GisLayerCategory::class, cascade: ['persist'], inversedBy: 'gisLayers')]
     protected $category;
 
     /**
@@ -252,7 +252,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
      *
      * @var string
      */
-    #[ORM\Column(type: 'string', length: 36, options: ['default' => null], nullable: true)]
+    #[ORM\Column(type: 'string', length: 36, nullable: true, options: ['default' => null])]
     protected $visibilityGroupId;
 
     /**

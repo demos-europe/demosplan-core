@@ -39,7 +39,7 @@ class SlugDraftApiController extends APIController
      * @return APIResponse|JsonResponse
      */
     #[DplanPermissions('feature_short_url')]
-    #[Route(methods: ['POST'], name: 'create')]
+    #[Route(name: 'create', methods: ['POST'])]
     public function create(SlugDraftTransformer $slugDraftTransformer): APIResponse
     {
         $slugDraftType = $slugDraftTransformer->getType();

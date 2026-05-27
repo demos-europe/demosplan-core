@@ -49,13 +49,13 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
      * @var Orga
      */
     #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', onDelete: 'SET NULL')]
-    #[ORM\OneToOne(targetEntity: Orga::class, cascade: ['persist'], inversedBy: 'masterToeb')]
+    #[ORM\OneToOne(targetEntity: Orga::class, inversedBy: 'masterToeb', cascade: ['persist'])]
     protected $orga;
 
     /**
      * @var string
      */
-    #[ORM\Column(name: '_o_id', type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
+    #[ORM\Column(name: '_o_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected $oId;
 
     /**

@@ -50,7 +50,7 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface, Ent
      *
      * @var string
      */
-    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
+    #[ORM\Column(type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected $userId;
 
     /**
@@ -70,7 +70,7 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface, Ent
     /**
      * @var string
      */
-    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $entityId;
 
     /**
@@ -82,19 +82,19 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface, Ent
     /**
      * @var string
      */
-    #[ORM\Column(type: 'text', nullable: true, length: 15000000)]
+    #[ORM\Column(type: 'text', length: 15000000, nullable: true)]
     protected $preUpdate;
 
     /**
      * @var string
      */
-    #[ORM\Column(type: 'text', nullable: true, length: 15000000)]
+    #[ORM\Column(type: 'text', length: 15000000, nullable: true)]
     protected $postUpdate;
 
     /**
      * @var ?string
      */
-    #[ORM\Column(type: 'text', nullable: true, length: 15000000)]
+    #[ORM\Column(type: 'text', length: 15000000, nullable: true)]
     protected $contentChange;
 
     #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false, 'comment' => 'Determines if this change was made on a custom field.'])]

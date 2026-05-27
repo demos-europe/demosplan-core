@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use Carbon\Carbon;
 use DateTime;
 use DateTimeInterface;
@@ -409,7 +410,7 @@ class ProcedureService implements ProcedureServiceInterface
 
         if ($this->currentUser->hasAllPermissions('feature_use_plis', 'feature_use_xplanbox')) {
             // bei nonJS ist r_name nicht vorhanden
-            $hasName = \array_key_exists('r_name', $inData) && 0 < \strlen((string) $inData['r_name']);
+            $hasName = \array_key_exists('r_name', $inData) && (string) $inData['r_name'] !== '';
 
             // set publicProcedureParticipationEnabled flag to false
             $inData['r_publicParticipationPublicationEnabled'] = 0;
@@ -570,7 +571,7 @@ class ProcedureService implements ProcedureServiceInterface
     public function getDeletedProcedures($limit = 100_000_000, ?DateTimeInterface $deletedBefore = null): array
     {
         try {
-            if (null === $deletedBefore) {
+            if (!$deletedBefore instanceof DateTimeInterface) {
                 return $this->procedureRepository->findBy(['deleted' => true], null, $limit);
             }
 
@@ -1500,7 +1501,7 @@ class ProcedureService implements ProcedureServiceInterface
 
             return $boilerplateCategory instanceof BoilerplateCategory ? $boilerplateCategory->getBoilerplates()->toArray() : [];
         } catch (Exception $e) {
-            throw new HttpException($e->getCode());
+            throw new HttpException($e->getCode(), $e->getCode(), $e);
         }
     }
 
@@ -1893,7 +1894,7 @@ class ProcedureService implements ProcedureServiceInterface
         $participationPhase = $procedure->getPublicParticipationPhaseObject();
 
         return $participationPhase->getDesignatedSwitchDate() instanceof DateTime
-            && null !== $participationPhase->getDesignatedPhaseDefinition()
+            && $participationPhase->getDesignatedPhaseDefinition() instanceof ProcedurePhaseDefinitionInterface
             && $participationPhase->getDesignatedEndDate() instanceof DateTime;
     }
 
@@ -1907,7 +1908,7 @@ class ProcedureService implements ProcedureServiceInterface
         $institutionPhase = $procedure->getPhaseObject();
 
         return $institutionPhase->getDesignatedSwitchDate() instanceof DateTime
-            && null !== $institutionPhase->getDesignatedPhaseDefinition()
+            && $institutionPhase->getDesignatedPhaseDefinition() instanceof ProcedurePhaseDefinitionInterface
             && $institutionPhase->getDesignatedEndDate() instanceof DateTime;
     }
 
@@ -2570,7 +2571,7 @@ class ProcedureService implements ProcedureServiceInterface
         bool $limitProcedureTemplatesToCustomer,
     ): array {
         $conditions = [];
-        if (\is_string($search) && 0 < \strlen($search)) {
+        if (\is_string($search) && $search !== '') {
             $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue(
                 $search,
                 ['name']

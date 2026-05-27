@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use Carbon\Carbon;
 use DateTime;
 use DateTimeInterface;
@@ -380,19 +381,19 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             }
             $indexMap[$worksheetTitle] = $worksheet;
         }
-        if (null === $indexMap[self::PUBLIC] && null === $indexMap[self::INSTITUTION]) {
+        if (!$indexMap[self::PUBLIC] instanceof Worksheet && !$indexMap[self::INSTITUTION] instanceof Worksheet) {
             throw new MissingDataException('The Excel Statement import is missing mandatory worksheets');
         }
-        if (null !== $indexMap[self::PUBLIC]) {
+        if ($indexMap[self::PUBLIC] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::PUBLIC];
         }
-        if (null !== $indexMap[self::INSTITUTION]) {
+        if ($indexMap[self::INSTITUTION] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::INSTITUTION];
         }
-        if (null !== $indexMap[self::STATEMENT_PROCEDURE_PERSON_WORKSHEET]) {
+        if ($indexMap[self::STATEMENT_PROCEDURE_PERSON_WORKSHEET] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::STATEMENT_PROCEDURE_PERSON_WORKSHEET];
         }
-        if (null !== $indexMap[self::LEGENDE_WORKSHEET]) {
+        if ($indexMap[self::LEGENDE_WORKSHEET] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::LEGENDE_WORKSHEET];
         }
 
@@ -911,7 +912,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         }
 
         $currentProcedure = $this->currentProcedureService->getProcedure();
-        if (null === $currentProcedure) {
+        if (!$currentProcedure instanceof Procedure) {
             throw new InvalidArgumentException('Current procedure is missing.');
         }
 
@@ -1210,7 +1211,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         foreach ($scheduledInsertions as $entity) {
             if ($entity instanceof Tag && mb_strtolower($entity->getTitle()) === $tagTitleLower) {
                 $topic = $entity->getTopic();
-                if (null !== $topic && $topic->getProcedure()?->getId() === $procedureId) {
+                if ($topic instanceof TagTopicInterface && $topic->getProcedure()?->getId() === $procedureId) {
                     return $entity;
                 }
             }

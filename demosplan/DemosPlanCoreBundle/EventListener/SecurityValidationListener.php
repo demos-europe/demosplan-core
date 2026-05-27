@@ -139,13 +139,8 @@ class SecurityValidationListener implements EventSubscriberInterface
                 return true;
             }
         }
-
         // Raw body
-        if (str_contains($request->getContent(), "\0")) {
-            return true;
-        }
-
-        return false;
+        return str_contains($request->getContent(), "\0");
     }
 
     /**

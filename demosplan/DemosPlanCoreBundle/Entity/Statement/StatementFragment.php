@@ -69,7 +69,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
     /**
      * @var StatementInterface
      */
-    #[ORM\JoinColumn(name: 'statement_id', referencedColumnName: '_st_id', onDelete: 'CASCADE', nullable: false)]
+    #[ORM\JoinColumn(name: 'statement_id', referencedColumnName: '_st_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'fragments')]
     protected $statement;
 

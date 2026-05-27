@@ -94,14 +94,14 @@ class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
         if (array_key_exists('r_elementId', $data)) {
             $document['elementId'] = $data['r_elementId'];
             // set max possible order only if no parent paragraph is set
-            if (!array_key_exists('r_parentId', $data) && 0 < strlen((string) $data['r_parentId'])) {
+            if (!array_key_exists('r_parentId', $data) && (string) $data['r_parentId'] !== '') {
                 $document['order'] = $this->paragraphService->getMaxOrderFromElement(
                     $document['elementId']
                 ) + 1;
             }
         }
 
-        if (array_key_exists('r_parentId', $data) && 0 < strlen((string) $data['r_parentId'])) {
+        if (array_key_exists('r_parentId', $data) && (string) $data['r_parentId'] !== '') {
             $document = $this->prepareParagraphParentTree(
                 $data,
                 $elementId,

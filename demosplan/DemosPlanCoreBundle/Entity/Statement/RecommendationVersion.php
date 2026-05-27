@@ -62,7 +62,7 @@ class RecommendationVersion extends CoreEntity implements UuidEntityInterface, R
     /**
      * @var string
      */
-    #[ORM\Column(name: 'recommendation_text', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: 'recommendation_text', type: 'text', length: 15000000, nullable: false)]
     protected $recommendationText = '';
 
     /**

@@ -48,7 +48,7 @@ class CurrentOrganisationService
     public function getCurrentOrganisation(UserInterface $user): ?OrgaInterface
     {
         // First check if user has a transient current organisation set
-        if ($user instanceof User && null !== $user->getCurrentOrganisation()) {
+        if ($user instanceof User && $user->getCurrentOrganisation() instanceof OrgaInterface) {
             return $user->getCurrentOrganisation();
         }
 
@@ -114,7 +114,7 @@ class CurrentOrganisationService
      */
     public function initializeCurrentOrganisation(User $user): void
     {
-        if (null !== $user->getCurrentOrganisation()) {
+        if ($user->getCurrentOrganisation() instanceof OrgaInterface) {
             return;
         }
 
@@ -194,7 +194,7 @@ class CurrentOrganisationService
     {
         $orga = $this->findOrganisationByGwId($gwId);
 
-        if (null !== $orga) {
+        if ($orga instanceof OrgaInterface) {
             return $orga;
         }
 

@@ -89,7 +89,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
     /**
      * @var string
      */
-    #[ORM\Column(name: '_ds_text', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: '_ds_text', type: 'text', length: 15000000, nullable: false)]
     protected $text = '';
 
     /**

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
@@ -110,8 +111,8 @@ class StatementFilterHandler extends CoreHandler
     {
         foreach ($options as $key => $phase) {
             $definition = $this->procedurePhaseDefinitionService->findById($phase['value']);
-            $options[$key]['label'] = null !== $definition ? $definition->getName() : $phase['value'];
-            $options[$key]['order'] = null !== $definition ? $definition->getOrderInAudience() : PHP_INT_MAX;
+            $options[$key]['label'] = $definition instanceof ProcedurePhaseDefinition ? $definition->getName() : $phase['value'];
+            $options[$key]['order'] = $definition instanceof ProcedurePhaseDefinition ? $definition->getOrderInAudience() : PHP_INT_MAX;
         }
 
         return collect($options)->sortBy('order')->values()->all();
