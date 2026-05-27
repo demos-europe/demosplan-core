@@ -199,7 +199,7 @@ export default {
     },
 
     definitionSourceId: {
-      type: String,
+      type: [String, null],
       required: true,
     },
 
