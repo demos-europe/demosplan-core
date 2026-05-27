@@ -22,10 +22,11 @@ use demosplan\DemosPlanCoreBundle\StateProvider\DraftStatementStateProvider;
 #[ApiResource(
     shortName: 'DraftStatement',
     operations: [
-        new Get(),
-        new GetCollection(),
-        new Patch(),
+        new Get(uriTemplate: '/DraftStatement/{id}'),
+        new GetCollection(uriTemplate: '/DraftStatement'),
+        new Patch(uriTemplate: '/DraftStatement/{id}'),
     ],
+    formats: ['jsonapi'],
     routePrefix: '/3.0',
     provider: DraftStatementStateProvider::class,
     processor: DraftStatementStateProcessor::class,
