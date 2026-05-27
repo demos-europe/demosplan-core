@@ -324,10 +324,10 @@ export default {
     apiRequestFields () {
       const headerFieldNames = this.headerFields.map(field => field.field)
       const baseFields = ['participationFeedbackEmailAddress', 'locationContacts']
+      const customFields = hasPermission('feature_organisations_custom_fields') ? ['customFields'] : []
       const tagFields = hasPermission('feature_institution_tag_read') ? ['assignedTags'] : []
 
-      return [...new Set([...headerFieldNames, ...baseFields,
-        ...tagFields])]
+      return [...new Set([...headerFieldNames, ...baseFields, ...customFields, ...tagFields])]
     },
 
     currentPage () {
