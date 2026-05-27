@@ -67,102 +67,145 @@ All rights reserved
       @items-selected="setSelectedItems"
     >
       <!-- Resource-specific content based on resourceType -->
-      <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags }">
-        <div class="lg:w-2/3 lg:flex pt-4">
-          <dl class="pl-4 w-full">
-            <dt class="color--grey">
-              {{ Translator.trans('address') }}
-            </dt>
-            <template v-if="locationContacts && hasAdress(locationContacts)">
+      <template v-slot:expandedContent="{ id, participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags }">
+        <div class="border-l-4 border-[#757575] mb-2 ml-4 mt-4 pl-4">
+          <p class="weight--bold pb-2">
+            {{ Translator.trans('institution.general.information') }}
+          </p>
+          <div class="lg:flex">
+            <dl class="w-full">
+              <dt class="color--grey">
+                {{ Translator.trans('address') }}
+              </dt>
+              <template v-if="locationContacts && hasAdress(locationContacts)">
+                <dd
+                  v-if="locationContacts.street"
+                  class="ml-0"
+                >
+                  {{ locationContacts.street }}
+                </dd>
+                <dd
+                  v-if="locationContacts.postalcode"
+                  class="ml-0"
+                >
+                  {{ locationContacts.postalcode }}
+                </dd>
+                <dd
+                  v-if="locationContacts.city"
+                  class="ml-0"
+                >
+                  {{ locationContacts.city }}
+                </dd>
+              </template>
               <dd
-                v-if="locationContacts.street"
+                v-else
                 class="ml-0"
               >
-                {{ locationContacts.street }}
+                {{ Translator.trans('notspecified') }}
               </dd>
-              <dd
-                v-if="locationContacts.postalcode"
-                class="ml-0"
-              >
-                {{ locationContacts.postalcode }}
-              </dd>
-              <dd
-                v-if="locationContacts.city"
-                class="ml-0"
-              >
-                {{ locationContacts.city }}
-              </dd>
-            </template>
-            <dd
-              v-else
-              class="ml-0"
-            >
-              {{ Translator.trans('notspecified') }}
-            </dd>
-          </dl>
-          <dl class="pl-4 w-full">
-            <dt class="color--grey">
-              {{ Translator.trans('phone') }}
-            </dt>
-            <dd
-              v-if="locationContacts?.hasOwnProperty('phone') && locationContacts.phone"
-              class="ml-0"
-            >
-              {{ locationContacts.phone }}
-            </dd>
-            <dd
-              v-else
-              class="ml-0"
-            >
-              {{ Translator.trans('notspecified') }}
-            </dd>
-            <dt class="color--grey mt-2">
-              {{ Translator.trans('email.participation') }}
-            </dt>
-            <dd
-              v-if="participationFeedbackEmailAddress"
-              class="ml-0"
-            >
-              {{ participationFeedbackEmailAddress }}
-            </dd>
-            <dd
-              v-else
-              class="ml-0"
-            >
-              {{ Translator.trans('no.participation.email') }}
-            </dd>
-            <template v-if="ccEmailAddresses">
               <dt class="color--grey mt-2">
-                {{ Translator.trans('email.cc.participation') }}:
+                {{ Translator.trans('phone') }}
+              </dt>
+              <dd
+                v-if="locationContacts?.hasOwnProperty('phone') && locationContacts.phone"
+                class="ml-0"
+              >
+                {{ locationContacts.phone }}
+              </dd>
+              <dd
+                v-else
+                class="ml-0"
+              >
+                {{ Translator.trans('notspecified') }}
+              </dd>
+              <dt class="color--grey mt-2">
+                {{ Translator.trans('email.participation') }}
+              </dt>
+              <dd
+                v-if="participationFeedbackEmailAddress"
+                class="ml-0"
+              >
+                {{ participationFeedbackEmailAddress }}
+              </dd>
+              <dd
+                v-else
+                class="ml-0"
+              >
+                {{ Translator.trans('no.participation.email') }}
+              </dd>
+              <template v-if="ccEmailAddresses">
+                <dt class="color--grey mt-2">
+                  {{ Translator.trans('email.cc.participation') }}:
+                </dt>
+                <dd class="ml-0">
+                  {{ ccEmailAddresses }}
+                </dd>
+              </template>
+              <template v-if="contactPerson">
+                <dt class="color--grey mt-2">
+                  {{ Translator.trans('contact.person') }}:
+                </dt>
+                <dd class="ml-0">
+                  {{ contactPerson }}
+                </dd>
+              </template>
+            </dl>
+            <dl
+              v-if="hasPermission('feature_institution_tag_read') && Array.isArray(assignedTags) && assignedTags.length > 0"
+              class="w-full"
+            >
+              <dt class="color--grey">
+                {{ Translator.trans('tags') }}
               </dt>
               <dd class="ml-0">
-                {{ ccEmailAddresses }}
+                <div class="flex flex-wrap gap-1 mt-1">
+                  <span>
+                    {{ assignedTags.map(tag => tag.name).join(', ') }}
+                  </span>
+                </div>
               </dd>
-            </template>
-            <template v-if="contactPerson">
-              <dt class="color--grey mt-2">
-                {{ Translator.trans('contact.person') }}:
-              </dt>
-              <dd class="ml-0">
-                {{ contactPerson }}
-              </dd>
-            </template>
-          </dl>
-          <dl
-            v-if="hasPermission('feature_institution_tag_read') && Array.isArray(assignedTags) && assignedTags.length > 0"
-            class="pl-4 w-full"
-          >
-            <dt class="color--grey">
-              {{ Translator.trans('tags') }}
-            </dt>
-            <dd class="ml-0">
-              <div class="flex flex-wrap gap-1 mt-1">
-                <span>
-                  {{ assignedTags.map(tag => tag.name).join(', ') }}
-                </span>
-              </div>
-            </dd>
-          </dl>
+            </dl>
+          </div>
+
+          <template v-if="hasPermission('feature_organisations_custom_fields') && customFieldDefinitions.length > 0">
+            <custom-fields-list
+              :definition-source-id="null"
+              :resource-id="id"
+              :show-title="false"
+              mode="readonly"
+              resource-type="InvitableInstitution"
+              source-entity="CUSTOMER"
+              target-entity="ORGA"
+            >
+              <template v-slot:default="{ fieldsWithDefinitions }">
+                <template v-if="fieldsWithDefinitions.length > 0">
+                  <p class="weight--bold mt-4 pb-2">
+                    {{ Translator.trans('institution.internal.information') }}
+                  </p>
+                  <div class="columns-1 lg:columns-2">
+                    <dl
+                      v-for="{ field, definition } in sortFields(fieldsWithDefinitions)"
+                      :key="field.id"
+                      class="mb-2 break-inside-avoid"
+                    >
+                      <dt class="color--grey flex items-center gap-1">
+                        <span>{{ definition.attributes.name }}</span>
+                        <dp-contextual-help
+                          v-if="definition.attributes.description"
+                          :text="definition.attributes.description"
+                          icon="question"
+                          size="medium"
+                        />
+                      </dt>
+                      <dd class="ml-0 whitespace-pre-line">
+                        {{ field.value }}
+                      </dd>
+                    </dl>
+                  </div>
+                </template>
+              </template>
+            </custom-fields-list>
+          </template>
         </div>
       </template>
     </dp-data-table>
