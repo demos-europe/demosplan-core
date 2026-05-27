@@ -561,6 +561,10 @@ export default {
       this.$emit('selectedItems', items)
     },
 
+    sortFields (fields) {
+      return [...fields].sort((a, b) => a.definition.attributes.name.localeCompare(b.definition.attributes.name))
+    },
+
     /**
      * Clear all selections in the data table
      * Used after bulk operations like deletion to prevent stale selections
