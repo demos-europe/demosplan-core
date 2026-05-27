@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Services\Elasticsearch;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidElasticsearchQueryConfigurationException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -134,8 +135,8 @@ class QueryProcedure extends AbstractQuery
             foreach ($values as $value) {
                 if ($isPhaseDefinitionFilter) {
                     $definition = $this->procedurePhaseDefinitionService->findById($value['value']);
-                    $value['label'] = null !== $definition ? $definition->getName() : $value['value'];
-                    $value['order'] = null !== $definition ? $definition->getOrderInAudience() : PHP_INT_MAX;
+                    $value['label'] = $definition instanceof ProcedurePhaseDefinition ? $definition->getName() : $value['value'];
+                    $value['order'] = $definition instanceof ProcedurePhaseDefinition ? $definition->getOrderInAudience() : PHP_INT_MAX;
                 } elseif (in_array($element->getName(), ['phasePermissionset', 'publicParticipationPhasePermissionset'])) {
                     /*
                      * Possible values:

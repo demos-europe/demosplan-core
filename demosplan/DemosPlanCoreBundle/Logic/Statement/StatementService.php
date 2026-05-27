@@ -327,13 +327,13 @@ class StatementService implements StatementServiceInterface
         $em = $this->doctrine->getManager();
 
         // Create and use versions of paragraph and SingleDocument
-        if (\array_key_exists('paragraphId', $data) && 0 < \strlen((string) $data['paragraphId']) && '-' != $data['paragraphId']) {
+        if (\array_key_exists('paragraphId', $data) && '' !== (string) $data['paragraphId'] && '-' != $data['paragraphId']) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
                 $em->find(Paragraph::class, $data['paragraphId'])
             );
         }
 
-        if (\array_key_exists('documentId', $data) && 0 < \strlen((string) $data['documentId'])) {
+        if (\array_key_exists('documentId', $data) && '' !== (string) $data['documentId']) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
                 $em->find(SingleDocument::class, $data['documentId'])
             );
@@ -408,7 +408,7 @@ class StatementService implements StatementServiceInterface
             if (\array_key_exists('noLocation', $data['statementAttributes'])
                 && true == $data['statementAttributes']['noLocation']) {
                 $attrRepo->setNoLocation($statement);
-            } elseif (\array_key_exists('county', $data['statementAttributes']) && 0 < \strlen((string) $data['statementAttributes']['county'])) {
+            } elseif (\array_key_exists('county', $data['statementAttributes']) && '' !== (string) $data['statementAttributes']['county']) {
                 try {
                     $attrRepo->addCounty($statement, $data['statementAttributes']['county']);
                 } catch (Exception) {
@@ -1871,7 +1871,7 @@ class StatementService implements StatementServiceInterface
         }
         // Wenn das Statement einen Absatz hat lege eine Version an, wenn sich der Absatz verändert hat
         if (\array_key_exists('paragraphId', $data)
-            && 0 < \strlen((string) $data['paragraphId'])
+            && '' !== (string) $data['paragraphId']
             && $data['paragraphId'] != $currentStatement->getParagraphId()) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
                 $em->find(Paragraph::class, $data['paragraphId'])
@@ -1884,7 +1884,7 @@ class StatementService implements StatementServiceInterface
         }
 
         if (\array_key_exists('documentId', $data)
-            && 0 < \strlen((string) $data['documentId'])
+            && '' !== (string) $data['documentId']
             && $data['documentId'] != $currentStatement->getDocumentId()) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
                 $em->find(SingleDocument::class, $data['documentId'])
@@ -2478,7 +2478,7 @@ class StatementService implements StatementServiceInterface
             return $statementAbwaegungstabelle;
         }
 
-        if (!is_null($statementAbwaegungstabelle->getPolygon()) && 0 < \strlen($statementAbwaegungstabelle->getPolygon())) {
+        if (!is_null($statementAbwaegungstabelle->getPolygon()) && '' !== (string) $statementAbwaegungstabelle->getPolygon()) {
             try {
                 $this->statementGeoService->scheduleFetchGeoData($statementAbwaegungstabelle->getId());
             } catch (Exception $e) {
@@ -3191,23 +3191,23 @@ class StatementService implements StatementServiceInterface
             }
         }
 
-        if (\array_key_exists('r_userState', $data) && 0 < \strlen((string) $data['r_userState'])) {
+        if (\array_key_exists('r_userState', $data) && '' !== (string) $data['r_userState']) {
             $statement['meta']['userState'] = $data['r_userState'];
         }
-        if (\array_key_exists('r_userGroup', $data) && 0 < \strlen((string) $data['r_userGroup'])) {
+        if (\array_key_exists('r_userGroup', $data) && '' !== (string) $data['r_userGroup']) {
             $statement['meta']['userGroup'] = $data['r_userGroup'];
         }
-        if (\array_key_exists('r_userOrganisation', $data) && 0 < \strlen((string) $data['r_userOrganisation'])) {
+        if (\array_key_exists('r_userOrganisation', $data) && '' !== (string) $data['r_userOrganisation']) {
             $statement['meta']['userOrganisation'] = $data['r_userOrganisation'];
         }
-        if (\array_key_exists('r_userPosition', $data) && 0 < \strlen((string) $data['r_userPosition'])) {
+        if (\array_key_exists('r_userPosition', $data) && '' !== (string) $data['r_userPosition']) {
             $statement['meta']['userPosition'] = $data['r_userPosition'];
         }
-        if (\array_key_exists('r_phone', $data) && 0 < \strlen((string) $data['r_phone'])) {
+        if (\array_key_exists('r_phone', $data) && '' !== (string) $data['r_phone']) {
             $statement['meta'][StatementMeta::USER_PHONE] = $data['r_phone'];
         }
 
-        if (\array_key_exists('r_authored_date', $data) && 0 < \strlen((string) $data['r_authored_date'])) {
+        if (\array_key_exists('r_authored_date', $data) && '' !== (string) $data['r_authored_date']) {
             $statement['authoredDate'] = $data['r_authored_date'];
         }
 

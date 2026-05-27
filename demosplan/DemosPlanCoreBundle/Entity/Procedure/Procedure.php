@@ -154,7 +154,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * @var string
      */
-    #[ORM\Column(name: '_p_plis_id', type: 'string', length: 36, options: ['fixed' => true, 'default' => ''], nullable: false)]
+    #[ORM\Column(name: '_p_plis_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true, 'default' => ''])]
     protected $plisId = '';
 
     /**

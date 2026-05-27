@@ -186,13 +186,13 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     /**
      * @var string
      */
-    #[ORM\Column(name: 'sfv_element_title', type: 'text', nullable: true, length: 2500)]
+    #[ORM\Column(name: 'sfv_element_title', type: 'text', length: 2500, nullable: true)]
     protected $elementTitle;
 
     /**
      * @var string
      */
-    #[ORM\Column(name: 'sfv_element_category', type: 'text', nullable: true, length: 256)]
+    #[ORM\Column(name: 'sfv_element_category', type: 'text', length: 256, nullable: true)]
     protected $elementCategory;
 
     /**

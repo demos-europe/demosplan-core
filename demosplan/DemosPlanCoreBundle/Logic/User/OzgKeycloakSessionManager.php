@@ -185,7 +185,7 @@ class OzgKeycloakSessionManager
     ): void {
         $checkInterval = $this->parameterBag->get('oauth_token_fast_path_interval_seconds');
 
-        if (null !== $accessTokenExpiresAt) {
+        if ($accessTokenExpiresAt instanceof DateTime) {
             $secondsUntilExpiry = $accessTokenExpiresAt->getTimestamp() - time();
             // min/max guards against negative values if token is already expired
             $checkInterval = min($checkInterval, max(0, $secondsUntilExpiry));
@@ -209,7 +209,7 @@ class OzgKeycloakSessionManager
         // Fall back to access token expiry if no refresh token is available.
         $expirationTimestamp = $refreshTokenExpiresAt ?? $accessTokenExpiresAt;
 
-        if (null === $expirationTimestamp) {
+        if (!$expirationTimestamp instanceof DateTime) {
             return;
         }
 
