@@ -305,9 +305,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     #[ORM\ManyToMany(targetEntity: InstitutionTag::class, inversedBy: 'taggedInstitutions', cascade: ['persist', 'remove'])]
     protected $assignedTags;
 
-    /**
-     * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
-     */
+    #[ORM\Column(type: 'dplan.custom_fields_value', nullable: true)]
     private ?CustomFieldValuesList $customFields = null;
 
     public function __construct()
