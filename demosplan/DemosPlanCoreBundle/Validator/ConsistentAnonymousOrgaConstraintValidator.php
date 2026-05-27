@@ -20,14 +20,14 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class ConsistentAnonymousOrgaConstraintValidator extends ConstraintValidator
 {
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         $this->validateTyped($value, $constraint);
     }
 
     protected function validateTyped(?Statement $statement, ConsistentAnonymousOrgaConstraint $constraint): void
     {
-        if (null === $statement) {
+        if (!$statement instanceof Statement) {
             return;
         }
 

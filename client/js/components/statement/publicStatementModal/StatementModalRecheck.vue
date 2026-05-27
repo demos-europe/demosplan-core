@@ -257,16 +257,54 @@
         :class="prefixClass('sm:h-9 overflow-auto c-styled-html')"
       />
     </div>
+    <div
+      v-if="customFieldsWithValues.length > 0"
+      :class="prefixClass('flow-root border--top u-pt-0_25')"
+    >
+      <span :class="prefixClass('flow-root')">
+        <em>{{ Translator.trans('statement.data') }}: </em>
+        <button
+          type="button"
+          data-cy="statementModalRecheck:customFieldsEdit"
+          :aria-label="Translator.trans('statement.form.input.change')"
+          :class="prefixClass('o-link--default btn-icns float-right')"
+          :title="Translator.trans('statement.form.input.change')"
+          @click="$emit('editInput', 'r_customFields')"
+        >
+          <i
+            :class="prefixClass('fa fa-pencil')"
+            aria-hidden="true"
+          />
+        </button>
+      </span>
+
+      <custom-field
+        v-for="field in customFieldsWithValues"
+        :key="field.id"
+        :definition-source-id="procedureId"
+        :field-data="{ id: field.id, value: field.value || [] }"
+        mode="readonly"
+        :class="prefixClass('mb-1')"
+      >
+        <template v-slot:readonly-display="{ field: customField }">
+          <span>
+            {{ customField.value?.selectedOptions?.map(o => o.label).join(', ') }}
+          </span>
+        </template>
+      </custom-field>
+    </div>
   </fieldset>
 </template>
 
 <script>
 import { CleanHtml, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import CustomField from '@DpJs/components/customFields/CustomField'
 
 export default {
   name: 'StatementModalRecheck',
 
   components: {
+    CustomField,
     DpInlineNotification,
   },
 
@@ -323,6 +361,18 @@ export default {
       required: false,
       default: '',
     },
+
+    selectableCustomFields: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+
+    procedureId: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
 
   emits: [
@@ -356,6 +406,12 @@ export default {
 
     showStreet () {
       return this.statement.r_street && this.statement.r_street !== ''
+    },
+
+    customFieldsWithValues () {
+      return this.selectableCustomFields.filter(
+        field => field.value && field.value.length > 0,
+      )
     },
   },
 

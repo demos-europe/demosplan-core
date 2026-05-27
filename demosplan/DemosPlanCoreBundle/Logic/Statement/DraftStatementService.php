@@ -15,12 +15,14 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -49,6 +51,10 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldDisplayResolver;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldPropertyName;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
@@ -149,6 +155,8 @@ class DraftStatementService
         private readonly LoggerInterface $logger,
         private readonly ManagerRegistry $doctrine,
         private readonly ProfilerService $profilerService,
+        private readonly CustomFieldValueCreator $customFieldValueCreator,
+        private readonly CustomFieldDisplayResolver $customFieldDisplayResolver,
     ) {
         $this->currentUser = $currentUser;
         $this->elementsService = $elementsService;
@@ -251,11 +259,7 @@ class DraftStatementService
                     if (is_array($result)) {
                         $result = $result[0];
                     }
-                    if ($toLegacy) {
-                        $list[] = $this->convertToLegacy($result);
-                    } else {
-                        $list[] = $result;
-                    }
+                    $list[] = $toLegacy ? $this->convertToLegacy($result) : $result;
                 }
             }
 
@@ -869,9 +873,9 @@ class DraftStatementService
 
                 $filenameSuffix = $this->translator->trans('export.filenames.statement.single.suffix');
                 // Die Stellungnahme kann nicht übergeben werden, rufe sie ab
-                $templateVars['statement'] = $this->getSingleDraftStatement(
-                    $itemsToExport[0]
-                );
+                $statement = $this->getSingleDraftStatement($itemsToExport[0]);
+                $statement = $this->attachResolvedCustomFields($statement, $procedureId);
+                $templateVars['statement'] = $statement;
                 $itemsToExport = null;
                 break;
             case 'list_final_group_citizen':
@@ -998,7 +1002,7 @@ class DraftStatementService
     protected function checkMapScreenshotFile(array $statementArray, string $procedureId): array
     {
         // Does the statement have a polygon but no screenshot?
-        if (0 < strlen((string) $statementArray['polygon']) && 0 === strlen($statementArray['mapFile'] ?? '')) {
+        if (0 < strlen((string) $statementArray['polygon']) && '' === (string) ($statementArray['mapFile'] ?? '')) {
             $this->logger->info('DraftStatement has a polygon but no screenshot. Creating one');
             $statementArray['mapFile'] = $this->getServiceMap()->createMapScreenshot($procedureId, $statementArray['ident']);
         }
@@ -1099,7 +1103,7 @@ class DraftStatementService
             // before updating the draftstatement - check if a version allready exists
             // if versioning is requested and no version exists yet - create a version of the original state as well
             // before updating the entity. refs T32960:
-            if ($createVersion && 0 === count($this->getVersionList($data['ident']))) {
+            if ($createVersion && [] === $this->getVersionList($data['ident'])) {
                 $draftStatementBeforeUpdate = $this->draftStatementRepository->get($data['ident']);
                 if (null !== $draftStatementBeforeUpdate) {
                     $this->draftStatementVersionRepository->createVersion($draftStatementBeforeUpdate);
@@ -1182,6 +1186,9 @@ class DraftStatementService
         }
         $statementAttributes = $draftStatement->getStatementAttributes();
         $draftStatement = $this->entityHelper->toArray($draftStatement);
+        if ($draftStatement['phaseDefinition'] instanceof ProcedurePhaseDefinition) {
+            $draftStatement['phaseDefinition'] = $this->entityHelper->toArray($draftStatement['phaseDefinition']);
+        }
         if ($draftStatement['element'] instanceof Elements) {
             $draftStatement['element'] = $this->entityHelper->toArray($draftStatement['element']);
             if ($draftStatement['element']['documents'] instanceof Collection) {
@@ -1252,44 +1259,36 @@ class DraftStatementService
             $entity = $this->getDraftStatementObject($data['ident']);
         }
 
-        if (array_key_exists('paragraph', $data) && $data['paragraph'] instanceof Paragraph) {
-            // check whether existing paragraph equals given paragraphId
-            if (is_null($entity) || $data['paragraph']->getId() != $entity->getParagraphId()) {
-                $data['paragraph'] = $this->createParagraphVersion(
-                    $data['paragraph']
-                );
-            }
+        // check whether existing paragraph equals given paragraphId
+        if (array_key_exists('paragraph', $data) && $data['paragraph'] instanceof Paragraph && (is_null($entity) || $data['paragraph']->getId() != $entity->getParagraphId())) {
+            $data['paragraph'] = $this->createParagraphVersion(
+                $data['paragraph']
+            );
         }
-        if (array_key_exists('paragraphId', $data) && 0 < strlen((string) $data['paragraphId'])) {
-            // check whether existing paragraph equals given paragraphId
-            if (is_null($entity) || $data['paragraphId'] != $entity->getParagraphId()) {
-                $data['paragraph'] = $this->createParagraphVersion(
-                    $em->find(
-                        Paragraph::class,
-                        $data['paragraphId']
-                    )
-                );
-            }
+        // check whether existing paragraph equals given paragraphId
+        if (array_key_exists('paragraphId', $data) && 0 < strlen((string) $data['paragraphId']) && (is_null($entity) || $data['paragraphId'] != $entity->getParagraphId())) {
+            $data['paragraph'] = $this->createParagraphVersion(
+                $em->find(
+                    Paragraph::class,
+                    $data['paragraphId']
+                )
+            );
         }
 
-        if (array_key_exists('document', $data) && $data['document'] instanceof SingleDocument) {
-            // check whether existing document equals given documentId
-            if (is_null($entity) || $data['document']->getId() != $entity->getDocumentId()) {
-                $data['document'] = $this->createSingleDocumentVersion(
-                    $data['document']
-                );
-            }
+        // check whether existing document equals given documentId
+        if (array_key_exists('document', $data) && $data['document'] instanceof SingleDocument && (is_null($entity) || $data['document']->getId() != $entity->getDocumentId())) {
+            $data['document'] = $this->createSingleDocumentVersion(
+                $data['document']
+            );
         }
-        if (array_key_exists('documentId', $data) && 0 < strlen((string) $data['documentId'])) {
-            // check whether existing document equals given documentId
-            if (is_null($entity) || $data['documentId'] != $entity->getDocumentId()) {
-                $data['document'] = $this->createSingleDocumentVersion(
-                    $em->find(
-                        SingleDocument::class,
-                        $data['documentId']
-                    )
-                );
-            }
+        // check whether existing document equals given documentId
+        if (array_key_exists('documentId', $data) && 0 < strlen((string) $data['documentId']) && (is_null($entity) || $data['documentId'] != $entity->getDocumentId())) {
+            $data['document'] = $this->createSingleDocumentVersion(
+                $em->find(
+                    SingleDocument::class,
+                    $data['documentId']
+                )
+            );
         }
 
         return $data;
@@ -1439,7 +1438,7 @@ class DraftStatementService
             $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
 
             // Base Filters to apply always
-            $boolQuery->addMust(new Terms('_id', $ids));
+            $boolQuery->addMust(new Terms('_id', \array_values($ids)));
 
             // generate Query
             $query = new Query();
@@ -1576,7 +1575,7 @@ class DraftStatementService
             }
 
             // do not include procedures in configuration
-            if (0 < count($boolMustNotFilter)) {
+            if ([] !== $boolMustNotFilter) {
                 array_map($boolQuery->addMustNot(...), $boolMustNotFilter);
             }
 
@@ -2071,6 +2070,30 @@ class DraftStatementService
         return $statement;
     }
 
+    public function extractCustomFields(array $data, array $statement, string $procedureId): array
+    {
+        if (!$this->currentUser->hasPermission('feature_statements_custom_fields')) {
+            return $statement;
+        }
+
+        if (!array_key_exists(CustomFieldPropertyName::twigRequestName->value, $data)) {
+            return $statement;
+        }
+
+        $customFieldValues = json_decode($data[CustomFieldPropertyName::twigRequestName->value], true);
+        $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+            new CustomFieldValuesList(),
+            $customFieldValues,
+            $procedureId,
+            CustomFieldSupportedEntity::procedure->value,
+            CustomFieldSupportedEntity::statement->value
+        );
+
+        $statement[CustomFieldPropertyName::columnName->value] = $customFieldList;
+
+        return $statement;
+    }
+
     /**
      * @param string[] $draftStatementIds
      *
@@ -2105,7 +2128,7 @@ class DraftStatementService
         if (is_string($itemsToExport)) {
             return collect(explode(',', $itemsToExport));
         }
-        if (is_array($itemsToExport) && !empty($itemsToExport)) {
+        if (is_array($itemsToExport) && [] !== $itemsToExport) {
             return collect($itemsToExport);
         }
 
@@ -2119,7 +2142,7 @@ class DraftStatementService
         array $draftStatementList,
         ?IlluminateCollection $selectedStatementsToExport,
     ): IlluminateCollection {
-        if (null === $selectedStatementsToExport) {
+        if (!$selectedStatementsToExport instanceof IlluminateCollection) {
             return collect($draftStatementList);
         }
 
@@ -2140,8 +2163,26 @@ class DraftStatementService
                 $statementArray['documentlist'] = $this->paragraphService
                     ->getParaDocumentObjectList($procedureId, $statementArray['elementId']);
 
+                $statementArray = $this->attachResolvedCustomFields($statementArray, $procedureId);
+
                 return $this->checkMapScreenshotFile($statementArray, $procedureId);
             }
         );
+    }
+
+    private function attachResolvedCustomFields(array $statement, string $procedureId): array
+    {
+        if ($this->currentUser->hasPermission('feature_statements_custom_fields')
+            && $statement['customFields'] instanceof CustomFieldValuesList
+        ) {
+            $statement['resolvedCustomFields'] = $this->customFieldDisplayResolver->resolveForDisplay(
+                $statement['customFields'],
+                CustomFieldSupportedEntity::procedure,
+                $procedureId,
+                CustomFieldSupportedEntity::statement
+            );
+        }
+
+        return $statement;
     }
 }

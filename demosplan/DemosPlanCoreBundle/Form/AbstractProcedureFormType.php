@@ -43,7 +43,7 @@ abstract class AbstractProcedureFormType extends AbstractType
     {
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         // We can't simply disable the email address fields as a whole because this would require
         // adjustments in the FE. Instead, we simply do not validate to avoid errors when the
@@ -129,7 +129,7 @@ abstract class AbstractProcedureFormType extends AbstractType
             ->all();
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(
             [

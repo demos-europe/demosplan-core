@@ -45,7 +45,7 @@ class LoadProcedurePersonData extends TestFixture implements DependentFixtureInt
         $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadProcedureData::class,

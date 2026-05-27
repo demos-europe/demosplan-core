@@ -62,7 +62,7 @@ class RpcInstitutionInvitationRemover implements RpcMethodSolverInterface
             return [$this->rpcErrorGenerator->internalError()];
         }
 
-        if (null === $procedure) {
+        if (!$procedure instanceof ProcedureInterface) {
             $this->logger->error('No procedure provided for invited institution deletion');
 
             return [$this->rpcErrorGenerator->internalError()];
@@ -117,7 +117,7 @@ class RpcInstitutionInvitationRemover implements RpcMethodSolverInterface
                     $institutionsToRemove[] = $institution;
                 }
 
-                if (0 < count($institutionsToRemove)) {
+                if ([] !== $institutionsToRemove) {
                     $this->procedureService->detachOrganisations($procedure, $institutionsToRemove);
                     $this->logger->info(sprintf('Removed %d institutions from procedure %s', count($institutionsToRemove), $procedure->getId()));
                 }

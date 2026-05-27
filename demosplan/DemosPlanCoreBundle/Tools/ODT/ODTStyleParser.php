@@ -40,7 +40,7 @@ class ODTStyleParser implements ODTStyleParserInterface
         $this->parseStylesFromXPath($xpath, '//office:automatic-styles/style:style', $styleMap, $headingStyleMap);
 
         // Parse main styles from styles.xml if available
-        if (null !== $stylesXml && !empty($stylesXml)) {
+        if (null !== $stylesXml && ('' !== $stylesXml && '0' !== $stylesXml)) {
             $stylesDom = new DOMDocument();
             $stylesDom->loadXML($stylesXml);
             $stylesXPath = new DOMXPath($stylesDom);
@@ -68,7 +68,7 @@ class ODTStyleParser implements ODTStyleParserInterface
             }
 
             $format = $this->extractTextFormat($xpath, $styleNode);
-            if (!empty($format)) {
+            if ([] !== $format) {
                 $styleMap[$styleName] = $format;
             }
         }
@@ -94,7 +94,7 @@ class ODTStyleParser implements ODTStyleParserInterface
      */
     public function parseListStyles(string $stylesXml): array
     {
-        if (empty($stylesXml)) {
+        if ('' === $stylesXml || '0' === $stylesXml) {
             return [];
         }
 

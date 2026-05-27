@@ -44,7 +44,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
         $html = preg_replace(
             '/<ul[^>]*>\s*<li[^>]*>\s*(<h[1-6][^>]*>.*?<\/h[1-6]>)\s*<\/li>\s*<\/ul>/s',
             '$1',
-            $html
+            (string) $html
         );
 
         // Note: Disabled automatic numbering removal to preserve structured headings like "2.1 Küstenmeer"
@@ -78,9 +78,9 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
         $paragraphs = [];
 
         // Handle content before first heading (if any)
-        if (!empty($headings)) {
+        if ([] !== $headings) {
             $preContent = $this->getContentBeforeFirstHeading($xpath, $headings[0]);
-            if (!empty(trim(strip_tags($preContent)))) {
+            if (!in_array(trim(strip_tags($preContent)), ['', '0'], true)) {
                 $paragraphs[] = $this->createParagraphFromContent($preContent, 0);
             }
         }
@@ -103,9 +103,9 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
         }
 
         // If no headings found, create single paragraph from all content
-        if (empty($headings)) {
+        if ([] === $headings) {
             $allContent = $this->getAllContent($xpath);
-            if (!empty(trim(strip_tags($allContent)))) {
+            if (!in_array(trim(strip_tags($allContent)), ['', '0'], true)) {
                 $paragraphs[] = $this->createParagraphFromContent($allContent, 0);
             }
         }
@@ -127,7 +127,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
             $title = trim(strip_tags($node->textContent));
 
             // Skip empty headings
-            if (empty($title)) {
+            if ('' === $title || '0' === $title) {
                 continue;
             }
 
@@ -231,7 +231,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
 
     public function shouldStopAtNextHeading(DOMNode $node, ?DOMNode $nextNode, string &$content): bool
     {
-        if (!$nextNode) {
+        if (!$nextNode instanceof DOMNode) {
             return false;
         }
 
@@ -296,22 +296,18 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
 
         // Generate title from first sentence or first 50 characters
         $title = '';
-        if (!empty($textContent)) {
+        if ('' !== $textContent && '0' !== $textContent) {
             // Try to get first sentence
             $sentences = preg_split('/([.!?]+)/', $textContent, 2, PREG_SPLIT_DELIM_CAPTURE);
             $firstSentence = trim($sentences[0]);
 
             // Add back the punctuation if it exists
-            if (isset($sentences[1]) && !empty($sentences[1])) {
+            if (isset($sentences[1]) && (isset($sentences[1]) && ('' !== $sentences[1] && '0' !== $sentences[1]))) {
                 $firstSentence .= $sentences[1][0];
             }
 
             // Limit title length
-            if (strlen($firstSentence) > 50) {
-                $title = substr($firstSentence, 0, 50).'...';
-            } else {
-                $title = $firstSentence;
-            }
+            $title = strlen($firstSentence) > 50 ? substr($firstSentence, 0, 50).'...' : $firstSentence;
         }
 
         return [
@@ -331,7 +327,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
 
         // Clean up any artifacts from DOM processing but preserve specific attribute spacing
         $html = preg_replace('/\s+/', ' ', $html);
-        $html = trim($html);
+        $html = trim((string) $html);
 
         // Ensure the specific spacing format for table cells as expected by tests
         $html = preg_replace('/(<td[^>]*)"(\s*>)/', '$1" >', $html);

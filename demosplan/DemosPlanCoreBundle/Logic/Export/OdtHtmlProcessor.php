@@ -42,7 +42,7 @@ class OdtHtmlProcessor
         foreach ($segments as $segment) {
             if ("\n" === $segment['text']) {
                 $cell->addTextBreak();
-            } elseif ('' !== trim($segment['text'])) {
+            } elseif ('' !== trim((string) $segment['text'])) {
                 $styleName = $this->getOdtStyleName($segment['bold'], $segment['italic'], $segment['underline']);
                 $cell->addText($segment['text'], $styleName);
             }
@@ -65,7 +65,7 @@ class OdtHtmlProcessor
             $phpWord->addFontStyle(self::ODT_BOLD_UNDERLINE_STYLE, $baseStyle + ['bold' => true, 'underline' => 'single']);
             $phpWord->addFontStyle(self::ODT_ITALIC_UNDERLINE_STYLE, $baseStyle + ['italic' => true, 'underline' => 'single']);
             $phpWord->addFontStyle(self::ODT_BOLD_ITALIC_UNDERLINE_STYLE, $baseStyle + ['bold' => true, 'italic' => true, 'underline' => 'single']);
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Ignore duplicate registration errors
         }
     }
@@ -162,7 +162,7 @@ class OdtHtmlProcessor
      */
     private function handleSpecialTags(string $tag, array &$segments): void
     {
-        if ('p' === $tag && !empty($segments)) {
+        if ('p' === $tag && [] !== $segments) {
             $segments[] = $this->createLineBreakSegment();
         }
 
@@ -201,7 +201,7 @@ class OdtHtmlProcessor
     private function processTextNode(DOMNode $child, array &$segments, bool $bold, bool $italic, bool $underline): void
     {
         $text = $child->nodeValue;
-        if ('' !== trim($text)) {
+        if ('' !== trim((string) $text)) {
             $segments[] = $this->createTextSegment($text, $bold, $italic, $underline);
         }
     }

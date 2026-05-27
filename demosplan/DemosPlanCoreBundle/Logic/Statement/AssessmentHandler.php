@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -138,7 +139,7 @@ class AssessmentHandler extends CoreHandler
         );
 
         $procedure = $this->procedureService->getProcedure($procedureId);
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 
@@ -323,7 +324,7 @@ class AssessmentHandler extends CoreHandler
         );
 
         $statements = $outputResult->getStatements();
-        $statements = $this->statementService->addSourceStatementAttachments($statements);
+        $statements = $this->statementService->addStatementAttachments($statements);
 
         // TODO: this seems to do nothing as the statement changed seems to be just a copy, please verify and delete code or falsify and explain with comment
         foreach ($statements as $statement) {

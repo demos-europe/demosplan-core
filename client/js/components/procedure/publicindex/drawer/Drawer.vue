@@ -12,6 +12,12 @@
     class="c-publicindex__drawer absolute u-top-0 z-above-zero shadow-md"
     :class="{ 'is-open': isDrawerOpened }"
   >
+    <div
+      aria-live="polite"
+      class="sr-only"
+    >
+      {{ screenReaderAnnouncement }}
+    </div>
     <div class="bg-color--grey-light-2 u-p-0_5">
       <dp-search
         :show-suggestions="false"
@@ -26,7 +32,6 @@
         <div class="c-publicindex__drawer-nav">
           <strong
             v-if="currentView !== 'DpDetailView'"
-            aria-live="assertive"
             class="inline-block"
             data-cy="participationProcedures"
           >
@@ -94,6 +99,13 @@ export default {
       }
       const curr = this.procedures.find(el => el.id === this.currentProcedureId)
       return curr || null
+    },
+
+    screenReaderAnnouncement () {
+      if (this.currentView === 'DpDetailView') {
+        return ''
+      }
+      return `${this.procedureCount} ${Translator.trans('participation.procedures')}`
     },
   },
 

@@ -205,16 +205,17 @@ export default {
       this.$emit('closeEditMode')
     },
     save (button) {
-      const form = $(this.$el).closest('form')
+      const form = this.$el.closest('form')
 
       //  Return if not inside a form
-      if (form.length !== 1) {
+      if (!form) {
         return
       }
 
       this.saving = button
 
-      const saveData = form.serializeArray()
+      const formData = new FormData(form)
+      const saveData = Array.from(formData.entries()).map(([name, value]) => ({ name, value }))
 
       if (button === 'notifyButton') {
         if (dpconfirm(Translator.trans('check.fragment.save')) === false) {

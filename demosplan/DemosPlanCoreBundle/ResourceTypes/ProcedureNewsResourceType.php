@@ -46,7 +46,7 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType
 {
     public function __construct(
         private readonly ManualListSortRepository $manualListSortRepository,
-        private readonly RoleService $roleService
+        private readonly RoleService $roleService,
     ) {
     }
 
@@ -78,7 +78,7 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 
@@ -129,7 +129,7 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType
             $configBuilder->picture
                 ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
                 ->initializable(true, static function (News $news, ?File $picture): array {
-                    if (null === $picture) {
+                    if (!$picture instanceof File) {
                         $news->setPicture('');
                         $news->setPictitle('');
                     } else {
@@ -141,7 +141,7 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType
             $configBuilder->pdf
                 ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
                 ->initializable(true, static function (News $news, ?File $pdf): array {
-                    if (null === $pdf) {
+                    if (!$pdf instanceof File) {
                         $news->setPdf('');
                         $news->setPictitle('');
                     } else {

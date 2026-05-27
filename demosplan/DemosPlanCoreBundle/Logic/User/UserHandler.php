@@ -12,6 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -41,6 +44,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidUserDataException;
 use demosplan\DemosPlanCoreBundle\Exception\LoginNameInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\PasswordAlreadyUsedException;
 use demosplan\DemosPlanCoreBundle\Exception\ReservedSystemNameException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
 use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
@@ -51,6 +55,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
@@ -65,6 +70,7 @@ use Exception;
 use Illuminate\Support\Collection;
 use LogicException;
 use RuntimeException;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\Validator\Constraints\Email;
@@ -82,6 +88,15 @@ use Twig\Error\SyntaxError;
 
 class UserHandler extends CoreHandler implements UserHandlerInterface
 {
+    /**
+     * Maps org type to the role that should be granted procedure creation permission on approval.
+     */
+    private const ORGA_TYPE_TO_PROCEDURE_CREATION_ROLE = [
+        OrgaTypeInterface::MUNICIPALITY             => RoleInterface::PLANNING_AGENCY_ADMIN,
+        OrgaTypeInterface::PLANNING_AGENCY          => RoleInterface::PRIVATE_PLANNING_AGENCY,
+        OrgaTypeInterface::HEARING_AUTHORITY_AGENCY => RoleInterface::HEARING_AUTHORITY_ADMIN,
+    ];
+
     /**
      * @var MailService
      */
@@ -132,6 +147,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     protected $orgaHandler;
 
     public function __construct(
+        private readonly AccessControlService $accessControlService,
         private readonly ContentService $contentService,
         CustomerService $customerService,
         DraftStatementService $draftStatementService,
@@ -153,6 +169,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         private readonly UserSecurityHandler $userSecurityHandler,
         UserService $userService,
         ValidatorInterface $validator,
+        private readonly ParameterBagInterface $parameterBag,
     ) {
         parent::__construct($messageBag);
         $this->customerService = $customerService;
@@ -838,18 +855,17 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 );
 
                 return $userId; // Return the failed user ID to indicate failure
-            } else {
-                $result = $this->wipeUserData($userId);
-
-                if (!$result instanceof User) {
-                    $this->logger->error("Failed to delete user with id {$userId}");
-                    $this->getMessageBag()->add('error', 'error.delete.user');
-
-                    return $userId;
-                }
-
-                $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
             }
+            $result = $this->wipeUserData($userId);
+
+            if (!$result instanceof User) {
+                $this->logger->error("Failed to delete user with id {$userId}");
+                $this->getMessageBag()->add('error', 'error.delete.user');
+
+                return $userId;
+            }
+
+            $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
         }
 
         return null;
@@ -1062,7 +1078,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
                     $this->getMessageBag()->add('error', 'error.undefined');
 
-                    return;
+                    return null;
                 }
 
                 throw new \InvalidArgumentException("Undefined or unknown requestData['manageOrgasAction']: {$manageOrgasAction}");
@@ -1371,7 +1387,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     }
 
     /**
-     * @return string|void
+     * @return string|null
      *
      * @throws MessageBagException
      */
@@ -1400,6 +1416,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         } else {
             $this->getMessageBag()->add('error', 'error.delete');
         }
+
+        return null;
     }
 
     /**
@@ -1494,6 +1512,9 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         try {
             $this->userService->changePassword($userId, $oldPassword, $newPassword);
             $this->getMessageBag()->add('confirm', 'confirm.password.changed');
+        } catch (PasswordAlreadyUsedException $e) {
+            $this->logger->warning('User password change rejected: password already used', [$e]);
+            $this->getMessageBag()->add('error', 'error.password.already.used', ['passwordHistoryMaxEntries' => $this->parameterBag->get('password_history_max_entries')]);
         } catch (Exception $e) {
             $this->logger->error('User password change exited with an error', [$e]);
             $this->getMessageBag()->add('error', 'error.password.change');
@@ -2033,7 +2054,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         $customers = $orga->getCustomersByActivationStatus($orgaTypeName, $activationStatus);
 
         // If parameter $currentCustomer is not null then we will exclude other customers/subdomains
-        if (null !== $currentCustomer) {
+        if ($currentCustomer instanceof Customer) {
             $customers = array_filter(
                 $customers,
                 static fn (Customer $customer) => $customer->getSubdomain() === $currentCustomer->getSubdomain()
@@ -2052,8 +2073,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     {
         foreach ($customers as $customer) {
             $masterUser = $orga->getMasterUser($customer->getSubdomain());
-            if (null !== $masterUser) {
-                if (empty($masterUser->getPassword())) {
+            if ($masterUser instanceof User) {
+                if (null === $masterUser->getPassword() || '' === $masterUser->getPassword() || '0' === $masterUser->getPassword()) {
                     $this->inviteUser($masterUser);
                 }
                 $to = $masterUser->getEmail();
@@ -2082,7 +2103,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     {
         foreach ($customers as $customer) {
             $masterUser = $orga->getMasterUser($customer);
-            if (null !== $masterUser) {
+            if ($masterUser instanceof User) {
                 $to = $masterUser->getEmail();
                 $from = $this->globalConfig->getEmailSystem();
                 $customerName = $customer->getName();
@@ -2105,7 +2126,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      *
      * @throws Exception
      */
-    public function ensureMinimalRoles(Orga $orga, string $orgaTypeName, array $customers)
+    public function ensureMinimalRoles(Orga $orga, string $orgaTypeName, array $customers): void
     {
         $minimumRoles = [
             OrgaType::MUNICIPALITY             => Role::PLANNING_AGENCY_ADMIN,
@@ -2127,7 +2148,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
             // if no user could be found, grant master user minimal required role
             $masterUser = $orga->getMasterUser($customer->getSubdomain());
-            if (null !== $masterUser) {
+            if ($masterUser instanceof User) {
                 $roles = $this->roleHandler->getUserRolesByCodes([$minimumRoles[$orgaTypeName]]);
                 $masterUser->addDplanrole($roles[0], $customer);
                 $this->userService->updateUserObject($masterUser);
@@ -2143,6 +2164,40 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 $this->logger->info('No masterUser found',
                     ['orga' => $orga->getName(), 'orgaId' => $orga->getId(), 'customer' => $customer->getName()]
                 );
+            }
+        }
+    }
+
+    /**
+     * Ensures access_control records exist for all ACCEPTED org types.
+     * Works for both create (direct ACCEPTED) and update (PENDING→ACCEPTED or direct ACCEPTED).
+     * Safe to call multiple times — duplicates are handled by the unique constraint in AccessControlService.
+     *
+     * @param Customer|null $customer if provided, only process this customer; if null, process all customers
+     */
+    public function ensureAccessControl(Orga $orga, ?Customer $customer): void
+    {
+        foreach (self::ORGA_TYPE_TO_PROCEDURE_CREATION_ROLE as $orgaType => $roleCode) {
+            $acceptedCustomers = $orga->getCustomersByActivationStatus(
+                $orgaType,
+                OrgaStatusInCustomerInterface::STATUS_ACCEPTED
+            );
+
+            if (null !== $customer) {
+                $acceptedCustomers = array_filter(
+                    $acceptedCustomers,
+                    static fn (Customer $c) => $c->getId() === $customer->getId()
+                );
+            }
+
+            foreach ($acceptedCustomers as $acceptedCustomer) {
+                $this->accessControlService->addPermissionToGivenRole($orga, $acceptedCustomer, $roleCode);
+                $this->logger->info('Ensured access_control record', [
+                    'orga'     => $orga->getName(),
+                    'orgaType' => $orgaType,
+                    'role'     => $roleCode,
+                    'customer' => $acceptedCustomer->getName(),
+                ]);
             }
         }
     }

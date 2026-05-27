@@ -18,7 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -39,7 +39,7 @@ use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanDocumentDashboardAPIController extends APIController
@@ -55,7 +55,7 @@ class DemosPlanDocumentDashboardAPIController extends APIController
         MessageBagInterface $messageBag,
         MessageFormatter $messageFormatter,
         SchemaPathProcessor $schemaPathProcessor,
-        private ManagerRegistry $managerRegistry
+        private readonly ManagerRegistry $managerRegistry,
     ) {
         parent::__construct(
             $apiLogger,
@@ -71,18 +71,18 @@ class DemosPlanDocumentDashboardAPIController extends APIController
     }
 
     /**
-     * @DplanPermissions("area_admin")
      * Manages the display of the dashboard on load.
      */
+    #[DplanPermissions('area_admin')]
     #[Route(path: '/api/1.0/documents/{procedureId}/dashboard', methods: ['GET'], name: 'dp_api_documents_dashboard_get', options: ['expose' => true])]
-    public function showDashboardAction(
+    public function showDashboard(
         ElementHandler $elementHandler,
         ElementsService $elementsService,
         GlobalConfigInterface $globalConfig,
         MapHandler $mapHandler,
         MapService $mapService,
         ProcedureService $procedureService,
-        string $procedureId
+        string $procedureId,
     ): APIResponse {
         // @improve T14122
         $procedure = $procedureService->getProcedure($procedureId);
@@ -131,14 +131,14 @@ class DemosPlanDocumentDashboardAPIController extends APIController
     }
 
     /**
-     * @DplanPermissions("area_admin")
      * Manages some updates performed from the dashboard.
      */
+    #[DplanPermissions('area_admin')]
     #[Route(path: '/api/1.0/documents/{procedureId}/dashboard', methods: ['PATCH'], name: 'dp_api_documents_dashboard_update', options: ['expose' => true])]
-    public function updateDashboardAction(
+    public function updateDashboard(
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
-        string $procedureId
+        string $procedureId,
     ): Response {
         /** @var ResourceObject $documentDashboardData */
         $documentDashboardData = $this->requestData['DocumentDashboard'][$procedureId];

@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\TagResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
-use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseTagResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -23,10 +23,12 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\TagResourceConfigBuilder;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
+use EDT\PathBuilding\End;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
@@ -37,6 +39,9 @@ use InvalidArgumentException;
 
 /**
  * @template-extends DplanResourceType<Tag>
+ *
+ * @property-read End $title
+ * @property-read End $sortIndex
  */
 final class TagResourceType extends DplanResourceType implements TagResourceTypeInterface
 {
@@ -81,7 +86,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             // there is currently no use case in which all tags for all procedures need to be requested
             return [$this->conditionFactory->false()];
         }
@@ -104,10 +109,11 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
         return $this->isCreateAllowed();
     }
 
-    protected function getProperties(): BaseTagResourceConfigBuilder
+    protected function getProperties(): TagResourceConfigBuilder
     {
-        $configBuilder = $this->getConfig(BaseTagResourceConfigBuilder::class);
+        $configBuilder = $this->getConfig(TagResourceConfigBuilder::class);
         $configBuilder->id->setReadableByPath()->setSortable()->setFilterable();
+        $configBuilder->sortIndex->setReadableByPath()->setSortable()->setFilterable();
         $configBuilder->title->setReadableByPath(DefaultField::YES)->setSortable()->setFilterable()
             ->initializable()
             ->addUpdateBehavior(
@@ -182,6 +188,8 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                         $existingTopicsOfProcedrue =
                             $this->currentProcedureService->getProcedure()?->getTopics() ?? new ArrayCollection();
                         $this->checkTopicIdInProcedure($tagTopicId, $existingTopicsOfProcedrue);
+
+                        $tag->setSortIndex($this->tagRepository->getNextSortIndex($tagTopicId));
 
                         $this->tagRepository->persistEntities([$tag]);
                     } catch (InvalidArgumentException $e) {

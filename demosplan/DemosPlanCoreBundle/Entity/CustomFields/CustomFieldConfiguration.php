@@ -12,65 +12,41 @@ namespace demosplan\DemosPlanCoreBundle\Entity\CustomFields;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository")
- */
+#[ORM\Table(name: 'custom_field_configuration')]
+#[ORM\Index(name: 'idx_custom_field_source_target', columns: ['source_entity_id', 'source_entity_class', 'target_entity_class'])]
+#[ORM\Entity(repositoryClass: CustomFieldConfigurationRepository::class)]
 class CustomFieldConfiguration extends CoreEntity
 {
-    /**
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
-     */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected string $id;
 
-    /**
-     *
-     * @ORM\Column(name="source_entity_id", type="string", length=36, nullable=false)
-     */
+    #[ORM\Column(name: 'source_entity_id', type: 'string', length: 36, nullable: false)]
     protected string $sourceEntityId;
 
-    /**
-     *
-     * @ORM\Column(name="source_entity_class", type="string", nullable=false)
-     */
+    #[ORM\Column(name: 'source_entity_class', type: 'string', nullable: false)]
     protected string $sourceEntityClass;
 
-    /**
-     *
-     * @ORM\Column(name="target_entity_class", type="string", nullable=false)
-     */
+    #[ORM\Column(name: 'target_entity_class', type: 'string', nullable: false)]
     protected string $targetEntityClass;
 
-    /**
-     *
-     * @ORM\Column(type="dplan.custom_field_configuration", nullable=true)
-     */
+    #[ORM\Column(type: 'dplan.custom_field_configuration', nullable: true)]
     protected CustomFieldInterface $configuration;
 
-    /**
-     *
-     * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
-     */
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected DateTime $createDate;
 
-    /**
-     *
-     * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
-     */
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected DateTime $modifyDate;
 
     public function getConfiguration(): CustomFieldInterface
@@ -112,7 +88,7 @@ class CustomFieldConfiguration extends CoreEntity
     {
         $this->targetEntityClass = $targetEntityClass;
     }
-    
+
     public function setId($id): void
     {
         $this->id = $id;
@@ -123,7 +99,6 @@ class CustomFieldConfiguration extends CoreEntity
         $this->createDate = $createDate;
     }
 
-
     public function setModifyDate($modifyDate): void
     {
         $this->modifyDate = $modifyDate;
@@ -133,6 +108,4 @@ class CustomFieldConfiguration extends CoreEntity
     {
         return $this->id;
     }
-
-
 }

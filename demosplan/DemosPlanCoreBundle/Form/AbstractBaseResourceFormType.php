@@ -47,7 +47,7 @@ abstract class AbstractBaseResourceFormType extends AbstractType implements Data
      * @throws ReflectionException
      * @throws UserNotFoundException
      */
-    public function mapDataToForms($viewData, iterable $forms): void
+    public function mapDataToForms($viewData, Traversable $forms): void
     {
         if (null === $viewData) {
             return;
@@ -74,7 +74,7 @@ abstract class AbstractBaseResourceFormType extends AbstractType implements Data
      * @throws ReflectionException
      * @throws UserNotFoundException
      */
-    public function mapFormsToData(iterable $forms, &$viewData): void
+    public function mapFormsToData(Traversable $forms, &$viewData): void
     {
         /** @var FormInterface[] $forms */
         $forms = iterator_to_array($forms);

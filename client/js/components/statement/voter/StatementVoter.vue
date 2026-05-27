@@ -383,11 +383,9 @@ export default {
         if (index === 'new') {
           this.addNewVoter(this.formFields)
           this.$emit('updateVoter', this.formFields)
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         } else {
           this.updateVoter({ index, newData: this.formFields })
           this.$emit('updateVoter', this.formFields)
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         }
 
         this.resetForm()

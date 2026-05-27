@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
 use PhpOffice\PhpWord\Element\Section;
-use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Writer\PDF;
@@ -30,6 +30,7 @@ class ExportReportService
     private $styles;
 
     public function __construct(
+        private readonly GlobalConfigInterface $globalConfig,
         private readonly ReportMessageConverter $messageConverter,
         private readonly ReportRepository $reportRepository,
         private readonly TranslatorInterface $translator,
@@ -102,20 +103,32 @@ class ExportReportService
         string $format = 'PDF',
     ): PDF {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
-        $section = $phpWord->addSection();
+
+        $phpWord->addTitleStyle(1, $this->styles['docTitleFont']);
+        $phpWord->addTitleStyle(2, $this->styles['titleFont']);
+
+        $section = $phpWord->addSection(['breakType' => 'continuous']);
+
+        $docTitle = sprintf(
+            '%s: %s - %s',
+            $this->globalConfig->getProjectName(),
+            $reportMeta['name'],
+            $this->translator->trans('protocol'),
+        );
+
+        $section->addTitle($docTitle, 1);
+
+        $dateText = $this->translator->trans('exported.on', ['date' => $reportMeta['exportDate'], 'time' => $reportMeta['exportTime']]);
         $procedureUrl = $this->urlGenerator->generate(
             'DemosPlan_procedure_public_detail',
             ['procedure' => $procedureId],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        $docTitle = $reportMeta['name'].' - '.$this->translator->trans('protocol');
-        $section->addText($docTitle, $this->styles['docTitleFont']);
-        $section->addText($procedureUrl, $this->styles['url']);
-
-        $dateText = $this->translator->trans('exported.on', ['date' => $reportMeta['exportDate'], 'time' => $reportMeta['exportTime']]);
-        $section->addText($dateText, $this->styles['baseFont']);
-        $section->addTextBreak(2);
+        $meta = $section->addTextRun($this->styles['meta']);
+        $meta->addText($procedureUrl);
+        $meta->addText($dateText);
+        $meta->addTextBreak(1);
 
         foreach ($reportInfo as $reportBlock) {
             $this->writeReportBlockTitle($section, $reportBlock['titleMessage']);
@@ -124,10 +137,7 @@ class ExportReportService
                 $noInfoText = $section->addText($noEntriesMessage, $this->styles['noInfoMessage']);
                 $noInfoText->setParagraphStyle($this->styles['paragraph']);
             } else {
-                $table = $section->addTable();
-                $blockTitleMsg = $reportBlock['headerMessage'] ?? $reportBlock['titleMessage'];
-                $this->writeReportBlockHeader($blockTitleMsg, $table);
-                $this->writeReportBlockBody($reportBlock['reportEntries'], $table);
+                $this->writeReportBlockBody($reportBlock['reportEntries'], $section);
             }
         }
 
@@ -159,55 +169,34 @@ class ExportReportService
     private function writeReportBlockTitle(Section $section, string $blockTitleMsg)
     {
         $titleMessage = htmlspecialchars($this->translator->trans($blockTitleMsg));
-        $tableTitle = $section->addText($titleMessage, $this->styles['titleFont']);
-        $tableTitle->setParagraphStyle($this->styles['paragraph']);
+
+        $section->addTitle($titleMessage, 2);
     }
 
-    private function writeReportBlockHeader(string $blockTitleMsg, Table $table)
-    {
-        $table->addRow($this->styles['rowHeight'], $this->styles['tableHeader']);
-
-        $dateHeaderLabel = htmlspecialchars($this->translator->trans('date'));
-        $dateHeaderCell = $table->addCell($this->styles['dateCellWidth'], $this->styles['tableHeader']);
-        $dateHeaderText = $dateHeaderCell->addText($dateHeaderLabel, $this->styles['tableHeaderFont']);
-        $dateHeaderText->setParagraphStyle($this->styles['paragraph']);
-
-        $messageHeaderLabel = htmlspecialchars($this->translator->trans($blockTitleMsg));
-        $headerCell = $table->addCell($this->styles['descriptionCellWidth'], $this->styles['tableHeader']);
-        $headerCell->addText($messageHeaderLabel, $this->styles['tableHeaderFont']);
-
-        $userHeaderLabel = htmlspecialchars($this->translator->trans('user'));
-        $userHeaderCell = $table->addCell($this->styles['userCellWidth'], $this->styles['tableHeader']);
-        $userHeaderCell->addText($userHeaderLabel, $this->styles['tableHeaderFont']);
-    }
-
-    private function writeReportBlockBody(array $reportEntries, Table $table)
+    private function writeReportBlockBody(array $reportEntries, Section $section)
     {
         /** @var ReportEntry $reportEntry */
         foreach ($reportEntries as $reportEntry) {
-            $this->writeReportEntry($reportEntry, $table);
+            $this->writeReportEntry($reportEntry, $section);
         }
     }
 
-    private function writeReportEntry(ReportEntry $reportEntry, Table $table)
+    private function writeReportEntry(ReportEntry $reportEntry, Section $section)
     {
-        $table->addRow($this->styles['rowHeight'], $this->styles['tableRow']);
-
         $creationDate = $reportEntry->getCreated()->format('d.m.Y H:i:s');
-        $dateEntryCell = $table->addCell($this->styles['dateCellWidth']);
-        $dateEntryCell->addText($creationDate, $this->styles['baseFont']);
+        $userName = u($reportEntry->getUserName())->normalize()->toString();
+
+        $section->addText(sprintf('%s – %s', $creationDate, $userName), $this->styles['entryHeaderFont']);
 
         $messageParts = $this->getMessageParts($reportEntry);
-        $cell = $table->addCell($this->styles['descriptionCellWidth']);
-        foreach ($messageParts as $messagePart) {
-            $message = strip_tags((string) $messagePart);
-            $cellText = $cell->addText($message, $this->styles['baseFont']);
-            $cellText->setParagraphStyle($this->styles['paragraph']);
-        }
 
-        $userName = $reportEntry->getUserName();
-        $userCell = $table->addCell($this->styles['userCellWidth']);
-        $userCell->addText(u($userName)->normalize()->toString(), $this->styles['baseFont']);
+        foreach ($messageParts as $messagePart) {
+            $messageParagraphs = explode('</p>', strip_tags((string) $messagePart, ['p']));
+            foreach ($messageParagraphs as $messageParagraph) {
+                $messagePartParaText = $section->addText(strip_tags($messageParagraph), $this->styles['baseFont']);
+                $messagePartParaText->setParagraphStyle($this->styles['paragraph']);
+            }
+        }
     }
 
     /**
@@ -215,22 +204,20 @@ class ExportReportService
      */
     private function initializeStyles()
     {
-        $this->styles['page'] = ['orientation' => 'landscape'];
-        $this->styles['titleFont'] = ['name' => 'helvetica', 'size' => 15];
-        $this->styles['tableHeader'] = ['bgColor' => 'f5f5f5', 'valign' => 'center'];
-        $this->styles['tableHeaderFont'] = ['name' => 'helvetica', 'size' => 14, 'align' => 'center'];
-        $this->styles['baseFont'] = ['name' => 'helvetica', 'color' => '696969', 'align' => 'left', 'size' => 12];
-        $this->styles['url'] = $this->styles['baseFont'];
-        $this->styles['url']['size'] = 10;
-        $this->styles['tableRow'] = ['bgColor' => 'ffffff', 'valign' => 'center'];
-        $this->styles['paragraph'] = ['spaceBefore' => '50', 'spaceAfter' => '50'];
-        $this->styles['docTitleFont'] = ['name' => 'helvetica', 'size' => 18];
+        $this->styles['docTitleFont'] = ['name' => 'Helvetica', 'size' => 18];
+        $this->styles['titleFont'] = ['name' => 'Helvetica', 'size' => 15];
 
-        $this->styles['rowHeight'] = 100;
-        $this->styles['dateCellWidth'] = 500;
-        $this->styles['descriptionCellWidth'] = 600;
-        $this->styles['userCellWidth'] = 500;
-        $this->styles['noInfoMessage'] = ['name' => 'helvetica', 'size' => 12];
+        $this->styles['baseFont'] = ['name' => 'Helvetica', 'color' => '333333', 'align' => 'left', 'size' => 12];
+
+        $this->styles['entryHeaderFont'] = $this->styles['baseFont'];
+        $this->styles['entryHeaderFont']['bold'] = true;
+
+        $this->styles['meta'] = $this->styles['baseFont'];
+        $this->styles['meta']['size'] = 10;
+
+        $this->styles['paragraph'] = ['spaceBefore' => '50', 'spaceAfter' => '50'];
+
+        $this->styles['noInfoMessage'] = $this->styles['baseFont'];
     }
 
     protected function getGeneralReportInfo(string $procedureId): array

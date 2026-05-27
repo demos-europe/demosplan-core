@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -58,10 +59,7 @@ class StatementArrayConverter
         $exportData['submitDateString'] = $segmentOrStatement->getSubmitDateString();
         $exportData['countyNames'] = $segmentOrStatement->getCountyNames();
         $exportData['meta']['authoredDate'] = $segmentOrStatement->getAuthoredDateString();
-        $exportData['phase'] = $this->statementService->getProcedurePhaseName(
-            $segmentOrStatement->getPhase(),
-            $segmentOrStatement->isSubmittedByCitizen()
-        );
+        $exportData['phase'] = $segmentOrStatement->getPhaseDefinition()->getName();
 
         $exportData['fileNames'] = $this->getFileNamesWithOriginal($segmentOrStatement);
 
@@ -97,6 +95,8 @@ class StatementArrayConverter
         $exportData['topicNames'] = $segmentOrStatement->getTopicNames();
         $exportData['isClusterStatement'] = $segmentOrStatement->isClusterStatement();
 
+        $exportData['recommendationVersionCount'] = count($segmentOrStatement->getRecommendationVersions());
+
         return $exportData;
     }
 
@@ -111,7 +111,7 @@ class StatementArrayConverter
     {
         $fileNames = $statement->getFileNames();
         $originalFile = $statement->getOriginalFile();
-        if (null !== $originalFile) {
+        if ($originalFile instanceof FileInterface) {
             $fileNames[] = $originalFile->getFilename();
         }
 

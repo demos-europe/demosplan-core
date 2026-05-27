@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use Closure;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\UserRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
@@ -574,6 +575,22 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     }
 
     /**
+     * Find non-deleted users by email address (case-insensitive).
+     *
+     * @return User[]
+     */
+    public function findNonDeletedUsersByEmailCaseInsensitive(string $email): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where('UPPER(u.email) = UPPER(:email)')
+            ->andWhere('u.deleted = :deleted')
+            ->setParameter('email', $email)
+            ->setParameter('deleted', false)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Get user by login (UserRepositoryInterface implementation).
      *
      * @param string $login User login
@@ -669,7 +686,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     protected function moveUserToOrganization(string $orgaId, User $user): void
     {
         $previousOrga = $user->getOrga();
-        if (null !== $previousOrga && $previousOrga->getId() === $orgaId) {
+        if ($previousOrga instanceof OrgaInterface && $previousOrga->getId() === $orgaId) {
             // nothing to do if the user is already set to the correct orga
             return;
         }
@@ -682,7 +699,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
             throw OrgaNotFoundException::createFromId($orgaId);
         }
 
-        if (null !== $previousOrga) {
+        if ($previousOrga instanceof OrgaInterface) {
             $previousOrga->removeUser($user);
             $em->persist($previousOrga);
         }

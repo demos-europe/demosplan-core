@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
@@ -93,7 +94,7 @@ class DocumentHandler extends CoreHandler
         $statusHash = md5($sessionId.$procedure);
         $status = Json::encode(['bulkImportFilesTotal' => 0, 'bulkImportFilesProcessed' => 0]);
         try {
-            $fs->dumpFile('uploads/files/importStatus_'.$statusHash.'.json', $status);
+            $fs->dumpFile(DemosPlanPath::getPublicPath('uploads/files/importStatus_'.$statusHash.'.json'), $status);
         } catch (IOException $e) {
             $this->logger->warning('Could not dump Statusfile: ', [$e]);
         }
@@ -262,7 +263,7 @@ class DocumentHandler extends CoreHandler
                 );
                 try {
                     $statusHash = md5($sessionId.$procedure);
-                    $fs->dumpFile('uploads/files/importStatus_'.$statusHash.'.json', $status);
+                    $fs->dumpFile(DemosPlanPath::getPublicPath('uploads/files/importStatus_'.$statusHash.'.json'), $status);
                 } catch (IOException $e) {
                     $this->logger->warning('could not update Statusfile: ', [$e]);
                 }
@@ -290,7 +291,7 @@ class DocumentHandler extends CoreHandler
         $fileName = (string) $entry['title'];
         // Ensure the string is properly encoded to UTF-8
         $fileName = mb_convert_encoding($fileName, 'UTF-8', mb_detect_encoding($fileName, self::POSSIBLE_ENCODINGS, true));
-        $entryPath = '/'.ltrim($entry['path'], '/'); // Ensure leading slash
+        $entryPath = '/'.ltrim((string) $entry['path'], '/'); // Ensure leading slash
         if (in_array($entryPath, $sessionElementImportList)) {
             $keys = array_keys($sessionElementImportList, $entryPath);
             if (is_array($keys)
@@ -300,7 +301,7 @@ class DocumentHandler extends CoreHandler
                 $fileName = $request[$keys[0]]; // here the name is taken from the request
                 // Also ensure the string from request is properly encoded to UTF-8
                 $fileName = mb_convert_encoding($fileName, 'UTF-8',
-                    mb_detect_encoding($fileName, self::POSSIBLE_ENCODINGS, true));
+                    mb_detect_encoding((string) $fileName, self::POSSIBLE_ENCODINGS, true));
             }
         }
 
@@ -421,7 +422,7 @@ class DocumentHandler extends CoreHandler
         $result = $this->getParagraphService()->getParaDocumentList($procedure, $elementId);
 
         // check whether User may
-        if (0 < count($result)) {
+        if ([] !== $result) {
             $firstParagraph = $result[0];
             if (array_key_exists('element', $firstParagraph)) {
                 $element = $firstParagraph['element'];

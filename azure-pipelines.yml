@@ -1,0 +1,27 @@
+resources:
+  repositories:
+    - repository: pipelines
+      type: git
+      name: DiPlan Betrieb/pipelines
+
+extends:
+  template: container/publish/stages.yaml@pipelines
+  parameters:
+    imageName: "diplanbeteiligung"
+    buildSteps:
+      - task: Bash@3
+        displayName: Generate Image Tag from Base Image
+        inputs:
+          targetType: inline
+          script: |
+            export CUSTOM_TAG=$(yq '.version' package.json | tr -d '"')
+            export branch=$(Build.SourceBranch)
+            if [ "$branch" == "refs/heads/main" ]; then 
+              suffix=""
+              echo "using release version: $CUSTOM_TAG"; 
+            else 
+              suffix=-$(echo -en "${branch/refs\/heads\/}" | tr -s -c '[:alnum:]' '-')-$(Build.BuildNumber)
+              echo "Using branch version $CUSTOM_TAG$suffix";
+            
+            fi
+            echo "##vso[task.setvariable variable=IMAGE_TAG]$(Build.BuildId)"

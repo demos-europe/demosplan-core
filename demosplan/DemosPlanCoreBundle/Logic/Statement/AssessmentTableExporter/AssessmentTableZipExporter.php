@@ -89,6 +89,9 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
         if ('originalStatements' === $exportType) {
             return $this->exportOriginalStatementsAsPdfsInZip($parameters, $exportType);
         }
+        if ('originalStatementsWithAttachments' === $exportType) {
+            return $this->exportOriginalStatementsWithAttachmentsInZip($parameters, $exportType);
+        }
 
         throw new AssessmentTableZipExportException('error', 'Export type not set in parameters for zip export.');
     }
@@ -122,21 +125,9 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
      */
     private function exportOriginalStatementsAsPdfsInZip(array $parameters, string $exportType): array
     {
-        if ([] === $parameters['items']) {
-            $outputResult = $this->assessmentHandler->prepareOutputResult(
-                $parameters['procedureId'],
-                $parameters['original'],
-                $parameters
-            );
-            $statementIds = [];
-            foreach ($outputResult->getStatements() as $statement) {
-                $statementIds[] = $statement['id'];
-            }
-            $parameters['items'] = $statementIds;
-        }
+        $statementIds = $this->getStatementIdsFromParameters($parameters);
 
         $pdfs = [];
-        $statementIds = $parameters['items'];
         foreach ($statementIds as $statementId) {
             $parameters['items'] = $statementId;
             $parameters['statementId'] = $statementId;
@@ -150,6 +141,100 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             'originalStatementsAsPdfs' => $pdfs,
             'exportType'               => $exportType,
         ];
+    }
+
+    /**
+     * Export original statements with their attachments in ZIP format.
+     *
+     * Creates a folder for each original statement containing:
+     * - The original statement PDF
+     * - All attachments for that statement
+     *
+     * Folder name is based on the PDF filename that the original statement would have.
+     *
+     * @throws MessageBagException
+     * @throws Exception
+     */
+    private function exportOriginalStatementsWithAttachmentsInZip(array $parameters, string $exportType): array
+    {
+        $statementIds = $this->getStatementIdsFromParameters($parameters);
+
+        $statementsWithAttachments = [];
+
+        foreach ($statementIds as $statementId) {
+            $statement = $this->statementService->getStatement($statementId);
+
+            // Generate PDF for this original statement
+            $parameters['items'] = $statementId;
+            $parameters['statementId'] = $statementId;
+            $pdf = $this->pdfExporter->__invoke($parameters);
+
+            // Get statement details from already-fetched statement
+            $externId = $statement->getExternId() ?? '';
+
+            // Clean up PDF name (same logic as originalStatements export)
+            $pdfName = str_replace('Originalstellungnahmen', 'Originalstellungnahme', $pdf['name']);
+
+            // Folder name = externId + PDF name without extension
+            // Example: "2024-001-STN_Originalstellungnahme"
+            $folderName = $externId.pathinfo($pdfName, PATHINFO_FILENAME);
+
+            // Get ALL attachments for this original statement
+            $attachments = [];
+
+            // Get original statemnt attachement
+            $statementAttachments = $statement->getAttachments();
+            foreach ($statementAttachments as $statementAttachment) {
+                $attachments[] = $statementAttachment->getFile();
+            }
+
+            // Get additional attachements
+            $fileContainers = $this->statementService->getFileContainersForStatement($statementId);
+            foreach ($fileContainers as $fileContainer) {
+                $attachments[] = $fileContainer->getFile();
+            }
+
+            $statementsWithAttachments[] = [
+                'folderName'  => $folderName,
+                'pdf'         => [
+                    'name'    => $pdfName,  // With extension (.pdf)
+                    'content' => $pdf['content'],
+                ],
+                'attachments' => $attachments,  // Array of File objects
+            ];
+        }
+
+        return [
+            'zipFileName'               => $this->translator->trans('evaluation.assessment.table.export'),
+            'statementsWithAttachments' => $statementsWithAttachments,
+            'exportType'                => $exportType,
+        ];
+    }
+
+    /**
+     * Get statement IDs from parameters, either from direct items or by preparing output result.
+     *
+     * @return array<int, string> Array of statement IDs
+     *
+     * @throws MessageBagException
+     */
+    private function getStatementIdsFromParameters(array $parameters): array
+    {
+        if ([] === $parameters['items']) {
+            $outputResult = $this->assessmentHandler->prepareOutputResult(
+                $parameters['procedureId'],
+                $parameters['original'],
+                $parameters
+            );
+            $statementIds = [];
+            foreach ($outputResult->getStatements() as $statement) {
+                $statementIds[] = $statement['id'];
+            }
+
+            return $statementIds;
+        }
+
+        return $parameters['items'];
     }
 
     /**
@@ -180,10 +265,10 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             // set the stn attachment:
             // if present just take the given one.
             $files[$index]['originalAttachment'] = $this->getOriginalAttachment($statementId);
-            if (null === $files[$index]['originalAttachment']) {
+            if (!$files[$index]['originalAttachment'] instanceof File) {
                 // if not present yet, invoke the pdfCreator and create an original-stn-pdf to use instead
                 $parameters['statementId'] =
-                    $this->statementService->getStatement($statementId)?->getOriginal()->getId();
+                    $this->statementService->getStatement($statementId)?->getOriginalId() ?? $statementId;
                 $files[$index]['originalAttachment'] = $this->pdfExporter->__invoke(
                     $parameters
                 );
@@ -220,7 +305,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
         $spreadsheet = $xlsxWriter->getSpreadsheet();
         $sheet = $spreadsheet->getSheetByName($this->translator->trans('considerationtable'));
 
-        if (null === $sheet) {
+        if (!$sheet instanceof Worksheet) {
             $this->logger->error(self::SHEET_MISSING_IN_XLSX_LOG, [$sheet]);
             throw new AssessmentTableZipExportException('error', self::SHEET_MISSING_IN_XLSX);
         }

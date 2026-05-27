@@ -131,7 +131,7 @@ class FeaturesToMapLayersConverterTest extends UnitTestCase
             new CoordinatesViewport(123.456, 789.012, 345.678, 901.234),
             256,
             'url-1-1',
-            $this->imageManager->make($gdImage)
+            $this->imageManager->read($gdImage)
         );
 
         $printLayerTiles2 = new PrintLayerTile(
@@ -141,7 +141,7 @@ class FeaturesToMapLayersConverterTest extends UnitTestCase
             new CoordinatesViewport(901.234, 567.890, 123.456, 789.012),
             256,
             'url-1-2',
-            $this->imageManager->make($gdImage)
+            $this->imageManager->read($gdImage)
         );
 
         return new Collection([

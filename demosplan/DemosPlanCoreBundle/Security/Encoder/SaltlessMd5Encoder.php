@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Security\Encoder;
 
 class SaltlessMd5Encoder extends BaseEncoder
 {
-    public function hash(string $plainPassword, string $salt = null): string
+    public function hash(string $plainPassword, ?string $salt = null): string
     {
         return hash('md5', $plainPassword);
     }

@@ -16,6 +16,10 @@ interface AzureUserDataInterface
 {
     public function getEmailAddress(): string;
 
+    public function getFirstName(): string;
+
+    public function getLastName(): string;
+
     public function getObjectId(): string;
 
     public function getSubject(): string;

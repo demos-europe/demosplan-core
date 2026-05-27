@@ -54,6 +54,7 @@ class ApiUserProvider implements UserProviderInterface
 
     public function supportsClass(string $class): bool
     {
-        return User::class === $class;
+        // Support User class including Doctrine proxies
+        return is_a($class, User::class, true);
     }
 }

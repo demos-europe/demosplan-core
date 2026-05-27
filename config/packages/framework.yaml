@@ -3,10 +3,13 @@ framework:
     assets: ~
     #esi: true
     secret: '%env(APP_SECRET)%'
+    # Enable once the remaining custom @*Constraint validator docblocks are migrated to #[*Constraint] attributes.
+    #annotations: false
+    handle_all_throwables: true
     form: ~
     csrf_protection: ~
     enabled_locales: ['de']
-    validation: { enable_annotations: true }
+    validation: { enable_attributes: true }
     trusted_proxies: "%proxy_trusted%"
     trusted_headers: [ 'x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-prefix' ]
     trusted_hosts: ~
@@ -18,7 +21,7 @@ framework:
         handler_id: app.session_handler
         cookie_secure: '%https_only%'
         # could not be strict, as otherwise keycloak login does not work with an "invalid state" error
-        cookie_samesite: lax
+        cookie_samesite: '%cookie_samesite%'
         gc_maxlifetime: '%env(int:SESSION_LIFETIME)%'
 
     fragments:       ~
@@ -36,6 +39,10 @@ framework:
     request:
         formats:
             jsonapi: [ 'application/vnd.api+json' ]
+
+when@prod:
+    framework:
+        http_cache: true
 
 when@test:
     framework:

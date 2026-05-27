@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementFile;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion;
@@ -23,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\DraftStatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -110,7 +112,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             $nextExternId = $statementRepository->getNextValidExternalIdForProcedure($data['pId']);
 
             // Anfangswert für Nummern soll 1000 sein
-            $number = ($nextExternId < 1000) ? 1000 : $nextExternId;
+            $number = max(1000, $nextExternId);
             $draftStatement->setNumber($number);
 
             $em->persist($draftStatement);
@@ -322,17 +324,17 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         }
 
         // Setze die Phase des Verfahrens ein
-        if (array_key_exists('phase', $data)) {
-            $entity->setPhase($data['phase']);
-        } else {
-            $procedure = $entity->getProcedure();
-            if (!is_null($procedure)) {
-                // public or internal statement?
-                if (DraftStatement::INTERNAL === $entity->getPublicDraftStatement()) {
-                    $entity->setPhase($procedure->getPhase());
-                } else {
-                    $entity->setPhase($procedure->getPublicParticipationPhase());
-                }
+        $procedure = $entity->getProcedure();
+        if (array_key_exists('phaseDefinitionId', $data)) {
+            /** @var ProcedurePhaseDefinition $phaseDefinition */
+            $phaseDefinition = $this->getEntityManager()->getReference(ProcedurePhaseDefinition::class, $data['phaseDefinitionId']);
+            $entity->setPhaseDefinition($phaseDefinition);
+        } elseif (!is_null($procedure)) {
+            // public or internal statement?
+            if (DraftStatement::INTERNAL === $entity->getPublicDraftStatement()) {
+                $entity->setPhaseDefinition($procedure->getPhaseObject()->getPhaseDefinition());
+            } else {
+                $entity->setPhaseDefinition($procedure->getPublicParticipationPhaseObject()->getPhaseDefinition());
             }
         }
         if (array_key_exists('represents', $data)) {
@@ -345,6 +347,10 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
 
         if (array_key_exists('authorOnly', $data)) {
             $entity->setAuthorOnly($data['authorOnly']);
+        }
+
+        if (array_key_exists('custom_fields', $data)) {
+            $entity->setCustomFields($data['custom_fields']);
         }
 
         return $entity;
@@ -392,6 +398,13 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             $em = $this->getEntityManager();
 
             $draftStatement = $this->get($entityId);
+            if (null === $draftStatement) {
+                // ORM v3 raises TypeError (extends Error, not Exception) from
+                // persist(null) below, which bypasses the catch and breaks the
+                // service-layer contract that turns repo exceptions into a
+                // `false` return.
+                throw DraftStatementNotFoundException::createFromId($entityId);
+            }
             $draftStatement = $this->generateObjectValues($draftStatement, $data);
 
             $em->persist($draftStatement);

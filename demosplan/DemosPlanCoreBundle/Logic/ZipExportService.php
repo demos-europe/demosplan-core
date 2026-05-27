@@ -153,7 +153,6 @@ class ZipExportService
 
     public function addFiles(
         string $fileNamePrefix,
-        DemosFilesystem $fs,
         string $fileFolderPath,
         ZipStream $zip,
         string ...$fileStrings,
@@ -161,17 +160,6 @@ class ZipExportService
         foreach ($fileStrings as $fileString) {
             try {
                 $fileInfo = $this->fileService->getFileInfoFromFileString($fileString);
-
-                // check whether file exists
-                if (!$fs->exists($fileInfo->getAbsolutePath())) {
-                    $this->logger->warning('Could not add file to Zip. File does not exist',
-                        [
-                            'fileString' => $fileString,
-                        ]
-                    );
-                    continue;
-                }
-
                 $this->addFileToZip($fileFolderPath, $fileInfo, $zip, $fileNamePrefix);
             } catch (Exception) {
                 $this->logger->warning('Could not add file to Zip',
@@ -221,7 +209,7 @@ class ZipExportService
 
     private function checkIfSavable(object $writer): void
     {
-        if (!($writer instanceof WriterInterface || $writer instanceof PDF)) {
+        if (!$writer instanceof WriterInterface && !$writer instanceof PDF) {
             throw InvalidParameterTypeException::fromTypes($writer::class, [WriterInterface::class, PDF::class]);
         }
     }

@@ -23,12 +23,24 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
 class AzureUserData implements AzureUserDataInterface, Stringable
 {
     private string $emailAddress = '';
+    private string $firstName = '';
+    private string $lastName = '';
     private string $objectId = '';
     private string $subject = '';
 
     public function getEmailAddress(): string
     {
         return $this->emailAddress;
+    }
+
+    public function getFirstName(): string
+    {
+        return $this->firstName;
+    }
+
+    public function getLastName(): string
+    {
+        return $this->lastName;
     }
 
     public function getObjectId(): string
@@ -45,9 +57,18 @@ class AzureUserData implements AzureUserDataInterface, Stringable
     {
         $userInformation = $resourceOwner->toArray();
 
-        $this->emailAddress = $userInformation['email'] ?? $userInformation['upn'] ?? $userInformation['unique_name'] ?? '';
+        $this->emailAddress = $userInformation['email'] ?? $userInformation['upn'] ?? $userInformation['unique_name'] ?? $userInformation['preferred_username'] ?? '';
         $this->objectId = $userInformation['oid'] ?? '';
         $this->subject = $userInformation['sub'] ?? '';
+        $this->firstName = $userInformation['given_name'] ?? '';
+        $this->lastName = $userInformation['family_name'] ?? '';
+
+        // Fall back to 'name' claim if given_name/family_name are missing
+        if ('' === $this->firstName && '' === $this->lastName && isset($userInformation['name'])) {
+            $nameParts = explode(' ', $userInformation['name'], 2);
+            $this->firstName = $nameParts[0];
+            $this->lastName = $nameParts[1] ?? '';
+        }
 
         $this->checkMandatoryValuesExist();
     }
@@ -65,8 +86,10 @@ class AzureUserData implements AzureUserDataInterface, Stringable
     public function __toString(): string
     {
         return sprintf(
-            'emailAddress: %s, objectId: %s, subject: %s',
+            'emailAddress: %s, firstName: %s, lastName: %s, objectId: %s, subject: %s',
             $this->emailAddress,
+            $this->firstName,
+            $this->lastName,
             $this->objectId,
             $this->subject
         );

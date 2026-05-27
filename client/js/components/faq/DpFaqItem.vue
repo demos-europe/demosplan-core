@@ -44,6 +44,7 @@
       <dp-toggle
         class="u-mt-0_125"
         data-cy="enabledFaqItem"
+        :aria-label="faqItem.attributes.title"
         :value="isFaqEnabled"
         @input="handleToggle"
     />

@@ -49,13 +49,14 @@ class LoadWorkflowPlaceData extends TestFixture implements DependentFixtureInter
         $this->setReference(self::PLACE_EDITORIAL, $editorial);
 
         $completed = new Place($procedure, 'Abgeschlossen', 4);
+        $completed->setSolved(true);
         $manager->persist($completed);
         $this->setReference(self::PLACE_COMPLETED, $completed);
 
         $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [LoadProcedureData::class];
     }

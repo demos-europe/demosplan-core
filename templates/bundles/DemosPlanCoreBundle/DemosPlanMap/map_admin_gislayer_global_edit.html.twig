@@ -20,6 +20,7 @@
         enctype="multipart/form-data">
 
         <input type="hidden" value="{{ gislayer.ident|default() }}" name="r_ident">
+        <input type="hidden" name="r_enabled" value="1">
         <input type="hidden" name="r_visible" value="1">
         <input type="hidden" name="r_user_toggle_visibility" value="1">
         {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
@@ -48,18 +49,16 @@
         {% endblock layerType %}
 
         {% block baseSettings %}
-            <label class="u-mb-0_5">
-                {{ "name"|trans }}*
-                <input class="layout__item" type="text" name="r_name" value="{{ gislayer.name|default() }}">
-            </label>
-            <label class="u-mb-0_5">
-                {{ "url"|trans }}*
-                <input class="layout__item" type="text" name="r_url" value="{{ gislayer.url|default() }}">
-            </label>
-            <label class="u-mb-0_5">
-                {{ "layers"|trans }}*
-                <input class="layout__item" type="text" name="r_layers" value="{{ gislayer.layers|default() }}">
-            </label>
+            <layer-settings
+                :available-projections="JSON.parse('{{ templateVars.availableProjections|map(el => { label: el['label'], value: el['label'] })|json_encode|e('js', 'utf-8') }}')"
+                init-layers="{{ gislayer.layers|default }}"
+                init-matrix-set="{{ gislayer.tileMatrixSet|default }}"
+                init-name="{{ gislayer.name|default }}"
+                init-projection="{{ gislayer.projectionLabel|default }}"
+                init-service-type="{{ gislayer.serviceType|default }}"
+                init-url="{{ gislayer.url|default }}"
+                init-version="{{ gislayer.layerVersion|default }}"
+            ></layer-settings>
         {% endblock baseSettings %}
 
         {% if hasPermission('feature_map_layer_legend_file') %}
@@ -129,6 +128,6 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {{ webpackBundle('map-mapAdminGislayerGlobalEdit.js') }}
+    {{ webpackBundles(['ol.js', 'map-mapAdminGislayerGlobalEdit.js']) }}
 {% endblock javascripts %}
 

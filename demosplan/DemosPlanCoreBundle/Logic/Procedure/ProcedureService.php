@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use Carbon\Carbon;
 use DateTime;
+use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
@@ -30,8 +31,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\InstitutionMail;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -198,7 +201,6 @@ class ProcedureService implements ProcedureServiceInterface
         private readonly OrgaService $orgaService,
         private readonly ParagraphRepository $paragraphRepository,
         Permissions $permissions,
-        private readonly PhasePermissionsetLoader $phasePermissionsetLoader,
         private readonly PlaceRepository $placeRepository,
         private readonly Plis $plis,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
@@ -358,7 +360,7 @@ class ProcedureService implements ProcedureServiceInterface
 
         $entitiesToPersist = array_filter(
             $entitiesToPersist,
-            static fn (?object $entityToPersist): bool => null !== $entityToPersist
+            static fn (?object $entityToPersist): bool => $entityToPersist instanceof ReportEntry
         );
 
         $this->procedureRepository->updateObjects($entitiesToPersist);
@@ -513,9 +515,9 @@ class ProcedureService implements ProcedureServiceInterface
      *
      * @throws Exception
      */
-    public function getProceduresWithEndedParticipation(array $writePhaseKeys, bool $internal = true): array
+    public function getProceduresWithEndedParticipation(bool $internal = true): array
     {
-        return $this->procedureRepository->getProceduresWithEndedParticipation($writePhaseKeys, $internal);
+        return $this->procedureRepository->getProceduresWithEndedParticipation($internal);
     }
 
     /**
@@ -561,14 +563,24 @@ class ProcedureService implements ProcedureServiceInterface
      *
      * @param int $limit
      *
-     * @return Procedure[]|null
+     * @return Procedure[]
      *
      * @throws Exception
      */
-    public function getDeletedProcedures($limit = 100_000_000)
+    public function getDeletedProcedures($limit = 100_000_000, ?DateTimeInterface $deletedBefore = null): array
     {
         try {
-            return $this->procedureRepository->findBy(['deleted' => true], null, $limit);
+            if (null === $deletedBefore) {
+                return $this->procedureRepository->findBy(['deleted' => true], null, $limit);
+            }
+
+            return $this->procedureRepository->createQueryBuilder('p')
+                ->where('p.deleted = true')
+                ->andWhere('p.deletedDate <= :deletedBefore')
+                ->setParameter('deletedBefore', $deletedBefore)
+                ->setMaxResults($limit)
+                ->getQuery()
+                ->getResult();
         } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf der getProcedureDeleted: ', [$e]);
             throw $e;
@@ -721,19 +733,6 @@ class ProcedureService implements ProcedureServiceInterface
         try {
             /** @var Procedure|null $procedure */
             $procedure = $this->procedureRepository->get($procedureId);
-            // set converted phase names for easier use in templates
-            if ($procedure instanceof Procedure) {
-                $procedure->setPhaseName(
-                    $this->globalConfig->getPhaseNameWithPriorityInternal(
-                        $procedure->getPhase()
-                    )
-                );
-                $procedure->setPublicParticipationPhaseName(
-                    $this->globalConfig->getPhaseNameWithPriorityExternal(
-                        $procedure->getPublicParticipationPhase()
-                    )
-                );
-            }
 
             return $procedure;
         } catch (Exception $e) {
@@ -763,8 +762,8 @@ class ProcedureService implements ProcedureServiceInterface
      * Current user can assign statements & datasets to authorized user. To do that, we need a list. This gets the list.
      *
      * @param string $procedureId
-     * @param User   $user                            User is needed as s/he ony may see
-     *                                                Members of same Organisation; if no user was given then the current user will be used
+     * @param User   $user                            User is needed as s/he only may see
+     *                                                members of same organisation; if no user was given then the current user will be used
      * @param bool   $excludeUser                     exclude given user from list?
      * @param bool   $excludeProcedureAuthorizedUsers filter users who may not administer this Procedure
      *
@@ -778,7 +777,7 @@ class ProcedureService implements ProcedureServiceInterface
         $excludeUser = false,
         $excludeProcedureAuthorizedUsers = true,
     ): Collection {
-        if (null === $user) {
+        if (!$user instanceof User) {
             $user = $this->currentUser->getUser();
         }
 
@@ -864,7 +863,7 @@ class ProcedureService implements ProcedureServiceInterface
 
             if ($setProcedureAsDefaultCustomerBlueprint) {
                 $customer = $data['customer'];
-                if ($this->isCustomerMasterBlueprintExisting($customer->getId())) {
+                if ($customer->getDefaultProcedureBlueprint() instanceof Procedure) {
                     $this->messageBag->add(
                         'warning',
                         'customer.master.blueprint.changed',
@@ -952,7 +951,7 @@ class ProcedureService implements ProcedureServiceInterface
                 ];
 
                 $procedure = $this->getProcedure($procedureId);
-                if (null === $procedure) {
+                if (!$procedure instanceof Procedure) {
                     throw ProcedureNotFoundException::createFromId($procedureId);
                 }
                 if ($procedure->isCustomerMasterBlueprint()) {
@@ -1078,7 +1077,7 @@ class ProcedureService implements ProcedureServiceInterface
      *
      * @throws Exception
      */
-    public function updateProcedure($data, bool $createReports = true)
+    public function updateProcedure($data, bool $createReports = true, $isSystem = false)
     {
         try {
             $data['ident'] ??= $data['id'];
@@ -1116,6 +1115,7 @@ class ProcedureService implements ProcedureServiceInterface
                 $this->prepareReportFromProcedureService->createReportEntry(
                     $sourceProcedure,
                     $destinationProcedure,
+                    $isSystem
                 );
             }
 
@@ -1163,18 +1163,10 @@ class ProcedureService implements ProcedureServiceInterface
     }
 
     /**
-     * Common post-update operations for procedures: phase loading, event dispatching, and ES reindexing.
+     * Common post-update operations for procedures: event dispatching and ES reindexing.
      */
     private function handleProcedurePostUpdateOperations(Procedure $sourceProcedure, Procedure $updatedProcedure): Procedure
     {
-        // Load phase permission sets and set phase name
-        $updatedProcedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($updatedProcedure);
-        $updatedProcedure->setPublicParticipationPhaseName(
-            $this->globalConfig->getPhaseNameWithPriorityExternal(
-                $updatedProcedure->getPublicParticipationPhase()
-            )
-        );
-
         // Dispatch event
         $this->eventDispatcher->dispatch(
             new PostProcedureUpdatedEvent($sourceProcedure, $updatedProcedure),
@@ -1320,7 +1312,7 @@ class ProcedureService implements ProcedureServiceInterface
             // Get Postleitzahl vom Verfahren
             $locationService = $this->locationService;
             $procedure = $this->getProcedure($procedureId);
-            if (null === $procedure) {
+            if (!$procedure instanceof Procedure) {
                 throw new Exception('Procedure not found. '.$procedureId);
             }
             if (null === $procedure->getLocationPostCode() || '' === $procedure->getLocationPostCode()) {
@@ -1424,23 +1416,27 @@ class ProcedureService implements ProcedureServiceInterface
 
     private function resetDesignatedPhaseSwitch(ProcedureSettings $procedureSettings): void
     {
-        $procedureSettings->setDesignatedPhase(null);
         $procedureSettings->setDesignatedSwitchDate(null);
         $procedureSettings->setDesignatedEndDate(null);
         $procedureSettings->setDesignatedPhaseChangeUser(null);
+        $procedureSettings->getProcedure()
+            ->getPhaseObject()
+            ->setDesignatedPhaseDefinition(null);
     }
 
     private function resetDesignatedPublicPhaseSwitch(ProcedureSettings $procedureSettings): void
     {
-        $procedureSettings->setDesignatedPublicPhase(null);
         $procedureSettings->setDesignatedPublicSwitchDate(null);
         $procedureSettings->setDesignatedPublicEndDate(null);
         $procedureSettings->setDesignatedPublicPhaseChangeUser(null);
+        $procedureSettings->getProcedure()
+            ->getPublicParticipationPhaseObject()
+            ->setDesignatedPhaseDefinition(null);
     }
 
     private function getUserIdOrNull(?User $user): ?string
     {
-        return null === $user ? null : $user->getId();
+        return $user instanceof User ? $user->getId() : null;
     }
 
     /**
@@ -1639,38 +1635,32 @@ class ProcedureService implements ProcedureServiceInterface
      *
      * @param string $procedureId Verfahrens-ID
      * @param string $orga        Organisation
-     * @param string $phase
      *
      * @throws Exception
      */
-    public function addInstitutionMail($procedureId, $orga, $phase): void
+    public function addInstitutionMail(string $procedureId, string $orga, ProcedurePhaseDefinition $phaseDefinition): void
     {
         $procedure = $this->getProcedure($procedureId);
         $data = [
-            'procedure' => $procedure,
-            'orga'      => $orga,
-            'phase'     => $phase,
+            'procedure'       => $procedure,
+            'orga'            => $orga,
+            'phaseDefinition' => $phaseDefinition,
         ];
 
         $this->institutionMailRepository->add($data);
     }
 
     /**
-     * Liefert Liste aller versendeten Einladungs-Emails der angegebenen Phase.
-     *
-     * @param string $procedureId Verfahrens-ID
-     * @param string $phase       Phase des Verfahrens
-     *
-     * @return array
+     * Returns a list of all invitation emails sent for the specified phase.
      *
      * @throws Exception
      */
-    public function getInstitutionMailList($procedureId, $phase = null)
+    public function getInstitutionMailList(string $procedureId, ProcedurePhaseDefinition $phaseDefinition): array
     {
         try {
             $data = [
-                'procedure'      => $procedureId,
-                'procedurePhase' => $phase,
+                'procedure'       => $procedureId,
+                'phaseDefinition' => $phaseDefinition,
             ];
 
             $institutionMailResult = $this->institutionMailRepository->findBy($data);
@@ -1720,9 +1710,7 @@ class ProcedureService implements ProcedureServiceInterface
     public function getProceduresForDataInputOrga(string $orgaId): array
     {
         try {
-            $allowedPhases = $this->globalConfig->getInternalPhaseKeys('read||write');
-
-            return $this->procedureRepository->getProceduresForDataInputOrga($orgaId, $allowedPhases);
+            return $this->procedureRepository->getProceduresForDataInputOrga($orgaId);
         } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf der getProceduresForDataInputOrga: ', [$e]);
             throw $e;
@@ -1787,7 +1775,7 @@ class ProcedureService implements ProcedureServiceInterface
 
     public function isCustomerMasterBlueprintExisting(string $customerId): bool
     {
-        return $this->customerService->findCustomerById($customerId)?->getDefaultProcedureBlueprint() instanceof Procedure;
+        return $this->customerService->findCustomerById($customerId)->getDefaultProcedureBlueprint() instanceof Procedure;
     }
 
     /**
@@ -1896,19 +1884,6 @@ class ProcedureService implements ProcedureServiceInterface
     }
 
     /**
-     * Checks if given string is in procedurephases.yml listed as publicPhases and therefore a "valid" phasekey.
-     * Null is also a "valid" phase as "designatedPhase".
-     *
-     * @param string $phaseName - name of the public phase
-     *
-     * @return bool - true if the given $phaseName is null or in the list of public procedurephases of this project
-     */
-    protected function isValidDesignatedPublicPhase($phaseName)
-    {
-        return \in_array($phaseName, $this->globalConfig->getExternalPhaseKeys()) || null === $phaseName;
-    }
-
-    /**
      * Check if the given procedure have a designated public date to switch on AND a public phase to switch to.
      *
      * @return bool true if designated phase and date are not null, otherwise false
@@ -1917,9 +1892,9 @@ class ProcedureService implements ProcedureServiceInterface
     {
         $participationPhase = $procedure->getPublicParticipationPhaseObject();
 
-        return null !== $participationPhase->getDesignatedSwitchDate()
-            && null !== $participationPhase->getDesignatedPhase()
-            && null !== $participationPhase->getDesignatedEndDate();
+        return $participationPhase->getDesignatedSwitchDate() instanceof DateTime
+            && null !== $participationPhase->getDesignatedPhaseDefinition()
+            && $participationPhase->getDesignatedEndDate() instanceof DateTime;
     }
 
     /**
@@ -1931,9 +1906,9 @@ class ProcedureService implements ProcedureServiceInterface
     {
         $institutionPhase = $procedure->getPhaseObject();
 
-        return null !== $institutionPhase->getDesignatedSwitchDate()
-            && null !== $institutionPhase->getDesignatedPhase()
-            && null !== $institutionPhase->getDesignatedEndDate();
+        return $institutionPhase->getDesignatedSwitchDate() instanceof DateTime
+            && null !== $institutionPhase->getDesignatedPhaseDefinition()
+            && $institutionPhase->getDesignatedEndDate() instanceof DateTime;
     }
 
     /**
@@ -1953,7 +1928,8 @@ class ProcedureService implements ProcedureServiceInterface
                 [
                     'id'         => $procedure->getId(),
                     'switchDate' => $procedure->getPhaseObject()->getDesignatedSwitchDate(),
-                    'phase'      => $procedure->getPhaseObject()->getDesignatedPhase(),
+                    'phaseId'    => $procedure->getPhaseObject()->getDesignatedPhaseDefinition()?->getId(),
+                    'phaseName'  => $procedure->getPhaseObject()->getDesignatedPhaseDefinition()?->getName(),
                     'endDate'    => $procedure->getPhaseObject()->getDesignatedEndDate(),
                 ]
             );
@@ -1975,7 +1951,8 @@ class ProcedureService implements ProcedureServiceInterface
 
         try {
             $procedure->setStartDate($procedureSettings->getDesignatedSwitchDate());
-            $procedure->setPhase($procedureSettings->getDesignatedPhase());
+            $designatedPhaseDefinition = $procedure->getPhaseObject()->getDesignatedPhaseDefinition();
+            $procedure->getPhaseObject()->setPhaseDefinition($designatedPhaseDefinition);
             $procedure->setEndDate($procedureSettings->getDesignatedEndDate());
 
             $this->resetDesignatedPhaseSwitch($procedureSettings);
@@ -2006,9 +1983,10 @@ class ProcedureService implements ProcedureServiceInterface
             $this->logger->info('Auto switch public phase is not possible',
                 [
                     'id'         => $procedure->getId(),
-                    'switchDate' => $procedure->getPhaseObject()->getDesignatedSwitchDate(),
-                    'phase'      => $procedure->getPhaseObject()->getDesignatedPhase(),
-                    'endDate'    => $procedure->getPhaseObject()->getDesignatedEndDate(),
+                    'switchDate' => $procedure->getPublicParticipationPhaseObject()->getDesignatedSwitchDate(),
+                    'phaseId'    => $procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()?->getId(),
+                    'phaseName'  => $procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()?->getName(),
+                    'endDate'    => $procedure->getPublicParticipationPhaseObject()->getDesignatedEndDate(),
                 ]
             );
 
@@ -2027,7 +2005,8 @@ class ProcedureService implements ProcedureServiceInterface
 
         try {
             $procedure->setPublicParticipationStartDate($procedureSettings->getDesignatedPublicSwitchDate());
-            $procedure->setPublicParticipationPhase($procedureSettings->getDesignatedPublicPhase());
+            $designatedPublicPhaseDefinition = $procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition();
+            $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($designatedPublicPhaseDefinition);
             $procedure->setPublicParticipationEndDate($procedureSettings->getDesignatedPublicEndDate());
 
             $this->resetDesignatedPublicPhaseSwitch($procedureSettings);
@@ -2232,7 +2211,7 @@ class ProcedureService implements ProcedureServiceInterface
      *
      * @param string $procedureId - Identifies the Procedure, of the BoilerpalteGroup to create
      *
-     * @return Boilerplate|void
+     * @return Boilerplate|null
      */
     public function addBoilerplateGroupVO($procedureId, BoilerplateGroupVO $groupVO)
     {
@@ -2246,6 +2225,8 @@ class ProcedureService implements ProcedureServiceInterface
         } catch (Exception $e) {
             $this->logger->error('Could not add Boilerplate: ', [$e]);
         }
+
+        return null;
     }
 
     /**
@@ -2300,6 +2281,8 @@ class ProcedureService implements ProcedureServiceInterface
         } catch (Exception $e) {
             $this->logger->error('Could not add Boilerplate: ', [$e]);
         }
+
+        return null;
     }
 
     /**
@@ -2433,16 +2416,13 @@ class ProcedureService implements ProcedureServiceInterface
      */
     public function isUserAuthorized(string $procedureId, ?User $user = null): bool
     {
-        if (null === $user) {
+        if (!$user instanceof User) {
             $user = $this->currentUser->getUser();
         }
         $authorizedUsers = $this->getAuthorizedUsers($procedureId, $user);
         $authorizedUserIds = $authorizedUsers->transform(static fn (User $user) => $user->getId());
-        if ($authorizedUserIds->contains($user->getId())) {
-            return true;
-        }
 
-        return false;
+        return $authorizedUserIds->contains($user->getId());
     }
 
     /**
@@ -2492,7 +2472,7 @@ class ProcedureService implements ProcedureServiceInterface
     public function resetMapHint(string $procedureId): void
     {
         $procedure = $this->getProcedure($procedureId);
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
         $defaultMapHintText = $procedure->getProcedureUiDefinition()?->getMapHintDefault();
@@ -2512,7 +2492,7 @@ class ProcedureService implements ProcedureServiceInterface
     public function isProcedureInCustomer(string $procedureId, string $subdomain): bool
     {
         $procedure = $this->getProcedure($procedureId);
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             $this->logger->warning('Could not find Procedure', ['procedureId' => $procedure]);
 
             return false;
@@ -2531,7 +2511,7 @@ class ProcedureService implements ProcedureServiceInterface
     /**
      * The purpose of the copy is to be able to create a diff for report entries.
      */
-    private function cloneProcedure(Procedure $procedure): Procedure
+    public function cloneProcedure(Procedure $procedure): Procedure
     {
         $procedureClone = clone $procedure;
 
@@ -2609,14 +2589,12 @@ class ProcedureService implements ProcedureServiceInterface
                 $this->customerService->getCurrentCustomer()->getId(),
                 Paths::procedure()->customer->id
             );
-            if (!$this->permissions->hasPermission('feature_admin_customer_master_procedure_template')) {
-                // Just exclude the default-customer-blueprint if exists
-                if (null !== $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint()) {
-                    $conditions[] = $this->conditionFactory->propertyHasNotValue(
-                        $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint()->getId(),
-                        Paths::procedure()->id
-                    );
-                }
+            // Just exclude the default-customer-blueprint if exists
+            if (!$this->permissions->hasPermission('feature_admin_customer_master_procedure_template') && null !== $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint()) {
+                $conditions[] = $this->conditionFactory->propertyHasNotValue(
+                    $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint()->getId(),
+                    Paths::procedure()->id
+                );
             }
         }
 
@@ -2634,28 +2612,16 @@ class ProcedureService implements ProcedureServiceInterface
         if ($excludeArchived) {
             // todo: use Paths::procedure() here instead of array of strings to define the paths.
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotValue('closed', ['phase', 'key']),
-                $this->conditionFactory->propertyHasNotValue('closed', ['publicParticipationPhase', 'key'])
+                $this->conditionFactory->propertyHasNotValue(true, ['phase', 'phaseDefinition', 'closingPhase']),
+                $this->conditionFactory->propertyHasNotValue(true, ['publicParticipationPhase', 'phaseDefinition', 'closingPhase'])
             );
         }
-
-        // may be simplified
-        $hiddenPhases = \array_unique(
-            \array_merge(
-                $this->globalConfig->getInternalPhaseKeys('hidden'),
-                $this->globalConfig->getExternalPhaseKeys('hidden')
-            )
-        );
 
         if (isset($filters['excludeHiddenPhases'])) {
             // Include only procedures where at least one phase is not hidden
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                [] === $hiddenPhases
-                    ? $this->conditionFactory->false()
-                    : $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase', 'key']),
-                [] === $hiddenPhases
-                    ? $this->conditionFactory->false()
-                    : $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase', 'key']),
+                $this->conditionFactory->propertyHasNotValue('hidden', ['phase', 'phaseDefinition', 'permissionSet']),
+                $this->conditionFactory->propertyHasNotValue('hidden', ['publicParticipationPhase', 'phaseDefinition', 'permissionSet']),
             );
         }
 
@@ -2819,6 +2785,7 @@ class ProcedureService implements ProcedureServiceInterface
                 $sourcePlace->getSortIndex()
             );
             $newPlace->setDescription($sourcePlace->getDescription());
+            $newPlace->setSolved($sourcePlace->getSolved());
             $violations = $this->validator->validate($newPlace);
             if (0 !== $violations->count()) {
                 throw ViolationsException::fromConstraintViolationList($violations);

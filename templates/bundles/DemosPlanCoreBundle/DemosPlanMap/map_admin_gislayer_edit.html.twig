@@ -125,6 +125,11 @@
                                                     >
                                                     {{ "layer.territory"|trans }}
                                                 </label>
+                                                <p
+                                                    id="scopeHint"
+                                                    class="lbl__hint{% if gislayer.scope|default(false) != true %} hidden{% endif %}">
+                                                    {{ 'gislayer.scope.hint'|trans }}
+                                                </p>
                                             </li>
                                         </ul>
                                     {% endif %}
@@ -258,6 +263,12 @@
                 </label>
             {% endif %}
             {% if hasPermission('feature_map_layer_visibility') %}
+                <dp-inline-notification
+                    id="defaultVisibilityHint"
+                    class="mb-2 hidden"
+                    message="{{ 'hint.gislayer.default.visibility'|trans }}"
+                    type="info">
+                </dp-inline-notification>
                 <label class="u-mb-0_5">
                     <input
                         data-cy="editMapLayerDefaultVisibility"

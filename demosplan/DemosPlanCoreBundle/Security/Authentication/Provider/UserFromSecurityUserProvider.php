@@ -25,14 +25,15 @@ final class UserFromSecurityUserProvider
 
     public function __construct(
         private readonly TokenStorageInterface $tokenStorage,
-        private readonly UserRepository $userRepository
+        private readonly UserRepository $userRepository,
     ) {
     }
 
     public function get(): ?User
     {
-        if (null === $this->user) {
-            $this->user = $this->fromToken($this->tokenStorage->getToken());
+        if (!$this->user instanceof User) {
+            $token = $this->tokenStorage->getToken();
+            $this->user = null !== $token ? $this->fromToken($token) : null;
         }
 
         return $this->user;

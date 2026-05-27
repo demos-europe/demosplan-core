@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Command\Helpers\Helpers;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -23,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,10 +32,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:data:register-user-for-customer', description: 'Registers an existing user to an existing customer')]
 class RegisterUserForCustomerCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:data:register-user-for-customer';
-    protected static $defaultDescription = 'Registers an existing user to an existing customer';
     /**
      * @var QuestionHelper
      */
@@ -46,7 +47,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
         ParameterBagInterface $parameterBag,
         private readonly RoleRepository $roleRepository,
         private readonly UserRepository $userRepository,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
@@ -55,7 +56,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $userToRegister = $this->askUserLogin($input, $output);
-        if (null === $userToRegister) {
+        if (!$userToRegister instanceof User) {
             $output->writeln('No user for Login found', OutputInterface::VERBOSITY_NORMAL);
 
             return Command::FAILURE;
@@ -68,8 +69,27 @@ class RegisterUserForCustomerCommand extends CoreCommand
             $userToRegister->setDplanroles($roles, $customer);
             $this->userRepository->updateObject($userToRegister);
 
-            // add OrgaType to customer
-            $orga = $userToRegister->getOrga();
+            // Get all organizations the user belongs to
+            $userOrganisations = $userToRegister->getOrganisations();
+
+            if ($userOrganisations->isEmpty()) {
+                $output->writeln(
+                    sprintf('User "%s" does not have any organization assigned', $userToRegister->getLogin()),
+                    OutputInterface::VERBOSITY_NORMAL
+                );
+
+                return Command::FAILURE;
+            }
+
+            // Ask user to select an organisation
+            $orga = $this->helpers->askOrganisation($input, $output, $userOrganisations);
+
+            if (!$orga instanceof OrgaInterface) {
+                $output->writeln('Selected organisation not found', OutputInterface::VERBOSITY_NORMAL);
+
+                return Command::FAILURE;
+            }
+
             $orgaTypes = $this->getOrgaTypesByRoles($roles);
             foreach ($orgaTypes as $orgaType) {
                 $orga->addCustomerAndOrgaType($customer, $orgaType, OrgaStatusInCustomer::STATUS_ACCEPTED);

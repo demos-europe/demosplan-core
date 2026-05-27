@@ -16,15 +16,15 @@
     />
     <div class="space-stack-m">
       <dp-public-statement
-        v-for="(statement, idx) in transformedStatements"
+        v-for="statement in transformedStatements"
         v-bind="statement"
-        :key="idx"
+        :key="statement.id"
         :menu-items-generator="menuItemCallback"
         :procedure-id="procedureId"
         :show-author="showAuthor"
         :show-checkbox="showCheckbox"
         @open-map-modal="openMapModal"
-        @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
+        @open-statement-modal-from-list="handleOpenStatementModal"
       />
       <dp-map-modal
         ref="mapModal"
@@ -50,15 +50,15 @@
             type="info"
           />
           <dp-public-statement
-            v-for="(statement, idx) in publicStatements"
+            v-for="statement in publicStatements"
             v-bind="statement"
-            :key="idx"
+            :key="statement.id"
             :menu-items-generator="menuItemCallback"
             :procedure-id="procedureId"
             :show-author="showAuthor"
             :show-checkbox="showCheckbox"
             @open-map-modal="openMapModal"
-            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
+            @open-statement-modal-from-list="handleOpenStatementModal"
           />
           <dp-map-modal
             ref="mapModal"
@@ -78,15 +78,15 @@
             type="info"
           />
           <dp-public-statement
-            v-for="(statement, idx) in privateStatements"
+            v-for="statement in privateStatements"
             v-bind="statement"
-            :key="'authorOnly-' + idx"
+            :key="statement.id"
             :menu-items-generator="menuItemCallback"
             :procedure-id="procedureId"
             :show-author="showAuthor"
             :show-checkbox="showCheckbox"
             @open-map-modal="openMapModal"
-            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
+            @open-statement-modal-from-list="handleOpenStatementModal"
           />
         </div>
       </dp-tab>
@@ -95,7 +95,14 @@
 </template>
 
 <script>
-import { DpInlineNotification, dpSelectAllMixin, DpTab, DpTabs, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
+import {
+  DpInlineNotification,
+  dpSelectAllMixin,
+  DpTab,
+  DpTabs,
+  formatDate,
+  getFileInfo,
+} from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
 import { generateMenuItems } from './menuItems'
@@ -218,7 +225,7 @@ export default {
   },
 
   emits: [
-    'open-statement-modal-from-list',
+    'openStatementModalFromList',
   ],
 
   data () {
@@ -292,6 +299,13 @@ export default {
   },
 
   methods: {
+    /**
+     * Handle opening statement modal from list
+     */
+    handleOpenStatementModal (statementId) {
+      this.$emit('openStatementModalFromList', statementId)
+    },
+
     openMapModal (polygon) {
       this.$refs.mapModal.toggleModal(polygon)
     },
@@ -310,7 +324,7 @@ export default {
         uName,
         dName,
         oName,
-        phase,
+        phaseDefinition,
         polygon,
         elementId,
         paragraphId,
@@ -360,7 +374,7 @@ export default {
         externId,
         organisation: oName,
         paragraph: statementParagraph,
-        phase,
+        phase: phaseDefinition?.name ?? '',
         polygon: transformedPolygon,
         ...priorityAreas,
         ...transformedSubmitDate,

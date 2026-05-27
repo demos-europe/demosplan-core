@@ -24,7 +24,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\ContentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -58,7 +58,7 @@ class NewsHandler extends CoreHandler
         MessageBagInterface $messageBag,
         PermissionsInterface $permissions,
         ProcedureNewsService $procedureNewsService,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         parent::__construct($messageBag);
         $this->contentService = $contentService;
@@ -254,7 +254,7 @@ class NewsHandler extends CoreHandler
 
         $errors = $this->validateNews($data);
 
-        if (0 < count($errors)) {
+        if ([] !== $errors) {
             $this->flashMessageHandler->setFlashMessages($errors);
 
             return [
@@ -300,7 +300,7 @@ class NewsHandler extends CoreHandler
 
         $errors = $this->validateNews($data);
 
-        if (0 < count($errors)) {
+        if ([] !== $errors) {
             $this->flashMessageHandler->setFlashMessages($errors);
 
             return [

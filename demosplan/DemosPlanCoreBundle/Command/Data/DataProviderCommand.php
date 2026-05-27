@@ -60,7 +60,7 @@ abstract class DataProviderCommand extends CoreCommand
 
     protected function info($message): void
     {
-        $this->line(sprintf("<info>{$message}</info>"));
+        $this->line("<info>{$message}</info>");
     }
 
     protected function line($line = ''): void
@@ -77,7 +77,7 @@ abstract class DataProviderCommand extends CoreCommand
 
     protected function error($message): void
     {
-        $this->line(sprintf("<error>{$message}</error>"));
+        $this->line("<error>{$message}</error>");
     }
 
     /**

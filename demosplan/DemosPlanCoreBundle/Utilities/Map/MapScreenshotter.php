@@ -144,7 +144,7 @@ class MapScreenshotter
         $bbox = $this->viewport->left.','.$this->viewport->bottom.','.$this->viewport->right.','.$this->viewport->top;
         $image = $this->preparePlaceholderMapWms();
         $this->getLayersTilesAndMergeThemIntoMap($wmsUrls, $bbox, $image);
-        $image = $this->imageManager->make($image);
+        $image = $this->imageManager->read($image);
 
         $mapLayer = new MapLayer(
             new CoordinatesViewport(

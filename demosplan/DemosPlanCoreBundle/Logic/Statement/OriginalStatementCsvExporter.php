@@ -49,7 +49,7 @@ class OriginalStatementCsvExporter
      */
     private function generateCsv(array $formattedData, array $columnsDefinition): string
     {
-        $csv = Writer::createFromString('');
+        $csv = Writer::fromString('');
         $csv->setOutputBOM(Bom::Utf8); // Add UTF-8 BOM - Excel needs this to properly display special characters in CSV files
 
         $csv->setDelimiter(',');

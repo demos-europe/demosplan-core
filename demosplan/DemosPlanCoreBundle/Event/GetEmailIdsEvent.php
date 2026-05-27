@@ -33,7 +33,7 @@ class GetEmailIdsEvent extends Event implements GetEmailIdsEventInterface
      */
     public function addEmailIds(array $addonEmailIds): void
     {
-        if (0 !== count($addonEmailIds)) {
+        if ([] !== $addonEmailIds) {
             foreach ($addonEmailIds as $addonEmailId) {
                 if (!in_array($addonEmailId, $this->emailIds)) {
                     $this->emailIds[] = $addonEmailId;

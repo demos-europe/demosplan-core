@@ -64,6 +64,7 @@
             map = L.map('map', {
                 center: new L.LatLng(initialLat, initialLon),
                 zoom: initialZoom,
+                zoomSnap: 0.5,
                 layers: [publicBaselayer],
                 maxBounds: bbox,
                 attributionControl: false
@@ -96,7 +97,7 @@
                     procedureTitle: getProcedureName(publicProcedure),
                     periodStart: getProcedureStartDate(publicProcedure)|dplanDateAnnotated ,
                     periodEnd: getProcedureEndDate(publicProcedure)|dplanDateAnnotated ,
-                    phase: getProcedurePhase(publicProcedure) ,
+                    phase: getProcedurePhaseDefinitionName(publicProcedure) ,
                     shortText: publicProcedure.externalDesc,
                     procedureUrl: path('DemosPlan_procedure_public_detail', {'procedure': publicProcedure.ident}) ,
                     ident: publicProcedure.ident

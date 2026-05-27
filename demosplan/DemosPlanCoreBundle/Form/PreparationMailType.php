@@ -19,10 +19,11 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
+use Traversable;
 
 class PreparationMailType extends AbstractType implements DataMapperInterface
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add(
@@ -53,7 +54,7 @@ class PreparationMailType extends AbstractType implements DataMapperInterface
             ->setDataMapper($this);
     }
 
-    public function mapDataToForms($data, iterable $forms)
+    public function mapDataToForms($data, Traversable $forms): void
     {
         $forms = iterator_to_array($forms);
         /* @var FormInterface[] $forms */
@@ -62,7 +63,7 @@ class PreparationMailType extends AbstractType implements DataMapperInterface
         $forms['r_email_address']->setData($data ? $data->getSendMail() : true);
     }
 
-    public function mapFormsToData(iterable $forms, &$data)
+    public function mapFormsToData(Traversable $forms, &$data): void
     {
         $forms = iterator_to_array($forms);
         /** @var FormInterface[] $forms */

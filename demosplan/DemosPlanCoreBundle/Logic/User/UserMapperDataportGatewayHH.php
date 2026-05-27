@@ -94,7 +94,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
         $userUpdatedOrgaDepartment = $request->request->has('UpdatedOrganisation') || $request->request->has('UpdatedDepartment');
 
         // -> Frage das Gateway mit dem Token an, also if gatewayData is saved but user does not come from Orga Verify page
-        if (is_null($this->data) || !($userChangedOrgaDepartment || $userUpdatedOrgaDepartment)) {
+        if (is_null($this->data) || !$userChangedOrgaDepartment && !$userUpdatedOrgaDepartment) {
             $this->logger->info('Call Gateway for Token '.$token);
             $aResult = $this->authenticateByService($token);
             if (false === $aResult) {
@@ -209,8 +209,8 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                     $departmentNameIs = $user->getDepartment() instanceof Department ? $user->getDepartment()->getName() : '';
                     $departmentNameExpected = $this->data['user']['DEPARTMENT'].' - '.$this->data['user']['SUBDEPARTMENT'];
 
-                    $orgaNameChanged = (new UnicodeString($this->data['user']['AUTHORITY']))->normalize()->toString() != (new UnicodeString($userOrga->getName()))->normalize()->toString();
-                    $departmentNameChanged = (new UnicodeString($departmentNameExpected))->normalize()->toString() != (new UnicodeString($departmentNameIs))->normalize()->toString();
+                    $orgaNameChanged = (new UnicodeString($this->data['user']['AUTHORITY']))->normalize()->toString() !== (new UnicodeString($userOrga->getName()))->normalize()->toString();
+                    $departmentNameChanged = (new UnicodeString($departmentNameExpected))->normalize()->toString() !== (new UnicodeString($departmentNameIs))->normalize()->toString();
 
                     // organame and Department has NOT changed, check other data to be updated
                     if ((!$orgaNameChanged && !$departmentNameChanged) || $userChangedOrgaDepartment || $userUpdatedOrgaDepartment) {
@@ -616,7 +616,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
             }
         }
 
-        if (!empty($update)) {
+        if ([] !== $update) {
             $this->logger->info('Update Orga: ', ['id' => $orga->getId(), 'update' => DemosPlanTools::varExport($update, true), 'isToeb' => DemosPlanTools::varExport($isToeb, true)]);
             $orga = $this->userService->updateOrga($orga->getId(), $update);
         } else {

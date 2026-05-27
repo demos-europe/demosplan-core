@@ -18,15 +18,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 use Throwable;
 
-use function compact;
-
 class UserInfoDataCollector extends DataCollector
 {
     public function __construct(private readonly CurrentUserInterface $currentUser)
     {
     }
 
-    public function collect(Request $request, Response $response, Throwable $exception = null): void
+    public function collect(Request $request, Response $response, ?Throwable $exception = null): void
     {
         $permissions = [];
         $permissionStats = null;
@@ -51,7 +49,7 @@ class UserInfoDataCollector extends DataCollector
             $roles = [];
         }
 
-        $this->data = compact('roles', 'permissions', 'permissionStats');
+        $this->data = ['roles' => $roles, 'permissions' => $permissions, 'permissionStats' => $permissionStats];
     }
 
     public function getName(): string

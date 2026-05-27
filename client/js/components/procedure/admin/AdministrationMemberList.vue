@@ -160,7 +160,8 @@ export default {
       })
         .then(response => {
           this.$refs.organisationTable.getInstitutionsWithContacts()
-          this.$refs.organisationTable.resetSelection()
+          this.$refs.organisationTable.clearSelections()
+          dplan.notify.notify('confirm', Translator.trans('confirm.invitable_institutions.deleted', { count: organisationIds.length }))
           this.selectedItems = []
         })
         .catch(() => {
