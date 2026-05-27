@@ -12,12 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Exception;
 
-use Exception;
-
-class UndefinedPhaseException extends Exception
+class SettingNotFoundException extends ResourceNotFoundException
 {
-    public function __construct($phaseKey)
+    public static function createFromId(string $id): self
     {
-        parent::__construct("Undefined phase for key: $phaseKey");
+        return new self("Setting with the ID {$id} was not found.");
     }
 }

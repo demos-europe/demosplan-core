@@ -42,8 +42,7 @@ class ProcedureHandlerTest extends FunctionalTestCase
 
     public function testGetAllProceduresWithSoonEndingPhases(): void
     {
-        $externalWritePhaseKeys = $this->sut->getDemosplanConfig()->getInternalPhaseKeys('write');
-        $procedures = $this->sut->getAllProceduresWithSoonEndingPhases($externalWritePhaseKeys, 7);
+        $procedures = $this->sut->getAllProceduresWithSoonEndingPhases(7);
         static::assertCount(1, $procedures);
     }
 
@@ -76,9 +75,6 @@ class ProcedureHandlerTest extends FunctionalTestCase
      */
     public function testSwitchToEvaluationPhasesOnEndOfParticipationPhase(): void
     {
-        $internalWritePhaseKeys = $this->sut->getDemosplanConfig()->getInternalPhaseKeys('write');
-        $externalWritePhaseKeys = $this->sut->getDemosplanConfig()->getExternalPhaseKeys('write');
-
         $currentDate = new DateTime();
         $idsOfEndedInternalParticipation = [];
         $idsOfEndedExternalParticipation = [];
@@ -87,12 +83,15 @@ class ProcedureHandlerTest extends FunctionalTestCase
         $procedures = $this->getEntries(Procedure::class, ['deleted' => false]);
 
         foreach ($procedures as $procedure) {
+            if ($procedure->getMaster() || $procedure->isMasterTemplate()) {
+                continue;
+            }
             if ($procedure->getEndDate() < $currentDate
-                && in_array($procedure->getPhase(), $internalWritePhaseKeys, true)) {
+                && 'write' === $procedure->getPhaseObject()->getPhaseDefinition()->getPermissionSet()) {
                 $idsOfEndedInternalParticipation[] = $procedure->getId();
             }
             if ($procedure->getPublicParticipationEndDate() < $currentDate
-                && in_array($procedure->getPublicParticipationPhase(), $externalWritePhaseKeys, true)) {
+                && 'write' === $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet()) {
                 $idsOfEndedExternalParticipation[] = $procedure->getId();
             }
         }
@@ -112,12 +111,15 @@ class ProcedureHandlerTest extends FunctionalTestCase
         $procedures = $this->getEntries(Procedure::class, ['deleted' => false]);
 
         foreach ($procedures as $procedure) {
+            if ($procedure->getMaster() || $procedure->isMasterTemplate()) {
+                continue;
+            }
             if ($procedure->getEndDate() < $currentDate
-                && in_array($procedure->getPhase(), $internalWritePhaseKeys, true)) {
+                && 'write' === $procedure->getPhaseObject()->getPhaseDefinition()->getPermissionSet()) {
                 $endedInternalParticipation[] = $procedure;
             }
             if ($procedure->getPublicParticipationEndDate() < $currentDate
-                && in_array($procedure->getPublicParticipationPhase(), $externalWritePhaseKeys, true)) {
+                && 'write' === $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet()) {
                 $endedExternalParticipation[] = $procedure;
             }
         }
@@ -131,11 +133,6 @@ class ProcedureHandlerTest extends FunctionalTestCase
      */
     public function testDataOnSwitchToEvaluationPhasesOnEndOfParticipationPhase(): void
     {
-        $internalWritePhaseKeys = $this->sut->getDemosplanConfig()->getInternalPhaseKeys('write');
-        $externalWritePhaseKeys = $this->sut->getDemosplanConfig()->getExternalPhaseKeys('write');
-        $internalPhaseName = $this->sut->getDemosplanConfig()->getPhaseNameWithPriorityInternal('evaluating');
-        $externalPhaseName = $this->sut->getDemosplanConfig()->getPhaseNameWithPriorityExternal('evaluating');
-
         /** @var Procedure[] $procedures */
         $procedures = $this->getEntries(Procedure::class, ['deleted' => false]);
         $currentDate = new DateTime();
@@ -144,12 +141,15 @@ class ProcedureHandlerTest extends FunctionalTestCase
 
         // setup:
         foreach ($procedures as $procedure) {
+            if ($procedure->getMaster() || $procedure->isMasterTemplate()) {
+                continue;
+            }
             if ($procedure->getEndDate() < $currentDate
-                && in_array($procedure->getPhase(), $internalWritePhaseKeys, true)) {
+                && 'write' === $procedure->getPhaseObject()->getPhaseDefinition()->getPermissionSet()) {
                 $datesOfEndedInternalParticipationProcedures[$procedure->getId()] = $procedure->getEndDate();
             }
             if ($procedure->getPublicParticipationEndDate() < $currentDate
-                && in_array($procedure->getPublicParticipationPhase(), $externalWritePhaseKeys, true)) {
+                && 'write' === $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet()) {
                 $datesOfEndedExternalParticipationProcedures[$procedure->getId()] = $procedure->getPublicParticipationEndDate();
             }
         }
@@ -163,7 +163,8 @@ class ProcedureHandlerTest extends FunctionalTestCase
         foreach ($datesOfEndedInternalParticipationProcedures as $procedureId => $endDate) {
             /** @var Procedure $procedure */
             $procedure = $this->find(Procedure::class, $procedureId);
-            static::assertEquals('evaluating', $procedure->getPhase());
+            static::assertSame('read', $procedure->getPhaseObject()->getPhaseDefinition()->getPermissionSet());
+            static::assertSame('finished', $procedure->getPhaseObject()->getPhaseDefinition()->getParticipationState());
             static::assertEquals(
                 Carbon::instance($procedure->getEndDate())->endOfDay(),
                 Carbon::instance($endDate)->endOfDay()
@@ -173,7 +174,14 @@ class ProcedureHandlerTest extends FunctionalTestCase
         foreach ($datesOfEndedExternalParticipationProcedures as $procedureId => $endDate) {
             /** @var Procedure $procedure */
             $procedure = $this->find(Procedure::class, $procedureId);
-            static::assertEquals('evaluating', $procedure->getPublicParticipationPhase());
+            static::assertSame(
+                'read',
+                $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet()
+            );
+            static::assertSame(
+                'finished',
+                $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getParticipationState()
+            );
             static::assertEquals(
                 Carbon::instance($procedure->getPublicParticipationEndDate())->endOfDay(),
                 Carbon::instance($endDate)->endOfDay()

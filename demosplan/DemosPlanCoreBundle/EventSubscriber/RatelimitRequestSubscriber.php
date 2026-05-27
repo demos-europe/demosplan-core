@@ -45,7 +45,7 @@ class RatelimitRequestSubscriber implements EventSubscriberInterface
                 if (true === filter_var($this->parameterBag->get('ratelimit_api_enable'), FILTER_VALIDATE_BOOLEAN)) {
                     throw new TooManyRequestsHttpException();
                 }
-                $this->logger->warning('Rate limiting for api is disabled but would have been active now.');
+                $this->logger->debug('Rate limiting for api is disabled but would have been active now.');
             }
         }
     }

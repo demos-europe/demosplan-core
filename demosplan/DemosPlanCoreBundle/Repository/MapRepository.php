@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query;
 use Exception;
 
 /**
@@ -389,7 +390,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 $this->getEntityManager()
                     ->createQuery('SELECT g FROM '.GisLayer::class.' g WHERE g.gId = :gid')
                     ->setParameter('gid', $item->getId())
-                    ->setHint(\Doctrine\ORM\Query::HINT_REFRESH, true)
+                    ->setHint(Query::HINT_REFRESH, true)
                     ->getResult();
 
                 $this->getEntityManager()->refresh($item);
@@ -679,8 +680,8 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
      */
     public function addObject($entity): GisLayer
     {
-        $this->_em->persist($entity);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($entity);
+        $this->getEntityManager()->flush();
 
         return $entity;
     }
@@ -695,8 +696,8 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     public function updateObject($gisLayer)
     {
         try {
-            $this->_em->persist($gisLayer);
-            $this->_em->flush();
+            $this->getEntityManager()->persist($gisLayer);
+            $this->getEntityManager()->flush();
 
             return $gisLayer;
         } catch (Exception $e) {

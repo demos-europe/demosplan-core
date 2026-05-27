@@ -76,7 +76,7 @@
             </td>
             <td v-cleanhtml="element" />
             <td>
-              {{ statement.phase }}
+              {{ statement.procedurePhase?.name }}
             </td>
             <td class="text-right">
               <dp-flyout v-if="hasPermission('area_statement_anonymize')">

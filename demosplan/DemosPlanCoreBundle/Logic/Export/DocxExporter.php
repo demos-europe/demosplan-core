@@ -43,6 +43,7 @@ use League\Flysystem\FilesystemOperator;
 use Monolog\Logger;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;
+use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\IOFactory;
@@ -1062,7 +1063,7 @@ class DocxExporter
         $frontPageSection->addText(htmlspecialchars((string) $procedure->getName(), ENT_NOQUOTES), $coverHeadingStyle, $coverParagraphStyle);
 
         // Verfahrensschritt
-        $phaseName = $procedure->getPhaseName();
+        $phaseName = $procedure->getPhaseObject()->getPhaseDefinition()->getName();
         if (null !== $phaseName) {
             $frontPageSection->addText(htmlspecialchars((string) $phaseName), $coverHeadingStyle, $coverParagraphStyle);
         }
@@ -1310,10 +1311,7 @@ class DocxExporter
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_PROCEDURE_PHASE, $exportConfig, $statement)) {
                 // Verfahrensschritt
                 // Ersetze die Phase, in der die SN eingegangen ist
-                $phaseName = $this->statementService->getProcedurePhaseName(
-                    $statement->getPhase(),
-                    $statement->isSubmittedByCitizen()
-                );
+                $phaseName = $statement->getPhaseDefinition()->getName();
                 $cell2AddText('procedure.public.phase', $phaseName);
             }
 
@@ -2130,7 +2128,7 @@ class DocxExporter
      * For DOCX: uses PreserveText with {PAGE}/{NUMPAGES} placeholder.
      * For ODT: uses separate Field elements since ODT doesn't parse PreserveText placeholders.
      *
-     * @param \PhpOffice\PhpWord\Element\Footer $footer
+     * @param Footer $footer
      */
     private function addPageNumbers($footer): void
     {

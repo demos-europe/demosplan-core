@@ -64,8 +64,7 @@ export default {
     },
 
     /**
-     * Default value for procedure phase select, is set to current publicParticipationPhase
-     * keys for external and internal phases are identical, only translation strings differ
+     * Default value for procedure phase select, is set to current publicParticipationPhase definition id.
      */
     defaultPhase: {
       required: false,
@@ -190,7 +189,7 @@ export default {
         }).map(el => {
           return {
             ...el,
-            value: el.key,
+            value: el.id,
             label: el.name,
           }
         })
@@ -201,7 +200,7 @@ export default {
         }).map(el => {
           return {
             ...el,
-            value: el.key,
+            value: el.id,
             label: el.name,
           }
         })
@@ -244,9 +243,9 @@ export default {
      */
     setDefaultPhase (isInstitution) {
       if (isInstitution) {
-        this.values.phase = Object.values(this.internalPhases).find(el => el.key === this.currentInternalPhase) || Object.values(this.internalPhases)[0]
+        this.values.phase = Object.values(this.internalPhases).find(el => el.id === this.currentInternalPhase) || Object.values(this.internalPhases)[0]
       } else {
-        this.values.phase = Object.values(this.externalPhases).find(el => el.key === this.currentExternalPhase) || Object.values(this.externalPhases)[0]
+        this.values.phase = Object.values(this.externalPhases).find(el => el.id === this.currentExternalPhase) || Object.values(this.externalPhases)[0]
       }
     },
 

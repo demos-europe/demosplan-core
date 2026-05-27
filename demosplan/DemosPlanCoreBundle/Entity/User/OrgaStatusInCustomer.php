@@ -15,76 +15,60 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaStatusInCustomerRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Links the user, the role and the customer (currently only relevant for the CustomerMasterUser).
- *
- * @ORM\Table(name="relation_customer_orga_orga_type",
- *    uniqueConstraints={
- *
- *        @ORM\UniqueConstraint(name="o_c_ot_unique",
- *            columns={"_o_id", "_c_id", "_ot_id"})
- *    }
- * )
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\OrgaStatusInCustomerRepository")
  */
+#[ORM\Table(name: 'relation_customer_orga_orga_type')]
+#[ORM\UniqueConstraint(name: 'o_c_ot_unique', columns: ['_o_id', '_c_id', '_ot_id'])]
+#[ORM\Entity(repositoryClass: OrgaStatusInCustomerRepository::class)]
 class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, OrgaStatusInCustomerInterface
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_id", type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * Foreign key, Orga object.
      *
      * @var OrgaInterface
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="statusInCustomers")
-     *
-     * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Orga::class, inversedBy: 'statusInCustomers')]
     protected $orga;
 
     /**
      * Foreign key, Orga Type object.
      *
      * @var OrgaTypeInterface
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\OrgaType", inversedBy="orgaStatusInCustomers")
-     *
-     * @ORM\JoinColumn(name="_ot_id", referencedColumnName="_ot_id", nullable=false)
      */
+    #[ORM\JoinColumn(name: '_ot_id', referencedColumnName: '_ot_id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: OrgaType::class, inversedBy: 'orgaStatusInCustomers')]
     protected $orgaType;
 
     /**
      * Foreign key, Customer object.
      *
      * @var CustomerInterface
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="orgaStatuses")
-     *
-     * @ORM\JoinColumn(name="_c_id", referencedColumnName="_c_id", nullable=false)
      */
+    #[ORM\JoinColumn(name: '_c_id', referencedColumnName: '_c_id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'orgaStatuses')]
     protected $customer;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false)
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     protected $status;
 
     public function getId(): ?string
@@ -136,7 +120,7 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
     {
         $this->status = match ($status) {
             OrgaStatusInCustomerInterface::STATUS_ACCEPTED, OrgaStatusInCustomerInterface::STATUS_REJECTED, OrgaStatusInCustomerInterface::STATUS_PENDING => $status,
-            default => throw new InvalidArgumentException("Invalid status {$status}"),
+            default                                                                                                                                       => throw new InvalidArgumentException("Invalid status {$status}"),
         };
     }
 }
