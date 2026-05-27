@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\Controller\AssessmentTable;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
@@ -51,12 +52,12 @@ class DemosPlanStatementFragmentUpdateAPIController extends APIController
         StatementFragmentService $statementFragmentService,
         ValidatorInterface $validator,
     ): Response {
-        if (!($this->requestData instanceof TopLevel)) {
+        if (!$this->requestData instanceof TopLevel) {
             throw BadRequestException::normalizerFailed();
         }
         /** @var ResourceObject $statementFragmentUpdateResource */
         $statementFragmentUpdateResource = $this->requestData->getFirst('statement-fragment-update');
-        if (!($statementFragmentUpdateResource instanceof ResourceObject)) {
+        if (!$statementFragmentUpdateResource instanceof ResourceObject) {
             throw new BadRequestException('Insufficient data in JSON request.');
         }
         $procedureId = $currentProcedureService->getProcedureIdWithCertainty();

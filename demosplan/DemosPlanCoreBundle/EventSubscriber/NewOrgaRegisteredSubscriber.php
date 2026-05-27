@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use demosplan\DemosPlanCoreBundle\Event\User\NewOrgaRegisteredEvent;
@@ -19,7 +20,7 @@ class NewOrgaRegisteredSubscriber extends BaseEventSubscriber
 {
     public function __construct(
         private readonly OrgaChangesNotifier $orgaChangesNotifier,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         $this->logger = $logger;
     }

@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
 use DemosEurope\DemosplanAddon\Contracts\ValueObject\FileInfoInterface;
@@ -67,7 +68,7 @@ class FileInfo extends ValueObject implements FileInfoInterface
         string $contentType,
         string $path,
         string $absolutePath,
-        ?Procedure $procedure
+        ?Procedure $procedure,
     ) {
         $this->hash = $hash;
         $this->fileName = $fileName;

@@ -25,7 +25,7 @@ return RectorConfig::configure()
     ->withSets([
         // Define what rule sets will be applied
         SetList::CODE_QUALITY,
-//        SymfonySetList::SYMFONY_64,
+        //        SymfonySetList::SYMFONY_64,
         // SymfonyLevelSetList::UP_TO_SYMFONY_54,
         // LevelSetList::UP_TO_PHP_81,
         // TwigSetList::TWIG_UNDERSCORE_TO_NAMESPACE,

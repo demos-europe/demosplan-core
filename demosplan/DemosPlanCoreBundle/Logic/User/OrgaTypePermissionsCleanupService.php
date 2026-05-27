@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
@@ -66,7 +66,7 @@ class OrgaTypePermissionsCleanupService extends CoreService
             }
         }
 
-        if ($rolesToRemove === []) {
+        if ([] === $rolesToRemove) {
             $this->logger->warning('OrgaTypePermissionsCleanupService: No roles to remove permissions for', [
                 'removedType' => $removedType,
             ]);

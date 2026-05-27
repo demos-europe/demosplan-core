@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\EntityValidator;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -35,7 +36,7 @@ class SegmentValidator
     public function validateSegments(
         array $segmentIds,
         array $segments,
-        string $procedureId
+        string $procedureId,
     ): void {
         if (count($segmentIds) !== count($segments)) {
             $this->logger->error('Some Segment ids found no match: ', $segmentIds);

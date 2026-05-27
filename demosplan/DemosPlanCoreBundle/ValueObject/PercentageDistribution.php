@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
 use DemosEurope\DemosplanAddon\Contracts\ValueObject\PercentageDistributionInterface;
@@ -32,7 +33,7 @@ class PercentageDistribution extends ValueObject implements PercentageDistributi
      */
     public function __construct(int $total, array $absolutes)
     {
-        $this->percentages = array_map(static fn(int $absolute) => 0 !== $total
+        $this->percentages = array_map(static fn (int $absolute) => 0 !== $total
             ? round($absolute / $total * 100, 2)
             : 0, $absolutes);
         $this->absolutes = $absolutes;

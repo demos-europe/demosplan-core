@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
 /**
@@ -47,7 +48,7 @@ class BulkDeleteResult extends ValueObject
         int $countSuccessful,
         int $countUnsuccessful,
         int $countNotFound,
-        bool $isErroneous
+        bool $isErroneous,
     ) {
         $this->countSuccessful = $countSuccessful;
         $this->countUnsuccessful = $countUnsuccessful;

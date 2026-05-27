@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\Event\User;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -31,7 +32,7 @@ class OrgaEditedEvent extends DPlanEvent
 
     public function __construct(
         Orga $organisationBefore,
-        Orga $organisationUpdated
+        Orga $organisationUpdated,
     ) {
         $this->organisationUpdated = $organisationUpdated;
         $this->organisationBefore = $organisationBefore;

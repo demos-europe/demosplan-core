@@ -341,7 +341,7 @@ class DocxExporter
 
                                     // Abteilung
                                     $orgaDepartmentName = $statementMeta->getOrgaDepartmentName();
-                                    if ((string) $orgaDepartmentName !== '') {
+                                    if ('' !== (string) $orgaDepartmentName) {
                                         $orgaName .= ', '.$orgaDepartmentName;
                                     }
 
@@ -771,11 +771,11 @@ class DocxExporter
                 $institutionData = $translator->trans('institution').': '.$orgaName;
 
                 // Abteilung
-                if ((string) $item['orgaDepartmentName'] !== '') {
+                if ('' !== (string) $item['orgaDepartmentName']) {
                     $institutionData .= ', '.$item['orgaDepartmentName'];
                 }
                 if (false === $anonymous) {
-                    $institutionData .= (string) $item['submitName'] !== '' ? ': '.$item['submitName'] : '';
+                    $institutionData .= '' !== (string) $item['submitName'] ? ': '.$item['submitName'] : '';
                 }
                 $metaInfoCell->addText(
                     $institutionData,
@@ -1650,7 +1650,7 @@ class DocxExporter
 
         // in Hamburg wird nur anonyme Ansicht verwendet, beim Bürger soll allerdings die Straße mit angegeben werden
         if ($this->permissions->hasPermission('feature_keep_street_on_anonymize')) {
-            if ((string) $statement->getMeta()->getOrgaStreet() !== '') {
+            if ('' !== (string) $statement->getMeta()->getOrgaStreet()) {
                 $result['orgaName'] .= ', '.$statement->getMeta()->getOrgaStreet().$houseNumber;
             }
             // @improve this special cases should not be mixed with this permission check

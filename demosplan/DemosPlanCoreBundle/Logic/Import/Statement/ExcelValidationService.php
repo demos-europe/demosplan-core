@@ -218,7 +218,7 @@ class ExcelValidationService
         ImportValidationResult $result,
         array &$usedInternIds,
     ): void {
-        if ($dto->internId === '' || $dto->internId === '0' || '' === trim($dto->internId)) {
+        if ('' === $dto->internId || '0' === $dto->internId || '' === trim($dto->internId)) {
             return;
         }
 
@@ -475,7 +475,7 @@ class ExcelValidationService
 
         return match ($type) {
             'intern', 'internal' => 'internal',
-            default => 'external',
+            default              => 'external',
         };
     }
 }

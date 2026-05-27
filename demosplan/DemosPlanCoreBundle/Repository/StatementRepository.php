@@ -699,7 +699,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         if (array_key_exists('author_feedback', $data)) {
             $statement->getMeta()->setAuthorFeedback($data['author_feedback']);
         }
-        if (array_key_exists('author_name', $data) && (string) $data['author_name'] !== '') {
+        if (array_key_exists('author_name', $data) && '' !== (string) $data['author_name']) {
             $statement->getMeta()->setAuthorName($data['author_name']);
         }
 
@@ -707,7 +707,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             $statement->setManual(true);
         }
 
-        if (array_key_exists('case_worker', $data) && (string) $data['case_worker'] !== '') {
+        if (array_key_exists('case_worker', $data) && '' !== (string) $data['case_worker']) {
             $statement->getMeta()->setCaseWorkerName($data['case_worker']);
         }
 
@@ -785,22 +785,22 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         if (array_key_exists('oId', $data) && 36 === strlen((string) $data['oId'])) {
             $statement->setOrganisation($em->getReference(Orga::class, $data['oId']));
         }
-        if (array_key_exists('orga_city', $data) && (string) $data['orga_city'] !== '') {
+        if (array_key_exists('orga_city', $data) && '' !== (string) $data['orga_city']) {
             $statement->getMeta()->setOrgaCity($data['orga_city']);
         }
-        if (array_key_exists('orga_department_name', $data) && (string) $data['orga_department_name'] !== '') {
+        if (array_key_exists('orga_department_name', $data) && '' !== (string) $data['orga_department_name']) {
             $statement->getMeta()->setOrgaDepartmentName($data['orga_department_name']);
         }
-        if (array_key_exists('orga_email', $data) && (string) $data['orga_email'] !== '') {
+        if (array_key_exists('orga_email', $data) && '' !== (string) $data['orga_email']) {
             $statement->getMeta()->setOrgaEmail($data['orga_email']);
         }
-        if (array_key_exists('orga_name', $data) && (string) $data['orga_name'] !== '') {
+        if (array_key_exists('orga_name', $data) && '' !== (string) $data['orga_name']) {
             $statement->getMeta()->setOrgaName($data['orga_name']);
         }
-        if (array_key_exists('orga_postalcode', $data) && (string) $data['orga_postalcode'] !== '') {
+        if (array_key_exists('orga_postalcode', $data) && '' !== (string) $data['orga_postalcode']) {
             $statement->getMeta()->setOrgaPostalCode($data['orga_postalcode']);
         }
-        if (array_key_exists('orga_street', $data) && (string) $data['orga_street'] !== '') {
+        if (array_key_exists('orga_street', $data) && '' !== (string) $data['orga_street']) {
             $statement->getMeta()->setOrgaStreet($data['orga_street']);
         }
 
@@ -850,7 +850,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         if (array_key_exists('status', $data)) {
             $statement->setStatus($data['status']);
         }
-        if (array_key_exists('submit_name', $data) && (string) $data['submit_name'] !== '') {
+        if (array_key_exists('submit_name', $data) && '' !== (string) $data['submit_name']) {
             $statement->getMeta()->setSubmitName($data['submit_name']);
         }
         if (array_key_exists('submitUId', $data) && 36 === strlen((string) $data['submitUId'])) {
@@ -944,7 +944,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         if (array_key_exists('sentAssessment', $data)) {
             $statement->setSentAssessment($data['sentAssessment']);
         }
-        if (array_key_exists('authoredDate', $data) && (string) $data['authoredDate'] !== '') {
+        if (array_key_exists('authoredDate', $data) && '' !== (string) $data['authoredDate']) {
             $dateTime = new DateTime();
             $date = $dateTime->createFromFormat('d.m.Y', $data['authoredDate']);
             if ($date instanceof DateTime) {

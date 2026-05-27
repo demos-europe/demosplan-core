@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use Carbon\Carbon;
 use DateTime;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureDeletedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
@@ -410,7 +410,7 @@ class ProcedureService implements ProcedureServiceInterface
 
         if ($this->currentUser->hasAllPermissions('feature_use_plis', 'feature_use_xplanbox')) {
             // bei nonJS ist r_name nicht vorhanden
-            $hasName = \array_key_exists('r_name', $inData) && (string) $inData['r_name'] !== '';
+            $hasName = \array_key_exists('r_name', $inData) && '' !== (string) $inData['r_name'];
 
             // set publicProcedureParticipationEnabled flag to false
             $inData['r_publicParticipationPublicationEnabled'] = 0;
@@ -2571,7 +2571,7 @@ class ProcedureService implements ProcedureServiceInterface
         bool $limitProcedureTemplatesToCustomer,
     ): array {
         $conditions = [];
-        if (\is_string($search) && $search !== '') {
+        if (\is_string($search) && '' !== $search) {
             $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue(
                 $search,
                 ['name']

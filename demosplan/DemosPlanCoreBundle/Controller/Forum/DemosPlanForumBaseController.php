@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\Controller\Forum;
 
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
@@ -48,8 +49,6 @@ class DemosPlanForumBaseController extends BaseController
      * Unterscheide die Dateien nach Bildern und anderen Dateien.
      *
      * @param array $files
-     *
-     * @return mixed
      */
     protected function generateImagesAndDocuments($files)
     {

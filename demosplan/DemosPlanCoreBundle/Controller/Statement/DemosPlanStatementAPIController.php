@@ -298,7 +298,7 @@ class DemosPlanStatementAPIController extends APIController
                 throw ViolationsException::fromConstraintViolationList($errors);
             }
 
-            if (!($this->requestData instanceof TopLevel)) {
+            if (!$this->requestData instanceof TopLevel) {
                 throw BadRequestException::normalizerFailed();
             }
 

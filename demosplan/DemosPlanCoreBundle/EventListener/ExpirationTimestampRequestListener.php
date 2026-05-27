@@ -12,10 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use Symfony\Component\Security\Core\User\UserInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\KeycloakTokenRefreshService;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\TokenExpirationService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
@@ -25,6 +24,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Blocking request listener that checks OAuth token expiration and refreshes tokens if needed.

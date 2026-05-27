@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\Event\Tag;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\DeleteTagEventInterface;

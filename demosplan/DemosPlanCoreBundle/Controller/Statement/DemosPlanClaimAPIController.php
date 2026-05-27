@@ -111,7 +111,7 @@ class DemosPlanClaimAPIController extends APIController
             ],
         ];
         try {
-            if (!($this->requestData instanceof TopLevel)) {
+            if (!$this->requestData instanceof TopLevel) {
                 throw BadRequestException::normalizerFailed();
             }
 

@@ -1732,7 +1732,7 @@ class DemosPlanProcedureController extends BaseController
                 $templateVars['isSubmitted'] = true;
 
                 // Wenn der User eine E-Mail-Adresse angegeben hat, schicke eine Bestätigungsmail
-                if ($request->request->has('r_email') && (string) $requestPost['r_email'] !== '') {
+                if ($request->request->has('r_email') && '' !== (string) $requestPost['r_email']) {
                     $fullEmailAddress = $requestPost['r_email'];
                     $gdprConsentRevokeToken = isset($savedStatement)
                         ? $gdprConsentRevokeTokenService->maybeCreateGdprConsentRevokeToken(

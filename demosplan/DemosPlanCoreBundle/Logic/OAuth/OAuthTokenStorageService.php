@@ -381,6 +381,7 @@ class OAuthTokenStorageService
         if (in_array($request->getMethod(), ['GET', 'HEAD', 'OPTIONS'], true)) {
             return false;
         }
+
         return !str_contains($request->getPathInfo(), '/logout');
     }
 

@@ -753,11 +753,10 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                 $this->getMessageBag()->add('confirm', 'confirm.thread.deleted');
 
                 return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
-            } else {
-                $this->getMessageBag()->add('error', 'error.delete');
-
-                return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
             }
+            $this->getMessageBag()->add('error', 'error.delete');
+
+            return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
         }
 
         $this->getMessageBag()->add('error', 'error.authorisation');

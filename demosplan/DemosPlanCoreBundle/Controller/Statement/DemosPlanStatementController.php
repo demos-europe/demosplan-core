@@ -592,7 +592,7 @@ class DemosPlanStatementController extends BaseController
         }
 
         // zurueckweisen verarbeiten
-        if ($requestPost->has('statement_reject') && (string) $requestPost->get('statement_reject') !== '') {
+        if ($requestPost->has('statement_reject') && '' !== (string) $requestPost->get('statement_reject')) {
             return $this->rejectStatement($request, $translator, $currentProcedure, $requestPost->get('statement_reject'), $userService);
         }
 
@@ -956,7 +956,7 @@ class DemosPlanStatementController extends BaseController
                 $statementHandler->setDisplayNotices(false);
 
                 $fullEmailAddress = '';
-                if ($request->request->has('r_email') && (string) $requestPost['r_email'] !== '') {
+                if ($request->request->has('r_email') && '' !== (string) $requestPost['r_email']) {
                     $fullEmailAddress = $requestPost['r_email'];
                 }
 
@@ -1093,7 +1093,7 @@ class DemosPlanStatementController extends BaseController
                 $inData['r_paragraphID'] = '';
             }
             // Setze Zuweisungen neu
-            if (\array_key_exists('r_element_new', $requestPost) && (string) $requestPost['r_element_new'] !== '') {
+            if (\array_key_exists('r_element_new', $requestPost) && '' !== (string) $requestPost['r_element_new']) {
                 $inData['r_elementID'] = $requestPost['r_element_new'];
                 $inData['r_documentID'] = '';
                 $inData['r_paragraphID'] = '';

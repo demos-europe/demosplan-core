@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Permission;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
@@ -188,16 +188,15 @@ class AccessControlService
                 $foundPermissions = $this->getEnabledPermissionNames($role, $orga, $customer, $permissionToCheck);
 
                 // If we found permissions for this role, return true immediately
-                if ($foundPermissions !== []) {
+                if ([] !== $foundPermissions) {
                     return true;
                 }
             }
 
             // No permissions found for any of the provided roles
             return false;
-        } else {
-            $permissions = $this->getEnabledPermissionNames(null, $orga, $customer, $permissionToCheck);
         }
+        $permissions = $this->getEnabledPermissionNames(null, $orga, $customer, $permissionToCheck);
 
         return [] !== $permissions;
     }

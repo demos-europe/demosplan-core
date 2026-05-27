@@ -37,7 +37,7 @@ class StatementFragmentAPIController extends APIController
     #[Route(path: '/api/1.0/statement-fragment/{statementFragmentId}/edit', name: 'dplan_api_statement_fragment_edit', options: ['expose' => true], methods: ['PATCH'])]
     public function update(PermissionsInterface $permissions, Request $request, StatementHandler $statementHandler, string $statementFragmentId): APIResponse
     {
-        if (!($this->requestData instanceof TopLevel)) {
+        if (!$this->requestData instanceof TopLevel) {
             throw BadRequestException::normalizerFailed();
         }
         /** @var ResourceObject $resourceObject */

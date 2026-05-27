@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DateTimeImmutable;
@@ -30,7 +31,7 @@ class ClaimedStatementsActivityChecker implements UserActivityInterface
             'assignee' => $user,
         ]);
 
-        if ($claimedStatements === []) {
+        if ([] === $claimedStatements) {
             return false;
         }
 

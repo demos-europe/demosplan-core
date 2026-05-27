@@ -350,7 +350,7 @@ class DemosPlanOrganisationAPIController extends APIController
         EventDispatcherInterface $eventDispatcher): APIResponse
     {
         try {
-            if (!($this->requestData instanceof TopLevel)) {
+            if (!$this->requestData instanceof TopLevel) {
                 throw BadRequestException::normalizerFailed();
             }
             $resourceObject = $this->requestData->getObjectToCreate();

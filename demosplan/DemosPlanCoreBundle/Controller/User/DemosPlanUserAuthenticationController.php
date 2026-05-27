@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
-use demosplan\DemosPlanCoreBundle\Entity\User\CustomerOAuthConfig;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
+use demosplan\DemosPlanCoreBundle\Entity\User\CustomerOAuthConfig;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -309,7 +309,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         ParameterBagInterface $parameterBag,
         Request $request,
     ) {
-        if (!($currentUser->getUser() instanceof AnonymousUser)) {
+        if (!$currentUser->getUser() instanceof AnonymousUser) {
             return $this->redirectToRoute('core_home_loggedin');
         }
 
