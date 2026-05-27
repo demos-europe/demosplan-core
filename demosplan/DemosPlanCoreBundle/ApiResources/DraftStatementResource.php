@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
+use demosplan\DemosPlanCoreBundle\StateProvider\DraftStatementStateProvider;
 
 #[ApiResource(
     shortName: 'DraftStatement',
@@ -25,7 +26,7 @@ use ApiPlatform\Metadata\Patch;
         new Patch(),
     ],
     routePrefix: '/3.0',
-    // provider: DraftStatementStateProvider::class,
+    provider: DraftStatementStateProvider::class,
     // processor: DraftStatementStateProcessor::class,
 )]
 class DraftStatementResource
