@@ -527,7 +527,7 @@ export default {
           title: topic.attributes.title,
           id: topic.id,
           tags: this.tags
-            .filter(tag => tag.relationships.topic.data.id === topic.id)
+            .filter(tag => tag?.relationships?.topic?.data?.id === topic.id)
             .map(tag => {
               return {
                 title: tag.attributes.title,
@@ -811,7 +811,7 @@ export default {
         this.isLoading = false
       })
     if (this.segments.length === 1) {
-      this.getSegment({ id: this.segments[0], include: 'tags' })
+      this.getSegment({ id: this.segments[0], include: 'tags,tags.topic' })
         .then(() => {
           this.segmentDataLoaded = true
         })
