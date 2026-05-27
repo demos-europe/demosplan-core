@@ -131,8 +131,8 @@ export default {
           group: 'metaData',
         },
         {
-          id: 'r_export_settings[r_phase]',
-          name: 'r_export_settings[r_phase]',
+          id: 'r_export_settings[r_phaseDefinitionName]',
+          name: 'r_export_settings[r_phaseDefinitionName]',
           label: Translator.trans('procedure.public.phase'),
           initVal: this.initialSettings.procedurePhaseExportable,
           enabled: true,

@@ -45,6 +45,7 @@ use demosplan\DemosPlanCoreBundle\Form\BoilerplateType;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureFormType;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureTemplateFormType;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider;
 use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
@@ -59,6 +60,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureCategoryService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureServiceOutput;
@@ -83,6 +85,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
@@ -163,6 +166,8 @@ class DemosPlanProcedureController extends BaseController
         private readonly ProcedureTypeResourceType $procedureTypeResourceType,
         private readonly SortMethodFactory $sortMethodFactory,
         private readonly CurrentProcedureService $currentProcedureService,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
+        private readonly CurrentContextProvider $currentContextProvider,
     ) {
         $this->procedureServiceOutput = $procedureServiceOutput;
         $this->procedureService = $procedureService;
@@ -641,7 +646,7 @@ class DemosPlanProcedureController extends BaseController
                 'r_autoSwitch',
                 'r_autoSwitchPublic',
                 'r_coordinate',
-                'r_currentPublicParticipationPhase',
+                'r_currentPublicParticipationPhaseDefinitionId',
                 'r_customerMasterBlueprint',
                 'r_dataInputOrga',
                 'r_deletePictogram',
@@ -665,7 +670,7 @@ class DemosPlanProcedureController extends BaseController
                 'r_municipalCode',
                 'r_name',
                 'r_oldSlug',
-                'r_phase',
+                'r_phaseDefinitionId',
                 'r_pictogram',
                 'r_pictogramCopyright',
                 'r_pictogramAltText',
@@ -673,7 +678,7 @@ class DemosPlanProcedureController extends BaseController
                 'r_publicParticipation',
                 'r_publicParticipationContact',
                 'r_publicParticipationEndDate',
-                'r_publicParticipationPhase',
+                'r_publicParticipationPhaseDefinitionId',
                 'r_publicParticipationPublicationEnabled',
                 'r_publicParticipationFeedbackEnabled',
                 'allowAnonymousStatements',
@@ -1226,6 +1231,8 @@ class DemosPlanProcedureController extends BaseController
         MailService $mailService,
         ProcedureCategoryService $procedureCategoryService,
         ProcedureCoupleTokenFetcher $coupleTokenService,
+        ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository,
+        ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         Request $request,
         ServiceStorage $serviceStorage,
         StatementService $statementService,
@@ -1333,10 +1340,11 @@ class DemosPlanProcedureController extends BaseController
                     $this->getMessageBag()->add('confirm', 'confirm.saved');
 
                     // Prüfe, ob eine Email an die Verfahrensabonnenten geschicht werden soll
-                    $publicParticipationPhase = $procedureAsArray['publicParticipationPhase'];
-                    if (isset($inData['r_currentPublicParticipationPhase']) && $publicParticipationPhase !== $inData['r_currentPublicParticipationPhase']) {
-                        $externalPhasesAssoc = $this->globalConfig->getExternalPhasesAssoc();
-                        if (isset($externalPhasesAssoc[$publicParticipationPhase]) && 'write' === $externalPhasesAssoc[$publicParticipationPhase]['permissionset']) {
+                    if (isset($inData['r_currentPublicParticipationPhaseDefinitionId'], $inData['r_publicParticipationPhaseDefinitionId'])
+                        && $inData['r_publicParticipationPhaseDefinitionId'] !== $inData['r_currentPublicParticipationPhaseDefinitionId']
+                    ) {
+                        $newExternalDefinition = $procedurePhaseDefinitionRepository->find($inData['r_publicParticipationPhaseDefinitionId']);
+                        if (null !== $newExternalDefinition && 'write' === $newExternalDefinition->getPermissionSet()) {
                             // Schicke die Email an die Interessenten
                             $this->sendProcedureSubscriptionEmail($mailService, $translator, $procedureAsArray);
                         }
@@ -1387,8 +1395,10 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['inData']['r_shortUrl'] = $procedureAsArray['currentSlug']->getName();
 
             // Verfahrensschritte
-            $templateVars['internalPhases'] = $this->globalConfig->getInternalPhases();
-            $templateVars['externalPhases'] = $this->globalConfig->getExternalPhases();
+            $templateVars['internalPhaseDefinitions'] =
+                $procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer();
+            $templateVars['externalPhaseDefinitions'] =
+                $procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer();
 
             // ProcedureCategories
             $templateVars['procedureCategories'] = $procedureCategoryService->getProcedureCategories();
@@ -1401,23 +1411,15 @@ class DemosPlanProcedureController extends BaseController
                 $template = '@DemosPlanCore/DemosPlanProcedure/administration_edit.html.twig';
                 $title = 'procedure.adjustments';
 
-                $evaluatingPhase = null;
-                foreach ($templateVars['internalPhases'] as $internalPhase) {
-                    if ('evaluating' === $internalPhase['key']) {
-                        $evaluatingPhase = $internalPhase['name'];
-                        break;
-                    }
-                }
+                $evaluatingPhaseName = $this->procedurePhaseDefinitionService->findEvaluatingDefinition(
+                    'internal',
+                    $customerService->getCurrentCustomer()
+                )?->getName();
 
-                // Fallback to 'analysis' if 'evaluating' phase not found
-                if (null === $evaluatingPhase) {
-                    foreach ($templateVars['internalPhases'] as $internalPhase) {
-                        if ('analysis' === $internalPhase['key']) {
-                            $evaluatingPhase = $internalPhase['name'];
-                            break;
-                        }
-                    }
-                }
+                $evaluatingPublicParticipationPhaseName = $this->procedurePhaseDefinitionService->findEvaluatingDefinition(
+                    'external',
+                    $customerService->getCurrentCustomer()
+                )?->getName();
             }
 
             /** @var NotificationReceiverRepository $notificationReveicerRepository */
@@ -1455,11 +1457,12 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['synchronizedStatementCount'] = $entitySyncLinkRepository->getSynchronizedStatementCount($procedureId);
 
             $data = [
-                'templateVars'    => $templateVars,
-                'procedure'       => $procedureId,
-                'title'           => $title,
-                'form'            => $form->createView(),
-                'evaluatingPhase' => $evaluatingPhase ?? '',
+                'templateVars'                           => $templateVars,
+                'procedure'                              => $procedureId,
+                'title'                                  => $title,
+                'form'                                   => $form->createView(),
+                'evaluatingPhaseName'                    => $evaluatingPhaseName ?? null,
+                'evaluatingPublicParticipationPhaseName' => $evaluatingPublicParticipationPhaseName ?? null,
             ];
 
             return $this->render($template, $data);
@@ -1527,9 +1530,12 @@ class DemosPlanProcedureController extends BaseController
         string $procedureId,
     ): Response {
         $currentUserId = $currentUser->getUser()->getId();
+        $procedure = $procedureService->getProcedure($procedureId);
         $templateVars = [
-            'newestInternalId' => $statementService->getNewestInternId($procedureId),
-            'usedInternIds'    => $statementService->getInternIdsFromProcedure($procedureId),
+            'currentInternalPhaseDefinitionId'  => $procedure?->getPhaseObject()->getPhaseDefinition()->getId(),
+            'currentExternalPhaseDefinitionId'  => $procedure?->getPublicParticipationPhaseObject()->getPhaseDefinition()->getId(),
+            'newestInternalId'                  => $statementService->getNewestInternId($procedureId),
+            'usedInternIds'                     => $statementService->getInternIdsFromProcedure($procedureId),
         ];
 
         if ($permissions->hasPermission('feature_statements_tag')) {
@@ -2238,10 +2244,7 @@ class DemosPlanProcedureController extends BaseController
 
         // an welche Töb wurde eine Email geschickt?
         $templateVars['orgaInvitationemailSent'] = [];
-        $invitationEmailSent = $serviceOutput->getInvitationEmailSentList(
-            $procedure,
-            $templateVars['procedure']['phase']
-        );
+        $invitationEmailSent = $serviceOutput->getInvitationEmailSentList($procedure);
         if (\is_array($invitationEmailSent['result']) && [] !== $invitationEmailSent['result']) {
             foreach ($invitationEmailSent['result'] as $invitedOrga) {
                 if (\array_key_exists('organisation', $invitedOrga)

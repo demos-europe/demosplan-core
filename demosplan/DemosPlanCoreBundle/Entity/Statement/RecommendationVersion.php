@@ -67,10 +67,9 @@ class RecommendationVersion extends CoreEntity implements UuidEntityInterface, R
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdAt;
 
     public function getId(): ?string

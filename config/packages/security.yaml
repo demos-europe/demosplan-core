@@ -50,6 +50,13 @@ security:
                 check_path:      /api/ai/auth/login_check
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        api_platform:
+            pattern: ^/api/3\.0
+            context: main
+            provider: dplan_default_user_provider
+            lazy: true
+            custom_authenticators: '%demosplan_user_authenticator_service%'
+            entry_point: '%demosplan_user_authenticator_service_entry_point%'
         api:
             pattern: ^/api/\d.+
             stateless: true
