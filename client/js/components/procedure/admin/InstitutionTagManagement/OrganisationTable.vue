@@ -604,6 +604,31 @@ export default {
       this.$emit('selectedItems', items)
     },
 
+    getCustomFieldsForInstitution (institutionId) {
+      const values = this.customFieldValuesByInstitutionId[institutionId] || {}
+
+      return this.customFieldDefinitions
+        .map(definition => ({
+          definition,
+          field: { id: definition.id, value: values[definition.id] ?? null },
+        }))
+        .filter(({ field }) => field.value !== null && field.value !== undefined && field.value !== '')
+    },
+
+    extractCustomFieldValues () {
+      this.customFieldValuesByInstitutionId = Object.keys(this.storeItems).reduce((byInstitution, id) => {
+        const customFields = this.storeItems[id].attributes?.customFields || []
+
+        return {
+          ...byInstitution,
+          [id]: customFields.reduce((byField, field) => ({
+            ...byField,
+            [field.id]: field.value,
+          }), {}),
+        }
+      }, {})
+    },
+
     sortFields (fields) {
       return [...fields].sort((a, b) => a.definition.attributes.name.localeCompare(b.definition.attributes.name))
     },
