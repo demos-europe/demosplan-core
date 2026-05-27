@@ -50,9 +50,7 @@ class DraftStatementStateProcessor implements ProcessorInterface
         Assert::isInstanceOf($data, DraftStatementResource::class);
 
         if (!$this->isAvailable()) {
-            throw new AccessDeniedHttpException(
-                sprintf('Access denied: insufficient permissions to access %s', $operation->getShortName())
-            );
+            throw new AccessDeniedHttpException(sprintf('Access denied: insufficient permissions to access %s', $operation->getShortName()));
         }
 
         if ($operation instanceof Patch && $this->isUpdateAllowed()) {
@@ -97,9 +95,7 @@ class DraftStatementStateProcessor implements ProcessorInterface
         // without it must be rejected rather than silently dropped.
         if (null !== $resource->customFields) {
             if (!$this->currentUser->hasPermission('feature_statements_custom_fields')) {
-                throw new AccessDeniedHttpException(
-                    'Access denied: insufficient permissions to update custom fields'
-                );
+                throw new AccessDeniedHttpException('Access denied: insufficient permissions to update custom fields');
             }
 
             $customFieldList = $draftStatement->getCustomFields() ?? new CustomFieldValuesList();
