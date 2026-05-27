@@ -171,6 +171,7 @@ All rights reserved
 
 <script>
 import {
+  DpContextualHelp,
   DpDataTable,
   DpLoading,
   DpPager,
@@ -178,13 +179,17 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
   name: 'OrganisationTable',
 
   components: {
     ClientSideTagFilter,
+    CustomFieldsList,
+    DpContextualHelp,
     DpDataTable,
     DpLoading,
     DpPager,
