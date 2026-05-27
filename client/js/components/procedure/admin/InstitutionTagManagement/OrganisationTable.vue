@@ -198,6 +198,12 @@ export default {
 
   mixins: [paginationMixin],
 
+  setup () {
+    const { fetchCustomFields } = useCustomFields()
+
+    return { fetchCustomFields }
+  },
+
   props: {
     headerFields: {
       type: Array,
