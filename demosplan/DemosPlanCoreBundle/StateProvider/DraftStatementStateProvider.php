@@ -39,9 +39,7 @@ class DraftStatementStateProvider implements ProviderInterface
 
         // Explicit permission check - throw exception if not granted
         if (!$this->accessChecker->isAvailable()) {
-            throw new AccessDeniedHttpException(
-                sprintf('Access denied: insufficient permissions to access %s', $operation->getShortName())
-            );
+            throw new AccessDeniedHttpException(sprintf('Access denied: insufficient permissions to access %s', $operation->getShortName()));
         }
 
         // Handle collection (GET /api/3.0/DraftStatement)
