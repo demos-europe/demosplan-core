@@ -23,6 +23,20 @@
     "ankitpokhrel/tus-php": {
         "version": "v2.2.0"
     },
+    "api-platform/core": {
+        "version": "3.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "3.3",
+            "ref": "74b45ac570c57eb1fbe56c984091a9ff87e18bab"
+        },
+        "files": [
+            "config/packages/api_platform.yaml",
+            "config/routes/api_platform.yaml",
+            "demosplan/ApiResource/.gitignore"
+        ]
+    },
     "babdev/pagerfanta-bundle": {
         "version": "v2.11.0"
     },
@@ -65,9 +79,6 @@
             "ref": "64d8583af5ea57b7afa4aba4b159907f3a148b05"
         },
         "files": []
-    },
-    "doctrine/cache": {
-        "version": "1.12.1"
     },
     "doctrine/collections": {
         "version": "1.6.8"
@@ -412,6 +423,18 @@
     },
     "namshi/jose": {
         "version": "7.2.3"
+    },
+    "nelmio/cors-bundle": {
+        "version": "2.6",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "1.5",
+            "ref": "6bea22e6c564fba3a1391615cada1437d0bde39c"
+        },
+        "files": [
+            "config/packages/nelmio_cors.yaml"
+        ]
     },
     "nelmio/security-bundle": {
         "version": "3.9",
@@ -779,22 +802,19 @@
         "version": "v5.3.4"
     },
     "symfony/framework-bundle": {
-        "version": "5.4",
+        "version": "6.4",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
-            "version": "5.4",
-            "ref": "3cd216a4d007b78d8554d44a5b1c0a446dab24fb"
+            "version": "6.4",
+            "ref": "24e94e53cd17933ccaa90d9e3a0136c81a2da8da"
         },
         "files": [
             "config/packages/cache.yaml",
             "config/packages/framework.yaml",
             "config/preload.php",
             "config/routes/framework.yaml",
-            "config/services.yaml",
-            "public/index.php",
-            "demosplan/Controller/.gitignore",
-            "demosplan/Kernel.php"
+            "public/index.php"
         ]
     },
     "symfony/http-client": {
@@ -922,9 +942,6 @@
     },
     "symfony/polyfill-php56": {
         "version": "v1.20.0"
-    },
-    "symfony/polyfill-php72": {
-        "version": "v1.23.0"
     },
     "symfony/polyfill-php73": {
         "version": "v1.23.0"

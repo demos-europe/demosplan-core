@@ -156,26 +156,28 @@
         >
           <dp-data-table
             ref="dataTable"
-            class="min-h-12"
+            :key="columnSelectorKey"
             :class="{ 'px-2': isFullscreen, 'scrollbar-none': !isFullscreen }"
+            :header-fields="availableHeaderFields"
+            :items="items"
+            :multi-page-all-selected="allSelectedVisually"
+            :multi-page-selection-items-toggled="toggledItems.length"
+            :multi-page-selection-items-total="allItemsCount"
+            :should-be-selected-items="currentlySelectedItems"
+            class="min-h-12"
+            column-storage-key="segmentsList"
+            column-width-storage-key="segmentsListColumnWidths"
             data-cy="segmentsList"
             density="spacious"
-            has-flyout
+            track-by="id"
             has-borders
+            has-flyout
             has-sticky-header
-            :header-fields="availableHeaderFields"
-            column-storage-key="segmentsList"
             is-columns-draggable
             is-resizable
             is-selectable
-            :items="items"
-            :multi-page-all-selected="allSelectedVisually"
-            :multi-page-selection-items-total="allItemsCount"
-            :multi-page-selection-items-toggled="toggledItems.length"
-            :should-be-selected-items="currentlySelectedItems"
-            track-by="id"
-            @select-all="handleSelectAll"
             @items-toggled="handleToggleItem"
+            @select-all="handleSelectAll"
           >
             <template v-slot:header-tags>
               <span class="inline-flex items-center">
@@ -414,6 +416,7 @@ import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaToolti
 import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
   name: 'SegmentsList',
@@ -501,6 +504,7 @@ export default {
       columnSelectorKey: 0,
       defaultColumnSelection: [],
       currentSelection: [],
+      customFieldDefinitions: [],
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -540,10 +544,6 @@ export default {
 
     ...mapState('AssignableUser', {
       assignableUsersObject: 'items',
-    }),
-
-    ...mapState('CustomField', {
-      customFields: 'items',
     }),
 
     ...mapState('Orga', {
@@ -588,12 +588,11 @@ export default {
         ]
       }
 
-      const customFields = Object.values(this.customFields)
-      const selectedCustomFields = customFields
-        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
-        .map(customField => ({
-          field: `customField_${customField.id}`,
-          label: customField.attributes.name,
+      const selectedCustomFields = this.customFieldDefinitions
+        .filter(definition => this.currentSelection.includes(`customField_${definition.id}`))
+        .map(definition => ({
+          field: `customField_${definition.id}`,
+          label: definition.attributes.name,
           colWidth: '180px',
           initialMinWidth: 180,
         }))
@@ -658,7 +657,7 @@ export default {
         return staticColumns
       }
 
-      const customFields = Object.values(this.customFields).map(customField => ([`customField_${customField.id}`, customField.attributes.name]))
+      const customFields = this.customFieldDefinitions.map(definition => ([`customField_${definition.id}`, definition.attributes.name]))
 
       return [
         ...staticColumns,
@@ -671,14 +670,12 @@ export default {
         return []
       }
 
-      return Object.values(this.customFields)
-        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
-        .map(customField => {
-          return {
-            field: `customField_${customField.id}`,
-            fieldId: customField.id,
-          }
-        })
+      return this.customFieldDefinitions
+        .filter(definition => this.currentSelection.includes(`customField_${definition.id}`))
+        .map(definition => ({
+          field: `customField_${definition.id}`,
+          fieldId: definition.id,
+        }))
     },
 
     storageKeyPagination () {
@@ -689,10 +686,6 @@ export default {
   methods: {
     ...mapActions('AssignableUser', {
       fetchAssignableUsers: 'list',
-    }),
-
-    ...mapActions('AdminProcedure', {
-      getCustomFieldsForProcedure: 'get',
     }),
 
     ...mapActions('FilterFlyout', [
@@ -852,28 +845,19 @@ export default {
         return ''
       }
 
-      return this.customFields[fieldId].attributes.options.find(option => option.id === customFieldOptionId)?.label || ''
+      const definition = this.customFieldDefinitions.find(customField => customField.id === fieldId)
+
+      return definition?.attributes.options.find(option => option.id === customFieldOptionId)?.label || ''
     },
 
-    getCustomFields () {
-      const payload = {
-        id: this.procedureId,
-        fields: {
-          AdminProcedure: [
-            'segmentCustomFields',
-          ].join(),
-          CustomField: [
-            'name',
-            'description',
-            'options',
-          ].join(),
-        },
-        include: [
-          'segmentCustomFields',
-        ].join(),
-      }
+    loadSegmentCustomFields () {
+      const { fetchCustomFields } = useCustomFields()
 
-      this.getCustomFieldsForProcedure(payload)
+      return fetchCustomFields(this.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'SEGMENT' })
+        .then(definitions => {
+          this.customFieldDefinitions = definitions
+        })
+        .catch(() => { /* Notification already shown by useCustomFieldDefinitions */ })
     },
 
     getTagsBySegment (id) {
@@ -928,6 +912,12 @@ export default {
     resetColumnSelection () {
       localStorage.removeItem('segmentList')
       this.setCurrentSelection([...this.defaultColumnSelection])
+
+      // Clear persisted column widths
+      Object.keys(localStorage)
+        .filter(key => key.startsWith('dpDataTable:colWidth:segmentsListColumnWidths:'))
+        .forEach(key => localStorage.removeItem(key))
+
       this.columnSelectorKey++
     },
 
@@ -1195,7 +1185,7 @@ export default {
     }
     this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {
-      this.getCustomFields()
+      this.loadSegmentCustomFields()
     }
     this.applyQuery(this.pagination.currentPage)
 

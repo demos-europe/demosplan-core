@@ -27,6 +27,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureSettingsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureUiDefinitionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SlugInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
@@ -35,6 +36,7 @@ use demosplan\DemosPlanCoreBundle\Constraint\ProcedureAllowedSegmentsConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureMasterTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTypeConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
@@ -57,20 +59,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * @ORM\Table(name="_procedure")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository")
- *
- * @ORM\AssociationOverrides({
- *
- *      @ORM\AssociationOverride(name="slugs",
- *          joinTable=@ORM\JoinTable(
- *              joinColumns=@ORM\JoinColumn(name="p_id", referencedColumnName="_p_id"),
- *              inverseJoinColumns=@ORM\JoinColumn(name="s_id", referencedColumnName="id")
- *          )
- *      )
- * })
- *
  * @ProcedureTemplateConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE})
  *
  * @ProcedureTypeConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED})
@@ -79,42 +67,48 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ProcedureAllowedSegmentsConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE})
  */
+#[ORM\Table(name: '_procedure')]
+#[ORM\Entity(repositoryClass: ProcedureRepository::class)]
 class Procedure extends SluggedEntity implements ProcedureInterface
 {
     /**
      * @var string|null
      *                  Generates a UUID in code that confirms to https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-NCName
      *                  to be able to be used as xs:ID type in XML messages
-     *
-     * @ORM\Column(name="_p_id", type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator")
      */
+    #[ORM\Column(name: '_p_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: NCNameGenerator::class)]
     protected $id;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="_p_name", type="text", length=65535, nullable=false)
+     * @var Collection<int, SlugInterface>
      */
+    #[ORM\JoinTable(
+        name: 'procedure_slug',
+        joinColumns: [new ORM\JoinColumn(name: 'p_id', referencedColumnName: '_p_id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 's_id', referencedColumnName: 'id')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Slug::class, cascade: ['persist'])]
+    protected $slugs;
+
+    /**
+     * @var string
+     */
+    #[ORM\Column(name: '_p_name', type: 'text', length: 65535, nullable: false)]
     protected $name;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_short_url", type="string", length=256, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_p_short_url', type: 'string', length: 256, nullable: false, options: ['default' => ''])]
     protected $shortUrl = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_o_name", type="string", length=255, nullable=false)
      */
+    #[ORM\Column(name: '_o_name', type: 'string', length: 255, nullable: false)]
     protected $orgaName = '';
 
     /**
@@ -130,66 +124,52 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * Will be null on some ancient procedures.
      *
      * @var Orga
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="procedures")
-     *
-     * @ORM\JoinColumns({
-     *
-     *   @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="RESTRICT")
-     * })
      */
+    #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', onDelete: 'RESTRICT')]
+    #[ORM\ManyToOne(targetEntity: Orga::class, inversedBy: 'procedures')]
     protected $orga;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_desc", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_p_desc', type: 'text', length: 65535, nullable: false)]
     protected $desc = '';
 
-    /**
-     * @ORM\OneToOne(
-     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhase",
-     *     cascade={"persist", "remove"}
-     * )
-     *
-     * @ORM\JoinColumn(nullable=false)
-     */
-    protected ProcedurePhase $phase;
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne(targetEntity: ProcedurePhase::class, cascade: ['persist', 'remove'])]
+    protected ProcedurePhaseInterface $phase;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_logo", type="string", length=255, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_p_logo', type: 'string', length: 255, nullable: false, options: ['fixed' => true])]
     protected $logo = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_extern_id", type="string", length=25, nullable=false, options={"fixed":true})
      */
+    #[ORM\Column(name: '_p_extern_id', type: 'string', length: 25, nullable: false, options: ['fixed' => true])]
     protected $externId = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_plis_id", type="string", length=36, options={"fixed":true, "default":""}, nullable=false)
      */
+    #[ORM\Column(name: '_p_plis_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true, 'default' => ''])]
     protected $plisId = '';
 
     /**
      * @var bool
      *
-     * @ORM\Column(name="_p_closed", type="boolean", nullable=false, options={"default":false})
+     * @deprecated Will be removed once the phase key system is fully replaced by ProcedurePhaseDefinition.
+     *             The closed state is now derived from the permissionSet of the associated ProcedurePhaseDefinition.
      */
+    #[ORM\Column(name: '_p_closed', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $closed = false;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_p_deleted", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_p_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted = false;
 
     // improve: use blueprint/template instead of master
@@ -198,9 +178,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * `false`/`0` otherwise.
      *
      * @var int|bool
-     *
-     * @ORM\Column(name="_p_master", type="integer", nullable=false)
      */
+    #[ORM\Column(name: '_p_master', type: 'integer', nullable: false)]
     protected $master = false;
 
     /**
@@ -212,70 +191,56 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * There must be only one instance with this property set to `true`.
      *
      * @var bool
-     *
-     * @ORM\Column(name="master_template", type="boolean", nullable=false)
      */
+    #[ORM\Column(name: 'master_template', type: 'boolean', nullable: false)]
     protected $masterTemplate = false;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_external_name", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_p_external_name', type: 'text', length: 65535, nullable: false)]
     protected $externalName = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_external_desc", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_p_external_desc', type: 'text', length: 65535, nullable: false)]
     protected $externalDesc = '';
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_p_public_participation", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_p_public_participation', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $publicParticipation = false;
 
-    /**
-     * @ORM\OneToOne(
-     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhase",
-     *     cascade={"persist", "remove"}
-     * )
-     *
-     * @ORM\JoinColumn(nullable=false)
-     */
-    protected ProcedurePhase $publicParticipationPhase;
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\OneToOne(targetEntity: ProcedurePhase::class, cascade: ['persist', 'remove'])]
+    protected ProcedurePhaseInterface $publicParticipationPhase;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_public_participation_contact", type="string", length=2048, nullable=false)
      */
+    #[ORM\Column(name: '_p_public_participation_contact', type: 'string', length: 2048, nullable: false)]
     protected $publicParticipationContact = '';
 
     /**
      * Enable publication of statements, individual statements must be explicitly published.
      *
      * @var bool
-     *
-     * @ORM\Column(name="_p_public_participation_publication_enabled", type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(name: '_p_public_participation_publication_enabled', type: 'boolean', nullable: false, options: ['default' => true])]
     protected $publicParticipationPublicationEnabled = true;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_location_name", type="string", length=1024, nullable=false)
      */
+    #[ORM\Column(name: '_p_location_name', type: 'string', length: 1024, nullable: false)]
     protected $locationName = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_location_postcode", type="string", length=5, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: '_p_location_postcode', type: 'string', length: 5, nullable: false, options: ['default' => ''])]
     protected $locationPostCode = '';
 
     /**
@@ -287,9 +252,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_p_municipal_code", type="string", length=10, nullable=false)
      */
+    #[ORM\Column(name: '_p_municipal_code', type: 'string', length: 10, nullable: false)]
     protected $municipalCode = '';
 
     /**
@@ -298,48 +262,43 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @see https://de.wikipedia.org/wiki/Amtlicher_Gemeindeschl%C3%BCssel
      *
      * @var string
-     *
-     * @ORM\Column(name="_p_ars", type="string", length=12, nullable=false,
-     *     options={"comment":"Amtlicher Regionalschluessel", "default": ""})
      */
+    #[ORM\Column(name: '_p_ars', type: 'string', length: 12, nullable: false, options: ['comment' => 'Amtlicher Regionalschluessel', 'default' => ''])]
     protected $ars = '';
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_p_created_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_p_created_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="_p_closed_date", type="datetime", nullable=false)
+     * @deprecated Will be removed once the phase key system is fully replaced by ProcedurePhaseDefinition.
+     *             The closed state is now derived from the permissionSet of the associated ProcedurePhaseDefinition.
      */
+    #[ORM\Column(name: '_p_closed_date', type: 'datetime', nullable: false)]
     protected $closedDate;
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="_p_deleted_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_p_deleted_date', type: 'datetime', nullable: false)]
     protected $deletedDate;
 
     /**
      * Invited organisations.
      *
      * @var Collection<int, Orga>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="procedureInvitations")
-     *
-     * @ORM\JoinTable(
-     *     name="_procedure_orga_doctrine",
-     *     joinColumns={@ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="CASCADE")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: '_procedure_orga_doctrine',
+        joinColumns: [new ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', onDelete: 'CASCADE')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Orga::class, inversedBy: 'procedureInvitations')]
     protected $organisation;
 
     /**
@@ -353,72 +312,61 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * PlanningAgencies that are allowed to administrate procedure.
      *
      * @var Collection<int, Orga>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="administratableProcedures")
-     *
-     * @ORM\JoinTable(
-     *     name="procedure_planningoffices",
-     *     joinColumns={@ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: 'procedure_planningoffices',
+        joinColumns: [new ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Orga::class, inversedBy: 'administratableProcedures')]
     protected $planningOffices;
 
     /**
      * @var Collection<int, Orga>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga")
-     *
-     * @ORM\JoinTable(
-     *     name="procedure_orga_datainput",
-     *     joinColumns={@ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="CASCADE")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: 'procedure_orga_datainput',
+        joinColumns: [new ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', onDelete: 'CASCADE')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Orga::class)]
     protected $dataInputOrganisations;
 
     /**
      * @var ProcedureSettings
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings", mappedBy="procedure", cascade={"persist", "remove"})
      */
+    #[ORM\OneToOne(targetEntity: ProcedureSettings::class, mappedBy: 'procedure', cascade: ['persist', 'remove'])]
     protected $settings;
 
     /**
      * @var Collection<int, TagTopic>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic", mappedBy="procedure", cascade={"remove"})
      */
+    #[ORM\OneToMany(targetEntity: TagTopic::class, mappedBy: 'procedure', cascade: ['remove'])]
     protected $topics;
 
     /**
      * @var Collection<int, NotificationReceiver>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver", mappedBy="procedure", cascade={"persist", "remove"})
      */
+    #[ORM\OneToMany(targetEntity: NotificationReceiver::class, mappedBy: 'procedure', cascade: ['persist', 'remove'])]
     protected $notificationReceivers;
 
     /**
      * @var Collection<int,Elements>
-     *
-     * @ORM\OneToMany(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Document\Elements", mappedBy="procedure")
-     *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id")
      */
+    #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id')]
+    #[ORM\OneToMany(targetEntity: Elements::class, mappedBy: 'procedure')]
     protected $elements;
 
     /**
      * Custom list of Users, to access this Procedure, created by User.
      *
      * @var Collection<int, User>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User", inversedBy="authorizedProcedures")
-     *
-     * @ORM\JoinTable(
-     *     joinColumns={@ORM\JoinColumn(name="procedure_id", referencedColumnName="_p_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="_u_id", onDelete="CASCADE")}
-     * )
      */
+    #[ORM\JoinTable(
+        joinColumns: [new ORM\JoinColumn(name: 'procedure_id', referencedColumnName: '_p_id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'user_id', referencedColumnName: '_u_id', onDelete: 'CASCADE')]
+    )]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'authorizedProcedures')]
     protected $authorizedUsers;
 
     /**
@@ -426,69 +374,47 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * which need to be considered and result in nullable=true.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", length=364, nullable=true, options={"comment":"main email address of the agency (organization) assigned to this procedure"})
      */
+    #[ORM\Column(type: 'string', length: 364, nullable: true, options: ['comment' => 'main email address of the agency (organization) assigned to this procedure'])]
     protected $agencyMainEmailAddress;
 
     /**
      * Email addresses to use as CC when sending an email to the agencyMainEmailAddress.
      *
      * @var Collection<int, EmailAddress>
-     *
-     * @ORM\ManyToMany(
-     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\EmailAddress",
-     *     cascade={"persist"})
-     *
-     * @ORM\JoinTable(
-     *     name="procedure_agency_extra_email_address",
-     *     joinColumns={@ORM\JoinColumn(name="procedure_id", referencedColumnName="_p_id", nullable=false)},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="email_address_id", referencedColumnName="id", nullable=false)})
      */
+    #[ORM\JoinTable(
+        name: 'procedure_agency_extra_email_address',
+        joinColumns: [new ORM\JoinColumn(name: 'procedure_id', referencedColumnName: '_p_id', nullable: false)],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'email_address_id', referencedColumnName: 'id', nullable: false)]
+    )]
+    #[ORM\ManyToMany(targetEntity: EmailAddress::class, cascade: ['persist'])]
     protected $agencyExtraEmailAddresses;
 
     /**
      * T15644:.
      *
      * @var Customer
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
-     *
-     * @ORM\JoinColumn(name="customer", referencedColumnName="_c_id", nullable=true)
      */
+    #[ORM\JoinColumn(name: 'customer', referencedColumnName: '_c_id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: Customer::class)]
     protected $customer;
 
     /**
      * @var Collection<int, ProcedureCategory>
-     *
-     * @ORM\ManyToMany(
-     *      targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCategory",
-     *      cascade={"persist"}
-     * )
-     *
-     * @ORM\JoinTable(
-     *      name="procedure_procedure_category_doctrine",
-     *      joinColumns={@ORM\JoinColumn(
-     *          name="procedure_id",
-     *          referencedColumnName="_p_id",
-     *          nullable=false,
-     *          onDelete="CASCADE"
-     *      )},
-     *      inverseJoinColumns={@ORM\JoinColumn(
-     *          name="procedure_category_id",
-     *          referencedColumnName="procedure_category_id",
-     *          nullable=false,
-     *          onDelete="CASCADE"
-     *      )}
-     * )
      */
+    #[ORM\JoinTable(
+        name: 'procedure_procedure_category_doctrine',
+        joinColumns: [new ORM\JoinColumn(name: 'procedure_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'procedure_category_id', referencedColumnName: 'procedure_category_id', nullable: false, onDelete: 'CASCADE')]
+    )]
+    #[ORM\ManyToMany(targetEntity: ProcedureCategory::class, cascade: ['persist'])]
     protected $procedureCategories;
 
     /**
      * @var Collection<int, Statement>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="procedure", cascade={"persist", "remove"})
      */
+    #[ORM\OneToMany(targetEntity: Statement::class, mappedBy: 'procedure', cascade: ['persist', 'remove'])]
     protected $statements;
 
     /**
@@ -498,64 +424,53 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * Many procedureTypes have one procedure. This is the owning side.
      * (In Doctrine Many have to be the owning side in a ManyToOne relationship.)
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType", inversedBy="procedures")
-     *
-     * @ORM\JoinColumn(nullable=true)
      */
+    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\ManyToOne(targetEntity: ProcedureType::class, inversedBy: 'procedures')]
     private $procedureType;
 
     /**
      * Defined as nullable=true, because of Procedure-Blueprints will not have a related StatementFormDefinition.
      *
      * @var StatementFormDefinition|null
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition", inversedBy="procedure", cascade={"persist", "remove"})
-     *
-     * @ORM\JoinColumn(nullable=true)
      */
+    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\OneToOne(targetEntity: StatementFormDefinition::class, inversedBy: 'procedure', cascade: ['persist', 'remove'])]
     private $statementFormDefinition;
 
     /**
      * Defined as nullable=true, because of Procedure-Blueprints will not have a related ProcedureBehaviorDefinition.
      *
      * @var ProcedureBehaviorDefinition|null
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition", inversedBy="procedure", cascade={"persist", "remove"})
-     *
-     * @ORM\JoinColumn(nullable=true)
      */
+    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\OneToOne(targetEntity: ProcedureBehaviorDefinition::class, inversedBy: 'procedure', cascade: ['persist', 'remove'])]
     private $procedureBehaviorDefinition;
 
     /**
      * Defined as nullable=true, because of Procedure-Blueprints will not have a related ProcedureUiDefinition.
      *
      * @var ProcedureUiDefinition|null
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition", inversedBy="procedure", cascade={"persist", "remove"})
-     *
-     * @ORM\JoinColumn(nullable=true)
      */
+    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\OneToOne(targetEntity: ProcedureUiDefinition::class, inversedBy: 'procedure', cascade: ['persist', 'remove'])]
     private $procedureUiDefinition;
 
     /**
      * Definition of Fields to be rendered/added in Export of this Procedure.
      *
      * @var Collection<int, ExportFieldsConfiguration>
-     *
-     * @ORM\OneToMany(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration", mappedBy="procedure", cascade={"persist", "remove"})
-     *
-     * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
      */
+    #[ORM\JoinColumn(referencedColumnName: 'id', nullable: false)]
+    #[ORM\OneToMany(targetEntity: ExportFieldsConfiguration::class, mappedBy: 'procedure', cascade: ['persist', 'remove'])]
     private $exportFieldsConfigurations;
 
     /**
      * Any files referenced to this procedure.
      *
      * @var Collection<int, File>
-     *
-     * @ORM\OneToMany(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\File", mappedBy="procedure", cascade={"remove"})
      */
+    #[ORM\OneToMany(targetEntity: File::class, mappedBy: 'procedure', cascade: ['remove'])]
     private $files;
 
     // @improve T26104
@@ -568,27 +483,27 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * some more investigation. As soon as the other field is dropped, this property might be renamed to externId
      *
      * @var string
-     *
-     * @ORM\Column(name="extern_id", type="string", length=50, nullable=false, options={"default":""})
      */
+    #[ORM\Column(name: 'extern_id', type: 'string', length: 50, nullable: false, options: ['default' => ''])]
     private $xtaPlanId = '';
 
     /**
      * @var Collection<int, Place>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Workflow\Place", mappedBy="procedure", cascade={"persist"})
      */
+    #[ORM\OneToMany(targetEntity: Place::class, mappedBy: 'procedure', cascade: ['persist'])]
     private $segmentPlaces;
 
     protected ?CustomFieldConfiguration $customFieldConfiguration = null;
 
-    public function __construct()
-    {
+    public function __construct(
+        ProcedurePhaseDefinition $internalPhaseDefinition,
+        ProcedurePhaseDefinition $externalPhaseDefinition,
+    ) {
         $this->organisation = new ArrayCollection();
         $this->elements = new ArrayCollection();
         $this->topics = new ArrayCollection();
-        $this->closedDate = new DateTime();
         $this->deletedDate = new DateTime();
+        $this->closedDate = new DateTime();
         $this->dataInputOrganisations = new ArrayCollection();
         $this->authorizedUsers = new ArrayCollection();
         $this->agencyExtraEmailAddresses = new ArrayCollection();
@@ -600,8 +515,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $this->notificationReceivers = new ArrayCollection();
         $this->exportFieldsConfigurations = new ArrayCollection();
         $this->segmentPlaces = new ArrayCollection();
-        $this->phase = new ProcedurePhase('configuration', '');
-        $this->publicParticipationPhase = new ProcedurePhase('configuration', '');
+        $this->phase = new ProcedurePhase($internalPhaseDefinition);
+        $this->publicParticipationPhase = new ProcedurePhase($externalPhaseDefinition);
     }
 
     /**
@@ -751,24 +666,16 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->desc;
     }
 
-    /**
-     * @param string $phaseKey
-     */
-    public function setPhase($phaseKey): Procedure
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPhaseDefinitionId(): ?string
     {
-        $this->setPhaseKey($phaseKey);
-
-        return $this;
+        return $this->phase->getPhaseDefinition()->getId();
     }
 
-    public function setPhaseKey($phaseKey): void
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPhaseOrderInAudience(): int
     {
-        $this->phase->setKey($phaseKey);
-    }
-
-    public function getPhase(): string
-    {
-        return $this->phase->getKey();
+        return $this->phase->getPhaseDefinition()->getOrderInAudience();
     }
 
     public function getPhaseObject(): ProcedurePhaseInterface
@@ -776,53 +683,9 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->phase;
     }
 
-    public function getPhaseName(): string
-    {
-        return $this->phase->getName();
-    }
-
-    /**
-     * @param string $phaseName
-     */
-    public function setPhaseName($phaseName)
-    {
-        $this->phase->setName($phaseName);
-    }
-
     public function getPhasePermissionset(): string
     {
-        return $this->phase->getPermissionSet() ?? ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
-    }
-
-    public function setPhasePermissionset(string $phasePermissionset): Procedure
-    {
-        $this->phase->setPermissionSet($phasePermissionset);
-
-        return $this;
-    }
-
-    /**
-     * Set pStep.
-     *
-     * @param string $step
-     *
-     * @return Procedure
-     */
-    public function setStep($step)
-    {
-        $this->phase->setStep($step);
-
-        return $this;
-    }
-
-    /**
-     * Get pStep.
-     *
-     * @return string
-     */
-    public function getStep()
-    {
-        return $this->phase->getStep();
+        return $this->phase->getPhaseDefinition()->getPermissionSet();
     }
 
     /**
@@ -895,30 +758,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     public function getPlisId()
     {
         return $this->plisId;
-    }
-
-    /**
-     * Set pClosed.
-     *
-     * @param bool $closed
-     *
-     * @return Procedure
-     */
-    public function setClosed($closed)
-    {
-        $this->closed = \filter_var($closed, FILTER_VALIDATE_BOOLEAN);
-
-        return $this;
-    }
-
-    /**
-     * Get pClosed.
-     *
-     * @return bool
-     */
-    public function getClosed()
-    {
-        return \filter_var($this->closed, FILTER_VALIDATE_BOOLEAN);
     }
 
     /**
@@ -1071,23 +910,16 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return \filter_var($this->publicParticipation, FILTER_VALIDATE_BOOLEAN);
     }
 
-    /**
-     * Set pPublicParticipationPhase.
-     *
-     * @param string $publicParticipationPhaseKey
-     *
-     * @return Procedure
-     */
-    public function setPublicParticipationPhase($publicParticipationPhaseKey)
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPublicParticipationPhaseDefinitionId(): ?string
     {
-        $this->publicParticipationPhase->setKey($publicParticipationPhaseKey);
-
-        return $this;
+        return $this->publicParticipationPhase->getPhaseDefinition()->getId();
     }
 
-    public function getPublicParticipationPhase(): string
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPublicParticipationPhaseOrderInAudience(): int
     {
-        return $this->publicParticipationPhase->getKey();
+        return $this->publicParticipationPhase->getPhaseDefinition()->getOrderInAudience();
     }
 
     public function getPublicParticipationPhaseObject(): ProcedurePhaseInterface
@@ -1095,53 +927,25 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->publicParticipationPhase;
     }
 
-    /**
-     * @return string
-     */
-    public function getPublicParticipationPhaseName()
-    {
-        return $this->publicParticipationPhase->getName();
-    }
-
-    /**
-     * @param string $publicParticipationPhaseName
-     */
-    public function setPublicParticipationPhaseName($publicParticipationPhaseName)
-    {
-        $this->publicParticipationPhase->setName($publicParticipationPhaseName);
-    }
-
     public function getPublicParticipationPhasePermissionset(): string
     {
-        return $this->publicParticipationPhase->getPermissionSet() ??
-            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
-    }
-
-    public function setPublicParticipationPhasePermissionset(string $publicParticipationPhasePermissionset): Procedure
-    {
-        $this->publicParticipationPhase->setPermissionSet($publicParticipationPhasePermissionset);
-
-        return $this;
+        return $this->publicParticipationPhase->getPhaseDefinition()->getPermissionSet();
     }
 
     /**
-     * @param string $publicParticipationStep
+     * @deprecated phase keys will be removed
      */
     public function setPublicParticipationStep($publicParticipationStep): Procedure
     {
-        $this->publicParticipationPhase->setStep($publicParticipationStep);
-
         return $this;
     }
 
     /**
-     * Get pPublicParticipationStep.
-     *
-     * @return string
+     * @deprecated phase keys will be removed
      */
     public function getPublicParticipationStep()
     {
-        return $this->publicParticipationPhase->getStep();
+        return '';
     }
 
     /**
@@ -1484,30 +1288,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         }
 
         return 7200;
-    }
-
-    /**
-     * Set pClosedDate.
-     *
-     * @param DateTime $closedDate
-     *
-     * @return Procedure
-     */
-    public function setClosedDate($closedDate)
-    {
-        $this->closedDate = $closedDate;
-
-        return $this;
-    }
-
-    /**
-     * Get pClosedDate.
-     *
-     * @return DateTime
-     */
-    public function getClosedDate()
-    {
-        return $this->closedDate;
     }
 
     /**
@@ -2196,9 +1976,15 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this;
     }
 
+    /**
+     * @deprecated not used anymore
+     *
+     * @todo remove this method when demosplan-addon is adjusted
+     */
     public function isInPublicParticipationPhase(): bool
     {
-        return ProcedureInterface::PROCEDURE_PARTICIPATION_PHASE === $this->getPublicParticipationPhase();
+        return ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE ===
+            $this->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet();
     }
 
     public function addTagTopic(TagTopicInterface $tagTopic): void

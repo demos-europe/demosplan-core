@@ -28,7 +28,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class GenericRpcController extends BaseController
 {
     #[DplanPermissions('feature_json_rpc_post')]
-    #[Route(path: '/rpc/2.0', methods: ['POST'], name: 'rpc_generic_post', options: ['expose' => true])]
+    #[Route(path: '/rpc/2.0', name: 'rpc_generic_post', options: ['expose' => true], methods: ['POST'])]
     public function post(
         CurrentProcedureService $currentProcedureService,
         Request $request,

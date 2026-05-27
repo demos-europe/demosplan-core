@@ -45,7 +45,7 @@ class FileController extends BaseController
             return $this->prepareResponseWithHash($fileService, $hash, true);
         } catch (Exception $e) {
             $this->getLogger()->info('Could not serve file: ', [$e]);
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException($e->getMessage(), $e);
         }
     }
 
@@ -60,7 +60,7 @@ class FileController extends BaseController
             return $this->prepareResponseWithHash($fileService, $hash, true, $procedureId);
         } catch (Exception $e) {
             $this->getLogger()->info('Could not serve Procedure file: ', [$e]);
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException($e->getMessage(), $e);
         }
     }
 
@@ -76,7 +76,7 @@ class FileController extends BaseController
             return $this->prepareResponseWithHash($fileService, $hash, true, $procedureId);
         } catch (Exception $e) {
             $this->getLogger()->info('Could not serve Procedure Api ai file: ', [$e]);
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException($e->getMessage(), $e);
         }
     }
 

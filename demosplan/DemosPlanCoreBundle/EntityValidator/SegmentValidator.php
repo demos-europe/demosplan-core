@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -34,7 +36,7 @@ class SegmentValidator
     public function validateSegments(
         array $segmentIds,
         array $segments,
-        string $procedureId
+        string $procedureId,
     ): void {
         if (count($segmentIds) !== count($segments)) {
             $this->logger->error('Some Segment ids found no match: ', $segmentIds);
