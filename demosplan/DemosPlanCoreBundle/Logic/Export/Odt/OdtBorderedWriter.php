@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Export\Odt;
 
+use demosplan\DemosPlanCoreBundle\Exception\OdtProcessingException;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Writer\ODText;
 use PhpOffice\PhpWord\Writer\WriterInterface;
-use RuntimeException;
 use ZipArchive;
 
 /**
@@ -46,7 +46,7 @@ class OdtBorderedWriter implements WriterInterface
         $workFile = $targetIsOutputStream ? \tempnam(\sys_get_temp_dir(), 'odtb_') : $filename;
 
         if (false === $workFile) {
-            throw new RuntimeException('Could not allocate temp file for ODT writer.');
+            throw OdtProcessingException::processingFailed('Could not allocate temp file for ODT writer.');
         }
 
         $this->inner->save($workFile);
@@ -76,13 +76,13 @@ class OdtBorderedWriter implements WriterInterface
     {
         $zip = new ZipArchive();
         if (true !== $zip->open($odtPath)) {
-            throw new RuntimeException(sprintf('Could not open ODT archive "%s" for border injection.', $odtPath));
+            throw OdtProcessingException::unableToOpenFile($odtPath);
         }
 
         $content = $zip->getFromName('content.xml');
         if (false === $content) {
             $zip->close();
-            throw new RuntimeException('ODT archive is missing content.xml.');
+            throw OdtProcessingException::processingFailed('ODT archive is missing content.xml.');
         }
 
         $patched = $this->patchContentXml($content);
