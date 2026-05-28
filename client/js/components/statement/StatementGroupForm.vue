@@ -9,8 +9,6 @@ All rights reserved
 
 <template>
   <div>
-    Helloooooooo
-
     <action-stepper
       :step="step"
       :selected-elements="selectedElementsCount"
@@ -24,9 +22,37 @@ All rights reserved
       @apply="handleApply"
     >
       <template v-slot:step-1>
-        <dp-radio>
+        <div>
+          <!-- Header + Hinweistext -->
+          <h4 class="font-semibold u-mb-0_5">{{ Translator.trans('statements.selected', { count: selectedElementsCount }) }}</h4>
+          <p>{{ Translator.trans('statements.selected.adjust.hint')}}</p>
 
-        </dp-radio>
+          <!-- Scrollbarer Container, ab >5 Items -->
+          <ul :class="statements.length > 5 ? 'max-h-... overflow-y-auto' : ''">
+            <li v-for="stmt in statements"
+                :key="stmt.id"
+                class="flex items-center gap-[16px]"
+            >
+              <span>{{ stmt.attributes.externId }}</span>
+              <span
+                v-if="stmt.attributes.isSubmittedByCitizen"
+              >{{ stmt.attributes.authorName }}
+              </span>
+              <span
+                v-else
+              >{{ stmt.attributes.initialOrganisationName }}
+              </span>
+              <button
+                type="button"
+                class="btn--blank o-link--default ml-auto"
+                data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
+                @click="removeStatement(stmt.id)"
+              >
+                <dp-icon icon="close" size="small" />
+              </button>
+            </li>
+          </ul>
+        </div>
       </template>
       <template v-slot:step-2></template>
       <template v-slot:step-3></template>
@@ -38,7 +64,7 @@ All rights reserved
 import {computed, ref, onMounted} from 'vue'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import lscache from 'lscache'
-import {dpApi, DpRadio} from '@demos-europe/demosplan-ui'
+import {dpApi, DpIcon, DpRadio} from '@demos-europe/demosplan-ui'
 
 const props = defineProps({
   procedureId: {
@@ -92,7 +118,7 @@ async function fetchStatements () {
   const params = {
     filter,
     fields: {
-      Statement: 'externId,authorName,initialOrganisationName, isSubmitterCitizen',
+      Statement: 'externId,authorName,initialOrganisationName,isSubmittedByCitizen',
     },
   }
 
@@ -104,6 +130,10 @@ async function fetchStatements () {
   // Response-Daten in statements.value schreiben (ersetzt die )
   statements.value = response.data.data
   console.log(statements.value)
+}
+
+function removeStatement (id) {
+  statements.value = statements.value.filter(stmt => stmt.id !== id)
 }
 
 function setStatements () {
