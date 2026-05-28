@@ -38,12 +38,13 @@ All rights reserved
           />
         </div>
         <div>
-          <!-- Header + Hinweistext -->
-          <h4 class="font-semibold mb-0.5">{{ Translator.trans('statements.selected.no.count') }} ({{selectedElementsCount}})</h4>
-          <p class="mb-3">{{ Translator.trans('statements.selected.adjust.hint')}}</p>
-
-          <!-- Scrollbarer Container, ab >5 Items -->
-          <ul :class="statements.length > 5 ? 'max-h-[15.5rem] overflow-y-auto' : ''">
+          <h4 class="font-semibold mb-0.5">
+            {{ Translator.trans('statements.selected', { count: selectedElementsCount }) }}
+          </h4>
+          <p class="mb-3">
+            {{ Translator.trans('statements.selected.adjust.hint') }}
+          </p>
+          <ul :class="statements.length > 5 ? 'max-h-[245px] overflow-y-auto' : ''">
             <li
               v-for="stmt in statements"
               :key="stmt.id"
@@ -55,9 +56,9 @@ All rights reserved
                   v-if="stmt.attributes.isSubmittedByCitizen"
                 >{{ stmt.attributes.authorName }}
                 </span>
-                  <span
-                    v-else
-                  >{{ stmt.attributes.initialOrganisationName }}
+                <span
+                  v-else
+                >{{ stmt.attributes.initialOrganisationName }}
                 </span>
                 <button
                   type="button"
@@ -65,29 +66,36 @@ All rights reserved
                   :data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
                   @click="removeStatement(stmt.id)"
                 >
-                  <dp-icon icon="close" size="small" />
+                  <dp-icon
+                    icon="close"
+                    size="small"
+                  />
                 </button>
               </div>
             </li>
           </ul>
         </div>
       </template>
-      <template v-slot:step-2></template>
-      <template v-slot:step-3></template>
+      <template v-slot:step-2>
+        <div>
+          <dp-input />
+        </div>
+      </template>
+      <template v-slot:step-3 />
     </action-stepper>
   </div>
 </template>
 
 <script setup>
-import {computed, ref, onMounted} from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { dpApi, DpIcon, DpInput, DpRadio } from '@demos-europe/demosplan-ui'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import lscache from 'lscache'
-import {dpApi, DpIcon, DpRadio} from '@demos-europe/demosplan-ui'
 
 const props = defineProps({
   procedureId: {
     type: String,
-    required: true
+    required: true,
   },
 })
 
@@ -97,7 +105,7 @@ const isBusy = ref(false)
 const returnLink = ref('#')
 
 const isValid = computed(() => statements.value.length > 0)
-const selectedAction = ref('createGroup') // default until second story will be implemented (add stmt to group)
+const selectedAction = ref('createGroup') // Default until second story will be implemented (add stmt to group)
 const selectedElementsCount = computed(() => statements.value.length)
 const translations = computed(() => ({
   back: Translator.trans('statement.list.back'),
@@ -143,7 +151,7 @@ async function fetchStatements () {
 
   const response = await dpApi.get(
     Routing.generate('api_resource_list', { resourceType: 'Statement' }),
-    params
+    params,
   )
 
   // Response-Daten in statements.value schreiben (ersetzt die )
@@ -157,7 +165,7 @@ function removeStatement (id) {
 
 function setStatements () {
   const stored = lscache.get(`${props.procedureId}:toggledStatements`)
-  console.log("stored from lscache:", stored)
+  console.log('stored from lscache:', stored)
 
   if (stored) {
     statements.value = stored
