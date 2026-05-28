@@ -25,12 +25,12 @@
           :href="sanitizedReturnLink"
           :text="mergedTranslations.back"
           color="secondary"
-          icon="chevron-left"
+          icon="arrow-left"
         />
         <dp-button
           class="float-right"
           :disabled="!valid"
-          icon-after="chevron-right"
+          icon-after="arrow-right"
           :text="mergedTranslations.confirm"
           @click="$emit('confirm')"
         />
@@ -43,14 +43,14 @@
       <div class="u-mt flow-root">
         <dp-button
           color="secondary"
-          icon="chevron-left"
+          icon="arrow-left"
           :text="mergedTranslations.edit"
           @click="$emit('edit')"
         />
         <dp-button
           class="float-right"
           :busy="busy"
-          icon-after="chevron-right"
+          icon-after="arrow-right"
           :text="mergedTranslations.apply"
           @click="$emit('apply')"
         />
@@ -60,10 +60,12 @@
     <template v-if="step === 3">
       <slot name="step-3" />
 
-      <div class="u-mt">
+      <div class="u-mt flow-root">
         <dp-button
+          class="float-right"
+          icon-after="arrow-right"
           :href="sanitizedReturnLink"
-          :text="Translator.trans('back.to.segments.list')"
+          :text="mergedTranslations.backToList"
         />
       </div>
     </template>
@@ -131,6 +133,7 @@ export default {
     defaultTranslations () {
       return {
         back: Translator.trans('back.to.segments.list'),
+        backToList: Translator.trans('back.to.segments.list'),
         confirm: Translator.trans('continue.confirm'),
         apply: Translator.trans('bulk.edit.actions.apply'),
         edit: Translator.trans('bulk.edit.actions.edit'),
