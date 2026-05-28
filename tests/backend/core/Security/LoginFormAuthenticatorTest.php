@@ -36,6 +36,9 @@ class LoginFormAuthenticatorTest extends UnitTestCase
 {
     private const MATCHING_SUBDOMAIN = 'idp-only';
     private const OTHER_SUBDOMAIN = 'mixed';
+    private const IDP_USER_LOGIN = 'idp-user@example.test';
+    private const LOCAL_USER_LOGIN = 'local-user@example.test';
+    private const CREDENTIAL_LOGIN = 'whatever@example.test';
 
     private ?MockObject $userMapper = null;
     private ?MockObject $customerService = null;
@@ -59,7 +62,7 @@ class LoginFormAuthenticatorTest extends UnitTestCase
 
         $user = $this->createMock(User::class);
         $user->method('isProvidedByIdentityProvider')->willReturn(true);
-        $user->method('getLogin')->willReturn('idp-user@example.test');
+        $user->method('getLogin')->willReturn(self::IDP_USER_LOGIN);
 
         $this->userMapper->method('getValidUser')->willReturn($user);
         $this->customerService->method('getCurrentCustomer')
@@ -78,7 +81,7 @@ class LoginFormAuthenticatorTest extends UnitTestCase
 
         $user = $this->createMock(User::class);
         $user->method('isProvidedByIdentityProvider')->willReturn(true);
-        $user->method('getLogin')->willReturn('idp-user@example.test');
+        $user->method('getLogin')->willReturn(self::IDP_USER_LOGIN);
 
         $this->userMapper->method('getValidUser')->willReturn($user);
         $this->customerService->method('getCurrentCustomer')
@@ -86,7 +89,7 @@ class LoginFormAuthenticatorTest extends UnitTestCase
 
         $passport = $this->invokeGetPassport($sut, $this->credentials());
 
-        self::assertPassportBuiltForLogin($passport, 'idp-user@example.test');
+        self::assertPassportBuiltForLogin($passport, self::IDP_USER_LOGIN);
     }
 
     /**
@@ -98,7 +101,7 @@ class LoginFormAuthenticatorTest extends UnitTestCase
 
         $user = $this->createMock(User::class);
         $user->method('isProvidedByIdentityProvider')->willReturn(false);
-        $user->method('getLogin')->willReturn('local-user@example.test');
+        $user->method('getLogin')->willReturn(self::LOCAL_USER_LOGIN);
 
         $this->userMapper->method('getValidUser')->willReturn($user);
         // Customer lookup is irrelevant for non-IdP users but may still be invoked; allow either.
@@ -107,7 +110,7 @@ class LoginFormAuthenticatorTest extends UnitTestCase
 
         $passport = $this->invokeGetPassport($sut, $this->credentials());
 
-        self::assertPassportBuiltForLogin($passport, 'local-user@example.test');
+        self::assertPassportBuiltForLogin($passport, self::LOCAL_USER_LOGIN);
     }
 
     /**
@@ -119,14 +122,14 @@ class LoginFormAuthenticatorTest extends UnitTestCase
 
         $user = $this->createMock(User::class);
         $user->method('isProvidedByIdentityProvider')->willReturn(true);
-        $user->method('getLogin')->willReturn('idp-user@example.test');
+        $user->method('getLogin')->willReturn(self::IDP_USER_LOGIN);
 
         $this->userMapper->method('getValidUser')->willReturn($user);
         $this->customerService->expects(self::never())->method('getCurrentCustomer');
 
         $passport = $this->invokeGetPassport($sut, $this->credentials());
 
-        self::assertPassportBuiltForLogin($passport, 'idp-user@example.test');
+        self::assertPassportBuiltForLogin($passport, self::IDP_USER_LOGIN);
     }
 
     /**
@@ -138,7 +141,7 @@ class LoginFormAuthenticatorTest extends UnitTestCase
 
         $user = $this->createMock(User::class);
         $user->method('isProvidedByIdentityProvider')->willReturn(true);
-        $user->method('getLogin')->willReturn('idp-user@example.test');
+        $user->method('getLogin')->willReturn(self::IDP_USER_LOGIN);
 
         $this->userMapper->method('getValidUser')->willReturn($user);
         $this->customerService->method('getCurrentCustomer')
@@ -146,7 +149,7 @@ class LoginFormAuthenticatorTest extends UnitTestCase
 
         $passport = $this->invokeGetPassport($sut, $this->credentials());
 
-        self::assertPassportBuiltForLogin($passport, 'idp-user@example.test');
+        self::assertPassportBuiltForLogin($passport, self::IDP_USER_LOGIN);
     }
 
     /**
@@ -169,7 +172,7 @@ class LoginFormAuthenticatorTest extends UnitTestCase
     private function credentials(): Credentials
     {
         $credentials = new Credentials();
-        $credentials->setLogin('whatever@example.test');
+        $credentials->setLogin(self::CREDENTIAL_LOGIN);
         $credentials->setPassword('secret');
         $credentials->setToken('csrf');
         $credentials->lock();
