@@ -344,7 +344,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
      * @deprecated Will be removed once all consumers are migrated to phaseDefinition.
      *             Kept on the entity to avoid data loss; value is synced from phaseDefinition->getName().
      */
-    #[ORM\Column(name: '_ds_phase', type: 'string', length: 50, nullable: false)]
+    #[ORM\Column(name: '_ds_phase', type: 'string', length: 255, nullable: false)]
     protected $phase = '';
 
     #[ORM\ManyToOne(targetEntity: ProcedurePhaseDefinition::class)]
