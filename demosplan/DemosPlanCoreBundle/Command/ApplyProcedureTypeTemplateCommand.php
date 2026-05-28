@@ -313,7 +313,7 @@ class ApplyProcedureTypeTemplateCommand extends Command
         $io->section('Existing Procedure Types');
         $this->displayProcedureTypesTable($existingTypes, $io);
 
-        if (!empty($existingTypes)) {
+        if ([] !== $existingTypes) {
             $io->note(sprintf('Found %d procedure type(s).', count($existingTypes)));
         }
 

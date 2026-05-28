@@ -273,14 +273,14 @@
                         {{ item.createdDate|default()|dplanDate -}}
                     </td>
                     <td class="o-hellip--td">
-                        {{- item.phaseName|default() -}}
+                        {{- item.phaseObject.phaseDefinition.name|default() -}}
                         <br>
                         {{- item.startDate|default()|dplanDate -}}
                         -
                         {{- item.endDate|default()|dplanDate -}}
                     </td>
                     <td class="o-hellip--td">
-                        {{- item.publicParticipationPhaseName|default() -}}
+                        {{- item.publicParticipationPhaseObject.phaseDefinition.name|default() -}}
                         <br>
                         {{- item.publicParticipationStartDate|default()|dplanDate -}}
                         -

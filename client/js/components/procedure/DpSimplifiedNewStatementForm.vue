@@ -293,8 +293,8 @@
           <!-- Hidden input for phase -->
           <input
             type="hidden"
-            name="r_phase"
-            :value="currentProcedurePhase"
+            name="r_phaseDefinitionId"
+            :value="currentPhaseDefinitionId"
           >
 
           <!-- Tags -->
@@ -355,7 +355,8 @@
         v-model="values.text"
         :aria-label="Translator.trans('statement.text.short')"
         :procedure-id="procedureId"
-        :toolbar-items="{ linkButton: true }"
+        :toolbar-items="{ linkButton: true, imageButton: true }"
+        :tus-endpoint="dplan.paths.tusEndpoint"
         required
         hidden-input="r_text"
       />
@@ -489,10 +490,16 @@ export default {
       required: true,
     },
 
-    currentProcedurePhase: {
+    currentExternalPhaseDefinitionId: {
       type: String,
       required: false,
-      default: 'analysis',
+      default: '',
+    },
+
+    currentInternalPhaseDefinitionId: {
+      type: String,
+      required: false,
+      default: '',
     },
 
     documentId: {
@@ -586,6 +593,12 @@ export default {
   },
 
   computed: {
+    currentPhaseDefinitionId () {
+      return this.values.submitter.institution ?
+        this.currentInternalPhaseDefinitionId :
+        this.currentExternalPhaseDefinitionId
+    },
+
     escapedUsedInternIds () {
       const specialCharEscaper = /\[|\\|\^|\$|\.|\||\?|\*|\+|\(|\)|\//g
       return this.usedInternIds.map(id => id.replace(specialCharEscaper, (specialChar) => `\\${specialChar}`))
@@ -639,7 +652,7 @@ export default {
       if (typeof this.values.submitter !== 'undefined' && typeof this.values.submitter.institution === 'undefined') {
         // Since Data sends us the key toeb instead of institution, we need to transform this for now but keep all init values
         this.values.submitter.institution = this.values.submitter.toeb
-        this.$delete(this.values.submitter, 'toeb')
+        delete this.values.submitter.toeb
       }
 
       if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0) {

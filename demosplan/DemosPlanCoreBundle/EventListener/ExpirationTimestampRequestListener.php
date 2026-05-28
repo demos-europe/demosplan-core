@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
+use demosplan\DemosPlanCoreBundle\Entity\User\OAuthToken;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\KeycloakTokenRefreshService;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\TokenExpirationService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
@@ -22,6 +24,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Blocking request listener that checks OAuth token expiration and refreshes tokens if needed.
@@ -78,7 +81,7 @@ class ExpirationTimestampRequestListener
 
         // null token means no stored credentials — treat as expired and force re-authentication.
         // hasValidTokens is only called when a token exists and takes a non-nullable OAuthToken.
-        if (null !== $oauthToken && $this->tokenRefreshService->hasValidTokens($session, $oauthToken)) {
+        if ($oauthToken instanceof OAuthToken && $this->tokenRefreshService->hasValidTokens($session, $oauthToken)) {
             return;
         }
 
@@ -92,7 +95,7 @@ class ExpirationTimestampRequestListener
         // Non-IdP users (form-login) are also skipped — token management only applies to KeyCloak users.
         $user = $this->userFromSecurityUserProvider->get();
 
-        return null === $user || !$user->isProvidedByIdentityProvider();
+        return !$user instanceof User || !$user->isProvidedByIdentityProvider();
     }
 
     /**
@@ -116,7 +119,7 @@ class ExpirationTimestampRequestListener
             || $this->ozgKeycloakSessionManager->shouldSkipInProductionWithoutKeycloak()
             || $this->ozgKeycloakSessionManager->isKeycloakLoginOnly()
             || !$event->isMainRequest()
-            || null === $securityUser
+            || !$securityUser instanceof UserInterface
             || $securityUser instanceof FunctionalUser) {
             return true;
         }

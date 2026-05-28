@@ -179,6 +179,17 @@ area_admin_invitable_institution:
 area_combined_participation_area:
     label: 'Nutze die Beteiligungsebene auch für Institutionen'
     loginRequired: false
+area_customer_procedure_phase_definitions:
+    description: 'Allows to view and manage procedure phase definitions for the current customer.'
+    label: 'Manage customer procedure phase definitions'
+    loginRequired: true
+    parent: area_customer_settings
+area_customer_procedure_phase_participation_token:
+    description: 'Allows to use "participate with token" as a participation state option in procedure phase definition.'
+    expose: 'true'
+    label: 'Enable participation state "participate with token" in procedure phase definition'
+    loginRequired: true
+    parent: area_customer_settings
 area_customer_send_mail_to_users:
     description: 'See parent for longer description.'
     label: 'Allows to send an E-Mail with free editable html body to all users of the customer.'
@@ -668,8 +679,8 @@ feature_admin_new_procedure:
     label: 'Create a new procedure'
     loginRequired: true
     parent: feature_admin
-feature_adjust_export_file_name:
-    expose: false
+feature_adjust_preamble_export_file:
+    expose: true
     label: 'alters the preamble header of an exported doc to include the procedure name instead of the export-date'
     loginRequired: true
 feature_allow_update_on_non_manual_statements:
@@ -754,6 +765,7 @@ feature_auto_switch_procedure_news:
     loginRequired: true
 feature_auto_switch_procedure_phase:
     description: 'Switch the procedure phase on chosen day.'
+    expose: true
     label: 'Automatically toggle the procedure phase'
     loginRequired: true
 feature_auto_switch_to_procedure_end_phase:

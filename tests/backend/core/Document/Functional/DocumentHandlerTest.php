@@ -12,6 +12,7 @@ namespace Tests\Core\Document\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use Tests\Base\FunctionalTestCase;
 
@@ -34,7 +35,8 @@ class DocumentHandlerTest extends FunctionalTestCase
         self::markSkippedForCIIntervention();
 
         $orgaId = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getOrga()->getId();
-        $procedureWithoutDocs = new Procedure();
+        $def = new ProcedurePhaseDefinition();
+        $procedureWithoutDocs = new Procedure($def, $def);
         $procedureWithoutDocs->setId('idToAvoidException');
         $procedureWithDocs = $this->fixtures->getReference('testProcedure');
 

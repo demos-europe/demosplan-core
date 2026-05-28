@@ -31,7 +31,7 @@ class DemosPlanSubmitterController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_submitters')]
-    #[Route(name: 'dplan_submitters_list', methods: 'GET', path: '/verfahren/{procedureId}/submitters/list')]
+    #[Route(path: '/verfahren/{procedureId}/submitters/list', name: 'dplan_submitters_list', methods: 'GET')]
     public function list(string $procedureId): Response
     {
         return $this->render(
@@ -44,7 +44,7 @@ class DemosPlanSubmitterController extends BaseController
     }
 
     #[DplanPermissions('area_admin_submitters')]
-    #[Route(name: 'dplan_admin_procedure_submitter_export', path: '/verfahren/{procedureId}/einreicher/export', methods: ['GET'], options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/einreicher/export', name: 'dplan_admin_procedure_submitter_export', options: ['expose' => true], methods: ['GET'])]
     public function export(
         Request $request,
         FileResponseGeneratorStrategy $responseGenerator,
