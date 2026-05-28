@@ -3481,6 +3481,7 @@ statement.cluster.create.help: "Wählen Sie eine Hauptstellungnahme aus, um die 
 statement.cluster.create: "Gruppe erstellen"
 statement.cluster.create.hint: "Erstellen Sie eine neue Gruppe aus den ausgewählten Stellungnahmen."
 statement.cluster.data: "Angaben aus der Basis-Stellungnahme"
+statement.cluster.grouped.success: "Die Stellungnahmen wurden erfolgreich gruppiert."
 statement.cluster.name: "Gruppenname"
 statement.cluster.name.hint: "Vergeben Sie einen eindeutigen Namen für die Gruppe."
 statement.cluster.not.assigned: "Die Stellungnahme(n) {ids} konnten nicht der Stellungnahmengruppe hinzugefügt werden, da diese Ihnen nicht zugewiesen sind."

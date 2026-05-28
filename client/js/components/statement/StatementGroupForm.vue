@@ -106,7 +106,13 @@ All rights reserved
           />
         </div>
       </template>
-      <template v-slot:step-3 />
+      <template v-slot:step-3>
+        <action-stepper-response
+          :description-error="Translator.trans('error.statement.cluster.created')"
+          :description-success="Translator.trans('statement.cluster.grouped.success')"
+          :success="success"
+        />
+      </template>
     </action-stepper>
   </div>
 </template>
@@ -115,6 +121,7 @@ All rights reserved
 import { computed, onMounted, ref } from 'vue'
 import { dpApi, DpIcon, DpInput, DpLabel, DpLoading, DpMultiselect, DpRadio } from '@demos-europe/demosplan-ui'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
+import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
 import lscache from 'lscache'
 
 const props = defineProps({
@@ -128,16 +135,18 @@ const isBusy = ref(false)
 const isLoading = ref(true)
 const mainStatementId = ref(null)
 const groupName = ref('')
-const returnLink = ref('#')
+const returnLink = ref(Routing.generate('dplan_procedure_statement_list', { procedureId: props.procedureId }))
 const selectedAction = ref('createGroup') // Default until second story will be implemented (add stmt to group)
 const statements = ref([])
 const step = ref(1)
+const success = ref(true)
 
 const isValid = computed(() => statements.value.length > 0)
 const selectedElementsCount = computed(() => statements.value.length)
 const translations = computed(() => ({
   apply: Translator.trans('edit.confirm'),
   back: Translator.trans('statement.list.back'),
+  backToList: Translator.trans('statement.list.back'),
   confirm: Translator.trans('continue.to.edit'),
   edit: Translator.trans('back.to.action.selection'),
   stepTitles: [
@@ -149,6 +158,7 @@ const translations = computed(() => ({
 
 function handleApply () {
   console.log('apply clicked, statements:', statements.value)
+  step.value = 3
 }
 
 async function fetchStatements () {
