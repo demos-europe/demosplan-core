@@ -334,7 +334,7 @@
       />
     </template>
   </div>
-  <statement-group-form :procedure-id="procedureId"></statement-group-form>
+  <statement-group-form :procedure-id="procedureId" />
 </template>
 
 <script>

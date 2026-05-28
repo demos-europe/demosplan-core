@@ -83,8 +83,8 @@ All rights reserved
         <div>
           <dp-input
             id="groupName"
-            class="mb-5"
             v-model="groupName"
+            class="mb-5"
             :label="{
               text: Translator.trans('statement.cluster.name'),
               hint: Translator.trans('statement.cluster.name.hint'),
@@ -103,7 +103,7 @@ All rights reserved
             :custom-label="stmt => stmt.attributes.externId"
             :options="statements"
             track-by="id"
-            />
+          />
         </div>
       </template>
       <template v-slot:step-3 />
