@@ -635,7 +635,6 @@ export default {
       console.log('toggledItems:', this.toggledItems)
       this.storeToggledStatements()
       // Todo: Routing to tbd
-      alert("handleBulkGroup: los gehts!")
     },
 
     handleFullTextAction (statementId) {
