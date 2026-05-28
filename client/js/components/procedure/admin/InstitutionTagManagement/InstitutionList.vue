@@ -217,12 +217,6 @@ export default {
   mixins: [tableScrollbarMixin],
 
   props: {
-    customerId: {
-      type: String,
-      required: false,
-      default: '',
-    },
-
     isActive: {
       type: Boolean,
       required: false,
