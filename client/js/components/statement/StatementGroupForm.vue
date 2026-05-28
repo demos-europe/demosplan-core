@@ -132,9 +132,10 @@ const step = ref(1)
 const isValid = computed(() => statements.value.length > 0)
 const selectedElementsCount = computed(() => statements.value.length)
 const translations = computed(() => ({
+  apply: Translator.trans('edit.confirm'),
   back: Translator.trans('statement.list.back'),
   confirm: Translator.trans('continue.to.edit'),
-  apply: Translator.trans('group.new'),
+  edit: Translator.trans('back.to.action.selection'),
   stepTitles: [
     Translator.trans('bulk.edit.title.actions.choose', { count: selectedElementsCount.value }),
     Translator.trans('statement.cluster.create'),
