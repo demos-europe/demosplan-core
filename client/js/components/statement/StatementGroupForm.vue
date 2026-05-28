@@ -37,7 +37,10 @@ All rights reserved
             @change="selectedAction = 'createGroup'"
           />
         </div>
-        <div>
+        <div v-if="isLoading">
+          <dp-loading />
+        </div>
+        <div v-else>
           <h4 class="font-semibold mb-0.5">
             {{ Translator.trans('statements.selected', { count: selectedElementsCount }) }}
           </h4>
@@ -110,7 +113,7 @@ All rights reserved
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { dpApi, DpIcon, DpInput, DpLabel, DpMultiselect, DpRadio } from '@demos-europe/demosplan-ui'
+import { dpApi, DpIcon, DpInput, DpLabel, DpLoading, DpMultiselect, DpRadio } from '@demos-europe/demosplan-ui'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import lscache from 'lscache'
 
@@ -122,6 +125,7 @@ const props = defineProps({
 })
 
 const isBusy = ref(false)
+const isLoading = ref(true)
 const mainStatementId = ref(null)
 const groupName = ref('')
 const returnLink = ref('#')
@@ -198,6 +202,7 @@ function setStatements () {
 onMounted(async () => {
   setStatements()
   await fetchStatements()
+  isLoading.value = false
 })
 
 </script>
