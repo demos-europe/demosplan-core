@@ -40,7 +40,7 @@ All rights reserved
         <div>
           <!-- Header + Hinweistext -->
           <h4 class="font-semibold mb-0.5">{{ Translator.trans('statements.selected.no.count') }} ({{selectedElementsCount}})</h4>
-          <p>{{ Translator.trans('statements.selected.adjust.hint')}}</p>
+          <p class="mb-3">{{ Translator.trans('statements.selected.adjust.hint')}}</p>
 
           <!-- Scrollbarer Container, ab >5 Items -->
           <ul :class="statements.length > 5 ? 'max-h-... overflow-y-auto' : ''">
