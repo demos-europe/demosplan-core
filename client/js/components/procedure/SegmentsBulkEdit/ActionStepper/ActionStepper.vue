@@ -9,11 +9,11 @@
 
 <template>
   <div>
-    <p class="u-mb-0_25">
+    <p class="mb-1">
       {{ Translator.trans('bulk.edit.stepper.progress', { step, total: totalSteps }) }}
     </p>
     <h3
-      class="u-mb-0_5"
+      class="mb-2"
       v-text="stepTitle"
     />
 
