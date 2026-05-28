@@ -34,7 +34,7 @@ class DemosPlanSimplifiedStatementController extends BaseController
      * @throws UserNotFoundException
      */
     #[DplanPermissions('feature_simplified_new_statement_create')]
-    #[Route(name: 'dplan_simplified_new_statement_create', methods: ['POST'], path: '/verfahren/{procedureId}/stellungnahmen/neu', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/stellungnahmen/neu', name: 'dplan_simplified_new_statement_create', options: ['expose' => true], methods: ['POST'])]
     public function create(
         TraceableEventDispatcher $eventDispatcher,
         ManualSimplifiedStatementCreator $statementCreator,

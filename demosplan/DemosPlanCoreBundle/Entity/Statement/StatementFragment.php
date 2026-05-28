@@ -69,7 +69,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
     /**
      * @var StatementInterface
      */
-    #[ORM\JoinColumn(name: 'statement_id', referencedColumnName: '_st_id', onDelete: 'CASCADE', nullable: false)]
+    #[ORM\JoinColumn(name: 'statement_id', referencedColumnName: '_st_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'fragments')]
     protected $statement;
 
@@ -117,18 +117,16 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: 'created_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $created;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(name: 'modified_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modified;
 
     /**

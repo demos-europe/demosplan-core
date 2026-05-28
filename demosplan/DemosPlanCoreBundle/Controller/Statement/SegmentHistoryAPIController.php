@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -25,7 +27,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 class SegmentHistoryAPIController extends APIController
 {
     #[DplanPermissions('feature_segment_content_changes_view')]
-    #[Route(path: '/api/1.0/SegmentHistory/{segmentId}', methods: ['GET'], name: 'dplan_api_segment_history_get', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/SegmentHistory/{segmentId}', name: 'dplan_api_segment_history_get', options: ['expose' => true], methods: ['GET'])]
     public function getAction(
         CurrentProcedureService $currentProcedureService,
         EntityContentChangeDisplayHandler $displayHandler,

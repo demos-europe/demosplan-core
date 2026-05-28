@@ -31,7 +31,7 @@ class DemosPlanPlisController extends BaseController
      * @return Response
      */
     #[DplanPermissions('feature_use_plis')]
-    #[Route(name: 'DemosPlan_plis_get_procedure', path: '/plis/getProcedure/{uuid}', options: ['expose' => true])]
+    #[Route(path: '/plis/getProcedure/{uuid}', name: 'DemosPlan_plis_get_procedure', options: ['expose' => true])]
     public function getLgvPlisPlanningcause(Plis $procedureHandlerBobhh, $uuid)
     {
         try {
@@ -64,7 +64,7 @@ class DemosPlanPlisController extends BaseController
      * @param string $uuid Procedure Identifier
      */
     #[DplanPermissions('feature_use_plis')]
-    #[Route(name: 'DemosPlan_plis_get_procedure_name', path: '/plis/getProcedureName/{uuid}', options: ['expose' => true])]
+    #[Route(path: '/plis/getProcedureName/{uuid}', name: 'DemosPlan_plis_get_procedure_name', options: ['expose' => true])]
     public function getLgvPlisProcedureNameJson(Plis $plis, $uuid): JsonResponse
     {
         try {

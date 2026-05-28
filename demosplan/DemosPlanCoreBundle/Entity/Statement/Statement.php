@@ -23,6 +23,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\PriorityAreaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
@@ -54,6 +55,7 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\OriginalStatementAnonymization;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -118,9 +120,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     #[Assert\IsNull(groups: [StatementInterface::BASE_STATEMENT_CLASS_VALIDATION])]
     #[Assert\NotNull(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT])]
-    #[Assert\Type(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT], type: Statement::class)]
+    #[Assert\Type(type: Statement::class, groups: [SegmentInterface::VALIDATION_GROUP_IMPORT])]
     #[ORM\JoinColumn(name: 'segment_statement_fk', referencedColumnName: '_st_id', nullable: true)]
-    #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'segmentsOfStatement', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: Statement::class, cascade: ['persist'], inversedBy: 'segmentsOfStatement')]
     protected $parentStatementOfSegment;
 
     /**
@@ -286,9 +288,16 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * Must have one of a set of predefined values which differs in projects, see respective configuration file.
      *
      * @var string
+     *
+     * @deprecated Will be removed once all consumers are migrated to phaseDefinition.
+     *             Kept on the entity to avoid data loss; value is synced from phaseDefinition->getName().
      */
     #[ORM\Column(name: '_st_phase', type: 'string', length: 50, nullable: false)]
     protected $phase;
+
+    #[ORM\ManyToOne(targetEntity: ProcedurePhaseDefinition::class)]
+    #[ORM\JoinColumn(name: 'phase_definition_id', referencedColumnName: 'id', nullable: false, onDelete: 'RESTRICT')]
+    protected ProcedurePhaseDefinitionInterface $phaseDefinition;
 
     /**
      * @var string
@@ -298,18 +307,16 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_st_created_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $created;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(name: '_st_modified_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modified;
 
     /**
@@ -327,8 +334,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var DateTime *
      */
-    #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitDateBlank')]
-    #[Assert\Type('DateTime', groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitDateType')]
+    #[Assert\NotBlank(message: 'statement.import.invalidSubmitDateBlank', groups: [Statement::IMPORT_VALIDATION])]
+    #[Assert\Type('DateTime', message: 'statement.import.invalidSubmitDateType', groups: [Statement::IMPORT_VALIDATION])]
     #[ORM\Column(name: '_st_submit_date', type: 'datetime', nullable: false)]
     protected $submit;
 
@@ -434,7 +441,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @var string
      */
-    #[ORM\Column(name: '_st_text', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: '_st_text', type: 'text', length: 15000000, nullable: false)]
     protected $text = '';
 
     /**
@@ -447,7 +454,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var string
      */
-    #[ORM\Column(name: '_st_recommendation', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: '_st_recommendation', type: 'text', length: 15000000, nullable: false)]
     protected $recommendation = '';
 
     /**
@@ -774,7 +781,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var string
      */
-    #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitTypeBlank')]
+    #[Assert\NotBlank(message: 'statement.import.invalidSubmitTypeBlank', groups: [Statement::IMPORT_VALIDATION])]
     #[Assert\Choice(
         choices: StatementInterface::SUBMIT_TYPES,
         message: 'statement.invalid.submit.type',
@@ -1547,29 +1554,22 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->pId;
     }
 
-    /**
-     * Set phase.
-     *
-     * @param string $phase
-     */
-    public function setPhase($phase): Statement
+    public function getPhaseDefinition(): ProcedurePhaseDefinitionInterface
     {
-        if ('' === $phase) {
-            $message = 'Tried to set empty string as statement phase, please choose a valid value.';
-            throw new UnexpectedValueException($message);
-        }
-
-        $this->phase = $phase;
-
-        return $this;
+        return $this->phaseDefinition;
     }
 
-    /**
-     * Get phase.
-     */
-    public function getPhase(): string
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPhaseDefinitionId(): ?string
     {
-        return $this->phase;
+        return $this->phaseDefinition->getId();
+    }
+
+    public function setPhaseDefinition(ProcedurePhaseDefinitionInterface $phaseDefinition): void
+    {
+        $this->phaseDefinition = $phaseDefinition;
+        // @deprecated $phase will be removed once all consumers are migrated to phaseDefinition
+        $this->phase = $phaseDefinition->getName();
     }
 
     /**

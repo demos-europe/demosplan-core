@@ -7,7 +7,6 @@
  * All rights reserved
  */
 
-import { DOMSerializer } from 'prosemirror-model'
 import { setRange } from './commands'
 import { TextSelection } from 'prosemirror-state'
 import tippy from 'tippy.js'
@@ -57,7 +56,7 @@ const getMarks = (nodes, markName, attrId) => {
 
         if (!storedMark) {
           storedMark = { marks: [] }
-          storedMark.rangeId = markAttr
+          storedMark.segmentId = markAttr
           storedMark.from = pos
           marks[markAttr] = storedMark
         }
@@ -73,8 +72,8 @@ const getMarks = (nodes, markName, attrId) => {
 
 /**
  * Checks if two range objects are equal ({ <id>: { from, to, isConfirmed, marks }, <id>: { from, to, isConfirmed, marks }}):
- * - Have ranges (rangeIds) been added or removed?
- * - Have range lengths (from, to) changed?
+ * - Have segments (segmentIds) been added or removed?
+ * - Have segment lengths (from, to) changed?
  * - Has the confirmation state (isConfirmed) changed?
  *
  * @param {Object} ranges ranges before update
@@ -83,13 +82,13 @@ const getMarks = (nodes, markName, attrId) => {
  *
  */
 const rangesEqual = (ranges, cmpRanges) => {
-  // Check if there are any rangeIds in ranges that are not in cmpRanges (= were ranges deleted?)
+  // Check if there are any segmentIds in ranges that are not in cmpRanges (= were ranges deleted?)
   const keysEqual = Object.keys(ranges).filter(key => cmpRanges[key]).length === Object.keys(ranges).length
   if (!keysEqual) {
     return false
   }
 
-  // Check if there are any rangeIds in cmpRanges that are not in ranges (= were ranges added?)
+  // Check if there are any segmentIds in cmpRanges that are not in ranges (= were ranges added?)
   const cmpKeysEqual = Object.keys(cmpRanges).filter(key => ranges[key]).length === Object.keys(cmpRanges).length
   if (!cmpKeysEqual) {
     return false
@@ -108,34 +107,6 @@ const rangesEqual = (ranges, cmpRanges) => {
 }
 
 /**
- * Used to extract HTML content of a prosemirror fragment.
- *
- * @param {prosemirror-fragment} fragment
- * @param {prosemirror-schema} schema
- * @returns {String}
- *
- */
-const serializeFragment = (fragment, schema) => {
-  const container = document.createElement('div')
-  return DOMSerializer.fromSchema(schema).serializeFragment(fragment, { document: window.document }, container)
-}
-
-/**
- * Extracts the HTML content of a from - to range ({ from: <int>, to: <int> }) from the given prosemirror state.
- *
- * @param {Object} range
- * @param {prosemirror-state} state
- * @param {prosemirror-schema} schema
- * @returns {String}
- *
- */
-const serializeRange = (range, state, schema) => {
-  const { doc } = state
-  const { content } = doc.slice(range.from, range.to)
-  return serializeFragment(content, schema).innerHTML
-}
-
-/**
  * Checks if a potential range between the passed in positions would split an existing range in two parts.
  *
  * @param {Number} from
@@ -145,7 +116,7 @@ const serializeRange = (range, state, schema) => {
  *
  */
 const splitsExistingRange = (from, to, doc) => {
-  const existingMarks = getMarks(flattenNode(doc), 'range', 'rangeId')
+  const existingMarks = getMarks(flattenNode(doc), 'segmentMark', 'segmentId')
   const doesSplit = Object.values(existingMarks).filter((mark) => from > mark.from && to < mark.to)
   return doesSplit.length !== 0
 }
@@ -210,7 +181,7 @@ const createCreatorMenu = (view, anchor, head) => {
     e.preventDefault()
     const from = Math.min(anchor, head)
     const to = Math.max(anchor, head)
-    setRange(view)(from, to, { rangeId: `${from}_${to}` })
+    setRange(view)(from, to, { segmentId: `${from}_${to}` })
     const { state, dispatch } = view
     let { tr } = state
     view.focus()
@@ -299,7 +270,6 @@ export {
   getMinMax,
   rangesEqual,
   splitsExistingRange,
-  serializeRange,
   range,
   isSuperset,
   createCreatorMenu,

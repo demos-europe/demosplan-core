@@ -7,7 +7,20 @@
 ## UNRELEASED
 
 ### Added
+- Set up API Platform infrastructure alongside existing EDT (Entity Definition Toolkit) as part of the gradual API migration (DPLAN-17129)
+- Add dedicated security firewall for API Platform routes (`/api/3.0/`) with shared session authentication
+- Add bridge classes in demosplan-addon for EDT-to-API Platform relationship handling during migration (`PlainIdJsonApiNormalizer`, `ApiPlatformRelationshipConfig`, `ExtendedDynamicTransformer`)
 - Add text custom field definition editing
+
+### Fixed
+- `AccessProcedureListener` now checks for array controller before accessing index, preventing crashes on API Platform routes
+- `dplan:procedure:delete` now also removes the two associated `procedure_phase` rows; previous runs left orphan rows behind, which are cleaned up by a one-shot migration
+
+### New dependencies
+- `api-platform/core ^3.4`
+
+### New environment variable
+- `CORS_ALLOW_ORIGIN` — Required. Controls which origins are allowed to make cross-origin requests to API Platform endpoints. Default: `'^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'`
 
 ## v4.42.0 (2026-05-21)
 ## v4.40.1 (2026-05-21)
@@ -18,6 +31,7 @@
 - Tags can be reordered within and between TagTopics via drag and drop in tag administration
 
 ### Changed
+- Segment transformer extracts segment IDs and text from `<segment-mark>` elements in textualReference instead of charStart/charEnd positions
 - Column widths in the segment list now persist across browser sessions
 - "column reset" in the segment list now also resets column widths to defaults
 - Doctrine ORM upgraded from v2.20 to v3.6 and `doctrine/persistence` widened to `^2.0 || ^3.0`; entity mappings converted from annotations to PHP 8 attributes (preparation for the API Platform integration)
@@ -39,6 +53,7 @@
 - Scheduled cleanup of expired OAuth tokens via Symfony Messenger
 - Parameter `oauth_keycloak_login_only` (default: `true`) to control whether full token management is active; set to `false` in `parameters_default_project.yml` per project to enable token refresh
 - Translation `confirm.session.renewed` shown as flash message after seamless re-authentication
+- Add customer admin interface for managing procedure phases - displaying and creating new phases
 
 ### Changed
 - Statement detail view now shows the institution before the department (corrected order)

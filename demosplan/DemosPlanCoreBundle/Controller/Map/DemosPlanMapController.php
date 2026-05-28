@@ -56,7 +56,7 @@ class DemosPlanMapController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_map')]
-    #[Route(name: 'DemosPlan_map_administration_map', path: '/verfahren/{procedureId}/verwalten/globaleGisEinstellungen', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/verwalten/globaleGisEinstellungen', name: 'DemosPlan_map_administration_map', options: ['expose' => true])]
     public function mapAdmin(
         Breadcrumb $breadcrumb,
         TranslatorInterface $translator,
@@ -95,7 +95,7 @@ class DemosPlanMapController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_admin_map')]
-    #[Route(name: 'DemosPlan_map_administration_gislayer_new', path: '/verfahren/{procedure}/verwalten/gislayer/neu', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedure}/verwalten/gislayer/neu', name: 'DemosPlan_map_administration_gislayer_new', options: ['expose' => true])]
     public function mapAdminGislayerNew(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
@@ -174,7 +174,7 @@ class DemosPlanMapController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_admin_map')]
-    #[Route(name: 'DemosPlan_map_administration_gislayer_edit', path: '/verfahren/{procedure}/verwalten/gislayer/{gislayerID}', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedure}/verwalten/gislayer/{gislayerID}', name: 'DemosPlan_map_administration_gislayer_edit', options: ['expose' => true])]
     public function mapAdminGislayerEdit(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
@@ -257,7 +257,7 @@ class DemosPlanMapController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions(['area_admin_map', 'feature_map_category'])]
-    #[Route(name: 'DemosPlan_map_administration_gislayer_category_new', path: '/verfahren/{procedureId}/verwalten/gislayergroup/new-category', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/verwalten/gislayergroup/new-category', name: 'DemosPlan_map_administration_gislayer_category_new', options: ['expose' => true])]
     public function mapAdminGislayerCategoryNew(MapHandler $mapHandler, Request $request, $procedureId)
     {
         $request = $request->request->all();
@@ -325,7 +325,7 @@ class DemosPlanMapController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions(['area_admin_map', 'feature_map_category'])]
-    #[Route(name: 'DemosPlan_map_administration_gislayer_category_edit', path: '/verfahren/{procedureId}/verwalten/gislayergroup/{gislayerCategoryId}/edit', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/verwalten/gislayergroup/{gislayerCategoryId}/edit', name: 'DemosPlan_map_administration_gislayer_category_edit', options: ['expose' => true])]
     public function mapAdminGisLayerCategoryEdit(MapHandler $mapHandler, Request $request, $procedureId, $gislayerCategoryId)
     {
         try {
@@ -387,7 +387,7 @@ class DemosPlanMapController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_map')]
-    #[Route(name: 'DemosPlan_map_administration_gislayer', path: '/verfahren/{procedureId}/verwalten/gislayer', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/verwalten/gislayer', name: 'DemosPlan_map_administration_gislayer', options: ['expose' => true])]
     public function mapAdminGislayer(
         Breadcrumb $breadcrumb,
         CurrentProcedureService $currentProcedureService,
@@ -507,7 +507,7 @@ class DemosPlanMapController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_gislayer_global_edit')]
-    #[Route(name: 'DemosPlan_map_administration_gislayer_global', path: '/gislayer')]
+    #[Route(path: '/gislayer', name: 'DemosPlan_map_administration_gislayer_global')]
     public function mapAdminGislayerGlobal(
         GetFeatureInfo $getFeatureInfo,
         Request $request,
@@ -569,8 +569,8 @@ class DemosPlanMapController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_admin_gislayer_global_edit')]
-    #[Route(name: 'DemosPlan_map_administration_gislayer_global_new', path: '/gislayer/neu', defaults: ['type' => 'new'])]
-    #[Route(name: 'DemosPlan_map_administration_gislayer_global_edit', path: '/gislayer/{gislayerID}', defaults: ['type' => 'edit'])]
+    #[Route(path: '/gislayer/neu', name: 'DemosPlan_map_administration_gislayer_global_new', defaults: ['type' => 'new'])]
+    #[Route(path: '/gislayer/{gislayerID}', name: 'DemosPlan_map_administration_gislayer_global_edit', defaults: ['type' => 'edit'])]
     public function mapAdminGislayerGlobalEdit(
         MapService $mapService,
         Request $request,
@@ -652,7 +652,7 @@ class DemosPlanMapController extends BaseController
      * Via Controller, weil per JavaScript nicht auf andere Domains zugegriffen werden darf.
      */
     #[DplanPermissions('area_map_participation_area')]
-    #[Route(name: 'DemosPlan_map_get_feature_info', path: '/getFeatureInfo/{procedure}', options: ['expose' => true])]
+    #[Route(path: '/getFeatureInfo/{procedure}', name: 'DemosPlan_map_get_feature_info', options: ['expose' => true])]
     public function getFeatureInfoAjax(GetFeatureInfo $getFeatureInfo, Request $request): Response
     {
         try {
@@ -698,7 +698,7 @@ class DemosPlanMapController extends BaseController
      * @param string $procedure
      */
     #[DplanPermissions('feature_procedure_planning_area_match')]
-    #[Route(name: 'DemosPlan_map_get_planning_area', path: '/getPlanningArea/{procedure}', options: ['expose' => true])]
+    #[Route(path: '/getPlanningArea/{procedure}', name: 'DemosPlan_map_get_planning_area', options: ['expose' => true])]
     public function getPlanningAreaAjax(GetFeatureInfo $getFeatureInfo, ProcedureHandler $procedureHandler, Request $request, TranslatorInterface $translator, $procedure): JsonResponse
     {
         try {

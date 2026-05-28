@@ -47,24 +47,22 @@ class FaqCategory extends CoreEntity implements FaqCategoryInterface
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifyDate;
 
     /**
      * @var Customer
      */
-    #[ORM\JoinColumn(referencedColumnName: '_c_id', onDelete: 'CASCADE', nullable: false)]
+    #[ORM\JoinColumn(referencedColumnName: '_c_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Customer::class)]
     protected $customer;
 
