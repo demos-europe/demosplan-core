@@ -27,7 +27,7 @@ final class Version20260528093230 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs DPLAN-17884: Widen deprecated phase-name columns (_draft_statement._ds_phase, _draft_statement_versions._ds_phase, institution_mail._p_phase, procedure_phase.designated_phase) from VARCHAR(50) to VARCHAR(255).';
+        return 'refs DPLAN-17884: Widen deprecated phase-name columns (_statement._st_phase, _draft_statement._ds_phase, _draft_statement_versions._ds_phase, institution_mail._p_phase, procedure_phase.designated_phase) from VARCHAR(50) to VARCHAR(255).';
     }
 
     /**
@@ -37,6 +37,7 @@ final class Version20260528093230 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
+        $this->addSql('ALTER TABLE _statement CHANGE _st_phase _st_phase VARCHAR(255) NOT NULL');
         $this->addSql('ALTER TABLE _draft_statement CHANGE _ds_phase _ds_phase VARCHAR(255) NOT NULL');
         $this->addSql('ALTER TABLE _draft_statement_versions CHANGE _ds_phase _ds_phase VARCHAR(255) NOT NULL');
         $this->addSql('ALTER TABLE institution_mail CHANGE _p_phase _p_phase VARCHAR(255) NOT NULL');
@@ -53,11 +54,13 @@ final class Version20260528093230 extends AbstractMigration
         // Truncate any values exceeding the original VARCHAR(50) limit before shrinking
         // the columns, otherwise the ALTER TABLE would fail with "Data too long" on rows
         // that were created while the up migration was active.
+        $this->addSql('UPDATE _statement SET _st_phase = LEFT(_st_phase, 50) WHERE CHAR_LENGTH(_st_phase) > 50');
         $this->addSql('UPDATE _draft_statement SET _ds_phase = LEFT(_ds_phase, 50) WHERE CHAR_LENGTH(_ds_phase) > 50');
         $this->addSql('UPDATE _draft_statement_versions SET _ds_phase = LEFT(_ds_phase, 50) WHERE CHAR_LENGTH(_ds_phase) > 50');
         $this->addSql('UPDATE institution_mail SET _p_phase = LEFT(_p_phase, 50) WHERE CHAR_LENGTH(_p_phase) > 50');
         $this->addSql('UPDATE procedure_phase SET designated_phase = LEFT(designated_phase, 50) WHERE CHAR_LENGTH(designated_phase) > 50');
 
+        $this->addSql('ALTER TABLE _statement CHANGE _st_phase _st_phase VARCHAR(50) NOT NULL');
         $this->addSql('ALTER TABLE _draft_statement CHANGE _ds_phase _ds_phase VARCHAR(50) NOT NULL');
         $this->addSql('ALTER TABLE _draft_statement_versions CHANGE _ds_phase _ds_phase VARCHAR(50) NOT NULL');
         $this->addSql('ALTER TABLE institution_mail CHANGE _p_phase _p_phase VARCHAR(50) NOT NULL');
