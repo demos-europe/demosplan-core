@@ -368,6 +368,7 @@ export default {
     isActive (newValue) {
       if (newValue) {
         this.getInstitutionTagCategories()
+        this.loadCustomFieldDefinitions()
       }
     },
   },
