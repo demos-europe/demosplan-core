@@ -8,6 +8,7 @@
 
 ### Added
 - Add text custom field value editing to institution tag management dialog
+- Show text custom fields and its values in manage institutions and add institutions dialogs
 
 ## v4.39.0 (2026-05-06)
 
