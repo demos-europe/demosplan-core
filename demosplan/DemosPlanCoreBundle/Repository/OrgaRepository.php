@@ -806,4 +806,24 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
 
         return $organisation;
     }
+
+    /**
+     * Find all orgas that have a custom field with the given ID.
+     *
+     * @return array<Orga>
+     */
+    public function findOrgasWithCustomField(string $customFieldId): array
+    {
+        $escapedCustomFieldId = str_replace(['\\', '"'], ['\\\\', '\\"'], $customFieldId);
+        $searchPattern = '%"id":"'.$escapedCustomFieldId.'"%';
+
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('orga')
+            ->from(Orga::class, 'orga')
+            ->where('orga.customFields IS NOT NULL')
+            ->andWhere('orga.customFields LIKE :customFieldSearch')
+            ->setParameter('customFieldSearch', $searchPattern)
+            ->getQuery()
+            ->getResult();
+    }
 }
