@@ -12,6 +12,7 @@
 - Add dedicated security firewall for API Platform routes (`/api/3.0/`) with shared session authentication
 - Add bridge classes in demosplan-addon for EDT-to-API Platform relationship handling during migration (`PlainIdJsonApiNormalizer`, `ApiPlatformRelationshipConfig`, `ExtendedDynamicTransformer`)
 - Add text custom field definition editing
+- Add customer admin interface for managing procedure phases - displaying and creating new phases
 
 ### Fixed
 - `AccessProcedureListener` now checks for array controller before accessing index, preventing crashes on API Platform routes
@@ -54,7 +55,6 @@
 - Scheduled cleanup of expired OAuth tokens via Symfony Messenger
 - Parameter `oauth_keycloak_login_only` (default: `true`) to control whether full token management is active; set to `false` in `parameters_default_project.yml` per project to enable token refresh
 - Translation `confirm.session.renewed` shown as flash message after seamless re-authentication
-- Add customer admin interface for managing procedure phases - displaying and creating new phases
 
 ### Changed
 - Statement detail view now shows the institution before the department (corrected order)
