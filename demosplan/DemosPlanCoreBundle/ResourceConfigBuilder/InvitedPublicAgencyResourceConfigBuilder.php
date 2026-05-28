@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceConfigBuilder;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\AddressInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
-use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseOrgaResourceConfigBuilder;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
