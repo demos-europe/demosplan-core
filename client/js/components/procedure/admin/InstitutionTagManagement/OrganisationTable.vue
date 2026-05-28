@@ -167,7 +167,7 @@ All rights reserved
             </dl>
           </div>
 
-          <template v-if="hasPermission('feature_organisations_custom_fields') && getCustomFieldsForInstitution(id).length > 0">
+          <template v-if="hasPermission('field_organisations_custom_fields') && getCustomFieldsForInstitution(id).length > 0">
             <p class="weight--bold mt-4 pb-2">
               {{ Translator.trans('institution.internal.information') }}
             </p>
@@ -309,7 +309,7 @@ export default {
     apiRequestFields () {
       const headerFieldNames = this.headerFields.map(field => field.field)
       const baseFields = ['participationFeedbackEmailAddress', 'locationContacts']
-      const customFields = hasPermission('feature_organisations_custom_fields') ? ['customFields'] : []
+      const customFields = hasPermission('field_organisations_custom_fields') ? ['customFields'] : []
       const tagFields = hasPermission('feature_institution_tag_read') ? ['assignedTags'] : []
 
       return [...new Set([...headerFieldNames, ...baseFields, ...customFields, ...tagFields])]
@@ -641,7 +641,7 @@ export default {
       this.getInstitutionTagCategories(true),
     ]
 
-    if (hasPermission('feature_organisations_custom_fields')) {
+    if (hasPermission('field_organisations_custom_fields')) {
       promises.push(
         this.fetchCustomFields(null, { sourceEntity: 'CUSTOMER', targetEntity: 'ORGA' })
           .then(definitions => {
