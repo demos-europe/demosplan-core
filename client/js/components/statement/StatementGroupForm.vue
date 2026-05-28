@@ -10,7 +10,7 @@ All rights reserved
 <template>
   <div>
     <action-stepper
-      :busy="isBusy"aktion
+      :busy="isBusy"
       :return-link="returnLink"
       :selected-elements="selectedElementsCount"
       :step="step"
@@ -62,7 +62,7 @@ All rights reserved
                 <button
                   type="button"
                   class="btn--blank o-link--default ml-auto"
-                  data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
+                  :data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
                   @click="removeStatement(stmt.id)"
                 >
                   <dp-icon icon="close" size="small" />
