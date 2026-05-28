@@ -78,7 +78,29 @@ All rights reserved
       </template>
       <template v-slot:step-2>
         <div>
-          <dp-input />
+          <dp-input
+            id="groupName"
+            class="mb-5"
+            v-model="groupName"
+            :label="{
+              text: Translator.trans('statement.cluster.name'),
+              hint: Translator.trans('statement.cluster.name.hint'),
+            }"
+            required
+          />
+          <dp-label
+            for="mainStatement"
+            bold
+            :text="Translator.trans('statement.main')"
+            :hint="Translator.trans('statement.cluster.create.help')"
+          />
+          <dp-multiselect
+            id="mainStatement"
+            v-model="mainStatementId"
+            :custom-label="stmt => stmt.attributes.externId"
+            :options="statements"
+            track-by="id"
+            />
         </div>
       </template>
       <template v-slot:step-3 />
@@ -88,7 +110,7 @@ All rights reserved
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { dpApi, DpIcon, DpInput, DpRadio } from '@demos-europe/demosplan-ui'
+import { dpApi, DpIcon, DpInput, DpLabel, DpMultiselect, DpRadio } from '@demos-europe/demosplan-ui'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import lscache from 'lscache'
 
@@ -99,13 +121,15 @@ const props = defineProps({
   },
 })
 
+const isBusy = ref(false)
+const mainStatementId = ref(null)
+const groupName = ref('')
+const returnLink = ref('#')
+const selectedAction = ref('createGroup') // Default until second story will be implemented (add stmt to group)
 const statements = ref([])
 const step = ref(1)
-const isBusy = ref(false)
-const returnLink = ref('#')
 
 const isValid = computed(() => statements.value.length > 0)
-const selectedAction = ref('createGroup') // Default until second story will be implemented (add stmt to group)
 const selectedElementsCount = computed(() => statements.value.length)
 const translations = computed(() => ({
   back: Translator.trans('statement.list.back'),
@@ -156,7 +180,6 @@ async function fetchStatements () {
 
   // Response-Daten in statements.value schreiben (ersetzt die )
   statements.value = response.data.data
-  console.log(statements.value)
 }
 
 function removeStatement (id) {
@@ -165,7 +188,6 @@ function removeStatement (id) {
 
 function setStatements () {
   const stored = lscache.get(`${props.procedureId}:toggledStatements`)
-  console.log('stored from lscache:', stored)
 
   if (stored) {
     statements.value = stored
