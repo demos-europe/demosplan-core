@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
-use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
