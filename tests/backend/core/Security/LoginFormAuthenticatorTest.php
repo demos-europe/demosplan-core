@@ -24,9 +24,9 @@ use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFor
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use ReflectionException;
 use ReflectionMethod;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
