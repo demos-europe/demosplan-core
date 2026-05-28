@@ -10,46 +10,64 @@ All rights reserved
 <template>
   <div>
     <action-stepper
-      :step="step"
-      :selected-elements="selectedElementsCount"
-      :total-steps="3"
-      :valid="isValid"
-      :busy="isBusy"
+      :busy="isBusy"aktion
       :return-link="returnLink"
+      :selected-elements="selectedElementsCount"
+      :step="step"
+      :total-steps="3"
       :translations="translations"
+      :valid="isValid"
       @confirm="step = 2"
       @edit="step = 1"
       @apply="handleApply"
     >
       <template v-slot:step-1>
+        <div class="mt-5 mb-6">
+          <dp-radio
+            id="action-create"
+            class="mb-2"
+            name="groupAction"
+            value="createGroup"
+            :checked="selectedAction === 'createGroup'"
+            :label="{
+              text: Translator.trans('statement.cluster.create'),
+              hint: Translator.trans('statement.cluster.create.hint'),
+              bold: true
+            }"
+            @change="selectedAction = 'createGroup'"
+          />
+        </div>
         <div>
           <!-- Header + Hinweistext -->
-          <h4 class="font-semibold u-mb-0_5">{{ Translator.trans('statements.selected', { count: selectedElementsCount }) }}</h4>
+          <h4 class="font-semibold mb-0.5">{{ Translator.trans('statements.selected.no.count') }} ({{selectedElementsCount}})</h4>
           <p>{{ Translator.trans('statements.selected.adjust.hint')}}</p>
 
           <!-- Scrollbarer Container, ab >5 Items -->
           <ul :class="statements.length > 5 ? 'max-h-... overflow-y-auto' : ''">
-            <li v-for="stmt in statements"
-                :key="stmt.id"
-                class="flex items-center gap-[16px]"
+            <li
+              v-for="stmt in statements"
+              :key="stmt.id"
+              class="py-2 border-b border-neutral-light-2"
             >
-              <span>{{ stmt.attributes.externId }}</span>
-              <span
-                v-if="stmt.attributes.isSubmittedByCitizen"
-              >{{ stmt.attributes.authorName }}
-              </span>
-              <span
-                v-else
-              >{{ stmt.attributes.initialOrganisationName }}
-              </span>
-              <button
-                type="button"
-                class="btn--blank o-link--default ml-auto"
-                data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
-                @click="removeStatement(stmt.id)"
-              >
-                <dp-icon icon="close" size="small" />
-              </button>
+              <div class="flex items-center gap-2 px-1.5">
+                <span>{{ stmt.attributes.externId }}</span>
+                <span
+                  v-if="stmt.attributes.isSubmittedByCitizen"
+                >{{ stmt.attributes.authorName }}
+                </span>
+                  <span
+                    v-else
+                  >{{ stmt.attributes.initialOrganisationName }}
+                </span>
+                <button
+                  type="button"
+                  class="btn--blank o-link--default ml-auto"
+                  data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
+                  @click="removeStatement(stmt.id)"
+                >
+                  <dp-icon icon="close" size="small" />
+                </button>
+              </div>
             </li>
           </ul>
         </div>
@@ -79,6 +97,7 @@ const isBusy = ref(false)
 const returnLink = ref('#')
 
 const isValid = computed(() => statements.value.length > 0)
+const selectedAction = ref('createGroup') // default until second story will be implemented (add stmt to group)
 const selectedElementsCount = computed(() => statements.value.length)
 const translations = computed(() => ({
   back: Translator.trans('statement.list.back'),
