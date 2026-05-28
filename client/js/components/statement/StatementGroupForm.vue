@@ -43,7 +43,7 @@ All rights reserved
           <p class="mb-3">{{ Translator.trans('statements.selected.adjust.hint')}}</p>
 
           <!-- Scrollbarer Container, ab >5 Items -->
-          <ul :class="statements.length > 5 ? 'max-h-... overflow-y-auto' : ''">
+          <ul :class="statements.length > 5 ? 'max-h-[15.5rem] overflow-y-auto' : ''">
             <li
               v-for="stmt in statements"
               :key="stmt.id"
