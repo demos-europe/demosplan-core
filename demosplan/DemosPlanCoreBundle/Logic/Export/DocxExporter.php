@@ -44,7 +44,6 @@ use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
-use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\Writer\WriterInterface;
@@ -1939,7 +1938,7 @@ class DocxExporter
             );
         }
 
-        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
+        return $this->writerSelector->createWriter($phpWord);
     }
 
     /**
@@ -2007,7 +2006,7 @@ class DocxExporter
         $footer = $tableSection->addFooter();
         $this->addPageNumbers($footer);
 
-        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
+        return $this->writerSelector->createWriter($phpWord);
     }
 
     /**
@@ -2057,7 +2056,7 @@ class DocxExporter
         $footer = $section->addFooter();
         $this->addPageNumbers($footer);
 
-        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
+        return $this->writerSelector->createWriter($phpWord);
     }
 
     /**
@@ -2097,7 +2096,7 @@ class DocxExporter
         $footer = $section->addFooter();
         $this->addPageNumbers($footer);
 
-        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
+        return $this->writerSelector->createWriter($phpWord);
     }
 
     /**
