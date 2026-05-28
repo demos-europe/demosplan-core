@@ -432,6 +432,20 @@ export default {
       )
     },
 
+    extractCustomFieldValues () {
+      this.customFieldValuesByInstitutionId = Object.keys(this.invitableInstitutionList).reduce((byInstitution, id) => {
+        const customFields = this.invitableInstitutionList[id].attributes?.customFields || []
+
+        return {
+          ...byInstitution,
+          [id]: customFields.reduce((byField, field) => ({
+            ...byField,
+            [field.id]: field.value,
+          }), {}),
+        }
+      }, {})
+    },
+
     getCategoryTags (categoryId) {
       const tags = this.institutionTagCategoriesCopy[categoryId].relationships?.tags?.data.length > 0 ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() : []
 
@@ -542,20 +556,6 @@ export default {
         .then(() => {
           this.isLoading = false
         })
-    },
-
-    extractCustomFieldValues () {
-      this.customFieldValuesByInstitutionId = Object.keys(this.invitableInstitutionList).reduce((byInstitution, id) => {
-        const customFields = this.invitableInstitutionList[id].attributes?.customFields || []
-
-        return {
-          ...byInstitution,
-          [id]: customFields.reduce((byField, field) => ({
-            ...byField,
-            [field.id]: field.value,
-          }), {}),
-        }
-      }, {})
     },
 
     loadCustomFieldDefinitions () {
