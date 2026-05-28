@@ -16,7 +16,9 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RecommendationVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\RecommendationVersionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -29,62 +31,45 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * This is independent from EntityContentChange (which stores diffs) and
  * StatementVersionField (an older snapshot concept for Statement recommendations only).
- *
- * @ORM\Table(
- *     name="recommendation_version",
- *     uniqueConstraints={
- *
- *         @ORM\UniqueConstraint(name="unique_statement_version", columns={"statement_id", "version_number"})
- *     }
- * )
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\RecommendationVersionRepository")
  */
+#[ORM\Table(name: 'recommendation_version')]
+#[ORM\UniqueConstraint(name: 'unique_statement_version', columns: ['statement_id', 'version_number'])]
+#[ORM\Entity(repositoryClass: RecommendationVersionRepository::class)]
 class RecommendationVersion extends CoreEntity implements UuidEntityInterface, RecommendationVersionInterface
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var StatementInterface
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="recommendationVersions")
-     *
-     * @ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'recommendationVersions')]
+    #[ORM\JoinColumn(name: 'statement_id', referencedColumnName: '_st_id', nullable: false, onDelete: 'CASCADE')]
     protected $statement;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="version_number", type="integer", nullable=false, options={"unsigned":true})
      */
+    #[ORM\Column(name: 'version_number', type: 'integer', nullable: false, options: ['unsigned' => true])]
     protected $versionNumber = 0;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="recommendation_text", type="text", nullable=false, length=15000000)
      */
+    #[ORM\Column(name: 'recommendation_text', type: 'text', length: 15000000, nullable: false)]
     protected $recommendationText = '';
 
     /**
      * @var DateTime
-     *
-     * @ORM\Column(name="created_at", type="datetime", nullable=false)
-     *
-     * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdAt;
 
     public function getId(): ?string

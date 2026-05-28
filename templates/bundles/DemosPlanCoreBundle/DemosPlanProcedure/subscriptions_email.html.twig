@@ -11,7 +11,7 @@ bei {{ projectName }} ist ein Planverfahren in die Beteiligung gegangen.
 
 Bezeichnung: {{ templateVars.externalName|wysiwyg }}
 Ort: {{ templateVars.locationPostCode }} {{ templateVars.locationName|wysiwyg }}
-Verfahrensschritt: {{ templateVars.publicParticipationPhaseName}}
+Verfahrensschritt: {{ templateVars.publicParticipationPhaseObject.phaseDefinition.name|default() }}
 Abgabefrist der Stellungnahmen: {{ templateVars.publicParticipationStartDate|default()|dplanDate }} - {{ templateVars.publicParticipationEndDate|default()|dplanDate }}
 
 Kurzinfo: {{ templateVars.externalDesc|wysiwyg }}

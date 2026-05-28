@@ -104,10 +104,10 @@ All rights reserved
 
 <script>
 import { DpButton, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import MultiselectCustomField from './MultiselectCustomField'
-import SingleselectCustomField from './SingleselectCustomField'
-import TextCustomField from './TextCustomField'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
+import { useCustomFieldTypes } from '@DpJs/composables/useCustomFieldTypes'
+
+const { enrichFieldValue, getComponentForFieldType } = useCustomFieldTypes()
 
 export default {
   name: 'CustomField',
@@ -115,9 +115,6 @@ export default {
   components: {
     DpButton,
     DpLoading,
-    MultiselectCustomField,
-    SingleselectCustomField,
-    TextCustomField,
   },
 
   mixins: [prefixClassMixin],
@@ -205,11 +202,6 @@ export default {
 
   data () {
     return {
-      componentMap: {
-        multiSelect: 'multiselect-custom-field',
-        singleSelect: 'singleselect-custom-field',
-        text: 'text-custom-field',
-      },
       editingValue: null,
       isEditing: false,
       isLoading: false,
@@ -312,12 +304,7 @@ export default {
         })
     },
 
-    /**
-     * Get the component name for a given field type
-     */
-    getComponentForType (fieldType) {
-      return this.componentMap[fieldType] || 'singleselect-custom-field'
-    },
+    getComponentForType: getComponentForFieldType,
 
     /**
      * Handle value updates during editing (toggle mode)
@@ -418,37 +405,15 @@ export default {
       this.$emit('edit:start')
     },
 
-    /**
-     * Transform raw backend value to renderer format
-     * Generic transformation with type-specific enrichments
-     * Backend format: depends on field type (array, string, number, etc.)
-     * Renderer format: { id, value, ...type-specific properties }
-     */
     transformValueForRenderer (rawValue) {
       const fieldType = this.resolvedDefinition?.attributes?.fieldType
+      const options = this.resolvedDefinition?.attributes?.options ?? []
 
-      // Base structure (generic for all types)
-      const transformed = {
+      return {
         id: this.fieldData.id,
-        value: rawValue || null,  // The raw backend value
+        value: rawValue ?? null,
+        ...enrichFieldValue(fieldType, rawValue, options),
       }
-
-      if (fieldType === 'multiSelect' || fieldType === 'singleSelect') {
-        // For select types: match IDs to full option objects
-        let optionIds = []
-        if (rawValue) {
-          optionIds = Array.isArray(rawValue) ? rawValue : [rawValue]
-        }
-
-        const allOptions = this.resolvedDefinition?.attributes?.options || []
-        const selectedOptions = optionIds
-          .map(optionId => allOptions.find(opt => opt?.id === optionId))
-          .filter(opt => opt != null)
-
-        transformed.selectedOptions = selectedOptions
-      }
-
-      return transformed
     },
   },
 

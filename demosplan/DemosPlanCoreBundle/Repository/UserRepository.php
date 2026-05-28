@@ -301,7 +301,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
         $this->setUserEntityFieldsOnFieldCollection($commonEntityFields, $entity, $data);
 
-        if (array_key_exists('password', $data) && 0 < strlen((string) $data['password'])) {
+        if (array_key_exists('password', $data) && '' !== (string) $data['password']) {
             $entity->setPassword($data['password']);
             $entity->setAlternativeLoginPassword($data['password']);
         }
