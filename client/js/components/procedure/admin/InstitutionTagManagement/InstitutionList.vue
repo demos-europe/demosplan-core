@@ -603,8 +603,11 @@ export default {
         [id]: { ...this.editingInstitutionCustomFields },
       }
 
+      let areTagsSaved = false
+
       this.saveInvitableInstitution(id)
         .then(() => {
+          areTagsSaved = true
           if (customFieldsPayload.length === 0) {
             return null
           }
@@ -615,12 +618,20 @@ export default {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(error => {
-          this.restoreInstitutionFromInitial(id)
+          if (!areTagsSaved) {
+            this.restoreInstitutionFromInitial(id)
+          }
+
           this.customFieldValuesByInstitutionId = {
             ...this.customFieldValuesByInstitutionId,
             [id]: previousCustomFieldValues,
           }
-          dplan.notify.error(Translator.trans('error.changes.not.saved'))
+          const errorMessage = areTagsSaved ?
+            Translator.trans('error.custom_fields.save', {
+              fields: (this.customFieldDefinitions ?? []).map(definition => definition.attributes?.name).filter(Boolean).join(', '),
+            }) :
+            Translator.trans('error.changes.not.saved')
+          dplan.notify.error(errorMessage)
           console.error(error)
         })
         .finally(() => {
