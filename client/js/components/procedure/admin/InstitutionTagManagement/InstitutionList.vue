@@ -628,9 +628,7 @@ export default {
             [id]: previousCustomFieldValues,
           }
           const errorMessage = areTagsSaved ?
-            Translator.trans('error.custom_fields.institution.save', {
-              fields: (this.customFieldDefinitions ?? []).map(definition => definition.attributes?.name).filter(Boolean).join(', '),
-            }) :
+            Translator.trans('error.custom_fields.institution.save') :
             Translator.trans('error.changes.not.saved')
           dplan.notify.error(errorMessage)
           console.error(error)
