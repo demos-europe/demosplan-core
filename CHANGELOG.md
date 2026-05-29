@@ -7,6 +7,7 @@
 ## UNRELEASED
 
 ### Added
+- Show text custom fields and its values in manage institutions and add institutions dialogs
 - Add text custom field value editing to institution tag management dialog
 - Set up API Platform infrastructure alongside existing EDT (Entity Definition Toolkit) as part of the gradual API migration (DPLAN-17129)
 - Add dedicated security firewall for API Platform routes (`/api/3.0/`) with shared session authentication
