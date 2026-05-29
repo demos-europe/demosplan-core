@@ -15,6 +15,10 @@ use Tests\Base\UnitTestCase;
 
 class ProcedureTest extends UnitTestCase
 {
+    private const POSTCODE = '01979';
+    private const MUNICIPAL_CODE = '12036616';
+    private const ARS = '12036616176';
+
     /**
      * @var Procedure
      */
@@ -37,7 +41,7 @@ class ProcedureTest extends UnitTestCase
     {
         $this->sut->setLocationPostCode("0\t1979");
 
-        self::assertSame('01979', $this->sut->getLocationPostCode());
+        self::assertSame(self::POSTCODE, $this->sut->getLocationPostCode());
     }
 
     /**
@@ -47,28 +51,28 @@ class ProcedureTest extends UnitTestCase
      */
     public function testSetMunicipalCodeStripsControlCharacters(): void
     {
-        $this->sut->setMunicipalCode("\t12036616");
+        $this->sut->setMunicipalCode("\t".self::MUNICIPAL_CODE);
 
-        self::assertSame('12036616', $this->sut->getMunicipalCode());
+        self::assertSame(self::MUNICIPAL_CODE, $this->sut->getMunicipalCode());
     }
 
     public function testSetArsStripsControlCharacters(): void
     {
-        $this->sut->setArs("\x0012036616176\x7f");
+        $this->sut->setArs("\x00".self::ARS."\x7f");
 
-        self::assertSame('12036616176', $this->sut->getArs());
+        self::assertSame(self::ARS, $this->sut->getArs());
     }
 
     public function testSettersKeepCleanValuesUnchanged(): void
     {
         $this->sut->setLocationName('Lauchhammer');
-        $this->sut->setLocationPostCode('01979');
-        $this->sut->setMunicipalCode('12036616');
-        $this->sut->setArs('12036616176');
+        $this->sut->setLocationPostCode(self::POSTCODE);
+        $this->sut->setMunicipalCode(self::MUNICIPAL_CODE);
+        $this->sut->setArs(self::ARS);
 
         self::assertSame('Lauchhammer', $this->sut->getLocationName());
-        self::assertSame('01979', $this->sut->getLocationPostCode());
-        self::assertSame('12036616', $this->sut->getMunicipalCode());
-        self::assertSame('12036616176', $this->sut->getArs());
+        self::assertSame(self::POSTCODE, $this->sut->getLocationPostCode());
+        self::assertSame(self::MUNICIPAL_CODE, $this->sut->getMunicipalCode());
+        self::assertSame(self::ARS, $this->sut->getArs());
     }
 }
