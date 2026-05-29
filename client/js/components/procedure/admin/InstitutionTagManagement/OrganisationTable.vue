@@ -647,8 +647,7 @@ export default {
         this.fetchCustomFields(null, { sourceEntity: 'CUSTOMER', targetEntity: 'ORGA' })
           .then(definitions => {
             this.customFieldDefinitions = definitions || []
-          })
-          .catch(err => console.error(err)),
+          }),
       )
     }
 
