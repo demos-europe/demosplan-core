@@ -422,7 +422,7 @@ export default {
         .filter(({ field }) =>
           field.value !== null &&
           field.value !== undefined &&
-          field.value !== ''
+          field.value !== '',
         )
     },
 
