@@ -7,6 +7,7 @@
 ## UNRELEASED
 
 ### Added
+- Add text custom field value editing to institution tag management dialog
 - Set up API Platform infrastructure alongside existing EDT (Entity Definition Toolkit) as part of the gradual API migration (DPLAN-17129)
 - Add dedicated security firewall for API Platform routes (`/api/3.0/`) with shared session authentication
 - Add bridge classes in demosplan-addon for EDT-to-API Platform relationship handling during migration (`PlainIdJsonApiNormalizer`, `ApiPlatformRelationshipConfig`, `ExtendedDynamicTransformer`)
