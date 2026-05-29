@@ -256,7 +256,6 @@ export default {
   data () {
     return {
       customFieldDefinitions: [],
-      customFieldValuesByInstitutionId: {},
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -317,6 +316,20 @@ export default {
 
     currentPage () {
       return this.pagination.currentPage || 1
+    },
+
+    customFieldValuesByInstitutionId () {
+      return Object.keys(this.storeItems).reduce((byInstitution, id) => {
+        const customFields = this.storeItems[id].attributes?.customFields || []
+
+        return {
+          ...byInstitution,
+          [id]: customFields.reduce((byField, field) => ({
+            ...byField,
+            [field.id]: field.value,
+          }), {}),
+        }
+      }, {})
     },
 
     isSearchApplied () {
@@ -397,6 +410,21 @@ export default {
     ...mapActions('InstitutionTagCategory', {
       fetchInstitutionTagCategories: 'list',
     }),
+
+    getCustomFieldsForInstitution (institutionId) {
+      const values = this.customFieldValuesByInstitutionId[institutionId] || {}
+
+      return this.customFieldDefinitions
+        .map(definition => ({
+          definition,
+          field: { id: definition.id, value: values[definition.id] ?? null },
+        }))
+        .filter(({ field }) =>
+          field.value !== null &&
+          field.value !== undefined &&
+          field.value !== ''
+        )
+    },
 
     getInstitutionTagCategories (isInitial = false) {
       if (!hasPermission('feature_institution_tag_read')) {
@@ -512,7 +540,6 @@ export default {
           .then(data => {
             this.setLocalStorage(data.meta.pagination)
             this.updatePagination(data.meta.pagination)
-            this.extractCustomFieldValues()
           })
       }
 
@@ -520,7 +547,6 @@ export default {
         .then(data => {
           this.setLocalStorage(data.meta.pagination)
           this.updatePagination(data.meta.pagination)
-          this.extractCustomFieldValues()
         })
     },
 
@@ -589,31 +615,6 @@ export default {
 
     setSelectedItems (items) {
       this.$emit('selectedItems', items)
-    },
-
-    getCustomFieldsForInstitution (institutionId) {
-      const values = this.customFieldValuesByInstitutionId[institutionId] || {}
-
-      return this.customFieldDefinitions
-        .map(definition => ({
-          definition,
-          field: { id: definition.id, value: values[definition.id] ?? null },
-        }))
-        .filter(({ field }) => field.value !== null && field.value !== undefined && field.value !== '')
-    },
-
-    extractCustomFieldValues () {
-      this.customFieldValuesByInstitutionId = Object.keys(this.storeItems).reduce((byInstitution, id) => {
-        const customFields = this.storeItems[id].attributes?.customFields || []
-
-        return {
-          ...byInstitution,
-          [id]: customFields.reduce((byField, field) => ({
-            ...byField,
-            [field.id]: field.value,
-          }), {}),
-        }
-      }, {})
     },
 
     sortFields (fields) {
