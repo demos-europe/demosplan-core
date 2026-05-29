@@ -7,6 +7,20 @@
  * All rights reserved
  */
 
+/**
+ * "range" - Character position spans (from/to) in the document.
+ *           Examples: replaceRange(state, from, to, attrs), rangeTracker plugin
+ *           Used when working with positions, not the marks themselves.
+ *
+ * "segmentMark" - ProseMirror mark type for confirmed segments.
+ *                 Renders as: <span data-segment-id="..." data-range-confirmed="true">
+ *                 Mark type name in schema: 'segmentMark'
+ *
+ * "rangeselection" - Temporary mark shown during segment boundary adjustment.
+ *                    Renders as: <span data-range-type="selection">
+ *                    Mark type name in schema: 'rangeselection'
+ */
+
 import {
   createCreatorMenu,
   flattenNode,
@@ -16,11 +30,10 @@ import {
   isSuperset,
   range,
   rangesEqual,
-  serializeRange,
 } from './utilities'
 import { genEditingDecorations, removeMarkByName, replaceMarkInRange, toggleRangeEdit } from './commands'
 import { Plugin, PluginKey } from 'prosemirror-state'
-import { rangeMark, rangeSelectionMark } from './marks'
+import { rangeSelectionMark } from './marks'
 import { Schema } from 'prosemirror-model'
 
 /**
@@ -256,7 +269,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
     key: rangeTrackerKey,
     state: {
       init (_, state) {
-        const ranges = getMarks(flattenNode(state.doc), 'range', 'rangeId')
+        const ranges = getMarks(flattenNode(state.doc), 'segmentMark', 'segmentId')
 
         return ranges
       },
@@ -265,33 +278,13 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
           return pluginState
         }
 
-        const ranges = getMarks(flattenNode(newState.doc), 'range', 'rangeId')
+        const ranges = getMarks(flattenNode(newState.doc), 'segmentMark', 'segmentId')
         const equal = ranges && pluginState && rangesEqual(pluginState, ranges)
         if (equal) {
           return pluginState
         }
 
         if (!equal) {
-          /**
-           * We extract the text from each range and add it as a property so that range text can be handled separately
-           * from the whole document. For example, this allows us to create segments from ranges later on. Prosemirror
-           * will handle correct serialization for us and it will make sure that we get valid HTML, even if a selected
-           * range cuts through nodes.
-           *
-           * However, for the serialization part, we first remove our range and rangeselection marks from the schema
-           * that we use for parsing because we don't want those to appear in the text that we extract.
-           * Under schema.spec.marks we will find an OrderedMap of marks in the current schema (https://github.com/marijnh/orderedmap#readme),
-           * the OrderedMap lets us remove entries by calling its subtract method with the keys that we'd like to remove.
-           */
-          const rangeMarksRemoved = schema.spec.marks.subtract({ rangeselection: null, range: null })
-          const reducedSchema = new Schema({
-            nodes: schema.spec.nodes,
-            marks: rangeMarksRemoved,
-          })
-          Object.entries(ranges).forEach(([id, range]) => {
-            ranges[id].text = serializeRange(range, newState, reducedSchema)
-          })
-
           /**
            * In case prosemirror updates are triggered inside the callback we want to avoid triggering the callback again.
            * This does not allow the calling code to react to changes made by their own callback but it removes
@@ -412,8 +405,12 @@ const rangeCreator = (pluginKey, rangeEditingKey) => {
  * @return {{schema, plugins: (prosemirror-plugin|*)[], keys: {rangeTrackerKey, editingDecorationsKey, rangeCreatorKey, editStateTrackerKey}}}
  */
 const initRangePlugin = (schema, rangeChangeCallback, editToggleCallback) => {
-  let marks = schema.spec.marks.addToStart('range', rangeMark)
-  marks = marks.addToStart('rangeselection', rangeSelectionMark)
+  let marks = schema.spec.marks
+
+  if (!marks.get('rangeselection')) {
+    marks = marks.addToStart('rangeselection', rangeSelectionMark)
+  }
+
   const currentSchema = new Schema({
     nodes: schema.spec.nodes,
     marks,

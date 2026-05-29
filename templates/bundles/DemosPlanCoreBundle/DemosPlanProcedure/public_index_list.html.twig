@@ -14,13 +14,13 @@
             class="{{ 'c-procedurelist__item'|prefixClass }} {{ is_marked_done ? 'is-done'|prefixClass : '' }}"
             data-cy="procedureListItem"
             data-procedure-id="{{ publicProcedure.ident }}"
-            data-phase-key="{{ templateVars.useInternalFields ? publicProcedure['phase'] : publicProcedure['publicParticipationPhase'] }}">
+            data-phase-key="{{ templateVars.useInternalFields ? publicProcedure['phaseDefinitionId'] : publicProcedure['publicParticipationPhaseDefinitionId'] }}">
             {% if hasPermission('field_procedure_phase_filter') %}
                 {# span added so items can be filtered by procedure phase, is not displayed #}
-                <span class="{{ 'phase hidden'|prefixClass }}">{{ templateVars.useInternalFields ? publicProcedure['phase'] : publicProcedure['publicParticipationPhase'] }}</span>
+                <span class="{{ 'phase hidden'|prefixClass }}">{{ templateVars.useInternalFields ? publicProcedure['phaseDefinitionId'] : publicProcedure['publicParticipationPhaseDefinitionId'] }}</span>
                 {# if fachplaner, also filter by public phases, but only if fachplaner owns the procedure #}
                 {% if templateVars.useInternalFields and ownsProcedure(publicProcedure) %}
-                    <span class="{{ 'phaseExt hidden'|prefixClass }}">{{ publicProcedure['publicParticipationPhase'] }}</span>
+                    <span class="{{ 'phaseExt hidden'|prefixClass }}">{{ publicProcedure['publicParticipationPhaseDefinitionId'] }}</span>
                 {% endif %}
             {% endif %}
 
@@ -90,9 +90,9 @@
                             <i class="{{ 'c-procedurelist__item-icon fa fa-puzzle-piece text-center u-mr-0_125'|prefixClass }}"></i>
                             <div class="{{ 'c-procedurelist__item-text'|prefixClass }}">
                                 {%- if ownsProcedure(publicProcedure) %}
-                                    {{- getProcedurePhase(publicProcedure, 'internal') ~ ' / ' ~ getProcedurePhase(publicProcedure, 'public') -}}
+                                    {{- getProcedurePhaseDefinitionName(publicProcedure, 'internal') ~ ' / ' ~ getProcedurePhaseDefinitionName(publicProcedure, 'public') -}}
                                 {% else %}
-                                    {{- getProcedurePhase(publicProcedure) -}}
+                                    {{- getProcedurePhaseDefinitionName(publicProcedure) -}}
                                 {% endif -%}
                             </div>
                         </div>
