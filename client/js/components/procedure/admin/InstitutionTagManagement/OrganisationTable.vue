@@ -68,7 +68,7 @@ All rights reserved
     >
       <!-- Resource-specific content based on resourceType -->
       <template v-slot:expandedContent="{ id, participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags }">
-        <div class="border-l-4 border-[#757575] mb-2 ml-4 mt-4 pl-4">
+        <div class="border-l-4 border-neutral mb-2 ml-4 mt-4 pl-4">
           <p class="weight--bold pb-2">
             {{ Translator.trans('institution.general.information') }}
           </p>
