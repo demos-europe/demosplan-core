@@ -628,7 +628,7 @@ export default {
             [id]: previousCustomFieldValues,
           }
           const errorMessage = areTagsSaved ?
-            Translator.trans('error.custom_fields.save', {
+            Translator.trans('error.custom_fields.institution.save', {
               fields: (this.customFieldDefinitions ?? []).map(definition => definition.attributes?.name).filter(Boolean).join(', '),
             }) :
             Translator.trans('error.changes.not.saved')
