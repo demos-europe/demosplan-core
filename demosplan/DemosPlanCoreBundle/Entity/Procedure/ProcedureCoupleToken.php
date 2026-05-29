@@ -44,7 +44,7 @@ class ProcedureCoupleToken implements UuidEntityInterface, ProcedureCoupleTokenI
      * @var Procedure
      */
     #[Assert\NotNull(message: 'procedureCoupleToken.sourceProceudre.not.null')]
-    #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false, unique: true)]
+    #[ORM\JoinColumn(referencedColumnName: '_p_id', unique: true, nullable: false)]
     #[ORM\OneToOne(targetEntity: Procedure::class)]
     protected $sourceProcedure;
 
@@ -54,16 +54,16 @@ class ProcedureCoupleToken implements UuidEntityInterface, ProcedureCoupleTokenI
      *
      * @var Procedure|null
      */
-    #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: true, unique: true)]
+    #[ORM\JoinColumn(referencedColumnName: '_p_id', unique: true, nullable: true)]
     #[ORM\OneToOne(targetEntity: Procedure::class)]
     protected $targetProcedure;
 
     /**
      * @var string
      */
-    #[Assert\Length(max: ProcedureCoupleToken::TOKEN_LENGTH, min: ProcedureCoupleToken::TOKEN_LENGTH, normalizer: 'trim')]
+    #[Assert\Length(min: ProcedureCoupleToken::TOKEN_LENGTH, max: ProcedureCoupleToken::TOKEN_LENGTH, normalizer: 'trim')]
     #[Assert\NotBlank(message: 'procedureCoupleToken.token.invalid', allowNull: false, normalizer: 'trim')]
-    #[ORM\Column(type: 'string', length: 12, nullable: false, unique: true, options: ['fixed' => true])]
+    #[ORM\Column(type: 'string', length: 12, unique: true, nullable: false, options: ['fixed' => true])]
     protected $token;
 
     public function __construct(Procedure $sourceProcedure, string $token)

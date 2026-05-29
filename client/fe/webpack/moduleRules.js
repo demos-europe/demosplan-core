@@ -9,7 +9,7 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const config = require('../config/config').config
 const resolveDir = require('./util').resolveDir
-const { purgeCSSPlugin } = require('@fullhuman/postcss-purgecss')
+const purgeCSSPlugin = require('@fullhuman/postcss-purgecss')
 const sass = require('sass-embedded')
 
 /**

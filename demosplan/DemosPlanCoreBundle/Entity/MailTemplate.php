@@ -34,7 +34,7 @@ class MailTemplate implements IntegerIdEntityInterface, MailTemplateInterface
     /**
      * @var string
      */
-    #[ORM\Column(name: '_mt_language', type: 'string', length: 6, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_mt_language', type: 'string', length: 6, nullable: false, options: ['fixed' => true])]
     protected $language;
 
     /**

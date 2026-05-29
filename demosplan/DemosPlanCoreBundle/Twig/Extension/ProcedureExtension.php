@@ -174,7 +174,7 @@ class ProcedureExtension extends ExtensionBase
             '/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i',
             function (array $matches): string {
                 $definition = $this->procedurePhaseDefinitionService->findById($matches[0]);
-                if (null === $definition) {
+                if (!$definition instanceof ProcedurePhaseDefinition) {
                     return $matches[0];
                 }
 

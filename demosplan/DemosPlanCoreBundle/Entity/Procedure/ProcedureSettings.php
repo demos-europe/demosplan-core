@@ -177,10 +177,10 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     #[ORM\Column(name: '_ps_pictogram', type: 'string', length: 256, nullable: true)]
     protected $pictogram;
 
-    #[ORM\Column(name: '_ps_pictogram_copyright', type: 'string', nullable: false, length: 512, options: ['default' => ''])]
+    #[ORM\Column(name: '_ps_pictogram_copyright', type: 'string', length: 512, nullable: false, options: ['default' => ''])]
     protected string $pictogramCopyright = '';
 
-    #[ORM\Column(name: '_ps_pictogram_alt_text', type: 'string', nullable: false, length: 512, options: ['default' => ''])]
+    #[ORM\Column(name: '_ps_pictogram_alt_text', type: 'string', length: 512, nullable: false, options: ['default' => ''])]
     protected string $pictogramAltText = '';
 
     /**

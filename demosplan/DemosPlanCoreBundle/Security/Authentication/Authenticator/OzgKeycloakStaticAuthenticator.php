@@ -78,9 +78,9 @@ class OzgKeycloakStaticAuthenticator extends AbstractOzgKeycloakAuthenticator
         private readonly OzgKeycloakStaticUserDataProvider $userDataProvider,
         private readonly OAuthTokenRepository $oauthTokenRepository,
         private readonly SecretEncryptor $tokenEncryptionService,
-        #[Autowire('%kernel.environment%')]
+        #[Autowire(param: 'kernel.environment')]
         private readonly string $environment,
-        #[Autowire('%oauth_token_timezone%')]
+        #[Autowire(param: 'oauth_token_timezone')]
         private readonly string $tokenTimezoneString,
     ) {
         parent::__construct(
@@ -152,7 +152,7 @@ class OzgKeycloakStaticAuthenticator extends AbstractOzgKeycloakAuthenticator
                     'exception'   => $e,
                 ]
             );
-            throw new AuthenticationException('Static Keycloak authentication failed: '.$e->getMessage());
+            throw new AuthenticationException('Static Keycloak authentication failed: '.$e->getMessage(), $e->getCode(), $e);
         }
 
         return new SelfValidatingPassport(
@@ -185,7 +185,7 @@ class OzgKeycloakStaticAuthenticator extends AbstractOzgKeycloakAuthenticator
         }
 
         $oauthToken = $this->oauthTokenRepository->findByUserId($user->getId());
-        if (null === $oauthToken) {
+        if (!$oauthToken instanceof OAuthToken) {
             $oauthToken = new OAuthToken();
             $oauthToken->setUser($user);
             $this->entityManager->persist($oauthToken);
