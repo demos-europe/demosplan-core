@@ -1,5 +1,5 @@
 security:
-    enable_authenticator_manager: true
+    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         # salt handling differed from symfony, therefore we need a custom sha512 implementation
         customSha512:

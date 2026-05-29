@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
-use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CountyInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
@@ -120,9 +119,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     #[Assert\IsNull(groups: [StatementInterface::BASE_STATEMENT_CLASS_VALIDATION])]
     #[Assert\NotNull(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT])]
-    #[Assert\Type(groups: [SegmentInterface::VALIDATION_GROUP_IMPORT], type: Statement::class)]
+    #[Assert\Type(type: Statement::class, groups: [SegmentInterface::VALIDATION_GROUP_IMPORT])]
     #[ORM\JoinColumn(name: 'segment_statement_fk', referencedColumnName: '_st_id', nullable: true)]
-    #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'segmentsOfStatement', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: Statement::class, cascade: ['persist'], inversedBy: 'segmentsOfStatement')]
     protected $parentStatementOfSegment;
 
     /**
@@ -334,8 +333,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var DateTime *
      */
-    #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitDateBlank')]
-    #[Assert\Type('DateTime', groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitDateType')]
+    #[Assert\NotBlank(message: 'statement.import.invalidSubmitDateBlank', groups: [Statement::IMPORT_VALIDATION])]
+    #[Assert\Type('DateTime', message: 'statement.import.invalidSubmitDateType', groups: [Statement::IMPORT_VALIDATION])]
     #[ORM\Column(name: '_st_submit_date', type: 'datetime', nullable: false)]
     protected $submit;
 
@@ -441,7 +440,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @var string
      */
-    #[ORM\Column(name: '_st_text', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: '_st_text', type: 'text', length: 15000000, nullable: false)]
     protected $text = '';
 
     /**
@@ -454,7 +453,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var string
      */
-    #[ORM\Column(name: '_st_recommendation', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: '_st_recommendation', type: 'text', length: 15000000, nullable: false)]
     protected $recommendation = '';
 
     /**
@@ -781,7 +780,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var string
      */
-    #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitTypeBlank')]
+    #[Assert\NotBlank(message: 'statement.import.invalidSubmitTypeBlank', groups: [Statement::IMPORT_VALIDATION])]
     #[Assert\Choice(
         choices: StatementInterface::SUBMIT_TYPES,
         message: 'statement.invalid.submit.type',
@@ -818,10 +817,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $assignee;
 
     /**
-     * @ORM\Column(name="deadline_date", type="date", nullable=true)
-     *
-     * @var DateTimeInterface|null
+     * @var DateTime|null
      */
+    #[ORM\Column(name: 'deadline_date', type: 'date', nullable: true)]
     protected $deadline;
 
     /**

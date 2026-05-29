@@ -54,7 +54,7 @@ class ProcedurePhaseDefinitionRepository extends CoreRepository
         $criteria = ['audience' => $audience, 'permissionSet' => 'read', 'participationState' => 'finished'];
         $orderBy = ['orderInAudience' => 'ASC'];
 
-        if (null !== $customer) {
+        if ($customer instanceof CustomerInterface) {
             $result = $this->findOneBy(array_merge($criteria, ['customer' => $customer]), $orderBy);
             if (null !== $result) {
                 return $result;
@@ -70,7 +70,7 @@ class ProcedurePhaseDefinitionRepository extends CoreRepository
      */
     public function findInitialDefinition(string $audience, ?CustomerInterface $customer): ?ProcedurePhaseDefinition
     {
-        if (null !== $customer) {
+        if ($customer instanceof CustomerInterface) {
             $result = $this->findOneBy(['audience' => $audience, 'customer' => $customer], ['orderInAudience' => 'ASC']);
             if (null !== $result) {
                 return $result;

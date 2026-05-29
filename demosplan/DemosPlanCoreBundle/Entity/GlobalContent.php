@@ -61,14 +61,14 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
     /**
      * @var string
      */
-    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.heading')]
+    #[Assert\NotBlank(message: 'error.mandatoryfield.heading', allowNull: false, normalizer: 'trim', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
     #[ORM\Column(name: '_pc_title', type: 'string', length: 255, nullable: false, options: ['default' => ''])]
     protected $title = '';
 
     /**
      * @var string
      */
-    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.teaser')]
+    #[Assert\NotBlank(message: 'error.mandatoryfield.teaser', allowNull: false, normalizer: 'trim', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
     #[Assert\Type('string', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
     #[Assert\Length(max: NewsHandler::NEWS_DESCRIPTION_MAX_LENGTH, maxMessage: 'error.news.description.toolong', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
     #[ORM\Column(name: '_pc_description', type: 'text', length: 65535, nullable: true)]
@@ -109,7 +109,7 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
     /**
      * @var bool
      */
-    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], message: 'error.mandatoryfield.status')]
+    #[Assert\NotBlank(message: 'error.mandatoryfield.status', allowNull: false, normalizer: 'trim', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
     #[ORM\Column(name: '_pc_enabled', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $enabled = false;
 
@@ -143,7 +143,7 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
     /**
      * @var Collection<int, Role>
      */
-    #[Assert\Count(min: 1, groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP], minMessage: 'error.mandatoryfield.visibility')]
+    #[Assert\Count(min: 1, minMessage: 'error.mandatoryfield.visibility', groups: [GlobalContent::NEW_GLOBAL_NEWS_VALIDATION_GROUP])]
     #[ORM\JoinTable(
         name: '_platform_content_roles',
         joinColumns: [new ORM\JoinColumn(name: '_pc_id', referencedColumnName: '_pc_id', onDelete: 'CASCADE')],
@@ -164,7 +164,7 @@ class GlobalContent extends CoreEntity implements UuidEntityInterface, GlobalCon
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'globalContents')]
     protected $categories;
 
-    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: '_c_id', onDelete: 'CASCADE', nullable: false)]
+    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: '_c_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Customer::class, cascade: ['persist'])]
     protected CustomerInterface $customer;
 

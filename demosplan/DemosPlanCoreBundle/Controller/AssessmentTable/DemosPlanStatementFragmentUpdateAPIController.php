@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -44,18 +46,18 @@ class DemosPlanStatementFragmentUpdateAPIController extends APIController
      * @throws Exception
      */
     #[DplanPermissions(['area_admin_assessmenttable', 'feature_statements_fragment_edit', 'feature_statement_fragment_bulk_edit'])]
-    #[Route(path: '/api/1.0/statement-fragment-update', methods: ['POST'], name: 'dplan_api_assessment_table_statement_fragment_update_create', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/statement-fragment-update', name: 'dplan_api_assessment_table_statement_fragment_update_create', options: ['expose' => true], methods: ['POST'])]
     public function create(
         CurrentProcedureService $currentProcedureService,
         StatementFragmentService $statementFragmentService,
         ValidatorInterface $validator,
     ): Response {
-        if (!($this->requestData instanceof TopLevel)) {
+        if (!$this->requestData instanceof TopLevel) {
             throw BadRequestException::normalizerFailed();
         }
         /** @var ResourceObject $statementFragmentUpdateResource */
         $statementFragmentUpdateResource = $this->requestData->getFirst('statement-fragment-update');
-        if (!($statementFragmentUpdateResource instanceof ResourceObject)) {
+        if (!$statementFragmentUpdateResource instanceof ResourceObject) {
             throw new BadRequestException('Insufficient data in JSON request.');
         }
         $procedureId = $currentProcedureService->getProcedureIdWithCertainty();

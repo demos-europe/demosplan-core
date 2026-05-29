@@ -15,6 +15,8 @@ doctrine:
                 user:     "%database_user%"
                 password: "%database_password%"
                 charset:  UTF8
+                use_savepoints: true
+                profiling_collect_backtrace: '%kernel.debug%'
             dplan_install:
                 driver:   "%database_driver%"
                 host:     "%database_host%"
@@ -23,6 +25,8 @@ doctrine:
                 user:     "%database_install_user%"
                 password: "%database_install_password%"
                 charset:  UTF8
+                use_savepoints: true
+                profiling_collect_backtrace: '%kernel.debug%'
         types:
             dplan.encrypted_string: \demosplan\DemosPlanCoreBundle\Doctrine\Type\EncryptedStringType
             dplan.stored_query: \demosplan\DemosPlanCoreBundle\Doctrine\Type\StoredQueryType

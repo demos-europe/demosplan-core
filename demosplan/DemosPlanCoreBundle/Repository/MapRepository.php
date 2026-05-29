@@ -371,7 +371,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 unset($updates['projectionLabel'], $updates['projectionValue']);
             }
 
-            if (!empty($updates)) {
+            if ([] !== $updates) {
                 $qb = $this->getEntityManager()->createQueryBuilder()
                     ->update(GisLayer::class, 'g')
                     ->where('g.gId = :globalId')

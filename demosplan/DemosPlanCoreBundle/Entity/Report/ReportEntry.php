@@ -104,7 +104,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
     /**
      * @var string
      */
-    #[ORM\Column(name: '_u_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_u_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $userId;
 
     /**
@@ -119,7 +119,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
      *
      * @deprecated this property doesn't seem to be in use anymore
      */
-    #[ORM\Column(name: '_s_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_s_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $sessionId = '';
 
     /**
@@ -133,7 +133,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
      * @var string
      */
     #[Assert\NotBlank]
-    #[ORM\Column(name: '_re_identifier', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_re_identifier', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $identifier;
 
     /**
@@ -148,13 +148,13 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
      * @var string always in JSON format (a simple string is considered valid JSON)
      */
     #[Assert\NotBlank]
-    #[ORM\Column(name: '_re_message', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: '_re_message', type: 'text', length: 15000000, nullable: false)]
     protected $message;
 
     /**
      * @var string
      */
-    #[ORM\Column(name: '_re_incoming', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: '_re_incoming', type: 'text', length: 15000000, nullable: false)]
     protected $incoming = '';
 
     /**

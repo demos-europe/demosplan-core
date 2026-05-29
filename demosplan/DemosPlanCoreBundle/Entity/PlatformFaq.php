@@ -78,7 +78,7 @@ class PlatformFaq extends CoreEntity implements FaqInterface
     /**
      * @var PlatformFaqCategory
      */
-    #[ORM\JoinColumn(referencedColumnName: 'id', onDelete: 'CASCADE', nullable: false)]
+    #[ORM\JoinColumn(referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: PlatformFaqCategory::class)]
     protected $platformFaqCategory;
 

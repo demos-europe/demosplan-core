@@ -1358,7 +1358,7 @@ class ElasticsearchResultCreator
         $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
         //
         // if a Searchterm is set use it
-        if (\is_string($search) && 0 < \strlen($search)) {
+        if (\is_string($search) && '' !== $search) {
             $usedSearchfields = [];
             if ([] === $searchFields) {
                 $usedSearchfields = \array_values(self::AVAILABLE_SEARCH_FIELDS);

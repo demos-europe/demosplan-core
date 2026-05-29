@@ -40,7 +40,7 @@ class HashedQuery extends CoreEntity implements UuidEntityInterface, HashedQuery
     /**
      * @var string
      */
-    #[ORM\Column(type: 'string', nullable: false, length: 12, unique: true)]
+    #[ORM\Column(type: 'string', length: 12, unique: true, nullable: false)]
     protected $hash;
 
     /**
