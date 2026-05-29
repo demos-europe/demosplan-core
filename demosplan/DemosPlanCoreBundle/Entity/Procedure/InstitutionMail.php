@@ -53,7 +53,7 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface, Institu
      * @deprecated Will be removed once all consumers are migrated to phaseDefinition.
      *             Kept on the entity to avoid data loss; value is synced from phaseDefinition->getName().
      */
-    #[ORM\Column(name: '_p_phase', type: 'string', length: 50)]
+    #[ORM\Column(name: '_p_phase', type: 'string', length: 255)]
     protected $procedurePhase;
 
     #[ORM\ManyToOne(targetEntity: ProcedurePhaseDefinition::class)]

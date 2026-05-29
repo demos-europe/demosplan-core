@@ -217,12 +217,6 @@ export default {
   mixins: [tableScrollbarMixin],
 
   props: {
-    customerId: {
-      type: String,
-      required: false,
-      default: '',
-    },
-
     isActive: {
       type: Boolean,
       required: false,
@@ -374,6 +368,7 @@ export default {
     isActive (newValue) {
       if (newValue) {
         this.getInstitutionTagCategories()
+        this.loadCustomFieldDefinitions()
       }
     },
   },
@@ -436,6 +431,20 @@ export default {
         }),
         {},
       )
+    },
+
+    extractCustomFieldValues () {
+      this.customFieldValuesByInstitutionId = Object.keys(this.invitableInstitutionList).reduce((byInstitution, id) => {
+        const customFields = this.invitableInstitutionList[id].attributes?.customFields || []
+
+        return {
+          ...byInstitution,
+          [id]: customFields.reduce((byField, field) => ({
+            ...byField,
+            [field.id]: field.value,
+          }), {}),
+        }
+      }, {})
     },
 
     getCategoryTags (categoryId) {
@@ -550,20 +559,6 @@ export default {
         })
     },
 
-    extractCustomFieldValues () {
-      this.customFieldValuesByInstitutionId = Object.keys(this.invitableInstitutionList).reduce((byInstitution, id) => {
-        const customFields = this.invitableInstitutionList[id].attributes?.customFields || []
-
-        return {
-          ...byInstitution,
-          [id]: customFields.reduce((byField, field) => ({
-            ...byField,
-            [field.id]: field.value,
-          }), {}),
-        }
-      }, {})
-    },
-
     loadCustomFieldDefinitions () {
       return useCustomFields().fetchCustomFields(null, {
         sourceEntity: 'CUSTOMER',
@@ -609,8 +604,11 @@ export default {
         [id]: { ...this.editingInstitutionCustomFields },
       }
 
+      let areTagsSaved = false
+
       this.saveInvitableInstitution(id)
         .then(() => {
+          areTagsSaved = true
           if (customFieldsPayload.length === 0) {
             return null
           }
@@ -621,12 +619,18 @@ export default {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(error => {
-          this.restoreInstitutionFromInitial(id)
+          if (!areTagsSaved) {
+            this.restoreInstitutionFromInitial(id)
+          }
+
           this.customFieldValuesByInstitutionId = {
             ...this.customFieldValuesByInstitutionId,
             [id]: previousCustomFieldValues,
           }
-          dplan.notify.error(Translator.trans('error.changes.not.saved'))
+          const errorMessage = areTagsSaved ?
+            Translator.trans('error.custom_fields.institution.save') :
+            Translator.trans('error.changes.not.saved')
+          dplan.notify.error(errorMessage)
           console.error(error)
         })
         .finally(() => {
