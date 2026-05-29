@@ -3477,6 +3477,8 @@ statement.cluster.assignment.assigned: "Diese Gruppe ist aktuell in Bearbeitung 
 statement.cluster.assignment.override: "Gruppe mir zuweisen"
 statement.cluster.assignment.release: "Gruppe freigeben"
 statement.cluster.assignment.unassigned: "Nur ein*e Bearbeiter*in, dem/der diese Gruppe zugewiesen ist, kann Änderungen vornehmen."
+statement.cluster.add: "Zur Gruppe hinzufügen"
+statement.cluster.add.hint: "Fügen Sie die ausgewählten Stellungnahmen einer bestehenden Gruppe hinzu."
 statement.cluster.create.help: "Wählen Sie eine Hauptstellungnahme aus, um die gewählten Stellungnahmen zu einer Gruppe zusammenzuführen."
 statement.cluster.create: "Gruppe erstellen"
 statement.cluster.create.hint: "Erstellen Sie eine neue Gruppe aus den ausgewählten Stellungnahmen."

@@ -25,7 +25,7 @@ All rights reserved
         <div class="mt-5 mb-6">
           <dp-radio
             id="action-create"
-            class="mb-2"
+            class="mb-3"
             name="groupAction"
             value="createGroup"
             :checked="selectedAction === 'createGroup'"
@@ -35,6 +35,16 @@ All rights reserved
               bold: true
             }"
             @change="selectedAction = 'createGroup'"
+          />
+          <dp-radio
+            id="addToGroup"
+            name="groupAction"
+            value="addToGroup"
+            :label="{
+              text: Translator.trans('statement.cluster.add'),
+              hint: Translator.trans('statement.cluster.add.hint'),
+            }"
+            @change="selectedAction = 'addToGroup'"
           />
         </div>
         <div v-if="isLoading">
@@ -136,7 +146,7 @@ const isLoading = ref(true)
 const mainStatementId = ref(null)
 const groupName = ref('')
 const returnLink = ref(Routing.generate('dplan_procedure_statement_list', { procedureId: props.procedureId }))
-const selectedAction = ref('createGroup') // Default until second story will be implemented (add stmt to group)
+const selectedAction = ref('') // Default until second story will be implemented (add stmt to group)
 const statements = ref([])
 const step = ref(1)
 const success = ref(true)
