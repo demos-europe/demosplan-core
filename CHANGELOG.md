@@ -15,6 +15,9 @@
 - Add text custom field definition editing
 - Add customer admin interface for managing procedure phases - displaying and creating new phases
 
+### Changed
+- Widen `_procedure.extern_id` from `VARCHAR(50)` to `VARCHAR(255)` so XBeteiligung planIDs longer than 50 characters can be stored (DPLAN-17455)
+
 ### Fixed
 - `AccessProcedureListener` now checks for array controller before accessing index, preventing crashes on API Platform routes
 - `dplan:procedure:delete` now also removes the two associated `procedure_phase` rows; previous runs left orphan rows behind, which are cleaned up by a one-shot migration
