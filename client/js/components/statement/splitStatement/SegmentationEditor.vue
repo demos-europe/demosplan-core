@@ -145,15 +145,20 @@ export default {
             }
 
             const wrapper = document.createElement('span')
+            wrapper.className = 'pdf-importer-image-wrapper inline-block text-center'
             const img = document.createElement('img')
             img.setAttribute('src', mark.attrs.href)
             img.setAttribute('alt', '')
             img.setAttribute('loading', 'lazy')
-            const label = document.createElement('span')
-            label.className = 'sr-only'
+            img.className = 'block'
+            const link = document.createElement('a')
+            link.className = 'pdf-importer-image-link block mt-1'
+            link.setAttribute('href', mark.attrs.href)
+            link.setAttribute('target', '_blank')
+            link.setAttribute('rel', 'noopener noreferrer')
             wrapper.appendChild(img)
-            wrapper.appendChild(label)
-            return { dom: wrapper, contentDOM: label }
+            wrapper.appendChild(link)
+            return { dom: wrapper, contentDOM: link }
           },
         },
       })
