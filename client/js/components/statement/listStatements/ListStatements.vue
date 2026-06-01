@@ -567,10 +567,6 @@ export default {
       return inlineImageAnchors(attributes.isFulltextDisplayed ? attributes.fullText : attributes.text)
     },
 
-    renderStatementText (text) {
-      return inlineImageAnchors(text)
-    },
-
     getAssignee (statement) {
       if (this.assigneeId(statement)) {
         const assignee = this.assignableUsersObject[this.assigneeId(statement)]
@@ -654,6 +650,10 @@ export default {
             console.error(err)
           })
       }
+    },
+
+    renderStatementText (text) {
+      return inlineImageAnchors(text)
     },
 
     applySearch (term) {
