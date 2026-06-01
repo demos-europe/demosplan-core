@@ -163,7 +163,7 @@ module.exports = [
       'keyword-spacing': 'error',                         // Space after keywords, e.g. if (condition) {, return , else {
       'object-curly-spacing': ['error', 'always'],        // Space inside objects, e.g. { key: value }
       'array-bracket-spacing': ['error', 'never'],        // No space in arrays: [1, 2, 3], not [ 1, 2, 3 ]
-      'brace-style': ['error', '1tbs', { 'allowSingleLine': true }], // One true brace style, allow single line
+      'brace-style': ['error', '1tbs', { 'allowSingleLine': false }], // One true brace style, require block body on its own line
       'eol-last': 'error',                                // Files must end with newline
       'no-trailing-spaces': 'error',                      // No trailing whitespace at end of lines
       'comma-spacing': ['error', { 'before': false, 'after': true }], // Space after commas
