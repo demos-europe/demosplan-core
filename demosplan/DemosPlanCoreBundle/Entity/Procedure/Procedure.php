@@ -1083,7 +1083,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function setLocationName($locationName)
     {
-        $this->locationName = $locationName;
+        $this->locationName = $this->stripControlCharacters($locationName);
 
         return $this;
     }
@@ -1107,7 +1107,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function setLocationPostCode($locationPostCode)
     {
-        $this->locationPostCode = $locationPostCode;
+        $this->locationPostCode = $this->stripControlCharacters($locationPostCode);
 
         return $this;
     }
@@ -1165,7 +1165,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function setMunicipalCode($municipalCode)
     {
-        $this->municipalCode = $municipalCode;
+        $this->municipalCode = $this->stripControlCharacters($municipalCode);
 
         return $this;
     }
@@ -1187,9 +1187,20 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     public function setArs(string $ars): Procedure
     {
-        $this->ars = $ars;
+        $this->ars = $this->stripControlCharacters($ars);
 
         return $this;
+    }
+
+    /**
+     * Removes ASCII control characters (including tab, CR and LF) from single-line
+     * location values. These fields are embedded into a JSON.parse() string in the
+     * procedure administration template; a stray control character there produces a
+     * "bad control character in string literal" error and breaks the whole page.
+     */
+    private function stripControlCharacters(?string $value): string
+    {
+        return preg_replace('/[\x00-\x1F\x7F]/', '', (string) $value);
     }
 
     /**
