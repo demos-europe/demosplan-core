@@ -57,6 +57,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ProcedureTemplateConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE})
@@ -484,7 +485,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var string
      */
-    #[ORM\Column(name: 'extern_id', type: 'string', length: 50, nullable: false, options: ['default' => ''])]
+    #[ORM\Column(name: 'extern_id', type: 'string', length: 255, nullable: false, options: ['default' => ''])]
+    #[Assert\Length(max: 255)]
     private $xtaPlanId = '';
 
     /**
